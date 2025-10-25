@@ -161,7 +161,7 @@ class SalesforceConnectionTest {
     try {
       conn = null;
       conn = new SalesforceConnection(null, "http://localhost:1234", "anonymous", "mypwd");
-      assertFalse(conn.getURL().isEmpty());
+      assertFalse(conn.getUrl().isEmpty());
       assertFalse(conn.getUsername().isEmpty());
       assertFalse(conn.getPassword().isEmpty());
     } catch (HopException e) {
@@ -174,7 +174,7 @@ class SalesforceConnectionTest {
       conn =
           new SalesforceConnection(
               new LogChannel(this), "http://localhost:1234", "anonymous", "mypwd");
-      assertFalse(conn.getURL().isEmpty());
+      assertFalse(conn.getUrl().isEmpty());
       assertFalse(conn.getUsername().isEmpty());
       assertFalse(conn.getPassword().isEmpty());
     } catch (HopException e) {
@@ -203,7 +203,7 @@ class SalesforceConnectionTest {
     try {
       conn = null;
       conn = new SalesforceConnection(null, "http://localhost:1234", "anonymous", null);
-      assertFalse(conn.getURL().isEmpty());
+      assertFalse(conn.getUrl().isEmpty());
       assertEquals("anonymous", conn.getUsername());
     } catch (HopException e) {
       fail();

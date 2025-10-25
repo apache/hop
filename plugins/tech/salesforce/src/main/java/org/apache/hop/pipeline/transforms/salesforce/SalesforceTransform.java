@@ -62,46 +62,6 @@ public abstract class SalesforceTransform<
     }
 
     try {
-      // Create connection based on authentication type
-      //      if (meta instanceof SalesforceTransformMeta
-      //          && ((SalesforceTransformMeta) meta).isOAuthAuthentication()) {
-      //        // OAuth connection
-      //        SalesforceTransformMeta salesforceMeta = (SalesforceTransformMeta) meta;
-      //        String realClientId = resolve(salesforceMeta.getOauthClientId());
-      //        String realClientSecret = resolve(salesforceMeta.getOauthClientSecret());
-      //        String realAccessToken = resolve(salesforceMeta.getOauthAccessToken());
-      //        String realInstanceUrl = resolve(salesforceMeta.getOauthInstanceUrl());
-      //
-      //        if (Utils.isEmpty(realClientId)) {
-      //          logError(BaseMessages.getString(PKG,
-      // "SalesforceConnection.OAuthClientIdMissing.Error"));
-      //          return false;
-      //        }
-      //        if (Utils.isEmpty(realClientSecret)) {
-      //          logError(
-      //              BaseMessages.getString(PKG,
-      // "SalesforceConnection.OAuthClientSecretMissing.Error"));
-      //          return false;
-      //        }
-      //        if (Utils.isEmpty(realAccessToken)) {
-      //          logError(
-      //              BaseMessages.getString(PKG,
-      // "SalesforceConnection.OAuthAccessTokenMissing.Error"));
-      //          return false;
-      //        }
-      //        if (Utils.isEmpty(realInstanceUrl)) {
-      //          logError(
-      //              BaseMessages.getString(PKG,
-      // "SalesforceConnection.OAuthInstanceUrlMissing.Error"));
-      //          return false;
-      //        }
-      //
-      //        data.connection =
-      //            new SalesforceConnection(
-      //                getLogChannel(), realClientId, realClientSecret, realAccessToken,
-      // realInstanceUrl);
-      //      } else {
-      // Check if a Salesforce Connection metadata is selected
       String connectionName = resolve(meta.getSalesforceConnection());
       if (!Utils.isEmpty(connectionName)) {
         // Use Salesforce Connection metadata

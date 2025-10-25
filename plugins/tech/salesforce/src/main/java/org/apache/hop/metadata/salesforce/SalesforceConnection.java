@@ -38,11 +38,9 @@ import org.apache.hop.metadata.api.IHopMetadata;
 @Setter
 public class SalesforceConnection extends HopMetadataBase implements IHopMetadata {
 
-  // Authentication Type
   @HopMetadataProperty(key = "authentication_type", injectionKey = "AUTHENTICATION_TYPE")
   private String authenticationType = "USERNAME_PASSWORD";
 
-  // Username/Password Authentication
   @HopMetadataProperty(key = "username", injectionKey = "USERNAME")
   private String username;
 
@@ -55,7 +53,6 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
   @HopMetadataProperty(key = "target_url", injectionKey = "TARGET_URL")
   private String targetUrl;
 
-  // OAuth Authentication
   @HopMetadataProperty(key = "oauth_client_id", injectionKey = "OAUTH_CLIENT_ID")
   private String oauthClientId;
 
@@ -80,7 +77,6 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
   @HopMetadataProperty(key = "oauth_instance_url", injectionKey = "OAUTH_INSTANCE_URL")
   private String oauthInstanceUrl;
 
-  // OAuth JWT Authentication
   @HopMetadataProperty(key = "oauth_jwt_username", injectionKey = "OAUTH_JWT_USERNAME")
   private String oauthJwtUsername;
 
@@ -220,7 +216,6 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
     }
   }
 
-  // Getter and Setter methods
   public String getAuthenticationType() {
     return authenticationType;
   }

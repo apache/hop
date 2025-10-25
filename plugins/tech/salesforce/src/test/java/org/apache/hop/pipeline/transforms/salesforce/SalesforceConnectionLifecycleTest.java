@@ -133,8 +133,8 @@ class SalesforceConnectionLifecycleTest {
         new SalesforceConnection(mockLog, "https://login.salesforce.com", "user", "pass");
 
     String sql = "SELECT Id, Name FROM Account WHERE Active__c = true";
-    conn.setSQL(sql);
-    assertEquals(sql, conn.getSQL());
+    conn.setSql(sql);
+    assertEquals(sql, conn.getSql());
   }
 
   @Test
@@ -186,7 +186,7 @@ class SalesforceConnectionLifecycleTest {
     String url = "https://test.salesforce.com/services/Soap/u/64.0";
     SalesforceConnection conn = new SalesforceConnection(mockLog, url, "user", "pass");
 
-    assertEquals(url, conn.getURL());
+    assertEquals(url, conn.getUrl());
   }
 
   @Test

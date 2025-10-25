@@ -109,45 +109,12 @@ public class SalesforceDeleteMeta
     return Const.toInt(this.batchSize, 10);
   }
 
-  //  @Override
-  //  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-  //      throws HopXmlException {
-  //    super.loadXml(transformNode, metadataProvider);
-  //    readData(transformNode);
-  //  }
-
   @Override
   public Object clone() {
     SalesforceDeleteMeta retval = (SalesforceDeleteMeta) super.clone();
 
     return retval;
   }
-
-  //  @Override
-  //  public String getXml() {
-  //    StringBuilder retval = new StringBuilder(super.getXml());
-  //    retval.append("    " + XmlHandler.addTagValue("DeleteField", getDeleteField()));
-  //    retval.append("    " + XmlHandler.addTagValue("batchSize", getBatchSize()));
-  //    retval.append(
-  //        "    "
-  //            + XmlHandler.addTagValue("rollbackAllChangesOnError",
-  // isRollbackAllChangesOnError()));
-  //
-  //    return retval.toString();
-  //  }
-
-  //  private void readData(Node transformNode) throws HopXmlException {
-  //    try {
-  //      setDeleteField(XmlHandler.getTagValue(transformNode, "DeleteField"));
-  //
-  //      setBatchSize(XmlHandler.getTagValue(transformNode, "batchSize"));
-  //      setRollbackAllChangesOnError(
-  //          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode,
-  // "rollbackAllChangesOnError")));
-  //    } catch (Exception e) {
-  //      throw new HopXmlException("Unable to load transform info from XML", e);
-  //    }
-  //  }
 
   @Override
   public void setDefault() {

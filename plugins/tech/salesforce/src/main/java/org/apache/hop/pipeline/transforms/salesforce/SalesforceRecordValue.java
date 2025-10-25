@@ -19,8 +19,12 @@ package org.apache.hop.pipeline.transforms.salesforce;
 
 import com.sforce.soap.partner.sobject.SObject;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
 /** Store a record from Salesforce extraction. */
+@Getter
+@Setter
 public class SalesforceRecordValue {
 
   private int recordIndex;
@@ -37,14 +41,6 @@ public class SalesforceRecordValue {
     this.deletionDate = null;
   }
 
-  public boolean isAllRecordsProcessed() {
-    return this.allRecordsProcessed;
-  }
-
-  public void setAllRecordsProcessed(boolean value) {
-    this.allRecordsProcessed = value;
-  }
-
   public boolean isRecordIndexChanges() {
     return this.recordIndexChanged;
   }
@@ -53,27 +49,11 @@ public class SalesforceRecordValue {
     this.recordIndexChanged = value;
   }
 
-  public int getRecordIndex() {
-    return this.recordIndex;
-  }
-
-  public void setRecordIndex(int index) {
-    this.recordIndex = index;
-  }
-
   public SObject getRecordValue() {
     return this.record;
   }
 
   public void setRecordValue(SObject value) {
     this.record = value;
-  }
-
-  public void setDeletionDate(Date value) {
-    this.deletionDate = value;
-  }
-
-  public Date getDeletionDate() {
-    return this.deletionDate;
   }
 }

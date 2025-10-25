@@ -52,18 +52,6 @@ public class SalesforceUpdateMeta
   public static final String CONST_SPACES = "        ";
   public static final String CONST_FIELD = "field";
 
-  /** Field value to update */
-  //  @HopMetadataProperty
-  //  private String[] updateLookup;
-  //
-  //  /** boolean indicating if field uses External id */
-  //  @HopMetadataProperty
-  //  private Boolean[] useExternalId;
-  //
-  //  /** Stream name to update value with */
-  //  @HopMetadataProperty
-  //  private String[] updateStream;
-
   @HopMetadataProperty(key = "field", groupKey = "fields")
   private List<SalesforceInsertField> fields;
 
@@ -76,100 +64,13 @@ public class SalesforceUpdateMeta
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @return Returns the rollbackAllChangesOnError.
-   */
-  public boolean isRollbackAllChangesOnError() {
-    return rollbackAllChangesOnError;
-  }
-
-  /**
-   * @param rollbackAllChangesOnError The rollbackAllChangesOnError to set.
-   */
-  public void setRollbackAllChangesOnError(boolean rollbackAllChangesOnError) {
-    this.rollbackAllChangesOnError = rollbackAllChangesOnError;
-  }
-
-  /**
-   * @return Returns the updateLookup.
-   */
-  //  public String[] getUpdateLookup() {
-  //    return updateLookup;
-  //  }
-
-  /**
-   * @param updateLookup The updateLookup to set.
-   */
-  //  public void setUpdateLookup(String[] updateLookup) {
-  //    this.updateLookup = updateLookup;
-  //  }
-
-  /**
-   * @return Returns the useExternalId.
-   */
-  //  public Boolean[] getUseExternalId() {
-  //    return useExternalId;
-  //  }
-
-  /**
-   * @param useExternalId The useExternalId to set.
-   */
-  //  public void setUseExternalId(Boolean[] useExternalId) {
-  //    this.useExternalId = useExternalId;
-  //  }
-
-  /**
-   * @return Returns the updateStream.
-   */
-  //  public String[] getUpdateStream() {
-  //    return updateStream;
-  //  }
-
-  /**
-   * @param updateStream The updateStream to set.
-   */
-  //  public void setUpdateStream(String[] updateStream) {
-  //    this.updateStream = updateStream;
-  //  }
-
-  /**
-   * @param batchSize
-   */
-  //  public void setBatchSize(String batchSize) {
-  //    this.batchSize = batchSize;
-  //  }
-
-  /**
-   * @return Returns the batchSize.
-   */
-  //  public String getBatchSize() {
-  //    return this.batchSize;
-  //  }
-
   public int getBatchSizeInt() {
     return Const.toInt(this.batchSize, 10);
   }
 
-  //  @Override
-  //  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-  //      throws HopXmlException {
-  //    super.loadXml(transformNode, metadataProvider);
-  //    readData(transformNode);
-  //  }
-
   @Override
   public Object clone() {
     SalesforceUpdateMeta retval = (SalesforceUpdateMeta) super.clone();
-
-    //    int nrvalues = updateLookup.length;
-    //
-    //    retval.allocate(nrvalues);
-    //
-    //    for (int i = 0; i < nrvalues; i++) {
-    //      retval.updateLookup[i] = updateLookup[i];
-    //      retval.updateStream[i] = updateStream[i];
-    //      retval.useExternalId[i] = useExternalId[i];
-    //    }
 
     // Initialize the fields list
     retval.fields = new ArrayList<>();
@@ -184,83 +85,11 @@ public class SalesforceUpdateMeta
     return retval;
   }
 
-  //  @Override
-  //  public String getXml() {
-  //    StringBuilder retval = new StringBuilder(super.getXml());
-  //    retval.append("    " + XmlHandler.addTagValue("batchSize", getBatchSize()));
-  //
-  //    retval.append("    <fields>" + Const.CR);
-  //
-  //    for (int i = 0; i < updateLookup.length; i++) {
-  //      retval.append("      <field>").append(Const.CR);
-  //      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", getUpdateLookup()[i]));
-  //      retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FIELD,
-  // getUpdateStream()[i]));
-  //      retval
-  //          .append(CONST_SPACES)
-  //          .append(XmlHandler.addTagValue("useExternalId",
-  // getUseExternalId()[i].booleanValue()));
-  //      retval.append("      </field>").append(Const.CR);
-  //    }
-  //
-  //    retval.append("      </fields>" + Const.CR);
-  //    retval.append(
-  //        "    "
-  //            + XmlHandler.addTagValue("rollbackAllChangesOnError",
-  // isRollbackAllChangesOnError()));
-  //    return retval.toString();
-  //  }
-
-  //  private void readData(Node transformNode) throws HopXmlException {
-  //    try {
-  //      setBatchSize(XmlHandler.getTagValue(transformNode, "batchSize"));
-  //
-  //      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-  //      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-  //
-  //      allocate(nrFields);
-  //
-  //      for (int i = 0; i < nrFields; i++) {
-  //        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-  //
-  //        updateLookup[i] = XmlHandler.getTagValue(fnode, "name");
-  //        updateStream[i] = XmlHandler.getTagValue(fnode, CONST_FIELD);
-  //        if (updateStream[i] == null) {
-  //          updateStream[i] = updateLookup[i]; // default: the same name!
-  //        }
-  //        String updateValue = XmlHandler.getTagValue(fnode, "useExternalId");
-  //        if (updateValue == null) {
-  //          // default FALSE
-  //          useExternalId[i] = Boolean.FALSE;
-  //        } else {
-  //          if (updateValue.equalsIgnoreCase("Y")) {
-  //            useExternalId[i] = Boolean.TRUE;
-  //          } else {
-  //            useExternalId[i] = Boolean.FALSE;
-  //          }
-  //        }
-  //      }
-  //      setRollbackAllChangesOnError(
-  //          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode,
-  // "rollbackAllChangesOnError")));
-  //    } catch (Exception e) {
-  //      throw new HopXmlException("Unable to load transform info from XML", e);
-  //    }
-  //  }
-
-  //  public void allocate(int nrvalues) {
-  //    setUpdateLookup(new String[nrvalues]);
-  //    setUpdateStream(new String[nrvalues]);
-  //    setUseExternalId(new Boolean[nrvalues]);
-  //  }
-
   @Override
   public void setDefault() {
     super.setDefault();
     setFields(new ArrayList<>());
     setBatchSize("10");
-
-    //    allocate(0);
 
     setRollbackAllChangesOnError(false);
   }

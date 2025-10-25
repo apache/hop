@@ -84,7 +84,7 @@ class SalesforceMetadataVariableResolutionTest {
 
     assertEquals("test.user@example.com", conn.getUsername());
     assertEquals("myPasswordsecurityToken123", conn.getPassword());
-    assertEquals("https://login.salesforce.com/services/Soap/u/64.0", conn.getURL());
+    assertEquals("https://login.salesforce.com/services/Soap/u/64.0", conn.getUrl());
   }
 
   @Test
@@ -288,7 +288,7 @@ class SalesforceMetadataVariableResolutionTest {
     org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection conn =
         metadataConnection.createConnection(variables, mockLog);
 
-    assertEquals("https://login.salesforce.com/services/Soap/u/64.0", conn.getURL());
+    assertEquals("https://login.salesforce.com/services/Soap/u/64.0", conn.getUrl());
   }
 
   @Test

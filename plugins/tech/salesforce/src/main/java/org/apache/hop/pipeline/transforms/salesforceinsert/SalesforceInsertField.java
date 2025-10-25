@@ -35,22 +35,6 @@ public class SalesforceInsertField implements Cloneable {
   @HopMetadataProperty(key = "useExternalId")
   private boolean useExternalId;
 
-  //  public boolean isUseExternalId() {
-  //    return useExternalId != null ? useExternalId : false;
-  //  }
-
-  //  public Boolean getUseExternalId() {
-  //    return useExternalId;
-  //  }
-  //
-  //  public void setUseExternalId(Boolean useExternalId) {
-  //    this.useExternalId = useExternalId;
-  //  }
-
-  //  public Boolean isUseExternalId() {
-  //    return useExternalId;
-  //  }
-
   public SalesforceInsertField() {
     this.updateLookup = "";
     this.updateStream = "";

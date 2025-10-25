@@ -225,7 +225,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
       // See if we need to add the url to the row...
       if (meta.includeTargetURL() && !Utils.isEmpty(meta.getTargetURLField())) {
-        outputRowData[rowIndex++] = data.connection.getURL();
+        outputRowData[rowIndex++] = data.connection.getUrl();
       }
 
       // See if we need to add the module to the row...
@@ -235,7 +235,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
       // See if we need to add the generated SQL to the row...
       if (meta.isIncludeSQL() && !Utils.isEmpty(meta.getSqlField())) {
-        outputRowData[rowIndex++] = data.connection.getSQL();
+        outputRowData[rowIndex++] = data.connection.getSql();
       }
 
       // See if we need to add the server timestamp to the row...
@@ -401,7 +401,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         // Build query if needed
         if (meta.isSpecifyQuery()) {
           // Free hand SOQL Query
-          data.connection.setSQL(soSQL.replace("\n\r", " ").replace("\n", " "));
+          data.connection.setSql(soSQL.replace("\n\r", " ").replace("\n", " "));
         } else {
           // Set calendars for update or deleted records
           if (meta.getRecordsFilterCode() != SalesforceConnectionUtils.RECORDS_FILTER_ALL) {
@@ -413,7 +413,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
             data.connection.setFieldsList(buildSOQl());
           } else {
             // Build now SOQL
-            data.connection.setSQL(buildSOQl());
+            data.connection.setSql(buildSOQl());
           }
         }
 

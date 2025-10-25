@@ -123,7 +123,7 @@ class SalesforceMetadataConnectionTest {
     assertNotNull(conn);
     assertEquals("test.user@example.com", conn.getUsername());
     assertEquals("testPassword123securityToken456", conn.getPassword()); // Password + token
-    assertEquals("https://login.salesforce.com/services/Soap/u/64.0", conn.getURL());
+    assertEquals("https://login.salesforce.com/services/Soap/u/64.0", conn.getUrl());
   }
 
   @Test

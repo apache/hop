@@ -137,26 +137,10 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
   private MetaSelectionLine<org.apache.hop.metadata.salesforce.SalesforceConnection>
       wSalesforceConnection;
 
-  // Authentication type selection
-  //  private Label wlAuthType;
-  //  private CCombo wAuthType;
-
   // Username/Password UI components
-  private Group wUsernamePasswordGroup;
   private LabelTextVar wUserName;
   private LabelTextVar wURL;
   private LabelTextVar wPassword;
-
-  // OAuth UI components
-  //  private Group wOAuthGroup;
-  //  private LabelTextVar wOAuthClientId;
-  //  private LabelTextVar wOAuthClientSecret;
-  //  private LabelTextVar wOAuthRedirectUri;
-  //  private LabelTextVar wOAuthInstanceUrl;
-  //  private LabelTextVar wOAuthAccessToken;
-  //  private LabelTextVar wOAuthRefreshToken;
-  //  private Button wOAuthAuthorize;
-  //  private Button wOAuthExchange;
 
   // PKCE parameters
   private String codeVerifier;
@@ -346,41 +330,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       new ErrorDialog(shell, "Error", "Error getting list of Salesforce connections", e);
     }
 
-    // Authentication Type
-    /*
-        wlAuthType = new Label(wConnectionGroup, SWT.RIGHT);
-        wlAuthType.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.AuthType.Label"));
-        PropsUi.setLook(wlAuthType);
-        FormData fdlAuthType = new FormData();
-        fdlAuthType.left = new FormAttachment(0, 0);
-        fdlAuthType.top = new FormAttachment(wSalesforceConnection, margin);
-        fdlAuthType.right = new FormAttachment(middle, -margin);
-        wlAuthType.setLayoutData(fdlAuthType);
-
-        wAuthType = new CCombo(wConnectionGroup, SWT.BORDER | SWT.READ_ONLY);
-        PropsUi.setLook(wAuthType);
-        wAuthType.addModifyListener(lsMod);
-        wAuthType.setItems(
-            new String[] {
-              BaseMessages.getString(PKG, "SalesforceInputDialog.AuthType.UsernamePassword"),
-              BaseMessages.getString(PKG, "SalesforceInputDialog.AuthType.OAuth")
-            });
-        wAuthType.select(0); // Default to Username/Password
-        FormData fdAuthType = new FormData();
-        fdAuthType.left = new FormAttachment(middle, 0);
-        fdAuthType.top = new FormAttachment(wSalesforceConnection, margin);
-        fdAuthType.right = new FormAttachment(100, 0);
-        wAuthType.setLayoutData(fdAuthType);
-        wAuthType.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                updateAuthenticationUI();
-                input.setChanged();
-              }
-            });
-    */
-
     // Webservice URL (common for both authentication types)
     wURL =
         new LabelTextVar(
@@ -396,28 +345,18 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdURL.right = new FormAttachment(100, 0);
     wURL.setLayoutData(fdURL);
 
-    // Username/Password Group
-    wUsernamePasswordGroup = new Group(wConnectionGroup, SWT.SHADOW_ETCHED_IN);
-    wUsernamePasswordGroup.setText(
-        BaseMessages.getString(PKG, "SalesforceInputDialog.UsernamePasswordGroup.Label"));
-    FormLayout fupLayout = new FormLayout();
-    fupLayout.marginWidth = 3;
-    fupLayout.marginHeight = 3;
-    wUsernamePasswordGroup.setLayout(fupLayout);
-    PropsUi.setLook(wUsernamePasswordGroup);
-
     // UserName line
     wUserName =
         new LabelTextVar(
             variables,
-            wUsernamePasswordGroup,
+            wConnectionGroup,
             BaseMessages.getString(PKG, "SalesforceInputDialog.User.Label"),
             BaseMessages.getString(PKG, "SalesforceInputDialog.User.Tooltip"));
     PropsUi.setLook(wUserName);
     wUserName.addModifyListener(lsMod);
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment(0, 0);
-    fdUserName.top = new FormAttachment(0, margin);
+    fdUserName.top = new FormAttachment(wURL, margin);
     fdUserName.right = new FormAttachment(100, 0);
     wUserName.setLayoutData(fdUserName);
 
@@ -425,7 +364,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wPassword =
         new LabelTextVar(
             variables,
-            wUsernamePasswordGroup,
+            wConnectionGroup,
             BaseMessages.getString(PKG, "SalesforceInputDialog.Password.Label"),
             BaseMessages.getString(PKG, "SalesforceInputDialog.Password.Tooltip"),
             true);
@@ -437,164 +376,12 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdPassword.right = new FormAttachment(100, 0);
     wPassword.setLayoutData(fdPassword);
 
-    FormData fdUsernamePasswordGroup = new FormData();
-    fdUsernamePasswordGroup.left = new FormAttachment(0, 0);
-    fdUsernamePasswordGroup.right = new FormAttachment(100, 0);
-    fdUsernamePasswordGroup.top = new FormAttachment(wURL, margin);
-    wUsernamePasswordGroup.setLayoutData(fdUsernamePasswordGroup);
-
     FormData fdConnectionGroup = new FormData();
     fdConnectionGroup.left = new FormAttachment(0, 0);
     fdConnectionGroup.right = new FormAttachment(100, 0);
     fdConnectionGroup.top = new FormAttachment(0, margin);
     // Remove bottom constraint to allow natural sizing
     wConnectionGroup.setLayoutData(fdConnectionGroup);
-
-    // END CONNECTION GROUP
-    // ////////////////////////
-
-    // ////////////////////////
-    // START OAUTH GROUP
-
-    //    wOAuthGroup = new Group(wConnectionGroup, SWT.SHADOW_ETCHED_IN);
-    //    wOAuthGroup.setText(BaseMessages.getString(PKG,
-    // "SalesforceInputDialog.OAuthGroup.Label"));
-    //    FormLayout foAuthLayout = new FormLayout();
-    //    foAuthLayout.marginWidth = 3;
-    //    foAuthLayout.marginHeight = 3;
-    //    wOAuthGroup.setLayout(foAuthLayout);
-    //    PropsUi.setLook(wOAuthGroup);
-    //
-    //    // OAuth Client ID
-    //    wOAuthClientId =
-    //        new LabelTextVar(
-    //            variables,
-    //            wOAuthGroup,
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthClientId.Label"),
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthClientId.Tooltip"));
-    //    PropsUi.setLook(wOAuthClientId);
-    //    wOAuthClientId.addModifyListener(lsMod);
-    //    FormData fdOAuthClientId = new FormData();
-    //    fdOAuthClientId.left = new FormAttachment(0, 0);
-    //    fdOAuthClientId.top = new FormAttachment(0, margin);
-    //    fdOAuthClientId.right = new FormAttachment(100, 0);
-    //    wOAuthClientId.setLayoutData(fdOAuthClientId);
-    //
-    //    // OAuth Client Secret
-    //    wOAuthClientSecret =
-    //        new LabelTextVar(
-    //            variables,
-    //            wOAuthGroup,
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthClientSecret.Label"),
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthClientSecret.Tooltip"),
-    //            true);
-    //    PropsUi.setLook(wOAuthClientSecret);
-    //    wOAuthClientSecret.addModifyListener(lsMod);
-    //    FormData fdOAuthClientSecret = new FormData();
-    //    fdOAuthClientSecret.left = new FormAttachment(0, 0);
-    //    fdOAuthClientSecret.top = new FormAttachment(wOAuthClientId, margin);
-    //    fdOAuthClientSecret.right = new FormAttachment(100, 0);
-    //    wOAuthClientSecret.setLayoutData(fdOAuthClientSecret);
-    //
-    //    // OAuth Redirect URI
-    //    wOAuthRedirectUri =
-    //        new LabelTextVar(
-    //            variables,
-    //            wOAuthGroup,
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthRedirectUri.Label"),
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthRedirectUri.Tooltip"));
-    //    PropsUi.setLook(wOAuthRedirectUri);
-    //    wOAuthRedirectUri.addModifyListener(lsMod);
-    //    FormData fdOAuthRedirectUri = new FormData();
-    //    fdOAuthRedirectUri.left = new FormAttachment(0, 0);
-    //    fdOAuthRedirectUri.top = new FormAttachment(wOAuthClientSecret, margin);
-    //    fdOAuthRedirectUri.right = new FormAttachment(100, 0);
-    //    wOAuthRedirectUri.setLayoutData(fdOAuthRedirectUri);
-    //
-    //    // OAuth Instance URL
-    //    wOAuthInstanceUrl =
-    //        new LabelTextVar(
-    //            variables,
-    //            wOAuthGroup,
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthInstanceUrl.Label"),
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthInstanceUrl.Tooltip"));
-    //    PropsUi.setLook(wOAuthInstanceUrl);
-    //    wOAuthInstanceUrl.addModifyListener(lsMod);
-    //    FormData fdOAuthInstanceUrl = new FormData();
-    //    fdOAuthInstanceUrl.left = new FormAttachment(0, 0);
-    //    fdOAuthInstanceUrl.top = new FormAttachment(wOAuthRedirectUri, margin);
-    //    fdOAuthInstanceUrl.right = new FormAttachment(100, 0);
-    //    wOAuthInstanceUrl.setLayoutData(fdOAuthInstanceUrl);
-    //
-    //    // OAuth Authorize button (moved to between instance URL and access token)
-    //    wOAuthAuthorize = new Button(wOAuthGroup, SWT.PUSH);
-    //    wOAuthAuthorize.setText(
-    //        BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthAuthorize.Label"));
-    //    PropsUi.setLook(wOAuthAuthorize);
-    //    FormData fdOAuthAuthorize = new FormData();
-    //    wOAuthAuthorize.setToolTipText(
-    //        BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthAuthorize.Tooltip"));
-    //    fdOAuthAuthorize.top = new FormAttachment(wOAuthInstanceUrl, margin);
-    //    fdOAuthAuthorize.right = new FormAttachment(100, 0);
-    //    wOAuthAuthorize.setLayoutData(fdOAuthAuthorize);
-    //    wOAuthAuthorize.addListener(SWT.Selection, e -> authorizeOAuth());
-    //
-    //    // OAuth Access Token
-    //    wOAuthAccessToken =
-    //        new LabelTextVar(
-    //            variables,
-    //            wOAuthGroup,
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthAccessToken.Label"),
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthAccessToken.Tooltip"),
-    //            true);
-    //    PropsUi.setLook(wOAuthAccessToken);
-    //    wOAuthAccessToken.addModifyListener(lsMod);
-    //    FormData fdOAuthAccessToken = new FormData();
-    //    fdOAuthAccessToken.left = new FormAttachment(0, 0);
-    //    fdOAuthAccessToken.top = new FormAttachment(wOAuthAuthorize, margin);
-    //    fdOAuthAccessToken.right = new FormAttachment(100, 0);
-    //    wOAuthAccessToken.setLayoutData(fdOAuthAccessToken);
-    //
-    //    // OAuth Refresh Token
-    //    wOAuthRefreshToken =
-    //        new LabelTextVar(
-    //            variables,
-    //            wOAuthGroup,
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthRefreshToken.Label"),
-    //            BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthRefreshToken.Tooltip"),
-    //            true);
-    //    PropsUi.setLook(wOAuthRefreshToken);
-    //    wOAuthRefreshToken.addModifyListener(lsMod);
-    //    FormData fdOAuthRefreshToken = new FormData();
-    //    fdOAuthRefreshToken.left = new FormAttachment(0, 0);
-    //    fdOAuthRefreshToken.top = new FormAttachment(wOAuthAccessToken, margin);
-    //    fdOAuthRefreshToken.right = new FormAttachment(100, 0);
-    //    wOAuthRefreshToken.setLayoutData(fdOAuthRefreshToken);
-    //
-    //    // OAuth Exchange button (moved to below the refresh token field)
-    //    wOAuthExchange = new Button(wOAuthGroup, SWT.PUSH);
-    //    wOAuthExchange.setText(
-    //        BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthExchange.Label"));
-    //    PropsUi.setLook(wOAuthExchange);
-    //    FormData fdOAuthExchange = new FormData();
-    //    wOAuthExchange.setToolTipText(
-    //        BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthExchange.Tooltip"));
-    //    fdOAuthExchange.top = new FormAttachment(wOAuthRefreshToken, margin);
-    //    fdOAuthExchange.right = new FormAttachment(100, 0);
-    //    wOAuthExchange.setLayoutData(fdOAuthExchange);
-    //    wOAuthExchange.addListener(SWT.Selection, e -> exchangeCodeForTokens());
-    //
-    //    FormData fdOAuthGroup = new FormData();
-    //    fdOAuthGroup.left = new FormAttachment(0, 0);
-    //    fdOAuthGroup.right = new FormAttachment(100, 0);
-    //    fdOAuthGroup.top = new FormAttachment(wURL, margin);
-    //    wOAuthGroup.setLayoutData(fdOAuthGroup);
-    //
-    //    // Initially hide OAuth group (will be shown when OAuth is selected)
-    //    wOAuthGroup.setVisible(false);
-
-    // END OAUTH GROUP
-    // ////////////////////////
 
     // Test Salesforce connection button
     wTest = new Button(wConnectionGroup, SWT.PUSH);
@@ -1689,20 +1476,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       String realURL = variables.resolve(meta.getTargetUrl());
       int realTimeOut = Const.toInt(variables.resolve(meta.getTimeout()), 0);
 
-      // Create connection based on authentication type
-      //      if (isOAuthSelected()) {
-      //        // OAuth connection
-      //        String realClientId = variables.resolve(meta.getOauthClientId());
-      //        String realClientSecret = Utils.resolvePassword(variables,
-      // meta.getOauthClientSecret());
-      //        String realAccessToken = Utils.resolvePassword(variables,
-      // meta.getOauthAccessToken());
-      //        String realInstanceUrl = variables.resolve(meta.getOauthInstanceUrl());
-      //
-      //        connection =
-      //            new SalesforceConnection(
-      //                log, realClientId, realClientSecret, realAccessToken, realInstanceUrl);
-      //      } else {
       // Username/Password connection
       String realUsername = variables.resolve(meta.getUsername());
       String realPassword = Utils.resolvePassword(variables, meta.getPassword());
@@ -1714,7 +1487,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       if (meta.isSpecifyQuery()) {
         // Free hand SOQL
         String realQuery = variables.resolve(meta.getQuery());
-        connection.setSQL(realQuery);
+        connection.setSql(realQuery);
         connection.connect();
         // We are connected, so let's query
         XmlObject[] fields = connection.getElements();
@@ -1984,16 +1757,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wReadFrom.setText(Const.NVL(in.getReadFrom(), ""));
     wReadTo.setText(Const.NVL(in.getReadTo(), ""));
 
-    // OAuth fields
-    //    wAuthType.select(in.isOAuthAuthentication() ? 1 : 0);
-    //    wOAuthClientId.setText(Const.NVL(in.getOauthClientId(), ""));
-    //    wOAuthClientSecret.setText(Const.NVL(in.getOauthClientSecret(), ""));
-    //    wOAuthRedirectUri.setText(
-    //        Const.NVL(in.getOauthRedirectUri(), "http://localhost:8080/callback"));
-    //    wOAuthInstanceUrl.setText(Const.NVL(in.getOauthInstanceUrl(), ""));
-    //    wOAuthAccessToken.setText(Const.NVL(in.getOauthAccessToken(), ""));
-    //    wOAuthRefreshToken.setText(Const.NVL(in.getOauthRefreshToken(), ""));
-
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "SalesforceInputDialog.Log.GettingFieldsInfo"));
     }
@@ -2097,68 +1860,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
   @Override
   protected void test() {
-    //    if (isOAuthSelected()) {
-    //      testOAuthConnection();
-    //    } else {
     super.test(); // Call parent test method for username/password
-    //    }
   }
-
-  //  private void testOAuthConnection() {
-  //    boolean successConnection = true;
-  //    String msgError = null;
-  //    try {
-  //      SalesforceInputMeta meta = new SalesforceInputMeta();
-  //      getInfo(meta);
-
-  // get real values
-  //      String realClientId = variables.resolve(meta.getOauthClientId());
-  //      String realClientSecret = Utils.resolvePassword(variables, meta.getOauthClientSecret());
-  //      String realAccessToken = Utils.resolvePassword(variables, meta.getOauthAccessToken());
-  //      String realInstanceUrl = variables.resolve(meta.getOauthInstanceUrl());
-
-  // Validate OAuth configuration
-  //      if (Utils.isEmpty(realClientId)) {
-  //        throw new Exception("OAuth Client ID is required");
-  //      }
-  //      if (Utils.isEmpty(realClientSecret)) {
-  //        throw new Exception("OAuth Client Secret is required");
-  //      }
-  //      if (Utils.isEmpty(realAccessToken)) {
-  //        throw new Exception(
-  //            "OAuth Access Token is required. Please use the 'Authorize' button to obtain one.");
-  //      }
-  //      if (Utils.isEmpty(realInstanceUrl)) {
-  //        throw new Exception("OAuth Instance URL is required");
-  //      }
-
-  // Try to create a connection to test it
-  //      SalesforceConnection connection =
-  //          new SalesforceConnection(
-  //              log, realClientId, realClientSecret, realAccessToken, realInstanceUrl);
-  //      connection.setTimeOut(Const.toInt(variables.resolve(meta.getTimeout()), 0));
-  //
-  //      // Test the connection
-  //      connection.connect();
-  //
-  //    } catch (Exception e) {
-  //      successConnection = false;
-  //      msgError = e.getMessage();
-  //    }
-
-  //    if (successConnection) {
-  //      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-  //      mb.setMessage(BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.OK"));
-  //      mb.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.Title.Ok"));
-  //      mb.open();
-  //    } else {
-  //      new ErrorDialog(
-  //          shell,
-  //          BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.Title.Error"),
-  //          BaseMessages.getString(PKG, "SalesforceInputDialog.OAuthConnected.NOK"),
-  //          new Exception(msgError));
-  //    }
-  //  }
 
   @Override
   protected void getInfo(SalesforceTransformMeta in) throws HopException {
@@ -2198,17 +1901,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     meta.setDeletionDateField(Const.NVL(wInclDeletionDateField.getText(), ""));
     meta.setIncludeDeletionDate(wInclDeletionDate.getSelection());
 
-    // OAuth fields
-    //    meta.setAuthenticationType(isOAuthSelected() ? "OAUTH" : "USERNAME_PASSWORD");
-    //    meta.setOauthClientId(Const.NVL(wOAuthClientId.getText(), ""));
-    //    meta.setOauthClientSecret(Const.NVL(wOAuthClientSecret.getText(), ""));
-    //    meta.setOauthRedirectUri(Const.NVL(wOAuthRedirectUri.getText(), ""));
-    //    meta.setOauthInstanceUrl(Const.NVL(wOAuthInstanceUrl.getText(), ""));
-    //    meta.setOauthAccessToken(Const.NVL(wOAuthAccessToken.getText(), ""));
-    //    meta.setOauthRefreshToken(Const.NVL(wOAuthRefreshToken.getText(), ""));
     int nrFields = wFields.nrNonEmpty();
-
-    //    meta.allocate(nrFields);
 
     List<SalesforceInputField> inputFields = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
@@ -2232,7 +1925,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
           BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(12)));
 
       inputFields.add(field);
-      //      meta.getInputFields()[i] = field;
     }
     meta.setFields(inputFields);
   }
@@ -2388,42 +2080,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlPosition.setVisible(enableCondition);
   }
 
-  //  private void updateAuthenticationUI() {
-  //    boolean isOAuth = isOAuthSelected();
-  //
-  //    // Show/hide appropriate sections - only if they are initialized
-  //    if (wUsernamePasswordGroup != null) {
-  //      wUsernamePasswordGroup.setVisible(!isOAuth);
-  //    }
-  //    if (wOAuthGroup != null) {
-  //      wOAuthGroup.setVisible(isOAuth);
-  //      if (isOAuth) {
-  //        // Ensure OAuth group is properly packed and visible
-  //        wOAuthGroup.pack();
-  //        wOAuthGroup.layout();
-  //        // Also layout the parent container to ensure proper display
-  //        wConnectionGroup.layout();
-  //      }
-  //    }
-  //
-  //    // Update test button positioning based on visible authentication group
-  //    if (wTest != null) {
-  //      FormData fdTest = (FormData) wTest.getLayoutData();
-  //      if (isOAuth) {
-  //        // Position test button below OAuth group
-  //        fdTest.top = new FormAttachment(wOAuthGroup, margin);
-  //      } else {
-  //        // Position test button below username/password group
-  //        fdTest.top = new FormAttachment(wUsernamePasswordGroup, margin);
-  //      }
-  //      wTest.setLayoutData(fdTest);
-  //    }
-  //
-  //    if (shell != null) {
-  //      shell.layout(true, true);
-  //    }
-  //  }
-
   private void updateConnectionUI() {
     boolean hasConnection = !Utils.isEmpty(wSalesforceConnection.getText());
 
@@ -2448,7 +2104,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         // Position test button below connection selection
         fdTest.top = new FormAttachment(wSalesforceConnection, margin);
       } else {
-        // Position test button below password field (consistent with other dialogs)
+        // Position test button below password field
         fdTest.top = new FormAttachment(wPassword, margin);
       }
       wTest.setLayoutData(fdTest);
@@ -2462,467 +2118,4 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       shell.layout(true, true);
     }
   }
-
-  //  private boolean isOAuthSelected() {
-  //    if (wAuthType == null) {
-  //      return false; // Default to username/password if not initialized
-  //    }
-  //    return wAuthType.getSelectionIndex() == 1; // OAuth is index 1
-  //  }
-  //
-  //  private void authorizeOAuth() {
-  //    try {
-  //      // Get OAuth configuration
-  //      String clientId = wOAuthClientId.getText();
-  //      String redirectUri = wOAuthRedirectUri.getText();
-  //      String instanceUrl = wOAuthInstanceUrl.getText();
-  //
-  //      if (Utils.isEmpty(clientId)) {
-  //        MessageBox clientIdMb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //        clientIdMb.setMessage("OAuth Client ID is required for authorization.");
-  //        clientIdMb.setText("OAuth Configuration Error");
-  //        clientIdMb.open();
-  //        return;
-  //      }
-  //
-  //      if (Utils.isEmpty(redirectUri)) {
-  //        MessageBox redirectUriMb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //        redirectUriMb.setMessage("OAuth Redirect URI is required for authorization.");
-  //        redirectUriMb.setText("OAuth Configuration Error");
-  //        redirectUriMb.open();
-  //        return;
-  //      }
-  //
-  //      if (Utils.isEmpty(instanceUrl)) {
-  //        MessageBox instanceUrlMb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //        instanceUrlMb.setMessage("OAuth Instance URL is required for authorization.");
-  //        instanceUrlMb.setText("OAuth Configuration Error");
-  //        instanceUrlMb.open();
-  //        return;
-  //      }
-  //
-  //      // Build authorization URL (default to no force consent)
-  //      String authUrl = buildAuthorizationUrl(clientId, redirectUri, instanceUrl, false);
-  //
-  //      // Show authorization URL in a dialog for manual copying
-  //      showAuthorizationUrlDialog(authUrl, redirectUri);
-  //
-  //    } catch (Exception e) {
-  //      MessageBox errorMb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //      errorMb.setMessage("Error starting OAuth authorization: " + e.getMessage());
-  //      errorMb.setText("OAuth Authorization Error");
-  //      errorMb.open();
-  //    }
-  //  }
-  //
-  //  private String buildAuthorizationUrl(
-  //      String clientId, String redirectUri, String instanceUrl, boolean forceConsent) {
-  //    try {
-  //      // Generate PKCE parameters
-  //      generatePKCEParameters();
-  //
-  //      StringBuilder url = new StringBuilder();
-  //      url.append(instanceUrl);
-  //      if (!instanceUrl.endsWith("/")) {
-  //        url.append("/");
-  //      }
-  //      url.append("services/oauth2/authorize?");
-  //      url.append("response_type=code&");
-  //      url.append("client_id=").append(URLEncoder.encode(clientId, "UTF-8")).append("&");
-  //      url.append("redirect_uri=").append(URLEncoder.encode(redirectUri, "UTF-8")).append("&");
-  //      url.append("scope=").append(URLEncoder.encode("api refresh_token", "UTF-8")).append("&");
-  //      url.append("code_challenge=").append(URLEncoder.encode(codeChallenge,
-  // "UTF-8")).append("&");
-  //      url.append("code_challenge_method=S256");
-  //
-  //      // Add prompt=consent only if force consent is requested
-  //      if (forceConsent) {
-  //        url.append("&prompt=consent");
-  //      }
-  //
-  //      return url.toString();
-  //    } catch (Exception e) {
-  //      throw new RuntimeException("Failed to build authorization URL: " + e.getMessage(), e);
-  //    }
-  //  }
-  //
-  //  private void generatePKCEParameters() {
-  //    try {
-  //      // Generate code verifier (43-128 characters, URL-safe)
-  //      SecureRandom secureRandom = new SecureRandom();
-  //      byte[] randomBytes = new byte[32];
-  //      secureRandom.nextBytes(randomBytes);
-  //      codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-  //
-  //      // Generate code challenge (SHA256 hash of code verifier)
-  //      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-  //      byte[] hash = digest.digest(codeVerifier.getBytes("UTF-8"));
-  //      codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
-  //
-  //    } catch (Exception e) {
-  //      throw new RuntimeException("Failed to generate PKCE parameters: " + e.getMessage(), e);
-  //    }
-  //  }
-  //
-  //  private void showAuthorizationUrlDialog(String authUrl, String redirectUri) {
-  //    // Create a custom dialog to show the authorization URL
-  //    Shell urlDialog = new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-  //    urlDialog.setText("OAuth Authorization URL");
-  //
-  //    // Set dialog size to 50% of screen width and reasonable height
-  //    org.eclipse.swt.graphics.Rectangle screenSize =
-  //        shell.getDisplay().getPrimaryMonitor().getBounds();
-  //    int dialogWidth = Math.min(screenSize.width / 2, 800); // Cap at 800px max
-  //    urlDialog.setSize(dialogWidth, 450);
-  //
-  //    GridLayout layout = new GridLayout();
-  //    layout.marginWidth = 10;
-  //    layout.marginHeight = 10;
-  //    layout.numColumns = 1;
-  //    urlDialog.setLayout(layout);
-  //
-  //    // Instructions label
-  //    Label instructionsLabel = new Label(urlDialog, SWT.WRAP);
-  //    instructionsLabel.setText(
-  //        "OAuth Authorization Instructions:\n\n"
-  //            + "1. Click 'Open in Browser' to open the authorization URL\n"
-  //            + "2. Log in to Salesforce and authorize the application\n"
-  //            + "3. After authorization, you'll be redirected to: "
-  //            + redirectUri
-  //            + "\n"
-  //            + "4. IMPORTANT: The authorization code may be hidden in the address bar\n"
-  //            + "   • Click on the address bar to see the full URL\n"
-  //            + "   • Look for the 'code=' parameter in the URL\n"
-  //            + "5. Copy the entire code value (everything after 'code=')\n"
-  //            + "6. Paste the code in the 'Access Token' field above\n"
-  //            + "7. Click 'Exchange Code for Tokens' to get your tokens\n\n"
-  //            + "⚠️  Authorization codes expire in 10 minutes - work quickly!");
-  //    GridData gdInstructions = new GridData();
-  //    gdInstructions.horizontalAlignment = GridData.FILL;
-  //    gdInstructions.grabExcessHorizontalSpace = true;
-  //    instructionsLabel.setLayoutData(gdInstructions);
-  //
-  //    // Force consent checkbox
-  //    Button forceConsentCheckbox = new Button(urlDialog, SWT.CHECK);
-  //    forceConsentCheckbox.setText("Force consent (prompt=consent)");
-  //    forceConsentCheckbox.setToolTipText(
-  //        "Force Salesforce to show the authorization page even if previously authorized");
-  //    GridData gdForceConsent = new GridData();
-  //    gdForceConsent.horizontalAlignment = GridData.FILL;
-  //    gdForceConsent.grabExcessHorizontalSpace = true;
-  //    forceConsentCheckbox.setLayoutData(gdForceConsent);
-  //
-  //    // URL text area with word wrapping
-  //    Text urlText =
-  //        new Text(urlDialog, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.RESIZE | SWT.WRAP);
-  //    urlText.setText(authUrl);
-  //    urlText.setEditable(false);
-  //    GridData gdUrlText = new GridData();
-  //    gdUrlText.horizontalAlignment = GridData.FILL;
-  //    gdUrlText.grabExcessHorizontalSpace = false;
-  //    gdUrlText.heightHint = 100; // Reduced height since we have better instructions
-  //    urlText.setLayoutData(gdUrlText);
-  //
-  //    // Add listener to regenerate URL when force consent is toggled
-  //    forceConsentCheckbox.addListener(
-  //        SWT.Selection,
-  //        e -> {
-  //          try {
-  //            String clientId = wOAuthClientId.getText();
-  //            String redirectUriValue = wOAuthRedirectUri.getText();
-  //            String instanceUrl = wOAuthInstanceUrl.getText();
-  //            boolean forceConsent = forceConsentCheckbox.getSelection();
-  //            String newAuthUrl =
-  //                buildAuthorizationUrl(clientId, redirectUriValue, instanceUrl, forceConsent);
-  //            urlText.setText(newAuthUrl);
-  //          } catch (Exception ex) {
-  //            // If there's an error, just keep the current URL
-  //          }
-  //        });
-  //
-  //    // Buttons
-  //    Button copyButton = new Button(urlDialog, SWT.PUSH);
-  //    copyButton.setText("Copy URL");
-  //    GridData gdCopyButton = new GridData();
-  //    gdCopyButton.horizontalAlignment = GridData.BEGINNING;
-  //    copyButton.setLayoutData(gdCopyButton);
-  //    copyButton.addListener(
-  //        SWT.Selection,
-  //        e -> {
-  //          urlText.selectAll();
-  //          urlText.copy();
-  //          MessageBox mb = new MessageBox(urlDialog, SWT.OK | SWT.ICON_INFORMATION);
-  //          mb.setMessage("URL copied to clipboard!");
-  //          mb.setText("Copied");
-  //          mb.open();
-  //        });
-  //
-  //    Button openButton = new Button(urlDialog, SWT.PUSH);
-  //    openButton.setText("Open in Browser");
-  //    GridData gdOpenButton = new GridData();
-  //    gdOpenButton.horizontalAlignment = GridData.BEGINNING;
-  //    openButton.setLayoutData(gdOpenButton);
-  //    openButton.addListener(
-  //        SWT.Selection,
-  //        e -> {
-  //          try {
-  //            openBrowser(authUrl);
-  //          } catch (Exception ex) {
-  //            MessageBox mb = new MessageBox(urlDialog, SWT.OK | SWT.ICON_ERROR);
-  //            mb.setMessage("Failed to open browser: " + ex.getMessage());
-  //            mb.setText("Error");
-  //            mb.open();
-  //          }
-  //        });
-  //
-  //    Button closeButton = new Button(urlDialog, SWT.PUSH);
-  //    closeButton.setText("Close");
-  //    GridData gdCloseButton = new GridData();
-  //    gdCloseButton.horizontalAlignment = GridData.END;
-  //    closeButton.setLayoutData(gdCloseButton);
-  //    closeButton.addListener(SWT.Selection, e -> urlDialog.close());
-  //
-  //    // Center the dialog
-  //    urlDialog.pack();
-  //    urlDialog.setLocation(
-  //        shell.getLocation().x + (shell.getSize().x - urlDialog.getSize().x) / 2,
-  //        shell.getLocation().y + (shell.getSize().y - urlDialog.getSize().y) / 2);
-  //
-  //    urlDialog.open();
-  //  }
-  //
-  //  private void openBrowser(String url) {
-  //    try {
-  //      // Try to open browser using Desktop API
-  //      if (Desktop.isDesktopSupported() &&
-  // Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-  //        Desktop.getDesktop().browse(new URI(url));
-  //      } else {
-  //        // Fallback to system command
-  //        String os = System.getProperty("os.name").toLowerCase();
-  //        if (os.contains("win")) {
-  //          Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
-  //        } else if (os.contains("mac")) {
-  //          Runtime.getRuntime().exec("open " + url);
-  //        } else if (os.contains("nix") || os.contains("nux")) {
-  //          Runtime.getRuntime().exec("xdg-open " + url);
-  //        } else {
-  //          throw new Exception("Unable to open browser on this operating system");
-  //        }
-  //      }
-  //    } catch (Exception e) {
-  //      throw new RuntimeException("Failed to open browser: " + e.getMessage(), e);
-  //    }
-  //  }
-  //
-  //  private void exchangeCodeForTokens() {
-  //    try {
-  //      // Get OAuth configuration
-  //      String clientId = wOAuthClientId.getText();
-  //      String clientSecret = wOAuthClientSecret.getText();
-  //      String redirectUri = wOAuthRedirectUri.getText();
-  //      String instanceUrl = wOAuthInstanceUrl.getText();
-  //      String authCode = wOAuthAccessToken.getText();
-  //
-  //      if (Utils.isEmpty(clientId)) {
-  //        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //        mb.setMessage("OAuth Client ID is required.");
-  //        mb.setText("OAuth Configuration Error");
-  //        mb.open();
-  //        return;
-  //      }
-  //
-  //      if (Utils.isEmpty(clientSecret)) {
-  //        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //        mb.setMessage("OAuth Client Secret is required.");
-  //        mb.setText("OAuth Configuration Error");
-  //        mb.open();
-  //        return;
-  //      }
-  //
-  //      if (Utils.isEmpty(redirectUri)) {
-  //        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //        mb.setMessage("OAuth Redirect URI is required.");
-  //        mb.setText("OAuth Configuration Error");
-  //        mb.open();
-  //        return;
-  //      }
-  //
-  //      if (Utils.isEmpty(instanceUrl)) {
-  //        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //        mb.setMessage("OAuth Instance URL is required.");
-  //        mb.setText("OAuth Configuration Error");
-  //        mb.open();
-  //        return;
-  //      }
-  //
-  //      if (Utils.isEmpty(authCode)) {
-  //        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //        mb.setMessage(
-  //            "Authorization code is required. Please paste the code from the browser redirect
-  // URL.");
-  //        mb.setText("OAuth Configuration Error");
-  //        mb.open();
-  //        return;
-  //      }
-  //
-  //      // URL-decode the authorization code in case it contains encoded characters
-  //      try {
-  //        authCode = URLDecoder.decode(authCode, "UTF-8");
-  //      } catch (Exception e) {
-  //        // If decoding fails, use the original code
-  //        if (log.isDetailed()) {
-  //          log.logDetailed("Failed to URL-decode authorization code: " + e.getMessage());
-  //        }
-  //      }
-  //
-  //      // Exchange authorization code for tokens
-  //      TokenResponse tokenResponse =
-  //          exchangeAuthorizationCodeForTokens(
-  //              clientId, clientSecret, redirectUri, instanceUrl, authCode);
-  //
-  //      if (tokenResponse != null) {
-  //        // Update the UI with the tokens
-  //        wOAuthAccessToken.setText(tokenResponse.accessToken);
-  //        wOAuthRefreshToken.setText(tokenResponse.refreshToken);
-  //
-  //        MessageBox successMb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-  //        successMb.setMessage(
-  //            "Successfully exchanged authorization code for tokens!\n\n"
-  //                + "Access Token and Refresh Token have been populated.\n"
-  //                + "You can now test the connection.");
-  //        successMb.setText("Token Exchange Successful");
-  //        successMb.open();
-  //      }
-  //
-  //    } catch (Exception e) {
-  //      MessageBox errorMb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-  //      errorMb.setMessage("Error exchanging authorization code for tokens: " + e.getMessage());
-  //      errorMb.setText("Token Exchange Error");
-  //      errorMb.open();
-  //    }
-  //  }
-  //
-  //  private TokenResponse exchangeAuthorizationCodeForTokens(
-  //      String clientId, String clientSecret, String redirectUri, String instanceUrl, String
-  // authCode)
-  //      throws Exception {
-  //
-  //    // Build token endpoint URL
-  //    String tokenUrl = instanceUrl;
-  //    if (!tokenUrl.endsWith("/")) {
-  //      tokenUrl += "/";
-  //    }
-  //    tokenUrl += "services/oauth2/token";
-  //
-  //    // Prepare the request
-  //    URL url = new URL(tokenUrl);
-  //    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-  //    connection.setRequestMethod("POST");
-  //    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-  //    connection.setDoOutput(true);
-  //
-  //    // Build the request body
-  //    StringBuilder requestBody = new StringBuilder();
-  //    requestBody.append("grant_type=authorization_code&");
-  //    requestBody.append("client_id=").append(URLEncoder.encode(clientId, "UTF-8")).append("&");
-  //    requestBody
-  //        .append("client_secret=")
-  //        .append(URLEncoder.encode(clientSecret, "UTF-8"))
-  //        .append("&");
-  //    requestBody.append("redirect_uri=").append(URLEncoder.encode(redirectUri,
-  // "UTF-8")).append("&");
-  //    requestBody.append("code=").append(URLEncoder.encode(authCode, "UTF-8")).append("&");
-  //    requestBody.append("code_verifier=").append(URLEncoder.encode(codeVerifier, "UTF-8"));
-  //
-  //    if (log.isDetailed()) {
-  //      log.logDetailed("Token exchange request body: " + requestBody.toString());
-  //    }
-  //
-  //    // Send the request
-  //    try (OutputStream os = connection.getOutputStream()) {
-  //      byte[] input = requestBody.toString().getBytes("UTF-8");
-  //      os.write(input, 0, input.length);
-  //    }
-  //
-  //    // Read the response
-  //    int responseCode = connection.getResponseCode();
-  //    BufferedReader reader;
-  //    if (responseCode >= 200 && responseCode < 300) {
-  //      reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-  //    } else {
-  //      reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-  //    }
-  //
-  //    StringBuilder response = new StringBuilder();
-  //    String line;
-  //    while ((line = reader.readLine()) != null) {
-  //      response.append(line);
-  //    }
-  //    reader.close();
-  //
-  //    if (responseCode >= 200 && responseCode < 300) {
-  //      // Parse the JSON response (simplified parsing)
-  //      String responseStr = response.toString();
-  //
-  //      if (log.isDetailed()) {
-  //        log.logDetailed("Token exchange response: " + responseStr);
-  //      }
-  //
-  //      String accessToken = extractJsonValue(responseStr, "access_token");
-  //      String refreshToken = extractJsonValue(responseStr, "refresh_token");
-  //      String instanceUrlFromResponse = extractJsonValue(responseStr, "instance_url");
-  //
-  //      if (accessToken == null) {
-  //        throw new Exception("No access_token in response: " + responseStr);
-  //      }
-  //
-  //      return new TokenResponse(accessToken, refreshToken, instanceUrlFromResponse);
-  //    } else {
-  //      throw new Exception(
-  //          "Token exchange failed with response code " + responseCode + ": " +
-  // response.toString());
-  //    }
-  //  }
-  //
-  //  private String extractJsonValue(String json, String key) {
-  //    if (json == null || key == null) {
-  //      return null;
-  //    }
-  //
-  //    // Try to match quoted string value
-  //    String pattern = "\"" + key + "\"\\s*:\\s*\"([^\"]+)\"";
-  //    java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
-  //    java.util.regex.Matcher m = p.matcher(json);
-  //    if (m.find()) {
-  //      return m.group(1);
-  //    }
-  //
-  //    // Try to match unquoted string value
-  //    pattern = "\"" + key + "\"\\s*:\\s*([^,}]+)";
-  //    p = java.util.regex.Pattern.compile(pattern);
-  //    m = p.matcher(json);
-  //    if (m.find()) {
-  //      String value = m.group(1).trim();
-  //      // Remove quotes if present
-  //      if (value.startsWith("\"") && value.endsWith("\"")) {
-  //        value = value.substring(1, value.length() - 1);
-  //      }
-  //      return value;
-  //    }
-  //
-  //    return null;
-  //  }
-  //
-  //  private static class TokenResponse {
-  //    final String accessToken;
-  //    final String refreshToken;
-  //    final String instanceUrl;
-  //
-  //    TokenResponse(String accessToken, String refreshToken, String instanceUrl) {
-  //      this.accessToken = accessToken;
-  //      this.refreshToken = refreshToken;
-  //      this.instanceUrl = instanceUrl;
-  //    }
-  //  }
 }

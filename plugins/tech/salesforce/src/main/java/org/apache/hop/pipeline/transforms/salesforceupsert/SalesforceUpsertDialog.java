@@ -855,9 +855,6 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       field.setUpdateStream(item.getText(2));
       field.setUseExternalId(Boolean.valueOf(item.getText(3)));
       fields.add(field);
-      //      meta.getUpdateLookup()[i] = item.getText(1);
-      //      meta.getUpdateStream()[i] = item.getText(2);
-      //      meta.getUseExternalId()[i] = Boolean.valueOf("Y".equals(item.getText(3)));
     }
     meta.setFields(fields);
     meta.setCompression(wUseCompression.getSelection());

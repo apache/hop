@@ -50,6 +50,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.namespace.QName;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -61,6 +63,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+@Getter
+@Setter
 public class SalesforceConnection {
   private static final FieldType ID_FIELD_TYPE = FieldType.id;
   private static final FieldType REFERENCE_FIELD_TYPE = FieldType.reference;
@@ -71,7 +75,7 @@ public class SalesforceConnection {
   private String username;
   private String password;
   private String module;
-  private int timeout;
+  private int timeOut;
   private PartnerConnection binding;
   private LoginResult loginResult;
   private GetUserInfoResult userInfo;
@@ -131,7 +135,7 @@ public class SalesforceConnection {
     setRollbackAllChangesOnError(false);
 
     // check target URL
-    if (Utils.isEmpty(getURL())) {
+    if (Utils.isEmpty(getUrl())) {
       throw new HopException(
           BaseMessages.getString(PKG, "SalesforceConnection.TargetURLMissing.Error"));
     }
@@ -275,22 +279,6 @@ public class SalesforceConnection {
         logInterface, jwtUsername, jwtConsumerKey, jwtPrivateKey, jwtTokenEndpoint, true);
   }
 
-  public boolean isRollbackAllChangesOnError() {
-    return this.rollbackAllChangesOnError;
-  }
-
-  public void setRollbackAllChangesOnError(boolean value) {
-    this.rollbackAllChangesOnError = value;
-  }
-
-  public boolean isQueryAll() {
-    return this.queryAll;
-  }
-
-  public void setQueryAll(boolean value) {
-    this.queryAll = value;
-  }
-
   public void setCalendar(int recordsFilter, GregorianCalendar startDate, GregorianCalendar endDate)
       throws HopException {
     this.startDate = startDate;
@@ -313,34 +301,6 @@ public class SalesforceConnection {
     }
   }
 
-  public void setSQL(String sql) {
-    this.sql = sql;
-  }
-
-  public void setFieldsList(String fieldsList) {
-    this.fieldsList = fieldsList;
-  }
-
-  public void setModule(String module) {
-    this.module = module;
-  }
-
-  public String getURL() {
-    return this.url;
-  }
-
-  public String getSQL() {
-    return this.sql;
-  }
-
-  public Date getServerTimestamp() {
-    return this.serverTimestamp;
-  }
-
-  public String getModule() {
-    return this.module;
-  }
-
   public QueryResult getQueryResult() {
     return this.qr;
   }
@@ -352,88 +312,12 @@ public class SalesforceConnection {
     return this.binding;
   }
 
-  public PartnerConnection getBinding() {
-    return this.binding;
-  }
-
-  public void setTimeOut(int timeout) {
-    this.timeout = timeout;
-  }
-
-  public int getTimeOut() {
-    return this.timeout;
-  }
-
   public boolean isUsingCompression() {
     return this.useCompression;
   }
 
   public void setUsingCompression(boolean useCompression) {
     this.useCompression = useCompression;
-  }
-
-  public String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(String value) {
-    this.username = value;
-  }
-
-  public String getPassword() {
-    return this.password;
-  }
-
-  public void setPassword(String value) {
-    this.password = value;
-  }
-
-  public String getAuthenticationType() {
-    return authenticationType;
-  }
-
-  public void setAuthenticationType(String authenticationType) {
-    this.authenticationType = authenticationType;
-  }
-
-  public String getOauthClientId() {
-    return oauthClientId;
-  }
-
-  public void setOauthClientId(String oauthClientId) {
-    this.oauthClientId = oauthClientId;
-  }
-
-  public String getOauthClientSecret() {
-    return oauthClientSecret;
-  }
-
-  public void setOauthClientSecret(String oauthClientSecret) {
-    this.oauthClientSecret = oauthClientSecret;
-  }
-
-  public String getOauthAccessToken() {
-    return oauthAccessToken;
-  }
-
-  public void setOauthAccessToken(String oauthAccessToken) {
-    this.oauthAccessToken = oauthAccessToken;
-  }
-
-  public String getOauthRefreshToken() {
-    return oauthRefreshToken;
-  }
-
-  public void setOauthRefreshToken(String oauthRefreshToken) {
-    this.oauthRefreshToken = oauthRefreshToken;
-  }
-
-  public String getOauthInstanceUrl() {
-    return oauthInstanceUrl;
-  }
-
-  public void setOauthInstanceUrl(String oauthInstanceUrl) {
-    this.oauthInstanceUrl = oauthInstanceUrl;
   }
 
   public boolean isOAuthAuthentication() {
@@ -460,8 +344,8 @@ public class SalesforceConnection {
 
   private void connectWithUsernamePassword() throws HopException {
     ConnectorConfig config = new ConnectorConfig();
-    config.setAuthEndpoint(getURL());
-    config.setServiceEndpoint(getURL());
+    config.setAuthEndpoint(getUrl());
+    config.setServiceEndpoint(getUrl());
     config.setUsername(getUsername());
     config.setPassword(getPassword());
     config.setCompression(isUsingCompression());
@@ -483,7 +367,7 @@ public class SalesforceConnection {
       if (log.isDebug()) {
         log.logDebug(
             BaseMessages.getString(
-                PKG, "SalesforceConnection.Log.SettingTimeout", "" + this.timeout));
+                PKG, "SalesforceConnection.Log.SettingTimeout", "" + this.timeOut));
       }
       config.setConnectionTimeout(getTimeOut());
       config.setReadTimeout(getTimeOut());
@@ -508,7 +392,7 @@ public class SalesforceConnection {
       if (log.isDetailed()) {
         log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.LoginNow"));
         log.logDetailed("----------------------------------------->");
-        log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.LoginURL", getURL()));
+        log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.LoginURL", getUrl()));
         log.logDetailed(
             BaseMessages.getString(PKG, "SalesforceConnection.Log.LoginUsername", getUsername()));
         if (getModule() != null) {
@@ -1216,9 +1100,9 @@ public class SalesforceConnection {
         }
       }
 
-      if (getSQL() != null && log.isDetailed()) {
+      if (getSql() != null && log.isDetailed()) {
         log.logDetailed(
-            BaseMessages.getString(PKG, "SalesforceConnection.Log.SQLString") + " : " + getSQL());
+            BaseMessages.getString(PKG, "SalesforceConnection.Log.SQLString") + " : " + getSql());
       }
 
       switch (this.recordsFilter) {
@@ -1283,7 +1167,7 @@ public class SalesforceConnection {
             for (DeletedRecord dr : deletedRecords) {
               getDeletedList.put(dr.getId(), dr.getDeletedDate().getTime());
             }
-            this.qr = executeQueryWithTokenRefresh(() -> getBinding().queryAll(getSQL()));
+            this.qr = executeQueryWithTokenRefresh(() -> getBinding().queryAll(getSql()));
             this.sObjects = getQueryResult().getRecords();
             if (this.sObjects != null) {
               this.queryResultSize = this.sObjects.length;
@@ -1294,8 +1178,8 @@ public class SalesforceConnection {
           // return query result
           this.qr =
               isQueryAll()
-                  ? executeQueryWithTokenRefresh(() -> getBinding().queryAll(getSQL()))
-                  : executeQueryWithTokenRefresh(() -> getBinding().query(getSQL()));
+                  ? executeQueryWithTokenRefresh(() -> getBinding().queryAll(getSql()))
+                  : executeQueryWithTokenRefresh(() -> getBinding().query(getSql()));
           this.sObjects = getQueryResult().getRecords();
           this.queryResultSize = getQueryResult().getSize();
           break;
@@ -1478,7 +1362,7 @@ public class SalesforceConnection {
   public XmlObject[] getElements() throws Exception {
     XmlObject[] result = null;
     // Query first
-    this.qr = getBinding().query(getSQL());
+    this.qr = getBinding().query(getSql());
     // and then return records
     if (this.qr.getSize() > 0) {
       SObject con = getQueryResult().getRecords()[0];
