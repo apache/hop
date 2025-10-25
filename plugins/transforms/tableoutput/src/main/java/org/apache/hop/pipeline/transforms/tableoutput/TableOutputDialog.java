@@ -98,6 +98,21 @@ public class TableOutputDialog extends BaseTransformDialog {
 
   private Button wSpecifyFields;
 
+  private Label wlAutoUpdateTableStructure;
+  private Button wAutoUpdateTableStructure;
+
+  private Label wlAlwaysDropAndRecreate;
+  private Button wAlwaysDropAndRecreate;
+
+  private Label wlAddColumns;
+  private Button wAddColumns;
+
+  private Label wlDropColumns;
+  private Button wDropColumns;
+
+  private Label wlChangeColumnTypes;
+  private Button wChangeColumnTypes;
+
   private Label wlBatch;
   private Button wBatch;
 
@@ -383,6 +398,106 @@ public class TableOutputDialog extends BaseTransformDialog {
             setFlags();
           }
         });
+
+    // Automatically update table structure
+    Label wlAutoUpdateTableStructure = new Label(shell, SWT.RIGHT);
+    wlAutoUpdateTableStructure.setText(
+        BaseMessages.getString(PKG, "TableOutputDialog.AutoUpdateTableStructure.Label"));
+    PropsUi.setLook(wlAutoUpdateTableStructure);
+    FormData fdlAutoUpdateTableStructure = new FormData();
+    fdlAutoUpdateTableStructure.left = new FormAttachment(0, 0);
+    fdlAutoUpdateTableStructure.top = new FormAttachment(wlSpecifyFields, margin);
+    fdlAutoUpdateTableStructure.right = new FormAttachment(middle, -margin);
+    wlAutoUpdateTableStructure.setLayoutData(fdlAutoUpdateTableStructure);
+    wAutoUpdateTableStructure = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wAutoUpdateTableStructure);
+    FormData fdAutoUpdateTableStructure = new FormData();
+    fdAutoUpdateTableStructure.left = new FormAttachment(middle, 0);
+    fdAutoUpdateTableStructure.top = new FormAttachment(wlAutoUpdateTableStructure, 0, SWT.CENTER);
+    fdAutoUpdateTableStructure.right = new FormAttachment(100, 0);
+    wAutoUpdateTableStructure.setLayoutData(fdAutoUpdateTableStructure);
+    wAutoUpdateTableStructure.addSelectionListener(lsSelMod);
+    wAutoUpdateTableStructure.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            setFlags();
+          }
+        });
+
+    // Always drop and recreate table
+    Label wlAlwaysDropAndRecreate = new Label(shell, SWT.RIGHT);
+    wlAlwaysDropAndRecreate.setText(
+        BaseMessages.getString(PKG, "TableOutputDialog.AlwaysDropAndRecreate.Label"));
+    PropsUi.setLook(wlAlwaysDropAndRecreate);
+    FormData fdlAlwaysDropAndRecreate = new FormData();
+    fdlAlwaysDropAndRecreate.left = new FormAttachment(0, 0);
+    fdlAlwaysDropAndRecreate.top = new FormAttachment(wlAutoUpdateTableStructure, margin);
+    fdlAlwaysDropAndRecreate.right = new FormAttachment(middle, -margin);
+    wlAlwaysDropAndRecreate.setLayoutData(fdlAlwaysDropAndRecreate);
+    wAlwaysDropAndRecreate = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wAlwaysDropAndRecreate);
+    FormData fdAlwaysDropAndRecreate = new FormData();
+    fdAlwaysDropAndRecreate.left = new FormAttachment(middle, 0);
+    fdAlwaysDropAndRecreate.top = new FormAttachment(wlAlwaysDropAndRecreate, 0, SWT.CENTER);
+    fdAlwaysDropAndRecreate.right = new FormAttachment(100, 0);
+    wAlwaysDropAndRecreate.setLayoutData(fdAlwaysDropAndRecreate);
+    wAlwaysDropAndRecreate.addSelectionListener(lsSelMod);
+
+    // Add columns
+    wlAddColumns = new Label(shell, SWT.RIGHT);
+    wlAddColumns.setText(BaseMessages.getString(PKG, "TableOutputDialog.AddColumns.Label"));
+    PropsUi.setLook(wlAddColumns);
+    FormData fdlAddColumns = new FormData();
+    fdlAddColumns.left = new FormAttachment(0, 0);
+    fdlAddColumns.top = new FormAttachment(wlAlwaysDropAndRecreate, margin);
+    fdlAddColumns.right = new FormAttachment(middle, -margin);
+    wlAddColumns.setLayoutData(fdlAddColumns);
+    wAddColumns = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wAddColumns);
+    FormData fdAddColumns = new FormData();
+    fdAddColumns.left = new FormAttachment(middle, 0);
+    fdAddColumns.top = new FormAttachment(wlAddColumns, 0, SWT.CENTER);
+    fdAddColumns.right = new FormAttachment(100, 0);
+    wAddColumns.setLayoutData(fdAddColumns);
+    wAddColumns.addSelectionListener(lsSelMod);
+
+    // Drop non-existing columns
+    wlDropColumns = new Label(shell, SWT.RIGHT);
+    wlDropColumns.setText(BaseMessages.getString(PKG, "TableOutputDialog.DropColumns.Label"));
+    PropsUi.setLook(wlDropColumns);
+    FormData fdlDropColumns = new FormData();
+    fdlDropColumns.left = new FormAttachment(0, 0);
+    fdlDropColumns.top = new FormAttachment(wlAddColumns, margin);
+    fdlDropColumns.right = new FormAttachment(middle, -margin);
+    wlDropColumns.setLayoutData(fdlDropColumns);
+    wDropColumns = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wDropColumns);
+    FormData fdDropColumns = new FormData();
+    fdDropColumns.left = new FormAttachment(middle, 0);
+    fdDropColumns.top = new FormAttachment(wlDropColumns, 0, SWT.CENTER);
+    fdDropColumns.right = new FormAttachment(100, 0);
+    wDropColumns.setLayoutData(fdDropColumns);
+    wDropColumns.addSelectionListener(lsSelMod);
+
+    // Change column data types
+    wlChangeColumnTypes = new Label(shell, SWT.RIGHT);
+    wlChangeColumnTypes.setText(
+        BaseMessages.getString(PKG, "TableOutputDialog.ChangeColumnTypes.Label"));
+    PropsUi.setLook(wlChangeColumnTypes);
+    FormData fdlChangeColumnTypes = new FormData();
+    fdlChangeColumnTypes.left = new FormAttachment(0, 0);
+    fdlChangeColumnTypes.top = new FormAttachment(wlDropColumns, margin);
+    fdlChangeColumnTypes.right = new FormAttachment(middle, -margin);
+    wlChangeColumnTypes.setLayoutData(fdlChangeColumnTypes);
+    wChangeColumnTypes = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wChangeColumnTypes);
+    FormData fdChangeColumnTypes = new FormData();
+    fdChangeColumnTypes.left = new FormAttachment(middle, 0);
+    fdChangeColumnTypes.top = new FormAttachment(wlChangeColumnTypes, 0, SWT.CENTER);
+    fdChangeColumnTypes.right = new FormAttachment(100, 0);
+    wChangeColumnTypes.setLayoutData(fdChangeColumnTypes);
+    wChangeColumnTypes.addSelectionListener(lsSelMod);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -812,7 +927,7 @@ public class TableOutputDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wSpecifyFields, 3 * margin);
+    fdTabFolder.top = new FormAttachment(wlChangeColumnTypes, 3 * margin);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -1226,6 +1341,42 @@ public class TableOutputDialog extends BaseTransformDialog {
     wlNameInTable.setEnabled(isTableNameInField && !specifyFields);
     wNameInTable.setEnabled(isTableNameInField && !specifyFields);
 
+    // Handle auto update table structure options (only if UI components are initialized)
+    if (wAutoUpdateTableStructure != null
+        && wAlwaysDropAndRecreate != null
+        && wlAutoUpdateTableStructure != null
+        && wlAlwaysDropAndRecreate != null) {
+      boolean autoUpdateTableStructure = wAutoUpdateTableStructure.getSelection();
+      boolean alwaysDropAndRecreate = wAlwaysDropAndRecreate.getSelection();
+
+      // Auto update table structure is incompatible with specify fields
+      boolean enableAutoUpdate = !specifyFields;
+      boolean enableAlwaysDropAndRecreate = autoUpdateTableStructure && enableAutoUpdate;
+
+      // If specify fields is enabled, disable auto update table structure
+      if (specifyFields && autoUpdateTableStructure) {
+        wAutoUpdateTableStructure.setSelection(false);
+        autoUpdateTableStructure = false;
+      }
+
+      // If auto update is disabled, disable always drop and recreate
+      if (!autoUpdateTableStructure && alwaysDropAndRecreate) {
+        wAlwaysDropAndRecreate.setSelection(false);
+        alwaysDropAndRecreate = false;
+      }
+
+      wlAutoUpdateTableStructure.setEnabled(enableAutoUpdate);
+      wAutoUpdateTableStructure.setEnabled(enableAutoUpdate);
+      wlAlwaysDropAndRecreate.setEnabled(enableAlwaysDropAndRecreate);
+      wAlwaysDropAndRecreate.setEnabled(enableAlwaysDropAndRecreate);
+      wlAddColumns.setEnabled(enableAlwaysDropAndRecreate);
+      wAddColumns.setEnabled(enableAlwaysDropAndRecreate);
+      wlDropColumns.setEnabled(enableAlwaysDropAndRecreate);
+      wDropColumns.setEnabled(enableAlwaysDropAndRecreate);
+      wlChangeColumnTypes.setEnabled(enableAlwaysDropAndRecreate);
+      wChangeColumnTypes.setEnabled(enableAlwaysDropAndRecreate);
+    }
+
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       if (!databaseMeta.supportsAutoGeneratedKeys()) {
@@ -1283,6 +1434,22 @@ public class TableOutputDialog extends BaseTransformDialog {
 
     wSpecifyFields.setSelection(input.isSpecifyFields());
 
+    if (wAutoUpdateTableStructure != null) {
+      wAutoUpdateTableStructure.setSelection(input.isAutoUpdateTableStructure());
+    }
+    if (wAlwaysDropAndRecreate != null) {
+      wAlwaysDropAndRecreate.setSelection(input.isAlwaysDropAndRecreate());
+    }
+    if (wAddColumns != null) {
+      wAddColumns.setSelection(input.isAddColumns());
+    }
+    if (wDropColumns != null) {
+      wDropColumns.setSelection(input.isDropColumns());
+    }
+    if (wChangeColumnTypes != null) {
+      wChangeColumnTypes.setSelection(input.isChangeColumnTypes());
+    }
+
     for (int i = 0; i < input.getFields().size(); i++) {
       TableOutputField tf = input.getFields().get(i);
       TableItem item = wFields.table.getItem(i);
@@ -1339,6 +1506,21 @@ public class TableOutputDialog extends BaseTransformDialog {
     info.setReturningGeneratedKeys(wReturnKeys.getSelection());
     info.setGeneratedKeyField(wReturnField.getText());
     info.setSpecifyFields(wSpecifyFields.getSelection());
+    if (wAutoUpdateTableStructure != null) {
+      info.setAutoUpdateTableStructure(wAutoUpdateTableStructure.getSelection());
+    }
+    if (wAlwaysDropAndRecreate != null) {
+      info.setAlwaysDropAndRecreate(wAlwaysDropAndRecreate.getSelection());
+    }
+    if (wAddColumns != null) {
+      info.setAddColumns(wAddColumns.getSelection());
+    }
+    if (wDropColumns != null) {
+      info.setDropColumns(wDropColumns.getSelection());
+    }
+    if (wChangeColumnTypes != null) {
+      info.setChangeColumnTypes(wChangeColumnTypes.getSelection());
+    }
 
     int nrRows = wFields.nrNonEmpty();
     info.getFields().clear();

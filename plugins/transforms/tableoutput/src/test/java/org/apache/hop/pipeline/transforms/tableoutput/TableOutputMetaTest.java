@@ -79,6 +79,13 @@ class TableOutputMetaTest {
     assertTrue(tableOutputMeta.isTableNameInTable());
     assertEquals("", tableOutputMeta.getTableNameField());
     assertFalse(tableOutputMeta.isSpecifyFields());
+
+    // New DDL options should default to false
+    assertFalse(tableOutputMeta.isAutoUpdateTableStructure());
+    assertFalse(tableOutputMeta.isAlwaysDropAndRecreate());
+    assertFalse(tableOutputMeta.isAddColumns());
+    assertFalse(tableOutputMeta.isDropColumns());
+    assertFalse(tableOutputMeta.isChangeColumnTypes());
   }
 
   @Test
@@ -116,6 +123,86 @@ class TableOutputMetaTest {
         new ListLoadSaveValidator<>(new TableOutputFieldInputFieldLoadSaveValidator()));
 
     tester.testSerialization();
+  }
+
+  @Test
+  void testAutoUpdateTableStructureProperty() {
+    TableOutputMeta meta = new TableOutputMeta();
+
+    // Default value
+    assertFalse(meta.isAutoUpdateTableStructure());
+
+    // Set to true
+    meta.setAutoUpdateTableStructure(true);
+    assertTrue(meta.isAutoUpdateTableStructure());
+
+    // Set to false
+    meta.setAutoUpdateTableStructure(false);
+    assertFalse(meta.isAutoUpdateTableStructure());
+  }
+
+  @Test
+  void testAlwaysDropAndRecreateProperty() {
+    TableOutputMeta meta = new TableOutputMeta();
+
+    // Default value
+    assertFalse(meta.isAlwaysDropAndRecreate());
+
+    // Set to true
+    meta.setAlwaysDropAndRecreate(true);
+    assertTrue(meta.isAlwaysDropAndRecreate());
+
+    // Set to false
+    meta.setAlwaysDropAndRecreate(false);
+    assertFalse(meta.isAlwaysDropAndRecreate());
+  }
+
+  @Test
+  void testAddColumnsProperty() {
+    TableOutputMeta meta = new TableOutputMeta();
+
+    // Default value
+    assertFalse(meta.isAddColumns());
+
+    // Set to true
+    meta.setAddColumns(true);
+    assertTrue(meta.isAddColumns());
+
+    // Set to false
+    meta.setAddColumns(false);
+    assertFalse(meta.isAddColumns());
+  }
+
+  @Test
+  void testDropColumnsProperty() {
+    TableOutputMeta meta = new TableOutputMeta();
+
+    // Default value
+    assertFalse(meta.isDropColumns());
+
+    // Set to true
+    meta.setDropColumns(true);
+    assertTrue(meta.isDropColumns());
+
+    // Set to false
+    meta.setDropColumns(false);
+    assertFalse(meta.isDropColumns());
+  }
+
+  @Test
+  void testChangeColumnTypesProperty() {
+    TableOutputMeta meta = new TableOutputMeta();
+
+    // Default value
+    assertFalse(meta.isChangeColumnTypes());
+
+    // Set to true
+    meta.setChangeColumnTypes(true);
+    assertTrue(meta.isChangeColumnTypes());
+
+    // Set to false
+    meta.setChangeColumnTypes(false);
+    assertFalse(meta.isChangeColumnTypes());
   }
 
   public class TableOutputFieldInputFieldLoadSaveValidator
