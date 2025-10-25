@@ -123,16 +123,16 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> {
       data.previous = data.inputRowMeta.cloneRow(r);
       data.counter = 1;
     } else {
-      data.counter++;
       if (data.sendDuplicateRows && !first) {
         putError(
-            getInputRowMeta(),
-            r,
+            data.outputRowMeta,
+            RowDataUtil.addValueData(r, data.outputRowMeta.size() - 1, data.counter),
             1,
             data.realErrorDescription,
             Utils.isEmpty(data.compareFields) ? null : data.compareFields,
             "UNR001");
       }
+      data.counter++;
     }
 
     if (checkFeedback(getLinesRead()) && isBasic()) {
