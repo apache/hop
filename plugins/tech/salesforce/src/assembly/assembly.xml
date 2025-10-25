@@ -19,7 +19,7 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <id>hop-transform-salesforce</id>
+    <id>hop-tech-salesforce</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -27,7 +27,7 @@
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>plugins/transforms/salesforce</outputDirectory>
+            <outputDirectory>plugins/tech/salesforce</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -42,16 +42,16 @@
     <dependencySets>
         <dependencySet>
             <includes>
-                <include>org.apache.hop:hop-transform-salesforce:jar</include>
+                <include>org.apache.hop:hop-tech-salesforce:jar</include>
             </includes>
-            <outputDirectory>plugins/transforms/salesforce</outputDirectory>
+            <outputDirectory>plugins/tech/salesforce</outputDirectory>
         </dependencySet>
         <dependencySet>
             <includes>
                 <include>com.force.api:force-wsc:jar</include>
                 <include>com.force.api:force-partner-api:jar</include>
             </includes>
-            <outputDirectory>plugins/transforms/salesforce/lib</outputDirectory>
+            <outputDirectory>plugins/tech/salesforce/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

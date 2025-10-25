@@ -41,6 +41,7 @@
         <module>neo4j</module>
         <module>opensearch</module>
         <module>parquet</module>
+        <module>salesforce</module>
         <module>vault</module>
     </modules>
 </project>

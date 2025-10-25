@@ -789,6 +789,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-salesforce</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-vault</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -1396,12 +1402,6 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-rowstoresult</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-salesforce</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>

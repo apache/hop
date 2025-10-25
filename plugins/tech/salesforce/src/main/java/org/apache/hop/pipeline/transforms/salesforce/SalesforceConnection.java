@@ -83,6 +83,7 @@ public class SalesforceConnection {
   private String oauthAccessToken;
   private String oauthRefreshToken;
   private String oauthInstanceUrl;
+  private String oauthJwtPrivateKey;
   private String sql;
   private Date serverTimestamp;
   private QueryResult qr;
@@ -147,7 +148,12 @@ public class SalesforceConnection {
     }
   }
 
-  /** Construct a new Salesforce Connection with OAuth authentication */
+  /**
+   * Construct a new Salesforce Connection with OAuth authentication
+   *
+   * @deprecated Use createOAuthConnection factory method instead
+   */
+  @Deprecated
   public SalesforceConnection(
       ILogChannel logInterface,
       String oauthClientId,
@@ -155,17 +161,39 @@ public class SalesforceConnection {
       String oauthAccessToken,
       String oauthInstanceUrl)
       throws HopException {
+    this(logInterface, oauthClientId, oauthClientSecret, oauthAccessToken, oauthInstanceUrl, false);
+  }
+
+  /** Private constructor for OAuth with JWT flag */
+  private SalesforceConnection(
+      ILogChannel logInterface,
+      String param1,
+      String param2,
+      String param3,
+      String param4,
+      boolean isJwt)
+      throws HopException {
     if (logInterface == null) {
       this.log = HopLogStore.getLogChannelFactory().create(this);
     } else {
       this.log = logInterface;
     }
 
-    this.authenticationType = "OAUTH";
-    this.oauthClientId = oauthClientId;
-    this.oauthClientSecret = oauthClientSecret;
-    this.oauthAccessToken = oauthAccessToken;
-    this.oauthInstanceUrl = oauthInstanceUrl;
+    if (isJwt) {
+      // JWT parameters: username, consumerKey, privateKey, tokenEndpoint
+      this.authenticationType = "OAUTH_JWT";
+      this.username = param1; // JWT username
+      this.oauthClientId = param2; // Consumer key
+      this.oauthJwtPrivateKey = param3; // Private key
+      this.url = param4; // Token endpoint
+    } else {
+      // OAuth parameters: clientId, clientSecret, accessToken, instanceUrl
+      this.authenticationType = "OAUTH";
+      this.oauthClientId = param1;
+      this.oauthClientSecret = param2;
+      this.oauthAccessToken = param3;
+      this.oauthInstanceUrl = param4;
+    }
     setTimeOut(0);
 
     this.binding = null;
@@ -184,21 +212,67 @@ public class SalesforceConnection {
     setUsingCompression(false);
     setRollbackAllChangesOnError(false);
 
-    // check OAuth parameters
-    if (Utils.isEmpty(getOauthClientId())) {
-      throw new HopException(
-          BaseMessages.getString(PKG, "SalesforceConnection.OAuthClientIdMissing.Error"));
-    }
+    // Validate parameters based on authentication type
+    if (isJwt) {
+      // Validate JWT parameters
+      if (Utils.isEmpty(param1)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.JwtUsernameMissing.Error"));
+      }
 
-    if (Utils.isEmpty(getOauthAccessToken())) {
-      throw new HopException(
-          BaseMessages.getString(PKG, "SalesforceConnection.OAuthAccessTokenMissing.Error"));
-    }
+      if (Utils.isEmpty(param2)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.JwtConsumerKeyMissing.Error"));
+      }
 
-    if (log.isDetailed()) {
-      logInterface.logDetailed(
-          BaseMessages.getString(PKG, "SalesforceConnection.Log.NewOAuthConnection"));
+      if (Utils.isEmpty(param3)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.JwtPrivateKeyMissing.Error"));
+      }
+
+      if (log.isDetailed()) {
+        logInterface.logDetailed(
+            BaseMessages.getString(PKG, "SalesforceConnection.Log.NewOAuthJwtConnection"));
+      }
+    } else {
+      // Validate OAuth parameters
+      if (Utils.isEmpty(param1)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.OAuthClientIdMissing.Error"));
+      }
+
+      if (Utils.isEmpty(param3)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.OAuthAccessTokenMissing.Error"));
+      }
+
+      if (log.isDetailed()) {
+        logInterface.logDetailed(
+            BaseMessages.getString(PKG, "SalesforceConnection.Log.NewOAuthConnection"));
+      }
     }
+  }
+
+  /**
+   * Factory method to create a new Salesforce Connection with OAuth JWT Bearer authentication
+   *
+   * @param logInterface Log channel for logging
+   * @param jwtUsername Salesforce username
+   * @param jwtConsumerKey Consumer key from Connected App
+   * @param jwtPrivateKey RSA private key in PKCS8 format
+   * @param jwtTokenEndpoint Token endpoint URL
+   * @return A configured SalesforceConnection for JWT authentication
+   * @throws HopException if connection creation fails
+   */
+  public static SalesforceConnection createJwtConnection(
+      ILogChannel logInterface,
+      String jwtUsername,
+      String jwtConsumerKey,
+      String jwtPrivateKey,
+      String jwtTokenEndpoint)
+      throws HopException {
+    return new SalesforceConnection(
+        logInterface, jwtUsername, jwtConsumerKey, jwtPrivateKey, jwtTokenEndpoint, true);
   }
 
   public boolean isRollbackAllChangesOnError() {
@@ -370,9 +444,15 @@ public class SalesforceConnection {
     return "USERNAME_PASSWORD".equalsIgnoreCase(authenticationType);
   }
 
+  public boolean isOAuthJwtAuthentication() {
+    return "OAUTH_JWT".equalsIgnoreCase(authenticationType);
+  }
+
   public void connect() throws HopException {
     if (isOAuthAuthentication()) {
       connectWithOAuth();
+    } else if (isOAuthJwtAuthentication()) {
+      connectWithOAuthJwt();
     } else {
       connectWithUsernamePassword();
     }
@@ -593,6 +673,230 @@ public class SalesforceConnection {
       throw new HopException(
           BaseMessages.getString(PKG, "SalesforceConnection.Error.OAuthConnection"), e);
     }
+  }
+
+  private void connectWithOAuthJwt() throws HopException {
+    try {
+      if (log.isDetailed()) {
+        log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.JwtLoginNow"));
+        log.logDetailed("----------------------------------------->");
+        log.logDetailed(
+            BaseMessages.getString(PKG, "SalesforceConnection.Log.JwtUsername", this.username));
+        log.logDetailed(
+            BaseMessages.getString(PKG, "SalesforceConnection.Log.JwtTokenEndpoint", this.url));
+        log.logDetailed("<-----------------------------------------");
+      }
+
+      // Generate JWT and exchange for access token
+      // This will also update this.oauthInstanceUrl with the actual instance URL
+      String accessToken = generateJwtAndGetAccessToken();
+
+      if (Utils.isEmpty(accessToken)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.JwtTokenGenerationFailed.Error"));
+      }
+
+      // Use the instance URL from the token response (set in generateJwtAndGetAccessToken)
+      String instanceUrl = this.oauthInstanceUrl;
+
+      if (Utils.isEmpty(instanceUrl)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SalesforceConnection.OAuthInstanceUrlMissing.Error"));
+      }
+
+      if (log.isDetailed()) {
+        log.logDetailed("Using instance URL from token response: " + instanceUrl);
+      }
+
+      // Create SOAP binding with JWT-acquired access token
+      ConnectorConfig config = new ConnectorConfig();
+      config.setAuthEndpoint(instanceUrl + "/services/Soap/u/64.0");
+      config.setServiceEndpoint(instanceUrl + "/services/Soap/u/64.0");
+      config.setManualLogin(true);
+      config.setSessionId(accessToken);
+      config.setCompression(isUsingCompression());
+
+      // Set timeout
+      if (getTimeOut() > 0) {
+        config.setConnectionTimeout(getTimeOut());
+        config.setReadTimeout(getTimeOut());
+      }
+
+      this.binding = new PartnerConnection(config);
+      this.oauthAccessToken = accessToken;
+
+      if (isRollbackAllChangesOnError()) {
+        this.binding.setAllOrNoneHeader(true);
+      }
+
+      if (log.isDetailed()) {
+        log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.JwtConnected"));
+      }
+
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "SalesforceConnection.Error.JwtConnection"), e);
+    }
+  }
+
+  private String generateJwtAndGetAccessToken() throws HopException {
+    try {
+      // Build JWT token
+      String jwtToken = buildJwtAssertion();
+
+      // Exchange JWT for access token
+      String tokenUrl = this.url;
+      if (!tokenUrl.endsWith("/services/oauth2/token")) {
+        if (!tokenUrl.endsWith("/")) {
+          tokenUrl += "/";
+        }
+        tokenUrl += "services/oauth2/token";
+      }
+
+      // Prepare HTTP request
+      java.net.URL url = new java.net.URL(tokenUrl);
+      java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+      connection.setRequestMethod("POST");
+      connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+      connection.setDoOutput(true);
+
+      // Build request body
+      StringBuilder requestBody = new StringBuilder();
+      requestBody
+          .append("grant_type=")
+          .append(
+              java.net.URLEncoder.encode("urn:ietf:params:oauth:grant-type:jwt-bearer", "UTF-8"));
+      requestBody.append("&assertion=").append(java.net.URLEncoder.encode(jwtToken, "UTF-8"));
+
+      // Send request
+      try (java.io.OutputStream os = connection.getOutputStream()) {
+        byte[] input = requestBody.toString().getBytes("UTF-8");
+        os.write(input, 0, input.length);
+      }
+
+      // Read response
+      int responseCode = connection.getResponseCode();
+      java.io.BufferedReader reader;
+      if (responseCode >= 200 && responseCode < 300) {
+        reader =
+            new java.io.BufferedReader(new java.io.InputStreamReader(connection.getInputStream()));
+      } else {
+        reader =
+            new java.io.BufferedReader(new java.io.InputStreamReader(connection.getErrorStream()));
+      }
+
+      StringBuilder response = new StringBuilder();
+      String line;
+      while ((line = reader.readLine()) != null) {
+        response.append(line);
+      }
+      reader.close();
+
+      if (responseCode >= 200 && responseCode < 300) {
+        // Parse JSON response
+        String responseStr = response.toString();
+        String accessToken = extractJsonValue(responseStr, "access_token");
+        String instanceUrl = extractJsonValue(responseStr, "instance_url");
+
+        // Update instance URL if provided
+        if (!Utils.isEmpty(instanceUrl)) {
+          this.oauthInstanceUrl = instanceUrl;
+        }
+
+        if (log.isDetailed()) {
+          log.logDetailed("Successfully obtained access token via JWT bearer flow");
+        }
+
+        return accessToken;
+      } else {
+        throw new HopException(
+            "JWT token exchange failed with response code "
+                + responseCode
+                + ": "
+                + response.toString());
+      }
+
+    } catch (Exception e) {
+      throw new HopException(
+          "Failed to generate JWT and obtain access token: " + e.getMessage(), e);
+    }
+  }
+
+  private String buildJwtAssertion() throws Exception {
+    // JWT Header
+    String header = "{\"alg\":\"RS256\"}";
+    String encodedHeader = base64UrlEncode(header.getBytes("UTF-8"));
+
+    // JWT Claims
+    long now = System.currentTimeMillis() / 1000;
+    long exp = now + 300; // Valid for 5 minutes
+
+    // Extract base URL for audience claim (strip /services/oauth2/token if present)
+    String audienceUrl = this.url;
+    if (audienceUrl.contains("/services/oauth2")) {
+      audienceUrl = audienceUrl.substring(0, audienceUrl.indexOf("/services/oauth2"));
+    }
+    // Ensure no trailing slash
+    if (audienceUrl.endsWith("/")) {
+      audienceUrl = audienceUrl.substring(0, audienceUrl.length() - 1);
+    }
+
+    String claims =
+        "{"
+            + "\"iss\":\""
+            + this.oauthClientId
+            + "\","
+            + "\"sub\":\""
+            + this.username
+            + "\","
+            + "\"aud\":\""
+            + audienceUrl
+            + "\","
+            + "\"exp\":"
+            + exp
+            + "}";
+
+    String encodedClaims = base64UrlEncode(claims.getBytes("UTF-8"));
+
+    // Create signature input
+    String signatureInput = encodedHeader + "." + encodedClaims;
+
+    // Sign with RSA private key
+    String signature = signWithRSA(signatureInput, this.oauthJwtPrivateKey);
+
+    // Return complete JWT
+    return signatureInput + "." + signature;
+  }
+
+  private String signWithRSA(String data, String privateKeyPem) throws Exception {
+    // Remove header/footer and whitespace from PEM
+    String privateKeyContent =
+        privateKeyPem
+            .replaceAll("-----BEGIN.*?-----", "")
+            .replaceAll("-----END.*?-----", "")
+            .replaceAll("\\s", "");
+
+    // Decode Base64 private key
+    byte[] keyBytes = java.util.Base64.getDecoder().decode(privateKeyContent);
+
+    // Create private key object
+    java.security.spec.PKCS8EncodedKeySpec keySpec =
+        new java.security.spec.PKCS8EncodedKeySpec(keyBytes);
+    java.security.KeyFactory keyFactory = java.security.KeyFactory.getInstance("RSA");
+    java.security.PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
+
+    // Sign the data
+    java.security.Signature signature = java.security.Signature.getInstance("SHA256withRSA");
+    signature.initSign(privateKey);
+    signature.update(data.getBytes("UTF-8"));
+    byte[] signatureBytes = signature.sign();
+
+    // Return Base64 URL-encoded signature
+    return base64UrlEncode(signatureBytes);
+  }
+
+  private String base64UrlEncode(byte[] data) {
+    return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(data);
   }
 
   private boolean checkForInvalidSessionId(Exception e) {

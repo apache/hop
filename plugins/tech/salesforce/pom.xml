@@ -21,13 +21,13 @@
 
     <parent>
         <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins-transforms</artifactId>
+        <artifactId>hop-plugins-tech</artifactId>
         <version>2.16.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hop-transform-salesforce</artifactId>
+    <artifactId>hop-tech-salesforce</artifactId>
     <packaging>jar</packaging>
-    <name>Hop Plugins Transforms Salesforce</name>
+    <name>Hop Plugins Technology Salesforce</name>
 
     <properties>
         <com.force.api.version>58.0.0</com.force.api.version>

@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -48,6 +49,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -78,6 +80,13 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
   private PasswordTextVar wOAuthRefreshToken;
   private Button wOAuthAuthorize;
   private Button wOAuthExchange;
+
+  // OAuth JWT Group
+  private Group wOAuthJwtGroup;
+  private TextVar wOAuthJwtUsername;
+  private TextVar wOAuthJwtConsumerKey;
+  private PasswordTextVar wOAuthJwtPrivateKey;
+  private TextVar wOAuthJwtTokenEndpoint;
 
   // Test button
   private Button wTest;
@@ -135,7 +144,8 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     wAuthType.setItems(
         new String[] {
           BaseMessages.getString(PKG, "SalesforceConnectionEditor.AuthType.UsernamePassword"),
-          BaseMessages.getString(PKG, "SalesforceConnectionEditor.AuthType.OAuth")
+          BaseMessages.getString(PKG, "SalesforceConnectionEditor.AuthType.OAuth"),
+          BaseMessages.getString(PKG, "SalesforceConnectionEditor.AuthType.OAuthJWT")
         });
     wAuthType.select(0); // Default to Username/Password
     FormData fdAuthType = new FormData();
@@ -385,11 +395,143 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     FormData fdOAuthGroup = new FormData();
     fdOAuthGroup.left = new FormAttachment(0, 0);
     fdOAuthGroup.right = new FormAttachment(100, 0);
-    fdOAuthGroup.top = new FormAttachment(wUsernamePasswordGroup, margin);
+    fdOAuthGroup.top = new FormAttachment(lastControl, margin);
     wOAuthGroup.setLayoutData(fdOAuthGroup);
 
     // Initially hide OAuth group
     wOAuthGroup.setVisible(false);
+
+    // OAuth JWT Group
+    wOAuthJwtGroup = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    wOAuthJwtGroup.setText(BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtGroup"));
+    FormLayout fOAuthJwtLayout = new FormLayout();
+    fOAuthJwtLayout.marginWidth = 3;
+    fOAuthJwtLayout.marginHeight = 3;
+    wOAuthJwtGroup.setLayout(fOAuthJwtLayout);
+    PropsUi.setLook(wOAuthJwtGroup);
+
+    // JWT Username
+    Label wlOAuthJwtUsername = new Label(wOAuthJwtGroup, SWT.RIGHT);
+    PropsUi.setLook(wlOAuthJwtUsername);
+    wlOAuthJwtUsername.setText(
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtUsername"));
+    FormData fdlOAuthJwtUsername = new FormData();
+    fdlOAuthJwtUsername.left = new FormAttachment(0, 0);
+    fdlOAuthJwtUsername.top = new FormAttachment(0, margin);
+    fdlOAuthJwtUsername.right = new FormAttachment(middle, -margin);
+    wlOAuthJwtUsername.setLayoutData(fdlOAuthJwtUsername);
+
+    wOAuthJwtUsername = new TextVar(variables, wOAuthJwtGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOAuthJwtUsername.setToolTipText(
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtUsername.Tooltip"));
+    PropsUi.setLook(wOAuthJwtUsername);
+    FormData fdOAuthJwtUsername = new FormData();
+    fdOAuthJwtUsername.left = new FormAttachment(middle, 0);
+    fdOAuthJwtUsername.top = new FormAttachment(wlOAuthJwtUsername, 0, SWT.CENTER);
+    fdOAuthJwtUsername.right = new FormAttachment(100, 0);
+    wOAuthJwtUsername.setLayoutData(fdOAuthJwtUsername);
+
+    // JWT Consumer Key
+    Label wlOAuthJwtConsumerKey = new Label(wOAuthJwtGroup, SWT.RIGHT);
+    PropsUi.setLook(wlOAuthJwtConsumerKey);
+    wlOAuthJwtConsumerKey.setText(
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtConsumerKey"));
+    FormData fdlOAuthJwtConsumerKey = new FormData();
+    fdlOAuthJwtConsumerKey.left = new FormAttachment(0, 0);
+    fdlOAuthJwtConsumerKey.top = new FormAttachment(wOAuthJwtUsername, margin);
+    fdlOAuthJwtConsumerKey.right = new FormAttachment(middle, -margin);
+    wlOAuthJwtConsumerKey.setLayoutData(fdlOAuthJwtConsumerKey);
+
+    wOAuthJwtConsumerKey =
+        new TextVar(variables, wOAuthJwtGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOAuthJwtConsumerKey.setToolTipText(
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtConsumerKey.Tooltip"));
+    PropsUi.setLook(wOAuthJwtConsumerKey);
+    FormData fdOAuthJwtConsumerKey = new FormData();
+    fdOAuthJwtConsumerKey.left = new FormAttachment(middle, 0);
+    fdOAuthJwtConsumerKey.top = new FormAttachment(wlOAuthJwtConsumerKey, 0, SWT.CENTER);
+    fdOAuthJwtConsumerKey.right = new FormAttachment(100, 0);
+    wOAuthJwtConsumerKey.setLayoutData(fdOAuthJwtConsumerKey);
+
+    // JWT Private Key
+    Label wlOAuthJwtPrivateKey = new Label(wOAuthJwtGroup, SWT.RIGHT);
+    PropsUi.setLook(wlOAuthJwtPrivateKey);
+    wlOAuthJwtPrivateKey.setText(
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtPrivateKey"));
+    FormData fdlOAuthJwtPrivateKey = new FormData();
+    fdlOAuthJwtPrivateKey.left = new FormAttachment(0, 0);
+    fdlOAuthJwtPrivateKey.top = new FormAttachment(wOAuthJwtConsumerKey, margin);
+    fdlOAuthJwtPrivateKey.right = new FormAttachment(middle, -margin);
+    wlOAuthJwtPrivateKey.setLayoutData(fdlOAuthJwtPrivateKey);
+
+    // Composite for private key field and button
+    Composite wOAuthJwtPrivateKeyComposite = new Composite(wOAuthJwtGroup, SWT.NONE);
+    PropsUi.setLook(wOAuthJwtPrivateKeyComposite);
+    FormLayout privateKeyLayout = new FormLayout();
+    privateKeyLayout.marginWidth = 0;
+    privateKeyLayout.marginHeight = 0;
+    wOAuthJwtPrivateKeyComposite.setLayout(privateKeyLayout);
+    FormData fdOAuthJwtPrivateKeyComposite = new FormData();
+    fdOAuthJwtPrivateKeyComposite.left = new FormAttachment(middle, 0);
+    fdOAuthJwtPrivateKeyComposite.top = new FormAttachment(wlOAuthJwtPrivateKey, 0, SWT.CENTER);
+    fdOAuthJwtPrivateKeyComposite.right = new FormAttachment(100, 0);
+    wOAuthJwtPrivateKeyComposite.setLayoutData(fdOAuthJwtPrivateKeyComposite);
+
+    // Load from file button (create first to reference in password field)
+    Button wOAuthJwtLoadKey = new Button(wOAuthJwtPrivateKeyComposite, SWT.PUSH);
+    wOAuthJwtLoadKey.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wOAuthJwtLoadKey.setToolTipText(
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtLoadKey.Tooltip"));
+    PropsUi.setLook(wOAuthJwtLoadKey);
+    FormData fdOAuthJwtLoadKey = new FormData();
+    fdOAuthJwtLoadKey.right = new FormAttachment(100, 0);
+    fdOAuthJwtLoadKey.top = new FormAttachment(0, 0);
+    wOAuthJwtLoadKey.setLayoutData(fdOAuthJwtLoadKey);
+    wOAuthJwtLoadKey.addListener(SWT.Selection, e -> loadPrivateKeyFromFile());
+
+    wOAuthJwtPrivateKey =
+        new PasswordTextVar(
+            variables,
+            wOAuthJwtPrivateKeyComposite,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtPrivateKey.Tooltip"));
+    PropsUi.setLook(wOAuthJwtPrivateKey);
+    FormData fdOAuthJwtPrivateKey = new FormData();
+    fdOAuthJwtPrivateKey.left = new FormAttachment(0, 0);
+    fdOAuthJwtPrivateKey.top = new FormAttachment(wOAuthJwtLoadKey, 0, SWT.CENTER);
+    fdOAuthJwtPrivateKey.right = new FormAttachment(wOAuthJwtLoadKey, -margin);
+    wOAuthJwtPrivateKey.setLayoutData(fdOAuthJwtPrivateKey);
+
+    // JWT Token Endpoint
+    Label wlOAuthJwtTokenEndpoint = new Label(wOAuthJwtGroup, SWT.RIGHT);
+    PropsUi.setLook(wlOAuthJwtTokenEndpoint);
+    wlOAuthJwtTokenEndpoint.setText(
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtTokenEndpoint"));
+    FormData fdlOAuthJwtTokenEndpoint = new FormData();
+    fdlOAuthJwtTokenEndpoint.left = new FormAttachment(0, 0);
+    fdlOAuthJwtTokenEndpoint.top = new FormAttachment(wOAuthJwtPrivateKeyComposite, margin);
+    fdlOAuthJwtTokenEndpoint.right = new FormAttachment(middle, -margin);
+    wlOAuthJwtTokenEndpoint.setLayoutData(fdlOAuthJwtTokenEndpoint);
+
+    wOAuthJwtTokenEndpoint =
+        new TextVar(variables, wOAuthJwtGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOAuthJwtTokenEndpoint.setToolTipText(
+        BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtTokenEndpoint.Tooltip"));
+    PropsUi.setLook(wOAuthJwtTokenEndpoint);
+    FormData fdOAuthJwtTokenEndpoint = new FormData();
+    fdOAuthJwtTokenEndpoint.left = new FormAttachment(middle, 0);
+    fdOAuthJwtTokenEndpoint.top = new FormAttachment(wlOAuthJwtTokenEndpoint, 0, SWT.CENTER);
+    fdOAuthJwtTokenEndpoint.right = new FormAttachment(100, 0);
+    wOAuthJwtTokenEndpoint.setLayoutData(fdOAuthJwtTokenEndpoint);
+
+    FormData fdOAuthJwtGroup = new FormData();
+    fdOAuthJwtGroup.left = new FormAttachment(0, 0);
+    fdOAuthJwtGroup.right = new FormAttachment(100, 0);
+    fdOAuthJwtGroup.top = new FormAttachment(lastControl, margin);
+    wOAuthJwtGroup.setLayoutData(fdOAuthJwtGroup);
+
+    // Initially hide OAuth JWT group
+    wOAuthJwtGroup.setVisible(false);
 
     // Test button
     wTest = new Button(composite, SWT.PUSH);
@@ -426,7 +568,11 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       wOAuthRedirectUri.getTextWidget(),
       wOAuthInstanceUrl.getTextWidget(),
       wOAuthAccessToken.getTextWidget(),
-      wOAuthRefreshToken.getTextWidget()
+      wOAuthRefreshToken.getTextWidget(),
+      wOAuthJwtUsername,
+      wOAuthJwtConsumerKey,
+      wOAuthJwtPrivateKey.getTextWidget(),
+      wOAuthJwtTokenEndpoint
     };
     for (Control control : controls) {
       control.addListener(SWT.Modify, e -> setChanged());
@@ -435,29 +581,37 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
   }
 
   private void updateAuthenticationUI() {
-    boolean isOAuth = isOAuthSelected();
+    int selectedIndex = wAuthType == null ? 0 : wAuthType.getSelectionIndex();
+    boolean isUsernamePassword = (selectedIndex == 0);
+    boolean isOAuth = (selectedIndex == 1);
+    boolean isOAuthJwt = (selectedIndex == 2);
 
     // Show/hide appropriate sections
     if (wUsernamePasswordGroup != null) {
-      wUsernamePasswordGroup.setVisible(!isOAuth);
+      wUsernamePasswordGroup.setVisible(isUsernamePassword);
+      if (isUsernamePassword) {
+        wUsernamePasswordGroup.layout(true, true);
+      }
+      ((FormData) wUsernamePasswordGroup.getLayoutData()).height =
+          isUsernamePassword ? SWT.DEFAULT : 0;
     }
     if (wOAuthGroup != null) {
       wOAuthGroup.setVisible(isOAuth);
       if (isOAuth) {
-        wOAuthGroup.pack();
-        wOAuthGroup.layout();
+        wOAuthGroup.layout(true, true);
       }
+      ((FormData) wOAuthGroup.getLayoutData()).height = isOAuth ? SWT.DEFAULT : 0;
     }
-
-    // For username/password authentication, make security token optional
-    if (!isOAuth && wSecurityToken != null) {
-      // Security token is optional - only show if it has a value or if explicitly needed
-      // For now, we'll keep it visible but make it clear it's optional
-      // The field will be empty by default, matching the transform behavior
+    if (wOAuthJwtGroup != null) {
+      wOAuthJwtGroup.setVisible(isOAuthJwt);
+      if (isOAuthJwt) {
+        wOAuthJwtGroup.layout(true, true);
+      }
+      ((FormData) wOAuthJwtGroup.getLayoutData()).height = isOAuthJwt ? SWT.DEFAULT : 0;
     }
 
     // Pre-fill URL field with default value when username/password authentication is selected
-    if (!isOAuth && wTargetUrl != null) {
+    if (isUsernamePassword && wTargetUrl != null) {
       String currentUrl = wTargetUrl.getText();
       // Only set default URL if the field is empty (new connection or user hasn't entered anything)
       if (currentUrl == null || currentUrl.trim().isEmpty()) {
@@ -466,20 +620,34 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       }
     }
 
-    // Update test button positioning
+    // Pre-fill JWT token endpoint with default value
+    if (isOAuthJwt && wOAuthJwtTokenEndpoint != null) {
+      String currentEndpoint = wOAuthJwtTokenEndpoint.getText();
+      if (currentEndpoint == null || currentEndpoint.trim().isEmpty()) {
+        wOAuthJwtTokenEndpoint.setText("https://login.salesforce.com");
+        setChanged();
+      }
+    }
+
+    // Update test button positioning - always attach to the active group
     if (wTest != null) {
       FormData fdTest = (FormData) wTest.getLayoutData();
       if (isOAuth) {
-        fdTest.top = new FormAttachment(wOAuthGroup, PropsUi.getInstance().getMargin());
+        fdTest.top = new FormAttachment(wOAuthGroup, PropsUi.getMargin());
+      } else if (isOAuthJwt) {
+        fdTest.top = new FormAttachment(wOAuthJwtGroup, PropsUi.getMargin());
       } else {
-        fdTest.top = new FormAttachment(wUsernamePasswordGroup, PropsUi.getInstance().getMargin());
+        fdTest.top = new FormAttachment(wUsernamePasswordGroup, PropsUi.getMargin());
       }
       wTest.setLayoutData(fdTest);
     }
 
-    // Layout the parent composite
+    // Force complete layout refresh of parent composite
     if (wTest != null && wTest.getParent() != null) {
-      wTest.getParent().layout(true, true);
+      Composite parent = wTest.getParent();
+      parent.layout(true, true);
+      parent.redraw();
+      parent.update();
     }
   }
 
@@ -881,6 +1049,46 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     return "";
   }
 
+  private void loadPrivateKeyFromFile() {
+    try {
+      FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
+      dialog.setText(
+          BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtLoadKey.DialogTitle"));
+      dialog.setFilterExtensions(new String[] {"*.key;*.pem", "*.*"});
+      dialog.setFilterNames(
+          new String[] {
+            BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtLoadKey.FileTypes"),
+            BaseMessages.getString(PKG, "System.FileType.AllFiles")
+          });
+
+      String filename = dialog.open();
+      if (filename != null) {
+        // Read the private key file
+        java.nio.file.Path path = java.nio.file.Paths.get(filename);
+        String keyContent = new String(java.nio.file.Files.readAllBytes(path), "UTF-8");
+
+        // Validate it looks like a private key
+        if (keyContent.contains("BEGIN") && keyContent.contains("PRIVATE KEY")) {
+          wOAuthJwtPrivateKey.setText(keyContent);
+          setChanged();
+        } else {
+          MessageBox mb = new MessageBox(getShell(), SWT.OK | SWT.ICON_WARNING);
+          mb.setMessage(
+              BaseMessages.getString(
+                  PKG, "SalesforceConnectionEditor.OAuthJwtLoadKey.InvalidFormat"));
+          mb.setText(BaseMessages.getString(PKG, "System.Dialog.Warning.Title"));
+          mb.open();
+        }
+      }
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+          BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthJwtLoadKey.Error"),
+          e);
+    }
+  }
+
   private void testConnection() {
     try {
       // Save current UI values to metadata object before testing
@@ -900,7 +1108,15 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
   @Override
   public void setWidgetsContent() {
     wName.setText(Const.NVL(metadata.getName(), ""));
-    wAuthType.select(metadata.isOAuthAuthentication() ? 1 : 0);
+
+    // Set authentication type
+    if (metadata.isOAuthAuthentication()) {
+      wAuthType.select(1);
+    } else if (metadata.isOAuthJwtAuthentication()) {
+      wAuthType.select(2);
+    } else {
+      wAuthType.select(0);
+    }
 
     // Username/Password fields
     wUsername.setText(Const.NVL(metadata.getUsername(), ""));
@@ -917,13 +1133,59 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     wOAuthAccessToken.setText(Const.NVL(metadata.getOauthAccessToken(), ""));
     wOAuthRefreshToken.setText(Const.NVL(metadata.getOauthRefreshToken(), ""));
 
+    // OAuth JWT fields
+    wOAuthJwtUsername.setText(Const.NVL(metadata.getOauthJwtUsername(), ""));
+    wOAuthJwtConsumerKey.setText(Const.NVL(metadata.getOauthJwtConsumerKey(), ""));
+
+    // Private Key - show masked placeholder if key exists
+    String privateKey = metadata.getOauthJwtPrivateKey();
+    if (!Utils.isEmpty(privateKey)) {
+      // Show masked indicator instead of actual key for security
+      // Use 150 characters to fill the field and indicate substantial key length
+      String maskedPlaceholder =
+          "••••••••••••••••••••••••••••••••••••••••••••••••••"
+              + "••••••••••••••••••••••••••••••••••••••••••••••••••"
+              + "••••••••••••••••••••••••••••••••••••••••••••••••••";
+      wOAuthJwtPrivateKey.setText(maskedPlaceholder);
+      // Store actual key in widget data for later retrieval
+      wOAuthJwtPrivateKey.setData("actualPrivateKey", privateKey);
+    } else {
+      wOAuthJwtPrivateKey.setText("");
+      wOAuthJwtPrivateKey.setData("actualPrivateKey", null);
+    }
+
+    wOAuthJwtTokenEndpoint.setText(
+        Const.NVL(metadata.getOauthJwtTokenEndpoint(), "https://login.salesforce.com"));
+
+    // Update UI and force layout refresh
     updateAuthenticationUI();
+
+    // Force a second layout pass to ensure everything is properly positioned
+    if (wTest != null && wTest.getParent() != null) {
+      wTest
+          .getParent()
+          .getDisplay()
+          .asyncExec(
+              () -> {
+                if (!wTest.isDisposed() && !wTest.getParent().isDisposed()) {
+                  wTest.getParent().layout(true, true);
+                }
+              });
+    }
   }
 
   @Override
   public void getWidgetsContent(SalesforceConnection connection) {
     connection.setName(wName.getText());
-    connection.setAuthenticationType(isOAuthSelected() ? "OAUTH" : "USERNAME_PASSWORD");
+
+    int selectedIndex = wAuthType.getSelectionIndex();
+    if (selectedIndex == 1) {
+      connection.setAuthenticationType("OAUTH");
+    } else if (selectedIndex == 2) {
+      connection.setAuthenticationType("OAUTH_JWT");
+    } else {
+      connection.setAuthenticationType("USERNAME_PASSWORD");
+    }
 
     // Username/Password fields
     connection.setUsername(wUsername.getText());
@@ -938,5 +1200,23 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     connection.setOauthInstanceUrl(wOAuthInstanceUrl.getText());
     connection.setOauthAccessToken(wOAuthAccessToken.getText());
     connection.setOauthRefreshToken(wOAuthRefreshToken.getText());
+
+    // OAuth JWT fields
+    connection.setOauthJwtUsername(wOAuthJwtUsername.getText());
+    connection.setOauthJwtConsumerKey(wOAuthJwtConsumerKey.getText());
+
+    // Private Key - check if it's the masked placeholder
+    String displayedKey = wOAuthJwtPrivateKey.getText();
+    // Check if the field contains only bullet characters (masked placeholder)
+    if (displayedKey != null && displayedKey.matches("^•+$")) {
+      // Use the actual key stored in widget data (unchanged)
+      String actualKey = (String) wOAuthJwtPrivateKey.getData("actualPrivateKey");
+      connection.setOauthJwtPrivateKey(actualKey != null ? actualKey : "");
+    } else {
+      // New key was entered/loaded
+      connection.setOauthJwtPrivateKey(displayedKey);
+    }
+
+    connection.setOauthJwtTokenEndpoint(wOAuthJwtTokenEndpoint.getText());
   }
 }

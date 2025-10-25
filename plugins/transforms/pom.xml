@@ -130,7 +130,6 @@
         <module>rowgenerator</module>
         <module>rowsfromresult</module>
         <module>rowstoresult</module>
-        <module>salesforce</module>
         <module>samplerows</module>
         <module>sasinput</module>
         <module>schemamapping</module>

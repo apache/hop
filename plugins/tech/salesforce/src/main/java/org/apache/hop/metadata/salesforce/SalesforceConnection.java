@@ -80,6 +80,22 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
   @HopMetadataProperty(key = "oauth_instance_url", injectionKey = "OAUTH_INSTANCE_URL")
   private String oauthInstanceUrl;
 
+  // OAuth JWT Authentication
+  @HopMetadataProperty(key = "oauth_jwt_username", injectionKey = "OAUTH_JWT_USERNAME")
+  private String oauthJwtUsername;
+
+  @HopMetadataProperty(key = "oauth_jwt_consumer_key", injectionKey = "OAUTH_JWT_CONSUMER_KEY")
+  private String oauthJwtConsumerKey;
+
+  @HopMetadataProperty(
+      key = "oauth_jwt_private_key",
+      injectionKey = "OAUTH_JWT_PRIVATE_KEY",
+      password = true)
+  private String oauthJwtPrivateKey;
+
+  @HopMetadataProperty(key = "oauth_jwt_token_endpoint", injectionKey = "OAUTH_JWT_TOKEN_ENDPOINT")
+  private String oauthJwtTokenEndpoint = "https://login.salesforce.com";
+
   public SalesforceConnection() {
     super();
   }
@@ -104,6 +120,15 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
    */
   public boolean isUsernamePasswordAuthentication() {
     return "USERNAME_PASSWORD".equalsIgnoreCase(authenticationType);
+  }
+
+  /**
+   * Check if OAuth JWT authentication is selected
+   *
+   * @return true if OAuth JWT authentication is selected
+   */
+  public boolean isOAuthJwtAuthentication() {
+    return "OAUTH_JWT".equalsIgnoreCase(authenticationType);
   }
 
   /**
@@ -137,6 +162,16 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
       }
 
       return connection;
+    } else if (isOAuthJwtAuthentication()) {
+      // Resolve OAuth JWT variables
+      String jwtUsername = variables.resolve(this.oauthJwtUsername);
+      String jwtConsumerKey = variables.resolve(this.oauthJwtConsumerKey);
+      String jwtPrivateKey =
+          org.apache.hop.core.util.Utils.resolvePassword(variables, this.oauthJwtPrivateKey);
+      String jwtTokenEndpoint = variables.resolve(this.oauthJwtTokenEndpoint);
+
+      return org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection.createJwtConnection(
+          log, jwtUsername, jwtConsumerKey, jwtPrivateKey, jwtTokenEndpoint);
     } else {
       // Resolve username/password variables
       String url = variables.resolve(this.targetUrl);
@@ -272,5 +307,66 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
 
   public void setOauthInstanceUrl(String oauthInstanceUrl) {
     this.oauthInstanceUrl = oauthInstanceUrl;
+  }
+
+  public String getOauthJwtUsername() {
+    return oauthJwtUsername;
+  }
+
+  public void setOauthJwtUsername(String oauthJwtUsername) {
+    this.oauthJwtUsername = oauthJwtUsername;
+  }
+
+  public String getOauthJwtConsumerKey() {
+    return oauthJwtConsumerKey;
+  }
+
+  public void setOauthJwtConsumerKey(String oauthJwtConsumerKey) {
+    this.oauthJwtConsumerKey = oauthJwtConsumerKey;
+  }
+
+  public String getOauthJwtPrivateKey() {
+    return oauthJwtPrivateKey;
+  }
+
+  public void setOauthJwtPrivateKey(String oauthJwtPrivateKey) {
+    this.oauthJwtPrivateKey = oauthJwtPrivateKey;
+  }
+
+  public String getOauthJwtTokenEndpoint() {
+    return oauthJwtTokenEndpoint;
+  }
+
+  public void setOauthJwtTokenEndpoint(String oauthJwtTokenEndpoint) {
+    this.oauthJwtTokenEndpoint = oauthJwtTokenEndpoint;
+  }
+
+  /**
+   * Validate that the private key is in an acceptable format for security
+   *
+   * @return true if the key appears to be encrypted, a variable, or valid PEM format
+   */
+  public boolean isPrivateKeySecure() {
+    if (org.apache.hop.core.util.Utils.isEmpty(oauthJwtPrivateKey)) {
+      return false;
+    }
+
+    // Check if it's a variable reference (recommended)
+    if (oauthJwtPrivateKey.contains("${")) {
+      return true;
+    }
+
+    // Check if it's encrypted by Hop (starts with "Encrypted")
+    if (oauthJwtPrivateKey.startsWith("Encrypted ")) {
+      return true;
+    }
+
+    // Check if it's a valid PEM format (at minimum)
+    if (oauthJwtPrivateKey.contains("BEGIN PRIVATE KEY")
+        && oauthJwtPrivateKey.contains("END PRIVATE KEY")) {
+      return true;
+    }
+
+    return false;
   }
 }
