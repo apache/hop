@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>test-join</name>
+  <name>join-action</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -36,6 +36,7 @@ limitations under the License.
       <type>SPECIAL</type>
       <attributes/>
       <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
       <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
@@ -44,8 +45,8 @@ limitations under the License.
       <schedulerType>0</schedulerType>
       <weekDay>1</weekDay>
       <parallel>Y</parallel>
-      <xloc>32</xloc>
-      <yloc>160</yloc>
+      <xloc>64</xloc>
+      <yloc>240</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -54,8 +55,8 @@ limitations under the License.
       <type>JOIN</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>288</xloc>
-      <yloc>160</yloc>
+      <xloc>704</xloc>
+      <yloc>240</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -66,8 +67,8 @@ limitations under the License.
       <maximumTimeout>1</maximumTimeout>
       <scaletime>0</scaletime>
       <parallel>N</parallel>
-      <xloc>160</xloc>
-      <yloc>64</yloc>
+      <xloc>288</xloc>
+      <yloc>144</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -78,8 +79,8 @@ limitations under the License.
       <maximumTimeout>3</maximumTimeout>
       <scaletime>0</scaletime>
       <parallel>N</parallel>
-      <xloc>160</xloc>
-      <yloc>192</yloc>
+      <xloc>288</xloc>
+      <yloc>272</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -90,18 +91,8 @@ limitations under the License.
       <maximumTimeout>2</maximumTimeout>
       <scaletime>0</scaletime>
       <parallel>N</parallel>
-      <xloc>160</xloc>
-      <yloc>128</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Dummy 1</name>
-      <description/>
-      <type>DUMMY</type>
-      <attributes/>
-      <parallel>N</parallel>
-      <xloc>416</xloc>
-      <yloc>160</yloc>
+      <xloc>288</xloc>
+      <yloc>208</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -110,8 +101,8 @@ limitations under the License.
       <type>DUMMY</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>544</xloc>
-      <yloc>160</yloc>
+      <xloc>1024</xloc>
+      <yloc>240</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -122,12 +113,157 @@ limitations under the License.
       <maximumTimeout>4</maximumTimeout>
       <scaletime>0</scaletime>
       <parallel>N</parallel>
-      <xloc>160</xloc>
-      <yloc>256</yloc>
+      <xloc>288</xloc>
+      <yloc>336</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Write to log - after join</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <loglevel>Basic</loglevel>
+      <logmessage>
+##
+- Start after "Join"</logmessage>
+      <logsubject/>
+      <parallel>N</parallel>
+      <xloc>864</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Write to log</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <loglevel>Basic</loglevel>
+      <logmessage>
+##
+Run branch 1</logmessage>
+      <logsubject/>
+      <parallel>N</parallel>
+      <xloc>512</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Write to log 2</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <loglevel>Basic</loglevel>
+      <logmessage>
+##
+Run branch 2</logmessage>
+      <logsubject/>
+      <parallel>N</parallel>
+      <xloc>512</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Write to log 3</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <loglevel>Basic</loglevel>
+      <logmessage>
+##
+Run branch 3</logmessage>
+      <logsubject/>
+      <parallel>N</parallel>
+      <xloc>512</xloc>
+      <yloc>272</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Write to log 4</name>
+      <description/>
+      <type>WRITE_TO_LOG</type>
+      <attributes/>
+      <loglevel>Basic</loglevel>
+      <logmessage>
+##
+Run branch 4</logmessage>
+      <logsubject/>
+      <parallel>N</parallel>
+      <xloc>512</xloc>
+      <yloc>336</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
+    <hop>
+      <from>Join</from>
+      <to>Write to log - after join</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Write to log - after join</from>
+      <to>Dummy 2</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Wait for 1 seconds</from>
+      <to>Write to log</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Write to log</from>
+      <to>Join</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Wait for 2 seconds</from>
+      <to>Write to log 2</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Write to log 2</from>
+      <to>Join</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Wait for 3 seconds</from>
+      <to>Write to log 3</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Write to log 3</from>
+      <to>Join</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Wait for 4 seconds</from>
+      <to>Write to log 4</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Write to log 4</from>
+      <to>Join</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
     <hop>
       <from>Start</from>
       <to>Wait for 1 seconds</to>
@@ -136,36 +272,8 @@ limitations under the License.
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Wait for 2 seconds</from>
-      <to>Join</to>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
       <from>Start</from>
       <to>Wait for 2 seconds</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>Wait for 3 seconds</from>
-      <to>Join</to>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>Wait for 1 seconds</from>
-      <to>Join</to>
-      <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>Join</from>
-      <to>Dummy 1</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
@@ -178,28 +286,38 @@ limitations under the License.
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Dummy 1</from>
-      <to>Dummy 2</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
       <from>Start</from>
       <to>Wait for 4 seconds</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
-    <hop>
-      <from>Wait for 4 seconds</from>
-      <to>Join</to>
-      <enabled>N</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
   </hops>
   <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <height>110</height>
+      <xloc>0</xloc>
+      <yloc>0</yloc>
+      <note>Example:
+
+The "Wait for" actions are executed in parallel.
+The "Join" action waits until all branches have completed execution.
+Once each branch has finished, the section "Write to log - after join" is executed.</note>
+      <width>541</width>
+    </notepad>
   </notepads>
   <attributes/>
 </workflow>

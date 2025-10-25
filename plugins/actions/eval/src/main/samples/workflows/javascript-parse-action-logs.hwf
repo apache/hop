@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>javascript_parse_action_logs</name>
+  <name>javascript-parse-action-logs</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -36,6 +36,7 @@ limitations under the License.
       <type>SPECIAL</type>
       <attributes/>
       <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
       <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
@@ -44,8 +45,8 @@ limitations under the License.
       <schedulerType>0</schedulerType>
       <weekDay>1</weekDay>
       <parallel>N</parallel>
-      <xloc>50</xloc>
-      <yloc>50</yloc>
+      <xloc>64</xloc>
+      <yloc>128</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -55,7 +56,7 @@ limitations under the License.
       <attributes/>
       <parallel>N</parallel>
       <xloc>480</xloc>
-      <yloc>48</yloc>
+      <yloc>128</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -73,7 +74,7 @@ if(logging_text != null &amp;&amp; logging_text != ''){
 true;</script>
       <parallel>N</parallel>
       <xloc>272</xloc>
-      <yloc>160</yloc>
+      <yloc>240</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -89,7 +90,7 @@ logging text: ${logging_text}
       <logsubject/>
       <parallel>N</parallel>
       <xloc>272</xloc>
-      <yloc>272</yloc>
+      <yloc>352</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -106,7 +107,7 @@ logging text: ${logging_text}
       <valuetype>variable</valuetype>
       <parallel>N</parallel>
       <xloc>272</xloc>
-      <yloc>48</yloc>
+      <yloc>128</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -141,6 +142,29 @@ logging text: ${logging_text}
     </hop>
   </hops>
   <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <height>90</height>
+      <xloc>0</xloc>
+      <yloc>0</yloc>
+      <note>Example:
+
+The script gets log text from the previous action "Simple evaluation".
+Sets "logging_text" variable ${logging_text} with default value 'no logging text received'.</note>
+      <width>596</width>
+    </notepad>
   </notepads>
   <attributes/>
 </workflow>

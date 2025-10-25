@@ -36,6 +36,28 @@ limitations under the License.
     <modified_date>2024/02/16 18:30:47.103</modified_date>
   </info>
   <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Segoe UI</fontname>
+      <fontsize>11</fontsize>
+      <height>70</height>
+      <xloc>320</xloc>
+      <yloc>128</yloc>
+      <note>Mapps columns to match the structure 
+defined in the schema 'Test Schema', referencing the 
+metadata in 'Static Schema Definition'.</note>
+      <width>360</width>
+    </notepad>
   </notepads>
   <order>
     <hop>
@@ -60,7 +82,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/files/file_1_transactions.csv</filename>
+    <filename>${PROJECT_HOME}/files/file-1-transactions.csv</filename>
     <filename_field/>
     <rownum_field/>
     <include_filename>N</include_filename>
@@ -69,6 +91,7 @@ limitations under the License.
     <header>Y</header>
     <buffer_size>50000</buffer_size>
     <schemaDefinition/>
+    <ignoreFields>N</ignoreFields>
     <lazy_conversion>Y</lazy_conversion>
     <add_filename_result>N</add_filename_result>
     <parallel>N</parallel>

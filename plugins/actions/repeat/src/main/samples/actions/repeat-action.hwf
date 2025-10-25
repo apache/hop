@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>repeat_action</name>
+  <name>repeat-action</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -41,14 +41,15 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>48</xloc>
       <yloc>160</yloc>
@@ -59,21 +60,22 @@ limitations under the License.
       <description/>
       <type>Repeat</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/actions/repeat_child.hpl</filename>
+      <delay/>
+      <filename>${PROJECT_HOME}/actions/repeat-child.hpl</filename>
+      <keep_values>N</keep_values>
+      <logfile_add_date>Y</logfile_add_date>
+      <logfile_add_repetition>N</logfile_add_repetition>
+      <logfile_add_time>N</logfile_add_time>
+      <logfile_appended>Y</logfile_appended>
+      <logfile_base/>
+      <logfile_enabled>N</logfile_enabled>
+      <logfile_extension>log</logfile_extension>
+      <logfile_update_interval>5000</logfile_update_interval>
+      <parameters>
+</parameters>
       <run_configuration>local</run_configuration>
       <variable_name>END_LOOP</variable_name>
       <variable_value/>
-      <delay/>
-      <keep_values>N</keep_values>
-      <logfile_enabled>N</logfile_enabled>
-      <logfile_appended>Y</logfile_appended>
-      <logfile_base/>
-      <logfile_extension>log</logfile_extension>
-      <logfile_add_date>Y</logfile_add_date>
-      <logfile_add_time>N</logfile_add_time>
-      <logfile_add_repetition>N</logfile_add_repetition>
-      <logfile_update_interval>5000</logfile_update_interval>
-      <parameters/>
       <parallel>N</parallel>
       <xloc>176</xloc>
       <yloc>160</yloc>
@@ -91,26 +93,26 @@ limitations under the License.
   </hops>
   <notepads>
     <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>.AppleSystemUIFont</fontname>
+      <fontsize>13</fontsize>
+      <height>67</height>
+      <xloc>64</xloc>
+      <yloc>48</yloc>
       <note>This action will repeat a pipeline until a condition is met.
 It will increment the counter parameter until value 5 has been reached.
 Then it will set the END_LOOP variable causing the repeat action to stop</note>
-      <xloc>64</xloc>
-      <yloc>48</yloc>
-      <width>447</width>
-      <heigth>58</heigth>
-      <fontname>.AppleSystemUIFont</fontname>
-      <fontsize>13</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>14</fontcolorred>
-      <fontcolorgreen>58</fontcolorgreen>
-      <fontcolorblue>90</fontcolorblue>
-      <backgroundcolorred>201</backgroundcolorred>
-      <backgroundcolorgreen>232</backgroundcolorgreen>
-      <backgroundcolorblue>251</backgroundcolorblue>
-      <bordercolorred>14</bordercolorred>
-      <bordercolorgreen>58</bordercolorgreen>
-      <bordercolorblue>90</bordercolorblue>
+      <width>534</width>
     </notepad>
   </notepads>
   <attributes/>
