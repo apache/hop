@@ -71,7 +71,7 @@ class WorkflowActionFtpPutLoadSaveTest extends WorkflowActionLoadSaveTestSupport
         "wildcard", "getWildcard",
         "binary", "isBinaryMode",
         "timeout", "getTimeout",
-        "remove", "getRemove",
+        "remove", "isRemove",
         "only_new", "isOnlyPuttingNewFiles",
         "active", "isActiveConnection",
         "control_encoding", "getControlEncoding",
