@@ -611,7 +611,7 @@
             </activation>
             <properties>
                 <env>mac</env>
-                <swt.artifactId>org.eclipse.swt.cocoa.macosx.x86_64</swt.artifactId>
+                <swt.artifactId>org.eclipse.swt.cocoa.macosx.aarch64</swt.artifactId>
             </properties>
             <dependencyManagement>
                 <dependencies>

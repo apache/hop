@@ -88,13 +88,8 @@ public class WorkflowTrackerTest {
   @Test
   public void findJobTracker_EntryNameFound() {
     WorkflowTracker workflowTracker = createTracker();
-    // Create trackers for different workflows (not just different actions)
     WorkflowTracker[] children =
-        new WorkflowTracker[] {
-          createTrackerForWorkflow("workflow-0", "0"),
-          createTrackerForWorkflow("workflow-1", "1"),
-          createTrackerForWorkflow("workflow-2", "2")
-        };
+        new WorkflowTracker[] {createTracker("0"), createTracker("1"), createTracker("2")};
     for (WorkflowTracker child : children) {
       workflowTracker.addWorkflowTracker(child);
     }
@@ -110,18 +105,6 @@ public class WorkflowTrackerTest {
 
   private static WorkflowTracker createTracker(String actionName) {
     WorkflowMeta workflowMeta = mock(WorkflowMeta.class);
-    WorkflowTracker workflowTracker = new WorkflowTracker(workflowMeta);
-    if (actionName != null) {
-      ActionResult result = mock(ActionResult.class);
-      when(result.getActionName()).thenReturn(actionName);
-      workflowTracker.setActionResult(result);
-    }
-    return workflowTracker;
-  }
-
-  private static WorkflowTracker createTrackerForWorkflow(String workflowName, String actionName) {
-    WorkflowMeta workflowMeta = mock(WorkflowMeta.class);
-    when(workflowMeta.getName()).thenReturn(workflowName);
     WorkflowTracker workflowTracker = new WorkflowTracker(workflowMeta);
     if (actionName != null) {
       ActionResult result = mock(ActionResult.class);
