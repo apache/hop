@@ -38,3 +38,83 @@ Apache Hop data types map internally to Java data types, so the Java behavior of
 |===
 
 NOTE: Apache Hop also comes with a number of additional complex data types (e.g. Avro, JSON, Graph) that have no one-on-one mapping to Java data types. These data types only work with specific transforms and can't be used in general-purpose transforms.
+
+=== Conversions and comparisons
+
+*Nulls and sort order*
+
+- Null handling and sort behavior follow Java comparison semantics for the mapped type, unless noted below.
+
+*String parsing/formatting*
+
+- When converting from a String to another type, Hop uses the format settings defined in the transform metadata (for example, date masks, decimal symbols, and grouping characters).
+- When converting from another type to a String, Hop applies the same metadata-based format.
+
+For these reasons, it is important to be explicit about formats when working with String types.
+A common issue arises with decimal separators, which may differ between environments.
+For example, an EU locale typically uses `,` for decimals, while a US locale uses `.`.
+Using an explicit format avoids these inconsistencies.
+
+=== Timestamp
+
+A Timestamp value can be created from a Date, String, Number, or another Timestamp.
+
+*Conversions*
+
+- *Date -> Timestamp*: Represents the same instant; fractional seconds default to `0`.
+- *String -> Timestamp*: Parsed using the specified date mask (for example, `yyyy-MM-dd HH:mm:ss`).
+- *Number -> Timestamp*: Interpreted as **nanoseconds since the epoch**.
+
+=== UUID
+
+UUID values map to java UUID object that stores them as 16-byte type.
+Storing a UUID with the String type uses 32-byte.
+The difference in storage is noticeable in many situations like inserting in a database with native UUID support.
+
+When using MongoDB, Hop writes UUIDs using the **STANDARD** representation, which corresponds to BSON Binary subtype `4`.
+
+*Sorting*
+
+Databases may order UUID columns by their raw binary value (as is the case in PostgreSQL).
+Hop, however, compares UUIDs by their two 64-bit halves as signed longs — first the most significant bits (MSB), then the least significant bits (LSB).
+These ordering methods can differ.
+To ensure consistent results, perform all sorting either within Hop or entirely in the database.
+
+*Gotchas*
+
+Writing a UUID to a database without native support as a UUID type (e.g. MySQL) will fail.
+Convert them to String before writing.
+
+=== JSON
+
+The JSON type in Hop follows the official JSON standard: https://www.json.org/json-en.html.
+It is treated as an *unordered* set of key/value pairs.
+This means that JSON values may behave differently from their String representations. For example, consider these two JSON objects:
+
+```json
+{ "a": 1, "b": 2 }
+```
+```json
+{ "b": 2, "a": 1 }
+```
+
+When treated as String, they are different.
+When treated as JSON, they are considered equal.
+Because JSON comparison in Hop performs structural checks, it is generally more robust — but also slightly slower — than string comparison.
+
+*Sorting*
+
+The way Hop sorts JSON values resembles how PostgreSQL sorts JSONB values.
+Keys are sorted alphabetically, and values are compared in the following type order:
+
+```
+NULL < MISSING < BINARY < STRING < NUMBER < BOOLEAN < ARRAY < OBJECT
+```
+
+Arrays are compared element by element; if all compared elements are equal, the longer array is considered greater.
+
+*MongoDB*
+
+The JSON type supports all standard JSON values when reading or writing to MongoDB.
+Values that are part of MongoDB’s extended JSON (for example, Date objects) are not supported.
+To fully support MongoDB-specific BSON values, use the String type instead.
