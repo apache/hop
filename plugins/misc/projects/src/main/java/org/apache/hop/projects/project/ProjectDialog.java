@@ -20,6 +20,8 @@ package org.apache.hop.projects.project;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -34,6 +36,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.util.ProjectsUtil;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -89,16 +92,17 @@ public class ProjectDialog extends Dialog {
   private TableView wVariables;
 
   private final IVariables variables;
-  private boolean needingProjectRefresh;
 
-  private final Boolean editMode;
+  @Getter @Setter private boolean needingProjectRefresh;
+
+  private final boolean editMode;
 
   public ProjectDialog(
       Shell parent,
       Project project,
       ProjectConfig projectConfig,
       IVariables variables,
-      Boolean editMode) {
+      boolean editMode) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 
     this.project = project;
@@ -125,7 +129,14 @@ public class ProjectDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    shell.setImage(
+        GuiResource.getInstance()
+            .getImage(
+                "project.svg",
+                PKG.getClassLoader(),
+                ConstUi.SMALL_ICON_SIZE,
+                ConstUi.SMALL_ICON_SIZE));
+
     PropsUi.setLook(shell);
 
     int margin = PropsUi.getMargin() + 2;
@@ -135,7 +146,7 @@ public class ProjectDialog extends Dialog {
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
 
-    shell.setLayout(new FormLayout());
+    shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ProjectDialog.Shell.Name"));
 
     // Buttons go at the bottom of the dialog
@@ -438,6 +449,7 @@ public class ProjectDialog extends Dialog {
     scroll.setMinSize(comp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     shell.setMinimumSize(comp.getBounds().width, 200);
     shell.setDefaultButton(wOk);
+    wName.setFocus();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return returnValue;
@@ -754,21 +766,5 @@ public class ProjectDialog extends Dialog {
     // Check for infinite loops
     //
     project.verifyProjectsChain(projectConfig.getProjectName(), variables);
-  }
-
-  /**
-   * Gets variablesChanged
-   *
-   * @return value of variablesChanged
-   */
-  public boolean isNeedingProjectRefresh() {
-    return needingProjectRefresh;
-  }
-
-  /**
-   * @param needingProjectRefresh The variablesChanged to set
-   */
-  public void setNeedingProjectRefresh(boolean needingProjectRefresh) {
-    this.needingProjectRefresh = needingProjectRefresh;
   }
 }
