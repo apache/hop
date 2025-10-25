@@ -78,6 +78,13 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       // Handle automatic table structure updates
       if (meta.isAutoUpdateTableStructure()) {
         updateTableStructure();
+
+        // Clear prepared statement cache after DDL changes
+        // This ensures INSERT statements are rebuilt with the new table structure
+        if (data.preparedStatements != null) {
+          data.preparedStatements.clear();
+          logDetailed("Cleared prepared statement cache after table structure updates");
+        }
       }
 
       data.outputRowMeta = getInputRowMeta().clone();

@@ -170,14 +170,13 @@ WHERE table_schema = 'public'
       <type>EVAL_TABLE_CONTENT</type>
       <attributes/>
       <connection>unit-test-db</connection>
-      <schemaname/>
-      <tablename/>
+      <schemaname>public</schemaname>
+      <tablename>table_change_types_test</tablename>
       <success_condition>rows_count_equal</success_condition>
       <limit>50</limit>
-      <is_custom_sql>Y</is_custom_sql>
+      <is_custom_sql>N</is_custom_sql>
       <is_usevars>N</is_usevars>
-      <custom_sql>SELECT * FROM public.table_change_types_test 
-WHERE age = 25</custom_sql>
+      <custom_sql/>
       <add_rows_result>N</add_rows_result>
       <clear_result_rows>Y</clear_result_rows>
       <parallel>N</parallel>
