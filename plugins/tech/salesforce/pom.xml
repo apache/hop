@@ -56,6 +56,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Jakarta XML SOAP API (needed by Salesforce API) -->
+        <dependency>
+            <groupId>jakarta.xml.soap</groupId>
+            <artifactId>jakarta.xml.soap-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
         <!-- WireMock for HTTP mocking in OAuth/JWT tests -->
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
