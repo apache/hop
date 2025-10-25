@@ -175,6 +175,20 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       injectionKeyDescription = "TableOutputMeta.Injection.SpecifyFields.Field")
   private boolean specifyFields;
 
+  /** Automatically update table structure based on incoming data stream */
+  @HopMetadataProperty(
+      key = "auto_update_table_structure",
+      injectionKey = "AUTO_UPDATE_TABLE_STRUCTURE",
+      injectionKeyDescription = "TableOutputMeta.Injection.AutoUpdateTableStructure.Field")
+  private boolean autoUpdateTableStructure;
+
+  /** Always drop and recreate table when auto-updating structure */
+  @HopMetadataProperty(
+      key = "always_drop_and_recreate",
+      injectionKey = "ALWAYS_DROP_AND_RECREATE",
+      injectionKeyDescription = "TableOutputMeta.Injection.AlwaysDropAndRecreate.Field")
+  private boolean alwaysDropAndRecreate;
+
   @HopMetadataProperty(
       groupKey = "fields",
       key = "field",

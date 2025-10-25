@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -73,6 +74,12 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       if (meta.isTruncateTable()) {
         truncateTable();
       }
+
+      // Handle automatic table structure updates
+      if (meta.isAutoUpdateTableStructure()) {
+        updateTableStructure();
+      }
+
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -557,6 +564,84 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       if (meta.isTruncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
         data.db.truncateTable(resolve(meta.getSchemaName()), resolve(meta.getTableName()));
       }
+    }
+  }
+
+  void updateTableStructure() throws HopException {
+    if (!meta.isPartitioningEnabled() && !meta.isTableNameInField()) {
+      // Only the first one updates table structure in a non-partitioned transform copy
+      if ((getCopy() == 0) || !Utils.isEmpty(getPartitionId())) {
+        String schemaName = resolve(meta.getSchemaName());
+        String tableName = resolve(meta.getTableName());
+        String fullTableName =
+            data.databaseMeta.getQuotedSchemaTableCombination(this, schemaName, tableName);
+
+        // Handle drop and recreate option
+        if (meta.isAlwaysDropAndRecreate()) {
+          dropTable(fullTableName);
+        }
+
+        // Ensure table exists (same logic for both options)
+        ensureTableExists(fullTableName, schemaName, tableName);
+      }
+    }
+  }
+
+  private void dropTable(String fullTableName) throws HopException {
+    logBasic("Dropping table: " + fullTableName);
+    String dropSql = data.databaseMeta.getDropTableIfExistsStatement(fullTableName);
+    if (!Utils.isEmpty(dropSql)) {
+      data.db.execStatement(dropSql);
+      logBasic("Dropped table: " + fullTableName);
+    }
+  }
+
+  private void ensureTableExists(String fullTableName, String schemaName, String tableName)
+      throws HopException {
+    boolean tableExists = checkTableExists(schemaName, tableName, true); // true = bypass cache
+
+    if (!tableExists) {
+      createTable(fullTableName);
+    } else {
+      logDetailed("Table already exists: " + fullTableName);
+    }
+  }
+
+  private boolean checkTableExists(String schemaName, String tableName, boolean bypassCache)
+      throws HopException {
+    if (bypassCache) {
+      // Clear cache to ensure fresh state
+      try {
+        org.apache.hop.core.DbCache.getInstance().clear(data.databaseMeta.getName());
+        logDetailed("Cleared database cache to ensure fresh table state");
+      } catch (Exception cacheException) {
+        logError("Could not clear database cache: " + cacheException.getMessage());
+      }
+    }
+
+    try {
+      return data.db.checkTableExists(schemaName, tableName);
+    } catch (Exception e) {
+      logDetailed("Table existence check failed, assuming table doesn't exist: " + e.getMessage());
+      return false; // Assume table doesn't exist if check fails
+    }
+  }
+
+  private void createTable(String fullTableName) throws HopException {
+    logBasic("Creating table: " + fullTableName);
+    IRowMeta inputRowMeta = getInputRowMeta();
+    String createSql =
+        data.db.getCreateTableStatement(fullTableName, inputRowMeta, null, false, null, true);
+    if (!Utils.isEmpty(createSql)) {
+      Connection tmpConn = data.db.getConnection();
+      try {
+        tmpConn.createStatement().execute(createSql);
+      } catch (Exception ex) {
+        logError("Error creating table: " + ex.getMessage());
+      }
+
+      //      data.db.execStatement(createSql);
+      logBasic("Created table: " + fullTableName);
     }
   }
 
