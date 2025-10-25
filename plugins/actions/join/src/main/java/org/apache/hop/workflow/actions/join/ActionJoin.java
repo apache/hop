@@ -85,10 +85,12 @@ public class ActionJoin extends ActionBase {
             if (tracker.getActionResult().getResult() == null) {
               hasAllResult = false;
             }
+          } else {
+            hasAllResult = false;
           }
         }
 
-        // If all previous action have a result
+        // If all previous actions have a result
         if (hasAllResult) {
           break;
         }
