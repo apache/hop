@@ -80,6 +80,7 @@ public enum HopMetadataPropertyType {
 
   // REST
   REST_CONNECTION,
+  SALESFORCE_CONNECTION,
 
   // MAIL
   MAIL_SERVER_CONNECTION,

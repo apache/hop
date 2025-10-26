@@ -1,0 +1,484 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied.  See the License for the specific
+language governing permissions and limitations under the
+License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: Describes a Salesforce connection. The Salesforce connection, specified on a project level, can be reused across multiple Salesforce transforms.
+
+= Salesforce Connection
+
+== Description
+
+image:icons/SFI.svg[width="24px"]
+
+Describes a Salesforce connection that can be reused across multiple Salesforce transforms.
+
+The Salesforce Connection metadata type allows you to define connection settings once and reuse them across all Salesforce transforms in your project. This eliminates the need to duplicate connection information and provides centralized management of Salesforce authentication credentials.
+
+== Related Plugins
+
+* xref:pipeline/transforms/salesforceinput.adoc[Salesforce Input]
+* xref:pipeline/transforms/salesforceinsert.adoc[Salesforce Insert]
+* xref:pipeline/transforms/salesforceupdate.adoc[Salesforce Update]
+* xref:pipeline/transforms/salesforceupsert.adoc[Salesforce Upsert]
+* xref:pipeline/transforms/salesforcedelete.adoc[Salesforce Delete]
+
+== Authentication Types
+
+Salesforce Connection supports three authentication methods:
+
+=== Username/Password Authentication
+
+Traditional authentication using Salesforce username and password (with optional security token).
+
+=== OAuth 2.0 Authentication
+
+Modern OAuth 2.0 authentication with automatic token refresh capabilities. Requires interactive user authorization through a browser.
+
+=== OAuth JWT Bearer Authentication
+
+Server-to-server authentication using JWT (JSON Web Token) signed with RSA private key. Ideal for automated processes, CI/CD pipelines, and headless integrations where interactive authorization is not possible.
+
+== Options
+
+[options="header"]
+|===
+|Option|Default|Description
+
+|Connection name
+|
+|The name to use for this connection
+
+|Authentication Type
+|Username/Password
+|Choose between Username/Password, OAuth, or OAuth JWT Bearer authentication
+
+|=== 
+
+=== Username/Password Authentication Options
+
+[options="header"]
+|===
+|Option|Default|Description
+
+|Username
+|
+|Your Salesforce username or email address
+
+|Password
+|
+|Your Salesforce password (can use variables like `${SF_PASS}`)
+
+|Security Token (Optional)
+|
+|Your Salesforce security token (if required by your organization)
+
+|Target URL
+|https://login.salesforce.com/services/Soap/u/64.0
+|The Salesforce SOAP API endpoint URL
+
+|===
+
+=== OAuth 2.0 Authentication Options
+
+[options="header"]
+|===
+|Option|Default|Description
+
+|Client ID
+|
+|Your Salesforce Connected App Client ID
+
+|Client Secret
+|
+|Your Salesforce Connected App Client Secret
+
+|Redirect URI
+|
+|The redirect URI configured in your Salesforce Connected App
+
+|Instance URL
+|
+|Your Salesforce instance URL (e.g., https://yourcompany.my.salesforce.com)
+
+|Access Token
+|
+|OAuth access token (automatically populated after authorization)
+
+|Refresh Token
+|
+|OAuth refresh token (automatically populated after authorization)
+
+|===
+
+=== OAuth JWT Bearer Authentication Options
+
+[options="header"]
+|===
+|Option|Default|Description
+
+|Username
+|
+|Your Salesforce username (e.g., user@company.com)
+
+|Consumer Key
+|
+|Consumer Key from your Salesforce Connected App
+
+|Private Key
+|
+|RSA private key in PKCS8 PEM format. For security, use variables like `${SF_JWT_PRIVATE_KEY}` to reference keys stored in external secret managers. The key is encrypted when saved. Click Browse to load from file.
+
+|Token Endpoint
+|https://login.salesforce.com
+|Salesforce token endpoint (use https://test.salesforce.com for sandbox environments)
+
+|===
+
+== Creating Connections
+
+=== Creating a Username/Password Connection
+
+Follow these steps to create a Salesforce connection using username and password authentication:
+
+1. Open the Metadata Perspective in Hop GUI
+2. Navigate to Salesforce Connection in the metadata tree
+3. Right-click and select "New Salesforce Connection"
+4. Enter a descriptive name for your connection
+5. Ensure "Username/Password" is selected as the Authentication Type
+6. Fill in the required fields:
+   * **Username**: Your Salesforce username or email address
+   * **Password**: Your Salesforce password (or use a variable like `${SF_PASS}`)
+   * **Security Token (Optional)**: Only required if your organization has IP restrictions enabled and you're connecting from an untrusted IP address. If you need a security token, you can request it from Salesforce by going to Settings > My Personal Information > Reset My Security Token
+   * **Target URL**: The default `https://login.salesforce.com/services/Soap/u/64.0` works for most cases. Use `https://test.salesforce.com/services/Soap/u/64.0` for sandbox environments
+7. Click "Test Connection" to verify your settings
+8. If the test is successful, click "OK" to save the connection
+
+NOTE: The security token is typically only required when connecting from an IP address that is not whitelisted in your Salesforce organization's Network Access settings. Most modern Salesforce configurations don't require this token.
+
+=== Creating an OAuth 2.0 Connection
+
+OAuth 2.0 provides more secure authentication and supports automatic token refresh. Follow these steps:
+
+==== Prerequisites
+
+Before creating an OAuth connection in Hop, you need to set up a Connected App in Salesforce:
+
+1. Log in to Salesforce
+2. Go to Setup > Apps > App Manager (in newer Salesforce interfaces, this may be under Setup > Platform Tools > Apps > App Manager or Setup > External Client Apps)
+3. Click "New Connected App"
+4. Fill in the required fields:
+   * Connected App Name: e.g., "Apache Hop Integration"
+   * API Name: will be auto-populated
+   * Contact Email: your email address
+5. Enable OAuth Settings:
+   * Check "Enable OAuth Settings"
+   * Set Callback URL: e.g., `https://localhost:8080/oauth/callback` (this can be any valid URL; you'll extract the authorization code from it)
+   * Select OAuth Scopes: at minimum, select "Full access (full)" or "Perform requests at any time (refresh_token, offline_access)"
+6. Save the Connected App
+7. Copy the Consumer Key (Client ID) and Consumer Secret (Client Secret) - you'll need these in Hop
+
+==== Authorizing and Obtaining Tokens
+
+Once your Connected App is configured, create the OAuth connection in Hop:
+
+1. Open the Metadata Perspective in Hop GUI
+2. Navigate to Salesforce Connection in the metadata tree
+3. Right-click and select "New Salesforce Connection"
+4. Enter a descriptive name for your connection
+5. Select "OAuth" as the Authentication Type
+6. Fill in the OAuth settings:
+   * **Client ID**: Paste the Consumer Key from your Salesforce Connected App
+   * **Client Secret**: Paste the Consumer Secret from your Salesforce Connected App
+   * **Redirect URI**: Use the same Callback URL you configured in Salesforce (e.g., `https://localhost:8080/oauth/callback`)
+   * **Instance URL**: Your Salesforce instance URL (e.g., `https://yourcompany.my.salesforce.com` or `https://yourcompany.lightning.force.com`)
+7. Click the "Authorize" button to start the OAuth flow
+
+==== Authorization Flow
+
+When you click "Authorize", a browser window will open with the Salesforce login page:
+
+1. **Login**: Enter your Salesforce credentials and log in
+2. **Force Re-authorization** (Optional): If you're already logged in to Salesforce, you may not see the authorization screen. To force Salesforce to show the authorization screen again, add `&prompt=login` to the authorization URL
+3. **Grant Access**: Click "Allow" to authorize the application
+4. **Extract Authorization Code**: 
+   * After authorization, Salesforce will redirect to your callback URL
+   * The browser will show an error (this is expected since the URL doesn't exist)
+   * **Copy the full URL from your browser's address bar** - it will look like: `https://localhost:8080/oauth/callback?code=aPrxh7N...`
+   * The authorization code is the value after `code=` in the URL
+5. **Exchange Code for Tokens**:
+   * Return to Hop and paste the authorization code into the "Authorization Code" field (if prompted)
+   * Click "Exchange Code" or "Get Tokens" button
+   * Hop will automatically exchange the authorization code for access and refresh tokens
+   * The Access Token and Refresh Token fields will be automatically populated
+
+6. Click "Test Connection" to verify the OAuth connection works
+7. If successful, click "OK" to save the connection
+
+NOTE: The access token is used for API calls and expires after a period (typically a few hours). The refresh token is used to automatically obtain a new access token when the old one expires, without requiring user interaction.
+
+==== Token Management
+
+* **Access Token**: Automatically refreshed by Hop when it expires
+* **Refresh Token**: Stored securely and used for obtaining new access tokens
+* **Token Encryption**: Both tokens are encrypted using Hop's password encryption when saved
+* **Token Lifetime**: Access tokens typically expire in 1-2 hours, but refresh tokens remain valid until revoked
+
+=== Creating an OAuth JWT Bearer Connection
+
+OAuth JWT Bearer authentication is ideal for server-to-server integrations, CI/CD pipelines, and automated processes where interactive browser-based authentication is not feasible.
+
+==== Prerequisites
+
+===== Step 1: Generate RSA Key Pair
+
+Generate an RSA key pair on your local machine:
+
+[source,bash]
+----
+# Generate private key
+openssl genrsa -out salesforce_private.key 2048
+
+# Generate certificate (valid for 1 year)
+openssl req -new -x509 -key salesforce_private.key -out salesforce_cert.crt -days 365
+
+# Convert private key to PKCS8 format (required for Hop)
+openssl pkcs8 -topk8 -inform PEM -outform PEM -in salesforce_private.key -out salesforce_private_pkcs8.key -nocrypt
+----
+
+IMPORTANT: Keep your private key file (`salesforce_private_pkcs8.key`) secure and never commit it to version control.
+
+===== Step 2: Configure Salesforce Connected App
+
+1. Log in to Salesforce
+2. Go to Setup → App Manager → New Connected App
+3. Fill in the basic information:
+   * Connected App Name: e.g., "Hop JWT Integration"
+   * API Name: (auto-populated)
+   * Contact Email: your email
+4. Configure OAuth Settings:
+   * Check "Enable OAuth Settings"
+   * Callback URL: `https://login.salesforce.com/` (required but not used for JWT)
+   * Check "Use digital signatures"
+   * Upload the certificate file (`salesforce_cert.crt`)
+   * Select OAuth Scopes:
+     ** Full access (full)
+     ** Perform requests at any time (refresh_token, offline_access)
+     ** Access and manage your data (api)
+5. Save the Connected App
+
+===== Step 3: Configure Policies
+
+1. After creating the Connected App, click "Manage"
+2. Click "Edit Policies"
+3. Set "Permitted Users" to one of:
+   * **Admin approved users are pre-authorized** (recommended for production)
+   * **All users may self-authorize** (easier for testing)
+4. Set "IP Relaxation" to "Relax IP restrictions"
+5. Save
+
+===== Step 4: Pre-authorize Users (if using admin-approved)
+
+If you selected "Admin approved users are pre-authorized":
+
+1. In the Connected App management screen, click "Manage Profiles"
+2. Add the profiles that should use this integration (e.g., "System Administrator")
+3. OR click "Manage Permission Sets" and add appropriate permission sets
+4. Save
+
+===== Step 5: Get Consumer Key
+
+1. Go to your Connected App
+2. Click "View" or "Manage Consumer Details"
+3. Copy the **Consumer Key** (you'll need this in Hop)
+
+==== Creating the Connection in Hop
+
+1. Open the Metadata Perspective in Hop GUI
+2. Navigate to Salesforce Connection in the metadata tree
+3. Right-click and select "New Salesforce Connection"
+4. Enter a descriptive name for your connection
+5. Select "OAuth JWT Bearer" as the Authentication Type
+6. Fill in the JWT settings:
+   * **Username**: Your Salesforce username (e.g., `user@company.com` or use `${SF_USER}`)
+   * **Consumer Key**: Paste the Consumer Key from your Salesforce Connected App (or use `${SF_CONSUMER_KEY}`)
+   * **Private Key**: 
+     ** Click the "Browse..." button to load your private key file (`salesforce_private_pkcs8.key`)
+     ** OR use a variable reference: `${SF_JWT_PRIVATE_KEY}` (recommended for production)
+   * **Token Endpoint**: 
+     ** Use `https://login.salesforce.com` for production
+     ** Use `https://test.salesforce.com` for sandbox environments
+7. Click "Test Connection" to verify your settings
+8. If successful, click "OK" to save the connection
+
+==== Security Best Practices for JWT
+
+IMPORTANT: The private key is the most sensitive component of JWT authentication. Follow these security practices:
+
+* **Never commit private keys to version control**
+* **Use environment variables or external secret managers** in production:
++
+[source,bash]
+----
+# Set environment variable
+export SF_JWT_PRIVATE_KEY="$(cat /secure/path/salesforce_private_pkcs8.key)"
+
+# Or use Hop's variable system
+SF_JWT_PRIVATE_KEY = ${SECRET:azure-keyvault:salesforce-jwt-key}
+----
+
+* **Use Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault** for production deployments
+* **The private key is encrypted when saved** to Hop metadata files using AES encryption
+* **On reopening a connection**, the private key is displayed as masked dots (••••••) for security - you cannot view the actual key after saving
+* **To update a key**, use the Browse button to load a new private key file
+
+==== JWT Token Generation
+
+When you use a JWT Bearer connection:
+
+1. Hop generates a JWT assertion signed with your RSA private key (RS256 algorithm)
+2. The JWT includes claims:
+   * `iss` (issuer): Your Consumer Key
+   * `sub` (subject): Your Salesforce username
+   * `aud` (audience): Token endpoint URL
+   * `exp` (expiration): 5 minutes from generation
+3. Hop exchanges the JWT for an access token with Salesforce
+4. The access token is used for all Salesforce API calls
+5. New JWTs are generated as needed (no refresh token required)
+
+NOTE: Unlike OAuth 2.0 authorization code flow, JWT Bearer authentication generates new access tokens on-demand without requiring refresh tokens or user interaction.
+
+== Usage
+
+=== Using in Salesforce Transforms
+
+1. Open any Salesforce transform dialog
+2. In the Connection section, select your Salesforce Connection from the dropdown
+3. The transform will automatically use the connection settings
+4. Individual connection fields (URL, username, password) will be disabled when a metadata connection is selected
+
+=== Variable Support
+
+All connection fields support Hop variables:
+
+[source,properties]
+----
+Username: ${SF_USER}
+Password: ${SF_PASS}
+Target URL: ${SF_URL}
+----
+
+This allows you to use different credentials for different environments without changing your pipelines.
+
+== Best Practices
+
+=== Security
+
+* Use environment variables for sensitive information like passwords and tokens
+* Store OAuth tokens securely using Hop's password encryption
+* Regularly rotate access tokens and refresh tokens
+
+=== Organization
+
+* Use descriptive names for connections (e.g., "Salesforce-Production", "Salesforce-Sandbox")
+* Group related connections by environment or purpose
+* Document connection purposes in the connection name or description
+
+=== Performance
+
+* Use OAuth 2.0 for production environments as it provides better security and automatic token refresh
+* Test connections regularly to ensure they remain valid
+* Use appropriate timeout settings for your network environment
+
+== Examples
+
+=== Basic Username/Password Connection
+
+[source,properties]
+----
+Name: Salesforce-Production
+Authentication Type: Username/Password
+Username: ${SF_USER}
+Password: ${SF_PASS}
+Target URL: https://login.salesforce.com/services/Soap/u/64.0
+----
+
+=== OAuth Connection
+
+[source,properties]
+----
+Name: Salesforce-OAuth-Production
+Authentication Type: OAuth
+Client ID: ${SF_CLIENT_ID}
+Client Secret: ${SF_CLIENT_SECRET}
+Instance URL: https://yourcompany.my.salesforce.com
+----
+
+=== OAuth JWT Bearer Connection
+
+[source,properties]
+----
+Name: Salesforce-JWT-Production
+Authentication Type: OAuth JWT Bearer
+Username: integration.user@company.com
+Consumer Key: 3MVG9rZjd7MXFdLhRZwW8nz6y4HzBapVD3GeaSU_Ukf4HxwFls4LiQIJGJISQKQf8OO96mjyvT5CPI0EFiWhH
+Private Key: ${SF_JWT_PRIVATE_KEY}
+Token Endpoint: https://login.salesforce.com
+----
+
+NOTE: The private key should reference an environment variable or external secret manager for production use. Never hardcode private keys in metadata files.
+
+== Migration from Inline Connections
+
+Existing Salesforce transforms using inline connection settings will continue to work without changes. To migrate to metadata connections:
+
+1. Create a Salesforce Connection metadata item with your current settings
+2. Open each Salesforce transform dialog
+3. Select the new metadata connection from the dropdown
+4. Save the transform
+
+The inline connection fields will be automatically disabled when a metadata connection is selected.
+
+== Troubleshooting
+
+=== Connection Test Failures
+
+* Verify your username and password are correct
+* Check if your organization requires a security token
+* Ensure your IP address is whitelisted (if IP restrictions are enabled)
+* Verify the Target URL is correct for your Salesforce instance
+
+=== OAuth Issues
+
+* Ensure your Connected App is properly configured in Salesforce
+* Verify the Redirect URI matches your Connected App settings
+* Check that your Connected App has the necessary OAuth scopes
+* Ensure access and refresh tokens are valid and not expired
+
+=== OAuth JWT Bearer Issues
+
+* **"user hasn't approved this consumer"**: The Salesforce user needs to be pre-authorized in the Connected App policies. Go to Setup → App Manager → your Connected App → Manage → Manage Profiles/Permission Sets
+* **"invalid_grant" or "authentication failure"**: Verify the private key matches the certificate uploaded to Salesforce
+* **"Destination URL not reset"**: This is typically an internal error - ensure you're using the latest version of the plugin
+* **Certificate/Key mismatch**: Ensure the certificate uploaded to Salesforce was generated from the same private key you're using in Hop
+* **Token endpoint incorrect**: Use `https://login.salesforce.com` for production, `https://test.salesforce.com` for sandboxes
+* **Private key format**: Ensure the private key is in PKCS8 PEM format (use `openssl pkcs8` to convert if needed)
+
+=== Variable Resolution
+
+* Verify variables are properly defined in your environment
+* Check variable names are spelled correctly
+* Ensure variables are accessible in the current context

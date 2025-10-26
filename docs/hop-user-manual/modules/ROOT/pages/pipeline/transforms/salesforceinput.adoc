@@ -144,6 +144,15 @@ NOTE: When you set the limit to '0', there is no limit on the number of records 
 The fields tab displays the fields that are read from the Salesforce module selected on the Settings tab.
 You will need to go to the Fields tab and press the Get Fields button to populate the fields returned before you can preview the rows returned.
 
+=== Use Field API Names
+
+The "Use Field API Names" checkbox allows you to choose between using Salesforce Field API Names (e.g., `CustomField__c`) or Field Labels (e.g., "Customer ID") for the output field names in your pipeline.
+
+* **API Names (recommended)**: Salesforce API names are permanent identifiers that won't change even if an administrator modifies the field label in Salesforce. This prevents your pipelines from breaking when field labels are updated.
+* **Labels**: Field labels are user-friendly names that can be changed by Salesforce administrators. Using labels may make pipelines easier to read but creates a maintenance risk if labels are modified.
+
+NOTE: For new transforms, "Use Field API Names" is enabled by default. For existing transforms created before this feature was added, the checkbox defaults to off to maintain backward compatibility.
+
 The following are the properties display in the Fields tab:
 
 [options="header"]

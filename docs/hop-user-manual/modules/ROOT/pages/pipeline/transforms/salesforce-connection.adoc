@@ -20,20 +20,23 @@ under the License.
 
 === Connection
 
-Enter the connection information in the following transform options:
+The Salesforce transform can use a pre-defined xref:metadata-types/salesforce-connection.adoc[Salesforce Connection] or use inline connection settings directly. +
+When using a Salesforce Connection, the connection settings (URL, username, password, OAuth tokens) defined in the metadata will be used. +
+When used without a Salesforce Connection, the connection details need to be specified directly in the transform.
 
 [option="header"]
 |===
 |Option|Description
+|Salesforce Connection|The (optional) xref:metadata-types/salesforce-connection.adoc[Salesforce Connection] to use. When selected, the connection settings from the metadata will be used and the inline connection fields will be disabled.
 |Salesforce Webservice URL a| Specify the URL to the Salesforce Webservice. +
 
-Default: https://login.salesforce.com/services/Soap/u/50.0 
+Default: https://login.salesforce.com/services/Soap/u/64.0 
 
-You may need to update this if your company uses "My Domain" on salesforce.  If so, check with your Salesforce Administrator for the URL.  Generally of the format https://NAME.my.salesforce.com/services/Soap/u/50.0.  You can access a sandbox by using its URL here as well.  It is strongly recommended to utilize xref:pipeline/transforms/setvariable.adoc[variables] to populate these values.
+You may need to update this if your company uses "My Domain" on salesforce.  If so, check with your Salesforce Administrator for the URL.  Generally of the format https://NAME.my.salesforce.com/services/Soap/u/64.0.  You can access a sandbox by using its URL here as well.  It is strongly recommended to utilize xref:pipeline/transforms/setvariable.adoc[variables] to populate these values.
 
 |Username|Specify the username for authenticating to Salesforce
 |Password|Specify the password for authenticating to Salesforce.
-Enter your password followed by your security token.
+Enter your password followed by your security token (if required by your organization).
 For example, if your password is PASSWORD and your security token is TOKEN, you would enter PASSWORDTOKEN in this field.
 |Test Connection|Click to verify the connection can be made to the Salesforce Webservice URL you specified.
 |===

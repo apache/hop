@@ -445,6 +445,7 @@ under the License.
 ** xref:metadata-types/pipeline-unit-test.adoc[Pipeline Unit Test]
 ** xref:metadata-types/rdbms-connection.adoc[Relational Database Connection]
 ** xref:metadata-types/rest-connection.adoc[REST Connection]
+** xref:metadata-types/salesforce-connection.adoc[Salesforce Connection]
 ** xref:metadata-types/splunk-connection.adoc[Splunk Connection]
 ** xref:metadata-types/variable-resolver/index.adoc[Variable Resolver]
 *** xref:metadata-types/variable-resolver/azure-key-vault-variable-resolver.adoc[Azure Key Vault variable resolver]
