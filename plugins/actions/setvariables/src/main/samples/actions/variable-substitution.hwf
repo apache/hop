@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>variable_substitution</name>
+  <name>variable-substitution</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -42,6 +42,7 @@ limitations under the License.
       <type>SPECIAL</type>
       <attributes/>
       <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
       <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
@@ -67,7 +68,7 @@ limitations under the License.
         </field>
       </fields>
       <file_variable_type>CURRENT_WORKFLOW</file_variable_type>
-      <filename>${PROJECT_HOME}/files/properties_file.properties</filename>
+      <filename>${PROJECT_HOME}/files/properties-file.properties</filename>
       <replacevars>Y</replacevars>
       <parallel>N</parallel>
       <xloc>336</xloc>
@@ -132,15 +133,15 @@ param_value = ${param_value}</logmessage>
       <fontcolorred>14</fontcolorred>
       <fontitalic>N</fontitalic>
       <fontname>Segoe UI</fontname>
-      <fontsize>9</fontsize>
-      <height>74</height>
+      <fontsize>11</fontsize>
+      <height>90</height>
       <xloc>48</xloc>
-      <yloc>48</yloc>
+      <yloc>16</yloc>
       <note>The Workflow takes a parameter named parameter_value with a default value set to "param_value". 
 Using the "Variable substitution" option in the "Set Variables" step enables you to dynamically create a new variable. 
 This new variable is named based on the value of the content of the parameter_value variable, 
 and its value can be set using other variables.</note>
-      <width>621</width>
+      <width>782</width>
     </notepad>
   </notepads>
   <attributes/>
