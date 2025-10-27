@@ -306,7 +306,7 @@ public class StaxPoiSheet implements IKSheet {
     }
     // if random access this will be very expensive
     IKCell[] row = getRow(rownr);
-    if (row != null && rownr < row.length) {
+    if (row != null && colnr < row.length) {
       return row[colnr];
     }
     return null;
