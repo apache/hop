@@ -63,6 +63,14 @@ The following properties are used to define the mappings:
 |Target field name|Field to use as the mapping Target
 |Default upon non-matching|Defines a default value for situations where the source value is not empty, but there is no match
 |Field values table|Contains the mapping of source value to converted target value.
+|Target field type |Specifies the data type of the mapped (target) values.
+If not set, the transform falls back to:
+
+- String when writing to a new target field.
+
+- The same type as the source field when overwriting the source field.
+It fails if the values are incompatible.
+
 |===
 
 === Mapping NULL values

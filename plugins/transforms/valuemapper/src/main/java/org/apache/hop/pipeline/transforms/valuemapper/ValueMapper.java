@@ -20,7 +20,11 @@ package org.apache.hop.pipeline.transforms.valuemapper;
 import java.util.HashMap;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -78,22 +82,9 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
         return false;
       }
 
-      // If there is an empty entry: we map null or "" to the target at the index
-      // 0 or 1 empty mapping is allowed, not 2 or more.
-      //
-      for (Values v : meta.getValues()) {
-        if (Utils.isEmpty(v.getSource())) {
-          if (data.emptyFieldValue == null) {
-            data.emptyFieldValue = resolve(v.getTarget());
-          } else {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "ValueMapper.RuntimeError.OnlyOneEmptyMappingAllowed.VALUEMAPPER0004"));
-          }
-        }
-      }
-
       data.sourceValueMeta = getInputRowMeta().getValueMeta(data.keynr);
+      setTargetMetaType();
+      builMapValues();
 
       if (Utils.isEmpty(meta.getTargetField())) {
         data.outputValueMeta = data.outputMeta.getValueMeta(data.keynr); // Same field
@@ -103,19 +94,22 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
       }
     }
 
-    Object sourceData = r[data.keynr];
-    String source = data.sourceValueMeta.getCompatibleString(sourceData);
-    String target = null;
+    Object sourceValue = r[data.keynr]; // could be any storage type
+
+    // Use only normal storage type in the HashMap
+    Object sourceData = data.sourceValueMeta.convertToNormalStorageType(sourceValue);
+    Object target = null;
 
     // Null/Empty mapping to value...
     //
-    if (data.emptyFieldValue != null && (r[data.keynr] == null || Utils.isEmpty(source))) {
+    if (data.emptyFieldValue != null && (r[data.keynr] == null || sourceData == null)) {
       target = data.emptyFieldValue; // that's all there is to it.
     } else {
-      if (!Utils.isEmpty(source)) {
-        target = data.mapValues.get(source);
-        if (nonMatchActivated && target == null) {
-          // If we do non matching and we don't have a match
+      if (sourceData != null) {
+        if (data.mapValues.containsKey(sourceData)) {
+          target = data.mapValues.get(sourceData);
+        } else if (nonMatchActivated) {
+          // If we have a nonMatchDefault and don't have a match
           target = data.nonMatchDefault;
         }
       }
@@ -125,28 +119,11 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
       // room for the target
       r = RowDataUtil.resizeArray(r, data.outputMeta.size());
       // Did we find anything to map to?
-      if (!Utils.isEmpty(target)) {
-        r[data.outputMeta.size() - 1] = target;
-      } else {
-        r[data.outputMeta.size() - 1] = null;
-      }
+      r[data.outputMeta.size() - 1] = target;
     } else {
       // Don't set the original value to null if we don't have a target.
       if (target != null) {
-        if (!target.isEmpty()) {
-          // See if the expected type is a String...
-          //
-          if (data.sourceValueMeta.isString()) {
-            r[data.keynr] = target;
-          } else {
-            // Do implicit conversion of the String to the target type...
-            //
-            r[data.keynr] = data.outputValueMeta.convertData(data.stringMeta, target);
-          }
-        } else {
-          // allow target to be set to null since 3.0
-          r[data.keynr] = null;
-        }
+        r[data.keynr] = target;
       } else {
         // Convert to normal storage type.
         // Otherwise we're going to be mixing storage types.
@@ -162,6 +139,122 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     return true;
   }
 
+  /**
+   * Convert a String key to the target meta's NORMAL storage object using srcMeta as the source
+   * type.
+   */
+  private Object keyFromString(IValueMeta tgtMeta, IValueMeta srcMeta, String key)
+      throws HopValueException {
+    Object v = tgtMeta.convertData(srcMeta, key);
+    return tgtMeta.convertToNormalStorageType(v);
+  }
+
+  private String typeName(IValueMeta vm) {
+    return vm == null ? "<unknown>" : vm.toStringMeta();
+  }
+
+  /** Build the value map, default-on-nonmatch, and empty/null mapping. */
+  private void builMapValues() throws HopException {
+
+    IValueMeta stringValueMeta = new ValueMetaString("String");
+    // --- Default for non-match --------------
+    //
+    try {
+      if (!Utils.isEmpty(meta.getNonMatchDefault())) {
+        nonMatchActivated = true;
+        String nonMatchStr = resolve(meta.getNonMatchDefault());
+        data.nonMatchDefault = keyFromString(data.targetValueMeta, stringValueMeta, nonMatchStr);
+      }
+    } catch (HopValueException e) {
+      String msg =
+          String.format(
+              "Cannot convert the \"Default upon non-matching\" value [%s] to target type [%s].",
+              resolve(meta.getNonMatchDefault()), typeName(data.targetValueMeta));
+      throw new HopValueException(msg, e);
+    }
+
+    // --- HashMap --------------
+    // Add all source to target mappings in here...
+    for (Values v : meta.getValues()) {
+      String src = v.getSource();
+      String tgt = this.resolve(v.getTarget());
+
+      Object srcValue;
+      try {
+        srcValue = keyFromString(data.sourceValueMeta, stringValueMeta, src);
+      } catch (HopValueException ce) {
+        String msg =
+            String.format(
+                "Mapping entries: cannot convert source [%s] to source type [%s].",
+                src, typeName(data.sourceValueMeta));
+        throw new HopValueException(msg, ce);
+      }
+      Object tgtValue;
+      try {
+        tgtValue = keyFromString(data.targetValueMeta, stringValueMeta, tgt);
+      } catch (HopValueException ce) {
+        String msg =
+            String.format(
+                "Mapping entries: cannot convert target [%s] to target type [%s].",
+                src, typeName(data.sourceValueMeta));
+        throw new HopValueException(msg, ce);
+      }
+
+      if (srcValue != null) {
+        data.mapValues.put(srcValue, tgtValue);
+      }
+    }
+
+    // Null handling:
+    // 0 or 1 empty mapping is allowed, not 2 or more.
+    //
+    for (Values v : meta.getValues()) {
+      if (Utils.isEmpty(v.getSource())) {
+        if (data.emptyFieldValue == null) {
+          String emptyFieldString = resolve(v.getTarget());
+          data.emptyFieldValue =
+              keyFromString(data.targetValueMeta, stringValueMeta, emptyFieldString);
+        } else {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "ValueMapper.RuntimeError.OnlyOneEmptyMappingAllowed.VALUEMAPPER0004"));
+        }
+      }
+    }
+  }
+
+  /**
+   * Resolve and set the target output meta type (user-selected, or backward-compatible default).
+   */
+  private void setTargetMetaType() {
+    try {
+      int targetValueMetaId;
+      String targetValueMetaName;
+
+      if (!Utils.isEmpty(meta.getTargetType())) {
+        targetValueMetaName = meta.getTargetType();
+        targetValueMetaId = ValueMetaFactory.getIdForValueMeta(targetValueMetaName);
+      } else {
+        // if inputMeta's size == outputMeta's size, the user has not specified a new field for the
+        // mapped values
+        //
+        boolean noNewField = data.previousMeta.size() == data.outputMeta.size();
+
+        // for backward compatibility:
+        // if the user hasn't specified a new field, the output type is the
+        // same as the source field type, else, is String
+        //
+        targetValueMetaId = noNewField ? data.sourceValueMeta.getType() : IValueMeta.TYPE_STRING;
+        targetValueMetaName = data.sourceValueMeta.getName();
+      }
+
+      data.targetValueMeta =
+          ValueMetaFactory.createValueMeta(targetValueMetaName, targetValueMetaId);
+    } catch (HopException e) {
+      data.targetValueMeta = new ValueMetaString("String");
+    }
+  }
+
   @Override
   public void dispose() {
     super.dispose();
@@ -173,25 +266,6 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     if (super.init()) {
       data.mapValues = new HashMap<>();
 
-      if (!Utils.isEmpty(meta.getNonMatchDefault())) {
-        nonMatchActivated = true;
-        data.nonMatchDefault = resolve(meta.getNonMatchDefault());
-      }
-
-      // Add all source to target mappings in here...
-      for (Values v : meta.getValues()) {
-        String src = v.getSource();
-        String tgt = this.resolve(v.getTarget());
-
-        if (!Utils.isEmpty(src) && !Utils.isEmpty(tgt)) {
-          data.mapValues.put(src, tgt);
-        } else {
-          if (Utils.isEmpty(tgt)) {
-            // allow target to be set to null since 3.0
-            data.mapValues.put(src, "");
-          }
-        }
-      }
       return true;
     }
     return false;

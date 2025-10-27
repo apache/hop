@@ -22,8 +22,10 @@ import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -65,6 +67,12 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
   private String nonMatchDefault;
 
   @HopMetadataProperty(
+      key = "target_type",
+      injectionKey = "TARGET_TYPE",
+      injectionKeyDescription = "ValueMapper.Injection.TARGET_TYPE")
+  private String targetType;
+
+  @HopMetadataProperty(
       groupKey = "fields",
       key = "field",
       injectionGroupKey = "VALUES",
@@ -85,6 +93,11 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     this.fieldToUse = meta.fieldToUse;
     this.targetField = meta.targetField;
     this.nonMatchDefault = meta.nonMatchDefault;
+    if (meta.targetType != null && meta.targetType.isEmpty()) {
+      this.targetType = meta.targetType;
+    } else {
+      this.targetType = "String";
+    }
   }
 
   /**
@@ -114,27 +127,43 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
+
     IValueMeta extra = null;
+
+    // Determine target value meta type (default to String for backward compatibility)
+    String targetTypeName = Utils.isEmpty(getTargetType()) ? "String" : getTargetType();
+    int targetTypeId = ValueMetaFactory.getIdForValueMeta(targetTypeName);
+    // fallback
+    targetTypeId = targetTypeId == IValueMeta.TYPE_NONE ? IValueMeta.TYPE_STRING : targetTypeId;
+
     if (!Utils.isEmpty(getTargetField())) {
-      extra = new ValueMetaString(getTargetField());
+      // ADD a new field with the chosen type
+      try {
+        extra = ValueMetaFactory.createValueMeta(getTargetField(), targetTypeId);
+      } catch (HopPluginException e) {
+        // fallback if factory fails for some reason
+        extra = new ValueMetaString(getTargetField());
+      }
 
-      // Lengths etc?
-      // Take the max length of all the strings...
-      //
-      int maxlen = -1;
-      for (Values v : this.values) {
-        if (v.getTarget() != null && v.getTarget().length() > maxlen) {
-          maxlen = v.getTarget().length();
+      if (extra.getType() == IValueMeta.TYPE_STRING) {
+        // Lengths etc?
+        // Take the max length of all the strings...
+        //
+        int maxlen = -1;
+        for (Values v : this.values) {
+          if (v.getTarget() != null && v.getTarget().length() > maxlen) {
+            maxlen = v.getTarget().length();
+          }
         }
-      }
 
-      // include default value in max length calculation
-      //
-      if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
-        maxlen = nonMatchDefault.length();
+        // include default value in max length calculation
+        //
+        if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
+          maxlen = nonMatchDefault.length();
+        }
+        extra.setLength(maxlen);
+        extra.setOrigin(name);
       }
-      extra.setLength(maxlen);
-      extra.setOrigin(name);
       r.addValueMeta(extra);
     } else {
       if (!Utils.isEmpty(getFieldToUse())) {
@@ -243,5 +272,19 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
    */
   public void setNonMatchDefault(String nonMatchDefault) {
     this.nonMatchDefault = nonMatchDefault;
+  }
+
+  /**
+   * @return Returns the targetType.
+   */
+  public String getTargetType() {
+    return targetType;
+  }
+
+  /**
+   * @param targetType The targetType to set.
+   */
+  public void setTargetType(String targetType) {
+    this.targetType = targetType;
   }
 }

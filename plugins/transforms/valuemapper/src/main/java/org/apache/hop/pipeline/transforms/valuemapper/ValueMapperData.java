@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.valuemapper;
 import java.util.HashMap;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -31,11 +30,11 @@ public class ValueMapperData extends BaseTransformData implements ITransformData
 
   public int keynr;
 
-  public HashMap<String, String> mapValues;
-  public String nonMatchDefault;
-  public String emptyFieldValue;
+  public HashMap<Object, Object> mapValues;
+  public Object nonMatchDefault;
+  public Object emptyFieldValue;
 
-  public IValueMeta stringMeta;
+  public IValueMeta targetValueMeta;
   public IValueMeta outputValueMeta;
   public IValueMeta sourceValueMeta;
 
@@ -43,7 +42,5 @@ public class ValueMapperData extends BaseTransformData implements ITransformData
     super();
 
     mapValues = null;
-
-    stringMeta = new ValueMetaString("string");
   }
 }
