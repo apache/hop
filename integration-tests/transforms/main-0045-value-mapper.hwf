@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>0045-value-mapper</name>
+  <name>main-0045-value-mapper</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -35,14 +35,15 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>50</xloc>
       <yloc>50</yloc>
@@ -59,18 +60,72 @@ limitations under the License.
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>192</xloc>
+      <xloc>448</xloc>
       <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0045-value-mapper-output-type.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0045-value-mapper-output-type.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Error</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>Something wrong happened!</message>
+      <parallel>N</parallel>
+      <xloc>224</xloc>
+      <yloc>176</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
       <from>Start</from>
-      <to>Run ValueMapper Unit Test</to>
+      <to>0045-value-mapper-output-type.hpl</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0045-value-mapper-output-type.hpl</from>
+      <to>Run ValueMapper Unit Test</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0045-value-mapper-output-type.hpl</from>
+      <to>Error</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>
