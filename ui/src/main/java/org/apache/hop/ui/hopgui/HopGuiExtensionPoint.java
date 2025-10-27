@@ -22,6 +22,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardExtension;
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -51,6 +52,9 @@ public enum HopGuiExtensionPoint {
 
   HopGuiWorkflowClipboardFilePaste(
       "A filename is pasted into a workflow", HopGuiWorkflowClipboardExtension.class),
+
+  HopGuiWorkflowGraphUpdateGui(
+      "Triggered when the Hop GUI workflow graph refreshes", HopGuiWorkflowGraph.class),
 
   HopGuiPipelineFinished("A pipeline finished in the GUI", HopGuiPipelineFinishedExtension.class),
 

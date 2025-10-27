@@ -108,6 +108,7 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -314,7 +315,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public CTabFolder extraViewTabFolder;
 
   private ToolBar toolBar;
-  private GuiToolbarWidgets toolBarWidgets;
+  @Getter private GuiToolbarWidgets toolBarWidgets;
 
   private boolean halting;
 
@@ -3265,6 +3266,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               //
               super.enableSnapAlignDistributeMenuItems(
                   fileType, !workflowMeta.getSelectedActions().isEmpty());
+
+              try {
+                ExtensionPointHandler.callExtensionPoint(
+                    LogChannel.UI,
+                    variables,
+                    HopGuiExtensionPoint.HopGuiWorkflowGraphUpdateGui.id,
+                    this);
+              } catch (Exception xe) {
+                LogChannel.UI.logError(
+                    "Error handling extension point 'HopGuiWorkflowGraphUpdateGui'", xe);
+              }
 
               HopGuiWorkflowGraph.super.redraw();
             });
