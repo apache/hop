@@ -28,7 +28,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
-import org.apache.hop.core.logging.HopLogLayout;
+import org.apache.hop.core.logging.FixedWidthLogLayout;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHasLogChannel;
@@ -76,7 +76,7 @@ public class HopGuiLogBrowser {
     //
     final AtomicInteger lastLogId = new AtomicInteger(-1);
     final AtomicBoolean busy = new AtomicBoolean(false);
-    final HopLogLayout logLayout = new HopLogLayout(true);
+    final FixedWidthLogLayout logLayout = new FixedWidthLogLayout(true);
 
     // Refresh the log every second or so
     //
