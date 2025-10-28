@@ -29,21 +29,21 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.xml.PipelineTestFactory;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(RestoreHopEnvironmentExtension.class)
 class XsdValidatorIntTest {
 
   private static final String RAMDIR = "ram://" + XsdValidatorIntTest.class.getSimpleName();
@@ -51,11 +51,6 @@ class XsdValidatorIntTest {
 
   private static FileObject schemaRamFile = null;
   private static FileObject dataRamFile = null;
-
-  @BeforeAll
-  static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init();
-  }
 
   @AfterAll
   static void tearDownAfterClass() {
