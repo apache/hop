@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -73,11 +72,12 @@ import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
+import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.FileTree;
@@ -87,29 +87,37 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolItem;
 
 @GuiPlugin
 public class ProjectsGuiPlugin {
 
   public static final Class<?> PKG = ProjectsGuiPlugin.class; // i18n
 
-  public static final String ID_TOOLBAR_PROJECT_LABEL = "toolbar-40000-project-label";
-  public static final String ID_TOOLBAR_PROJECT_COMBO = "toolbar-40010-project-list";
-  public static final String ID_TOOLBAR_PROJECT_EDIT = "toolbar-40020-project-edit";
-  public static final String ID_TOOLBAR_PROJECT_ADD = "toolbar-40030-project-add";
-  public static final String ID_TOOLBAR_PROJECT_DELETE = "toolbar-40040-project-delete";
+  public static final String ID_TOOLBAR_ITEM_PROJECT = "toolbar-item-10000-project";
+  public static final String ID_CONTEXT_MENU_PROJECT = "context-menu-project";
+  public static final String ID_CONTEXT_MENU_PROJECT_ADD = "context-menu-project-40010-add";
+  public static final String ID_CONTEXT_MENU_PROJECT_EDIT = "context-menu-project-40020-edit";
+  public static final String ID_CONTEXT_MENU_PROJECT_DELETE = "context-menu-project-40030-delete";
 
-  public static final String ID_TOOLBAR_ENVIRONMENT_LABEL = "toolbar-50000-environment-label";
-  public static final String ID_TOOLBAR_ENVIRONMENT_COMBO = "toolbar-50010-environment-list";
-  public static final String ID_TOOLBAR_ENVIRONMENT_EDIT = "toolbar-50020-environment-edit";
-  public static final String ID_TOOLBAR_ENVIRONMENT_ADD = "toolbar-50030-environment-add";
-  public static final String ID_TOOLBAR_ENVIRONMENT_DELETE = "toolbar-50040-environment-delete";
+  public static final String ID_TOOLBAR_ITEM_ENVIRONMENT = "toolbar-item-20000-environment";
+  public static final String ID_CONTEXT_MENU_ENVIRONMENT = "context-menu-environment";
+  public static final String ID_CONTEXT_MENU_ENVIRONMENT_ADD = "context-menu-environment-50010-add";
+  public static final String ID_CONTEXT_MENU_ENVIRONMENT_EDIT =
+      "context-menu-environment-50020-edit";
+  public static final String ID_CONTEXT_MENU_ENVIRONMENT_DUPLICATE =
+      "context-menu-environment-50030-duplicate";
+
+  public static final String ID_CONTEXT_MENU_ENVIRONMENT_DELETE =
+      "context-menu-environment-50040-delete";
 
   public static final String ID_MAIN_MENU_PROJECT_EXPORT = "10055-menu-file-export-to-svg";
 
@@ -119,7 +127,7 @@ public class ProjectsGuiPlugin {
 
   FileTree tree;
 
-  /** Automatically instantiated when the toolbar widgets etc need it */
+  /** Automatically instantiated when the toolbar widgets need it */
   public ProjectsGuiPlugin() {
     // Do nothing
   }
@@ -204,10 +212,10 @@ public class ProjectsGuiPlugin {
       //
       hopGui.getActivePerspective().getActiveFileTypeHandler().updateGui();
 
-      // Update the toolbar combos
+      // Update the toolbar items
       //
-      ProjectsGuiPlugin.selectProjectInList(projectName);
-      ProjectsGuiPlugin.selectEnvironmentInList(environment == null ? null : environment.getName());
+      updateProjectToolItem(projectName);
+      updateEnvironmentToolItem(environmentName);
 
       // Also add this as an event so we know what the project usage history is
       //
@@ -220,11 +228,6 @@ public class ProjectsGuiPlugin {
               new Date());
       AuditManager.getActive().storeEvent(prjUsedEvent);
 
-      // Now use that event to refresh the list...
-      //
-      refreshProjectsList();
-      ProjectsGuiPlugin.selectProjectInList(projectName);
-
       if (environment != null) {
         // Also add this as an event so we know what the project usage history is
         //
@@ -232,7 +235,7 @@ public class ProjectsGuiPlugin {
             new AuditEvent(
                 ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
                 ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
-                environment.getName(),
+                environmentName,
                 "open",
                 new Date());
         AuditManager.getActive().storeEvent(envUsedEvent);
@@ -254,56 +257,33 @@ public class ProjectsGuiPlugin {
 
       // Reset VFS filesystem to load additional configurations
       HopVfs.reset();
-
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "' in HopGui", e);
     }
   }
 
-  private static Combo getProjectsCombo() {
-    Control control =
-        HopGui.getInstance()
-            .getMainToolbarWidgets()
-            .getWidgetsMap()
-            .get(ProjectsGuiPlugin.ID_TOOLBAR_PROJECT_COMBO);
-    if (control instanceof Combo combo) {
-      return combo;
-    }
-    return null;
+  private static ToolItem getProjectToolItem() {
+    return HopGui.getInstance().getStatusToolbarWidgets().findToolItem(ID_TOOLBAR_ITEM_PROJECT);
   }
 
-  private static Combo getEnvironmentsCombo() {
-    Control control =
-        HopGui.getInstance()
-            .getMainToolbarWidgets()
-            .getWidgetsMap()
-            .get(ProjectsGuiPlugin.ID_TOOLBAR_ENVIRONMENT_COMBO);
-    if (control instanceof Combo combo) {
-      return combo;
-    }
-    return null;
+  private static ToolItem getEnvironmentToolItem() {
+    return HopGui.getInstance().getStatusToolbarWidgets().findToolItem(ID_TOOLBAR_ITEM_ENVIRONMENT);
   }
 
-  public static void refreshProjectsList() {
-    HopGui.getInstance().getMainToolbarWidgets().refreshComboItemList(ID_TOOLBAR_PROJECT_COMBO);
-  }
-
-  public static void selectProjectInList(String name) {
-    GuiToolbarWidgets toolbarWidgets = HopGui.getInstance().getMainToolbarWidgets();
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
-    toolbarWidgets.selectComboItem(ID_TOOLBAR_PROJECT_COMBO, name);
-    Combo combo = getProjectsCombo();
-    if (combo != null) {
-      ProjectConfig projectConfig = config.findProjectConfig(name);
+  private static void updateProjectToolItem(String projectName) {
+    ToolItem item = getProjectToolItem();
+    if (item != null && !item.isDisposed()) {
+      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+      ProjectConfig projectConfig = config.findProjectConfig(projectName);
       if (projectConfig != null) {
         String projectHome = projectConfig.getProjectHome();
         if (StringUtils.isNotEmpty(projectHome)) {
-          combo.setToolTipText(
+          item.setText(projectName);
+          item.setToolTipText(
               BaseMessages.getString(
                   PKG,
-                  "ProjectGuiPlugin.SelectProject.Tooltip",
-                  name,
+                  "HopGui.Toolbar.Project.Tooltip",
+                  projectName,
                   projectHome,
                   projectConfig.getConfigFilename()));
         }
@@ -311,24 +291,25 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  public static void refreshEnvironmentsList() {
-    HopGui.getInstance().getMainToolbarWidgets().refreshComboItemList(ID_TOOLBAR_ENVIRONMENT_COMBO);
-  }
+  private static void updateEnvironmentToolItem(String environmentName) {
+    ToolItem item = getEnvironmentToolItem();
+    if (item != null && !item.isDisposed()) {
+      if (Utils.isEmpty(environmentName)) {
+        item.setText("");
+        item.setToolTipText(
+            BaseMessages.getString(PKG, "HopGui.Toolbar.Environment.Select.Tooltip"));
+        return;
+      }
 
-  public static void selectEnvironmentInList(String name) {
-    GuiToolbarWidgets toolbarWidgets = HopGui.getInstance().getMainToolbarWidgets();
-
-    toolbarWidgets.selectComboItem(ID_TOOLBAR_ENVIRONMENT_COMBO, name);
-    Combo combo = getEnvironmentsCombo();
-    if (combo != null) {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-      LifecycleEnvironment environment = config.findEnvironment(name);
+      LifecycleEnvironment environment = config.findEnvironment(environmentName);
       if (environment != null) {
-        combo.setToolTipText(
+        item.setText(environmentName);
+        item.setToolTipText(
             BaseMessages.getString(
                 PKG,
-                "ProjectGuiPlugin.FindEnvironment.Tooltip",
-                name,
+                "HopGui.Toolbar.Environment.Tooltip",
+                environmentName,
                 environment.getProjectName(),
                 environment.getPurpose()));
       }
@@ -361,23 +342,18 @@ public class ProjectsGuiPlugin {
     enableHopGuiProject(projectName, project, null);
   }
 
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_PROJECT_LABEL,
-      type = GuiToolbarElementType.LABEL,
-      label = "i18n::HopGui.Toolbar.Project.Label",
-      toolTip = "i18n::HopGui.Toolbar.Project.Tooltip",
-      separator = true)
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_PROJECT,
+      parentId = ID_CONTEXT_MENU_PROJECT,
+      id = ID_CONTEXT_MENU_PROJECT_EDIT,
+      label = "i18n::HopGui.Toolbar.Project.Edit.Label",
+      toolTip = "i18n::HopGui.Toolbar.Project.Edit.Tooltip",
+      image = "ui/images/edit.svg")
   public void editProject() {
     HopGui hopGui = HopGui.getInstance();
-    Combo combo = getProjectsCombo();
-    if (combo == null) {
-      return;
-    }
+    String projectName = getProjectToolItem().getText();
+
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
-    String projectName = combo.getText();
-
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
       return;
@@ -407,17 +383,16 @@ public class ProjectsGuiPlugin {
         }
 
         project.saveToFile();
-        refreshProjectsList();
-        selectProjectInList(projectName);
+        updateProjectToolItem(projectName);
 
         if (projectDialog.isNeedingProjectRefresh()) {
           if (askAboutProjectRefresh(hopGui)) {
             // Try to stick to the same environment if we have one selected...
             //
             LifecycleEnvironment environment = null;
-            Combo environmentsCombo = getEnvironmentsCombo();
-            if (environmentsCombo != null) {
-              environment = config.findEnvironment(environmentsCombo.getText());
+            ToolItem environmentItem = getEnvironmentToolItem();
+            if (environmentItem != null) {
+              environment = config.findEnvironment(environmentItem.getText());
             }
             enableHopGuiProject(projectConfig.getProjectName(), project, environment);
           }
@@ -446,45 +421,159 @@ public class ProjectsGuiPlugin {
   }
 
   @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_PROJECT_COMBO,
-      type = GuiToolbarElementType.COMBO,
-      comboValuesMethod = "getProjectsList",
-      extraWidth = 200,
-      toolTip = "i18n::HopGui.Toolbar.ProjectsList.Tooltip",
-      readOnly = true)
-  public void selectProject() {
-    HopGui hopGui = HopGui.getInstance();
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
-    Combo projectsCombo = getProjectsCombo();
-    Combo environmentsCombo = getEnvironmentsCombo();
-
-    if (projectsCombo == null) {
-      return;
+      root = HopGui.ID_STATUS_TOOLBAR,
+      id = ID_TOOLBAR_ITEM_PROJECT,
+      type = GuiToolbarElementType.BUTTON,
+      image = "project.svg",
+      toolTip = "i18n::HopGui.Toolbar.Project.Tooltip")
+  public void showProjectContextMenu() {
+    ToolItem item = getProjectToolItem();
+    if (item != null) {
+      Rectangle rect = item.getBounds();
+      Point location = item.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
+      Menu menu = createProjectContextMenu();
+      menu.setLocation(location);
+      menu.setVisible(true);
     }
-    String projectName = projectsCombo.getText();
+  }
 
+  private Menu createProjectContextMenu() {
+    Shell shell = HopGui.getInstance().getActiveShell();
+    Menu menu = new Menu(shell, SWT.POP_UP);
+
+    // Create context menu...
+    //
+    GuiMenuWidgets menuWidgets = new GuiMenuWidgets();
+    menuWidgets.registerGuiPluginObject(this);
+    menuWidgets.createMenuWidgets(ID_CONTEXT_MENU_PROJECT, shell, menu);
+
+    // Enable menus if a project is active.
+    //
+    boolean enabled = !"".equals(getProjectToolItem().getText());
+    menuWidgets.enableMenuItem(ID_CONTEXT_MENU_PROJECT_EDIT, enabled);
+    menuWidgets.enableMenuItem(ID_CONTEXT_MENU_PROJECT_DELETE, enabled);
+
+    new MenuItem(menu, SWT.SEPARATOR);
+
+    String currentProjectName = HopNamespace.getNamespace();
+    List<String> names = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+    int count = 0;
+    for (String name : names) {
+      MenuItem item = new MenuItem(menu, SWT.CHECK);
+      item.setText(name);
+      item.setSelection(currentProjectName.equals(name));
+      item.addListener(SWT.Selection, e -> selectProject(name));
+      //    if (++count == 10) break;
+    }
+    // TODO: display only the last 10 used projects
+    //    if (count == 5) {
+    //      new MenuItem(menu, SWT.SEPARATOR);
+    //      MenuItem item = new MenuItem(menu, SWT.PUSH);
+    //      item.setText("More...");
+    //      item.addListener(SWT.Selection, e -> selectProject());
+    //    }
+
+    return menu;
+  }
+
+  private Menu createEnvironmentContextMenu() {
+    Shell shell = HopGui.getInstance().getActiveShell();
+    Menu menu = new Menu(shell, SWT.POP_UP);
+
+    // Create context menu...
+    //
+    GuiMenuWidgets menuWidgets = new GuiMenuWidgets();
+    menuWidgets.registerGuiPluginObject(this);
+    menuWidgets.createMenuWidgets(ID_CONTEXT_MENU_ENVIRONMENT, shell, menu);
+
+    // Enable menus if an environment is active.
+    //
+    boolean enabled = !"".equals(getEnvironmentToolItem().getText());
+    menuWidgets.enableMenuItem(ID_CONTEXT_MENU_ENVIRONMENT_EDIT, enabled);
+    menuWidgets.enableMenuItem(ID_CONTEXT_MENU_ENVIRONMENT_DUPLICATE, enabled);
+    menuWidgets.enableMenuItem(ID_CONTEXT_MENU_ENVIRONMENT_DELETE, enabled);
+
+    new MenuItem(menu, SWT.SEPARATOR);
+
+    String currentProjectName = getProjectToolItem().getText();
+    String currentEnvironmentName = getEnvironmentToolItem().getText();
+
+    // List of first 10 projects
+    //
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    List<String> names = config.listEnvironmentNames();
+    int count = 0;
+    for (String name : names) {
+
+      // Exclude environment linked to another project
+      LifecycleEnvironment environment = config.findEnvironment(name);
+      if (Utils.isEmpty(environment.getProjectName())
+          || currentProjectName.equals(environment.getProjectName())) {
+        MenuItem item = new MenuItem(menu, SWT.CHECK);
+        item.setText(name);
+        item.setSelection(currentEnvironmentName.equals(name));
+        item.addListener(SWT.Selection, e -> selectEnvironment(name));
+        // if (++count == 10) break;
+      }
+    }
+
+    // TODO: display only the last 10 used environments
+    // If more projects, open a dialog to select it
+    //    if (count == 10) {
+    //      new MenuItem(menu, SWT.SEPARATOR);
+    //      MenuItem item = new MenuItem(menu, SWT.PUSH);
+    //      item.setText("More...");
+    //      item.addListener(SWT.Selection, e -> selectEnvironment());
+    //    }
+
+    return menu;
+  }
+
+  @GuiToolbarElement(
+      root = HopGui.ID_STATUS_TOOLBAR,
+      id = ID_TOOLBAR_ITEM_ENVIRONMENT,
+      type = GuiToolbarElementType.BUTTON,
+      image = "environment.svg",
+      toolTip = "i18n::HopGui.Toolbar.Environment.Tooltip")
+  public void showEnvironmentContextMenu() {
+    ToolItem item = getEnvironmentToolItem();
+    if (item != null) {
+      Rectangle rect = item.getBounds();
+      Point location = item.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
+      Menu menu = createEnvironmentContextMenu();
+      menu.setLocation(location);
+      menu.setVisible(true);
+    }
+  }
+
+  public void selectProject() {
+    List<String> projectNames = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+    EnterSelectionDialog dialog =
+        new EnterSelectionDialog(
+            HopGui.getInstance().getActiveShell(),
+            projectNames.toArray(new String[0]),
+            BaseMessages.getString(PKG, "ProjectGuiPlugin.Dialog.AvailableProjects.Title"),
+            BaseMessages.getString(PKG, "ProjectGuiPlugin.Dialog.AvailableProjects.Message"));
+    dialog.setCurrentValue(HopNamespace.getNamespace());
+
+    String name = dialog.open();
+    if (name != null) {
+      selectProject(name);
+    }
+  }
+
+  public void selectProject(String projectName) {
+    HopGui hopGui = HopGui.getInstance();
+
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     if (config.isEnvironmentsForActiveProject() && StringUtils.isEmpty(projectName)) {
       // list all environments and select the first one if we don't have a project selected
       List<String> allEnvironments = config.listEnvironmentNames();
-      environmentsCombo.setItems(allEnvironments.toArray(new String[0]));
-      selectEnvironmentInList(allEnvironments.get(0));
+      updateEnvironmentToolItem(allEnvironments.get(0));
       return;
     }
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
-
-    if (config.isEnvironmentsForActiveProject()) {
-      // get the environments for the selected project.
-      if (environmentsCombo != null) {
-        List<String> projectEnvironments = config.listEnvironmentNamesForProject(projectName);
-        environmentsCombo.setItems(projectEnvironments.toArray(new String[0]));
-      }
-    } else {
-      List<String> projectEnvironments = config.listEnvironmentNames();
-      environmentsCombo.setItems(projectEnvironments.toArray(new String[0]));
-    }
 
     // What is the last used environment?
     //
@@ -525,7 +614,7 @@ public class ProjectsGuiPlugin {
       LogChannel.UI.logError("Error reading the last used environment from the audit logs", e);
     }
 
-    // If there is no recent usage select the first environment.
+    // If there is no recent usage, select the first environment.
     //
     if (environment == null) {
       List<LifecycleEnvironment> environments = config.findEnvironmentsOfProject(projectName);
@@ -551,20 +640,13 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_PROJECT_EDIT,
-      toolTip = "i18n::HopGui.Toolbar.Project.Edit.Tooltip",
-      image = "project-edit.svg")
-  public void editSelectedProject() {
-    editProject();
-  }
-
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_PROJECT_ADD,
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_PROJECT,
+      parentId = ID_CONTEXT_MENU_PROJECT,
+      id = ID_CONTEXT_MENU_PROJECT_ADD,
+      label = "i18n::HopGui.Toolbar.Project.Add.Label",
       toolTip = "i18n::HopGui.Toolbar.Project.Add.Tooltip",
-      image = "project-add.svg")
+      image = "ui/images/add.svg")
   public void addNewProject() {
     HopGui hopGui = HopGui.getInstance();
     IVariables variables = hopGui.getVariables();
@@ -604,8 +686,7 @@ public class ProjectsGuiPlugin {
           project.readFromFile();
         }
 
-        refreshProjectsList();
-        selectProjectInList(projectName);
+        updateProjectToolItem(projectName);
 
         enableHopGuiProject(projectName, project, null);
 
@@ -692,17 +773,15 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_PROJECT_DELETE,
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_PROJECT,
+      parentId = ID_CONTEXT_MENU_PROJECT,
+      id = ID_CONTEXT_MENU_PROJECT_DELETE,
+      label = "i18n::HopGui.Toolbar.Project.Delete.Label",
       toolTip = "i18n::HopGui.Toolbar.Project.Delete.Tooltip",
-      image = "project-delete.svg")
-  public void deleteSelectedProject() {
-    Combo combo = getProjectsCombo();
-    if (combo == null) {
-      return;
-    }
-    String projectName = combo.getText();
+      image = "ui/images/delete.svg")
+  public void deleteProject() {
+    String projectName = getProjectToolItem().getText();
     if (StringUtils.isEmpty(projectName)) {
       return;
     }
@@ -768,11 +847,10 @@ public class ProjectsGuiPlugin {
         config.removeProjectConfig(projectName);
         ProjectsConfigSingleton.saveConfig();
 
-        refreshProjectsList();
         if (StringUtils.isEmpty(config.getDefaultProject())) {
-          selectProjectInList(null);
+          updateProjectToolItem(null);
         } else {
-          selectProjectInList(config.getDefaultProject());
+          updateProjectToolItem(config.getDefaultProject());
         }
       } catch (Exception e) {
         new ErrorDialog(
@@ -785,30 +863,24 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_ENVIRONMENT_LABEL,
-      type = GuiToolbarElementType.LABEL,
-      label = "i18n::HopGui.Toolbar.Environment.Label",
-      toolTip = "i18n::HopGui.Toolbar.Environment.Tooltip",
-      separator = true)
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_ENVIRONMENT,
+      parentId = ID_CONTEXT_MENU_ENVIRONMENT,
+      id = ID_CONTEXT_MENU_ENVIRONMENT_EDIT,
+      label = "i18n::HopGui.Toolbar.Environment.Edit.Label",
+      toolTip = "i18n::HopGui.Toolbar.Environment.Edit.Tooltip",
+      image = "ui/images/edit.svg")
   public void editEnvironment() {
-    HopGui hopGui = HopGui.getInstance();
-    Combo combo = getEnvironmentsCombo();
-    if (combo == null) {
-      return;
-    }
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-
-    String environmentName = combo.getText();
-    if (StringUtils.isEmpty(environmentName)) {
-      return;
+    LifecycleEnvironment environment = config.findEnvironment(getEnvironmentToolItem().getText());
+    if (environment != null) {
+      this.editEnvironment(environment);
     }
-    LifecycleEnvironment environment = config.findEnvironment(environmentName);
-    if (environment == null) {
-      return;
-    }
+  }
 
+  public void editEnvironment(LifecycleEnvironment environment) {
+    HopGui hopGui = HopGui.getInstance();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     try {
       LifecycleEnvironmentDialog dialog =
           new LifecycleEnvironmentDialog(
@@ -817,9 +889,7 @@ public class ProjectsGuiPlugin {
         config.addEnvironment(environment);
         ProjectsConfigSingleton.saveConfig();
 
-        refreshEnvironmentsList();
-
-        selectEnvironmentInList(environmentName);
+        updateEnvironmentToolItem(environment.getName());
       }
 
       // A refresh of the project and environment is likely needed
@@ -828,34 +898,19 @@ public class ProjectsGuiPlugin {
       if (dialog.isNeedingEnvironmentRefresh() && askAboutProjectRefresh(hopGui)) {
         // Refresh the loaded environment
         //
-        selectEnvironment();
+        selectEnvironment(environment.getName());
       }
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.EditEnvironment.Error.Dialog.Header"),
           BaseMessages.getString(
-              PKG, "ProjectGuiPlugin.EditEnvironment.Error.Dialog.Message", environmentName),
+              PKG, "ProjectGuiPlugin.EditEnvironment.Error.Dialog.Message", environment.getName()),
           e);
     }
   }
 
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_ENVIRONMENT_COMBO,
-      type = GuiToolbarElementType.COMBO,
-      comboValuesMethod = "getEnvironmentsList",
-      extraWidth = 200,
-      toolTip = "i18n::HopGui.Toolbar.EnvironmentsList.Tooltip",
-      readOnly = true)
-  public void selectEnvironment() {
-    HopGui hopGui = HopGui.getInstance();
-    Combo envCombo = getEnvironmentsCombo();
-    if (envCombo == null) {
-      return;
-    }
-
-    String environmentName = envCombo.getText();
+  public void selectEnvironment(String environmentName) {
     if (StringUtils.isEmpty(environmentName)) {
       return;
     }
@@ -864,22 +919,23 @@ public class ProjectsGuiPlugin {
     if (environment == null) {
       return;
     }
-    if (StringUtils.isEmpty(environment.getProjectName())) {
-      return;
+    String projectName = environment.getProjectName();
+    if (StringUtils.isEmpty(projectName)) {
+      projectName = getProjectToolItem().getText();
     }
-    ProjectConfig projectConfig = config.findProjectConfig(environment.getProjectName());
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
       return;
     }
 
     try {
-      Project project = projectConfig.loadProject(hopGui.getVariables());
+      Project project = projectConfig.loadProject(HopGui.getInstance().getVariables());
       if (project != null) {
         enableHopGuiProject(projectConfig.getProjectName(), project, environment);
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getActiveShell(),
+          HopGui.getInstance().getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.ChangeEnvironment.Error.Dialog.Header"),
           BaseMessages.getString(
               PKG, "ProjectGuiPlugin.ChangeEnvironment.Error.Dialog.Message", environmentName),
@@ -887,25 +943,18 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_ENVIRONMENT_EDIT,
-      toolTip = "i18n::HopGui.Toolbar.Environment.Edit.Tooltip",
-      image = "environment-edit.svg")
-  public void editSelectedEnvironment() {
-    editEnvironment();
-  }
-
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_ENVIRONMENT_ADD,
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_ENVIRONMENT,
+      parentId = ID_CONTEXT_MENU_ENVIRONMENT,
+      id = ID_CONTEXT_MENU_ENVIRONMENT_ADD,
+      label = "i18n::HopGui.Toolbar.Environment.Add.Label",
       toolTip = "i18n::HopGui.Toolbar.Environment.Add.Tooltip",
-      image = "environment-add.svg")
+      image = "ui/images/add.svg")
   public void addNewEnvironment() {
     HopGui hopGui = HopGui.getInstance();
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-      String projectName = getProjectsCombo().getText(); // The default is the active project
+      String projectName = getProjectToolItem().getText(); // The default is the active project
 
       LifecycleEnvironment environment =
           new LifecycleEnvironment(null, "", projectName, new ArrayList<>());
@@ -917,8 +966,7 @@ public class ProjectsGuiPlugin {
         config.addEnvironment(environment);
         ProjectsConfigSingleton.saveConfig();
 
-        refreshEnvironmentsList();
-        selectEnvironmentInList(environmentName);
+        updateEnvironmentToolItem(environmentName);
 
         ProjectConfig projectConfig = config.findProjectConfig(projectName);
         if (projectConfig != null) {
@@ -935,18 +983,35 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  @GuiToolbarElement(
-      root = HopGui.ID_MAIN_TOOLBAR,
-      id = ID_TOOLBAR_ENVIRONMENT_DELETE,
-      toolTip = "i18n::HopGui.Toolbar.Environment.Delete.Tooltip",
-      image = "environment-delete.svg")
-  public void deleteSelectedEnvironment() {
-    HopGui hopGui = HopGui.getInstance();
-    Combo combo = getEnvironmentsCombo();
-    if (combo == null) {
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_ENVIRONMENT,
+      parentId = ID_CONTEXT_MENU_ENVIRONMENT,
+      id = ID_CONTEXT_MENU_ENVIRONMENT_DUPLICATE,
+      label = "i18n::HopGui.Toolbar.Environment.Duplicate.Label",
+      toolTip = "i18n::HopGui.Toolbar.Environment.Duplicate.Tooltip",
+      image = "ui/images/duplicate.svg")
+  public void duplicateEnvironment() {
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    LifecycleEnvironment environment = config.findEnvironment(getEnvironmentToolItem().getText());
+    if (environment == null) {
       return;
     }
-    String environmentName = combo.getText();
+
+    LifecycleEnvironment newEnvironment = new LifecycleEnvironment(environment);
+    newEnvironment.setName(null);
+    this.editEnvironment(newEnvironment);
+  }
+
+  @GuiMenuElement(
+      root = ID_CONTEXT_MENU_ENVIRONMENT,
+      parentId = ID_CONTEXT_MENU_ENVIRONMENT,
+      id = ID_CONTEXT_MENU_ENVIRONMENT_DELETE,
+      label = "i18n::HopGui.Toolbar.Environment.Delete.Label",
+      toolTip = "i18n::HopGui.Toolbar.Environment.Delete.Tooltip",
+      image = "ui/images/delete.svg")
+  public void deleteEnvironment() {
+    HopGui hopGui = HopGui.getInstance();
+    String environmentName = getEnvironmentToolItem().getText();
     if (StringUtils.isEmpty(environmentName)) {
       return;
     }
@@ -958,8 +1023,7 @@ public class ProjectsGuiPlugin {
       return;
     }
 
-    MessageBox box =
-        new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
     box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteEnvironment.Dialog.Header"));
     box.setMessage(
         BaseMessages.getString(
@@ -972,20 +1036,20 @@ public class ProjectsGuiPlugin {
     int answer = box.open();
     if ((answer & SWT.YES) != 0) {
       try {
-        String projectName = getProjectsCombo().getText(); // The default is the active project
+        String projectName = getProjectToolItem().getText(); // The default is the active project
         ProjectConfig projectConfig = config.findProjectConfig(projectName);
         Project project = projectConfig.loadProject(hopGui.getVariables());
 
         config.removeEnvironment(environmentName);
         ProjectsConfigSingleton.saveConfig();
 
-        refreshEnvironmentsList();
-        selectEnvironmentInList(null);
-        enableHopGuiProject(
-            projectName, project, null); // Reload the project to clear current variables
+        updateEnvironmentToolItem(null);
+
+        // Reload the project to clear current variables
+        enableHopGuiProject(projectName, project, null);
       } catch (Exception e) {
         new ErrorDialog(
-            HopGui.getInstance().getShell(),
+            hopGui.getShell(),
             BaseMessages.getString(PKG, "ProjectGuiPlugin.DeleteEnvironment.Error.Dialog.Header"),
             BaseMessages.getString(
                 PKG, "ProjectGuiPlugin.DeleteEnvironment.Error.Dialog.Message", environmentName),
@@ -995,7 +1059,7 @@ public class ProjectsGuiPlugin {
   }
 
   /**
-   * Called by the Combo in the toolbar
+   * Called by the menu in the toolbar
    *
    * @param log the current logchannel
    * @param metadataProvider
@@ -1006,10 +1070,8 @@ public class ProjectsGuiPlugin {
       throws Exception {
     List<String> names = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
     Map<String, Date> lastUsedMap = new HashMap<>();
-    names.stream()
-        .forEach(
-            name ->
-                lastUsedMap.put(name, new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime()));
+    names.forEach(
+        name -> lastUsedMap.put(name, new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime()));
 
     // Get the list of events from the Audit Manager...
     //
@@ -1027,8 +1089,7 @@ public class ProjectsGuiPlugin {
 
     // Reverse sort by last used date of a project...
     //
-    Collections.sort(
-        names,
+    names.sort(
         (name1, name2) -> {
           int cmp = -lastUsedMap.get(name1).compareTo(lastUsedMap.get(name2));
           if (cmp == 0) {
@@ -1041,7 +1102,7 @@ public class ProjectsGuiPlugin {
   }
 
   /**
-   * Called by the environments Combo in the toolbar
+   * Called by the environment menu in the toolbar
    *
    * @param log
    * @param metadataProvider
@@ -1050,7 +1111,7 @@ public class ProjectsGuiPlugin {
     return ProjectsConfigSingleton.getConfig().listEnvironmentNames();
   }
 
-  // Add an e button to the file dialog browser toolbar
+  // Add a "Navigate to project home" button to the file dialog browser toolbar
   //
   @GuiToolbarElement(
       root = NAVIGATE_TOOLBAR_PARENT_ID,
@@ -1099,12 +1160,11 @@ public class ProjectsGuiPlugin {
     if (zipFilename == null) {
       return;
     }
-
-    Combo combo = getProjectsCombo();
-    if (combo == null) {
+    ToolItem projectItem = getProjectToolItem();
+    if (projectItem == null) {
       return;
     }
-    String projectName = combo.getText();
+    String projectName = projectItem.getText();
     if (StringUtils.isEmpty(projectName)) {
       return;
     }
