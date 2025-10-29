@@ -29,7 +29,7 @@
     <name>Hop Engine</name>
 
     <properties>
-        <commons-validator.version>1.9.0</commons-validator.version>
+        <commons-validator.version>1.10.0</commons-validator.version>
         <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
         <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
         <jakarta.xml.bind-api.version>4.0.4</jakarta.xml.bind-api.version>
