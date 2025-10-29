@@ -428,20 +428,18 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                           }
                         }
 
-                        if (ok) {
+                        if (ok
+                            && comparefilecontent
+                            && !equalFileContents(filefolder1, filefolder2)) {
                           // Let's compare files content..
-                          if (comparefilecontent) {
-                            if (!equalFileContents(filefolder1, filefolder2)) {
-                              ok = false;
-                              if (isDetailed()) {
-                                logDetailed(
-                                    BaseMessages.getString(
-                                        PKG,
-                                        "ActionFoldersCompare.Log.FilesNotSameContent",
-                                        filefolder1.toString(),
-                                        filefolder2.toString()));
-                              }
-                            }
+                          ok = false;
+                          if (isDetailed()) {
+                            logDetailed(
+                                BaseMessages.getString(
+                                    PKG,
+                                    "ActionFoldersCompare.Log.FilesNotSameContent",
+                                    filefolder1.toString(),
+                                    filefolder2.toString()));
                           }
                         }
                       }

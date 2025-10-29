@@ -35,10 +35,8 @@ public class ObjectTesterBuilder<T> {
 
   public IObjectTester<T> build() {
     IObjectProvider<T> provider = this.provider;
-    if (provider == null) {
-      if (objects != null) {
-        provider = new CollectionObjectProvider<>(objects);
-      }
+    if (provider == null && objects != null) {
+      provider = new CollectionObjectProvider<>(objects);
     }
     IObjectValidator<T> validator = this.validator;
     if (validator == null) {

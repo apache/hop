@@ -428,99 +428,96 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       List<IEngineComponent> transforms = pipeline.getComponentCopies(transformMeta.getName());
 
       // draw mouse over performance indicator
-      if (pipeline.isRunning()) {
+      if (pipeline.isRunning() && transformMeta.isSelected()) {
 
-        if (transformMeta.isSelected()) {
+        // determine popup dimensions up front
+        int popupX = x;
+        int popupY = y;
 
-          // determine popup dimensions up front
-          int popupX = x;
-          int popupY = y;
+        int popupWidth = 0;
+        int popupHeight = 1;
 
-          int popupWidth = 0;
-          int popupHeight = 1;
+        gc.setFont(EFont.SMALL);
+        Point p = gc.textExtent("0000000000");
+        int colWidth = p.x + MINI_ICON_MARGIN;
+        int rowHeight = p.y + MINI_ICON_MARGIN;
+        int titleWidth = 0;
 
-          gc.setFont(EFont.SMALL);
-          Point p = gc.textExtent("0000000000");
-          int colWidth = p.x + MINI_ICON_MARGIN;
-          int rowHeight = p.y + MINI_ICON_MARGIN;
-          int titleWidth = 0;
+        // calculate max title width to get the colum with
+        String[] titles = PipelinePainter.getPeekTitles();
 
-          // calculate max title width to get the colum with
-          String[] titles = PipelinePainter.getPeekTitles();
+        for (String title : titles) {
+          Point titleExtent = gc.textExtent(title);
+          titleWidth = Math.max(titleExtent.x + MINI_ICON_MARGIN, titleWidth);
+          popupHeight += titleExtent.y + MINI_ICON_MARGIN;
+        }
 
-          for (String title : titles) {
-            Point titleExtent = gc.textExtent(title);
-            titleWidth = Math.max(titleExtent.x + MINI_ICON_MARGIN, titleWidth);
-            popupHeight += titleExtent.y + MINI_ICON_MARGIN;
+        popupWidth = titleWidth + 2 * MINI_ICON_MARGIN;
+
+        // determine total popup width
+        popupWidth += transforms.size() * colWidth;
+
+        // determine popup position
+        popupX = popupX + (iconSize - popupWidth) / 2;
+        popupY = popupY - popupHeight - MINI_ICON_MARGIN;
+
+        // draw the frame
+        gc.setForeground(EColor.DARKGRAY);
+        gc.setBackground(EColor.LIGHTGRAY);
+        gc.setLineWidth(1);
+        gc.fillRoundRectangle(popupX, popupY, popupWidth, popupHeight, 7, 7);
+        // draw the title columns
+        gc.setBackground(EColor.LIGHTGRAY);
+        gc.drawRoundRectangle(popupX, popupY, popupWidth, popupHeight, 7, 7);
+
+        for (int i = 0, barY = popupY; i < titles.length; i++) {
+          // fill each line with a slightly different background color
+
+          if (i % 2 == 1) {
+            gc.setBackground(EColor.BACKGROUND);
+          } else {
+            gc.setBackground(EColor.LIGHTGRAY);
           }
+          gc.fillRoundRectangle(popupX + 1, barY + 1, popupWidth - 2, rowHeight, 7, 7);
+          barY += rowHeight;
+        }
 
-          popupWidth = titleWidth + 2 * MINI_ICON_MARGIN;
+        // draw the header column
+        int rowY = popupY + MINI_ICON_MARGIN;
+        int rowX = popupX + MINI_ICON_MARGIN;
 
-          // determine total popup width
-          popupWidth += transforms.size() * colWidth;
+        gc.setForeground(EColor.BLACK);
+        gc.setBackground(EColor.BACKGROUND);
 
-          // determine popup position
-          popupX = popupX + (iconSize - popupWidth) / 2;
-          popupY = popupY - popupHeight - MINI_ICON_MARGIN;
+        for (int i = 0; i < titles.length; i++) {
+          if (i % 2 == 1) {
+            gc.setBackground(EColor.BACKGROUND);
+          } else {
+            gc.setBackground(EColor.LIGHTGRAY);
+          }
+          gc.drawText(titles[i], rowX, rowY);
+          rowY += rowHeight;
+        }
 
-          // draw the frame
-          gc.setForeground(EColor.DARKGRAY);
-          gc.setBackground(EColor.LIGHTGRAY);
-          gc.setLineWidth(1);
-          gc.fillRoundRectangle(popupX, popupY, popupWidth, popupHeight, 7, 7);
-          // draw the title columns
-          gc.setBackground(EColor.LIGHTGRAY);
-          gc.drawRoundRectangle(popupX, popupY, popupWidth, popupHeight, 7, 7);
+        // draw the values for each copy of the transform
+        gc.setBackground(EColor.LIGHTGRAY);
+        rowX += titleWidth;
 
-          for (int i = 0, barY = popupY; i < titles.length; i++) {
-            // fill each line with a slightly different background color
+        for (IEngineComponent transform : transforms) {
 
+          rowX += colWidth;
+          rowY = popupY + MINI_ICON_MARGIN;
+
+          String[] fields = getPeekFields(transform);
+
+          for (int i = 0; i < fields.length; i++) {
             if (i % 2 == 1) {
               gc.setBackground(EColor.BACKGROUND);
             } else {
               gc.setBackground(EColor.LIGHTGRAY);
             }
-            gc.fillRoundRectangle(popupX + 1, barY + 1, popupWidth - 2, rowHeight, 7, 7);
-            barY += rowHeight;
-          }
-
-          // draw the header column
-          int rowY = popupY + MINI_ICON_MARGIN;
-          int rowX = popupX + MINI_ICON_MARGIN;
-
-          gc.setForeground(EColor.BLACK);
-          gc.setBackground(EColor.BACKGROUND);
-
-          for (int i = 0; i < titles.length; i++) {
-            if (i % 2 == 1) {
-              gc.setBackground(EColor.BACKGROUND);
-            } else {
-              gc.setBackground(EColor.LIGHTGRAY);
-            }
-            gc.drawText(titles[i], rowX, rowY);
+            drawTextRightAligned(fields[i], rowX, rowY);
             rowY += rowHeight;
-          }
-
-          // draw the values for each copy of the transform
-          gc.setBackground(EColor.LIGHTGRAY);
-          rowX += titleWidth;
-
-          for (IEngineComponent transform : transforms) {
-
-            rowX += colWidth;
-            rowY = popupY + MINI_ICON_MARGIN;
-
-            String[] fields = getPeekFields(transform);
-
-            for (int i = 0; i < fields.length; i++) {
-              if (i % 2 == 1) {
-                gc.setBackground(EColor.BACKGROUND);
-              } else {
-                gc.setBackground(EColor.LIGHTGRAY);
-              }
-              drawTextRightAligned(fields[i], rowX, rowY);
-              rowY += rowHeight;
-            }
           }
         }
       }

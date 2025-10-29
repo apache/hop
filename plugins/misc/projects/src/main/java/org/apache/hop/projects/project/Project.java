@@ -70,31 +70,18 @@ import org.apache.hop.workflow.action.ActionMeta;
 public class Project extends ConfigFile implements IConfigFile {
 
   @JsonIgnore private String configFilename;
-
   private String description;
-
   private String company;
-
   private String department;
-
   private String metadataBaseFolder;
-
   private String unitTestsBasePath;
-
   private String dataSetsCsvFolder;
-
   private boolean enforcingExecutionInHome;
-
   private String parentProjectName;
-
   private MultiMetadataProvider metadataProvider;
-
   private List<Path> pipelinePaths;
-
   private List<Path> workflowPaths;
-
   private Map<PipelineMeta, List<TransformMeta>> pipelineTransformsMap;
-
   private Map<WorkflowMeta, List<ActionMeta>> workflowActionsMap;
 
   public Project() {
@@ -311,15 +298,13 @@ public class Project extends ConfigFile implements IConfigFile {
             realParentProjectName = null;
           } else {
             realParentProjectName = variables.resolve(parentProject.parentProjectName);
-            if (StringUtils.isNotEmpty(realParentProjectName)) {
-              // See if we've had this one before...
-              //
-              if (projectsList.contains(realParentProjectName)) {
-                throw new HopException(
-                    "There is a loop in the parent projects hierarchy: project "
-                        + realParentProjectName
-                        + " references itself");
-              }
+            // See if we've had this one before...
+            if (StringUtils.isNotEmpty(realParentProjectName)
+                && projectsList.contains(realParentProjectName)) {
+              throw new HopException(
+                  "There is a loop in the parent projects hierarchy: project "
+                      + realParentProjectName
+                      + " references itself");
             }
           }
         }
@@ -484,12 +469,11 @@ public class Project extends ConfigFile implements IConfigFile {
       List<String> names = metadataSerializer.listObjectNames();
 
       // add the available HopMetadataPropertyTypes from @HopMetadata and add to metadataItems
-      if (names.contains(metadataItemName)) {
-        if (metadataClass.isAnnotationPresent(HopMetadata.class)) {
-          HopMetadata annotation = metadataClass.getAnnotation(HopMetadata.class);
-          HopMetadataPropertyType hopMetadataPropertyType = annotation.hopMetadataPropertyType();
-          metadataItems.put(hopMetadataPropertyType, metadataItemName);
-        }
+      if (names.contains(metadataItemName)
+          && metadataClass.isAnnotationPresent(HopMetadata.class)) {
+        HopMetadata annotation = metadataClass.getAnnotation(HopMetadata.class);
+        HopMetadataPropertyType hopMetadataPropertyType = annotation.hopMetadataPropertyType();
+        metadataItems.put(hopMetadataPropertyType, metadataItemName);
       }
     }
 
@@ -555,12 +539,11 @@ public class Project extends ConfigFile implements IConfigFile {
       List<String> names = metadataSerializer.listObjectNames();
 
       // add the available HopMetadataPropertyTypes from @HopMetadata and add to metadataItems
-      if (names.contains(metadataItemName)) {
-        if (metadataClass.isAnnotationPresent(HopMetadata.class)) {
-          HopMetadata annotation = metadataClass.getAnnotation(HopMetadata.class);
-          HopMetadataPropertyType hopMetadataPropertyType = annotation.hopMetadataPropertyType();
-          metadataItems.put(hopMetadataPropertyType, metadataItemName);
-        }
+      if (names.contains(metadataItemName)
+          && metadataClass.isAnnotationPresent(HopMetadata.class)) {
+        HopMetadata annotation = metadataClass.getAnnotation(HopMetadata.class);
+        HopMetadataPropertyType hopMetadataPropertyType = annotation.hopMetadataPropertyType();
+        metadataItems.put(hopMetadataPropertyType, metadataItemName);
       }
     }
 

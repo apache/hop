@@ -209,6 +209,8 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
           una();
           state._fsp--;
           break;
+        default:
+          break;
       }
       buf = new StringBuilder(8192);
       buf.append(XML_HEAD);
@@ -532,6 +534,8 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
           break;
         case 2:
           break;
+        default:
+          break;
       }
       retval.stop = input.LT(-1);
 
@@ -712,6 +716,8 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
           state._fsp--;
           break;
         case 2:
+          break;
+        default:
           break;
       }
       retval.stop = input.LT(-1);

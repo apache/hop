@@ -50,11 +50,7 @@ public class NotNullValidator implements IActionValidator {
       } else {
         return true;
       }
-    } catch (IllegalAccessException e) {
-      ActionValidatorUtils.addExceptionRemark(source, propertyName, VALIDATOR_NAME, remarks, e);
-    } catch (InvocationTargetException e) {
-      ActionValidatorUtils.addExceptionRemark(source, propertyName, VALIDATOR_NAME, remarks, e);
-    } catch (NoSuchMethodException e) {
+    } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
       ActionValidatorUtils.addExceptionRemark(source, propertyName, VALIDATOR_NAME, remarks, e);
     }
     return false;

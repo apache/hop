@@ -160,7 +160,6 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   public static final int AFTER_GET_IMAP_DELETE = 1;
   public static final int AFTER_GET_IMAP_MOVE = 2;
 
-  //  private ILogChannel log;
   private Session session;
   private IVariables variables;
   private Properties props;
@@ -230,7 +229,6 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   public MailServerConnection(IVariables variables) {
     this();
     this.variables = variables;
-    //    this.log = log;
   }
 
   public Session getSession(IVariables variables) {
@@ -240,9 +238,6 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     if (protocol.equals("SMTP")) {
       // Send an e-mail...
       // create some properties and get the default Session
-      //      if (Utils.isEmpty(serverHost)) {
-      //        log.logError(BaseMessages.getString(PKG, "ActionMail.Error.HostNotSpecified"));
-      //      }
 
       protocol = "smtp";
       if (useSecureAuthentication) {
@@ -290,8 +285,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
         props.setProperty("mail.pop3s.rsetbeforequit", "true");
         props.setProperty("mail.pop3.rsetbeforequit", "true");
       } else if (protocol.equals("MBOX")) {
-        props.setProperty(
-            "mstor.mbox.metadataStrategy", "none"); // mstor.mbox.metadataStrategy={none|xml|yaml}
+        props.setProperty("mstor.mbox.metadataStrategy", "none"); // none|xml|yaml
         props.setProperty("mstor.cache.disabled", "true"); // prevent diskstore fail
       }
 
@@ -345,7 +339,6 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   // IMAP, POP, MBOX
   public Store getStore() throws MessagingException {
-    //    this.variables = variables;
     if (useSecureAuthentication && !protocol.equals("MBOX")) {
       URLName url =
           new URLName(
@@ -362,6 +355,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
           break;
         case "IMAP":
           store = new IMAPSSLStore(session, url);
+          break;
         default:
           break;
       }
@@ -376,7 +370,9 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     return store;
   }
 
-  public MailServerConnection(MailServerConnection connection) {}
+  public MailServerConnection(MailServerConnection connection) {
+    // no impementation
+  }
 
   @Override
   public String toString() {
@@ -1258,10 +1254,8 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       String text = null;
       for (int i = 0; i < mp.getCount(); i++) {
         Part bp = mp.getBodyPart(i);
-        if (bp.isMimeType("text/plain")) {
-          if (text == null) {
-            text = getMessageBodyOrContentType(bp, returnContentType);
-          }
+        if (bp.isMimeType("text/plain") && text == null) {
+          text = getMessageBodyOrContentType(bp, returnContentType);
         }
       }
       return text;

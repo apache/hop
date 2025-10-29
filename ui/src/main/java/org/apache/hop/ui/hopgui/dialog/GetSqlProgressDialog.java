@@ -67,14 +67,7 @@ public class GetSqlProgressDialog {
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
       pmd.run(false, op);
-    } catch (InvocationTargetException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "GetSQLProgressDialog.Dialog.UnableToGenerateSQL.Title"),
-          BaseMessages.getString(PKG, "GetSQLProgressDialog.Dialog.UnableToGenerateSQL.Message"),
-          e);
-      stats = null;
-    } catch (InterruptedException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "GetSQLProgressDialog.Dialog.UnableToGenerateSQL.Title"),

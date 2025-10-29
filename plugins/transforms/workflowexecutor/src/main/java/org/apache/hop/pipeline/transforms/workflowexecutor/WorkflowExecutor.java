@@ -150,10 +150,9 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
       if (data.groupSize < 0) {
         if (data.groupFieldIndex >= 0) { // grouping by field
           Object groupFieldData = row[data.groupFieldIndex];
-          if (data.prevGroupFieldData != null) {
-            if (data.groupFieldMeta.compare(data.prevGroupFieldData, groupFieldData) != 0) {
-              executeWorkflow();
-            }
+          if (data.prevGroupFieldData != null
+              && data.groupFieldMeta.compare(data.prevGroupFieldData, groupFieldData) != 0) {
+            executeWorkflow();
           }
           data.prevGroupFieldData = groupFieldData;
         } else if (data.groupTime > 0) { // grouping by execution time
@@ -171,11 +170,9 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
       // Grouping by size.
       // If group buffer size exceeds specified limit, then execute workflow and flush group buffer.
-      if (data.groupSize > 0) {
+      if (data.groupSize > 0 && data.groupBuffer.size() >= data.groupSize) {
         // Pass all input rows...
-        if (data.groupBuffer.size() >= data.groupSize) {
-          executeWorkflow();
-        }
+        executeWorkflow();
       }
 
       return true;

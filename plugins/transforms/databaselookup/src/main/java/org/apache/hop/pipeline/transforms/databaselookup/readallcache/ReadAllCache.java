@@ -99,6 +99,8 @@ public class ReadAllCache implements DatabaseLookupData.ICache {
         case DatabaseLookupMeta.CONDITION_IS_NOT_NULL:
           index = new IsNullIndex(i, keysMeta.getValueMeta(i), rowsAmount, false);
           break;
+        default:
+          break;
       }
       if (index == null) {
         otherConditions.add(new int[] {i, condition});

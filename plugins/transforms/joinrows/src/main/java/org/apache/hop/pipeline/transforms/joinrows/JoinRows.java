@@ -172,17 +172,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
 
         try {
           rowData = data.fileRowMeta[filenr].readData(data.dataInputStream[filenr]);
-        } catch (HopFileException e) {
-          logError(
-              BaseMessages.getString(PKG, "JoinRows.Log.UnableToReadDataFromTempFile")
-                  + filenr
-                  + " ["
-                  + data.file[filenr]
-                  + "]");
-          setErrors(1);
-          stopAll();
-          return null;
-        } catch (SocketTimeoutException e) {
+        } catch (HopFileException | SocketTimeoutException e) {
           logError(
               BaseMessages.getString(PKG, "JoinRows.Log.UnableToReadDataFromTempFile")
                   + filenr

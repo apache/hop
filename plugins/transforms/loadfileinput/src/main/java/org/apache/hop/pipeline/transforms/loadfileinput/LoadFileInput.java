@@ -395,10 +395,8 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         }
 
         // Do we need to repeat this field if it is null?
-        if (loadFileInputField.isRepeated()) {
-          if (data.previousRow != null && o == null) {
-            outputRowData[indexField] = data.previousRow[indexField];
-          }
+        if (loadFileInputField.isRepeated() && data.previousRow != null && o == null) {
+          outputRowData[indexField] = data.previousRow[indexField];
         }
       } // End of loop over fields...
       int rowIndex = data.totalpreviousfields + data.nrInputFields;

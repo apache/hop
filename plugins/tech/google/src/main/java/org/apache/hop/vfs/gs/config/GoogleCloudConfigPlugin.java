@@ -365,6 +365,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_RPC_TIMEOUT_MULTIPLIER:
           rpcTimeoutMultiplier = ((TextVar) control).getText();
           GoogleCloudConfigSingleton.getConfig().setRpcTimeoutMultiplier(rpcTimeoutMultiplier);
+          break;
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_MAX_RPC_TIMEOUT:
           maxRpcTimeout = ((TextVar) control).getText();
           GoogleCloudConfigSingleton.getConfig().setMaxRpcTimeout(maxRpcTimeout);
@@ -376,6 +377,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_READ_TIMEOUT:
           readTimeout = ((TextVar) control).getText();
           GoogleCloudConfigSingleton.getConfig().setReadTimeout(readTimeout);
+          break;
+        default:
           break;
       }
     }

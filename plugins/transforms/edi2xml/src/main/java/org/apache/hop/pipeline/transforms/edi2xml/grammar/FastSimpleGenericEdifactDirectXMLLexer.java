@@ -188,6 +188,8 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
           case '\'':
             alt1 = 5;
             break;
+          default:
+            break;
         }
       }
 
@@ -377,6 +379,8 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
         break;
       case 11:
         mTEXT_DATA();
+        break;
+      default:
         break;
     }
   }

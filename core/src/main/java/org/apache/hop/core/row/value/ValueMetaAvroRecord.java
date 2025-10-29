@@ -471,10 +471,8 @@ public class ValueMetaAvroRecord extends ValueMetaBase {
 
   @Override
   public String getComments() {
-    if (StringUtils.isEmpty(super.comments)) {
-      if (schema != null) {
-        return schema.toString(false);
-      }
+    if (StringUtils.isEmpty(super.comments) && schema != null) {
+      return schema.toString(false);
     }
     return super.getComments();
   }

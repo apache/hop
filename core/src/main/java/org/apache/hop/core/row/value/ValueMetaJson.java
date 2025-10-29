@@ -97,6 +97,8 @@ public class ValueMetaJson extends ValueMetaBase {
           case STORAGE_TYPE_BINARY_STRING:
             // Parse UTF-8 JSON bytes directly (faster than building a String first)
             return JsonUtil.parse((byte[]) object);
+          default:
+            break;
         }
       }
     } catch (IOException e) {

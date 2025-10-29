@@ -2104,6 +2104,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           try {
             fields = getQueryFieldsFallback(sql, param, inform, data);
           } catch (HopDatabaseException ignore) {
+            // Do nothing
           }
         }
       }
@@ -3250,12 +3251,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
         par.addValueMeta(val);
       }
-    } catch (AbstractMethodError e) {
+    } catch (AbstractMethodError | Exception e) {
       // Oops: probably the database or JDBC doesn't support it.
-      return null;
-    } catch (SQLException e) {
-      return null;
-    } catch (Exception e) {
       return null;
     }
 
@@ -4425,12 +4422,12 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
                       .append(fieldDateFormatters[i].format(date))
                       .append("', 'YYYY/MM/DD HH24:MI:SS')");
                 } else {
-                  ins.append("'" + fields.getString(r, i) + "'");
+                  ins.append("'").append(fields.getString(r, i)).append("'");
                 }
               } else {
                 try {
                   java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat(dateFormat);
-                  ins.append("'" + formatter.format(fields.getDate(r, i)) + "'");
+                  ins.append("'").append(formatter.format(fields.getDate(r, i))).append("'");
                 } catch (Exception e) {
                   throw new HopDatabaseException("Error : ", e);
                 }
@@ -4663,7 +4660,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         if (Utils.isEmpty(sLine)) {
           sql.append(Const.CR);
         } else {
-          sql.append(Const.CR + sLine);
+          sql.append(Const.CR).append(sLine);
         }
       }
 

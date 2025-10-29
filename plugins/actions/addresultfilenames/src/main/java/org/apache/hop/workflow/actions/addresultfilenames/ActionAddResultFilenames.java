@@ -119,14 +119,12 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
       }
     }
 
-    if (argFromPrevious) {
-      if (isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(
-                PKG,
-                "ActionAddResultFilenames.FoundPreviousRows",
-                String.valueOf((rows != null ? rows.size() : 0))));
-      }
+    if (argFromPrevious && isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "ActionAddResultFilenames.FoundPreviousRows",
+              String.valueOf((rows != null ? rows.size() : 0))));
     }
 
     if (argFromPrevious && rows != null) { // Copy the input row to the (command line) arguments

@@ -478,10 +478,8 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
 
     putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
 
-    if (checkFeedback(getLinesRead())) {
-      if (isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "StreamLookup.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "StreamLookup.Log.LineNumber") + getLinesRead());
     }
 
     return true;

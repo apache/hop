@@ -52,9 +52,7 @@ public class LdapTlsProtocol extends LdapSslProtocol {
       this.startTlsResponse = (StartTlsResponse) getCtx().extendedOperation(tlsRequest);
       /* Starting TLS */
       this.startTlsResponse.negotiate(CustomSocketFactory.getDefault());
-    } catch (NamingException e) {
-      throw new HopException(e);
-    } catch (IOException e) {
+    } catch (NamingException | IOException e) {
       throw new HopException(e);
     }
   }

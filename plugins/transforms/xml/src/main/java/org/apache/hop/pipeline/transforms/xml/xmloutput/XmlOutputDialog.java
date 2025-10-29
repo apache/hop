@@ -68,48 +68,28 @@ public class XmlOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = XmlOutputMeta.class;
 
   private TextVar wFilename;
-
   private TextVar wExtension;
-
   private Button wAddTransformnr;
-
   private Label wlAddDate;
   private Button wAddDate;
-
   private Label wlAddTime;
   private Button wAddTime;
-
   private Button wZipped;
-
   private Button wOmitNullValues;
-
   private CCombo wEncoding;
-
   private Text wNameSpace;
-
   private CCombo wMainElement;
-
   private CCombo wRepeatElement;
-
   private Text wSplitEvery;
-
   private TableView wFields;
-
   private final XmlOutputMeta input;
-
   private boolean gotEncodings = false;
-
   private Button wAddToResult;
-
   private Button wDoNotOpenNewFileInit;
-
   private Button wSpecifyFormat;
-
   private Label wlDateTimeFormat;
   private CCombo wDateTimeFormat;
-
   private ColumnInfo[] colinf;
-
   private final List<String> inputFields = new ArrayList<>();
 
   public XmlOutputDialog(
@@ -1028,27 +1008,25 @@ public class XmlOutputDialog extends BaseTransformDialog {
         ITableItemInsertListener listener =
             (tableItem, v) -> {
               tableItem.setText(3, XmlField.ContentType.Element.name());
-              if (v.isNumber()) {
-                if (v.getLength() > 0) {
-                  int le = v.getLength();
-                  int pr = v.getPrecision();
+              if (v.isNumber() && v.getLength() > 0) {
+                int le = v.getLength();
+                int pr = v.getPrecision();
 
-                  if (v.getPrecision() <= 0) {
-                    pr = 0;
-                  }
-
-                  String mask = " ";
-                  for (int m = 0; m < le - pr; m++) {
-                    mask += "0";
-                  }
-                  if (pr > 0) {
-                    mask += ".";
-                  }
-                  for (int m = 0; m < pr; m++) {
-                    mask += "0";
-                  }
-                  tableItem.setText(4, mask);
+                if (v.getPrecision() <= 0) {
+                  pr = 0;
                 }
+
+                String mask = " ";
+                for (int m = 0; m < le - pr; m++) {
+                  mask += "0";
+                }
+                if (pr > 0) {
+                  mask += ".";
+                }
+                for (int m = 0; m < pr; m++) {
+                  mask += "0";
+                }
+                tableItem.setText(4, mask);
               }
               return true;
             };

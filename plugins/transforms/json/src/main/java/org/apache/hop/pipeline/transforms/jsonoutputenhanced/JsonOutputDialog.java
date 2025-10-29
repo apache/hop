@@ -1184,27 +1184,25 @@ public class JsonOutputDialog extends BaseTransformDialog {
             5,
             6,
             (tableItem, v) -> {
-              if (v.isNumber()) {
-                if (v.getLength() > 0) {
-                  int le = v.getLength();
-                  int pr = v.getPrecision();
+              if (v.isNumber() && v.getLength() > 0) {
+                int le = v.getLength();
+                int pr = v.getPrecision();
 
-                  if (v.getPrecision() <= 0) {
-                    pr = 0;
-                  }
-
-                  String mask = " ";
-                  for (int m = 0; m < le - pr; m++) {
-                    mask += "0";
-                  }
-                  if (pr > 0) {
-                    mask += ".";
-                  }
-                  for (int m = 0; m < pr; m++) {
-                    mask += "0";
-                  }
-                  tableItem.setText(4, mask);
+                if (v.getPrecision() <= 0) {
+                  pr = 0;
                 }
+
+                String mask = " ";
+                for (int m = 0; m < le - pr; m++) {
+                  mask += "0";
+                }
+                if (pr > 0) {
+                  mask += ".";
+                }
+                for (int m = 0; m < pr; m++) {
+                  mask += "0";
+                }
+                tableItem.setText(4, mask);
               }
               return true;
             });

@@ -141,12 +141,10 @@ public class JavaScriptHighlight implements LineStyleListener {
         if ((token == WHITE) && (!styles.isEmpty())) {
           int start = scanner.getStartOffset() + event.lineOffset;
           lastStyle = styles.get(styles.size() - 1);
-          if (lastStyle.fontStyle != SWT.NORMAL) {
-            if (lastStyle.start + lastStyle.length == start) {
-              // have the white space take on the style before it to minimize font style
-              // changes
-              lastStyle.length += scanner.getLength();
-            }
+          if (lastStyle.fontStyle != SWT.NORMAL && lastStyle.start + lastStyle.length == start) {
+            // have the white space take on the style before it to minimize font style
+            // changes
+            lastStyle.length += scanner.getLength();
           }
         } else {
           StyleAttribute attribute = getStyleAttribute(token);

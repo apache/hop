@@ -275,11 +275,10 @@ public class HopGuiWorkflowCheckDelegate {
 
   /** Edit check result source */
   private void edit(Event event) {
-    if (event.item instanceof TreeItem item) {
-      if (item.getData() instanceof ICheckResultSource source) {
-        ActionMeta actionMeta = workflowGraph.getWorkflowMeta().findAction(source.getName());
-        workflowGraph.editAction(actionMeta);
-      }
+    if (event.item instanceof TreeItem item
+        && item.getData() instanceof ICheckResultSource source) {
+      ActionMeta actionMeta = workflowGraph.getWorkflowMeta().findAction(source.getName());
+      workflowGraph.editAction(actionMeta);
     }
   }
 }

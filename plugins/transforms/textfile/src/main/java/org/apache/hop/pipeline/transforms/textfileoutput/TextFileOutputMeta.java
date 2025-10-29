@@ -795,12 +795,9 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       // So let's change the filename from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
-      if (!fileNameInField) {
-
-        if (!Utils.isEmpty(fileName)) {
-          FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName), variables);
-          fileName = iResourceNaming.nameResource(fileObject, variables, true);
-        }
+      if (!fileNameInField && !Utils.isEmpty(fileName)) {
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName), variables);
+        fileName = iResourceNaming.nameResource(fileObject, variables, true);
       }
 
       return null;

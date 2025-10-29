@@ -101,7 +101,7 @@ public class CreditCardValidator
         fieldValue = Const.getDigitsOnly(fieldValue);
       }
 
-      ReturnIndicator rt = CreditCardVerifier.CheckCC(fieldValue);
+      ReturnIndicator rt = CreditCardVerifier.checkCC(fieldValue);
 
       // Check if Card is Valid?
       isValid = rt.CardValid;

@@ -147,7 +147,9 @@ public class RedshiftBulkLoader
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.insertRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if (meta.isStreamToS3Csv()) {}
+      if (meta.isStreamToS3Csv()) {
+        // Do noting
+      }
 
       // write all fields in the stream to Redshift
       if (!meta.specifyFields()) {
@@ -287,7 +289,7 @@ public class RedshiftBulkLoader
       for (int i = 0; i < fieldList.size(); i++) {
         RedshiftBulkLoaderField field = fieldList.get(i);
         if (i > 0) {
-          sb.append(", " + field.getDatabaseField());
+          sb.append(", ").append(field.getDatabaseField());
         } else {
           sb.append(field.getDatabaseField());
         }
@@ -681,18 +683,17 @@ public class RedshiftBulkLoader
             }
           }
 
-        } else if (escapeExists && source[index] == escape[0]) {
-
+        } else if (escapeExists
+            && source[index] == escape[0]
+            && index + escape.length <= source.length) {
           // Potential match found, make sure there are enough bytes to support a full match
-          if (index + escape.length <= source.length) {
-            // First byte of separator found
-            result = true; // Assume match
-            for (int i = 1; i < escape.length; i++) {
-              if (source[index + i] != escape[i]) {
-                // Separator match is proven false
-                result = false;
-                break;
-              }
+          // First byte of separator found
+          result = true; // Assume match
+          for (int i = 1; i < escape.length; i++) {
+            if (source[index + i] != escape[i]) {
+              // Separator match is proven false
+              result = false;
+              break;
             }
           }
         }
@@ -749,6 +750,7 @@ public class RedshiftBulkLoader
             data.workerThread.interrupt();
             data.workerThread.join();
           } catch (InterruptedException e) {
+            // Do nothing
           }
         }
       }
@@ -780,6 +782,7 @@ public class RedshiftBulkLoader
       try {
         data.workerThread.join();
       } catch (InterruptedException e) {
+        // Do nothing
       }
     }
 

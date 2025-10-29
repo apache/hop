@@ -138,11 +138,9 @@ final class DynamicWaitTimes {
       Assert.assertTrue(index > -1, "Removed input steam at {0}, before switch next stream", index);
       streamList.remove(index);
       statusList.remove(index);
-      if (!streamList.isEmpty()) {
+      if (!streamList.isEmpty() && activeIfNeed()) {
         // reactive all stream
-        if (activeIfNeed()) {
-          statusList.forEach(SingleStreamStatus::reset);
-        }
+        statusList.forEach(SingleStreamStatus::reset);
       }
     }
 

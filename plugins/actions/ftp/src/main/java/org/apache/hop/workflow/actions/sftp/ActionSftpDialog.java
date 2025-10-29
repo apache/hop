@@ -62,51 +62,28 @@ public class ActionSftpDialog extends ActionDialog {
       };
 
   private Text wName;
-
   private TextVar wServerName;
-
   private TextVar wServerPort;
-
   private TextVar wUserName;
-
   private TextVar wPassword;
-
   private TextVar wScpDirectory;
-
   private TextVar wTargetDirectory;
-
   private Label wlWildcard;
-
   private TextVar wWildcard;
-
   private Button wRemove;
-
   private ActionSftp action;
-
   private boolean changed;
-
   private Button wAddFilenameToResult;
-
   private Button wCreateTargetFolder;
-
   private Button wGetPrevious;
-
   private LabelTextVar wKeyfilePass;
-
   private Button wUsePublicKey;
-
   private Label wlKeyFilename;
-
   private Button wbKeyFilename;
-
   private TextVar wKeyFilename;
-
   private SftpClient sftpclient = null;
-
   private CCombo wCompression;
-
   private CCombo wProxyType;
-
   private LabelTextVar wProxyHost;
   private LabelTextVar wProxyPort;
   private LabelTextVar wProxyUsername;
@@ -860,14 +837,12 @@ public class ActionSftpDialog extends ActionDialog {
 
   private void checkRemoteFolder() {
     String changeFtpFolder = variables.resolve(wScpDirectory.getText());
-    if (!Utils.isEmpty(changeFtpFolder)) {
-      if (connectToSftp(true, changeFtpFolder)) {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-        mb.setMessage(
-            BaseMessages.getString(PKG, "ActionSftp.FolderExists.OK", changeFtpFolder) + Const.CR);
-        mb.setText(BaseMessages.getString(PKG, "ActionSftp.FolderExists.Title.Ok"));
-        mb.open();
-      }
+    if (!Utils.isEmpty(changeFtpFolder) && connectToSftp(true, changeFtpFolder)) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionSftp.FolderExists.OK", changeFtpFolder) + Const.CR);
+      mb.setText(BaseMessages.getString(PKG, "ActionSftp.FolderExists.Title.Ok"));
+      mb.open();
     }
   }
 

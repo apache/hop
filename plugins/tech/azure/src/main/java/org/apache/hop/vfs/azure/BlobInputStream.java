@@ -55,15 +55,13 @@ public class BlobInputStream extends InputStream {
   @Override
   public int read(byte[] bytes, int i, int i1) throws IOException {
     int readSize = inputStream.read(bytes, i, i1);
-    if (readSize > 0) {
+    if (readSize > 0 && totalRead + readSize > fileSize) {
       // This blob is padded to a page boundary
       // Just return the remainder.  The rest are 0 anyway
       //
-      if (totalRead + readSize > fileSize) {
-        int actuallyRead = (int) (fileSize - totalRead);
-        totalRead = fileSize;
-        return actuallyRead;
-      }
+      int actuallyRead = (int) (fileSize - totalRead);
+      totalRead = fileSize;
+      return actuallyRead;
     }
     return readSize;
   }

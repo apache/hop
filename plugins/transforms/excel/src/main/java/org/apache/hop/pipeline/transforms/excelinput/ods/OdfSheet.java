@@ -77,10 +77,8 @@ public class OdfSheet implements IKSheet {
     int cellsLen = cells.getLength();
     for (int j = 0; j < cellsLen; j++) { // iterate over cells
       Node cell = cells.item(j);
-      if (cell instanceof TableTableCellElement) {
-        if (cell.hasChildNodes()) {
-          return false;
-        }
+      if (cell instanceof TableTableCellElement && cell.hasChildNodes()) {
+        return false;
       }
     }
     return true;

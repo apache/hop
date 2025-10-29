@@ -576,15 +576,14 @@ public class ExcelWriterTransform
             setDataFormat(workbookDefinition, excelField.getFormat(), cell);
           }
 
-          if (!isTitle && excelField != null && Utils.isEmpty(excelField.getFormat())) {
-
-            if (vMeta.getType() == IValueMeta.TYPE_DATE
-                || vMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
-
-              String format = vMeta.getFormatMask();
-              if (!Utils.isEmpty(format)) {
-                setDataFormat(workbookDefinition, format, cell);
-              }
+          if (!isTitle
+              && excelField != null
+              && Utils.isEmpty(excelField.getFormat())
+              && (vMeta.getType() == IValueMeta.TYPE_DATE
+                  || vMeta.getType() == IValueMeta.TYPE_TIMESTAMP)) {
+            String format = vMeta.getFormatMask();
+            if (!Utils.isEmpty(format)) {
+              setDataFormat(workbookDefinition, format, cell);
             }
           }
           // cache it for later runs

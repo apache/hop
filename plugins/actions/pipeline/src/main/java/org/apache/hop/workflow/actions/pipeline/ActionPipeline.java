@@ -578,35 +578,29 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       iteration++;
     }
 
-    if (setLogfile) {
-      if (logChannelFileWriter != null) {
-        logChannelFileWriter.stopLogging();
+    if (setLogfile && logChannelFileWriter != null) {
+      logChannelFileWriter.stopLogging();
 
-        ResultFile resultFile =
-            new ResultFile(
-                ResultFile.FILE_TYPE_LOG,
-                logChannelFileWriter.getLogFile(),
-                parentWorkflow.getWorkflowName(),
-                getName());
-        result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
+      ResultFile resultFile =
+          new ResultFile(
+              ResultFile.FILE_TYPE_LOG,
+              logChannelFileWriter.getLogFile(),
+              parentWorkflow.getWorkflowName(),
+              getName());
+      result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
 
-        // See if anything went wrong during file writing...
-        //
-        if (logChannelFileWriter.getException() != null) {
-          logError("Unable to open log file [" + getLogFilename() + "] : ");
-          logError(Const.getStackTracker(logChannelFileWriter.getException()));
-          result.setNrErrors(1);
-          result.setResult(false);
-          return result;
-        }
+      // See if anything went wrong during file writing...
+      //
+      if (logChannelFileWriter.getException() != null) {
+        logError("Unable to open log file [" + getLogFilename() + "] : ");
+        logError(Const.getStackTracker(logChannelFileWriter.getException()));
+        result.setNrErrors(1);
+        result.setResult(false);
+        return result;
       }
     }
 
-    if (result.getNrErrors() == 0) {
-      result.setResult(true);
-    } else {
-      result.setResult(false);
-    }
+    result.setResult(result.getNrErrors() == 0);
 
     return result;
   }

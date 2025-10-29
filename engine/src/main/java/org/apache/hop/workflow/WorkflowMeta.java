@@ -625,10 +625,8 @@ public class WorkflowMeta extends AbstractMeta
 
       ActionMeta action = getAction(i);
       Point p = action.getLocation();
-      if (p != null) {
-        if (x >= p.x && x <= p.x + iconsize && y >= p.y && y <= p.y + iconsize) {
-          return action;
-        }
+      if (p != null && x >= p.x && x <= p.x + iconsize && y >= p.y && y <= p.y + iconsize) {
+        return action;
       }
     }
     return null;
@@ -860,14 +858,13 @@ public class WorkflowMeta extends AbstractMeta
    */
   public WorkflowHopMeta findWorkflowHop(ActionMeta from, ActionMeta to, boolean includeDisabled) {
     for (WorkflowHopMeta hop : workflowHops) {
-      if (hop.isEnabled() || includeDisabled) {
-        if (hop != null
-            && hop.getFromAction() != null
-            && hop.getToAction() != null
-            && hop.getFromAction().equals(from)
-            && hop.getToAction().equals(to)) {
-          return hop;
-        }
+      if ((hop.isEnabled() || includeDisabled)
+          && hop != null
+          && hop.getFromAction() != null
+          && hop.getToAction() != null
+          && hop.getFromAction().equals(from)
+          && hop.getToAction().equals(to)) {
+        return hop;
       }
     }
     return null;
@@ -1150,11 +1147,11 @@ public class WorkflowMeta extends AbstractMeta
     for (WorkflowHopMeta hop : workflowHops) {
       // Look at all the hops
 
-      if (hop.getFromAction() != null && hop.getToAction() != null) {
-        if (hop.getFromAction().getName().equalsIgnoreCase(name)
-            || hop.getToAction().getName().equalsIgnoreCase(name)) {
-          hops.add(hop);
-        }
+      if (hop.getFromAction() != null
+          && hop.getToAction() != null
+          && (hop.getFromAction().getName().equalsIgnoreCase(name)
+              || hop.getToAction().getName().equalsIgnoreCase(name))) {
+        hops.add(hop);
       }
     }
     return hops.toArray(new WorkflowHopMeta[hops.size()]);
@@ -1162,14 +1159,14 @@ public class WorkflowMeta extends AbstractMeta
 
   public boolean isPathExist(IAction from, IAction to) {
     for (WorkflowHopMeta hop : workflowHops) {
-      if (hop.getFromAction() != null && hop.getToAction() != null) {
-        if (hop.getFromAction().getName().equalsIgnoreCase(from.getName())) {
-          if (hop.getToAction().getName().equalsIgnoreCase(to.getName())) {
-            return true;
-          }
-          if (isPathExist(hop.getToAction().getAction(), to)) {
-            return true;
-          }
+      if (hop.getFromAction() != null
+          && hop.getToAction() != null
+          && hop.getFromAction().getName().equalsIgnoreCase(from.getName())) {
+        if (hop.getToAction().getName().equalsIgnoreCase(to.getName())) {
+          return true;
+        }
+        if (isPathExist(hop.getToAction().getAction(), to)) {
+          return true;
         }
       }
     }
@@ -1891,12 +1888,7 @@ public class WorkflowMeta extends AbstractMeta
           definitions.put(fullname, definition);
         }
       }
-    } catch (FileSystemException e) {
-      throw new HopException(
-          BaseMessages.getString(
-              PKG, "WorkflowMeta.Exception.AnErrorOccuredReadingWorkflow", getFilename()),
-          e);
-    } catch (HopFileException e) {
+    } catch (FileSystemException | HopFileException e) {
       throw new HopException(
           BaseMessages.getString(
               PKG, "WorkflowMeta.Exception.AnErrorOccuredReadingWorkflow", getFilename()),

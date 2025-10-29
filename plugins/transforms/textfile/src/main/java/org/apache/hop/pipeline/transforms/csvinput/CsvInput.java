@@ -400,16 +400,14 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       // - If you're running in parallel, if a header row is checked, if you're at the beginning of
       // a file
       //
-      if (meta.isHeaderPresent()) {
+      if (meta.isHeaderPresent() && (!data.parallel || data.bytesToSkipInFirstFile <= 0)) {
         // Standard flat file : skip header
-        if (!data.parallel || data.bytesToSkipInFirstFile <= 0) {
-          readOneRow(true, false); // skip this row.
-          logBasic(
-              BaseMessages.getString(
-                  PKG, "CsvInput.Log.HeaderRowSkipped", data.filenames[data.filenr - 1]));
-          if (data.fieldsMapping.size() == 0) {
-            return false;
-          }
+        readOneRow(true, false); // skip this row.
+        logBasic(
+            BaseMessages.getString(
+                PKG, "CsvInput.Log.HeaderRowSkipped", data.filenames[data.filenr - 1]));
+        if (data.fieldsMapping.size() == 0) {
+          return false;
         }
       }
       // Reset the row number pointer...

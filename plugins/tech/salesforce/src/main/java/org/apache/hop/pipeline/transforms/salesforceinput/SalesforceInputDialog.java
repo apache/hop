@@ -152,9 +152,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
   // Connection group
   private Group wConnectionGroup;
 
-  // Settings group
-  private Group wSettingsGroup;
-
   // Layout margin
   private int margin;
 
@@ -200,6 +197,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
   @Override
   public String open() {
+    Group wSettingsGroup;
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
@@ -735,7 +733,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             dialog.setLayout(new GridLayout(3, false));
 
             final DateTime calendar = new DateTime(dialog, SWT.CALENDAR);
-            final DateTime time = new DateTime(dialog, SWT.TIME | SWT.TIME);
+            final DateTime time = new DateTime(dialog, SWT.TIME);
             new Label(dialog, SWT.NONE);
             new Label(dialog, SWT.NONE);
 
@@ -807,7 +805,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             dialogto.setLayout(new GridLayout(3, false));
 
             final DateTime calendarto = new DateTime(dialogto, SWT.CALENDAR | SWT.BORDER);
-            final DateTime timeto = new DateTime(dialogto, SWT.TIME | SWT.TIME);
+            final DateTime timeto = new DateTime(dialogto, SWT.TIME);
             new Label(dialogto, SWT.NONE);
             new Label(dialogto, SWT.NONE);
             Button okto = new Button(dialogto, SWT.PUSH);
@@ -1481,7 +1479,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       String realPassword = Utils.resolvePassword(variables, meta.getPassword());
 
       connection = new SalesforceConnection(log, realURL, realUsername, realPassword);
-      //      }
       connection.setTimeOut(realTimeOut);
       String[] fieldsName = null;
       if (meta.isSpecifyQuery()) {
@@ -1535,12 +1532,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         wFields.setRowNums();
         wFields.optWidth(true);
       }
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "SalesforceInputMeta.ErrorRetrieveData.DialogTitle"),
-          BaseMessages.getString(PKG, "SalesforceInputMeta.ErrorRetrieveData.DialogMessage"),
-          e);
     } catch (Exception e) {
       new ErrorDialog(
           shell,

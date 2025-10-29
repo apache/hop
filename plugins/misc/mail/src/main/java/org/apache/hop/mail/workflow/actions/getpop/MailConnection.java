@@ -1271,10 +1271,8 @@ public class MailConnection {
       String text = null;
       for (int i = 0; i < mp.getCount(); i++) {
         Part bp = mp.getBodyPart(i);
-        if (bp.isMimeType("text/plain")) {
-          if (text == null) {
-            text = getMessageBodyOrContentType(bp, returnContentType);
-          }
+        if (bp.isMimeType("text/plain") && text == null) {
+          text = getMessageBodyOrContentType(bp, returnContentType);
         }
       }
       return text;

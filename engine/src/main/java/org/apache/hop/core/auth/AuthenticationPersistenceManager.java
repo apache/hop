@@ -55,9 +55,7 @@ public class AuthenticationPersistenceManager {
                   pluginMain,
                   IAuthenticationConsumerType.class));
         }
-      } catch (HopPluginException e) {
-        log.logError(e.getMessage(), e);
-      } catch (AuthenticationFactoryException e) {
+      } catch (HopPluginException | AuthenticationFactoryException e) {
         log.logError(e.getMessage(), e);
       }
     }

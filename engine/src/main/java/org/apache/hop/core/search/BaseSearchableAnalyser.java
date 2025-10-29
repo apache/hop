@@ -41,16 +41,14 @@ public abstract class BaseSearchableAnalyser<T> {
               component,
               propertyValue));
     }
-    if (StringUtils.isNotEmpty(propertyValue)) {
-      if (searchQuery.matches(propertyValue)) {
-        searchResults.add(
-            new SearchResult(
-                parent,
-                propertyValue,
-                "matching property value: " + propertyValue,
-                component,
-                propertyValue));
-      }
+    if (StringUtils.isNotEmpty(propertyValue) && searchQuery.matches(propertyValue)) {
+      searchResults.add(
+          new SearchResult(
+              parent,
+              propertyValue,
+              "matching property value: " + propertyValue,
+              component,
+              propertyValue));
     }
   }
 

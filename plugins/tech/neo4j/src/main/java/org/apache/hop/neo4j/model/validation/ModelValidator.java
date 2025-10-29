@@ -28,8 +28,6 @@ import org.apache.hop.neo4j.model.GraphNode;
 import org.apache.hop.neo4j.model.GraphProperty;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
-import org.neo4j.driver.TransactionWork;
 
 /** This class will help you validate data input and your Neo4j data against a Graph Model */
 public class ModelValidator {
@@ -168,10 +166,9 @@ public class ModelValidator {
     for (IndexDetails indexDetails : indexesList) {
       if (!unique || "UNIQUE".equalsIgnoreCase(indexDetails.getUniqueness())) {
         for (String label : node.getLabels()) {
-          if (indexDetails.getLabelsOrTypes().contains(label)) {
-            if (indexDetails.getProperties().contains(property.getName())) {
-              found = true;
-            }
+          if (indexDetails.getLabelsOrTypes().contains(label)
+              && indexDetails.getProperties().contains(property.getName())) {
+            found = true;
           }
         }
       }
@@ -207,16 +204,13 @@ public class ModelValidator {
   private void readConstraintsData(Session session) {
     constraintsList =
         session.readTransaction(
-            new TransactionWork<List<ConstraintDetails>>() {
-              @Override
-              public List<ConstraintDetails> execute(Transaction transaction) {
-                List<ConstraintDetails> list = new ArrayList<>();
-                Result result = transaction.run("call db.constraints()");
-                while (result.hasNext()) {
-                  list.add(new ConstraintDetails(result.next()));
-                }
-                return list;
+            transaction -> {
+              List<ConstraintDetails> list = new ArrayList<>();
+              Result result = transaction.run("call db.constraints()");
+              while (result.hasNext()) {
+                list.add(new ConstraintDetails(result.next()));
               }
+              return list;
             });
   }
 

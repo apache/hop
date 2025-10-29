@@ -256,10 +256,10 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     if (StringUtils.isEmpty(baseFilePath)) {
       baseFilePath = "";
     }
-    if (StringUtils.isNotEmpty(baseFilePath)) {
-      if (!baseFilePath.endsWith("/") && !baseFilePath.endsWith("\\")) {
-        baseFilePath += "/";
-      }
+    if (StringUtils.isNotEmpty(baseFilePath)
+        && !baseFilePath.endsWith("/")
+        && !baseFilePath.endsWith("\\")) {
+      baseFilePath += "/";
     }
     return baseFilePath + pipelineFilename;
   }

@@ -84,10 +84,8 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
     }
 
     if (meta.isQueryOnlyOnChange()) {
-      if (loadFromBuffer) {
-        if (data.previousSql != null && !data.previousSql.equals(sql)) {
-          loadFromBuffer = false;
-        }
+      if (loadFromBuffer && data.previousSql != null && !data.previousSql.equals(sql)) {
+        loadFromBuffer = false;
       }
       // Save current parameters value as previous ones
       data.previousSql = sql;

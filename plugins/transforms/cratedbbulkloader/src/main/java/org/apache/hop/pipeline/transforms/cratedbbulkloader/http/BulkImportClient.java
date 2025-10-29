@@ -69,20 +69,16 @@ public class BulkImportClient {
     final HttpResponse<String> httpResponse;
     try {
       httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-    } catch (IOException e) {
-      throw new HopException("Couldn't process the request", e);
-    } catch (InterruptedException e) {
+    } catch (IOException | InterruptedException e) {
       throw new HopException("Couldn't process the request", e);
     }
-    switch (httpResponse.statusCode()) {
-      case 200:
-        return HttpBulkImportResponse.fromHttpResponse(httpResponse);
-      case 401: // For crateDB there's no difference between 401 and 403, it always returns 401, and
-        // then the internal error code helps to distinguish between the two.
-        throw new UnauthorizedCrateDBAccessException(httpResponse.body());
-      default:
-        throw new CrateDBHopException(httpResponse.statusCode(), httpResponse.body());
-    }
+    // For crateDB there's no difference between 401 and 403, it always returns 401, and
+    // then the internal error code helps to distinguish between the two.
+    return switch (httpResponse.statusCode()) {
+      case 200 -> HttpBulkImportResponse.fromHttpResponse(httpResponse);
+      case 401 -> throw new UnauthorizedCrateDBAccessException(httpResponse.body());
+      default -> throw new CrateDBHopException(httpResponse.statusCode(), httpResponse.body());
+    };
   }
 
   private static class BulkImportRequest {

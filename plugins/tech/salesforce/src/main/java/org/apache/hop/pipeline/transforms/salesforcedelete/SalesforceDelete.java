@@ -147,12 +147,10 @@ public class SalesforceDelete
           putRow(data.outputRowMeta, data.outputBuffer[j]); // copy row to output rowset(s)
           incrementLinesOutput();
 
-          if (checkFeedback(getLinesInput())) {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG, "SalesforceDelete.log.LineRow", String.valueOf(getLinesInput())));
-            }
+          if (checkFeedback(getLinesInput()) && isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG, "SalesforceDelete.log.LineRow", String.valueOf(getLinesInput())));
           }
 
         } else {

@@ -212,22 +212,20 @@ public class ModifyActionLogLevelExtensionPoint
                                 + resultFile.getTypeCode());
                       }
                     }
-                    if (debugLevel.isLoggingVariables()) {
-                      if (action instanceof IVariables) {
-                        log.logMinimal("Action notable variables: ");
+                    if (debugLevel.isLoggingVariables() && action instanceof IVariables) {
+                      log.logMinimal("Action notable variables: ");
 
-                        IVariables variables = (IVariables) action;
-                        // See the variables set differently from the parent workflow
-                        for (String var : variables.getVariableNames()) {
-                          if (!variablesToIgnore.contains(var)) {
-                            String value = variables.getVariable(var);
-                            String refValue = referenceSpace.getVariable(var);
+                      IVariables variables = (IVariables) action;
+                      // See the variables set differently from the parent workflow
+                      for (String var : variables.getVariableNames()) {
+                        if (!variablesToIgnore.contains(var)) {
+                          String value = variables.getVariable(var);
+                          String refValue = referenceSpace.getVariable(var);
 
-                            if (refValue == null || !refValue.equals(value)) {
-                              // Something different!
-                              //
-                              log.logMinimal(" - " + var + "=" + value);
-                            }
+                          if (refValue == null || !refValue.equals(value)) {
+                            // Something different!
+                            //
+                            log.logMinimal(" - " + var + "=" + value);
                           }
                         }
                       }

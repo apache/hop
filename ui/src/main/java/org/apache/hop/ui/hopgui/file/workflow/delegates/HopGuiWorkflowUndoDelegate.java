@@ -28,7 +28,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
 public class HopGuiWorkflowUndoDelegate {
-  private static final Class<?> PKG = HopGui.class;
 
   private HopGuiWorkflowGraph workflowGraph;
   private HopGui hopGui;
@@ -183,10 +182,8 @@ public class HopGuiWorkflowUndoDelegate {
     }
 
     // OK, now check if we need to do this again...
-    if (workflowMeta.viewNextUndo() != null) {
-      if (workflowMeta.viewNextUndo().getNextAlso()) {
-        undoWorkflowAction(handler, workflowMeta);
-      }
+    if (workflowMeta.viewNextUndo() != null && workflowMeta.viewNextUndo().getNextAlso()) {
+      undoWorkflowAction(handler, workflowMeta);
     }
   }
 
@@ -316,10 +313,8 @@ public class HopGuiWorkflowUndoDelegate {
     }
 
     // OK, now check if we need to do this again...
-    if (workflowMeta.viewNextUndo() != null) {
-      if (workflowMeta.viewNextUndo().getNextAlso()) {
-        redoWorkflowAction(handler, workflowMeta);
-      }
+    if (workflowMeta.viewNextUndo() != null && workflowMeta.viewNextUndo().getNextAlso()) {
+      redoWorkflowAction(handler, workflowMeta);
     }
   }
 

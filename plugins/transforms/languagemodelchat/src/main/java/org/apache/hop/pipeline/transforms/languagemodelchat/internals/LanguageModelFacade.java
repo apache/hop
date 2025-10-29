@@ -291,6 +291,7 @@ public class LanguageModelFacade {
         .build();
   }
 
+  @SuppressWarnings("java:S131")
   public String messagesToOutput(List<ChatMessage> chat, String assistant) {
     // TODO fetch these from the meta, hard code for now
     String systemRoleName = "system";

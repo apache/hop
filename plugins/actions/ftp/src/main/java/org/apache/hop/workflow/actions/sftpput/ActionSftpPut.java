@@ -812,10 +812,8 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
       }
 
       Pattern pattern = null;
-      if (!copyingPrevious && !copyingPreviousFiles) {
-        if (!Utils.isEmpty(realWildcard)) {
-          pattern = Pattern.compile(realWildcard);
-        }
+      if (!copyingPrevious && !copyingPreviousFiles && !Utils.isEmpty(realWildcard)) {
+        pattern = Pattern.compile(realWildcard);
       }
 
       int nrFilesSent = 0;

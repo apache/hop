@@ -560,12 +560,10 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
         String destinationFilename = destinationFolder + Const.FILE_SEPARATOR + shortfilename;
         FileObject destinationfile = HopVfs.getFileObject(destinationFilename);
         boolean filexists = destinationfile.exists();
-        if (filexists) {
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "ActionCopyMoveResultFilenames.Log.FileExists", destinationFilename));
-          }
+        if (filexists && isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "ActionCopyMoveResultFilenames.Log.FileExists", destinationFilename));
         }
         if ((!filexists) || (filexists && isOverwriteFile())) {
           if (getAction().equals("copy")) {

@@ -440,6 +440,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             addViewer(viewer);
           }
           break;
+        default:
+          break;
       }
     } finally {
       getShell().setCursor(null);
@@ -562,6 +564,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
                       break;
                     case Workflow:
                       decorateWorkflowTreeItem(executionItem, execution);
+                      break;
+                    default:
                       break;
                   }
                 }

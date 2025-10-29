@@ -207,10 +207,8 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
         try {
           childNamedParams.addParameterDefinition(key, "", "");
           childNamedParams.setParameterValue(key, value);
-        } catch (DuplicateParamException e) {
+        } catch (DuplicateParamException | UnknownParamException e) {
           // this was explicitly checked before
-        } catch (UnknownParamException e) {
-          // this is explicitly checked for up front
         }
 
         childVariableSpace.setVariable(key, value);

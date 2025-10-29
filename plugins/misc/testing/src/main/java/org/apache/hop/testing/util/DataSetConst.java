@@ -367,22 +367,18 @@ public class DataSetConst {
                 int cmp =
                     transformValueMeta.compare(
                         transformValue, goldenValueMeta, goldenValueConverted);
-                if (cmp != 0) {
+                if (cmp != 0
+                    && transformValueMeta.isNumber()
+                    && !transformValueMeta.isNull(transformValue)
+                    && !transformValueMeta.isNull(goldenValueConverted)) {
 
                   // See if it's a floating point issue...
-                  //
-                  if (transformValueMeta.isNumber()) {
-                    if (!transformValueMeta.isNull(transformValue)
-                        && !transformValueMeta.isNull(goldenValueConverted)) {
-                      // Convert to an epsilon of 1 millionth.
-                      //
-                      Double d1 = transformValueMeta.getNumber(transformValue);
-                      Double d2 = transformValueMeta.getNumber(goldenValueConverted);
+                  // Convert to an epsilon of 1 millionth.
+                  Double d1 = transformValueMeta.getNumber(transformValue);
+                  Double d2 = transformValueMeta.getNumber(goldenValueConverted);
 
-                      if (DoubleMath.fuzzyEquals(d1, d2, 0.000001d)) {
-                        cmp = 0;
-                      }
-                    }
+                  if (DoubleMath.fuzzyEquals(d1, d2, 0.000001d)) {
+                    cmp = 0;
                   }
                 }
                 if (cmp != 0) {

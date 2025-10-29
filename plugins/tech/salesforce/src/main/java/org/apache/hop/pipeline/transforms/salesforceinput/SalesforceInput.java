@@ -146,33 +146,32 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         data.limitReached = true;
         return null;
       } else {
-        if (data.rownr >= data.nrRecords || data.finishedRecord) {
-          if (meta.getRecordsFilterCode() != SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
-            // We retrieved all records available here
-            // maybe we need to query more again ...
+        if ((data.rownr >= data.nrRecords || data.finishedRecord)
+            && meta.getRecordsFilterCode() != SalesforceConnectionUtils.RECORDS_FILTER_UPDATED) {
+
+          // We retrieved all records available here
+          // maybe we need to query more again ...
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(PKG, "SalesforceInput.Log.NeedQueryMore", "" + data.rownr));
+          }
+
+          if (data.connection.queryMore()) {
+            // We returned more result (query is not done yet)
+            int nr = data.connection.getRecordsCount();
+            data.nrRecords += nr;
             if (isDetailed()) {
               logDetailed(
-                  BaseMessages.getString(
-                      PKG, "SalesforceInput.Log.NeedQueryMore", "" + data.rownr));
+                  BaseMessages.getString(PKG, "SalesforceInput.Log.QueryMoreRetrieved", "" + nr));
             }
 
-            if (data.connection.queryMore()) {
-              // We returned more result (query is not done yet)
-              int nr = data.connection.getRecordsCount();
-              data.nrRecords += nr;
-              if (isDetailed()) {
-                logDetailed(
-                    BaseMessages.getString(PKG, "SalesforceInput.Log.QueryMoreRetrieved", "" + nr));
-              }
+            // We need here to initialize recordIndex
+            data.recordIndex = 0;
 
-              // We need here to initialize recordIndex
-              data.recordIndex = 0;
-
-              data.finishedRecord = false;
-            } else {
-              // Query is done .. we finished !
-              return null;
-            }
+            data.finishedRecord = false;
+          } else {
+            // Query is done .. we finished !
+            return null;
           }
         }
       }
@@ -214,10 +213,10 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         doConversions(outputRowData, i, value);
 
         // Do we need to repeat this field if it is null?
-        if (meta.getFields().get(i).isRepeated()) {
-          if (data.previousRow != null && Utils.isEmpty(value)) {
-            outputRowData[i] = data.previousRow[i];
-          }
+        if (meta.getFields().get(i).isRepeated()
+            && data.previousRow != null
+            && Utils.isEmpty(value)) {
+          outputRowData[i] = data.previousRow[i];
         }
       } // End of loop over fields...
 

@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
  *
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
-@Deprecated
+@Deprecated(since = "1.0")
 public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProgressDialog {
   private static final Class<?> PKG = TextFileInputMeta.class;
 
@@ -143,13 +143,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
       pmd.run(true, op);
-    } catch (InvocationTargetException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "TextFileCSVImportProgressDialog.ErrorScanningFile.Title"),
-          BaseMessages.getString(PKG, "TextFileCSVImportProgressDialog.ErrorScanningFile.Message"),
-          e);
-    } catch (InterruptedException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "TextFileCSVImportProgressDialog.ErrorScanningFile.Title"),

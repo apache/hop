@@ -895,6 +895,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           selectedTransform = (TransformMeta) areaOwner.getParent();
           refreshTransformData();
           break;
+        default:
+          break;
       }
     }
 

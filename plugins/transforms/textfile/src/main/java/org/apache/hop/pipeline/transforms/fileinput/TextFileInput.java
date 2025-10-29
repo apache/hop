@@ -144,10 +144,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
             if (encodingType.isLinefeed(c)) {
               return line.toString();
-            } else if (!encodingType.isReturn(c)) {
-              if (c >= 0) {
-                line.append((char) c);
-              }
+            } else if (!encodingType.isReturn(c) && c >= 0) {
+              line.append((char) c);
             }
           }
           break;
@@ -834,7 +832,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     if (info.isErrorIgnored()
         && info.getErrorCountField() != null
         && !info.getErrorCountField().isEmpty()) {
-      errorCount = Long.valueOf(0L);
+      errorCount = 0L;
     }
     String errorFields = null;
     if (info.isErrorIgnored()
@@ -899,7 +897,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
                 value = null;
 
                 if (errorCount != null) {
-                  errorCount = Long.valueOf(errorCount.longValue() + 1L);
+                  errorCount = errorCount + 1L;
                 }
                 if (errorFields != null) {
                   StringBuilder sb = new StringBuilder(errorFields);
@@ -976,7 +974,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
         // Possibly add a row number...
         if (info.includeRowNumber()) {
-          r[index] = Long.valueOf(rowNr);
+          r[index] = rowNr;
           index++;
         }
 
@@ -997,7 +995,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         }
         // Add Size
         if (addSize) {
-          r[index] = Long.valueOf(size);
+          r[index] = size;
           index++;
         }
         // add Hidden
@@ -1116,12 +1114,10 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
       // Open the first file & read the required rows in the buffer, stop
       // if it fails and not set to skip bad files...
-      if (!openNextFile()) {
-        if (failAfterBadFile(null)) {
-          closeLastFile();
-          setOutputDone();
-          return false;
-        }
+      if (!openNextFile() && failAfterBadFile(null)) {
+        closeLastFile();
+        setOutputDone();
+        return false;
       }
 
       // Count the number of repeat fields...
@@ -1155,14 +1151,12 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
      * If the buffer is empty: open the next file. (if nothing in there, open the next, etc.)
      */
     while (data.lineBuffer.isEmpty()) {
-      if (!openNextFile()) {
+      if (!openNextFile() && failAfterBadFile(null)) {
         // Open fails: done processing unless set to skip bad files
-        if (failAfterBadFile(null)) {
-          closeLastFile();
-          setOutputDone(); // signal end to receiver(s)
-          return false;
-        } // else will continue until can open
-      }
+        closeLastFile();
+        setOutputDone(); // signal end to receiver(s)
+        return false;
+      } // else will continue until can open
     }
 
     /*
@@ -1405,10 +1399,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       }
     }
 
-    if (checkFeedback(getLinesInput())) {
-      if (isBasic()) {
-        logBasic("linenr " + getLinesInput());
-      }
+    if (checkFeedback(getLinesInput()) && isBasic()) {
+      logBasic("linenr " + getLinesInput());
     }
 
     return retval;
@@ -1510,10 +1502,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     } else {
       // check the filters
       filterOK = data.filterProcessor.doFilters(line);
-      if (!filterOK) {
-        if (data.filterProcessor.isStopProcessing()) {
-          data.doneReading = true;
-        }
+      if (!filterOK && data.filterProcessor.isStopProcessing()) {
+        data.doneReading = true;
       }
     }
 
@@ -1571,7 +1561,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       data.dataErrorLineHandler.close();
     } catch (Exception e) {
       String errorMsg =
-          "Couldn't close file : " + data.file.getName().getFriendlyURI() + " --> " + e.toString();
+          "Couldn't close file : " + data.file.getName().getFriendlyURI() + " --> " + e;
       logError(errorMsg);
       if (failAfterBadFile(errorMsg)) {
         stopAll();
@@ -1626,7 +1616,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         data.rootUriName = data.file.getName().getRootURI();
       }
       if (data.addSize) {
-        data.size = Long.valueOf(data.file.getContent().getSize());
+        data.size = data.file.getContent().getSize();
       }
       data.lineInFile = 0;
       if (meta.isPassingThruFields()) {
@@ -1729,7 +1719,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
               + " : "
               + data.file.getName().getFriendlyURI()
               + " --> "
-              + e.toString();
+              + e;
       logError(errorMsg);
       if (failAfterBadFile(errorMsg)) {
         stopAll();

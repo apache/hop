@@ -73,17 +73,14 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
       }
       // To make it easier to inject, also check the code
       //
-      if (eo instanceof IEnumHasCode hasCode) {
-        if (hasCode.getCode().equalsIgnoreCase(v)) {
-          return e;
-        }
+      if (eo instanceof IEnumHasCode hasCode && hasCode.getCode().equalsIgnoreCase(v)) {
+        return e;
       }
       // Perhaps the user is trying to use the description from the GUI...
       //
-      if (eo instanceof IEnumHasCodeAndDescription hasDescription) {
-        if (hasDescription.getDescription().equalsIgnoreCase(v)) {
-          return e;
-        }
+      if (eo instanceof IEnumHasCodeAndDescription hasDescription
+          && hasDescription.getCode().equalsIgnoreCase(v)) {
+        return e;
       }
     }
     throw new HopValueException("Unknown value " + v + " for enum " + enumClass);
@@ -99,7 +96,7 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
 
   @Override
   public int boolean2intPrimitive(Boolean v) throws HopValueException {
-    return v ? 1 : 0;
+    return Boolean.TRUE.equals(v) ? 1 : 0;
   }
 
   @Override
@@ -109,7 +106,7 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
 
   @Override
   public long boolean2longPrimitive(Boolean v) throws HopValueException {
-    return v ? 1 : 0;
+    return Boolean.TRUE.equals(v) ? 1 : 0;
   }
 
   @Override

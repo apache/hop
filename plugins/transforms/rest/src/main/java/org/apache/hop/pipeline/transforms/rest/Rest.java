@@ -177,21 +177,18 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
       // set the Authentication/Authorization header from the connection first, if available.
       // this transform's headers will override this value if available.
-      if (connection != null) {
-        if (!StringUtils.isEmpty(resolve(connection.getAuthorizationHeaderName())))
-          if (!Utils.isEmpty(resolve(connection.getAuthorizationHeaderName()))) {
-            if (!StringUtils.isEmpty(resolve(connection.getAuthorizationPrefix()))) {
-              invocationBuilder.header(
-                  resolve(connection.getAuthorizationHeaderName()),
-                  resolve(connection.getAuthorizationPrefix())
-                      + " "
-                      + resolve(connection.getAuthorizationHeaderValue()));
-            } else {
-              invocationBuilder.header(
-                  resolve(connection.getAuthorizationHeaderName()),
-                  resolve(connection.getAuthorizationHeaderValue()));
-            }
-          }
+      if (connection != null && !Utils.isEmpty(resolve(connection.getAuthorizationHeaderName()))) {
+        if (!StringUtils.isEmpty(resolve(connection.getAuthorizationPrefix()))) {
+          invocationBuilder.header(
+              resolve(connection.getAuthorizationHeaderName()),
+              resolve(connection.getAuthorizationPrefix())
+                  + " "
+                  + resolve(connection.getAuthorizationHeaderValue()));
+        } else {
+          invocationBuilder.header(
+              resolve(connection.getAuthorizationHeaderName()),
+              resolve(connection.getAuthorizationHeaderValue()));
+        }
       }
 
       String contentType = null; // media type override, if not null

@@ -785,6 +785,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
               case SWT.ESC:
                 text.dispose();
                 break;
+              default:
+                break;
             }
           });
 

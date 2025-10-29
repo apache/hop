@@ -49,10 +49,8 @@ public class Dummy extends BaseTransform<DummyMeta, DummyData> {
 
     putRow(getInputRowMeta(), r); // copy row to possible alternate rowset(s).
 
-    if (checkFeedback(getLinesRead())) {
-      if (isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "Dummy.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "Dummy.Log.LineNumber") + getLinesRead());
     }
 
     return true;

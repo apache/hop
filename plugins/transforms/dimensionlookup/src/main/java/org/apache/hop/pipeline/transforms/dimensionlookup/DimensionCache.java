@@ -217,12 +217,10 @@ public class DimensionCache implements Comparator<Object[]> {
           fromCmpLookup = fromDateMeta.compare(fromDate, lookupDate);
         }
       }
-      if (fromCmpLookup < 0) {
-        if (toDate != null) {
-          int toCmpLookup = toDateMeta.compare(toDate, lookupDate);
-          if (toCmpLookup > 0) {
-            return 0;
-          }
+      if (fromCmpLookup < 0 && toDate != null) {
+        int toCmpLookup = toDateMeta.compare(toDate, lookupDate);
+        if (toCmpLookup > 0) {
+          return 0;
         }
       }
       return fromCmpLookup;

@@ -63,72 +63,42 @@ public class ActionSftpPutDialog extends ActionDialog {
       };
 
   private Text wName;
-
   private TextVar wServerName;
-
   private TextVar wServerPort;
-
   private TextVar wUserName;
-
   private TextVar wPassword;
-
   private TextVar wScpDirectory;
-
   private Label wlLocalDirectory;
   private TextVar wLocalDirectory;
-
   private Label wlWildcard;
   private TextVar wWildcard;
-
   private ActionSftpPut action;
-
   private Button wCreateRemoteFolder;
-
   private Button wbLocalDirectory;
-
   private boolean changed;
-
   private Button wbTestChangeFolderExists;
-
   private Button wGetPrevious;
-
   private Button wGetPreviousFiles;
-
   private Button wSuccessWhenNoFile;
-
   private Label wlAddFilenameToResult;
-
   private Button wAddFilenameToResult;
-
   private LabelTextVar wKeyFilePass;
-
   private Button wUsePublicKey;
-
   private Label wlKeyFilename;
-
   private Button wbKeyFilename;
-
   private TextVar wKeyFilename;
-
   private CCombo wCompression;
-
   private CCombo wProxyType;
-
   private LabelTextVar wProxyHost;
   private LabelTextVar wProxyPort;
   private LabelTextVar wProxyUsername;
   private LabelTextVar wProxyPassword;
-
   private CCombo wAfterFtpPut;
-
   private Label wlCreateDestinationFolder;
   private Button wCreateDestinationFolder;
-
   private Label wlDestinationFolder;
   private TextVar wDestinationFolder;
-
   private Button wbMovetoDirectory;
-
   private SftpClient sftpclient = null;
 
   public ActionSftpPutDialog(
@@ -1028,15 +998,12 @@ public class ActionSftpPutDialog extends ActionDialog {
 
   private void checkRemoteFolder() {
     String changeFtpFolder = variables.resolve(wScpDirectory.getText());
-    if (!Utils.isEmpty(changeFtpFolder)) {
-      if (connectToSftp(true, changeFtpFolder)) {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-        mb.setMessage(
-            BaseMessages.getString(PKG, "ActionSftpPut.FolderExists.OK", changeFtpFolder)
-                + Const.CR);
-        mb.setText(BaseMessages.getString(PKG, "ActionSftpPut.FolderExists.Title.Ok"));
-        mb.open();
-      }
+    if (!Utils.isEmpty(changeFtpFolder) && connectToSftp(true, changeFtpFolder)) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionSftpPut.FolderExists.OK", changeFtpFolder) + Const.CR);
+      mb.setText(BaseMessages.getString(PKG, "ActionSftpPut.FolderExists.Title.Ok"));
+      mb.open();
     }
   }
 

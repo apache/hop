@@ -148,9 +148,7 @@ public class StringEvaluator {
             if (cmm.getMax() == null || cmm.getConversionMeta().compare(cmm.getMax(), object) < 0) {
               cmm.setMax(object);
             }
-          } catch (ParseException e) {
-            evaluationResults.remove(cmm);
-          } catch (HopValueException e) {
+          } catch (ParseException | HopValueException e) {
             evaluationResults.remove(cmm);
           }
         }

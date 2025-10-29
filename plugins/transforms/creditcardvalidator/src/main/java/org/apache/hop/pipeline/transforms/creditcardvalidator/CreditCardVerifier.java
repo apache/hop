@@ -85,7 +85,7 @@ public class CreditCardVerifier {
     return (id > -1 && id < NotValidCardNames.length ? NotValidCardNames[id] : null);
   }
 
-  public static ReturnIndicator CheckCC(String cardNumber) {
+  public static ReturnIndicator checkCC(String cardNumber) {
     ReturnIndicator ri = new ReturnIndicator();
 
     if (Utils.isEmpty(cardNumber)) {
@@ -311,15 +311,12 @@ public class CreditCardVerifier {
          */
 
         valid = AIRPLUS;
-      } else if (digit4.equals("8699")) {
-        if (number.length() == 15) {
+      } else if (digit4.equals("8699") && number.length() == 15) {
 
-          /*
-           * ----* VOYAGER card prefix = 6011* -------- length = 15
-           */
-
-          valid = VOYAGER;
-        }
+        /*
+         * ----* VOYAGER card prefix = 6011* -------- length = 15
+         */
+        valid = VOYAGER;
       }
     }
 

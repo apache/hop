@@ -156,10 +156,8 @@ class ConcurrencyTestRunner<M, B> {
   }
 
   private boolean checkTimeout(long start) throws TimeoutException {
-    if (this.timeout > 0) {
-      if (System.currentTimeMillis() - start > timeout) {
-        throw new TimeoutException("Execution time limit is exceeded: " + timeout + " ms.");
-      }
+    if (this.timeout > 0 && (System.currentTimeMillis() - start > timeout)) {
+      throw new TimeoutException("Execution time limit is exceeded: " + timeout + " ms.");
     }
     return true;
   }

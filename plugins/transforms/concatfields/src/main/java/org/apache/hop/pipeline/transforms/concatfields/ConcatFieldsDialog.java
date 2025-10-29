@@ -537,23 +537,21 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
       if (r != null) {
         ITableItemInsertListener listener =
             (tableItem, v) -> {
-              if (v.isNumber()) {
-                if (v.getLength() > 0) {
-                  int le = v.getLength();
-                  int pr = v.getPrecision();
+              if (v.isNumber() && v.getLength() > 0) {
+                int le = v.getLength();
+                int pr = v.getPrecision();
 
-                  if (v.getPrecision() <= 0) {
-                    pr = 0;
-                  }
-
-                  StringBuilder mask = new StringBuilder();
-                  mask.append("0".repeat(Math.max(0, le - pr)));
-                  if (pr > 0) {
-                    mask.append(".");
-                  }
-                  mask.append("0".repeat(Math.max(0, pr)));
-                  tableItem.setText(3, mask.toString());
+                if (v.getPrecision() <= 0) {
+                  pr = 0;
                 }
+
+                StringBuilder mask = new StringBuilder();
+                mask.append("0".repeat(Math.max(0, le - pr)));
+                if (pr > 0) {
+                  mask.append(".");
+                }
+                mask.append("0".repeat(Math.max(0, pr)));
+                tableItem.setText(3, mask.toString());
               }
               return true;
             };

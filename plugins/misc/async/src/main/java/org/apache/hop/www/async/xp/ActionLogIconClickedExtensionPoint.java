@@ -52,26 +52,23 @@ public class ActionLogIconClickedExtensionPoint
       if (areaOwner.getOwner() == null) {
         return;
       }
-      if (areaOwner.getOwner() instanceof String message) {
-        if (message.startsWith(DrawAsyncLoggingIconExtensionPoint.STRING_AREA_OWNER_PREFIX)) {
-          String serviceName =
-              message.substring(
-                  DrawAsyncLoggingIconExtensionPoint.STRING_AREA_OWNER_PREFIX.length());
-          if (StringUtils.isNotEmpty(serviceName)) {
-            MultiMetadataProvider metadataProvider =
-                workflowGraph.getHopGui().getMetadataProvider();
-            IHopMetadataSerializer<AsyncWebService> serializer =
-                metadataProvider.getSerializer(AsyncWebService.class);
-            if (serializer.exists(serviceName)) {
-              MetadataManager<AsyncWebService> manager =
-                  new MetadataManager<>(
-                      workflowGraph.getVariables(),
-                      metadataProvider,
-                      AsyncWebService.class,
-                      extension.getWorkflowGraph().getShell());
-              manager.editMetadata(serviceName);
-              extension.setPreventingDefault(true);
-            }
+      if (areaOwner.getOwner() instanceof String message
+          && message.startsWith(DrawAsyncLoggingIconExtensionPoint.STRING_AREA_OWNER_PREFIX)) {
+        String serviceName =
+            message.substring(DrawAsyncLoggingIconExtensionPoint.STRING_AREA_OWNER_PREFIX.length());
+        if (StringUtils.isNotEmpty(serviceName)) {
+          MultiMetadataProvider metadataProvider = workflowGraph.getHopGui().getMetadataProvider();
+          IHopMetadataSerializer<AsyncWebService> serializer =
+              metadataProvider.getSerializer(AsyncWebService.class);
+          if (serializer.exists(serviceName)) {
+            MetadataManager<AsyncWebService> manager =
+                new MetadataManager<>(
+                    workflowGraph.getVariables(),
+                    metadataProvider,
+                    AsyncWebService.class,
+                    extension.getWorkflowGraph().getShell());
+            manager.editMetadata(serviceName);
+            extension.setPreventingDefault(true);
           }
         }
       }

@@ -173,17 +173,15 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog {
 
     List<String> entries = new ArrayList<>();
     for (String previousTransform : previousTransforms) {
-      if (!previousTransform.equals(transformName)) {
-        if (!Utils.isEmpty(nextTransforms)) {
-          boolean found = false;
-          for (String nextTransform : nextTransforms) {
-            if (nextTransform.equals(previousTransform)) {
-              found = true;
-            }
+      if (!previousTransform.equals(transformName) && !Utils.isEmpty(nextTransforms)) {
+        boolean found = false;
+        for (String nextTransform : nextTransforms) {
+          if (nextTransform.equals(previousTransform)) {
+            found = true;
           }
-          if (!found) {
-            entries.add(previousTransform);
-          }
+        }
+        if (!found) {
+          entries.add(previousTransform);
         }
       }
     }

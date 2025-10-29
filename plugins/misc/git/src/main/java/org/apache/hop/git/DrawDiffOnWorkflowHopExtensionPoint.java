@@ -76,6 +76,8 @@ public class DrawDiffOnWorkflowHopExtensionPoint
               case CHANGED:
                 svgFile = new SvgFile("CHANGED.svg", classLoader);
                 break;
+              default:
+                break;
             }
             if (svgFile != null) {
               // Center of hop...

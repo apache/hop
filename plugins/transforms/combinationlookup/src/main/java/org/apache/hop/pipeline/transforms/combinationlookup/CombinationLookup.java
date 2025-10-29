@@ -605,9 +605,6 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
             data.prepStatementInsert =
                 data.db.getConnection().prepareStatement(databaseMeta.stripCR(sqlStatement));
           }
-        } catch (SQLException ex) {
-          throw new HopDatabaseException(
-              "Unable to prepare combi insert statement : " + Const.CR + sqlStatement, ex);
         } catch (Exception ex) {
           throw new HopDatabaseException(
               "Unable to prepare combi insert statement : " + Const.CR + sqlStatement, ex);
