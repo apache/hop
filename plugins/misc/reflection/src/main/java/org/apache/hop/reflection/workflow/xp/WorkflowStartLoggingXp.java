@@ -76,10 +76,9 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
 
     // If we log parent (root) workflows only we don't want a parent
     //
-    if (workflowLog.isLoggingParentsOnly()) {
-      if (workflow.getParentPipeline() != null || workflow.getParentWorkflow() != null) {
-        return;
-      }
+    if (workflowLog.isLoggingParentsOnly()
+        && (workflow.getParentPipeline() != null || workflow.getParentWorkflow() != null)) {
+      return;
     }
 
     // Load the pipeline filename specified in the Workflow Log object...

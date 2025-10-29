@@ -151,6 +151,8 @@ public class ExplorerPerspectiveConfigPlugin
           fileLoadingMaxSize = ((TextVar) control).getText();
           ExplorerPerspectiveConfigSingleton.getConfig().setFileLoadingMaxSize(fileLoadingMaxSize);
           break;
+        default:
+          break;
       }
     }
     // Save the project...

@@ -1110,6 +1110,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
                 (item, valueMeta) ->
                     getPropertyNameTypePrimary(item, valueMeta, new int[] {2}, new int[] {3}, 4));
             break;
+          default:
+            break;
         }
       }
     } catch (HopException ke) {

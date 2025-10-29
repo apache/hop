@@ -91,10 +91,9 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
 
     // If we log parent (root) pipelines only we don't want a parent
     //
-    if (pipelineLog.isLoggingParentsOnly()) {
-      if (pipeline.getParentWorkflow() != null || pipeline.getParentPipeline() != null) {
-        return;
-      }
+    if (pipelineLog.isLoggingParentsOnly()
+        && (pipeline.getParentWorkflow() != null || pipeline.getParentPipeline() != null)) {
+      return;
     }
 
     // Load the pipeline filename specified in the Pipeline Log object...

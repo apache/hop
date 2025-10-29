@@ -68,14 +68,7 @@ public class GetWorkflowSqlProgressDialog {
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
       pmd.run(false, op);
-    } catch (InvocationTargetException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "GetJobSQLProgressDialog.Dialog.UnableToGenerateSQL.Title"),
-          BaseMessages.getString(PKG, "GetJobSQLProgressDialog.Dialog.UnableToGenerateSQL.Message"),
-          e);
-      stats = null;
-    } catch (InterruptedException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "GetJobSQLProgressDialog.Dialog.UnableToGenerateSQL.Title"),

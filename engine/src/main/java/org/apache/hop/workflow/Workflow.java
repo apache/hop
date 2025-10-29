@@ -681,15 +681,13 @@ public abstract class Workflow extends Variables
     }
 
     // If previous is not null then that action has finished
-    if (previous != null) {
-      if (log.isBasic()) {
-        log.logBasic(
-            BaseMessages.getString(
-                PKG,
-                "Workflow.Log.FinishedAction",
-                previous.getName(),
-                previousResult.isResult() + ""));
-      }
+    if (previous != null && log.isBasic()) {
+      log.logBasic(
+          BaseMessages.getString(
+              PKG,
+              "Workflow.Log.FinishedAction",
+              previous.getName(),
+              previousResult.isResult() + ""));
     }
 
     // Start this action!
@@ -860,10 +858,8 @@ public abstract class Workflow extends Variables
           || (actionMeta.isEvaluation() && (hopMeta.isEvaluation() == newResult.isResult()))) {
 
         // If the next action is a join, only execute once
-        if (nextAction.isJoin()) {
-          if (activeActions.contains(nextAction)) {
-            continue;
-          }
+        if (nextAction.isJoin() && activeActions.contains(nextAction)) {
+          continue;
         }
 
         // Pass along the previous result, perhaps the next workflow can use it...
@@ -989,12 +985,10 @@ public abstract class Workflow extends Variables
       res.setResult(false);
     }
     // Log the final action that has finished
-    if (res.getEntryNr() == nr) {
-      if (log.isBasic()) {
-        log.logBasic(
-            BaseMessages.getString(
-                PKG, "Workflow.Log.FinishedAction", actionMeta.getName(), res.isResult() + ""));
-      }
+    if (res.getEntryNr() == nr && log.isBasic()) {
+      log.logBasic(
+          BaseMessages.getString(
+              PKG, "Workflow.Log.FinishedAction", actionMeta.getName(), res.isResult() + ""));
     }
 
     return res;

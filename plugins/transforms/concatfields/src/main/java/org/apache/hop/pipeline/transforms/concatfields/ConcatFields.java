@@ -125,10 +125,8 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
               + " : "
               + data.outputRowMeta.getString(row));
     }
-    if (checkFeedback(getLinesRead())) {
-      if (isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "ConcatFields.Log.LineNumber") + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "ConcatFields.Log.LineNumber") + getLinesRead());
     }
 
     return true;

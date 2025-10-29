@@ -591,11 +591,9 @@ public abstract class Pipeline
               PKG, "Pipeline.Log.ExecutionStartedForPipeline", pipelineMeta.getName()));
     }
 
-    if (isSafeModeEnabled()) {
-      if (log.isDetailed()) {
-        log.logDetailed(
-            BaseMessages.getString(PKG, "Pipeline.Log.SafeModeIsEnabled", pipelineMeta.getName()));
-      }
+    if (isSafeModeEnabled() && log.isDetailed()) {
+      log.logDetailed(
+          BaseMessages.getString(PKG, "Pipeline.Log.SafeModeIsEnabled", pipelineMeta.getName()));
     }
 
     // setInternalHopVariables(this); --> Let's not do this, when running
@@ -1222,7 +1220,6 @@ public abstract class Pipeline
     pipelineWaitUntilFinishedBlockingQueue = new ArrayBlockingQueue<>(10);
 
     // Do all sorts of nifty things at the end of the pipeline execution
-    ///
     IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> executionListener =
         pipeline -> {
           try {

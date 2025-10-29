@@ -34,6 +34,7 @@ import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.UpsertResult;
 import com.sforce.soap.partner.fault.ExceptionCode;
 import com.sforce.soap.partner.fault.LoginFault;
+import com.sforce.soap.partner.fault.UnexpectedErrorFault;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
@@ -42,6 +43,7 @@ import com.sforce.ws.wsdl.Constants;
 import jakarta.xml.soap.SOAPException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -70,6 +72,11 @@ public class SalesforceConnection {
   private static final FieldType REFERENCE_FIELD_TYPE = FieldType.reference;
 
   private static final Class<?> PKG = SalesforceConnection.class;
+  public static final String CONST_ARROW_LEFT = "<-----------------------------------------";
+  public static final String CONST_ARROW_RIGHT = "----------------------------------------->";
+  public static final String SERVICES_SOAP_U_64_0 = "/services/Soap/u/64.0";
+  public static final String CONST_INVALID_SESSION_ID = "INVALID_SESSION_ID";
+  public static final String CONST_INVALID_SESSION_ID_ALTERNATE = "Invalid Session ID";
 
   private String url;
   private String username;
@@ -157,7 +164,7 @@ public class SalesforceConnection {
    *
    * @deprecated Use createOAuthConnection factory method instead
    */
-  @Deprecated
+  @Deprecated(since = "2.16", forRemoval = false)
   public SalesforceConnection(
       ILogChannel logInterface,
       String oauthClientId,
@@ -391,7 +398,7 @@ public class SalesforceConnection {
       // Attempt the login giving the user feedback
       if (log.isDetailed()) {
         log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.LoginNow"));
-        log.logDetailed("----------------------------------------->");
+        log.logDetailed(CONST_ARROW_RIGHT);
         log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.LoginURL", getUrl()));
         log.logDetailed(
             BaseMessages.getString(PKG, "SalesforceConnection.Log.LoginUsername", getUsername()));
@@ -399,7 +406,7 @@ public class SalesforceConnection {
           log.logDetailed(
               BaseMessages.getString(PKG, "SalesforceConnection.Log.LoginModule", getModule()));
         }
-        log.logDetailed("<-----------------------------------------");
+        log.logDetailed(CONST_ARROW_LEFT);
       }
 
       // Login
@@ -430,7 +437,7 @@ public class SalesforceConnection {
             BaseMessages.getString(PKG, "SalesforceConnection.Log.UserInfos")
                 + " : "
                 + this.userInfo.getUserFullName());
-        log.logDebug("----------------------------------------->");
+        log.logDebug(CONST_ARROW_RIGHT);
         log.logDebug(
             BaseMessages.getString(PKG, "SalesforceConnection.Log.UserName")
                 + " : "
@@ -447,7 +454,7 @@ public class SalesforceConnection {
             BaseMessages.getString(PKG, "SalesforceConnection.Log.UserOrganization")
                 + " : "
                 + this.userInfo.getOrganizationName());
-        log.logDebug("<-----------------------------------------");
+        log.logDebug(CONST_ARROW_LEFT);
       }
 
       this.serverTimestamp = pConnection.getServerTimestamp().getTimestamp().getTime();
@@ -492,11 +499,11 @@ public class SalesforceConnection {
 
       if (log.isDetailed()) {
         log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.OAuthLoginNow"));
-        log.logDetailed("----------------------------------------->");
+        log.logDetailed(CONST_ARROW_RIGHT);
         log.logDetailed(
             BaseMessages.getString(
                 PKG, "SalesforceConnection.Log.OAuthInstanceURL", getOauthInstanceUrl()));
-        log.logDetailed("<-----------------------------------------");
+        log.logDetailed(CONST_ARROW_LEFT);
       }
 
       // For OAuth, we need to use the REST API instead of SOAP
@@ -540,8 +547,8 @@ public class SalesforceConnection {
 
       // For OAuth, we need to create a proper SOAP binding with OAuth authentication
       ConnectorConfig config = new ConnectorConfig();
-      config.setAuthEndpoint(getOauthInstanceUrl() + "/services/Soap/u/64.0");
-      config.setServiceEndpoint(getOauthInstanceUrl() + "/services/Soap/u/64.0");
+      config.setAuthEndpoint(getOauthInstanceUrl() + SERVICES_SOAP_U_64_0);
+      config.setServiceEndpoint(getOauthInstanceUrl() + SERVICES_SOAP_U_64_0);
       config.setManualLogin(true);
 
       // Set OAuth session ID (access token) for authentication
@@ -563,12 +570,12 @@ public class SalesforceConnection {
     try {
       if (log.isDetailed()) {
         log.logDetailed(BaseMessages.getString(PKG, "SalesforceConnection.Log.JwtLoginNow"));
-        log.logDetailed("----------------------------------------->");
+        log.logDetailed(CONST_ARROW_RIGHT);
         log.logDetailed(
             BaseMessages.getString(PKG, "SalesforceConnection.Log.JwtUsername", this.username));
         log.logDetailed(
             BaseMessages.getString(PKG, "SalesforceConnection.Log.JwtTokenEndpoint", this.url));
-        log.logDetailed("<-----------------------------------------");
+        log.logDetailed(CONST_ARROW_LEFT);
       }
 
       // Generate JWT and exchange for access token
@@ -594,8 +601,8 @@ public class SalesforceConnection {
 
       // Create SOAP binding with JWT-acquired access token
       ConnectorConfig config = new ConnectorConfig();
-      config.setAuthEndpoint(instanceUrl + "/services/Soap/u/64.0");
-      config.setServiceEndpoint(instanceUrl + "/services/Soap/u/64.0");
+      config.setAuthEndpoint(instanceUrl + SERVICES_SOAP_U_64_0);
+      config.setServiceEndpoint(instanceUrl + SERVICES_SOAP_U_64_0);
       config.setManualLogin(true);
       config.setSessionId(accessToken);
       config.setCompression(isUsingCompression());
@@ -649,12 +656,15 @@ public class SalesforceConnection {
       requestBody
           .append("grant_type=")
           .append(
-              java.net.URLEncoder.encode("urn:ietf:params:oauth:grant-type:jwt-bearer", "UTF-8"));
-      requestBody.append("&assertion=").append(java.net.URLEncoder.encode(jwtToken, "UTF-8"));
+              java.net.URLEncoder.encode(
+                  "urn:ietf:params:oauth:grant-type:jwt-bearer", StandardCharsets.UTF_8));
+      requestBody
+          .append("&assertion=")
+          .append(java.net.URLEncoder.encode(jwtToken, StandardCharsets.UTF_8));
 
       // Send request
       try (java.io.OutputStream os = connection.getOutputStream()) {
-        byte[] input = requestBody.toString().getBytes("UTF-8");
+        byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
         os.write(input, 0, input.length);
       }
 
@@ -694,10 +704,7 @@ public class SalesforceConnection {
         return accessToken;
       } else {
         throw new HopException(
-            "JWT token exchange failed with response code "
-                + responseCode
-                + ": "
-                + response.toString());
+            "JWT token exchange failed with response code " + responseCode + ": " + response);
       }
 
     } catch (Exception e) {
@@ -709,7 +716,7 @@ public class SalesforceConnection {
   private String buildJwtAssertion() throws Exception {
     // JWT Header
     String header = "{\"alg\":\"RS256\"}";
-    String encodedHeader = base64UrlEncode(header.getBytes("UTF-8"));
+    String encodedHeader = base64UrlEncode(header.getBytes(StandardCharsets.UTF_8));
 
     // JWT Claims
     long now = System.currentTimeMillis() / 1000;
@@ -740,7 +747,7 @@ public class SalesforceConnection {
             + exp
             + "}";
 
-    String encodedClaims = base64UrlEncode(claims.getBytes("UTF-8"));
+    String encodedClaims = base64UrlEncode(claims.getBytes(StandardCharsets.UTF_8));
 
     // Create signature input
     String signatureInput = encodedHeader + "." + encodedClaims;
@@ -772,7 +779,7 @@ public class SalesforceConnection {
     // Sign the data
     java.security.Signature signature = java.security.Signature.getInstance("SHA256withRSA");
     signature.initSign(privateKey);
-    signature.update(data.getBytes("UTF-8"));
+    signature.update(data.getBytes(StandardCharsets.UTF_8));
     byte[] signatureBytes = signature.sign();
 
     // Return Base64 URL-encoded signature
@@ -791,12 +798,13 @@ public class SalesforceConnection {
 
       // Check for INVALID_SESSION_ID in message
       if (message != null
-          && (message.contains("INVALID_SESSION_ID") || message.contains("Invalid Session ID"))) {
+          && (message.contains(CONST_INVALID_SESSION_ID)
+              || message.contains(CONST_INVALID_SESSION_ID_ALTERNATE))) {
         return true;
       }
 
       // Check for UnexpectedErrorFault with INVALID_SESSION_ID
-      if (current.getClass().getSimpleName().equals("UnexpectedErrorFault")) {
+      if (current instanceof UnexpectedErrorFault) {
         try {
           // Try multiple approaches to get the exception code
           String exceptionCode = null;
@@ -816,13 +824,13 @@ public class SalesforceConnection {
             } catch (Exception e2) {
               // Method 3: Check toString() output for INVALID_SESSION_ID
               String toString = current.toString();
-              if (toString.contains("INVALID_SESSION_ID")) {
+              if (toString.contains(CONST_INVALID_SESSION_ID)) {
                 return true;
               }
             }
           }
 
-          if (exceptionCode != null && "INVALID_SESSION_ID".equals(exceptionCode)) {
+          if (exceptionCode != null && CONST_INVALID_SESSION_ID.equals(exceptionCode)) {
             return true;
           }
         } catch (Exception reflectionException) {
@@ -861,19 +869,19 @@ public class SalesforceConnection {
       requestBody.append("grant_type=refresh_token&");
       requestBody
           .append("client_id=")
-          .append(java.net.URLEncoder.encode(getOauthClientId(), "UTF-8"))
+          .append(java.net.URLEncoder.encode(getOauthClientId(), StandardCharsets.UTF_8))
           .append("&");
       requestBody
           .append("client_secret=")
-          .append(java.net.URLEncoder.encode(getOauthClientSecret(), "UTF-8"))
+          .append(java.net.URLEncoder.encode(getOauthClientSecret(), StandardCharsets.UTF_8))
           .append("&");
       requestBody
           .append("refresh_token=")
-          .append(java.net.URLEncoder.encode(getOauthRefreshToken(), "UTF-8"));
+          .append(java.net.URLEncoder.encode(getOauthRefreshToken(), StandardCharsets.UTF_8));
 
       // Send the request
       try (java.io.OutputStream os = connection.getOutputStream()) {
-        byte[] input = requestBody.toString().getBytes("UTF-8");
+        byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
         os.write(input, 0, input.length);
       }
 
@@ -944,7 +952,8 @@ public class SalesforceConnection {
       while (current != null) {
         String message = current.getMessage();
         if (message != null
-            && (message.contains("INVALID_SESSION_ID") || message.contains("Invalid Session ID"))) {
+            && (message.contains(CONST_INVALID_SESSION_ID)
+                || message.contains(CONST_INVALID_SESSION_ID_ALTERNATE))) {
           isTokenExpired = true;
           break;
         }
@@ -1004,15 +1013,15 @@ public class SalesforceConnection {
                     + " - "
                     + message);
             if (message != null
-                && (message.contains("INVALID_SESSION_ID")
-                    || message.contains("Invalid Session ID"))) {
+                && (message.contains(CONST_INVALID_SESSION_ID)
+                    || message.contains(CONST_INVALID_SESSION_ID_ALTERNATE))) {
               log.logDetailed("Found INVALID_SESSION_ID in exception chain at depth " + depth);
               isTokenExpired = true;
               break;
             }
 
             // Check for UnexpectedErrorFault with INVALID_SESSION_ID
-            if (current.getClass().getSimpleName().equals("UnexpectedErrorFault")) {
+            if (current instanceof UnexpectedErrorFault) {
               try {
                 // Try multiple approaches to get the exception code
                 String exceptionCode = null;
@@ -1033,7 +1042,7 @@ public class SalesforceConnection {
                     // Method 3: Check toString() output for INVALID_SESSION_ID
                     String toString = current.toString();
                     log.logDetailed("UnexpectedErrorFault toString: " + toString);
-                    if (toString.contains("INVALID_SESSION_ID")) {
+                    if (toString.contains(CONST_INVALID_SESSION_ID)) {
                       log.logDetailed("Found INVALID_SESSION_ID in UnexpectedErrorFault toString");
                       isTokenExpired = true;
                       break;
@@ -1043,7 +1052,7 @@ public class SalesforceConnection {
 
                 if (exceptionCode != null) {
                   log.logDetailed("UnexpectedErrorFault exceptionCode: " + exceptionCode);
-                  if ("INVALID_SESSION_ID".equals(exceptionCode)) {
+                  if (CONST_INVALID_SESSION_ID.equals(exceptionCode)) {
                     log.logDetailed(
                         "Found INVALID_SESSION_ID in UnexpectedErrorFault exceptionCode");
                     isTokenExpired = true;
@@ -1089,14 +1098,13 @@ public class SalesforceConnection {
           throw new HopException(
               BaseMessages.getString(PKG, "SalesforceConnection.ObjectNotQueryable", module));
         }
-        if (this.recordsFilter == SalesforceConnectionUtils.RECORDS_FILTER_UPDATED
-            || this.recordsFilter == SalesforceConnectionUtils.RECORDS_FILTER_DELETED) {
+        if ((this.recordsFilter == SalesforceConnectionUtils.RECORDS_FILTER_UPDATED
+                || this.recordsFilter == SalesforceConnectionUtils.RECORDS_FILTER_DELETED)
+            && !describeSObjectResult.isReplicateable()) {
           // The object must be replicateable
-          if (!describeSObjectResult.isReplicateable()) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "SalesforceConnection.Error.ObjectNotReplicable", getModule()));
-          }
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "SalesforceConnection.Error.ObjectNotReplicable", getModule()));
         }
       }
 
@@ -1487,11 +1495,11 @@ public class SalesforceConnection {
   }
 
   private boolean isIdField(Field field) {
-    return field.getType() == ID_FIELD_TYPE ? true : false;
+    return field.getType() == ID_FIELD_TYPE;
   }
 
   private boolean isReferenceField(Field field) {
-    return field.getType() == REFERENCE_FIELD_TYPE ? true : false;
+    return field.getType() == REFERENCE_FIELD_TYPE;
   }
 
   /**

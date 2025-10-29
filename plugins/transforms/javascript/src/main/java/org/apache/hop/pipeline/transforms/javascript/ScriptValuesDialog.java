@@ -1375,14 +1375,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
           }
 
           // End Script!
-        } catch (EvaluatorException e) {
-          String position = "(" + e.lineNumber() + ":" + e.columnNumber() + ")";
-          String message =
-              BaseMessages.getString(
-                  PKG, "ScriptValuesDialogMod.Exception.CouldNotExecuteScript", position);
-          testException = new HopException(message, e);
-          retval = false;
-        } catch (JavaScriptException e) {
+        } catch (EvaluatorException | JavaScriptException e) {
           String position = "(" + e.lineNumber() + ":" + e.columnNumber() + ")";
           String message =
               BaseMessages.getString(

@@ -954,31 +954,28 @@ public class DatabaseExplorerDialog extends Dialog {
       // Get the parent.
       String table = ti[0].getText();
       String[] path = ConstUi.getTreeStrings(ti[0]);
-      if (path.length == 3) {
-        if (STRING_TABLES.equalsIgnoreCase(path[1])
-            || STRING_VIEWS.equalsIgnoreCase(path[1])
-            || STRING_SYNONYMS.equalsIgnoreCase(path[1])) {
-          schemaName = null;
-          tableName = table;
-          String[] st = tableName.split("\\.", 2);
-          if (st.length > 1) { // we have a dot in there and need to separate
-            schemaName = st[0];
-            tableName = st[1];
-          }
-          dispose();
+      if (path.length == 3
+          && (STRING_TABLES.equalsIgnoreCase(path[1])
+              || STRING_VIEWS.equalsIgnoreCase(path[1])
+              || STRING_SYNONYMS.equalsIgnoreCase(path[1]))) {
+        schemaName = null;
+        tableName = table;
+        String[] st = tableName.split("\\.", 2);
+        if (st.length > 1) { // we have a dot in there and need to separate
+          schemaName = st[0];
+          tableName = st[1];
         }
+        dispose();
       }
-      if (path.length == 4) {
-        if (STRING_SCHEMAS.equals(path[1]) || STRING_CATALOG.equals(path[1])) {
-          if (splitSchemaAndTable) {
-            schemaName = path[2];
-            tableName = path[3];
-          } else {
-            schemaName = null;
-            tableName = dbMeta.getQuotedSchemaTableCombination(variables, path[2], path[3]);
-          }
-          dispose();
+      if (path.length == 4 && (STRING_SCHEMAS.equals(path[1]) || STRING_CATALOG.equals(path[1]))) {
+        if (splitSchemaAndTable) {
+          schemaName = path[2];
+          tableName = path[3];
+        } else {
+          schemaName = null;
+          tableName = dbMeta.getQuotedSchemaTableCombination(variables, path[2], path[3]);
         }
+        dispose();
       }
     }
   }

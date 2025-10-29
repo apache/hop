@@ -240,29 +240,29 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
               public void run() {
                 // Do nothing if we haven't started yet.
                 //
-                if (eventProcessor.getLastIterationTime() > 0) {
-                  if (eventProcessor.getPassedRowsCount() > 0) {
-                    long now = System.currentTimeMillis();
+                if (eventProcessor.getLastIterationTime() > 0
+                    && eventProcessor.getPassedRowsCount() > 0) {
 
-                    long diff = now - eventProcessor.getLastIterationTime();
-                    if (diff > data.sttMaxWaitTime) {
-                      logDetailed(
-                          "Stalled rows detected with wait time of " + ((double) diff / 1000));
+                  long now = System.currentTimeMillis();
 
-                      // Call one iteration but halt anything else first.
-                      //
-                      try {
-                        eventProcessor.startWait();
-                        eventProcessor.doOneIteration();
-                      } catch (Exception e) {
-                        throw new RuntimeException(
-                            "Error in batch iteration when max wait time was exceeded", e);
-                      } finally {
-                        eventProcessor.endWait();
-                      }
-                      logDetailed("Done processing after max wait time.");
-                      ExecutorUtil.cleanup(timer, 1);
+                  long diff = now - eventProcessor.getLastIterationTime();
+                  if (diff > data.sttMaxWaitTime) {
+                    logDetailed(
+                        "Stalled rows detected with wait time of " + ((double) diff / 1000));
+
+                    // Call one iteration but halt anything else first.
+                    //
+                    try {
+                      eventProcessor.startWait();
+                      eventProcessor.doOneIteration();
+                    } catch (Exception e) {
+                      throw new RuntimeException(
+                          "Error in batch iteration when max wait time was exceeded", e);
+                    } finally {
+                      eventProcessor.endWait();
                     }
+                    logDetailed("Done processing after max wait time.");
+                    ExecutorUtil.cleanup(timer, 1);
                   }
                 }
               }

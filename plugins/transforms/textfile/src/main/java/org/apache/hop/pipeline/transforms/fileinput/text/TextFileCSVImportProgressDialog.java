@@ -142,13 +142,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
       pmd.run(true, op);
-    } catch (InvocationTargetException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "TextFileCSVImportProgressDialog.ErrorScanningFile.Title"),
-          BaseMessages.getString(PKG, "TextFileCSVImportProgressDialog.ErrorScanningFile.Message"),
-          e);
-    } catch (InterruptedException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "TextFileCSVImportProgressDialog.ErrorScanningFile.Title"),

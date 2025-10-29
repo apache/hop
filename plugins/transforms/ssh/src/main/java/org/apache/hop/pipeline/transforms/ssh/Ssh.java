@@ -156,10 +156,8 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
 
       putRow(data.outputRowMeta, rowData);
 
-      if (checkFeedback(getLinesRead())) {
-        if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "SSH.LineNumber", "" + getLinesRead()));
-        }
+      if (checkFeedback(getLinesRead()) && isDetailed()) {
+        logDetailed(BaseMessages.getString(PKG, "SSH.LineNumber", "" + getLinesRead()));
       }
     } catch (Exception e) {
 

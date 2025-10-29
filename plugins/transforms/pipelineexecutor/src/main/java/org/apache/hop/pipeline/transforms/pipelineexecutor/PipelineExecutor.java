@@ -123,12 +123,11 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       if (pipelineExecutorData.groupSize < 0) {
         if (pipelineExecutorData.groupFieldIndex >= 0) { // grouping by field
           Object groupFieldData = row[pipelineExecutorData.groupFieldIndex];
-          if (pipelineExecutorData.prevGroupFieldData != null) {
-            if (pipelineExecutorData.groupFieldMeta.compare(
-                    pipelineExecutorData.prevGroupFieldData, groupFieldData)
-                != 0) {
-              executePipeline(getLastIncomingFieldValues());
-            }
+          if (pipelineExecutorData.prevGroupFieldData != null
+              && pipelineExecutorData.groupFieldMeta.compare(
+                      pipelineExecutorData.prevGroupFieldData, groupFieldData)
+                  != 0) {
+            executePipeline(getLastIncomingFieldValues());
           }
           pipelineExecutorData.prevGroupFieldData = groupFieldData;
         } else if (pipelineExecutorData.groupTime > 0) { // grouping by execution time
@@ -146,10 +145,9 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
       // Grouping by size.
       // If group buffer size exceeds specified limit, then execute pipeline and flush group buffer.
-      if (pipelineExecutorData.groupSize > 0) {
-        if (pipelineExecutorData.groupBuffer.size() >= pipelineExecutorData.groupSize) {
-          executePipeline(incomingFieldValues);
-        }
+      if (pipelineExecutorData.groupSize > 0
+          && pipelineExecutorData.groupBuffer.size() >= pipelineExecutorData.groupSize) {
+        executePipeline(incomingFieldValues);
       }
 
       return true;
@@ -298,7 +296,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   }
 
   @VisibleForTesting
-  void passParametersToPipeline(List<String> incomingFieldValues) throws HopException {
+  void passParametersToPipeline(List<String> incomingFieldValues) {
     // The values of the incoming fields from the previous transform.
     if (incomingFieldValues == null) {
       incomingFieldValues = new ArrayList<>();
@@ -326,7 +324,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       incomingFields = Arrays.asList(data.getInputRowMeta().getFieldNames());
     }
 
-    /////////////////////////////////////////////
     // For all parameters declared in pipelineExecutor
     for (int i = 0; i < parameters.size(); i++) {
       String currentVariableToUpdate = (String) resolvingValuesMap.keySet().toArray()[i];
@@ -385,7 +382,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
             resolvingValuesMap.get(parameters.get(i).getVariable()));
       }
     }
-    /////////////////////////////////////////////
 
     // Transform the values of the resolvingValuesMap into a String array "inputFieldValues" to be
     // passed as parameter..

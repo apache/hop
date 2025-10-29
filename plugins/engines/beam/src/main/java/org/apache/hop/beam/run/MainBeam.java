@@ -80,6 +80,8 @@ public class MainBeam {
                 System.out.println("Environnment configuration file: " + value);
                 environmentFile = value;
                 break;
+              default:
+                break;
             }
           }
         }

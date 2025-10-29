@@ -116,10 +116,7 @@ public class GetTableSizeProgressDialog {
       new Thread(run).start();
 
       pmd.run(true, op);
-    } catch (InvocationTargetException e) {
-      showErrorDialog(e);
-      return null;
-    } catch (InterruptedException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       showErrorDialog(e);
       return null;
     }

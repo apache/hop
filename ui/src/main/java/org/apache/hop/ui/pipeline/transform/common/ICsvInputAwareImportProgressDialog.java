@@ -66,10 +66,8 @@ public interface ICsvInputAwareImportProgressDialog {
     // straight from the row
     // object
     if (string == null) {
-      if ((row.length <= index)) {
-        if (failOnParseError) {
-          throw new HopException(new NullPointerException());
-        }
+      if ((row.length <= index) && failOnParseError) {
+        throw new HopException(new NullPointerException());
       }
       string = row.length <= index || row[index] == null ? null : row[index].toString();
     }

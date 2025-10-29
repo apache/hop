@@ -161,6 +161,8 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
           case BOOLEAN:
             hopType = IValueMeta.TYPE_BOOLEAN;
             break;
+          default:
+            break;
         }
         IValueMeta valueMeta = ValueMetaFactory.createValueMeta(sourceField, hopType, -1, -1);
         rowMeta.addValueMeta(valueMeta);

@@ -268,13 +268,7 @@ public class EditRowsDialog {
           //
           show = show.substring(0, MAX_BINARY_STRING_PREVIEW_SIZE);
         }
-      } catch (HopValueException e) {
-        nrErrors++;
-        if (nrErrors < 25) {
-          log.logError(Const.getStackTracker(e));
-        }
-        show = null;
-      } catch (ArrayIndexOutOfBoundsException e) {
+      } catch (HopValueException | ArrayIndexOutOfBoundsException e) {
         nrErrors++;
         if (nrErrors < 25) {
           log.logError(Const.getStackTracker(e));

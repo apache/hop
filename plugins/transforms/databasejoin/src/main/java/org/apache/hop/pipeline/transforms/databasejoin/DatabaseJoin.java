@@ -192,10 +192,8 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
     try {
       lookupValues(getInputRowMeta(), r); // add new values to the row in rowset[0].
 
-      if (checkFeedback(getLinesRead())) {
-        if (isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "DatabaseJoin.Log.LineNumber") + getLinesRead());
-        }
+      if (checkFeedback(getLinesRead()) && isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "DatabaseJoin.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
 

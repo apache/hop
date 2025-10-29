@@ -72,65 +72,41 @@ public class LdapInputDialog extends BaseTransformDialog {
   public static final String CONST_SYSTEM_COMBO_NO = "System.Combo.No";
 
   private Button wInclRownum;
-
   private Button wSetPaging;
-
   private Label wlPageSize;
   private TextVar wPageSize;
-
   private Button wUsingAuthentication;
-
   private Label wlInclRownumField;
   private TextVar wInclRownumField;
-
   private Text wLimit;
-
   private TextVar wTimeLimit;
-
   private TextVar wMultiValuedSeparator;
-
   private TableView wFields;
-
   private final LdapInputMeta input;
-
   private TextVar wHost;
-
   private Label wlUserName;
   private TextVar wUserName;
-
   private Label wlPassword;
   private TextVar wPassword;
-
   private TextVar wPort;
-
   private Label wlSearchBase;
   private TextVar wSearchBase;
-
   private Label wlTrustStorePath;
   private TextVar wTrustStorePath;
-
   private Label wlTrustStorePassword;
   private TextVar wTrustStorePassword;
-
   private Label wlSetTrustStore;
   private Button wSetTrustStore;
-
   private Label wlTrustAll;
   private Button wTrustAll;
-
   private Label wlFilterString;
   private StyledTextComp wFilterString;
-
   private Button wDynamicBase;
-
   private Label wlSearchBaseField;
   private CCombo wSearchBaseField;
-
   private Button wDynamicFilter;
-
   private Label wlFilterField;
   private CCombo wFilterField;
-
   private CCombo wSearchScope;
 
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
@@ -1248,12 +1224,6 @@ public class LdapInputDialog extends BaseTransformDialog {
       wFields.setRowNums();
       wFields.optWidth(true);
 
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "LdapInputDialog.ErrorGettingColums.DialogTitle"),
-          BaseMessages.getString(PKG, "LdapInputDialog.ErrorGettingColums.DialogMessage"),
-          e);
     } catch (Exception e) {
       new ErrorDialog(
           shell,

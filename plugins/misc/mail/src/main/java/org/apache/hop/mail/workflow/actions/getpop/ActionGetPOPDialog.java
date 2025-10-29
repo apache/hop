@@ -1621,24 +1621,21 @@ public class ActionGetPOPDialog extends ActionDialog {
   }
 
   private void checkFolder(String folderName) {
-    if (!Utils.isEmpty(folderName)) {
-      if (connect()) {
-        // check folder
-        if (mailConn.folderExists(folderName)) {
-          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPFolderExists.OK", folderName)
-                  + Const.CR);
-          mb.setText(BaseMessages.getString(PKG, "ActionGetPOP.IMAPFolderExists.Title.Ok"));
-          mb.open();
-        } else {
-          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "ActionGetPOP.Connected.NOK.IMAPFolderExists", folderName)
-                  + Const.CR);
-          mb.setText(BaseMessages.getString(PKG, "ActionGetPOP.IMAPFolderExists.Title.Bad"));
-          mb.open();
-        }
+    if (!Utils.isEmpty(folderName) && connect()) {
+      // check folder
+      if (mailConn.folderExists(folderName)) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+        mb.setMessage(
+            BaseMessages.getString(PKG, "ActionGetPOP.IMAPFolderExists.OK", folderName) + Const.CR);
+        mb.setText(BaseMessages.getString(PKG, "ActionGetPOP.IMAPFolderExists.Title.Ok"));
+        mb.open();
+      } else {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(
+            BaseMessages.getString(PKG, "ActionGetPOP.Connected.NOK.IMAPFolderExists", folderName)
+                + Const.CR);
+        mb.setText(BaseMessages.getString(PKG, "ActionGetPOP.IMAPFolderExists.Title.Bad"));
+        mb.open();
       }
     }
   }

@@ -516,10 +516,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                       PKG, "ActionZipFile.Log.TotalZippedFiles", "" + zippedFiles.size()));
             }
             // Delete Temp File
-            if (tempFile != null) {
-              if (!tempFile.delete()) {
-                throw new HopException("Unable to delete temporary file " + tempFile);
-              }
+            if (tempFile != null && !tempFile.delete()) {
+              throw new HopException("Unable to delete temporary file " + tempFile);
             }
 
             // -----Get the list of Zipped Files and Move or Delete Them
@@ -643,7 +641,6 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       }
       out.flush();
       out.closeEntry();
-      // out.finish();
 
       // Close the current file input stream
     }
@@ -870,12 +867,10 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
     // arguments from previous
 
-    if (fromPrevious) {
-      if (isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(
-                PKG, "ActionZipFile.ArgFromPrevious.Found", (rows != null ? rows.size() : 0) + ""));
-      }
+    if (fromPrevious && isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "ActionZipFile.ArgFromPrevious.Found", (rows != null ? rows.size() : 0) + ""));
     }
     if (fromPrevious && rows != null) {
       try {

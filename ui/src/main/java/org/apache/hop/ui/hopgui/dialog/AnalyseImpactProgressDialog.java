@@ -77,15 +77,7 @@ public class AnalyseImpactProgressDialog {
     try {
       ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
       pmd.run(true, op);
-    } catch (InvocationTargetException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(
-              PKG, "AnalyseImpactProgressDialog.Dialog.UnableToAnalyzeImpact.Title"),
-          BaseMessages.getString(
-              PKG, "AnalyseImpactProgressDialog.Dialog.UnableToAnalyzeImpact.Messages"),
-          e);
-    } catch (InterruptedException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(

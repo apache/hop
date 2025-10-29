@@ -57,45 +57,25 @@ public class ActionFtpPutDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFtpPut.class;
 
   private Text wName;
-
   private TextVar wServerName;
-
   private TextVar wServerPort;
-
   private TextVar wUserName;
-
   private TextVar wPassword;
-
   private TextVar wLocalDirectory;
-
   private TextVar wRemoteDirectory;
-
   private TextVar wWildcard;
-
   private Button wRemove;
-
   private ActionFtpPut action;
-
   private boolean changed;
-
   private Button wBinaryMode;
-
   private TextVar wTimeout;
-
   private Button wOnlyNew;
-
   private Button wActive;
-
   private Combo wControlEncoding;
-
   private LabelTextVar wProxyPort;
-
   private LabelTextVar wProxyUsername;
-
   private LabelTextVar wProxyPassword;
-
   private LabelTextVar wProxyHost;
-
   private LabelTextVar wSocksProxyHost;
   private LabelTextVar wSocksProxyPort;
   private LabelTextVar wSocksProxyUsername;
@@ -848,15 +828,12 @@ public class ActionFtpPutDialog extends ActionDialog {
   }
 
   private void checkRemoteFolder(String remoteFoldername) {
-    if (!Utils.isEmpty(remoteFoldername)) {
-      if (connectToFtp(true, remoteFoldername)) {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-        mb.setMessage(
-            BaseMessages.getString(PKG, "ActionFtpPut.FolderExists.OK", remoteFoldername)
-                + Const.CR);
-        mb.setText(BaseMessages.getString(PKG, "ActionFtpPut.FolderExists.Title.Ok"));
-        mb.open();
-      }
+    if (!Utils.isEmpty(remoteFoldername) && connectToFtp(true, remoteFoldername)) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "ActionFtpPut.FolderExists.OK", remoteFoldername) + Const.CR);
+      mb.setText(BaseMessages.getString(PKG, "ActionFtpPut.FolderExists.Title.Ok"));
+      mb.open();
     }
   }
 

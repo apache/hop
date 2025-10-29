@@ -780,10 +780,10 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
         TableEditor editor = wNodeLabels.getEditor();
         if (editor != null
             && editor.getEditor() != null
-            && (editor.getEditor() instanceof Text text)) {
-          if (!text.isDisposed() && !labels.contains(text.getText())) {
-            labels.add(text.getText());
-          }
+            && (editor.getEditor() instanceof Text text)
+            && !text.isDisposed()
+            && !labels.contains(text.getText())) {
+          labels.add(text.getText());
         }
 
         activeNode.setLabels(labels);
@@ -1382,7 +1382,6 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     // Generate list of random points in the bounding box
     //
     java.util.List<Point> bestCoordinates = generateRandomPoints(bounds, nrNodes);
-    ;
     Scoring bestScore = calculateGraphScore(bestCoordinates, bounds, optDistance, nodesizes);
 
     System.out.println(

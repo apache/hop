@@ -816,6 +816,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             editAction(actionMeta);
             return;
           }
+          break;
         default:
           break;
       }
@@ -4295,10 +4296,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               hopDisplay()
                   .asyncExec(
                       () -> {
-                        if (!HopGuiWorkflowGraph.this.canvas.isDisposed()) {
-                          if (perspective.isActive() && HopGuiWorkflowGraph.this.isVisible()) {
-                            updateGui();
-                          }
+                        if (!HopGuiWorkflowGraph.this.canvas.isDisposed()
+                            && perspective.isActive()
+                            && HopGuiWorkflowGraph.this.isVisible()) {
+                          updateGui();
                         }
                       });
             }

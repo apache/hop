@@ -212,13 +212,12 @@ public abstract class LoadSaveBase<T> {
         for (Method method : validatorMethods) {
           if ("validateTestObject".equals(method.getName())) {
             Class<?>[] types = method.getParameterTypes();
-            if (types.length == 2) {
-              if (types[1] == Object.class
-                  && (originalValue == null
-                      || types[0].isAssignableFrom(originalValue.getClass()))) {
-                validatorMethod = method;
-                break;
-              }
+            if (types.length == 2
+                && (types[1] == Object.class
+                    && (originalValue == null
+                        || types[0].isAssignableFrom(originalValue.getClass())))) {
+              validatorMethod = method;
+              break;
             }
           }
         }

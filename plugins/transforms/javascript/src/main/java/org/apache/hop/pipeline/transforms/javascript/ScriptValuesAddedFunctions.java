@@ -1852,10 +1852,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
               + CONST_REASON
               + signal.getMessage()
               + "\")");
-    } catch (IOException signal) {
-      Context.reportError(
-          "Error while reading file \"" + fileName + CONST_REASON + signal.getMessage() + "\")");
-    } catch (HopFileException signal) {
+    } catch (IOException | HopFileException signal) {
       Context.reportError(
           "Error while reading file \"" + fileName + CONST_REASON + signal.getMessage() + "\")");
     } finally {
@@ -2141,11 +2138,9 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         try {
           fileObject = HopVfs.getFileObject(Context.toString(argList[0]));
           if (fileObject.exists()) {
-            if (fileObject.getType() == FileType.FILE) {
-              if (!fileObject.delete()) {
-                Context.reportRuntimeError(
-                    "We can not delete file [" + Context.toString(argList[0]) + "]!");
-              }
+            if (fileObject.getType() == FileType.FILE && !fileObject.delete()) {
+              Context.reportRuntimeError(
+                  "We can not delete file [" + Context.toString(argList[0]) + "]!");
             }
 
           } else {
@@ -2646,19 +2641,24 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         // MONTHS
       case 5:
         cal.set(Calendar.MONTH, 0);
+        break;
         // DAYS
       case 4:
         cal.set(Calendar.DAY_OF_MONTH, 1);
+        break;
         // HOURS
       case 3:
         cal.set(Calendar.HOUR_OF_DAY, 0);
+        break;
         // MINUTES
       case 2:
         cal.set(Calendar.MINUTE, 0);
+        break;
         // SECONDS
       case 1:
         cal.set(Calendar.SECOND, 0);
         // MILI-SECONDS
+        break;
       case 0:
         cal.set(Calendar.MILLISECOND, 0);
         break;

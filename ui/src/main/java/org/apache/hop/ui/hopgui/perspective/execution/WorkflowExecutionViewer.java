@@ -844,6 +844,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         selectedAction = (ActionMeta) areaOwner.getParent();
         refreshActionData();
         break;
+      default:
+        break;
     }
 
     redraw();

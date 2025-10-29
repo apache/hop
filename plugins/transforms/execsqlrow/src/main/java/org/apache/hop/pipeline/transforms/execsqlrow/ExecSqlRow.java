@@ -152,13 +152,11 @@ public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> {
               meta.getReadField());
       row = RowDataUtil.addRowData(row, getInputRowMeta().size(), add.getData());
 
-      if (meta.getCommitSize() > 0) {
-        if (!data.db.isAutoCommit()) {
-          if (meta.getCommitSize() == 1) {
-            data.db.commit();
-          } else if (getLinesWritten() % meta.getCommitSize() == 0) {
-            data.db.commit();
-          }
+      if (meta.getCommitSize() > 0 && !data.db.isAutoCommit()) {
+        if (meta.getCommitSize() == 1) {
+          data.db.commit();
+        } else if (getLinesWritten() % meta.getCommitSize() == 0) {
+          data.db.commit();
         }
       }
 

@@ -127,16 +127,14 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
                     // we have a carriage return
                     // keep track of it..maybe we will have a line feed right after :-)
                     prevCR = true;
-                  } else if (buf[i] == '\n') {
+                  } else if (buf[i] == '\n' && prevCR) {
                     // we have a line feed
                     // let's see if we had previously a carriage return
-                    if (prevCR) {
-                      // we have a carriage return followed by a line feed
-                      data.rowNumber++;
-                      // Maybe we won't have data after
-                      data.foundData = false;
-                      prevCR = false;
-                    }
+                    // we have a carriage return followed by a line feed
+                    data.rowNumber++;
+                    // Maybe we won't have data after
+                    data.foundData = false;
+                    prevCR = false;
                   }
                 } else {
                   // we have another char (other than \n , \r)

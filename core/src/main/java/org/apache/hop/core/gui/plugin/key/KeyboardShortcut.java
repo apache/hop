@@ -179,6 +179,8 @@ public class KeyboardShortcut {
         case 29:
           str.append("F20");
           break;
+        default:
+          break;
       }
     }
 

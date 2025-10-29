@@ -59,11 +59,10 @@ public class HopRestServicesStartupProjectsConfig
 
     try {
       // Configure the project and environment if needed
-      if (StringUtils.isNotEmpty(projectName) || StringUtils.isNotEmpty(environmentName)) {
-        if (ProjectsOptionPlugin.configure(
-            log, variables, hasHopMetadataProvider, projectName, environmentName)) {
-          log.logBasic("Configured project or environment for the Hop REST services");
-        }
+      if ((StringUtils.isNotEmpty(projectName) || StringUtils.isNotEmpty(environmentName))
+          && ProjectsOptionPlugin.configure(
+              log, variables, hasHopMetadataProvider, projectName, environmentName)) {
+        log.logBasic("Configured project or environment for the Hop REST services");
       }
     } catch (Exception e) {
       throw new HopException(

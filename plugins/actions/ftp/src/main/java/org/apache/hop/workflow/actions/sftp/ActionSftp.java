@@ -602,10 +602,8 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
         logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.Found", "" + filelist.length));
       }
 
-      if (!copyprevious) {
-        if (!Utils.isEmpty(realWildcard)) {
-          pattern = Pattern.compile(realWildcard);
-        }
+      if (!copyprevious && !Utils.isEmpty(realWildcard)) {
+        pattern = Pattern.compile(realWildcard);
       }
 
       // Get the files in the list...

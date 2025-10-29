@@ -146,11 +146,7 @@ public class SftpClient {
       }
       s = jsch.getSession(userName, serverIP.getHostAddress(), serverPort);
       s.setConfig(PREFERRED_AUTH_CONFIG_NAME, getPreferredAuthentications());
-    } catch (IOException e) {
-      throw new HopWorkflowException(e);
-    } catch (HopFileException e) {
-      throw new HopWorkflowException(e);
-    } catch (JSchException e) {
+    } catch (IOException | JSchException | HopFileException e) {
       throw new HopWorkflowException(e);
     }
   }
@@ -196,10 +192,10 @@ public class SftpClient {
       if (v != null) {
         for (int i = 0; i < v.size(); i++) {
           Object obj = v.elementAt(i);
-          if (obj != null && obj instanceof com.jcraft.jsch.ChannelSftp.LsEntry lse) {
-            if (!lse.getAttrs().isDir()) {
-              o.add(lse.getFilename());
-            }
+          if (obj != null
+              && obj instanceof com.jcraft.jsch.ChannelSftp.LsEntry lse
+              && !lse.getAttrs().isDir()) {
+            o.add(lse.getFilename());
           }
         }
       }
@@ -219,9 +215,7 @@ public class SftpClient {
     try {
       localStream = HopVfs.getOutputStream(localFile, false);
       c.get(remoteFile, localStream);
-    } catch (SftpException e) {
-      throw new HopWorkflowException(e);
-    } catch (IOException e) {
+    } catch (SftpException | IOException e) {
       throw new HopWorkflowException(e);
     } finally {
       if (localStream != null) {
@@ -305,9 +299,7 @@ public class SftpClient {
           c.mkdir(f);
         }
       }
-    } catch (ArrayIndexOutOfBoundsException e) {
-      throw new HopWorkflowException(e);
-    } catch (SftpException e) {
+    } catch (ArrayIndexOutOfBoundsException | SftpException e) {
       throw new HopWorkflowException(e);
     }
   }

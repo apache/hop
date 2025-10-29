@@ -102,8 +102,11 @@ public class ValueMetaUuid extends ValueMetaBase {
                 return (UUID) convertBinaryStringToNativeType((byte[]) data2);
               case STORAGE_TYPE_INDEXED:
                 return (UUID) meta2.getIndex()[(Integer) data2];
+              default:
+                break;
             }
           }
+          break;
         case TYPE_STRING:
           {
             switch (meta2.getStorageType()) {
@@ -117,10 +120,16 @@ public class ValueMetaUuid extends ValueMetaBase {
                 return (UUID) convertBinaryStringToNativeType((byte[]) data2);
               case STORAGE_TYPE_INDEXED:
                 return UUID.fromString((String) meta2.getIndex()[(Integer) data2]);
+              default:
+                break;
             }
           }
+          break;
+        default:
+          break;
       }
     } catch (IllegalArgumentException ignore) {
+      // Do nothing
     }
     throw new HopValueException(
         this + " : I can't convert the specified value to data type : UUID");

@@ -56,10 +56,11 @@ public class ValueMetaString extends ValueMetaBase {
           case STORAGE_TYPE_INDEXED:
             // Resolve the value, then fall through to NORMAL handling
             object = index[(Integer) object];
-          case STORAGE_TYPE_NORMAL:
+          case STORAGE_TYPE_NORMAL, STORAGE_TYPE_BINARY_STRING:
             // JsonUtil handles both NORMAL and BINARY_STRING cases
-          case STORAGE_TYPE_BINARY_STRING:
             return JsonUtil.parseTextValue(object);
+          default:
+            break;
         }
       }
     } catch (Exception e) {

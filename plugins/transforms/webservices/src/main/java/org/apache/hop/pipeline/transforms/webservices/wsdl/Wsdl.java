@@ -49,11 +49,11 @@ import org.w3c.dom.Document;
 public final class Wsdl implements java.io.Serializable {
   private static final long serialVersionUID = 1L;
   public static final String CONST_COULD_NOT_LOAD_WSDL_FILE = "Could not load WSDL file: ";
-  private Port _port;
-  private final Definition _wsdlDefinition;
-  private final Service _service;
-  private final WsdlTypes _wsdlTypes;
-  private HashMap<String, WsdlOperation> _operationCache;
+  private Port port;
+  private final Definition wsdlDefinition;
+  private final Service service;
+  private final WsdlTypes wsdlTypes;
+  private HashMap<String, WsdlOperation> operationHashMap;
   private URI wsdlURI = null;
 
   /**
@@ -72,39 +72,37 @@ public final class Wsdl implements java.io.Serializable {
 
     this.wsdlURI = wsdlURI;
     try {
-      _wsdlDefinition = parse(wsdlURI, username, password);
+      wsdlDefinition = parse(wsdlURI, username, password);
     } catch (AuthenticationException ae) {
       // throw this again since HopException is catching it
       throw ae;
-    } catch (WSDLException e) {
-      throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
-    } catch (HopException e) {
+    } catch (WSDLException | HopException e) {
       throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     }
     if (serviceQName == null) {
-      _service = (Service) _wsdlDefinition.getServices().values().iterator().next();
+      service = (Service) wsdlDefinition.getServices().values().iterator().next();
     } else {
-      _service = _wsdlDefinition.getService(serviceQName);
-      if (_service == null) {
+      service = wsdlDefinition.getService(serviceQName);
+      if (service == null) {
         throw new IllegalArgumentException(
             "Service: " + serviceQName + " is not defined in the WSDL file " + wsdlURI);
       }
     }
 
     if (portName == null) {
-      _port = getSoapPort(_service.getPorts().values());
+      port = getSoapPort(service.getPorts().values());
     } else {
-      _port = _service.getPort(portName);
-      if (_port == null) {
+      port = service.getPort(portName);
+      if (port == null) {
         throw new IllegalArgumentException(
             "Port: " + portName + " is not defined in the service: " + serviceQName);
       } else {
-        _port = _service.getPort(portName);
+        port = service.getPort(portName);
       }
     }
 
-    _wsdlTypes = new WsdlTypes(_wsdlDefinition);
-    _operationCache = new HashMap<>();
+    wsdlTypes = new WsdlTypes(wsdlDefinition);
+    operationHashMap = new HashMap<>();
   }
 
   /**
@@ -117,9 +115,9 @@ public final class Wsdl implements java.io.Serializable {
     Port soapPort = null;
     Iterator<?> iterator = portCollection.iterator();
     while (iterator.hasNext()) {
-      Port port = (Port) iterator.next();
-      if (WsdlUtils.isSoapPort(port)) {
-        soapPort = port;
+      Port tempPort = (Port) iterator.next();
+      if (WsdlUtils.isSoapPort(tempPort)) {
+        soapPort = tempPort;
         break;
       }
     }
@@ -148,30 +146,28 @@ public final class Wsdl implements java.io.Serializable {
 
     // load and parse the WSDL
     try {
-      _wsdlDefinition = parse(wsdlLocator, username, password);
+      wsdlDefinition = parse(wsdlLocator, username, password);
     } catch (AuthenticationException ae) {
       // throw it again or HopException will catch it
       throw ae;
-    } catch (WSDLException e) {
-      throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
-    } catch (HopException e) {
+    } catch (WSDLException | HopException e) {
       throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     }
 
-    _service = _wsdlDefinition.getService(serviceQName);
-    if (_service == null) {
+    service = wsdlDefinition.getService(serviceQName);
+    if (service == null) {
       throw new IllegalArgumentException(
           "Service: " + serviceQName + " is not defined in the WSDL file.");
     }
 
-    _port = _service.getPort(portName);
-    if (_port == null) {
+    port = service.getPort(portName);
+    if (port == null) {
       throw new IllegalArgumentException(
           "Port: " + portName + " is not defined in the service: " + serviceQName);
     }
 
-    _wsdlTypes = new WsdlTypes(_wsdlDefinition);
-    _operationCache = new HashMap<>();
+    wsdlTypes = new WsdlTypes(wsdlDefinition);
+    operationHashMap = new HashMap<>();
   }
 
   /**
@@ -181,7 +177,7 @@ public final class Wsdl implements java.io.Serializable {
    * @return WsdlComplexTypes instance.
    */
   public WsdlComplexTypes getComplexTypes() {
-    return _wsdlTypes.getNamedComplexTypes();
+    return wsdlTypes.getNamedComplexTypes();
   }
 
   /**
@@ -193,18 +189,18 @@ public final class Wsdl implements java.io.Serializable {
   public WsdlOperation getOperation(String operationName) throws HopTransformException {
 
     // is the operation in the cache?
-    if (_operationCache.containsKey(operationName)) {
-      return _operationCache.get(operationName);
+    if (operationHashMap.containsKey(operationName)) {
+      return operationHashMap.get(operationName);
     }
 
-    Binding b = _port.getBinding();
+    Binding b = port.getBinding();
     PortType pt = b.getPortType();
     Operation op = pt.getOperation(operationName, null, null);
     if (op != null) {
       try {
-        WsdlOperation wop = new WsdlOperation(b, op, _wsdlTypes);
+        WsdlOperation wop = new WsdlOperation(b, op, wsdlTypes);
         // cache the operation
-        _operationCache.put(operationName, wop);
+        operationHashMap.put(operationName, wop);
         return wop;
       } catch (HopException kse) {
         LogChannel.GENERAL.logError(
@@ -224,7 +220,7 @@ public final class Wsdl implements java.io.Serializable {
   public List<WsdlOperation> getOperations() throws HopTransformException {
 
     List<WsdlOperation> opList = new ArrayList<>();
-    PortType pt = _port.getBinding().getPortType();
+    PortType pt = port.getBinding().getPortType();
 
     List<Operation> operations = pt.getOperations();
     for (Iterator<Operation> itr = operations.iterator(); itr.hasNext(); ) {
@@ -242,7 +238,7 @@ public final class Wsdl implements java.io.Serializable {
    * @return Name of the current port.
    */
   public String getPortName() {
-    return _port.getName();
+    return port.getName();
   }
 
   /**
@@ -253,7 +249,7 @@ public final class Wsdl implements java.io.Serializable {
    */
   public QName getPortTypeQName() {
 
-    Binding b = _port.getBinding();
+    Binding b = port.getBinding();
     return b.getPortType().getQName();
   }
 
@@ -263,7 +259,7 @@ public final class Wsdl implements java.io.Serializable {
    * @return String containing the service endpoint.
    */
   public String getServiceEndpoint() {
-    return WsdlUtils.getSOAPAddress(_port);
+    return WsdlUtils.getSOAPAddress(port);
   }
 
   /**
@@ -272,7 +268,7 @@ public final class Wsdl implements java.io.Serializable {
    * @return Service name.
    */
   public String getServiceName() {
-    return _service.getQName().getLocalPart();
+    return service.getQName().getLocalPart();
   }
 
   /**
@@ -281,7 +277,7 @@ public final class Wsdl implements java.io.Serializable {
    * @return The targetNamespace
    */
   public String getTargetNamespace() {
-    return _wsdlDefinition.getTargetNamespace();
+    return wsdlDefinition.getTargetNamespace();
   }
 
   /**
@@ -292,14 +288,14 @@ public final class Wsdl implements java.io.Serializable {
    */
   public void setPort(QName portName) {
 
-    Port port = _service.getPort(portName.getLocalPart());
-    if (port == null) {
+    Port tempPort = service.getPort(portName.getLocalPart());
+    if (tempPort == null) {
       throw new IllegalArgumentException(
           "Port name: '" + portName + "' was not found in the WSDL file.");
     }
 
-    _port = port;
-    _operationCache.clear();
+    this.port = tempPort;
+    operationHashMap.clear();
   }
 
   /**
@@ -384,6 +380,6 @@ public final class Wsdl implements java.io.Serializable {
    * @return WsdlTepes
    */
   public WsdlTypes getWsdlTypes() {
-    return this._wsdlTypes;
+    return this.wsdlTypes;
   }
 }

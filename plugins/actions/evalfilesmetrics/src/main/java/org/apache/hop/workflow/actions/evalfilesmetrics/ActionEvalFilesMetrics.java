@@ -853,10 +853,9 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
 
               if (!currentFile.getParent().toString().equals(sourcefilefolder.toString())) {
                 // Not in the Base Folder..Only if include sub folders
-                if (includeSubFolders) {
-                  if (getFileWildcard(currentFile.getName().getBaseName(), realWildcard)) {
-                    getFileSize(currentFile, result, parentWorkflow);
-                  }
+                if (includeSubFolders
+                    && getFileWildcard(currentFile.getName().getBaseName(), realWildcard)) {
+                  getFileSize(currentFile, result, parentWorkflow);
                 }
               } else {
                 // In the base folder

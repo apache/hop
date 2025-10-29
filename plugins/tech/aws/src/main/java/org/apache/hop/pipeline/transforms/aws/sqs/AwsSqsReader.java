@@ -90,9 +90,6 @@ public class AwsSqsReader {
       }
       return true;
 
-    } catch (AmazonClientException e) {
-      baseTransform.logError(e.getMessage());
-
     } catch (Exception e) {
       baseTransform.logError(e.getMessage());
     }

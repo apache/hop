@@ -249,12 +249,9 @@ public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorDa
               data.outputRowMeta.getString(r)));
     }
 
-    if (checkFeedback(data.rowsWritten)) {
-      if (isBasic()) {
-        logBasic(
-            BaseMessages.getString(
-                PKG, "RowGenerator.Log.LineNr", Long.toString(data.rowsWritten)));
-      }
+    if (checkFeedback(data.rowsWritten) && isBasic()) {
+      logBasic(
+          BaseMessages.getString(PKG, "RowGenerator.Log.LineNr", Long.toString(data.rowsWritten)));
     }
 
     return retval;

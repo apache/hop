@@ -187,7 +187,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
     if ((vCurrentRow == null && (nbRowProcess % meta.getCallTransform() != 0))
         || (vCurrentRow != null
-            && ((nbRowProcess > 0 && nbRowProcess % meta.getCallTransform() == 0)))
+            && (nbRowProcess > 0 && nbRowProcess % meta.getCallTransform() == 0))
         || (vCurrentRow == null && (!meta.hasFieldsIn()))) {
       requestSOAP(vCurrentRow, getInputRowMeta());
     }
@@ -304,7 +304,9 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
     for (Object[] vCurrentRow : data.argumentRows) {
 
       if (meta.getInFieldArgumentName() != null) {
-        xml.append("        <" + NS_PREFIX + ":")
+        xml.append("        <")
+            .append(NS_PREFIX)
+            .append(":")
             .append(meta.getInFieldArgumentName())
             .append(">\n");
       }
@@ -325,16 +327,15 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
             if (XsdType.TIME.equals(field.getXsdType())) {
               // Allow to deal with hours like 36:12:12 (> 24h)
               long millis = vCurrentValue.getDate(data).getTime() - dateRef.getTime();
-              xml.append(
-                  decFormat.format(millis / 3600000)
-                      + ":"
-                      + decFormat.format((millis % 3600000) / 60000)
-                      + ":"
-                      + decFormat.format(((millis % 60000) / 1000)));
+              xml.append(decFormat.format(millis / 3600000))
+                  .append(":")
+                  .append(decFormat.format((millis % 3600000) / 60000))
+                  .append(":")
+                  .append(decFormat.format(((millis % 60000) / 1000)));
             } else if (XsdType.DATE.equals(field.getXsdType())) {
               xml.append(dateFormat.format(vCurrentValue.getDate(data)));
             } else if (XsdType.BOOLEAN.equals(field.getXsdType())) {
-              xml.append(vCurrentValue.getBoolean(data) ? "true" : "false");
+              xml.append(Boolean.TRUE.equals(vCurrentValue.getBoolean(data)) ? "true" : "false");
             } else if (XsdType.DATE_TIME.equals(field.getXsdType())) {
               xml.append(dateTimeFormat.format(vCurrentValue.getDate(data)));
             } else if (vCurrentValue.isNumber()) {
@@ -361,7 +362,9 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
         }
       }
       if (meta.getInFieldArgumentName() != null) {
-        xml.append("        </" + NS_PREFIX + ":")
+        xml.append("        </")
+            .append(NS_PREFIX)
+            .append(":")
             .append(meta.getInFieldArgumentName())
             .append(">\n");
       }
@@ -386,8 +389,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
 
       vHttpMethod = getHttpMethod(cachedURLService);
 
-      HttpEntity requestEntity =
-          new ByteArrayEntity(xml.toString().getBytes(StandardCharsets.UTF_8));
+      HttpEntity requestEntity = new ByteArrayEntity(xml.getBytes(StandardCharsets.UTF_8));
       vHttpMethod.setEntity(requestEntity);
       HttpResponse httpResponse = cachedHttpClient.execute(vHttpMethod);
       int responseCode = httpResponse.getStatusLine().getStatusCode();
@@ -422,7 +424,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
                 PKG,
                 "WebServices.ERROR0001.ServerError",
                 Integer.toString(responseCode),
-                Const.NVL(new String(EntityUtils.toString(httpEntity, charSet.toString())), ""),
+                Const.NVL(EntityUtils.toString(httpEntity, charSet.toString()), ""),
                 cachedURLService));
       }
     } catch (UnknownHostException e) {
@@ -787,15 +789,13 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
                 Node childNode = childNodes.item(j);
 
                 field = meta.getFieldOutFromWsName(childNode.getNodeName(), ignoreNamespacePrefix);
-                if (field != null) {
-
-                  if (getNodeValue(outputRowData, childNode, field, transformer, false)) {
-                    // We found a match.
-                    // This means that we are dealing with a single row
-                    // It also means that we need to update the output index pointer
-                    //
-                    fieldsFound++;
-                  }
+                if (field != null
+                    && getNodeValue(outputRowData, childNode, field, transformer, false)) {
+                  // We found a match.
+                  // This means that we are dealing with a single row
+                  // It also means that we need to update the output index pointer
+                  //
+                  fieldsFound++;
                 }
               }
 

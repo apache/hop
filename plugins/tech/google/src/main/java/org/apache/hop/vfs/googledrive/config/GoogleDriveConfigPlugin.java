@@ -148,6 +148,8 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
           tokensFolder = ((TextVar) control).getText();
           GoogleDriveConfigSingleton.getConfig().setTokensFolder(tokensFolder);
           break;
+        default:
+          break;
       }
     }
     // Save the project...

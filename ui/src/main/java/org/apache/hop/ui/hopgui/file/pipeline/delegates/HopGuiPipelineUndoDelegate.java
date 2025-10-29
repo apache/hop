@@ -28,7 +28,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 public class HopGuiPipelineUndoDelegate {
-  private static final Class<?> PKG = HopGui.class;
 
   private HopGuiPipelineGraph pipelineGraph;
   private HopGui hopGui;
@@ -185,10 +184,8 @@ public class HopGuiPipelineUndoDelegate {
     }
 
     // OK, now check if we need to do this again...
-    if (pipelineMeta.viewNextUndo() != null) {
-      if (pipelineMeta.viewNextUndo().getNextAlso()) {
-        undoPipelineAction(handler, pipelineMeta);
-      }
+    if (pipelineMeta.viewNextUndo() != null && pipelineMeta.viewNextUndo().getNextAlso()) {
+      undoPipelineAction(handler, pipelineMeta);
     }
   }
 
@@ -320,10 +317,8 @@ public class HopGuiPipelineUndoDelegate {
     }
 
     // OK, now check if we need to do this again...
-    if (pipelineMeta.viewNextUndo() != null) {
-      if (pipelineMeta.viewNextUndo().getNextAlso()) {
-        redoPipelineAction(handler, pipelineMeta);
-      }
+    if (pipelineMeta.viewNextUndo() != null && pipelineMeta.viewNextUndo().getNextAlso()) {
+      redoPipelineAction(handler, pipelineMeta);
     }
   }
 

@@ -29,7 +29,7 @@
     <name>Hop Plugins Technology MinIO</name>
 
     <properties>
-        <minio.version>8.5.17</minio.version>
+        <minio.version>8.6.0</minio.version>
     </properties>
 
     <dependencyManagement>

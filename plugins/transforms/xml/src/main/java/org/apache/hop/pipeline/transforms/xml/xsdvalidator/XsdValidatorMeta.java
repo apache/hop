@@ -345,15 +345,13 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
       remarks.add(cr);
     }
 
-    if (xsdSource.equals(SPECIFY_FILENAME)) {
-      if (Utils.isEmpty(xsdFilename)) {
-        cr =
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.XSDFieldEmpty"),
-                transforminfo);
-        remarks.add(cr);
-      }
+    if (xsdSource.equals(SPECIFY_FILENAME) && Utils.isEmpty(xsdFilename)) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "XsdValidatorMeta.CheckResult.XSDFieldEmpty"),
+              transforminfo);
+      remarks.add(cr);
     }
 
     if (prev != null && !prev.isEmpty()) {

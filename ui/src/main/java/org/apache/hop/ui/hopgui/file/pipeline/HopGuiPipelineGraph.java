@@ -708,11 +708,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             return;
           }
 
-          if (candidate != null) {
-            /** Avoid duplicate pop-up for hop handling as candidate is never null? */
-            if (!OsHelper.isMac()) {
-              addCandidateAsHop(e.x, e.y);
-            }
+          if (candidate != null && !OsHelper.isMac()) {
+            // Avoid duplicate pop-up for hop handling as candidate is never null? */
+            addCandidateAsHop(e.x, e.y);
           }
 
           TransformMeta transformMeta = (TransformMeta) areaOwner.getOwner();
@@ -1252,76 +1250,70 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // See if there are transforms selected.
     // If we get a background single click then simply clear selection...
     //
-    if (fSingleClickType == SingleClickType.Pipeline) {
-      if (!pipelineMeta.getSelectedTransforms().isEmpty()
-          || !pipelineMeta.getSelectedNotes().isEmpty()) {
-        pipelineMeta.unselectAll();
-        selectionRegion = null;
-        updateGui();
+    if (fSingleClickType == SingleClickType.Pipeline
+        && (!pipelineMeta.getSelectedTransforms().isEmpty()
+            || !pipelineMeta.getSelectedNotes().isEmpty())) {
+      pipelineMeta.unselectAll();
+      selectionRegion = null;
+      updateGui();
 
-        // Show a short tooltip
-        //
-        toolTip.setVisible(false);
-        toolTip.setAutoHide(true);
-        toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
-        showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
+      // Show a short tooltip
+      //
+      toolTip.setVisible(false);
+      toolTip.setAutoHide(true);
+      toolTip.setText(Const.CR + "  Selection cleared " + Const.CR);
+      showToolTip(new org.eclipse.swt.graphics.Point(e.x, e.y));
 
-        return;
-      }
+      return;
     }
 
-    if (!doubleClick) {
+    if (!doubleClick && fSingleClick && fSingleClickType != null) {
       // Just a single click on the background:
       // We have a bunch of possible actions for you...
       //
-      if (fSingleClick && fSingleClickType != null) {
-        IGuiContextHandler contextHandler = null;
-        String message = null;
-        switch (fSingleClickType) {
-          case Pipeline:
-            message =
-                BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Pipeline.Header");
-            contextHandler = new HopGuiPipelineContext(pipelineMeta, this, real);
-            break;
-          case Transform:
-            message =
-                BaseMessages.getString(
-                    PKG,
-                    "PipelineGraph.ContextualActionDialog.Transform.Header",
-                    fSingleClickTransform.getName());
-            contextHandler =
-                new HopGuiPipelineTransformContext(pipelineMeta, fSingleClickTransform, this, real);
-            break;
-          case Note:
-            message =
-                BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Note.Header");
-            contextHandler =
-                new HopGuiPipelineNoteContext(pipelineMeta, fSingleClickNote, this, real);
-            break;
-          case Hop:
-            message =
-                BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Hop.Header");
-            contextHandler =
-                new HopGuiPipelineHopContext(pipelineMeta, fSingleClickHop, this, real);
-            break;
-          default:
-            break;
-        }
-        if (contextHandler != null) {
-          Shell parent = hopShell();
-          org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, e.x, e.y);
+      IGuiContextHandler contextHandler = null;
+      String message = null;
+      switch (fSingleClickType) {
+        case Pipeline:
+          message =
+              BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Pipeline.Header");
+          contextHandler = new HopGuiPipelineContext(pipelineMeta, this, real);
+          break;
+        case Transform:
+          message =
+              BaseMessages.getString(
+                  PKG,
+                  "PipelineGraph.ContextualActionDialog.Transform.Header",
+                  fSingleClickTransform.getName());
+          contextHandler =
+              new HopGuiPipelineTransformContext(pipelineMeta, fSingleClickTransform, this, real);
+          break;
+        case Note:
+          message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Note.Header");
+          contextHandler =
+              new HopGuiPipelineNoteContext(pipelineMeta, fSingleClickNote, this, real);
+          break;
+        case Hop:
+          message = BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Hop.Header");
+          contextHandler = new HopGuiPipelineHopContext(pipelineMeta, fSingleClickHop, this, real);
+          break;
+        default:
+          break;
+      }
+      if (contextHandler != null) {
+        Shell parent = hopShell();
+        org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, e.x, e.y);
 
-          this.openedContextDialog = true;
-          this.hideToolTips();
+        this.openedContextDialog = true;
+        this.hideToolTips();
 
-          // Show the context dialog
-          //
-          avoidContextDialog =
-              GuiContextUtil.getInstance()
-                  .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
+        // Show the context dialog
+        //
+        avoidContextDialog =
+            GuiContextUtil.getInstance()
+                .handleActionSelection(parent, message, new Point(p.x, p.y), contextHandler);
 
-          this.openedContextDialog = false;
-        }
+        this.openedContextDialog = false;
       }
     }
   }
@@ -1551,20 +1543,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Move around notes & transforms
     //
-    if (selectedNote != null) {
-      if (lastButton == 1 && !shift) {
-        /*
-         * One or more notes are selected and moved around...
-         *
-         * new : new position of the note (not the mouse pointer) dx : difference with previous position
-         */
-        int dx = note.x - selectedNote.getLocation().x;
-        int dy = note.y - selectedNote.getLocation().y;
+    if (selectedNote != null && lastButton == 1 && !shift) {
+      /*
+       * One or more notes are selected and moved around...
+       *
+       * new : new position of the note (not the mouse pointer) dx : difference with previous position
+       */
+      int dx = note.x - selectedNote.getLocation().x;
+      int dy = note.y - selectedNote.getLocation().y;
 
-        moveSelected(dx, dy);
+      moveSelected(dx, dy);
 
-        doRedraw = true;
-      }
+      doRedraw = true;
     }
 
     Cursor cursor = null;
@@ -1784,10 +1774,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       case OUTPUT:
         TransformErrorMeta transformErrorMeta =
             candidate.getFromTransform().getTransformErrorMeta();
-        if (transformErrorMeta != null && transformErrorMeta.getTargetTransform() != null) {
-          if (transformErrorMeta.getTargetTransform().equals(candidate.getToTransform())) {
-            candidate.getFromTransform().setTransformErrorMeta(null);
-          }
+        if (transformErrorMeta != null
+            && transformErrorMeta.getTargetTransform() != null
+            && transformErrorMeta.getTargetTransform().equals(candidate.getToTransform())) {
+          candidate.getFromTransform().setTransformErrorMeta(null);
         }
         pipelineHopDelegate.newHop(pipelineMeta, candidate);
         break;
@@ -3289,8 +3279,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void drawPipelineImage(GC swtGc, int width, int height) {
 
-    if (EnvironmentUtils.getInstance().isWeb()) {}
-
     IGc gc = new SwtGc(swtGc, width, height, iconSize);
     try {
       PropsUi propsUi = PropsUi.getInstance();
@@ -3877,15 +3865,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.pipelineCheckDelegate.checkPipeline();
   }
 
-  /** TODO: re-introduce public void analyseImpact() { hopGui.analyseImpact(); } */
-
-  /** TODO: re-introduce public void getSql() { hopGui.getSql(); } */
-
-  /* TODO: re-introduce
-  public void exploreDatabase() {
-    hopGui.exploreDatabase();
-  }
-   */
   public boolean isExecutionResultsPaneVisible() {
     return extraViewTabFolder != null && !extraViewTabFolder.isDisposed();
   }
@@ -4581,11 +4560,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               hopDisplay()
                   .asyncExec(
                       () -> {
-                        if (!HopGuiPipelineGraph.this.canvas.isDisposed()) {
-                          if (perspective.isActive() && HopGuiPipelineGraph.this.isVisible()) {
-                            HopGuiPipelineGraph.this.canvas.redraw();
-                            HopGuiPipelineGraph.this.updateGui();
-                          }
+                        if (!HopGuiPipelineGraph.this.canvas.isDisposed()
+                            && perspective.isActive()
+                            && HopGuiPipelineGraph.this.isVisible()) {
+                          HopGuiPipelineGraph.this.canvas.redraw();
+                          HopGuiPipelineGraph.this.updateGui();
                         }
                       });
             }
@@ -4602,33 +4581,29 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void checkPipelineEnded() {
-    if (pipeline != null) {
-      if (pipeline.isFinished() && (isRunning() || halted)) {
-        log.logBasic(BaseMessages.getString(PKG, "PipelineLog.Log.PipelineHasFinished"));
+    if (pipeline != null && (pipeline.isFinished() && (isRunning() || halted))) {
+      log.logBasic(BaseMessages.getString(PKG, "PipelineLog.Log.PipelineHasFinished"));
 
-        initialized = false;
-        halted = false;
-        halting = false;
-        safeStopping = false;
+      initialized = false;
+      halted = false;
+      halting = false;
+      safeStopping = false;
 
-        updateGui();
+      updateGui();
 
-        // OK, also see if we had a debugging session going on.
-        // If so and we didn't hit a breakpoint yet, display the show
-        // preview dialog...
-        //
-        if (debug
-            && lastPipelineDebugMeta != null
-            && lastPipelineDebugMeta.getTotalNumberOfHits() == 0) {
-          debug = false;
-          showLastPreviewResults();
-        }
+      // OK, also see if we had a debugging session going on.
+      // If so and we didn't hit a breakpoint yet, display the show
+      // preview dialog...
+      //
+      if (debug
+          && lastPipelineDebugMeta != null
+          && lastPipelineDebugMeta.getTotalNumberOfHits() == 0) {
         debug = false;
-
-        checkErrorVisuals();
-
-        hopDisplay().asyncExec(this::updateGui);
+        showLastPreviewResults();
       }
+      debug = false;
+      checkErrorVisuals();
+      hopDisplay().asyncExec(this::updateGui);
     }
   }
 

@@ -176,18 +176,18 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
                 it.hasNext() && !parentWorkflow.isStopped(); ) {
               ResultFile resultFile = it.next();
               FileObject file = resultFile.getFile();
-              if (file != null && file.exists()) {
-                if (checkFileWildcard(file.getName().getBaseName(), resolve(wildcard), true)
-                    && !checkFileWildcard(
-                        file.getName().getBaseName(), resolve(wildcardExclude), false)) {
-                  // Remove file from result files list
-                  result.getResultFiles().remove(resultFile.getFile().toString());
+              if (file != null
+                  && file.exists()
+                  && checkFileWildcard(file.getName().getBaseName(), resolve(wildcard), true)
+                  && !checkFileWildcard(
+                      file.getName().getBaseName(), resolve(wildcardExclude), false)) {
+                // Remove file from result files list
+                result.getResultFiles().remove(resultFile.getFile().toString());
 
-                  if (isDetailed()) {
-                    logDetailed(
-                        BaseMessages.getString(
-                            PKG, "ActionDeleteResultFilenames.log.DeletedFile", file.toString()));
-                  }
+                if (isDetailed()) {
+                  logDetailed(
+                      BaseMessages.getString(
+                          PKG, "ActionDeleteResultFilenames.log.DeletedFile", file.toString()));
                 }
               }
             }

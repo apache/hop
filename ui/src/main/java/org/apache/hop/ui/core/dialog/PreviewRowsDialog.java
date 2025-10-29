@@ -275,19 +275,17 @@ public class PreviewRowsDialog {
       rowMeta.addValueMeta(new ValueMetaString("<waiting for rows>"));
       waitingForRows = true;
     }
-    if (!dynamic) {
+    if (!dynamic && Utils.isEmpty(buffer)) {
       // Mmm, if we don't get any rows in the buffer: show a dialog box.
-      if (Utils.isEmpty(buffer)) {
-        ShowMessageDialog dialog =
-            new ShowMessageDialog(
-                shell,
-                SWT.OK | SWT.ICON_WARNING,
-                BaseMessages.getString(PKG, "PreviewRowsDialog.NoRows.Text"),
-                BaseMessages.getString(PKG, "PreviewRowsDialog.NoRows.Message"));
-        dialog.open();
-        shell.dispose();
-        return true;
-      }
+      ShowMessageDialog dialog =
+          new ShowMessageDialog(
+              shell,
+              SWT.OK | SWT.ICON_WARNING,
+              BaseMessages.getString(PKG, "PreviewRowsDialog.NoRows.Text"),
+              BaseMessages.getString(PKG, "PreviewRowsDialog.NoRows.Message"));
+      dialog.open();
+      shell.dispose();
+      return true;
     }
 
     ColumnInfo[] columns = new ColumnInfo[rowMeta.size()];

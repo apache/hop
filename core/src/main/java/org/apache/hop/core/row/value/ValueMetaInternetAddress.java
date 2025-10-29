@@ -353,14 +353,13 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     // See if we need to convert a null value into a String
     // For example, we might want to convert null into "Empty".
     //
-    if (!Utils.isEmpty(ifNull)) {
+    if (!Utils.isEmpty(ifNull)
+        && (Utils.isEmpty(pol)
+            || pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length())))) {
       // Note that you can't pull the pad method up here as a nullComp variable
       // because you could get an NPE since you haven't checked isEmpty(pol)
       // yet!
-      if (Utils.isEmpty(pol)
-          || pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
-        pol = ifNull;
-      }
+      pol = ifNull;
     }
 
     // See if the polled value is empty

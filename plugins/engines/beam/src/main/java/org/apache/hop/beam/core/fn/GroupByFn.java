@@ -240,6 +240,7 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
                   bd = bd.divide(BigDecimal.valueOf(counts[i]));
                 }
                 results[i] = bd;
+                break;
               default:
                 throw new HopException(
                     "Unable to calculate average on data type : " + subjectValueMeta.getTypeDesc());

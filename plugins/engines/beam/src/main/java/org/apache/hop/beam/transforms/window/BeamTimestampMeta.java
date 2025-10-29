@@ -112,11 +112,10 @@ public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData>
       PCollection<HopRow> input,
       String parentLogChannelId)
       throws HopException {
-    if (!readingTimestamp && StringUtils.isNotEmpty(fieldName)) {
-      if (rowMeta.searchValueMeta(fieldName) == null) {
-        throw new HopException(
-            "Please specify a valid field name '" + transformMeta.getName() + "'");
-      }
+    if (!readingTimestamp
+        && StringUtils.isNotEmpty(fieldName)
+        && rowMeta.searchValueMeta(fieldName) == null) {
+      throw new HopException("Please specify a valid field name '" + transformMeta.getName() + "'");
     }
 
     PCollection<HopRow> transformPCollection =

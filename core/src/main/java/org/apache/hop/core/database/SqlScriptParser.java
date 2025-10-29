@@ -91,6 +91,8 @@ public class SqlScriptParser {
               }
               statementStart = i + 1;
               break;
+            default:
+              break;
           }
           break;
         case BLOCK_COMMENT:
@@ -132,6 +134,8 @@ public class SqlScriptParser {
           } else if (ch == currentStringChar) {
             mode = MODE.SQL;
           }
+          break;
+        default:
           break;
       }
     }
@@ -186,6 +190,8 @@ public class SqlScriptParser {
               mode = MODE.STRING;
               currentStringChar = ch;
               break;
+            default:
+              break;
           }
           break;
         case BLOCK_COMMENT:
@@ -226,6 +232,8 @@ public class SqlScriptParser {
           } else if (ch == currentStringChar) {
             mode = MODE.SQL;
           }
+          break;
+        default:
           break;
       }
       if (ch != 0) {

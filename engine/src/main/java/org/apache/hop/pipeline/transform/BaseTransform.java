@@ -483,13 +483,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     IPipelineEngineRunConfiguration engineRunConfiguration =
         pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
     if (engineRunConfiguration
-        instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration) {
-      if (localPipelineRunConfiguration.isSafeModeEnabled()) {
-        allowEmptyFieldNamesAndTypes =
-            ValueMetaBase.convertStringToBoolean(
-                System.getProperties()
-                    .getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "Y"));
-      }
+            instanceof LocalPipelineRunConfiguration localPipelineRunConfiguration
+        && localPipelineRunConfiguration.isSafeModeEnabled()) {
+      allowEmptyFieldNamesAndTypes =
+          ValueMetaBase.convertStringToBoolean(
+              System.getProperties().getProperty(Const.HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES, "Y"));
     }
 
     // Getting ans setting the error handling values
@@ -1011,20 +1009,18 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   @Override
   public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
-    if (rowMeta != null) {
-      if (!allowEmptyFieldNamesAndTypes) {
-        // check row meta for empty field name (BACKLOG-18004)
-        for (IValueMeta vmi : rowMeta.getValueMetaList()) {
-          if (StringUtils.isBlank(vmi.getName())) {
-            throw new HopTransformException(
-                "Please set a field name for all field(s) that have 'null'.");
-          }
-          if (vmi.getType() <= 0) {
-            throw new HopTransformException(
-                "Please set a value for the missing field(s) type for field: '"
-                    + vmi.getName()
-                    + "'");
-          }
+    if (rowMeta != null && !allowEmptyFieldNamesAndTypes) {
+      // check row meta for empty field name (BACKLOG-18004)
+      for (IValueMeta vmi : rowMeta.getValueMetaList()) {
+        if (StringUtils.isBlank(vmi.getName())) {
+          throw new HopTransformException(
+              "Please set a field name for all field(s) that have 'null'.");
+        }
+        if (vmi.getType() <= 0) {
+          throw new HopTransformException(
+              "Please set a value for the missing field(s) type for field: '"
+                  + vmi.getName()
+                  + "'");
         }
       }
     }
@@ -1396,15 +1392,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       String fieldNames,
       String errorCodes)
       throws HopTransformException {
-    if (pipeline.isSafeModeEnabled()) {
-      if (row == null || rowMeta.size() > row.length) {
-        throw new HopTransformException(
-            BaseMessages.getString(
-                PKG,
-                "BaseTransform.Exception.MetadataDoesntMatchDataRowSize",
-                Integer.toString(rowMeta.size()),
-                Integer.toString(row != null ? row.length : 0)));
-      }
+    if (pipeline.isSafeModeEnabled() && (row == null || rowMeta.size() > row.length)) {
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG,
+              "BaseTransform.Exception.MetadataDoesntMatchDataRowSize",
+              Integer.toString(rowMeta.size()),
+              Integer.toString(row != null ? row.length : 0)));
     }
 
     TransformErrorMeta transformErrorMeta = transformMeta.getTransformErrorMeta();

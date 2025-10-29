@@ -172,6 +172,9 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
         case WIDGET_ID_AZURE_LOCAL_EMULATOR_URL:
           localEmulatorUrl = ((TextVar) control).getText();
           AzureConfigSingleton.getConfig().setEmulatorUrl(localEmulatorUrl);
+          break;
+        default:
+          break;
       }
     }
     // Save the project...

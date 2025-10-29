@@ -294,14 +294,12 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       result.setResult(false);
       result.setNrErrors(1);
 
-      if (argFromPrevious) {
-        if (isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(
-                  PKG,
-                  "ActionCopyFiles.Log.ArgFromPrevious.Found",
-                  (rows != null ? rows.size() : 0) + ""));
-        }
+      if (argFromPrevious && isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionCopyFiles.Log.ArgFromPrevious.Found",
+                (rows != null ? rows.size() : 0) + ""));
       }
 
       if (argFromPrevious && rows != null) { // Copy the input row to the (command line) arguments

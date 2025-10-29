@@ -121,6 +121,8 @@ public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
           accessToken = ((TextVar) control).getText();
           DropboxConfigSingleton.getConfig().setAccessToken(accessToken);
           break;
+        default:
+          break;
       }
     }
     // Save the project...

@@ -96,15 +96,10 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   private LabelTextVar wUserName;
   private LabelTextVar wURL;
   private LabelTextVar wPassword;
-
   private TextVar wBatchSize;
-
   private ComboVar wModule;
-
   private TextVar wSalesforceIDFieldName;
-
   private Button wUseCompression;
-
   private TextVar wTimeOut;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
@@ -112,9 +107,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   private boolean gotModule = false;
   private boolean gotFields = false;
-
   private Button wRollbackAllChangesOnError;
-
   private boolean getModulesListError = false; /* True if error getting modules list */
 
   public SalesforceInsertDialog(
@@ -512,7 +505,6 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     wlReturn.setLayoutData(fdlReturn);
 
     int upInsCols = 3;
-    //    int upInsRows = (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
     int upInsRows = input.getFields().size();
 
     ciReturn = new ColumnInfo[upInsCols];
@@ -532,7 +524,8 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
         new ColumnInfo(
             BaseMessages.getString(PKG, "SalesforceInsertDialog.ColumnInfo.UseExternalId"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {"Y", "N"});
+            "Y",
+            "N");
     ciReturn[2].setToolTip(
         BaseMessages.getString(PKG, "SalesforceInsertDialog.ColumnInfo.UseExternalId.Tooltip"));
     tableFieldColumns.add(ciReturn[0]);
@@ -594,10 +587,9 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
                         if (!wReturn.isDisposed()) {
                           for (int i = 0; i < wReturn.table.getItemCount(); i++) {
                             TableItem it = wReturn.table.getItem(i);
-                            if (!Utils.isEmpty(it.getText(2))) {
-                              if (!inputFields.containsKey(it.getText(2))) {
-                                it.setBackground(GuiResource.getInstance().getColorRed());
-                              }
+                            if (!Utils.isEmpty(it.getText(2))
+                                && !inputFields.containsKey(it.getText(2))) {
+                              it.setBackground(GuiResource.getInstance().getColorRed());
                             }
                           }
                         }
@@ -781,15 +773,13 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
     int nrFields = wReturn.nrNonEmpty();
 
-    //    meta.allocate(nrFields);
-
     List<SalesforceInsertField> fields = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       SalesforceInsertField field = new SalesforceInsertField();
       field.setUpdateLookup(item.getText(1));
       field.setUpdateStream(item.getText(2));
-      field.setUseExternalId(Boolean.valueOf("Y".equals(item.getText(3))));
+      field.setUseExternalId("Y".equals(item.getText(3)));
       fields.add(field);
     }
     meta.setFields(fields);
@@ -939,11 +929,21 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
       int sourceIndex = sourceFields.indexOfValue(source);
       if (sourceIndex < 0) {
-        missingSourceFields.append(Const.CR + "   " + source + " --> " + target);
+        missingSourceFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
       }
       int targetIndex = targetFields.indexOfValue(target);
       if (targetIndex < 0) {
-        missingTargetFields.append(Const.CR + "   " + source + " --> " + target);
+        missingTargetFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
       }
       if (sourceIndex < 0 || targetIndex < 0) {
         continue;

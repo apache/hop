@@ -174,14 +174,12 @@ public class SortedFileOutputStream extends FileOutputStream {
 
       // If now we have '\r' or '\n' and they are escaped, we just read the next
       // character. For this at least two characters must have been read.
-      if (iPos[0] >= 2) {
-        // Is it an escaped '\r' or '\n'?
-        if ((c == '\n' || c == '\r') && (iPos[0] - 2 == '\\')) {
-          // Yes! Just read next character, if not end of stream reached
-          if (iPos[0] < sb.length()) {
-            c = sb.charAt(iPos[0]++);
-          }
-        }
+      // Is it an escaped '\r' or '\n'?
+      // Yes! Just read next character, if not end of stream reached
+      if (iPos[0] >= 2
+          && ((c == '\n' || c == '\r') && (iPos[0] - 2 == '\\'))
+          && (iPos[0] < sb.length())) {
+        c = sb.charAt(iPos[0]++);
       }
     }
 

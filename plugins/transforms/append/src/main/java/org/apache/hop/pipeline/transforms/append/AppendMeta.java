@@ -92,10 +92,8 @@ public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
     // We don't have any input fields here in "r" as they are all info fields.
     // So we just take the info fields.
     //
-    if (info != null) {
-      if (info.length > 0 && info[0] != null) {
-        r.mergeRowMeta(info[0]);
-      }
+    if (info != null && info.length > 0 && info[0] != null) {
+      r.mergeRowMeta(info[0]);
     }
   }
 

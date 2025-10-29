@@ -191,9 +191,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       data.fileObject = HopVfs.getFileObject(data.filenames[data.filenr], variables);
       data.inputStream = HopVfs.getInputStream(data.fileObject);
       data.xmlEventReader = data.staxInstance.createXMLEventReader(data.inputStream, data.encoding);
-    } catch (IOException e) {
-      throw new HopException(e);
-    } catch (XMLStreamException e) {
+    } catch (IOException | XMLStreamException e) {
       throw new HopException(e);
     }
     data.filenr++;

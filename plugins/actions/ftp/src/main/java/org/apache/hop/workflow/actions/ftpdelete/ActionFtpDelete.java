@@ -561,10 +561,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
         // CHECK THIS !!!
         if (filelist.length == 1) {
           String translatedWildcard = resolve(wildcard);
-          if (!Utils.isEmpty(translatedWildcard)) {
-            if (filelist[0].startsWith(translatedWildcard)) {
-              throw new HopException(filelist[0]);
-            }
+          if (!Utils.isEmpty(translatedWildcard) && filelist[0].startsWith(translatedWildcard)) {
+            throw new HopException(filelist[0]);
           }
         }
       } else if (protocol.equals(PROTOCOL_SFTP)) {

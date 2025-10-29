@@ -2406,7 +2406,7 @@ public class ValueMetaBase implements IValueMeta {
             toString() + " : I don't know how to convert a serializable value to JSON object.");
 
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + MSG_SPECIFIED);
+        throw new HopValueException(toString() + MSG_UNKNOWN_TYPE + type + MSG_SPECIFIED);
     }
   }
 
@@ -4708,14 +4708,13 @@ public class ValueMetaBase implements IValueMeta {
     // See if we need to convert a null value into a String
     // For example, we might want to convert null into "Empty".
     //
-    if (!Utils.isEmpty(ifNull)) {
+    if (!Utils.isEmpty(ifNull)
+        && (Utils.isEmpty(pol)
+            || pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length())))) {
       // Note that you can't pull the pad method up here as a nullComp variable
       // because you could get an NPE since you haven't checked isEmpty(pol)
       // yet!
-      if (Utils.isEmpty(pol)
-          || pol.equalsIgnoreCase(Const.rightPad(new StringBuilder(nullValue), pol.length()))) {
-        pol = ifNull;
-      }
+      pol = ifNull;
     }
 
     // See if the polled value is empty
@@ -4838,6 +4837,7 @@ public class ValueMetaBase implements IValueMeta {
           break;
         case TYPE_JSON:
           hash ^= 512;
+          break;
         case TYPE_NONE:
           break;
         default:
@@ -5478,12 +5478,7 @@ public class ValueMetaBase implements IValueMeta {
             length = rm.getScale(index);
           }
           break;
-
-        case Types.DATE:
-          if (databaseMeta.getIDatabase().isTeradataVariant()) {
-            precision = 1;
-          }
-        case Types.TIME:
+        case Types.DATE, Types.TIME:
           valtype = IValueMeta.TYPE_DATE;
           //
           if (databaseMeta.getIDatabase().isMySqlVariant()) {
@@ -5494,9 +5489,12 @@ public class ValueMetaBase implements IValueMeta {
                 && rm.getColumnTypeName(index).equalsIgnoreCase("YEAR")) {
               valtype = IValueMeta.TYPE_INTEGER;
               precision = 0;
+
               length = 4;
-              break;
             }
+          }
+          if (databaseMeta.getIDatabase().isTeradataVariant()) {
+            precision = 1;
           }
           break;
 
@@ -5760,12 +5758,7 @@ public class ValueMetaBase implements IValueMeta {
             length = originalScale;
           }
           break;
-
-        case Types.DATE:
-          if (databaseMeta.getIDatabase().isTeradataVariant()) {
-            precision = 1;
-          }
-        case Types.TIME:
+        case Types.TIME, Types.DATE:
           valtype = IValueMeta.TYPE_DATE;
           //
           if (databaseMeta.isMySqlVariant()) {
@@ -5779,6 +5772,9 @@ public class ValueMetaBase implements IValueMeta {
               length = 4;
               break;
             }
+          }
+          if (databaseMeta.getIDatabase().isTeradataVariant()) {
+            precision = 1;
           }
           break;
 

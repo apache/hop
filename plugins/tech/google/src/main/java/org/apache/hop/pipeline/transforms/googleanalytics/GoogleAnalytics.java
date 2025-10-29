@@ -32,7 +32,6 @@ import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
   private List<Metric> metricList;
   private InputStream inputStream;
   private int requestOffset = 0;
-  private int REQUEST_ROW_SIZE = 100000;
+  private int requestRowSize = 100000;
 
   private int rowLimit;
 
@@ -102,12 +101,9 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
           metricList.add(Metric.newBuilder().setName(metric).build());
         }
 
-        if (rowLimit < REQUEST_ROW_SIZE) {
-          REQUEST_ROW_SIZE = rowLimit;
+        if (rowLimit < requestRowSize) {
+          requestRowSize = rowLimit;
         }
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-        throw new RuntimeException(e);
       } catch (IOException e) {
         e.printStackTrace();
         throw new RuntimeException(e);
@@ -125,7 +121,7 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
         .addAllMetrics(metricList)
         .addDateRanges(
             DateRange.newBuilder().setStartDate(meta.getStartDate()).setEndDate(meta.getEndDate()))
-        .setLimit(REQUEST_ROW_SIZE)
+        .setLimit(requestRowSize)
         .setOffset(requestOffset)
         .build();
   }
@@ -211,8 +207,8 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
       }
       // check if we're still below the row limit, adjust REQUEST_ROW_SIZE if we're getting close.
       int rowsProcessed = (int) getLinesWritten();
-      if (getLinesWritten() + REQUEST_ROW_SIZE > rowLimit) {
-        REQUEST_ROW_SIZE = rowLimit - (int) getLinesWritten();
+      if (getLinesWritten() + requestRowSize > rowLimit) {
+        requestRowSize = rowLimit - (int) getLinesWritten();
       }
       requestOffset = (int) getLinesWritten();
       if (rowsProcessed < rowLimit) {

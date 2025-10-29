@@ -386,14 +386,12 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    if (argFromPrevious) {
-      if (isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(
-                PKG,
-                "ActionMoveFiles.Log.ArgFromPrevious.Found",
-                (rows != null ? rows.size() : 0) + ""));
-      }
+    if (argFromPrevious && isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "ActionMoveFiles.Log.ArgFromPrevious.Found",
+              (rows != null ? rows.size() : 0) + ""));
     }
     if (argFromPrevious && rows != null) {
       for (int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++) {

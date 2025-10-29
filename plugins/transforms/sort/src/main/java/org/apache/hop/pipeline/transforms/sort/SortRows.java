@@ -484,10 +484,8 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
-      if (isBasic()) {
-        logBasic("Linenr " + getLinesRead());
-      }
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      logBasic("Linenr " + getLinesRead());
     }
 
     return true;

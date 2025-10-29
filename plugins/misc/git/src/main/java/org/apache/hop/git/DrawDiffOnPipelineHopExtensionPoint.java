@@ -75,6 +75,8 @@ public class DrawDiffOnPipelineHopExtensionPoint
               case CHANGED:
                 svgFile = new SvgFile("changed.svg", classLoader);
                 break;
+              default:
+                break;
             }
             if (svgFile != null) {
               // Center of hop...

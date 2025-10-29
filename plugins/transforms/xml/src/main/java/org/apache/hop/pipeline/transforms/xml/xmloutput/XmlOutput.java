@@ -91,12 +91,10 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
       closeFile();
 
       // Not finished: open another file...
-      if (r != null) {
-        if (!openNewFile()) {
-          logError("Unable to open new file (split #" + data.splitnr + "...");
-          setErrors(1);
-          return false;
-        }
+      if (r != null && !openNewFile()) {
+        logError("Unable to open new file (split #" + data.splitnr + "...");
+        setErrors(1);
+        return false;
       }
     }
 

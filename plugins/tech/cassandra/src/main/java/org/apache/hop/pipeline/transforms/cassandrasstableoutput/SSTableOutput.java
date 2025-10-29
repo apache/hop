@@ -90,12 +90,10 @@ public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutpu
       outputDir = new File(new URI(directory));
     }
 
-    if (!outputDir.exists()) {
-      if (!outputDir.mkdirs()) {
-        throw new HopException(
-            BaseMessages.getString(
-                SSTableOutputMeta.PKG, "SSTableOutput.Error.OutputDirDoesntExist"));
-      }
+    if (!outputDir.exists() && !outputDir.mkdirs()) {
+      throw new HopException(
+          BaseMessages.getString(
+              SSTableOutputMeta.PKG, "SSTableOutput.Error.OutputDirDoesntExist"));
     }
 
     if (Utils.isEmpty(table)) {

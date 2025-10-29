@@ -265,10 +265,8 @@ public class GraphData {
   public GraphNodeData findNodeWithProperty(String propertyId, Object value) {
     for (GraphNodeData node : nodes) {
       GraphPropertyData property = node.findProperty(propertyId);
-      if (property != null) {
-        if (property.getValue() != null && property.getValue().equals(value)) {
-          return node;
-        }
+      if (property != null && property.getValue() != null && property.getValue().equals(value)) {
+        return node;
       }
     }
     return null;
@@ -383,17 +381,16 @@ public class GraphData {
       GraphNodeData currentNode, String mainRelationshipLabel, GraphNodeData excludeNode) {
     List<GraphRelationshipData> rels = findRelationships(currentNode);
     for (GraphRelationshipData rel : rels) {
-      if (mainRelationshipLabel.equals(rel.getLabel())) {
-        if (excludeNode == null
-            || !(rel.getSourceNodeId().equals(excludeNode.getId())
-                || rel.getTargetNodeId().equals(excludeNode.getId()))) {
-          // Don't return the same node, return the other
-          //
-          if (rel.getSourceNodeId().equals(currentNode.getId())) {
-            return findNode(rel.getTargetNodeId());
-          } else {
-            return findNode(rel.getSourceNodeId());
-          }
+      if (mainRelationshipLabel.equals(rel.getLabel())
+          && (excludeNode == null
+              || !(rel.getSourceNodeId().equals(excludeNode.getId())
+                  || rel.getTargetNodeId().equals(excludeNode.getId())))) {
+        // Don't return the same node, return the other
+        //
+        if (rel.getSourceNodeId().equals(currentNode.getId())) {
+          return findNode(rel.getTargetNodeId());
+        } else {
+          return findNode(rel.getSourceNodeId());
         }
       }
     }

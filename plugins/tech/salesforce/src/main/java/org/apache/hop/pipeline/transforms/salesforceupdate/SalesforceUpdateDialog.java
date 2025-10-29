@@ -94,22 +94,16 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       wSalesforceConnection;
 
   private TextVar wBatchSize;
-
   private ComboVar wModule;
-
   private Button wUseCompression;
-
   private TextVar wTimeOut;
-
   private Button wRollbackAllChangesOnError;
 
   /** List of ColumnInfo that should have the field names of the selected salesforce module */
   private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   private boolean gotModule = false;
-
   private boolean gotFields = false;
-
   private boolean getModulesListError = false; /* True if error getting modules list */
 
   public SalesforceUpdateDialog(
@@ -460,10 +454,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wlReturn.setLayoutData(fdlReturn);
 
     int upInsCols = 3;
-    int upInsRows =
-        input
-            .getFields()
-            .size(); // (input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1);
+    int upInsRows = input.getFields().size();
 
     ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
@@ -543,10 +534,9 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
                         if (!wReturn.isDisposed()) {
                           for (int i = 0; i < wReturn.table.getItemCount(); i++) {
                             TableItem it = wReturn.table.getItem(i);
-                            if (!Utils.isEmpty(it.getText(2))) {
-                              if (!inputFields.contains(it.getText(2))) {
-                                it.setBackground(GuiResource.getInstance().getColorRed());
-                              }
+                            if (!Utils.isEmpty(it.getText(2))
+                                && !inputFields.contains(it.getText(2))) {
+                              it.setBackground(GuiResource.getInstance().getColorRed());
                             }
                           }
                         }
@@ -702,8 +692,6 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
     int nrFields = wReturn.nrNonEmpty();
 
-    //    meta.allocate(nrFields);
-
     List<SalesforceInsertField> fields = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
@@ -848,11 +836,21 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
       int sourceIndex = sourceFields.indexOfValue(source);
       if (sourceIndex < 0) {
-        missingSourceFields.append(Const.CR + "   " + source + " --> " + target);
+        missingSourceFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
       }
       int targetIndex = targetFields.indexOfValue(target);
       if (targetIndex < 0) {
-        missingTargetFields.append(Const.CR + "   " + source + " --> " + target);
+        missingTargetFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
       }
       if (sourceIndex < 0 || targetIndex < 0) {
         continue;

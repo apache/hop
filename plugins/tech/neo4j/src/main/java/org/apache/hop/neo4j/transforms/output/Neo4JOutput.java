@@ -486,6 +486,8 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
               .append(Const.CR);
           updateUsageMap(List.of(data.relationshipLabel), GraphUsage.RELATIONSHIP_CREATE);
           break;
+        default:
+          break;
       }
 
       data.cypher = cypher.toString();

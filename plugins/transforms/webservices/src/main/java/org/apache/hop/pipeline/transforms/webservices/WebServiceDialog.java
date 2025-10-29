@@ -80,32 +80,19 @@ public class WebServiceDialog extends BaseTransformDialog {
   private static final Class<?> PKG = WebServiceMeta.class;
 
   private WebServiceMeta meta;
-
   private CTabFolder wTabFolder;
-
   private TextVar wURL;
-
   private CCombo wOperation;
-
   private Text wOperationRequest;
-
   private Label wlBatchSize;
   private Text wBatchSize;
-
   private Button wPassInputData;
-
   private Button wCompatible;
-
   private TextVar wRepeatingElement;
-
   private Button wReplyAsString;
-
   private TextVar wHttpLogin;
-
   private TextVar wHttpPassword;
-
   private TextVar wProxyHost;
-
   private TextVar wProxyPort;
 
   /** The input fields */
@@ -126,7 +113,6 @@ public class WebServiceDialog extends BaseTransformDialog {
   private WsdlOperation wsdlOperation;
   private WsdlParamContainer inWsdlParamContainer;
   private WsdlParamContainer outWsdlParamContainer;
-
   private final ModifyListener lsMod = e -> meta.setChanged();
 
   private void selectWSDLOperation(String anOperationName) throws HopException {
@@ -300,17 +286,16 @@ public class WebServiceDialog extends BaseTransformDialog {
       if (wsdlOperation.getReturnType() != null) {
         outWsdlParamContainer =
             new WsdlOpParameterContainer((WsdlOpParameter) wsdlOperation.getReturnType());
-        if (wsdlOperation.getReturnType().isArray()) {
-          if (wsdlOperation.getReturnType().getItemXmlType() != null) {
-            ComplexType type = wsdlOperation.getReturnType().getItemComplexType();
-            if (type != null) {
-              for (String attributeName : type.listObjectNames()) {
-                QName attributeType = type.getElementType(attributeName);
-                if (!WebServiceMeta.XSD_NS_URI.equals(attributeType.getNamespaceURI())) {
-                  throw new HopTransformException(
-                      BaseMessages.getString(
-                          PKG, "WebServiceDialog.ERROR0007.UnsupportedOperation.ComplexType"));
-                }
+        if (wsdlOperation.getReturnType().isArray()
+            && wsdlOperation.getReturnType().getItemXmlType() != null) {
+          ComplexType type = wsdlOperation.getReturnType().getItemComplexType();
+          if (type != null) {
+            for (String attributeName : type.listObjectNames()) {
+              QName attributeType = type.getElementType(attributeName);
+              if (!WebServiceMeta.XSD_NS_URI.equals(attributeType.getNamespaceURI())) {
+                throw new HopTransformException(
+                    BaseMessages.getString(
+                        PKG, "WebServiceDialog.ERROR0007.UnsupportedOperation.ComplexType"));
               }
             }
           }

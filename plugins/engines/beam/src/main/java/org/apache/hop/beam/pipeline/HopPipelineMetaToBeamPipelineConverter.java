@@ -357,13 +357,12 @@ public class HopPipelineMetaToBeamPipelineConverter {
     for (TransformMeta transformMeta : beamInputTransformMetas) {
       IBeamPipelineTransformHandler transformHandler =
           transformHandlers.get(transformMeta.getTransformPluginId());
-      if (transformHandler == null) {
+      if (transformHandler == null
+          && transformMeta.getTransform()
+              instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler) {
         // See if the transform knows how to handle a Beam pipeline...
         //
-        if (transformMeta.getTransform()
-            instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler) {
-          transformHandler = iBeamPipelineTransformHandler;
-        }
+        transformHandler = iBeamPipelineTransformHandler;
       }
       if (transformHandler == null) {
         throw new HopException(
@@ -396,13 +395,12 @@ public class HopPipelineMetaToBeamPipelineConverter {
     for (TransformMeta transformMeta : beamOutputTransformMetas) {
       IBeamPipelineTransformHandler transformHandler =
           transformHandlers.get(transformMeta.getTransformPluginId());
-      if (transformHandler == null) {
+      if (transformHandler == null
+          && transformMeta.getTransform()
+              instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler) {
         // See if the transform knows how to handle a Beam pipeline...
         //
-        if (transformMeta.getTransform()
-            instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler) {
-          transformHandler = iBeamPipelineTransformHandler;
-        }
+        transformHandler = iBeamPipelineTransformHandler;
       }
       if (transformHandler == null) {
         throw new HopException(
@@ -478,13 +476,12 @@ public class HopPipelineMetaToBeamPipelineConverter {
       //
       IBeamPipelineTransformHandler transformHandler =
           transformHandlers.get(transformMeta.getTransformPluginId());
-      if (transformHandler == null) {
-        if (transformMeta.getTransform()
-            instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler) {
-          // This metadata knows about Beam...
-          //
-          transformHandler = iBeamPipelineTransformHandler;
-        }
+      if (transformHandler == null
+          && transformMeta.getTransform()
+              instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler) {
+        // This metadata knows about Beam...
+        //
+        transformHandler = iBeamPipelineTransformHandler;
       }
 
       if (transformHandler == null
@@ -629,10 +626,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
         transforms.add(transformMeta);
       } else {
         if (transformMeta.getTransform()
-            instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler) {
-          if (iBeamPipelineTransformHandler.isInput()) {
-            transforms.add(transformMeta);
-          }
+                instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler
+            && iBeamPipelineTransformHandler.isInput()) {
+          transforms.add(transformMeta);
         }
       }
     }
@@ -648,10 +644,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
         transforms.add(transformMeta);
       } else {
         if (transformMeta.getTransform()
-            instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler) {
-          if (iBeamPipelineTransformHandler.isOutput()) {
-            transforms.add(transformMeta);
-          }
+                instanceof IBeamPipelineTransformHandler iBeamPipelineTransformHandler
+            && iBeamPipelineTransformHandler.isOutput()) {
+          transforms.add(transformMeta);
         }
       }
     }

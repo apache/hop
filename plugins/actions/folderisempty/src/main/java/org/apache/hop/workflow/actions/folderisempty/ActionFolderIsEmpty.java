@@ -241,14 +241,14 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
             } else {
               // We are not in the base Folder...ONLY if Use sub folders
               // We are in the Base folder
-              if (isIncludeSubFolders()) {
-                if ((isSpecifyWildcard() && GetFileWildcard(info.getFile().getName().getBaseName()))
-                    || !isSpecifyWildcard()) {
-                  if (isDetailed()) {
-                    logDetailed("We found file : " + info.getFile().toString());
-                  }
-                  filescount++;
+              if (isIncludeSubFolders()
+                  && ((isSpecifyWildcard()
+                          && GetFileWildcard(info.getFile().getName().getBaseName()))
+                      || !isSpecifyWildcard())) {
+                if (isDetailed()) {
+                  logDetailed("We found file : " + info.getFile().toString());
                 }
+                filescount++;
               }
             }
           } else {

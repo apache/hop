@@ -71,10 +71,7 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
       boolean b = queArray.offer(rowData, time, tu);
       blocking.set(false);
       return b;
-    } catch (InterruptedException e) {
-      blocking.set(false);
-      return false;
-    } catch (NullPointerException e) {
+    } catch (InterruptedException | NullPointerException e) {
       blocking.set(false);
       return false;
     }

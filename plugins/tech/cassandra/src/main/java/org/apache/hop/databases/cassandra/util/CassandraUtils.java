@@ -95,6 +95,8 @@ public class CassandraUtils {
         return "timestamp";
       case IValueMeta.TYPE_BINARY, IValueMeta.TYPE_SERIALIZABLE:
         return "blob";
+      default:
+        break;
     }
 
     return "blob";
@@ -634,6 +636,8 @@ public class CassandraUtils {
         // http://cassandra.apache.org/doc/cql3/CQL.html)
         throw new HopValueException(
             BaseMessages.getString(PKG, "CassandraUtils.Error.CantConvertBinaryToCQL"));
+      default:
+        break;
     }
 
     throw new HopValueException(
