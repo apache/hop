@@ -70,7 +70,9 @@ public class SnowflakeSafeIdGenerator {
    *
    * @return SnowflakeSafeIdGenerator
    */
+  @SuppressWarnings("java:S2245")
   public static SnowflakeSafeIdGenerator createDefault() {
+    // ThreadLocalRandom is safe for non-crypto purposes
     long dataCenterId = ThreadLocalRandom.current().nextInt(0, 32);
     long machineId = ThreadLocalRandom.current().nextInt(0, 32);
     return new SnowflakeSafeIdGenerator(dataCenterId, machineId, 10);

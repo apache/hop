@@ -107,48 +107,22 @@ public class AddSequenceMeta extends BaseTransformMeta<AddSequence, AddSequenceD
   /**
    * @param maxValue The maxValue to set.
    */
-  public void setMaxValue(long maxValue) {
+  public void setMaxValueByValue(long maxValue) {
     this.maxValue = Long.toString(maxValue);
-  }
-
-  /**
-   * @param maxValue The maxValue to set.
-   */
-  public void setMaxValue(String maxValue) {
-    this.maxValue = maxValue;
   }
 
   /**
    * @param startAt The starting point of the sequence to set.
    */
-  public void setStartAt(long startAt) {
+  public void setStartAtByValue(long startAt) {
     this.startAt = Long.toString(startAt);
   }
 
   /**
    * @param incrementBy The incrementBy to set.
    */
-  public void setIncrementBy(long incrementBy) {
+  public void setIncrementByValue(long incrementBy) {
     this.incrementBy = Long.toString(incrementBy);
-  }
-
-  /**
-   * @param incrementBy The incrementBy to set.
-   */
-  public void setIncrementBy(String incrementBy) {
-    this.incrementBy = incrementBy;
-  }
-
-  /**
-   * @param startAt The starting point of the sequence to set.
-   */
-  public void setStartAt(String startAt) {
-    this.startAt = startAt;
-  }
-
-  @Override
-  public Object clone() {
-    return super.clone();
   }
 
   @Override
