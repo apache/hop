@@ -98,6 +98,11 @@ public class TableOutputDialog extends BaseTransformDialog {
 
   private Button wSpecifyFields;
 
+  private Label wlDdlOptions;
+  private Button wDdlOptionsToggle;
+  private Composite wDdlOptionsComposite;
+  private boolean ddlOptionsExpanded = false;
+
   private Label wlAutoUpdateTableStructure;
   private Button wAutoUpdateTableStructure;
 
@@ -112,6 +117,9 @@ public class TableOutputDialog extends BaseTransformDialog {
 
   private Label wlChangeColumnTypes;
   private Button wChangeColumnTypes;
+
+  private CTabFolder wTabFolder;
+  private int margin;
 
   private Label wlBatch;
   private Button wBatch;
@@ -399,17 +407,58 @@ public class TableOutputDialog extends BaseTransformDialog {
           }
         });
 
+    // DDL Options label (right-aligned)
+    wlDdlOptions = new Label(shell, SWT.RIGHT);
+    wlDdlOptions.setText(BaseMessages.getString(PKG, "TableOutputDialog.DdlOptions.Open.Label"));
+    PropsUi.setLook(wlDdlOptions);
+    FormData fdlDdlOptions = new FormData();
+    fdlDdlOptions.left = new FormAttachment(0, 0);
+    fdlDdlOptions.right = new FormAttachment(middle, -margin);
+    fdlDdlOptions.top = new FormAttachment(wlSpecifyFields, margin);
+    wlDdlOptions.setLayoutData(fdlDdlOptions);
+
+    // DDL Options toggle button (with arrow icon) - small button
+    wDdlOptionsToggle = new Button(shell, SWT.PUSH);
+    wDdlOptionsToggle.setText("▶");
+    PropsUi.setLook(wDdlOptionsToggle);
+    FormData fdDdlOptionsToggle = new FormData();
+    fdDdlOptionsToggle.left = new FormAttachment(middle, 0);
+    fdDdlOptionsToggle.top = new FormAttachment(wlDdlOptions, 0, SWT.CENTER);
+    fdDdlOptionsToggle.width = 25; // Set width to fit the icon only
+    wDdlOptionsToggle.setLayoutData(fdDdlOptionsToggle);
+    wDdlOptionsToggle.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            toggleDdlOptions();
+          }
+        });
+
+    // Composite to hold all DDL options (hidden by default)
+    wDdlOptionsComposite = new Composite(shell, SWT.NONE);
+    PropsUi.setLook(wDdlOptionsComposite);
+    FormLayout ddlLayout = new FormLayout();
+    ddlLayout.marginWidth = 0;
+    ddlLayout.marginHeight = 0;
+    wDdlOptionsComposite.setLayout(ddlLayout);
+    FormData fdDdlOptionsComposite = new FormData();
+    fdDdlOptionsComposite.left = new FormAttachment(0, 0);
+    fdDdlOptionsComposite.top = new FormAttachment(wlDdlOptions, margin);
+    fdDdlOptionsComposite.right = new FormAttachment(100, 0);
+    wDdlOptionsComposite.setLayoutData(fdDdlOptionsComposite);
+    wDdlOptionsComposite.setVisible(false); // Hidden by default
+
     // Automatically update table structure
-    Label wlAutoUpdateTableStructure = new Label(shell, SWT.RIGHT);
+    wlAutoUpdateTableStructure = new Label(wDdlOptionsComposite, SWT.RIGHT);
     wlAutoUpdateTableStructure.setText(
         BaseMessages.getString(PKG, "TableOutputDialog.AutoUpdateTableStructure.Label"));
     PropsUi.setLook(wlAutoUpdateTableStructure);
     FormData fdlAutoUpdateTableStructure = new FormData();
     fdlAutoUpdateTableStructure.left = new FormAttachment(0, 0);
-    fdlAutoUpdateTableStructure.top = new FormAttachment(wlSpecifyFields, margin);
+    fdlAutoUpdateTableStructure.top = new FormAttachment(0, 0);
     fdlAutoUpdateTableStructure.right = new FormAttachment(middle, -margin);
     wlAutoUpdateTableStructure.setLayoutData(fdlAutoUpdateTableStructure);
-    wAutoUpdateTableStructure = new Button(shell, SWT.CHECK);
+    wAutoUpdateTableStructure = new Button(wDdlOptionsComposite, SWT.CHECK);
     PropsUi.setLook(wAutoUpdateTableStructure);
     FormData fdAutoUpdateTableStructure = new FormData();
     fdAutoUpdateTableStructure.left = new FormAttachment(middle, 0);
@@ -426,7 +475,7 @@ public class TableOutputDialog extends BaseTransformDialog {
         });
 
     // Always drop and recreate table
-    Label wlAlwaysDropAndRecreate = new Label(shell, SWT.RIGHT);
+    wlAlwaysDropAndRecreate = new Label(wDdlOptionsComposite, SWT.RIGHT);
     wlAlwaysDropAndRecreate.setText(
         BaseMessages.getString(PKG, "TableOutputDialog.AlwaysDropAndRecreate.Label"));
     PropsUi.setLook(wlAlwaysDropAndRecreate);
@@ -435,7 +484,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     fdlAlwaysDropAndRecreate.top = new FormAttachment(wlAutoUpdateTableStructure, margin);
     fdlAlwaysDropAndRecreate.right = new FormAttachment(middle, -margin);
     wlAlwaysDropAndRecreate.setLayoutData(fdlAlwaysDropAndRecreate);
-    wAlwaysDropAndRecreate = new Button(shell, SWT.CHECK);
+    wAlwaysDropAndRecreate = new Button(wDdlOptionsComposite, SWT.CHECK);
     PropsUi.setLook(wAlwaysDropAndRecreate);
     FormData fdAlwaysDropAndRecreate = new FormData();
     fdAlwaysDropAndRecreate.left = new FormAttachment(middle, 0);
@@ -445,7 +494,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     wAlwaysDropAndRecreate.addSelectionListener(lsSelMod);
 
     // Add columns
-    wlAddColumns = new Label(shell, SWT.RIGHT);
+    wlAddColumns = new Label(wDdlOptionsComposite, SWT.RIGHT);
     wlAddColumns.setText(BaseMessages.getString(PKG, "TableOutputDialog.AddColumns.Label"));
     PropsUi.setLook(wlAddColumns);
     FormData fdlAddColumns = new FormData();
@@ -453,7 +502,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     fdlAddColumns.top = new FormAttachment(wlAlwaysDropAndRecreate, margin);
     fdlAddColumns.right = new FormAttachment(middle, -margin);
     wlAddColumns.setLayoutData(fdlAddColumns);
-    wAddColumns = new Button(shell, SWT.CHECK);
+    wAddColumns = new Button(wDdlOptionsComposite, SWT.CHECK);
     PropsUi.setLook(wAddColumns);
     FormData fdAddColumns = new FormData();
     fdAddColumns.left = new FormAttachment(middle, 0);
@@ -463,7 +512,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     wAddColumns.addSelectionListener(lsSelMod);
 
     // Drop non-existing columns
-    wlDropColumns = new Label(shell, SWT.RIGHT);
+    wlDropColumns = new Label(wDdlOptionsComposite, SWT.RIGHT);
     wlDropColumns.setText(BaseMessages.getString(PKG, "TableOutputDialog.DropColumns.Label"));
     PropsUi.setLook(wlDropColumns);
     FormData fdlDropColumns = new FormData();
@@ -471,7 +520,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     fdlDropColumns.top = new FormAttachment(wlAddColumns, margin);
     fdlDropColumns.right = new FormAttachment(middle, -margin);
     wlDropColumns.setLayoutData(fdlDropColumns);
-    wDropColumns = new Button(shell, SWT.CHECK);
+    wDropColumns = new Button(wDdlOptionsComposite, SWT.CHECK);
     PropsUi.setLook(wDropColumns);
     FormData fdDropColumns = new FormData();
     fdDropColumns.left = new FormAttachment(middle, 0);
@@ -481,7 +530,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     wDropColumns.addSelectionListener(lsSelMod);
 
     // Change column data types
-    wlChangeColumnTypes = new Label(shell, SWT.RIGHT);
+    wlChangeColumnTypes = new Label(wDdlOptionsComposite, SWT.RIGHT);
     wlChangeColumnTypes.setText(
         BaseMessages.getString(PKG, "TableOutputDialog.ChangeColumnTypes.Label"));
     PropsUi.setLook(wlChangeColumnTypes);
@@ -490,7 +539,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     fdlChangeColumnTypes.top = new FormAttachment(wlDropColumns, margin);
     fdlChangeColumnTypes.right = new FormAttachment(middle, -margin);
     wlChangeColumnTypes.setLayoutData(fdlChangeColumnTypes);
-    wChangeColumnTypes = new Button(shell, SWT.CHECK);
+    wChangeColumnTypes = new Button(wDdlOptionsComposite, SWT.CHECK);
     PropsUi.setLook(wChangeColumnTypes);
     FormData fdChangeColumnTypes = new FormData();
     fdChangeColumnTypes.left = new FormAttachment(middle, 0);
@@ -499,7 +548,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     wChangeColumnTypes.setLayoutData(fdChangeColumnTypes);
     wChangeColumnTypes.addSelectionListener(lsSelMod);
 
-    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
@@ -927,7 +976,9 @@ public class TableOutputDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wlChangeColumnTypes, 3 * margin);
+    fdTabFolder.top =
+        new FormAttachment(
+            wlDdlOptions, 3 * margin); // Initially attach to label to avoid whitespace
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -1395,6 +1446,32 @@ public class TableOutputDialog extends BaseTransformDialog {
     }
   }
 
+  private void toggleDdlOptions() {
+    ddlOptionsExpanded = !ddlOptionsExpanded;
+    wDdlOptionsComposite.setVisible(ddlOptionsExpanded);
+
+    if (ddlOptionsExpanded) {
+      wDdlOptionsToggle.setText("▼");
+      wlDdlOptions.setText(BaseMessages.getString(PKG, "TableOutputDialog.DdlOptions.Close.Label"));
+    } else {
+      wDdlOptionsToggle.setText("▶");
+      wlDdlOptions.setText(BaseMessages.getString(PKG, "TableOutputDialog.DdlOptions.Open.Label"));
+    }
+
+    // Dynamically update CTabFolder positioning
+    FormData fdTabFolder = (FormData) wTabFolder.getLayoutData();
+    if (ddlOptionsExpanded) {
+      // When expanded, position after composite
+      fdTabFolder.top = new FormAttachment(wDdlOptionsComposite, 3 * margin);
+    } else {
+      // When collapsed, position after label
+      fdTabFolder.top = new FormAttachment(wlDdlOptions, 3 * margin);
+    }
+    wTabFolder.setLayoutData(fdTabFolder);
+
+    shell.layout(true, true);
+  }
+
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     if (input.getSchemaName() != null) {
@@ -1448,6 +1525,17 @@ public class TableOutputDialog extends BaseTransformDialog {
     }
     if (wChangeColumnTypes != null) {
       wChangeColumnTypes.setSelection(input.isChangeColumnTypes());
+    }
+
+    // Auto-expand DDL options if any are enabled
+    if (input.isAutoUpdateTableStructure()
+        || input.isAlwaysDropAndRecreate()
+        || input.isAddColumns()
+        || input.isDropColumns()
+        || input.isChangeColumnTypes()) {
+      if (!ddlOptionsExpanded) {
+        toggleDdlOptions();
+      }
     }
 
     for (int i = 0; i < input.getFields().size(); i++) {
