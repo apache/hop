@@ -18,8 +18,6 @@
 package org.apache.hop.mail.metadata;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.sun.mail.imap.IMAPSSLStore;
-import com.sun.mail.pop3.POP3SSLStore;
 import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
@@ -69,6 +67,8 @@ import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.eclipse.angus.mail.imap.IMAPSSLStore;
+import org.eclipse.angus.mail.pop3.POP3SSLStore;
 
 @Getter
 @Setter
@@ -258,7 +258,8 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
           // javax.net.ssl.SSLException: Unsupported record version Unknown
           props.put("mail.smtps.quitwait", "false");
         }
-        props.put("mail.smtp.ssl.checkServerIdentity", isCheckServerIdentity());
+        props.setProperty(
+            "mail.smtp.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
         if (!Utils.isEmpty(trustedHosts)) {
           props.put("mail.smtp.ssl.trust", variables.resolve(trustedHosts));
         }
@@ -307,7 +308,21 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
         }
       }
     }
-    session = Session.getInstance(props, null);
+    props.setProperty("mail.imap.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
+    props.setProperty(
+        "mail.imaps.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
+    props.setProperty("mail.pop3.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
+    props.setProperty(
+        "mail.pop3s.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
+    if (!Utils.isEmpty(trustedHosts)) {
+      String resolvedTrusted = variables.resolve(trustedHosts);
+      props.setProperty("mail.imap.ssl.trust", resolvedTrusted);
+      props.setProperty("mail.imaps.ssl.trust", resolvedTrusted);
+      props.setProperty("mail.pop3.ssl.trust", resolvedTrusted);
+      props.setProperty("mail.pop3s.ssl.trust", resolvedTrusted);
+    }
+
+    session = Session.getInstance(props);
 
     return session;
   }

@@ -18,8 +18,6 @@
 package org.apache.hop.mail.workflow.actions.getpop;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.sun.mail.imap.IMAPSSLStore;
-import com.sun.mail.pop3.POP3SSLStore;
 import jakarta.mail.Flags;
 import jakarta.mail.Flags.Flag;
 import jakarta.mail.Folder;
@@ -52,6 +50,8 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.Const;
@@ -60,8 +60,12 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.eclipse.angus.mail.imap.IMAPSSLStore;
+import org.eclipse.angus.mail.pop3.POP3SSLStore;
 
 /** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
+@Getter
+@Setter
 public class MailConnection {
   private static final Class<?> PKG = ActionGetPOP.class;
   private static final String CONST_POP3_UNSUPPORTED =
@@ -200,7 +204,7 @@ public class MailConnection {
         }
 
         // Create session object
-        this.session = Session.getInstance(this.prop, null);
+        this.session = Session.getInstance(this.prop);
         this.session.setDebug(log.isDebug());
         if (this.port == -1) {
           this.port =
@@ -268,20 +272,6 @@ public class MailConnection {
    */
   public String getProxyUsername() {
     return this.proxyusername;
-  }
-
-  /**
-   * @return Returns the store
-   */
-  public Store getStore() {
-    return this.store;
-  }
-
-  /**
-   * @return Returns the folder
-   */
-  public Folder getFolder() {
-    return this.folder;
   }
 
   /**
@@ -994,33 +984,6 @@ public class MailConnection {
     return this.folder.getName();
   }
 
-  /**
-   * Returns the server name/Ip.
-   *
-   * @return server
-   */
-  public String getServer() {
-    return server;
-  }
-
-  /**
-   * Returns the protocol.
-   *
-   * @return protocol
-   */
-  public int getProtocol() {
-    return protocol;
-  }
-
-  /**
-   * Returns all messages.
-   *
-   * @return all messages
-   */
-  public Message[] getMessages() {
-    return messages;
-  }
-
   private void updateMessageNr() {
     this.messagenr++;
   }
@@ -1042,15 +1005,6 @@ public class MailConnection {
       throw new HopException(
           BaseMessages.getString(PKG, "MailConnection.Error.FetchingMessages"), e);
     }
-  }
-
-  /**
-   * Returns the current message.
-   *
-   * @return current message
-   */
-  public Message getMessage() {
-    return this.message;
   }
 
   /**

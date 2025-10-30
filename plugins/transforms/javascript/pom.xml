@@ -42,8 +42,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
