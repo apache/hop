@@ -63,6 +63,10 @@
                     <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.eclipse.angus</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.ow2.asm</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
@@ -98,10 +102,6 @@
                     <artifactId>jackcess</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.sun.activation</groupId>
-                    <artifactId>jakarta.activation</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>commons-codec</groupId>
                     <artifactId>commons-codec</artifactId>
                 </exclusion>
@@ -116,6 +116,10 @@
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jakarta.activation</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>jakarta.xml.bind</groupId>
@@ -170,6 +174,10 @@
                     <artifactId>bcutil-jdk18on</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.eclipse.angus</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.ow2.asm</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
@@ -196,11 +204,6 @@
         <dependency>
             <groupId>com.healthmarketscience.jackcess</groupId>
             <artifactId>jackcess</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.activation</groupId>
-            <artifactId>jakarta.activation</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -62,7 +62,6 @@
                 <include>com.zaxxer:*</include>
                 <include>org.apache.xmlbeans:*</include>
                 <include>com.github.virtuald:*</include>
-                <include>jakarta.activation:jakarta.activation-api:jar</include>
                 <include>commons-codec:commons-codec:jar</include>
                 <include>commons-lang:commons-lang:jar</include>
                 <include>commons-logging:commons-logging:jar</include>

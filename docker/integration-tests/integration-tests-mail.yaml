@@ -21,7 +21,7 @@ services:
       file: integration-tests-base.yaml
       service: integration_test
     environment:
-      HOP_OPTIONS: "${HOP_OPTIONS} -Djavax.net.ssl.keyStore=/tmp/keystore -Djavax.net.ssl.trustStore=/tmp/keystore -Djavax.net.ssl.keyStorePassword=james72laBalle"
+      HOP_OPTIONS: "${HOP_OPTIONS} -Djavax.net.ssl.keyStore=/tmp/keystore -Djavax.net.ssl.trustStore=/tmp/keystore -Djavax.net.ssl.keyStorePassword=james72laBalle -Dmail.pop3.ssl.checkserveridentity=false -Dmail.imap.ssl.checkserveridentity=false -Dmail.smtp.ssl.checkserveridentity=false"
     depends_on:
       - james
     links:

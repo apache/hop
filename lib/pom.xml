@@ -32,6 +32,8 @@
     <properties>
         <accessors-smart.version>2.4.9</accessors-smart.version>
         <akka.version>2.5.32</akka.version>
+        <angus-activation.version>2.0.3</angus-activation.version>
+        <angus-mail.version>2.0.5</angus-mail.version>
         <apache-flink.version>1.16.3</apache-flink.version>
         <apache-spark.version>3.4.3</apache-spark.version>
         <asm.version>9.7</asm.version>
@@ -87,7 +89,6 @@
         <jackcess.version>4.0.4</jackcess.version>
         <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom -->
         <jackson.version>2.15.4</jackson.version>
-        <jakarta-mail.version>2.0.1</jakarta-mail.version>
         <jakarta.version>3.1.0</jakarta.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <jetty-jaas.version>11.0.26</jetty-jaas.version>
@@ -309,14 +310,14 @@
                 <version>${okio.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.activation</groupId>
-                <artifactId>jakarta.activation</artifactId>
-                <version>${jakarta-mail.version}</version>
+                <groupId>org.eclipse.angus</groupId>
+                <artifactId>angus-activation</artifactId>
+                <version>${angus-activation.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>jakarta.mail</artifactId>
-                <version>${jakarta-mail.version}</version>
+                <groupId>org.eclipse.angus</groupId>
+                <artifactId>angus-mail</artifactId>
+                <version>${angus-mail.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.tinkerpop.blueprints</groupId>
