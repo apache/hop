@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.valuemapper;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -61,6 +62,8 @@ public class ValueMapperDialog extends BaseTransformDialog {
   private final ValueMapperMeta input;
 
   private boolean gotPreviousFields = false;
+
+  private CCombo wTargetType;
 
   public ValueMapperDialog(
       Shell parent,
@@ -191,12 +194,32 @@ public class ValueMapperDialog extends BaseTransformDialog {
     fdNonMatchDefault.right = new FormAttachment(100, 0);
     wNonMatchDefault.setLayoutData(fdNonMatchDefault);
 
+    // Type of value
+    /*
+     * Type of Value: String, Number, Date, Boolean, Integer
+     */
+    Label wlValueType = new Label(shell, SWT.RIGHT);
+    wlValueType.setText(BaseMessages.getString(PKG, "ValueMapperDialog.TargetType.Label"));
+    FormData fdlValueType = new FormData();
+    fdlValueType.left = new FormAttachment(0, 0);
+    fdlValueType.right = new FormAttachment(middle, -margin);
+    fdlValueType.top = new FormAttachment(wNonMatchDefault, margin);
+    wlValueType.setLayoutData(fdlValueType);
+    wTargetType = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
+    wTargetType.setItems(ValueMetaFactory.getValueMetaNames());
+    PropsUi.setLook(wTargetType);
+    FormData fdValueType = new FormData();
+    fdValueType.left = new FormAttachment(middle, 0);
+    fdValueType.top = new FormAttachment(wNonMatchDefault, margin);
+    fdValueType.right = new FormAttachment(100, 0);
+    wTargetType.setLayoutData(fdValueType);
+
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ValueMapperDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wNonMatchDefault, margin);
+    fdlFields.top = new FormAttachment(wlValueType, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 2;
@@ -277,6 +300,9 @@ public class ValueMapperDialog extends BaseTransformDialog {
     if (input.getNonMatchDefault() != null) {
       wNonMatchDefault.setText(input.getNonMatchDefault());
     }
+    if (input.getTargetType() != null) {
+      wTargetType.setText(input.getTargetType());
+    }
 
     int i = 0;
     for (Values v : input.getValues()) {
@@ -315,6 +341,7 @@ public class ValueMapperDialog extends BaseTransformDialog {
     input.setFieldToUse(wFieldName.getText());
     input.setTargetField(wTargetFieldName.getText());
     input.setNonMatchDefault(wNonMatchDefault.getText());
+    input.setTargetType(wTargetType.getText());
 
     input.getValues().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {
