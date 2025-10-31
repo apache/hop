@@ -121,6 +121,8 @@ public class HopGuiWorkflowLogDelegate {
     fdText.top = new FormAttachment((Control) toolbar, 0);
     fdText.bottom = new FormAttachment(100, 0);
     workflowLogText.setLayoutData(fdText);
+    workflowLogText.setFont(GuiResource.getInstance().getFontFixedSmall());
+
     // add a CR to avoid fontStyle from getting lost on macos HOP-2583
     if (OsHelper.isMac()) {
       workflowLogText.setText(Const.CR);

@@ -113,6 +113,7 @@ public class GuiResource {
   private ManagedFont fontGraph;
   private ManagedFont fontNote;
   private ManagedFont fontFixed;
+  private ManagedFont fontFixedSmall;
   private ManagedFont fontMedium;
   private ManagedFont fontMediumBold;
   private ManagedFont fontLarge;
@@ -401,6 +402,7 @@ public class GuiResource {
     fontGraph.dispose();
     fontNote.dispose();
     fontFixed.dispose();
+    fontFixedSmall.dispose();
     fontMedium.dispose();
     fontMediumBold.dispose();
     fontLarge.dispose();
@@ -619,6 +621,10 @@ public class GuiResource {
     int fixedFontSize = (int) Math.round(fixedFontData.getHeight() * props.getGlobalZoomFactor());
     fixedFontData.setHeight(fixedFontSize);
     fontFixed = new ManagedFont(display, fixedFontData);
+
+    FontData fixedFontSmallData = props.getFixedFont();
+    fixedFontSmallData.setHeight(fixedFontSize - 2);
+    fontFixedSmall = new ManagedFont(display, fixedFontSmallData);
 
     // Create a medium size version of the graph font
     int mediumFontSize = (int) Math.round(defaultFontSize * 1.2);
@@ -928,6 +934,13 @@ public class GuiResource {
    */
   public Font getFontFixed() {
     return fontFixed.getFont();
+  }
+
+  /**
+   * @return Returns the fontFixedSmall.
+   */
+  public Font getFontFixedSmall() {
+    return fontFixedSmall.getFont();
   }
 
   /**

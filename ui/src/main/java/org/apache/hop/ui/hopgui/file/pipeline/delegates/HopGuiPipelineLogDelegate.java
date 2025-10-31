@@ -119,6 +119,8 @@ public class HopGuiPipelineLogDelegate {
     fdText.top = new FormAttachment(toolbar, 0);
     fdText.bottom = new FormAttachment(100, 0);
     pipelineLogText.setLayoutData(fdText);
+    pipelineLogText.setFont(GuiResource.getInstance().getFontFixedSmall());
+
     // add a CR to avoid fontStyle from getting lost on macos HOP-2583
     if (OsHelper.isMac()) {
       pipelineLogText.setText(Const.CR);
