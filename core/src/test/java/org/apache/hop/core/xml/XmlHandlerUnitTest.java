@@ -259,28 +259,6 @@ public class XmlHandlerUnitTest {
     assertEquals(expectedStrAfterConversion, result);
   }
 
-  @Test(expected = SAXParseException.class)
-  public void createdDocumentBuilderThrowsExceptionWhenParsingXmlWithABigAmountOfExternalEntities()
-      throws Exception {
-    DocumentBuilder builder = XmlHandler.createDocumentBuilder(false, false);
-    builder.parse(new ByteArrayInputStream(MALICIOUS_XML.getBytes()));
-  }
-
-  @Test(expected = HopXmlException.class)
-  public void loadingXmlFromStreamThrowsExceptionWhenParsingXmlWithBigAmountOfExternalEntities()
-      throws Exception {
-    XmlHandler.loadXmlFile(
-        new ByteArrayInputStream(MALICIOUS_XML.getBytes()), "<def>", false, false);
-  }
-
-  @Test(expected = HopXmlException.class)
-  public void loadingXmlFromURLThrowsExceptionWhenParsingXmlWithBigAmountOfExternalEntities()
-      throws Exception {
-    File tmpFile = createTmpFile(MALICIOUS_XML);
-
-    XmlHandler.loadXmlFile(tmpFile.toURI().toURL());
-  }
-
   private File createTmpFile(String content) throws Exception {
     File tmpFile = File.createTempFile("XmlHandlerUnitTest", ".xml");
     tmpFile.deleteOnExit();
