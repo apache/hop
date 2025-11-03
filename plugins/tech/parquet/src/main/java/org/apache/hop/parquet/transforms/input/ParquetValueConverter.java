@@ -20,6 +20,8 @@ package org.apache.hop.parquet.transforms.input;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IValueMeta;
@@ -84,7 +86,6 @@ public class ParquetValueConverter extends PrimitiveConverter {
           object = timestamp;
           break;
         }
-
       default:
         throw new RuntimeException(
             "Unable to convert Binary source data to type " + valueMeta.getTypeDesc());

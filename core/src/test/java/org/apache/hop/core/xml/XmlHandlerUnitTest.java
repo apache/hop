@@ -30,14 +30,12 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXParseException;
 
 public class XmlHandlerUnitTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
