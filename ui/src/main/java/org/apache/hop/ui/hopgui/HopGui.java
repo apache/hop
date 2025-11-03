@@ -134,17 +134,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -271,8 +264,7 @@ public class HopGui
   private Control statusToolbar;
   private GuiToolbarWidgets statusToolbarWidgets;
 
-  private Composite perspectivesSidebar;
-  private java.util.List<SidebarButton> sidebarButtons = new java.util.ArrayList<>();
+  private ToolBar perspectivesToolbar;
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
@@ -491,6 +483,10 @@ public class HopGui
             auditDelegate.openLastFiles();
           }
 
+          // NOTE: Terminal restoration is handled by the Projects plugin when it activates a
+          // project
+          // If projects aren't enabled, terminals will be restored after this block
+
           // We need to start tracking file history again.
           //
           reOpeningFiles = false;
@@ -611,29 +607,85 @@ public class HopGui
                 perspective.getId());
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
 
-        int sidebarIconSize = 21;
-        Image image =
-            GuiResource.getInstance()
-                .getImage(
-                    perspectivePlugin.getImageFile(),
-                    classLoader,
-                    sidebarIconSize,
-                    sidebarIconSize);
+        ToolItem item;
+        if (EnvironmentUtils.getInstance().isWeb()) {
+          item =
+              addWebToolbarButton(
+                  perspectivePlugin.getIds()[0],
+                  this.perspectivesToolbar,
+                  perspectivePlugin.getImageFile(),
+                  tooltip,
+                  // TODO: check if there is unnecessary refresh
+                  event -> setActivePerspective(perspective));
+        } else {
+          item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
+          item.setToolTipText(tooltip);
+          item.addListener(
+              SWT.Selection,
+              event -> {
+                // Event is sent first to the unselected tool item and then the selected item.
+                // To avoid unnecessary refresh, only activate perspective on the selected item.
+                if (item.getSelection()) {
+                  setActivePerspective(perspective);
+                }
+              });
+          Image image =
+              GuiResource.getInstance()
+                  .getImage(
+                      perspectivePlugin.getImageFile(),
+                      classLoader,
+                      ConstUi.SMALL_ICON_SIZE,
+                      ConstUi.SMALL_ICON_SIZE);
+          if (image != null) {
+            item.setImage(image);
+          }
+        }
+        item.setData(perspective);
+
         // See if there's a shortcut for the perspective, add it to tooltip...
         KeyboardShortcut shortcut =
             GuiRegistry.getInstance()
                 .findKeyboardShortcut(perspectiveClass.getName(), "activate", Const.isOSX());
-
         if (shortcut != null) {
-          tooltip += " (" + shortcut + ")";
+          item.setToolTipText(item.getToolTipText() + " (" + shortcut + ')');
         }
-
-        // Create styled sidebar button with hover, selection, and rounded corners
-        // This works for both desktop SWT and web/RAP modes
-        createStyledSidebarButton(perspectivesSidebar, image, tooltip, perspective);
       }
 
-      perspectivesSidebar.layout(true, true);
+      perspectivesToolbar.pack();
+
+      // Create bottom toolbar for terminal button (anchored to bottom of screen)
+      ToolBar bottomToolbar =
+          new ToolBar(
+              (Composite) perspectivesToolbar.getParent(), SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
+      PropsUi.setLook(bottomToolbar, Props.WIDGET_STYLE_TOOLBAR);
+      FormData fdBottomToolbar = new FormData();
+      fdBottomToolbar.left = new FormAttachment(0, 0);
+      fdBottomToolbar.bottom = new FormAttachment(100, 0);
+      bottomToolbar.setLayoutData(fdBottomToolbar);
+
+      // Execution results toggle button (show/hide logging/metrics/problems)
+      ToolItem executionResultsButton = new ToolItem(bottomToolbar, SWT.PUSH);
+      executionResultsButton.setImage(GuiResource.getInstance().getImageShowResults());
+      executionResultsButton.setToolTipText("Toggle Execution Results (Logging/Metrics/Problems)");
+      executionResultsButton.addListener(
+          SWT.Selection,
+          event -> {
+            toggleExecutionResults();
+          });
+
+      // Terminal toggle button
+      ToolItem terminalButton = new ToolItem(bottomToolbar, SWT.PUSH);
+      terminalButton.setImage(GuiResource.getInstance().getImageTerminal());
+      terminalButton.setToolTipText("Toggle Terminal Panel");
+      terminalButton.addListener(
+          SWT.Selection,
+          event -> {
+            if (terminalPanel != null) {
+              terminalPanel.toggleTerminal();
+            }
+          });
+
+      bottomToolbar.pack();
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
@@ -963,6 +1015,16 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'c')
   @GuiOsxKeyboardShortcut(command = true, key = 'c')
   public void menuEditCopySelected() {
+    // Check if the focused widget is the terminal with selected text
+    Control focusControl = display.getFocusControl();
+    if (focusControl instanceof org.eclipse.swt.custom.StyledText styledText) {
+      if (styledText.getSelectionCount() > 0) {
+        // Let the terminal's own copy handler deal with it
+        return;
+      }
+    }
+
+    // Otherwise, delegate to the active file type handler (pipeline/workflow)
     getActiveFileTypeHandler().copySelectedToClipboard();
   }
 
@@ -975,6 +1037,15 @@ public class HopGui
   @GuiKeyboardShortcut(control = true, key = 'v')
   @GuiOsxKeyboardShortcut(command = true, key = 'v')
   public void menuEditPaste() {
+    // Check if the focused widget is the terminal - if so, don't interfere
+    Control focusControl = display.getFocusControl();
+    if (focusControl instanceof org.eclipse.swt.custom.StyledText) {
+      // Let the terminal's own paste handler deal with it
+      // Terminal has its own Cmd+V handler that sends text to PTY
+      return;
+    }
+
+    // Otherwise, delegate to the active file type handler (pipeline/workflow)
     getActiveFileTypeHandler().pasteFromClipboard();
   }
 
@@ -1336,24 +1407,23 @@ public class HopGui
     formData.bottom = new FormAttachment(statusToolbar, 0);
     mainHopGuiComposite.setLayoutData(formData);
 
-    // Create custom sidebar composite instead of ToolBar for better control
-    perspectivesSidebar = new Composite(mainHopGuiComposite, SWT.NONE);
-    PropsUi.setLook(perspectivesSidebar);
+    // Create a composite container for the left toolbar area
+    // This allows us to position perspectives at top and terminal button at bottom
+    Composite toolbarContainer = new Composite(mainHopGuiComposite, SWT.NO_BACKGROUND);
+    toolbarContainer.setLayout(new FormLayout());
+    FormData fdContainer = new FormData();
+    fdContainer.left = new FormAttachment(0, 0);
+    fdContainer.top = new FormAttachment(0, 0);
+    fdContainer.bottom = new FormAttachment(100, 0);
+    toolbarContainer.setLayoutData(fdContainer);
 
-    // Use GridLayout for vertical stacking
-    org.eclipse.swt.layout.GridLayout sidebarLayout =
-        new org.eclipse.swt.layout.GridLayout(1, false);
-    sidebarLayout.marginWidth = 1;
-    sidebarLayout.marginHeight = 2;
-    sidebarLayout.verticalSpacing = 1; // Minimal spacing between buttons
-    perspectivesSidebar.setLayout(sidebarLayout);
-
-    FormData fdSidebar = new FormData();
-    fdSidebar.left = new FormAttachment(0, 0);
-    fdSidebar.top = new FormAttachment(0, 0);
-    fdSidebar.bottom = new FormAttachment(100, 0);
-    fdSidebar.width = (int) (40 * PropsUi.getNativeZoomFactor());
-    perspectivesSidebar.setLayoutData(fdSidebar);
+    // Perspectives toolbar (anchored to top)
+    perspectivesToolbar = new ToolBar(toolbarContainer, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
+    PropsUi.setLook(perspectivesToolbar, Props.WIDGET_STYLE_TOOLBAR);
+    FormData fdToolBar = new FormData();
+    fdToolBar.left = new FormAttachment(0, 0);
+    fdToolBar.top = new FormAttachment(0, 0);
+    perspectivesToolbar.setLayoutData(fdToolBar);
   }
 
   /**
@@ -1364,12 +1434,15 @@ public class HopGui
    * bottom of the screen, with perspectives rendering in the top part.
    */
   private void addMainPerspectivesComposite() {
+    // Get the toolbar container (parent of perspectivesToolbar)
+    Composite toolbarContainer = perspectivesToolbar.getParent();
+
     // Create terminal panel wrapper (this adds the terminal functionality)
     terminalPanel =
         new org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel(mainHopGuiComposite, this);
     FormData fdTerminalPanel = new FormData();
     fdTerminalPanel.top = new FormAttachment(0, 0);
-    fdTerminalPanel.left = new FormAttachment(perspectivesSidebar, 0);
+    fdTerminalPanel.left = new FormAttachment(toolbarContainer, 0);
     fdTerminalPanel.bottom = new FormAttachment(100, 0);
     fdTerminalPanel.right = new FormAttachment(100, 0);
     terminalPanel.setLayoutData(fdTerminalPanel);
@@ -1529,6 +1602,12 @@ public class HopGui
     if (control == null || control.isDisposed()) {
       return;
     }
+
+    // Don't register global keyboard handler on terminal widgets - they handle their own keys
+    if (control.getData("HOP_TERMINAL_WIDGET") == Boolean.TRUE) {
+      return;
+    }
+
     control.removeKeyListener(keyHandler);
     control.addKeyListener(keyHandler);
 
@@ -1587,11 +1666,6 @@ public class HopGui
     StackLayout layout = (StackLayout) mainPerspectivesComposite.getLayout();
     layout.topControl = perspective.getControl();
     mainPerspectivesComposite.layout();
-
-    // Selection is handled by updateSidebarButtonSelection()
-
-    // Update sidebar button selection states
-    updateSidebarButtonSelection(perspective);
 
     // Notify the perspective that it has been activated.
     //
@@ -1917,6 +1991,20 @@ public class HopGui
       }
     }
     return null;
+  }
+
+  /** Toggle execution results panel for the currently active pipeline or workflow */
+  public void toggleExecutionResults() {
+    HopGuiPipelineGraph pipelineGraph = getActivePipelineGraph();
+    if (pipelineGraph != null) {
+      pipelineGraph.showExecutionResults();
+      return;
+    }
+
+    HopGuiWorkflowGraph workflowGraph = getActiveWorkflowGraph();
+    if (workflowGraph != null) {
+      workflowGraph.showExecutionResults();
+    }
   }
 
   public static MetadataPerspective getMetadataPerspective() {
