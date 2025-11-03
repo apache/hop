@@ -36,6 +36,8 @@
         <jakarta.xml.soap-api.version>3.0.2</jakarta.xml.soap-api.version>
         <jakarta.xml.ws-api.version>4.0.2</jakarta.xml.ws-api.version>
         <jersey2.version>3.1.11</jersey2.version>
+        <!-- mina override remove when updating jaas-->
+        <mina.core.version>2.2.4</mina.core.version>
         <snappy-java.version>1.1.10.7</snappy-java.version>
     </properties>
 
@@ -47,6 +49,12 @@
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- mina override remove when updating jaas-->
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-core</artifactId>
+                <version>${mina.core.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
