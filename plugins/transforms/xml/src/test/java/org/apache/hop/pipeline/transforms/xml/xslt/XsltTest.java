@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -45,6 +46,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class XsltTest {
@@ -63,6 +65,11 @@ class XsltTest {
           + "</xsl:stylesheet>";
 
   private static final String TEST1_FNAME = "template.xsl";
+
+  @BeforeEach
+  public void init() throws Exception {
+    HopClientEnvironment.init();
+  }
 
   /**
    * Write the file to be used as input (as a temporary file).

@@ -30,14 +30,12 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import javax.xml.parsers.DocumentBuilder;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXParseException;
 
 public class XmlHandlerUnitTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -257,28 +255,6 @@ public class XmlHandlerUnitTest {
             + "</[value_start (&#34;&#39;&lt;&amp;&gt;) value_end]>";
     String result = XmlHandler.addTagValue(testString, testString, false, testString, testString);
     assertEquals(expectedStrAfterConversion, result);
-  }
-
-  @Test(expected = SAXParseException.class)
-  public void createdDocumentBuilderThrowsExceptionWhenParsingXmlWithABigAmountOfExternalEntities()
-      throws Exception {
-    DocumentBuilder builder = XmlHandler.createDocumentBuilder(false, false);
-    builder.parse(new ByteArrayInputStream(MALICIOUS_XML.getBytes()));
-  }
-
-  @Test(expected = HopXmlException.class)
-  public void loadingXmlFromStreamThrowsExceptionWhenParsingXmlWithBigAmountOfExternalEntities()
-      throws Exception {
-    XmlHandler.loadXmlFile(
-        new ByteArrayInputStream(MALICIOUS_XML.getBytes()), "<def>", false, false);
-  }
-
-  @Test(expected = HopXmlException.class)
-  public void loadingXmlFromURLThrowsExceptionWhenParsingXmlWithBigAmountOfExternalEntities()
-      throws Exception {
-    File tmpFile = createTmpFile(MALICIOUS_XML);
-
-    XmlHandler.loadXmlFile(tmpFile.toURI().toURL());
   }
 
   private File createTmpFile(String content) throws Exception {

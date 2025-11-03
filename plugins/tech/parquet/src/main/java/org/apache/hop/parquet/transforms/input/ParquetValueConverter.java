@@ -86,7 +86,6 @@ public class ParquetValueConverter extends PrimitiveConverter {
           object = timestamp;
           break;
         }
-
       default:
         throw new RuntimeException(
             "Unable to convert Binary source data to type " + valueMeta.getTypeDesc());

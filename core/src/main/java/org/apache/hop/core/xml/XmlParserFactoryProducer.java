@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.EnvUtil;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
@@ -47,6 +48,41 @@ public class XmlParserFactoryProducer {
         "http://apache.org/xml/features/disallow-doctype-decl",
         "N".equals(EnvUtil.getSystemProperty(Const.XML_ALLOW_DOCTYPE_DECL)));
 
+    String[] featuresToDisable = {
+      // Xerces 1 - http://xerces.apache.org/xerces-j/features.html#external-general-entities
+      // Xerces 2 - http://xerces.apache.org/xerces2-j/features.html#external-general-entities
+      // JDK7+ - http://xml.org/sax/features/external-general-entities
+      // This feature has to be used together with the following one, otherwise it will not protect
+      // you from XXE for sure
+      "http://xml.org/sax/features/external-general-entities",
+
+      // Xerces 1 - http://xerces.apache.org/xerces-j/features.html#external-parameter-entities
+      // Xerces 2 - http://xerces.apache.org/xerces2-j/features.html#external-parameter-entities
+      // JDK7+ - http://xml.org/sax/features/external-parameter-entities
+      // This feature has to be used together with the previous one, otherwise it will not protect
+      // you from XXE for sure
+      "http://xml.org/sax/features/external-parameter-entities",
+
+      // Disable external DTDs as well
+      "http://apache.org/xml/features/nonvalidating/load-external-dtd"
+    };
+    for (String feature : featuresToDisable) {
+      try {
+        docBuilderFactory.setFeature(feature, false);
+      } catch (ParserConfigurationException e) {
+        // This should catch a failed setFeature feature
+        if (LogChannel.GENERAL.isDetailed()) {
+          LogChannel.GENERAL.logDetailed(
+              "ParserConfigurationException was thrown. The feature '"
+                  + feature
+                  + "' is probably not supported by your XML processor.");
+        }
+      }
+    }
+
+    docBuilderFactory.setXIncludeAware(false);
+    docBuilderFactory.setExpandEntityReferences(false);
+    docBuilderFactory.setValidating(false);
     return docBuilderFactory;
   }
 
