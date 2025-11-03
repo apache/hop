@@ -257,42 +257,36 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <run_configuration>local</run_configuration>
-    <filename>${PROJECT_HOME}/execute-hop-run.hwf</filename>
-    <group_size>1</group_size>
-    <group_field/>
-    <group_time/>
-    <parameters>
-      <variablemapping>
-        <variable>PRM_HOP_RUN</variable>
-        <field>hop_run_cmd</field>
-        <input/>
-      </variablemapping>
-      <variablemapping>
-        <variable>PRM_NAME</variable>
-        <field>short_filename</field>
-        <input/>
-      </variablemapping>
-      <inherit_all_vars>Y</inherit_all_vars>
-    </parameters>
-    <execution_result_target_transform>errors?</execution_result_target_transform>
-    <execution_time_field>ExecutionTime</execution_time_field>
-    <execution_result_field>ExecutionResult</execution_result_field>
     <execution_errors_field>ExecutionNrErrors</execution_errors_field>
-    <execution_lines_read_field>ExecutionLinesRead</execution_lines_read_field>
-    <execution_lines_written_field>ExecutionLinesWritten</execution_lines_written_field>
+    <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
+    <execution_files_retrieved_field>ExecutionFilesRetrieved</execution_files_retrieved_field>
+    <execution_lines_deleted_field>ExecutionLinesDeleted</execution_lines_deleted_field>
     <execution_lines_input_field>ExecutionLinesInput</execution_lines_input_field>
     <execution_lines_output_field>ExecutionLinesOutput</execution_lines_output_field>
+    <execution_lines_read_field>ExecutionLinesRead</execution_lines_read_field>
     <execution_lines_rejected_field>ExecutionLinesRejected</execution_lines_rejected_field>
     <execution_lines_updated_field>ExecutionLinesUpdated</execution_lines_updated_field>
-    <execution_lines_deleted_field>ExecutionLinesDeleted</execution_lines_deleted_field>
-    <execution_files_retrieved_field>ExecutionFilesRetrieved</execution_files_retrieved_field>
-    <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
-    <execution_log_text_field>ExecutionLogText</execution_log_text_field>
+    <execution_lines_written_field>ExecutionLinesWritten</execution_lines_written_field>
     <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
-    <result_rows_target_transform/>
-    <result_files_target_transform/>
+    <execution_log_text_field>ExecutionLogText</execution_log_text_field>
+    <execution_result_field>ExecutionResult</execution_result_field>
+    <execution_result_target_transform>errors?</execution_result_target_transform>
+    <execution_time_field>ExecutionTime</execution_time_field>
+    <filename>${PROJECT_HOME}/execute-hop-run.hwf</filename>
+    <group_size>1</group_size>
+    <inherit_all_vars>Y</inherit_all_vars>
+    <parameters>
+      <variablemapping>
+        <field>hop_run_cmd</field>
+        <variable>PRM_HOP_RUN</variable>
+      </variablemapping>
+      <variablemapping>
+        <field>short_filename</field>
+        <variable>PRM_NAME</variable>
+      </variablemapping>
+    </parameters>
     <result_files_file_name_field>FileName</result_files_file_name_field>
+    <run_configuration>local</run_configuration>
     <attributes/>
     <GUI>
       <xloc>1520</xloc>
@@ -310,42 +304,36 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <run_configuration>local</run_configuration>
-    <filename>${PROJECT_HOME}/execute-hop-run.hwf</filename>
-    <group_size>1</group_size>
-    <group_field/>
-    <group_time/>
-    <parameters>
-      <variablemapping>
-        <variable>PRM_HOP_RUN</variable>
-        <field>hop_run_cmd</field>
-        <input/>
-      </variablemapping>
-      <variablemapping>
-        <variable>PRM_NAME</variable>
-        <field>short_filename</field>
-        <input/>
-      </variablemapping>
-      <inherit_all_vars>Y</inherit_all_vars>
-    </parameters>
-    <execution_result_target_transform>errors?</execution_result_target_transform>
-    <execution_time_field>ExecutionTime</execution_time_field>
-    <execution_result_field>ExecutionResult</execution_result_field>
     <execution_errors_field>ExecutionNrErrors</execution_errors_field>
-    <execution_lines_read_field>ExecutionLinesRead</execution_lines_read_field>
-    <execution_lines_written_field>ExecutionLinesWritten</execution_lines_written_field>
+    <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
+    <execution_files_retrieved_field>ExecutionFilesRetrieved</execution_files_retrieved_field>
+    <execution_lines_deleted_field>ExecutionLinesDeleted</execution_lines_deleted_field>
     <execution_lines_input_field>ExecutionLinesInput</execution_lines_input_field>
     <execution_lines_output_field>ExecutionLinesOutput</execution_lines_output_field>
+    <execution_lines_read_field>ExecutionLinesRead</execution_lines_read_field>
     <execution_lines_rejected_field>ExecutionLinesRejected</execution_lines_rejected_field>
     <execution_lines_updated_field>ExecutionLinesUpdated</execution_lines_updated_field>
-    <execution_lines_deleted_field>ExecutionLinesDeleted</execution_lines_deleted_field>
-    <execution_files_retrieved_field>ExecutionFilesRetrieved</execution_files_retrieved_field>
-    <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
-    <execution_log_text_field>ExecutionLogText</execution_log_text_field>
+    <execution_lines_written_field>ExecutionLinesWritten</execution_lines_written_field>
     <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
-    <result_rows_target_transform/>
-    <result_files_target_transform/>
+    <execution_log_text_field>ExecutionLogText</execution_log_text_field>
+    <execution_result_field>ExecutionResult</execution_result_field>
+    <execution_result_target_transform>errors?</execution_result_target_transform>
+    <execution_time_field>ExecutionTime</execution_time_field>
+    <filename>${PROJECT_HOME}/execute-hop-run.hwf</filename>
+    <group_size>1</group_size>
+    <inherit_all_vars>Y</inherit_all_vars>
+    <parameters>
+      <variablemapping>
+        <field>hop_run_cmd</field>
+        <variable>PRM_HOP_RUN</variable>
+      </variablemapping>
+      <variablemapping>
+        <field>short_filename</field>
+        <variable>PRM_NAME</variable>
+      </variablemapping>
+    </parameters>
     <result_files_file_name_field>FileName</result_files_file_name_field>
+    <run_configuration>local</run_configuration>
     <attributes/>
     <GUI>
       <xloc>1200</xloc>
@@ -647,20 +635,32 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>stanfordnlp.hpl</item>
         <item>Missing Libraries in default install</item>
       </line>
+      <line>
+        <item>columns-exist-in-a-table.hwf</item>
+        <item>Is intended to fail.</item>
+      </line>
     </data>
     <fields>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>sample_name</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>String</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>reason</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>String</type>
       </field>
     </fields>

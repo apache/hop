@@ -27,7 +27,7 @@ services:
       - mongo
 
   mongo:
-    image: mongo:latest
+    image: mongo:7
     ports:
       - "27017"
     healthcheck:
