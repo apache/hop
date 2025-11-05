@@ -109,7 +109,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
         }
       }
     }
-    if (!receivedRows && (hasEmptyList && !meta.isAllowEmptyStreamOnExecution())) {
+    if (!receivedRows || (hasEmptyList && !meta.isAllowEmptyStreamOnExecution())) {
       setOutputDone();
       return false;
     }
