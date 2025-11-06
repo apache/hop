@@ -195,6 +195,7 @@ public class MailDialog extends BaseTransformDialog {
 
   private Button wIncludeMessageInOutput;
 
+  private Label wlMessageOutputField;
   private TextVar wMessageOutputField;
 
   private Button wCheckServerIdentity;
@@ -1392,14 +1393,14 @@ public class MailDialog extends BaseTransformDialog {
         });
 
     // OutputFieldName textvar
-    Label wlMessageOutputFIeld = new Label(wMessageGroup, SWT.RIGHT);
-    wlMessageOutputFIeld.setText(BaseMessages.getString(PKG, "Mail.IncldueMessageField.Label"));
-    PropsUi.setLook(wlMessageOutputFIeld);
-    FormData fdlMessageOutputFIeld = new FormData();
-    fdlMessageOutputFIeld.left = new FormAttachment(0, 0);
-    fdlMessageOutputFIeld.top = new FormAttachment(wIncludeMessageInOutput, margin);
-    fdlMessageOutputFIeld.right = new FormAttachment(middle, -margin);
-    wlMessageOutputFIeld.setLayoutData(fdlMessageOutputFIeld);
+    wlMessageOutputField = new Label(wMessageGroup, SWT.RIGHT);
+    wlMessageOutputField.setText(BaseMessages.getString(PKG, "Mail.IncldueMessageField.Label"));
+    PropsUi.setLook(wlMessageOutputField);
+    FormData fdlMessageOutputField = new FormData();
+    fdlMessageOutputField.left = new FormAttachment(0, 0);
+    fdlMessageOutputField.top = new FormAttachment(wIncludeMessageInOutput, margin);
+    fdlMessageOutputField.right = new FormAttachment(middle, -margin);
+    wlMessageOutputField.setLayoutData(fdlMessageOutputField);
 
     wMessageOutputField = new TextVar(variables, wMessageGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wMessageOutputField);
@@ -1408,7 +1409,7 @@ public class MailDialog extends BaseTransformDialog {
     wMessageOutputField.addModifyListener(lsMod);
     FormData fdMessageOutputField = new FormData();
     fdMessageOutputField.left = new FormAttachment(middle, 0);
-    fdMessageOutputField.top = new FormAttachment(wlMessageOutputFIeld, 0, SWT.CENTER);
+    fdMessageOutputField.top = new FormAttachment(wlMessageOutputField, 0, SWT.CENTER);
     fdMessageOutputField.right = new FormAttachment(100, 0);
     wMessageOutputField.setLayoutData(fdMessageOutputField);
 
@@ -2468,6 +2469,7 @@ public class MailDialog extends BaseTransformDialog {
     wlSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
     wCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
+    wlCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
   }
 
   private void setEncodings() {
@@ -2814,5 +2816,6 @@ public class MailDialog extends BaseTransformDialog {
 
   private void setOutputMessage() {
     wMessageOutputField.setEnabled(wIncludeMessageInOutput.getSelection());
+    wlMessageOutputField.setEnabled(wIncludeMessageInOutput.getSelection());
   }
 }
