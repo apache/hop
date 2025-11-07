@@ -46,5 +46,8 @@ Use this transform if you deliberately want to slow down your pipeline.
 |===
 |Option|Description
 |Transform name|Name of the transform. This name has to be unique in a single pipeline.
-|Timeout|How long to delay. Select whether this period is measured in milliseconds, seconds, minutes, or hours.
+|Timeout|How long to delay. You can type a static value, use a variable, or pick a numeric field from the incoming stream. Values are interpreted together with the selected time scale. If the selected field is null or empty, the transform treats it as zero (no delay).
+|Time scale|Select whether the timeout is expressed in milliseconds, seconds, minutes, or hours.
+|Get time scale from field|Enable this option to pick the time scale from a field in the incoming stream.
+|Time scale field|Field that contains the time scale value. Accepted values (case-insensitive) are: `ms`, `millisecond(s)`, `s`, `second(s)`, `m`, `minute(s)`, `h`, `hour(s)`. Empty values default to seconds.
 |===

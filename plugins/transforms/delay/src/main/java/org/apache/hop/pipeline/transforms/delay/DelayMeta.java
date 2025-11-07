@@ -46,8 +46,23 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
   @HopMetadataProperty(key = "timeout", injectionKeyDescription = "Delay.Injection.Timeout")
   private String timeout;
 
+  @HopMetadataProperty(
+      key = "timeout_field",
+      injectionKeyDescription = "Delay.Injection.TimeoutField")
+  private String timeoutField;
+
   @HopMetadataProperty(key = "scaletime", injectionKeyDescription = "Delay.Injection.Scaletime")
   private String scaletime;
+
+  @HopMetadataProperty(
+      key = "scaletime_from_field",
+      injectionKeyDescription = "Delay.Injection.ScaleTimeFromField")
+  private boolean scaleTimeFromField;
+
+  @HopMetadataProperty(
+      key = "scaletime_field",
+      injectionKeyDescription = "Delay.Injection.ScaleTimeField")
+  private String scaleTimeField;
 
   private static final String DEFAULT_SCALE_TIME = "seconds";
 
@@ -78,6 +93,14 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
 
   public void setTimeout(String timeout) {
     this.timeout = timeout;
+  }
+
+  public String getTimeoutField() {
+    return timeoutField;
+  }
+
+  public void setTimeoutField(String timeoutField) {
+    this.timeoutField = Utils.isEmpty(timeoutField) ? null : timeoutField;
   }
 
   public void setScaleTimeCode(int scaleTimeIndex) {
@@ -118,10 +141,29 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
     return retval;
   }
 
+  public boolean isScaleTimeFromField() {
+    return scaleTimeFromField;
+  }
+
+  public void setScaleTimeFromField(boolean scaleTimeFromField) {
+    this.scaleTimeFromField = scaleTimeFromField;
+  }
+
+  public String getScaleTimeField() {
+    return scaleTimeField;
+  }
+
+  public void setScaleTimeField(String scaleTimeField) {
+    this.scaleTimeField = Utils.isEmpty(scaleTimeField) ? null : scaleTimeField;
+  }
+
   @Override
   public void setDefault() {
     timeout = "1"; // default one second
     scaletime = DEFAULT_SCALE_TIME; // defaults to "seconds"
+    timeoutField = null;
+    scaleTimeFromField = false;
+    scaleTimeField = null;
   }
 
   @Override
@@ -150,7 +192,7 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
     CheckResult cr;
     String errorMessage = "";
 
-    if (Utils.isEmpty(timeout)) {
+    if (Utils.isEmpty(timeout) && Utils.isEmpty(timeoutField)) {
       errorMessage = BaseMessages.getString(PKG, "DelayMeta.CheckResult.TimeOutMissing");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
     } else {
@@ -191,5 +233,33 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
               transformMeta);
     }
     remarks.add(cr);
+
+    if (prev != null && !prev.isEmpty()) {
+      if (!Utils.isEmpty(timeoutField) && prev.indexOfValue(timeoutField) < 0) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(
+                    PKG, "DelayMeta.CheckResult.TimeoutFieldNotFound", timeoutField),
+                transformMeta));
+      }
+
+      if (scaleTimeFromField) {
+        if (Utils.isEmpty(scaleTimeField)) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(PKG, "DelayMeta.CheckResult.ScaleTimeFieldMissing"),
+                  transformMeta));
+        } else if (prev.indexOfValue(scaleTimeField) < 0) {
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG, "DelayMeta.CheckResult.ScaleTimeFieldNotFound", scaleTimeField),
+                  transformMeta));
+        }
+      }
+    }
   }
 }
