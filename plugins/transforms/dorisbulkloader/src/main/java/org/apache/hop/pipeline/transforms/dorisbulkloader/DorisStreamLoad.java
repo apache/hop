@@ -155,7 +155,7 @@ public class DorisStreamLoad {
    */
   public ResponseContent executeDorisStreamLoad() throws IOException, DorisStreamLoadException {
     HttpPut put = new HttpPut(loadUrl);
-    put.setHeader(HttpHeaders.EXPECT, LoadConstants.EXCEPT_DEFAULT);
+    put.setHeader(HttpHeaders.EXPECT, LoadConstants.EXPECT_DEFAULT);
     put.setHeader(HttpHeaders.AUTHORIZATION, basicAuthHeader(loginUser, loginPassword));
     put.setHeader(
         LoadConstants.LABEL_KEY, LoadConstants.LABEL_SUFFIX + UUID.randomUUID().toString());

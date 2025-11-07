@@ -675,7 +675,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     }
 
     wBufferSize.setText(Integer.toString(input.getBufferSize()));
-    wBufferCount.setText(Integer.toString(input.getBufferSize()));
+    wBufferCount.setText(Integer.toString(input.getBufferCount()));
 
     wTransformName.selectAll();
     wTransformName.setFocus();
