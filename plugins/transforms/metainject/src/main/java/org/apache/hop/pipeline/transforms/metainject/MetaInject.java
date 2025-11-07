@@ -85,6 +85,12 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     boolean receivedRows = false;
     boolean hasEmptyList = false;
 
+    // If there are no previous transforms we will set receivedRows to true. This allows execution
+    // using constants only
+    if (getPipelineMeta().getPrevTransformNames(getTransformMeta()).length == 0) {
+      receivedRows = true;
+    }
+
     for (String prevTransformName : getPipelineMeta().getPrevTransformNames(getTransformMeta())) {
       // Don't read from the streaming source transform
       //
@@ -109,6 +115,9 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
         }
       }
     }
+
+    // Check if all previous transforms are returning data, unless isAllowEmptyStreamOnExecution is
+    // true then execute if at least one branch has data
     if (!receivedRows || (hasEmptyList && !meta.isAllowEmptyStreamOnExecution())) {
       setOutputDone();
       return false;

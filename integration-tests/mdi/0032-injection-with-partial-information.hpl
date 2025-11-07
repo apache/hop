@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0032-injection-with-partial-information</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/09/02 11:28:05.214</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/09/02 11:28:05.214</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>metadata</from>
+      <to>ETL metadata injection</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>fields</from>
+      <to>ETL metadata injection</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>ETL metadata injection</from>
+      <to>OUTPUT</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>empty stream</from>
+      <to>Filter rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows</from>
+      <to>ETL metadata injection</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>ETL metadata injection</name>
+    <type>MetaInject</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <filename>${PROJECT_HOME}/0031-get-data-from-xml-template.hpl</filename>
+    <run_configuration>local</run_configuration>
+    <source_transform>OUTPUT</source_transform>
+    <source_output_fields>
+      <source_output_field>
+        <source_output_field_name>xmlData</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>name</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>ppu</source_output_field_name>
+        <source_output_field_type>Number</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>batters</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>item_id</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+    </source_output_fields>
+    <target_file/>
+    <create_parent_folder>Y</create_parent_folder>
+    <no_execution>N</no_execution>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <mappings>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>element_type</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Element</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>format</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Format</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>type</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Type</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>result_type</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Result Type</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>XmlField</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>metadata</source_transform>
+        <source_field>XML_Source_Field</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>loopxpath</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>metadata</source_transform>
+        <source_field>Xpath</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>name</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Name</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>group</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Group</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>decimal</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Decimal</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>xPath</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Xpath</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>IsInFields</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>metadata</source_transform>
+        <source_field>XML_source_in_field</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Get data from XML</target_transform_name>
+        <target_attribute_key>usetoken</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>empty stream</source_transform>
+        <source_field>use_token</source_field>
+      </mapping>
+    </mappings>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>=</function>
+        <leftvalue>use_token</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <name>constant</name>
+          <precision>-1</precision>
+          <text>Y</text>
+          <type>Boolean</type>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>OUTPUT</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>empty stream</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item/>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>use_token</name>
+        <type>Boolean</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>272</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>fields</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>name</item>
+        <item>name</item>
+        <item>Node</item>
+        <item>valueof</item>
+        <item>String</item>
+        <item/>
+        <item/>
+        <item/>
+      </line>
+      <line>
+        <item>ppu</item>
+        <item>ppu</item>
+        <item>Node</item>
+        <item>valueof</item>
+        <item>Number</item>
+        <item>#,##0.###</item>
+        <item>.</item>
+        <item>,</item>
+      </line>
+      <line>
+        <item>batters</item>
+        <item>batters</item>
+        <item>Node</item>
+        <item>singlenode</item>
+        <item>String</item>
+        <item/>
+        <item/>
+        <item/>
+      </line>
+      <line>
+        <item>item_id</item>
+        <item>id</item>
+        <item>Attribute</item>
+        <item>valueof</item>
+        <item>String</item>
+        <item/>
+        <item/>
+        <item/>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Name</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Xpath</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Element</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Result Type</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Type</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Format</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Decimal</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Group</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>metadata</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>Y</item>
+        <item>xmlData</item>
+        <item>/items/item</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>XML_source_in_field</name>
+        <type>Boolean</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>XML_Source_Field</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Xpath</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>64</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
