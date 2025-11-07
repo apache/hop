@@ -114,7 +114,7 @@ public class DorisBulkLoaderMeta extends BaseTransformMeta<DorisBulkLoader, Dori
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "DorisBulkLoaderMeta.CheckResult.NoInpuReceived"),
+              BaseMessages.getString(PKG, "DorisBulkLoaderMeta.CheckResult.NoInputReceived"),
               transformMeta);
     }
     remarks.add(cr);
