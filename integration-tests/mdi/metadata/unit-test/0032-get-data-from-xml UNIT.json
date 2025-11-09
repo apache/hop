@@ -1,0 +1,48 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "xmlData",
+          "data_set_field": "xmlData"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "ppu",
+          "data_set_field": "ppu"
+        },
+        {
+          "transform_field": "batters",
+          "data_set_field": "batters"
+        },
+        {
+          "transform_field": "item_id",
+          "data_set_field": "item_id"
+        }
+      ],
+      "field_order": [
+        "xmlData",
+        "name",
+        "ppu",
+        "batters",
+        "item_id"
+      ],
+      "data_set_name": "golden-get-data-from-xml",
+      "transform_name": "OUTPUT"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0032-get-data-from-xml UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0032-injection-with-partial-information.hpl"
+}
