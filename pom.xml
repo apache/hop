@@ -416,9 +416,9 @@
                         <includes>
                             <include>src/**/*.java</include>
                         </includes>
-                        <googleJavaFormat />
-                        <importOrder />
-                        <removeUnusedImports />
+                        <googleJavaFormat></googleJavaFormat>
+                        <importOrder></importOrder>
+                        <removeUnusedImports></removeUnusedImports>
                     </java>
                     <pom>
                         <includes>
