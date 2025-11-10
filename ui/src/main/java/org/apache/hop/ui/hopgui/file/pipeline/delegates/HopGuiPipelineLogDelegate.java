@@ -38,6 +38,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.shared.TextZoom;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
@@ -58,6 +59,9 @@ public class HopGuiPipelineLogDelegate {
   public static final String TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD =
       "ToolbarIcon-10020-LogCopyToClipboard";
   public static final String TOOLBAR_ICON_LOG_PAUSE_RESUME = "ToolbarIcon-10030-LogPauseResume";
+  public static final String TOOLBAR_ICON_LOG_INCREASE_FONT = "ToolbarIcon-10040-LogIncreaseFont";
+  public static final String TOOLBAR_ICON_LOG_DECREASE_FONT = "ToolbarIcon-10050-LogDecreaseFont";
+  public static final String TOOLBAR_ICON_LOG_RESET_FONT = "ToolbarIcon-10060-LogResetFont";
 
   private final HopGuiPipelineGraph pipelineGraph;
 
@@ -66,6 +70,7 @@ public class HopGuiPipelineLogDelegate {
   @Getter private CTabItem pipelineLogTab;
 
   private Text pipelineLogText;
+  private TextZoom textZoom;
 
   private ToolBar toolbar;
   private GuiToolbarWidgets toolBarWidgets;
@@ -119,6 +124,10 @@ public class HopGuiPipelineLogDelegate {
     fdText.top = new FormAttachment(toolbar, 0);
     fdText.bottom = new FormAttachment(100, 0);
     pipelineLogText.setLayoutData(fdText);
+
+    this.textZoom = new TextZoom(pipelineLogText, GuiResource.getInstance().getFontFixed());
+    this.textZoom.resetFont();
+
     // add a CR to avoid fontStyle from getting lost on macos HOP-2583
     if (OsHelper.isMac()) {
       pipelineLogText.setText(Const.CR);
@@ -304,6 +313,36 @@ public class HopGuiPipelineLogDelegate {
       item.setImage(GuiResource.getInstance().getImageRun());
       item.setToolTipText(BaseMessages.getString(PKG, "PipelineLog.Dialog.Resume.Tooltip"));
     }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ICON_LOG_INCREASE_FONT,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.IncreaseFont",
+      image = "ui/images/zoom-in.svg",
+      separator = true)
+  public void increaseFont() {
+    this.textZoom.increaseFont();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ICON_LOG_DECREASE_FONT,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.DecreaseFont",
+      image = "ui/images/zoom-out.svg",
+      separator = false)
+  public void decreaseFont() {
+    this.textZoom.decreaseFont();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ICON_LOG_RESET_FONT,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.ResetFont",
+      image = "ui/images/zoom-100.svg",
+      separator = false)
+  public void resetFont() {
+    this.textZoom.resetFont();
   }
 
   public boolean hasSelectedText() {
