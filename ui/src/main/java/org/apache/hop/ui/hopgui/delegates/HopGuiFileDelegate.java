@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
@@ -60,6 +61,9 @@ public class HopGuiFileDelegate {
 
   public static final String CONST_ERROR = "Error";
   private final HopGui hopGui;
+
+  /** Returns a boolean indicating whether the gui in the process of closing files. */
+  @Getter private boolean isClosing;
 
   public HopGuiFileDelegate(HopGui hopGui) {
     this.hopGui = hopGui;
@@ -225,6 +229,7 @@ public class HopGuiFileDelegate {
   }
 
   public void closeAllFiles() {
+    this.isClosing = true;
     for (IHopPerspective perspective : hopGui.getPerspectiveManager().getPerspectives()) {
       List<TabItemHandler> tabItemHandlers = perspective.getItems();
       if (tabItemHandlers != null) {
@@ -237,6 +242,7 @@ public class HopGuiFileDelegate {
         }
       }
     }
+    this.isClosing = false;
   }
 
   /** When the app exits we need to see if all open files are saved in all perspectives... */

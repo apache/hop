@@ -938,12 +938,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         }
       }
 
-      // Refresh tree to remove bold
-      //
-      this.refresh();
+      // Avoid refresh in a closing process (when switching project)
+      if (!hopGui.fileDelegate.isClosing()) {
+        // Refresh tree to remove bold
+        //
+        this.refresh();
 
-      // Update Gui menu and toolbar
-      this.updateGui();
+        // Update Gui menu and toolbar
+        this.updateGui();
+      }
     }
 
     return false;

@@ -1530,9 +1530,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
 
-    if (typeHandler instanceof BaseExplorerFileTypeHandler baseExplorerFileTypeHandler) {
-      BaseExplorerFileTypeHandler fileTypeHandler = baseExplorerFileTypeHandler;
-
+    if (typeHandler instanceof BaseExplorerFileTypeHandler fileTypeHandler) {
       if (fileTypeHandler.isCloseable()) {
         ExplorerFile file = fileTypeHandler.getExplorerFile();
         files.remove(file);
@@ -1542,13 +1540,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           }
         }
 
-        // Refresh tree to remove bold
-        //
-        this.refresh();
+        // Avoid refresh in a closing process (when switching project)
+        if (!hopGui.fileDelegate.isClosing()) {
 
-        // Update HopGui menu and toolbar
-        //
-        this.updateGui();
+          // Refresh tree to remove bold
+          //
+          this.refresh();
+
+          // Update HopGui menu and toolbar
+          //
+          this.updateGui();
+        }
       }
     }
 
