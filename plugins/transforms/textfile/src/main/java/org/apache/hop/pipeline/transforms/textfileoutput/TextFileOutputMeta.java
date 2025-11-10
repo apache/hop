@@ -285,7 +285,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   /**
    * @return Returns the splitEvery.
-   * @deprecated use {@link #getSplitEvery(IVariables)} or {@link #getSplitEveryRows()}
+   * @deprecated use {@link TextFileOutputMeta#getSplitEvery(IVariables)}
    */
   @Deprecated(since = "2.0")
   public int getSplitEvery() {
@@ -309,7 +309,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   /**
    * @param splitEvery The splitEvery to set.
-   * @deprecated use {@link #setSplitEveryRows(String)}
+   * @deprecated use setSplitEveryRows
    */
   @Deprecated(since = "2.0")
   public void setSplitEvery(int splitEvery) {
