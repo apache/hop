@@ -68,6 +68,8 @@ OpenJDK 64-Bit Server VM 18.9 (build 11.0.2+9, mixed mode)
 
 Make sure to point the `JAVA_HOME` environment variable for your operating system to your desired JRE installation. Refer to your operating system's documentation for more information on environment variables.
 
+TIP: Instead of changing your system’s JAVA_HOME, you can set the HOP_JAVA_HOME environment variable to point to a specific Java JRE or JDK for Apache Hop. This allows Hop to use a different Java version than your system default, without affecting other applications.
+
 == Basic Installation [[basic]]
 
 The basic installation for Apache Hop couldn't be easier:
@@ -164,6 +166,10 @@ include::snippets/variables/hop-config-folder.adoc[]
 include::snippets/variables/hop-plugin-base-folders.adoc[]
 
 include::snippets/variables/hop-shared-jdbc-folder.adoc[]
+
+include::snippets/variables/hop-java-home.adoc[]
+
+include::snippets/variables/hop-options.adoc[]
 
 === JDBC Drivers, Jars, Libraries, and other plugin dependencies
 
