@@ -87,8 +87,8 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
                         new SvgFile(location, getClass().getClassLoader()),
                         (int) x,
                         (int) y,
-                        iconSize / 4,
-                        iconSize / 4,
+                        iconSize / 2,
+                        iconSize / 2,
                         gc.getMagnification(),
                         0);
                   } catch (Exception e) {
