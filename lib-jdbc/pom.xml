@@ -37,7 +37,7 @@
         <hsqldb.version>2.7.4</hsqldb.version>
         <jt400.version>21.0.0</jt400.version>
         <monetdb.version>12.0</monetdb.version>
-        <mssqlnative.version>12.8.1.jre11</mssqlnative.version>
+        <mssqlnative.version>13.2.1.jre11</mssqlnative.version>
         <mysql.version>9.1.0</mysql.version>
         <postgresql.version>42.7.7</postgresql.version>
         <redshift.version>2.1.0.32</redshift.version>
