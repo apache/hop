@@ -18,16 +18,27 @@
 package org.apache.hop.pipeline.transforms.delay;
 
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
 
 @SuppressWarnings("java:S1104")
-public class DelayData extends BaseTransformData implements ITransformData {
-  public int Multiple;
-  public int timeout;
+public class DelayData extends BaseTransformData {
+  public long multiple;
+  public long timeout;
+  public long staticTimeout;
+  public int staticScaleTimeCode;
+  public int timeoutFieldIndex;
+  public int scaleTimeFieldIndex;
+  public org.apache.hop.core.row.IValueMeta timeoutValueMeta;
+  public org.apache.hop.core.row.IValueMeta scaleTimeValueMeta;
 
   public DelayData() {
     super();
-    Multiple = 1000;
-    timeout = 0;
+    multiple = 1000L;
+    timeout = 0L;
+    staticTimeout = 0L;
+    staticScaleTimeCode = 1;
+    timeoutFieldIndex = -1;
+    scaleTimeFieldIndex = -1;
+    timeoutValueMeta = null;
+    scaleTimeValueMeta = null;
   }
 }
