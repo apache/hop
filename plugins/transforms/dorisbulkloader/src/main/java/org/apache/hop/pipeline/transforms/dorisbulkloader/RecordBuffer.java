@@ -95,7 +95,7 @@ public class RecordBuffer {
    * @return
    */
   public boolean canWrite(long writeLength) {
-    return this.writeLength + writeLength <= bufferSize * bufferCount;
+    return this.writeLength + writeLength <= bufferSize * (bufferCount - 1);
   }
 
   /**

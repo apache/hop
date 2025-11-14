@@ -27,6 +27,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.json.HopJson;
 import org.apache.http.HttpHeaders;
+import org.apache.http.client.entity.GzipCompressingEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.InputStreamEntity;
@@ -155,18 +156,27 @@ public class DorisStreamLoad {
    */
   public ResponseContent executeDorisStreamLoad() throws IOException, DorisStreamLoadException {
     HttpPut put = new HttpPut(loadUrl);
-    put.setHeader(HttpHeaders.EXPECT, LoadConstants.EXCEPT_DEFAULT);
+    put.setHeader(HttpHeaders.EXPECT, LoadConstants.EXPECT_DEFAULT);
     put.setHeader(HttpHeaders.AUTHORIZATION, basicAuthHeader(loginUser, loginPassword));
     put.setHeader(
         LoadConstants.LABEL_KEY, LoadConstants.LABEL_SUFFIX + UUID.randomUUID().toString());
     if (LoadConstants.JSON.equals(format)) {
       put.setHeader(LoadConstants.STRIP_OUTER_ARRAY_KEY, LoadConstants.STRIP_OUTER_ARRAY_DEFAULT);
+    } else {
+      put.setHeader(LoadConstants.COMPRESS_TYPE_KEY, LoadConstants.COMPRESS_FORMAT_GZ);
+      put.setHeader(HttpHeaders.CONTENT_ENCODING, LoadConstants.GZIP_ENCODING);
     }
     httpHeaders.forEach(put::setHeader);
 
     InputStreamEntity entity = new InputStreamEntity(recordStream, recordStream.getWriteLength());
     entity.setChunked(false);
-    put.setEntity(entity);
+
+    if (LoadConstants.JSON.equals(format)) {
+      put.setEntity(entity);
+    } else {
+      GzipCompressingEntity gzipEntity = new GzipCompressingEntity(entity);
+      put.setEntity(gzipEntity);
+    }
 
     if (httpClient == null) {
       httpClient =

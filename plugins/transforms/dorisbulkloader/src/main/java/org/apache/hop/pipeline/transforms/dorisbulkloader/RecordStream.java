@@ -34,6 +34,15 @@ public class RecordStream extends InputStream {
    *     real stream load
    */
   public RecordStream(int bufferSize, int bufferCount) {
+
+    // Check for valid values
+    if (bufferSize == 0) {
+      bufferSize = LoadConstants.DEFAULT_BUFFER_SIZE;
+    }
+    if (bufferCount == 0) {
+      bufferCount = LoadConstants.DEFAULT_BUFFER_COUNT;
+    }
+
     this.recordBuffer = new RecordBuffer(bufferSize, bufferCount);
   }
 

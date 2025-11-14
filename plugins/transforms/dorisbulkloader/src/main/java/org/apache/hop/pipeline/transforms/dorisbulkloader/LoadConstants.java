@@ -24,12 +24,13 @@ public class LoadConstants {
   public static final String CSV = "csv";
   public static final String LABEL_KEY = "label";
   public static final String FORMAT_KEY = "format";
+  public static final String COMPRESS_TYPE_KEY = "compress_type";
   public static final String FIELD_DELIMITER_KEY = "column_separator";
   public static final String FIELD_DELIMITER_DEFAULT = ",";
   public static final String LINE_DELIMITER_KEY = "line_delimiter";
   public static final String LINE_DELIMITER_DEFAULT = "\\n";
   public static final String LINE_DELIMITER_JSON = ",";
-  public static final String EXCEPT_DEFAULT = "100-continue";
+  public static final String EXPECT_DEFAULT = "100-continue";
   public static final String STRIP_OUTER_ARRAY_KEY = "strip_outer_array";
   public static final String STRIP_OUTER_ARRAY_DEFAULT = "true";
   public static final String NULL_VALUE = "\\N";
@@ -38,4 +39,8 @@ public class LoadConstants {
   public static final String LOAD_URL_PATTERN = "http://%s:%s/api/%s/%s/_stream_load";
   public static final String JSON_ARRAY_START = "[";
   public static final String JSON_ARRAY_END = "]";
+  public static final String GZIP_ENCODING = "gzip";
+  public static final String COMPRESS_FORMAT_GZ = "gz";
+  public static final int DEFAULT_BUFFER_SIZE = 50000;
+  public static final int DEFAULT_BUFFER_COUNT = 256;
 }
