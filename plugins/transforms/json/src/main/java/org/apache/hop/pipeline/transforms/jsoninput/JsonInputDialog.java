@@ -876,7 +876,9 @@ public class JsonInputDialog extends BaseTransformDialog {
     fdFieldValue.top = new FormAttachment(wlSourceField, 0, SWT.CENTER);
     fdFieldValue.right = new FormAttachment(100, -margin);
     wFieldValue.setLayoutData(fdFieldValue);
-    setSourceStreamField();
+
+    // Trigger event when 'Source is from a previous transform' is checked.
+    setSourceStreamField(false);
 
     FormData fdOutputField = new FormData();
     fdOutputField.left = new FormAttachment(0, margin);
@@ -1149,7 +1151,7 @@ public class JsonInputDialog extends BaseTransformDialog {
     // ///////////////////////////////////////////////////////////
   }
 
-  private void setSourceStreamField() {
+  private void setSourceStreamField(boolean isShowErrorDialog) {
     try {
       String value = wFieldValue.getText();
       wFieldValue.removeAll();
@@ -1162,6 +1164,10 @@ public class JsonInputDialog extends BaseTransformDialog {
         wFieldValue.setText(value);
       }
     } catch (HopException ke) {
+      if (!isShowErrorDialog) {
+        return;
+      }
+
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "JsonInputDialog.FailedToGetFields.DialogTitle"),
@@ -1339,7 +1345,9 @@ public class JsonInputDialog extends BaseTransformDialog {
         }
       }
     }
-    setSourceStreamField();
+
+    // Open the JSON input dialog and try to fetch the fields from the previous component.
+    setSourceStreamField(true);
 
     wFields.removeEmptyRows();
     wFields.setRowNums();
