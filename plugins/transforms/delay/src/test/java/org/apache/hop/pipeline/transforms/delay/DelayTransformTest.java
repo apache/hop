@@ -146,7 +146,7 @@ class DelayTransformTest {
     Object[] result = output.getRowWait(1, TimeUnit.SECONDS);
     assertArrayEquals(rowData, result);
     assertEquals(0L, data.timeout);
-    assertEquals(1000L, data.Multiple); // seconds
+    assertEquals(1000L, data.multiple); // seconds
 
     assertFalse(delay.processRow());
   }

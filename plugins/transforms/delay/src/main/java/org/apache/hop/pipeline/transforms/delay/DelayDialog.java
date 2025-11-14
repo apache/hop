@@ -51,7 +51,6 @@ public class DelayDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DelayMeta.class;
 
   private final DelayMeta input;
-  private Label wlTimeout;
   private ComboVar wTimeout;
   private CCombo wScaleTime;
   private Button wScaleTimeFromField;
@@ -107,7 +106,7 @@ public class DelayDialog extends BaseTransformDialog {
     wTransformName.setLayoutData(fdTransformName);
 
     // Timeout label and combo
-    wlTimeout = new Label(shell, SWT.RIGHT);
+    Label wlTimeout = new Label(shell, SWT.RIGHT);
     wlTimeout.setText(BaseMessages.getString(PKG, "DelayDialog.Timeout.Label"));
     wlTimeout.setToolTipText(BaseMessages.getString(PKG, "DelayDialog.Timeout.Tooltip"));
     PropsUi.setLook(wlTimeout);
@@ -303,9 +302,7 @@ public class DelayDialog extends BaseTransformDialog {
       List<String> strings = new ArrayList<>();
       for (IValueMeta valueMeta : prevFields.getValueMetaList()) {
         switch (valueMeta.getType()) {
-          case IValueMeta.TYPE_INTEGER:
-          case IValueMeta.TYPE_NUMBER:
-          case IValueMeta.TYPE_BIGNUMBER:
+          case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
             numeric.add(valueMeta.getName());
             break;
           case IValueMeta.TYPE_STRING:

@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.delay;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -40,6 +42,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::DelayMeta.keyword",
     documentationUrl = "/pipeline/transforms/delay.html")
+@Getter
+@Setter
 public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
   private static final Class<?> PKG = DelayMeta.class;
 
@@ -77,26 +81,6 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
   @Override
   public Object clone() {
     return super.clone();
-  }
-
-  public String getScaletime() {
-    return scaletime;
-  }
-
-  public void setScaletime(String scaletime) {
-    this.scaletime = scaletime;
-  }
-
-  public String getTimeout() {
-    return timeout;
-  }
-
-  public void setTimeout(String timeout) {
-    this.timeout = timeout;
-  }
-
-  public String getTimeoutField() {
-    return timeoutField;
   }
 
   public void setTimeoutField(String timeoutField) {
@@ -139,18 +123,6 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
     }
 
     return retval;
-  }
-
-  public boolean isScaleTimeFromField() {
-    return scaleTimeFromField;
-  }
-
-  public void setScaleTimeFromField(boolean scaleTimeFromField) {
-    this.scaleTimeFromField = scaleTimeFromField;
-  }
-
-  public String getScaleTimeField() {
-    return scaleTimeField;
   }
 
   public void setScaleTimeField(String scaleTimeField) {

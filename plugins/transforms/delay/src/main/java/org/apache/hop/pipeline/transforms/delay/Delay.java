@@ -64,9 +64,9 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
     }
 
     data.timeout = resolveTimeout(meta, r);
-    data.Multiple = resolveScaleMultiple(meta, r);
+    data.multiple = resolveScaleMultiple(meta, r);
 
-    if (data.timeout <= 0 || data.Multiple <= 0) {
+    if (data.timeout <= 0 || data.multiple <= 0) {
       putRow(rowMeta, r);
       if (checkFeedback(getLinesRead()) && isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "Delay.Log.LineNumber", "" + getLinesRead()));
@@ -76,14 +76,14 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
 
     long delayMillis;
     try {
-      delayMillis = Math.multiplyExact(data.timeout, data.Multiple);
+      delayMillis = Math.multiplyExact(data.timeout, data.multiple);
     } catch (ArithmeticException e) {
       throw new HopException(
           BaseMessages.getString(
               PKG,
               "Delay.Log.DelayOverflow",
               Long.toString(data.timeout),
-              Long.toString(data.Multiple)),
+              Long.toString(data.multiple)),
           e);
     }
 
@@ -93,7 +93,7 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
               PKG,
               "Delay.Log.TimeOutWithScale",
               String.valueOf(data.timeout),
-              getScaleLabel(data.Multiple),
+              getScaleLabel(data.multiple),
               String.valueOf(delayMillis)));
     }
 
@@ -115,7 +115,7 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
   private void initializeMeta(DelayMeta meta, IRowMeta rowMeta) throws HopException {
     data.staticTimeout = Const.toLong(resolve(meta.getTimeout()), 0L);
     data.staticScaleTimeCode = meta.getScaleTimeCode();
-    data.Multiple = determineMultiple(data.staticScaleTimeCode);
+    data.multiple = determineMultiple(data.staticScaleTimeCode);
     if (!Utils.isEmpty(meta.getTimeoutField())) {
       data.timeoutFieldIndex = rowMeta.indexOfValue(meta.getTimeoutField());
       if (data.timeoutFieldIndex < 0) {
@@ -252,27 +252,13 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
   private Integer parseScaleTimeCode(String value) {
     String normalized = value.trim().toLowerCase(Locale.ROOT);
     switch (normalized) {
-      case "ms":
-      case "msec":
-      case "millisecond":
-      case "milliseconds":
+      case "ms", "msec", "millisecond", "milliseconds":
         return 0;
-      case "s":
-      case "sec":
-      case "secs":
-      case "second":
-      case "seconds":
+      case "s", "sec", "secs", "second", "seconds":
         return 1;
-      case "m":
-      case "min":
-      case "mins":
-      case "minute":
-      case "minutes":
+      case "m", "min", "mins", "minute", "minutes":
         return 2;
-      case "h":
-      case "hr":
-      case "hour":
-      case "hours":
+      case "h", "hr", "hour", "hours":
         return 3;
       default:
         return null;

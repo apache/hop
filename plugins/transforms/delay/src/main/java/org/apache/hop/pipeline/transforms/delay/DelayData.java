@@ -21,7 +21,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 
 @SuppressWarnings("java:S1104")
 public class DelayData extends BaseTransformData {
-  public long Multiple;
+  public long multiple;
   public long timeout;
   public long staticTimeout;
   public int staticScaleTimeCode;
@@ -32,7 +32,7 @@ public class DelayData extends BaseTransformData {
 
   public DelayData() {
     super();
-    Multiple = 1000L;
+    multiple = 1000L;
     timeout = 0L;
     staticTimeout = 0L;
     staticScaleTimeCode = 1;
