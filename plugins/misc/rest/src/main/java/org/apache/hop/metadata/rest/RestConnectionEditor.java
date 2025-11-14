@@ -55,7 +55,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private TextVar wBaseUrl;
   private TextVar wTestUrl;
   private ComboVar wAuthType;
-  private static String[] authTypes = new String[] {"No Auth", "API Key", "Basic", "Bearer"};
+  private static String[] authTypes =
+      new String[] {"No Auth", "API Key", "Basic", "Bearer", "Certificate"};
 
   private Composite wAuthComp;
 
@@ -64,18 +65,26 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
   // Basic auth token
   private TextVar wUsername;
-  private TextVar wPassword;
+  private PasswordTextVar wPassword;
 
   // API Key
   private TextVar wAuthorizationName;
   private TextVar wAuthorizationPrefix;
   private PasswordTextVar wAuthorizationValue;
 
-  // SSL
+  // SSL / TrustStore
   private TextVar wTrustStorePassword;
   private TextVar wTrustStoreFile;
   private Button wbTrustStoreFile;
   private Button wIgnoreSsl;
+
+  // Client Certificate / KeyStore
+  private TextVar wKeyStoreFile;
+  private Button wbKeyStoreFile;
+  private PasswordTextVar wKeyStorePassword;
+  private ComboVar wKeyStoreType;
+  private PasswordTextVar wKeyPassword;
+  private TextVar wCertificateAlias;
 
   private PropsUi props;
   private int middle;
@@ -255,6 +264,145 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           }
         });
 
+    // Client Certificate section separator
+    Label wlClientCert = new Label(gSSLTrustStore, SWT.SEPARATOR | SWT.HORIZONTAL);
+    PropsUi.setLook(wlClientCert);
+    FormData fdlClientCert = new FormData();
+    fdlClientCert.left = new FormAttachment(0, 0);
+    fdlClientCert.right = new FormAttachment(100, 0);
+    fdlClientCert.top = new FormAttachment(wIgnoreSsl, margin * 2);
+    wlClientCert.setLayoutData(fdlClientCert);
+
+    Label wlClientCertLabel = new Label(gSSLTrustStore, SWT.LEFT);
+    wlClientCertLabel.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.ClientCertificate.Label"));
+    PropsUi.setLook(wlClientCertLabel);
+    FormData fdlClientCertLabel = new FormData();
+    fdlClientCertLabel.left = new FormAttachment(0, 0);
+    fdlClientCertLabel.top = new FormAttachment(wlClientCert, margin);
+    wlClientCertLabel.setLayoutData(fdlClientCertLabel);
+
+    // KeyStore file
+    Label wlKeyStoreFile = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlKeyStoreFile.setText(BaseMessages.getString(PKG, "RestConnectionEditor.KeyStoreFile.Label"));
+    PropsUi.setLook(wlKeyStoreFile);
+    FormData fdlKeyStoreFile = new FormData();
+    fdlKeyStoreFile.left = new FormAttachment(0, 0);
+    fdlKeyStoreFile.top = new FormAttachment(wlClientCertLabel, margin);
+    fdlKeyStoreFile.right = new FormAttachment(middle, -margin);
+    wlKeyStoreFile.setLayoutData(fdlKeyStoreFile);
+
+    wbKeyStoreFile = new Button(gSSLTrustStore, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbKeyStoreFile);
+    wbKeyStoreFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbKeyStoreFile = new FormData();
+    fdbKeyStoreFile.right = new FormAttachment(100, 0);
+    fdbKeyStoreFile.top = new FormAttachment(wlClientCertLabel, margin);
+    wbKeyStoreFile.setLayoutData(fdbKeyStoreFile);
+
+    wbKeyStoreFile.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                hopGui.getShell(),
+                wKeyStoreFile,
+                variables,
+                new String[] {"*.p12;*.pfx;*.jks", "*.*"},
+                new String[] {
+                  BaseMessages.getString(PKG, "RestConnectionEditor.CertificateFiles"),
+                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                },
+                true));
+
+    wKeyStoreFile = new TextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wKeyStoreFile);
+    FormData fdKeyStoreFile = new FormData();
+    fdKeyStoreFile.left = new FormAttachment(middle, 0);
+    fdKeyStoreFile.top = new FormAttachment(wlClientCertLabel, margin);
+    fdKeyStoreFile.right = new FormAttachment(wbKeyStoreFile, -margin);
+    wKeyStoreFile.setLayoutData(fdKeyStoreFile);
+
+    // KeyStore password
+    Label wlKeyStorePassword = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlKeyStorePassword.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.KeyStorePassword.Label"));
+    PropsUi.setLook(wlKeyStorePassword);
+    FormData fdlKeyStorePassword = new FormData();
+    fdlKeyStorePassword.left = new FormAttachment(0, 0);
+    fdlKeyStorePassword.top = new FormAttachment(wbKeyStoreFile, margin);
+    fdlKeyStorePassword.right = new FormAttachment(middle, -margin);
+    wlKeyStorePassword.setLayoutData(fdlKeyStorePassword);
+
+    wKeyStorePassword =
+        new PasswordTextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wKeyStorePassword);
+    FormData fdKeyStorePassword = new FormData();
+    fdKeyStorePassword.left = new FormAttachment(middle, 0);
+    fdKeyStorePassword.top = new FormAttachment(wbKeyStoreFile, margin);
+    fdKeyStorePassword.right = new FormAttachment(100, 0);
+    wKeyStorePassword.setLayoutData(fdKeyStorePassword);
+
+    // KeyStore type
+    Label wlKeyStoreType = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlKeyStoreType.setText(BaseMessages.getString(PKG, "RestConnectionEditor.KeyStoreType.Label"));
+    PropsUi.setLook(wlKeyStoreType);
+    FormData fdlKeyStoreType = new FormData();
+    fdlKeyStoreType.left = new FormAttachment(0, 0);
+    fdlKeyStoreType.top = new FormAttachment(wKeyStorePassword, margin);
+    fdlKeyStoreType.right = new FormAttachment(middle, -margin);
+    wlKeyStoreType.setLayoutData(fdlKeyStoreType);
+
+    wKeyStoreType = new ComboVar(variables, gSSLTrustStore, SWT.READ_ONLY | SWT.BORDER);
+    PropsUi.setLook(wKeyStoreType);
+    wKeyStoreType.setItems(new String[] {"PKCS12", "JKS"});
+    FormData fdKeyStoreType = new FormData();
+    fdKeyStoreType.left = new FormAttachment(middle, 0);
+    fdKeyStoreType.top = new FormAttachment(wlKeyStoreType, 0, SWT.CENTER);
+    fdKeyStoreType.right = new FormAttachment(100, 0);
+    wKeyStoreType.setLayoutData(fdKeyStoreType);
+
+    // Key password (optional)
+    Label wlKeyPassword = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlKeyPassword.setText(BaseMessages.getString(PKG, "RestConnectionEditor.KeyPassword.Label"));
+    PropsUi.setLook(wlKeyPassword);
+    FormData fdlKeyPassword = new FormData();
+    fdlKeyPassword.left = new FormAttachment(0, 0);
+    fdlKeyPassword.top = new FormAttachment(wKeyStoreType, margin);
+    fdlKeyPassword.right = new FormAttachment(middle, -margin);
+    wlKeyPassword.setLayoutData(fdlKeyPassword);
+
+    wKeyPassword =
+        new PasswordTextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wKeyPassword);
+    wKeyPassword.setToolTipText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.KeyPassword.Tooltip"));
+    FormData fdKeyPassword = new FormData();
+    fdKeyPassword.left = new FormAttachment(middle, 0);
+    fdKeyPassword.top = new FormAttachment(wKeyStoreType, margin);
+    fdKeyPassword.right = new FormAttachment(100, 0);
+    wKeyPassword.setLayoutData(fdKeyPassword);
+
+    // Certificate alias (optional)
+    Label wlCertificateAlias = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlCertificateAlias.setText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.CertificateAlias.Label"));
+    PropsUi.setLook(wlCertificateAlias);
+    FormData fdlCertificateAlias = new FormData();
+    fdlCertificateAlias.left = new FormAttachment(0, 0);
+    fdlCertificateAlias.top = new FormAttachment(wKeyPassword, margin);
+    fdlCertificateAlias.right = new FormAttachment(middle, -margin);
+    wlCertificateAlias.setLayoutData(fdlCertificateAlias);
+
+    wCertificateAlias = new TextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCertificateAlias);
+    wCertificateAlias.setToolTipText(
+        BaseMessages.getString(PKG, "RestConnectionEditor.CertificateAlias.Tooltip"));
+    FormData fdCertificateAlias = new FormData();
+    fdCertificateAlias.left = new FormAttachment(middle, 0);
+    fdCertificateAlias.top = new FormAttachment(wKeyPassword, margin);
+    fdCertificateAlias.right = new FormAttachment(100, 0);
+    wCertificateAlias.setLayoutData(fdCertificateAlias);
+
     FormData fdSSLTrustStore = new FormData();
     fdSSLTrustStore.left = new FormAttachment(0, 0);
     fdSSLTrustStore.right = new FormAttachment(100, 0);
@@ -300,6 +448,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
             addBasicAuthFields();
           } else if (wAuthType.getText().equals("Bearer")) {
             addBearerFields();
+          } else if (wAuthType.getText().equals("Certificate")) {
+            addCertificateFields();
           }
         });
 
@@ -501,6 +651,22 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     enableControls(controls);
   }
 
+  private void addCertificateFields() {
+    clearAuthComp();
+
+    Label wlInfo = new Label(wAuthComp, SWT.LEFT | SWT.WRAP);
+    wlInfo.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Certificate.Info"));
+    PropsUi.setLook(wlInfo);
+    FormData fdlInfo = new FormData();
+    fdlInfo.top = new FormAttachment(0, margin);
+    fdlInfo.left = new FormAttachment(0, 0);
+    fdlInfo.right = new FormAttachment(100, 0);
+    wlInfo.setLayoutData(fdlInfo);
+
+    wAuthComp.pack();
+    wAuthComp.redraw();
+  }
+
   @Override
   public Button[] createButtonsForButtonBar(Composite composite) {
     Button wTest = new Button(composite, SWT.PUSH);
@@ -521,6 +687,18 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     }
     restConnection.setBaseUrl(wBaseUrl.getText());
     restConnection.setTestUrl(wTestUrl.getText());
+
+    // SSL/TLS configuration
+    restConnection.setTrustStoreFile(wTrustStoreFile.getText());
+    restConnection.setTrustStorePassword(wTrustStorePassword.getText());
+    restConnection.setIgnoreSsl(wIgnoreSsl.getSelection());
+    restConnection.setKeyStoreFile(wKeyStoreFile.getText());
+    restConnection.setKeyStorePassword(wKeyStorePassword.getText());
+    restConnection.setKeyStoreType(wKeyStoreType.getText());
+    restConnection.setKeyPassword(wKeyPassword.getText());
+    restConnection.setCertificateAlias(wCertificateAlias.getText());
+
+    // Authentication configuration
     restConnection.setAuthType(wAuthType.getText());
     if (wAuthType.getText().equals("No Auth")) {
       // nothing required
@@ -533,7 +711,52 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       restConnection.setAuthorizationHeaderName(wAuthorizationName.getText());
       restConnection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
       restConnection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
+    } else if (wAuthType.getText().equals("Certificate")) {
+      // Certificate fields already set in SSL section above
     }
+
+    // TODO: remove this temporary debug dialog when the SSL configuration issue is resolved.
+    String resolvedTestUrl = variables.resolve(restConnection.getTestUrl());
+    String responsePreview;
+    try {
+      responsePreview = restConnection.getResponse(resolvedTestUrl);
+      if (responsePreview != null && responsePreview.length() > 500) {
+        responsePreview = responsePreview.substring(0, 500) + "... (truncated)";
+      }
+    } catch (Exception e) {
+      responsePreview = "<error retrieving response: " + Const.NVL(e.getMessage(), "unknown") + ">";
+    }
+
+    String debugSummary =
+        "ignoreSsl = "
+            + restConnection.isIgnoreSsl()
+            + "\ntrustStore (raw) = "
+            + Const.NVL(restConnection.getTrustStoreFile(), "<empty>")
+            + "\ntrustStore (resolved) = "
+            + (StringUtils.isEmpty(restConnection.getTrustStoreFile())
+                ? "<empty>"
+                : variables.resolve(restConnection.getTrustStoreFile()))
+            + "\nkeyStore (raw) = "
+            + Const.NVL(restConnection.getKeyStoreFile(), "<empty>")
+            + "\nkeyStore (resolved) = "
+            + (StringUtils.isEmpty(restConnection.getKeyStoreFile())
+                ? "<empty>"
+                : variables.resolve(restConnection.getKeyStoreFile()))
+            + "\nkeyStore type = "
+            + Const.NVL(restConnection.getKeyStoreType(), "<empty>")
+            + "\nkey password set = "
+            + (!StringUtils.isEmpty(restConnection.getKeyPassword()))
+            + "\nauthType = "
+            + Const.NVL(restConnection.getAuthType(), "<empty>")
+            + "\ntest URL (resolved) = "
+            + resolvedTestUrl
+            + "\nresponse preview = "
+            + Const.NVL(responsePreview, "<null>");
+    MessageBox debugBox = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+    debugBox.setText("REST Connection Test - Debug Info");
+    debugBox.setMessage(debugSummary + "\n\nClick OK to continue the test.");
+    debugBox.open();
+
     try {
       restConnection.testConnection();
       MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK);
@@ -571,6 +794,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wTrustStorePassword.setText(Const.NVL(metadata.getTrustStorePassword(), ""));
     wIgnoreSsl.setSelection(metadata.isIgnoreSsl());
 
+    wKeyStoreFile.setText(Const.NVL(metadata.getKeyStoreFile(), ""));
+    wKeyStorePassword.setText(Const.NVL(metadata.getKeyStorePassword(), ""));
+    wKeyStoreType.setText(Const.NVL(metadata.getKeyStoreType(), "PKCS12"));
+    wKeyPassword.setText(Const.NVL(metadata.getKeyPassword(), ""));
+    wCertificateAlias.setText(Const.NVL(metadata.getCertificateAlias(), ""));
+
     if (StringUtils.isEmpty(metadata.getAuthType())) {
       metadata.setAuthType("No Auth");
       wAuthType.select(0);
@@ -589,6 +818,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
       wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
       wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
+    } else if (metadata.getAuthType().equals("Certificate")) {
+      addCertificateFields();
     }
   }
 
@@ -602,6 +833,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setTrustStorePassword(wTrustStorePassword.getText());
     connection.setIgnoreSsl(wIgnoreSsl.getSelection());
 
+    connection.setKeyStoreFile(wKeyStoreFile.getText());
+    connection.setKeyStorePassword(wKeyStorePassword.getText());
+    connection.setKeyStoreType(wKeyStoreType.getText());
+    connection.setKeyPassword(wKeyPassword.getText());
+    connection.setCertificateAlias(wCertificateAlias.getText());
+
     connection.setAuthType(wAuthType.getText());
     if (wAuthType.getText().equals("Basic")) {
       connection.setUsername(wUsername.getText());
@@ -613,6 +850,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       connection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
       connection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
     }
+    // Note: Certificate auth doesn't have additional fields in auth section
   }
 
   @Override

@@ -1,0 +1,15 @@
+{
+  "keyStoreType": "JKS",
+  "auth_type": "Certificate",
+  "keyStorePassword": "Encrypted 2be98afc86aa7f2e4cb79a67fcec3fd89",
+  "base_url": "https://localhost:9443",
+  "keyStoreFile": "${PROJECT_HOME}/test-certs/client-valid.p12",
+  "test_url": "https://localhost:9443/api/test",
+  "certificateAlias": "",
+  "ignoreSsl": false,
+  "trustStorePassword": "Encrypted 2be98afc86aa7f2e4cb79a67fcec3fd89",
+  "virtualPath": "",
+  "trustStoreFile": "${PROJECT_HOME}/test-certs/truststore.jks",
+  "keyPassword": "Encrypted ",
+  "name": "REST-mTLS-jks"
+}

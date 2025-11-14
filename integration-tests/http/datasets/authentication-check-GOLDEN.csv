@@ -1,0 +1,2 @@
+authenticated,client_dn,verified
+true,"CN=Hop Test User,O=Hop Development,L=Brussels,ST=Flanders,C=BE",SUCCESS

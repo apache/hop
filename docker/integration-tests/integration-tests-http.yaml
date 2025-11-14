@@ -15,6 +15,35 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# services:
+#   integration_test_http:
+#     extends:
+#       file: integration-tests-base.yaml
+#       service: integration_test
+#     volumes:
+#       - ./resource/http/CastleMockProject.xml:/tmp/CastleMockProject.xml
+#     links:
+#       - http
+#       - tomcat
+#       - castlemock
+
+#   http:
+#     image: kennethreitz/httpbin
+#     hostname: http
+#     ports:
+#       - "80"
+  
+#   tomcat:
+#     user: root
+#     image: tomcat:8.5-jre8
+#     hostname: tomcat
+#     volumes:
+#       - ./resource/http/index.html:/usr/local/tomcat/webapps/ssl-test/index.html
+#       - ./resource/http/server.xml:/usr/local/tomcat/conf/server.xml
+#       - ./resource/http/.keystore:/usr/local/tomcat/conf/.keystore
+
+#   castlemock:
+#     image: castlemock/castlemock
 services:
   integration_test_http:
     extends:
@@ -22,17 +51,23 @@ services:
       service: integration_test
     volumes:
       - ./resource/http/CastleMockProject.xml:/tmp/CastleMockProject.xml
-    links:
+      - ./resource/http/mtls/test-certs:/opt/hop/tests/mtls/certs:ro
+      - ./resource/http/mtls/nginx-configs:/opt/hop/tests/mtls/nginx:ro
+    depends_on:
       - http
       - tomcat
       - castlemock
+      - mtls-test
+    environment:
+      HOP_MTLS_CERTS_DIR: /opt/hop/tests/mtls/certs
+      HOP_MTLS_BASE_URL: https://mtls-test:443
 
   http:
     image: kennethreitz/httpbin
     hostname: http
     ports:
       - "80"
-  
+
   tomcat:
     user: root
     image: tomcat:8.5-jre8
@@ -44,3 +79,19 @@ services:
 
   castlemock:
     image: castlemock/castlemock
+    hostname: castlemock
+
+  mtls-test:
+    image: nginx:alpine
+    hostname: mtls-test
+    ports:
+      - "9443:443"
+      - "9080:80"
+    volumes:
+      - ./resource/http/mtls/test-certs:/etc/nginx/certs:ro
+      - ./resource/http/mtls/nginx-configs/mtls.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

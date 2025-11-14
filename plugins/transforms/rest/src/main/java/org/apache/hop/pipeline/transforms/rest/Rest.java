@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.rest;
 
 import static org.apache.hop.core.Const.NVL;
 
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -32,6 +33,8 @@ import jakarta.ws.rs.core.UriBuilder;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -202,6 +205,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
 
+      boolean acceptHeaderProvided = false;
       String contentType = null; // media type override, if not null
       if (data.useHeaders) {
         // Add headers
@@ -213,11 +217,18 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           if ("Content-Type".equals(data.headerNames[i])) {
             contentType = value;
           }
+          if ("Accept".equalsIgnoreCase(data.headerNames[i])) {
+            acceptHeaderProvided = true;
+          }
           if (isDebug()) {
             logDebug(
                 BaseMessages.getString(PKG, "Rest.Log.HeaderValue", data.headerNames[i], value));
           }
         }
+      }
+
+      if (!acceptHeaderProvided && data.mediaType != null) {
+        invocationBuilder = invocationBuilder.accept(data.mediaType);
       }
 
       Response response = null;
@@ -269,6 +280,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       } catch (Exception e) {
         throw new HopException("Request could not be processed", e);
       }
+      if (response != null) {
+        response.bufferEntity();
+      }
       // Get response time
       long responseTime = System.currentTimeMillis() - startTime;
       if (isDetailed()) {
@@ -284,13 +298,66 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         logDebug(BaseMessages.getString(PKG, "Rest.Log.ResponseCode", "" + status));
       }
 
+      // Buffer the entity so we can read it multiple times if needed (for fallback)
+      if (response.hasEntity()) {
+        response.bufferEntity();
+      }
+
       // Get Response
       String body;
       String headerString = null;
       try {
         body = response.readEntity(String.class);
-      } catch (Exception ex) {
+      } catch (ProcessingException ex) {
+        // Check for duplicate Content-Type headers - this is a server configuration issue
+        String errorMessage = ex.getMessage();
+        if (errorMessage != null
+            && errorMessage.contains("Too many \"Content-Type\" header values")) {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "Rest.Error.DuplicateContentType", data.realUrl, errorMessage),
+              ex);
+        }
+        // For other ProcessingExceptions, try fallback to raw InputStream
         body = "";
+        if (response.hasEntity()) {
+          try (InputStream stream = response.readEntity(InputStream.class)) {
+            if (stream != null) {
+              body = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            }
+          } catch (Exception ioEx) {
+            if (isDetailed()) {
+              logDetailed("Unable to read response entity as String", ioEx);
+            }
+            // If fallback also fails, throw with original exception context
+            throw new HopException(
+                BaseMessages.getString(PKG, "Rest.Error.CanNotReadResponse", data.realUrl), ex);
+          }
+        } else {
+          if (isDetailed()) {
+            logDetailed("Response had no entity to read", ex);
+          }
+        }
+      } catch (Exception ex) {
+        // For non-ProcessingExceptions, try fallback to raw InputStream
+        body = "";
+        if (response.hasEntity()) {
+          try (InputStream stream = response.readEntity(InputStream.class)) {
+            if (stream != null) {
+              body = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            }
+          } catch (Exception ioEx) {
+            if (isDetailed()) {
+              logDetailed("Unable to read response entity as String", ioEx);
+            }
+            throw new HopException(
+                BaseMessages.getString(PKG, "Rest.Error.CanNotReadResponse", data.realUrl), ex);
+          }
+        } else {
+          if (isDetailed()) {
+            logDetailed("Response had no entity to read", ex);
+          }
+        }
       }
       // get Header
       MultivaluedMap<String, Object> headers = searchForHeaders(response);

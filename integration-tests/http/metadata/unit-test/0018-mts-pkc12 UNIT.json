@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "authenticated",
+          "data_set_field": "authenticated"
+        },
+        {
+          "transform_field": "client_dn",
+          "data_set_field": "client_dn"
+        },
+        {
+          "transform_field": "verified",
+          "data_set_field": "verified"
+        }
+      ],
+      "field_order": [
+        "authenticated",
+        "client_dn",
+        "verified"
+      ],
+      "data_set_name": "authentication-check GOLDEN",
+      "transform_name": "preview"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0018-mts-pkc12 UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0018-mts-pkc12.hpl"
+}
