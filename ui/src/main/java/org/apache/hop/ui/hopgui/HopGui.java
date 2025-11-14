@@ -588,7 +588,6 @@ public class HopGui
             Const.NVL(
                 TranslateUtil.translate(perspectivePlugin.getName(), perspectiveClass),
                 perspective.getId());
-        Listener listener = event -> setActivePerspective(perspective);
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
 
         ToolItem item;
@@ -599,11 +598,20 @@ public class HopGui
                   this.perspectivesToolbar,
                   perspectivePlugin.getImageFile(),
                   tooltip,
-                  listener);
+                  // TODO: check if there is unnecessary refresh
+                  event -> setActivePerspective(perspective));
         } else {
           item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
           item.setToolTipText(tooltip);
-          item.addListener(SWT.Selection, listener);
+          item.addListener(
+              SWT.Selection,
+              event -> {
+                // Event is sent first to the unselected tool item and then the selected item.
+                // To avoid unnecessary refresh, only activate perspective on the selected item.
+                if (item.getSelection()) {
+                  setActivePerspective(perspective);
+                }
+              });
           Image image =
               GuiResource.getInstance()
                   .getImage(
