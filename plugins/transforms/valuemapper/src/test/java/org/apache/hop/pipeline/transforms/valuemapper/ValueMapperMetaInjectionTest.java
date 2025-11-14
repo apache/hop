@@ -39,5 +39,6 @@ class ValueMapperMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Value
     check("NON_MATCH_DEFAULT", () -> meta.getNonMatchDefault());
     check("SOURCE", () -> meta.getValues().get(0).getSource());
     check("TARGET", () -> meta.getValues().get(0).getTarget());
+    check("TARGET_TYPE", () -> meta.getTargetType());
   }
 }

@@ -22,14 +22,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import org.apache.hop.beam.engines.BeamBasePipelineEngineTest;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class BeamDirectPipelineEngineTest extends BeamBasePipelineEngineTest {
+
+  @BeforeEach
+  final void beforeCommon() throws Exception {
+    HopEnvironment.init();
+  }
 
   @Test
   void testDirectPipelineEngine() throws Exception {
