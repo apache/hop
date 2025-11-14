@@ -83,7 +83,6 @@ public class DrawDiffOnPipelineHopExtensionPoint
               //
               Point fr = ext.pipelineHop.getFromTransform().getLocation();
               Point to = ext.pipelineHop.getToTransform().getLocation();
-              Point middle = new Point((fr.x + to.x) / 2, (fr.y + to.y) / 2);
 
               int iconSize = ConstUi.ICON_SIZE;
               try {
@@ -92,14 +91,10 @@ public class DrawDiffOnPipelineHopExtensionPoint
                 // Exception when accessed from Hop Server
               }
 
-              gc.drawImage(
-                  svgFile,
-                  middle.x,
-                  middle.y,
-                  iconSize / 2,
-                  iconSize / 2,
-                  gc.getMagnification(),
-                  0);
+              int x = (int) (ext.offset.x) + (fr.x + to.x) / 2 + iconSize / 4;
+              int y = (int) (ext.offset.y) + (fr.y + to.y) / 2 + iconSize / 4;
+
+              gc.drawImage(svgFile, x, y, iconSize / 2, iconSize / 2, gc.getMagnification(), 0);
             }
           }
         }
