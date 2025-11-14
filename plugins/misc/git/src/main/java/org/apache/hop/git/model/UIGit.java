@@ -837,6 +837,17 @@ public class UIGit extends VCS {
     }
   }
 
+  public boolean renameBranch(String oldName, String newName) {
+    try {
+      git.branchRename().setOldName(oldName).setNewName(newName).call();
+      checkoutBranch(getExpandedName(newName, VCS.TYPE_BRANCH));
+      return true;
+    } catch (Exception e) {
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+      return false;
+    }
+  }
+
   public boolean deleteBranch(String name, boolean force) {
     try {
       git.branchDelete()

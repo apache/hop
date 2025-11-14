@@ -63,7 +63,6 @@ import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -85,9 +84,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   private final HopWorkflowFileType<WorkflowMeta> workflowFileType;
 
   private HopGui hopGui;
-  private Composite parent;
-
-  private Composite composite;
 
   private CTabFolder tabFolder;
 
@@ -128,26 +124,10 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
   @Override
   public void initialize(HopGui hopGui, Composite parent) {
     this.hopGui = hopGui;
-    this.parent = parent;
-
-    PropsUi props = PropsUi.getInstance();
-
-    composite = new Composite(parent, SWT.NONE);
-    FormLayout layout = new FormLayout();
-    layout.marginRight = PropsUi.getMargin();
-    layout.marginBottom = PropsUi.getMargin();
-    composite.setLayout(layout);
-
-    FormData formData = new FormData();
-    formData.left = new FormAttachment(0, 0);
-    formData.top = new FormAttachment(0, 0);
-    formData.right = new FormAttachment(100, 0);
-    formData.bottom = new FormAttachment(100, 0);
-    composite.setLayoutData(formData);
 
     // A tab folder covers the complete area...
     //
-    tabFolder = new CTabFolder(composite, SWT.MULTI | SWT.BORDER);
+    tabFolder = new CTabFolder(parent, SWT.MULTI | SWT.BORDER);
     PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment(0, 0);
@@ -637,7 +617,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
 
   @Override
   public Control getControl() {
-    return composite;
+    return tabFolder;
   }
 
   /**

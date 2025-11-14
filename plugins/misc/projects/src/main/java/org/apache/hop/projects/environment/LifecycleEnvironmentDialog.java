@@ -28,6 +28,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -94,7 +95,13 @@ public class LifecycleEnvironmentDialog extends Dialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    shell.setImage(
+        GuiResource.getInstance()
+            .getImage(
+                "environment.svg",
+                PKG.getClassLoader(),
+                ConstUi.SMALL_ICON_SIZE,
+                ConstUi.SMALL_ICON_SIZE));
     PropsUi.setLook(shell);
 
     int margin = PropsUi.getMargin() + 2;
@@ -240,6 +247,8 @@ public class LifecycleEnvironmentDialog extends Dialog {
     wbEdit.addListener(SWT.Selection, this::editConfigFile);
 
     getData();
+
+    wName.setFocus();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
