@@ -1,10 +1,10 @@
 {
   "keyStoreType": "PKCS12",
   "auth_type": "Certificate",
-  "keyStorePassword": "Encrypted 2be98afc86aa7f2e4cb79a67fcec3fd89",
-  "base_url": "https://localhost:9443",
+  "keyStorePassword": "${MTLS_PASS}",
+  "base_url": "https://${MTLS_HOST}:${MTLS_PORT}",
   "keyStoreFile": "${PROJECT_HOME}/test-certs/client-valid.p12",
-  "test_url": "https://localhost:9443/api/whoami",
+  "test_url": "https://${MTLS_HOST}:${MTLS_PORT}/api/whoami",
   "certificateAlias": "",
   "ignoreSsl": true,
   "trustStorePassword": "Encrypted ",

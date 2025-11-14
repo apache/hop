@@ -57,10 +57,10 @@ services:
       - http
       - tomcat
       - castlemock
-      - mtls-test
+      - mtls_test
     environment:
       HOP_MTLS_CERTS_DIR: /opt/hop/tests/mtls/certs
-      HOP_MTLS_BASE_URL: https://mtls-test:443
+      HOP_MTLS_BASE_URL: https://mtls_test:443
 
   http:
     image: kennethreitz/httpbin
@@ -81,9 +81,9 @@ services:
     image: castlemock/castlemock
     hostname: castlemock
 
-  mtls-test:
+  mtls_test:
     image: nginx:alpine
-    hostname: mtls-test
+    hostname: mtls_test
     ports:
       - "9443:443"
       - "9080:80"

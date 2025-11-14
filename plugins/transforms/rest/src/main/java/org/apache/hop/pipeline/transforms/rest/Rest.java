@@ -655,6 +655,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         try {
           this.connection =
               metadataProvider.getSerializer(RestConnection.class).load(data.connectionName);
+          if (this.connection != null) {
+            this.connection.setVariables(this);
+          }
           baseUrl = resolve(connection.getBaseUrl());
 
         } catch (Exception e) {

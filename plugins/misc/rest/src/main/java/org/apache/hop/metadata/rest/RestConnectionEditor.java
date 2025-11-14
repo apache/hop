@@ -124,6 +124,80 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wName.setLayoutData(fdName);
     lastControl = wName;
 
+    // start authentication group (now directly below name)
+    Group gAuth = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    gAuth.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthGroup.Label"));
+    FormLayout gAuthLayout = new FormLayout();
+    gAuthLayout.marginWidth = 3;
+    gAuthLayout.marginHeight = 3;
+    gAuth.setLayout(gAuthLayout);
+    PropsUi.setLook(gAuth);
+
+    Label wlAuthType = new Label(gAuth, SWT.RIGHT);
+    PropsUi.setLook(wlAuthType);
+    wlAuthType.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthType"));
+    FormData fdlAuthType = new FormData();
+    fdlAuthType.top = new FormAttachment(0, margin);
+    fdlAuthType.left = new FormAttachment(0, 0);
+    fdlAuthType.right = new FormAttachment(middle, -margin);
+    wlAuthType.setLayoutData(fdlAuthType);
+    wAuthType = new ComboVar(variables, gAuth, SWT.READ_ONLY | SWT.BORDER);
+    PropsUi.setLook(wAuthType);
+    FormData fdAuthType = new FormData();
+    fdAuthType.top = new FormAttachment(wlAuthType, 0, SWT.CENTER);
+    fdAuthType.left = new FormAttachment(middle, 0);
+    fdAuthType.right = new FormAttachment(95, 0);
+    wAuthType.setLayoutData(fdAuthType);
+
+    wAuthType.setItems(authTypes);
+    wAuthType.addListener(
+        SWT.Selection,
+        e -> {
+          if (wAuthType.getText().equals("No Auth")) {
+            addNoAuthFields();
+          } else if (wAuthType.getText().equals("API Key")) {
+            addApiKeyFields();
+          } else if (wAuthType.getText().equals("Basic")) {
+            addBasicAuthFields();
+          } else if (wAuthType.getText().equals("Bearer")) {
+            addBearerFields();
+          } else if (wAuthType.getText().equals("Certificate")) {
+            addCertificateFields();
+          }
+        });
+
+    ScrolledComposite wsAuthComp = new ScrolledComposite(gAuth, SWT.V_SCROLL | SWT.H_SCROLL);
+    props.setLook(wsAuthComp);
+    FormData fdAuthSComp = new FormData();
+    fdAuthSComp.top = new FormAttachment(wAuthType, margin);
+    fdAuthSComp.left = new FormAttachment(0, 0);
+    fdAuthSComp.right = new FormAttachment(95, 0);
+    fdAuthSComp.bottom = new FormAttachment(95, 0);
+    wsAuthComp.setLayoutData(fdAuthSComp);
+
+    wAuthComp = new Composite(wsAuthComp, SWT.BACKGROUND);
+    PropsUi.setLook(wAuthComp);
+    wAuthComp.setLayout(new FormLayout());
+    FormData fdAuthComp = new FormData();
+    fdAuthComp.left = new FormAttachment(0, 0);
+    fdAuthComp.right = new FormAttachment(0, 0);
+    fdAuthComp.top = new FormAttachment(95, 0);
+    fdAuthComp.bottom = new FormAttachment(95, 0);
+    wAuthComp.setLayoutData(fdAuthComp);
+    wAuthComp.pack();
+
+    wsAuthComp.setContent(wAuthComp);
+
+    wAuthType.select(0);
+
+    wAuthComp.layout();
+
+    FormData fdAuth = new FormData();
+    fdAuth.left = new FormAttachment(0, 0);
+    fdAuth.top = new FormAttachment(wName, margin);
+    fdAuth.right = new FormAttachment(100, 0);
+    gAuth.setLayoutData(fdAuth);
+
     // start of URL group
     Group gUrl = new Group(composite, SWT.SHADOW_ETCHED_IN);
     gUrl.setText(BaseMessages.getString(PKG, "RestConnectionEditor.UrlGroup.Label"));
@@ -168,7 +242,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     lastControl = wTestUrl;
 
     FormData fdUrl = new FormData();
-    fdUrl.top = new FormAttachment(wlName, 0, 0);
+    fdUrl.top = new FormAttachment(gAuth, margin);
     fdUrl.left = new FormAttachment(0, 0);
     fdUrl.right = new FormAttachment(95, 0);
     gUrl.setLayoutData(fdUrl);
@@ -410,82 +484,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     gSSLTrustStore.setLayoutData(fdSSLTrustStore);
     // end SSL group
 
-    // start authentication group
-    Group gAuth = new Group(composite, SWT.SHADOW_ETCHED_IN);
-    gAuth.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthGroup.Label"));
-    FormLayout gAuthLayout = new FormLayout();
-    gAuthLayout.marginWidth = 3;
-    gAuthLayout.marginHeight = 3;
-    gAuth.setLayout(gAuthLayout);
-    PropsUi.setLook(gAuth);
-
-    Label wlAuthType = new Label(gAuth, SWT.RIGHT);
-    PropsUi.setLook(wlAuthType);
-    wlAuthType.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthType"));
-    FormData fdlAuthType = new FormData();
-    fdlAuthType.top = new FormAttachment(lastControl, margin);
-    fdlAuthType.left = new FormAttachment(0, 0);
-    fdlAuthType.right = new FormAttachment(middle, -margin);
-    wlAuthType.setLayoutData(fdlAuthType);
-    wAuthType = new ComboVar(variables, gAuth, SWT.READ_ONLY | SWT.BORDER);
-    PropsUi.setLook(wAuthType);
-    FormData fdAuthType = new FormData();
-    fdAuthType.top = new FormAttachment(wlAuthType, 0, SWT.CENTER);
-    fdAuthType.left = new FormAttachment(middle, 0);
-    fdAuthType.right = new FormAttachment(95, 0);
-    wAuthType.setLayoutData(fdAuthType);
-    lastControl = wAuthType;
-
-    wAuthType.setItems(authTypes);
-    wAuthType.addListener(
-        SWT.Selection,
-        e -> {
-          if (wAuthType.getText().equals("No Auth")) {
-            addNoAuthFields();
-          } else if (wAuthType.getText().equals("API Key")) {
-            addApiKeyFields();
-          } else if (wAuthType.getText().equals("Basic")) {
-            addBasicAuthFields();
-          } else if (wAuthType.getText().equals("Bearer")) {
-            addBearerFields();
-          } else if (wAuthType.getText().equals("Certificate")) {
-            addCertificateFields();
-          }
-        });
-
-    ScrolledComposite wsAuthComp = new ScrolledComposite(gAuth, SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wsAuthComp);
-    FormData fdAuthSComp = new FormData();
-    fdAuthSComp.top = new FormAttachment(lastControl, margin);
-    fdAuthSComp.left = new FormAttachment(0, 0);
-    fdAuthSComp.right = new FormAttachment(95, 0);
-    fdAuthSComp.bottom = new FormAttachment(95, 0);
-    wsAuthComp.setLayoutData(fdAuthSComp);
-
-    wAuthComp = new Composite(wsAuthComp, SWT.BACKGROUND);
-    PropsUi.setLook(wAuthComp);
-    wAuthComp.setLayout(new FormLayout());
-    FormData fdAuthComp = new FormData();
-    fdAuthComp.left = new FormAttachment(0, 0);
-    fdAuthComp.right = new FormAttachment(0, 0);
-    fdAuthComp.top = new FormAttachment(95, 0);
-    fdAuthComp.bottom = new FormAttachment(95, 0);
-    wAuthComp.setLayoutData(fdAuthComp);
-    wAuthComp.pack();
-
-    wsAuthComp.setContent(wAuthComp);
-
-    wAuthType.select(0);
-
-    wAuthComp.layout();
-
-    FormData fdAuth = new FormData();
-    fdAuth.left = new FormAttachment(0, 0);
-    fdAuth.top = new FormAttachment(gSSLTrustStore, margin);
-    fdAuth.right = new FormAttachment(100, 0);
-    fdAuth.bottom = new FormAttachment(100, 0);
-    gAuth.setLayoutData(fdAuth);
-
     setWidgetsContent();
 
     wsAuthComp.setExpandHorizontal(true);
@@ -493,12 +491,28 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     Rectangle authCompBounds = wAuthComp.getBounds();
     wsAuthComp.setMinSize(authCompBounds.width, authCompBounds.height);
 
-    Control[] controls = {wName, wBaseUrl, wTestUrl, wAuthComp, wAuthType};
+    Control[] controls = {
+      wName,
+      wBaseUrl,
+      wTestUrl,
+      wAuthComp,
+      wAuthType,
+      wTrustStoreFile,
+      wTrustStorePassword,
+      wKeyStoreFile,
+      wKeyStorePassword,
+      wKeyStoreType,
+      wKeyPassword,
+      wCertificateAlias
+    };
     enableControls(controls);
   }
 
   private void enableControls(Control[] controls) {
     for (Control control : controls) {
+      if (control == null || control.isDisposed()) {
+        continue;
+      }
       control.addListener(SWT.Modify, e -> setChanged());
       control.addListener(SWT.Selection, e -> setChanged());
     }
