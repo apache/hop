@@ -1,0 +1,32 @@
+{
+  "base_filename": "authentication-check-GOLDEN.csv",
+  "name": "authentication-check GOLDEN",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "authenticated",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "client_dn",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "verified",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

@@ -1,0 +1,15 @@
+{
+  "keyStoreType": "PKCS12",
+  "auth_type": "Certificate",
+  "keyStorePassword": "${MTLS_PASS}",
+  "base_url": "https://${MTLS_HOST}:${MTLS_PORT}",
+  "keyStoreFile": "${PROJECT_HOME}/test-certs/client-valid.p12",
+  "test_url": "https://${MTLS_HOST}:${MTLS_PORT}/api/whoami",
+  "certificateAlias": "",
+  "ignoreSsl": true,
+  "trustStorePassword": "Encrypted ",
+  "virtualPath": "",
+  "trustStoreFile": "",
+  "keyPassword": "Encrypted ",
+  "name": "REST-mTLS-ignore-ssl"
+}

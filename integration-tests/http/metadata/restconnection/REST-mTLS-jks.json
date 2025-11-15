@@ -1,0 +1,15 @@
+{
+  "keyStoreType": "JKS",
+  "auth_type": "Certificate",
+  "keyStorePassword": "${MTLS_PASS}",
+  "base_url": "https://${MTLS_HOST}:${MTLS_PORT}",
+  "keyStoreFile": "${PROJECT_HOME}/test-certs/client-valid.p12",
+  "test_url": "https://${MTLS_HOST}:${MTLS_PORT}/api/test",
+  "certificateAlias": "",
+  "ignoreSsl": false,
+  "trustStorePassword": "${MTLS_PASS}",
+  "virtualPath": "",
+  "trustStoreFile": "${PROJECT_HOME}/test-certs/truststore.jks",
+  "keyPassword": "Encrypted ",
+  "name": "REST-mTLS-jks"
+}

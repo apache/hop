@@ -22,17 +22,23 @@ services:
       service: integration_test
     volumes:
       - ./resource/http/CastleMockProject.xml:/tmp/CastleMockProject.xml
-    links:
+      - ./resource/http/mtls/test-certs:/opt/hop/tests/mtls/certs:ro
+      - ./resource/http/mtls/nginx-configs:/opt/hop/tests/mtls/nginx:ro
+    depends_on:
       - http
       - tomcat
       - castlemock
+      - mtls_test
+    environment:
+      HOP_MTLS_CERTS_DIR: /opt/hop/tests/mtls/certs
+      HOP_MTLS_BASE_URL: https://mtls_test:443
 
   http:
     image: kennethreitz/httpbin
     hostname: http
     ports:
       - "80"
-  
+
   tomcat:
     user: root
     image: tomcat:8.5-jre8
@@ -44,3 +50,19 @@ services:
 
   castlemock:
     image: castlemock/castlemock
+    hostname: castlemock
+
+  mtls_test:
+    image: nginx:alpine
+    hostname: mtls_test
+    ports:
+      - "9443:443"
+      - "9080:80"
+    volumes:
+      - ./resource/http/mtls/test-certs:/etc/nginx/certs:ro
+      - ./resource/http/mtls/nginx-configs/mtls.conf:/etc/nginx/nginx.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

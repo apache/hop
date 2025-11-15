@@ -47,5 +47,11 @@
             </includes>
             <outputDirectory>plugins/misc/rest</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.glassfish.jersey.connectors:jersey-apache-connector:jar</include>
+            </includes>
+            <outputDirectory>plugins/misc/rest/lib</outputDirectory>
+        </dependencySet>
     </dependencySets>
 </assembly>

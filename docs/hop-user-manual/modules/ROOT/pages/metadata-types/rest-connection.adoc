@@ -37,12 +37,39 @@ xref:pipeline/transforms/rest.adoc[REST client]
 |Name|The name to be used for this REST connection
 |Base URL|The URL to use as the base URL for any API calls. The base URL will need to be appended from client transforms or actions that use it to make detailed API calls.
 |Test URL|A full URL that can be used to test this REST connection. If no test URL is specified, the base URL will be used to perform connection tests.
-|Authorization header name|The Authentication/Authorization header name to use for the connection.
-|Authorization prefix|An (optional) prefix to use for the authentication/authorization header value (e.g. `Bearer`)
-|Authorization value|The Authentication/Authorization header value to use for the connection. This could be a token, an API key etc.
+|Authentication type|Select how Hop should authenticate when this metadata is used. The available choices are described below.
 |===
 
-Use the `Test` button to authenticate against the test or base URL, using the authentication/authorization header name, and (prefix + ) value.
+Use environment variables or Hop variables (for example `${PROJECT_HOME}`) in any text box. The connection resolves variables when the metadata is loaded, so the same definition can be reused from pipelines, workflows, and the Hop GUI test button.
+
+== Authentication
+
+[options="header"]
+|===
+|Type |Fields |Description
+|No Auth|—|No authentication headers are generated. Useful for public endpoints or when a downstream transform sets headers manually.
+|API Key|Authorization header name, Authorization prefix (optional), Authorization value|Adds a header such as `Authorization: Bearer <token>` or any other custom header. Prefix is concatenated with the value when present.
+|Basic|Username, Password|Registers HTTP Basic authentication with the Jersey client. Passwords can be stored encrypted.
+|Bearer|Bearer token|Adds an `Authorization: Bearer <token>` header automatically.
+|Certificate|Configured through the SSL / Client Certificate options below|Enables mutual TLS (mTLS) by loading the specified key store.
+|===
+
+== SSL and client certificates
+
+[options="header"]
+|===
+|Option |Description
+|Trust store file|Path to a trust store (JKS or PKCS12) that contains server CA certificates. Leave empty to use the JVM default trust store. When `Ignore SSL errors` is enabled Hop installs a trust-all manager instead.
+|Trust store password|Password for the trust store file. Supports variable substitution and encrypted values.
+|Ignore SSL errors|If selected, Hop trusts all certificates and skips hostname verification. This should only be used in development or test environments.
+|Key store file|Path to the client key store used for certificate authentication. PKCS12 (`.p12`, `.pfx`) and JKS files are supported.
+|Key store password|Password for the key store.
+|Key store type|Explicitly choose `PKCS12` or `JKS`. Defaults to PKCS12 when not specified.
+|Key password|Optional password that protects a private key entry inside the key store. Falls back to the key store password when left empty.
+|Certificate alias|Optional alias to pick a specific certificate inside the key store. Leave empty to use the default entry.
+|===
+
+Use the `Test` button to validate the selected authentication method and SSL settings against the test or base URL. The dialog resolves variables before running the test so it matches pipeline execution.
 
 == Samples
 
