@@ -18,7 +18,6 @@
 package org.apache.hop.ui.hopgui.perspective;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -30,15 +29,15 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 
 /**
- * This class helps the perspective plugins to keep track of their visualisation. The main principle
+ * This class helps the perspective plugins to keep track of their visualization. The main principle
  * is that a perspective has it's own composite and draws on it. It's shown or not depending on what
  * is selected.
  */
 public class HopPerspectiveManager {
 
-  private HopGui hopGui;
+  private final HopGui hopGui;
 
-  private Map<Class<? extends IHopPerspective>, IHopPerspective> perspectivesMap;
+  private final Map<Class<? extends IHopPerspective>, IHopPerspective> perspectivesMap;
 
   private final ConcurrentLinkedQueue<IHopPerspectiveListener> listeners;
 
@@ -66,17 +65,17 @@ public class HopPerspectiveManager {
     }
   }
 
-  public IHopPerspective findPerspective(Class<? extends IHopPerspective> perspectiveClass) {
+  public <T extends IHopPerspective> T findPerspective(Class<T> perspectiveClass) {
     for (IHopPerspective perspective : perspectivesMap.values()) {
       if (perspective.getClass().equals(perspectiveClass)) {
-        return perspective;
+        return perspectiveClass.cast(perspective);
       }
     }
     return null;
   }
 
   /**
-   * Loop over all perspectives and see if any one of them recognises the object
+   * Loop over all perspectives and see if any one of them recognizes the object
    *
    * @param fileMetadata
    * @return
@@ -113,17 +112,15 @@ public class HopPerspectiveManager {
     }
   }
 
-  public void notifyPerspectiveActiviated(IHopPerspective perspective) {
+  public void notifyPerspectiveActivated(IHopPerspective perspective) {
     for (IHopPerspectiveListener listener : this.listeners) {
       listener.perspectiveActivated(perspective);
     }
   }
 
   private List<Class<? extends IHopPerspective>> getSortedClasses() {
-
     List<Class<? extends IHopPerspective>> list = new ArrayList<>(perspectivesMap.keySet());
-    Collections.sort(
-        list, Comparator.comparing(c -> c.getAnnotation(HopPerspectivePlugin.class).id()));
+    list.sort(Comparator.comparing(c -> c.getAnnotation(HopPerspectivePlugin.class).id()));
     return list;
   }
 
