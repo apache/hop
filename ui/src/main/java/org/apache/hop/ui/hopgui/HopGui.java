@@ -1523,7 +1523,7 @@ public class HopGui
     //
     perspective.perspectiveActivated();
 
-    perspectiveManager.notifyPerspectiveActiviated(perspective);
+    perspectiveManager.notifyPerspectiveActivated(perspective);
   }
 
   public boolean isActivePerspective(IHopPerspective perspective) {
@@ -1620,36 +1620,31 @@ public class HopGui
   }
 
   public static HopDataOrchestrationPerspective getDataOrchestrationPerspective() {
-    return (HopDataOrchestrationPerspective)
-        HopGui.getInstance()
-            .getPerspectiveManager()
-            .findPerspective(HopDataOrchestrationPerspective.class);
+    return HopGui.getInstance()
+        .getPerspectiveManager()
+        .findPerspective(HopDataOrchestrationPerspective.class);
   }
 
   public static MetadataPerspective getMetadataPerspective() {
-    return (MetadataPerspective)
-        HopGui.getInstance().getPerspectiveManager().findPerspective(MetadataPerspective.class);
+    return HopGui.getInstance().getPerspectiveManager().findPerspective(MetadataPerspective.class);
   }
 
   public static ExecutionPerspective getExecutionPerspective() {
-    return (ExecutionPerspective)
-        HopGui.getInstance().getPerspectiveManager().findPerspective(ExecutionPerspective.class);
+    return HopGui.getInstance().getPerspectiveManager().findPerspective(ExecutionPerspective.class);
   }
 
   public static ExplorerPerspective getExplorerPerspective() {
-    return (ExplorerPerspective)
-        HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
+    return HopGui.getInstance().getPerspectiveManager().findPerspective(ExplorerPerspective.class);
   }
 
   public static ConfigurationPerspective getConfigurationPerspective() {
-    return (ConfigurationPerspective)
-        HopGui.getInstance()
-            .getPerspectiveManager()
-            .findPerspective(ConfigurationPerspective.class);
+    return HopGui.getInstance()
+        .getPerspectiveManager()
+        .findPerspective(ConfigurationPerspective.class);
   }
 
   /**
-   * Create a list of all the searcheables locations. By default this means HopGui, the the current
+   * Create a list of all the searcheables locations. By default this means HopGui, the current
    * metadata
    */
   @Override
