@@ -49,6 +49,8 @@ Commands:
   server   Run a Hop server
 ----
 
+=====
+
 == Options
 
 [options="header"]
@@ -58,5 +60,4 @@ Commands:
 |-h|Displays this help message and quits
 |-V|Show the current Hop version
 |===
-
 

@@ -15,6 +15,8 @@ language governing permissions and limitations under the
 License.
 ////
 :imagesdir: ../../assets/images/
+:openvar: ${
+:closevar: }
 :page-pagination:
 :description: Describes a Salesforce connection. The Salesforce connection, specified on a project level, can be reused across multiple Salesforce transforms.
 
@@ -22,7 +24,7 @@ License.
 
 == Description
 
-image:icons/SFI.svg[width="24px"]
+image:transforms/icons/SFI.svg[width="24px"]
 
 Describes a Salesforce connection that can be reused across multiple Salesforce transforms.
 
@@ -80,7 +82,7 @@ Server-to-server authentication using JWT (JSON Web Token) signed with RSA priva
 
 |Password
 |
-|Your Salesforce password (can use variables like `${SF_PASS}`)
+|Your Salesforce password (can use variables like `{openvar}SF_PASS{closevar}`)
 
 |Security Token (Optional)
 |
@@ -140,7 +142,7 @@ Server-to-server authentication using JWT (JSON Web Token) signed with RSA priva
 
 |Private Key
 |
-|RSA private key in PKCS8 PEM format. For security, use variables like `${SF_JWT_PRIVATE_KEY}` to reference keys stored in external secret managers. The key is encrypted when saved. Click Browse to load from file.
+|RSA private key in PKCS8 PEM format. For security, use variables like `{openvar}SF_JWT_PRIVATE_KEY{closevar}` to reference keys stored in external secret managers. The key is encrypted when saved. Click Browse to load from file.
 
 |Token Endpoint
 |https://login.salesforce.com
@@ -161,7 +163,7 @@ Follow these steps to create a Salesforce connection using username and password
 5. Ensure "Username/Password" is selected as the Authentication Type
 6. Fill in the required fields:
    * **Username**: Your Salesforce username or email address
-   * **Password**: Your Salesforce password (or use a variable like `${SF_PASS}`)
+   * **Password**: Your Salesforce password (or use a variable like `{openvar}SF_PASS{closevar}`)
    * **Security Token (Optional)**: Only required if your organization has IP restrictions enabled and you're connecting from an untrusted IP address. If you need a security token, you can request it from Salesforce by going to Settings > My Personal Information > Reset My Security Token
    * **Target URL**: The default `https://login.salesforce.com/services/Soap/u/64.0` works for most cases. Use `https://test.salesforce.com/services/Soap/u/64.0` for sandbox environments
 7. Click "Test Connection" to verify your settings
@@ -313,11 +315,11 @@ If you selected "Admin approved users are pre-authorized":
 4. Enter a descriptive name for your connection
 5. Select "OAuth JWT Bearer" as the Authentication Type
 6. Fill in the JWT settings:
-   * **Username**: Your Salesforce username (e.g., `user@company.com` or use `${SF_USER}`)
-   * **Consumer Key**: Paste the Consumer Key from your Salesforce Connected App (or use `${SF_CONSUMER_KEY}`)
+   * **Username**: Your Salesforce username (e.g., `user@company.com` or use `{openvar}SF_USER{closevar}`)
+   * **Consumer Key**: Paste the Consumer Key from your Salesforce Connected App (or use `{openvar}SF_CONSUMER_KEY{closevar}`)
    * **Private Key**: 
      ** Click the "Browse..." button to load your private key file (`salesforce_private_pkcs8.key`)
-     ** OR use a variable reference: `${SF_JWT_PRIVATE_KEY}` (recommended for production)
+     ** OR use a variable reference: `{openvar}SF_JWT_PRIVATE_KEY{closevar}` (recommended for production)
    * **Token Endpoint**: 
      ** Use `https://login.salesforce.com` for production
      ** Use `https://test.salesforce.com` for sandbox environments
@@ -337,7 +339,7 @@ IMPORTANT: The private key is the most sensitive component of JWT authentication
 export SF_JWT_PRIVATE_KEY="$(cat /secure/path/salesforce_private_pkcs8.key)"
 
 # Or use Hop's variable system
-SF_JWT_PRIVATE_KEY = ${SECRET:azure-keyvault:salesforce-jwt-key}
+SF_JWT_PRIVATE_KEY = {}openvar}SECRET:azure-keyvault:salesforce-jwt-key{closevar}
 ----
 
 * **Use Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault** for production deployments
@@ -376,9 +378,9 @@ All connection fields support Hop variables:
 
 [source,properties]
 ----
-Username: ${SF_USER}
-Password: ${SF_PASS}
-Target URL: ${SF_URL}
+Username: {openvar}SF_USER{closevar}
+Password: {openvar}SF_PASS{closevar}
+Target URL: {openva}rSF_URL{closevar}
 ----
 
 This allows you to use different credentials for different environments without changing your pipelines.
@@ -411,8 +413,8 @@ This allows you to use different credentials for different environments without 
 ----
 Name: Salesforce-Production
 Authentication Type: Username/Password
-Username: ${SF_USER}
-Password: ${SF_PASS}
+Username: {openvar}SF_USER{closevar}
+Password: {openvar}SF_PASS{closevar}
 Target URL: https://login.salesforce.com/services/Soap/u/64.0
 ----
 
@@ -422,8 +424,8 @@ Target URL: https://login.salesforce.com/services/Soap/u/64.0
 ----
 Name: Salesforce-OAuth-Production
 Authentication Type: OAuth
-Client ID: ${SF_CLIENT_ID}
-Client Secret: ${SF_CLIENT_SECRET}
+Client ID: {openvar}SF_CLIENT_ID{closevar}
+Client Secret: {openvar}SF_CLIENT_SECRET{closevar}
 Instance URL: https://yourcompany.my.salesforce.com
 ----
 
@@ -435,7 +437,7 @@ Name: Salesforce-JWT-Production
 Authentication Type: OAuth JWT Bearer
 Username: integration.user@company.com
 Consumer Key: 3MVG9rZjd7MXFdLhRZwW8nz6y4HzBapVD3GeaSU_Ukf4HxwFls4LiQIJGJISQKQf8OO96mjyvT5CPI0EFiWhH
-Private Key: ${SF_JWT_PRIVATE_KEY}
+Private Key: {openvar}SF_JWT_PRIVATE_KEY{closevar}
 Token Endpoint: https://login.salesforce.com
 ----
 

@@ -105,9 +105,9 @@ You can also do this using the xref:pipeline/transforms/xmlinputstream.adoc[XML 
 |Rownum in output?|Allows you to specify a field name to include the row number (Integer) in the output of this transform.
 |Rownum fieldname|The field to read the row number value from.
 
-+2|Add to result filename
-|Add files to result filename|Adds the XML filenames read to the result of this pipeline.
-A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
+2+|Add to result filename|
+|Add files to result filename|Adds the XML filenames read to the result of this pipeline. A unique list is being kept in memory that can be used in the next workflow action in a workflow, for example in another pipeline.
+
 |===
 
 === Fields Tab
@@ -149,4 +149,4 @@ A unique list is being kept in memory that can be used in the next workflow acti
 |Last modification field|The field used to store the date the file was last modified.
 |Uri field|The field used to store the XML document's  source URL. 
 |Root uri field|The field used to store the XML document's namespace URL, taken from the root element
-
+|===

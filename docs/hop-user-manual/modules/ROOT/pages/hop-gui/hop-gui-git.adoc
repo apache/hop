@@ -39,12 +39,12 @@ The available options to work with files and the available git operations in thi
 |icon|action|description|shortcut
 |image:icons/arrow-right.svg[width="24px"]|Open selected file|Opens the selected file in the appropriate editor (pipeline or workflow editor for workflows and pipelines, text editor for other file.|double-click
 |image:icons/folder-add.svg[width="24px"]|Add folder|adds a new folder at the selected location. A popup is shown for the folder name.|
-|image:icons/expand-all.svg[width="24px"]|Expand all folders|Display all nested folders in the directory tree.|
-|image:icons/collapse-all.svg[width="24px"]|Collapse all folders|Hide all nested folders in the directory tree.|
+|image:getting-started/icons/expand-all.svg[width="24px"]|Expand all folders|Display all nested folders in the directory tree.|
+|image:getting-started/icons/collapse-all.svg[width="24px"]|Collapse all folders|Hide all nested folders in the directory tree.|
 |image:icons/delete.svg[width="24px"]|Delete Selected File|Deletes the selected file.|DEL
 |image:icons/rename.svg[width="24px"]|Rename the selected file|Makes the selected file name editable to allow renaming.|F2
 |image:icons/refresh.svg[width="24px"]|Refresh|Refreshes the projects folder and file structure.|
-|image:icons/hide.svg[width="24px"]|Show or hide files|Show or hide files or directories.|
+|image:getting-started/icons/hide.svg[width="24px"]|Show or hide files|Show or hide files or directories.|
 |image:icons/git-info.svg[width="24px"]|Git info|Populates the file explorer's git dialog with version information for the selected file.|
 |image:icons/git-add.svg[width="24px"]|Git Add|Add the selected file to version control.|
 |image:icons/git-revert.svg[width="24px"]|Git Revert|Revert file to last committed version (HEAD).|
