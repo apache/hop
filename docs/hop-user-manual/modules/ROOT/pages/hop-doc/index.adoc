@@ -100,4 +100,4 @@ Open a terminal, change to the directory where you unzipped Apache Hop and run:
 ----
 ./hop doc -j demo -t /tmp/hop/docs --include-notes --include-parameters --include-metadata
 ----
-
+====

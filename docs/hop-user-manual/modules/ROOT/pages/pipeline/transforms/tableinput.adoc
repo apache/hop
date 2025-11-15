@@ -30,7 +30,7 @@ a|
 The Table Input transform is one of the most frequently used transforms in Apache Hop. It reads data from a relational database using a connection and an SQL query, and introduces that data into a pipeline.
 
 This transform supports parameterization using:
-- Apache Hop variables (e.g., `${customerId}`)
+- Apache Hop variables (e.g., `{openvar}customerId{closevar}`)
 - Input fields from a previous transform (JDBC prepared statements using `?` placeholders)
 
 These features make Table Input ideal for dynamic and reusable data retrieval logic.
@@ -111,10 +111,10 @@ If your query includes Hop variables, enable `Replace variables in script`. This
 ----
 SELECT *
 FROM public.tableinput
-WHERE id > ${PRM_ID};
+WHERE id > {openvar}PRM_ID{closevar};
 ----
 
-- `${PRM_ID}` is defined as a pipeline variable (e.g., via parameters or `Set Variables` transform)
+- `{openvar}PRM_ID{closevar}` is defined as a pipeline variable (e.g., via parameters or `Set Variables` transform)
 
 image:transforms/tableinput/table-input-variables-in-sql-parameter-definition.png[Parameter definition in pipeline, width="45%"]
 
@@ -139,10 +139,10 @@ image:transforms/tableinput/table-input-combine-variables-and-prepared-statement
 ----
 SELECT *
 FROM public.tableinput
-where id > ${PRM_ID} AND lastdate > ?;
+where id > {openvar}PRM_ID{closevar} AND lastdate > ?;
 ----
 
-- `${startDate}` is a pipeline variable
+- `{openvar}startDate{closevar}` is a pipeline variable
 - `?` is a parameter provided by the input stream
 
 == Best Practices and Pro Tips
@@ -166,15 +166,15 @@ Table Input can be used in a metadata-driven pipeline. For example, create a tem
 [source,sql]
 ----
 SELECT *
-FROM ${tableName}
-WHERE ${condition}
+FROM {openvar}tableName{closevar}
+WHERE {openvar}condition{closevar}
 ----
 
 Then use a Metadata Injection transform to inject actual values (e.g., from a CSV or database).
 
 .Steps:
 1. Create a template pipeline with Table Input
-2. Use `${tableName}` and `${condition}` as placeholders
+2. Use `{openvar}tableName{closevar}` and `{openvar}condition{closevar}` as placeholders
 3. In a separate pipeline, use Metadata Injection to inject values into the SQL field
 4. Execute the injected pipeline
 
@@ -198,7 +198,7 @@ You can inject metadata into the following fields of the Table Input transform:
 |Transform name|Name of the transform instance.
 |Connection|Database connection to execute the query against.
 |SQL|SQL statement used to retrieve data. Use `Get SQL select statement` to auto-generate.
-|Replace variables in script?|Enable to substitute variables (e.g., `${param}`) in your SQL before execution.
+|Replace variables in script?|Enable to substitute variables (e.g., `{openvar}param{closevar}`) in your SQL before execution.
 |Insert data from transform|Select a transform to use its fields as input for `?` parameters in a prepared statement.
 |Execute for each row?|Runs the SQL query once for each incoming row, using that row’s values as parameters. Only applies when “Insert data from transform” is enabled. Useful for row-specific lookups, but may be slower on large datasets.
 |Limit size|Number of rows to return. `0` means no limit.
