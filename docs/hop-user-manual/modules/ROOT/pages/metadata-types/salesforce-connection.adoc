@@ -214,7 +214,7 @@ Once your Connected App is configured, create the OAuth connection in Hop:
 When you click "Authorize", a browser window will open with the Salesforce login page:
 
 1. **Login**: Enter your Salesforce credentials and log in
-2. **Force Re-authorization** (Optional): If you're already logged in to Salesforce, you may not see the authorization screen. To force Salesforce to show the authorization screen again, add `&amp;prompt=login` to the authorization URL
+2. **Force Re-authorization** (Optional): If you're already logged in to Salesforce, you may not see the authorization screen. To force Salesforce to show the authorization screen again, add `{empty}&amp;prompt=login` to the authorization URL
 3. **Grant Access**: Click "Allow" to authorize the application
 4. **Extract Authorization Code**: 
    * After authorization, Salesforce will redirect to your callback URL
