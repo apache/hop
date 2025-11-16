@@ -28,7 +28,7 @@ image:transforms/icons/SFI.svg[width="24px"]
 
 Describes a Salesforce connection that can be reused across multiple Salesforce transforms.
 
-The Salesforce Connection metadata type allows you to define connection settings once and reuse them across all Salesforce transforms in your project. This eliminates the need to duplicate connection information and provides centralized management of Salesforce authentication credentials.
+The Salesforce Connection metadata type allows you to define connection settings once and reuse them across all Salesforce transforms in your Apache Hop project This eliminates the need to duplicate connection information and provides centralized management of Salesforce authentication credentials.
 
 == Related Plugins
 
