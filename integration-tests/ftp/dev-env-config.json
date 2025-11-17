@@ -1,0 +1,19 @@
+{
+  "variables" : [
+    {
+      "name" : "FTP_SERVER",
+      "value" : "ftp-server",
+      "description" : ""
+    },
+    {
+      "name" : "FTP_USER",
+      "value" : "admin",
+      "description" : ""
+    },
+    {
+      "name" : "FTP_PASSWORD",
+      "value" : "admin",
+      "description" : ""
+    }
+  ]
+}

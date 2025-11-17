@@ -22,6 +22,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** AddSnowflakeId data */
+@SuppressWarnings("java:S1104")
 public class AddSnowflakeIdData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 }

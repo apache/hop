@@ -123,13 +123,13 @@ class AddSequenceMetaTest {
     assertEquals("1000", meta.getMaxValue());
 
     // Test long setters
-    meta.setStartAt(100L);
+    meta.setStartAtByValue(100L);
     assertEquals("100", meta.getStartAt());
 
-    meta.setIncrementBy(10L);
+    meta.setIncrementByValue(10L);
     assertEquals("10", meta.getIncrementBy());
 
-    meta.setMaxValue(10000L);
+    meta.setMaxValueByValue(10000L);
     assertEquals("10000", meta.getMaxValue());
   }
 
