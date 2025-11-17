@@ -80,6 +80,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  protected ClientBuilder createClientBuilder() {
+    return ClientBuilder.newBuilder();
+  }
+
   /* for unit test*/
   MultivaluedHashMap createMultivalueMap(String paramName, String paramValue) {
     MultivaluedHashMap queryParams = new MultivaluedHashMap();
@@ -128,7 +132,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       if (!StringUtils.isEmpty(meta.getConnectionName())) {
         invocationBuilder = connection.getInvocationBuilder(data.realUrl);
       } else {
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        ClientBuilder clientBuilder = createClientBuilder();
         clientBuilder
             .withConfig(data.config)
             .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
@@ -182,6 +186,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           logDebug(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", webResource.getUri()));
         }
         invocationBuilder = webResource.request();
+      }
+      if (invocationBuilder == null) {
+        throw new HopException("Invocation builder not initialized");
       }
 
       // set the Authentication/Authorization header from the connection first, if available.
