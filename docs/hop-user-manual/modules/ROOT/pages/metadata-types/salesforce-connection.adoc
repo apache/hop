@@ -214,12 +214,12 @@ Once your Connected App is configured, create the OAuth connection in Hop:
 When you click "Authorize", a browser window will open with the Salesforce login page:
 
 1. **Login**: Enter your Salesforce credentials and log in
-2. **Force Re-authorization** (Optional): If you're already logged in to Salesforce, you may not see the authorization screen. To force Salesforce to show the authorization screen again, add `prompt=login` to the authorization URL
+2. **Force Re-authorization** (Optional): If you're already logged in to Salesforce, you may not see the authorization screen. To force Salesforce to show the authorization screen again, add `&amp;prompt=login` to the authorization URL
 3. **Grant Access**: Click "Allow" to authorize the application
 4. **Extract Authorization Code**: 
    * After authorization, Salesforce will redirect to your callback URL
    * The browser will show an error (this is expected since the URL doesn't exist)
-   * **Copy the full URL from your browser's address bar** - it will look like: `https://localhost:8080/oauth/callback?code=aPrxh7N...`
+   * **Copy the full URL from your browser's address bar** - it will look like: `https://localhost:8080/oauth/callback?code=aPrxh7N`
    * The authorization code is the value after `code=` in the URL
 5. **Exchange Code for Tokens**:
    * Return to Hop and paste the authorization code into the "Authorization Code" field (if prompted)
@@ -339,7 +339,7 @@ IMPORTANT: The private key is the most sensitive component of JWT authentication
 export SF_JWT_PRIVATE_KEY="$(cat /secure/path/salesforce_private_pkcs8.key)"
 
 # Or use Hop's variable system
-SF_JWT_PRIVATE_KEY = {}openvar}SECRET:azure-keyvault:salesforce-jwt-key{closevar}
+SF_JWT_PRIVATE_KEY = ${SECRET:azure-keyvault:salesforce-jwt-key}
 ----
 
 * **Use Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault** for production deployments
@@ -378,9 +378,9 @@ All connection fields support Hop variables:
 
 [source,properties]
 ----
-Username: {openvar}SF_USER{closevar}
-Password: {openvar}SF_PASS{closevar}
-Target URL: {openva}rSF_URL{closevar}
+Username: ${SF_USER}
+Password: ${SF_PASS}
+Target URL: ${rSF_URL}
 ----
 
 This allows you to use different credentials for different environments without changing your pipelines.
@@ -413,8 +413,8 @@ This allows you to use different credentials for different environments without 
 ----
 Name: Salesforce-Production
 Authentication Type: Username/Password
-Username: {openvar}SF_USER{closevar}
-Password: {openvar}SF_PASS{closevar}
+Username: ${SF_USER}
+Password: ${SF_PASS}
 Target URL: https://login.salesforce.com/services/Soap/u/64.0
 ----
 
@@ -424,8 +424,8 @@ Target URL: https://login.salesforce.com/services/Soap/u/64.0
 ----
 Name: Salesforce-OAuth-Production
 Authentication Type: OAuth
-Client ID: {openvar}SF_CLIENT_ID{closevar}
-Client Secret: {openvar}SF_CLIENT_SECRET{closevar}
+Client ID: ${SF_CLIENT_ID}
+Client Secret: ${SF_CLIENT_SECRET}
 Instance URL: https://yourcompany.my.salesforce.com
 ----
 
@@ -437,7 +437,7 @@ Name: Salesforce-JWT-Production
 Authentication Type: OAuth JWT Bearer
 Username: integration.user@company.com
 Consumer Key: 3MVG9rZjd7MXFdLhRZwW8nz6y4HzBapVD3GeaSU_Ukf4HxwFls4LiQIJGJISQKQf8OO96mjyvT5CPI0EFiWhH
-Private Key: {openvar}SF_JWT_PRIVATE_KEY{closevar}
+Private Key: ${SF_JWT_PRIVATE_KEY}
 Token Endpoint: https://login.salesforce.com
 ----
 
