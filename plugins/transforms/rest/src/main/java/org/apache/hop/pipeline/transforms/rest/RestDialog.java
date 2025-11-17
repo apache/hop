@@ -1294,7 +1294,7 @@ public class RestDialog extends BaseTransformDialog {
 
     wlBody.setEnabled(activateBody);
     wBody.setEnabled(activateBody);
-    wApplicationType.setEnabled(activateBody);
+    wApplicationType.setEnabled(true);
 
     wlParameters.setEnabled(activateParams);
     wParameters.setEnabled(activateParams);

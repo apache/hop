@@ -1,11 +1,29 @@
 {
-  "variables" : [ {
-    "name" : "HOSTNAME",
-    "value" : "http",
-    "description" : "hostname of http container"
-  }, {
-    "name" : "CASTLEMOCK_HOSTNAME",
-    "value" : "castlemock",
-    "description" : "hostname for the CastleMock service"
-  } ]
+  "variables" : [
+    {
+      "name" : "HOSTNAME",
+      "value" : "http",
+      "description" : "hostname of http container"
+    },
+    {
+      "name" : "CASTLEMOCK_HOSTNAME",
+      "value" : "castlemock",
+      "description" : "hostname for the CastleMock service"
+    },
+    {
+      "name" : "MTLS_HOST",
+      "value" : "mtls_test",
+      "description" : ""
+    },
+    {
+      "name" : "MTLS_PASS",
+      "value" : "hop123",
+      "description" : ""
+    },
+    {
+      "name" : "MTLS_PORT",
+      "value" : "443",
+      "description" : ""
+    }
+  ]
 }

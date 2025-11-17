@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.rest;
 
 import static org.apache.hop.core.Const.NVL;
 
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -32,6 +33,8 @@ import jakarta.ws.rs.core.UriBuilder;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -77,6 +80,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  protected ClientBuilder createClientBuilder() {
+    return ClientBuilder.newBuilder();
+  }
+
   /* for unit test*/
   MultivaluedHashMap createMultivalueMap(String paramName, String paramValue) {
     MultivaluedHashMap queryParams = new MultivaluedHashMap();
@@ -112,7 +119,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     }
     WebTarget webResource = null;
     Client client = null;
+    Invocation.Builder invocationBuilder = null;
     Object[] newRow = null;
+    long startTime = 0;
     if (rowData != null) {
       newRow = rowData.clone();
     }
@@ -120,77 +129,90 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       if (isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", data.realUrl));
       }
-      ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-      clientBuilder
-          .withConfig(data.config)
-          .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+      if (!StringUtils.isEmpty(meta.getConnectionName())) {
+        invocationBuilder = connection.getInvocationBuilder(data.realUrl);
+      } else {
+        ClientBuilder clientBuilder = createClientBuilder();
+        clientBuilder
+            .withConfig(data.config)
+            .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
 
-      if (meta.isIgnoreSsl() || !Utils.isEmpty(data.trustStoreFile)) {
-        clientBuilder.hostnameVerifier((s1, s2) -> true);
-        clientBuilder.sslContext(data.sslContext);
-      }
-
-      client = clientBuilder.build();
-      if (data.basicAuthentication != null) {
-        client.register(data.basicAuthentication);
-      }
-      // create a WebResource object, which encapsulates a web resource for the client
-      webResource = client.target(data.realUrl);
-
-      // used for calculating the responseTime
-      long startTime = System.currentTimeMillis();
-
-      if (data.useMatrixParams) {
-        // Add matrix parameters
-        UriBuilder builder = webResource.getUriBuilder();
-        for (int i = 0; i < data.nrMatrixParams; i++) {
-          String value = data.inputRowMeta.getString(rowData, data.indexOfMatrixParamFields[i]);
-          if (isDebug()) {
-            logDebug(
-                BaseMessages.getString(
-                    PKG, "Rest.Log.matrixParameterValue", data.matrixParamNames[i], value));
-          }
-          builder =
-              builder.matrixParam(
-                  data.matrixParamNames[i],
-                  UriComponent.encode(value, UriComponent.Type.QUERY_PARAM));
+        if (meta.isIgnoreSsl() || !Utils.isEmpty(data.trustStoreFile)) {
+          clientBuilder.hostnameVerifier((s1, s2) -> true);
+          clientBuilder.sslContext(data.sslContext);
         }
-        webResource = client.target(builder.build());
-      }
 
-      if (data.useParams) {
-        // Add query parameters
-        for (int i = 0; i < data.nrParams; i++) {
-          String value = data.inputRowMeta.getString(rowData, data.indexOfParamFields[i]);
-          if (isDebug()) {
-            logDebug(
-                BaseMessages.getString(
-                    PKG, "Rest.Log.queryParameterValue", data.paramNames[i], value));
-          }
-          webResource = webResource.queryParam(data.paramNames[i], value);
+        client = clientBuilder.build();
+        if (data.basicAuthentication != null) {
+          client.register(data.basicAuthentication);
         }
+        // create a WebResource object, which encapsulates a web resource for the client
+        webResource = client.target(data.realUrl);
+
+        // used for calculating the responseTime
+        startTime = System.currentTimeMillis();
+
+        if (data.useMatrixParams) {
+          // Add matrix parameters
+          UriBuilder builder = webResource.getUriBuilder();
+          for (int i = 0; i < data.nrMatrixParams; i++) {
+            String value = data.inputRowMeta.getString(rowData, data.indexOfMatrixParamFields[i]);
+            if (isDebug()) {
+              logDebug(
+                  BaseMessages.getString(
+                      PKG, "Rest.Log.matrixParameterValue", data.matrixParamNames[i], value));
+            }
+            builder =
+                builder.matrixParam(
+                    data.matrixParamNames[i],
+                    UriComponent.encode(value, UriComponent.Type.QUERY_PARAM));
+          }
+          webResource = client.target(builder.build());
+        }
+
+        if (data.useParams) {
+          // Add query parameters
+          for (int i = 0; i < data.nrParams; i++) {
+            String value = data.inputRowMeta.getString(rowData, data.indexOfParamFields[i]);
+            if (isDebug()) {
+              logDebug(
+                  BaseMessages.getString(
+                      PKG, "Rest.Log.queryParameterValue", data.paramNames[i], value));
+            }
+            webResource = webResource.queryParam(data.paramNames[i], value);
+          }
+        }
+        if (isDebug()) {
+          logDebug(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", webResource.getUri()));
+        }
+        invocationBuilder = webResource.request();
       }
-      if (isDebug()) {
-        logDebug(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", webResource.getUri()));
+      if (invocationBuilder == null) {
+        throw new HopException("Invocation builder not initialized");
       }
-      Invocation.Builder invocationBuilder = webResource.request();
 
       // set the Authentication/Authorization header from the connection first, if available.
       // this transform's headers will override this value if available.
-      if (connection != null && !Utils.isEmpty(resolve(connection.getAuthorizationHeaderName()))) {
-        if (!StringUtils.isEmpty(resolve(connection.getAuthorizationPrefix()))) {
-          invocationBuilder.header(
-              resolve(connection.getAuthorizationHeaderName()),
-              resolve(connection.getAuthorizationPrefix())
-                  + " "
-                  + resolve(connection.getAuthorizationHeaderValue()));
-        } else {
-          invocationBuilder.header(
-              resolve(connection.getAuthorizationHeaderName()),
-              resolve(connection.getAuthorizationHeaderValue()));
+      if (connection != null) {
+        if (connection.getAuthType().equals("API Key")) {
+          if (!StringUtils.isEmpty(resolve(connection.getAuthorizationHeaderName())))
+            if (!Utils.isEmpty(resolve(connection.getAuthorizationHeaderName()))) {
+              if (!StringUtils.isEmpty(resolve(connection.getAuthorizationPrefix()))) {
+                invocationBuilder.header(
+                    resolve(connection.getAuthorizationHeaderName()),
+                    resolve(connection.getAuthorizationPrefix())
+                        + " "
+                        + resolve(connection.getAuthorizationHeaderValue()));
+              } else {
+                invocationBuilder.header(
+                    resolve(connection.getAuthorizationHeaderName()),
+                    resolve(connection.getAuthorizationHeaderValue()));
+              }
+            }
         }
       }
 
+      boolean acceptHeaderProvided = false;
       String contentType = null; // media type override, if not null
       if (data.useHeaders) {
         // Add headers
@@ -202,11 +224,18 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           if ("Content-Type".equals(data.headerNames[i])) {
             contentType = value;
           }
+          if ("Accept".equalsIgnoreCase(data.headerNames[i])) {
+            acceptHeaderProvided = true;
+          }
           if (isDebug()) {
             logDebug(
                 BaseMessages.getString(PKG, "Rest.Log.HeaderValue", data.headerNames[i], value));
           }
         }
+      }
+
+      if (!acceptHeaderProvided && data.mediaType != null) {
+        invocationBuilder = invocationBuilder.accept(data.mediaType);
       }
 
       Response response = null;
@@ -258,6 +287,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       } catch (Exception e) {
         throw new HopException("Request could not be processed", e);
       }
+      if (response != null) {
+        response.bufferEntity();
+      }
       // Get response time
       long responseTime = System.currentTimeMillis() - startTime;
       if (isDetailed()) {
@@ -273,13 +305,66 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         logDebug(BaseMessages.getString(PKG, "Rest.Log.ResponseCode", "" + status));
       }
 
+      // Buffer the entity so we can read it multiple times if needed (for fallback)
+      if (response.hasEntity()) {
+        response.bufferEntity();
+      }
+
       // Get Response
       String body;
       String headerString = null;
       try {
         body = response.readEntity(String.class);
-      } catch (Exception ex) {
+      } catch (ProcessingException ex) {
+        // Check for duplicate Content-Type headers - this is a server configuration issue
+        String errorMessage = ex.getMessage();
+        if (errorMessage != null
+            && errorMessage.contains("Too many \"Content-Type\" header values")) {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "Rest.Error.DuplicateContentType", data.realUrl, errorMessage),
+              ex);
+        }
+        // For other ProcessingExceptions, try fallback to raw InputStream
         body = "";
+        if (response.hasEntity()) {
+          try (InputStream stream = response.readEntity(InputStream.class)) {
+            if (stream != null) {
+              body = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            }
+          } catch (Exception ioEx) {
+            if (isDetailed()) {
+              logDetailed("Unable to read response entity as String", ioEx);
+            }
+            // If fallback also fails, throw with original exception context
+            throw new HopException(
+                BaseMessages.getString(PKG, "Rest.Error.CanNotReadResponse", data.realUrl), ex);
+          }
+        } else {
+          if (isDetailed()) {
+            logDetailed("Response had no entity to read", ex);
+          }
+        }
+      } catch (Exception ex) {
+        // For non-ProcessingExceptions, try fallback to raw InputStream
+        body = "";
+        if (response.hasEntity()) {
+          try (InputStream stream = response.readEntity(InputStream.class)) {
+            if (stream != null) {
+              body = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            }
+          } catch (Exception ioEx) {
+            if (isDetailed()) {
+              logDetailed("Unable to read response entity as String", ioEx);
+            }
+            throw new HopException(
+                BaseMessages.getString(PKG, "Rest.Error.CanNotReadResponse", data.realUrl), ex);
+          }
+        } else {
+          if (isDetailed()) {
+            logDetailed("Response had no entity to read", ex);
+          }
+        }
       }
       // get Header
       MultivaluedMap<String, Object> headers = searchForHeaders(response);
@@ -349,11 +434,13 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
             ClientProperties.PROXY_URI, "http://" + data.realProxyHost + ":" + data.realProxyPort);
       }
       // HTTP BASIC AUTHENTICATION
-      if (!Utils.isEmpty(data.realHttpLogin) || !Utils.isEmpty(data.realHttpPassword)) {
-        data.basicAuthentication =
-            HttpAuthenticationFeature.basicBuilder()
-                .credentials(data.realHttpLogin, data.realHttpPassword)
-                .build();
+      if (StringUtils.isEmpty(meta.getConnectionName())) {
+        if (!Utils.isEmpty(data.realHttpLogin) || !Utils.isEmpty(data.realHttpPassword)) {
+          data.basicAuthentication =
+              HttpAuthenticationFeature.basicBuilder()
+                  .credentials(data.realHttpLogin, data.realHttpPassword)
+                  .build();
+        }
       }
       // SSL TRUST STORE CONFIGURATION
       if (!Utils.isEmpty(data.trustStoreFile) && !meta.isIgnoreSsl()) {
@@ -575,6 +662,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         try {
           this.connection =
               metadataProvider.getSerializer(RestConnection.class).load(data.connectionName);
+          if (this.connection != null) {
+            this.connection.setVariables(this);
+          }
           baseUrl = resolve(connection.getBaseUrl());
 
         } catch (Exception e) {

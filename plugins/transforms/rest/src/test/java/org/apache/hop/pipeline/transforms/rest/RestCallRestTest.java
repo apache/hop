@@ -104,6 +104,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.get(Response.class)).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -154,7 +155,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -193,6 +195,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.post(any(Entity.class))).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -241,7 +244,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -267,6 +271,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.put(any(Entity.class))).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -313,7 +318,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -342,6 +348,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.build(eq("DELETE"), any(Entity.class))).thenReturn(invocation);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -387,7 +394,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -414,6 +422,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.head()).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -458,7 +467,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -485,6 +495,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.options()).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -527,7 +538,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -552,6 +564,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.method(eq(RestMeta.HTTP_METHOD_PATCH), any(Entity.class))).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -598,7 +611,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -624,6 +638,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.get(Response.class)).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -677,7 +692,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -703,6 +719,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.get(Response.class)).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -755,7 +772,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -781,6 +799,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.get(Response.class)).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -835,7 +854,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -860,6 +880,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.get(Response.class)).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -904,7 +925,8 @@ class RestCallRestTest {
       data.inputRowMeta = inputRowMeta;
 
       Rest rest =
-          new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+          spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+      when(rest.createClientBuilder()).thenReturn(clientBuilder);
       rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
       // Execute
@@ -929,6 +951,7 @@ class RestCallRestTest {
     Invocation.Builder builder = mock(Invocation.Builder.class);
     when(builder.post(any(Entity.class))).thenReturn(response);
     when(builder.header(anyString(), any())).thenReturn(builder);
+    when(builder.accept((MediaType[]) any())).thenReturn(builder);
 
     WebTarget webTarget = mock(WebTarget.class);
     when(webTarget.request()).thenReturn(builder);
@@ -1008,13 +1031,15 @@ class RestCallRestTest {
     IRowMeta inputRowMeta = new RowMeta();
     data.inputRowMeta = inputRowMeta;
 
+    // ensure the clientBuilder variable is defined before stubbing in this test
+    ClientBuilder clientBuilder = mock(ClientBuilder.class);
     Rest rest =
-        new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine()));
+        spy(new Rest(transformMeta, meta, data, 0, pipelineMeta, spy(new LocalPipelineEngine())));
+    when(rest.createClientBuilder()).thenReturn(clientBuilder);
     rest.setMetadataProvider(mock(IHopMetadataProvider.class));
 
     // This should throw an exception for unknown method
     // We'll need to mock the client builder even for the error case
-    ClientBuilder clientBuilder = mock(ClientBuilder.class);
     when(clientBuilder.withConfig(any(ClientConfig.class))).thenReturn(clientBuilder);
     when(clientBuilder.property(anyString(), any())).thenReturn(clientBuilder);
     when(clientBuilder.hostnameVerifier(any())).thenReturn(clientBuilder);
