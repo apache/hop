@@ -17,6 +17,10 @@
 
 FROM alpine
 LABEL maintainer="Apache Hop Team"
+# The UID for the created user
+ARG HOP_UID=501
+# The GID for the created user
+ARG HOP_GID=501
 # path to where the artifacts should be deployed to
 ENV DEPLOYMENT_PATH=/opt/hop
 # volume mount point
@@ -82,36 +86,22 @@ ENV HOP_SERVER_MAX_OBJECT_TIMEOUT=
 # We want to run hop-config with these options:
 ENV HOP_CONFIG_OPTIONS=
 
-# Define en_US.
-# ENV LANGUAGE en_US.UTF-8
-# ENV LANG en_US.UTF-8
-# ENV LC_ALL en_US.UTF-8
-# ENV LC_CTYPE en_US.UTF-8
-# ENV LC_MESSAGES en_US.UTF-8
-
-# Give the /tmp folder some breathing room
-#
-RUN chmod 777 -R /tmp && chmod o+t -R /tmp
-
-# Install some fonts
-RUN apk --no-cache add openjdk17-jre \
-        msttcorefonts-installer \
-        fontconfig && \
-        update-ms-fonts && \
-        fc-cache -f
-
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
 # procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
+RUN addgroup -g ${HOP_GID} -S hop \
+    && adduser -u ${HOP_UID} -S -D -G hop hop \
+    && chmod 777 -R /tmp && chmod o+t -R /tmp \
+    && apk update \
+    && apk --no-cache add bash curl fontconfig msttcorefonts-installer openjdk17-jre procps \
+    && update-ms-fonts \
+    && fc-cache -f \
+    && rm -rf /var/cache/apk/* \
+    && mkdir ${DEPLOYMENT_PATH} \
+    && mkdir ${VOLUME_MOUNT_POINT} \
+    && chown hop:hop ${DEPLOYMENT_PATH} \
+    && chown hop:hop ${VOLUME_MOUNT_POINT}
 
 
-RUN apk update \
-  && apk add --no-cache bash curl procps \
-  && rm -rf /var/cache/apk/* \
-  && mkdir ${DEPLOYMENT_PATH} \
-  && mkdir ${VOLUME_MOUNT_POINT} \
-  && adduser -D -s /bin/bash -h /home/hop hop \
-  && chown hop:hop ${DEPLOYMENT_PATH} \
-  && chown hop:hop ${VOLUME_MOUNT_POINT}
 
 
 # copy the hop package from the local resources folder to the container image directory
@@ -127,5 +117,5 @@ VOLUME ["/files"]
 USER hop
 ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
 WORKDIR /home/hop
-# CMD ["/bin/bash"]
+
 ENTRYPOINT ["/bin/bash", "/opt/hop/run.sh"]

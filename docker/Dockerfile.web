@@ -18,6 +18,10 @@
 
 FROM tomcat:9-jdk17
 LABEL maintainer="Apache Hop Team"
+# The UID for the created user
+ARG HOP_UID=501
+# The GID for the created user
+ARG HOP_GID=501
 # path to where the artifacts should be deployed to
 ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
 ENV HOP_AES_ENCODER_KEY=""
@@ -59,11 +63,9 @@ ENV CATALINA_OPTS='${HOP_OPTIONS} \
   -DHOP_GUI_ZOOM_FACTOR="${HOP_GUI_ZOOM_FACTOR}"'
 
 # Create Hop user
-RUN groupadd -r hop -g 501
-RUN useradd -d /home/hop -u 501 -m -s /bin/bash -g hop hop
-
-# Cleanup and create folder
-RUN rm -rf webapps/* \
+RUN groupadd -r hop -g ${HOP_GID} \
+    && useradd -d /home/hop -u ${HOP_UID} -m -s /bin/bash -g hop hop \
+    && rm -rf webapps/* \
     && mkdir "${CATALINA_HOME}"/webapps/ROOT \
     && mkdir "${HOP_AUDIT_FOLDER}"
 
