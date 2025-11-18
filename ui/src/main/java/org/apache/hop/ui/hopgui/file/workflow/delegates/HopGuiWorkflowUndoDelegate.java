@@ -113,6 +113,8 @@ public class HopGuiWorkflowUndoDelegate {
           ActionMeta from = workflowMeta.findAction(hopMeta.getFromAction().getName());
           ActionMeta to = workflowMeta.findAction(hopMeta.getToAction().getName());
           WorkflowHopMeta newHopMeta = new WorkflowHopMeta(from, to);
+          newHopMeta.setEvaluation(hopMeta.isEvaluation());
+          newHopMeta.setUnconditional(hopMeta.isUnconditional());
           workflowMeta.addWorkflowHop(idx, newHopMeta);
         }
         break;
@@ -293,7 +295,7 @@ public class HopGuiWorkflowUndoDelegate {
         //
         // CHANGE POSITION
         //
-      case PositionTransform:
+      case PositionAction:
         for (int i = 0; i < changeAction.getCurrentIndex().length; i++) {
           // Find & change the location of the transform:
           ActionMeta action = workflowMeta.getAction(changeAction.getCurrentIndex()[i]);
