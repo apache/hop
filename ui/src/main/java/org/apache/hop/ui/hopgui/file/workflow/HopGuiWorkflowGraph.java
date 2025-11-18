@@ -641,6 +641,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             //
           case WORKFLOW_HOP_ICON:
             WorkflowHopMeta hop = (WorkflowHopMeta) areaOwner.getOwner();
+            WorkflowHopMeta originalHop = hop.clone();
             if (hop.getFromAction().isEvaluation()) {
               if (hop.isUnconditional()) {
                 hop.setUnconditional(false);
@@ -652,6 +653,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   hop.setUnconditional(true);
                 }
               }
+              hopGui.undoDelegate.addUndoChange(
+                  workflowMeta,
+                  new WorkflowHopMeta[] {originalHop},
+                  new WorkflowHopMeta[] {hop},
+                  new int[] {workflowMeta.indexOfWorkflowHop(hop)});
               updateGui();
             }
             break;
