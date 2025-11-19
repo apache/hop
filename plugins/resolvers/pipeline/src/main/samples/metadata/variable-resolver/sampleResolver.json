@@ -1,0 +1,13 @@
+{
+  "virtualPath": "",
+  "name": "sampleResolver",
+  "description": "",
+  "variable-resolver": {
+    "Variable-Resolver-Pipeline": {
+      "outputTransformName": "OUTPUT",
+      "filename": "${PROJECT_HOME}/variable_resolvers/sample_pipeline_resolver.hpl",
+      "expressionVariableName": "VARIABLE_TO_RESOLVE",
+      "runConfigurationName": "local"
+    }
+  }
+}
