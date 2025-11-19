@@ -38,7 +38,7 @@
             <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
-    
+
     <dependencySets>
         <dependencySet>
             <includes>

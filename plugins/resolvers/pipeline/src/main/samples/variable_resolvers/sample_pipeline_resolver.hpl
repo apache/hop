@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
 <pipeline>
   <info>
     <name>sample_pipeline_resolver</name>
@@ -32,6 +50,43 @@
     </hop>
   </order>
   <transform>
+    <name>Calculator</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <field_a>5</field_a>
+      <field_name>C_5</field_name>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>Integer</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>ADD</calc_type>
+      <field_a>input_value</field_a>
+      <field_b>C_5</field_b>
+      <field_name>output_value</field_name>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>Integer</value_type>
+    </calculation>
+    <failIfNoFile>Y</failIfNoFile>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>144</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>Get variables</name>
     <type>GetVariable</type>
     <description/>
@@ -44,10 +99,6 @@
     </partitioning>
     <fields>
       <field>
-        <currency/>
-        <decimal/>
-        <format/>
-        <group/>
         <length>-1</length>
         <name>input_value</name>
         <precision>-1</precision>
@@ -76,54 +127,6 @@
     <attributes/>
     <GUI>
       <xloc>544</xloc>
-      <yloc>144</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Calculator</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <calculation>
-      <calc_type>CONSTANT</calc_type>
-      <conversion_mask/>
-      <currency_symbol/>
-      <decimal_symbol/>
-      <field_a>5</field_a>
-      <field_b/>
-      <field_c/>
-      <field_name>C_5</field_name>
-      <grouping_symbol/>
-      <remove>N</remove>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <value_type>Integer</value_type>
-    </calculation>
-    <calculation>
-      <calc_type>ADD</calc_type>
-      <conversion_mask/>
-      <currency_symbol/>
-      <decimal_symbol/>
-      <field_a>input_value</field_a>
-      <field_b>C_5</field_b>
-      <field_c/>
-      <field_name>output_value</field_name>
-      <grouping_symbol/>
-      <remove>N</remove>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <value_type>Integer</value_type>
-    </calculation>
-    <failIfNoFile>Y</failIfNoFile>
-    <attributes/>
-    <GUI>
-      <xloc>384</xloc>
       <yloc>144</yloc>
     </GUI>
   </transform>
