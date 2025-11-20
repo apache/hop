@@ -397,7 +397,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
     try {
       HopPipelineFileType<PipelineMeta> fileType =
-          HopGui.getDataOrchestrationPerspective().getPipelineFileType();
+          HopGui.getExplorerPerspective().getPipelineFileType();
       String filename =
           BaseDialog.presentFileDialog(
               shell,

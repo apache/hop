@@ -38,7 +38,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -272,15 +271,13 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
         pipelineMeta.setFilename(realFilename);
         pipelineMeta.clearChanged();
 
-        HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
+        // Open it in the Hop GUI
+        //
+        HopGui.getExplorerPerspective().addPipeline(pipelineMeta);
 
         // Switch to the perspective
         //
-        perspective.activate();
-
-        // Open it in the Hop GUI
-        //
-        HopGui.getDataOrchestrationPerspective().addPipeline(hopGui, pipelineMeta, type);
+        HopGui.getExplorerPerspective().activate();
 
         // Save the file
         hopGui.fileDelegate.fileSave();

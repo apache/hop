@@ -27,7 +27,6 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
@@ -38,16 +37,15 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
-/** How do we handle an SVG file in file explorer perspective? */
-public class SvgExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
-    implements IExplorerFileTypeHandler {
+/** How do we handle an SVG file in the file explorer perspective? */
+public class SvgExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
 
   public SvgExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
     super(hopGui, perspective, explorerFile);
   }
 
-  private static void paintControl(PaintEvent event, ExplorerFile explorerFile, Canvas canvas) {
+  private void paintControl(PaintEvent event, ExplorerFile explorerFile, Canvas canvas) {
     // Render the SVG file...
     //
     Rectangle area = canvas.getBounds();

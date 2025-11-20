@@ -28,7 +28,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileType;
 
@@ -38,8 +37,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     description = "No extension files handling in the explorer perspective",
     image = "ui/images/script-active.svg")
 public class NoExtensionExplorerFileType
-    extends BaseTextExplorerFileType<NoExtensionExplorerFileTypeHandler>
-    implements IExplorerFileType<NoExtensionExplorerFileTypeHandler> {
+    extends BaseTextExplorerFileType<NoExtensionExplorerFileTypeHandler> {
 
   public NoExtensionExplorerFileType() {
     super(

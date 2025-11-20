@@ -149,7 +149,7 @@ public class ProjectsGuiPlugin {
       }
 
       // Close's all
-
+      //
       hopGui.fileDelegate.closeAllFiles();
 
       // This is called only in Hop GUI so we want to start with a new set of variables
@@ -210,7 +210,7 @@ public class ProjectsGuiPlugin {
 
       // Refresh the currently active file
       //
-      hopGui.getActivePerspective().getActiveFileTypeHandler().updateGui();
+      hopGui.getActiveFileTypeHandler().updateGui();
 
       // Update the toolbar items
       //

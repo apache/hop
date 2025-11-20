@@ -519,8 +519,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
   }
 
   private void browseForPipeline() {
-    HopPipelineFileType<PipelineMeta> type =
-        HopGui.getDataOrchestrationPerspective().getPipelineFileType();
+    HopPipelineFileType<PipelineMeta> type = HopGui.getExplorerPerspective().getPipelineFileType();
 
     BaseDialog.presentFileDialog(
         false,

@@ -81,9 +81,7 @@ import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -793,10 +791,10 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     try {
       // First try to see if this pipeline is running in Hop GUI...
       //
-      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      TabItemHandler item = perspective.findPipeline(execution.getId());
-      if (item != null) {
-        perspective.switchToTab(item);
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      HopGuiPipelineGraph pipelineGraph = perspective.findPipeline(execution.getId());
+      if (pipelineGraph != null) {
+        perspective.setActiveFileTypeHandler(pipelineGraph);
         perspective.activate();
         return;
       }
@@ -1219,13 +1217,12 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       PipelineMeta pipelineMeta = new PipelineMeta(pipelineNode, metadataProvider);
 
-      HopDataOrchestrationPerspective p = HopGui.getDataOrchestrationPerspective();
-      HopGuiPipelineGraph graph =
-          (HopGuiPipelineGraph) p.addPipeline(hopGui, pipelineMeta, new HopPipelineFileType<>());
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      HopGuiPipelineGraph graph = (HopGuiPipelineGraph) perspective.addPipeline(pipelineMeta);
 
       graph.setVariables(variables);
 
-      p.activate();
+      perspective.activate();
     } catch (Exception e) {
       new ErrorDialog(getShell(), CONST_ERROR, "Error viewing the executor", e);
     }

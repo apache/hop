@@ -74,9 +74,7 @@ import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
-import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -736,10 +734,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     try {
       // First try to see if this workflow is running in Hop GUI...
       //
-      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      TabItemHandler item = perspective.findWorkflow(execution.getId());
-      if (item != null) {
-        perspective.switchToTab(item);
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      HopGuiWorkflowGraph workflowGraph = perspective.findWorkflow(execution.getId());
+      if (workflowGraph != null) {
+        perspective.setActiveFileTypeHandler(workflowGraph);
         perspective.activate();
         return;
       }
@@ -1057,12 +1055,11 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, metadataProvider, variables);
 
-      HopDataOrchestrationPerspective p = HopGui.getDataOrchestrationPerspective();
       HopGuiWorkflowGraph graph =
-          (HopGuiWorkflowGraph) p.addWorkflow(hopGui, workflowMeta, new HopWorkflowFileType<>());
+          (HopGuiWorkflowGraph) HopGui.getExplorerPerspective().addWorkflow(workflowMeta);
       graph.setVariables(variables);
 
-      p.activate();
+      HopGui.getExplorerPerspective().activate();
     } catch (Exception e) {
       new ErrorDialog(getShell(), CONST_ERROR, "Error viewing the executor", e);
     }

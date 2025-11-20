@@ -18,7 +18,6 @@
 package org.apache.hop.ui.hopgui.perspective;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -43,18 +42,8 @@ public class EmptyHopPerspective implements IHopPerspective {
   }
 
   @Override
-  public IHopFileTypeHandler getActiveFileTypeHandler() {
-    return emptyHandler;
-  }
-
-  @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
-    // Do nothing
-  }
-
-  @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
-    return Collections.emptyList();
+    return List.of();
   }
 
   @Override
@@ -65,26 +54,6 @@ public class EmptyHopPerspective implements IHopPerspective {
   @Override
   public void perspectiveActivated() {
     // Do nothing
-  }
-
-  @Override
-  public void navigateToPreviousFile() {
-    // Do nothing
-  }
-
-  @Override
-  public void navigateToNextFile() {
-    // Do nothing
-  }
-
-  @Override
-  public boolean hasNavigationPreviousFile() {
-    return false;
-  }
-
-  @Override
-  public boolean hasNavigationNextFile() {
-    return false;
   }
 
   @Override
@@ -103,22 +72,12 @@ public class EmptyHopPerspective implements IHopPerspective {
   }
 
   @Override
-  public boolean remove(IHopFileTypeHandler typeHandler) {
-    return true;
-  }
-
-  @Override
-  public List<TabItemHandler> getItems() {
-    return null;
-  }
-
-  @Override
   public List<IGuiContextHandler> getContextHandlers() {
     return new ArrayList<>();
   }
 
   @Override
   public List<ISearchable> getSearchables() {
-    return new ArrayList<>();
+    return List.of();
   }
 }

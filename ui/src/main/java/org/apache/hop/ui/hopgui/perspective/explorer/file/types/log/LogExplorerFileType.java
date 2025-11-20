@@ -26,7 +26,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileType;
 
@@ -35,8 +34,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     name = "LOG File Type",
     description = "Log file handling in the explorer perspective",
     image = "ui/images/log.svg")
-public class LogExplorerFileType extends BaseTextExplorerFileType<LogExplorerFileTypeHandler>
-    implements IExplorerFileType<LogExplorerFileTypeHandler> {
+public class LogExplorerFileType extends BaseTextExplorerFileType<LogExplorerFileTypeHandler> {
 
   public LogExplorerFileType() {
     super(

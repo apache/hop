@@ -18,10 +18,15 @@
 package org.apache.hop.ui.hopgui.perspective;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.custom.CTabItem;
 
+@Getter
+@Setter
 public class TabItemHandler {
+
   private CTabItem tabItem;
   private IHopFileTypeHandler typeHandler;
 
@@ -47,37 +52,5 @@ public class TabItemHandler {
   @Override
   public int hashCode() {
     return Objects.hash(tabItem);
-  }
-
-  /**
-   * Gets tabItem
-   *
-   * @return value of tabItem
-   */
-  public CTabItem getTabItem() {
-    return tabItem;
-  }
-
-  /**
-   * @param tabItem The tabItem to set
-   */
-  public void setTabItem(CTabItem tabItem) {
-    this.tabItem = tabItem;
-  }
-
-  /**
-   * Gets typeHandler
-   *
-   * @return value of typeHandler
-   */
-  public IHopFileTypeHandler getTypeHandler() {
-    return typeHandler;
-  }
-
-  /**
-   * @param typeHandler The typeHandler to set
-   */
-  public void setTypeHandler(IHopFileTypeHandler typeHandler) {
-    this.typeHandler = typeHandler;
   }
 }

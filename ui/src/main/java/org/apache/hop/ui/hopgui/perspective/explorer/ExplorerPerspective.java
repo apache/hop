@@ -17,14 +17,16 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -36,6 +38,7 @@ import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
@@ -53,6 +56,9 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
@@ -61,7 +67,6 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
-import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
@@ -72,17 +77,23 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.TabItemReorder;
 import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveConfigSingleton;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.CTabFolder;
@@ -99,6 +110,7 @@ import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -116,7 +128,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 @HopPerspectivePlugin(
-    id = "300-HopExplorerPerspective",
+    id = "100-HopExplorerPerspective",
     name = "i18n::ExplorerPerspective.Name",
     description = "The Hop Explorer Perspective",
     image = "ui/images/folder.svg",
@@ -145,6 +157,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public static final String TOOLBAR_ITEM_REFRESH = "ExplorerPerspective-Toolbar-10300-Refresh";
   public static final String TOOLBAR_ITEM_SHOW_HIDDEN =
       "ExplorerPerspective-Toolbar-10400-Show-hidden";
+  public static final String TOOLBAR_ITEM_SELECT_OPENED_FILE =
+      "ExplorerPerspective-Toolbar-10500-Select-opened-file";
   public static final String CONTEXT_MENU_CREATE_FOLDER =
       "ExplorerPerspective-ContextMenu-10050-CreateFolder";
   public static final String CONTEXT_MENU_EXPAND_ALL =
@@ -160,9 +174,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
   private static ExplorerPerspective instance;
-  @Getter private static GuiToolbarWidgets toolBarWidgets;
-  private final ExplorerFileType explorerFileType;
-  boolean first = true;
+  @Getter private GuiToolbarWidgets toolBarWidgets;
+
+  @Getter private final ExplorerFileType explorerFileType;
+  @Getter private final HopPipelineFileType<PipelineMeta> pipelineFileType;
+  @Getter private final HopWorkflowFileType<WorkflowMeta> workflowFileType;
+
   private HopGui hopGui;
   private SashForm sash;
   @Getter private Tree tree;
@@ -170,7 +187,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   private CTabFolder tabFolder;
   private ToolBar toolBar;
   @Getter private GuiMenuWidgets menuWidgets;
-  private List<ExplorerFile> files = new ArrayList<>();
+  private final List<TabItemHandler> items;
   private boolean showingHiddenFiles;
   @Getter private String rootFolder;
   @Getter private String rootName;
@@ -187,7 +204,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     instance = this;
 
     this.explorerFileType = new ExplorerFileType();
+    this.pipelineFileType = new HopPipelineFileType<>();
+    this.workflowFileType = new HopWorkflowFileType<>();
 
+    this.items = new CopyOnWriteArrayList<>();
     this.filePaintListeners = new ArrayList<>();
     this.rootChangedListeners = new ArrayList<>();
     this.refreshListeners = new ArrayList<>();
@@ -218,7 +238,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void perspectiveActivated() {
-    this.refresh();
     this.updateGui();
   }
 
@@ -229,7 +248,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
-    return Collections.singletonList(explorerFileType);
+    return List.of(explorerFileType, pipelineFileType, workflowFileType);
   }
 
   @Override
@@ -243,19 +262,14 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     // Split tree and editor
     //
     sash = new SashForm(parent, SWT.HORIZONTAL);
-    FormData fdSash = new FormData();
-    fdSash.left = new FormAttachment(0, 0);
-    fdSash.top = new FormAttachment(0, 0);
-    fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(100, 0);
-    sash.setLayoutData(fdSash);
+    sash.setLayoutData(new FormDataBuilder().fullSize().result());
 
     createTree(sash);
     createTabFolder(sash);
 
     sash.setWeights(new int[] {20, 80});
 
-    // refresh the file explorer when project activated or updated.
+    // Refresh the file explorer when a project is activated or updated.
     //
     hopGui
         .getEventsHandler()
@@ -271,6 +285,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             e -> refresh(),
             HopGuiEvents.ProjectUpdated.name());
 
+    // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
 
@@ -613,10 +628,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
                                 + sourceFile.getName().getBaseName());
 
                     if (event.detail == DND.DROP_COPY) {
-                      // Copy file/folder and all its descendants.
+                      // Copy file and folder and all its descendants
+                      // No need to update tab item handler because all files are new
                       targetFile.copyFrom(sourceFile, Selectors.SELECT_ALL);
                     } else if (event.detail == DND.DROP_MOVE) {
-                      sourceFile.moveTo(targetFile);
+                      // Move file or folder and all its descendants and update tab item handlers
+                      moveFile(sourceFile, targetFile);
                     }
                   } catch (Exception e) {
                     errors.add(path);
@@ -626,7 +643,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
                 // Report errors
                 if (!errors.isEmpty()) {
 
-                  String paths = errors.stream().collect(Collectors.joining("\n"));
+                  String paths = String.join("\n", errors);
 
                   MessageBox messageBox =
                       new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_ERROR | SWT.OK);
@@ -665,9 +682,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   }
 
   private void openFile(Event event) {
-    if (event.item instanceof TreeItem treeItem) {
-      TreeItem item = treeItem;
-
+    if (event.item instanceof TreeItem item) {
       TreeItemFolder tif = (TreeItemFolder) item.getData();
       if (tif.folder) {
         if (!item.getExpanded()) {
@@ -697,7 +712,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           IHopFileTypeHandler handler =
               tif.fileType.openFile(hopGui, tif.path, hopGui.getVariables());
           if (handler != null) {
-            updateGui();
+            handler.updateGui();
           }
         }
       }
@@ -710,9 +725,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
-  private void deleteFile(final TreeItem item) {
+  private void deleteFile(final TreeItem treeItem) {
     try {
-      TreeItemFolder tif = (TreeItemFolder) item.getData();
+      TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
       if (tif != null && tif.fileType != null) {
         FileObject fileObject = HopVfs.getFileObject(tif.path);
 
@@ -729,13 +744,25 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
         MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText(header);
-        box.setMessage(message + Const.CR + Const.CR + tif.path);
+        box.setMessage(message + Const.CR + Const.CR + HopVfs.getFilename(fileObject));
 
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
+          // List files before they are deleted
+          List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
+
+          // Delete file or folder
           int deleted = fileObject.deleteAll();
           if (deleted > 0) {
-            item.dispose();
+            treeItem.dispose();
+
+            // Closes all impacted file type handlers that are opened
+            for (String filename : filenames) {
+              TabItemHandler handler = findTabItemHandler(filename);
+              if (handler != null) {
+                removeTabItem(handler);
+              }
+            }
           }
         }
       }
@@ -746,6 +773,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           BaseMessages.getString(PKG, "ExplorerPerspective.Error.DeleteFile.Message"),
           e);
     }
+  }
+
+  private List<String> getRecursiveFilenames(FileObject parentFile, List<String> list)
+      throws FileSystemException {
+    if (parentFile.isFile()) {
+      list.add(HopVfs.getFilename(parentFile));
+    } else {
+      for (FileObject file : parentFile.getChildren()) {
+        getRecursiveFilenames(file, list);
+      }
+    }
+    return list;
   }
 
   private void renameFile(final TreeItem item) {
@@ -764,11 +803,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
                 // If name changed
                 if (!item.getText().equals(text.getText())) {
                   try {
-                    FileObject fileObject = HopVfs.getFileObject(tif.path);
-                    FileObject newObject =
+                    FileObject file = HopVfs.getFileObject(tif.path);
+                    FileObject newFile =
                         HopVfs.getFileObject(
-                            HopVfs.getFilename(fileObject.getParent()) + "/" + text.getText());
-                    fileObject.moveTo(newObject);
+                            file.getParent().getName().toString()
+                                + File.separator
+                                + text.getText());
+                    renameFile(file, newFile);
                     item.setText(text.getText());
                   } catch (Exception e) {
                     new ErrorDialog(
@@ -797,16 +838,103 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
+  private void renameFile(FileObject sourceFile, FileObject targetFile)
+      throws FileSystemException, HopFileException {
+
+    if (sourceFile.isFolder()) {
+      // List all impacted files
+      List<String> filenames = getRecursiveFilenames(sourceFile, new ArrayList<>());
+
+      // Rename the folder
+      sourceFile.moveTo(targetFile);
+
+      // Update all opened impacted file type handlers
+      for (String filename : filenames) {
+        TabItemHandler handler = findTabItemHandler(filename);
+        if (handler != null) {
+          Path oldPath = Paths.get(filename);
+          Path targetPath = targetFile.getPath();
+          Path relativePath = oldPath.subpath(targetPath.getNameCount(), oldPath.getNameCount());
+          Path path = Paths.get(targetPath.toString(), relativePath.toString());
+
+          changeFilename(handler.getTypeHandler(), path.toString());
+          updateTabItem(handler.getTypeHandler());
+        }
+      }
+    } else {
+      // Rename the file
+      sourceFile.moveTo(targetFile);
+
+      // Update opened file type handler
+      TabItemHandler handler = findTabItemHandler(HopVfs.getFilename(sourceFile));
+      if (handler != null) {
+        changeFilename(handler.getTypeHandler(), HopVfs.getFilename(targetFile));
+        updateTabItem(handler.getTypeHandler());
+      }
+    }
+
+    // TODO: Search and rename dependencies
+  }
+
+  private void moveFile(FileObject sourceFile, FileObject targetFile) throws FileSystemException {
+
+    if (sourceFile.isFolder()) {
+      // List all impacted files before moving the folder
+      List<String> filenames = getRecursiveFilenames(sourceFile, new ArrayList<>());
+
+      // Move file
+      sourceFile.moveTo(targetFile);
+
+      // Update all opened impacted file type handlers
+      Path sourcePath = sourceFile.getPath();
+      Path targetPath = targetFile.getPath();
+      for (String filename : filenames) {
+        TabItemHandler handler = findTabItemHandler(filename);
+        if (handler != null) {
+          Path originalPath = Paths.get(filename);
+          Path relativePath =
+              originalPath.subpath(sourcePath.getNameCount(), originalPath.getNameCount());
+          Path path = Paths.get(targetPath.toString(), relativePath.toString());
+          changeFilename(handler.getTypeHandler(), path.toString());
+          updateTabItem(handler.getTypeHandler());
+        }
+      }
+
+      // TODO: Search and move dependencies
+    } else {
+      // Move file
+      sourceFile.moveTo(targetFile);
+
+      // Update opened file type handler
+      TabItemHandler handler = findTabItemHandler(HopVfs.getFilename(sourceFile));
+      if (handler != null) {
+        handler.getTypeHandler().setFilename(HopVfs.getFilename(targetFile));
+        updateTabItem(handler.getTypeHandler());
+      }
+
+      // TODO: Search and move dependencies
+    }
+  }
+
+  /** Change the file name of an open tab */
+  protected void changeFilename(IHopFileTypeHandler fileTypeHandler, String newFilename) {
+    String oldFilename = fileTypeHandler.getFilename();
+    hopGui.fileRefreshDelegate.remove(oldFilename);
+    fileTypeHandler.setFilename(newFilename);
+    hopGui.fileRefreshDelegate.register(newFilename, fileTypeHandler);
+  }
+
   protected void createTabFolder(Composite parent) {
     tabFolder = new CTabFolder(parent, SWT.MULTI | SWT.BORDER);
+    tabFolder.addListener(SWT.Selection, e -> updateGui());
     tabFolder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
           @Override
           public void close(CTabFolderEvent event) {
-            onTabClose(event);
+            CTabItem tabItem = (CTabItem) event.item;
+            closeTab(event, tabItem);
           }
         });
-    tabFolder.addListener(SWT.Selection, this::handleTabSelectionEvent);
     PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree
@@ -835,41 +963,69 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     // Support reorder tab item
     //
-    new TabFolderReorder(tabFolder);
+    new TabItemReorder(this, tabFolder);
+  }
+
+  protected TabItemHandler findTabItemHandler(String filename) {
+    if (filename != null) {
+      for (TabItemHandler item : items) {
+        if (filename.equals(item.getTypeHandler().getFilename())) {
+          return item;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get an existing tab item handler, can be used when the IHopeFileTypeHandler has no file name.
+   */
+  protected TabItemHandler getTabItemHandler(IHopFileTypeHandler fileTypeHandler) {
+    if (fileTypeHandler != null) {
+      for (TabItemHandler item : items) {
+        if (fileTypeHandler.equals(item.getTypeHandler())) {
+          return item;
+        }
+      }
+    }
+    return null;
   }
 
   @Override
   public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
-    ExplorerFile file = (ExplorerFile) tabItem.getData();
+    IHopFileTypeHandler fileTypeHandler = (IHopFileTypeHandler) tabItem.getData();
+    boolean isRemoved = remove(fileTypeHandler);
+    if (!isRemoved && event != null) {
+      // Ignore event if canceled
+      event.doit = false;
+    }
+  }
 
-    if (file.getFileTypeHandler().isCloseable()) {
-      files.remove(file);
-      tabItem.dispose();
+  private void removeTabItem(TabItemHandler item) {
+    items.remove(item);
 
-      //
-      // Remove the file in refreshDelegate
-      try {
-        hopGui.fileRefreshDelegate.remove(
-            HopVfs.getFileObject(file.getFileTypeHandler().getFilename()).getPublicURIString());
-      } catch (HopFileException e) {
-        hopGui.getLog().logError("Error getting VFS fileObject", e);
-      }
+    // Close the tab
+    item.getTabItem().dispose();
 
-      // Refresh tree to remove bold
-      //
-      this.refresh();
+    // Remove the file in refreshDelegate
+    //
+    IHopFileTypeHandler fileTypeHandler = item.getTypeHandler();
+    if (fileTypeHandler.getFilename() != null) {
+      hopGui.fileRefreshDelegate.remove(fileTypeHandler.getFilename());
+    }
 
-      // If all editor are closed
+    // Avoid refresh in a closing process (when switching project or exit)
+    if (!hopGui.fileDelegate.isClosing()) {
+
+      // If all tab items are closed
       //
       if (tabFolder.getItemCount() == 0) {
         HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
       }
-      updateGui();
-    } else {
-      if (event != null) {
-        // Ignore event if canceled
-        event.doit = false;
-      }
+
+      // Update HopGui menu and toolbar
+      //
+      this.updateGui();
     }
   }
 
@@ -878,31 +1034,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     return tabFolder;
   }
 
-  /**
-   * Also select the corresponding file in the left hand tree...
-   *
-   * @param event The selection event
-   */
-  private void handleTabSelectionEvent(Event event) {
-    if (event.item instanceof CTabItem tabItem) {
-      ExplorerFile explorerFile = (ExplorerFile) tabItem.getData();
-      selectInTree(explorerFile.getFilename());
-      updateGui();
-    }
-  }
+  public void addFile(IExplorerFileTypeHandler fileTypeHandler) {
 
-  public void addFile(ExplorerFile explorerFile) {
-
-    if (files.contains(explorerFile)) {
-      // Select and show tab item
-      for (CTabItem tabItem : tabFolder.getItems()) {
-        ExplorerFile file = (ExplorerFile) tabItem.getData();
-        if (explorerFile.getFilename().equals(file.getFilename())) {
-          tabFolder.setSelection(tabItem);
-          tabFolder.showItem(tabItem);
-          tabFolder.setFocus();
-        }
-      }
+    // Select and show tab item
+    //
+    TabItemHandler handler = this.findTabItemHandler(fileTypeHandler.getFilename());
+    if (handler != null) {
+      tabFolder.setSelection(handler.getTabItem());
+      tabFolder.showItem(handler.getTabItem());
+      tabFolder.setFocus();
       return;
     }
 
@@ -910,18 +1050,14 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
     tabItem.setFont(GuiResource.getInstance().getFontDefault());
-    tabItem.setText(Const.NVL(explorerFile.getName(), ""));
-    if (explorerFile.getTabImage() != null) {
-      tabItem.setImage(explorerFile.getTabImage());
-    } else {
-      tabItem.setImage(GuiResource.getInstance().getImageFile());
-    }
-    tabItem.setToolTipText(explorerFile.getFilename());
-    tabItem.setData(explorerFile);
+    tabItem.setText(Const.NVL(fileTypeHandler.getName(), ""));
+    tabItem.setToolTipText(Const.NVL(fileTypeHandler.getFilename(), ""));
+    tabItem.setImage(getFileTypeImage(fileTypeHandler.getFileType()));
+    tabItem.setData(fileTypeHandler);
 
     // Set the tab bold if the file has changed and vice-versa
     //
-    explorerFile.addContentChangedListener(
+    fileTypeHandler.addContentChangedListener(
         new IContentChangedListener() {
           @Override
           public void contentChanged(Object parentObject) {
@@ -934,67 +1070,195 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           }
         });
 
-    // Create composite for editor and buttons
+    // Create file content area
     //
     Composite composite = new Composite(tabFolder, SWT.NONE);
     FormLayout layoutComposite = new FormLayout();
     layoutComposite.marginWidth = PropsUi.getFormMargin();
     layoutComposite.marginHeight = PropsUi.getFormMargin();
     composite.setLayout(layoutComposite);
+    composite.setLayoutData(new FormDataBuilder().fullSize().result());
     PropsUi.setLook(composite);
 
-    IExplorerFileTypeHandler renderer = explorerFile.getFileTypeHandler();
     // This is usually done by the file type
     //
-    renderer.renderFile(composite);
-
-    // Create file content area
-    //
-    Composite area = new Composite(composite, SWT.NONE);
-    FormLayout layoutArea = new FormLayout();
-    layoutArea.marginWidth = 0;
-    layoutArea.marginHeight = 0;
-    area.setLayout(layoutArea);
-    FormData fdArea = new FormData();
-    fdArea.left = new FormAttachment(0, 0);
-    fdArea.top = new FormAttachment(0, 0);
-    fdArea.right = new FormAttachment(100, 0);
-    fdArea.bottom = new FormAttachment(100, 0);
-
-    area.setLayoutData(fdArea);
-    PropsUi.setLook(area);
+    fileTypeHandler.renderFile(composite);
 
     tabItem.setControl(composite);
-    tabItem.setData(explorerFile);
 
-    files.add(explorerFile);
-    hopGui.fileRefreshDelegate.register(explorerFile.getFilename(), renderer);
+    items.add(new TabItemHandler(tabItem, fileTypeHandler));
 
-    // Add listeners
-    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
-    keyHandler.addParentObjectToHandle(this);
-    HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
-
-    // Activate perspective
-    //
-    if (!isActive()) {
-      this.activate();
-    }
+    hopGui.fileRefreshDelegate.register(fileTypeHandler.getFilename(), fileTypeHandler);
 
     // Switch to the tab
     //
     tabFolder.setSelection(tabItem);
 
-    selectInTree(explorerFile.getFilename());
+    // Add key listeners
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this);
+    HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
 
     updateGui();
   }
 
-  public void refreshFileContent() {
-    tabFolder.getChildren();
+  /**
+   * Add a new pipeline tab to the tab folder...
+   *
+   * @param pipelineMeta the pipeline metadata to edit
+   * @return The file type handler
+   */
+  public IHopFileTypeHandler addPipeline(PipelineMeta pipelineMeta) throws HopException {
+
+    // Select and show the tab item (If it's a new pipeline, the file name will be null)
+    //
+    TabItemHandler handler = this.findTabItemHandler(pipelineMeta.getFilename());
+    if (handler != null) {
+      tabFolder.setSelection(handler.getTabItem());
+      tabFolder.showItem(handler.getTabItem());
+      tabFolder.setFocus();
+      return handler.getTypeHandler();
+    }
+
+    // Create the pipeline graph
+    //
+    HopGuiPipelineGraph pipelineGraph =
+        new HopGuiPipelineGraph(tabFolder, hopGui, this, pipelineMeta, pipelineFileType);
+
+    // Assign the control to the tab
+    //
+    CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
+    tabItem.setImage(GuiResource.getInstance().getImagePipeline());
+    tabItem.setText(Const.NVL(pipelineGraph.getName(), "<>"));
+    tabItem.setToolTipText(pipelineGraph.getFilename());
+    tabItem.setControl(pipelineGraph);
+    tabItem.setData(pipelineGraph);
+
+    items.add(new TabItemHandler(tabItem, pipelineGraph));
+
+    // If it's a new pipeline, the file name will be null. So, ignore
+    //
+    if (pipelineMeta.getFilename() != null) {
+      hopGui.fileRefreshDelegate.register(pipelineMeta.getFilename(), pipelineGraph);
+    }
+
+    // Update the internal variables (file specific) in the pipeline graph variables
+    //
+    pipelineMeta.setInternalHopVariables(pipelineGraph.getVariables());
+
+    // Update the variables using the list of parameters
+    //
+    hopGui.setParametersAsVariablesInUI(pipelineMeta, pipelineGraph.getVariables());
+
+    // Switch to the tab
+    //
+    tabFolder.setSelection(tabItem);
+
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          pipelineGraph.getVariables(),
+          HopExtensionPoint.HopGuiNewPipelineTab.id,
+          pipelineGraph);
+    } catch (Exception e) {
+      throw new HopException(
+          "Error calling extension point plugin for plugin id "
+              + HopExtensionPoint.HopGuiNewPipelineTab.id
+              + " trying to handle a new pipeline tab",
+          e);
+    }
+
+    // Add key listeners
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this);
+    HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
+
+    pipelineGraph.setFocus();
+
+    return pipelineGraph;
   }
 
+  /**
+   * Add a new workflow tab to the tab folder...
+   *
+   * @param workflowMeta The workflow metadata to edit
+   * @return The file type handler
+   */
+  public IHopFileTypeHandler addWorkflow(WorkflowMeta workflowMeta) throws HopException {
+
+    // Select and show the tab item (If it's a new workflow, the file name will be null)
+    //
+    TabItemHandler handler = this.findTabItemHandler(workflowMeta.getFilename());
+    if (handler != null) {
+      tabFolder.setSelection(handler.getTabItem());
+      tabFolder.showItem(handler.getTabItem());
+      tabFolder.setFocus();
+      return handler.getTypeHandler();
+    }
+
+    HopGuiWorkflowGraph workflowGraph =
+        new HopGuiWorkflowGraph(tabFolder, hopGui, this, workflowMeta, workflowFileType);
+
+    CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    tabItem.setFont(GuiResource.getInstance().getFontDefault());
+    tabItem.setImage(GuiResource.getInstance().getImageWorkflow());
+    tabItem.setText(Const.NVL(workflowGraph.getName(), "<>"));
+    tabItem.setToolTipText(workflowGraph.getFilename());
+    tabItem.setControl(workflowGraph);
+    tabItem.setData(workflowGraph);
+
+    items.add(new TabItemHandler(tabItem, workflowGraph));
+
+    // If it's a new workflow, the file name will be null
+    //
+    if (workflowMeta.getFilename() != null) {
+      hopGui.fileRefreshDelegate.register(workflowMeta.getFilename(), workflowGraph);
+    }
+
+    // Update the internal variables (file specific) in the workflow graph variables
+    //
+    workflowMeta.setInternalHopVariables(workflowGraph.getVariables());
+
+    // Update the variables using the list of parameters
+    //
+    hopGui.setParametersAsVariablesInUI(workflowMeta, workflowGraph.getVariables());
+
+    // Switch to the tab
+    //
+    tabFolder.setSelection(tabItem);
+
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          workflowGraph.getVariables(),
+          HopExtensionPoint.HopGuiNewWorkflowTab.id,
+          workflowGraph);
+    } catch (Exception e) {
+      throw new HopException(
+          "Error calling extension point plugin for plugin id "
+              + HopExtensionPoint.HopGuiNewWorkflowTab.id
+              + " trying to handle a new workflow tab",
+          e);
+    }
+
+    // Add key listeners
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this);
+    HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
+
+    workflowGraph.setFocus();
+
+    return workflowGraph;
+  }
+
+  /** Select the corresponding file in the left-hand tree */
   private void selectInTree(String filename) {
+
+    if (Utils.isEmpty(filename)) {
+      return;
+    }
+
     // Look in the whole tree for the file...
     //
     for (TreeItem item : tree.getItems()) {
@@ -1032,52 +1296,72 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     TreeItemFolder tif = (TreeItemFolder) item.getData();
     if (tif != null) {
-      Image image = getFileTypeImage(tif.fileType);
-      return new ExplorerFile(tif.name, image, tif.path, null, null);
+      return new ExplorerFile(tif.name, tif.path, tif.fileType);
     }
     return null;
   }
 
-  public ExplorerFile getActiveFile() {
-    if (tabFolder.getSelectionIndex() < 0) {
-      return null;
-    }
-
-    return (ExplorerFile) tabFolder.getSelection().getData();
-  }
-
-  public void setActiveFile(ExplorerFile file) {
-    for (CTabItem item : tabFolder.getItems()) {
-      if (item.getData().equals(file)) {
-        tabFolder.setSelection(item);
-        tabFolder.showItem(item);
-
-        HopGui.getInstance()
-            .handleFileCapabilities(explorerFileType, file.isChanged(), false, false);
+  public IHopFileTypeHandler findFileTypeHandlerByFilename(String filename) {
+    if (filename != null) {
+      for (TabItemHandler item : items) {
+        if (filename.equals(item.getTypeHandler().getFilename())) {
+          return item.getTypeHandler();
+        }
       }
     }
+    return null;
+  }
+
+  public HopGuiPipelineGraph findPipeline(String logChannelId) {
+    // Go over all the pipeline graphs and see if there's one that has an IPipelineEngine with the
+    // given ID
+    //
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof HopGuiPipelineGraph pipelineGraph) {
+        IPipelineEngine<PipelineMeta> pipeline = pipelineGraph.getPipeline();
+        if (pipeline != null && logChannelId.equals(pipeline.getLogChannelId())) {
+          return pipelineGraph;
+        }
+      }
+    }
+    return null;
+  }
+
+  public HopGuiWorkflowGraph findWorkflow(String logChannelId) {
+    // Go over all the workflow graphs and see if there's one that has an IWorkflow with the given
+    // ID
+    //
+    for (TabItemHandler item : items) {
+      if (item.getTypeHandler() instanceof HopGuiWorkflowGraph workflowGraph) {
+        IWorkflowEngine<WorkflowMeta> workflow = workflowGraph.getWorkflow();
+        if (workflow != null && logChannelId.equals(workflow.getLogChannelId())) {
+          return workflowGraph;
+        }
+      }
+    }
+    return null;
   }
 
   @Override
   public IHopFileTypeHandler getActiveFileTypeHandler() {
-    ExplorerFile explorerFile = getActiveFile();
-    if (explorerFile != null) {
-      return explorerFile.getFileTypeHandler();
+    if (tabFolder.getSelectionIndex() < 0) {
+      return new EmptyHopFileTypeHandler();
     }
-
-    return new EmptyHopFileTypeHandler();
+    return (IHopFileTypeHandler) tabFolder.getSelection().getData();
   }
 
   @Override
   public void setActiveFileTypeHandler(IHopFileTypeHandler fileTypeHandler) {
-    if (fileTypeHandler instanceof ExplorerFile explorerFile) {
-      this.setActiveFile(explorerFile);
-    }
-  }
+    for (CTabItem item : tabFolder.getItems()) {
+      if (item.getData().equals(fileTypeHandler)) {
+        tabFolder.setSelection(item);
+        tabFolder.showItem(item);
 
-  protected void onTabClose(CTabFolderEvent event) {
-    CTabItem tabItem = (CTabItem) event.item;
-    closeTab(event, tabItem);
+        HopGui.getInstance()
+            .handleFileCapabilities(
+                fileTypeHandler.getFileType(), fileTypeHandler.hasChanged(), false, false);
+      }
+    }
   }
 
   @GuiMenuElement(
@@ -1148,6 +1432,19 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             BaseMessages.getString(PKG, "ExplorerPerspective.Error.CreateFolder.Message", newPath),
             e);
       }
+    }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_SELECT_OPENED_FILE,
+      toolTip = "i18n::ExplorerPerspective.ToolbarElement.SelectOpenedFile.Tooltip",
+      image = "ui/images/select-target.svg")
+  @GuiKeyboardShortcut(alt = true, key = SWT.F1)
+  @GuiOsxKeyboardShortcut(alt = true, key = SWT.F1)
+  public void selectInTree() {
+    if (tabFolder.getSelectionIndex() >= 0) {
+      this.selectInTree(getActiveFileTypeHandler().getFilename());
     }
   }
 
@@ -1426,7 +1723,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             continue;
           }
 
-          String childPath = child.toString();
+          String childPath = HopVfs.getFilename(child);
+
           IHopFileType fileType = getFileType(childPath);
           TreeItem childItem = new TreeItem(item, SWT.NONE);
           childItem.setText(childName);
@@ -1447,13 +1745,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
               //
               childItem.setData(
                   new TreeItemFolder(
-                      childItem,
-                      child.getName().getURI(),
-                      childName,
-                      fileType,
-                      depth,
-                      folder,
-                      true));
+                      childItem, childPath, childName, fileType, depth, folder, true));
 
               // We actually load the content up to the desired depth
               //
@@ -1463,13 +1755,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
               //
               childItem.setData(
                   new TreeItemFolder(
-                      childItem,
-                      child.getName().getURI(),
-                      childName,
-                      fileType,
-                      depth,
-                      folder,
-                      false));
+                      childItem, childPath, childName, fileType, depth, folder, false));
 
               // Create a new item to get the "expand" icon but without the content behind it.
               // The folder just contains an empty item to show the expand icon.
@@ -1494,6 +1780,74 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     for (IExplorerFilePaintListener filePaintListener : filePaintListeners) {
       filePaintListener.filePainted(tree, treeItem, path, name);
     }
+  }
+
+  /** Update de tab name, tooltip and set the tab bold if the file has changed and vice versa. */
+  public void updateTabItem(IHopFileTypeHandler fileTypeHandler) {
+    TabItemHandler tabItemHandler = this.getTabItemHandler(fileTypeHandler);
+    if (tabItemHandler != null) {
+      CTabItem tabItem = tabItemHandler.getTabItem();
+      if (!tabItem.isDisposed()) {
+        tabItem.setText(Const.NVL(fileTypeHandler.getName(), "<>"));
+        tabItem.setToolTipText(Const.NVL(fileTypeHandler.getFilename(), ""));
+        Font font =
+            fileTypeHandler.hasChanged()
+                ? GuiResource.getInstance().getFontBold()
+                : tabFolder.getFont();
+        tabItem.setFont(font);
+      }
+    }
+  }
+
+  /** Update tree item */
+  public void updateTreeItem(IHopFileTypeHandler fileTypeHandler) {
+    // If no filename, no need to update the tree item
+    String filename = fileTypeHandler.getFilename();
+    if (filename != null) {
+
+      // TODO: Check if it's really needed normalize
+      // Normalize the filename to an absolute path
+      try {
+        filename = HopVfs.normalize(filename);
+      } catch (HopFileException e) {
+        hopGui.getLog().logError("Error getting VFS fileObject ''{0}''", filename);
+      }
+
+      // Look in the whole tree for the file...
+      //
+      TreeItem item = findTreeItem(filename);
+      if (item != null) {
+        for (IExplorerRefreshListener listener : refreshListeners) {
+          listener.beforeRefresh();
+        }
+        callPaintListeners(
+            tree, item, filename, fileTypeHandler.getName(), fileTypeHandler.getFileType());
+      }
+    }
+  }
+
+  private TreeItem findTreeItem(String filename) {
+    for (TreeItem item : tree.getItems()) {
+      TreeItem found = findTreeItem(item, filename);
+      if (found != null) {
+        return found;
+      }
+    }
+    return null;
+  }
+
+  private TreeItem findTreeItem(TreeItem item, String filename) {
+    TreeItemFolder tif = (TreeItemFolder) item.getData();
+    if (tif != null && tif.path.equals(filename)) {
+      return tif.treeItem;
+    }
+    for (TreeItem child : item.getItems()) {
+      TreeItem found = findTreeItem(child, filename);
+      if (found != null) {
+        return found;
+      }
+    }
+    return null;
   }
 
   public void updateSelection() {
@@ -1527,49 +1881,26 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
+  /**
+   * Remove the file type handler from this perspective, from the tab folder. This simply tries to
+   * remove the item, does not
+   *
+   * @param fileTypeHandler The file type handler to remove
+   * @return true if the handler was removed from the perspective, false if it wasn't (canceled, not
+   *     possible, ...)
+   */
   @Override
-  public boolean remove(IHopFileTypeHandler typeHandler) {
-
-    if (typeHandler instanceof BaseExplorerFileTypeHandler fileTypeHandler) {
-      if (fileTypeHandler.isCloseable()) {
-        ExplorerFile file = fileTypeHandler.getExplorerFile();
-        files.remove(file);
-        for (CTabItem item : tabFolder.getItems()) {
-          if (file.equals(item.getData())) {
-            item.dispose();
-          }
-        }
-
-        // Avoid refresh in a closing process (when switching project)
-        if (!hopGui.fileDelegate.isClosing()) {
-
-          // Refresh tree to remove bold
-          //
-          this.refresh();
-
-          // Update HopGui menu and toolbar
-          //
-          this.updateGui();
-        }
-      }
+  public boolean remove(IHopFileTypeHandler fileTypeHandler) {
+    if (fileTypeHandler.isCloseable()) {
+      TabItemHandler item = this.getTabItemHandler(fileTypeHandler);
+      removeTabItem(item);
+      return true;
     }
-
     return false;
   }
 
   @Override
   public List<TabItemHandler> getItems() {
-    List<TabItemHandler> items = new ArrayList<>();
-    for (CTabItem tabItem : tabFolder.getItems()) {
-      for (ExplorerFile file : files) {
-        if (tabItem.getData().equals(file)) {
-          // This is the editor tabItem...
-          //
-          items.add(new TabItemHandler(tabItem, file.getFileTypeHandler()));
-        }
-      }
-    }
-
     return items;
   }
 
@@ -1647,7 +1978,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
-  private class TreeItemFolder {
+  private static class TreeItemFolder {
     public TreeItem treeItem;
     public String path;
     public String name;

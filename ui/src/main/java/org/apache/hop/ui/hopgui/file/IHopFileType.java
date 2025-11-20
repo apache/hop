@@ -96,13 +96,13 @@ public interface IHopFileType {
    *
    * @param hopGui The hop GUI to reference
    * @param filename The filename to load
-   * @param parentVariableSpace The parent variablespace to inherit from
+   * @param variables The parent variables to inherit from
    * @return The hop file handler
    */
-  IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables parentVariableSpace)
+  IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables variables)
       throws HopException;
 
-  IHopFileTypeHandler newFile(HopGui hopGui, IVariables parentVariableSpace) throws HopException;
+  IHopFileTypeHandler newFile(HopGui hopGui, IVariables variables) throws HopException;
 
   /**
    * Look at the given file and see if it's handled by this type. Usually this is done by simply
