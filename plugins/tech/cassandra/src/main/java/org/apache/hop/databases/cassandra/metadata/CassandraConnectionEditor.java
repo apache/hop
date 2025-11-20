@@ -29,7 +29,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgetsAdapter;
-import org.apache.hop.ui.core.metadata.IMetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -43,8 +42,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class CassandraConnectionEditor extends MetadataEditor<CassandraConnection>
-    implements IMetadataEditor<CassandraConnection> {
+public class CassandraConnectionEditor extends MetadataEditor<CassandraConnection> {
 
   public static final String PARENT_WIDGET_ID = "CassandraConnectionEditor.Widgets.ParentId";
   public static final String CONST_ERROR = "Error";

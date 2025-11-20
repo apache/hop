@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.hop.core.exception.HopException;
@@ -83,8 +82,8 @@ public class ExplorerFileType implements IHopFileType {
   }
 
   @Override
-  public IHopFileTypeHandler openFile(
-      HopGui hopGui, String filename, IVariables parentVariableSpace) throws HopException {
+  public IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables variables)
+      throws HopException {
     return new ExplorerFileTypeHandler();
   }
 
@@ -106,7 +105,7 @@ public class ExplorerFileType implements IHopFileType {
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    return new ArrayList<>();
+    return List.of();
   }
 
   @Override

@@ -816,7 +816,7 @@ public class MetaInjectDialog extends BaseTransformDialog {
   private void selectFileTrans() {
     try {
       HopPipelineFileType<PipelineMeta> fileType =
-          HopGui.getDataOrchestrationPerspective().getPipelineFileType();
+          HopGui.getExplorerPerspective().getPipelineFileType();
       String filename =
           BaseDialog.presentFileDialog(
               shell,

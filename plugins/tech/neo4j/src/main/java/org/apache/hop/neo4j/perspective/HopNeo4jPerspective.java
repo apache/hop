@@ -18,7 +18,6 @@
 package org.apache.hop.neo4j.perspective;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,15 +46,11 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -143,21 +138,6 @@ public class HopNeo4jPerspective implements IHopPerspective {
     // Auto-refresh the list
     //
     refreshResults();
-  }
-
-  @Override
-  public IHopFileTypeHandler getActiveFileTypeHandler() {
-    return new EmptyHopFileTypeHandler(); // Not handling anything really
-  }
-
-  @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
-    // Do nothing
-  }
-
-  @Override
-  public List<IHopFileType> getSupportedHopFileTypes() {
-    return Collections.emptyList();
   }
 
   @Override
@@ -1000,8 +980,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
         return;
       }
 
-      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
+      IHopFileTypeHandler typeHandler = hopGui.getActiveFileTypeHandler();
       if (typeHandler == null || !(typeHandler instanceof HopGuiPipelineGraph)) {
         return;
       }
@@ -1069,8 +1048,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     try {
       hopGui.fileDelegate.fileOpen(filename);
       if (StringUtils.isNotEmpty(actionName)) {
-        IHopFileTypeHandler typeHandler =
-            HopGui.getDataOrchestrationPerspective().getActiveFileTypeHandler();
+        IHopFileTypeHandler typeHandler = HopGui.getInstance().getActiveFileTypeHandler();
         if (typeHandler == null || !(typeHandler instanceof HopGuiWorkflowGraph)) {
           return;
         }
@@ -1133,36 +1111,6 @@ public class HopNeo4jPerspective implements IHopPerspective {
             e);
       }
     }
-  }
-
-  @Override
-  public boolean remove(IHopFileTypeHandler typeHandler) {
-    return false; // Nothing to do here
-  }
-
-  @Override
-  public List<TabItemHandler> getItems() {
-    return null;
-  }
-
-  @Override
-  public void navigateToPreviousFile() {
-    // Do nothing
-  }
-
-  @Override
-  public void navigateToNextFile() {
-    // Do nothing
-  }
-
-  @Override
-  public boolean hasNavigationPreviousFile() {
-    return false;
-  }
-
-  @Override
-  public boolean hasNavigationNextFile() {
-    return false;
   }
 
   /**

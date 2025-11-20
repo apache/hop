@@ -26,7 +26,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileType;
 
@@ -35,8 +34,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     name = "JSON File Type",
     description = "JSON file handling in the explorer perspective",
     image = "json.svg")
-public class JsonExplorerFileType extends BaseTextExplorerFileType<JsonExplorerFileTypeHandler>
-    implements IExplorerFileType<JsonExplorerFileTypeHandler> {
+public class JsonExplorerFileType extends BaseTextExplorerFileType<JsonExplorerFileTypeHandler> {
 
   public JsonExplorerFileType() {
     super(

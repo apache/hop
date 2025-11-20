@@ -18,7 +18,6 @@
 package org.apache.hop.ui.hopgui.perspective.configuration;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.hop.core.Props;
@@ -32,16 +31,10 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.IHopFileType;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
-import org.apache.hop.ui.hopgui.perspective.TabClosable;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -54,7 +47,7 @@ import org.eclipse.swt.widgets.Control;
     image = "ui/images/gear.svg",
     documentationUrl = "/hop-gui/perspective-configuration.html")
 @GuiPlugin(description = "i18n::HopConfigurationPerspective.GuiPlugin.Description")
-public class ConfigurationPerspective implements IHopPerspective, TabClosable {
+public class ConfigurationPerspective implements IHopPerspective {
 
   public static final String CONFIG_PERSPECTIVE_TABS = "ConfigurationPerspective.Tabs.ID";
   private HopGui hopGui;
@@ -80,21 +73,6 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
     return "configuration";
   }
 
-  @Override
-  public IHopFileTypeHandler getActiveFileTypeHandler() {
-    return new EmptyHopFileTypeHandler();
-  }
-
-  @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
-    // Do nothing
-  }
-
-  @Override
-  public List<IHopFileType> getSupportedHopFileTypes() {
-    return Collections.emptyList();
-  }
-
   @GuiKeyboardShortcut(control = true, shift = true, key = 'c')
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'c')
   @Override
@@ -104,16 +82,6 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public void perspectiveActivated() {
-    // Do nothing
-  }
-
-  @Override
-  public void navigateToPreviousFile() {
-    // Do nothing
-  }
-
-  @Override
-  public void navigateToNextFile() {
     // Do nothing
   }
 
@@ -168,57 +136,12 @@ public class ConfigurationPerspective implements IHopPerspective, TabClosable {
   }
 
   @Override
-  public boolean hasNavigationPreviousFile() {
-    return false;
-  }
-
-  @Override
-  public boolean hasNavigationNextFile() {
-    return false;
-  }
-
-  @Override
   public Control getControl() {
     return composite;
   }
 
   @Override
-  public boolean remove(IHopFileTypeHandler typeHandler) {
-    return false;
-  }
-
-  @Override
-  public List<TabItemHandler> getItems() {
-    return null;
-  }
-
-  @Override
   public List<ISearchable> getSearchables() {
     return new ArrayList<>();
-  }
-
-  @Override
-  public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
-    // Do nothing
-  }
-
-  @Override
-  public List<CTabItem> getTabsToRight(CTabItem selectedTabItem) {
-    return TabClosable.super.getTabsToRight(selectedTabItem);
-  }
-
-  @Override
-  public List<CTabItem> getTabsToLeft(CTabItem selectedTabItem) {
-    return TabClosable.super.getTabsToLeft(selectedTabItem);
-  }
-
-  @Override
-  public List<CTabItem> getOtherTabs(CTabItem selectedTabItem) {
-    return TabClosable.super.getOtherTabs(selectedTabItem);
-  }
-
-  @Override
-  public CTabFolder getTabFolder() {
-    return configTabs;
   }
 }

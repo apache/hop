@@ -105,7 +105,7 @@ public class HopGuiAuditDelegate {
                 }
               } else {
                 // Regular filename
-                IHopFileTypeHandler fileTypeHandler = hopGui.fileDelegate.fileOpen(filename);
+                IHopFileTypeHandler fileTypeHandler = hopGui.fileDelegate.fileOpen(filename, false);
                 if (fileTypeHandler != null) {
                   // Restore zoom, scroll and so on
                   AuditState auditState = auditStateMap.get(filename);
@@ -133,9 +133,6 @@ public class HopGuiAuditDelegate {
         }
       }
     }
-    // Always start with an active data orchestration perspective.
-    //
-    HopGui.getDataOrchestrationPerspective().activate();
   }
 
   private void openMetadataObject(String className, String name) throws HopException {

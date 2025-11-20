@@ -74,6 +74,17 @@ public class HopPerspectiveManager {
     return null;
   }
 
+  public IHopPerspective findPerspective(IHopFileType hopFileType) {
+    for (IHopPerspective perspective : getPerspectives()) {
+      for (IHopFileType fileType : perspective.getSupportedHopFileTypes()) {
+        if (hopFileType.equals(fileType)) {
+          return perspective;
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Loop over all perspectives and see if any one of them recognizes the object
    *

@@ -459,6 +459,16 @@ public class HopVfs {
     }
   }
 
+  /**
+   * Utility to normalize file name depending on OS.
+   *
+   * <p>On Window clean some situation where {@code c:/project/\workflow.hwf} is normalized to
+   * {@code c:\project\workflow.hwf}
+   */
+  public static String normalize(String filename) throws HopFileException {
+    return getFilename(getFileObject(filename));
+  }
+
   public static String getFilename(FileObject fileObject) {
     FileName fileName = fileObject.getName();
     String root = fileName.getRootURI();
