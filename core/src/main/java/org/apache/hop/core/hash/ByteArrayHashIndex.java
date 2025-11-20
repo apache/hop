@@ -28,7 +28,7 @@ public class ByteArrayHashIndex {
 
   private IRowMeta keyRowMeta;
   private ByteArrayHashIndexEntry[] index;
-  private int size;
+  private int count;
   private int resizeThresHold;
 
   /**
@@ -45,7 +45,7 @@ public class ByteArrayHashIndex {
       factor2Size <<= 1; // Multiply by 2
     }
 
-    this.size = factor2Size;
+    this.count = 0;
     this.resizeThresHold = (int) (factor2Size * STANDARD_LOAD_FACTOR);
 
     index = new ByteArrayHashIndexEntry[factor2Size];
@@ -56,11 +56,15 @@ public class ByteArrayHashIndex {
   }
 
   public int getSize() {
-    return size;
+    return index.length;
+  }
+
+  public int getCount() {
+    return count;
   }
 
   public boolean isEmpty() {
-    return size == 0;
+    return count == 0;
   }
 
   public byte[] get(byte[] key) throws HopValueException {
@@ -70,7 +74,7 @@ public class ByteArrayHashIndex {
     ByteArrayHashIndexEntry check = index[indexPointer];
 
     while (check != null) {
-      if (check.hashCode == hashCode && check.equalsKey(key)) {
+      if (check.hashCode == hashCode && equalsByteArray(check.key, key)) {
         return check.value;
       }
       check = check.nextEntry;
@@ -78,41 +82,54 @@ public class ByteArrayHashIndex {
     return null;
   }
 
+  public static final boolean equalsByteArray(byte[] value, byte[] cmpValue) {
+    if (value.length != cmpValue.length) {
+      return false;
+    }
+    for (int i = value.length - 1; i >= 0; i--) {
+      if (value[i] != cmpValue[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public void put(byte[] key, byte[] value) throws HopValueException {
     int hashCode = generateHashCode(key, keyRowMeta);
     int indexPointer = hashCode & (index.length - 1);
 
-    // First see if there is an entry on that pointer...
+    // If home is empty, place entry there and done
     //
-    boolean searchEmptySpot = false;
-
     ByteArrayHashIndexEntry check = index[indexPointer];
+    if (check == null) {
+      index[indexPointer] = new ByteArrayHashIndexEntry(hashCode, key, value, index[indexPointer]);
+      return;
+    }
+
     ByteArrayHashIndexEntry previousCheck = null;
-
-    while (check != null) {
-      searchEmptySpot = true;
-
+    do {
       // If there is an identical entry in there, we replace the value.
       // And then we just return...
       //
-      if (check.hashCode == hashCode && check.equalsKey(key)) {
+      if (check.hashCode == hashCode && equalsByteArray(check.key, key)) {
         check.value = value;
         return;
       }
       previousCheck = check;
       check = check.nextEntry;
-    }
+    } while (check != null);
 
     // If we are still here, that means that we are ready to put the value down...
     // Where do we need to search for an empty spot in the index?
     //
-    while (searchEmptySpot) {
+    int len = index.length;
+    while (true) {
       indexPointer++;
-      if (indexPointer >= size) {
+      if (indexPointer >= len) {
         indexPointer = 0;
       }
       if (index[indexPointer] == null) {
-        searchEmptySpot = false;
+        break;
       }
     }
 
@@ -134,11 +151,11 @@ public class ByteArrayHashIndex {
   private final void resize() {
     // Increase the size of the index...
     //
-    size++;
+    count++;
 
     // See if we've reached our resize threshold...
     //
-    if (size >= resizeThresHold) {
+    if (count >= resizeThresHold) {
 
       ByteArrayHashIndexEntry[] oldIndex = index;
 
@@ -148,6 +165,7 @@ public class ByteArrayHashIndex {
       int newSize = 2 * index.length;
 
       ByteArrayHashIndexEntry[] newIndex = new ByteArrayHashIndexEntry[newSize];
+      int mask = newSize - 1;
 
       // Loop over the old index and re-distribute the entries
       // We want to make sure that the calculation
@@ -156,6 +174,7 @@ public class ByteArrayHashIndex {
       //
       for (int i = 0; i < oldIndex.length; i++) {
         ByteArrayHashIndexEntry entry = oldIndex[i];
+
         if (entry != null) {
           oldIndex[i] = null;
           entry.nextEntry = null; // we assume there is plenty of room in the new index...
@@ -163,7 +182,7 @@ public class ByteArrayHashIndex {
           // Make sure we follow all the linked entries...
           // TODO This is a lot of extra work, see how we can avoid it!
           //
-          int newIndexPointer = entry.hashCode & (newSize - 1);
+          int newIndexPointer = entry.hashCode & mask;
 
           // Make sure on this new index pointer, we have room to put the entry
           //
@@ -176,10 +195,11 @@ public class ByteArrayHashIndex {
             // No, we need to look for a nice spot to put the hash entry...
             //
             ByteArrayHashIndexEntry previousCheck = null;
-            while (check != null) {
+            do {
               previousCheck = check;
               check = check.nextEntry;
-            }
+            } while (check != null);
+
             while (newIndex[newIndexPointer] != null) {
               newIndexPointer++;
               if (newIndexPointer >= newSize) {
@@ -231,10 +251,6 @@ public class ByteArrayHashIndex {
       this.nextEntry = nextEntry;
     }
 
-    public boolean equalsKey(byte[] cmpKey) {
-      return equalsByteArray(key, cmpKey);
-    }
-
     /**
      * The row is the same if the value is the same The data types are the same so no error is made
      * here.
@@ -243,23 +259,7 @@ public class ByteArrayHashIndex {
     public boolean equals(Object obj) {
       ByteArrayHashIndexEntry e = (ByteArrayHashIndexEntry) obj;
 
-      return equalsValue(e.value);
-    }
-
-    public boolean equalsValue(byte[] cmpValue) {
-      return equalsByteArray(value, cmpValue);
-    }
-
-    public static final boolean equalsByteArray(byte[] value, byte[] cmpValue) {
-      if (value.length != cmpValue.length) {
-        return false;
-      }
-      for (int i = value.length - 1; i >= 0; i--) {
-        if (value[i] != cmpValue[i]) {
-          return false;
-        }
-      }
-      return true;
+      return equalsByteArray(e.value, value);
     }
   }
 }
