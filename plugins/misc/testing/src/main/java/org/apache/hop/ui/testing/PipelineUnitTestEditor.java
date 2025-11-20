@@ -19,6 +19,7 @@ package org.apache.hop.ui.testing;
 
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -31,6 +32,7 @@ import org.apache.hop.testing.PipelineUnitTestDatabaseReplacement;
 import org.apache.hop.testing.VariableValue;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -45,6 +47,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
@@ -150,14 +153,23 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     FormData fdlPipelineFilename = new FormData();
     fdlPipelineFilename.top = new FormAttachment(lastControl, margin);
     fdlPipelineFilename.left = new FormAttachment(0, 0);
-    fdlPipelineFilename.right = new FormAttachment(middle, -margin);
+    fdlPipelineFilename.right = new FormAttachment(middle, 0);
     wlPipelineFilename.setLayoutData(fdlPipelineFilename);
+
+    Button wbPipelineFilename = new Button(parent, SWT.PUSH);
+    PropsUi.setLook(wbPipelineFilename);
+    wbPipelineFilename.setText(BaseMessages.getString(PKG, "PipelineUnitTestDialog.Button.Browse"));
+    FormData fdbPipelineFilename = new FormData();
+    fdbPipelineFilename.right = new FormAttachment(99, 0);
+    fdbPipelineFilename.top = new FormAttachment(wlPipelineFilename, 0, SWT.CENTER);
+    wbPipelineFilename.setLayoutData(fdbPipelineFilename);
+    wbPipelineFilename.addListener(SWT.Selection, this::browsePipelineFilename);
     wPipelineFilename = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPipelineFilename);
     FormData fdPipelineFilename = new FormData();
     fdPipelineFilename.top = new FormAttachment(wlPipelineFilename, 0, SWT.CENTER);
-    fdPipelineFilename.left = new FormAttachment(middle, 0);
-    fdPipelineFilename.right = new FormAttachment(100, 0);
+    fdPipelineFilename.left = new FormAttachment(middle, margin);
+    fdPipelineFilename.right = new FormAttachment(wbPipelineFilename, -margin);
     wPipelineFilename.setLayoutData(fdPipelineFilename);
     lastControl = wPipelineFilename;
 
@@ -188,14 +200,24 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     FormData fdlBasePath = new FormData();
     fdlBasePath.top = new FormAttachment(lastControl, margin);
     fdlBasePath.left = new FormAttachment(0, 0);
-    fdlBasePath.right = new FormAttachment(middle, -margin);
+    fdlBasePath.right = new FormAttachment(middle, 0);
     wlBasePath.setLayoutData(fdlBasePath);
+
+    Button wbBasePath = new Button(parent, SWT.PUSH);
+    PropsUi.setLook(wbBasePath);
+    wbBasePath.setText(BaseMessages.getString(PKG, "PipelineUnitTestDialog.Button.Browse"));
+    FormData fdbBasePath = new FormData();
+    fdbBasePath.right = new FormAttachment(99, 0);
+    fdbBasePath.top = new FormAttachment(wlBasePath, 0, SWT.CENTER);
+    wbBasePath.setLayoutData(fdbBasePath);
+    wbBasePath.addListener(SWT.Selection, this::browseTestPathDir);
+
     wBasePath = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBasePath);
     FormData fdBasePath = new FormData();
-    fdBasePath.top = new FormAttachment(wlBasePath, 0, SWT.CENTER);
-    fdBasePath.left = new FormAttachment(middle, 0);
-    fdBasePath.right = new FormAttachment(100, 0);
+    fdBasePath.top = new FormAttachment(wbBasePath, 0, SWT.CENTER);
+    fdBasePath.left = new FormAttachment(middle, margin);
+    fdBasePath.right = new FormAttachment(wbBasePath, -margin);
     wBasePath.setLayoutData(fdBasePath);
     lastControl = wBasePath;
 
@@ -318,6 +340,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdVariableValues.right = new FormAttachment(100, 0);
     fdVariableValues.bottom = new FormAttachment(100, -2 * margin);
     wVariableValues.setLayoutData(fdVariableValues);
+    lastControl = wVariableValues;
 
     setWidgetsContent();
 
@@ -333,6 +356,42 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     wAutoOpen.addListener(SWT.Selection, listener);
     wDbReplacements.addModifyListener(modifyListener);
     wVariableValues.addModifyListener(modifyListener);
+  }
+
+  private void browsePipelineFilename(Event event) {
+
+    String pipelineFilename = BaseDialog.presentFileDialog(this.getShell(), null, null, false);
+
+    // Set the name to the base folder if the name is empty
+    //
+    try {
+      if (pipelineFilename != null && StringUtils.isEmpty(wPipelineFilename.getText())) {
+        PipelineUnitTest pipelineUnitTest = this.getMetadata();
+        pipelineUnitTest.setRelativeFilename(manager.getVariables(), pipelineFilename);
+        wPipelineFilename.setText(Const.NVL(pipelineUnitTest.getPipelineFilename(), ""));
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting pipelineFilename", e);
+      // Don't change the name
+    }
+  }
+
+  private void browseTestPathDir(Event event) {
+
+    String testPathDir = BaseDialog.presentFileDialog(this.getShell(), null, null, true);
+
+    // Set the name to the base folder if the name is empty
+    //
+    try {
+      if (testPathDir != null && StringUtils.isEmpty(wPipelineFilename.getText())) {
+        /* PipelineUnitTest pipelineUnitTest = this.getMetadata();
+        pipelineUnitTest.setRelativeFilename(manager.getVariables(), testPathDir);*/
+        wBasePath.setText(Const.NVL(testPathDir, ""));
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error getting testPathDir", e);
+      // Don't change the name
+    }
   }
 
   @Override
