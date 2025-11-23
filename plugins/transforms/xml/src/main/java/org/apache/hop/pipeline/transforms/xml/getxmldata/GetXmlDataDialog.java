@@ -17,12 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeByDesc;
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeDesc;
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getResultTypeByDesc;
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getResultTypeCode;
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getTrimTypeByDesc;
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getTrimTypeCode;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.*;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -193,16 +188,25 @@ public class GetXmlDataDialog extends BaseTransformDialog {
 
   String precNodeName = null;
 
-  private PdOption readFilePdOption;
-  private PdOption readUrlPdOption;
-  private PdOption readXmlPdOption;
-  private PdOption readHopVfsPdOption;
-  private PdOption readSnippetPdOption;
+  private final PdOption readFilePdOption;
+  private final PdOption readUrlPdOption;
+  private final PdOption readXmlPdOption;
+  private final PdOption readHopVfsPdOption;
+  private final PdOption readSnippetPdOption;
 
   public GetXmlDataDialog(
       Shell parent, IVariables variables, GetXmlDataMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
+
+    // Initialize options and set default values. This prevents a potential NPE in get() methods.
+    // if getLoopPathList() is not triggered and these 5 options remain uninitialized.
+    // Call option.resetOption() before using any option instance.
+    this.readFilePdOption = new PdOption();
+    this.readUrlPdOption = new PdOption();
+    this.readXmlPdOption = new PdOption();
+    this.readHopVfsPdOption = new PdOption();
+    this.readSnippetPdOption = new PdOption();
   }
 
   @Override
@@ -1293,7 +1297,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
           @Override
           public void enrich(EnterTextDialog enterTextDialog) {
 
-            readSnippetPdOption = new PdOption();
+            readSnippetPdOption.resetOption();
             readSnippetPdOption.setUseSnippet(true);
 
             Button wbbLoopPathList = getWbbLoopPathList(enterTextDialog.getShell());
@@ -1480,7 +1484,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
                     BaseMessages.getString(PKG, "GetXMLDataDialog.AskURL.Message"));
             url = d.open();
           }
-          readUrlPdOption = new PdOption();
+          readUrlPdOption.resetOption();
           readUrlPdOption.setUseUrl(true);
           readUrlPdOption.setValidating(meta.isValidating());
           LoopNodesImportProgressDialog pd =
@@ -1503,7 +1507,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
             if (!StringUtil.isEmpty(filePath)) {
               str = filePath;
             }
-            readFilePdOption = new PdOption();
+            readFilePdOption.resetOption();
             readFilePdOption.setEncoding(
                 meta.getEncoding() == null ? CONST_UTF_8 : meta.getEncoding());
             readFilePdOption.setValidating(meta.isValidating());
@@ -1523,7 +1527,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
                     null);
             xml = d.open();
           }
-          readXmlPdOption = new PdOption();
+          readXmlPdOption.resetOption();
           readXmlPdOption.setValidating(meta.isValidating());
           LoopNodesImportProgressDialog pd =
               new LoopNodesImportProgressDialog(shell, xml, readXmlPdOption);
@@ -1537,7 +1541,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
           // Check the first file
 
           if (fileinputList.getFile(0).exists()) {
-            readHopVfsPdOption = new PdOption();
+            readHopVfsPdOption.resetOption();
             readHopVfsPdOption.setValidating(meta.isValidating());
             readHopVfsPdOption.setEncoding(
                 meta.getEncoding() == null ? CONST_UTF_8 : meta.getEncoding());
