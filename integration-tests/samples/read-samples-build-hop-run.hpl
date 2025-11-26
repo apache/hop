@@ -639,6 +639,10 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
         <item>columns-exist-in-a-table.hwf</item>
         <item>Is intended to fail.</item>
       </line>
+      <line>
+        <item>sample_pipeline_resolver</item>
+        <item>Is used by another transform</item>
+      </line>
     </data>
     <fields>
       <field>

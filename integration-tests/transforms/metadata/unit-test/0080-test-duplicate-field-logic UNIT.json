@@ -1,0 +1,63 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Position",
+          "data_set_field": "Position"
+        },
+        {
+          "transform_field": "Fieldname",
+          "data_set_field": "Fieldname"
+        },
+        {
+          "transform_field": "Comments",
+          "data_set_field": "Comments"
+        },
+        {
+          "transform_field": "Type",
+          "data_set_field": "Type"
+        },
+        {
+          "transform_field": "Length",
+          "data_set_field": "Length"
+        },
+        {
+          "transform_field": "Precision",
+          "data_set_field": "Precision"
+        },
+        {
+          "transform_field": "FormatMask",
+          "data_set_field": "FormatMask"
+        },
+        {
+          "transform_field": "Origin",
+          "data_set_field": "Origin"
+        }
+      ],
+      "field_order": [
+        "Position",
+        "Fieldname",
+        "Comments",
+        "Type",
+        "Length",
+        "Precision",
+        "FormatMask",
+        "Origin"
+      ],
+      "data_set_name": "golden-check-duplicate-field-logic",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0080-test-duplicate-field-logic UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0080-test-duplicate-field-logic.hpl"
+}
