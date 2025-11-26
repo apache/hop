@@ -36,6 +36,8 @@ import org.apache.hop.pipeline.transforms.calculator.calculations.conversion.Hex
 import org.apache.hop.pipeline.transforms.calculator.calculations.conversion.MaskXML;
 import org.apache.hop.pipeline.transforms.calculator.calculations.conversion.UnescapeHTML;
 import org.apache.hop.pipeline.transforms.calculator.calculations.conversion.UnescapeXML;
+import org.apache.hop.pipeline.transforms.calculator.calculations.conversion.UrlDecode;
+import org.apache.hop.pipeline.transforms.calculator.calculations.conversion.UrlEncode;
 import org.apache.hop.pipeline.transforms.calculator.calculations.conversion.UseCDATA;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.AddDays;
 import org.apache.hop.pipeline.transforms.calculator.calculations.date.AddHours;
@@ -207,7 +209,9 @@ public enum CalculationType implements IEnumHasCodeAndDescription {
   BASE64_ENCODE_PADDED(new Base64EncodePadded()),
   BASE64_DECODE(new Base64Decode()),
   FIRST_DAY_OF_MONTH(new FirstDayOfMonth()),
-  LAST_DAY_OF_MONTH(new LastDayOfMonth());
+  LAST_DAY_OF_MONTH(new LastDayOfMonth()),
+  URL_ENCODE(new UrlEncode()),
+  URL_DECODE(new UrlDecode());
 
   public static final String[] descriptions =
       Stream.of(values()).map(e -> e.calculation.getDescription()).toArray(String[]::new);
