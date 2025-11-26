@@ -241,7 +241,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     hopGui.replaceKeyboardShortcutListeners(this);
 
     tabFolder.setSelection(0);
-    sash.setWeights(new int[] {60, 40});
+    sash.setWeights(60, 40);
   }
 
   private void addInfoTab() {
@@ -411,7 +411,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
     dataView.optimizeTableView();
 
-    dataSash.setWeights(new int[] {30, 70});
+    dataSash.setWeights(30, 70);
 
     dataTab.setControl(dataSash);
   }
