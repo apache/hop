@@ -17,7 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.*;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeByDesc;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getElementTypeDesc;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getResultTypeByDesc;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getResultTypeCode;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getTrimTypeByDesc;
+import static org.apache.hop.pipeline.transforms.xml.getxmldata.GetXmlDataField.getTrimTypeCode;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
