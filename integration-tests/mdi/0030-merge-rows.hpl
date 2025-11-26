@@ -107,17 +107,10 @@ limitations under the License.
     <mappings>
       <mapping>
         <target_transform_name>Merge rows</target_transform_name>
-        <target_attribute_key>VALUE_FIELD</target_attribute_key>
-        <target_detail>Y</target_detail>
+        <target_attribute_key>VALUE_FIELDS</target_attribute_key>
+        <target_detail>N</target_detail>
         <source_transform>values</source_transform>
         <source_field>value</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>Merge rows</target_transform_name>
-        <target_attribute_key>KEY_FIELD</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>keys</source_transform>
-        <source_field>key</source_field>
       </mapping>
       <mapping>
         <target_transform_name>Merge rows</target_transform_name>
@@ -128,17 +121,10 @@ limitations under the License.
       </mapping>
       <mapping>
         <target_transform_name>Merge rows</target_transform_name>
-        <target_attribute_key>COMPARE_TRANSFORM</target_attribute_key>
+        <target_attribute_key>KEY_FIELDS</target_attribute_key>
         <target_detail>N</target_detail>
-        <source_transform>metadata</source_transform>
-        <source_field>compare</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>Merge rows</target_transform_name>
-        <target_attribute_key>REFERENCE_TRANSFORM</target_attribute_key>
-        <target_detail>N</target_detail>
-        <source_transform>metadata</source_transform>
-        <source_field>reference</source_field>
+        <source_transform>keys</source_transform>
+        <source_field>key</source_field>
       </mapping>
     </mappings>
     <attributes/>

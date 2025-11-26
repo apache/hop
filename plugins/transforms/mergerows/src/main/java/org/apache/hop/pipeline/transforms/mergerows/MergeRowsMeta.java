@@ -68,18 +68,16 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   @HopMetadataProperty(
       key = "key",
       groupKey = "keys",
-      injectionKey = "KEY_FIELD",
+      injectionKey = "KEY_FIELDS",
       injectionKeyDescription = "MergeRows.Injection.KEY_FIELD",
-      injectionGroupKey = "KEY_FIELDS",
       injectionGroupDescription = "MergeRows.Injection.KEY_FIELDS")
   private List<String> keyFields;
 
   @HopMetadataProperty(
       key = "value",
       groupKey = "values",
-      injectionKey = "VALUE_FIELD",
+      injectionKey = "VALUE_FIELDS",
       injectionKeyDescription = "MergeRows.Injection.VALUE_FIELD",
-      injectionGroupKey = "VALUE_FIELDS",
       injectionGroupDescription = "MergeRows.Injection.VALUE_FIELDS")
   private List<String> valueFields;
 
