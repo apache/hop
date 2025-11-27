@@ -31,17 +31,22 @@ public class PdOption {
   private String loopXPath;
 
   PdOption() {
-    isValidating = false;
-    useUrl = false;
-    useSnippet = false;
-    encoding = null;
-    isXmlSourceFile = false;
-    loopXPath = "";
+    resetOption();
   }
 
   // if the encoding is not null, the source must be a file
   public void setEncoding(String encoding) {
     this.encoding = encoding;
     this.isXmlSourceFile = true;
+  }
+
+  /** Resets all configuration options to their default values. */
+  public void resetOption() {
+    this.isValidating = false;
+    this.useUrl = false;
+    this.useSnippet = false;
+    this.encoding = null;
+    this.isXmlSourceFile = false;
+    this.loopXPath = "";
   }
 }
