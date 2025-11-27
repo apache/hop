@@ -113,6 +113,8 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private Button wSeqButton;
   private Text wSeq;
 
+  private Button wDisableUnknownUpdate;
+
   private Label wlVersion;
   private Combo wVersion;
 
@@ -611,6 +613,18 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wAutoIncrement.setText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.AutoIncrement.Label"));
 
+    // Disable the unknown row check when updating a dimension?
+    //
+    wDisableUnknownUpdate = new Button(wTechnicalKeyComp, SWT.CHECK);
+    wDisableUnknownUpdate.setText(
+        BaseMessages.getString(PKG, "DimensionLookupDialog.DisableUnknownUpdate.Label"));
+    PropsUi.setLook(wDisableUnknownUpdate);
+    FormData fdDisableUnknownUpdate = new FormData();
+    fdDisableUnknownUpdate.left = new FormAttachment(0, 0);
+    fdDisableUnknownUpdate.top = new FormAttachment(gTechGroup, 2 * margin);
+    fdDisableUnknownUpdate.right = new FormAttachment(100, 0);
+    wDisableUnknownUpdate.setLayoutData(fdDisableUnknownUpdate);
+
     FormData fdTechnicalKeyComp = new FormData();
     fdTechnicalKeyComp.left = new FormAttachment(0, 0);
     fdTechnicalKeyComp.top = new FormAttachment(0, 0);
@@ -1049,6 +1063,10 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
     wlCacheSize.setEnabled(wUseCache.getSelection() && !wPreloadCache.getSelection());
     wCacheSize.setEnabled(wUseCache.getSelection() && !wPreloadCache.getSelection());
+
+    // The unknown record
+    //
+    wDisableUnknownUpdate.setEnabled(update);
   }
 
   protected void setComboBoxes() {
@@ -1125,6 +1143,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     if (input.getConnection() != null) {
       wConnection.setText(input.getConnection());
     }
+    wDisableUnknownUpdate.setSelection(input.isUnknownRowCheckDisabled());
     wDateField.setText(Const.NVL(f.getDate().getName(), ""));
     wFromDate.setText(Const.NVL(f.getDate().getFrom(), ""));
     wToDate.setText(Const.NVL(f.getDate().getTo(), ""));
@@ -1255,6 +1274,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     } else { // all the rest
       f.getReturns().setCreationMethod(TABLE_MAXIMUM);
     }
+    in.setUnknownRowCheckDisabled(wDisableUnknownUpdate.getSelection());
 
     f.getReturns().setVersionField(wVersion.getText());
     in.setConnection(wConnection.getText());
