@@ -21,9 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,9 +39,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -326,5 +333,65 @@ class UniqueRowsTest {
     assertFalse(result);
     // Verify that the previous row was output
     verify(uniqueRows).putRow(any(IRowMeta.class), any(Object[].class));
+  }
+
+  @Test
+  void testDuplicateRowTriggersErrorHandling() throws HopException {
+    List<UniqueField> compareFields = new ArrayList<>();
+    compareFields.add(new UniqueField("name", false));
+
+    when(transformMockHelper.iTransformMeta.getCompareFields()).thenReturn(compareFields);
+    when(transformMockHelper.iTransformMeta.isCountRows()).thenReturn(false);
+    when(transformMockHelper.transformMeta.getTransformErrorMeta())
+        .thenReturn(mock(TransformErrorMeta.class));
+    when(transformMockHelper.transformMeta.getTransformErrorMeta().getErrorRowMeta(any()))
+        .thenReturn(mock(IRowMeta.class));
+
+    UniqueRows uniqueRows =
+        spy(
+            new UniqueRows(
+                transformMockHelper.transformMeta,
+                transformMockHelper.iTransformMeta,
+                transformMockHelper.iTransformData,
+                0,
+                transformMockHelper.pipelineMeta,
+                transformMockHelper.pipeline));
+
+    assertTrue(uniqueRows.init());
+
+    // Setup input row meta
+    RowMeta inputRowMeta = new RowMeta();
+    inputRowMeta.addValueMeta(new ValueMetaString("name"));
+    // The last field is Boolean to simulate a non-integer type.
+    inputRowMeta.addValueMeta(new ValueMetaBoolean("success"));
+    uniqueRows.setInputRowMeta(inputRowMeta);
+
+    // Set up previous row in data
+    transformMockHelper.iTransformData.previous = new Object[] {"Alice", true};
+    transformMockHelper.iTransformData.outputRowMeta = inputRowMeta;
+    transformMockHelper.iTransformData.counter = 2;
+    transformMockHelper.iTransformData.sendDuplicateRows = true;
+
+    doReturn(new Object[] {"lance", true})
+        .doReturn(new Object[] {"lance", false})
+        .doReturn(new Object[] {"lance", false})
+        .doReturn(null)
+        .when(uniqueRows)
+        .getRow();
+
+    doNothing()
+        .when(uniqueRows)
+        .putError(
+            any(IRowMeta.class), any(Object[].class), anyLong(), anyString(), any(), anyString());
+
+    boolean result = uniqueRows.processRow();
+    assertTrue(result);
+
+    uniqueRows.processRow();
+    uniqueRows.processRow();
+
+    // verify putError triggered for duplicate
+    verify(uniqueRows, times(2))
+        .putError(any(IRowMeta.class), any(Object[].class), eq(1L), any(), any(), eq("UNR001"));
   }
 }
