@@ -1,0 +1,5 @@
+Position,Fieldname,Comments,Type,Length,Precision,FormatMask,Origin
+1,field,,String,-1,-1,,generate single row and field
+2,field_1,,String,-1,-1,,add same field multiple times
+3,field_2,,String,-1,-1,,add same field multiple times
+4,field_3,,String,-1,-1,,add same field multiple times

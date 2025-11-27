@@ -1,0 +1,3 @@
+Position,Fieldname,Comments,Type,Length,Precision,FormatMask,Origin
+1,TEST,TEST,String,10,-1,,get field test
+2,TEST_1,TEST,String,10,-1,,join same field
