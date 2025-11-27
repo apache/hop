@@ -44,6 +44,9 @@ public class ByteArrayHashIndexTest {
 
     obj = new ByteArrayHashIndex(new RowMeta(), 99);
     assertEquals(128, obj.getSize());
+
+    obj = new ByteArrayHashIndex(new RowMeta(), 9);
+    assertEquals(0, obj.getCount());
   }
 
   @Test
