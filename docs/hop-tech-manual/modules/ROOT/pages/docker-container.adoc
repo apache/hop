@@ -166,6 +166,10 @@ Below are the variables you can use for a **long-lived** container, running Hop 
 | `8079`
 | The port the server shutdown listener will listen to.
 
+|```HOP_SERVER_AUTH```
+| `true`
+| Disable/Enable the authentication used for hop server
+
 |```HOP_SERVER_USER```
 |`cluster`
 | The username to log into the Hop server.

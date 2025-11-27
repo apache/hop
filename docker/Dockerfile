@@ -65,6 +65,8 @@ ENV HOP_OPTIONS=-XX:+AggressiveHeap
 # Path to custom entrypoint extension script file - optional
 # e.g. to fetch Hop project files from S3 or gitlab
 ENV HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH=
+# Enable or disable the auth
+ENV HOP_SERVER_AUTH=true
 # The server user
 ENV HOP_SERVER_USER=cluster
 # The server password
