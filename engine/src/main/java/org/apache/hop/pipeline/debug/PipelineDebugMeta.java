@@ -46,6 +46,9 @@ public class PipelineDebugMeta {
   private PipelineMeta pipelineMeta;
   private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
 
+  /** Flag indicating whether the preview data has already been shown. */
+  private boolean dataShown = false;
+
   public PipelineDebugMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
     transformDebugMetaMap = new HashMap<>();
@@ -55,6 +58,7 @@ public class PipelineDebugMeta {
 
     // for every transform in the map, add a row listener...
     //
+    dataShown = false;
     for (final TransformMeta transformMeta : transformDebugMetaMap.keySet()) {
       final TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get(transformMeta);
 
@@ -96,6 +100,7 @@ public class PipelineDebugMeta {
                           // Also call the pause / break-point listeners on the transform
                           // debugger...
                           //
+                          dataShown = true;
                           transformDebugMeta.setRowBufferMeta(rowMeta);
                           transformDebugMeta.getRowBuffer().add(rowMeta.cloneRow(row));
                           transformDebugMeta.fireBreakPointListeners(PipelineDebugMeta.this);
@@ -159,6 +164,12 @@ public class PipelineDebugMeta {
     try {
       pipeline.addExecutionFinishedListener(
           p -> {
+            // If the preview data has already been displayed, skip firing the break-point listeners
+            // to avoid showing the preview dialog multiple times.
+            if (dataShown) {
+              return;
+            }
+
             for (TransformMeta transformMeta : transformDebugMetaMap.keySet()) {
               TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get(transformMeta);
               if (transformDebugMeta != null) {
@@ -204,11 +215,10 @@ public class PipelineDebugMeta {
     int nr = 0;
 
     for (TransformDebugMeta transformDebugMeta : transformDebugMetaMap.values()) {
-      if (transformDebugMeta.isReadingFirstRows() && transformDebugMeta.getRowCount() > 0) {
-        nr++;
-      } else if (transformDebugMeta.isPausingOnBreakPoint()
-          && transformDebugMeta.getCondition() != null
-          && !transformDebugMeta.getCondition().isEmpty()) {
+      if ((transformDebugMeta.isReadingFirstRows() && transformDebugMeta.getRowCount() > 0)
+          || (transformDebugMeta.isPausingOnBreakPoint()
+              && transformDebugMeta.getCondition() != null
+              && !transformDebugMeta.getCondition().isEmpty())) {
         nr++;
       }
     }
