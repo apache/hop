@@ -195,6 +195,8 @@ TIP: Only integer values for B are supported. If you need non-integer calculatio
 |Base64 Decode|BASE64_DECODE|Decode a Base64 encoded string. Supports both padded or non-padded input.
 |First day of month (A) date|FIRST_DAY_OF_MONTH|Set the day of field (A) to 1.
 |Last day of month (A) date|LAST_DAY_OF_MONTH|Set the day of field (A) to the last day of the given month.
+|Encode a URL|URL_ENCODE|Encode a URL to have browser/webservice save url calls.
+|Decode a URL|URL_DECODE|Decode a URL.
 |===
 
 == Metadata Injection support

@@ -29,10 +29,13 @@ import java.util.Locale;
 import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
 import org.apache.commons.codec.language.Soundex;
+import org.apache.commons.codec.net.URLCodec;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
@@ -87,6 +90,8 @@ public class ValueDataUtil {
    * </ul>
    */
   private static final int ROUND_2_MODE = readRound2Mode();
+
+  private static final URLCodec urlCodec = new URLCodec();
 
   private static int readRound2Mode() {
     int round2Mode = ROUND_2_MODE_DEFAULT_VALUE;
@@ -2015,6 +2020,28 @@ public class ValueDataUtil {
           throw new HopValueException(
               "get zero function undefined for data type: " + type.getType());
         }
+    }
+  }
+
+  public static String urlEncode(IValueMeta metaA, Object dataA) {
+    if (dataA == null) {
+      return null;
+    }
+    try {
+      return urlCodec.encode(dataA.toString());
+    } catch (EncoderException e) {
+      return null;
+    }
+  }
+
+  public static String urlDecode(IValueMeta metaA, Object dataA) {
+    if (dataA == null) {
+      return null;
+    }
+    try {
+      return urlCodec.decode(dataA.toString());
+    } catch (DecoderException e) {
+      return null;
     }
   }
 }
