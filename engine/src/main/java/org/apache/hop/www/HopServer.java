@@ -141,9 +141,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
 
   @CommandLine.Option(
       names = {"-a", "--auth"},
-      defaultValue = "true",
       description = "Does the Hop web server have authentication enabled")
-  private boolean enableAuth;
+  private Boolean enableAuth;
 
   private WebServer webServer;
   private HopServerConfig config;
@@ -310,7 +309,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
       config.setMetadataProvider(metadataProvider);
 
       // enable auth
-      config.getHopServer().setEnableAuth(this.enableAuth);
+      if (this.enableAuth != null) {
+        config.getHopServer().setEnableAuth(this.enableAuth);
+      }
 
       // See if we need to add the metadata folder (legacy)
       //

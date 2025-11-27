@@ -23,6 +23,7 @@
         <hostname>localhost</hostname>
         <port>8181</port>
         <shutdownPort>8182</shutdownPort>
+        <enable_auth>true</enable_auth>
     </hop-server>
 
     <!-- Join the web server thread and wait until it's finished.

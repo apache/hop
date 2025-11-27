@@ -39,16 +39,19 @@ On Windows, this is `hop-server.bat`, on Mac and Linux, run `./hop-server.sh`.
 
 [source,bash]
 ----
-Usage: <main class> [-k] [-gs] [-e=<environmentOption>] [-id=<id>]
+Usage: <main class> [-ahV] [-gs] [-e=<environmentOption>] [-id=<id>]
                     [-j=<projectOption>] [-l=<level>] [-n=<serverName>]
                     [-p=<password>] [-ps=<pipelineName>] [-u=<username>]
                     [-ws=<workflowName>] [-s=<systemProperties>[,
                     <systemProperties>...]]... [<parameters>...]
+Run a Hop server
       [<parameters>...]   One XML configuration file or a hostname and port
+  -a, --auth              Does the Hop web server have authentication enabled
   -e, --environment=<environmentOption>
                           The name of the lifecycle environment to use
   -gs, --general-status
                           List the general status of the server
+  -h, --help              Show this help message and exit.
       -id=<id>            Specify the ID of the pipeline or workflow to query
   -j, --project=<projectOption>
                           The name of the project to use
@@ -68,6 +71,7 @@ Usage: <main class> [-k] [-gs] [-e=<environmentOption>] [-id=<id>]
   -u, --userName=<username>
                           The server user name.  Required for administrative
                             operations only, not for starting the server.
+  -V, --version           Print version information and exit.
   -ws, --workflow-status=<workflowName>
                           List the status of the workflow with this name (also
                             specify the -id option)
@@ -83,6 +87,11 @@ The available Hop Server options are:
 |-h
 |--help
 |This help text
+
+|-a
+|--auth
+|Default: true +
+Allows you to disable the authentication needed to access the server
 
 |-p
 |--password

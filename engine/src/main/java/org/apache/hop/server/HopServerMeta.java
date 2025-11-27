@@ -249,9 +249,9 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     this.password =
         Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(node, "password"));
 
-    // if the enable_auth tag is empty or enable_auth=Y, then it's true; otherwise false.
+    // if the enable_auth tag is empty or enable_auth=true, then it's true; otherwise false.
     String authValue = XmlHandler.getTagValue(node, "enable_auth");
-    this.enableAuth = Utils.isEmpty(authValue) || "Y".equalsIgnoreCase(authValue);
+    this.enableAuth = Utils.isEmpty(authValue) || "true".equalsIgnoreCase(authValue);
 
     this.proxyHostname = XmlHandler.getTagValue(node, "proxy_hostname");
     this.proxyPort = XmlHandler.getTagValue(node, "proxy_port");

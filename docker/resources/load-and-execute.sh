@@ -53,6 +53,7 @@ write_server_config() {
   echo "    <shutdownPort>${HOP_SERVER_SHUTDOWNPORT}</shutdownPort>" >>${HOP_SERVER_XML}
   echo "    <username>${HOP_SERVER_USER}</username>" >>${HOP_SERVER_XML}
   echo "    <password>${HOP_SERVER_PASS}</password>" >>${HOP_SERVER_XML}
+  echo "    <enable_auth>${HOP_SERVER_AUTH}</enable_auth>" >>${HOP_SERVER_XML}
 
   # If an SSL configuration is needed we need to include it here
   #
