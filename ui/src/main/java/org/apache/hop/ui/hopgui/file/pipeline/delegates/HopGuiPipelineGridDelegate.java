@@ -123,8 +123,6 @@ public class HopGuiPipelineGridDelegate {
       if (pipelineGridTab != null && !pipelineGridTab.isDisposed()) {
         // just set this one active and get out...
         // and activate the refresh timer
-        //
-        pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
         startRefreshMetricsTimer();
         return;
       }
@@ -258,8 +256,6 @@ public class HopGuiPipelineGridDelegate {
     pipelineGridTab.addDisposeListener(disposeEvent -> stopRefreshMetricsTimer());
 
     pipelineGridTab.setControl(pipelineGridComposite);
-
-    pipelineGraph.extraViewTabFolder.setSelection(pipelineGridTab);
   }
 
   public void startRefreshMetricsTimer() {
