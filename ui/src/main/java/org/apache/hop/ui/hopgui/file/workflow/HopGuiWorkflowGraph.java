@@ -1577,7 +1577,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if ((isRunning() && !halting)) {
       halting = true;
       workflow.stopExecution();
-      log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.ProcessingOfWorkflowStopped"));
 
       halting = false;
 
@@ -3791,9 +3790,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           // Attach a listener to notify us that the workflow has finished.
           //
-          workflow.addExecutionFinishedListener(
-              workflow -> HopGuiWorkflowGraph.this.workflowFinished());
-
+          workflow.addExecutionFinishedListener(e -> HopGuiWorkflowGraph.this.workflowFinished());
+          workflow.addExecutionStoppedListener(e -> HopGuiWorkflowGraph.this.workflowStopped());
           // Show the execution results views
           //
           addAllTabs();
@@ -3849,11 +3847,23 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Do a final check to see if it all ended...
     //
     if (workflow != null && workflow.isInitialized() && workflow.isFinished()) {
-      log.logBasic(BaseMessages.getString(PKG, "WorkflowLog.Log.WorkflowHasEnded"));
+      log.logBasic(
+          BaseMessages.getString(PKG, "WorkflowLog.Log.WorkflowHasEnded", workflowMeta.getName()));
     }
 
     stopRedrawTimer();
 
+    updateGui();
+  }
+
+  protected void workflowStopped() {
+    if (workflow != null && workflow.isInitialized() && workflow.isStopped()) {
+      log.logBasic(
+          BaseMessages.getString(
+              PKG, "WorkflowLog.Log.ProcessingOfWorkflowStopped", workflowMeta.getName()));
+    }
+
+    stopRedrawTimer();
     updateGui();
   }
 
