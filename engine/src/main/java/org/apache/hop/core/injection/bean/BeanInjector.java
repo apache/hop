@@ -258,7 +258,11 @@ public class BeanInjector<Meta extends Object> {
                   && prop.path.get(i + 1).stringList) {
                 // Set the string...
                 //
-                next = data.getString(dataName, null);
+                if (data != null) {
+                  next = data.getString(dataName, null);
+                } else {
+                  next = dataValue;
+                }
 
                 // We're done here, don't try to set anything on the child property
                 // Break out of the path loop:
