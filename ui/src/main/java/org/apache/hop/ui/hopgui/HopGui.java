@@ -121,7 +121,6 @@ import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
@@ -478,6 +477,10 @@ public class HopGui
           reOpeningFiles = false;
         });
 
+    // Activate the default perspective
+    //
+    getExplorerPerspective().activate();
+
     // See if we need to show the Welcome dialog
     //
 
@@ -560,7 +563,6 @@ public class HopGui
       //
       perspectiveManager = new HopPerspectiveManager(this);
       PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-      boolean first = true;
       List<Plugin> perspectivePlugins = pluginRegistry.getPlugins(HopPerspectivePluginType.class);
 
       // Sort by id
@@ -576,7 +578,7 @@ public class HopGui
         Class<IHopPerspective> perspectiveClass =
             pluginRegistry.getClass(perspectivePlugin, IHopPerspective.class);
 
-        // Create a new instance & initialize.
+        // Create a new instance and initialize.
         //
         final IHopPerspective perspective = perspectiveClass.getConstructor().newInstance();
         perspective.initialize(this, mainPerspectivesComposite);
@@ -631,11 +633,6 @@ public class HopGui
                 .findKeyboardShortcut(perspectiveClass.getName(), "activate", Const.isOSX());
         if (shortcut != null) {
           item.setToolTipText(item.getToolTipText() + " (" + shortcut + ')');
-        }
-
-        if (first) {
-          first = false;
-          item.setSelection(true);
         }
       }
       perspectivesToolbar.pack();
@@ -1495,7 +1492,7 @@ public class HopGui
   public void setActivePerspective(IHopPerspective perspective) {
 
     if (perspective == null) {
-      perspective = getDataOrchestrationPerspective();
+      perspective = getExplorerPerspective();
     }
 
     activePerspective = perspective;
@@ -1597,32 +1594,29 @@ public class HopGui
    */
   public static HopGuiPipelineGraph getActivePipelineGraph() {
     IHopPerspective activePerspective = HopGui.getInstance().getActivePerspective();
-    if (!(activePerspective instanceof HopDataOrchestrationPerspective perspective)) {
-      return null;
+    if (activePerspective instanceof ExplorerPerspective perspective) {
+      IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
+      if (typeHandler instanceof HopGuiPipelineGraph pipelineGraph) {
+        return pipelineGraph;
+      }
     }
-    IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
-    if (!(typeHandler instanceof HopGuiPipelineGraph)) {
-      return null;
-    }
-    return (HopGuiPipelineGraph) typeHandler;
+    return null;
   }
 
+  /**
+   * Convenience method to pick up the active workflow graph
+   *
+   * @return The active workflow graph or null if none is active
+   */
   public static HopGuiWorkflowGraph getActiveWorkflowGraph() {
     IHopPerspective activePerspective = HopGui.getInstance().getActivePerspective();
-    if (!(activePerspective instanceof HopDataOrchestrationPerspective perspective)) {
-      return null;
+    if (activePerspective instanceof ExplorerPerspective perspective) {
+      IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
+      if (typeHandler instanceof HopGuiWorkflowGraph workflowGraph) {
+        return workflowGraph;
+      }
     }
-    IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
-    if (!(typeHandler instanceof HopGuiWorkflowGraph)) {
-      return null;
-    }
-    return (HopGuiWorkflowGraph) typeHandler;
-  }
-
-  public static HopDataOrchestrationPerspective getDataOrchestrationPerspective() {
-    return HopGui.getInstance()
-        .getPerspectiveManager()
-        .findPerspective(HopDataOrchestrationPerspective.class);
+    return null;
   }
 
   public static MetadataPerspective getMetadataPerspective() {

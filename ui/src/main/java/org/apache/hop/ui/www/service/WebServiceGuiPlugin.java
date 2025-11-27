@@ -159,7 +159,7 @@ public class WebServiceGuiPlugin {
           //
           editor.setChanged();
 
-          // Switch to the editor...
+          // Switch to the perspective
           //
           perspective.activate();
 

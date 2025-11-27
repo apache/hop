@@ -18,7 +18,6 @@
 package org.apache.hop.ui.hopgui.file.pipeline;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import org.apache.hop.core.exception.HopException;
@@ -27,8 +26,8 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
@@ -36,16 +35,12 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.context.GuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
 import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -53,8 +48,7 @@ import org.w3c.dom.Node;
     id = "HopFile-Pipeline-Plugin",
     description = "The pipeline file information for the Hop GUI",
     image = "ui/images/pipeline.svg")
-public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
-    implements IHopFileType {
+public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase {
 
   public static final Class<?> PKG = HopPipelineFileType.class; // i18n
   public static final String PIPELINE_FILE_TYPE_DESCRIPTION = "Pipeline";
@@ -120,29 +114,21 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
   public IHopFileTypeHandler openFile(HopGui hopGui, String filename, IVariables variables)
       throws HopException {
     try {
-      // This file is opened in the data orchestration perspective
+      // Normalize the filename
       //
-      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      perspective.activate();
-
-      // Normalize the filename into a relative path...
-      //
-      HopGuiFileOpenedExtension ext = new HopGuiFileOpenedExtension(null, variables, filename);
-      ExtensionPointHandler.callExtensionPoint(
-          LogChannel.UI, variables, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext);
-      filename = variables.resolve(ext.filename);
+      filename = HopVfs.normalize(variables.resolve(filename));
 
       // See if the same pipeline isn't already open.
       // Other file types we might allow to open more than once but not pipelines for now.
       //
-      TabItemHandler tabItemHandlerWithFilename =
-          perspective.findTabItemHandlerWithFilename(filename);
-      if (tabItemHandlerWithFilename != null) {
+      IHopFileTypeHandler fileTypeHandler =
+          HopGui.getExplorerPerspective().findFileTypeHandlerByFilename(filename);
+      if (fileTypeHandler != null) {
         // Same file so we can simply switch to it.
         // This will prevent confusion.
         //
-        perspective.switchToTab(tabItemHandlerWithFilename);
-        return tabItemHandlerWithFilename.getTypeHandler();
+        HopGui.getExplorerPerspective().setActiveFileTypeHandler(fileTypeHandler);
+        return fileTypeHandler;
       }
 
       // Load the pipeline
@@ -150,13 +136,9 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       PipelineMeta pipelineMeta =
           new PipelineMeta(filename, hopGui.getMetadataProvider(), variables);
 
-      // Pass the MetaStore for reference lookups
+      // Show it in the editor
       //
-      pipelineMeta.setMetadataProvider(hopGui.getMetadataProvider());
-
-      // Show it in the perspective
-      //
-      IHopFileTypeHandler typeHandler = perspective.addPipeline(hopGui, pipelineMeta, this);
+      IHopFileTypeHandler typeHandler = HopGui.getExplorerPerspective().addPipeline(pipelineMeta);
 
       // Keep track of open...
       //
@@ -174,26 +156,23 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
   }
 
   @Override
-  public IHopFileTypeHandler newFile(HopGui hopGui, IVariables parentVariableSpace)
-      throws HopException {
+  public IHopFileTypeHandler newFile(HopGui hopGui, IVariables variables) throws HopException {
     try {
-      // This file is created in the data orchestration perspective
-      //
-      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      perspective.activate();
 
       // Create the empty pipeline
       //
       PipelineMeta pipelineMeta = new PipelineMeta();
       pipelineMeta.setName(BaseMessages.getString(PKG, "HopPipelineFileType.New.Text"));
 
-      // Pass the MetaStore for reference lookups
+      // Pass the MetadataProvider for reference lookups
       //
       pipelineMeta.setMetadataProvider(hopGui.getMetadataProvider());
 
-      // Show it in the perspective
+      // Show it in the editor
       //
-      return perspective.addPipeline(hopGui, pipelineMeta, this);
+      IHopFileTypeHandler fileHandler = HopGui.getExplorerPerspective().addPipeline(pipelineMeta);
+      HopGui.getExplorerPerspective().activate();
+      return fileHandler;
     } catch (Exception e) {
       throw new HopException("Error creating new pipeline", e);
     }
@@ -251,7 +230,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     newAction.setCategory("File");
     newAction.setCategoryOrder("1");
 
-    handlers.add(new GuiContextHandler(ACTION_ID_NEW_PIPELINE, Arrays.asList(newAction)));
+    handlers.add(new GuiContextHandler(ACTION_ID_NEW_PIPELINE, List.of(newAction)));
     return handlers;
   }
 

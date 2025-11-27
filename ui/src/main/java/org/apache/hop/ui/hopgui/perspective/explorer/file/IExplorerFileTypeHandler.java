@@ -18,6 +18,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file;
 
+import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.widgets.Composite;
 
@@ -28,4 +29,18 @@ public interface IExplorerFileTypeHandler extends IHopFileTypeHandler {
    * @param composite The parent composite in a new tab in the explorer perspective
    */
   void renderFile(Composite composite);
+
+  /**
+   * Adds the passed IContentChangedListener to the list of listeners.
+   *
+   * @param listener the listener to be notified
+   */
+  void addContentChangedListener(IContentChangedListener listener);
+
+  /**
+   * Removes the passed IContentChangedListener from the list of listeners.
+   *
+   * @param listener the listener to remove
+   */
+  void removeContentChangedListener(IContentChangedListener listener);
 }

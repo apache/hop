@@ -47,6 +47,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -60,15 +61,12 @@ import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
-import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -159,11 +157,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   @Override
-  public List<IHopFileType> getSupportedHopFileTypes() {
-    return Collections.emptyList();
-  }
-
-  @Override
   public void initialize(HopGui hopGui, Composite parent) {
     this.hopGui = hopGui;
     this.locationMap = new HashMap<>();
@@ -171,12 +164,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     // Split tree and tab folder
     //
     sash = new SashForm(parent, SWT.HORIZONTAL);
-    FormData fdSash = new FormData();
-    fdSash.left = new FormAttachment(0, 0);
-    fdSash.top = new FormAttachment(0, 0);
-    fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(100, 0);
-    sash.setLayoutData(fdSash);
+    sash.setLayoutData(new FormDataBuilder().fullSize().result());
 
     createTree(sash);
     createTabFolder(sash);
@@ -191,6 +179,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       TreeMemory.getInstance().storeExpanded(EXECUTION_PERSPECTIVE_TREE, item, true);
     }
 
+    // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
 
@@ -304,7 +293,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
     viewers.add(viewer);
 
-    // Activate perspective
+    // Activate the perspective
     //
     this.activate();
 
@@ -352,16 +341,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     }
 
     return (IExecutionViewer) tabFolder.getSelection().getData();
-  }
-
-  @Override
-  public IHopFileTypeHandler getActiveFileTypeHandler() {
-    return new EmptyHopFileTypeHandler();
-  }
-
-  @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler fileTypeHandler) {
-    // Do Nothing
   }
 
   protected void onTabClose(CTabFolderEvent event) {
@@ -713,10 +692,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   @Override
-  public List<TabItemHandler> getItems() {
-    return Collections.emptyList();
-  }
-
   public void navigateToPreviousFile() {
     if (hasNavigationPreviousFile()) {
       int index = tabFolder.getSelectionIndex() - 1;
@@ -738,12 +713,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     }
   }
 
-  @Override
   public boolean hasNavigationPreviousFile() {
     return tabFolder.getItemCount() > 1;
   }
 
-  @Override
   public boolean hasNavigationNextFile() {
     return tabFolder.getItemCount() > 1;
   }

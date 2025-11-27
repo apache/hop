@@ -28,7 +28,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -37,8 +36,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
 /** This handles a text file in the file explorer perspective: open, save, ... */
-public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
-    implements IExplorerFileTypeHandler {
+public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
 
   private Text wText;
   boolean reloadListener = false;
@@ -74,7 +72,7 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     wText.addModifyListener(
         e -> {
           if (reloadListener) {
-            explorerFile.setChanged();
+            this.setChanged();
             perspective.updateGui();
           }
         });
@@ -88,6 +86,8 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       //
       String filename = explorerFile.getFilename();
 
+      boolean fileExist = HopVfs.fileExists(filename);
+
       // Save the file...
       //
       try (OutputStream outputStream = HopVfs.getOutputStream(filename, false)) {
@@ -95,9 +95,15 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
         outputStream.flush();
       }
 
-      explorerFile.clearChanged();
-      perspective.updateGui(); // Update menu options
-      perspective.refresh(); // refresh the explorer perspective tree
+      this.clearChanged();
+
+      // Update menu options
+      perspective.updateGui();
+
+      // If we create a new file, refresh the explorer perspective tree
+      if (!fileExist) {
+        perspective.refresh();
+      }
     } catch (Exception e) {
       throw new HopException("Unable to save file '" + explorerFile.getFilename() + "'", e);
     }

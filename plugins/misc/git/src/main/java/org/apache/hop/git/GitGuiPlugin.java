@@ -164,6 +164,12 @@ public class GitGuiPlugin
     enableButtons();
   }
 
+  @GuiMenuElement(
+      root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_GIT_COMMIT,
+      label = "i18n::GitGuiPlugin.Menu.Commit.Text",
+      image = "git-commit.svg")
   @GuiToolbarElement(
       root = ExplorerPerspective.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_COMMIT,
@@ -749,7 +755,7 @@ public class GitGuiPlugin
     boolean isGit = git != null;
     boolean isSelected = isGit && getSelectedFile() != null;
 
-    GuiToolbarWidgets toolBarWidgets = ExplorerPerspective.getToolBarWidgets();
+    GuiToolbarWidgets toolBarWidgets = ExplorerPerspective.getInstance().getToolBarWidgets();
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_GIT_INFO, isGit);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ADD, isSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_REVERT, isSelected);
@@ -838,9 +844,8 @@ public class GitGuiPlugin
     activeFile.setFileType(fileType);
     GitInfoExplorerFileTypeHandler fileTypeHandler =
         fileType.createFileTypeHandler(HopGui.getInstance(), explorerPerspective, activeFile);
-    activeFile.setFileTypeHandler(fileTypeHandler);
 
-    explorerPerspective.addFile(activeFile);
+    explorerPerspective.addFile(fileTypeHandler);
   }
 
   public UIGit getGit() {

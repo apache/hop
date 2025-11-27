@@ -22,10 +22,10 @@ import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
 public class HopGuiPipelineSearchable implements ISearchable<PipelineMeta> {
 
@@ -65,28 +65,27 @@ public class HopGuiPipelineSearchable implements ISearchable<PipelineMeta> {
   @Override
   public ISearchableCallback getSearchCallback() {
     return (searchable, searchResult) -> {
-      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      perspective.activate();
-
       HopGuiPipelineGraph pipelineGraph;
 
       // See if the same pipeline isn't already open.
       // Other file types we might allow to open more than once but not pipelines for now.
       //
-      TabItemHandler tabItemHandlerWithFilename =
-          perspective.findTabItemHandlerWithFilename(pipelineMeta.getFilename());
-      if (tabItemHandlerWithFilename != null) {
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      IHopFileTypeHandler fileTypeHandler =
+          perspective.findFileTypeHandlerByFilename(pipelineMeta.getFilename());
+      if (fileTypeHandler != null) {
         // Same file so we can simply switch to it.
         // This will prevent confusion.
         //
-        perspective.switchToTab(tabItemHandlerWithFilename);
-        pipelineGraph = (HopGuiPipelineGraph) tabItemHandlerWithFilename.getTypeHandler();
+        perspective.setActiveFileTypeHandler(fileTypeHandler);
+        pipelineGraph = (HopGuiPipelineGraph) fileTypeHandler;
       } else {
-        pipelineGraph =
-            (HopGuiPipelineGraph)
-                perspective.addPipeline(
-                    HopGui.getInstance(), pipelineMeta, perspective.getPipelineFileType());
+        pipelineGraph = (HopGuiPipelineGraph) perspective.addPipeline(pipelineMeta);
       }
+
+      // Switch to the perspective
+      //
+      perspective.activate();
 
       // Optionally select and open the matching transform component
       //

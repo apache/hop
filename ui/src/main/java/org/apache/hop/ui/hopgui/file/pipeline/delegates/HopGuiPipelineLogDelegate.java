@@ -158,8 +158,7 @@ public class HopGuiPipelineLogDelegate {
   public static HopGuiPipelineLogDelegate getInstance() {
     IHopFileTypeHandler fileTypeHandler = HopGui.getInstance().getActiveFileTypeHandler();
     if (fileTypeHandler instanceof HopGuiPipelineGraph hopGuiPipelineGraph) {
-      HopGuiPipelineGraph graph = hopGuiPipelineGraph;
-      return graph.pipelineLogDelegate;
+      return hopGuiPipelineGraph.pipelineLogDelegate;
     }
     return null;
   }

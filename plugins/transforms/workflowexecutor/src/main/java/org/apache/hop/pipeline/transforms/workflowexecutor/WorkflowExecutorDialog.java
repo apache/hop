@@ -133,7 +133,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
   private final int margin = PropsUi.getMargin();
 
   private HopWorkflowFileType<WorkflowMeta> fileType =
-      HopGui.getDataOrchestrationPerspective().getWorkflowFileType();
+      HopGui.getExplorerPerspective().getWorkflowFileType();
 
   public WorkflowExecutorDialog(
       Shell parent,

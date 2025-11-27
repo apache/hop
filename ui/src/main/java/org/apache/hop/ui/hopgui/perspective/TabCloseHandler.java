@@ -18,7 +18,7 @@
 package org.apache.hop.ui.hopgui.perspective;
 
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.MenuItem;
 
 public class TabCloseHandler {
 
-  private static final Class<?> PKG = HopDataOrchestrationPerspective.class;
+  private static final Class<?> PKG = HopGui.class;
 
   CTabFolder tabFolder;
   CTabItem selectedItem;
@@ -44,13 +44,12 @@ public class TabCloseHandler {
 
     // Create menu item
     MenuItem miClose = new MenuItem(menu, SWT.NONE);
-    miClose.setText(BaseMessages.getString(PKG, "DataOrchestrationPerspective.Close.Button.Text"));
+    miClose.setText(BaseMessages.getString(PKG, "HopGui.TabItem.Close.Text"));
     miClose.addListener(
         SWT.Selection, event -> tabClosablePerspective.closeTab(null, selectedItem));
 
     MenuItem miCloseOthers = new MenuItem(menu, SWT.NONE);
-    miCloseOthers.setText(
-        BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
+    miCloseOthers.setText(BaseMessages.getString(PKG, "HopGui.TabItem.CloseOther.Text"));
     miCloseOthers.addListener(
         SWT.Selection,
         event ->
@@ -59,8 +58,7 @@ public class TabCloseHandler {
                 .forEach(tabItem -> tabClosablePerspective.closeTab(null, tabItem)));
 
     MenuItem miCloseAll = new MenuItem(menu, SWT.NONE);
-    miCloseAll.setText(
-        BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseAll.Button.Text"));
+    miCloseAll.setText(BaseMessages.getString(PKG, "HopGui.TabItem.CloseAll.Text"));
     miCloseAll.addListener(
         SWT.Selection,
         event -> {
@@ -70,8 +68,7 @@ public class TabCloseHandler {
         });
 
     MenuItem miCloseLeft = new MenuItem(menu, SWT.NONE);
-    miCloseLeft.setText(
-        BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseLeft.Button.Text"));
+    miCloseLeft.setText(BaseMessages.getString(PKG, "HopGui.TabItem.CloseLeft.Text"));
     miCloseLeft.addListener(
         SWT.Selection,
         event ->
@@ -80,8 +77,7 @@ public class TabCloseHandler {
                 .forEach(tabItem -> tabClosablePerspective.closeTab(null, tabItem)));
 
     MenuItem miCloseRight = new MenuItem(menu, SWT.NONE);
-    miCloseRight.setText(
-        BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseRight.Button.Text"));
+    miCloseRight.setText(BaseMessages.getString(PKG, "HopGui.TabItem.CloseRight.Text"));
     miCloseRight.addListener(
         SWT.Selection,
         event ->
