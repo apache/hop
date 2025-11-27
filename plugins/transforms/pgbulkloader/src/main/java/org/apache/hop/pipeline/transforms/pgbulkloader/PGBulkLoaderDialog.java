@@ -813,14 +813,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
   private void create() {
     try {
       PGBulkLoaderMeta info = new PGBulkLoaderMeta();
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+      info.setMappings(new ArrayList<>());
       getInfo(info);
 
       String name = transformName; // new name might not yet be linked to other transforms!
-      TransformMeta transformMeta =
-          new TransformMeta(
-              BaseMessages.getString(PKG, "PGBulkLoaderDialog.TransformMeta.Title"), name, info);
+      TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+
       IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
-      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
 
       SqlStatement sql =
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);

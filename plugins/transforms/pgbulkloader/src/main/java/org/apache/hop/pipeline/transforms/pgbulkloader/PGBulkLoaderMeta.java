@@ -336,8 +336,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
       IRowMeta prev,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    DatabaseMeta databaseMeta =
-        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
 
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
