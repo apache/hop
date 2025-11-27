@@ -4110,13 +4110,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                     preparePipeline(parentThread);
                   });
 
-          log.logBasic(BaseMessages.getString(PKG, "PipelineLog.Log.StartedExecutionOfPipeline"));
+          log.logBasic(
+              BaseMessages.getString(
+                  PKG, "PipelineLog.Log.StartedExecutionOfPipeline", pipelineMeta.getName()));
 
           updateGui();
 
           // Update the GUI at the end of the pipeline
           //
           pipeline.addExecutionFinishedListener(e -> pipelineFinished());
+          pipeline.addExecutionStoppedListener(e -> pipelineStopped());
         }
       } else {
         modalMessageDialog(
@@ -4142,6 +4145,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           e);
     }
 
+    updateGui();
+  }
+
+  private void pipelineStopped() {
+    log.logBasic(
+        BaseMessages.getString(
+            PKG, "PipelineLog.Log.ProcessingOfPipelineStopped", pipelineMeta.getName()));
     updateGui();
   }
 
@@ -4448,7 +4458,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if ((isRunning() && !halting)) {
       halting = true;
       pipeline.stopAll();
-      log.logBasic(BaseMessages.getString(PKG, "PipelineLog.Log.ProcessingOfPipelineStopped"));
 
       halted = false;
       halting = false;
@@ -4581,8 +4590,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void checkPipelineEnded() {
-    if (pipeline != null && (pipeline.isFinished() && (isRunning() || halted))) {
-      log.logBasic(BaseMessages.getString(PKG, "PipelineLog.Log.PipelineHasFinished"));
+    if (pipeline != null && (pipeline.isFinished() && (!isRunning() || halted))) {
+      log.logBasic(
+          BaseMessages.getString(
+              PKG, "PipelineLog.Log.PipelineHasFinished", pipelineMeta.getName()));
 
       initialized = false;
       halted = false;
