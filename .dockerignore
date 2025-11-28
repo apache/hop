@@ -1,7 +1,7 @@
 # Ignore everything
 *
 
-# Allow files and directories
+# Allow files and directories needed for OLD Dockerfiles (pre-built artifacts)
 !/assemblies/client/target/hop-*
 !/assemblies/client/target/hop
 !/integration-tests/scripts
@@ -10,3 +10,26 @@
 !/docker
 !/rest
 !google-key-apache-hop-it.json
+
+# Allow source files needed for NEW unified Dockerfile (maven build in Docker)
+!pom.xml
+!/*/pom.xml
+!/*/*/pom.xml
+!/*/*/*/pom.xml
+!/src
+!/*/src
+!/*/*/src
+!/*/*/*/src
+!/core
+!/engine
+!/engine-beam
+!/plugins
+!/assemblies
+!/ui
+!/rap
+!/rcp
+!/lib
+!/lib-jdbc
+!/.mvn
+!mvnw
+!mvnw.cmd

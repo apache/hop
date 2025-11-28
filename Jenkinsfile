@@ -159,9 +159,9 @@ pipeline {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
                     sh "docker buildx create --name hop --use"
                     //Base docker image
-                    sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t ${DOCKER_REPO_WEB}:${env.POM_VERSION} -t ${DOCKER_REPO_WEB}:Development --push"
+                    sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/web.Dockerfile -t ${DOCKER_REPO_WEB}:${env.POM_VERSION} -t ${DOCKER_REPO_WEB}:Development --push"
                     //Image including fat-jar
-                    sh "docker buildx build  --build-arg HOP_WEB_VERSION=Development --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web-fatjar -t ${DOCKER_REPO_WEB}:${env.POM_VERSION}-beam -t ${DOCKER_REPO_WEB}:Development-beam --push"
+                    sh "docker buildx build  --build-arg HOP_WEB_VERSION=Development --platform linux/amd64,linux/arm64 . -f docker/web-fatjar.Dockerfile -t ${DOCKER_REPO_WEB}:${env.POM_VERSION}-beam -t ${DOCKER_REPO_WEB}:Development-beam --push"
                     sh "docker buildx rm hop"
                   }
             }
@@ -177,7 +177,7 @@ pipeline {
                 withDockerRegistry([ credentialsId: "dockerhub-hop", url: "" ]) {
                     //TODO We may never create final/latest version using CI/CD as we need to follow manual apache release process with signing
                     sh "docker buildx create --name hop --use"
-                    sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.dataflowTemplate -t ${DOCKER_REPO_DATAFLOWTEMPLATE}:${env.POM_VERSION} -t ${DOCKER_REPO_DATAFLOWTEMPLATE}:Development --push"
+                    sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/dataflowTemplate.Dockerfile -t ${DOCKER_REPO_DATAFLOWTEMPLATE}:${env.POM_VERSION} -t ${DOCKER_REPO_DATAFLOWTEMPLATE}:Development --push"
                     sh "docker buildx rm hop"
                   }
             }
