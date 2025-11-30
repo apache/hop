@@ -257,17 +257,6 @@ public abstract class DragViewZoomBase extends Composite {
    * @return
    */
   protected boolean setupDragView(int button, boolean control, Point screenClick) {
-    // See if this is a click on the navigation view inner rectangle with the goal of dragging it
-    // around a bit.
-    //
-    if (viewPort != null && viewPort.contains(screenClick)) {
-      viewPortNavigation = true;
-      viewPortStart = new Point(screenClick);
-      viewDragBaseOffset = new DPoint(offset);
-      setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
-      return true;
-    }
-
     // Middle button
     // CTRL + left button
     //
@@ -275,6 +264,23 @@ public abstract class DragViewZoomBase extends Composite {
     if (viewDrag) {
       viewDragStart = screenClick;
       viewDragBaseOffset = new DPoint(offset);
+      // Change cursor when dragging view
+      setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * See if this is a click on the navigation view inner rectangle with the goal of dragging it
+   * around a bit.
+   */
+  protected boolean setupDragViewPort(Point screenClick) {
+    if (viewPort != null && viewPort.contains(screenClick)) {
+      viewPortNavigation = true;
+      viewPortStart = new Point(screenClick);
+      viewDragBaseOffset = new DPoint(offset);
+      // Change cursor when dragging view port
       setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
       return true;
     }
