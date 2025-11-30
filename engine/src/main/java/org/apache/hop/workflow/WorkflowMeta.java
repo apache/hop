@@ -1278,9 +1278,9 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Gets the selected locations.
+   * Gets the selected actions locations.
    *
-   * @return the selected locations
+   * @return the selected actions locations
    */
   public Point[] getSelectedLocations() {
     List<ActionMeta> actions = getSelectedActions();
@@ -1294,9 +1294,9 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Get all the selected note locations
+   * Get all the selected notes locations
    *
-   * @return The selected transform and notes locations.
+   * @return The selected notes locations.
    */
   public Point[] getSelectedNoteLocations() {
     List<Point> points = new ArrayList<>();

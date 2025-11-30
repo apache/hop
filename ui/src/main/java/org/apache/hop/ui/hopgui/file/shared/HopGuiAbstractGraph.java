@@ -20,6 +20,8 @@ package org.apache.hop.ui.hopgui.file.shared;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Getter;
+import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
@@ -29,14 +31,13 @@ import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IGraphSnapAlignDistribute;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -52,24 +53,19 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   public static final String STATE_MAGNIFICATION = "magnification";
   public static final String STATE_SCROLL_X_SELECTION = "offset-x";
   public static final String STATE_SCROLL_Y_SELECTION = "offset-y";
-
-  protected HopGui hopGui;
-
-  protected IVariables variables;
-
-  protected Composite parentComposite;
-
-  protected Point iconOffset;
-  protected Point noteOffset;
-
-  private boolean changedState;
-  private final Font defaultFont;
-
   protected final String id;
 
+  protected HopGui hopGui;
+  protected IVariables variables;
+  protected Composite parentComposite;
+  protected Point iconOffset;
+  protected Point noteOffset;
+  protected Rectangle resizeArea;
+  protected Resize resize;
   protected ToolTip toolTip;
-
   protected String mouseOverName;
+
+  private boolean changedState;
 
   /**
    * This is a state map which can be used by plugins to render extra states on top of pipelines and
@@ -83,7 +79,6 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     this.hopGui = hopGui;
     this.variables = new Variables();
     this.variables.copyFrom(hopGui.getVariables());
-    this.defaultFont = GuiResource.getInstance().getFontDefault();
     this.changedState = false;
     this.id = UUID.randomUUID().toString();
     this.stateMap = new HashMap<>();
@@ -201,6 +196,162 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   public void distributeVertical() {
     createSnapAlignDistribute().distributevertical();
     setChanged();
+  }
+
+  /**
+   * Evaluates whether the point is near any of the edges or corners of the rectangle and returns
+   * the corresponding resize direction.
+   *
+   * @param rectangle the rectangle to check against
+   * @param point the point whose position is evaluated
+   * @return the resize direction as {@link Resize} enum; returns null if the point does not
+   *     correspond with any resize region
+   */
+  public Resize getResize(Rectangle rectangle, Point point) {
+    // West border
+    if (point.x <= rectangle.x + 4) {
+      if (point.y <= rectangle.y + 4) return Resize.NORTH_WEST;
+      if (point.y >= rectangle.y + rectangle.height - 4) return Resize.SOUTH_WEST;
+      return Resize.WEST;
+    }
+
+    // East border
+    if (point.x >= rectangle.x + rectangle.width - 4) {
+      if (point.y <= rectangle.y + 4) return Resize.NORTH_EAST;
+      if (point.y >= rectangle.y + rectangle.height - 4) return Resize.SOUTH_EAST;
+      return Resize.EAST;
+    }
+
+    // North
+    if (point.y <= rectangle.y + 4) {
+      return Resize.NORTH;
+    }
+    if (point.y >= rectangle.y + rectangle.height - 4) {
+      return Resize.SOUTH;
+    }
+    return null;
+  }
+
+  /**
+   * Resizes the given {@link NotePadMeta} based on the original area, the specified resize
+   * direction and real mouse position.
+   *
+   * @param noteMeta the metadata of the note to be resized
+   * @param real the current position of the mouse used for calculating the resize dimensions
+   */
+  protected void resizeNote(NotePadMeta noteMeta, Point real) {
+    switch (resize) {
+      case EAST -> {
+        int width = real.x - resizeArea.x;
+        if (width < noteMeta.getMinimumWidth()) {
+          width = noteMeta.getMinimumWidth();
+        }
+        PropsUi.setSize(noteMeta, width, resizeArea.height);
+      }
+      case NORTH -> {
+        int y = real.y;
+        if (y < 0) {
+          y = 0;
+        }
+        if (y > resizeArea.y + resizeArea.height - noteMeta.getMinimumHeight()) {
+          y = resizeArea.y + resizeArea.height - noteMeta.getMinimumHeight();
+        }
+        PropsUi.setLocation(noteMeta, resizeArea.x, y);
+        PropsUi.setSize(
+            noteMeta,
+            resizeArea.width,
+            resizeArea.y + resizeArea.height - noteMeta.getLocation().y);
+      }
+      case NORTH_EAST -> {
+        int x = real.x;
+        if (x < 0) {
+          x = 0;
+        }
+        int width = real.x - resizeArea.x;
+        if (width < noteMeta.getMinimumWidth()) {
+          width = noteMeta.getMinimumWidth();
+        }
+        int y = real.y;
+        if (y < 0) {
+          y = 0;
+        }
+        if (y > resizeArea.y + resizeArea.height - noteMeta.getMinimumHeight()) {
+          y = resizeArea.y + resizeArea.height - noteMeta.getMinimumHeight();
+        }
+        PropsUi.setLocation(noteMeta, resizeArea.x, y);
+        PropsUi.setSize(
+            noteMeta, width, resizeArea.y + resizeArea.height - noteMeta.getLocation().y);
+      }
+      case NORTH_WEST -> {
+        int x = real.x;
+        if (x < 0) {
+          x = 0;
+        }
+        if (x > resizeArea.x + resizeArea.width - noteMeta.getMinimumWidth()) {
+          x = resizeArea.x + resizeArea.width - noteMeta.getMinimumWidth();
+        }
+        int y = real.y;
+        if (y < 0) {
+          y = 0;
+        }
+        if (y > resizeArea.y + resizeArea.height - noteMeta.getMinimumHeight()) {
+          y = resizeArea.y + resizeArea.height - noteMeta.getMinimumHeight();
+        }
+        PropsUi.setLocation(noteMeta, x, y);
+        PropsUi.setSize(
+            noteMeta,
+            resizeArea.x + resizeArea.width - noteMeta.getLocation().x,
+            resizeArea.height + resizeArea.y - noteMeta.getLocation().y);
+      }
+      case SOUTH -> {
+        int height = real.y - resizeArea.y;
+        if (height < noteMeta.getMinimumHeight()) {
+          height = noteMeta.getMinimumHeight();
+        }
+        PropsUi.setSize(noteMeta, resizeArea.width, height);
+      }
+      case SOUTH_EAST -> {
+        int width = real.x - resizeArea.x;
+        if (width < noteMeta.getMinimumWidth()) {
+          width = noteMeta.getMinimumWidth();
+        }
+        int height = real.y - resizeArea.y;
+        if (height < noteMeta.getMinimumHeight()) {
+          height = noteMeta.getMinimumHeight();
+        }
+        PropsUi.setSize(noteMeta, width, height);
+      }
+      case SOUTH_WEST -> {
+        int x = real.x;
+        if (x < 0) {
+          x = 0;
+        }
+        if (x > resizeArea.x + resizeArea.width - noteMeta.getMinimumWidth()) {
+          x = resizeArea.x + resizeArea.width - noteMeta.getMinimumWidth();
+        }
+        int height = real.y - resizeArea.y;
+        if (height < noteMeta.getMinimumHeight()) {
+          height = noteMeta.getMinimumHeight();
+        }
+        PropsUi.setLocation(noteMeta, x, resizeArea.y);
+        PropsUi.setSize(
+            noteMeta, resizeArea.x + resizeArea.width - noteMeta.getLocation().x, height);
+      }
+      case WEST -> {
+        int x = real.x;
+        if (x < 0) {
+          x = 0;
+        }
+        if (x > resizeArea.x + resizeArea.width - noteMeta.getMinimumWidth()) {
+          x = resizeArea.x + resizeArea.width - noteMeta.getMinimumWidth();
+        }
+        PropsUi.setLocation(noteMeta, x, resizeArea.y);
+        PropsUi.setSize(
+            noteMeta,
+            resizeArea.x + resizeArea.width - noteMeta.getLocation().x,
+            resizeArea.height);
+      }
+    }
   }
 
   /**
@@ -345,5 +496,22 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
    */
   public void setMouseOverName(String mouseOverName) {
     this.mouseOverName = mouseOverName;
+  }
+
+  public enum Resize {
+    EAST(SWT.CURSOR_SIZEW),
+    NORTH(SWT.CURSOR_SIZENS),
+    NORTH_EAST(SWT.CURSOR_SIZENESW),
+    NORTH_WEST(SWT.CURSOR_SIZENW),
+    SOUTH(SWT.CURSOR_SIZENS),
+    SOUTH_EAST(SWT.CURSOR_SIZENW),
+    SOUTH_WEST(SWT.CURSOR_SIZENESW),
+    WEST(SWT.CURSOR_SIZEW);
+
+    @Getter private final int cursor;
+
+    Resize(int cursor) {
+      this.cursor = cursor;
+    }
   }
 }
