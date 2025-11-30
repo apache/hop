@@ -45,7 +45,7 @@ public class GuiContextUtil {
     PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance(GuiContextUtil.class);
   }
 
-  public static final GuiContextUtil getInstance() {
+  public static GuiContextUtil getInstance() {
     return (GuiContextUtil) PROVIDER.getInstanceInternal();
   }
 
@@ -158,12 +158,6 @@ public class GuiContextUtil {
           }
           shellDialogMap.remove(parent.getText());
           return true;
-        }
-
-        List<String> fileTypes = new ArrayList<>();
-        for (GuiAction action : actions) {
-          fileTypes.add(
-              action.getType().name() + " - " + action.getName() + " : " + action.getTooltip());
         }
 
         contextDialog =
