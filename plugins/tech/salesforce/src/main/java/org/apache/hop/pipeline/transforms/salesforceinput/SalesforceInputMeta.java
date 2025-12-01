@@ -60,61 +60,101 @@ public class SalesforceInputMeta
   private static final Class<?> PKG = SalesforceInputMeta.class;
 
   /** Flag indicating that we should include the generated SQL in the output */
-  @HopMetadataProperty(key = "include_sql", injectionKey = "INCLUDE_SQL_IN_OUTPUT")
+  @HopMetadataProperty(
+      key = "include_sql",
+      injectionKey = "INCLUDE_SQL_IN_OUTPUT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.INCLUDE_SQL_IN_OUTPUT")
   private boolean includeSQL;
 
   /** The name of the field in the output containing the generated SQL */
-  @HopMetadataProperty(key = "sql_field", injectionKey = "SQL_FIELDNAME")
+  @HopMetadataProperty(
+      key = "sql_field",
+      injectionKey = "SQL_FIELDNAME",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.SQL_FIELDNAME")
   private String sqlField;
 
   /** Flag indicating that we should include the server Timestamp in the output */
-  @HopMetadataProperty(key = "include_Timestamp", injectionKey = "INCLUDE_TIMESTAMP_IN_OUTPUT")
+  @HopMetadataProperty(
+      key = "include_Timestamp",
+      injectionKey = "INCLUDE_TIMESTAMP_IN_OUTPUT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.INCLUDE_TIMESTAMP_IN_OUTPUT")
   private boolean includeTimestamp;
 
   /** The name of the field in the output containing the server Timestamp */
-  @HopMetadataProperty(key = "timstamp_field", injectionKey = "TIMESTAMP_FIELDNAME")
+  @HopMetadataProperty(
+      key = "timstamp_field",
+      injectionKey = "TIMESTAMP_FIELDNAME",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.TIMESTAMP_FIELDNAME")
   private String timestampField;
 
   /** Flag indicating that we should include the filename in the output */
-  @HopMetadataProperty(key = "include_targeturl", injectionKey = "INCLUDE_URL_IN_OUTPUT")
+  @HopMetadataProperty(
+      key = "include_targeturl",
+      injectionKey = "INCLUDE_URL_IN_OUTPUT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.INCLUDE_URL_IN_OUTPUT")
   private boolean includeTargetURL;
 
   /** The name of the field in the output containing the filename */
-  @HopMetadataProperty(key = "targeturl_field", injectionKey = "URL_FIELDNAME")
+  @HopMetadataProperty(
+      key = "targeturl_field",
+      injectionKey = "URL_FIELDNAME",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.URL_FIELDNAME")
   private String targetURLField;
 
   /** Flag indicating that we should include the module in the output */
-  @HopMetadataProperty(key = "include_module", injectionKey = "INCLUDE_MODULE_IN_OUTPUT")
+  @HopMetadataProperty(
+      key = "include_module",
+      injectionKey = "INCLUDE_MODULE_IN_OUTPUT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.INCLUDE_MODULE_IN_OUTPUT")
   private boolean includeModule;
 
   /** The name of the field in the output containing the module */
-  @HopMetadataProperty(key = "module_field", injectionKey = "MODULE_FIELDNAME")
+  @HopMetadataProperty(
+      key = "module_field",
+      injectionKey = "MODULE_FIELDNAME",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.MODULE_FIELDNAME")
   private String moduleField;
 
   /** Flag indicating that a deletion date field should be included in the output */
   @HopMetadataProperty(
       key = "include_deletion_date",
-      injectionKey = "INCLUDE_DELETION_DATE_IN_OUTPUT")
+      injectionKey = "INCLUDE_DELETION_DATE_IN_OUTPUT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.INCLUDE_DELETION_DATE_IN_OUTPUT")
   private boolean includeDeletionDate;
 
   /** The name of the field in the output containing the deletion Date */
-  @HopMetadataProperty(key = "deletion_date_field", injectionKey = "DELETION_DATE_FIELDNAME")
+  @HopMetadataProperty(
+      key = "deletion_date_field",
+      injectionKey = "DELETION_DATE_FIELDNAME",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.DELETION_DATE_FIELDNAME")
   private String deletionDateField;
 
   /** Flag indicating that a row number field should be included in the output */
-  @HopMetadataProperty(key = "include_rownum", injectionKey = "INCLUDE_ROWNUM_IN_OUTPUT")
+  @HopMetadataProperty(
+      key = "include_rownum",
+      injectionKey = "INCLUDE_ROWNUM_IN_OUTPUT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.INCLUDE_ROWNUM_IN_OUTPUT")
   private boolean includeRowNumber;
 
   /** The name of the field in the output containing the row number */
-  @HopMetadataProperty(key = "rownum_field", injectionKey = "ROWNUM_FIELDNAME")
+  @HopMetadataProperty(
+      key = "rownum_field",
+      injectionKey = "ROWNUM_FIELDNAME",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.ROWNUM_FIELDNAME")
   private String rowNumberField;
 
   /** The condition */
-  @HopMetadataProperty(key = "condition", injectionKey = "QUERY_CONDITION")
+  @HopMetadataProperty(
+      key = "condition",
+      injectionKey = "QUERY_CONDITION",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.QUERY_CONDITION")
   private String condition;
 
   /** The maximum number or lines to read */
-  @HopMetadataProperty(key = "limit", injectionKey = "LIMIT")
+  @HopMetadataProperty(
+      key = "limit",
+      injectionKey = "LIMIT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.LIMIT")
   private String rowLimit;
 
   /** The fields to return... */
@@ -122,23 +162,37 @@ public class SalesforceInputMeta
       key = "field",
       groupKey = "fields",
       injectionKey = "FIELD",
-      injectionGroupKey = "FIELDS")
+      injectionKeyDescription = "SalesforceInputMeta.Injection.FIELD",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "SalesforceInputMeta.Injection.FIELDS")
   private List<SalesforceInputField> fields;
 
   /** option: specify query */
-  @HopMetadataProperty(key = "specifyQuery", injectionKey = "USE_SPECIFIED_QUERY")
+  @HopMetadataProperty(
+      key = "specifyQuery",
+      injectionKey = "USE_SPECIFIED_QUERY",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.USE_SPECIFIED_QUERY")
   private boolean specifyQuery;
 
   // ** query entered by user **/
-  @HopMetadataProperty(key = "query", injectionKey = "SPECIFY_QUERY")
+  @HopMetadataProperty(
+      key = "query",
+      injectionKey = "SPECIFY_QUERY",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.SPECIFY_QUERY")
   private String query;
 
   private int nrFields;
 
-  @HopMetadataProperty(key = "read_to", injectionKey = "END_DATE")
+  @HopMetadataProperty(
+      key = "read_to",
+      injectionKey = "END_DATE",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.END_DATE")
   private String readTo;
 
-  @HopMetadataProperty(key = "read_from", injectionKey = "START_DATE")
+  @HopMetadataProperty(
+      key = "read_from",
+      injectionKey = "START_DATE",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.START_DATE")
   private String readFrom;
 
   private int recordsFilterCode;
@@ -148,11 +202,17 @@ public class SalesforceInputMeta
   private String recordsFilter;
 
   /** Use Salesforce Field API Names instead of Labels for output fields */
-  @HopMetadataProperty(key = "use_field_api_names", injectionKey = "USE_FIELD_API_NAMES")
+  @HopMetadataProperty(
+      key = "use_field_api_names",
+      injectionKey = "USE_FIELD_API_NAMES",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.USE_FIELD_API_NAMES")
   private boolean useFieldApiNames;
 
   /** Query all records including deleted ones */
-  @HopMetadataProperty(key = "queryAll", injectionKey = "QUERY_ALL")
+  @HopMetadataProperty(
+      key = "queryAll",
+      injectionKey = "QUERY_ALL",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.QUERY_ALL")
   private boolean queryAll;
 
   public SalesforceInputMeta() {
