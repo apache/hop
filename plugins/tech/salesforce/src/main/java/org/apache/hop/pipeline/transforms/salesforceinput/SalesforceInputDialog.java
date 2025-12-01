@@ -1905,7 +1905,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       field.setIdLookup(
           BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(3)));
       field.setType(item.getText(4));
-      //      field.setTypeCode(ValueMetaFactory.getIdForValueMeta(item.getText(4)));
       field.setFormat(item.getText(5));
       field.setLength(Const.toInt(item.getText(6), -1));
       field.setPrecision(Const.toInt(item.getText(7), -1));
