@@ -47,7 +47,7 @@ public class PipelineDebugMeta {
   private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
 
   /** Flag indicating whether the preview data has already been shown. */
-  private boolean dataShown = false;
+  private boolean stopClosePressed = false;
 
   public PipelineDebugMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
@@ -58,7 +58,6 @@ public class PipelineDebugMeta {
 
     // for every transform in the map, add a row listener...
     //
-    dataShown = false;
     for (final TransformMeta transformMeta : transformDebugMetaMap.keySet()) {
       final TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get(transformMeta);
 
@@ -100,7 +99,6 @@ public class PipelineDebugMeta {
                           // Also call the pause / break-point listeners on the transform
                           // debugger...
                           //
-                          dataShown = true;
                           transformDebugMeta.setRowBufferMeta(rowMeta);
                           transformDebugMeta.getRowBuffer().add(rowMeta.cloneRow(row));
                           transformDebugMeta.fireBreakPointListeners(PipelineDebugMeta.this);
@@ -166,7 +164,7 @@ public class PipelineDebugMeta {
           p -> {
             // If the preview data has already been displayed, skip firing the break-point listeners
             // to avoid showing the preview dialog multiple times.
-            if (dataShown) {
+            if (stopClosePressed) {
               return;
             }
 

@@ -103,8 +103,8 @@ class PipelineDebugMetaTests {
     transformDebugMeta.fireBreakPointListeners(pipelineDebugMeta);
 
     // second call, should not trigger due to dataShown
-    pipelineDebugMeta.setDataShown(true);
-    if (!pipelineDebugMeta.isDataShown()) {
+    pipelineDebugMeta.setStopClosePressed(true);
+    if (!pipelineDebugMeta.isStopClosePressed()) {
       transformDebugMeta.fireBreakPointListeners(pipelineDebugMeta);
     }
 
