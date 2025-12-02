@@ -251,7 +251,17 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
   private String sizeFieldName;
 
   public GetXmlDataMeta() {
-    super(); // allocate BaseTransformMeta
+    // allocate BaseTransformMeta
+    super();
+
+    // init files, inputFields list
+    if (this.filesList == null) {
+      this.filesList = new ArrayList<>();
+    }
+
+    if (this.inputFields == null) {
+      this.inputFields = new ArrayList<>();
+    }
   }
 
   public String getRequiredFilesDesc(String tt) {
@@ -302,8 +312,14 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
     validating = false;
     loopXPath = "";
 
-    filesList = new ArrayList<>();
-    inputFields = new ArrayList<>();
+    // init files, inputFields list
+    if (this.filesList == null) {
+      this.filesList = new ArrayList<>();
+    }
+
+    if (this.inputFields == null) {
+      this.inputFields = new ArrayList<>();
+    }
 
     rowLimit = 0;
 
