@@ -126,7 +126,8 @@ public class HelpUtils {
     }
 
     // campaign: hop gui, source: hop version
-    String utmCampaign = "hopgui";
+    String utmCampaign;
+    utmCampaign = EnvironmentUtils.getInstance().isWeb() ? "HopWeb" : "hopGui";
     String utmSource = HopEnvironment.class.getPackage().getImplementationVersion();
     String utmParams = "mtm_campaign=" + encode(utmCampaign) + "&mtm_source=" + encode(utmSource);
 
