@@ -4423,6 +4423,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               if (previewRowsDialog.isAskingToStop()) {
                 // Stop running
                 //
+                pipelineDebugMeta.setStopClosePressed(true);
                 stop();
               }
             });

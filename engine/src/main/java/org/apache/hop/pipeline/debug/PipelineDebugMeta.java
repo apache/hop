@@ -46,6 +46,9 @@ public class PipelineDebugMeta {
   private PipelineMeta pipelineMeta;
   private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
 
+  /** Flag indicating whether the preview data has already been shown. */
+  private boolean stopClosePressed = false;
+
   public PipelineDebugMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
     transformDebugMetaMap = new HashMap<>();
@@ -159,6 +162,12 @@ public class PipelineDebugMeta {
     try {
       pipeline.addExecutionFinishedListener(
           p -> {
+            // If the preview data has already been displayed, skip firing the break-point listeners
+            // to avoid showing the preview dialog multiple times.
+            if (stopClosePressed) {
+              return;
+            }
+
             for (TransformMeta transformMeta : transformDebugMetaMap.keySet()) {
               TransformDebugMeta transformDebugMeta = transformDebugMetaMap.get(transformMeta);
               if (transformDebugMeta != null) {
@@ -204,11 +213,10 @@ public class PipelineDebugMeta {
     int nr = 0;
 
     for (TransformDebugMeta transformDebugMeta : transformDebugMetaMap.values()) {
-      if (transformDebugMeta.isReadingFirstRows() && transformDebugMeta.getRowCount() > 0) {
-        nr++;
-      } else if (transformDebugMeta.isPausingOnBreakPoint()
-          && transformDebugMeta.getCondition() != null
-          && !transformDebugMeta.getCondition().isEmpty()) {
+      if ((transformDebugMeta.isReadingFirstRows() && transformDebugMeta.getRowCount() > 0)
+          || (transformDebugMeta.isPausingOnBreakPoint()
+              && transformDebugMeta.getCondition() != null
+              && !transformDebugMeta.getCondition().isEmpty())) {
         nr++;
       }
     }
