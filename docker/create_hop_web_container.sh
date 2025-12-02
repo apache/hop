@@ -42,7 +42,7 @@ cp ../rap/target/hop-*SNAPSHOT.jar ../assemblies/web/target/webapp/WEB-INF/lib/
 cp ../plugins/engines/beam/target/hop-plugins*.jar ../assemblies/plugins/dist/target/plugins/engines/beam/
 
 #build docker image
-docker build ../ -f Dockerfile.web -t hop-web
+docker build ../ -f web.Dockerfile -t hop-web
 
 #cleanup
 rm -rf ../assemblies/web/target/webapp

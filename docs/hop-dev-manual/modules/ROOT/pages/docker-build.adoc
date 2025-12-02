@@ -1,0 +1,498 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: The Apache Hop Docker Build Script provides a unified way to build all Hop container images using multi-stage Docker builds.
+
+[[docker-build]]
+= Docker Build Script
+
+The Apache Hop project provides a unified build script (`build-hop-images.sh`) that can build all Apache Hop Docker images using a multi-stage build approach. This script supports building from local source or from a GitHub tag, with options for multi-platform builds and registry pushing.
+
+== Overview
+
+The build script creates the following Docker images:
+
+* **hop** (client) - The main Apache Hop client/server image based on Alpine Linux
+* **hop-web** - Apache Hop Web interface running on Tomcat
+* **hop-web-beam** - Hop Web variant with Apache Beam fat jar for Google Cloud Dataflow integration
+* **hop-dataflow-template** - Google Cloud Dataflow Flex Template image
+
+== Build Architecture
+
+The build process uses a unified multi-stage Dockerfile that shares common build stages across all images, reducing build time and ensuring consistency.
+
+[mermaid]
+....
+flowchart TB
+    subgraph Source["Stage 1: Source Preparation"]
+        SG[source-github<br/>Clone from GitHub]
+        SL[Local Source<br/>From build context]
+    end
+
+    subgraph Builder["Stage 2: Builder"]
+        BF[builder-full<br/>Maven build from source]
+        BFast[builder-fast<br/>Pre-built artifacts]
+    end
+
+    subgraph Prep["Stage 3: Preparation"]
+        BP[builder<br/>Extract & prepare artifacts<br/>Generate fat jar]
+    end
+
+    subgraph Final["Stage 4: Final Images"]
+        IC["client<br/>Alpine + JRE<br/>&lt;registry&gt;/hop:&lt;version&gt;"]
+        IW["web<br/>Tomcat<br/>&lt;registry&gt;/hop-web:&lt;version&gt;"]
+        IWB["web-beam<br/>Tomcat + fat jar<br/>&lt;registry&gt;/hop-web:&lt;version&gt;-beam"]
+        ID["dataflow<br/>GCP Dataflow base<br/>&lt;registry&gt;/hop-dataflow-template:&lt;version&gt;"]
+    end
+
+    SG --> BF
+    SL --> BFast
+    BF --> BP
+    BFast --> BP
+    BP --> IC
+    BP --> IW
+    BP --> ID
+    IW --> IWB
+
+    style SG fill:#e1f5fe
+    style SL fill:#e1f5fe
+    style BF fill:#fff3e0
+    style BFast fill:#fff3e0
+    style BP fill:#f3e5f5
+    style IC fill:#e8f5e9
+    style IW fill:#e8f5e9
+    style IWB fill:#c8e6c9
+    style ID fill:#e8f5e9
+....
+
+== Prerequisites
+
+Before using the build script, ensure you have:
+
+* **Docker** - Version 20.10 or higher
+* **Docker Buildx** - Required only for multi-platform builds (usually included with Docker Desktop)
+* **Maven** - Only if building locally before using `--builder fast`
+
+== Command Line Arguments
+
+The build script supports the following arguments:
+
+[cols="2,1,3,2", options="header"]
+|===
+|Argument |Short |Description |Default
+
+|`--source <type>`
+|`-s`
+|Build from `local` source or `github`
+|`local`
+
+|`--tag <tag>`
+|`-t`
+|Git tag or branch to build from (when using `--source github`)
+|`main`
+
+|`--repo <url>`
+|`-r`
+|GitHub repository URL
+|`https://github.com/apache/hop.git`
+
+|`--images <list>`
+|`-i`
+|Comma-separated list of images to build, or `all`
+|`all`
+
+|`--version <version>`
+|`-v`
+|Version string for image tagging
+|Auto-detected from pom.xml
+
+|`--push`
+|`-p`
+|Push images to registry after build
+|`false`
+
+|`--registry <registry>`
+|`-x`
+|Docker registry prefix (e.g., `apache`, `myregistry.io/myorg`)
+|None (local only)
+
+|`--platforms <platforms>`
+|
+|Build platforms (e.g., `linux/amd64,linux/arm64`)
+|Current system platform
+
+|`--maven-threads <threads>`
+|
+|Maven build parallelism (e.g., `1C`, `2C`, `4`)
+|`1C` (1 thread per CPU core)
+
+|`--progress <mode>`
+|
+|Docker build output: `auto`, `plain` (verbose), `tty` (compact)
+|`auto`
+
+|`--builder <type>`
+|
+|Builder type: `full` (Maven build) or `fast` (pre-built artifacts)
+|`full`
+
+|`--no-cache`
+|
+|Build without using Docker cache
+|Cache enabled
+
+|`--help`
+|`-h`
+|Show help message
+|
+|===
+
+== Available Image Stages
+
+The following image stages can be specified with the `--images` argument:
+
+[cols="1,2,3", options="header"]
+|===
+|Stage |Image Name |Description
+
+|`client`
+|`hop`
+|Main Hop client/server image. Based on Alpine Linux with OpenJDK 17. Can run pipelines, workflows, and Hop Server.
+
+|`web`
+|`hop-web`
+|Hop Web interface running on Apache Tomcat 10. Provides browser-based access to the Hop GUI.
+
+|`web-beam`
+|`hop-web` (variant)
+|Hop Web with Apache Beam fat jar included. Use for Google Cloud Dataflow integration. Tagged with `-beam` suffix.
+
+|`dataflow`
+|`hop-dataflow-template`
+|Google Cloud Dataflow Flex Template image. Contains only the fat jar for running Hop pipelines on Dataflow.
+|===
+
+== Builder Types
+
+=== Full Builder (Default)
+
+The `full` builder performs a complete Maven build from source:
+
+[source,bash]
+----
+./build-hop-images.sh --builder full
+----
+
+* Clones source code
+* Runs full Maven build with all dependencies
+* Slower but ensures everything is built from scratch
+* Required for CI/CD and release builds
+
+=== Fast Builder
+
+The `fast` builder uses pre-built artifacts, skipping Maven:
+
+[source,bash]
+----
+# First, build with Maven locally
+mvn clean install -DskipTests
+
+# Then build Docker images using pre-built artifacts (only Hop-web in this example)
+./build-hop-images.sh --builder fast --images web
+----
+
+* Requires `mvn clean install` to be run first
+* Much faster for local development iteration
+* Copies artifacts directly from `target/` folders
+
+== Image Tagging
+
+Images are automatically tagged based on the version:
+
+* **SNAPSHOT versions** (e.g., `2.17.0-SNAPSHOT`):
+** Primary tag: `hop-web:2.17.0-SNAPSHOT`
+** Alias tag: `hop-web:Development`
+
+* **Release versions** (e.g., `2.17.0`):
+** Primary tag: `hop-web:2.17.0`
+** Alias tag: `hop-web:latest`
+
+* **Variant images** get suffix added:
+** Primary tag: `hop-web:2.17.0-SNAPSHOT-beam`
+** Alias tag: `hop-web:Development-beam`
+
+== Examples
+
+=== Basic Usage
+
+Build all images from local source:
+
+[source,bash]
+----
+./build-hop-images.sh
+----
+
+=== Build Specific Images
+
+Build only the web and client images:
+
+[source,bash]
+----
+./build-hop-images.sh --images client,web
+----
+
+=== Build from GitHub Release
+
+Build version 2.9.0 from GitHub:
+
+[source,bash]
+----
+./build-hop-images.sh --source github --tag 2.9.0
+----
+
+=== Fast Development Build
+
+For quick iteration during development:
+
+[source,bash]
+----
+# Build project with Maven first
+mvn clean install -DskipTests
+
+# Fast Docker build (skips Maven, uses pre-built artifacts)
+./build-hop-images.sh --builder fast --images web
+----
+
+=== Multi-Platform Build with Push
+
+Build for AMD64 and ARM64, then push to Docker Hub:
+
+[source,bash]
+----
+./build-hop-images.sh \
+    --platforms linux/amd64,linux/arm64 \
+    --push \
+    --registry apache \
+    --version 2.9.0
+----
+
+=== Build Web with Beam Variant
+
+Build the web image with Apache Beam fat jar for Dataflow:
+
+[source,bash]
+----
+./build-hop-images.sh --images web-beam --registry myregistry
+----
+
+This creates:
+
+* `myregistry/hop-web:2.17.0-SNAPSHOT-beam`
+* `myregistry/hop-web:Development-beam`
+
+=== Verbose Build Output
+
+See detailed build progress:
+
+[source,bash]
+----
+./build-hop-images.sh --progress plain --images client
+----
+
+=== Build Without Cache
+
+Force a fresh build without using cached layers:
+
+[source,bash]
+----
+./build-hop-images.sh --no-cache --images web
+----
+
+== Configuration File
+
+You can create a `build.env` file in the `docker/` directory to set default values:
+
+[source,bash]
+----
+# docker/build.env
+REGISTRY=myregistry.io/myorg
+PLATFORMS=linux/amd64,linux/arm64
+PUSH=true
+MAVEN_THREADS=2C
+----
+
+Command line arguments override values from `build.env`.
+
+== Troubleshooting
+
+=== Build Fails with "pom.xml not found"
+
+Ensure you're running the script from the repository root or the `docker/` directory:
+
+[source,bash]
+----
+cd /path/to/hop
+./docker/build-hop-images.sh
+----
+
+=== Multi-Platform Build Fails
+
+Multi-platform builds require Docker Buildx:
+
+[source,bash]
+----
+# Check if buildx is available
+docker buildx version
+
+# Create a builder if needed
+docker buildx create --use --name hop-builder
+----
+
+=== Out of Memory During Maven Build
+
+Increase Maven memory by setting threads lower:
+
+[source,bash]
+----
+./build-hop-images.sh --maven-threads 1
+----
+
+=== Images Not Appearing Locally After Multi-Platform Build
+
+Multi-platform builds require `--push` or won't load locally. For local testing, use single platform:
+
+[source,bash]
+----
+# Single platform (loads locally)
+./build-hop-images.sh --platforms linux/amd64
+
+# Multi-platform requires push
+./build-hop-images.sh --platforms linux/amd64,linux/arm64 --push --registry myregistry
+----
+
+== Adding a New Image Variant
+
+You can extend the build system by adding new image variants. Variants are images that extend a base image with additional features. For example, `web-beam` extends the `web` image with the Apache Beam fat jar.
+
+This section demonstrates how to add a hypothetical `client-debug` variant that includes additional debugging tools.
+
+=== Step 1: Add the Stage to unified.Dockerfile
+
+Add a new stage at the end of `docker/unified.Dockerfile` that extends the base image:
+
+[source,dockerfile]
+----
+################################################################################
+# Stage: Hop Client with Debug Tools
+################################################################################
+FROM client AS client-debug
+LABEL variant="debug"
+
+# Switch to root to install packages
+USER root
+
+# Install debugging tools
+RUN apk add --no-cache \
+    strace \
+    htop \
+    vim \
+    curl \
+    netcat-openbsd
+
+# Add debug-specific environment variables
+ENV HOP_OPTIONS="-XX:+AggressiveHeap -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+
+# Expose debug port
+EXPOSE 5005
+
+# Switch back to hop user
+USER hop
+----
+
+Key points:
+
+* **Stage name format**: Use `<base>-<variant>` naming (e.g., `client-debug`)
+* **FROM clause**: Extend the base image (`FROM client AS client-debug`)
+* **LABEL**: Add `variant="debug"` label for identification
+* **Inheritance**: The variant inherits everything from the base image
+
+=== Step 2: Register the Variant in build-hop-images.sh
+
+Add the new variant to the `ALL_STAGES` array at the top of `docker/build-hop-images.sh`:
+
+[source,bash]
+----
+# Available image stages (add new stages here)
+# Format: "baseImage" or "baseImage-variant"
+ALL_STAGES=("client" "client-debug" "web" "web-beam" "dataflow")
+----
+
+The build script automatically handles:
+
+* **Image naming**: `client-debug` → image name `hop` (from base `client`)
+* **Tag suffix**: Version tag gets `-debug` suffix (e.g., `hop:2.17.0-SNAPSHOT-debug`)
+* **Alias tags**: Development/latest tags also get suffix (e.g., `hop:Development-debug`)
+
+=== Step 3: Build and Test the Variant
+
+Build only the new variant:
+
+[source,bash]
+----
+./build-hop-images.sh --images client-debug --registry myregistry
+----
+
+This produces:
+
+* `myregistry/hop:2.17.0-SNAPSHOT-debug`
+* `myregistry/hop:Development-debug`
+
+Build all images including the new variant:
+
+[source,bash]
+----
+./build-hop-images.sh --images all
+----
+
+=== How Variant Detection Works
+
+The build script uses these functions to handle variants:
+
+[source,bash]
+----
+# Extracts base image name from stage name
+get_image_name() {
+    local stage_name="$1"
+    case "$stage_name" in
+        client*)   echo "hop" ;;
+        web*)      echo "hop-web" ;;
+        dataflow*) echo "hop-dataflow-template" ;;
+        *)         echo "" ;;
+    esac
+}
+
+# Extracts variant suffix (everything after first hyphen)
+get_variant_suffix() {
+    local stage_name="$1"
+    if [[ "$stage_name" == *"-"* ]]; then
+        echo "${stage_name#*-}"  # Returns "debug" from "client-debug"
+    else
+        echo ""
+    fi
+}
+----
+
+For a new base image type (not a variant of existing), you would also need to update the `get_image_name()` function.

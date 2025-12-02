@@ -20,7 +20,7 @@ services:
     image: hop-base-image
     build:
       context: ../../.
-      dockerfile: docker/integration-tests/Dockerfile.unit-tests
+      dockerfile: docker/integration-tests/unit-tests.Dockerfile
       args:
         - JENKINS_USER=jenkins
         - JENKINS_UID=1000

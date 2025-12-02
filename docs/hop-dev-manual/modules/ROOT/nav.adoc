@@ -19,6 +19,7 @@ under the License.
 * xref:porting-kettle-plugins.adoc[Porting Kettle plugins]
 * xref:metadata-plugins.adoc[Metadata plugins]
 * xref:setup-dev-environment.adoc[Setting up your development environment]
+* xref:docker-build.adoc[Docker Build Script]
 * xref:integration-testing.adoc[Integration testing]
 * xref:internationalisation.adoc[Internationalisation (i18n)]
 * xref:plugin-development.adoc[Plugins Development]

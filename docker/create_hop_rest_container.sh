@@ -43,7 +43,7 @@ cp ../plugins/misc/projects/target/hop-plugins*.jar ../assemblies/plugins/dist/t
 
 # Build the docker image.
 #
-docker build ../ -f Dockerfile.rest -t hop-rest # --progress=plain --no-cache
+docker build ../ -f rest.Dockerfile -t hop-rest # --progress=plain --no-cache
 
 # Cleanup
 #
