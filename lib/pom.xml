@@ -121,7 +121,7 @@
         <reactive-streams.version>1.0.4</reactive-streams.version>
         <reactor-core.version>3.4.38</reactor-core.version>
         <reactor-netty.version>1.2.8</reactor-netty.version>
-        <rhino.version>1.7.14</rhino.version>
+        <rhino.version>1.7.14.1</rhino.version>
         <saxon.version>8.7</saxon.version>
         <scala.version>2.12.17</scala.version>
         <slf4j.version>2.0.4</slf4j.version>
