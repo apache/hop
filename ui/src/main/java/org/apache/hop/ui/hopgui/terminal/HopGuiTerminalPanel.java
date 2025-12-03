@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -334,12 +335,20 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
             "Terminal config - useJediTerm: "
                 + props.useJediTerm()
                 + ", useAdvancedTerminal: "
-                + props.useAdvancedTerminal());
+                + props.useAdvancedTerminal()
+                + ", isWeb: "
+                + EnvironmentUtils.getInstance().isWeb());
 
-    if (props.useJediTerm()) {
-      // JediTerm (POC) - JetBrains terminal emulator
+    // JediTerm uses SWT_AWT bridge which doesn't work in RAP/web mode
+    // Fall back to compatible terminal widget in web mode
+    if (props.useJediTerm() && !EnvironmentUtils.getInstance().isWeb()) {
+      // JediTerm (POC) - JetBrains terminal emulator (desktop only)
       hopGui.getLog().logBasic("Creating JediTerm Terminal (POC)");
       terminalWidget = new JediTerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
+    } else if (props.useJediTerm() && EnvironmentUtils.getInstance().isWeb()) {
+      // JediTerm requested but not available in web mode - fall back to simple terminal
+      hopGui.getLog().logBasic("JediTerm not available in web mode, using Simple Terminal Console");
+      terminalWidget = new SimpleTerminalWidget(terminalWidgetComposite, workingDirectory);
     } else if (props.useAdvancedTerminal()) {
       // Advanced PTY-based terminal (original implementation)
       hopGui.getLog().logBasic("Creating Advanced PTY Terminal");
