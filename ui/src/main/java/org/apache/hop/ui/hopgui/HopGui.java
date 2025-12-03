@@ -204,6 +204,10 @@ public class HopGui
   public static final String ID_MAIN_MENU_EDIT_NAV_PREV = "20400-menu-edit-nav-previous";
   public static final String ID_MAIN_MENU_EDIT_NAV_NEXT = "20410-menu-edit-nav-next";
 
+  public static final String ID_MAIN_MENU_VIEW_PARENT_ID = "25000-menu-view";
+  public static final String ID_MAIN_MENU_VIEW_TERMINAL = "25010-menu-view-terminal";
+  public static final String ID_MAIN_MENU_VIEW_NEW_TERMINAL = "25020-menu-view-new-terminal";
+
   public static final String ID_MAIN_MENU_RUN_PARENT_ID = "30000-menu-run";
   public static final String ID_MAIN_MENU_RUN_START = "30010-menu-run-execute";
   public static final String ID_MAIN_MENU_RUN_PAUSE = "30030-menu-run-pause";
@@ -272,7 +276,11 @@ public class HopGui
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
-  private ToolItem explorerPerspectiveToolItem;
+  private org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel terminalPanel;
+
+  public org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel getTerminalPanel() {
+    return terminalPanel;
+  }
 
   private static final PrintStream originalSystemOut = System.out;
   private static final PrintStream originalSystemErr = System.err;
@@ -1131,6 +1139,45 @@ public class HopGui
     getActivePerspective().navigateToNextFile();
   }
 
+  // ======================== View Menu ========================
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_VIEW_PARENT_ID,
+      label = "i18n::HopGui.Menu.View",
+      parentId = ID_MAIN_MENU)
+  public void menuView() {
+    // Nothing is done here.
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_VIEW_TERMINAL,
+      label = "i18n::HopGui.Menu.View.Terminal",
+      parentId = ID_MAIN_MENU_VIEW_PARENT_ID)
+  @GuiKeyboardShortcut(control = true, key = '`')
+  @GuiOsxKeyboardShortcut(control = true, key = '`')
+  public void menuViewTerminal() {
+    if (terminalPanel != null) {
+      terminalPanel.toggleTerminal();
+    }
+  }
+
+  @GuiMenuElement(
+      root = ID_MAIN_MENU,
+      id = ID_MAIN_MENU_VIEW_NEW_TERMINAL,
+      label = "i18n::HopGui.Menu.View.NewTerminal",
+      parentId = ID_MAIN_MENU_VIEW_PARENT_ID)
+  @GuiKeyboardShortcut(control = true, shift = true, key = '`')
+  @GuiOsxKeyboardShortcut(control = true, shift = true, key = '`')
+  public void menuViewNewTerminal() {
+    if (terminalPanel != null) {
+      terminalPanel.createNewTerminal(null, null);
+    }
+  }
+
+  // ======================== Run Menu ========================
+
   @GuiMenuElement(
       root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_RUN_PARENT_ID,
@@ -1311,17 +1358,26 @@ public class HopGui
 
   /**
    * Add a main composite where the various perspectives can parent on to show stuff... Its area is
-   * to just below the main toolbar and to the right of the perspectives toolbar
+   * to just below the main toolbar and to the right of the perspectives toolbar.
+   *
+   * <p>Now wraps everything in a HopGuiTerminalPanel which provides the global terminal at the
+   * bottom of the screen, with perspectives rendering in the top part.
    */
   private void addMainPerspectivesComposite() {
-    mainPerspectivesComposite = new Composite(mainHopGuiComposite, SWT.NO_BACKGROUND);
+    // Create terminal panel wrapper (this adds the terminal functionality)
+    terminalPanel =
+        new org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel(mainHopGuiComposite, this);
+    FormData fdTerminalPanel = new FormData();
+    fdTerminalPanel.top = new FormAttachment(0, 0);
+    fdTerminalPanel.left = new FormAttachment(perspectivesSidebar, 0);
+    fdTerminalPanel.bottom = new FormAttachment(100, 0);
+    fdTerminalPanel.right = new FormAttachment(100, 0);
+    terminalPanel.setLayoutData(fdTerminalPanel);
+
+    // Get the perspectives composite from the terminal panel
+    // This is where perspectives will actually render (inside the terminal panel's top section)
+    mainPerspectivesComposite = terminalPanel.getPerspectiveComposite();
     mainPerspectivesComposite.setLayout(new StackLayout());
-    FormData fdMain = new FormData();
-    fdMain.top = new FormAttachment(0, 0);
-    fdMain.left = new FormAttachment(perspectivesSidebar, 0);
-    fdMain.bottom = new FormAttachment(100, 0);
-    fdMain.right = new FormAttachment(100, 0);
-    mainPerspectivesComposite.setLayoutData(fdMain);
   }
 
   public void setUndoMenu(IUndo undoInterface) {

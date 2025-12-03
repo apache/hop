@@ -3575,6 +3575,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void drawPipelineImage(GC swtGc, int width, int height) {
 
+    if (EnvironmentUtils.getInstance().isWeb()) {}
+
     IGc gc = new SwtGc(swtGc, width, height, iconSize);
     try {
       PropsUi propsUi = PropsUi.getInstance();
@@ -4185,6 +4187,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.pipelineCheckDelegate.checkPipeline();
   }
 
+  /** TODO: re-introduce public void analyseImpact() { hopGui.analyseImpact(); } */
+
+  /** TODO: re-introduce public void getSql() { hopGui.getSql(); } */
+
+  /* TODO: re-introduce
+  public void exploreDatabase() {
+    hopGui.exploreDatabase();
+  }
+   */
   public boolean isExecutionResultsPaneVisible() {
     return extraViewTabFolder != null && !extraViewTabFolder.isDisposed();
   }
@@ -4206,7 +4217,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   /** If the extra tab view at the bottom is empty, we close it. */
   public void checkEmptyExtraView() {
-    if (extraViewTabFolder.getItemCount() == 0) {
+    if (extraViewTabFolder != null && extraViewTabFolder.getItemCount() == 0) {
       disposeExtraView();
     }
   }
@@ -4217,6 +4228,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     extraViewTabFolder.dispose();
+    extraViewTabFolder = null;
+
+    // Notify terminal panel that logs are hidden
+    if (hopGui.getTerminalPanel() != null) {
+      hopGui.getTerminalPanel().hideLogs();
+    }
+
     sashForm.layout();
     sashForm.setWeights(100);
 
@@ -4232,15 +4250,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     boolean maximized = sashForm.getMaximizedControl() != null;
     if (maximized) {
-      // Minimize
-      //
+      // Restore
       sashForm.setMaximizedControl(null);
       minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
       minMaxItem.setToolTipText(
           BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     } else {
       // Maximize
-      //
       sashForm.setMaximizedControl(extraViewTabFolder);
       minMaxItem.setImage(GuiResource.getInstance().getImageMinimizePanel());
       minMaxItem.setToolTipText(
@@ -4268,10 +4284,30 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
 
-    // Add a tab folder ...
-    //
-    extraViewTabFolder = new CTabFolder(sashForm, SWT.MULTI);
+    // Get the logs placeholder from the global terminal panel
+    Composite logsParent = null;
+    if (hopGui.getTerminalPanel() != null) {
+      logsParent = hopGui.getTerminalPanel().getLogsPlaceholder();
+      // Notify terminal panel that logs are visible
+      hopGui.getTerminalPanel().showLogs();
+    }
+
+    // If no terminal panel or placeholder, use the sashForm (fallback)
+    if (logsParent == null) {
+      logsParent = sashForm;
+    }
+
+    // Add a tab folder in the logs placeholder
+    extraViewTabFolder = new CTabFolder(logsParent, SWT.MULTI);
     PropsUi.setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
+
+    // Layout the tab folder to fill its parent
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.top = new FormAttachment(0, 0);
+    fdTabFolder.bottom = new FormAttachment(100, 0);
+    extraViewTabFolder.setLayoutData(fdTabFolder);
 
     extraViewTabFolder.addMouseListener(
         new MouseAdapter() {
@@ -4285,13 +4321,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             }
           }
         });
-
-    FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.top = new FormAttachment(0, 0);
-    fdTabFolder.bottom = new FormAttachment(100, 0);
-    extraViewTabFolder.setLayoutData(fdTabFolder);
 
     // Create toolbar for close and min/max to the upper right corner...
     //
@@ -4323,6 +4352,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
 
+    // Note: Layout weights are now handled by the terminal panel's horizontal sash
+    // when logs are rendered in the logsPlaceholder. The pipeline's sashForm
+    // only contains the canvas when logs are in the terminal panel.
+
+    // Refresh layout to make the logs tab folder visible
+    if (logsParent != sashForm) {
+      logsParent.layout(true, true);
+      if (hopGui.getTerminalPanel() != null) {
+        hopGui.getTerminalPanel().getBottomHorizontalSash().layout(true, true);
+        hopGui.getTerminalPanel().layout(true, true);
+      }
+    }
     sashForm.setWeights(60, 40);
   }
 

@@ -63,6 +63,7 @@
             <version>${org.eclipse.platform.version}</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Simple terminal console implementation (no external dependencies) -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
