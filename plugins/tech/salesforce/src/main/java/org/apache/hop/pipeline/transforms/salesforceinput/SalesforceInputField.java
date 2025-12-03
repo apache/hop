@@ -47,42 +47,78 @@ public class SalesforceInputField implements Cloneable {
   public static final String CONST_FIELD = "field";
   public static final String CONST_SPACES = "        ";
 
-  @HopMetadataProperty(key = "name", injectionKey = "NAME")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "NAME",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.NAME")
   private String name;
 
-  @HopMetadataProperty(key = "field", injectionKey = "FIELD")
+  @HopMetadataProperty(
+      key = "field",
+      injectionKey = "FIELD",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.FIELD")
   private String field;
 
-  @HopMetadataProperty(key = "type")
+  @HopMetadataProperty(
+      key = "type",
+      injectionKey = "TYPE",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.FIELD")
   private String type;
 
   private int typeCode;
 
-  @HopMetadataProperty(key = "length", injectionKey = "LENGTH")
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "LENGTH",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.LENGTH")
   private int length;
 
-  @HopMetadataProperty(key = "format", injectionKey = "FORMAT")
+  @HopMetadataProperty(
+      key = "format",
+      injectionKey = "FORMAT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.FORMAT")
   private String format;
 
-  @HopMetadataProperty(key = "trimtype")
+  @HopMetadataProperty(
+      key = "trimtype",
+      injectionKey = "TRIM_TYPE",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.TRIM_TYPE")
   private int trimType;
 
-  @HopMetadataProperty(key = "precision", injectionKey = "PRECISION")
+  @HopMetadataProperty(
+      key = "precision",
+      injectionKey = "PRECISION",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.PRECISION")
   private int precision;
 
-  @HopMetadataProperty(key = "currency", injectionKey = "CURRENCY")
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKey = "CURRENCY",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.CURRENCY")
   private String currencySymbol;
 
-  @HopMetadataProperty(key = "decimal", injectionKey = "DECIMAL")
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKey = "DECIMAL",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.DECIMAL")
   private String decimalSymbol;
 
-  @HopMetadataProperty(key = "group", injectionKey = "GROUP")
+  @HopMetadataProperty(
+      key = "group",
+      injectionKey = "GROUP",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.GROUP")
   private String groupSymbol;
 
-  @HopMetadataProperty(key = "repeat", injectionKey = "REPEAT")
+  @HopMetadataProperty(
+      key = "repeat",
+      injectionKey = "REPEAT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.REPEAT")
   private boolean repeated;
 
-  @HopMetadataProperty(key = "idlookup", injectionKey = "ISIDLOOKUP")
+  @HopMetadataProperty(
+      key = "idlookup",
+      injectionKey = "ISIDLOOKUP",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.ISLOOKUP")
   private boolean idLookup;
 
   @HopMetadataProperty(key = "samples")

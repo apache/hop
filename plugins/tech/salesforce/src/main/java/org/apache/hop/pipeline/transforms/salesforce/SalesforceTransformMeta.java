@@ -41,32 +41,53 @@ public abstract class SalesforceTransformMeta<
   private static final Class<?> PKG = SalesforceTransformMeta.class;
 
   /** The Salesforce Target URL */
-  @HopMetadataProperty(key = "targetUrl", injectionKey = "SALESFORCE_URL")
-  //  @Injection(name = "SALESFORCE_URL")
+  @HopMetadataProperty(
+      key = "targetUrl",
+      injectionKey = "SALESFORCE_URL",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.SALESFORCE_URL")
   private String targetUrl;
 
   /** The userName */
-  @HopMetadataProperty(key = "username", injectionKey = "SALESFORCE_USERNAME")
+  @HopMetadataProperty(
+      key = "username",
+      injectionKey = "SALESFORCE_USERNAME",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.SALESFORCE_USERNAME")
   private String username;
 
   /** The password */
-  @HopMetadataProperty(key = "password", injectionKey = "SALESFORCE_PASSWOR", password = true)
+  @HopMetadataProperty(
+      key = "password",
+      injectionKey = "SALESFORCE_PASSWOR",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.SALESFORCE_PASSWOR",
+      password = true)
   private String password;
 
   /** The time out */
-  @HopMetadataProperty(key = "timeout", injectionKey = "TIME_OUT")
+  @HopMetadataProperty(
+      key = "timeout",
+      injectionKey = "TIME_OUT",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.TIME_OUT")
   private String timeout;
 
   /** The connection compression */
-  @HopMetadataProperty(key = "useCompression", injectionKey = "USE_COMPRESSION")
+  @HopMetadataProperty(
+      key = "useCompression",
+      injectionKey = "USE_COMPRESSION",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.USE_COMPRESSION")
   private boolean compression;
 
   /** The Salesforce module */
-  @HopMetadataProperty(key = "module", injectionKey = "MODULE")
+  @HopMetadataProperty(
+      key = "module",
+      injectionKey = "MODULE",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.MODULE")
   private String module;
 
   /** Salesforce Connection metadata name */
-  @HopMetadataProperty(key = "salesforce_connection", injectionKey = "SALESFORCE_CONNECTION")
+  @HopMetadataProperty(
+      key = "salesforce_connection",
+      injectionKey = "SALESFORCE_CONNECTION",
+      injectionKeyDescription = "SalesforceInputMeta.SALESFORCE_CONNECTION")
   private String salesforceConnection;
 
   @Override
