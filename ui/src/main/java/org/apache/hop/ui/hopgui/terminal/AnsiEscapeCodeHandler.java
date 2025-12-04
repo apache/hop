@@ -23,10 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.hop.core.Const;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
 /**
@@ -102,11 +104,26 @@ public class AnsiEscapeCodeHandler {
 
   /** Initialize standard ANSI color palette */
   private void initializeAnsiColors() {
+    // Check if background is light (white/light colored) for Windows yellow fix
+    boolean isLightBackground = false;
+    if (defaultBackground != null && !defaultBackground.isDisposed()) {
+      RGB bgRgb = defaultBackground.getRGB();
+      // Consider background light if average RGB > 200 (closer to white)
+      int avgBrightness = (bgRgb.red + bgRgb.green + bgRgb.blue) / 3;
+      isLightBackground = avgBrightness > 200;
+    }
+
+    // On Windows with light background, use black instead of yellow for readability
+    boolean useBlackForYellow = Const.isWindows() && isLightBackground;
+
     // Standard colors (0-7)
     ansiColors[0] = new Color(display, 0, 0, 0); // Black
     ansiColors[1] = new Color(display, 205, 49, 49); // Red
     ansiColors[2] = new Color(display, 13, 188, 121); // Green
-    ansiColors[3] = new Color(display, 229, 229, 16); // Yellow
+    ansiColors[3] =
+        useBlackForYellow
+            ? new Color(display, 0, 0, 0)
+            : new Color(display, 229, 229, 16); // Yellow (or black on Windows/light bg)
     ansiColors[4] = new Color(display, 36, 114, 200); // Blue
     ansiColors[5] = new Color(display, 188, 63, 188); // Magenta
     ansiColors[6] = new Color(display, 17, 168, 205); // Cyan
@@ -116,7 +133,10 @@ public class AnsiEscapeCodeHandler {
     ansiColors[8] = new Color(display, 102, 102, 102); // Bright Black (Gray)
     ansiColors[9] = new Color(display, 241, 76, 76); // Bright Red
     ansiColors[10] = new Color(display, 35, 209, 139); // Bright Green
-    ansiColors[11] = new Color(display, 245, 245, 67); // Bright Yellow
+    ansiColors[11] =
+        useBlackForYellow
+            ? new Color(display, 0, 0, 0)
+            : new Color(display, 245, 245, 67); // Bright Yellow (or black on Windows/light bg)
     ansiColors[12] = new Color(display, 59, 142, 234); // Bright Blue
     ansiColors[13] = new Color(display, 214, 112, 214); // Bright Magenta
     ansiColors[14] = new Color(display, 41, 184, 219); // Bright Cyan

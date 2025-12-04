@@ -93,8 +93,7 @@ public class ConfigGuiOptionsTab {
   private Button wDisableZoomScrolling;
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
-  private Button wUseAdvancedTerminal;
-  private Button wUseJediTerm;
+  private Button wUseSimpleTerminal;
   private Combo wDefaultLocale;
 
   private boolean isReloading = false; // Flag to prevent saving during reload
@@ -579,51 +578,30 @@ public class ConfigGuiOptionsTab {
     wShowTableViewToolbar.setLayoutData(fdShowTableViewToolbar);
     wShowTableViewToolbar.addListener(SWT.Selection, e -> saveValues());
 
-    // Use Advanced Terminal (PTY)
-    Label wlUseAdvancedTerminal = new Label(wLookComp, SWT.RIGHT);
-    wlUseAdvancedTerminal.setText("Use Advanced Terminal (PTY, experimental)");
-    wlUseAdvancedTerminal.setToolTipText(
-        "Enable advanced terminal with full shell prompts and colors.\n"
-            + "Disable for simple, reliable command console (recommended).\n"
+    // Use Simple Terminal
+    Label wlUseSimpleTerminal = new Label(wLookComp, SWT.RIGHT);
+    wlUseSimpleTerminal.setText("Use simple terminal");
+    wlUseSimpleTerminal.setToolTipText(
+        "Use simple terminal console instead of JediTerm terminal emulator.\n"
+            + "JediTerm is the default and provides better terminal emulation.\n"
+            + "Simple terminal is automatically used in Hop Web (RAP) environment.\n"
             + "Requires Hop GUI restart to take effect.");
-    PropsUi.setLook(wlUseAdvancedTerminal);
-    FormData fdlUseAdvancedTerminal = new FormData();
-    fdlUseAdvancedTerminal.left = new FormAttachment(0, 0);
-    fdlUseAdvancedTerminal.right = new FormAttachment(middle, -margin);
-    fdlUseAdvancedTerminal.top = new FormAttachment(wShowTableViewToolbar, 2 * margin);
-    wlUseAdvancedTerminal.setLayoutData(fdlUseAdvancedTerminal);
-    wUseAdvancedTerminal = new Button(wLookComp, SWT.CHECK);
-    PropsUi.setLook(wUseAdvancedTerminal);
-    wUseAdvancedTerminal.setSelection(props.useAdvancedTerminal());
-    FormData fdUseAdvancedTerminal = new FormData();
-    fdUseAdvancedTerminal.left = new FormAttachment(middle, 0);
-    fdUseAdvancedTerminal.right = new FormAttachment(100, -margin);
-    fdUseAdvancedTerminal.top = new FormAttachment(wlUseAdvancedTerminal, 0, SWT.CENTER);
-    wUseAdvancedTerminal.setLayoutData(fdUseAdvancedTerminal);
-    wUseAdvancedTerminal.addListener(SWT.Selection, e -> saveValues());
-
-    // Use JediTerm Terminal (POC)
-    Label wlUseJediTerm = new Label(wLookComp, SWT.RIGHT);
-    wlUseJediTerm.setText("Use JediTerm Terminal (POC, experimental)");
-    wlUseJediTerm.setToolTipText(
-        "Use JetBrains JediTerm for terminal emulation. "
-            + "Overrides 'Use Advanced Terminal' setting. "
-            + "Requires Hop GUI restart to take effect.");
-    PropsUi.setLook(wlUseJediTerm);
-    FormData fdlUseJediTerm = new FormData();
-    fdlUseJediTerm.left = new FormAttachment(0, 0);
-    fdlUseJediTerm.right = new FormAttachment(middle, -margin);
-    fdlUseJediTerm.top = new FormAttachment(wUseAdvancedTerminal, 2 * margin);
-    wlUseJediTerm.setLayoutData(fdlUseJediTerm);
-    wUseJediTerm = new Button(wLookComp, SWT.CHECK);
-    PropsUi.setLook(wUseJediTerm);
-    wUseJediTerm.setSelection(props.useJediTerm());
-    FormData fdUseJediTerm = new FormData();
-    fdUseJediTerm.left = new FormAttachment(middle, 0);
-    fdUseJediTerm.right = new FormAttachment(100, -margin);
-    fdUseJediTerm.top = new FormAttachment(wlUseJediTerm, 0, SWT.CENTER);
-    wUseJediTerm.setLayoutData(fdUseJediTerm);
-    wUseJediTerm.addListener(SWT.Selection, e -> saveValues());
+    PropsUi.setLook(wlUseSimpleTerminal);
+    FormData fdlUseSimpleTerminal = new FormData();
+    fdlUseSimpleTerminal.left = new FormAttachment(0, 0);
+    fdlUseSimpleTerminal.right = new FormAttachment(middle, -margin);
+    fdlUseSimpleTerminal.top = new FormAttachment(wShowTableViewToolbar, 2 * margin);
+    wlUseSimpleTerminal.setLayoutData(fdlUseSimpleTerminal);
+    wUseSimpleTerminal = new Button(wLookComp, SWT.CHECK);
+    PropsUi.setLook(wUseSimpleTerminal);
+    // Inverted: checked = use simple terminal, unchecked = use JediTerm (default)
+    wUseSimpleTerminal.setSelection(!props.useJediTerm());
+    FormData fdUseSimpleTerminal = new FormData();
+    fdUseSimpleTerminal.left = new FormAttachment(middle, 0);
+    fdUseSimpleTerminal.right = new FormAttachment(100, -margin);
+    fdUseSimpleTerminal.top = new FormAttachment(wlUseSimpleTerminal, 0, SWT.CENTER);
+    wUseSimpleTerminal.setLayoutData(fdUseSimpleTerminal);
+    wUseSimpleTerminal.addListener(SWT.Selection, e -> saveValues());
 
     // Is Dark Mode enabled
     Label wlDarkMode = new Label(wLookComp, SWT.RIGHT);
@@ -631,7 +609,7 @@ public class ConfigGuiOptionsTab {
     PropsUi.setLook(wlDarkMode);
     FormData fdlDarkMode = new FormData();
     fdlDarkMode.left = new FormAttachment(0, 0);
-    fdlDarkMode.top = new FormAttachment(wUseJediTerm, 2 * margin);
+    fdlDarkMode.top = new FormAttachment(wUseSimpleTerminal, 2 * margin);
     fdlDarkMode.right = new FormAttachment(middle, -margin);
     wlDarkMode.setLayoutData(fdlDarkMode);
     wDarkMode = new Button(wLookComp, SWT.CHECK);
@@ -1373,8 +1351,8 @@ public class ConfigGuiOptionsTab {
     props.setDarkMode(darkMode);
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
-    props.setUseAdvancedTerminal(wUseAdvancedTerminal.getSelection());
-    props.setUseJediTerm(wUseJediTerm.getSelection());
+    // Inverted: checked = use simple terminal, unchecked = use JediTerm (default)
+    props.setUseJediTerm(!wUseSimpleTerminal.getSelection());
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {

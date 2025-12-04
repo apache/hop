@@ -947,10 +947,10 @@ public class PropsUi extends Props {
   /**
    * Check whether to use JediTerm implementation (POC).
    *
-   * @return true to use JediTerm, false otherwise
+   * @return true to use JediTerm, false otherwise (default: true)
    */
   public boolean useJediTerm() {
-    return YES.equalsIgnoreCase(getProperty(USE_JEDITERM, NO));
+    return YES.equalsIgnoreCase(getProperty(USE_JEDITERM, YES));
   }
 
   /**

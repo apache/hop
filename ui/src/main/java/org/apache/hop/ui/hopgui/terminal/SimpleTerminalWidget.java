@@ -30,6 +30,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
@@ -40,6 +41,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -67,9 +69,10 @@ public class SimpleTerminalWidget implements ITerminalWidget {
   private final String workingDirectory;
 
   private Composite terminalComposite;
-  private StyledText outputText;
+  private Control outputText; // StyledText in desktop, Text in web mode
   private Label promptLabel;
   private Text inputText;
+  private boolean isWebMode;
 
   private String shellPath;
   private Process shellProcess;
@@ -89,6 +92,7 @@ public class SimpleTerminalWidget implements ITerminalWidget {
     this.parent = parent;
     this.workingDirectory =
         workingDirectory != null ? workingDirectory : System.getProperty("user.home");
+    this.isWebMode = EnvironmentUtils.getInstance().isWeb();
 
     createTerminal();
   }
@@ -107,10 +111,18 @@ public class SimpleTerminalWidget implements ITerminalWidget {
       terminalComposite.setLayoutData(fdTerminal);
 
       // Output area (read-only)
-      outputText =
-          new StyledText(
-              terminalComposite,
-              SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+      // Use Text widget in web mode (RAP doesn't support StyledText)
+      if (isWebMode) {
+        outputText =
+            new Text(
+                terminalComposite,
+                SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+      } else {
+        outputText =
+            new StyledText(
+                terminalComposite,
+                SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+      }
       PropsUi.setLook(outputText);
 
       // Use monospace font
@@ -372,9 +384,22 @@ public class SimpleTerminalWidget implements ITerminalWidget {
   /** Append text to output area */
   private void appendOutput(String text) {
     if (!outputText.isDisposed()) {
-      outputText.append(text);
-      // Auto-scroll to bottom
-      outputText.setTopIndex(outputText.getLineCount() - 1);
+      if (isWebMode) {
+        // Text widget
+        Text textWidget = (Text) outputText;
+        textWidget.append(text);
+        // Auto-scroll to bottom
+        int lineCount = textWidget.getLineCount();
+        if (lineCount > 0) {
+          textWidget.setTopIndex(lineCount - 1);
+        }
+      } else {
+        // StyledText widget
+        StyledText styledText = (StyledText) outputText;
+        styledText.append(text);
+        // Auto-scroll to bottom
+        styledText.setTopIndex(styledText.getLineCount() - 1);
+      }
     }
   }
 
@@ -461,6 +486,20 @@ public class SimpleTerminalWidget implements ITerminalWidget {
 
   @Override
   public StyledText getOutputText() {
+    // Return null in web mode (StyledText not available)
+    // Callers should check for null and use getOutputControl() instead
+    if (isWebMode) {
+      return null;
+    }
+    return (StyledText) outputText;
+  }
+
+  /**
+   * Get the output control (works in both desktop and web mode)
+   *
+   * @return The output control (StyledText in desktop, Text in web)
+   */
+  public Control getOutputControl() {
     return outputText;
   }
 

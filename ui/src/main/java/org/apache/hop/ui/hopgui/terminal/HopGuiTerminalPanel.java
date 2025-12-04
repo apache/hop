@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -228,6 +229,13 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
               } else if (widget.getOutputText() != null && !widget.getOutputText().isDisposed()) {
                 // For TerminalWidget (PTY), focus the StyledText
                 widget.getOutputText().forceFocus();
+              } else if (widget instanceof SimpleTerminalWidget) {
+                // For SimpleTerminalWidget in web mode, focus the output control
+                SimpleTerminalWidget simpleWidget = (SimpleTerminalWidget) widget;
+                Control outputControl = simpleWidget.getOutputControl();
+                if (outputControl != null && !outputControl.isDisposed()) {
+                  outputControl.setFocus();
+                }
               }
             }
           }
@@ -329,32 +337,23 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     ITerminalWidget terminalWidget;
 
     // Debug: Log configuration state
+    boolean isWeb = EnvironmentUtils.getInstance().isWeb();
     hopGui
         .getLog()
-        .logDebug(
-            "Terminal config - useJediTerm: "
-                + props.useJediTerm()
-                + ", useAdvancedTerminal: "
-                + props.useAdvancedTerminal()
-                + ", isWeb: "
-                + EnvironmentUtils.getInstance().isWeb());
+        .logDebug("Terminal config - useJediTerm: " + props.useJediTerm() + ", isWeb: " + isWeb);
 
     // JediTerm uses SWT_AWT bridge which doesn't work in RAP/web mode
-    // Fall back to compatible terminal widget in web mode
-    if (props.useJediTerm() && !EnvironmentUtils.getInstance().isWeb()) {
-      // JediTerm (POC) - JetBrains terminal emulator (desktop only)
-      hopGui.getLog().logBasic("Creating JediTerm Terminal (POC)");
-      terminalWidget = new JediTerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
-    } else if (props.useJediTerm() && EnvironmentUtils.getInstance().isWeb()) {
-      // JediTerm requested but not available in web mode - fall back to simple terminal
-      hopGui.getLog().logBasic("JediTerm not available in web mode, using Simple Terminal Console");
+    // Force simple terminal in web mode regardless of configuration
+    if (isWeb) {
+      // Web mode: always use simple terminal (JediTerm not available in RAP)
+      hopGui.getLog().logBasic("Hop Web detected, using Simple Terminal Console");
       terminalWidget = new SimpleTerminalWidget(terminalWidgetComposite, workingDirectory);
-    } else if (props.useAdvancedTerminal()) {
-      // Advanced PTY-based terminal (original implementation)
-      hopGui.getLog().logBasic("Creating Advanced PTY Terminal");
-      terminalWidget = new TerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
+    } else if (props.useJediTerm()) {
+      // JediTerm (default) - JetBrains terminal emulator (desktop only)
+      hopGui.getLog().logBasic("Creating JediTerm Terminal");
+      terminalWidget = new JediTerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
     } else {
-      // Simple ProcessBuilder-based console (default, recommended)
+      // Simple ProcessBuilder-based console
       hopGui.getLog().logBasic("Creating Simple Terminal Console");
       terminalWidget = new SimpleTerminalWidget(terminalWidgetComposite, workingDirectory);
     }
@@ -393,6 +392,13 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
                 // For other terminals, focus the StyledText
                 terminalWidget.getOutputText().setFocus();
                 terminalWidget.getOutputText().forceFocus();
+              } else if (terminalWidget instanceof SimpleTerminalWidget) {
+                // For SimpleTerminalWidget in web mode, focus the output control
+                SimpleTerminalWidget simpleWidget = (SimpleTerminalWidget) terminalWidget;
+                Control outputControl = simpleWidget.getOutputControl();
+                if (outputControl != null && !outputControl.isDisposed()) {
+                  outputControl.setFocus();
+                }
               }
             });
   }
