@@ -58,7 +58,7 @@ public abstract class SalesforceTransformMeta<
   @HopMetadataProperty(
       key = "password",
       injectionKey = "SALESFORCE_PASSWOR",
-      injectionKeyDescription = "SalesforceInputMeta.Injection.SALESFORCE_PASSWOR",
+      injectionKeyDescription = "SalesforceInputMeta.Injection.SALESFORCE_PASSWORD",
       password = true)
   private String password;
 
@@ -87,7 +87,7 @@ public abstract class SalesforceTransformMeta<
   @HopMetadataProperty(
       key = "salesforce_connection",
       injectionKey = "SALESFORCE_CONNECTION",
-      injectionKeyDescription = "SalesforceInputMeta.SALESFORCE_CONNECTION")
+      injectionKeyDescription = "SalesforceInputMeta.Injection.SALESFORCE_CONNECTION")
   private String salesforceConnection;
 
   @Override

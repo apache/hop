@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.salesforceinput;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.i18n.BaseMessages;
@@ -62,7 +61,7 @@ public class SalesforceInputField implements Cloneable {
   @HopMetadataProperty(
       key = "type",
       injectionKey = "TYPE",
-      injectionKeyDescription = "SalesforceInputMeta.Injection.FIELD")
+      injectionKeyDescription = "SalesforceInputMeta.Injection.TYPE")
   private String type;
 
   private int typeCode;
@@ -118,7 +117,7 @@ public class SalesforceInputField implements Cloneable {
   @HopMetadataProperty(
       key = "idlookup",
       injectionKey = "ISIDLOOKUP",
-      injectionKeyDescription = "SalesforceInputMeta.Injection.ISLOOKUP")
+      injectionKeyDescription = "SalesforceInputMeta.Injection.ISIDLOOKUP")
   private boolean idLookup;
 
   @HopMetadataProperty(key = "samples")
@@ -200,9 +199,19 @@ public class SalesforceInputField implements Cloneable {
     this.typeCode = typeCode;
   }
 
-  @Injection(name = "TYPE", group = "FIELDS")
+  //  @Injection(name = "TYPE", group = "FIELDS")
   public void setTypeCode(String typeDesc) {
     this.typeCode = ValueMetaFactory.getIdForValueMeta(typeDesc);
+  }
+
+  // Override Lombok-generated setType to also update typeCode when type is set via metadata
+  // injection
+  public void setType(String type) {
+    this.type = type;
+    // Also update typeCode when type is set via metadata injection
+    if (type != null && !type.isEmpty()) {
+      this.typeCode = ValueMetaFactory.getIdForValueMeta(type);
+    }
   }
 
   public void setSamples(String[] samples) {
@@ -221,7 +230,7 @@ public class SalesforceInputField implements Cloneable {
     return getTrimTypeDesc(trimType);
   }
 
-  @Injection(name = "TRIM_TYPE", group = "FIELDS")
+  //  @Injection(name = "TRIM_TYPE", group = "FIELDS")
   public void setTrimTypeDesc(String trimTypeDesc) {
     this.trimType = SalesforceInputField.getTrimTypeByDesc(trimTypeDesc);
   }
