@@ -722,6 +722,10 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
   // check if module, username is given
   private boolean checkUser() {
+    // If a metadata connection is selected, username is not required
+    if (!Utils.isEmpty(wSalesforceConnection.getText())) {
+      return true;
+    }
 
     if (Utils.isEmpty(wUserName.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
@@ -740,25 +744,43 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     getInfo(meta);
 
     SalesforceConnection connection = null;
-    String url = variables.resolve(meta.getTargetUrl());
+    String selectedModule = variables.resolve(meta.getModule());
     try {
-      String selectedModule = variables.resolve(meta.getModule());
-
-      // Define a new Salesforce connection
-      connection =
-          new SalesforceConnection(
-              log,
-              url,
-              variables.resolve(meta.getUsername()),
-              Utils.resolvePassword(variables, meta.getPassword()));
       int realTimeOut = Const.toInt(variables.resolve(meta.getTimeout()), 0);
+
+      // Check if a Salesforce Connection metadata is selected
+      String connectionName = variables.resolve(meta.getSalesforceConnection());
+      if (!Utils.isEmpty(connectionName)) {
+        // Use Salesforce Connection metadata
+        org.apache.hop.metadata.salesforce.SalesforceConnection connectionMeta =
+            metadataProvider
+                .getSerializer(org.apache.hop.metadata.salesforce.SalesforceConnection.class)
+                .load(connectionName);
+
+        if (connectionMeta == null) {
+          throw new HopException(
+              "Salesforce Connection '" + connectionName + "' not found in metadata");
+        }
+
+        // Create connection using metadata
+        connection = connectionMeta.createConnection(variables, log);
+      } else {
+        // Use inline username/password configuration (backward compatibility)
+        String url = variables.resolve(meta.getTargetUrl());
+        connection =
+            new SalesforceConnection(
+                log,
+                url,
+                variables.resolve(meta.getUsername()),
+                Utils.resolvePassword(variables, meta.getPassword()));
+      }
       connection.setTimeOut(realTimeOut);
       // connect to Salesforce
       connection.connect();
       // return fieldsname for the module
       return connection.getFields(selectedModule);
     } catch (Exception e) {
-      throw new HopException("Error getting fields from module [" + url + "]!", e);
+      throw new HopException("Error getting fields from module [" + selectedModule + "]!", e);
     } finally {
       if (connection != null) {
         try {
@@ -939,18 +961,36 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       try {
         SalesforceUpdateMeta meta = new SalesforceUpdateMeta();
         getInfo(meta);
-        String url = variables.resolve(meta.getTargetUrl());
 
         String selectedField = meta.getModule();
         wModule.removeAll();
 
-        // Define a new Salesforce connection
-        connection =
-            new SalesforceConnection(
-                log,
-                url,
-                variables.resolve(meta.getUsername()),
-                Utils.resolvePassword(variables, meta.getPassword()));
+        // Check if a Salesforce Connection metadata is selected
+        String connectionName = variables.resolve(meta.getSalesforceConnection());
+        if (!Utils.isEmpty(connectionName)) {
+          // Use Salesforce Connection metadata
+          org.apache.hop.metadata.salesforce.SalesforceConnection connectionMeta =
+              metadataProvider
+                  .getSerializer(org.apache.hop.metadata.salesforce.SalesforceConnection.class)
+                  .load(connectionName);
+
+          if (connectionMeta == null) {
+            throw new HopException(
+                "Salesforce Connection '" + connectionName + "' not found in metadata");
+          }
+
+          // Create connection using metadata
+          connection = connectionMeta.createConnection(variables, log);
+        } else {
+          // Use inline username/password configuration (backward compatibility)
+          String url = variables.resolve(meta.getTargetUrl());
+          connection =
+              new SalesforceConnection(
+                  log,
+                  url,
+                  variables.resolve(meta.getUsername()),
+                  Utils.resolvePassword(variables, meta.getPassword()));
+        }
         // connect to Salesforce
         connection.connect();
         // return
