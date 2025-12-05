@@ -581,19 +581,38 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
       try {
         SalesforceDeleteMeta meta = new SalesforceDeleteMeta();
         getInfo(meta);
-        String url = variables.resolve(meta.getTargetUrl());
 
         String selectedField = wModule.getText();
         wModule.removeAll();
 
-        // Define a new Salesforce connection
-        connection =
-            new SalesforceConnection(
-                log,
-                url,
-                variables.resolve(meta.getUsername()),
-                Utils.resolvePassword(variables, meta.getPassword()));
         int realTimeOut = Const.toInt(variables.resolve(meta.getTimeout()), 0);
+
+        // Check if a Salesforce Connection metadata is selected
+        String connectionName = variables.resolve(meta.getSalesforceConnection());
+        if (!Utils.isEmpty(connectionName)) {
+          // Use Salesforce Connection metadata
+          org.apache.hop.metadata.salesforce.SalesforceConnection connectionMeta =
+              metadataProvider
+                  .getSerializer(org.apache.hop.metadata.salesforce.SalesforceConnection.class)
+                  .load(connectionName);
+
+          if (connectionMeta == null) {
+            throw new HopException(
+                "Salesforce Connection '" + connectionName + "' not found in metadata");
+          }
+
+          // Create connection using metadata
+          connection = connectionMeta.createConnection(variables, log);
+        } else {
+          // Use inline username/password configuration (backward compatibility)
+          String url = variables.resolve(meta.getTargetUrl());
+          connection =
+              new SalesforceConnection(
+                  log,
+                  url,
+                  variables.resolve(meta.getUsername()),
+                  Utils.resolvePassword(variables, meta.getPassword()));
+        }
         connection.setTimeOut(realTimeOut);
         // connect to Salesforce
         connection.connect();

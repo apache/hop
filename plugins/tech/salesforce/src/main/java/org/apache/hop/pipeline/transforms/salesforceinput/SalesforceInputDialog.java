@@ -1471,14 +1471,33 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
       // get real values
       String realModule = variables.resolve(meta.getModule());
-      String realURL = variables.resolve(meta.getTargetUrl());
       int realTimeOut = Const.toInt(variables.resolve(meta.getTimeout()), 0);
 
-      // Username/Password connection
-      String realUsername = variables.resolve(meta.getUsername());
-      String realPassword = Utils.resolvePassword(variables, meta.getPassword());
+      // Check if a Salesforce Connection metadata is selected
+      String connectionName = variables.resolve(meta.getSalesforceConnection());
+      if (!Utils.isEmpty(connectionName)) {
+        // Use Salesforce Connection metadata
+        org.apache.hop.metadata.salesforce.SalesforceConnection connectionMeta =
+            metadataProvider
+                .getSerializer(org.apache.hop.metadata.salesforce.SalesforceConnection.class)
+                .load(connectionName);
 
-      connection = new SalesforceConnection(log, realURL, realUsername, realPassword);
+        if (connectionMeta == null) {
+          throw new HopException(
+              "Salesforce Connection '" + connectionName + "' not found in metadata");
+        }
+
+        // Create connection using metadata
+        connection = connectionMeta.createConnection(variables, log);
+      } else {
+        // Use inline username/password configuration (backward compatibility)
+        String realURL = variables.resolve(meta.getTargetUrl());
+        String realUsername = variables.resolve(meta.getUsername());
+        String realPassword = Utils.resolvePassword(variables, meta.getPassword());
+
+        connection = new SalesforceConnection(log, realURL, realUsername, realPassword);
+      }
+
       connection.setTimeOut(realTimeOut);
       String[] fieldsName = null;
       if (meta.isSpecifyQuery()) {
@@ -1996,15 +2015,33 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       try {
         SalesforceInputMeta meta = new SalesforceInputMeta();
         getInfo(meta);
-        String url = variables.resolve(meta.getTargetUrl());
 
-        // Define a new Salesforce connection
-        connection =
-            new SalesforceConnection(
-                log,
-                url,
-                variables.resolve(meta.getUsername()),
-                Utils.resolvePassword(variables, meta.getPassword()));
+        // Check if a Salesforce Connection metadata is selected
+        String connectionName = variables.resolve(meta.getSalesforceConnection());
+        if (!Utils.isEmpty(connectionName)) {
+          // Use Salesforce Connection metadata
+          org.apache.hop.metadata.salesforce.SalesforceConnection connectionMeta =
+              metadataProvider
+                  .getSerializer(org.apache.hop.metadata.salesforce.SalesforceConnection.class)
+                  .load(connectionName);
+
+          if (connectionMeta == null) {
+            throw new HopException(
+                "Salesforce Connection '" + connectionName + "' not found in metadata");
+          }
+
+          // Create connection using metadata
+          connection = connectionMeta.createConnection(variables, log);
+        } else {
+          // Use inline username/password configuration (backward compatibility)
+          String url = variables.resolve(meta.getTargetUrl());
+          connection =
+              new SalesforceConnection(
+                  log,
+                  url,
+                  variables.resolve(meta.getUsername()),
+                  Utils.resolvePassword(variables, meta.getPassword()));
+        }
         // connect to Salesforce
         connection.connect();
 

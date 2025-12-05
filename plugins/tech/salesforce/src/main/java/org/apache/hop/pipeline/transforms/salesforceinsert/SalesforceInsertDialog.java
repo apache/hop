@@ -803,6 +803,10 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   // check if module, username is given
   private boolean checkUser() {
+    // If a metadata connection is selected, username is not required
+    if (!Utils.isEmpty(wSalesforceConnection.getText())) {
+      return true;
+    }
 
     if (Utils.isEmpty(wUserName.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
@@ -817,15 +821,35 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   }
 
   private SalesforceConnection getConnection() throws HopException {
-    String url = variables.resolve(wURL.getText());
-    // Define a new Salesforce connection
-    SalesforceConnection connection =
-        new SalesforceConnection(
-            log,
-            url,
-            variables.resolve(wUserName.getText()),
-            Utils.resolvePassword(variables, wPassword.getText()));
     int realTimeOut = Const.toInt(variables.resolve(wTimeOut.getText()), 0);
+
+    // Check if a Salesforce Connection metadata is selected
+    String connectionName = variables.resolve(wSalesforceConnection.getText());
+    SalesforceConnection connection;
+    if (!Utils.isEmpty(connectionName)) {
+      // Use Salesforce Connection metadata
+      org.apache.hop.metadata.salesforce.SalesforceConnection connectionMeta =
+          metadataProvider
+              .getSerializer(org.apache.hop.metadata.salesforce.SalesforceConnection.class)
+              .load(connectionName);
+
+      if (connectionMeta == null) {
+        throw new HopException(
+            "Salesforce Connection '" + connectionName + "' not found in metadata");
+      }
+
+      // Create connection using metadata
+      connection = connectionMeta.createConnection(variables, log);
+    } else {
+      // Use inline username/password configuration (backward compatibility)
+      String url = variables.resolve(wURL.getText());
+      connection =
+          new SalesforceConnection(
+              log,
+              url,
+              variables.resolve(wUserName.getText()),
+              Utils.resolvePassword(variables, wPassword.getText()));
+    }
     connection.setTimeOut(realTimeOut);
     // connect to Salesforce
     connection.connect();
