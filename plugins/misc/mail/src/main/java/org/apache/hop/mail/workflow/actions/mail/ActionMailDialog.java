@@ -1461,6 +1461,7 @@ public class ActionMailDialog extends ActionDialog {
     wSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wlSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
+    wlCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
     wCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
   }
 

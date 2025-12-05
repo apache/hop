@@ -2468,8 +2468,8 @@ public class MailDialog extends BaseTransformDialog {
     wSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wlSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
-    wCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
     wlCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
+    wCheckServerIdentity.setEnabled(wUseSecAuth.getSelection());
   }
 
   private void setEncodings() {
