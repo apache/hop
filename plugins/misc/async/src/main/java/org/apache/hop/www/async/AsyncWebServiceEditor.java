@@ -31,7 +31,6 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
@@ -304,15 +303,13 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
         workflowMeta.setFilename(realFilename);
         workflowMeta.clearChanged();
 
-        HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
+        // Open it in the Hop GUI
+        //
+        HopGui.getExplorerPerspective().addWorkflow(workflowMeta);
 
         // Switch to the perspective
         //
-        perspective.activate();
-
-        // Open it in the Hop GUI
-        //
-        HopGui.getDataOrchestrationPerspective().addWorkflow(hopGui, workflowMeta, type);
+        HopGui.getExplorerPerspective().activate();
 
         // Save the file
         hopGui.fileDelegate.fileSave();

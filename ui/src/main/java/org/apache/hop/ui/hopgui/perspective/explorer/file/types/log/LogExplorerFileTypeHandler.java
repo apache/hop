@@ -20,9 +20,7 @@ package org.apache.hop.ui.hopgui.perspective.explorer.file.types.log;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileTypeHandler;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * How do we handle a log file in file explorer perspective?
@@ -35,10 +33,7 @@ import org.eclipse.swt.widgets.Text;
  *
  * <p>
  */
-public class LogExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler
-    implements IExplorerFileTypeHandler {
-
-  private Text wText;
+public class LogExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler {
 
   public LogExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {

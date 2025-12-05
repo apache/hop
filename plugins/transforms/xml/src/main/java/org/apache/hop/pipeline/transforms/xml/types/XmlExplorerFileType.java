@@ -26,7 +26,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileType;
 
@@ -35,8 +34,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     name = "XML File Type",
     description = "XML file handling in the explorer perspective",
     image = "add_xml.svg")
-public class XmlExplorerFileType extends BaseTextExplorerFileType<XmlExplorerFileTypeHandler>
-    implements IExplorerFileType<XmlExplorerFileTypeHandler> {
+public class XmlExplorerFileType extends BaseTextExplorerFileType<XmlExplorerFileTypeHandler> {
 
   public XmlExplorerFileType() {
     super(

@@ -17,7 +17,6 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.base;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.vfs2.FileObject;
@@ -69,7 +68,7 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    return Collections.emptyList();
+    return List.of();
   }
 
   /**
@@ -163,11 +162,10 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
   }
 
   @Override
-  public T openFile(HopGui hopGui, String filename, IVariables parentVariables)
-      throws HopException {
+  public T openFile(HopGui hopGui, String filename, IVariables variables) throws HopException {
 
     try {
-      FileObject fileObject = HopVfs.getFileObject(parentVariables.resolve(filename));
+      FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename));
       String name = fileObject.getName().getBaseName();
 
       // Check the file size before opening.
@@ -203,20 +201,21 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
         }
       }
 
+      // Normalize the filename
+      //
+      filename = HopVfs.normalize(variables.resolve(filename));
+
       // Open the file in the explorer perspective
       //
-      ExplorerPerspective perspective = ExplorerPerspective.getInstance();
-
       ExplorerFile explorerFile = new ExplorerFile();
       explorerFile.setName(Const.NVL(name, ""));
       explorerFile.setFilename(filename);
       explorerFile.setFileType(this);
-      explorerFile.setTabImage(perspective.getFileTypeImage(this));
 
+      ExplorerPerspective perspective = ExplorerPerspective.getInstance();
       T fileTypeHandler = createFileTypeHandler(hopGui, perspective, explorerFile);
-      explorerFile.setFileTypeHandler(fileTypeHandler);
 
-      perspective.addFile(explorerFile);
+      perspective.addFile(fileTypeHandler);
 
       return fileTypeHandler;
     } catch (Exception e) {

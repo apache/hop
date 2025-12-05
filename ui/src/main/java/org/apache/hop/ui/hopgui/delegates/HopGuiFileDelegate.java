@@ -67,10 +67,11 @@ public class HopGuiFileDelegate {
 
   public HopGuiFileDelegate(HopGui hopGui) {
     this.hopGui = hopGui;
+    this.isClosing = false;
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {
-    return hopGui.getActivePerspective().getActiveFileTypeHandler();
+    return hopGui.getActiveFileTypeHandler();
   }
 
   public void fileOpen() {
@@ -96,8 +97,13 @@ public class HopGuiFileDelegate {
   }
 
   public IHopFileTypeHandler fileOpen(String filename) throws Exception {
-    HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
+    return fileOpen(filename, true);
+  }
 
+  public IHopFileTypeHandler fileOpen(String filename, boolean activatePerspective)
+      throws Exception {
+
+    HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
     IHopFileType hopFile = fileRegistry.findHopFileType(filename);
     if (hopFile == null) {
       throw new HopException(
@@ -119,6 +125,15 @@ public class HopGuiFileDelegate {
       // Also save the state of Hop GUI
       //
       hopGui.auditDelegate.writeLastOpenFiles();
+
+      // Switch to the perspective
+      //
+      if (activatePerspective) {
+        IHopPerspective perspective = hopGui.getPerspectiveManager().findPerspective(hopFile);
+        if (perspective != null) {
+          perspective.activate();
+        }
+      }
     }
 
     return fileTypeHandler;
@@ -200,7 +215,7 @@ public class HopGuiFileDelegate {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_CLOSE)) {
-        perspective.remove(typeHandler);
+        return perspective.remove(typeHandler);
       }
     } catch (Exception e) {
       new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error saving/closing file", e);
@@ -291,7 +306,7 @@ public class HopGuiFileDelegate {
       RowMetaAndData row = rowDialog.open();
       if (row != null) {
         String filename = row.getString("filename", null);
-        hopGui.fileDelegate.fileOpen(filename);
+        fileOpen(filename);
       }
     } catch (Exception e) {
       new ErrorDialog(

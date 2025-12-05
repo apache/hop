@@ -39,7 +39,6 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.www.service.WebService;
 import org.apache.http.entity.ContentType;
 import org.eclipse.swt.SWT;
@@ -408,15 +407,13 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
         pipelineMeta.setFilename(realFilename);
         pipelineMeta.clearChanged();
 
-        HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
+        // Open it in the Hop GUI
+        //
+        HopGui.getExplorerPerspective().addPipeline(pipelineMeta);
 
         // Switch to the perspective
         //
-        perspective.activate();
-
-        // Open it in the Hop GUI
-        //
-        HopGui.getDataOrchestrationPerspective().addPipeline(hopGui, pipelineMeta, type);
+        HopGui.getExplorerPerspective().activate();
 
         // Save the file
         hopGui.fileDelegate.fileSave();

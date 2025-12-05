@@ -128,7 +128,7 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
   void close();
 
   /**
-   * See if there anything has been changed by the user
+   * See if there is anything has been changed by the user
    *
    * @return true if there were changes worth saving, false if nothing has been changed.
    */
