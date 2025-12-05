@@ -159,7 +159,8 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getConnection(), lsMod);
+    DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wName, databaseMeta, lsMod);
 
     // Schema name line
     // Schema name
