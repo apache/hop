@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.IGuiPosition;
+import org.apache.hop.core.gui.IGuiSize;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
@@ -907,13 +908,42 @@ public class PropsUi extends Props {
       // Snap to grid...
       //
       return new Point(
-          gridSize * Math.round((float) p.x / gridSize),
-          gridSize * Math.round((float) p.y / gridSize));
+          gridSize * (int) Math.round((float) (p.x / gridSize)),
+          gridSize * (int) Math.round((float) (p.y / gridSize)));
     } else {
       // Normal draw
       //
       return p;
     }
+  }
+
+  /**
+   * Sets the size of a given GUI element, ensuring that the width and height do not fall below a
+   * predefined minimum size. The size is adjusted to align with a grid through calculation.
+   *
+   * @param element the GUI element whose size is to be set
+   * @param width the desired width of the element
+   * @param height the desired height of the element
+   */
+  public static void setSize(IGuiSize element, int width, int height) {
+
+    if (width < ConstUi.NOTE_MIN_SIZE) {
+      width = ConstUi.NOTE_MIN_SIZE;
+    }
+    if (height < ConstUi.NOTE_MIN_SIZE) {
+      height = ConstUi.NOTE_MIN_SIZE;
+    }
+    int gridSize = PropsUi.getInstance().getCanvasGridSize();
+    if (gridSize > 1) {
+      int w = width / gridSize;
+      if (width % gridSize > 0) w += 1;
+      int h = height / gridSize;
+      if (height % gridSize > 0) h += 1;
+      width = gridSize * w;
+      height = gridSize * h;
+    }
+    element.setWidth(width);
+    element.setHeight(height);
   }
 
   public boolean isIndicateSlowPipelineTransformsEnabled() {

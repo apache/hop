@@ -252,6 +252,7 @@ public class NotePadDialog extends Dialog {
             refreshTextNote();
           }
         });
+    PropsUi.setLook(wFontSize);
 
     // Font bold?
     Label wlFontBold = new Label(wNoteFontComp, SWT.RIGHT);

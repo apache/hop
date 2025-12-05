@@ -127,102 +127,90 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   }
 
   public static EImage getStreamIconImage(StreamIcon streamIcon, boolean enabled) {
-    switch (streamIcon) {
-      case TRUE:
-        return (enabled) ? EImage.TRUE : EImage.TRUE_DISABLED;
-      case FALSE:
-        return (enabled) ? EImage.FALSE : EImage.FALSE_DISABLED;
-      case ERROR:
-        return (enabled) ? EImage.ERROR : EImage.ERROR_DISABLED;
-      case INFO:
-        return (enabled) ? EImage.INFO : EImage.INFO_DISABLED;
-      case TARGET:
-        return (enabled) ? EImage.TARGET : EImage.TARGET_DISABLED;
-      case INPUT:
-        return EImage.INPUT;
-      case OUTPUT:
-        return EImage.OUTPUT;
-      default:
-        return EImage.ARROW_DEFAULT;
-    }
+    return switch (streamIcon) {
+      case TRUE -> (enabled) ? EImage.TRUE : EImage.TRUE_DISABLED;
+      case FALSE -> (enabled) ? EImage.FALSE : EImage.FALSE_DISABLED;
+      case ERROR -> (enabled) ? EImage.ERROR : EImage.ERROR_DISABLED;
+      case INFO -> (enabled) ? EImage.INFO : EImage.INFO_DISABLED;
+      case TARGET -> (enabled) ? EImage.TARGET : EImage.TARGET_DISABLED;
+      case INPUT -> EImage.INPUT;
+      case OUTPUT -> EImage.OUTPUT;
+      default -> EImage.ARROW_DEFAULT;
+    };
   }
 
-  protected void drawNote(NotePadMeta notePadMeta) {
-    if (notePadMeta.isSelected()) {
+  protected Point calculateMinimumSize(NotePadMeta note) {
+    if (Utils.isEmpty(note.getNote())) {
+      return new Point(20, 20); // Empty note
+    }
+
+    int fontHeight;
+    if (note.getFontSize() > 0) {
+      fontHeight = note.getFontSize();
+    } else {
+      fontHeight = noteFontHeight;
+    }
+    gc.setFont(
+        Const.NVL(note.getFontName(), noteFontName),
+        (int) ((double) fontHeight / zoomFactor),
+        note.isFontBold(),
+        note.isFontItalic());
+
+    Point size = gc.textExtent(note.getNote());
+    size.x += 2 * Const.NOTE_MARGIN;
+    size.y += 2 * Const.NOTE_MARGIN;
+
+    return size;
+  }
+
+  protected void drawNote(NotePadMeta noteMeta) {
+    if (noteMeta.isSelected()) {
       gc.setLineWidth(2);
     } else {
       gc.setLineWidth(1);
     }
 
-    Point ext;
-    if (Utils.isEmpty(notePadMeta.getNote())) {
-      ext = new Point(10, 10); // Empty note
-    } else {
+    Point minimumSize = this.calculateMinimumSize(noteMeta);
 
-      int fontHeight;
-      if (notePadMeta.getFontSize() > 0) {
-        fontHeight = notePadMeta.getFontSize();
-      } else {
-        fontHeight = noteFontHeight;
-      }
-      gc.setFont(
-          Const.NVL(notePadMeta.getFontName(), noteFontName),
-          (int) ((double) fontHeight / zoomFactor),
-          notePadMeta.isFontBold(),
-          notePadMeta.isFontItalic());
+    // Cache the minimum size for resize operation
+    noteMeta.setMinimumWidth(minimumSize.x);
+    noteMeta.setMinimumHeight(minimumSize.y);
 
-      ext = gc.textExtent(notePadMeta.getNote());
-    }
-    Point p = new Point(ext.x, ext.y);
-    Point loc = notePadMeta.getLocation();
+    Point loc = noteMeta.getLocation();
     Point note = real2screen(loc.x, loc.y);
-    int margin = Const.NOTE_MARGIN;
-    p.x += 2 * margin;
-    p.y += 2 * margin;
-    int width = notePadMeta.width;
-    int height = notePadMeta.height;
-    if (p.x > width) {
-      width = p.x;
-    }
-    if (p.y > height) {
-      height = p.y;
-    }
 
+    int width = noteMeta.width;
+    int height = noteMeta.height;
+    if (minimumSize.x > width) {
+      width = minimumSize.x;
+    }
+    if (minimumSize.y > height) {
+      height = minimumSize.y;
+    }
     Rectangle noteShape = new Rectangle(note.x, note.y, width, height);
 
     gc.setBackground(
-        notePadMeta.getBackGroundColorRed(),
-        notePadMeta.getBackGroundColorGreen(),
-        notePadMeta.getBackGroundColorBlue());
+        noteMeta.getBackGroundColorRed(),
+        noteMeta.getBackGroundColorGreen(),
+        noteMeta.getBackGroundColorBlue());
     gc.setForeground(
-        notePadMeta.getBorderColorRed(),
-        notePadMeta.getBorderColorGreen(),
-        notePadMeta.getBorderColorBlue());
+        noteMeta.getBorderColorRed(),
+        noteMeta.getBorderColorGreen(),
+        noteMeta.getBorderColorBlue());
 
     // Radius is half the font height
     //
-    int radius = (int) Math.round(zoomFactor * notePadMeta.getFontSize() / 2);
+    int radius = (int) Math.round(zoomFactor * 8);
 
     gc.fillRoundRectangle(
         noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius);
     gc.drawRoundRectangle(
         noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius);
 
-    if (!Utils.isEmpty(notePadMeta.getNote())) {
+    if (!Utils.isEmpty(noteMeta.getNote())) {
       gc.setForeground(
-          notePadMeta.getFontColorRed(),
-          notePadMeta.getFontColorGreen(),
-          notePadMeta.getFontColorBlue());
-      gc.drawText(notePadMeta.getNote(), note.x + margin, note.y + margin, true);
-    }
-
-    notePadMeta.width = width; // Save for the "mouse" later on...
-    notePadMeta.height = height;
-
-    if (notePadMeta.isSelected()) {
-      gc.setLineWidth(1);
-    } else {
-      gc.setLineWidth(2);
+          noteMeta.getFontColorRed(), noteMeta.getFontColorGreen(), noteMeta.getFontColorBlue());
+      gc.drawText(noteMeta.getNote(), note.x + Const.NOTE_MARGIN, note.y + Const.NOTE_MARGIN, true);
     }
 
     // Add to the list of areas...
@@ -236,7 +224,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
             noteShape.height,
             offset,
             subject,
-            notePadMeta));
+            noteMeta));
   }
 
   protected Point real2screen(int x, int y) {

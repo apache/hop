@@ -17,6 +17,8 @@
 
 package org.apache.hop.core;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.IGuiSize;
@@ -89,6 +91,9 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   @HopMetadataProperty public int width;
   @HopMetadataProperty public int height;
 
+  @Getter @Setter private int minimumWidth;
+  @Getter @Setter private int minimumHeight;
+
   private boolean selected;
   private boolean changed;
 
@@ -115,11 +120,11 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
   }
 
   public NotePadMeta(
-      String n,
-      int xl,
-      int yl,
-      int w,
-      int h,
+      String note,
+      int x,
+      int y,
+      int width,
+      int height,
       String fontName,
       int fontSize,
       boolean fontBold,
@@ -127,16 +132,16 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
       int fontColorRed,
       int fontColorGreen,
       int fontColorBlue,
-      int backGrounColorRed,
-      int backGrounColorGreen,
-      int backGrounColorBlue,
+      int backGroundColorRed,
+      int backGroundColorGreen,
+      int backGroundColorBlue,
       int borderColorRed,
       int borderColorGreen,
       int borderColorBlue) {
-    this.note = n;
-    this.location = new Point(xl, yl);
-    this.width = w;
-    this.height = h;
+    this.note = note;
+    this.location = new Point(x, y);
+    this.width = width;
+    this.height = height;
     this.selected = false;
     this.fontName = fontName;
     this.fontSize = fontSize;
@@ -147,9 +152,9 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
     this.fontColorGreen = fontColorGreen;
     this.fontColorBlue = fontColorBlue;
     // background color
-    this.backGroundColorRed = backGrounColorRed;
-    this.backGroundColorGreen = backGrounColorGreen;
-    this.backGroundColorBlue = backGrounColorBlue;
+    this.backGroundColorRed = backGroundColorRed;
+    this.backGroundColorGreen = backGroundColorGreen;
+    this.backGroundColorBlue = backGroundColorBlue;
     // border color
     this.borderColorRed = borderColorRed;
     this.borderColorGreen = borderColorGreen;
@@ -354,6 +359,9 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
    */
   @Override
   public void setHeight(int height) {
+    if (this.height != height) {
+      setChanged();
+    }
     this.height = height;
   }
 
@@ -370,6 +378,9 @@ public class NotePadMeta implements Cloneable, IGuiPosition, IGuiSize {
    */
   @Override
   public void setWidth(int width) {
+    if (this.width != width) {
+      setChanged();
+    }
     this.width = width;
   }
 

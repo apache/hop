@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800">
+<path fill="#0E3A5A" d="M600,240v320c0,22.092-17.909,40-40,40H240c-22.092,0-40-17.908-40-40V240
+	c0-22.091,17.908-40,40-40h320C582.091,200,600,217.909,600,240z"/>
+<path fill="none" stroke="#0E3A5A" stroke-width="42" stroke-linecap="round" stroke-linejoin="round" d="M600,440h120
+	c22.091,0,40,17.908,40,40v240c0,22.092-17.909,40-40,40H480c-22.092,0-40-17.908-40-40V600"/>
+<path fill="none" stroke="#0E3A5A" stroke-width="42" stroke-linecap="round" stroke-linejoin="round" d="M200,360
+	H80c-22.092,0-40-17.909-40-40V80c0-22.091,17.908-40,40-40h240c22.091,0,40,17.909,40,40v120"/>
+<path fill="none" stroke="#0E3A5A" stroke-width="42" stroke-linecap="round" stroke-linejoin="round" d="M600,240
+	v320c0,22.092-17.909,40-40,40H240c-22.092,0-40-17.908-40-40V240c0-22.091,17.908-40,40-40h320C582.091,200,600,217.909,600,240z"
+	/>
+</svg>
