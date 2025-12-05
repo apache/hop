@@ -220,6 +220,7 @@ public class HopGuiPipelineHopDelegate {
     pipelineMeta.removePipelineHop(index);
 
     TransformMeta fromTransformMeta = pipelineHopMeta.getFromTransform();
+
     TransformMeta beforeFrom = (TransformMeta) fromTransformMeta.clone();
     int indexFrom = pipelineMeta.indexOfTransform(fromTransformMeta);
 
@@ -251,6 +252,22 @@ public class HopGuiPipelineHopDelegate {
         transformErrorMeta.setEnabled(false);
         transformFromNeedAddUndoChange = true;
       }
+    }
+
+    // Check remaining hops from 'from' transform after deletion
+    //
+    List<PipelineHopMeta> fromHops = pipelineMeta.findAllPipelineHopFrom(fromTransformMeta);
+    int fromHopCount = 0;
+    for (PipelineHopMeta fromHop : fromHops) {
+      // Ignore hop for error handling
+      if (fromHop.isEnabled() && !fromHop.isErrorHop()) {
+        fromHopCount++;
+      }
+    }
+
+    // If remaining hops is 1, reset distribute/copy settings in the from transform
+    if (fromHopCount == 1) {
+      fromTransformMeta.setDistributes(true);
     }
 
     if (transformFromNeedAddUndoChange) {
