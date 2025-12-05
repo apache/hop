@@ -99,6 +99,11 @@ For example, if you need to lookup different types of products like ORIGINAL_PRO
 Note that the new maximum is always cached, so that the maximum does not need to be calculated for each new row.
 * Use sequence: Specify the sequence name if you want to use a database sequence on the table connection to generate the technical key (typical for Oracle e.g.).
 * Use auto increment field: Use an auto increment field in the database table to generate the technical key (supported e.g. by DB2).
+
+|Do not check or insert the 'unknown' row
+|By default, Hop checks whether there is an 'unknown' record available at ID 0 or 1.
+If no such record is present in the dimension table, this transform adds it.
+If you check this option you indicate that you take responsibility for adding this record yourself.
 |===
 
 === Versioning tab
