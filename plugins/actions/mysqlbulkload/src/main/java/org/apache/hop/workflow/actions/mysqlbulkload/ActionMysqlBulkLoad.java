@@ -191,12 +191,7 @@ public class ActionMysqlBulkLoad extends ActionBase {
           }
 
           if (connection != null) {
-            DatabaseMeta databaseMeta = null;
-            try {
-              databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
-            } catch (Exception e) {
-              logError("Unable to load database :" + connection, e);
-            }
+            DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
             // User has specified a connection, We can continue ...
             try (Database db = new Database(this, this, databaseMeta)) {
               db.connect();
