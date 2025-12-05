@@ -37,6 +37,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -107,7 +108,9 @@ public class ActionMysqlBulkFile extends ActionBase {
   @HopMetadataProperty(key = "addfiletoresult")
   private boolean addFileToResult;
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   public ActionMysqlBulkFile(String n) {
@@ -216,12 +219,7 @@ public class ActionMysqlBulkFile extends ActionBase {
         }
 
         if (connection != null) {
-          DatabaseMeta databaseMeta = null;
-          try {
-            databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
-          } catch (Exception e) {
-            logError("Unable to load database :" + connection, e);
-          }
+          DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
 
           // User has specified a connection, We can continue ...
           try (Database db = new Database(this, this, databaseMeta)) {
@@ -432,12 +430,7 @@ public class ActionMysqlBulkFile extends ActionBase {
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     if (connection != null) {
-      DatabaseMeta databaseMeta = null;
-      try {
-        databaseMeta = DatabaseMeta.loadDatabase(getMetadataProvider(), connection);
-      } catch (Exception e) {
-        logError("Unable to load database :" + connection, e);
-      }
+      DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
       ResourceReference reference = new ResourceReference(this);
       reference
           .getEntries()
