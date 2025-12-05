@@ -460,7 +460,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
             }
           }
         } else {
-
           if (paramsFromPrevious) {
             // Copy the input the parameters
             for (Parameter parameter : parameterDefinition.getParameters()) {
@@ -524,7 +523,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         TransformWithMappingMeta.activateParams(
             pipeline,
             pipeline,
-            this.parentWorkflow,
+            this,
             parameterNames,
             parameterDefinition.getNames(),
             parameterDefinition.getValues(),

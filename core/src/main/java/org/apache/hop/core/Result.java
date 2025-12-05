@@ -245,7 +245,7 @@ public class Result implements Cloneable {
    * @return a List of rows associated with the result of execution of a workflow or pipeline
    */
   public List<RowMetaAndData> getRows() {
-    return new ArrayList<>(rows);
+    return rows;
   }
 
   /**
@@ -254,10 +254,8 @@ public class Result implements Cloneable {
    * @param rows The List of rows to set.
    */
   public void setRows(List<RowMetaAndData> rows) {
-    if (rows == null) {
-      this.rows = new ArrayList<>();
-    } else {
-      this.rows = new ArrayList<>(rows);
+    if (rows != null) {
+      this.rows = rows;
     }
   }
 
