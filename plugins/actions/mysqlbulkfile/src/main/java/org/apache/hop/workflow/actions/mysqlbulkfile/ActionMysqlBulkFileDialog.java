@@ -155,7 +155,8 @@ public class ActionMysqlBulkFileDialog extends ActionDialog {
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getConnection(), null);
+    DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wName, databaseMeta, null);
 
     // Schema name line
     // Schema name
