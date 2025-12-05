@@ -27,7 +27,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.capabilities.FileTypeCapabilities;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
 
@@ -36,8 +35,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplore
     name = "Git Info",
     description = "Git info file handling in the explorer perspective",
     image = "git_icon.svg")
-public class GitInfoExplorerFileType extends BaseExplorerFileType<GitInfoExplorerFileTypeHandler>
-    implements IExplorerFileType<GitInfoExplorerFileTypeHandler> {
+public class GitInfoExplorerFileType extends BaseExplorerFileType<GitInfoExplorerFileTypeHandler> {
 
   public GitInfoExplorerFileType() {
     super(

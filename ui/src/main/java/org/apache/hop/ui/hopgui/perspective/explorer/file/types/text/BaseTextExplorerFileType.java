@@ -24,11 +24,10 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
 
 public abstract class BaseTextExplorerFileType<T extends BaseTextExplorerFileTypeHandler>
-    extends BaseExplorerFileType<T> implements IExplorerFileType<T> {
+    extends BaseExplorerFileType<T> {
 
   public BaseTextExplorerFileType() {}
 

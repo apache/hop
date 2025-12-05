@@ -43,6 +43,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
@@ -53,7 +54,6 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataFileType;
 import org.apache.hop.ui.core.metadata.MetadataManager;
-import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -68,6 +68,7 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.TabItemReorder;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
@@ -165,7 +166,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
-    return Arrays.asList(metadataFileType);
+    return List.of(metadataFileType);
   }
 
   @Override
@@ -175,12 +176,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     // Split tree and editor
     //
     sash = new SashForm(parent, SWT.HORIZONTAL);
-    FormData fdSash = new FormData();
-    fdSash.left = new FormAttachment(0, 0);
-    fdSash.top = new FormAttachment(0, 0);
-    fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(100, 0);
-    sash.setLayoutData(fdSash);
+    sash.setLayoutData(new FormDataBuilder().fullSize().result());
 
     createTree(sash);
     createTabFolder(sash);
@@ -203,6 +199,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         .addEventListener(
             getClass().getName(), e -> refresh(), HopGuiEvents.MetadataChanged.name());
 
+    // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
   }
 
@@ -338,7 +335,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         new CTabFolder2Adapter() {
           @Override
           public void close(CTabFolderEvent event) {
-            onTabClose(event);
+            CTabItem tabItem = (CTabItem) event.item;
+            closeTab(event, tabItem);
           }
         });
     tabFolder.addListener(SWT.Selection, event -> updateGui());
@@ -370,7 +368,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
     // Support reorder tab item
     //
-    new TabFolderReorder(tabFolder);
+    new TabItemReorder(this, tabFolder);
   }
 
   public void addEditor(MetadataEditor<?> editor) {
@@ -431,10 +429,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(this);
     HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
-
-    // Activate perspective
-    //
-    this.activate();
 
     // Switch to the tab
     //
@@ -504,11 +498,6 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     if (fileTypeHandler instanceof MetadataEditor) {
       this.setActiveEditor((MetadataEditor<?>) fileTypeHandler);
     }
-  }
-
-  protected void onTabClose(CTabFolderEvent event) {
-    CTabItem tabItem = (CTabItem) event.item;
-    closeTab(event, tabItem);
   }
 
   @GuiToolbarElement(
@@ -938,17 +927,22 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         }
       }
 
-      // Avoid refresh in a closing process (when switching project)
+      // Avoid refresh in a closing process (when switching project or exit)
       if (!hopGui.fileDelegate.isClosing()) {
         // Refresh tree to remove bold
         //
         this.refresh();
 
+        // If all editors are closed
+        //
+        if (tabFolder.getItemCount() == 0) {
+          HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
+        }
+
         // Update Gui menu and toolbar
         this.updateGui();
       }
     }
-
     return false;
   }
 
@@ -1026,16 +1020,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     MetadataEditor<?> editor = (MetadataEditor<?>) tabItem.getData();
 
     boolean isRemoved = remove(editor);
-
     if (!isRemoved && event != null) {
+      // Ignore event if canceled
       event.doit = false;
-      return;
-    }
-
-    // If all editors are closed
-    //
-    if (tabFolder.getItemCount() == 0) {
-      HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
     }
   }
 

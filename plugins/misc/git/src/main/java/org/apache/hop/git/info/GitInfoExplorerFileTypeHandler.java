@@ -47,10 +47,8 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -75,7 +73,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Show git information about a file or folder: revisions */
 public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
-    implements IExplorerFileTypeHandler, Listener {
+    implements Listener {
 
   public static final Class<?> PKG = GitInfoExplorerFileTypeHandler.class;
 
@@ -346,13 +344,12 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
         return; // No changes expected
       }
 
-      HopDataOrchestrationPerspective dop = HopGui.getDataOrchestrationPerspective();
-
-      if (dop.getPipelineFileType().isHandledBy(filename, false)) {
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      if (perspective.getPipelineFileType().isHandledBy(filename, false)) {
         // A pipeline
         //
         showPipelineFileDiff(filename, commitIdNew, commitIdOld);
-      } else if (dop.getWorkflowFileType().isHandledBy(filename, false)) {
+      } else if (perspective.getWorkflowFileType().isHandledBy(filename, false)) {
         // A workflow
         //
         showWorkflowFileDiff(filename, commitIdNew, commitIdOld);
@@ -407,12 +404,10 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
               git.getShortenedName(commitIdOld)));
       pipelineMetaNew.setNameSynchronizedWithFilename(false);
 
-      // Load both in the data orchestration perspective...
+      // Load both in the editor...
       //
-      HopDataOrchestrationPerspective dop = HopGui.getDataOrchestrationPerspective();
-      dop.addPipeline(hopGui, pipelineMetaOld, dop.getPipelineFileType());
-      dop.addPipeline(hopGui, pipelineMetaNew, dop.getPipelineFileType());
-      dop.activate();
+      HopGui.getExplorerPerspective().addPipeline(pipelineMetaOld);
+      HopGui.getExplorerPerspective().addPipeline(pipelineMetaNew);
     } finally {
       try {
         if (xmlStreamOld != null) {
@@ -470,12 +465,11 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
               git.getShortenedName(commitIdOld)));
       workflowMetaNew.setNameSynchronizedWithFilename(false);
 
-      // Load both in the data orchestration perspective...
+      // Load both in the editor...
       //
-      HopDataOrchestrationPerspective dop = HopGui.getDataOrchestrationPerspective();
-      dop.addWorkflow(hopGui, workflowMetaOld, dop.getWorkflowFileType());
-      dop.addWorkflow(hopGui, workflowMetaNew, dop.getWorkflowFileType());
-      dop.activate();
+      HopGui.getExplorerPerspective().addWorkflow(workflowMetaOld);
+      HopGui.getExplorerPerspective().addWorkflow(workflowMetaNew);
+      HopGui.getExplorerPerspective().activate();
     } finally {
       try {
         if (xmlStreamOld != null) {
@@ -580,12 +574,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       //
       if (filename != null) {
         // if a folder is selected in the left pane then return
-        if (!HopGui.getDataOrchestrationPerspective()
-                .getPipelineFileType()
-                .isHandledBy(explorerFile.getFilename(), false)
-            & !HopGui.getDataOrchestrationPerspective()
-                .getWorkflowFileType()
-                .isHandledBy(explorerFile.getFilename(), false)) {
+        ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+        if (!perspective.getPipelineFileType().isHandledBy(explorerFile.getFilename(), false)
+            & !perspective.getWorkflowFileType().isHandledBy(explorerFile.getFilename(), false)) {
           return;
         }
 
@@ -595,14 +586,10 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           return; // Don't even try to compare with something that's not there.
         }
 
-        if (HopGui.getDataOrchestrationPerspective()
-            .getPipelineFileType()
-            .isHandledBy(filename, false)) {
+        if (perspective.getPipelineFileType().isHandledBy(filename, false)) {
           wbDiff.setEnabled(true);
         }
-        if (HopGui.getDataOrchestrationPerspective()
-            .getWorkflowFileType()
-            .isHandledBy(filename, false)) {
+        if (perspective.getWorkflowFileType().isHandledBy(filename, false)) {
           wbDiff.setEnabled(true);
         }
       }

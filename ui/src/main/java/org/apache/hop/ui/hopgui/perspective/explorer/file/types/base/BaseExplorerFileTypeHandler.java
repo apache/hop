@@ -21,13 +21,18 @@ package org.apache.hop.ui.hopgui.perspective.explorer.file.types.base;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -35,16 +40,18 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
 
-public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler {
+public abstract class BaseExplorerFileTypeHandler implements IExplorerFileTypeHandler {
 
-  protected HopGui hopGui;
-  protected ExplorerPerspective perspective;
-  protected ExplorerFile explorerFile;
+  @Getter protected final HopGui hopGui;
+  @Getter protected final ExplorerPerspective perspective;
+  @Getter @Setter protected ExplorerFile explorerFile;
+  private boolean changed;
+  protected Set<IContentChangedListener> contentChangedListeners = new CopyOnWriteArraySet<>();
 
   public BaseExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
@@ -55,7 +62,7 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
 
   protected String readTextFileContent(String encoding) throws HopException {
     try {
-      FileObject file = HopVfs.getFileObject(explorerFile.getFilename());
+      FileObject file = HopVfs.getFileObject(getFilename());
       if (file.exists()) {
         try (InputStream inputStream = HopVfs.getInputStream(file)) {
           StringWriter writer = new StringWriter();
@@ -63,17 +70,17 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
           return writer.toString();
         }
       } else {
-        throw new HopException("File '" + explorerFile.getFilename() + "' doesn't exist");
+        throw new HopException("File '" + getFilename() + "' doesn't exist");
       }
     } catch (IOException e) {
       throw new HopException(
-          "I/O exception while reading contents of file '" + explorerFile.getFilename() + "'", e);
+          "I/O exception while reading contents of file '" + getFilename() + "'", e);
     }
   }
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    return Collections.emptyList();
+    return List.of();
   }
 
   @Override
@@ -104,6 +111,13 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
   @Override
   public void setFilename(String filename) {
     explorerFile.setFilename(filename);
+    // Update name based on filename
+    try {
+      String name = HopVfs.getFileObject(filename).getName().getBaseName();
+      explorerFile.setName(name);
+    } catch (HopFileException e) {
+      // Ignore
+    }
   }
 
   @Override
@@ -179,12 +193,11 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
   @Override
   public boolean isCloseable() {
     try {
-      if (explorerFile.isChanged()) {
+      if (changed) {
         MessageBox messageDialog =
             new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
         messageDialog.setText("Save file?");
-        messageDialog.setMessage(
-            "Do you want to save file '" + explorerFile.getName() + "' before closing?");
+        messageDialog.setMessage("Do you want to save file '" + getName() + "' before closing?");
         int answer = messageDialog.open();
         if ((answer & SWT.YES) != 0) {
           save();
@@ -199,17 +212,33 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
       return true;
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
-          "Error",
-          "Error preparing file close of '" + explorerFile.getName() + "'",
-          e);
+          hopGui.getShell(), "Error", "Error preparing file close of '" + getName() + "'", e);
       return false;
     }
   }
 
   @Override
   public boolean hasChanged() {
-    return explorerFile.isChanged();
+    return changed;
+  }
+
+  //  /** Flag the file as changed */
+  public void setChanged() {
+    if (!changed) {
+      this.changed = true;
+      for (IContentChangedListener listener : contentChangedListeners) {
+        listener.contentChanged(this);
+      }
+    }
+  }
+
+  public void clearChanged() {
+    if (changed) {
+      this.changed = false;
+      for (IContentChangedListener listener : contentChangedListeners) {
+        listener.contentSafe(this);
+      }
+    }
   }
 
   @Override
@@ -237,51 +266,29 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
     return hopGui.getVariables();
   }
 
-  /**
-   * Gets hopGui
-   *
-   * @return value of hopGui
-   */
-  public HopGui getHopGui() {
-    return hopGui;
+  @Override
+  public void addContentChangedListener(IContentChangedListener listener) {
+    if (listener != null) {
+      contentChangedListeners.add(listener);
+    }
   }
 
-  /**
-   * @param hopGui The hopGui to set
-   */
-  public void setHopGui(HopGui hopGui) {
-    this.hopGui = hopGui;
+  @Override
+  public void removeContentChangedListener(IContentChangedListener listener) {
+    if (listener != null) {
+      contentChangedListeners.remove(listener);
+    }
   }
 
-  /**
-   * Gets perspective
-   *
-   * @return value of perspective
-   */
-  public ExplorerPerspective getPerspective() {
-    return perspective;
-  }
-
-  /**
-   * @param perspective The perspective to set
-   */
-  public void setPerspective(ExplorerPerspective perspective) {
-    this.perspective = perspective;
-  }
-
-  /**
-   * Gets explorerFile
-   *
-   * @return value of explorerFile
-   */
-  public ExplorerFile getExplorerFile() {
-    return explorerFile;
-  }
-
-  /**
-   * @param explorerFile The explorerFile to set
-   */
-  public void setExplorerFile(ExplorerFile explorerFile) {
-    this.explorerFile = explorerFile;
+  protected void fireContentChangedListeners(boolean ch) {
+    if (ch) {
+      for (IContentChangedListener listener : contentChangedListeners) {
+        listener.contentChanged(this);
+      }
+    } else {
+      for (IContentChangedListener listener : contentChangedListeners) {
+        listener.contentSafe(this);
+      }
+    }
   }
 }

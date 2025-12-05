@@ -56,7 +56,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.eclipse.swt.SWT;
@@ -937,15 +936,11 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   protected void createNewKafkaPipeline() {
     PipelineMeta kafkaPipelineMeta = createSubPipelineMeta();
 
-    HopDataOrchestrationPerspective doPerspective = HopGui.getDataOrchestrationPerspective();
-    if (doPerspective == null) {
-      return;
-    }
-
     try {
       // Add a new tab with a new pipeline in the background
       //
-      doPerspective.addPipeline(hopGui, kafkaPipelineMeta, new HopPipelineFileType());
+      HopGui.getExplorerPerspective().addPipeline(kafkaPipelineMeta);
+      HopGui.getExplorerPerspective().activate();
 
       // Ask the user to save the new pipeline
       //

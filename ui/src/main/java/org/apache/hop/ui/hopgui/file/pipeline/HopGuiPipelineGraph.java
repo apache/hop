@@ -173,18 +173,17 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformD
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
+import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -292,7 +291,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Getter private PipelineMeta pipelineMeta;
   @Getter public IPipelineEngine<PipelineMeta> pipeline;
 
-  @Getter private final HopDataOrchestrationPerspective perspective;
+  @Getter private final ExplorerPerspective perspective;
 
   @Getter @Setter private ToolBar toolBar;
 
@@ -419,13 +418,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public HopGuiPipelineGraph(
       Composite parent,
       final HopGui hopGui,
-      final CTabItem parentTabItem,
-      final HopDataOrchestrationPerspective perspective,
+      final ExplorerPerspective perspective,
       final PipelineMeta pipelineMeta,
       final HopPipelineFileType<PipelineMeta> fileType) {
-    super(hopGui, parent, SWT.NO_BACKGROUND, parentTabItem);
+    super(hopGui, parent, SWT.NO_BACKGROUND);
     this.hopGui = hopGui;
-    this.parentTabItem = parentTabItem;
     this.perspective = perspective;
     this.pipelineMeta = pipelineMeta;
     this.fileType = fileType;
@@ -3640,7 +3637,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (tid.open() != null) {
       hopGui.setParametersAsVariablesInUI(pipelineMeta, variables);
       updateGui();
-      perspective.updateTabs();
       return true;
     }
     return false;
@@ -3671,6 +3667,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       AuditManager.registerEvent(
           HopNamespace.getNamespace(), "file", pipelineMeta.getFilename(), "save");
 
+      boolean fileExist = HopVfs.fileExists(pipelineMeta.getFilename());
+
       String xml = pipelineMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(pipelineMeta.getFilename(), false);
       try {
@@ -3678,13 +3676,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         out.write(xml.getBytes(StandardCharsets.UTF_8));
         pipelineMeta.clearChanged();
         updateGui();
-        HopGui.getDataOrchestrationPerspective().updateTabs();
       } finally {
         out.flush();
         out.close();
 
         ExtensionPointHandler.callExtensionPoint(
             log, variables, HopExtensionPoint.PipelineAfterSave.id, pipelineMeta);
+
+        // If we create a new file, refresh the explorer perspective tree
+        // TODO: find a better way to refresh only a partial tree item
+        if (!fileExist) {
+          perspective.refresh();
+        }
       }
     } catch (Exception e) {
       throw new HopException(
@@ -3702,6 +3705,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         filename = filename + this.getFileType().getDefaultFileExtension();
       }
 
+      // Normalize file name
+      filename = HopVfs.normalize(filename);
+
       FileObject fileObject = HopVfs.getFileObject(filename);
       if (fileObject.exists()) {
         MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
@@ -3715,7 +3721,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       pipelineMeta.setFilename(filename);
       save();
-      hopGui.fileRefreshDelegate.register(fileObject.getPublicURIString(), this);
+      hopGui.fileRefreshDelegate.register(filename, this);
     } catch (Exception e) {
       throw new HopException("Error validating file existence for '" + filename + "'", e);
     }
@@ -5020,6 +5026,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               } catch (Exception xe) {
                 LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
               }
+
+              perspective.updateTabItem(this);
+              perspective.updateTreeItem(this);
 
               HopGuiPipelineGraph.super.redraw();
             });

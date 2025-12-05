@@ -20,10 +20,10 @@ package org.apache.hop.ui.hopgui.search;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
@@ -65,27 +65,22 @@ public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
   @Override
   public ISearchableCallback getSearchCallback() {
     return (searchable, searchResult) -> {
-      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      perspective.activate();
-
       HopGuiWorkflowGraph workflowGraph;
 
       // See if the same workflow isn't already open.
       // Other file types we might allow to open more than once but not workflows for now.
       //
-      TabItemHandler tabItemHandlerWithFilename =
-          perspective.findTabItemHandlerWithFilename(workflowMeta.getFilename());
-      if (tabItemHandlerWithFilename != null) {
+      ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+      IHopFileTypeHandler fileTypeHandler =
+          perspective.findFileTypeHandlerByFilename(workflowMeta.getFilename());
+      if (fileTypeHandler != null) {
         // Same file so we can simply switch to it.
         // This will prevent confusion.
         //
-        perspective.switchToTab(tabItemHandlerWithFilename);
-        workflowGraph = (HopGuiWorkflowGraph) tabItemHandlerWithFilename.getTypeHandler();
+        perspective.setActiveFileTypeHandler(fileTypeHandler);
+        workflowGraph = (HopGuiWorkflowGraph) fileTypeHandler;
       } else {
-        workflowGraph =
-            (HopGuiWorkflowGraph)
-                perspective.addWorkflow(
-                    HopGui.getInstance(), workflowMeta, perspective.getWorkflowFileType());
+        workflowGraph = (HopGuiWorkflowGraph) perspective.addWorkflow(workflowMeta);
       }
 
       // Select and open the found action?
@@ -97,6 +92,8 @@ public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
           workflowGraph.editAction(action);
         }
       }
+
+      perspective.activate();
     };
   }
 }

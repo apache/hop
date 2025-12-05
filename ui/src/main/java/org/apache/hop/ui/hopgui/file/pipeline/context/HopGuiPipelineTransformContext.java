@@ -33,9 +33,9 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
 public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     implements IGuiContextHandler {
@@ -123,7 +123,7 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     return actions;
   }
 
-  public static final void openReferencedObject(
+  public static void openReferencedObject(
       PipelineMeta pipelineMeta,
       IVariables variables,
       ITransformMeta iTransformMeta,
@@ -138,10 +138,10 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
 
         // Is this object already loaded?
         //
-        HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-        TabItemHandler tabItemHandler = perspective.findTabItemHandlerWithFilename(filename);
-        if (tabItemHandler != null) {
-          perspective.switchToTab(tabItemHandler);
+        ExplorerPerspective perspective = HopGui.getExplorerPerspective();
+        IHopFileTypeHandler fileTypeHandler = perspective.findFileTypeHandlerByFilename(filename);
+        if (fileTypeHandler != null) {
+          perspective.setActiveFileTypeHandler(fileTypeHandler);
         } else {
           hopGui.fileDelegate.fileOpen(filename);
         }

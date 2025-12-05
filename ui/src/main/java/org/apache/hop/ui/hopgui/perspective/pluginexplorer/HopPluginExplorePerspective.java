@@ -19,7 +19,6 @@ package org.apache.hop.ui.hopgui.perspective.pluginexplorer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -42,12 +40,8 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-import org.apache.hop.ui.hopgui.file.IHopFileType;
-import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -105,21 +99,6 @@ public class HopPluginExplorePerspective implements IHopPerspective {
   @Override
   public boolean isActive() {
     return hopGui.isActivePerspective(this);
-  }
-
-  @Override
-  public IHopFileTypeHandler getActiveFileTypeHandler() {
-    return new EmptyHopFileTypeHandler();
-  }
-
-  @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
-    // Do nothing
-  }
-
-  @Override
-  public List<IHopFileType> getSupportedHopFileTypes() {
-    return Collections.emptyList();
   }
 
   @Override
@@ -278,47 +257,12 @@ public class HopPluginExplorePerspective implements IHopPerspective {
   }
 
   @Override
-  public boolean remove(IHopFileTypeHandler typeHandler) {
-    return false; // Nothing to do here
-  }
-
-  @Override
-  public List<TabItemHandler> getItems() {
-    return null;
-  }
-
-  @Override
-  public void navigateToPreviousFile() {
-    // Do nothing
-  }
-
-  @Override
-  public void navigateToNextFile() {
-    // Do nothing
-  }
-
-  @Override
-  public boolean hasNavigationPreviousFile() {
-    return false;
-  }
-
-  @Override
-  public boolean hasNavigationNextFile() {
-    return false;
-  }
-
-  @Override
   public Control getControl() {
     return composite;
   }
 
   @Override
   public List<IGuiContextHandler> getContextHandlers() {
-    return new ArrayList<>();
-  }
-
-  @Override
-  public List<ISearchable> getSearchables() {
     return new ArrayList<>();
   }
 }

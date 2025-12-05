@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.ui.hopgui.perspective.dataorch;
+package org.apache.hop.ui.hopgui.file.shared;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +36,6 @@ import org.apache.hop.ui.hopgui.file.IGraphSnapAlignDistribute;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -60,8 +59,6 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
 
   protected Composite parentComposite;
 
-  protected CTabItem parentTabItem;
-
   protected Point iconOffset;
   protected Point noteOffset;
 
@@ -80,13 +77,12 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
    */
   protected Map<String, Object> stateMap;
 
-  public HopGuiAbstractGraph(HopGui hopGui, Composite parent, int style, CTabItem parentTabItem) {
+  public HopGuiAbstractGraph(HopGui hopGui, Composite parent, int style) {
     super(parent, style);
     this.parentComposite = parent;
     this.hopGui = hopGui;
     this.variables = new Variables();
     this.variables.copyFrom(hopGui.getVariables());
-    this.parentTabItem = parentTabItem;
     this.defaultFont = GuiResource.getInstance().getFontDefault();
     this.changedState = false;
     this.id = UUID.randomUUID().toString();
@@ -108,61 +104,16 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
 
   @Override
   public void redraw() {
-    if (isDisposed() || canvas == null || canvas.isDisposed() || parentTabItem.isDisposed()) {
+    if (isDisposed() || canvas == null || canvas.isDisposed()) {
       return;
     }
 
-    if (hasChanged() != changedState) {
-      changedState = hasChanged();
-      if (hasChanged()) {
-        parentTabItem.setFont(GuiResource.getInstance().getFontBold());
-      } else {
-        parentTabItem.setFont(defaultFont);
-      }
-    }
     canvas.redraw();
   }
 
   @Override
   public boolean forceFocus() {
     return canvas.forceFocus();
-  }
-
-  @Override
-  public void dispose() {
-    parentTabItem.dispose();
-  }
-
-  /**
-   * Gets parentTabItem
-   *
-   * @return value of parentTabItem
-   */
-  public CTabItem getParentTabItem() {
-    return parentTabItem;
-  }
-
-  /**
-   * @param parentTabItem The parentTabItem to set
-   */
-  public void setParentTabItem(CTabItem parentTabItem) {
-    this.parentTabItem = parentTabItem;
-  }
-
-  /**
-   * Gets parentComposite
-   *
-   * @return value of parentComposite
-   */
-  public Composite getParentComposite() {
-    return parentComposite;
-  }
-
-  /**
-   * @param parentComposite The parentComposite to set
-   */
-  public void setParentComposite(Composite parentComposite) {
-    this.parentComposite = parentComposite;
   }
 
   /**
