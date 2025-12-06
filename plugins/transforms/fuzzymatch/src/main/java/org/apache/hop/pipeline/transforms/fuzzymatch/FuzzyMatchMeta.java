@@ -25,6 +25,9 @@ import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algor
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -36,6 +39,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -204,9 +208,9 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
             // Configuration error/missing resources...
             v.setName(lookupValue.getName());
             v.setOrigin(name);
-            v.setStorageType(
-                IValueMeta.STORAGE_TYPE_NORMAL); // Only normal storage goes into the cache
-            inputRowMeta.addValueMeta(v);
+            // Only normal storage goes into the cache
+            v.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+            replaceValueMeta(inputRowMeta, lookupValue, v);
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
@@ -219,9 +223,32 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
         for (FMLookupValue lookupValue : lookupValues) {
           v = new ValueMetaString(lookupValue.getName());
           v.setOrigin(name);
-          inputRowMeta.addValueMeta(v);
+          replaceValueMeta(inputRowMeta, lookupValue, v);
         }
       }
+    }
+  }
+
+  /**
+   * Replaces or adds a value meta in the given row meta structure.
+   *
+   * @param inputRowMeta The row meta where the new field should be inserted.
+   * @param lookupValue The lookup configuration that may contain a rename target.
+   * @param newMeta The value meta to add or replace.
+   */
+  private void replaceValueMeta(
+      IRowMeta inputRowMeta, FMLookupValue lookupValue, IValueMeta newMeta) {
+    int index = inputRowMeta.indexOfValue(newMeta.getName());
+    // rename field name
+    if (Objects.nonNull(lookupValue) && !Utils.isEmpty(lookupValue.getRename())) {
+      newMeta.setName(lookupValue.getRename());
+    }
+
+    // add or replace valueMeta
+    if (index == -1) {
+      inputRowMeta.addValueMeta(newMeta);
+    } else {
+      inputRowMeta.setValueMeta(index, newMeta);
     }
   }
 
@@ -721,6 +748,8 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
     }
   }
 
+  @Setter
+  @Getter
   public static final class FMLookupValue {
     @HopMetadataProperty(key = "name")
     private String name;
@@ -737,42 +766,6 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
 
     public FMLookupValue(String name, String rename) {
       this.name = name;
-      this.rename = rename;
-    }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets rename
-     *
-     * @return value of rename
-     */
-    public String getRename() {
-      return rename;
-    }
-
-    /**
-     * Sets rename
-     *
-     * @param rename value of rename
-     */
-    public void setRename(String rename) {
       this.rename = rename;
     }
   }
