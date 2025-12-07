@@ -256,6 +256,12 @@ public class Result implements Cloneable {
   public void setRows(List<RowMetaAndData> rows) {
     if (rows != null) {
       this.rows = rows;
+    } else {
+      // When setting to null (this happens for example every time a parallel
+      // branches in workflow starts), we empty rows' list because in
+      // this case it is needed a Result without any row to start the execution
+      // from a clean rows' state
+      this.rows = new ArrayList<>();
     }
   }
 
