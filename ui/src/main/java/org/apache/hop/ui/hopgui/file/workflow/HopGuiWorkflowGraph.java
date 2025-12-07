@@ -342,7 +342,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private ActionMeta endHopAction;
   private ActionMeta noInputAction;
-  private Point[] previousTransformLocations;
+  private Point[] previousActionLocations;
   private Point[] previousNoteLocations;
   private ActionMeta currentAction;
   private boolean ignoreNextClick;
@@ -544,6 +544,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       mouseHover(event);
     }
     doubleClick = false;
+    resize = null;
 
     if (ignoreNextClick) {
       ignoreNextClick = false;
@@ -553,9 +554,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     boolean control = (event.stateMask & SWT.MOD1) != 0;
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
 
-    lastButton = event.button;
     Point real = screen2real(event.x, event.y);
     lastClick = new Point(real.x, real.y);
+    lastButton = event.button;
 
     // Hide the tooltip!
     hideToolTips();
@@ -574,142 +575,180 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling WorkflowGraphMouseDown extension point", ex);
     }
 
+    // Layer 0: See if we're dragging around the view-port over the workflow graph.
+    //
+    Point clickScreen = new Point(event.x, event.y);
+    if (setupDragViewPort(clickScreen)) {
+      return;
+    }
+
     // A single left or middle click on one of the area owners...
     //
-    if (event.button == 1 || event.button == 2) {
-      if (areaOwner != null && areaOwner.getAreaType() != null) {
-        switch (areaOwner.getAreaType()) {
-          case ACTION_ICON:
-            if (shift && control) {
-              openReferencedObject();
-              return;
-            }
+    boolean done = false;
 
-            ActionMeta actionCopy = (ActionMeta) areaOwner.getOwner();
-            currentAction = actionCopy;
-
-            if (hopCandidate != null) {
-              addCandidateAsHop();
-
-            } else if (event.button == 2 || (event.button == 1 && shift)) {
-              // SHIFT CLICK is start of drag to create a new hop
-              //
-              canvas.setData("mode", "hop");
-              startHopAction = actionCopy;
-
-            } else {
-              canvas.setData("mode", "drag");
-              selectedActions = workflowMeta.getSelectedActions();
-              selectedAction = actionCopy;
-              //
-              // When an icon is moved that is not selected, it gets
-              // selected too late.
-              // It is not captured here, but in the mouseMoveListener...
-              //
-              previousTransformLocations = workflowMeta.getSelectedLocations();
-
-              Point p = actionCopy.getLocation();
-              iconOffset = new Point(real.x - p.x, real.y - p.y);
-            }
-            updateGui();
-            break;
-
-          case ACTION_INFO_ICON:
-            // Click on the info icon means: Edit action description
-            //
-            editActionDescription((ActionMeta) areaOwner.getOwner());
-            break;
-
-          case NOTE:
-            currentNotePad = (NotePadMeta) areaOwner.getOwner();
-            selectedNotes = workflowMeta.getSelectedNotes();
-            selectedNote = currentNotePad;
-            Point loc = currentNotePad.getLocation();
-
-            previousNoteLocations = workflowMeta.getSelectedNoteLocations();
-
-            noteOffset = new Point(real.x - loc.x, real.y - loc.y);
-
-            updateGui();
-            break;
-
-            // If you click on an evaluating icon, change the evaluation...
-            //
-          case WORKFLOW_HOP_ICON:
-            WorkflowHopMeta hop = (WorkflowHopMeta) areaOwner.getOwner();
-            WorkflowHopMeta originalHop = hop.clone();
-            if (hop.getFromAction().isEvaluation()) {
-              if (hop.isUnconditional()) {
-                hop.setUnconditional(false);
-                hop.setEvaluation(true);
-              } else {
-                if (hop.isEvaluation()) {
-                  hop.setEvaluation(false);
-                } else {
-                  hop.setUnconditional(true);
-                }
-              }
-              hopGui.undoDelegate.addUndoChange(
-                  workflowMeta,
-                  new WorkflowHopMeta[] {originalHop},
-                  new WorkflowHopMeta[] {hop},
-                  new int[] {workflowMeta.indexOfWorkflowHop(hop)});
-              updateGui();
-            }
-            break;
-          default:
-            break;
-        }
-      } else {
-        WorkflowHopMeta hop = findWorkflowHop(real.x, real.y);
-        if (hop != null) {
-          // Delete hop with on click
-          if (event.button == 1 && shift && control) {
-            // Delete the hop
-            workflowHopDelegate.delHop(workflowMeta, hop);
-            updateGui();
+    // Layer 1: Click on an area owner except note (else if a note is present in the background,
+    // you cannot click the hop link).
+    if (areaOwner != null && areaOwner.getAreaType() != null) {
+      switch (areaOwner.getAreaType()) {
+        case ACTION_ICON:
+          if (shift && control) {
+            openReferencedObject();
+            return;
           }
-          // User held control and clicked a hop between actions - We want to flip the active state
-          // of
-          // the hop.
-          //
-          else if (event.button == 2 || (event.button == 1 && control)) {
-            hop.setEnabled(!hop.isEnabled());
-            updateGui();
+
+          ActionMeta actionCopy = (ActionMeta) areaOwner.getOwner();
+          currentAction = actionCopy;
+
+          if (hopCandidate != null) {
+            addCandidateAsHop();
+
+          } else if (event.button == 2 || (event.button == 1 && shift)) {
+            // SHIFT CLICK is start of drag to create a new hop
+            //
+            canvas.setData("mode", "hop");
+            startHopAction = actionCopy;
           } else {
-            // A hop: show the hop context menu in the mouseUp() listener
+            canvas.setData("mode", "drag");
+            selectedActions = workflowMeta.getSelectedActions();
+            selectedAction = actionCopy;
             //
-            clickedWorkflowHop = hop;
-          }
-        } else {
-          // If we're dragging a candidate hop around and click on the background it simply needs to
-          // go away.
-          //
-          if (startHopAction != null) {
-            startHopAction = null;
-            hopCandidate = null;
-            lastClick = null;
-            redraw();
-            return;
-          }
+            // When an icon is moved that is not selected, it gets
+            // selected too late.
+            // It is not captured here, but in the mouseMoveListener...
+            //
+            previousActionLocations = workflowMeta.getSelectedLocations();
 
-          // Dragging on the background?
-          // See if we're dragging around the view-port over the workflow graph.
-          //
-          if (setupDragView(event.button, control, new Point(event.x, event.y))) {
-            return;
-          }
-
-          // No area-owner means: background:
-          //
-          canvas.setData("mode", "select");
-          if (!control && event.button == 1) {
-            selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
+            Point p = actionCopy.getLocation();
+            iconOffset = new Point(real.x - p.x, real.y - p.y);
           }
           updateGui();
-        }
+          done = true;
+          break;
+
+        case ACTION_NAME:
+          done = true;
+          break;
+
+        case ACTION_INFO_ICON:
+          // Click on the info icon means: Edit action description
+          //
+          editActionDescription((ActionMeta) areaOwner.getOwner());
+          done = true;
+          break;
+
+          // If you click on an evaluating icon, change the evaluation...
+          //
+        case WORKFLOW_HOP_ICON:
+          WorkflowHopMeta hop = (WorkflowHopMeta) areaOwner.getOwner();
+          WorkflowHopMeta originalHop = hop.clone();
+          if (hop.getFromAction().isEvaluation()) {
+            if (hop.isUnconditional()) {
+              hop.setUnconditional(false);
+              hop.setEvaluation(true);
+            } else {
+              if (hop.isEvaluation()) {
+                hop.setEvaluation(false);
+              } else {
+                hop.setUnconditional(true);
+              }
+            }
+            hopGui.undoDelegate.addUndoChange(
+                workflowMeta,
+                new WorkflowHopMeta[] {originalHop},
+                new WorkflowHopMeta[] {hop},
+                new int[] {workflowMeta.indexOfWorkflowHop(hop)});
+            updateGui();
+          }
+          done = true;
+          break;
+        case NOTE:
+        default:
+          break;
       }
     }
+
+    // Layer 2: click on hop links between actions
+    if (!done) {
+      // Hop links between actions are found searching by (x,y) coordinates.
+      WorkflowHopMeta hop = findWorkflowHop(real.x, real.y);
+      if (hop != null) {
+        // Delete hop with on click
+        if (event.button == 1 && shift && control) {
+          // Delete the hop
+          workflowHopDelegate.delHop(workflowMeta, hop);
+          updateGui();
+        }
+        // User held control and clicked a hop between actions - We want to flip the active state
+        // of
+        // the hop.
+        //
+        else if (event.button == 2 || (event.button == 1 && control)) {
+          hop.setEnabled(!hop.isEnabled());
+          updateGui();
+        } else {
+          // A hop: show the hop context menu in the mouseUp() listener
+          //
+          clickedWorkflowHop = hop;
+        }
+        done = true;
+      }
+    }
+
+    // Layer 3: click on a note
+    if (!done && areaOwner != null && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+      currentNotePad = (NotePadMeta) areaOwner.getOwner();
+      selectedNotes = workflowMeta.getSelectedNotes();
+      selectedNote = currentNotePad;
+      Point loc = currentNotePad.getLocation();
+
+      previousNoteLocations = workflowMeta.getSelectedNoteLocations();
+
+      noteOffset = new Point(real.x - loc.x, real.y - loc.y);
+
+      canvas.setData("mode", "resize");
+      resize = this.getResize(areaOwner.getArea(), real);
+      // Keep the original area of the resizing note
+      resizeArea =
+          new Rectangle(
+              currentNotePad.getLocation().x,
+              currentNotePad.getLocation().y,
+              currentNotePad.getWidth(),
+              currentNotePad.getHeight());
+
+      updateGui();
+      done = true;
+    }
+
+    // Layer 4: Click on the background of the graph
+    if (!done) {
+
+      // If we're dragging a candidate hop around and click on the background it simply needs to
+      // go away.
+      //
+      if (startHopAction != null) {
+        startHopAction = null;
+        hopCandidate = null;
+        lastClick = null;
+        redraw();
+        return;
+      }
+
+      // Click to drag the background
+      if (setupDragView(event.button, control, clickScreen)) {
+        return;
+      }
+
+      // Click to create a lasso
+      //
+      canvas.setData("mode", "select");
+      if (!control && event.button == 1) {
+        selectionRegion = new org.apache.hop.core.gui.Rectangle(real.x, real.y, 0, 0);
+        // Change cursor when selecting a region
+        setCursor(getDisplay().getSystemCursor(SWT.CURSOR_CROSS));
+      }
+      updateGui();
+    }
+
     if (EnvironmentUtils.getInstance().isWeb()) {
       // RAP does not support certain mouse events.
       mouseMove(event);
@@ -726,6 +765,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseUp(MouseEvent event) {
+    resize = null;
+
     // canvas.setData("mode", null); does not work.
     canvas.setData("mode", "null");
     if (EnvironmentUtils.getInstance().isWeb()) {
@@ -866,12 +907,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
           if (selectedActions != null
               && !selectedActions.isEmpty()
-              && previousTransformLocations != null) {
+              && previousActionLocations != null) {
             int[] indexes = workflowMeta.getActionIndexes(selectedActions);
             addUndoPosition(
                 selectedActions.toArray(new ActionMeta[selectedActions.size()]),
                 indexes,
-                previousTransformLocations,
+                previousActionLocations,
                 workflowMeta.getSelectedLocations(),
                 also);
           }
@@ -934,6 +975,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               singleClick = true;
               singleClickType = SingleClickType.Note;
               singleClickNote = selectedNote;
+
+              // If the clicked note is not part of the current selection, cancel the
+              // current selection
+              if (!selectedNote.isSelected()) {
+                workflowMeta.unselectAll();
+                selectedNote.setSelected(true);
+              }
             }
           } else {
             // Find out which Transforms & Notes are selected
@@ -956,12 +1004,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             }
             if (selectedActions != null
                 && !selectedActions.isEmpty()
-                && previousTransformLocations != null) {
+                && previousActionLocations != null) {
               int[] indexes = workflowMeta.getActionIndexes(selectedActions);
               addUndoPosition(
                   selectedActions.toArray(new ActionMeta[selectedActions.size()]),
                   indexes,
-                  previousTransformLocations,
+                  previousActionLocations,
                   workflowMeta.getSelectedLocations(),
                   also);
             }
@@ -1115,7 +1163,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
     noInputAction = null;
     boolean doRedraw = false;
-    WorkflowHopMeta hop = null;
 
     // disable the tooltip
     //
@@ -1129,6 +1176,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     Point real = screen2real(event.x, event.y);
+
     // Remember the last position of the mouse for paste with keyboard
     //
     lastMove = real;
@@ -1143,29 +1191,53 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
     Point note = new Point(real.x - noteOffset.x, real.y - noteOffset.y);
 
+    // First, check for operations that have been started, such as move selection, dragging the
+    // view, creating a hop or
+    // resizing a note.
+
+    // Drag the view around with middle button on the background?
+    //
+    if (viewDrag && lastClick != null) {
+      dragView(viewDragStart, new Point(event.x, event.y));
+      return;
+    }
+
+    // Resizing the current note
+    if (resize != null) {
+      resizeNote(selectedNote, real);
+      redraw();
+      return;
+    }
+
     // Moved over an area?
     //
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
+    Resize resizeOver = null;
 
     // Moved over an hop?
     //
-    if (areaOwner == null) {
-      hop = findWorkflowHop(real.x, real.y);
-    }
+    if (areaOwner != null) {
 
-    // Mouse over the name of the action
-    //
-    if (!PropsUi.getInstance().useDoubleClick()) {
-      if (areaOwner != null && areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
-        if (mouseOverName == null) {
-          doRedraw = true;
+      // Mouse over the name of the action
+      //
+      if (!PropsUi.getInstance().useDoubleClick()) {
+        if (areaOwner != null && areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
+          if (mouseOverName == null) {
+            doRedraw = true;
+          }
+          mouseOverName = (String) areaOwner.getOwner();
+        } else {
+          if (mouseOverName != null) {
+            doRedraw = true;
+          }
+          mouseOverName = null;
         }
-        mouseOverName = (String) areaOwner.getOwner();
-      } else {
-        if (mouseOverName != null) {
-          doRedraw = true;
-        }
-        mouseOverName = null;
+      }
+
+      // Mouse over note
+      if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+        // Check if the mouse is over the border to activate a resize cursor
+        resizeOver = this.getResize(areaOwner.getArea(), real);
       }
     }
 
@@ -1179,7 +1251,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       selectedAction.setSelected(true);
       selectedActions = new ArrayList<>();
       selectedActions.add(selectedAction);
-      previousTransformLocations = new Point[] {selectedAction.getLocation()};
+      previousActionLocations = new Point[] {selectedAction.getLocation()};
       doRedraw = true;
     } else if (selectedNote != null && !selectedNote.isSelected()) {
       workflowMeta.unselectAll();
@@ -1269,12 +1341,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
 
       doRedraw = true;
-    } else {
-      // Drag the view around with middle button on the background?
-      //
-      if (viewDrag && lastClick != null) {
-        dragView(viewDragStart, new Point(event.x, event.y));
-      }
     }
 
     // Move around notes & actions
@@ -1295,18 +1361,22 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     Cursor cursor = null;
     // Change cursor when dragging view or view port
-    if (viewDrag || viewPortNavigation) {
-      cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
-    }
+    // if (viewDrag || viewPortNavigation) {
+    //    cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
+    // }
     // Change cursor when selecting a region
-    else if (selectionRegion != null) {
-      cursor = getDisplay().getSystemCursor(SWT.CURSOR_CROSS);
+    //  else if (selectionRegion != null) {
+    //  cursor = getDisplay().getSystemCursor(SWT.CURSOR_CROSS);
+    /// } else
+    // Change the cursor when the mouse is on the resize edge of a note
+    if (resizeOver != null) {
+      cursor = getDisplay().getSystemCursor(resizeOver.getCursor());
     }
-    // Change cursor when hover an hop or an area that support hover
-    else if (hop != null
-        || (areaOwner != null
+    // Change cursor when the mouse is on a hop or an area that support hovering
+    else if ((areaOwner != null
             && areaOwner.getAreaType() != null
-            && areaOwner.getAreaType().isSupportHover())) {
+            && areaOwner.getAreaType().isSupportHover())
+        || findWorkflowHop(real.x, real.y) != null) {
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
     }
     setCursor(cursor);
@@ -1402,7 +1472,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return ok;
   }
 
-  public AreaOwner getVisibleAreaOwner(int x, int y) {
+  /**
+   * Find the last area owner, the one drawn last, for the given coordinate. In other words, this
+   * searches the provided list back-to-front.
+   *
+   * @param x The x coordinate
+   * @param y The y coordinate
+   * @return The area owner or null if nothing could be found
+   */
+  public synchronized AreaOwner getVisibleAreaOwner(int x, int y) {
     for (int i = areaOwners.size() - 1; i >= 0; i--) {
       AreaOwner areaOwner = areaOwners.get(i);
       if (areaOwner.contains(x, y)) {
@@ -1729,24 +1807,24 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   /**
-   * See if location (x,y) is on a line between two transforms: the hop!
+   * See if the location (x,y) is on a line between two actions: the hop!
    *
    * @param x
    * @param y
-   * @return the pipeline hop on the specified location, otherwise: null
+   * @return the workflow hop on the specified location, otherwise: null
    */
   private WorkflowHopMeta findWorkflowHop(int x, int y) {
     return findHop(x, y, null);
   }
 
   /**
-   * See if location (x,y) is on a line between two transforms: the hop!
+   * See if the location (x,y) is on a line between two actions: the hop!
    *
    * @param x
    * @param y
-   * @param exclude the transform to exclude from the hops (from or to location). Specify null if no
-   *     transform is to be excluded.
-   * @return the pipeline hop on the specified location, otherwise: null
+   * @param exclude the action to exclude from the hops (from or to location). Specify null if no
+   *     action is to be excluded.
+   * @return the workflow hop on the specified location, otherwise: null
    */
   private WorkflowHopMeta findHop(int x, int y, ActionMeta exclude) {
     int i;
@@ -2070,32 +2148,32 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       categoryOrder = "1")
   public void newNote(HopGuiWorkflowContext context) {
     String title = BaseMessages.getString(PKG, "WorkflowGraph.Dialog.EditNote.Title");
-    NotePadDialog dd = new NotePadDialog(variables, hopShell(), title);
-    NotePadMeta n = dd.open();
-    if (n != null) {
-      NotePadMeta npi =
+    NotePadDialog dialog = new NotePadDialog(variables, hopShell(), title);
+    NotePadMeta note = dialog.open();
+    if (note != null) {
+      NotePadMeta newNote =
           new NotePadMeta(
-              n.getNote(),
+              note.getNote(),
               context.getClick().x,
               context.getClick().y,
               ConstUi.NOTE_MIN_SIZE,
               ConstUi.NOTE_MIN_SIZE,
-              n.getFontName(),
-              n.getFontSize(),
-              n.isFontBold(),
-              n.isFontItalic(),
-              n.getFontColorRed(),
-              n.getFontColorGreen(),
-              n.getFontColorBlue(),
-              n.getBackGroundColorRed(),
-              n.getBackGroundColorGreen(),
-              n.getBackGroundColorBlue(),
-              n.getBorderColorRed(),
-              n.getBorderColorGreen(),
-              n.getBorderColorBlue());
-      workflowMeta.addNote(npi);
+              note.getFontName(),
+              note.getFontSize(),
+              note.isFontBold(),
+              note.isFontItalic(),
+              note.getFontColorRed(),
+              note.getFontColorGreen(),
+              note.getFontColorBlue(),
+              note.getBackGroundColorRed(),
+              note.getBackGroundColorGreen(),
+              note.getBackGroundColorBlue(),
+              note.getBorderColorRed(),
+              note.getBorderColorGreen(),
+              note.getBorderColorBlue());
+      workflowMeta.addNote(newNote);
       hopGui.undoDelegate.addUndoNew(
-          workflowMeta, new NotePadMeta[] {npi}, new int[] {workflowMeta.indexOfNote(npi)});
+          workflowMeta, new NotePadMeta[] {newNote}, new int[] {workflowMeta.indexOfNote(newNote)});
       redraw();
     }
   }
@@ -2142,20 +2220,42 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     redraw();
   }
 
-  public void raiseNote() {
+  @GuiContextAction(
+      id = "workflow-graph-30-bring-note-to-front",
+      parentId = HopGuiWorkflowNoteContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.BringNoteToFront.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.BringNoteToFront.Tooltip",
+      image = "ui/images/bring-to-front.svg",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Arrange.Text",
+      categoryOrder = "2")
+  public void bringNoteToFront(HopGuiWorkflowNoteContext context) {
     selectionRegion = null;
-    int idx = workflowMeta.indexOfNote(getCurrentNote());
+    NotePadMeta note = context.getNotePadMeta();
+    int idx = workflowMeta.indexOfNote(note);
     if (idx >= 0) {
       workflowMeta.raiseNote(idx);
+      hopGui.undoDelegate.addUndoDelete(workflowMeta, new NotePadMeta[] {note}, new int[] {idx});
     }
     redraw();
   }
 
-  public void lowerNote() {
+  @GuiContextAction(
+      id = "workflow-graph-40-send-note-to-back",
+      parentId = HopGuiWorkflowNoteContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.SendNoteToBack.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.SendNoteToBack.Tooltip",
+      image = "ui/images/send-to-back.svg",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Arrange.Text",
+      categoryOrder = "2")
+  public void sendNoteToBack(HopGuiWorkflowNoteContext context) {
     selectionRegion = null;
-    int idx = workflowMeta.indexOfNote(getCurrentNote());
+    NotePadMeta note = context.getNotePadMeta();
+    int idx = workflowMeta.indexOfNote(note);
     if (idx >= 0) {
       workflowMeta.lowerNote(idx);
+      hopGui.undoDelegate.addUndoDelete(workflowMeta, new NotePadMeta[] {note}, new int[] {idx});
     }
     redraw();
   }
@@ -3045,8 +3145,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           new NotePadMeta[] {before},
           new NotePadMeta[] {notePadMeta},
           new int[] {workflowMeta.indexOfNote(notePadMeta)});
-      notePadMeta.width = ConstUi.NOTE_MIN_SIZE;
-      notePadMeta.height = ConstUi.NOTE_MIN_SIZE;
+      // notePadMeta.width = ConstUi.NOTE_MIN_SIZE;
+      // notePadMeta.height = ConstUi.NOTE_MIN_SIZE;
 
       updateGui();
     }
@@ -4207,7 +4307,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       new ErrorDialog(
           getShell(),
           CONST_ERROR,
-          "Error navigating to the latest execution information for this pipeline",
+          "Error navigating to the latest execution information for this workflow",
           e);
     }
   }
