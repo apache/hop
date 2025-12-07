@@ -52,7 +52,6 @@ public class HopGuiFileRefreshDelegate {
               @Override
               public void fileChanged(FileChangeEvent arg0) throws Exception {
                 String fileName = arg0.getFileObject().getName().getURI();
-                System.out.println("File changed: " + fileName);
                 if (fileName != null) {
                   IHopFileTypeHandler fileHandler = fileHandlerMap.get(fileName);
                   if (fileHandler != null && !hopGui.getDisplay().isDisposed()) {
