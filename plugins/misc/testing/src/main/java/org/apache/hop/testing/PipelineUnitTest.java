@@ -84,7 +84,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     type = TestType.DEVELOPMENT;
     databaseReplacements = new ArrayList<>();
     variableValues = new ArrayList<>();
-    basePath = null;
+    basePath = "${" + DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER + "}";
     autoOpening = true;
   }
 
