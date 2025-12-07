@@ -1741,6 +1741,10 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   }
 
   public void checkDimZero() throws HopException {
+    // Manually disabled
+    if (meta.isUnknownRowCheckDisabled()) {
+      return;
+    }
     // Don't insert anything when running in lookup mode.
     //
     if (!meta.isUpdate()) {

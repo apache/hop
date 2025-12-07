@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -169,6 +171,14 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       injectionKeyDescription = "DimensionLookup.Injection.PRELOAD_CACHE")
   private boolean preloadingCache;
 
+  @HopMetadataProperty(
+      key = "unknown_row_check_disabled",
+      injectionKey = "UNKNOWN_ROW_CHECK_DISABLED",
+      injectionKeyDescription = "DimensionLookup.Injection.UNKNOWN_ROW_CHECK_DISABLED")
+  @Getter
+  @Setter
+  private boolean unknownRowCheckDisabled;
+
   public DimensionLookupMeta() {
     super();
     this.fields = new DLFields();
@@ -201,6 +211,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     this.startDateAlternative = m.startDateAlternative;
     this.startDateFieldName = m.startDateFieldName;
     this.preloadingCache = m.preloadingCache;
+    this.unknownRowCheckDisabled = m.unknownRowCheckDisabled;
   }
 
   @Override
@@ -226,6 +237,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
     cacheSize = 5000;
     preloadingCache = false;
+    unknownRowCheckDisabled = false;
   }
 
   @Override
