@@ -17,9 +17,8 @@
 
 package org.apache.hop.mongo.wrapper.field;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -28,6 +27,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputData;
+import org.bson.Document;
 
 public class MongoArrayExpansion {
   protected static final Class<?> PKG = MongoArrayExpansion.class;
@@ -64,9 +64,7 @@ public class MongoArrayExpansion {
 
     String[] temp = expansionPath.split("\\.");
     pathParts = new ArrayList<>();
-    for (String part : temp) {
-      pathParts.add(part);
-    }
+    Collections.addAll(pathParts, temp);
 
     if (pathParts.get(0).equals("$")) {
       pathParts.remove(0); // root record indicator
@@ -110,7 +108,7 @@ public class MongoArrayExpansion {
     return new Object[1][outputRowMeta.size() + RowDataUtil.OVER_ALLOCATE_SIZE];
   }
 
-  public Object[][] convertToHopValue(BasicDBObject mongoObject, IVariables variables)
+  public Object[][] convertToHopValue(Document mongoObject, IVariables variables)
       throws HopException {
 
     if (mongoObject == null) {
@@ -144,12 +142,12 @@ public class MongoArrayExpansion {
       return nullResult();
     }
 
-    if (fieldValue instanceof BasicDBObject basicDBObject) {
-      return convertToHopValue(basicDBObject, variables);
+    if (fieldValue instanceof Document doc) {
+      return convertToHopValue(doc, variables);
     }
 
-    if (fieldValue instanceof BasicDBList basicDBList) {
-      return convertToHopValue(basicDBList, variables);
+    if (fieldValue instanceof List list) {
+      return convertToHopValue(list, variables);
     }
 
     // must mean we have a primitive here, but we're expecting to process more
@@ -157,8 +155,8 @@ public class MongoArrayExpansion {
     return nullResult();
   }
 
-  public Object[][] convertToHopValue(BasicDBList mongoList, IVariables variables)
-      throws HopException {
+  @SuppressWarnings("unchecked")
+  public Object[][] convertToHopValue(List<?> mongoList, IVariables variables) throws HopException {
 
     if (mongoList == null) {
       return nullResult();
@@ -197,10 +195,10 @@ public class MongoArrayExpansion {
           sf.reset(variables);
 
           // what have we got?
-          if (element instanceof BasicDBObject basicDBObject) {
-            result[i][sf.outputIndex] = sf.convertToHopValue(basicDBObject);
-          } else if (element instanceof BasicDBList basicDBList) {
-            result[i][sf.outputIndex] = sf.convertToHopValue(basicDBList);
+          if (element instanceof Document doc) {
+            result[i][sf.outputIndex] = sf.convertToHopValue(doc);
+          } else if (element instanceof List list) {
+            result[i][sf.outputIndex] = sf.convertToHopValue(list);
           } else {
             // assume a primitive
             result[i][sf.outputIndex] = sf.getHopValue(element);
@@ -230,12 +228,12 @@ public class MongoArrayExpansion {
         return nullResult();
       }
 
-      if (element instanceof BasicDBObject basicDBObject) {
-        return convertToHopValue(basicDBObject, variables);
+      if (element instanceof Document doc) {
+        return convertToHopValue(doc, variables);
       }
 
-      if (element instanceof BasicDBList basicDBList) {
-        return convertToHopValue(basicDBList, variables);
+      if (element instanceof List list) {
+        return convertToHopValue(list, variables);
       }
 
       // must mean we have a primitive here, but we're expecting to process

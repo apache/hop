@@ -18,6 +18,10 @@
 
 package org.apache.hop.mongo.metadata;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -37,7 +41,6 @@ import org.apache.hop.mongo.NamedReadPreference;
 import org.apache.hop.mongo.wrapper.HopMongoUtilLogger;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.MongoClientWrapperFactory;
-import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
 
 @GuiPlugin
 @HopMetadata(
@@ -47,17 +50,20 @@ import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
     image = "MongoDB_Leaf_FullColor_RGB.svg",
     documentationUrl = "/metadata-types/mongodb-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.MONGODB_CONNECTION)
+@Getter
+@Setter
 public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
 
+  public static final String WIDGET_ID_CONNECTION_TYPE = "09900-connection-type";
   public static final String WIDGET_ID_HOSTNAME = "10000-hostname";
   public static final String WIDGET_ID_PORT = "10100-port";
+  public static final String WIDGET_ID_APPNAME = "10150-appname";
   public static final String WIDGET_ID_DB_NAME = "10200-database-name";
   public static final String WIDGET_ID_COLLECTION = "10300-collection";
   public static final String WIDGET_ID_AUTH_DB_NAME = "10400-auth-database-name";
   public static final String WIDGET_ID_AUTH_USER = "10500-auth-user";
   public static final String WIDGET_ID_AUTH_PASSWORD = "10600-auth-password";
   public static final String WIDGET_ID_AUTH_MECHANISM = "10700-auth-mechanism";
-  public static final String WIDGET_ID_USE_KERBEROS = "10800-use-kerberos";
   public static final String WIDGET_ID_CONNECTION_TIMEOUT_MS = "10900-connection-timeout-ms";
   public static final String WIDGET_ID_SOCKET_TIMEOUT_MS = "11000-socket-timeout-ms";
   public static final String WIDGET_ID_READ_PREFERENCE = "11100-read-preference";
@@ -68,6 +74,16 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
   public static final String WIDGET_ID_WRITE_CONCERN = "11500-write-concern";
   public static final String WIDGET_ID_TIMEOUT_MS = "11600-timeout-ms";
   public static final String WIDGET_ID_JOURNALED = "11700-journaled";
+
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_ID_CONNECTION_TYPE,
+      type = GuiElementType.COMBO,
+      parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
+      label = "i18n::MongoMetadata.ConnectionType.Label",
+      toolTip = "i18n::MongoMetadata.ConnectionType.ToolTip",
+      variables = false)
+  private MongoDbConnectionType connectionType = MongoDbConnectionType.STANDARD;
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -85,7 +101,16 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
       label = "i18n::MongoMetadata.Port.Label",
       toolTip = "i18n::MongoMetadata.Port.ToolTip")
-  private String port = "27017";
+  private String port;
+
+  @HopMetadataProperty
+  @GuiWidgetElement(
+      id = WIDGET_ID_APPNAME,
+      type = GuiElementType.TEXT,
+      parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
+      label = "i18n::MongoMetadata.AppName.Label",
+      toolTip = "i18n::MongoMetadata.AppName.ToolTip")
+  private String appName;
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -134,15 +159,6 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       variables = false)
   private MongoDbAuthenticationMechanism authenticationMechanism =
       MongoDbAuthenticationMechanism.PLAIN;
-
-  @HopMetadataProperty
-  @GuiWidgetElement(
-      id = WIDGET_ID_USE_KERBEROS,
-      type = GuiElementType.CHECKBOX,
-      parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "i18n::MongoMetadata.useKerberos.Label",
-      toolTip = "i18n::MongoMetadata.useKerberos.ToolTip")
-  private boolean usingKerberos;
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -230,14 +246,15 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
 
   public MongoDbConnection(MongoDbConnection m) {
     super(m.name);
+    this.connectionType = m.connectionType;
     this.hostname = m.hostname;
     this.port = m.port;
+    this.appName = m.appName;
     this.dbName = m.dbName;
     this.authenticationDatabaseName = m.authenticationDatabaseName;
     this.authenticationUser = m.authenticationUser;
     this.authenticationPassword = m.authenticationPassword;
     this.authenticationMechanism = m.authenticationMechanism;
-    this.usingKerberos = m.usingKerberos;
     this.connectTimeoutMs = m.connectTimeoutMs;
     this.socketTimeoutMs = m.socketTimeoutMs;
     this.readPreference = m.readPreference;
@@ -249,9 +266,6 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     this.journaled = m.journaled;
   }
 
-  private static MongoWrapperClientFactory mongoWrapperClientFactory =
-      MongoClientWrapperFactory::createMongoClientWrapper;
-
   /**
    * Test this connection
    *
@@ -260,6 +274,13 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
    * @throws MongoDbException in case we couldn't connect
    */
   public void test(IVariables variables, ILogChannel log) throws MongoDbException {
+    // Validate database name is not empty
+    String testDbName = variables.resolve(this.dbName);
+    if (StringUtils.isEmpty(testDbName)) {
+      throw new MongoDbException(
+          "Database name cannot be null or empty. Please specify a database name in the connection settings.");
+    }
+
     MongoClientWrapper wrapper = createWrapper(variables, log);
     try {
       wrapper.test();
@@ -270,16 +291,27 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
 
   public MongoClientWrapper createWrapper(IVariables variables, ILogChannel log)
       throws MongoDbException {
-    return mongoWrapperClientFactory.createMongoClientWrapper(
+    return MongoClientWrapperFactory.createMongoClientWrapper(
         createPropertiesBuilder(variables).build(), new HopMongoUtilLogger(log));
   }
 
   public MongoProperties.Builder createPropertiesBuilder(IVariables variables) {
     MongoProperties.Builder propertiesBuilder = new MongoProperties.Builder();
 
-    setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.HOST, hostname);
-    setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.PORT, port);
+    // Build clean connection string WITHOUT credentials (best practice)
+    // Credentials will be supplied separately via MongoCredential
+    String connectionString = buildCleanConnectionString(variables);
+    setIfNotNullOrEmpty(
+        variables, propertiesBuilder, MongoProp.CONNECTION_STRING, connectionString);
+
+    // Only set host/port for fallback if NOT using SRV (SRV uses connection string only)
+    // Setting HOST/PORT with SRV can cause conflicts where driver tries to use localhost
+    if (connectionType != MongoDbConnectionType.SRV) {
+      setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.HOST, hostname);
+      setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.PORT, port);
+    }
     setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.DBNAME, dbName);
+
     setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.connectTimeout, connectTimeoutMs);
     setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.socketTimeout, socketTimeoutMs);
     setIfNotNullOrEmpty(
@@ -293,6 +325,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
         propertiesBuilder,
         MongoProp.USE_ALL_REPLICA_SET_MEMBERS,
         Boolean.toString(usingAllReplicaSetMembers));
+
+    // Always set credentials separately (best practice - avoids URL encoding issues)
+    // The driver will use these when connection string doesn't have credentials
     setIfNotNullOrEmpty(
         variables, propertiesBuilder, MongoProp.AUTH_DATABASE, authenticationDatabaseName);
     setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.USERNAME, authenticationUser);
@@ -300,10 +335,12 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
         variables, propertiesBuilder, MongoProp.PASSWORD, authenticationPassword);
     setIfNotNullOrEmpty(
         variables, propertiesBuilder, MongoProp.AUTH_MECHA, authenticationMechanism.name());
+
+    // SSL is required for SRV, optional for standard connections
+    boolean sslRequired = connectionType == MongoDbConnectionType.SRV || usingSslSocketFactory;
     setIfNotNullOrEmpty(
-        variables, propertiesBuilder, MongoProp.USE_KERBEROS, Boolean.toString(usingKerberos));
-    setIfNotNullOrEmpty(
-        variables, propertiesBuilder, MongoProp.useSSL, Boolean.toString(usingSslSocketFactory));
+        variables, propertiesBuilder, MongoProp.useSSL, Boolean.toString(sslRequired));
+
     setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.tagSet, readPrefTagSets);
 
     return propertiesBuilder;
@@ -324,274 +361,76 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
   }
 
   /**
-   * Gets hostname
+   * Builds a clean MongoDB connection string WITHOUT credentials. Credentials are supplied
+   * separately via MongoCredential.
    *
-   * @return value of hostname
+   * @param variables Variables for resolving values
+   * @return The constructed connection string (without credentials)
    */
-  public String getHostname() {
-    return hostname;
-  }
+  private String buildCleanConnectionString(IVariables variables) {
+    StringBuilder connStr = new StringBuilder();
 
-  /**
-   * @param hostname The hostname to set
-   */
-  public void setHostname(String hostname) {
-    this.hostname = hostname;
-  }
+    // Determine protocol prefix
+    if (connectionType == MongoDbConnectionType.SRV) {
+      connStr.append("mongodb+srv://");
+    } else {
+      connStr.append("mongodb://");
+    }
 
-  /**
-   * Gets port
-   *
-   * @return value of port
-   */
-  public String getPort() {
-    return port;
-  }
+    // NO credentials in connection string - they'll be supplied via MongoCredential
 
-  /**
-   * @param port The port to set
-   */
-  public void setPort(String port) {
-    this.port = port;
-  }
+    // Add hostname
+    String resolvedHostname = variables.resolve(hostname);
+    if (StringUtils.isNotEmpty(resolvedHostname)) {
+      connStr.append(resolvedHostname);
+    } else {
+      connStr.append("localhost");
+    }
 
-  /**
-   * Gets dbName
-   *
-   * @return value of dbName
-   */
-  public String getDbName() {
-    return dbName;
-  }
+    // Add port (only for standard connections, not SRV)
+    if (connectionType == MongoDbConnectionType.STANDARD) {
+      String resolvedPort = variables.resolve(port);
+      if (StringUtils.isNotEmpty(resolvedPort)) {
+        connStr.append(":").append(resolvedPort);
+      }
+    }
 
-  /**
-   * @param dbName The dbName to set
-   */
-  public void setDbName(String dbName) {
-    this.dbName = dbName;
-  }
+    // Add database name (always add / even if empty for proper URL format)
+    String resolvedDbName = variables.resolve(dbName);
+    connStr.append("/");
+    if (StringUtils.isNotEmpty(resolvedDbName)) {
+      connStr.append(resolvedDbName);
+    }
 
-  /**
-   * Gets authenticationDatabaseName
-   *
-   * @return value of authenticationDatabaseName
-   */
-  public String getAuthenticationDatabaseName() {
-    return authenticationDatabaseName;
-  }
+    // Add query parameters
+    StringBuilder queryParams = new StringBuilder();
 
-  /**
-   * @param authenticationDatabaseName The authenticationDatabaseName to set
-   */
-  public void setAuthenticationDatabaseName(String authenticationDatabaseName) {
-    this.authenticationDatabaseName = authenticationDatabaseName;
-  }
+    // Add appName if provided
+    String resolvedAppName = variables.resolve(appName);
+    if (StringUtils.isNotEmpty(resolvedAppName)) {
+      try {
+        queryParams.append("appName=").append(URLEncoder.encode(resolvedAppName, "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        queryParams.append("appName=").append(resolvedAppName);
+      }
+    }
 
-  /**
-   * Gets authenticationUser
-   *
-   * @return value of authenticationUser
-   */
-  public String getAuthenticationUser() {
-    return authenticationUser;
-  }
+    // Note: authSource and authMechanism are NOT added to connection string
+    // They are handled via MongoCredential which is more reliable
 
-  /**
-   * @param authenticationUser The authenticationUser to set
-   */
-  public void setAuthenticationUser(String authenticationUser) {
-    this.authenticationUser = authenticationUser;
-  }
+    // Add SSL - required for SRV connections, optional for standard
+    if (connectionType == MongoDbConnectionType.SRV || usingSslSocketFactory) {
+      if (!queryParams.isEmpty()) {
+        queryParams.append("&");
+      }
+      queryParams.append("ssl=true");
+    }
 
-  /**
-   * Gets authenticationPassword
-   *
-   * @return value of authenticationPassword
-   */
-  public String getAuthenticationPassword() {
-    return authenticationPassword;
-  }
+    // Append query parameters if any
+    if (!queryParams.isEmpty()) {
+      connStr.append("?").append(queryParams);
+    }
 
-  /**
-   * @param authenticationPassword The authenticationPassword to set
-   */
-  public void setAuthenticationPassword(String authenticationPassword) {
-    this.authenticationPassword = authenticationPassword;
-  }
-
-  /**
-   * Gets authenticationMechanism
-   *
-   * @return value of authenticationMechanism
-   */
-  public MongoDbAuthenticationMechanism getAuthenticationMechanism() {
-    return authenticationMechanism;
-  }
-
-  /**
-   * @param authenticationMechanism The authenticationMechanism to set
-   */
-  public void setAuthenticationMechanism(MongoDbAuthenticationMechanism authenticationMechanism) {
-    this.authenticationMechanism = authenticationMechanism;
-  }
-
-  /**
-   * Gets usingKerberos
-   *
-   * @return value of usingKerberos
-   */
-  public boolean isUsingKerberos() {
-    return usingKerberos;
-  }
-
-  /**
-   * @param usingKerberos The usingKerberos to set
-   */
-  public void setUsingKerberos(boolean usingKerberos) {
-    this.usingKerberos = usingKerberos;
-  }
-
-  /**
-   * Gets connectTimeoutMs
-   *
-   * @return value of connectTimeoutMs
-   */
-  public String getConnectTimeoutMs() {
-    return connectTimeoutMs;
-  }
-
-  /**
-   * @param connectTimeoutMs The connectTimeoutMs to set
-   */
-  public void setConnectTimeoutMs(String connectTimeoutMs) {
-    this.connectTimeoutMs = connectTimeoutMs;
-  }
-
-  /**
-   * Gets socketTimeoutMs
-   *
-   * @return value of socketTimeoutMs
-   */
-  public String getSocketTimeoutMs() {
-    return socketTimeoutMs;
-  }
-
-  /**
-   * @param socketTimeoutMs The socketTimeoutMs to set
-   */
-  public void setSocketTimeoutMs(String socketTimeoutMs) {
-    this.socketTimeoutMs = socketTimeoutMs;
-  }
-
-  /**
-   * Gets readPreference
-   *
-   * @return value of readPreference
-   */
-  public NamedReadPreference getReadPreference() {
-    return readPreference;
-  }
-
-  /**
-   * @param readPreference The readPreference to set
-   */
-  public void setReadPreference(NamedReadPreference readPreference) {
-    this.readPreference = readPreference;
-  }
-
-  /**
-   * Gets usingAllReplicaSetMembers
-   *
-   * @return value of usingAllReplicaSetMembers
-   */
-  public boolean isUsingAllReplicaSetMembers() {
-    return usingAllReplicaSetMembers;
-  }
-
-  /**
-   * @param usingAllReplicaSetMembers The usingAllReplicaSetMembers to set
-   */
-  public void setUsingAllReplicaSetMembers(boolean usingAllReplicaSetMembers) {
-    this.usingAllReplicaSetMembers = usingAllReplicaSetMembers;
-  }
-
-  /**
-   * Gets readPrefTagSets
-   *
-   * @return value of readPrefTagSets
-   */
-  public String getReadPrefTagSets() {
-    return readPrefTagSets;
-  }
-
-  /**
-   * @param readPrefTagSets The readPrefTagSets to set
-   */
-  public void setReadPrefTagSets(String readPrefTagSets) {
-    this.readPrefTagSets = readPrefTagSets;
-  }
-
-  /**
-   * Gets usingSslSocketFactory
-   *
-   * @return value of usingSslSocketFactory
-   */
-  public boolean isUsingSslSocketFactory() {
-    return usingSslSocketFactory;
-  }
-
-  /**
-   * @param usingSslSocketFactory The usingSslSocketFactory to set
-   */
-  public void setUsingSslSocketFactory(boolean usingSslSocketFactory) {
-    this.usingSslSocketFactory = usingSslSocketFactory;
-  }
-
-  /**
-   * Gets writeConcern
-   *
-   * @return value of writeConcern
-   */
-  public String getWriteConcern() {
-    return writeConcern;
-  }
-
-  /**
-   * @param writeConcern The writeConcern to set
-   */
-  public void setWriteConcern(String writeConcern) {
-    this.writeConcern = writeConcern;
-  }
-
-  /**
-   * Gets replicationTimeoutMs
-   *
-   * @return value of replicationTimeoutMs
-   */
-  public String getReplicationTimeoutMs() {
-    return replicationTimeoutMs;
-  }
-
-  /**
-   * @param replicationTimeoutMs The replicationTimeoutMs to set
-   */
-  public void setReplicationTimeoutMs(String replicationTimeoutMs) {
-    this.replicationTimeoutMs = replicationTimeoutMs;
-  }
-
-  /**
-   * Gets journaled
-   *
-   * @return value of journaled
-   */
-  public boolean isJournaled() {
-    return journaled;
-  }
-
-  /**
-   * @param journaled The journaled to set
-   */
-  public void setJournaled(boolean journaled) {
-    this.journaled = journaled;
+    return connStr.toString();
   }
 }

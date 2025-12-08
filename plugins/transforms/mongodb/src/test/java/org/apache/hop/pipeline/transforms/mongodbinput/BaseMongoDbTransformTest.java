@@ -22,8 +22,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.mongodb.Cursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.MongoCursor;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILogChannelFactory;
@@ -38,6 +37,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -55,9 +55,9 @@ class BaseMongoDbTransformTest {
   @Mock protected MongoClientWrapper mongoClientWrapper;
   @Mock protected MongoCollectionWrapper mongoCollectionWrapper;
   @Mock protected ILogChannelFactory logChannelFactory;
-  @Mock protected Cursor cursor;
+  @Mock protected MongoCursor<Document> cursor;
   @Captor protected ArgumentCaptor<String> stringCaptor;
-  @Captor protected ArgumentCaptor<DBObject> dbObjectCaptor;
+  @Captor protected ArgumentCaptor<Document> documentCaptor;
   @Captor protected ArgumentCaptor<Throwable> throwableCaptor;
 
   protected RowMeta rowMeta = new RowMeta();

@@ -63,14 +63,14 @@ class MongoDbInputMetaTest {
         new LoadSaveTester(
             MongoDbInputMeta.class,
             Arrays.asList(
-                "fields_name",
+                "jsonField",
                 "collection",
                 "json_field_name",
                 "json_query",
                 "output_json",
-                "query_is_pipeline",
-                "execute_for_each_row",
-                "mongo_fields"),
+                "aggPipeline",
+                "executeForEachIncomingRow",
+                "fields"),
             getterMap,
             setterMap,
             fieldLoadSaveValidatorAttributeMap,

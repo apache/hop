@@ -48,7 +48,7 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>org.mongodb:mongo-java-driver:jar</include>
+                <include>org.mongodb:*:jar</include>
             </includes>
             <outputDirectory>plugins/transforms/mongodb/lib</outputDirectory>
         </dependencySet>

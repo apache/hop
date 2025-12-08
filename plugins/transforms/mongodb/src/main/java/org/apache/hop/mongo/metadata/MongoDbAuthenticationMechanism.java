@@ -20,6 +20,7 @@ package org.apache.hop.mongo.metadata;
 
 public enum MongoDbAuthenticationMechanism {
   SCRAM_SHA_1,
+  SCRAM_SHA_256,
   MONGODB_CR,
   PLAIN;
 
@@ -32,6 +33,9 @@ public enum MongoDbAuthenticationMechanism {
   }
 
   public MongoDbAuthenticationMechanism getMechanism(String code) {
+    if (code == null) {
+      return PLAIN;
+    }
     try {
       return MongoDbAuthenticationMechanism.valueOf(code);
     } catch (IllegalArgumentException e) {

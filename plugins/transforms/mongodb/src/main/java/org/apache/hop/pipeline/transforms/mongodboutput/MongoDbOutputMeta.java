@@ -18,20 +18,21 @@
 package org.apache.hop.pipeline.transforms.mongodboutput;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -51,32 +52,26 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/mongodboutput.html",
     keywords = "i18n::MongoDbOutputMeta.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
-@InjectionSupported(
-    localizationPrefix = "MongoDbOutput.Injection.",
-    groups = {"FIELDS", "INDEXES"})
+@Getter
+@Setter
 public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputData> {
 
   private static final Class<?> PKG = MongoDbOutputMeta.class;
-  public static final String CONST_SPACES = "\n    ";
-  public static final String CONST_FIELDS = "mongo_fields";
-  public static final String MONGO_FIELD = "mongo_field";
-  public static final String CONST_MONGO_INDEXES = "mongo_indexes";
-  public static final String CONST_MONGO_INDEX = "mongo_index";
-  public static final String CONST_SPACES1 = "\n      ";
-  public static final String CONST_SPACES2 = "\n         ";
 
   /** Class encapsulating paths to document fields */
+  @Getter
+  @Setter
   public static class MongoField {
 
     /** Incoming Hop field name */
-    @Injection(name = "INCOMING_FIELD_NAME", group = "FIELDS")
+    @HopMetadataProperty(key = "incoming_field_name", injectionKey = "INCOMING_FIELD_NAME")
     public String incomingFieldName = "";
 
     /** Contains the environment substituted field name updated once at init * */
     String environUpdatedFieldName = "";
 
     /** Dot separated path to the corresponding mongo field */
-    @Injection(name = "MONGO_DOCUMENT_PATH", group = "FIELDS")
+    @HopMetadataProperty(key = "mongo_doc_path", injectionKey = "MONGO_DOCUMENT_PATH")
     public String mongoDocPath = "";
 
     /** Contains the environment substituted mongo doc path updated once at init * */
@@ -89,11 +84,13 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
      * Whether to use the incoming field name as the mongo field key name. If false then the user
      * must supply the terminating field/key name.
      */
-    @Injection(name = "INCOMING_AS_MONGO", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "use_incoming_field_name_as_mongo_field_name",
+        injectionKey = "INCOMING_AS_MONGO")
     public boolean useIncomingFieldNameAsMongoFieldName;
 
     /** Whether this field is used in the query for an update operation */
-    @Injection(name = "UPDATE_MATCH_FIELD", group = "FIELDS")
+    @HopMetadataProperty(key = "update_match_field", injectionKey = "UPDATE_MATCH_FIELD")
     public boolean updateMatchField;
 
     /**
@@ -104,7 +101,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
      *
      * <p>(support any others?)
      */
-    @Injection(name = "MODIFIER_OPERATION", group = "FIELDS")
+    @HopMetadataProperty(key = "modifier_update_operation", injectionKey = "MODIFIER_OPERATION")
     public String modifierUpdateOperation = "N/A";
 
     /** Contains the environment substituted modifier operation updated once at init * */
@@ -123,7 +120,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
      * Whereas the $push operation should occur only on updates. A single operation can't combine
      * these two as it will result in a conflict (since they operate on the same array).
      */
-    @Injection(name = "MODIFIER_POLICY", group = "FIELDS")
+    @HopMetadataProperty(key = "modifier_policy", injectionKey = "MODIFIER_POLICY")
     public String modifierOperationApplyPolicy = "Insert&Update";
 
     /**
@@ -132,7 +129,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
      * {@code null}. <br>
      * Note: {@code null} and {@code undefined} are different values in Mongo!
      */
-    @Injection(name = "INSERT_NULL", group = "FIELDS")
+    @HopMetadataProperty(key = "allow_null", injectionKey = "INSERT_NULL")
     public boolean insertNull = false;
 
     /**
@@ -140,7 +137,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
      * String and hold a Mongo doc fragment in JSON format. The doc fragment will be converted into
      * BSON and added into the overall document at the point specified by this MongoField's path
      */
-    @Injection(name = "JSON", group = "FIELDS")
+    @HopMetadataProperty(key = "json_field", injectionKey = "JSON")
     public boolean inputJson = false;
 
     public MongoField copy() {
@@ -174,9 +171,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
 
       if (!StringUtils.isEmpty(environUpdateMongoDocPath)) {
         String[] parts = environUpdateMongoDocPath.split("\\.");
-        for (String p : parts) {
-          pathList.add(p);
-        }
+        Collections.addAll(pathList, parts);
       }
       tempPathList = new ArrayList<>(pathList);
     }
@@ -192,6 +187,8 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
   }
 
   /** Class encapsulating index definitions */
+  @Getter
+  @Setter
   public static class MongoIndex {
 
     /**
@@ -201,49 +198,40 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
      * <p>Multiple fields are comma-separated followed by an optional "direction" indicator for the
      * index (1 or -1). If omitted, direction is assumed to be 1.
      */
-    @Injection(name = "INDEX_FIELD", group = "INDEXES")
+    @HopMetadataProperty(key = "path_to_fields", injectionKey = "INDEX_FIELD")
     public String pathToFields = "";
 
     /** whether to drop this index - default is create */
-    @Injection(name = "DROP", group = "INDEXES")
+    @HopMetadataProperty(key = "drop", injectionKey = "DROP")
     public boolean drop;
 
     // other options unique, sparse
-    @Injection(name = "UNIQUE", group = "INDEXES")
+    @HopMetadataProperty(key = "unique", injectionKey = "UNIQUE")
     public boolean unique;
 
-    @Injection(name = "SPARSE", group = "INDEXES")
+    @HopMetadataProperty(key = "sparse", injectionKey = "SPARSE")
     public boolean sparse;
 
     @Override
     public String toString() {
-      StringBuffer buff = new StringBuffer();
-      buff.append(
-          pathToFields
-              + " (unique = "
-              + Boolean.toString(unique)
-              + " sparse = "
-              + Boolean.toString(sparse)
-              + ")");
-
-      return buff.toString();
+      return pathToFields + " (unique = " + unique + " sparse = " + sparse + ")";
     }
   }
 
   /** Whether to truncate the collection */
-  @Injection(name = "TRUNCATE")
+  @HopMetadataProperty(key = "truncate", injectionKey = "TRUNCATE")
   protected boolean truncate;
 
   /** True if updates (rather than inserts) are to be performed */
-  @Injection(name = "UPDATE")
+  @HopMetadataProperty(key = "update", injectionKey = "UPDATE")
   protected boolean update;
 
   /** True if upserts are to be performed */
-  @Injection(name = "UPSERT")
+  @HopMetadataProperty(key = "upsert", injectionKey = "UPSERT")
   protected boolean upsert;
 
   /** whether to update all records that match during an upsert or just the first */
-  @Injection(name = "MULTI")
+  @HopMetadataProperty(key = "multi", injectionKey = "MULTI")
   protected boolean multi;
 
   /**
@@ -255,26 +243,36 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
    * involves replacing the matched object with a new object involving all the user-defined mongo
    * paths
    */
-  @Injection(name = "MODIFIER_UPDATE")
+  @HopMetadataProperty(key = "modifier_update", injectionKey = "MODIFIER_UPDATE")
   protected boolean modifierUpdate;
 
   /** The batch size for inserts */
-  @Injection(name = "BATCH_INSERT_SIZE")
+  @HopMetadataProperty(key = "batch_insert_size", injectionKey = "BATCH_INSERT_SIZE")
   protected String batchInsertSize = "100";
 
   /** The list of paths to document fields for incoming Hop values */
-  @InjectionDeep protected List<MongoField> mongoFields;
+  @HopMetadataProperty(
+      groupKey = "mongo_fields",
+      key = "mongo_field",
+      injectionKey = "FIELDS",
+      injectionGroupKey = "FIELD")
+  protected List<MongoField> mongoFields;
 
   /** The list of index definitions (if any) */
-  @InjectionDeep protected List<MongoIndex> mongoIndexes;
+  @HopMetadataProperty(
+      groupKey = "mongo_indexes",
+      key = "mongo_index",
+      injectionKey = "INDEXES",
+      injectionGroupKey = "INDEX")
+  protected List<MongoIndex> mongoIndexes;
 
   public static final int RETRIES = 5;
   public static final int RETRY_DELAY = 10; // seconds
 
-  @Injection(name = "RETRY_NUMBER")
+  @HopMetadataProperty(key = "write_retries", injectionKey = "RETRY_NUMBER")
   private String writeRetries = "" + RETRIES;
 
-  @Injection(name = "RETRY_DELAY")
+  @HopMetadataProperty(key = "write_retry_delay", injectionKey = "RETRY_DELAY")
   private String writeRetryDelay = "" + RETRY_DELAY; // seconds
 
   @Override
@@ -287,183 +285,20 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
   }
 
   /**
-   * Set the list of document paths
+   * Added for backwards compatibility
    *
-   * @param mongoFields the list of document paths
+   * @param transformNode XML Node of the transform
+   * @param metadataProvider metadata provider
+   * @throws HopXmlException when unable to load from XML
    */
-  public void setMongoFields(List<MongoField> mongoFields) {
-    this.mongoFields = mongoFields;
-  }
-
-  /**
-   * Get the list of document paths
-   *
-   * @return the list of document paths
-   */
-  public List<MongoField> getMongoFields() {
-    return mongoFields;
-  }
-
-  /**
-   * Set the list of document indexes for creation/dropping
-   *
-   * @param mongoIndexes the list of indexes
-   */
-  public void setMongoIndexes(List<MongoIndex> mongoIndexes) {
-    this.mongoIndexes = mongoIndexes;
-  }
-
-  /**
-   * Get the list of document indexes for creation/dropping
-   *
-   * @return the list of indexes
-   */
-  public List<MongoIndex> getMongoIndexes() {
-    return mongoIndexes;
-  }
-
-  /**
-   * @param r the number of retry attempts to make
-   */
-  public void setWriteRetries(String r) {
-    writeRetries = r;
-  }
-
-  /**
-   * Get the number of retry attempts to make if a particular write operation fails
-   *
-   * @return the number of retry attempts to make
-   */
-  public String getWriteRetries() {
-    return writeRetries;
-  }
-
-  /**
-   * Set the delay (in seconds) between write retry attempts
-   *
-   * @param d the delay in seconds between retry attempts
-   */
-  public void setWriteRetryDelay(String d) {
-    writeRetryDelay = d;
-  }
-
-  /**
-   * Get the delay (in seconds) between write retry attempts
-   *
-   * @return the delay in seconds between retry attempts
-   */
-  public String getWriteRetryDelay() {
-    return writeRetryDelay;
-  }
-
-  /**
-   * Set whether updates (rather than inserts) are to be performed
-   *
-   * @param update
-   */
-  public void setUpdate(boolean update) {
-    this.update = update;
-  }
-
-  /**
-   * Get whether updates (rather than inserts) are to be performed
-   *
-   * @return true if updates are to be performed
-   */
-  public boolean getUpdate() {
-    return update;
-  }
-
-  /**
-   * Set whether to upsert rather than update
-   *
-   * @param upsert true if we'll upsert rather than update
-   */
-  public void setUpsert(boolean upsert) {
-    this.upsert = upsert;
-  }
-
-  /**
-   * Get whether to upsert rather than update
-   *
-   * @return true if we'll upsert rather than update
-   */
-  public boolean getUpsert() {
-    return upsert;
-  }
-
-  /**
-   * Set whether the upsert should update all matching records rather than just the first.
-   *
-   * @param multi true if all matching records get updated when each row is upserted
-   */
-  public void setMulti(boolean multi) {
-    this.multi = multi;
-  }
-
-  /**
-   * Get whether the upsert should update all matching records rather than just the first.
-   *
-   * @return true if all matching records get updated when each row is upserted
-   */
-  public boolean getMulti() {
-    return multi;
-  }
-
-  /**
-   * Set whether the upsert operation is a modifier update - i.e where only specified fields in each
-   * document get modified rather than a whole document replace.
-   *
-   * @param u true if the upsert operation is to be a modifier update
-   */
-  public void setModifierUpdate(boolean u) {
-    modifierUpdate = u;
-  }
-
-  /**
-   * Get whether the upsert operation is a modifier update - i.e where only specified fields in each
-   * document get modified rather than a whole document replace.
-   *
-   * @return true if the upsert operation is to be a modifier update
-   */
-  public boolean getModifierUpdate() {
-    return modifierUpdate;
-  }
-
-  /**
-   * Set whether to truncate the collection before inserting
-   *
-   * @param truncate true if the all records in the collection are to be deleted
-   */
-  public void setTruncate(boolean truncate) {
-    this.truncate = truncate;
-  }
-
-  /**
-   * Get whether to truncate the collection before inserting
-   *
-   * @return true if the all records in the collection are to be deleted
-   */
-  public boolean getTruncate() {
-    return truncate;
-  }
-
-  /**
-   * Get the batch insert size
-   *
-   * @return the batch insert size
-   */
-  public String getBatchInsertSize() {
-    return batchInsertSize;
-  }
-
-  /**
-   * Set the batch insert size
-   *
-   * @param size the batch insert size
-   */
-  public void setBatchInsertSize(String size) {
-    batchInsertSize = size;
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    super.loadXml(transformNode, metadataProvider);
+    String tempCollection = XmlHandler.getTagValue(transformNode, "mongo_collection");
+    if (!Utils.isEmpty(tempCollection)) {
+      setCollection(tempCollection);
+    }
   }
 
   @Override
@@ -513,168 +348,6 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
                   PKG, "MongoDbOutput.Messages.Error.NoInputReceivedFromOtherTransforms"),
               transformMeta);
       remarks.add(cr);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-
-    xml.append(XmlHandler.addTagValue("connection", connectionName));
-
-    if (!StringUtils.isEmpty(getCollection())) {
-      xml.append(CONST_SPACES).append(XmlHandler.addTagValue("mongo_collection", getCollection()));
-    }
-    if (!StringUtils.isEmpty(batchInsertSize)) {
-      xml.append(CONST_SPACES).append(XmlHandler.addTagValue("batch_insert_size", batchInsertSize));
-    }
-
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("truncate", truncate));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("update", update));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("upsert", upsert));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("multi", multi));
-    xml.append(CONST_SPACES).append(XmlHandler.addTagValue("modifier_update", modifierUpdate));
-
-    xml.append("    ").append(XmlHandler.addTagValue("write_retries", writeRetries));
-    xml.append("    ").append(XmlHandler.addTagValue("write_retry_delay", writeRetryDelay));
-
-    if (!Utils.isEmpty(mongoFields)) {
-      xml.append(CONST_SPACES).append(XmlHandler.openTag(CONST_FIELDS));
-
-      for (MongoField field : mongoFields) {
-        xml.append(CONST_SPACES1).append(XmlHandler.openTag(MONGO_FIELD));
-
-        xml.append(CONST_SPACES2)
-            .append(XmlHandler.addTagValue("incoming_field_name", field.incomingFieldName));
-        xml.append(CONST_SPACES2)
-            .append(XmlHandler.addTagValue("mongo_doc_path", field.mongoDocPath));
-        xml.append(CONST_SPACES2)
-            .append(
-                XmlHandler.addTagValue(
-                    "use_incoming_field_name_as_mongo_field_name",
-                    field.useIncomingFieldNameAsMongoFieldName));
-        xml.append(CONST_SPACES2)
-            .append(XmlHandler.addTagValue("update_match_field", field.updateMatchField));
-        xml.append(CONST_SPACES2)
-            .append(
-                XmlHandler.addTagValue("modifier_update_operation", field.modifierUpdateOperation));
-        xml.append(CONST_SPACES2)
-            .append(XmlHandler.addTagValue("modifier_policy", field.modifierOperationApplyPolicy));
-        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("json_field", field.inputJson));
-        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("allow_null", field.insertNull));
-
-        xml.append(CONST_SPACES1).append(XmlHandler.closeTag(MONGO_FIELD));
-      }
-
-      xml.append(CONST_SPACES).append(XmlHandler.closeTag(CONST_FIELDS));
-    }
-
-    if (!Utils.isEmpty(mongoIndexes)) {
-      xml.append(CONST_SPACES).append(XmlHandler.openTag(CONST_MONGO_INDEXES));
-
-      for (MongoIndex index : mongoIndexes) {
-        xml.append(CONST_SPACES1).append(XmlHandler.openTag(CONST_MONGO_INDEX));
-
-        xml.append(CONST_SPACES2)
-            .append(XmlHandler.addTagValue("path_to_fields", index.pathToFields));
-        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("drop", index.drop));
-        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("unique", index.unique));
-        xml.append(CONST_SPACES2).append(XmlHandler.addTagValue("sparse", index.sparse));
-
-        xml.append(CONST_SPACES1).append(XmlHandler.closeTag(CONST_MONGO_INDEX));
-      }
-
-      xml.append(CONST_SPACES).append(XmlHandler.closeTag(CONST_MONGO_INDEXES));
-    }
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node node, IHopMetadataProvider metaStore) throws HopXmlException {
-    connectionName = XmlHandler.getTagValue(node, "connection");
-    collection = XmlHandler.getTagValue(node, "mongo_collection");
-    batchInsertSize = XmlHandler.getTagValue(node, "batch_insert_size");
-
-    truncate = XmlHandler.getTagValue(node, "truncate").equalsIgnoreCase("Y");
-
-    // for backwards compatibility with older metadata
-    String update = XmlHandler.getTagValue(node, "update");
-    if (!StringUtils.isEmpty(update)) {
-      this.update = update.equalsIgnoreCase("Y");
-    }
-
-    upsert = XmlHandler.getTagValue(node, "upsert").equalsIgnoreCase("Y");
-    multi = XmlHandler.getTagValue(node, "multi").equalsIgnoreCase("Y");
-    modifierUpdate = XmlHandler.getTagValue(node, "modifier_update").equalsIgnoreCase("Y");
-
-    // for backwards compatibility with older ktrs (to maintain correct
-    // operation)
-    if (upsert || multi) {
-      this.update = true;
-    }
-
-    String writeRetries = XmlHandler.getTagValue(node, "write_retries");
-    if (!StringUtils.isEmpty(writeRetries)) {
-      this.writeRetries = writeRetries;
-    }
-    String writeRetryDelay = XmlHandler.getTagValue(node, "write_retry_delay");
-    if (!StringUtils.isEmpty(writeRetryDelay)) {
-      this.writeRetryDelay = writeRetryDelay;
-    }
-
-    Node fields = XmlHandler.getSubNode(node, CONST_FIELDS);
-    if (fields != null && XmlHandler.countNodes(fields, MONGO_FIELD) > 0) {
-      int nrFields = XmlHandler.countNodes(fields, MONGO_FIELD);
-      mongoFields = new ArrayList<>();
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fieldNode = XmlHandler.getSubNodeByNr(fields, MONGO_FIELD, i);
-
-        MongoField newField = new MongoField();
-        newField.incomingFieldName = XmlHandler.getTagValue(fieldNode, "incoming_field_name");
-        newField.mongoDocPath = XmlHandler.getTagValue(fieldNode, "mongo_doc_path");
-        newField.useIncomingFieldNameAsMongoFieldName =
-            XmlHandler.getTagValue(fieldNode, "use_incoming_field_name_as_mongo_field_name")
-                .equalsIgnoreCase("Y");
-        newField.updateMatchField =
-            XmlHandler.getTagValue(fieldNode, "update_match_field").equalsIgnoreCase("Y");
-
-        newField.modifierUpdateOperation =
-            XmlHandler.getTagValue(fieldNode, "modifier_update_operation");
-        String policy = XmlHandler.getTagValue(fieldNode, "modifier_policy");
-        if (!StringUtils.isEmpty(policy)) {
-          newField.modifierOperationApplyPolicy = policy;
-        }
-        String jsonField = XmlHandler.getTagValue(fieldNode, "json_field");
-        if (!StringUtils.isEmpty(jsonField)) {
-          newField.inputJson = jsonField.equalsIgnoreCase("Y");
-        }
-        String allowNull = XmlHandler.getTagValue(fieldNode, "allow_null");
-        newField.insertNull = "Y".equalsIgnoreCase(allowNull);
-
-        mongoFields.add(newField);
-      }
-    }
-
-    fields = XmlHandler.getSubNode(node, CONST_MONGO_INDEXES);
-    if (fields != null && XmlHandler.countNodes(fields, CONST_MONGO_INDEX) > 0) {
-      int nrFields = XmlHandler.countNodes(fields, CONST_MONGO_INDEX);
-
-      mongoIndexes = new ArrayList<>();
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fieldNode = XmlHandler.getSubNodeByNr(fields, CONST_MONGO_INDEX, i);
-
-        MongoIndex newIndex = new MongoIndex();
-
-        newIndex.pathToFields = XmlHandler.getTagValue(fieldNode, "path_to_fields");
-        newIndex.drop = XmlHandler.getTagValue(fieldNode, "drop").equalsIgnoreCase("Y");
-        newIndex.unique = XmlHandler.getTagValue(fieldNode, "unique").equalsIgnoreCase("Y");
-        newIndex.sparse = XmlHandler.getTagValue(fieldNode, "sparse").equalsIgnoreCase("Y");
-
-        mongoIndexes.add(newIndex);
-      }
     }
   }
 

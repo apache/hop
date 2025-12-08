@@ -35,29 +35,27 @@ limitations under the License.
     <created_date>2019/08/06 16:10:49.753</created_date>
     <modified_user>-</modified_user>
     <modified_date>2019/08/06 16:10:49.753</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
-      <note>Commit size set to 123 to check for dangling records</note>
-      <xloc>224</xloc>
-      <yloc>80</yloc>
-      <width>210</width>
-      <heigth>22</heigth>
+      <backgroundcolorblue>112</backgroundcolorblue>
+      <backgroundcolorgreen>205</backgroundcolorgreen>
+      <backgroundcolorred>255</backgroundcolorred>
+      <bordercolorblue>155</bordercolorblue>
+      <bordercolorgreen>155</bordercolorgreen>
+      <bordercolorred>155</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>83</fontcolorblue>
+      <fontcolorgreen>87</fontcolorgreen>
+      <fontcolorred>85</fontcolorred>
+      <fontitalic>N</fontitalic>
       <fontname>Sans</fontname>
       <fontsize>10</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>85</fontcolorred>
-      <fontcolorgreen>87</fontcolorgreen>
-      <fontcolorblue>83</fontcolorblue>
-      <backgroundcolorred>255</backgroundcolorred>
-      <backgroundcolorgreen>205</backgroundcolorgreen>
-      <backgroundcolorblue>112</backgroundcolorblue>
-      <bordercolorred>155</bordercolorred>
-      <bordercolorgreen>155</bordercolorgreen>
-      <bordercolorblue>155</bordercolorblue>
+      <height>-1</height>
+      <xloc>224</xloc>
+      <yloc>80</yloc>
+      <note>Commit size set to 123 to check for dangling records</note>
+      <width>210</width>
     </notepad>
   </notepads>
   <order>
@@ -86,6 +84,8 @@ limitations under the License.
     <enclosure>"</enclosure>
     <header>Y</header>
     <buffer_size>50000</buffer_size>
+    <schemaDefinition/>
+    <ignoreFields>N</ignoreFields>
     <lazy_conversion>N</lazy_conversion>
     <add_filename_result>N</add_filename_result>
     <parallel>N</parallel>
@@ -220,7 +220,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>mongo</connection>
+    <connection>${MONGO_CONNECTION}</connection>
     <mongo_collection>m_inserts_1</mongo_collection>
     <batch_insert_size>123</batch_insert_size>
     <truncate>Y</truncate>
@@ -237,7 +237,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -247,7 +247,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -257,7 +257,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -267,7 +267,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -277,7 +277,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -287,7 +287,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -297,7 +297,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -307,7 +307,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -317,7 +317,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>
@@ -327,7 +327,7 @@ limitations under the License.
         <use_incoming_field_name_as_mongo_field_name>Y</use_incoming_field_name_as_mongo_field_name>
         <update_match_field>N</update_match_field>
         <modifier_update_operation>N/A</modifier_update_operation>
-        <modifier_policy/>
+        <modifier_policy>Insert&amp;Update</modifier_policy>
         <json_field>N</json_field>
         <allow_null>N</allow_null>
       </mongo_field>

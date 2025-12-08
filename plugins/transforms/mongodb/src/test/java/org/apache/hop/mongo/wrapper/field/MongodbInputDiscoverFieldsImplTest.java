@@ -25,11 +25,10 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -48,6 +47,7 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.mongo.wrapper.MongoDBAction;
 import org.apache.hop.mongo.wrapper.MongoWrapperClientFactory;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
+import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -63,18 +63,20 @@ class MongodbInputDiscoverFieldsImplTest {
   @Mock private MongoDbConnection connection;
   @Mock private MongoWrapperClientFactory clientFactory;
   @Mock private MongoClientWrapper clientWrapper;
-  @Mock private DB mockDb;
+  @Mock private MongoDatabase mockDb;
   @Mock private MongoDbInputMeta inputMeta;
-  @Mock private DBCollection collection;
-  @Mock private DBCursor cursor;
+  @Mock private MongoCollection<Document> collection;
+  @Mock private FindIterable<Document> findIterable;
+  @Mock private MongoCursor<Document> cursor;
   @Captor private ArgumentCaptor<MongoProperties.Builder> propCaptor;
-  @Captor private ArgumentCaptor<DBObject> dbObjectCaptor;
-  @Captor private ArgumentCaptor<DBObject[]> dbObjectArrayCaptor;
+  @Captor private ArgumentCaptor<Document> docCaptor;
+  @Captor private ArgumentCaptor<Document[]> docArrayCaptor;
 
   private MongodbInputDiscoverFieldsImpl discoverFields;
   private static final int NUM_DOCS_TO_SAMPLE = 2;
 
   @BeforeEach
+  @SuppressWarnings("unchecked")
   void before() throws MongoDbException, HopPluginException {
     variables = new Variables();
     MockitoAnnotations.openMocks(this);
@@ -82,8 +84,9 @@ class MongodbInputDiscoverFieldsImplTest {
             any(MongoProperties.class), any(MongoUtilLogger.class)))
         .thenReturn(clientWrapper);
     when(mockDb.getCollection(any(String.class))).thenReturn(collection);
-    when(collection.find()).thenReturn(cursor);
-    when(cursor.limit(anyInt())).thenReturn(cursor);
+    when(collection.find()).thenReturn(findIterable);
+    when(findIterable.limit(anyInt())).thenReturn(findIterable);
+    when(findIterable.iterator()).thenReturn(cursor);
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.init();
     discoverFields = mock(MongodbInputDiscoverFieldsImpl.class);
@@ -131,7 +134,7 @@ class MongodbInputDiscoverFieldsImplTest {
     Collections.sort(fields);
     for (int i = 0; i < fields.size(); i++) {
       fields.get(i).init(i);
-      assertThat(fields.get(i).getName(), equalTo(expecteds[i * 3]));
+      assertThat(fields.get(i).getFieldName(), equalTo(expecteds[i * 3]));
       assertThat(fields.get(i).getPath(), equalTo(expecteds[i * 3 + 1]));
       assertThat(fields.get(i).getHopValue(expecteds[i * 3 + 2]), equalTo(expecteds[i * 3 + 2]));
     }
@@ -217,8 +220,7 @@ class MongodbInputDiscoverFieldsImplTest {
   @Test
   void testDocToFields() {
     Map<String, MongoField> fieldMap = new LinkedHashMap<>();
-    DBObject doc =
-        (DBObject) BasicDBObject.parse("{\"fred\" : {\"george\" : 1}, \"bob\" : [1 , 2]}");
+    Document doc = Document.parse("{\"fred\" : {\"george\" : 1}, \"bob\" : [1 , 2]}");
 
     MongodbInputDiscoverFieldsImpl.docToFields(doc, fieldMap);
     assertThat(3, equalTo(fieldMap.size()));

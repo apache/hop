@@ -44,19 +44,15 @@ class MongoDbInputMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Mong
   @Test
   void test() throws Exception {
     check("CONNECTION", () -> meta.getConnectionName());
-    check("JSON_FIELD", () -> meta.getFieldsName());
+    check("JSON_FIELD", () -> meta.getJsonField());
     check("JSON_QUERY", () -> meta.getJsonQuery());
     check("COLLECTION", () -> meta.getCollection());
     check("JSON_OUTPUT_FIELD", () -> meta.getJsonFieldName());
-    check("AGG_PIPELINE", () -> meta.isQueryIsPipeline());
+    check("AGG_PIPELINE", () -> meta.isAggPipeline());
     check("OUTPUT_JSON", () -> meta.isOutputJson());
-    check("EXECUTE_FOR_EACH_ROW", () -> meta.getExecuteForEachIncomingRow());
-    check("FIELD_NAME", () -> meta.getMongoFields().get(0).fieldName);
-    check("FIELD_PATH", () -> meta.getMongoFields().get(0).fieldPath);
-    check("FIELD_TYPE", () -> meta.getMongoFields().get(0).hopType);
-    check("FIELD_INDEXED", () -> meta.getMongoFields().get(0).indexedValues.get(0));
-    check("FIELD_ARRAY_INDEX", () -> meta.getMongoFields().get(0).arrayIndexInfo);
-    check("FIELD_PERCENTAGE", () -> meta.getMongoFields().get(0).percentageOfSample);
-    check("FIELD_DISPARATE_TYPES", () -> meta.getMongoFields().get(0).disparateTypes);
+    check("EXECUTE_FOR_EACH_ROW", () -> meta.isExecuteForEachIncomingRow());
+    check("FIELD_NAME", () -> meta.getFields().get(0).fieldName);
+    check("FIELD_PATH", () -> meta.getFields().get(0).fieldPath);
+    check("FIELD_TYPE", () -> meta.getFields().get(0).hopType);
   }
 }

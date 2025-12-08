@@ -17,9 +17,9 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import com.mongodb.DB;
+import com.mongodb.client.MongoDatabase;
 import org.apache.hop.mongo.MongoDbException;
 
 public interface MongoDBAction<ReturnType> {
-  ReturnType perform(DB db) throws MongoDbException;
+  ReturnType perform(MongoDatabase db) throws MongoDbException;
 }

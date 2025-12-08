@@ -17,15 +17,13 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
-import com.mongodb.ReplicaSetStatus;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,11 +40,11 @@ import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.bson.Document;
 
 /**
- * Implementation of MongoClientWrapper which uses the MONGO-CR auth mechanism. Should only be
- * instantiated by MongoClientWrapperFactory.
+ * Unified implementation of MongoClientWrapper that handles both authenticated and
+ * non-authenticated connections. Should only be instantiated by MongoClientWrapperFactory.
  */
-class NoAuthMongoClientWrapper implements MongoClientWrapper {
-  private static final Class<?> PKG = NoAuthMongoClientWrapper.class;
+class MongoClientWrapperImpl implements MongoClientWrapper {
+  private static final Class<?> PKG = MongoClientWrapperImpl.class;
   public static final int MONGO_DEFAULT_PORT = 27017;
 
   public static final String LOCAL_DB = "local";
@@ -72,13 +70,13 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
    * @param log for logging
    * @throws MongoDbException if a problem occurs
    */
-  NoAuthMongoClientWrapper(MongoProperties props, MongoUtilLogger log) throws MongoDbException {
+  MongoClientWrapperImpl(MongoProperties props, MongoUtilLogger log) throws MongoDbException {
     this.log = log;
     this.props = props;
-    mongo = getClient(props.buildMongoClientOptions(log));
+    mongo = getClient(props.buildMongoClientSettings(log));
   }
 
-  NoAuthMongoClientWrapper(MongoClient mongo, MongoProperties props, MongoUtilLogger log) {
+  MongoClientWrapperImpl(MongoClient mongo, MongoProperties props, MongoUtilLogger log) {
     this.mongo = mongo;
     this.log = log;
     this.props = props;
@@ -149,7 +147,18 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
     return serverList;
   }
 
-  protected MongoClient getClient(MongoClientOptions opts) throws MongoDbException {
+  protected MongoClient getClient(MongoClientSettings.Builder settingsBuilder)
+      throws MongoDbException {
+    // Check if a connection string is provided - if so, use it directly
+    String connectionString = props.get(MongoProp.CONNECTION_STRING);
+    if (!Util.isEmpty(connectionString)) {
+      // Get credentials separately (best practice - avoids URL encoding issues)
+      // The connection string should be clean (without credentials)
+      List<MongoCredential> credList = getCredentialList();
+      return getClientFactory(props).getMongoClient(connectionString, settingsBuilder, credList);
+    }
+
+    // Otherwise, fall back to building from hostname/port
     List<MongoCredential> credList = getCredentialList();
     List<ServerAddress> serverAddressList = getServerAddressList();
 
@@ -161,7 +170,8 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
               MongoClientWrapper.class, "MongoNoAuthWrapper.Message.Error.NoHostSet"));
     }
     return getClientFactory(props)
-        .getMongoClient(serverAddressList, credList, opts, props.useAllReplicaSetMembers());
+        .getMongoClient(
+            serverAddressList, credList, settingsBuilder, props.useAllReplicaSetMembers());
   }
 
   /**
@@ -172,15 +182,17 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   @Override
   public List<String> getDatabaseNames() throws MongoDbException {
     try {
-      return getMongo().getDatabaseNames();
+      List<String> names = new ArrayList<>();
+      getMongo().listDatabaseNames().into(names);
+      return names;
     } catch (Exception e) {
       throw new MongoDbException(e);
     }
   }
 
-  protected DB getDb(String dbName) throws MongoDbException {
+  protected MongoDatabase getDb(String dbName) throws MongoDbException {
     try {
-      return getMongo().getDB(dbName);
+      return getMongo().getDatabase(dbName);
     } catch (Exception e) {
       throw new MongoDbException(e);
     }
@@ -196,7 +208,9 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   @Override
   public Set<String> getCollectionsNames(String dB) throws MongoDbException {
     try {
-      return getDb(dB).getCollectionNames();
+      Set<String> names = new HashSet<>();
+      getDb(dB).listCollectionNames().into(names);
+      return names;
     } catch (Exception e) {
       if (e instanceof MongoDbException mongoDbException) {
         throw mongoDbException;
@@ -218,13 +232,12 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   public List<String> getLastErrorModes() throws MongoDbException {
     List<String> customLastErrorModes = new ArrayList<>();
 
-    DB local = getDb(LOCAL_DB);
+    MongoDatabase local = getDb(LOCAL_DB);
     if (local != null) {
       try {
-        DBCollection replset = local.getCollection(REPL_SET_COLLECTION);
+        MongoCollection<Document> replset = local.getCollection(REPL_SET_COLLECTION);
         if (replset != null) {
-          DBObject config = replset.findOne();
-
+          Document config = replset.find().first();
           extractLastErrorModes(config, customLastErrorModes);
         }
       } catch (Exception e) {
@@ -235,15 +248,15 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
     return customLastErrorModes;
   }
 
-  protected void extractLastErrorModes(DBObject config, List<String> customLastErrorModes) {
+  protected void extractLastErrorModes(Document config, List<String> customLastErrorModes) {
     if (config != null) {
       Object settings = config.get(REPL_SET_SETTINGS);
 
       if (settings != null) {
-        Object getLastErrModes = ((DBObject) settings).get(REPL_SET_LAST_ERROR_MODES);
+        Object getLastErrModes = ((Document) settings).get(REPL_SET_LAST_ERROR_MODES);
 
         if (getLastErrModes != null) {
-          for (String m : ((DBObject) getLastErrModes).keySet()) {
+          for (String m : ((Document) getLastErrModes).keySet()) {
             customLastErrorModes.add(m);
           }
         }
@@ -254,7 +267,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
   @Override
   public List<String> getIndexInfo(String dbName, String collection) throws MongoDbException {
     try {
-      DB db = getDb(dbName);
+      MongoDatabase db = getDb(dbName);
 
       if (db == null) {
         throw new MongoDbException(
@@ -266,27 +279,37 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
             BaseMessages.getString(PKG, "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
       }
 
-      if (!db.collectionExists(collection)) {
-        db.createCollection(collection, null);
+      // Check if collection exists, create if not
+      boolean exists = false;
+      for (String name : db.listCollectionNames()) {
+        if (name.equals(collection)) {
+          exists = true;
+          break;
+        }
+      }
+      if (!exists) {
+        db.createCollection(collection);
       }
 
-      DBCollection coll = db.getCollection(collection);
+      MongoCollection<Document> coll = db.getCollection(collection);
       if (coll == null) {
         throw new MongoDbException(
             BaseMessages.getString(
                 PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection", collection));
       }
 
-      List<DBObject> collInfo = coll.getIndexInfo();
       List<String> result = new ArrayList<>();
-      if (Utils.isEmpty(collInfo)) {
+      try (MongoCursor<Document> cursor = coll.listIndexes().iterator()) {
+        while (cursor.hasNext()) {
+          Document index = cursor.next();
+          result.add(index.toJson());
+        }
+      }
+
+      if (Utils.isEmpty(result)) {
         throw new MongoDbException(
             BaseMessages.getString(
                 PKG, "MongoNoAuthWrapper.ErrorMessage.UnableToGetInfoForCollection", collection));
-      }
-
-      for (DBObject index : collInfo) {
-        result.add(index.toString());
       }
 
       return result;
@@ -309,28 +332,30 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
     return setupAllTags(getRepSetMemberRecords());
   }
 
-  private BasicDBList getRepSetMemberRecords() throws MongoDbException {
-    BasicDBList setMembers = null;
+  private List<Document> getRepSetMemberRecords() throws MongoDbException {
+    List<Document> setMembers = null;
     try {
-      DB local = getDb(LOCAL_DB);
+      MongoDatabase local = getDb(LOCAL_DB);
       if (local != null) {
 
-        DBCollection replset = local.getCollection(REPL_SET_COLLECTION);
+        MongoCollection<Document> replset = local.getCollection(REPL_SET_COLLECTION);
         if (replset != null) {
-          DBObject config = replset.findOne();
+          Document config = replset.find().first();
 
           if (config != null) {
             Object members = config.get(REPL_SET_MEMBERS);
 
-            if (members instanceof BasicDBList basicDBList) {
-              if (basicDBList.isEmpty()) {
+            if (members instanceof List) {
+              @SuppressWarnings("unchecked")
+              List<Document> membersList = (List<Document>) members;
+              if (membersList.isEmpty()) {
                 // log that there are no replica set members defined
                 logInfo(
                     BaseMessages.getString(
                         PKG,
                         CONST_MONGO_NO_AUTH_WRAPPER_MESSAGE_WARNING_NO_REPLICA_SET_MEMBERS_DEFINED));
               } else {
-                setMembers = (BasicDBList) members;
+                setMembers = membersList;
               }
 
             } else {
@@ -375,13 +400,13 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
     }
   }
 
-  protected List<String> setupAllTags(BasicDBList members) {
+  protected List<String> setupAllTags(List<Document> members) {
     HashSet<String> tempTags = new HashSet<>();
 
     if (!Utils.isEmpty(members)) {
-      for (Object member : members) {
+      for (Document member : members) {
         if (member != null) {
-          DBObject tags = (DBObject) ((DBObject) member).get("tags");
+          Document tags = (Document) member.get("tags");
           if (tags == null) {
             continue;
           }
@@ -418,13 +443,13 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
    * @throws MongoDbException if a problem occurs
    */
   @Override
-  public List<String> getReplicaSetMembersThatSatisfyTagSets(List<DBObject> tagSets)
+  public List<String> getReplicaSetMembersThatSatisfyTagSets(List<Document> tagSets)
       throws MongoDbException {
     try {
       List<String> result = new ArrayList<>();
-      for (DBObject object :
+      for (Document object :
           checkForReplicaSetMembersThatSatisfyTagSets(tagSets, getRepSetMemberRecords())) {
-        result.add(object.toString());
+        result.add(object.toJson());
       }
       return result;
     } catch (Exception ex) {
@@ -439,18 +464,18 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
     }
   }
 
-  protected List<DBObject> checkForReplicaSetMembersThatSatisfyTagSets(
-      List<DBObject> tagSets, BasicDBList members) {
-    List<DBObject> satisfy = new ArrayList<>();
+  protected List<Document> checkForReplicaSetMembersThatSatisfyTagSets(
+      List<Document> tagSets, List<Document> members) {
+    List<Document> satisfy = new ArrayList<>();
     if (!Utils.isEmpty(members)) {
-      for (Object m : members) {
+      for (Document m : members) {
         if (m != null) {
-          DBObject tags = (DBObject) ((DBObject) m).get("tags");
+          Document tags = (Document) m.get("tags");
           if (tags == null) {
             continue;
           }
 
-          for (DBObject toMatch : tagSets) {
+          for (Document toMatch : tagSets) {
             boolean match = true;
 
             for (String tagName : toMatch.keySet()) {
@@ -478,7 +503,7 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
             if (match && !satisfy.contains(m)) {
               // all tag/values present and match - add this member (only if its
               // not already there)
-              satisfy.add((DBObject) m);
+              satisfy.add(m);
             }
           }
         }
@@ -495,27 +520,79 @@ class NoAuthMongoClientWrapper implements MongoClientWrapper {
 
   @Override
   public MongoCollectionWrapper createCollection(String db, String name) throws MongoDbException {
-    return wrap(getDb(db).createCollection(name, null));
+    getDb(db).createCollection(name);
+    return wrap(getDb(db).getCollection(name));
   }
 
   @Override
   public List<MongoCredential> getCredentialList() {
-    // empty cred list
-    return new ArrayList<>();
+    List<MongoCredential> credList = new ArrayList<>();
+    String username = props.get(MongoProp.USERNAME);
+    String password = props.get(MongoProp.PASSWORD);
+
+    // If no username or password, return empty list (no auth)
+    if (username == null || username.trim().isEmpty() || password == null) {
+      return credList;
+    }
+
+    String authDatabase = props.get(MongoProp.AUTH_DATABASE);
+    String dbName = props.get(MongoProp.DBNAME);
+    String authMecha = props.get(MongoProp.AUTH_MECHA);
+    // if not value on AUTH_MECHA set default authentication mechanism
+    if (authMecha == null) {
+      authMecha = "";
+    }
+
+    // Use the AuthDatabase if one was supplied, otherwise use the connecting database
+    authDatabase = (authDatabase == null || authDatabase.trim().isEmpty()) ? dbName : authDatabase;
+
+    // If authDatabase is still null or empty, default to "admin"
+    if (authDatabase == null || authDatabase.trim().isEmpty()) {
+      authDatabase = "admin";
+    }
+
+    // Convert password to char array (handle empty string)
+    char[] passwordChars =
+        (password != null && !password.isEmpty()) ? password.toCharArray() : new char[0];
+
+    if (authMecha.equalsIgnoreCase("SCRAM-SHA-1") || authMecha.equalsIgnoreCase("SCRAM_SHA_1")) {
+      credList.add(
+          MongoCredential.createScramSha1Credential(username, authDatabase, passwordChars));
+    } else if (authMecha.equalsIgnoreCase("SCRAM-SHA-256")
+        || authMecha.equalsIgnoreCase("SCRAM_SHA_256")) {
+      credList.add(
+          MongoCredential.createScramSha256Credential(username, authDatabase, passwordChars));
+    } else if (authMecha.equalsIgnoreCase("PLAIN")) {
+      credList.add(MongoCredential.createPlainCredential(username, authDatabase, passwordChars));
+    } else {
+      // Default to SCRAM-SHA-256 (the modern default)
+      credList.add(MongoCredential.createCredential(username, authDatabase, passwordChars));
+    }
+    return credList;
   }
 
-  protected MongoCollectionWrapper wrap(DBCollection collection) {
+  protected MongoCollectionWrapper wrap(MongoCollection<Document> collection) {
     return new DefaultMongoCollectionWrapper(collection);
   }
 
   @Override
   public void dispose() {
-    getMongo().close();
+    if (getMongo() != null) {
+      getMongo().close();
+    }
   }
 
   @Override
-  public ReplicaSetStatus getReplicaSetStatus() {
-    return getMongo().getReplicaSetStatus();
+  public boolean isReplicaSet() {
+    // Check cluster description
+    try {
+      return getMongo()
+          .getClusterDescription()
+          .getType()
+          .equals(com.mongodb.connection.ClusterType.REPLICA_SET);
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @Override

@@ -17,18 +17,32 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
 import java.util.List;
 
-/** User: Dzmitry Stsiapanau Date: 04/06/2016 Time: 12:37 */
 public interface MongoClientFactory {
 
   MongoClient getMongoClient(
       List<ServerAddress> serverAddressList,
       List<MongoCredential> credList,
-      MongoClientOptions opts,
+      MongoClientSettings.Builder settingsBuilder,
       boolean useReplicaSet);
+
+  /**
+   * Create a MongoClient from a connection string (e.g., mongodb+srv://cluster.mongodb.net/dbname).
+   * This supports both standard mongodb:// and SRV-based mongodb+srv:// connection strings.
+   * Credentials should be supplied separately via MongoCredential (best practice).
+   *
+   * @param connectionString the MongoDB connection string (should be clean, without credentials)
+   * @param settingsBuilder additional settings to apply (may be null)
+   * @param credList credentials to use (may be null or empty)
+   * @return a configured MongoClient
+   */
+  MongoClient getMongoClient(
+      String connectionString,
+      MongoClientSettings.Builder settingsBuilder,
+      List<MongoCredential> credList);
 }

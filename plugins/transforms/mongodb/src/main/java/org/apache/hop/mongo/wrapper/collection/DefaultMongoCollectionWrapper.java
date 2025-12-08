@@ -16,44 +16,53 @@
  */
 package org.apache.hop.mongo.wrapper.collection;
 
-import com.mongodb.AggregationOptions;
-import com.mongodb.BasicDBObject;
-import com.mongodb.Cursor;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.UpdateResult;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.wrapper.cursor.DefaultCursorWrapper;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
 public class DefaultMongoCollectionWrapper implements MongoCollectionWrapper {
-  private final DBCollection collection;
+  private final MongoCollection<Document> collection;
 
-  public DefaultMongoCollectionWrapper(DBCollection collection) {
+  public DefaultMongoCollectionWrapper(MongoCollection<Document> collection) {
     this.collection = collection;
   }
 
   @Override
-  public MongoCursorWrapper find(DBObject dbObject, DBObject dbObject2) throws MongoDbException {
-    return wrap(collection.find(dbObject, dbObject2));
+  public MongoCursorWrapper find(Bson query, Bson projection) throws MongoDbException {
+    FindIterable<Document> findIterable = collection.find(query);
+    if (projection != null) {
+      findIterable = findIterable.projection(projection);
+    }
+    return wrap(findIterable);
   }
 
   @Override
-  public Cursor aggregate(List<? extends DBObject> pipeline, AggregationOptions options) {
-    return collection.aggregate(pipeline, options);
+  public AggregateIterable<Document> aggregate(List<? extends Bson> pipeline) {
+    return collection.aggregate(new ArrayList<>(pipeline));
   }
 
   @Override
-  public Cursor aggregate(DBObject firstP, DBObject[] remainder) {
-    AggregationOptions options = AggregationOptions.builder().build();
-    List<DBObject> pipeline = new ArrayList<>();
+  public AggregateIterable<Document> aggregate(Bson firstP, Bson[] remainder)
+      throws MongoDbException {
+    List<Bson> pipeline = new ArrayList<>();
     pipeline.add(firstP);
     Collections.addAll(pipeline, remainder);
-    return aggregate(pipeline, options);
+    return aggregate(pipeline);
   }
 
   @Override
@@ -67,63 +76,93 @@ public class DefaultMongoCollectionWrapper implements MongoCollectionWrapper {
   }
 
   @Override
-  public WriteResult update(
-      DBObject updateQuery, DBObject insertUpdate, boolean upsert, boolean multi)
+  public UpdateResult update(Bson updateQuery, Bson insertUpdate, boolean upsert, boolean multi)
       throws MongoDbException {
-    return collection.update(updateQuery, insertUpdate, upsert, multi);
+    UpdateOptions options = new UpdateOptions().upsert(upsert);
+    if (multi) {
+      return collection.updateMany(updateQuery, insertUpdate, options);
+    } else {
+      return collection.updateOne(updateQuery, insertUpdate, options);
+    }
   }
 
   @Override
-  public WriteResult insert(List<DBObject> batch) throws MongoDbException {
-    return collection.insert(batch);
+  public InsertManyResult insert(List<Document> batch) throws MongoDbException {
+    return collection.insertMany(batch);
   }
 
   @Override
-  public MongoCursorWrapper find(DBObject query) throws MongoDbException {
+  public MongoCursorWrapper find(Bson query) throws MongoDbException {
     return wrap(collection.find(query));
   }
 
   @Override
-  public void dropIndex(BasicDBObject mongoIndex) throws MongoDbException {
+  public void dropIndex(Bson mongoIndex) throws MongoDbException {
     collection.dropIndex(mongoIndex);
   }
 
   @Override
-  public void createIndex(BasicDBObject mongoIndex) throws MongoDbException {
+  public void createIndex(Bson mongoIndex) throws MongoDbException {
     collection.createIndex(mongoIndex);
   }
 
   @Override
-  public void createIndex(BasicDBObject mongoIndex, BasicDBObject options) throws MongoDbException {
-    collection.createIndex(mongoIndex, options);
+  public void createIndex(Bson mongoIndex, Bson options) throws MongoDbException {
+    IndexOptions indexOptions = new IndexOptions();
+    if (options instanceof Document doc) {
+      if (doc.containsKey("background")) {
+        indexOptions.background(doc.getBoolean("background", false));
+      }
+      if (doc.containsKey("unique")) {
+        indexOptions.unique(doc.getBoolean("unique", false));
+      }
+      if (doc.containsKey("sparse")) {
+        indexOptions.sparse(doc.getBoolean("sparse", false));
+      }
+      if (doc.containsKey("name")) {
+        indexOptions.name(doc.getString("name"));
+      }
+    }
+    collection.createIndex(mongoIndex, indexOptions);
   }
 
   @Override
-  public WriteResult remove() throws MongoDbException {
-    return remove(new BasicDBObject());
+  public DeleteResult remove() throws MongoDbException {
+    return remove(new Document());
   }
 
   @Override
-  public WriteResult remove(DBObject query) throws MongoDbException {
-    return collection.remove(query);
+  public DeleteResult remove(Bson query) throws MongoDbException {
+    return collection.deleteMany(query);
   }
 
   @Override
-  public WriteResult save(DBObject toTry) throws MongoDbException {
-    return collection.save(toTry);
+  public UpdateResult save(Document toTry) throws MongoDbException {
+    // In MongoDB 5.x, save() is replaced with replaceOne with upsert
+    Object id = toTry.get("_id");
+    if (id != null) {
+      return collection.replaceOne(Filters.eq("_id", id), toTry, new ReplaceOptions().upsert(true));
+    } else {
+      // No _id, insert instead
+      collection.insertOne(toTry);
+      // Return a synthetic UpdateResult - document was inserted (no upsertedId needed)
+      return UpdateResult.acknowledged(0, 1L, null);
+    }
   }
 
   @Override
   public long count() throws MongoDbException {
-    return collection.count();
+    return collection.countDocuments();
   }
 
   @Override
   public List distinct(String key) throws MongoDbException {
-    return collection.distinct(key);
+    List<Object> result = new ArrayList<>();
+    collection.distinct(key, Object.class).into(result);
+    return result;
   }
 
-  protected MongoCursorWrapper wrap(DBCursor cursor) {
-    return new DefaultCursorWrapper(cursor);
+  protected MongoCursorWrapper wrap(FindIterable<Document> findIterable) {
+    return new DefaultCursorWrapper(findIterable);
   }
 }

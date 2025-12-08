@@ -17,29 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "MongoDbInput",
@@ -49,98 +43,35 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/mongodbinput.html",
     keywords = "i18n::MongoDbInputMeta.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input")
-@InjectionSupported(localizationPrefix = "MongoDbInput.Injection.", groups = ("FIELDS"))
+@Getter
+@Setter
 public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData> {
   protected static final Class<?> PKG = MongoDbInputMeta.class;
-  public static final String CONST_FIELDS = "mongo_fields";
-  public static final String CONST_SPACES = "\n        ";
-  public static final String CONST_FIELD = "mongo_field";
 
-  @Injection(name = "JSON_OUTPUT_FIELD")
+  @HopMetadataProperty(key = "json_field_name", injectionKey = "JSON_OUTPUT_FIELD")
   private String jsonFieldName;
 
-  @Injection(name = "JSON_FIELD")
+  @HopMetadataProperty(key = "fields_name", injectionKey = "JSON_FIELD")
   private String jsonField;
 
-  @Injection(name = "JSON_QUERY")
+  @HopMetadataProperty(key = "json_query", injectionKey = "JSON_QUERY")
   private String jsonQuery;
 
-  @Injection(name = "AGG_PIPELINE")
+  @HopMetadataProperty(key = "query_is_pipeline", injectionKey = "AGG_PIPELINE")
   private boolean aggPipeline = false;
 
-  @Injection(name = "OUTPUT_JSON")
+  @HopMetadataProperty(key = "output_json", injectionKey = "OUTPUT_JSON")
   private boolean outputJson = true;
 
-  @InjectionDeep private List<MongoField> fields;
+  @HopMetadataProperty(
+      groupKey = "mongo_fields",
+      key = "mongo_field",
+      injectionKey = "MONGODB_FIELDS",
+      injectionGroupKey = "MONGODB_FIELDS")
+  private List<MongoField> fields;
 
-  @Injection(name = "EXECUTE_FOR_EACH_ROW")
+  @HopMetadataProperty(key = "execute_for_each_row", injectionKey = "EXECUTE_FOR_EACH_ROW")
   private boolean executeForEachIncomingRow = false;
-
-  public void setMongoFields(List<MongoField> fields) {
-    this.fields = fields;
-  }
-
-  public List<MongoField> getMongoFields() {
-    return fields;
-  }
-
-  public void setExecuteForEachIncomingRow(boolean e) {
-    executeForEachIncomingRow = e;
-  }
-
-  public boolean getExecuteForEachIncomingRow() {
-    return executeForEachIncomingRow;
-  }
-
-  @Override
-  public void loadXml(Node node, IHopMetadataProvider metaStore) throws HopXmlException {
-    try {
-      connectionName = XmlHandler.getTagValue(node, "connection");
-      jsonField = XmlHandler.getTagValue(node, "fields_name");
-      collection = XmlHandler.getTagValue(node, "collection");
-      jsonFieldName = XmlHandler.getTagValue(node, "json_field_name");
-      jsonQuery = XmlHandler.getTagValue(node, "json_query");
-
-      outputJson = true; // default to true for backwards compatibility
-      String outputJson = XmlHandler.getTagValue(node, "output_json");
-      if (!StringUtils.isEmpty(outputJson)) {
-        this.outputJson = outputJson.equalsIgnoreCase("Y");
-      }
-
-      String queryIsPipe = XmlHandler.getTagValue(node, "query_is_pipeline");
-      if (!StringUtils.isEmpty(queryIsPipe)) {
-        aggPipeline = queryIsPipe.equalsIgnoreCase("Y");
-      }
-
-      String executeForEachR = XmlHandler.getTagValue(node, "execute_for_each_row");
-      if (!StringUtils.isEmpty(executeForEachR)) {
-        executeForEachIncomingRow = executeForEachR.equalsIgnoreCase("Y");
-      }
-
-      Node mongoFields = XmlHandler.getSubNode(node, CONST_FIELDS);
-      if (mongoFields != null && XmlHandler.countNodes(mongoFields, CONST_FIELD) > 0) {
-        int nrFields = XmlHandler.countNodes(mongoFields, CONST_FIELD);
-
-        fields = new ArrayList<>();
-        for (int i = 0; i < nrFields; i++) {
-          Node fieldNode = XmlHandler.getSubNodeByNr(mongoFields, CONST_FIELD, i);
-
-          MongoField newField = new MongoField();
-          newField.fieldName = XmlHandler.getTagValue(fieldNode, "field_name");
-          newField.fieldPath = XmlHandler.getTagValue(fieldNode, "field_path");
-          newField.hopType = XmlHandler.getTagValue(fieldNode, "field_type");
-          String indexedVals = XmlHandler.getTagValue(fieldNode, "indexed_vals");
-          if (!Utils.isEmpty(indexedVals)) {
-            newField.indexedValues = MongoDbInputData.indexedValsList(indexedVals);
-          }
-          fields.add(newField);
-        }
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "MongoDbInputMeta.Exception.UnableToLoadTransformInfo"), e);
-    }
-  }
 
   @Override
   public Object clone() {
@@ -186,43 +117,6 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
   }
 
   @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(300);
-
-    xml.append("    ").append(XmlHandler.addTagValue("connection", connectionName));
-    xml.append("    ").append(XmlHandler.addTagValue("fields_name", jsonField));
-    xml.append("    ").append(XmlHandler.addTagValue("collection", collection));
-    xml.append("    ").append(XmlHandler.addTagValue("json_field_name", jsonFieldName));
-    xml.append("    ").append(XmlHandler.addTagValue("json_query", jsonQuery));
-    xml.append("    ").append(XmlHandler.addTagValue("output_json", outputJson));
-    xml.append("    ").append(XmlHandler.addTagValue("query_is_pipeline", aggPipeline));
-    xml.append("    ")
-        .append(XmlHandler.addTagValue("execute_for_each_row", executeForEachIncomingRow));
-
-    if (!Utils.isEmpty(fields)) {
-      xml.append("\n    ").append(XmlHandler.openTag(CONST_FIELDS));
-
-      for (MongoField f : fields) {
-        xml.append("\n      ").append(XmlHandler.openTag(CONST_FIELD));
-
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("field_name", f.fieldName));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("field_path", f.fieldPath));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("field_type", f.hopType));
-        if (!Utils.isEmpty(f.indexedValues)) {
-          xml.append(CONST_SPACES)
-              .append(
-                  XmlHandler.addTagValue(
-                      "indexed_vals", MongoDbInputData.indexedValsList(f.indexedValues)));
-        }
-        xml.append("\n      ").append(XmlHandler.closeTag(CONST_FIELD));
-      }
-
-      xml.append("\n    ").append(XmlHandler.closeTag(CONST_FIELDS));
-    }
-    return xml.toString();
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -243,83 +137,5 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
         info,
         variables,
         metadataProvider);
-  }
-
-  /**
-   * @return the fields
-   */
-  public String getFieldsName() {
-    return jsonField;
-  }
-
-  /**
-   * @param fields a field name to set
-   */
-  public void setFieldsName(String fields) {
-    this.jsonField = fields;
-  }
-
-  /**
-   * @return the jsonFieldName
-   */
-  public String getJsonFieldName() {
-    return jsonFieldName;
-  }
-
-  /**
-   * @param jsonFieldName the jsonFieldName to set
-   */
-  public void setJsonFieldName(String jsonFieldName) {
-    this.jsonFieldName = jsonFieldName;
-  }
-
-  /**
-   * @return the jsonQuery
-   */
-  public String getJsonQuery() {
-    return jsonQuery;
-  }
-
-  /**
-   * @param jsonQuery the jsonQuery to set
-   */
-  public void setJsonQuery(String jsonQuery) {
-    this.jsonQuery = jsonQuery;
-  }
-
-  /**
-   * Set whether to output just a single field as JSON
-   *
-   * @param outputJson true if a single field containing JSON is to be output
-   */
-  public void setOutputJson(boolean outputJson) {
-    this.outputJson = outputJson;
-  }
-
-  /**
-   * Get whether to output just a single field as JSON
-   *
-   * @return true if a single field containing JSON is to be output
-   */
-  public boolean isOutputJson() {
-    return outputJson;
-  }
-
-  /**
-   * Set whether the supplied query is actually a pipeline specification
-   *
-   * @param q true if the supplied query is a pipeline specification
-   */
-  public void setQueryIsPipeline(boolean q) {
-    aggPipeline = q;
-  }
-
-  /**
-   * Get whether the supplied query is actually a pipeline specification
-   *
-   * @return true if the supplied query is a pipeline specification
-   */
-  public boolean isQueryIsPipeline() {
-    return aggPipeline;
   }
 }

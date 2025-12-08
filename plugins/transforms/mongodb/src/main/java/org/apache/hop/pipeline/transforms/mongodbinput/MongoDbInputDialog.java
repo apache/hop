@@ -490,16 +490,16 @@ public class MongoDbInputDialog extends BaseTransformDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData(MongoDbInputMeta meta) {
     wConnection.setText(Const.NVL(meta.getConnectionName(), ""));
-    wFieldsName.setText(Const.NVL(meta.getFieldsName(), ""));
+    wFieldsName.setText(Const.NVL(meta.getJsonField(), ""));
     wCollection.setText(Const.NVL(meta.getCollection(), ""));
     wJsonField.setText(Const.NVL(meta.getJsonFieldName(), ""));
     wJsonQuery.setText(Const.NVL(meta.getJsonQuery(), ""));
 
-    wbQueryIsPipeline.setSelection(meta.isQueryIsPipeline());
+    wbQueryIsPipeline.setSelection(meta.isAggPipeline());
     wbOutputAsJson.setSelection(meta.isOutputJson());
-    wbExecuteForEachRow.setSelection(meta.getExecuteForEachIncomingRow());
+    wbExecuteForEachRow.setSelection(meta.isExecuteForEachIncomingRow());
 
-    refreshFields(meta.getMongoFields());
+    refreshFields(meta.getFields());
 
     wJsonField.setEnabled(meta.isOutputJson());
     wGet.setEnabled(!meta.isOutputJson());
@@ -532,13 +532,13 @@ public class MongoDbInputDialog extends BaseTransformDialog {
   private void getInfo(MongoDbInputMeta meta) {
 
     meta.setConnectionName(wConnection.getText());
-    meta.setFieldsName(wFieldsName.getText());
+    meta.setJsonField(wFieldsName.getText());
     meta.setCollection(wCollection.getText());
     meta.setJsonFieldName(wJsonField.getText());
     meta.setJsonQuery(wJsonQuery.getText());
 
     meta.setOutputJson(wbOutputAsJson.getSelection());
-    meta.setQueryIsPipeline(wbQueryIsPipeline.getSelection());
+    meta.setAggPipeline(wbQueryIsPipeline.getSelection());
     meta.setExecuteForEachIncomingRow(wbExecuteForEachRow.getSelection());
 
     int numNonEmpty = wFields.nrNonEmpty();
@@ -559,7 +559,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
         outputFields.add(newField);
       }
 
-      meta.setMongoFields(outputFields);
+      meta.setFields(outputFields);
     }
   }
 
@@ -711,7 +711,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
         // Query is still going to
         // be stuffed if the user has specified field replacement (i.e.
         // ?{...}) in the query string
-        boolean current = meta.getExecuteForEachIncomingRow();
+        boolean current = meta.isExecuteForEachIncomingRow();
         meta.setExecuteForEachIncomingRow(false);
 
         if (!checkForUnresolved(
@@ -726,7 +726,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
         try {
           discoverFields(meta, variables, samples, metadataProvider);
           meta.setExecuteForEachIncomingRow(current);
-          refreshFields(meta.getMongoFields());
+          refreshFields(meta.getFields());
         } catch (HopException e) {
           new ErrorDialog(
               shell,
@@ -916,7 +916,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
       }
       String collection = variables.resolve(meta.getCollection());
       String query = variables.resolve(meta.getJsonQuery());
-      String fields = variables.resolve(meta.getFieldsName());
+      String fields = variables.resolve(meta.getJsonField());
       int numDocsToSample = docsToSample;
       if (numDocsToSample < 1) {
         numDocsToSample = 100; // default
@@ -931,14 +931,14 @@ public class MongoDbInputDialog extends BaseTransformDialog {
               collection,
               query,
               fields,
-              meta.isQueryIsPipeline(),
+              meta.isAggPipeline(),
               numDocsToSample,
               meta);
 
       // return true if query resulted in documents being returned and fields
       // getting extracted
       if (!discoveredFields.isEmpty()) {
-        meta.setMongoFields(discoveredFields);
+        meta.setFields(discoveredFields);
         return true;
       }
     } catch (Exception e) {

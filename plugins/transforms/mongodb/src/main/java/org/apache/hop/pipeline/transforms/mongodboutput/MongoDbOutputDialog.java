@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.mongodboutput;
 
-import com.mongodb.DBObject;
-import com.mongodb.MongoClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +45,7 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.bson.Document;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -160,7 +159,6 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     fd.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fd);
 
-    /** various UI bits and pieces for the dialog */
     // The tabs of the dialog
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -473,7 +471,8 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.UseIncomingName"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {"Y", "N"}),
+              "Y",
+              "N"),
           new ColumnInfo(
               BaseMessages.getString(PKG, "MongoDbOutputDialog.Fields.NullValues"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -724,11 +723,11 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
         newField.incomingFieldName = incoming;
         newField.mongoDocPath = path;
         newField.useIncomingFieldNameAsMongoFieldName =
-            ((!useIncoming.isEmpty()) ? useIncoming.equals("Y") : true); //
+            (useIncoming.isEmpty() || useIncoming.equals("Y")); //
         newField.insertNull =
             BaseMessages.getString(PKG, CONST_MONGO_DB_OUTPUT_DIALOG_FIELDS_NULL_VALUES_INSERT)
                 .equals(allowNull);
-        newField.inputJson = ((!json.isEmpty()) ? json.equals("Y") : false); //
+        newField.inputJson = (!json.isEmpty() && json.equals("Y")); //
         newField.updateMatchField = (updateMatch.equals("Y")); //
         if (modifierOp.isEmpty()) {
           newField.modifierUpdateOperation = "N/A"; //
@@ -749,11 +748,11 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     wConnection.setText(Const.NVL(currentMeta.getConnectionName(), "")); //
     wCollectionField.setText(Const.NVL(currentMeta.getCollection(), "")); //
     wBatchInsertSizeField.setText(Const.NVL(currentMeta.getBatchInsertSize(), "")); //
-    wbUpdate.setSelection(currentMeta.getUpdate());
-    wbUpsert.setSelection(currentMeta.getUpsert());
-    wbMulti.setSelection(currentMeta.getMulti());
-    wbTruncate.setSelection(currentMeta.getTruncate());
-    wbModifierUpdate.setSelection(currentMeta.getModifierUpdate());
+    wbUpdate.setSelection(currentMeta.isUpdate());
+    wbUpsert.setSelection(currentMeta.isUpsert());
+    wbMulti.setSelection(currentMeta.isMulti());
+    wbTruncate.setSelection(currentMeta.isTruncate());
+    wbModifierUpdate.setSelection(currentMeta.isModifierUpdate());
 
     wbUpsert.setEnabled(wbUpdate.getSelection());
     wbModifierUpdate.setEnabled(wbUpdate.getSelection());
@@ -1115,14 +1114,14 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
           BaseMessages.getString(PKG, "MongoDbOutputDialog.PreviewDocStructure.Title"); //
 
       if (!wbModifierUpdate.getSelection()) {
-        DBObject result =
+        Object result =
             MongoDbOutputData.hopRowToMongo(
                 mongoFields, r, dummyRow, topLevelStruct, hasTopLevelJSONDocInsert);
         toDisplay = prettyPrintDocStructure(result.toString());
       } else {
-        DBObject query =
+        Document query =
             MongoDbOutputData.getQueryObject(mongoFields, r, dummyRow, vs, topLevelStruct);
-        DBObject modifier =
+        Document modifier =
             new MongoDbOutputData()
                 .getModifierUpdateObject(mongoFields, r, dummyRow, vs, topLevelStruct);
         toDisplay =
@@ -1166,7 +1165,6 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
     String connectionName = variables.resolve(wConnection.getText());
 
     if (!StringUtils.isEmpty(connectionName)) {
-      MongoClient conn = null;
       try {
         MongoDbOutputMeta meta = new MongoDbOutputMeta();
         getInfo(meta);
@@ -1208,11 +1206,6 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
                 + CONST_NEWLING
                 + e.getMessage(),
             e); //
-      } finally {
-        if (conn != null) {
-          conn.close();
-          conn = null;
-        }
       }
     }
   }
