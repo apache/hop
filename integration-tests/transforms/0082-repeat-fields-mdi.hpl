@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0081-repeat-fields-mdi</name>
+    <name>0082-repeat-fields-mdi</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -98,7 +98,7 @@ limitations under the License.
       </line>
       <line>
         <item>A</item>
-        <item>1</item>
+        <item>2</item>
         <item>2025/01/01 08:00:00</item>
         <item>Duck</item>
         <item>Daffy</item>
@@ -108,7 +108,7 @@ limitations under the License.
       </line>
       <line>
         <item>B</item>
-        <item>1</item>
+        <item>2</item>
         <item>2025/01/01 09:00:00</item>
         <item/>
         <item/>
@@ -118,7 +118,7 @@ limitations under the License.
       </line>
       <line>
         <item>C</item>
-        <item>1</item>
+        <item>2</item>
         <item>2025/01/01 10:00:00</item>
         <item/>
         <item/>
@@ -131,59 +131,89 @@ limitations under the License.
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>source</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>String</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>id</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>Integer</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>timestamp</name>
         <format>yyyy/MM/dd HH:mm:ss</format>
+        <group/>
+        <decimal/>
         <type>Date</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>lastname</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>String</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>firstname</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>String</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>birthdate</name>
         <format>yyyy/MM/dd</format>
+        <group/>
+        <decimal/>
         <type>Date</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>status</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>String</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>indicator</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>String</type>
       </field>
     </fields>
