@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0081-repeat-fields</name>
+  <name>main-0082-repeat-fields</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -50,22 +50,22 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Run 0081 tests</name>
+      <name>Run 0082 tests</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
       <test_names>
         <test_name>
-          <name>0081-repeat-fields-current-when-indicated UNIT</name>
+          <name>0082-repeat-fields-current-when-indicated UNIT</name>
         </test_name>
         <test_name>
-          <name>0081-repeat-fields-previous UNIT</name>
+          <name>0082-repeat-fields-previous UNIT</name>
         </test_name>
         <test_name>
-          <name>0081-repeat-fields-previous-when-null UNIT</name>
+          <name>0082-repeat-fields-previous-when-null UNIT</name>
         </test_name>
         <test_name>
-          <name>0081-repeat-fields-mdi-main UNIT</name>
+          <name>0082-repeat-fields-mdi-main UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
@@ -77,7 +77,7 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>Run 0081 tests</to>
+      <to>Run 0082 tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>

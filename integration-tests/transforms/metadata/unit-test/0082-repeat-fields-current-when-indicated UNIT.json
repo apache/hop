@@ -57,7 +57,7 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0081-repeat-fields-current-when-indicated UNIT",
+  "name": "0082-repeat-fields-current-when-indicated UNIT",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0081-repeat-fields-current-when-indicated.hpl"
+  "pipeline_filename": "./0082-repeat-fields-current-when-indicated.hpl"
 }

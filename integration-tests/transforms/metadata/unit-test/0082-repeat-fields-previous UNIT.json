@@ -37,12 +37,12 @@
         "v1",
         "v2"
       ],
-      "data_set_name": "golden-repeat-fields-when-null",
+      "data_set_name": "golden-repeat-fields-previous",
       "transform_name": "Result"
     }
   ],
   "input_data_sets": [],
-  "name": "0081-repeat-fields-previous-when-null UNIT",
+  "name": "0082-repeat-fields-previous UNIT",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0081-repeat-fields-previous-when-null.hpl"
+  "pipeline_filename": "./0082-repeat-fields-previous.hpl"
 }

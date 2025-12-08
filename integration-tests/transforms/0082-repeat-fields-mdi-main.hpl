@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0081-repeat-fields-mdi-main</name>
+    <name>0082-repeat-fields-mdi-main</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -65,7 +65,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/0081-repeat-fields-mdi.hpl</filename>
+    <filename>${PROJECT_HOME}/0082-repeat-fields-mdi.hpl</filename>
     <run_configuration>local</run_configuration>
     <source_transform>result</source_transform>
     <source_output_fields>
@@ -141,17 +141,17 @@ limitations under the License.
       </mapping>
       <mapping>
         <target_transform_name>Repeat Fields</target_transform_name>
-        <target_attribute_key>target_field</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <source_transform>repeats</source_transform>
-        <source_field>target</source_field>
-      </mapping>
-      <mapping>
-        <target_transform_name>Repeat Fields</target_transform_name>
         <target_attribute_key>GROUP_FIELD</target_attribute_key>
         <target_detail>Y</target_detail>
         <source_transform>groups</source_transform>
         <source_field>group</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Repeat Fields</target_transform_name>
+        <target_attribute_key>target_field</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>repeats</source_transform>
+        <source_field>target</source_field>
       </mapping>
       <mapping>
         <target_transform_name>Repeat Fields</target_transform_name>
