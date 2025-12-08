@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.TransactionWork;
+import org.neo4j.driver.TransactionCallback;
 
 @ExtensionPoint(
     id = "PipelineLoggingExtensionPoint",
@@ -134,8 +134,8 @@ public class PipelineLoggingExtensionPoint
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
 
     synchronized (session) {
-      session.writeTransaction(
-          (TransactionWork<Void>)
+      session.executeWrite(
+          (TransactionCallback<Void>)
               transaction -> {
                 try {
 
@@ -203,9 +203,9 @@ public class PipelineLoggingExtensionPoint
                     transaction.run(hopCypher, hopPars);
                   }
 
-                  transaction.commit();
+                  // Transaction is automatically committed by executeWrite
                 } catch (Exception e) {
-                  transaction.rollback();
+                  // Transaction is automatically rolled back by executeWrite on exception
                   log.logError("Error logging pipeline metadata", e);
                 }
                 return null;
@@ -224,8 +224,8 @@ public class PipelineLoggingExtensionPoint
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
 
     synchronized (session) {
-      session.writeTransaction(
-          (TransactionWork<Void>)
+      session.executeWrite(
+          (TransactionCallback<Void>)
               transaction -> {
                 try {
                   // Create a new node for each log channel and its owner.
@@ -256,9 +256,9 @@ public class PipelineLoggingExtensionPoint
 
                   transaction.run(pipelineCypher, pipelinePars);
 
-                  transaction.commit();
+                  // Transaction is automatically committed by executeWrite
                 } catch (Exception e) {
-                  transaction.rollback();
+                  // Transaction is automatically rolled back by executeWrite on exception
                   log.logError("Error logging pipeline start", e);
                 }
 
@@ -278,8 +278,8 @@ public class PipelineLoggingExtensionPoint
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
 
     synchronized (session) {
-      session.writeTransaction(
-          (TransactionWork<Void>)
+      session.executeWrite(
+          (TransactionCallback<Void>)
               transaction -> {
                 try {
 
@@ -412,9 +412,9 @@ public class PipelineLoggingExtensionPoint
                     }
                   }
 
-                  transaction.commit();
+                  // Transaction is automatically committed by executeWrite
                 } catch (Exception e) {
-                  transaction.rollback();
+                  // Transaction is automatically rolled back by executeWrite on exception
                   log.logError("Error logging pipeline end", e);
                 }
                 return null;
@@ -429,8 +429,8 @@ public class PipelineLoggingExtensionPoint
       final List<LoggingHierarchy> hierarchies,
       String rootLogChannelId) {
     synchronized (session) {
-      session.writeTransaction(
-          (TransactionWork<Void>)
+      session.executeWrite(
+          (TransactionCallback<Void>)
               transaction -> {
                 // Update create the Execution relationships
                 //

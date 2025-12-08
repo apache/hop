@@ -99,7 +99,6 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
         try {
           data.driver = data.neoConnection.getDriver(getLogChannel(), this);
           data.session = data.neoConnection.getSession(getLogChannel(), data.driver, this);
-          data.version4 = data.neoConnection.isVersion4();
         } catch (Exception e) {
           logError(
               "Unable to get or create Neo4j database driver for database '"
@@ -601,9 +600,29 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       final Map<String, Object> props = Collections.singletonMap("props", unwindList);
 
       // Execute this unwind cypher statement...
+      // In Neo4j 5.x, Result must be consumed within the callback
       //
-      Result result = data.session.writeTransaction(tx -> tx.run(unwindCypher, props));
-      errors = processSummary(result);
+      boolean statementErrors =
+          data.session.executeWrite(
+              tx -> {
+                Result result = tx.run(unwindCypher, props);
+                // Consume the result and check for errors
+                ResultSummary summary = result.consume();
+                boolean hasErrors = false;
+                for (Notification notification : summary.notifications()) {
+                  logError(notification.title() + " (" + notification.severity() + ")");
+                  logError(
+                      notification.code()
+                          + " : "
+                          + notification.description()
+                          + ", position "
+                          + notification.position());
+                  hasErrors = true;
+                }
+                return hasErrors;
+              });
+
+      errors = statementErrors;
 
       if (errors) {
         // The error is already logged, simply break out of the loop...

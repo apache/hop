@@ -35,8 +35,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.neo4j.driver.Result;
-import org.neo4j.driver.Transaction;
-import org.neo4j.driver.TransactionWork;
+import org.neo4j.driver.TransactionCallback;
+import org.neo4j.driver.TransactionContext;
 import org.neo4j.driver.Value;
 
 public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilderData> {
@@ -210,9 +210,9 @@ public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilde
             //
             HopException hopException;
             if (data.needsWriteTransaction) {
-              hopException = data.session.writeTransaction(new RowsTransaction());
+              hopException = data.session.executeWrite(new RowsTransaction());
             } else {
-              hopException = data.session.readTransaction(new RowsTransaction());
+              hopException = data.session.executeRead(new RowsTransaction());
             }
             if (hopException != null) {
               throw hopException;
@@ -286,14 +286,14 @@ public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilde
     emptyRowParametersList();
   }
 
-  private final class RowsTransaction implements TransactionWork<HopException> {
+  private final class RowsTransaction implements TransactionCallback<HopException> {
 
     public RowsTransaction() {
       // Do nothing
     }
 
     @Override
-    public HopException execute(Transaction tx) {
+    public HopException execute(TransactionContext tx) {
       try {
         for (int i = 0; i < data.inputRowsList.size(); i++) {
           Object[] inputRow = data.inputRowsList.get(i);
@@ -301,15 +301,10 @@ public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilde
           Result result = tx.run(data.cypher, rowParameters);
           putResultRows(inputRow, result);
         }
-        if (data.needsWriteTransaction) {
-          tx.commit();
-        }
+        // Transaction is automatically committed/rolled back by executeWrite/executeRead
         return null;
       } catch (Exception e) {
-        if (data.needsWriteTransaction) {
-          tx.rollback();
-        }
-        return new HopException("Error writing to Neo4j");
+        return new HopException("Error writing to Neo4j", e);
       }
     }
   }

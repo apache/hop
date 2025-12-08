@@ -500,9 +500,18 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
 
       // Run it always without beginTransaction()...
+      // In Neo4j 5.x, Result must be consumed within the callback
       //
-      Result result = data.session.writeTransaction(tx -> tx.run(data.cypher, properties));
-      processSummary(result);
+      data.session.executeWrite(
+          tx -> {
+            Result result = tx.run(data.cypher, properties);
+            try {
+              processSummary(result);
+            } catch (HopException e) {
+              throw new RuntimeException("Error processing result summary", e);
+            }
+            return null;
+          });
 
       setLinesOutput(getLinesOutput() + data.unwindList.size());
 
@@ -783,7 +792,6 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
                   + metadataProvider.getDescription());
           return false;
         }
-        data.version4 = data.neoConnection.isVersion4();
       } catch (HopException e) {
         logError(
             "Could not gencsv Neo4j connection '"

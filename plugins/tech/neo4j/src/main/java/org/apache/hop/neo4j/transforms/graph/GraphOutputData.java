@@ -48,7 +48,6 @@ public class GraphOutputData extends BaseNeoTransformData implements ITransformD
   public GraphModel graphModel;
   public Map<String, CypherParameters> cypherMap;
   public HashMap<String, Map<GraphProperty, Integer>> relationshipPropertyIndexMap;
-  public boolean version4;
   public ModelValidator modelValidator;
 
   // How many records were dumped into the unwind maps?

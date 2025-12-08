@@ -126,7 +126,7 @@ public class Neo4jIndex extends ActionBase implements IAction {
     final String _cypher = cypher;
     try (Driver driver = connection.getDriver(getLogChannel(), this)) {
       try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-        session.writeTransaction(
+        session.executeWrite(
             tx -> {
               try {
                 logDetailed("Dropping index with cypher: " + _cypher);
@@ -180,7 +180,7 @@ public class Neo4jIndex extends ActionBase implements IAction {
     final String _cypher = cypher;
     try (Driver driver = connection.getDriver(getLogChannel(), this)) {
       try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-        session.writeTransaction(
+        session.executeWrite(
             tx -> {
               try {
                 logDetailed("Creating index with cypher: " + _cypher);

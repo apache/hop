@@ -44,7 +44,7 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
+import org.neo4j.driver.TransactionContext;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 
@@ -70,7 +70,7 @@ public class LoggingCore {
   public static final void writeHierarchies(
       ILogChannel log,
       NeoConnection connection,
-      Transaction transaction,
+      TransactionContext transaction,
       List<LoggingHierarchy> hierarchies,
       String rootLogChannelId) {
 
@@ -128,10 +128,10 @@ public class LoggingCore {
           transaction.run(execCypher.toString(), execPars);
         }
       }
-      transaction.commit();
+      // Transaction is automatically committed by executeWrite
     } catch (Exception e) {
       log.logError("Error logging hierarchies", e);
-      transaction.rollback();
+      // Transaction is automatically rolled back by executeWrite on exception
     }
   }
 
@@ -146,7 +146,7 @@ public class LoggingCore {
 
     try (Driver driver = connection.getDriver(log, variables)) {
       try (Session session = connection.getSession(log, driver, variables)) {
-        return session.readTransaction(
+        return session.executeRead(
             tx -> {
               Result result = tx.run(cypher, parameters);
               return lambda.getResultValue(result);

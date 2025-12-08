@@ -117,7 +117,7 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     final String _cypher = cypher;
     try (Driver driver = connection.getDriver(getLogChannel(), this)) {
       try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-        session.writeTransaction(
+        session.executeWrite(
             tx -> {
               try {
                 logDetailed("Dropping constraint with cypher: " + _cypher);
@@ -182,7 +182,7 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     final String _cypher = cypher;
     try (Driver driver = connection.getDriver(getLogChannel(), this)) {
       try (Session session = connection.getSession(getLogChannel(), driver, this)) {
-        session.writeTransaction(
+        session.executeWrite(
             tx -> {
               try {
                 logDetailed("Creating constraint with cypher: " + _cypher);
