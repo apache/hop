@@ -20,6 +20,7 @@ package org.apache.hop.neo4j.actions.constraint;
 public enum ConstraintType {
   UNIQUE,
   NOT_NULL,
+  NODE_KEY,
   ;
 
   public static final String[] getNames() {

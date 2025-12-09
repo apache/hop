@@ -160,6 +160,32 @@ public class Neo4jConstraint extends ActionBase implements IAction {
         case NOT_NULL:
           cypher += " n." + constraintUpdate.getObjectProperties() + " IS NOT NULL ";
           break;
+        case NODE_KEY:
+          // NODE_KEY requires multiple properties (comma-separated)
+          String properties = constraintUpdate.getObjectProperties();
+          if (StringUtils.isEmpty(properties)) {
+            throw new HopException(
+                "NODE_KEY constraint requires at least one property. Properties: " + properties);
+          }
+          String[] props = properties.split(",");
+          if (props.length < 1) {
+            throw new HopException(
+                "NODE_KEY constraint requires at least one property. Properties: " + properties);
+          }
+          // Format as (n.prop1, n.prop2, ...) IS NODE KEY
+          StringBuilder propsList = new StringBuilder("(");
+          for (int i = 0; i < props.length; i++) {
+            if (i > 0) {
+              propsList.append(", ");
+            }
+            propsList.append("n.").append(props[i].trim());
+          }
+          propsList.append(")");
+          cypher += propsList.toString() + " IS NODE KEY ";
+          break;
+        default:
+          throw new HopException(
+              "Unsupported constraint type: " + constraintUpdate.getConstraintType());
       }
 
     } else {
@@ -174,6 +200,12 @@ public class Neo4jConstraint extends ActionBase implements IAction {
         case NOT_NULL:
           cypher += " r." + constraintUpdate.getObjectProperties() + " IS NOT NULL ";
           break;
+        case NODE_KEY:
+          throw new HopException(
+              "NODE_KEY constraint type is only supported for nodes, not relationships");
+        default:
+          throw new HopException(
+              "Unsupported constraint type: " + constraintUpdate.getConstraintType());
       }
     }
 
