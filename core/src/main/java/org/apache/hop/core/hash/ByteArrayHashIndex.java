@@ -103,6 +103,7 @@ public class ByteArrayHashIndex {
     ByteArrayHashIndexEntry check = index[indexPointer];
     if (check == null) {
       index[indexPointer] = new ByteArrayHashIndexEntry(hashCode, key, value, index[indexPointer]);
+      resize();
       return;
     }
 
@@ -190,7 +191,7 @@ public class ByteArrayHashIndex {
           if (check == null) {
             // Yes, plenty of room
             //
-            newIndex[newIndexPointer] = check;
+            newIndex[newIndexPointer] = entry;
           } else {
             // No, we need to look for a nice spot to put the hash entry...
             //
@@ -212,7 +213,6 @@ public class ByteArrayHashIndex {
             previousCheck.nextEntry = entry;
             newIndex[newIndexPointer] = entry;
           }
-          newIndex[newIndexPointer] = entry;
         }
       }
 
