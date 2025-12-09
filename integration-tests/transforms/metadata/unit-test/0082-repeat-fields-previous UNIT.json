@@ -1,0 +1,48 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "value1",
+          "data_set_field": "value1"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        },
+        {
+          "transform_field": "v1",
+          "data_set_field": "v1"
+        },
+        {
+          "transform_field": "v2",
+          "data_set_field": "v2"
+        }
+      ],
+      "field_order": [
+        "id",
+        "value1",
+        "value2",
+        "v1",
+        "v2"
+      ],
+      "data_set_name": "golden-repeat-fields-previous",
+      "transform_name": "Result"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0082-repeat-fields-previous UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0082-repeat-fields-previous.hpl"
+}

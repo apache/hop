@@ -1,0 +1,7 @@
+source,id,timestamp,rLast,rFirst,rBirthdate,rStatus,rIndicator
+A,1,2025/01/01 12:00:00,Mouse,Mickey,1928/11/18,,
+B,1,2025/01/01 13:00:00,Mouse,Mickey,1928/11/18,active,
+C,1,2025/01/01 14:00:00,Mouse,Mickey,1928/11/18,active,positive
+A,2,2025/01/01 08:00:00,Duck,Daffy,1937/04/17,,
+B,2,2025/01/01 09:00:00,Duck,Daffy,1937/04/17,inactive,
+C,2,2025/01/01 10:00:00,Duck,Daffy,1937/04/17,inactive,negative

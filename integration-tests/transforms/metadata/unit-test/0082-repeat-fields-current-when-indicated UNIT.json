@@ -1,0 +1,63 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "source",
+          "data_set_field": "source"
+        },
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "timestamp",
+          "data_set_field": "timestamp"
+        },
+        {
+          "transform_field": "rLast",
+          "data_set_field": "rLast"
+        },
+        {
+          "transform_field": "rFirst",
+          "data_set_field": "rFirst"
+        },
+        {
+          "transform_field": "rBirthdate",
+          "data_set_field": "rBirthdate"
+        },
+        {
+          "transform_field": "rStatus",
+          "data_set_field": "rStatus"
+        },
+        {
+          "transform_field": "rIndicator",
+          "data_set_field": "rIndicator"
+        }
+      ],
+      "field_order": [
+        "source",
+        "id",
+        "timestamp",
+        "rLast",
+        "rFirst",
+        "rBirthdate",
+        "rStatus",
+        "rIndicator"
+      ],
+      "data_set_name": "golden-repeat-fields-current-when-indicated",
+      "transform_name": "result"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0082-repeat-fields-current-when-indicated UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0082-repeat-fields-current-when-indicated.hpl"
+}

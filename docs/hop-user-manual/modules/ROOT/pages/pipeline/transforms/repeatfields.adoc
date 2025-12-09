@@ -1,0 +1,126 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Repeat a field value from a previous row
+
+:openvar: {
+:closevar: }
+
+= image:transforms/icons/repeatfields.svg[Repeat Fields Icon, role="image-doc-icon"] Repeat Fields
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Repeat Fields transform is solving a few common problems:
+
+* Repeat a field value from the previous row, if the value is null on the current row: this commonly happens when
+reading data from merged cells in a spreadsheet.  In that scenario only the first row is filled in for the merged cell
+and we need to repeat the data from the first row of the cell.
+* Take a field value from the current row when an indicator matches, otherwise take the value from the previous row.
+This can be used to combine data coming from multiple sources when you have a common key to group on.
+
+IMPORTANT: If the incoming data is not sorted on the specified group field(s),
+the output results may not be correct. We recommend sorting the incoming data within the pipeline,
+or in a source database.
+
+CAUTION: This transform isn't supported in data processing engines that can't guarantee a row order in the given group.
+Even on the native Hop engine you need to make sure to use partitioning on the group field(s) to process data in
+parallel.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:cross.svg[Not Supported, 24]
+!Flink! image:cross.svg[Not Supported, 24]
+!Dataflow! image:cross.svg[Not Supported, 24]
+!===
+|===
+
+== Group fields
+
+In the Group fields section you can specify the group in which to operate.
+Every new group starts without a previous row.
+
+== The fields to repeat
+
+[options="header"]
+|===
+|Option|Description
+|Repeat type
+|
+**Previous row**: repeat the field value from the previous row, regardless of its current value.
+If there is no previous row, take the value from the current row. (ETL Metadata Injection type = `previous`)
+
+**Previous when field is null**: copy the field value from the previous row if the current source value is null. (ETL Metadata Injection type = `previous_when_null`)
+
+**Current when indicated**: take the value from the current source field if the given indicator matches the value in the indicator field. (ETL Metadata Injection type = `current_when_indicated`)
+
+|Source field
+|The source field to repeat
+
+|Target field
+|Specify the name of the target field (mandatory)
+
+|Indicator field name
+|When using the "Current when indicated" type, this is the name of the field that contains the indicator value.
+
+|Indicator value
+|When using the "Current when indicated" type, this is the indicator value to match with.
+
+|===
+
+== Current when indicated
+
+When we're dealing with source data coming from multiple sources, for example information about a customer,
+we want to assemble a record containing all the different fields from the different sources.
+In the example of our customer, source system A might contain personal data like name, first name, birthdate, and so on.
+Another source system B might contain the status of the customer.
+Finally, source system C contains a flag indicating financial status.
+Each of the sources get changed at a different point in time.  In a slowly changing dimension (see: xref:pipeline/transforms/dimensionlookup.adoc[Dimension Lookup/Update] ) we want to see the changes when they occur in the different sources.
+We also want to process the data from the sources as they arrive.
+
+[options="header"]
+|===
+|source|customer_id|timestamp|lastname|firstname|birthdate|status|indicator
+|A|1|2025/01/01 12:00:00|Mouse|Mickey|1928/11/18|null|null
+|B|1|2025/01/01 13:00:00|null|null|null|active|null
+|C|1|2025/01/01 14:00:00|null|null|null|null|positive
+|===
+
+What we want to do with this transform is take the appropriate fields from the source data taking into account the
+source field as an indicator. We want to end up with this result:
+
+[options="header"]
+|===
+|source|customer_id|timestamp|lastname|firstname|birthdate|status|indicator
+|A|1|2025/01/01 12:00:00|Mouse|Mickey|1928/11/18|null|null
+|B|1|2025/01/01 13:00:00|Mouse|Mickey|1928/11/18|active|null
+|C|1|2025/01/01 14:00:00|Mouse|Mickey|1928/11/18|active|positive
+|===
+
+These 3 rows can then be used to create a detailed and correct timeline using the xref:pipeline/transforms/dimensionlookup.adoc[Dimension Lookup/Update] transform.
+
+TIP: Add the last record from your target slowly changing dimension to modify existing records.
+
+IMPORTANT: As mentioned above, but worth repeating, make sure your data is sorted on the group key
+(the customer ID in this example) and **ALSO** on the timestamp to get a correct timeline result.
+
