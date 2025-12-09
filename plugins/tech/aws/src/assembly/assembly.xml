@@ -50,6 +50,10 @@
             <excludes>
                 <exclude>org.apache.hop:hop-tech-aws:jar</exclude>
                 <exclude>joda-time:joda-time:jar</exclude>
+                <exclude>com.amazonaws:aws-java-sdk-core:jar</exclude>
+                <exclude>com.amazonaws:aws-java-sdk-kms:jar</exclude>
+                <exclude>com.amazonaws:aws-java-sdk-s3:jar</exclude>
+                <exclude>com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/aws/lib</outputDirectory>
         </dependencySet>
@@ -57,6 +61,10 @@
             <scope>runtime</scope>
             <includes>
                 <include>joda-time:joda-time:jar</include>
+                <include>com.amazonaws:aws-java-sdk-core:jar</include>
+                <include>com.amazonaws:aws-java-sdk-kms:jar</include>
+                <include>com.amazonaws:aws-java-sdk-s3:jar</include>
+                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

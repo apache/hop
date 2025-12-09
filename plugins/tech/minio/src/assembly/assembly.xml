@@ -64,13 +64,14 @@
                 <exclude>org.checkerframework:checker-qual:jar</exclude>
                 <exclude>org.xerial.snappy:snappy-java:jar</exclude>
                 <exclude>com.squareup.okhttp3:okhttp:jar</exclude>
+                <exclude>org.bouncycastle::jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/minio/lib</outputDirectory>
         </dependencySet>
         <dependencySet>
             <scope>runtime</scope>
             <includes>
-                <include>io.minio:minio:jar</include>
+                <include>org.bouncycastle::jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
