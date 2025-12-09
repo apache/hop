@@ -245,7 +245,7 @@ public class Result implements Cloneable {
    * @return a List of rows associated with the result of execution of a workflow or pipeline
    */
   public List<RowMetaAndData> getRows() {
-    return new ArrayList<>(rows);
+    return rows;
   }
 
   /**
@@ -254,10 +254,14 @@ public class Result implements Cloneable {
    * @param rows The List of rows to set.
    */
   public void setRows(List<RowMetaAndData> rows) {
-    if (rows == null) {
-      this.rows = new ArrayList<>();
+    if (rows != null) {
+      this.rows = rows;
     } else {
-      this.rows = new ArrayList<>(rows);
+      // When setting to null (this happens for example every time a parallel
+      // branches in workflow starts), we empty rows' list because in
+      // this case it is needed a Result without any row to start the execution
+      // from a clean rows' state
+      this.rows = new ArrayList<>();
     }
   }
 
