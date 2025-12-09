@@ -132,6 +132,27 @@
                 <exclude>com.google.re2j:re2j:jar</exclude>
                 <exclude>org.reactivestreams:reactive-streams:jar</exclude>
                 <exclude>io.projectreactor:reactor-core:jar</exclude>
+                <exclude>org.bouncycastle::jar</exclude>
+                <exclude>com.microsoft.azure:msal4j:jar</exclude>
+                <exclude>com.microsoft.azure:msal4j-persistence-extension:jar</exclude>
+                <exclude>com.amazonaws:aws-java-sdk-core:jar</exclude>
+                <exclude>com.amazonaws:aws-java-sdk-kms:jar</exclude>
+                <exclude>com.amazonaws:aws-java-sdk-s3:jar</exclude>
+                <exclude>com.nimbusds:oauth2-oidc-sdk:jar</exclude>
+                <exclude>com.azure:azure-core:jar</exclude>
+                <exclude>com.azure:azure-identity:jar</exclude>
+                <exclude>com.azure:azure-core-http-netty:jar</exclude>
+                <exclude>com.azure:azure-json:jar</exclude>
+                <exclude>com.microsoft.azure:azure-keyvault-core:jar</exclude>
+                <exclude>com.azure:azure-security-keyvault-secrets:jar</exclude>
+                <exclude>com.azure:azure-storage-blob:jar</exclude>
+                <exclude>com.azure:azure-storage-common:jar</exclude>
+                <exclude>com.azure:azure-storage-internal-avro:jar</exclude>
+                <exclude>com.azure:azure-xml:jar</exclude>
+                <exclude>com.nimbusds:nimbus-jose-jwt:jar</exclude>
+                <exclude>io.confluent::jar</exclude>
+                <exclude>com.google.code.gson:gson:jar</exclude>
+                <exclude>org.apache.commons:commons-collections4:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -209,6 +230,27 @@
                 <include>io.perfmark:perfmark-api:jar</include>
                 <include>com.google.re2j:re2j:jar</include>
                 <include>org.reactivestreams:reactive-streams:jar</include>
+                <include>org.bouncycastle::jar</include>
+                <include>com.microsoft.azure:msal4j:jar</include>
+                <include>com.microsoft.azure:msal4j-persistence-extension:jar</include>
+                <include>com.amazonaws:aws-java-sdk-core:jar</include>
+                <include>com.amazonaws:aws-java-sdk-kms:jar</include>
+                <include>com.amazonaws:aws-java-sdk-s3:jar</include>
+                <include>com.nimbusds:oauth2-oidc-sdk:jar</include>
+                <include>com.azure:azure-core:jar</include>
+                <include>com.azure:azure-identity:jar</include>
+                <include>com.azure:azure-core-http-netty:jar</include>
+                <include>com.azure:azure-json:jar</include>
+                <include>com.microsoft.azure:azure-keyvault-core:jar</include>
+                <include>com.azure:azure-security-keyvault-secrets:jar</include>
+                <include>com.azure:azure-storage-blob:jar</include>
+                <include>com.azure:azure-storage-common:jar</include>
+                <include>com.azure:azure-storage-internal-avro:jar</include>
+                <include>com.azure:azure-xml:jar</include>
+                <include>com.nimbusds:nimbus-jose-jwt:jar</include>
+                <include>io.confluent::jar</include>
+                <include>com.google.code.gson:gson:jar</include>
+                <include>org.apache.commons:commons-collections4:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

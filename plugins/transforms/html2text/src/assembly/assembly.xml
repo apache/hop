@@ -47,10 +47,11 @@
             <outputDirectory>plugins/transforms/html2text</outputDirectory>
         </dependencySet>
         <dependencySet>
+            <scope>provided</scope>
             <includes>
                 <include>org.jsoup:jsoup:jar</include>
             </includes>
-            <outputDirectory>plugins/transforms/html2text/lib</outputDirectory>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

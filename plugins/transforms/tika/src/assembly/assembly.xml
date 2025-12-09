@@ -49,6 +49,8 @@
             <scope>runtime</scope>
             <excludes>
                 <exclude>org.apache.hop:hop-transform-tika:jar</exclude>
+                <exclude>org.jsoup:jsoup:jar</exclude>
+                <exclude>info.picocli:picocli:jar</exclude>
             </excludes>
             <outputDirectory>plugins/transforms/tika/lib</outputDirectory>
         </dependencySet>
@@ -74,6 +76,8 @@
                 <include>xml-apis:xml-apis:jar</include>
                 <include>org.apache.commons:commons-collections4:jar</include>
                 <include>org.apache.logging.log4j:log4j-api:jar</include>
+                <include>org.jsoup:jsoup:jar</include>
+                <include>info.picocli:picocli:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

@@ -31,11 +31,17 @@
 
     <properties>
         <azure-eventhubs.version>3.3.0</azure-eventhubs.version>
-        <azure-sdk-bom.version>1.2.26</azure-sdk-bom.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>com.azure</groupId>
                 <artifactId>azure-sdk-bom</artifactId>

@@ -58,6 +58,10 @@
                 <exclude>net.java.dev.jna::jar</exclude>
                 <exclude>com.github.luben:zstd-jni:jar</exclude>
                 <exclude>org.reactivestreams:reactive-streams:jar</exclude>
+                <exclude>org.bouncycastle::jar</exclude>
+                <exclude>com.github.ben-manes.caffeine:caffeine:jar</exclude>
+                <exclude>com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar</exclude>
+                <exclude>org.antlr:ST4:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/cassandra/lib</outputDirectory>
         </dependencySet>
@@ -81,6 +85,10 @@
                 <include>net.java.dev.jna::jar</include>
                 <include>com.github.luben:zstd-jni:jar</include>
                 <include>org.reactivestreams:reactive-streams:jar</include>
+                <include>org.bouncycastle::jar</include>
+                <include>com.github.ben-manes.caffeine:caffeine:jar</include>
+                <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar</include>
+                <include>org.antlr:ST4:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

@@ -64,6 +64,22 @@
                 <exclude>com.fasterxml.jackson.dataformat:*</exclude>
                 <exclude>com.fasterxml.jackson.module:*</exclude>
                 <exclude>org.slf4j:*</exclude>
+                <exclude>net.java.dev.jna::jar</exclude>
+                <exclude>com.microsoft.azure:msal4j-persistence-extension:jar</exclude>
+                <exclude>com.microsoft.azure:msal4j:jar</exclude>
+                <exclude>com.nimbusds:oauth2-oidc-sdk:jar</exclude>
+                <exclude>com.azure:azure-core:jar</exclude>
+                <exclude>com.azure:azure-identity:jar</exclude>
+                <exclude>com.azure:azure-core-http-netty:jar</exclude>
+                <exclude>com.azure:azure-json:jar</exclude>
+                <exclude>com.microsoft.azure:azure-keyvault-core:jar</exclude>
+                <exclude>com.azure:azure-security-keyvault-secrets:jar</exclude>
+                <exclude>com.azure:azure-storage-blob:jar</exclude>
+                <exclude>com.azure:azure-storage-common:jar</exclude>
+                <exclude>com.azure:azure-storage-internal-avro:jar</exclude>
+                <exclude>com.azure:azure-xml:jar</exclude>
+                <exclude>com.nimbusds:nimbus-jose-jwt:jar</exclude>
+                <exclude>net.minidev:*:jar</exclude>
             </excludes>
             <outputDirectory>plugins/tech/azure/lib</outputDirectory>
         </dependencySet>
@@ -81,6 +97,22 @@
                 <include>com.squareup.okio::jar</include>
                 <include>org.reactivestreams:reactive-streams:jar</include>
                 <include>com.azure:azure-security-keyvault-secrets</include>
+                <include>net.java.dev.jna::jar</include>
+                <include>com.microsoft.azure:msal4j-persistence-extension:jar</include>
+                <include>com.microsoft.azure:msal4j:jar</include>
+                <include>com.nimbusds:oauth2-oidc-sdk:jar</include>
+                <include>com.azure:azure-core:jar</include>
+                <include>com.azure:azure-identity:jar</include>
+                <include>com.azure:azure-core-http-netty:jar</include>
+                <include>com.azure:azure-json:jar</include>
+                <include>com.microsoft.azure:azure-keyvault-core:jar</include>
+                <include>com.azure:azure-security-keyvault-secrets:jar</include>
+                <include>com.azure:azure-storage-blob:jar</include>
+                <include>com.azure:azure-storage-common:jar</include>
+                <include>com.azure:azure-storage-internal-avro:jar</include>
+                <include>com.azure:azure-xml:jar</include>
+                <include>com.nimbusds:nimbus-jose-jwt:jar</include>
+                <include>net.minidev:*:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>

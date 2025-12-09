@@ -50,6 +50,13 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.beam</groupId>
                 <artifactId>beam-sdks-java-google-cloud-platform-bom</artifactId>
                 <version>${apache-beam.version}</version>

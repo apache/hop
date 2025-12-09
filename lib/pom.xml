@@ -30,6 +30,7 @@
     <name>Hop Libraries</name>
 
     <properties>
+        <ST4.version>4.3.4</ST4.version>
         <accessors-smart.version>2.4.9</accessors-smart.version>
         <akka.version>2.5.32</akka.version>
         <angus-activation.version>2.0.3</angus-activation.version>
@@ -38,9 +39,11 @@
         <apache-spark.version>3.4.3</apache-spark.version>
         <asm.version>9.7</asm.version>
         <avro.version>1.12.0</avro.version>
-        <aws-java-sdk.version>1.12.347</aws-java-sdk.version>
+        <aws-java-sdk.version>1.12.651</aws-java-sdk.version>
         <bahir.version>2.1.1</bahir.version>
+        <bcprov-jdk18on.version>1.81</bcprov-jdk18on.version>
         <blueprints-core.version>2.6.0</blueprints-core.version>
+        <caffeine.version>2.9.3</caffeine.version>
         <checker-qual.version>3.47.0</checker-qual.version>
         <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
         <common-utils.version>7.6.1</common-utils.version>
@@ -60,6 +63,7 @@
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.11.1</commons-net.version>
         <commons-pool.version>1.6</commons-pool.version>
+        <commons-text.version>1.13.1</commons-text.version>
         <commons-vfs2.version>2.10.0</commons-vfs2.version>
         <curator.version>5.4.0</curator.version>
         <databricks.version>4.0.0</databricks.version>
@@ -78,7 +82,7 @@
         <google-cloud-storage.version>2.15.0</google-cloud-storage.version>
         <google-http-client.version>1.42.3</google-http-client.version>
         <google-oauth-client.version>1.34.1</google-oauth-client.version>
-        <gson.version>2.10</gson.version>
+        <gson.version>2.11.0</gson.version>
         <!--check Beam BOM to find matching version https://repo1.maven.org/maven2/org/apache/beam/beam-runners-google-cloud-dataflow-java/xxx/beam-runners-google-cloud-dataflow-java-xxx.pom
         Replace exclusions beam-vendor-guava-xxx-jre-->
         <guava.version>33.3.1-jre</guava.version>
@@ -100,18 +104,24 @@
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.5.2</json-smart.version>
         <json4s.version>3.7.0-M11</json4s.version>
+        <jsoup.version>1.21.2</jsoup.version>
         <juniversalchardet.version>2.4.0</juniversalchardet.version>
+        <kafka-avro-serializer.version>7.6.1</kafka-avro-serializer.version>
         <kafka-clients.version>3.9.1</kafka-clients.version>
+        <kafka-schema-registry-client.version>7.6.1</kafka-schema-registry-client.version>
         <kotlin.version>1.9.25</kotlin.version>
         <kryo.version>5.3.0</kryo.version>
         <log4j.version>2.23.1</log4j.version>
         <lz4.version>1.8.0</lz4.version>
         <metrics.version>4.2.12</metrics.version>
         <minlog.version>1.3.1</minlog.version>
-        <netty.version>4.2.7.Final</netty.version>
+        <msal4j-persistence.version>1.3.0</msal4j-persistence.version>
+        <msal4j.version>1.16.1</msal4j.version>
+        <nimbus-jose.version>10.6</nimbus-jose.version>
         <ognl.version>3.3.4</ognl.version>
         <okhttp.version>4.12.0</okhttp.version>
         <okio.version>3.9.0</okio.version>
+        <opentelemetry.version>1.56.0</opentelemetry.version>
         <paho.version>1.2.1</paho.version>
         <paranamer.version>2.8</paranamer.version>
         <perfmark.version>0.26.0</perfmark.version>
@@ -145,8 +155,38 @@
                 <version>${reactor-core.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>ST4</artifactId>
+                <version>${ST4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-avro-serializer</artifactId>
+                <version>${kafka-avro-serializer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-client</artifactId>
+                <version>${kafka-schema-registry-client.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus-jose.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio-jvm</artifactId>
+                <version>${okio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
                 <version>${aws-java-sdk.version}</version>
             </dependency>
             <dependency>
@@ -158,6 +198,27 @@
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-iam</artifactId>
                 <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-kms</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>msal4j</artifactId>
+                <version>${msal4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>msal4j-persistence-extension</artifactId>
+                <version>${msal4j-persistence.version}</version>
+                <!-- {x-version-update;com.microsoft.azure:msal4j-persistence-extension;external_dependency} -->
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
@@ -527,6 +588,11 @@
                 <version>${hadoop.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-mapreduce-client-core</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.hop</groupId>
                 <artifactId>hop-core</artifactId>
                 <version>${project.version}</version>
@@ -737,6 +803,21 @@
                 <groupId>xmlunit</groupId>
                 <artifactId>xmlunit</artifactId>
                 <version>${xmlunit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bcprov-jdk18on.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

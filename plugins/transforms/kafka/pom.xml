@@ -28,11 +28,6 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms Kafka</name>
 
-    <properties>
-        <kafka-avro-serializer.version>7.6.1</kafka-avro-serializer.version>
-        <kafka-schema-registry-client.version>7.6.1</kafka-schema-registry-client.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -49,7 +44,6 @@
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-avro-serializer</artifactId>
-            <version>${kafka-avro-serializer.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -76,7 +70,6 @@
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-schema-registry-client</artifactId>
-            <version>${kafka-schema-registry-client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
