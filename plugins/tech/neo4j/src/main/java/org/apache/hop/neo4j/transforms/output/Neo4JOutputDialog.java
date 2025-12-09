@@ -33,6 +33,8 @@ import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.transforms.output.fields.LabelField;
+import org.apache.hop.neo4j.transforms.output.fields.NodeFromField;
+import org.apache.hop.neo4j.transforms.output.fields.NodeToField;
 import org.apache.hop.neo4j.transforms.output.fields.PropertyField;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -108,6 +110,14 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
   @Override
   public String open() {
     Shell parent = getParent();
+
+    // Initialize nodeFromField and nodeToField if they are null (e.g., for new transforms)
+    if (input.getNodeFromField() == null) {
+      input.setNodeFromField(new NodeFromField());
+    }
+    if (input.getNodeToField() == null) {
+      input.setNodeToField(new NodeToField());
+    }
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     PropsUi.setLook(shell);
