@@ -460,6 +460,12 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
       // The cypher for the relationship:
       //
+      // Use previousRelationshipLabel (first row of batch) for consistency with node labels
+      // Fallback to relationshipLabel if previousRelationshipLabel is null (first batch)
+      String relationshipLabelToUse =
+          data.previousRelationshipLabel != null
+              ? data.previousRelationshipLabel
+              : data.relationshipLabel;
       String relationshipSetClause = getSetClause("r", meta.getRelProps(), data.relPropIndexes);
       switch (data.relOperationType) {
         case NONE:
@@ -468,23 +474,23 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
           cypher
               .append("MERGE (f)-[")
               .append("r:")
-              .append(data.relationshipLabel)
+              .append(relationshipLabelToUse)
               .append("]->(t) ")
               .append(Const.CR)
               .append(relationshipSetClause)
               .append(Const.CR);
-          updateUsageMap(List.of(data.relationshipLabel), GraphUsage.RELATIONSHIP_UPDATE);
+          updateUsageMap(List.of(relationshipLabelToUse), GraphUsage.RELATIONSHIP_UPDATE);
           break;
         case CREATE:
           cypher
               .append("CREATE (f)-[")
               .append("r:")
-              .append(data.relationshipLabel)
+              .append(relationshipLabelToUse)
               .append("]->(t) ")
               .append(Const.CR)
               .append(getSetClause("r", meta.getRelProps(), data.relPropIndexes))
               .append(Const.CR);
-          updateUsageMap(List.of(data.relationshipLabel), GraphUsage.RELATIONSHIP_CREATE);
+          updateUsageMap(List.of(relationshipLabelToUse), GraphUsage.RELATIONSHIP_CREATE);
           break;
         default:
           break;
