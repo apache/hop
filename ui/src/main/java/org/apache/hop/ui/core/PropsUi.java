@@ -37,10 +37,15 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolderRenderer;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -516,6 +521,77 @@ public class PropsUi extends Props {
     }
   }
 
+  /**
+   * Ensures that a CTabFolder has a safe renderer that catches IllegalArgumentException when
+   * drawing tab images. This prevents crashes on some Linux desktop environments (e.g., KDE Plasma
+   * on Wayland) where images may be invalid or disposed. Only applied on Linux to avoid any
+   * potential impact on unaffected platforms.
+   *
+   * @param tabFolder the CTabFolder to protect
+   */
+  private static void ensureSafeRenderer(CTabFolder tabFolder) {
+    // Only apply safe renderer on Linux where the issue occurs
+    if (Const.isLinux() && !(tabFolder.getRenderer() instanceof SafeCTabFolderRenderer)) {
+      tabFolder.setRenderer(new SafeCTabFolderRenderer(tabFolder));
+    }
+  }
+
+  /**
+   * A safe CTabFolderRenderer that catches IllegalArgumentException when drawing tab images. This
+   * prevents crashes on some Linux desktop environments where images may be invalid or disposed
+   * during rendering. When an image drawing error occurs, the image is skipped but the text is
+   * still rendered.
+   */
+  private static class SafeCTabFolderRenderer extends CTabFolderRenderer {
+    private final CTabFolder parentFolder;
+
+    SafeCTabFolderRenderer(CTabFolder parent) {
+      super(parent);
+      this.parentFolder = parent;
+    }
+
+    @Override
+    protected void draw(int part, int state, Rectangle bounds, GC gc) {
+      if (bounds != null && (bounds.width <= 0 || bounds.height <= 0)) {
+        return;
+      }
+      try {
+        super.draw(part, state, bounds, gc);
+      } catch (IllegalArgumentException e) {
+        // If image drawing fails, temporarily remove images from tab items and redraw
+        // This allows text to be rendered even when images are invalid
+        if (parentFolder != null && !parentFolder.isDisposed()) {
+          CTabItem[] items = parentFolder.getItems();
+          Image[] savedImages = new Image[items.length];
+          boolean hadImages = false;
+
+          // Save and temporarily clear images
+          for (int i = 0; i < items.length; i++) {
+            savedImages[i] = items[i].getImage();
+            if (savedImages[i] != null) {
+              items[i].setImage(null);
+              hadImages = true;
+            }
+          }
+
+          if (hadImages) {
+            try {
+              // Redraw without images - this should succeed and render the text
+              super.draw(part, state, bounds, gc);
+            } finally {
+              // Restore images (even if they're invalid, we'll catch the exception next time)
+              for (int i = 0; i < items.length; i++) {
+                if (savedImages[i] != null) {
+                  items[i].setImage(savedImages[i]);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   protected static void setLookOnWindows(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
@@ -569,6 +645,7 @@ public class PropsUi extends Props {
         CTabFolder tabFolder = (CTabFolder) widget;
         tabFolder.setBorderVisible(true);
         tabFolder.setTabHeight(28);
+        ensureSafeRenderer(tabFolder);
         if (PropsUi.getInstance().isDarkMode()) {
           tabFolder.setBackground(gui.getColorWhite());
           tabFolder.setForeground(gui.getColorBlack());
@@ -648,6 +725,7 @@ public class PropsUi extends Props {
         tabFolder.setBorderVisible(true);
         tabFolder.setBackground(gui.getColorGray());
         tabFolder.setForeground(gui.getColorBlack());
+        ensureSafeRenderer(tabFolder);
         tabFolder.setSelectionBackground(gui.getColorWhite());
         tabFolder.setSelectionForeground(gui.getColorBlack());
         break;
@@ -719,6 +797,7 @@ public class PropsUi extends Props {
         tabFolder.setBorderVisible(true);
         tabFolder.setBackground(gui.getColorGray());
         tabFolder.setForeground(gui.getColorBlack());
+        ensureSafeRenderer(tabFolder);
         tabFolder.setSelectionBackground(gui.getColorWhite());
         tabFolder.setSelectionForeground(gui.getColorBlack());
         break;
