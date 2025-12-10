@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.DbCache;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.ILogChannel;
@@ -77,6 +78,15 @@ public class ProjectsUtil {
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
       throw new HopException("Error enabling project " + projectName + ": it is not configured.");
+    }
+
+    // Clear the database cache when switching?
+    if (config.isClearingDbCacheWhenSwitching()) {
+      if (log.isDetailed()) {
+        log.logDetailed(
+            "Clearing the database cache when switching between projects or environments.");
+      }
+      DbCache.clearAll();
     }
 
     // Variable system variables but also apply them to variables
