@@ -21,7 +21,6 @@ package org.apache.hop.neo4j.transforms.importer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -134,11 +133,10 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
   private void runImport() throws HopException {
 
     // See if we need to delete the existing database folder...
-    //
     String targetDbFolder = data.baseFolder + "data/databases/" + data.databaseFilename;
     try {
       if (new File(targetDbFolder).exists()) {
-        logBasic("Removing exsting folder: " + targetDbFolder);
+        logBasic("Removing existing folder: " + targetDbFolder);
         FileUtils.deleteDirectory(new File(targetDbFolder));
       }
     } catch (Exception e) {
@@ -148,14 +146,44 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
 
     List<String> arguments = new ArrayList<>();
 
-    arguments.add(data.adminCommand);
-    arguments.add("import");
-    arguments.add("--database=" + data.databaseFilename);
-    arguments.add("--id-type=STRING");
-    arguments.add("--report-file=" + data.reportFile);
+    // Determine Neo4j version (default to 4.x for backward compatibility)
+    String neo4jVersion =
+        StringUtils.isNotEmpty(meta.getNeo4jVersion()) ? meta.getNeo4jVersion() : "4.x";
+    boolean isNeo4j5 = "5.x".equals(neo4jVersion) || neo4jVersion.startsWith("5.");
 
-    arguments.add("--high-io=" + (meta.isHighIo() ? "true" : CONST_FALSE));
-    arguments.add("--cache-on-heap=" + (meta.isHighIo() ? "true" : CONST_FALSE));
+    // Build command based on Neo4j version
+    if (isNeo4j5) {
+      // Neo4j 5.0+ syntax: neo4j-admin database import full <database> [options] --nodes=...
+      // --relationships=...
+      arguments.add(data.adminCommand);
+      arguments.add("database");
+      arguments.add("import");
+      arguments.add("full");
+      arguments.add(data.databaseFilename); // Database name comes right after "full"
+      if (meta.isOverwriteDestination()) {
+        arguments.add("--overwrite-destination"); // Allow overwriting existing database
+      }
+      arguments.add("--id-type=STRING");
+      arguments.add("--report-file=" + data.reportFile);
+    } else {
+      // Neo4j 4.x syntax: neo4j-admin import --database=name [options]
+      arguments.add(data.adminCommand);
+      arguments.add("import");
+      arguments.add("--database=" + data.databaseFilename);
+      arguments.add("--id-type=STRING");
+      arguments.add("--report-file=" + data.reportFile);
+    }
+
+    // Options that are only valid in Neo4j 4.x (deprecated in 5.0)
+    if (!isNeo4j5) {
+      arguments.add("--high-io=" + (meta.isHighIo() ? "true" : CONST_FALSE));
+      arguments.add("--cache-on-heap=" + (meta.isHighIo() ? "true" : CONST_FALSE));
+      if (StringUtils.isNotEmpty(data.maxMemory)) {
+        arguments.add("--max-memory=" + data.maxMemory);
+      }
+    }
+
+    // Options valid in both versions
     arguments.add(
         "--ignore-empty-strings=" + (meta.isIgnoringEmptyStrings() ? "true" : CONST_FALSE));
     arguments.add(
@@ -174,9 +202,6 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
     }
     if (StringUtils.isNotEmpty(data.readBufferSize)) {
       arguments.add("--read-buffer-size=" + data.readBufferSize);
-    }
-    if (StringUtils.isNotEmpty(data.maxMemory)) {
-      arguments.add("--max-memory=" + data.maxMemory);
     }
 
     // Finally specify the nodes and relationship files
@@ -207,12 +232,33 @@ public class Importer extends BaseTransform<ImporterMeta, ImporterData> {
           new StreamConsumer(getLogChannel(), process.getInputStream(), LogLevel.BASIC);
       outputConsumer.start();
 
-      boolean exited = process.waitFor(10, TimeUnit.MILLISECONDS);
-      while (!exited && !isStopped()) {
-        exited = process.waitFor(10, TimeUnit.MILLISECONDS);
+      // Wait for the process to complete
+      int exitCode = process.waitFor();
+
+      // Wait for stream consumers to finish reading output
+      try {
+        errorConsumer.join(5000); // Wait up to 5 seconds for error stream
+      } catch (InterruptedException e) {
+        // Ignore interruption
       }
-      if (!exited && isStopped()) {
-        process.destroyForcibly();
+      try {
+        outputConsumer.join(5000); // Wait up to 5 seconds for output stream
+      } catch (InterruptedException e) {
+        // Ignore interruption
+      }
+
+      // Check exit code and throw exception if import failed
+      if (exitCode != 0) {
+        String guidance =
+            "Neo4j import command failed with exit code "
+                + exitCode
+                + ". Common issues:\n"
+                + "1. Database must be stopped before import. "
+                + "For Community Edition, use 'neo4j stop' to stop Neo4j entirely. "
+                + "For Enterprise Edition, use Cypher 'STOP DATABASE <name>' to stop the specific database.";
+        logError(guidance);
+        throw new HopException(
+            "Neo4j import failed with exit code " + exitCode + ". See error log for details.");
       }
     } catch (Exception e) {
       throw new HopException("Error running command: " + arguments, e);

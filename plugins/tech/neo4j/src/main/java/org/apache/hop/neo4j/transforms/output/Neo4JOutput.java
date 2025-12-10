@@ -747,13 +747,27 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     //
     for (int i = 0; i < nodeField.getProperties().size(); i++) {
 
-      IValueMeta valueMeta = rowMeta.getValueMeta(i);
-      Object valueData = row[i];
+      PropertyField propertyField = nodeField.getProperties().get(i);
+      String propertyValue = propertyField.getPropertyValue();
 
-      String propertyName = nodeField.getProperties().get(i).getPropertyName();
+      // Look up the actual field index in the row using the property value field name
+      int fieldIndex = rowMeta.indexOfValue(propertyValue);
+      if (fieldIndex < 0) {
+        throw new HopException(
+            "Unable to find field '"
+                + propertyValue
+                + "' in input row for node property '"
+                + propertyField.getPropertyName()
+                + "'");
+      }
+
+      IValueMeta valueMeta = rowMeta.getValueMeta(fieldIndex);
+      Object valueData = row[fieldIndex];
+
+      String propertyName = propertyField.getPropertyName();
       GraphPropertyDataType propertyType = GraphPropertyDataType.getTypeFromHop(valueMeta);
       Object propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
-      boolean propertyPrimary = nodeField.getProperties().get(i).isPropertyPrimary();
+      boolean propertyPrimary = propertyField.isPropertyPrimary();
 
       nodeData
           .getProperties()
@@ -761,7 +775,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
               new GraphPropertyData(propertyName, propertyNeoValue, propertyType, propertyPrimary));
 
       // Part of the key...
-      if (nodeField.getProperties().get(i).isPropertyPrimary()) {
+      if (propertyPrimary) {
         if (!nodeId.isEmpty()) {
           nodeId.append("-");
         }
