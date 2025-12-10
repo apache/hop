@@ -336,7 +336,15 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       Object valueData = row[nodePropIndexes[i]];
 
       GraphPropertyType propertyType = propertyTypes[i];
-      Object neoValue = propertyType.convertFromHop(valueMeta, valueData);
+      Object neoValue;
+      if (propertyType == GraphPropertyType.Array) {
+        // Use overloaded method with separator and enclosure for Array type
+        String separator = resolve(Const.NVL(meta.getArraySeparator(), ","));
+        String enclosure = resolve(Const.NVL(meta.getArrayEnclosure(), ""));
+        neoValue = propertyType.convertFromHop(valueMeta, valueData, separator, enclosure);
+      } else {
+        neoValue = propertyType.convertFromHop(valueMeta, valueData);
+      }
 
       String propName = "p" + nodePropIndexes[i];
       rowMap.put(propName, neoValue);
@@ -695,8 +703,22 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
           Object valueData = row[data.relPropIndexes[i]];
 
           String propertyName = meta.getRelProps().get(i).getPropertyName();
-          GraphPropertyDataType propertyType = GraphPropertyDataType.getTypeFromHop(valueMeta);
-          Object propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
+          // Use user-selected property type for relationship properties
+          GraphPropertyType userSelectedType =
+              GraphPropertyType.parseCode(meta.getRelProps().get(i).getPropertyType());
+          Object propertyNeoValue;
+          GraphPropertyDataType propertyType;
+          if (userSelectedType == GraphPropertyType.Array) {
+            // Use overloaded method with separator and enclosure for Array type
+            String separator = resolve(Const.NVL(meta.getArraySeparator(), ","));
+            String enclosure = resolve(Const.NVL(meta.getArrayEnclosure(), ""));
+            propertyNeoValue =
+                userSelectedType.convertFromHop(valueMeta, valueData, separator, enclosure);
+            propertyType = GraphPropertyDataType.List; // Array maps to List in Neo4j
+          } else {
+            propertyType = convertGraphPropertyTypeToDataType(userSelectedType);
+            propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
+          }
           boolean propertyPrimary = false;
 
           relationshipData
@@ -765,8 +787,24 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       Object valueData = row[fieldIndex];
 
       String propertyName = propertyField.getPropertyName();
-      GraphPropertyDataType propertyType = GraphPropertyDataType.getTypeFromHop(valueMeta);
-      Object propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
+      // Use user-selected property type, not auto-detected type
+      GraphPropertyType userSelectedType =
+          GraphPropertyType.parseCode(propertyField.getPropertyType());
+      Object propertyNeoValue;
+      GraphPropertyDataType propertyType;
+      if (userSelectedType == GraphPropertyType.Array) {
+        // Use overloaded method with separator and enclosure for Array type
+        String separator = resolve(Const.NVL(meta.getArraySeparator(), ","));
+        String enclosure = resolve(Const.NVL(meta.getArrayEnclosure(), ""));
+        propertyNeoValue =
+            userSelectedType.convertFromHop(valueMeta, valueData, separator, enclosure);
+        // Map Array to List for GraphPropertyDataType
+        propertyType = GraphPropertyDataType.List;
+      } else {
+        // Convert GraphPropertyType to GraphPropertyDataType
+        propertyType = convertGraphPropertyTypeToDataType(userSelectedType);
+        propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
+      }
       boolean propertyPrimary = propertyField.isPropertyPrimary();
 
       nodeData
@@ -1000,6 +1038,46 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       if (StringUtils.isNotEmpty(label)) {
         labelSet.add(label);
       }
+    }
+  }
+
+  /**
+   * Convert GraphPropertyType (user-selected) to GraphPropertyDataType (Neo4j internal)
+   *
+   * @param graphPropertyType The user-selected property type
+   * @return The corresponding GraphPropertyDataType
+   */
+  private GraphPropertyDataType convertGraphPropertyTypeToDataType(
+      GraphPropertyType graphPropertyType) {
+    switch (graphPropertyType) {
+      case String:
+        return GraphPropertyDataType.String;
+      case Integer:
+        return GraphPropertyDataType.Integer;
+      case Float:
+        return GraphPropertyDataType.Float;
+      case Boolean:
+        return GraphPropertyDataType.Boolean;
+      case Date:
+        return GraphPropertyDataType.Date;
+      case LocalDateTime:
+        return GraphPropertyDataType.LocalDateTime;
+      case ByteArray:
+        return GraphPropertyDataType.ByteArray;
+      case Time:
+        return GraphPropertyDataType.Time;
+      case Point:
+        return GraphPropertyDataType.Point;
+      case Duration:
+        return GraphPropertyDataType.Duration;
+      case LocalTime:
+        return GraphPropertyDataType.LocalTime;
+      case DateTime:
+        return GraphPropertyDataType.DateTime;
+      case Array:
+        return GraphPropertyDataType.List; // Array maps to List in Neo4j
+      default:
+        return GraphPropertyDataType.String;
     }
   }
 }

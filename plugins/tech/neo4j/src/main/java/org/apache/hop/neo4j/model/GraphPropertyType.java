@@ -21,6 +21,7 @@ package org.apache.hop.neo4j.model;
 import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
@@ -38,7 +39,8 @@ public enum GraphPropertyType {
   Point,
   Duration,
   LocalTime,
-  DateTime;
+  DateTime,
+  Array;
 
   /**
    * Get the code for a type, handles the null case
@@ -125,6 +127,10 @@ public enum GraphPropertyType {
           }
           return zonedDateTime;
         }
+      case Array:
+        // Array conversion requires separator and enclosure - use overloaded method
+        throw new HopValueException(
+            "Array conversion requires separator and enclosure parameters. Use convertFromHop(valueMeta, valueData, separator, enclosure) instead.");
       case LocalTime, Time, Point, Duration:
       default:
         throw new HopValueException(
@@ -134,6 +140,70 @@ public enum GraphPropertyType {
                 + valueMeta.toStringMeta()
                 + "' is not supported yet");
     }
+  }
+
+  /**
+   * Convert the given Hop value to a Neo4j Array type
+   *
+   * @param valueMeta The Hop value metadata
+   * @param valueData The actual value data
+   * @param separator Character used to separate array elements (e.g., ",", ";", "|")
+   * @param enclosure Character used to enclose each element (e.g., "\"", "'", or empty string)
+   * @return List of values (typically List&lt;Double&gt; for numeric arrays)
+   */
+  public Object convertFromHop(
+      IValueMeta valueMeta, Object valueData, String separator, String enclosure)
+      throws HopValueException {
+    if (this != Array) {
+      // For non-Array types, use the standard conversion
+      return convertFromHop(valueMeta, valueData);
+    }
+
+    if (valueMeta.isNull(valueData)) {
+      return null;
+    }
+
+    String arrayString = valueMeta.getString(valueData);
+    if (StringUtils.isEmpty(arrayString)) {
+      return new java.util.ArrayList<>();
+    }
+
+    // Parse the array string using separator and enclosure
+    java.util.List<Object> arrayList = new java.util.ArrayList<>();
+    String sep = StringUtils.isEmpty(separator) ? "," : separator;
+    String encl = StringUtils.isEmpty(enclosure) ? "" : enclosure;
+
+    // Remove leading/trailing whitespace
+    arrayString = arrayString.trim();
+
+    // Split by separator
+    String[] parts = arrayString.split(sep, -1); // -1 to keep trailing empty strings
+
+    for (String part : parts) {
+      part = part.trim();
+      if (part.isEmpty()) {
+        continue; // Skip empty elements
+      }
+
+      // Remove enclosure if present
+      if (!encl.isEmpty() && part.startsWith(encl) && part.endsWith(encl)) {
+        part = part.substring(encl.length(), part.length() - encl.length());
+      }
+
+      part = part.trim();
+
+      // Try to parse as number (Double), fallback to String
+      try {
+        // Try parsing as double first (most common for embeddings)
+        double value = Double.parseDouble(part);
+        arrayList.add(value);
+      } catch (NumberFormatException e) {
+        // If not a number, keep as string
+        arrayList.add(part);
+      }
+    }
+
+    return arrayList;
   }
 
   public static final GraphPropertyType getTypeFromHop(IValueMeta valueMeta) {

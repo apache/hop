@@ -83,6 +83,10 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
   private Button wUseCreate;
   private Label wlOnlyCreateRelationships;
   private Button wOnlyCreateRelationships;
+  private Label wlArraySeparator;
+  private TextVar wArraySeparator;
+  private Label wlArrayEnclosure;
+  private TextVar wArrayEnclosure;
   private Button wReturnGraph;
   private Label wlReturnGraphField;
   private TextVar wReturnGraphField;
@@ -258,6 +262,54 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wOnlyCreateRelationships.setLayoutData(fdOnlyCreateRelationships);
     wOnlyCreateRelationships.addListener(SWT.Selection, e -> enableFields());
     lastControl = wOnlyCreateRelationships;
+
+    // Array separator (for Array type properties)
+    //
+    wlArraySeparator = new Label(shell, SWT.RIGHT);
+    wlArraySeparator.setText("Array separator ");
+    String ttArraySeparator =
+        "Character used to separate array elements (e.g., comma, semicolon, pipe). Used when property type is Array.";
+    wlArraySeparator.setToolTipText(ttArraySeparator);
+    PropsUi.setLook(wlArraySeparator);
+    FormData fdlArraySeparator = new FormData();
+    fdlArraySeparator.left = new FormAttachment(0, 0);
+    fdlArraySeparator.right = new FormAttachment(middle, -margin);
+    fdlArraySeparator.top = new FormAttachment(lastControl, 2 * margin);
+    wlArraySeparator.setLayoutData(fdlArraySeparator);
+    wArraySeparator = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wArraySeparator.setToolTipText(ttArraySeparator);
+    PropsUi.setLook(wArraySeparator);
+    wArraySeparator.addModifyListener(lsMod);
+    FormData fdArraySeparator = new FormData();
+    fdArraySeparator.left = new FormAttachment(middle, 0);
+    fdArraySeparator.right = new FormAttachment(100, 0);
+    fdArraySeparator.top = new FormAttachment(wlArraySeparator, 0, SWT.CENTER);
+    wArraySeparator.setLayoutData(fdArraySeparator);
+    lastControl = wlArraySeparator;
+
+    // Array enclosure (for Array type properties)
+    //
+    wlArrayEnclosure = new Label(shell, SWT.RIGHT);
+    wlArrayEnclosure.setText("Array enclosure ");
+    String ttArrayEnclosure =
+        "Character used to enclose each array element (e.g., quotes, single quotes). Leave empty for no enclosure. Used when property type is Array.";
+    wlArrayEnclosure.setToolTipText(ttArrayEnclosure);
+    PropsUi.setLook(wlArrayEnclosure);
+    FormData fdlArrayEnclosure = new FormData();
+    fdlArrayEnclosure.left = new FormAttachment(0, 0);
+    fdlArrayEnclosure.right = new FormAttachment(middle, -margin);
+    fdlArrayEnclosure.top = new FormAttachment(lastControl, 2 * margin);
+    wlArrayEnclosure.setLayoutData(fdlArrayEnclosure);
+    wArrayEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wArrayEnclosure.setToolTipText(ttArrayEnclosure);
+    PropsUi.setLook(wArrayEnclosure);
+    wArrayEnclosure.addModifyListener(lsMod);
+    FormData fdArrayEnclosure = new FormData();
+    fdArrayEnclosure.left = new FormAttachment(middle, 0);
+    fdArrayEnclosure.right = new FormAttachment(100, 0);
+    fdArrayEnclosure.top = new FormAttachment(wlArrayEnclosure, 0, SWT.CENTER);
+    wArrayEnclosure.setLayoutData(fdArrayEnclosure);
+    lastControl = wlArrayEnclosure;
 
     Label wlReturnGraph = new Label(shell, SWT.RIGHT);
     wlReturnGraph.setText("Return graph data?");
@@ -825,6 +877,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wCreateIndexes.setSelection(input.isCreatingIndexes());
     wUseCreate.setSelection(input.isUsingCreate());
     wOnlyCreateRelationships.setSelection(input.isOnlyCreatingRelationships());
+    wArraySeparator.setText(Const.NVL(input.getArraySeparator(), ","));
+    wArrayEnclosure.setText(Const.NVL(input.getArrayEnclosure(), ""));
     wReturnGraph.setSelection(input.isReturningGraph());
     wReturnGraphField.setText(Const.NVL(input.getReturnGraphField(), ""));
 
@@ -909,6 +963,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     input.setCreatingIndexes(wCreateIndexes.getSelection());
     input.setUsingCreate(wUseCreate.getSelection());
     input.setOnlyCreatingRelationships(wOnlyCreateRelationships.getSelection());
+    input.setArraySeparator(wArraySeparator.getText());
+    input.setArrayEnclosure(wArrayEnclosure.getText());
     input.setReturningGraph(wReturnGraph.getSelection());
     input.setReturnGraphField(wReturnGraphField.getText());
 
