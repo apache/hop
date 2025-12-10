@@ -98,7 +98,15 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     return result;
   }
 
-  private void dropConstraint(final ConstraintUpdate constraintUpdate) throws HopException {
+  /**
+   * Generate preview Cypher for dropping a constraint (without executing it)
+   *
+   * @param constraintUpdate The constraint update configuration
+   * @return The generated Cypher statement
+   * @throws HopException If constraint name is missing for relationship constraints
+   */
+  public static String generateDropConstraintCypher(ConstraintUpdate constraintUpdate)
+      throws HopException {
     String cypher = "DROP CONSTRAINT ";
 
     if (StringUtils.isNotEmpty(constraintUpdate.getConstraintName())) {
@@ -111,6 +119,11 @@ public class Neo4jConstraint extends ActionBase implements IAction {
               + constraintUpdate.getObjectProperties());
     }
     cypher += " IF EXISTS ";
+    return cypher;
+  }
+
+  private void dropConstraint(final ConstraintUpdate constraintUpdate) throws HopException {
+    String cypher = generateDropConstraintCypher(constraintUpdate);
 
     // Run this cypher statement...
     //
@@ -133,7 +146,15 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     }
   }
 
-  private void createConstraint(ConstraintUpdate constraintUpdate) throws HopException {
+  /**
+   * Generate preview Cypher for creating a constraint (without executing it)
+   *
+   * @param constraintUpdate The constraint update configuration
+   * @return The generated Cypher statement
+   * @throws HopException If configuration is invalid
+   */
+  public static String generateCreateConstraintCypher(ConstraintUpdate constraintUpdate)
+      throws HopException {
     String cypher = "CREATE CONSTRAINT ";
 
     if (StringUtils.isNotEmpty(constraintUpdate.getConstraintName())) {
@@ -208,6 +229,12 @@ public class Neo4jConstraint extends ActionBase implements IAction {
               "Unsupported constraint type: " + constraintUpdate.getConstraintType());
       }
     }
+
+    return cypher;
+  }
+
+  private void createConstraint(ConstraintUpdate constraintUpdate) throws HopException {
+    String cypher = generateCreateConstraintCypher(constraintUpdate);
 
     // Run this cypher statement...
     //

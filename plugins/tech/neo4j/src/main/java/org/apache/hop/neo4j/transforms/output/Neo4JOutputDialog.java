@@ -39,6 +39,7 @@ import org.apache.hop.neo4j.transforms.output.fields.PropertyField;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -352,12 +353,16 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     lastControl = wReturnGraphField;
 
     // Some buttons
+    Button wShowCypher = new Button(shell, SWT.PUSH);
+    wShowCypher.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.Button.ShowCypher"));
+    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wShowCypher, wOk, wCancel}, margin, null);
 
     // Add listeners
     //
@@ -947,6 +952,31 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     }
 
     enableFields();
+  }
+
+  private void showCypherPreview() {
+    try {
+      // Use current input meta (it's updated as user changes dialog)
+      // Generate preview Cypher based on current dialog state
+      String cypherPreview = Neo4JOutput.generatePreviewCypher(input, variables);
+
+      // Show in read-only dialog
+      EnterTextDialog dialog =
+          new EnterTextDialog(
+              shell,
+              BaseMessages.getString(PKG, "Neo4JOutputDialog.ShowCypher.Title"),
+              BaseMessages.getString(PKG, "Neo4JOutputDialog.ShowCypher.Message"),
+              cypherPreview,
+              true);
+      dialog.setReadOnly();
+      dialog.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.ShowCypher.Error.Title"),
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.ShowCypher.Error.Message"),
+          e);
+    }
   }
 
   private void cancel() {

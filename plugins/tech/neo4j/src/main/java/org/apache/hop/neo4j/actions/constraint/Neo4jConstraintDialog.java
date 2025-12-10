@@ -26,6 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -133,6 +134,9 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
 
     // Add buttons first, then the script field can use dynamic sizing
     //
+    Button wShowCypher = new Button(shell, SWT.PUSH);
+    wShowCypher.setText(BaseMessages.getString(PKG, "Neo4jConstraintDialog.Button.ShowCypher"));
+    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
@@ -206,7 +210,7 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
     BaseTransformDialog.positionBottomButtons(
         shell,
         new Button[] {
-          wOk, wCancel,
+          wShowCypher, wOk, wCancel,
         },
         margin,
         null);
@@ -216,6 +220,70 @@ public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return meta;
+  }
+
+  private void showCypherPreview() {
+    // Get current data from dialog
+    List<TableItem> items = wUpdates.getNonEmptyItems();
+    if (items.isEmpty()) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+      mb.setText(BaseMessages.getString(PKG, "Neo4jConstraintDialog.NoConstraints.Title"));
+      mb.setMessage(BaseMessages.getString(PKG, "Neo4jConstraintDialog.NoConstraints.Message"));
+      mb.open();
+      return;
+    }
+
+    // Build Cypher preview for all constraint updates
+    StringBuilder cypherPreview = new StringBuilder();
+    cypherPreview
+        .append("-- Generated Cypher statements for constraint operations")
+        .append(Const.CR)
+        .append(Const.CR);
+
+    for (int i = 0; i < items.size(); i++) {
+      TableItem item = items.get(i);
+      try {
+        UpdateType type = UpdateType.getType(item.getText(1));
+        ObjectType objectType = ObjectType.getType(item.getText(2));
+        ConstraintType constraintType = ConstraintType.getType(item.getText(3));
+        String constraintName = item.getText(4);
+        String objectName = item.getText(5);
+        String objectProperties = item.getText(6);
+
+        ConstraintUpdate constraintUpdate =
+            new ConstraintUpdate(
+                type, objectType, constraintType, constraintName, objectName, objectProperties);
+
+        String cypher;
+        if (type == UpdateType.CREATE) {
+          cypher = Neo4jConstraint.generateCreateConstraintCypher(constraintUpdate);
+        } else {
+          cypher = Neo4jConstraint.generateDropConstraintCypher(constraintUpdate);
+        }
+
+        cypherPreview.append("-- Constraint ").append(i + 1).append(Const.CR);
+        cypherPreview.append(cypher).append(Const.CR).append(Const.CR);
+      } catch (Exception e) {
+        cypherPreview
+            .append("-- Error generating Cypher for constraint ")
+            .append(i + 1)
+            .append(": ")
+            .append(e.getMessage())
+            .append(Const.CR)
+            .append(Const.CR);
+      }
+    }
+
+    // Show in read-only dialog
+    EnterTextDialog dialog =
+        new EnterTextDialog(
+            shell,
+            BaseMessages.getString(PKG, "Neo4jConstraintDialog.ShowCypher.Title"),
+            BaseMessages.getString(PKG, "Neo4jConstraintDialog.ShowCypher.Message"),
+            cypherPreview.toString(),
+            true);
+    dialog.setReadOnly();
+    dialog.open();
   }
 
   private void cancel() {

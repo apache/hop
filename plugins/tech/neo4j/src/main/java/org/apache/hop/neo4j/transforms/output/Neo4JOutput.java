@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.neo4j.core.GraphUsage;
 import org.apache.hop.neo4j.core.data.GraphData;
 import org.apache.hop.neo4j.core.data.GraphNodeData;
@@ -1038,6 +1039,223 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       if (StringUtils.isNotEmpty(label)) {
         labelSet.add(label);
       }
+    }
+  }
+
+  /**
+   * Generate preview Cypher template based on meta configuration (without executing it)
+   *
+   * @param meta The Neo4J Output meta configuration
+   * @param variables Variables for resolving values
+   * @return The generated Cypher template statement
+   */
+  public static String generatePreviewCypher(Neo4JOutputMeta meta, IVariables variables) {
+    StringBuilder cypher = new StringBuilder();
+    cypher.append("-- Generated Cypher template (batch processing with UNWIND)").append(Const.CR);
+    cypher
+        .append("-- Note: Actual values come from input rows via $props parameter")
+        .append(Const.CR);
+    cypher.append(Const.CR);
+    cypher.append("UNWIND $props as pr").append(Const.CR);
+    cypher.append(Const.CR);
+
+    // Determine operation types
+    OperationType fromOpType = OperationType.NONE;
+    OperationType toOpType = OperationType.NONE;
+    OperationType relOpType = OperationType.NONE;
+
+    if (!meta.getNodeFromField().getLabels().isEmpty()) {
+      fromOpType = meta.isUsingCreate() ? OperationType.CREATE : OperationType.MERGE;
+    }
+    if (!meta.getNodeToField().getLabels().isEmpty()
+        && !(Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabel())
+            && Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabelField()))) {
+      toOpType = meta.isUsingCreate() ? OperationType.CREATE : OperationType.MERGE;
+    }
+    if (StringUtils.isNotEmpty(meta.getRelationship())
+        || StringUtils.isNotEmpty(meta.getRelationshipValue())) {
+      relOpType = meta.isUsingCreate() ? OperationType.CREATE : OperationType.MERGE;
+    }
+
+    // Build 'from' node Cypher
+    if (fromOpType != OperationType.NONE) {
+      // Get static labels or show placeholder
+      String fromLabelsClause =
+          buildPreviewLabelsClause("f", meta.getNodeFromField().getLabels(), variables);
+      String fromMatchClause = buildPreviewMatchClause(meta.getNodeFromField().getProperties());
+
+      switch (fromOpType) {
+        case CREATE:
+          cypher.append("CREATE (").append(fromLabelsClause);
+          if (StringUtils.isNotEmpty(fromMatchClause)) {
+            cypher.append(" ").append(fromMatchClause);
+          }
+          cypher.append(")").append(Const.CR);
+          String fromSetClause =
+              buildPreviewSetClause("f", meta.getNodeFromField().getProperties());
+          if (StringUtils.isNotEmpty(fromSetClause)) {
+            cypher.append(fromSetClause).append(Const.CR);
+          }
+          break;
+        case MERGE:
+          cypher.append("MERGE (").append(fromLabelsClause);
+          if (StringUtils.isNotEmpty(fromMatchClause)) {
+            cypher.append(" ").append(fromMatchClause);
+          }
+          cypher.append(")").append(Const.CR);
+          fromSetClause = buildPreviewSetClause("f", meta.getNodeFromField().getProperties());
+          if (StringUtils.isNotEmpty(fromSetClause)) {
+            cypher.append(fromSetClause).append(Const.CR);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Build 'to' node Cypher
+    if (toOpType != OperationType.NONE) {
+      String toLabelsClause =
+          buildPreviewLabelsClause("t", meta.getNodeToField().getLabels(), variables);
+      String toMatchClause = buildPreviewMatchClause(meta.getNodeToField().getProperties());
+
+      switch (toOpType) {
+        case CREATE:
+          cypher.append("CREATE (").append(toLabelsClause);
+          if (StringUtils.isNotEmpty(toMatchClause)) {
+            cypher.append(" ").append(toMatchClause);
+          }
+          cypher.append(")").append(Const.CR);
+          String toSetClause = buildPreviewSetClause("t", meta.getNodeToField().getProperties());
+          if (StringUtils.isNotEmpty(toSetClause)) {
+            cypher.append(toSetClause).append(Const.CR);
+          }
+          break;
+        case MERGE:
+          cypher.append("MERGE (").append(toLabelsClause);
+          if (StringUtils.isNotEmpty(toMatchClause)) {
+            cypher.append(" ").append(toMatchClause);
+          }
+          cypher.append(")").append(Const.CR);
+          toSetClause = buildPreviewSetClause("t", meta.getNodeToField().getProperties());
+          if (StringUtils.isNotEmpty(toSetClause)) {
+            cypher.append(toSetClause).append(Const.CR);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Build relationship Cypher
+    if (relOpType != OperationType.NONE) {
+      String relLabel = variables.resolve(meta.getRelationshipValue());
+      if (StringUtils.isEmpty(relLabel) && StringUtils.isNotEmpty(meta.getRelationship())) {
+        relLabel = "${" + meta.getRelationship() + "}"; // Dynamic label placeholder
+      }
+      if (StringUtils.isEmpty(relLabel)) {
+        relLabel = "RELATES_TO"; // Fallback placeholder
+      }
+
+      String relSetClause = buildPreviewSetClause("r", meta.getRelProps());
+
+      switch (relOpType) {
+        case CREATE:
+          cypher.append("CREATE (f)-[r:").append(relLabel).append("]->(t)").append(Const.CR);
+          if (StringUtils.isNotEmpty(relSetClause)) {
+            cypher.append(relSetClause).append(Const.CR);
+          }
+          break;
+        case MERGE:
+          cypher.append("MERGE (f)-[r:").append(relLabel).append("]->(t)").append(Const.CR);
+          if (StringUtils.isNotEmpty(relSetClause)) {
+            cypher.append(relSetClause).append(Const.CR);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    return cypher.toString();
+  }
+
+  /** Build preview labels clause from label fields */
+  private static String buildPreviewLabelsClause(
+      String alias, List<LabelField> labelFields, IVariables variables) {
+    if (labelFields.isEmpty()) {
+      return alias;
+    }
+
+    StringBuilder labels = new StringBuilder(alias);
+    for (LabelField labelField : labelFields) {
+      String label = variables.resolve(labelField.getLabel());
+      if (StringUtils.isEmpty(label) && StringUtils.isNotEmpty(labelField.getLabelField())) {
+        // Dynamic label - show placeholder
+        labels.append(":${").append(labelField.getLabelField()).append("}");
+      } else if (StringUtils.isNotEmpty(label)) {
+        labels.append(":").append(escapeLabelForPreview(label));
+      } else {
+        labels.append(":Label"); // Fallback placeholder
+      }
+    }
+    return labels.toString();
+  }
+
+  /** Escape label name for preview (same logic as in Neo4JOutput.escapeLabel) */
+  private static String escapeLabelForPreview(String label) {
+    // Simple escaping - backticks for labels with special characters
+    if (label.contains(" ") || label.contains("-") || label.contains(".")) {
+      return "`" + label + "`";
+    }
+    return label;
+  }
+
+  /** Build preview match clause from property fields (primary properties only) */
+  private static String buildPreviewMatchClause(List<PropertyField> propertyFields) {
+    StringBuilder clause = new StringBuilder();
+
+    for (PropertyField propertyField : propertyFields) {
+      if (propertyField.isPropertyPrimary()) {
+        if (!clause.isEmpty()) {
+          clause.append(", ");
+        }
+        clause
+            .append(propertyField.getPropertyName())
+            .append(": pr.p")
+            .append(propertyField.getPropertyValue());
+      }
+    }
+
+    if (clause.isEmpty()) {
+      return "";
+    } else {
+      return "{ " + clause + " }";
+    }
+  }
+
+  /** Build preview set clause from property fields (non-primary properties only) */
+  private static String buildPreviewSetClause(String alias, List<PropertyField> propertyFields) {
+    StringBuilder clause = new StringBuilder();
+
+    for (PropertyField propertyField : propertyFields) {
+      if (!propertyField.isPropertyPrimary()) {
+        if (!clause.isEmpty()) {
+          clause.append(", ");
+        }
+        clause
+            .append(alias)
+            .append(".")
+            .append(propertyField.getPropertyName())
+            .append(" = pr.p")
+            .append(propertyField.getPropertyValue());
+      }
+    }
+
+    if (clause.isEmpty()) {
+      return "";
+    } else {
+      return "SET " + clause;
     }
   }
 

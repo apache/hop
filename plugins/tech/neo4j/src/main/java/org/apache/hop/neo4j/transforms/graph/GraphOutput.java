@@ -36,6 +36,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.neo4j.core.GraphUsage;
 import org.apache.hop.neo4j.core.data.GraphData;
@@ -1668,5 +1669,65 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
       graphPropertyValue = "`" + graphPropertyValue + "`";
       graphProperty.setName(graphPropertyValue);
     }
+  }
+
+  /**
+   * Generate preview Cypher template based on meta configuration (without executing it)
+   *
+   * @param meta The Graph Output meta configuration
+   * @param variables Variables for resolving values
+   * @return The generated Cypher template statement
+   */
+  public static String generatePreviewCypher(GraphOutputMeta meta, IVariables variables) {
+    StringBuilder cypher = new StringBuilder();
+    cypher.append("-- Generated Cypher template (per-row processing)").append(Const.CR);
+    cypher
+        .append("-- Note: Actual Cypher is generated dynamically based on input row data")
+        .append(Const.CR);
+    cypher
+        .append("-- and field mappings to the Graph Model. This shows the general pattern.")
+        .append(Const.CR);
+    cypher.append(Const.CR);
+
+    if (meta.isOutOfOrderAllowed()) {
+      cypher.append("-- When 'out of order allowed' is enabled:").append(Const.CR);
+      cypher.append("UNWIND $props AS pr").append(Const.CR);
+      cypher.append(Const.CR);
+    }
+
+    cypher.append("-- Pattern: For each row, the transform will:").append(Const.CR);
+    cypher.append("-- 1. MERGE nodes based on primary properties").append(Const.CR);
+    cypher.append("--    Example: MERGE (node0:Label { primaryProp: $param1 })").append(Const.CR);
+    cypher.append("-- 2. SET non-primary properties on matched nodes").append(Const.CR);
+    cypher.append("--    Example: SET node0.property = $param2").append(Const.CR);
+    cypher.append("-- 3. MERGE relationships between nodes").append(Const.CR);
+    cypher
+        .append("--    Example: MERGE (node0)-[rel1:RELATIONSHIP_TYPE]->(node1)")
+        .append(Const.CR);
+    cypher.append("-- 4. SET relationship properties if configured").append(Const.CR);
+    cypher.append("--    Example: SET rel1.property = $param3").append(Const.CR);
+    cypher.append(Const.CR);
+
+    if (StringUtils.isNotEmpty(meta.getModel())) {
+      cypher.append("-- Graph Model: ").append(meta.getModel()).append(Const.CR);
+      cypher.append("-- The actual Cypher will be generated based on:").append(Const.CR);
+      cypher.append("--   - Nodes and relationships defined in the model").append(Const.CR);
+      cypher.append("--   - Field mappings configured in the dialog").append(Const.CR);
+      cypher.append("--   - Values present in each input row").append(Const.CR);
+    } else {
+      cypher.append("-- No Graph Model configured").append(Const.CR);
+    }
+
+    cypher.append(Const.CR);
+    cypher.append("-- Example Cypher structure:").append(Const.CR);
+    cypher.append("MERGE (node0:NodeLabel { id: $param1 })").append(Const.CR);
+    cypher.append("SET node0.name = $param2").append(Const.CR);
+    cypher.append("MERGE (node1:OtherLabel { id: $param3 })").append(Const.CR);
+    cypher.append("SET node1.name = $param4").append(Const.CR);
+    cypher.append("MERGE (node0)-[rel1:RELATES_TO]->(node1)").append(Const.CR);
+    cypher.append("SET rel1.weight = $param5").append(Const.CR);
+    cypher.append(";").append(Const.CR);
+
+    return cypher.toString();
   }
 }
