@@ -824,9 +824,6 @@ public class TestingGuiPlugin {
     }
 
     try {
-      IHopMetadataSerializer<PipelineUnitTest> testSerializer =
-          hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class);
-
       PipelineMeta pipelineMeta = getActivePipelineMeta();
       if (pipelineMeta == null) {
         return;
@@ -853,7 +850,6 @@ public class TestingGuiPlugin {
 
       // Update the GUI
       //
-      pipelineGraph.setChanged();
       pipelineGraph.updateGui();
     } catch (Exception e) {
       new ErrorDialog(

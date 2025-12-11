@@ -43,6 +43,7 @@ public enum HopExtensionPoint {
   PipelineAfterOpen("A Pipeline file was opened (PipelineMeta)"),
   PipelineBeforeSave("A Pipeline file is about to be saved (PipelineMeta)"),
   PipelineAfterSave("A Pipeline file was saved (PipelineMeta)"),
+  PipelineAfterSaveAs("A Pipeline file was saved with a new name (PipelineRenamedExtension)"),
   PipelineBeforeClose("A Pipeline file is about to be closed"),
   PipelineAfterClose("A Pipeline file was closed"),
   PipelineChanged("A Pipeline has been changed"),
