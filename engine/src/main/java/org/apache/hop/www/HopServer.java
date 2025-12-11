@@ -256,6 +256,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
   @Override
   public void run() {
     try {
+      System.setProperty(Const.HOP_PLATFORM_RUNTIME, "SERVER");
       log = new LogChannel("HopServer");
       log.setLogLevel(determineLogLevel());
       log.logDetailed("Start of Hop Server");

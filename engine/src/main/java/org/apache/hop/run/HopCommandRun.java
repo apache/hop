@@ -20,6 +20,7 @@ package org.apache.hop.run;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -51,5 +52,11 @@ public class HopCommandRun extends HopRunBase
     this.metadataProvider = metadataProvider;
 
     Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_RUN);
+  }
+
+  @Override
+  public void run() {
+    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "RUN");
+    super.run();
   }
 }

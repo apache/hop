@@ -20,6 +20,7 @@ package org.apache.hop.config;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -52,5 +53,11 @@ public class HopCommandConfig extends HopConfigBase
     buildLogChannel();
 
     Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_CONFIG);
+  }
+
+  @Override
+  public void run() {
+    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "CONF");
+    super.run();
   }
 }

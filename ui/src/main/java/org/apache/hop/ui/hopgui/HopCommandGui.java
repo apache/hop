@@ -46,7 +46,6 @@ public class HopCommandGui implements Runnable, IHopCommand {
       CommandLine cmd, IVariables variables, MultiMetadataProvider metadataProvider)
       throws HopException {
     // Nothing specific
-    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
   }
 
   @Override
@@ -54,6 +53,7 @@ public class HopCommandGui implements Runnable, IHopCommand {
     if (unmatchedArguments == null) {
       unmatchedArguments = new String[] {};
     }
+    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
     HopGui.main(unmatchedArguments);
   }
 }
