@@ -22,6 +22,8 @@ import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notB
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -30,6 +32,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -38,6 +41,8 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 
+@Getter
+@Setter
 @Action(
     id = "SnowflakeWarehouseManager",
     image = "snowflake-whm.svg",
@@ -89,8 +94,8 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String CONST_COMMIT = ";\ncommit;";
 
   /** The database to connect to. */
-  @HopMetadataProperty(key = CONNECTION, storeWithName = true)
-  private DatabaseMeta databaseMeta;
+  @HopMetadataProperty(key = CONNECTION)
+  private String connection;
 
   /** The management action to perform. */
   @HopMetadataProperty(key = MANAGEMENT_ACTION)
@@ -168,22 +173,6 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     return super.clone();
   }
 
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  public void setDatabaseMeta(DatabaseMeta databaseMeta) {
-    this.databaseMeta = databaseMeta;
-  }
-
-  public String getManagementAction() {
-    return managementAction;
-  }
-
-  public void setManagementAction(String managementAction) {
-    this.managementAction = managementAction;
-  }
-
   public int getManagementActionId() {
     if (managementAction != null) {
       for (int i = 0; i < MANAGEMENT_ACTIONS.length; i++) {
@@ -201,46 +190,6 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     } else {
       managementAction = null;
     }
-  }
-
-  public String getWarehouseName() {
-    return warehouseName;
-  }
-
-  public void setWarehouseName(String warehouseName) {
-    this.warehouseName = warehouseName;
-  }
-
-  public boolean isReplace() {
-    return replace;
-  }
-
-  public void setReplace(boolean replace) {
-    this.replace = replace;
-  }
-
-  public boolean isFailIfExists() {
-    return failIfExists;
-  }
-
-  public void setFailIfExists(boolean failIfExists) {
-    this.failIfExists = failIfExists;
-  }
-
-  public boolean isFailIfNotExists() {
-    return failIfNotExists;
-  }
-
-  public void setFailIfNotExists(boolean failIfNotExists) {
-    this.failIfNotExists = failIfNotExists;
-  }
-
-  public String getWarehouseSize() {
-    return warehouseSize;
-  }
-
-  public void setWarehouseSize(String warehouseSize) {
-    this.warehouseSize = warehouseSize;
   }
 
   public int getWarehouseSizeId() {
@@ -289,62 +238,6 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public String getMaxClusterCount() {
-    return maxClusterCount;
-  }
-
-  public void setMaxClusterCount(String maxClusterCount) {
-    this.maxClusterCount = maxClusterCount;
-  }
-
-  public String getMinClusterCount() {
-    return minClusterCount;
-  }
-
-  public void setMinClusterCount(String minClusterCount) {
-    this.minClusterCount = minClusterCount;
-  }
-
-  public String getAutoSuspend() {
-    return autoSuspend;
-  }
-
-  public void setAutoSuspend(String autoSuspend) {
-    this.autoSuspend = autoSuspend;
-  }
-
-  public boolean isAutoResume() {
-    return autoResume;
-  }
-
-  public void setAutoResume(boolean autoResume) {
-    this.autoResume = autoResume;
-  }
-
-  public boolean isInitiallySuspended() {
-    return initiallySuspended;
-  }
-
-  public void setInitiallySuspended(boolean initiallySuspended) {
-    this.initiallySuspended = initiallySuspended;
-  }
-
-  public String getResourceMonitor() {
-    return resourceMonitor;
-  }
-
-  public void setResourceMonitor(String resourceMonitor) {
-    this.resourceMonitor = resourceMonitor;
-  }
-
-  public String getComment() {
-    return comment;
-  }
-
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
-
   @Override
   public void clear() {
     super.clear();
@@ -362,20 +255,20 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     setInitiallySuspended(false);
     setResourceMonitor(null);
     setComment(null);
-    setDatabaseMeta(null);
+    setConnection(null);
     setFailIfNotExists(true);
   }
 
   public boolean validate() {
     boolean result = true;
-    if (databaseMeta == null || StringUtil.isEmpty(databaseMeta.getName())) {
+    if (Utils.isEmpty(connection)) {
       logError(BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Validate.DatabaseIsEmpty"));
       result = false;
-    } else if (StringUtil.isEmpty(managementAction)) {
+    } else if (Utils.isEmpty(managementAction)) {
       logError(BaseMessages.getString(PKG, "SnowflakeWarehouseManager.Validate.ManagementAction"));
       result = false;
     } else if (managementAction.equals(MANAGEMENT_ACTIONS[MANAGEMENT_ACTION_CREATE])) {
-      if (!StringUtil.isEmpty(resolve(maxClusterCount))
+      if (!Utils.isEmpty(resolve(maxClusterCount))
           && Const.toInt(resolve(maxClusterCount), -1) <= 0) {
 
         logError(
@@ -414,7 +307,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
     if (!result.isResult()) {
       return result;
     }
-
+    DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
     try (Database db = new Database(this, this, databaseMeta)) {
       String sql = null;
       String successMessage = null;
