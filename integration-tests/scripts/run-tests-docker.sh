@@ -79,6 +79,7 @@ fi
 # Cleanup surefire reports
 rm -rf "${CURRENT_DIR}"/../surefire-reports
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
+chmod 777 "${CURRENT_DIR}"/../surefire-reports/
 
 # Unzip Hop
 unzip -o -q "${CURRENT_DIR}/../../assemblies/client/target/*.zip" -d ${CURRENT_DIR}/../../assemblies/client/target/

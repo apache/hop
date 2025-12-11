@@ -1,0 +1,32 @@
+{
+  "base_filename": "output-relationship-2299.csv",
+  "name": "output-relationship-2299",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "from_id",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "to_id",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "rel_type",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

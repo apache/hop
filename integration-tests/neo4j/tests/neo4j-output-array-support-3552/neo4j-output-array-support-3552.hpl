@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>neo4j-output-array-support-3552</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Test pipeline for Array type support in Neo4j Output transform (#3552)</description>
+    <extended_description>This pipeline tests the Array type support feature:
+1. Numeric arrays (e.g., embeddings: "1.0,2.0,3.0")
+2. String arrays (e.g., tags: "tag1,tag2,tag3")
+3. Default separator (comma) and enclosure (empty)
+4. Array properties on nodes
+
+The pipeline creates test data with array strings and writes them to Neo4j as Array type properties.</extended_description>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/12/11 00:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/12/11 00:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Test Data</from>
+      <to>Neo4j Output</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Test Data</name>
+    <type>DataGrid</type>
+    <description>Test data with array strings for numeric and string arrays</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>doc1</item>
+        <item>Document 1</item>
+        <item>1.0,2.0,3.0,4.0,5.0</item>
+        <item>tag1,tag2,tag3</item>
+      </line>
+      <line>
+        <item>doc2</item>
+        <item>Document 2</item>
+        <item>10.5,20.5,30.5</item>
+        <item>category1,category2</item>
+      </line>
+      <line>
+        <item>doc3</item>
+        <item>Document 3</item>
+        <item>0.1,0.2,0.3,0.4</item>
+        <item>label1,label2,label3,label4</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <name>doc_id</name>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>doc_title</name>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>embedding</name>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>tags</name>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>64</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Neo4j Output</name>
+    <type>Neo4JOutput</type>
+    <description>Neo4j Output transform with Array type properties</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <batch_size>1000</batch_size>
+    <connection>Test</connection>
+    <create_indexes>N</create_indexes>
+    <use_create>N</use_create>
+    <only_create_relationships>N</only_create_relationships>
+    <array_separator>,</array_separator>
+    <array_enclosure></array_enclosure>
+    <returning_graph>N</returning_graph>
+    <return_graph_field>graph</return_graph_field>
+    <from>
+      <read_only_from_node>N</read_only_from_node>
+      <labels>
+        <label/>
+        <value>Document</value>
+      </labels>
+      <properties>
+        <property>
+          <name>id</name>
+          <value>doc_id</value>
+          <type>String</type>
+          <primary>Y</primary>
+        </property>
+        <property>
+          <name>title</name>
+          <value>doc_title</value>
+          <type>String</type>
+          <primary>N</primary>
+        </property>
+        <property>
+          <name>embedding</name>
+          <value>embedding</value>
+          <type>Array</type>
+          <primary>N</primary>
+        </property>
+        <property>
+          <name>tags</name>
+          <value>tags</value>
+          <type>Array</type>
+          <primary>N</primary>
+        </property>
+      </properties>
+    </from>
+    <to>
+      <read_only_to_node>N</read_only_to_node>
+      <labels/>
+      <properties/>
+    </to>
+    <relationship/>
+    <relationship_value/>
+    <relprops/>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
