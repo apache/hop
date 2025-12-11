@@ -125,7 +125,7 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   @HopMetadataProperty(key = "httpLogin", injectionKey = "HTTP_LOGIN")
   private String httpLogin;
 
-  @HopMetadataProperty(key = "httpPassword", injectionKey = "HTTP_PASSWORD")
+  @HopMetadataProperty(key = "httpPassword", injectionKey = "HTTP_PASSWORD", password = true)
   private String httpPassword;
 
   @HopMetadataProperty(key = "preemptive", injectionKey = "PREEMPTIVE")
