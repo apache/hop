@@ -26,6 +26,7 @@ import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
+import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -144,6 +145,16 @@ public class HopGuiAuditDelegate {
       List<Class<IHopMetadata>> metadataClasses = metadataProvider.getMetadataClasses();
       for (Class<IHopMetadata> metadataClass : metadataClasses) {
         if (metadataClass.getName().equals(className)) {
+          // See if the object is already open.
+          // In rare cases we see doubles being saved in the audit logs.
+          //
+          String key = metadataClass.getAnnotation(HopMetadata.class).key();
+          MetadataEditor<?> existingEditor = perspective.findEditor(key, name);
+          if (existingEditor != null) {
+            // We can skip this object, it's already loaded.
+            continue;
+          }
+
           // Get the serializer and open it up
           //
           IHopMetadataSerializer<IHopMetadata> serializer =
