@@ -1,0 +1,90 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+
+[[Security]]
+:imagesdir: ../../assets/images
+
+== Security
+
+When thinking about security it's always worth checking on any critical vulnerabilities the Hop codebase itself might suffer from.
+Go to https://hop.apache.org/security/ to find out more.
+
+Then obviously there are things our users can do to limit security risks in general listed below.
+
+=== Introduction
+
+The goal of Hop as a project is to be useful for you, the data engineer.
+As a project we provide you with many powerful tools that can do as much as you request it.  In that regard it's very
+much like a programming language or scripting tool in the way that you can create, modify and delete things at
+your hearts content.  Please understand that this is a feature, not a security risk.
+
+=== Scripting
+
+The scripting actions and transforms in Hop are capable of doing just about anything if you know how.
+It's not a best practice to do "anything", in fact the best practice is to make use of the transforms as little
+as possible to make the maintenance load of your data integration solutions as light as possible.  If you can't avoid
+using scripting, put some process in place to code review the scripts and keep them simple and transparent.
+
+=== Securing your work
+
+When dealing with sensitive information that might be needed to interact with databases, remote folders, websites,
+and so on, make sure to properly protect the secrets being used. Here are things you can do:
+
+==== Not in your metadata!
+
+Please, never store your secrets in your metadata.  Always use xref:../snippets/best-practices/variables.adoc[variables]
+to reference to them indirectly. This allows flexibility as to the level of security you require.
+For a local database on your own laptop it's fine to simply obfuscate the password or even leave it in cleartext.
+That's something you can define in a separate xref:projects/projects-environments.adoc[environment] configuration file.
+For a shared development, test or production system, you need the variable to point to an obfuscated or
+encrypted value, or indeed one stored in a key vault.
+
+==== Obfuscate
+
+This is the absolute minimum you need to do. Make sure to at least obfuscate your secrets with a
+standard `hop encrypt` command.  Please understand that it's hard but not impossible to get the original value from the
+generated obfuscation code.  For that reason it's important to store the obfuscated secrets in a safe place on your
+systems.
+
+==== Encrypt
+
+Consider setting up asynchronous encryption to hide your secrets with the
+xref:password/passwords/aespasswords.adoc[AES two way password encoder].  Please understand that in this scenario you
+need to protect the value stored in the `HOP_AES_ENCODER_KEY` variable.  Again, keep it in a safe place like a k8s key
+vault or a well protected file on your system.
+
+==== Use a Key Vault
+
+Finally, you can store your secrets in a so-called key vault.  For a list of the supported key-vaults and on the usage
+of variable resolvers to get direct access to the secrets,
+see: xref:metadata-types/variable-resolver/index.adoc[Variable Resolvers].
+Again, just using a key vault is insufficient: make sure you protect the secrets (keys, users, passwords) to connect
+to the key vault you're using.
+
+=== Remove unused plugins
+
+Every organisation has its own typical mix of deployed technologies.  As a best practice, remove any plugin that
+supports technology that you're not using.  Go through the list of plugins in the `plugins/` folder and remove
+anything that you're not going to need.  Focus especially on older technology that might contain drivers that
+perhaps haven't been updated in a while.  You can safely remove any folder in the `plugins/` folder.
+
+=== Secure your Hop Server
+
+If you're running the Hop Server on a Kubernetes or VM constellation you can secure network access from and to the
+clients that way.  Otherwise, consider setting up SSL communication to prevent anyone from listening in on the network
+traffic.  Please see the xref:hop-server/index.adoc#_ssl_configuration[SSL Configuration] documentation here.
+
