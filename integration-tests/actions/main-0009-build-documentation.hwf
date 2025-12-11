@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0009-build-documentation</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2025/12/11 10:12:29.110</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2025/12/11 10:12:29.110</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>80</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Build Documentation</name>
+      <description/>
+      <type>DOCUMENTATION</type>
+      <attributes/>
+      <includingMetadata>Y</includingMetadata>
+      <includingNotes>Y</includingNotes>
+      <includingParameters>Y</includingParameters>
+      <targetParentFolder>${java.io.tmpdir}/hop-doc/</targetParentFolder>
+      <parallel>N</parallel>
+      <xloc>672</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>/tmp/hop-doc/</name>
+      <description/>
+      <type>CREATE_FOLDER</type>
+      <attributes/>
+      <fail_of_folder_exists>N</fail_of_folder_exists>
+      <foldername>${java.io.tmpdir}/hop-doc/</foldername>
+      <parallel>N</parallel>
+      <xloc>336</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>delete /tmp/hop-doc</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/hop-doc/</name>
+        </field>
+      </fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
+      <parallel>N</parallel>
+      <xloc>208</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0009-build-documentation-check</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0009-build-documentation-check.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>/tmp/hop-doc empty?</name>
+      <description/>
+      <type>FOLDER_IS_EMPTY</type>
+      <attributes/>
+      <foldername>${java.io.tmpdir}/hop-doc/</foldername>
+      <include_subfolders>Y</include_subfolders>
+      <specify_wildcard>N</specify_wildcard>
+      <parallel>N</parallel>
+      <xloc>496</xloc>
+      <yloc>64</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <message>We didn't find all the expected files in the generated documentation.</message>
+      <parallel>N</parallel>
+      <xloc>592</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>384</xloc>
+      <yloc>256</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>delete /tmp/hop-doc</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>delete /tmp/hop-doc</from>
+      <to>/tmp/hop-doc/</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Build Documentation</from>
+      <to>0009-build-documentation-check</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>/tmp/hop-doc/</from>
+      <to>/tmp/hop-doc empty?</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>/tmp/hop-doc empty?</from>
+      <to>Build Documentation</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0009-build-documentation-check</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0009-build-documentation-check</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

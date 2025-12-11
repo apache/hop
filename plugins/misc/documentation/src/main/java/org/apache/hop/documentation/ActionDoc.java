@@ -121,7 +121,7 @@ public class ActionDoc extends ActionBase implements Cloneable, IAction {
             provider,
             getVariable(DocBuilder.VAR_PROJECT_NAME),
             getVariable(DocBuilder.VAR_PROJECT_HOME),
-            targetParentFolder,
+            resolve(targetParentFolder),
             includingParameters,
             includingNotes,
             includingMetadata);
