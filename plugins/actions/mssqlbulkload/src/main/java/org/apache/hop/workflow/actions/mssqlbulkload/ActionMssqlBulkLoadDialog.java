@@ -224,7 +224,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     wConnectionGroup.setLayout(connectionGroupLayout);
 
     // Connection line
-    wConnection = addConnectionLine(wConnectionGroup, wName, action.getConnection(), lsMod);
+    DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
+    wConnection = addConnectionLine(wConnectionGroup, wName, databaseMeta, lsMod);
 
     // Schema name line
     // Schema name
