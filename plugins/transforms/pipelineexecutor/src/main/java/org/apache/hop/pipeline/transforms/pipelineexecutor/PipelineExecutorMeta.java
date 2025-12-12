@@ -502,15 +502,19 @@ public class PipelineExecutorMeta
     switch (index) {
       case 0:
         setExecutionResultTargetTransformMeta(transform);
+        setExecutionResultTargetTransform(transform.getName());
         break;
       case 1:
         setOutputRowsSourceTransformMeta(transform);
+        setOutputRowsSourceTransform(transform.getName());
         break;
       case 2:
         setResultFilesTargetTransformMeta(transform);
+        setResultFilesTargetTransform(transform.getName());
         break;
       case 3:
         setExecutorsOutputTransformMeta(transform);
+        setExecutorsOutputTransform(transform.getName());
         break;
       default:
         break;
@@ -586,9 +590,13 @@ public class PipelineExecutorMeta
   public boolean cleanAfterHopFromRemove() {
 
     setExecutionResultTargetTransformMeta(null);
+    setExecutionResultTargetTransform(null);
     setOutputRowsSourceTransformMeta(null);
+    setOutputRowsSourceTransform(null);
     setResultFilesTargetTransformMeta(null);
+    setResultFilesTargetTransform(null);
     setExecutorsOutputTransformMeta(null);
+    setExecutorsOutputTransform(null);
     return true;
   }
 
@@ -604,18 +612,22 @@ public class PipelineExecutorMeta
     if (getExecutionResultTargetTransformMeta() != null
         && toTransformName.equals(getExecutionResultTargetTransformMeta().getName())) {
       setExecutionResultTargetTransformMeta(null);
+      setExecutionResultTargetTransform(null);
       hasChanged = true;
     } else if (getOutputRowsSourceTransformMeta() != null
         && toTransformName.equals(getOutputRowsSourceTransformMeta().getName())) {
       setOutputRowsSourceTransformMeta(null);
+      setOutputRowsSourceTransform(null);
       hasChanged = true;
     } else if (getResultFilesTargetTransformMeta() != null
         && toTransformName.equals(getResultFilesTargetTransformMeta().getName())) {
       setResultFilesTargetTransformMeta(null);
+      setResultFilesTargetTransform(null);
       hasChanged = true;
     } else if (getExecutorsOutputTransformMeta() != null
         && toTransformName.equals(getExecutorsOutputTransformMeta().getName())) {
       setExecutorsOutputTransformMeta(null);
+      setExecutorsOutputTransform(null);
       hasChanged = true;
     }
     return hasChanged;
