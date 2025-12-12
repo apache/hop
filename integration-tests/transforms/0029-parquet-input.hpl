@@ -67,26 +67,21 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <doNotFailIfNoFile>N</doNotFailIfNoFile>
+    <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <file>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name>${java.io.tmpdir}/it/parquet/customers.parquet.snappy</name>
+    </file>
+    <filefield>N</filefield>
     <filter>
       <filterfiletype>all_files</filterfiletype>
     </filter>
-    <doNotFailIfNoFile>N</doNotFailIfNoFile>
-    <rownum>N</rownum>
     <isaddresult>Y</isaddresult>
-    <filefield>N</filefield>
-    <rownum_field/>
-    <filename_Field/>
-    <wildcard_Field/>
-    <exclude_wildcard_Field/>
-    <dynamic_include_subfolders>N</dynamic_include_subfolders>
     <limit>0</limit>
-    <file>
-      <name>${java.io.tmpdir}/it/parquet/customers.parquet.snappy</name>
-      <filemask/>
-      <exclude_filemask/>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-    </file>
+    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <rownum>N</rownum>
     <attributes/>
     <GUI>
       <xloc>160</xloc>
@@ -156,6 +151,21 @@ limitations under the License.
         <target_field>state</target_field>
         <target_type>String</target_type>
       </field>
+      <field>
+        <source_field>isActive</source_field>
+        <target_field>isActive</target_field>
+        <target_type>Boolean</target_type>
+      </field>
+      <field>
+        <source_field>registrationTimestamp</source_field>
+        <target_field>registrationTimestamp</target_field>
+        <target_type>Timestamp</target_type>
+      </field>
+      <field>
+        <source_field>metadataJson</source_field>
+        <target_field>metadataJson</target_field>
+        <target_type>JSON</target_type>
+      </field>
     </fields>
     <filename_field>filename</filename_field>
     <attributes/>
@@ -194,7 +204,9 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <length>-2</length>
         <name>filename</name>
+        <precision>-2</precision>
       </field>
       <select_unspecified>N</select_unspecified>
     </fields>

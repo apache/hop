@@ -8,80 +8,104 @@
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "id"
+      "field_name": "id",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "name"
+      "field_name": "name",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "firstname"
+      "field_name": "firstname",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "zip"
+      "field_name": "zip",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "city"
+      "field_name": "city",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 3,
       "field_precision": -1,
-      "field_format": "yyyy/MM/dd",
-      "field_name": "birthdate"
+      "field_name": "birthdate",
+      "field_format": "yyyy/MM/dd"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "street"
+      "field_name": "street",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "housenr"
+      "field_name": "housenr",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "stateCode"
+      "field_name": "stateCode",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "state"
+      "field_name": "state",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "isActive",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 9,
+      "field_precision": -1,
+      "field_name": "registrationTimestamp",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 11,
+      "field_precision": -1,
+      "field_name": "metadataJson",
+      "field_format": ""
     }
   ],
   "folder_name": ""

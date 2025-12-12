@@ -199,6 +199,9 @@ public interface IValueMeta extends Cloneable {
   /** Value type indicating that the value contains an Avro Record */
   int TYPE_AVRO = 20;
 
+  /** Value type indicating that the value contains an UUID */
+  int TYPE_UUID = 32;
+
   /** The Constant typeCodes. */
   String[] typeCodes =
       new String[] {
