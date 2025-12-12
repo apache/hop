@@ -363,10 +363,12 @@ public class GitGuiPlugin
       // int count = 0;
       String currentBranch = git.getBranch();
       for (String name : git.getBranches()) {
-        MenuItem item = new MenuItem(menu, SWT.CHECK);
+        MenuItem item = new MenuItem(menu, SWT.NONE);
         item.setText(name);
         // If the item is the active branch, mark it as checked
-        item.setSelection(currentBranch.equals(name));
+        if (currentBranch.equals(name)) {
+          item.setImage(GuiResource.getInstance().getImageCheck());
+        }
         // Change Branch when selecting one of the branch options
         item.addListener(SWT.Selection, e -> gitCheckoutBranch(name));
       }

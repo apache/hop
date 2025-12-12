@@ -19,6 +19,8 @@ package org.apache.hop.projects.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
@@ -67,6 +69,8 @@ public class ProjectsConfigOptionPlugin
       "10070-restrict-environments-to-active-project";
   private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME =
       "10070-default-project-config-filename";
+  private static final String WIDGET_ID_SORT_BY_NAME_LAST_USED_PROJECTS =
+      "10080-sort-by-name-last-used-project";
 
   @GuiWidgetElement(
       id = WIDGET_ID_ENABLE_PROJECTS,
@@ -167,6 +171,16 @@ public class ProjectsConfigOptionPlugin
       description = "Restrict environment list to active project")
   private Boolean environmentsForActiveProject;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_SORT_BY_NAME_LAST_USED_PROJECTS,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::ProjectConfig.SortByNameLastUsedProjects.Message")
+  @Getter
+  @Setter
+  private Boolean sortByNameLastUsedProjects;
+
   /**
    * Gets instance
    *
@@ -185,6 +199,7 @@ public class ProjectsConfigOptionPlugin
     instance.standardProjectsFolder = config.getStandardProjectsFolder();
     instance.defaultProjectConfigFile = config.getDefaultProjectConfigFile();
     instance.environmentsForActiveProject = config.isEnvironmentsForActiveProject();
+    instance.sortByNameLastUsedProjects = config.isSortByNameLastUsedProjects();
     return instance;
   }
 
@@ -367,6 +382,11 @@ public class ProjectsConfigOptionPlugin
           environmentsForActiveProject = ((Button) control).getSelection();
           ProjectsConfigSingleton.getConfig()
               .setEnvironmentsForActiveProject(environmentsForActiveProject);
+          break;
+        case WIDGET_ID_SORT_BY_NAME_LAST_USED_PROJECTS:
+          sortByNameLastUsedProjects = ((Button) control).getSelection();
+          ProjectsConfigSingleton.getConfig()
+              .setSortByNameLastUsedProjects(sortByNameLastUsedProjects);
           break;
         default:
           break;
