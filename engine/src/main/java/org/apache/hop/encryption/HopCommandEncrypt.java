@@ -20,6 +20,7 @@ package org.apache.hop.encryption;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -62,6 +63,7 @@ public class HopCommandEncrypt implements Runnable, IHopCommand {
   @Override
   public void run() {
     try {
+      System.setProperty(Const.HOP_PLATFORM_RUNTIME, "ENCRYPT");
       if (passwords == null || passwords.length == 0) {
         System.exit(1);
       }

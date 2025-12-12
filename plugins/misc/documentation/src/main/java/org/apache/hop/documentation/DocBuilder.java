@@ -152,6 +152,7 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
     // Check a few variables...
     //
     try {
+      System.setProperty(Const.HOP_PLATFORM_RUNTIME, "DOC");
       handleMixinActions();
 
       if (StringUtils.isNotEmpty(variables.getVariable(VAR_PROJECT_NAME))) {

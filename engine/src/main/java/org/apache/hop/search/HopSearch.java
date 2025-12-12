@@ -118,6 +118,7 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider, IHopCommand
   @Override
   public void run() {
     try {
+      System.setProperty(Const.HOP_PLATFORM_RUNTIME, "SEARCH");
       LogChannel logChannel = new LogChannel("hop-search");
       logChannel.setSimplified(true);
       ILogChannel log = logChannel;
