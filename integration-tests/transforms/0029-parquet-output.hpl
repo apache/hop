@@ -101,8 +101,19 @@ limitations under the License.
         <source_field>state</source_field>
         <target_field>state</target_field>
       </field>
+      <field>
+        <source_field>isActive</source_field>
+        <target_field>isActive</target_field>
+      </field>
+      <field>
+        <source_field>registrationTimestamp</source_field>
+        <target_field>registrationTimestamp</target_field>
+      </field>
+      <field>
+        <source_field>metadataJson</source_field>
+        <target_field>metadataJson</target_field>
+      </field>
     </fields>
-    <filename_split_size>1000000</filename_split_size>
     <filename_base>${java.io.tmpdir}/it/parquet/customers</filename_base>
     <filename_create_parent_folders>Y</filename_create_parent_folders>
     <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
@@ -112,6 +123,7 @@ limitations under the License.
     <filename_include_datetime>N</filename_include_datetime>
     <filename_include_split>N</filename_include_split>
     <filename_include_time>N</filename_include_time>
+    <filename_split_size>1000000</filename_split_size>
     <row_group_size>20000</row_group_size>
     <version>1.0</version>
     <attributes/>
@@ -139,6 +151,7 @@ limitations under the License.
     <enclosure>"</enclosure>
     <header>Y</header>
     <buffer_size>50000</buffer_size>
+    <schemaDefinition/>
     <lazy_conversion>Y</lazy_conversion>
     <add_filename_result>N</add_filename_result>
     <parallel>N</parallel>
@@ -252,6 +265,39 @@ limitations under the License.
         <decimal>.</decimal>
         <group>,</group>
         <length>30</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>isActive</name>
+        <type>Boolean</type>
+        <format/>
+        <currency>$</currency>
+        <decimal>,</decimal>
+        <group> </group>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>registrationTimestamp</name>
+        <type>Timestamp</type>
+        <format>yyyy-MM-dd HH:mm:ss.SSS</format>
+        <currency>$</currency>
+        <decimal>,</decimal>
+        <group> </group>
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <name>metadataJson</name>
+        <type>JSON</type>
+        <format/>
+        <currency>$</currency>
+        <decimal>,</decimal>
+        <group> </group>
+        <length>64</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
       </field>

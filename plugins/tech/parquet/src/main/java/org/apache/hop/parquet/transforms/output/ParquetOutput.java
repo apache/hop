@@ -17,6 +17,7 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,7 +30,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -114,7 +117,40 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     // Write the row, handled by class ParquetWriteSupport
     //
     try {
-      data.writer.write(new RowMetaAndData(getInputRowMeta(), row));
+      IRowMeta parquetRowMeta = getInputRowMeta().clone();
+
+      // convert date/timestamp => long
+      for (int i = 0; i < data.sourceFieldIndexes.size(); i++) {
+        int idx = data.sourceFieldIndexes.get(i);
+        IValueMeta valueMeta = parquetRowMeta.getValueMeta(idx);
+        if (valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
+          // Update of type meta
+          IValueMeta longMeta = new ValueMetaInteger(valueMeta.getName());
+          longMeta.setConversionMask(valueMeta.getConversionMask());
+          longMeta.setLength(valueMeta.getLength(), valueMeta.getPrecision());
+          parquetRowMeta.setValueMeta(idx, longMeta);
+        }
+      }
+
+      // Clone Rows and convert Date & Timetims to Long
+      Object[] parquetRow = row.clone();
+      for (int i = 0; i < data.sourceFieldIndexes.size(); i++) {
+        int idx = data.sourceFieldIndexes.get(i);
+        Object value = parquetRow[idx];
+        if (getInputRowMeta().getValueMeta(idx).getType() == IValueMeta.TYPE_TIMESTAMP) {
+          if (value instanceof java.util.Date) {
+            parquetRow[idx] = ((java.util.Date) value).getTime();
+          } else if (value instanceof byte[]) {
+            String dateStr = new String((byte[]) value, StandardCharsets.UTF_8);
+            SimpleDateFormat sdf =
+                new SimpleDateFormat(parquetRowMeta.getValueMeta(idx).getFormatMask());
+            Date date = sdf.parse(dateStr);
+            parquetRow[idx] = date.getTime();
+          }
+        }
+      }
+
+      data.writer.write(new RowMetaAndData(parquetRowMeta, parquetRow));
       incrementLinesOutput();
       data.splitRowCount++;
     } catch (Exception e) {
@@ -162,9 +198,10 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
       // Match these data types with class ParquetWriteSupport
       //
+      Schema timestampMilliType;
       switch (valueMeta.getType()) {
-        case IValueMeta.TYPE_DATE:
-          Schema timestampMilliType =
+        case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
+          timestampMilliType =
               LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG));
           fieldAssembler =
               fieldAssembler
@@ -193,6 +230,12 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
           break;
         case IValueMeta.TYPE_BINARY:
           fieldAssembler = fieldBuilder.bytesType().noDefault();
+          break;
+        case IValueMeta.TYPE_JSON:
+          fieldAssembler = fieldBuilder.stringType().noDefault();
+          break;
+        case IValueMeta.TYPE_UUID:
+          fieldAssembler = fieldBuilder.stringType().noDefault();
           break;
         default:
           throw new HopException(

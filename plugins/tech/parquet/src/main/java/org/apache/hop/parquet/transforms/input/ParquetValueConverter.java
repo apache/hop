@@ -17,27 +17,38 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.TimeZone;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.PrimitiveConverter;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.DateLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.DecimalLogicalTypeAnnotation;
 
 public class ParquetValueConverter extends PrimitiveConverter {
 
   private final RowMetaAndData group;
   private final IValueMeta valueMeta;
   private final int rowIndex;
+  private final LogicalTypeAnnotation logicalTypeAnnotation;
 
-  public ParquetValueConverter(RowMetaAndData group, int rowIndex) {
+  public ParquetValueConverter(
+      RowMetaAndData group, int rowIndex, LogicalTypeAnnotation logicalTypeAnnotation) {
     this.group = group;
     this.valueMeta = group.getValueMeta(rowIndex);
     this.rowIndex = rowIndex;
+    this.logicalTypeAnnotation = logicalTypeAnnotation;
   }
 
   @Override
@@ -57,8 +68,26 @@ public class ParquetValueConverter extends PrimitiveConverter {
         try {
           object = new BigDecimal(value.toStringUsingUTF8());
         } catch (NumberFormatException e) {
-          object = binaryToDecimal(value, valueMeta.getLength(), valueMeta.getPrecision());
+          if ((this.logicalTypeAnnotation instanceof DecimalLogicalTypeAnnotation)) {
+            object =
+                binaryToDecimal(
+                    value,
+                    ((DecimalLogicalTypeAnnotation) this.logicalTypeAnnotation).getPrecision(),
+                    ((DecimalLogicalTypeAnnotation) this.logicalTypeAnnotation).getScale());
+          } else {
+            object = binaryToDecimal(value, valueMeta.getLength(), valueMeta.getPrecision());
+          }
         }
+        break;
+      case IValueMeta.TYPE_JSON:
+        JsonNode node = null;
+        try {
+          ObjectMapper mapper = new ObjectMapper();
+          node = mapper.readTree(value.toStringUsingUTF8());
+        } catch (Exception e) {
+          throw new RuntimeException("Unable to parse an json value : " + e.getMessage());
+        }
+        object = node;
         break;
       case IValueMeta.TYPE_TIMESTAMP:
         if (value.length() == 12) {
@@ -107,10 +136,23 @@ public class ParquetValueConverter extends PrimitiveConverter {
         object = Long.toString(value);
         break;
       case IValueMeta.TYPE_DATE:
-        object = new Date(value);
+        if (this.logicalTypeAnnotation instanceof DateLogicalTypeAnnotation) {
+          LocalDate date = LocalDate.ofEpochDay(value);
+          Date utilDate = Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+          object = utilDate;
+        } else {
+          object = convertToTimestamp(value, this.logicalTypeAnnotation);
+        }
         break;
       case IValueMeta.TYPE_BIGNUMBER:
         object = new BigDecimal(value);
+        if ((this.logicalTypeAnnotation instanceof DecimalLogicalTypeAnnotation)) {
+          int scale = ((DecimalLogicalTypeAnnotation) this.logicalTypeAnnotation).getScale();
+          object = (new BigDecimal(((BigDecimal) object).doubleValue())).movePointLeft(scale);
+        }
+        break;
+      case IValueMeta.TYPE_TIMESTAMP:
+        object = convertToTimestamp(value, this.logicalTypeAnnotation);
         break;
       default:
         throw new RuntimeException(
@@ -173,6 +215,60 @@ public class ParquetValueConverter extends PrimitiveConverter {
   @Override
   public void addInt(int value) {
     addLong(value);
+  }
+
+  /**
+   * Converts a numeric epoch timestamp (in millis, micros, or nanos) into a java.sql.Timestamp
+   * according to the logical type's time unit.
+   *
+   * @param value
+   * @param logicalTypeAnnotation
+   */
+  private Timestamp convertToTimestamp(long value, LogicalTypeAnnotation logicalTypeAnnotation) {
+    LogicalTypeAnnotation.TimeUnit unit = null;
+    boolean isUTC = true;
+    if (logicalTypeAnnotation instanceof LogicalTypeAnnotation.TimestampLogicalTypeAnnotation) {
+      unit =
+          ((LogicalTypeAnnotation.TimestampLogicalTypeAnnotation) logicalTypeAnnotation).getUnit();
+      isUTC =
+          ((LogicalTypeAnnotation.TimestampLogicalTypeAnnotation) this.logicalTypeAnnotation)
+              .isAdjustedToUTC();
+    } else if (logicalTypeAnnotation instanceof LogicalTypeAnnotation.TimeLogicalTypeAnnotation) {
+      unit = ((LogicalTypeAnnotation.TimeLogicalTypeAnnotation) logicalTypeAnnotation).getUnit();
+      isUTC = false;
+    }
+    if (unit == null) {
+      throw new RuntimeException(
+          "Unknown timestamp unit for the logical type: " + logicalTypeAnnotation);
+    }
+    long epochMillis;
+    // Convert the timestamp to milliseconds since the Epoch based on the original unit
+    switch (unit) {
+      case MILLIS:
+        epochMillis = value;
+        break;
+      case MICROS:
+        epochMillis = value / 1_000L;
+        break;
+      case NANOS:
+        epochMillis = value / 1_000_000L;
+        break;
+      default:
+        throw new RuntimeException("Unknown timestamp unit: " + unit);
+    }
+    Timestamp ts = new Timestamp(epochMillis);
+    // If the timestamp is local time, adjust it to UTC
+    if (!isUTC) {
+      int offset = TimeZone.getDefault().getOffset(epochMillis);
+      ts.setTime(ts.getTime() - offset);
+    }
+    // Adjust nanosecond precision for microsecond or nanosecond timestamps
+    if (unit == LogicalTypeAnnotation.TimeUnit.MICROS) {
+      ts.setNanos((int) ((value % 1_000_000L) * 1_000L));
+    } else if (unit == LogicalTypeAnnotation.TimeUnit.NANOS) {
+      ts.setNanos((int) (value % 1_000_000_000L));
+    }
+    return ts;
   }
 
   /**

@@ -42,6 +42,13 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.parquet.column.ColumnDescriptor;
 import org.apache.parquet.hadoop.ParquetReader;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.DateLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.DecimalLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.IntLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.JsonLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.TimeLogicalTypeAnnotation;
+import org.apache.parquet.schema.LogicalTypeAnnotation.TimestampLogicalTypeAnnotation;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
 
@@ -148,21 +155,38 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
         }
         PrimitiveType primitiveType = column.getPrimitiveType();
         int hopType = IValueMeta.TYPE_STRING;
-        switch (primitiveType.getPrimitiveTypeName()) {
-          case INT32, INT64:
-            hopType = IValueMeta.TYPE_INTEGER;
-            break;
-          case INT96:
+        LogicalTypeAnnotation logicalType = primitiveType.getLogicalTypeAnnotation();
+        if (logicalType != null) {
+          if ((logicalType instanceof TimestampLogicalTypeAnnotation)
+              || (logicalType instanceof TimeLogicalTypeAnnotation)) {
             hopType = IValueMeta.TYPE_TIMESTAMP;
-            break;
-          case FLOAT, DOUBLE:
-            hopType = IValueMeta.TYPE_NUMBER;
-            break;
-          case BOOLEAN:
-            hopType = IValueMeta.TYPE_BOOLEAN;
-            break;
-          default:
-            break;
+          } else if (logicalType instanceof DateLogicalTypeAnnotation) {
+            hopType = IValueMeta.TYPE_DATE;
+          } else if (logicalType instanceof JsonLogicalTypeAnnotation) {
+            hopType = IValueMeta.TYPE_JSON;
+          } else if (logicalType instanceof DecimalLogicalTypeAnnotation) {
+            hopType = IValueMeta.TYPE_BIGNUMBER;
+          } else if (logicalType instanceof IntLogicalTypeAnnotation) {
+            hopType = IValueMeta.TYPE_INTEGER;
+          }
+        } else {
+          switch (primitiveType.getPrimitiveTypeName()) {
+            case INT32, INT64:
+              hopType = IValueMeta.TYPE_INTEGER;
+              break;
+            case INT96:
+              hopType = IValueMeta.TYPE_BINARY;
+              break;
+            case FLOAT, DOUBLE:
+              hopType = IValueMeta.TYPE_NUMBER;
+              break;
+            case BOOLEAN:
+              hopType = IValueMeta.TYPE_BOOLEAN;
+              break;
+            case BINARY:
+              hopType = IValueMeta.TYPE_BINARY;
+              break;
+          }
         }
         IValueMeta valueMeta = ValueMetaFactory.createValueMeta(sourceField, hopType, -1, -1);
         rowMeta.addValueMeta(valueMeta);
