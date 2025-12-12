@@ -369,16 +369,7 @@ public class GitGuiPlugin
         item.setSelection(currentBranch.equals(name));
         // Change Branch when selecting one of the branch options
         item.addListener(SWT.Selection, e -> gitCheckoutBranch(name));
-
-        // if (++count == 10) break;
       }
-
-      // TODO: display only the last 10 used branches
-      // if (count == 10) {
-      // new MenuItem(menu, SWT.SEPARATOR);
-      // MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-      // menuItem.setText("More...");
-      // }
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -665,11 +656,10 @@ public class GitGuiPlugin
   public void rootChanged(String rootFolder, String rootName) {
     // OK, let's see if we can determine the current git instance...
     //
-    try {
-      FileObject gitConfig = HopVfs.getFileObject(rootFolder + "/.git/config");
-      if (gitConfig.exists()) {
+    try (FileObject folder = findGitConfig(rootFolder)) {
+      if (folder != null) {
         git = new UIGit();
-        git.openRepo(rootFolder);
+        git.openRepo(HopVfs.getFilename(folder));
         setBranchLabel(git.getBranch());
       } else {
         git = null;
@@ -682,6 +672,21 @@ public class GitGuiPlugin
     }
     refreshChangedFiles();
     enableButtons();
+  }
+
+  private FileObject findGitConfig(String rootFolderName)
+      throws HopFileException, FileSystemException {
+    FileObject folder = HopVfs.getFileObject(rootFolderName);
+    FileObject fileObject = folder.resolveFile(".git/config");
+    while (!fileObject.exists() && folder.getParent() != null) {
+      folder = folder.getParent();
+      fileObject = folder.resolveFile(".git/config");
+    }
+    if (fileObject.exists()) {
+      return folder;
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -702,9 +707,9 @@ public class GitGuiPlugin
   /**
    * Normalize absolute filename
    *
-   * @param root
-   * @param relativePath
-   * @return
+   * @param root The root path
+   * @param relativePath The relative path
+   * @return The absolute filename
    */
   private String getAbsoluteFilename(String root, String relativePath) {
     String path = root + File.separator + relativePath;
@@ -775,10 +780,10 @@ public class GitGuiPlugin
   /**
    * If we have a git project we can take a look and see if a file is changed.
    *
-   * @param tree
-   * @param treeItem
-   * @param path
-   * @param name
+   * @param tree The tree to use
+   * @param treeItem The tree item to paint
+   * @param path The file path
+   * @param name The name of the file
    */
   @Override
   public void filePainted(Tree tree, TreeItem treeItem, String path, String name) {
