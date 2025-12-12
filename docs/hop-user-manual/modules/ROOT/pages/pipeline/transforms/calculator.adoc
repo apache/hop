@@ -77,7 +77,9 @@ The table below lists the supported calculations in the `Calculator` transform:
 |A + B|ADD|A plus B.
 |A - B|SUBTRACT|A minus B.
 |A * B|MULTIPLY|A multiplied by B.
-|A / B|DIVIDE|A divided by B.
+|A / B|DIVIDE|A divided by B. +
+ +
+Beware: If A is an Integer and B a Number, it will automatically convert B to an Integer as well. This can lead to division by zero errors if B is less than 1.0 as it will be converted to 0
 |A * A|SQUARE|The square of A.
 |SQRT( A )|SQUARE_ROOT|The square root of A.
 |100 * A / B|PERCENT_1|Percentage of A in B.
