@@ -52,6 +52,27 @@ You can get one node labels from a list of fields or you can use static values (
 If you specify both the static value will be used if the field value is null.
 A label will not be used for the node if the label is null or empty.
 
+== Array Properties
+
+The Neo4j Output transform supports Array type properties for nodes and relationships. 
+When a property is configured with type "Array", the transform will parse the input string 
+value and convert it to a Neo4j array.
+
+Array properties require two configuration options:
+
+* **Array separator**: Character used to separate array elements (default: comma `,`)
+  Examples: `,` (comma), `;` (semicolon), `|` (pipe)
+  
+* **Array enclosure**: Character used to enclose each array element (default: empty)
+  Examples: `"` (double quotes), `'` (single quotes), empty for no enclosure
+
+[NOTE]
+====
+Array values should be provided as strings in the input data, e.g., `"1.0,2.0,3.0"` or `"tag1,tag2,tag3"`.
+The transform will automatically split and convert these to Neo4j array types based on the 
+separator and enclosure settings.
+====
+
 == Notable options
 
 |===
@@ -68,4 +89,25 @@ A label will not be used for the node if the label is null or empty.
 **NOTE:** Please consider only using this when doing prototyping and testing.
 It's better to put the index creation statements explicitly in a Cypher Script action to make sure you never forget it even when moving to a new database.
 
+|Array separator
+|comma (`,`)
+|Character used to separate array elements when property type is Array
+
+|Array enclosure
+|empty
+|Character used to enclose each array element when property type is Array. Leave empty for no enclosure.
+
 |===
+
+== Show Cypher Preview
+
+The transform dialog includes a "Show Cypher" button that displays a preview of the 
+generated Cypher statements without executing them. This preview shows:
+
+* The UNWIND-based batch processing structure
+* Node creation/merge statements with labels and properties
+* Relationship creation/merge statements
+* Property mappings and types
+
+The preview is read-only and helps you verify the Cypher that will be generated before 
+running the pipeline.

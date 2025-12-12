@@ -42,4 +42,13 @@ For similar operations on Neo4j indexes, check the xref:workflow/actions/neo4j-i
 NODE_KEY constraints are only available in Neo4j Enterprise Edition. NODE_KEY constraints require multiple properties (comma-separated) and can only be applied to nodes, not relationships.
 ====
 
+== Show Cypher Preview
+
+The action dialog includes a "Show Cypher" button that displays a preview of the 
+Cypher statements that will be executed for creating or dropping constraints. This preview 
+shows the exact `CREATE CONSTRAINT` or `DROP CONSTRAINT` statements before execution.
+
+The preview is read-only and helps you verify the constraint operations that will be performed, 
+including the correct syntax for UNIQUE, NOT_NULL, and NODE_KEY constraints.
+
 
