@@ -41,6 +41,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -172,6 +173,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, warehouseManager);
 
+    ModifyListener lsMod = e -> warehouseManager.setChanged();
     backupChanged = warehouseManager.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -203,10 +205,13 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, warehouseManager.getDatabaseMeta(), null);
-    if (warehouseManager.getDatabaseMeta() == null && workflowMeta.nrDatabases() == 1) {
-      wConnection.select(0);
-    }
+    // Connection line
+    DatabaseMeta databaseMeta =
+        workflowMeta.findDatabase(warehouseManager.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wName, databaseMeta, lsMod);
+    //    if (warehouseManager.getDatabaseMeta() == null && workflowMeta.nrDatabases() == 1) {
+    //      wConnection.select(0);
+    //    }
 
     // Warehouse name line
     //
@@ -1007,10 +1012,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
 
   public void getData() {
     wName.setText(Const.NVL(warehouseManager.getName(), ""));
-    wConnection.setText(
-        warehouseManager.getDatabaseMeta() != null
-            ? warehouseManager.getDatabaseMeta().getName()
-            : "");
+    wConnection.setText(Const.NVL(warehouseManager.getConnection(), ""));
     wWarehouseName.setText(Const.NVL(warehouseManager.getWarehouseName(), ""));
     int actionId = warehouseManager.getManagementActionId();
     if (actionId >= 0 && actionId < MANAGEMENT_ACTION_DESCS.length) {
@@ -1084,8 +1086,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
       return;
     }
     warehouseManager.setName(wName.getText());
-    warehouseManager.setDatabaseMeta(
-        workflowMeta.findDatabase(Const.NVL(wConnection.getText(), ""), variables));
+    warehouseManager.setConnection(wConnection.getText());
     warehouseManager.setWarehouseName(wWarehouseName.getText());
     warehouseManager.setManagementActionById(wAction.getSelectionIndex());
     if (wAction.getSelectionIndex() == WarehouseManager.MANAGEMENT_ACTION_CREATE) {
