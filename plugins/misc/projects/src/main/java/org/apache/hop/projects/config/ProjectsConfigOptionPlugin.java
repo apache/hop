@@ -19,6 +19,8 @@ package org.apache.hop.projects.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
@@ -51,6 +53,8 @@ import picocli.CommandLine;
 @GuiPlugin(
     description = "i18n::ProjectConfig.Tab.Name" // label in options dialog
     )
+@Getter
+@Setter
 public class ProjectsConfigOptionPlugin
     implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
@@ -65,6 +69,7 @@ public class ProjectsConfigOptionPlugin
   private static final String WIDGET_ID_STANDARD_PROJECTS_FOLDER = "10060-standard-projects-folder";
   private static final String WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT =
       "10070-restrict-environments-to-active-project";
+  private static final String WIDGET_ID_CLEAR_DB_CACHE = "10080-clear-db-cache";
   private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME =
       "10070-default-project-config-filename";
 
@@ -167,6 +172,17 @@ public class ProjectsConfigOptionPlugin
       description = "Restrict environment list to active project")
   private Boolean environmentsForActiveProject;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_CLEAR_DB_CACHE,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::ProjectConfig.ClearDbCache.Message")
+  @CommandLine.Option(
+      names = {"-cdb", "--clear-db-when-env-switching"},
+      description = "Clear database cache when switching project/environment")
+  private Boolean clearingDbCacheWhenSwitching;
+
   /**
    * Gets instance
    *
@@ -185,6 +201,7 @@ public class ProjectsConfigOptionPlugin
     instance.standardProjectsFolder = config.getStandardProjectsFolder();
     instance.defaultProjectConfigFile = config.getDefaultProjectConfigFile();
     instance.environmentsForActiveProject = config.isEnvironmentsForActiveProject();
+    instance.clearingDbCacheWhenSwitching = config.isClearingDbCacheWhenSwitching();
     return instance;
   }
 
@@ -265,6 +282,17 @@ public class ProjectsConfigOptionPlugin
         }
         changed = true;
       }
+      if (clearingDbCacheWhenSwitching != null) {
+        config.setClearingDbCacheWhenSwitching(clearingDbCacheWhenSwitching);
+        if (clearingDbCacheWhenSwitching) {
+          log.logBasic("Clearing database cache when switching project or environment.");
+        } else {
+          log.logBasic(
+              "Keeping the database cache when switching between projects or environments.");
+        }
+        changed = true;
+      }
+
       // Save to file if anything changed
       //
       if (changed) {
@@ -368,6 +396,11 @@ public class ProjectsConfigOptionPlugin
           ProjectsConfigSingleton.getConfig()
               .setEnvironmentsForActiveProject(environmentsForActiveProject);
           break;
+        case WIDGET_ID_CLEAR_DB_CACHE:
+          clearingDbCacheWhenSwitching = ((Button) control).getSelection();
+          ProjectsConfigSingleton.getConfig()
+              .setClearingDbCacheWhenSwitching(clearingDbCacheWhenSwitching);
+          break;
         default:
           break;
       }
@@ -386,151 +419,7 @@ public class ProjectsConfigOptionPlugin
   }
 
   /**
-   * Gets projectsEnabled
-   *
-   * @return value of projectsEnabled
-   */
-  public Boolean getProjectsEnabled() {
-    return projectsEnabled;
-  }
-
-  /**
-   * @param projectsEnabled The projectsEnabled to set
-   */
-  public void setProjectsEnabled(Boolean projectsEnabled) {
-    this.projectsEnabled = projectsEnabled;
-  }
-
-  /**
-   * Gets projectMandatory
-   *
-   * @return value of projectMandatory
-   */
-  public Boolean getProjectMandatory() {
-    return projectMandatory;
-  }
-
-  /**
-   * @param projectMandatory The projectMandatory to set
-   */
-  public void setProjectMandatory(Boolean projectMandatory) {
-    this.projectMandatory = projectMandatory;
-  }
-
-  /**
-   * Gets defaultProject
-   *
-   * @return value of defaultProject
-   */
-  public String getDefaultProject() {
-    return defaultProject;
-  }
-
-  /**
-   * @param defaultProject The defaultProject to set
-   */
-  public void setDefaultProject(String defaultProject) {
-    this.defaultProject = defaultProject;
-  }
-
-  /**
-   * Gets standardParentProject
-   *
-   * @return value of standardParentProject
-   */
-  public String getStandardParentProject() {
-    return standardParentProject;
-  }
-
-  /**
-   * @param standardParentProject The standardParentProject to set
-   */
-  public void setStandardParentProject(String standardParentProject) {
-    this.standardParentProject = standardParentProject;
-  }
-
-  /**
-   * Gets environmentMandatory
-   *
-   * @return value of environmentMandatory
-   */
-  public Boolean getEnvironmentMandatory() {
-    return environmentMandatory;
-  }
-
-  /**
-   * @param environmentMandatory The environmentMandatory to set
-   */
-  public void setEnvironmentMandatory(Boolean environmentMandatory) {
-    this.environmentMandatory = environmentMandatory;
-  }
-
-  /**
-   * Gets defaultEnvironment
-   *
-   * @return value of defaultEnvironment
-   */
-  public String getDefaultEnvironment() {
-    return defaultEnvironment;
-  }
-
-  /**
-   * @param defaultEnvironment The defaultEnvironment to set
-   */
-  public void setDefaultEnvironment(String defaultEnvironment) {
-    this.defaultEnvironment = defaultEnvironment;
-  }
-
-  /**
-   * Gets standardProjectsFolder
-   *
-   * @return value of standardProjectsFolder
-   */
-  public String getStandardProjectsFolder() {
-    return standardProjectsFolder;
-  }
-
-  /**
-   * @param standardProjectsFolder The standardProjectsFolder to set
-   */
-  public void setStandardProjectsFolder(String standardProjectsFolder) {
-    this.standardProjectsFolder = standardProjectsFolder;
-  }
-
-  /**
-   * Gets defaultProjectConfigFile
-   *
-   * @return value of defaultProjectConfigFile
-   */
-  public String getDefaultProjectConfigFile() {
-    return defaultProjectConfigFile;
-  }
-
-  /**
-   * @param defaultProjectConfigFile The defaultProjectConfigFile to set
-   */
-  public void setDefaultProjectConfigFile(String defaultProjectConfigFile) {
-    this.defaultProjectConfigFile = defaultProjectConfigFile;
-  }
-
-  /**
-   * Gets environmentsForActiveProject
-   *
-   * @return value of environmentsForActiveProject
-   */
-  public Boolean getEnvironmentsForActiveProject() {
-    return environmentsForActiveProject;
-  }
-
-  /**
-   * @param environmentsForActiveProject The environmentsForActiveProject flag to set
-   */
-  public void setEnvironmentsForActiveProject(Boolean environmentsForActiveProject) {
-    this.environmentsForActiveProject = environmentsForActiveProject;
-  }
-
-  /**
-   * Used to generate the list that is shown in the mySqlDriverClass GuiWidget
+   * Used to generate the list that is shown in the GUI
    *
    * @param log Logging object
    * @param metadataProvider If shared metadata is needed to get the values
@@ -544,10 +433,7 @@ public class ProjectsConfigOptionPlugin
 
     // Add empty entry for no selection
     prjsList.add("");
-
-    for (String prj : prjs) {
-      prjsList.add(prj);
-    }
+    prjsList.addAll(prjs);
 
     return prjsList;
   }

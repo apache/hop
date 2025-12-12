@@ -21,11 +21,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.lifecycle.ProjectLifecycle;
 import org.apache.hop.projects.project.ProjectConfig;
 
+@Getter
+@Setter
 @JsonIgnoreProperties(value = {"openingLastProjectAtStartup"})
 public class ProjectsConfig {
 
@@ -37,6 +41,7 @@ public class ProjectsConfig {
   private boolean projectMandatory;
   private boolean environmentMandatory;
   private boolean environmentsForActiveProject;
+  private boolean clearingDbCacheWhenSwitching;
   private String defaultProject;
   private String defaultEnvironment;
   private String standardParentProject;
@@ -53,6 +58,7 @@ public class ProjectsConfig {
     projectConfigurations = new ArrayList<>();
     lifecycleEnvironments = new ArrayList<>();
     projectLifecycles = new ArrayList<>();
+    clearingDbCacheWhenSwitching = true;
   }
 
   public ProjectsConfig(ProjectsConfig config) {
@@ -69,6 +75,7 @@ public class ProjectsConfig {
     standardProjectsFolder = config.standardProjectsFolder;
     defaultProjectConfigFile = config.defaultProjectConfigFile;
     environmentsForActiveProject = config.environmentsForActiveProject;
+    clearingDbCacheWhenSwitching = config.clearingDbCacheWhenSwitching;
   }
 
   public ProjectConfig findProjectConfig(String projectName) {
@@ -91,13 +98,12 @@ public class ProjectsConfig {
    */
   public List<LifecycleEnvironment> findEnvironmentsOfProject(String projectName) {
     List<LifecycleEnvironment> list = new ArrayList<>();
-    lifecycleEnvironments.stream()
-        .forEach(
-            e -> {
-              if (e.getProjectName().equals(projectName)) {
-                list.add(e);
-              }
-            });
+    lifecycleEnvironments.forEach(
+        e -> {
+          if (e.getProjectName().equals(projectName)) {
+            list.add(e);
+          }
+        });
     return list;
   }
 
@@ -128,7 +134,7 @@ public class ProjectsConfig {
 
   public List<String> listProjectConfigNames() {
     List<String> names = new ArrayList<>();
-    projectConfigurations.stream().forEach(config -> names.add(config.getProjectName()));
+    projectConfigurations.forEach(config -> names.add(config.getProjectName()));
     Collections.sort(names);
     return names;
   }
@@ -171,13 +177,12 @@ public class ProjectsConfig {
 
   public List<String> listEnvironmentNamesForProject(String projectName) {
     List<String> names = new ArrayList<>();
-    lifecycleEnvironments.stream()
-        .forEach(
-            env -> {
-              if (env.getProjectName().equals(projectName)) {
-                names.add(env.getName());
-              }
-            });
+    lifecycleEnvironments.forEach(
+        env -> {
+          if (env.getProjectName().equals(projectName)) {
+            names.add(env.getName());
+          }
+        });
 
     Collections.sort(names);
     return names;
@@ -194,7 +199,7 @@ public class ProjectsConfig {
       return null;
     }
     for (ProjectLifecycle lifecycle : projectLifecycles) {
-      if (lifecycle.equals(lifecycleName)) {
+      if (lifecycle.getName().equalsIgnoreCase(lifecycleName)) {
         return lifecycle;
       }
     }
@@ -213,14 +218,14 @@ public class ProjectsConfig {
   public ProjectLifecycle removeLifecycle(String lifecycleName) {
     ProjectLifecycle lifecycle = findLifecycle(lifecycleName);
     if (lifecycle != null) {
-      lifecycleEnvironments.remove(lifecycle);
+      projectLifecycles.remove(lifecycle);
     }
     return lifecycle;
   }
 
   public List<String> listLifecycleNames() {
     List<String> names = new ArrayList<>();
-    projectLifecycles.stream().forEach(lifecycle -> names.add(lifecycle.getName()));
+    projectLifecycles.forEach(lifecycle -> names.add(lifecycle.getName()));
     Collections.sort(names);
     return names;
   }
@@ -231,197 +236,5 @@ public class ProjectsConfig {
             lifecycleName,
             Collections.emptyList(),
             Collections.emptyList())); // Only considers the name
-  }
-
-  /**
-   * Gets enabled
-   *
-   * @return value of enabled
-   */
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  /**
-   * @param enabled The enabled to set
-   */
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  /**
-   * Gets projectConfigurations
-   *
-   * @return value of projectConfigurations
-   */
-  public List<ProjectConfig> getProjectConfigurations() {
-    return projectConfigurations;
-  }
-
-  /**
-   * @param projectConfigurations The projectConfigurations to set
-   */
-  public void setProjectConfigurations(List<ProjectConfig> projectConfigurations) {
-    this.projectConfigurations = projectConfigurations;
-  }
-
-  /**
-   * Gets lifecycleEnvironments
-   *
-   * @return value of lifecycleEnvironments
-   */
-  public List<LifecycleEnvironment> getLifecycleEnvironments() {
-    return lifecycleEnvironments;
-  }
-
-  /**
-   * @param lifecycleEnvironments The lifecycleEnvironments to set
-   */
-  public void setLifecycleEnvironments(List<LifecycleEnvironment> lifecycleEnvironments) {
-    this.lifecycleEnvironments = lifecycleEnvironments;
-  }
-
-  /**
-   * Gets defaultProject
-   *
-   * @return value of defaultProject
-   */
-  public String getDefaultProject() {
-    return defaultProject;
-  }
-
-  /**
-   * @param defaultProject The defaultProject to set
-   */
-  public void setDefaultProject(String defaultProject) {
-    this.defaultProject = defaultProject;
-  }
-
-  /**
-   * Gets projectMandatory
-   *
-   * @return value of projectMandatory
-   */
-  public boolean isProjectMandatory() {
-    return projectMandatory;
-  }
-
-  /**
-   * @param projectMandatory The projectMandatory to set
-   */
-  public void setProjectMandatory(boolean projectMandatory) {
-    this.projectMandatory = projectMandatory;
-  }
-
-  /**
-   * Gets environmentMandatory
-   *
-   * @return value of environmentMandatory
-   */
-  public boolean isEnvironmentMandatory() {
-    return environmentMandatory;
-  }
-
-  /**
-   * @param environmentMandatory The environmentMandatory to set
-   */
-  public void setEnvironmentMandatory(boolean environmentMandatory) {
-    this.environmentMandatory = environmentMandatory;
-  }
-
-  /**
-   * Gets defaultEnvironment
-   *
-   * @return value of defaultEnvironment
-   */
-  public String getDefaultEnvironment() {
-    return defaultEnvironment;
-  }
-
-  /**
-   * @param defaultEnvironment The defaultEnvironment to set
-   */
-  public void setDefaultEnvironment(String defaultEnvironment) {
-    this.defaultEnvironment = defaultEnvironment;
-  }
-
-  /**
-   * Gets standardParentProject
-   *
-   * @return value of standardParentProject
-   */
-  public String getStandardParentProject() {
-    return standardParentProject;
-  }
-
-  /**
-   * @param standardParentProject The standardParentProject to set
-   */
-  public void setStandardParentProject(String standardParentProject) {
-    this.standardParentProject = standardParentProject;
-  }
-
-  /**
-   * Gets projectLifecycles
-   *
-   * @return value of projectLifecycles
-   */
-  public List<ProjectLifecycle> getProjectLifecycles() {
-    return projectLifecycles;
-  }
-
-  /**
-   * @param projectLifecycles The projectLifecycles to set
-   */
-  public void setProjectLifecycles(List<ProjectLifecycle> projectLifecycles) {
-    this.projectLifecycles = projectLifecycles;
-  }
-
-  /**
-   * Gets standardProjectsFolder
-   *
-   * @return value of standardProjectsFolder
-   */
-  public String getStandardProjectsFolder() {
-    return standardProjectsFolder;
-  }
-
-  /**
-   * @param standardProjectsFolder The standardProjectsFolder to set
-   */
-  public void setStandardProjectsFolder(String standardProjectsFolder) {
-    this.standardProjectsFolder = standardProjectsFolder;
-  }
-
-  /**
-   * Gets defaultProjectConfigFile
-   *
-   * @return value of defaultProjectConfigFile
-   */
-  public String getDefaultProjectConfigFile() {
-    return defaultProjectConfigFile;
-  }
-
-  /**
-   * @param defaultProjectConfigFile The defaultProjectConfigFile to set
-   */
-  public void setDefaultProjectConfigFile(String defaultProjectConfigFile) {
-    this.defaultProjectConfigFile = defaultProjectConfigFile;
-  }
-
-  /**
-   * Gets environmentsForActiveProject
-   *
-   * @return value of environmentsForActiveProject
-   */
-  public boolean isEnvironmentsForActiveProject() {
-    return environmentsForActiveProject;
-  }
-
-  /**
-   * @param environmentsForActiveProject The environmentMandatory to set
-   */
-  public void setEnvironmentsForActiveProject(boolean environmentsForActiveProject) {
-    this.environmentsForActiveProject = environmentsForActiveProject;
   }
 }
