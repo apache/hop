@@ -173,6 +173,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineTransformD
 import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelegate;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
+import org.apache.hop.ui.hopgui.file.pipeline.extension.PipelineRenamedExtension;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
@@ -3805,6 +3806,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void saveAs(String filename) throws HopException {
 
     try {
+      String oldFilename = pipelineMeta.getFilename();
 
       // Enforce file extension
       if (!filename.toLowerCase().endsWith(this.getFileType().getDefaultFileExtension())) {
@@ -3828,6 +3830,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       pipelineMeta.setFilename(filename);
       save();
       hopGui.fileRefreshDelegate.register(filename, this);
+
+      // Allow the rest of the world to know that a file was renamed.
+      ExtensionPointHandler.callExtensionPoint(
+          log,
+          variables,
+          HopExtensionPoint.PipelineAfterSaveAs.id,
+          new PipelineRenamedExtension(pipelineMeta, oldFilename));
     } catch (Exception e) {
       throw new HopException("Error validating file existence for '" + filename + "'", e);
     }
