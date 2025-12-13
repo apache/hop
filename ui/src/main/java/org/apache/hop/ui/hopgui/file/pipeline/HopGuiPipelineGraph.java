@@ -1461,7 +1461,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling PipelineGraphMouseMoved extension point", ex);
     }
 
-    if (areaOwner != null) {
+    // Mouse over only if not other operation engaged
+    if (areaOwner != null && startHopTransform == null && lastButton != 1) {
       // Mouse over the name of the transform
       //
       if (!PropsUi.getInstance().useDoubleClick()) {
@@ -1470,11 +1471,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             doRedraw = true;
           }
           mouseOverName = (String) areaOwner.getOwner();
-        } else {
-          if (mouseOverName != null) {
-            doRedraw = true;
-          }
-          mouseOverName = null;
         }
       }
 
@@ -1483,6 +1479,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // Check if the mouse hovers over the border to resize
         resizeOver = this.getResize(areaOwner.getArea(), real);
       }
+    } else {
+      if (mouseOverName != null) {
+        doRedraw = true;
+      }
+      mouseOverName = null;
     }
 
     //

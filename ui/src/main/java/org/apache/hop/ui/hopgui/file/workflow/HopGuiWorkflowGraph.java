@@ -1214,23 +1214,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
     Resize resizeOver = null;
 
-    // Moved over an hop?
-    //
-    if (areaOwner != null) {
-
+    // Mouse over only if not other operation engaged
+    if (areaOwner != null && startHopAction == null && lastButton != 1) {
       // Mouse over the name of the action
       //
       if (!PropsUi.getInstance().useDoubleClick()) {
-        if (areaOwner != null && areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
+        if (areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
           if (mouseOverName == null) {
             doRedraw = true;
           }
           mouseOverName = (String) areaOwner.getOwner();
-        } else {
-          if (mouseOverName != null) {
-            doRedraw = true;
-          }
-          mouseOverName = null;
         }
       }
 
@@ -1239,6 +1232,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         // Check if the mouse is over the border to activate a resize cursor
         resizeOver = this.getResize(areaOwner.getArea(), real);
       }
+    } else {
+      if (mouseOverName != null) {
+        doRedraw = true;
+      }
+      mouseOverName = null;
     }
 
     //
