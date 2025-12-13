@@ -1,0 +1,48 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "card",
+          "data_set_field": "card"
+        },
+        {
+          "transform_field": "privacy",
+          "data_set_field": "privacy"
+        },
+        {
+          "transform_field": "size",
+          "data_set_field": "size"
+        },
+        {
+          "transform_field": "size_m",
+          "data_set_field": "size_m"
+        },
+        {
+          "transform_field": "size_g",
+          "data_set_field": "size_g"
+        }
+      ],
+      "field_order": [
+        "card",
+        "privacy",
+        "size",
+        "size_m",
+        "size_g"
+      ],
+      "data_set_name": "golden-formula-logical-error",
+      "transform_name": "verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0042-formula-logical-error UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0042-formula-logical-error.hpl"
+}
