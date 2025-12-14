@@ -1444,11 +1444,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         workflowMeta.addWorkflowHop(hopCandidate);
         WorkflowHopMeta theHopCandidate = hopCandidate;
         if (workflowMeta.hasLoop(hopCandidate.getToAction())) {
+          workflowMeta.removeWorkflowHop(theHopCandidate);
+          startHopAction = null;
           MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_WARNING);
           mb.setMessage(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message"));
           mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title"));
           mb.open();
-          workflowMeta.removeWorkflowHop(theHopCandidate);
           cancel = true;
         }
         if (!cancel) {

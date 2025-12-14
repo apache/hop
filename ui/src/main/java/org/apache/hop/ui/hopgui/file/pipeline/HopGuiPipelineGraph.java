@@ -1820,6 +1820,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (candidate == null) {
       return;
     }
+    this.startHopTransform = null;
     switch (stream.getStreamType()) {
       case ERROR:
         addErrorHop();
