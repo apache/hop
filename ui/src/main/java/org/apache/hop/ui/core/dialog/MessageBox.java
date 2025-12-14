@@ -21,16 +21,18 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -64,7 +66,9 @@ public class MessageBox extends Dialog {
 
   public int open() {
     Shell parent = getParent();
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | style);
+
+    int shellStyle = style & (SWT.APPLICATION_MODAL | SWT.SYSTEM_MODAL | SWT.PRIMARY_MODAL);
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | shellStyle);
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHop());
     shell.setText(Const.NVL(text, ""));
@@ -78,50 +82,30 @@ public class MessageBox extends Dialog {
 
     int margin = PropsUi.getMargin();
 
-    // Optional to the right
-    //
-    Image iconImage = null;
-    if ((style & SWT.ICON_INFORMATION) != 0) {
-      iconImage = shell.getDisplay().getSystemImage(SWT.ICON_INFORMATION);
-    } else if ((style & SWT.ICON_ERROR) != 0) {
-      iconImage = shell.getDisplay().getSystemImage(SWT.ICON_ERROR);
-    } else if ((style & SWT.ICON_QUESTION) != 0) {
-      iconImage = shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
-    } else if ((style & SWT.ICON_WARNING) != 0) {
-      iconImage = shell.getDisplay().getSystemImage(SWT.ICON_WARNING);
-    } else if ((style & SWT.ICON_CANCEL) != 0) {
-      iconImage = shell.getDisplay().getSystemImage(SWT.ICON_CANCEL);
-    } else if ((style & SWT.ICON_SEARCH) != 0) {
-      iconImage = shell.getDisplay().getSystemImage(SWT.ICON_SEARCH);
-    } else if ((style & SWT.ICON_WORKING) != 0) {
-      iconImage = shell.getDisplay().getSystemImage(SWT.ICON_WORKING);
-    }
-
-    Label wImage = null;
-    if (iconImage != null) {
-      wImage = new Label(shell, SWT.NONE);
-      wImage.setImage(iconImage);
-
-      FormData fdImage = new FormData();
-      fdImage.right = new FormAttachment(100, -margin);
-      fdImage.top = new FormAttachment(100, margin);
-      wImage.setLayoutData(fdImage);
-    }
+    Composite composite = new Composite(shell, SWT.NONE);
+    PropsUi.setLook(composite);
+    composite.setLayout(new GridLayout());
+    GridLayout gridLayout = new GridLayout();
+    gridLayout.numColumns = 2;
+    gridLayout.horizontalSpacing = 15;
+    composite.setLayout(gridLayout);
+    composite.setLayoutData(new FormDataBuilder().top().fullWidth().result());
 
     // The message...
     //
-    Label wMessage = new Label(shell, SWT.LEFT | SWT.WRAP);
+    Label wMessage = new Label(composite, SWT.LEFT | SWT.WRAP);
     PropsUi.setLook(wMessage);
     wMessage.setText(message);
-    FormData fdMessage = new FormData();
-    fdMessage.left = new FormAttachment(0, 0);
-    if (wImage != null) {
-      fdMessage.right = new FormAttachment(wImage, -margin);
-    } else {
-      fdMessage.right = new FormAttachment(100, 0);
+    wMessage.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+    // Optional image to the right
+    //
+    Image iconImage = getIconImage(style);
+    if (iconImage != null) {
+      Label wImage = new Label(composite, SWT.NONE);
+      wImage.setImage(iconImage);
+      wImage.setLayoutData(new GridData());
     }
-    fdMessage.top = new FormAttachment(0, 0);
-    wMessage.setLayoutData(fdMessage);
 
     // Buttons at the bottom
     //
@@ -152,7 +136,7 @@ public class MessageBox extends Dialog {
     }
 
     BaseTransformDialog.positionBottomButtons(
-        shell, buttons.toArray(new Button[0]), margin, wMessage);
+        shell, buttons.toArray(new Button[0]), margin, composite);
 
     shell.addListener(SWT.Close, e -> cancel());
 
@@ -167,6 +151,25 @@ public class MessageBox extends Dialog {
     }
 
     return returnValue;
+  }
+
+  private Image getIconImage(int style) {
+    if ((style & SWT.ICON_INFORMATION) != 0) {
+      return shell.getDisplay().getSystemImage(SWT.ICON_INFORMATION);
+    } else if ((style & SWT.ICON_ERROR) != 0) {
+      return shell.getDisplay().getSystemImage(SWT.ICON_ERROR);
+    } else if ((style & SWT.ICON_QUESTION) != 0) {
+      return shell.getDisplay().getSystemImage(SWT.ICON_QUESTION);
+    } else if ((style & SWT.ICON_WARNING) != 0) {
+      return shell.getDisplay().getSystemImage(SWT.ICON_WARNING);
+    } else if ((style & SWT.ICON_CANCEL) != 0) {
+      return shell.getDisplay().getSystemImage(SWT.ICON_CANCEL);
+    } else if ((style & SWT.ICON_SEARCH) != 0) {
+      return shell.getDisplay().getSystemImage(SWT.ICON_SEARCH);
+    } else if ((style & SWT.ICON_WORKING) != 0) {
+      return shell.getDisplay().getSystemImage(SWT.ICON_WORKING);
+    }
+    return null;
   }
 
   public void dispose() {
