@@ -194,7 +194,6 @@ import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
@@ -317,6 +316,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private NotePadMeta selectedNote;
 
   private PipelineHopMeta candidate;
+
+  private boolean dragSelection;
 
   private boolean splitHop;
 
@@ -651,6 +652,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     Point real = screen2real(event.x, event.y);
     lastClick = new Point(real.x, real.y);
     lastButton = event.button;
+    dragSelection = false;
 
     // Hide the tooltip!
     hideToolTips();
@@ -734,8 +736,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             addCandidateAsHop(event.x, event.y);
           }
 
-          TransformMeta transformMeta = (TransformMeta) areaOwner.getOwner();
-          currentTransform = transformMeta;
+          currentTransform = (TransformMeta) areaOwner.getOwner();
 
           for (ITransformSelectionListener listener : currentTransformListeners) {
             listener.onUpdateSelection(currentTransform);
@@ -743,8 +744,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
           // ALT-Click: edit error handling
           //
-          if (event.button == 1 && alt && transformMeta.supportsErrorHandling()) {
-            pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, transformMeta);
+          if (event.button == 1 && alt && currentTransform.supportsErrorHandling()) {
+            pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, currentTransform);
             return;
           } else if (event.button == 1 && startHopTransform != null && endHopTransform == null) {
             candidate = new PipelineHopMeta(startHopTransform, currentTransform);
@@ -752,11 +753,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             // SHIFT CLICK is start of drag to create a new hop
             //
             canvas.setData("mode", "hop");
-            startHopTransform = transformMeta;
+            startHopTransform = currentTransform;
           } else {
             canvas.setData("mode", "drag");
+            dragSelection = true;
             selectedTransforms = pipelineMeta.getSelectedTransforms();
-            selectedTransform = transformMeta;
+            selectedTransform = currentTransform;
             //
             // When an icon is moved that is not selected, it gets
             // selected too late.
@@ -764,7 +766,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             //
             previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
 
-            Point p = transformMeta.getLocation();
+            Point p = currentTransform.getLocation();
             iconOffset = new Point(real.x - p.x, real.y - p.y);
           }
           redraw();
@@ -1430,7 +1432,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Resizing the current note
     if (resize != null) {
       resizeNote(selectedNote, real);
-      redraw();
       return;
     }
 
@@ -1461,7 +1462,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling PipelineGraphMouseMoved extension point", ex);
     }
 
-    if (areaOwner != null) {
+    // Mouse over an area only if no other operation is in progress
+    if (areaOwner != null
+        && this.startHopTransform == null
+        && this.selectionRegion == null
+        && !dragSelection) {
       // Mouse over the name of the transform
       //
       if (!PropsUi.getInstance().useDoubleClick()) {
@@ -1470,11 +1475,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             doRedraw = true;
           }
           mouseOverName = (String) areaOwner.getOwner();
-        } else {
-          if (mouseOverName != null) {
-            doRedraw = true;
-          }
-          mouseOverName = null;
         }
       }
 
@@ -1483,6 +1483,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // Check if the mouse hovers over the border to resize
         resizeOver = this.getResize(areaOwner.getArea(), real);
       }
+    } else {
+      if (mouseOverName != null) {
+        doRedraw = true;
+      }
+      mouseOverName = null;
     }
 
     //
@@ -1619,19 +1624,23 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       doRedraw = true;
     }
 
-    Cursor cursor = null;
-    // Change the cursor when the mouse is on the resize edge of a note
-    if (resizeOver != null) {
-      cursor = getDisplay().getSystemCursor(resizeOver.getCursor());
+    //  If an operation is already in progress, do not change the cursor.
+    if (this.startHopTransform == null && this.selectionRegion == null && !dragSelection) {
+      // Change the cursor when the mouse is on the resize edge of a note
+      if (resizeOver != null) {
+        setCursor(getDisplay().getSystemCursor(resizeOver.getCursor()));
+      }
+      // Change cursor when the mouse is on a hop or an area that support hovering
+      else if ((areaOwner != null
+              && areaOwner.getAreaType() != null
+              && areaOwner.getAreaType().isSupportHover())
+          || this.findPipelineHop(real.x, real.y) != null) {
+        setCursor(getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+      } else {
+        // Reset cursor after mouse hover
+        setCursor(null);
+      }
     }
-    // Change cursor when the mouse is on a hop or an area that support hovering
-    else if ((areaOwner != null
-            && areaOwner.getAreaType() != null
-            && areaOwner.getAreaType().isSupportHover())
-        || this.findPipelineHop(real.x, real.y) != null) {
-      cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
-    }
-    setCursor(cursor);
 
     if (doRedraw) {
       redraw();
@@ -2096,12 +2105,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     lastHopSplit = null;
     lastButton = 0;
     iconOffset = null;
+    dragSelection = false;
     startHopTransform = null;
     endHopTransform = null;
     endHopLocation = null;
     pipelineMeta.unselectAll();
-    for (int i = 0; i < pipelineMeta.nrPipelineHops(); i++) {
-      pipelineMeta.getPipelineHop(i).setSplit(false);
+    for (PipelineHopMeta hop : pipelineMeta.getPipelineHops()) {
+      hop.setSplit(false);
     }
   }
 
@@ -2126,12 +2136,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    * @return the pipeline hop on the specified location, otherwise: null
    */
   private PipelineHopMeta findPipelineHop(int x, int y, TransformMeta exclude) {
-    int i;
     PipelineHopMeta online = null;
-    for (i = 0; i < pipelineMeta.nrPipelineHops(); i++) {
-      PipelineHopMeta hi = pipelineMeta.getPipelineHop(i);
-      TransformMeta fs = hi.getFromTransform();
-      TransformMeta ts = hi.getToTransform();
+    for (PipelineHopMeta hop : pipelineMeta.getPipelineHops()) {
+      TransformMeta fs = hop.getFromTransform();
+      TransformMeta ts = hop.getToTransform();
 
       if (fs == null || ts == null) {
         return null;
@@ -2146,7 +2154,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       int[] line = getLine(fs, ts);
 
       if (pointOnLine(x, y, line)) {
-        online = hi;
+        online = hop;
       }
     }
     return online;

@@ -65,8 +65,6 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   protected ToolTip toolTip;
   protected String mouseOverName;
 
-  private boolean changedState;
-
   /**
    * This is a state map which can be used by plugins to render extra states on top of pipelines and
    * workflows or their components.
@@ -79,7 +77,6 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     this.hopGui = hopGui;
     this.variables = new Variables();
     this.variables.copyFrom(hopGui.getVariables());
-    this.changedState = false;
     this.id = UUID.randomUUID().toString();
     this.stateMap = new HashMap<>();
     this.offset = new DPoint(0.0, 0.0);
@@ -352,6 +349,8 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
             resizeArea.height);
       }
     }
+
+    redraw();
   }
 
   /**
@@ -498,6 +497,7 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
     this.mouseOverName = mouseOverName;
   }
 
+  /** Resize direction */
   public enum Resize {
     EAST(SWT.CURSOR_SIZEW),
     NORTH(SWT.CURSOR_SIZENS),

@@ -158,7 +158,6 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -347,6 +346,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private ActionMeta currentAction;
   private boolean ignoreNextClick;
   private boolean doubleClick;
+  private boolean dragSelection;
   private WorkflowHopMeta clickedWorkflowHop;
 
   private Timer redrawTimer;
@@ -557,6 +557,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Point real = screen2real(event.x, event.y);
     lastClick = new Point(real.x, real.y);
     lastButton = event.button;
+    dragSelection = false;
 
     // Hide the tooltip!
     hideToolTips();
@@ -596,8 +597,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             return;
           }
 
-          ActionMeta actionCopy = (ActionMeta) areaOwner.getOwner();
-          currentAction = actionCopy;
+          currentAction = (ActionMeta) areaOwner.getOwner();
 
           if (hopCandidate != null) {
             addCandidateAsHop();
@@ -606,11 +606,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // SHIFT CLICK is start of drag to create a new hop
             //
             canvas.setData("mode", "hop");
-            startHopAction = actionCopy;
+            startHopAction = currentAction;
           } else {
             canvas.setData("mode", "drag");
+            dragSelection = true;
             selectedActions = workflowMeta.getSelectedActions();
-            selectedAction = actionCopy;
+            selectedAction = currentAction;
             //
             // When an icon is moved that is not selected, it gets
             // selected too late.
@@ -618,7 +619,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             //
             previousActionLocations = workflowMeta.getSelectedLocations();
 
-            Point p = actionCopy.getLocation();
+            Point p = currentAction.getLocation();
             iconOffset = new Point(real.x - p.x, real.y - p.y);
           }
           updateGui();
@@ -707,13 +708,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       canvas.setData("mode", "resize");
       resize = this.getResize(areaOwner.getArea(), real);
-      // Keep the original area of the resizing note
-      resizeArea =
-          new Rectangle(
-              currentNotePad.getLocation().x,
-              currentNotePad.getLocation().y,
-              currentNotePad.getWidth(),
-              currentNotePad.getHeight());
+
+      if (resize != null) {
+        // Keep the original area of the resizing note
+        resizeArea =
+            new Rectangle(
+                currentNotePad.getLocation().x,
+                currentNotePad.getLocation().y,
+                currentNotePad.getWidth(),
+                currentNotePad.getHeight());
+      } else {
+        dragSelection = true;
+      }
 
       updateGui();
       done = true;
@@ -766,6 +772,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void mouseUp(MouseEvent event) {
     resize = null;
+    dragSelection = false;
 
     // canvas.setData("mode", null); does not work.
     canvas.setData("mode", "null");
@@ -1205,7 +1212,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Resizing the current note
     if (resize != null) {
       resizeNote(selectedNote, real);
-      redraw();
       return;
     }
 
@@ -1214,23 +1220,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
     Resize resizeOver = null;
 
-    // Moved over an hop?
-    //
-    if (areaOwner != null) {
-
+    // Mouse over an area only if no other operation is in progress
+    if (areaOwner != null
+        && this.startHopAction == null
+        && this.selectionRegion == null
+        && !dragSelection) {
       // Mouse over the name of the action
       //
       if (!PropsUi.getInstance().useDoubleClick()) {
-        if (areaOwner != null && areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
+        if (areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
           if (mouseOverName == null) {
             doRedraw = true;
           }
           mouseOverName = (String) areaOwner.getOwner();
-        } else {
-          if (mouseOverName != null) {
-            doRedraw = true;
-          }
-          mouseOverName = null;
         }
       }
 
@@ -1239,6 +1241,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         // Check if the mouse is over the border to activate a resize cursor
         resizeOver = this.getResize(areaOwner.getArea(), real);
       }
+    } else {
+      if (mouseOverName != null) {
+        doRedraw = true;
+      }
+      mouseOverName = null;
     }
 
     //
@@ -1359,27 +1366,23 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       doRedraw = true;
     }
 
-    Cursor cursor = null;
-    // Change cursor when dragging view or view port
-    // if (viewDrag || viewPortNavigation) {
-    //    cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
-    // }
-    // Change cursor when selecting a region
-    //  else if (selectionRegion != null) {
-    //  cursor = getDisplay().getSystemCursor(SWT.CURSOR_CROSS);
-    /// } else
-    // Change the cursor when the mouse is on the resize edge of a note
-    if (resizeOver != null) {
-      cursor = getDisplay().getSystemCursor(resizeOver.getCursor());
+    //  If an operation is already in progress, do not change the cursor.
+    if (this.startHopAction == null && this.selectionRegion == null && !dragSelection) {
+      // Change the cursor when the mouse is on the resize edge of a note
+      if (resizeOver != null) {
+        setCursor(getDisplay().getSystemCursor(resizeOver.getCursor()));
+      }
+      // Change cursor when the mouse is on a hop or an area that support hovering
+      else if ((areaOwner != null
+              && areaOwner.getAreaType() != null
+              && areaOwner.getAreaType().isSupportHover())
+          || findWorkflowHop(real.x, real.y) != null) {
+        setCursor(getDisplay().getSystemCursor(SWT.CURSOR_HAND));
+      } else {
+        // Reset cursor after mouse hover
+        setCursor(null);
+      }
     }
-    // Change cursor when the mouse is on a hop or an area that support hovering
-    else if ((areaOwner != null
-            && areaOwner.getAreaType() != null
-            && areaOwner.getAreaType().isSupportHover())
-        || findWorkflowHop(real.x, real.y) != null) {
-      cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
-    }
-    setCursor(cursor);
 
     if (doRedraw) {
       redraw();
@@ -1784,9 +1787,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     startHopAction = null;
     endHopAction = null;
     iconOffset = null;
+    dragSelection = false;
     workflowMeta.unselectAll();
-    for (int i = 0; i < workflowMeta.nrWorkflowHops(); i++) {
-      workflowMeta.getWorkflowHop(i).setSplit(false);
+    for (WorkflowHopMeta hop : workflowMeta.getWorkflowHops()) {
+      hop.setSplit(false);
     }
   }
 
@@ -1827,12 +1831,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    * @return the workflow hop on the specified location, otherwise: null
    */
   private WorkflowHopMeta findHop(int x, int y, ActionMeta exclude) {
-    int i;
     WorkflowHopMeta online = null;
-    for (i = 0; i < workflowMeta.nrWorkflowHops(); i++) {
-      WorkflowHopMeta hi = workflowMeta.getWorkflowHop(i);
-      ActionMeta fs = hi.getFromAction();
-      ActionMeta ts = hi.getToAction();
+    for (WorkflowHopMeta hop : workflowMeta.getWorkflowHops()) {
+      ActionMeta fs = hop.getFromAction();
+      ActionMeta ts = hop.getToAction();
 
       if (fs == null || ts == null) {
         return null;
@@ -1847,7 +1849,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       int[] line = getLine(fs, ts);
 
       if (pointOnLine(x, y, line)) {
-        online = hi;
+        online = hop;
       }
     }
     return online;
