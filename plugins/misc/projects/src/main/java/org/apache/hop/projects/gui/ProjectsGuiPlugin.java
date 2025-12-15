@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,6 +55,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditEvent;
+import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -61,6 +63,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.projects.config.ProjectsConfig;
+import org.apache.hop.projects.config.ProjectsConfigOptionPlugin;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.environment.LifecycleEnvironmentDialog;
@@ -102,6 +105,9 @@ public class ProjectsGuiPlugin {
 
   public static final Class<?> PKG = ProjectsGuiPlugin.class; // i18n
 
+  private static final String LAST_USED_PROJECTS_AUDIT_TYPE = "last-projects";
+  private static final int LAST_USED_PROJECTS_MAX_ENTRIES = 15;
+
   public static final String ID_TOOLBAR_ITEM_PROJECT = "toolbar-item-10000-project";
   public static final String ID_CONTEXT_MENU_PROJECT = "context-menu-project";
   public static final String ID_CONTEXT_MENU_PROJECT_ADD = "context-menu-project-40010-add";
@@ -126,6 +132,7 @@ public class ProjectsGuiPlugin {
       "0005-navigate-project-home"; // right next to Home button
 
   FileTree tree;
+  private static List<String> lastUsedProjects;
 
   /** Automatically instantiated when the toolbar widgets need it */
   public ProjectsGuiPlugin() {
@@ -211,6 +218,10 @@ public class ProjectsGuiPlugin {
       // Refresh the currently active file
       //
       hopGui.getActiveFileTypeHandler().updateGui();
+
+      // Remember the last used projects for the toolbar
+      //
+      rememberLastUsedProjects(projectName);
 
       // Update the toolbar items
       //
@@ -313,6 +324,54 @@ public class ProjectsGuiPlugin {
                 environment.getProjectName(),
                 environment.getPurpose()));
       }
+    }
+  }
+
+  public static List<String> getLastUsedProjects() {
+    // Initialize the list of last used projects
+    if (lastUsedProjects == null) {
+      List<String> allProjectNames = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+      lastUsedProjects = new LinkedList<>();
+      try {
+        AuditList auditList =
+            AuditManager.getActive()
+                .retrieveList(HopGui.DEFAULT_HOP_GUI_NAMESPACE, LAST_USED_PROJECTS_AUDIT_TYPE);
+
+        for (String name : auditList.getNames()) {
+          if (allProjectNames.contains(name)) {
+            lastUsedProjects.add(name);
+          }
+        }
+      } catch (Exception e) {
+        LogChannel.GENERAL.logError("Error loading last used projects", e);
+        lastUsedProjects.addAll(allProjectNames.subList(0, LAST_USED_PROJECTS_MAX_ENTRIES));
+      }
+    }
+
+    return lastUsedProjects;
+  }
+
+  /** Remember the last used projects */
+  public static void rememberLastUsedProjects(String projectName) {
+
+    // Initialize
+    getLastUsedProjects();
+
+    // Keep only a limited number of last-used projects
+    lastUsedProjects.remove(projectName);
+    lastUsedProjects.add(0, projectName);
+    if (lastUsedProjects.size() > LAST_USED_PROJECTS_MAX_ENTRIES) {
+      lastUsedProjects = lastUsedProjects.subList(0, LAST_USED_PROJECTS_MAX_ENTRIES);
+    }
+
+    // Write the audit list of last used projects
+    try {
+      AuditList auditList = new AuditList(lastUsedProjects);
+      AuditManager.getActive()
+          .storeList(HopGui.DEFAULT_HOP_GUI_NAMESPACE, LAST_USED_PROJECTS_AUDIT_TYPE, auditList);
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError(
+          "Error writing list of last used projects " + LAST_USED_PROJECTS_AUDIT_TYPE, e);
     }
   }
 
@@ -455,23 +514,32 @@ public class ProjectsGuiPlugin {
 
     new MenuItem(menu, SWT.SEPARATOR);
 
+    // Display the last-used projects
+    List<String> names = new ArrayList<>(getLastUsedProjects());
+
+    // If the user prefers to display in alphabetical order
+    if (ProjectsConfigOptionPlugin.getInstance().getSortByNameLastUsedProjects()) {
+      names.sort(String::compareToIgnoreCase);
+    }
+
     String currentProjectName = HopNamespace.getNamespace();
-    List<String> names = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+
     int count = 0;
     for (String name : names) {
-      MenuItem item = new MenuItem(menu, SWT.CHECK);
+      MenuItem item = new MenuItem(menu, SWT.NONE);
       item.setText(name);
-      item.setSelection(currentProjectName.equals(name));
       item.addListener(SWT.Selection, e -> selectProject(name));
-      //    if (++count == 10) break;
+      if (currentProjectName.equals(name)) {
+        item.setImage(GuiResource.getInstance().getImageCheck());
+      }
+      if (++count == LAST_USED_PROJECTS_MAX_ENTRIES) break;
     }
-    // TODO: display only the last 10 used projects
-    //    if (count == 5) {
-    //      new MenuItem(menu, SWT.SEPARATOR);
-    //      MenuItem item = new MenuItem(menu, SWT.PUSH);
-    //      item.setText("More...");
-    //      item.addListener(SWT.Selection, e -> selectProject());
-    //    }
+
+    // Add a menu to open a dialog to select it
+    new MenuItem(menu, SWT.SEPARATOR);
+    MenuItem item = new MenuItem(menu, SWT.PUSH);
+    item.setText(BaseMessages.getString(PKG, "HopGui.Toolbar.Project.Select.Tooltip"));
+    item.addListener(SWT.Selection, e -> selectProject());
 
     return menu;
   }
@@ -498,33 +566,24 @@ public class ProjectsGuiPlugin {
     String currentProjectName = getProjectToolItem().getText();
     String currentEnvironmentName = getEnvironmentToolItem().getText();
 
-    // List of first 10 projects
+    // Display list of environments
     //
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     List<String> names = config.listEnvironmentNames();
-    int count = 0;
     for (String name : names) {
 
       // Exclude environment linked to another project
       LifecycleEnvironment environment = config.findEnvironment(name);
       if (Utils.isEmpty(environment.getProjectName())
           || currentProjectName.equals(environment.getProjectName())) {
-        MenuItem item = new MenuItem(menu, SWT.CHECK);
+        MenuItem item = new MenuItem(menu, SWT.NONE);
         item.setText(name);
-        item.setSelection(currentEnvironmentName.equals(name));
         item.addListener(SWT.Selection, e -> selectEnvironment(name));
-        // if (++count == 10) break;
+        if (currentEnvironmentName.equals(name)) {
+          item.setImage(GuiResource.getInstance().getImageCheck());
+        }
       }
     }
-
-    // TODO: display only the last 10 used environments
-    // If more projects, open a dialog to select it
-    //    if (count == 10) {
-    //      new MenuItem(menu, SWT.SEPARATOR);
-    //      MenuItem item = new MenuItem(menu, SWT.PUSH);
-    //      item.setText("More...");
-    //      item.addListener(SWT.Selection, e -> selectEnvironment());
-    //    }
 
     return menu;
   }
@@ -548,13 +607,26 @@ public class ProjectsGuiPlugin {
 
   public void selectProject() {
     List<String> projectNames = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
+    projectNames.sort(String::compareToIgnoreCase);
+
+    String[] projects = projectNames.toArray(new String[0]);
+
     EnterSelectionDialog dialog =
         new EnterSelectionDialog(
             HopGui.getInstance().getActiveShell(),
-            projectNames.toArray(new String[0]),
+            projects,
             BaseMessages.getString(PKG, "ProjectGuiPlugin.Dialog.AvailableProjects.Title"),
             BaseMessages.getString(PKG, "ProjectGuiPlugin.Dialog.AvailableProjects.Message"));
-    dialog.setCurrentValue(HopNamespace.getNamespace());
+
+    String currentProject = HopNamespace.getNamespace();
+    dialog.setCurrentValue(currentProject);
+    int index = Const.indexOfString(currentProject, projects);
+    if (index >= 0) {
+      dialog.setSelectedNrs(
+          new int[] {
+            index,
+          });
+    }
 
     String name = dialog.open();
     if (name != null) {

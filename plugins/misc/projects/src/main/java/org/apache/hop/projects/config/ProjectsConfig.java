@@ -21,11 +21,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
 import org.apache.hop.projects.lifecycle.ProjectLifecycle;
 import org.apache.hop.projects.project.ProjectConfig;
 
+@Getter
+@Setter
 @JsonIgnoreProperties(value = {"openingLastProjectAtStartup"})
 public class ProjectsConfig {
 
@@ -37,6 +41,7 @@ public class ProjectsConfig {
   private boolean projectMandatory;
   private boolean environmentMandatory;
   private boolean environmentsForActiveProject;
+  private boolean sortByNameLastUsedProjects;
   private String defaultProject;
   private String defaultEnvironment;
   private String standardParentProject;
@@ -69,6 +74,7 @@ public class ProjectsConfig {
     standardProjectsFolder = config.standardProjectsFolder;
     defaultProjectConfigFile = config.defaultProjectConfigFile;
     environmentsForActiveProject = config.environmentsForActiveProject;
+    sortByNameLastUsedProjects = config.sortByNameLastUsedProjects;
   }
 
   public ProjectConfig findProjectConfig(String projectName) {
