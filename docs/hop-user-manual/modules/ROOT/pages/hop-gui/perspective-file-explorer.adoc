@@ -48,6 +48,23 @@ image::hop-gui/perspective-explorer-toolbar-items.png[File explorer toolbar item
 * Refresh: Refresh the file list.
 * Show or hide files: Show or hide files or directories.
 
+== Toggling the File Explorer Panel
+
+When the File Explorer perspective is already active, clicking the File Explorer button in the perspectives toolbar (left side) will toggle the visibility of the file explorer panel (project tree). This allows you to maximize the workspace area when you don't need to see the file tree.
+
+* When the panel is visible: Clicking the File Explorer button hides the panel, maximizing the editor area.
+* When the panel is hidden: Clicking the File Explorer button shows the panel again, restoring the split view.
+
+TIP: The tooltip on the File Explorer button will indicate when you can toggle the panel: "File Explorer (Ctrl+Shift+E). Click the folder to show/hide the project tree"
+
+== Configuration Options
+
+The File Explorer perspective can be configured through the xref:hop-gui/perspective-configuration.adoc[Configuration perspective] under the Plugins tab. The following options are available:
+
+* **The initial depth to load not lazily**: Controls how many folder levels are loaded immediately when opening folders in the file explorer tree.
+* **The maximum file size to load**: Sets the maximum file size (in MB) that will be loaded when opening files in the explorer.
+* **Show file explorer panel by default**: When enabled, the file explorer panel (project tree) is shown by default when opening the explorer perspective. When disabled, the panel starts hidden, giving you more workspace for editing files.
+
 == Git integration
 
 === Description

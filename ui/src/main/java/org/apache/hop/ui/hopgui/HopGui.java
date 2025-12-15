@@ -263,6 +263,7 @@ public class HopGui
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
+  private ToolItem explorerPerspectiveToolItem;
 
   private static final PrintStream originalSystemOut = System.out;
   private static final PrintStream originalSystemErr = System.err;
@@ -601,7 +602,17 @@ public class HopGui
                   perspectivePlugin.getImageFile(),
                   tooltip,
                   // TODO: check if there is unnecessary refresh
-                  event -> setActivePerspective(perspective));
+                  event -> {
+                    // Special handling for ExplorerPerspective: if already active, toggle file
+                    // explorer panel instead of just activating
+                    if (perspective instanceof ExplorerPerspective
+                        && isActivePerspective(perspective)) {
+                      ((ExplorerPerspective) perspective).toggleFileExplorerPanel();
+                    } else {
+                      // Normal perspective activation
+                      setActivePerspective(perspective);
+                    }
+                  });
         } else {
           item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
           item.setToolTipText(tooltip);
@@ -609,8 +620,21 @@ public class HopGui
               SWT.Selection,
               event -> {
                 // Event is sent first to the unselected tool item and then the selected item.
-                // To avoid unnecessary refresh, only activate perspective on the selected item.
+                // To avoid unnecessary refresh, only process on the selected item.
                 if (item.getSelection()) {
+                  // Special handling for ExplorerPerspective: check if control is already on top
+                  // (truly active and visible) before toggling
+                  if (perspective instanceof ExplorerPerspective
+                      && mainPerspectivesComposite != null
+                      && !mainPerspectivesComposite.isDisposed()) {
+                    StackLayout layout = (StackLayout) mainPerspectivesComposite.getLayout();
+                    // Only toggle if the perspective control is already on top (truly active)
+                    if (layout.topControl == perspective.getControl()) {
+                      ((ExplorerPerspective) perspective).toggleFileExplorerPanel();
+                      return; // Don't call setActivePerspective
+                    }
+                  }
+                  // Normal perspective activation
                   setActivePerspective(perspective);
                 }
               });
@@ -626,6 +650,11 @@ public class HopGui
           }
         }
         item.setData(perspective);
+
+        // Store reference to ExplorerPerspective ToolItem for dynamic tooltip updates
+        if (perspective instanceof ExplorerPerspective) {
+          explorerPerspectiveToolItem = item;
+        }
 
         // See if there's a shortcut for the perspective, add it to tooltip...
         KeyboardShortcut shortcut =
@@ -1503,7 +1532,7 @@ public class HopGui
     layout.topControl = perspective.getControl();
     mainPerspectivesComposite.layout();
 
-    // Select toolbar item
+    // Select toolbar item and update tooltips
     //
     if (perspectivesToolbar != null && !perspectivesToolbar.isDisposed()) {
       for (ToolItem item : perspectivesToolbar.getItems()) {
@@ -1513,6 +1542,39 @@ public class HopGui
         } else {
           item.setSelection(shaded);
         }
+      }
+
+      // Update ExplorerPerspective tooltip based on active state
+      if (explorerPerspectiveToolItem != null && !explorerPerspectiveToolItem.isDisposed()) {
+        boolean isExplorerActive = perspective instanceof ExplorerPerspective;
+        String baseName =
+            BaseMessages.getString(ExplorerPerspective.PKG, "ExplorerPerspective.Name");
+        String tooltipText;
+
+        // Get keyboard shortcut if it exists
+        KeyboardShortcut shortcut =
+            GuiRegistry.getInstance()
+                .findKeyboardShortcut(
+                    ExplorerPerspective.class.getName(), "activate", Const.isOSX());
+
+        if (isExplorerActive) {
+          // Format: "File Explorer (Ctrl+Shift+E). Click the folder to show/hide the project tree"
+          String additionalText =
+              BaseMessages.getString(ExplorerPerspective.PKG, "ExplorerPerspective.Tooltip.Active");
+          if (shortcut != null) {
+            tooltipText = baseName + " (" + shortcut + "). " + additionalText;
+          } else {
+            tooltipText = baseName + ". " + additionalText;
+          }
+        } else {
+          // Format: "File Explorer (Ctrl+Shift+E)"
+          if (shortcut != null) {
+            tooltipText = baseName + " (" + shortcut + ')';
+          } else {
+            tooltipText = baseName;
+          }
+        }
+        explorerPerspectiveToolItem.setToolTipText(tooltipText);
       }
     }
 
