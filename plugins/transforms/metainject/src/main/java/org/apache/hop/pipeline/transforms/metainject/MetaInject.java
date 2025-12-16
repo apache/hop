@@ -42,7 +42,6 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -420,19 +419,6 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
               }
               if (!skip) {
                 // specified field exist - need to inject
-
-                // Manage the way data_type is injected into Formula transform
-                // (id of the type instead of the name of the type)
-                if (targetTransformMeta.getClass().getSimpleName().equals("FormulaMeta")
-                    && target.getAttributeKey().equals("value_type")) {
-                  for (RowMetaAndData r : rows) {
-                    int i = r.getRowMeta().indexOfValue(source.getField());
-                    String value = r.getString(source.getField(), null);
-                    int id = ValueMetaFactory.getIdForValueMeta(value);
-                    r.getData()[i] = Integer.valueOf(id);
-                  }
-                }
-
                 injector.setProperty(
                     targetTransformMeta, target.getAttributeKey(), rows, source.getField());
                 wasInjection = true;
@@ -486,21 +472,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
           if (injector.hasProperty(targetTransformMeta, target.getAttributeKey())) {
             // target transform has specified key
             String value = variables.resolve(source.getField());
-            if (targetTransformMeta.getClass().getSimpleName().equals("FormulaMeta")
-                && target.getAttributeKey().equals("value_type")) {
-
-              // Manage the way data_type is injected into Formula transform
-              // (id of the type instead of the name of the type)
-              injector.setProperty(
-                  targetTransformMeta,
-                  target.getAttributeKey(),
-                  null,
-                  String.valueOf(ValueMetaFactory.getIdForValueMeta(value)));
-
-            } else {
-              injector.setProperty(targetTransformMeta, target.getAttributeKey(), null, value);
-            }
-
+            injector.setProperty(targetTransformMeta, target.getAttributeKey(), null, value);
           } else {
             // target transform doesn't have specified key - just report but don't fail like in 6.0
             logError(

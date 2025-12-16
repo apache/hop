@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0042-formula-mdi-typeconverter-fromfields</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/08/24 17:33:32.206</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/08/24 17:33:32.206</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Generate rows</from>
+      <to>ETL metadata injection</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>ETL metadata injection</name>
+    <type>MetaInject</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <filename>${PROJECT_HOME}/0042-formula-mdi-typeconverter-called.hpl</filename>
+    <run_configuration>local</run_configuration>
+    <source_transform/>
+    <source_output_fields>    </source_output_fields>
+    <target_file/>
+    <create_parent_folder>Y</create_parent_folder>
+    <no_execution>Y</no_execution>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <mappings>
+      <mapping>
+        <target_transform_name>Generate rows</target_transform_name>
+        <target_attribute_key>type</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform/>
+        <source_field>Integer</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Generate rows</target_transform_name>
+        <target_attribute_key>nullif</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform/>
+        <source_field>1</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Formula</target_transform_name>
+        <target_attribute_key>value_type</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>Generate rows</source_transform>
+        <source_field>FormulaVType</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Generate rows</target_transform_name>
+        <target_attribute_key>limit</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>1</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Generate rows</target_transform_name>
+        <target_attribute_key>name</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform/>
+        <source_field>f</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Formula</target_transform_name>
+        <target_attribute_key>formula</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>Generate rows</source_transform>
+        <source_field>FormulaValue</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Formula</target_transform_name>
+        <target_attribute_key>field_name</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>Generate rows</source_transform>
+        <source_field>FormulaFieldName</source_field>
+      </mapping>
+    </mappings>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Generate rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>FormulaVType</name>
+        <nullif>Integer</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>FormulaFieldName</name>
+        <nullif>test</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>FormulaValue</name>
+        <nullif>[f]+1</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
+    </fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <limit>1</limit>
+    <never_ending>N</never_ending>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>432</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
