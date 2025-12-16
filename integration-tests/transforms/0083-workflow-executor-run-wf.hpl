@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0083-workflow-executor-run-wf</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2025/07/30 11:59:58.006</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2025/07/30 11:59:58.006</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Data grid</from>
+      <to>Movimenti_linee_credito_starter</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Movimenti_linee_credito_starter</from>
+      <to>Metadata structure of stream</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Metadata structure of stream</from>
+      <to>Group by</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Group by</from>
+      <to>Add constants</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Add constants</from>
+      <to>Filter rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows</from>
+      <to>Abort</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <message>Workflow executor: output fields set is different than expected!</message>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>976</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Add constants</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>expected</name>
+        <nullif>ExecutionTime, ExecutionResult, ExecutionNrErrors, ExecutionLinesRead, ExecutionLinesWritten, ExecutionLinesInput, ExecutionLinesOutput, ExecutionLinesRejected, ExecutionLinesUpdated, ExecutionLinesDeleted, ExecutionFilesRetrieved, ExecutionExitStatus, ExecutionLogText, ExecutionLogChannelId</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>768</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Data grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>1</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>f1</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>64</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter rows</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>=</function>
+        <leftvalue>result</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <rightvalue>expected</rightvalue>
+      </condition>
+    </compare>
+    <send_false_to>Abort</send_false_to>
+    <send_true_to>Success</send_true_to>
+    <attributes/>
+    <GUI>
+      <xloc>944</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Group by</name>
+    <type>GroupBy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <add_linenr>N</add_linenr>
+    <all_rows>N</all_rows>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <aggregate>result</aggregate>
+        <subject>Fieldname</subject>
+        <type>CONCAT_COMMA</type>
+      </field>
+    </fields>
+    <give_back_row>N</give_back_row>
+    <group>
+</group>
+    <ignore_aggregate>N</ignore_aggregate>
+    <prefix>grp</prefix>
+    <attributes/>
+    <GUI>
+      <xloc>624</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Metadata structure of stream</name>
+    <type>TransformMetaStructure</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <commentsFieldname>Comments</commentsFieldname>
+    <fieldFieldname>Fieldname</fieldFieldname>
+    <includeCommentsField>Y</includeCommentsField>
+    <includeFieldnameField>Y</includeFieldnameField>
+    <includeLengthField>Y</includeLengthField>
+    <includeMaskField>Y</includeMaskField>
+    <includeOriginField>Y</includeOriginField>
+    <includePositionField>Y</includePositionField>
+    <includePrecisionField>Y</includePrecisionField>
+    <includeTypeField>Y</includeTypeField>
+    <lengthFieldname>Length</lengthFieldname>
+    <maskFieldname>FormatMask</maskFieldname>
+    <originFieldname>Origin</originFieldname>
+    <outputRowcount>N</outputRowcount>
+    <positionFieldname>Position</positionFieldname>
+    <precisionFieldname>Precision</precisionFieldname>
+    <typeFieldname>Type</typeFieldname>
+    <attributes/>
+    <GUI>
+      <xloc>464</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Movimenti_linee_credito_starter</name>
+    <type>WorkflowExecutor</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <execution_errors_field>ExecutionNrErrors</execution_errors_field>
+    <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
+    <execution_files_retrieved_field>ExecutionFilesRetrieved</execution_files_retrieved_field>
+    <execution_lines_deleted_field>ExecutionLinesDeleted</execution_lines_deleted_field>
+    <execution_lines_input_field>ExecutionLinesInput</execution_lines_input_field>
+    <execution_lines_output_field>ExecutionLinesOutput</execution_lines_output_field>
+    <execution_lines_read_field>ExecutionLinesRead</execution_lines_read_field>
+    <execution_lines_rejected_field>ExecutionLinesRejected</execution_lines_rejected_field>
+    <execution_lines_updated_field>ExecutionLinesUpdated</execution_lines_updated_field>
+    <execution_lines_written_field>ExecutionLinesWritten</execution_lines_written_field>
+    <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
+    <execution_log_text_field>ExecutionLogText</execution_log_text_field>
+    <execution_result_field>ExecutionResult</execution_result_field>
+    <execution_result_target_transform>Metadata structure of stream</execution_result_target_transform>
+    <execution_time_field>ExecutionTime</execution_time_field>
+    <filename>${PROJECT_HOME}/0083-workflow-executor-called-wf.hwf</filename>
+    <group_size>1</group_size>
+    <inherit_all_vars>Y</inherit_all_vars>
+    <parameters>
+      <variablemapping>
+        <field>f1</field>
+        <variable>TabellaLbL</variable>
+      </variablemapping>
+    </parameters>
+    <result_files_file_name_field>FileName</result_files_file_name_field>
+    <run_configuration>local</run_configuration>
+    <attributes/>
+    <GUI>
+      <xloc>240</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Success</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
