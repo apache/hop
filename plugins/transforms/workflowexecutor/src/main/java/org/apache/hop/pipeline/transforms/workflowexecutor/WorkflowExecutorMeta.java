@@ -627,12 +627,15 @@ public class WorkflowExecutorMeta
     switch (index) {
       case 0:
         setExecutionResultTargetTransformMeta(transform);
+        setExecutionResultTargetTransform(transform.getName());
         break;
       case 1:
         setResultRowsTargetTransformMeta(transform);
+        setResultRowsTargetTransform(transform.getName());
         break;
       case 2:
         setResultFilesTargetTransformMeta(transform);
+        setResultFilesTargetTransform(transform.getName());
         break;
       default:
         break;
@@ -706,8 +709,11 @@ public class WorkflowExecutorMeta
   @Override
   public boolean cleanAfterHopFromRemove() {
     setExecutionResultTargetTransformMeta(null);
+    setExecutionResultTargetTransform(null);
     setResultRowsTargetTransformMeta(null);
+    setResultRowsTargetTransform(null);
     setResultFilesTargetTransformMeta(null);
+    setResultFilesTargetTransform(null);
     return true;
   }
 
@@ -723,14 +729,17 @@ public class WorkflowExecutorMeta
     if (getExecutionResultTargetTransformMeta() != null
         && toTransformName.equals(getExecutionResultTargetTransformMeta().getName())) {
       setExecutionResultTargetTransformMeta(null);
+      setExecutionResultTargetTransform(null);
       hasChanged = true;
     } else if (getResultRowsTargetTransformMeta() != null
         && toTransformName.equals(getResultRowsTargetTransformMeta().getName())) {
       setResultRowsTargetTransformMeta(null);
+      setResultRowsTargetTransform(null);
       hasChanged = true;
     } else if (getResultFilesTargetTransformMeta() != null
         && toTransformName.equals(getResultFilesTargetTransformMeta().getName())) {
       setResultFilesTargetTransformMeta(null);
+      setResultFilesTargetTransform(null);
       hasChanged = true;
     }
     return hasChanged;
