@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.pipeline.transforms.formula.util.StringToTypeConverter;
 
 @Getter
 @Setter
@@ -40,7 +41,8 @@ public class FormulaMetaFunction {
 
   @HopMetadataProperty(
       key = "value_type",
-      injectionKeyDescription = "FormulaMeta.Injection.ValueType")
+      injectionKeyDescription = "FormulaMeta.Injection.ValueType",
+      injectionConverter = StringToTypeConverter.class)
   private int valueType;
 
   @HopMetadataProperty(
