@@ -48,6 +48,7 @@ The green (success) hop will be called if the condition was evaluated successful
 |Field name|The field to evaluate
 |Type|Data type.
 2+|Success On
+|Success when source variable set| The action will always success if the source variable was set otherwise it will fail.
 |Success condition a|
 * If value equal to
 * If value different from
@@ -73,8 +74,8 @@ The green (success) hop will be called if the condition was evaluated successful
 |Source: Evaluate|Variable|Select this to evaluate a variable set before
 |Source: Variable name|e. g. {openvar}VAR1{closevar}|Enter the variable name using the usual syntax
 |Source: Type|String, Number etc.|The type of your variable
-|Success on: Success when variable set||When this option is selected, the true path is followed when the variable is set.
-Note: The workflow action checks if the variable is defined, so an empty or null value is also true.
+|Success on: Success when source variable set||When this option is selected, the true path is followed when the source variable is set.
+Note: The workflow action checks if the source variable is defined, so an empty or null value is also true.
 When testing this within Hop you need to delete the line with the variable in the variables section of the Execute a workflow window.
 And remember: Once this variable is set, the variable keeps existing, even when deleting it from the list.
 |Success On: Success condition|Equal/Non equal/etc.|Select the condition to be met for a successful result

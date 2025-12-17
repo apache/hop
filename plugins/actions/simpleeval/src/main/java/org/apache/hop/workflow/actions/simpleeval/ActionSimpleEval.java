@@ -451,8 +451,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             success = (sourcevalue.equals(realCompareValue));
             if (valueType == ValueType.VARIABLE && !success && Utils.isEmpty(realCompareValue)) {
               // make the empty value evaluate to true when compared to a not set variable
-              String key = StringUtil.getVariableName(variableName);
-              if (System.getProperty(key) == null) {
+              if (resolve(variableName) == null) {
                 success = true;
               }
             }
