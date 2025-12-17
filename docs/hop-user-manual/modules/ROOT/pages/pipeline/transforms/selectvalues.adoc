@@ -73,21 +73,6 @@ Leave blank if you do not wish to rename the field
 [NOTE]
 To copy a field, simply specify the same field name multiple times with different rename values.
 
-==== Edit Mapping
-
-The Edit Mapping dialog allows you to easily define multiple mappings between source and target fields.
-
-[options="header"]
-|===
-|Option|Description
-|Source fields|A list of input fields available to map.
-Select a field to begin mapping
-|Target fields|A list of fields that source fields can be mapped to.
-Once you have selected a source field, select a target field to create a mapping
-|Add|Adds a source and target field mapping pair to the Mappings section
-|Delete|Removes a selected Mappings entry
-|===
-
 === Remove tab
 
 This tab allows you to remove fields from the input stream.
