@@ -30,7 +30,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -43,11 +42,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -268,15 +265,9 @@ public class SelectValuesDialog extends BaseTransformDialog {
     fdGetSelect.top = new FormAttachment(wlFields, margin);
     wGetSelect.setLayoutData(fdGetSelect);
 
-    Button wDoMapping = new Button(wSelectComp, SWT.PUSH);
-    wDoMapping.setText(BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.Button"));
-
-    wDoMapping.addListener(SWT.Selection, arg0 -> generateMappings());
-
     fdGetSelect = new FormData();
     fdGetSelect.right = new FormAttachment(100, 0);
     fdGetSelect.top = new FormAttachment(wGetSelect, 0);
-    wDoMapping.setLayoutData(fdGetSelect);
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
@@ -840,144 +831,6 @@ public class SelectValuesDialog extends BaseTransformDialog {
           BaseMessages.getString(PKG, "SelectValuesDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(PKG, "SelectValuesDialog.FailedToGetFields.DialogMessage"),
           ke);
-    }
-  }
-
-  /**
-   * Reads in the fields from the previous transforms and from the ONE next transform and opens an
-   * EnterMappingDialog with this information. After the user did the mapping, those information is
-   * put into the Select/Rename table.
-   */
-  private void generateMappings() {
-    if (!bPreviousFieldsLoaded) {
-      BaseDialog.openMessageBox(
-          shell,
-          BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING),
-          BaseMessages.getString(PKG, CONST_SELECT_VALUES_DIALOG_COLUMN_INFO_LOADING),
-          SWT.ICON_ERROR | SWT.OK);
-      return;
-    }
-    if ((wRemove.getItemCount() > 0) || (wMeta.getItemCount() > 0)) {
-      for (int i = 0; i < wRemove.getItemCount(); i++) {
-        String[] columns = wRemove.getItem(i);
-        for (String column : columns) {
-          if (!column.isEmpty()) {
-            BaseDialog.openMessageBox(
-                shell,
-                BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"),
-                BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta"),
-                SWT.ICON_ERROR | SWT.OK);
-            return;
-          }
-        }
-      }
-      for (int i = 0; i < wMeta.getItemCount(); i++) {
-        String[] columns = wMeta.getItem(i);
-        for (String col : columns) {
-          if (!col.isEmpty()) {
-            BaseDialog.openMessageBox(
-                shell,
-                BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"),
-                BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta"),
-                SWT.ICON_ERROR | SWT.OK);
-            return;
-          }
-        }
-      }
-    }
-
-    IRowMeta nextTransformRequiredFields = null;
-
-    TransformMeta transformMeta = new TransformMeta(transformName, input);
-    List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transformMeta);
-    if (nextTransforms.isEmpty() || nextTransforms.size() > 1) {
-      BaseDialog.openMessageBox(
-          shell,
-          BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoNextTransformTitle"),
-          BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.NoNextTransform"),
-          SWT.ICON_ERROR | SWT.OK);
-      return;
-    }
-    TransformMeta outputTransformMeta = nextTransforms.get(0);
-    ITransformMeta transformMetaInterface = outputTransformMeta.getTransform();
-    try {
-      nextTransformRequiredFields = transformMetaInterface.getRequiredFields(variables);
-    } catch (HopException e) {
-      logError(BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.UnableToFindOutput"));
-      nextTransformRequiredFields = new RowMeta();
-    }
-
-    String[] inputNames = new String[prevFields.size()];
-    for (int i = 0; i < prevFields.size(); i++) {
-      IValueMeta value = prevFields.getValueMeta(i);
-      inputNames[i] = value.getName();
-    }
-
-    String[] outputNames = new String[nextTransformRequiredFields.size()];
-    for (int i = 0; i < nextTransformRequiredFields.size(); i++) {
-      outputNames[i] = nextTransformRequiredFields.getValueMeta(i).getName();
-    }
-
-    String[] selectName = new String[wFields.getItemCount()];
-    String[] selectRename = new String[wFields.getItemCount()];
-    for (int i = 0; i < wFields.getItemCount(); i++) {
-      selectName[i] = wFields.getItem(i, 1);
-      selectRename[i] = wFields.getItem(i, 2);
-    }
-
-    List<SourceToTargetMapping> mappings = new ArrayList<>();
-    StringBuilder missingFields = new StringBuilder();
-    for (int i = 0; i < selectName.length; i++) {
-      String valueName = selectName[i];
-      String valueRename = selectRename[i];
-      int inIndex = prevFields.indexOfValue(valueName);
-      if (inIndex < 0) {
-        missingFields.append(Const.CR + "   " + valueName + " --> " + valueRename);
-        continue;
-      }
-      if (null == valueRename || valueRename.equals("")) {
-        valueRename = valueName;
-      }
-      int outIndex = nextTransformRequiredFields.indexOfValue(valueRename);
-      if (outIndex < 0) {
-        missingFields.append(Const.CR + "   " + valueName + " --> " + valueRename);
-        continue;
-      }
-      SourceToTargetMapping mapping = new SourceToTargetMapping(inIndex, outIndex);
-      mappings.add(mapping);
-    }
-    // show a confirm dialog if some misconfiguration was found
-    if (!missingFields.isEmpty()) {
-      int answer =
-          BaseDialog.openMessageBox(
-              shell,
-              BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.SomeFieldsNotFoundTitle"),
-              BaseMessages.getString(
-                  PKG, "SelectValuesDialog.DoMapping.SomeFieldsNotFound", missingFields.toString()),
-              SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-      boolean goOn = (answer & SWT.YES) != 0;
-      if (!goOn) {
-        return;
-      }
-    }
-    EnterMappingDialog d =
-        new EnterMappingDialog(SelectValuesDialog.this.shell, inputNames, outputNames, mappings);
-    mappings = d.open();
-
-    // mappings == null if the user pressed cancel
-    //
-    if (mappings != null) {
-      wFields.table.removeAll();
-      wFields.table.setItemCount(mappings.size());
-      for (int i = 0; i < mappings.size(); i++) {
-        SourceToTargetMapping mapping = mappings.get(i);
-        TableItem item = wFields.table.getItem(i);
-        item.setText(1, prevFields.getValueMeta(mapping.getSourcePosition()).getName());
-        item.setText(2, outputNames[mapping.getTargetPosition()]);
-      }
-      wFields.setRowNums();
-      wFields.optWidth(true);
-      wTabFolder.setSelection(0);
     }
   }
 
