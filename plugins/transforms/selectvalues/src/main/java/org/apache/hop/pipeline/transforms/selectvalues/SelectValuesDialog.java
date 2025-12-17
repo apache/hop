@@ -262,12 +262,9 @@ public class SelectValuesDialog extends BaseTransformDialog {
     wGetSelect.addListener(SWT.Selection, e -> get());
     FormData fdGetSelect = new FormData();
     fdGetSelect.right = new FormAttachment(100, 0);
-    fdGetSelect.top = new FormAttachment(wlFields, margin);
+    // vertically center the button relative to the table (wFields)
+    fdGetSelect.top = new FormAttachment(wFields, 0, SWT.CENTER);
     wGetSelect.setLayoutData(fdGetSelect);
-
-    fdGetSelect = new FormData();
-    fdGetSelect.right = new FormAttachment(100, 0);
-    fdGetSelect.top = new FormAttachment(wGetSelect, 0);
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
