@@ -1434,36 +1434,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         // If there is one green link: make this one red! (or
         // vice-versa)
         if (nr == 1) {
-          ActionMeta jge = workflowMeta.findNextAction(hopCandidate.getFromAction(), 0);
-          WorkflowHopMeta other = workflowMeta.findWorkflowHop(hopCandidate.getFromAction(), jge);
+          ActionMeta actionMeta = workflowMeta.findNextAction(hopCandidate.getFromAction(), 0);
+          WorkflowHopMeta other =
+              workflowMeta.findWorkflowHop(hopCandidate.getFromAction(), actionMeta);
           if (other != null) {
             hopCandidate.setEvaluation(!other.isEvaluation());
           }
         }
       }
 
-      if (checkIfHopAlreadyExists(workflowMeta, hopCandidate)) {
-        boolean cancel = false;
-        workflowMeta.addWorkflowHop(hopCandidate);
-        WorkflowHopMeta theHopCandidate = hopCandidate;
-        if (workflowMeta.hasLoop(hopCandidate.getToAction())) {
-          workflowMeta.removeWorkflowHop(theHopCandidate);
-          startHopAction = null;
-          MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_WARNING);
-          mb.setMessage(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message"));
-          mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title"));
-          mb.open();
-          cancel = true;
-        }
-        if (!cancel) {
-          hopGui.undoDelegate.addUndoNew(
-              workflowMeta,
-              new WorkflowHopMeta[] {hopCandidate},
-              new int[] {workflowMeta.indexOfWorkflowHop(hopCandidate)});
-        }
-        clearSettings();
-        redraw();
-      }
+      // Stop drawing the hop candidate
+      startHopAction = null;
+
+      workflowHopDelegate.newHop(workflowMeta, hopCandidate);
+      clearSettings();
     }
   }
 
