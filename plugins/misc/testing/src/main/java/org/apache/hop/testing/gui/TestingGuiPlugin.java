@@ -558,7 +558,10 @@ public class TestingGuiPlugin {
   @GuiContextActionFilter(parentId = HopGuiPipelineTransformContext.CONTEXT_ID)
   public boolean filterTestingActions(
       String contextActionId, HopGuiPipelineTransformContext context) {
-    PipelineUnitTest currentTest = getCurrentUnitTest(context.getPipelineMeta());
+    // Get the unit test directly from the pipeline graph context
+    // Using getCurrentUnitTest(pipelineMeta) doesn't work in web/RAP mode because
+    // it looks for the pipeline in HopGui.getExplorerPerspective().getItems()
+    PipelineUnitTest currentTest = getUnitTestFromContext(context);
 
     // Input & golden data set handling
     //
@@ -603,6 +606,22 @@ public class TestingGuiPlugin {
     }
 
     return true;
+  }
+
+  /**
+   * Get the active unit test directly from the pipeline graph context. This method is used by
+   * filterTestingActions as an alternative to getCurrentUnitTest(pipelineMeta) which doesn't work
+   * in web/RAP mode because it relies on HopGui.getExplorerPerspective().getItems().
+   *
+   * @param context The pipeline transform context
+   * @return The active PipelineUnitTest or null if none is active
+   */
+  private PipelineUnitTest getUnitTestFromContext(HopGuiPipelineTransformContext context) {
+    Map<String, Object> stateMap = context.getPipelineGraph().getStateMap();
+    if (stateMap == null) {
+      return null;
+    }
+    return (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
   }
 
   /** Create a new data set with the output from */
