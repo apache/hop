@@ -25,7 +25,6 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
-import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
@@ -46,15 +45,21 @@ public class HopGuiFlagUnitTestExtensionPoint implements IExtensionPoint<Pipelin
   public void callExtensionPoint(ILogChannel log, IVariables variables, PipelineMeta pipelineMeta)
       throws HopException {
 
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest(pipelineMeta);
-    if (unitTest == null) {
-      return;
-    }
-
     // Look up the variables of the current active pipeline graph...
     //
     HopGuiPipelineGraph activePipelineGraph = HopGui.getActivePipelineGraph();
     if (activePipelineGraph == null) {
+      return;
+    }
+
+    // Get unit test directly from the pipeline graph's state map (works in both desktop and web/RAP
+    // mode)
+    PipelineUnitTest unitTest = null;
+    java.util.Map<String, Object> stateMap = activePipelineGraph.getStateMap();
+    if (stateMap != null) {
+      unitTest = (PipelineUnitTest) stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+    }
+    if (unitTest == null) {
       return;
     }
 

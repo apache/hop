@@ -162,10 +162,10 @@ public class TestingGuiPlugin {
     PipelineMeta pipelineMeta = context.getPipelineMeta();
     TransformMeta transformMeta = context.getTransformMeta();
 
-    if (checkTestPresent(hopGui, pipelineMeta)) {
+    if (checkTestPresent(hopGui, context)) {
       return;
     }
-    PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
+    PipelineUnitTest unitTest = getUnitTestFromContext(context);
 
     try {
 
@@ -311,12 +311,12 @@ public class TestingGuiPlugin {
     TransformMeta transformMeta = context.getTransformMeta();
     IVariables variables = context.getPipelineGraph().getVariables();
 
-    if (checkTestPresent(hopGui, pipelineMeta)) {
+    if (checkTestPresent(hopGui, context)) {
       return;
     }
 
     try {
-      PipelineUnitTest currentUnitTest = getCurrentUnitTest(pipelineMeta);
+      PipelineUnitTest currentUnitTest = getUnitTestFromContext(context);
 
       PipelineUnitTestSetLocation inputLocation =
           currentUnitTest.findInputLocation(transformMeta.getName());
@@ -338,9 +338,9 @@ public class TestingGuiPlugin {
     }
   }
 
-  private boolean checkTestPresent(HopGui hopGui, PipelineMeta pipelineMeta) {
-
-    PipelineUnitTest activeTest = getCurrentUnitTest(pipelineMeta);
+  private boolean checkTestPresent(HopGui hopGui, HopGuiPipelineTransformContext context) {
+    // Get the unit test directly from the pipeline graph context (works in web/RAP mode)
+    PipelineUnitTest activeTest = getUnitTestFromContext(context);
     if (activeTest != null) {
       return false;
     }
@@ -376,10 +376,10 @@ public class TestingGuiPlugin {
     HopGui hopGui = HopGui.getInstance();
     IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
 
-    if (checkTestPresent(hopGui, sourcePipelineMeta)) {
+    if (checkTestPresent(hopGui, context)) {
       return;
     }
-    PipelineUnitTest unitTest = getCurrentUnitTest(sourcePipelineMeta);
+    PipelineUnitTest unitTest = getUnitTestFromContext(context);
 
     try {
       // Create a copy and modify the pipeline
@@ -528,12 +528,12 @@ public class TestingGuiPlugin {
     TransformMeta transformMeta = context.getTransformMeta();
     IVariables variables = context.getPipelineGraph().getVariables();
 
-    if (checkTestPresent(hopGui, pipelineMeta)) {
+    if (checkTestPresent(hopGui, context)) {
       return;
     }
 
     try {
-      PipelineUnitTest currentUnitTest = getCurrentUnitTest(pipelineMeta);
+      PipelineUnitTest currentUnitTest = getUnitTestFromContext(context);
 
       PipelineUnitTestSetLocation goldenLocation =
           currentUnitTest.findGoldenLocation(transformMeta.getName());
@@ -668,7 +668,7 @@ public class TestingGuiPlugin {
               hopGui.getShell());
       if (manager.newMetadata(dataSet) != null) {
 
-        PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
+        PipelineUnitTest unitTest = getUnitTestFromContext(context);
         if (unitTest == null) {
           return;
         }
@@ -1224,9 +1224,7 @@ public class TestingGuiPlugin {
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void enableTweakRemoveTransformInUnitTest(HopGuiPipelineTransformContext context) {
-    IVariables variables = context.getPipelineGraph().getVariables();
-    tweakRemoveTransformInUnitTest(
-        variables, context.getPipelineMeta(), context.getTransformMeta(), true);
+    tweakRemoveTransformInUnitTest(context, true);
   }
 
   @GuiContextAction(
@@ -1239,20 +1237,12 @@ public class TestingGuiPlugin {
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void disableTweakRemoveTransformInUnitTest(HopGuiPipelineTransformContext context) {
-    tweakRemoveTransformInUnitTest(
-        context.getPipelineGraph().getVariables(),
-        context.getPipelineMeta(),
-        context.getTransformMeta(),
-        false);
+    tweakRemoveTransformInUnitTest(context, false);
   }
 
-  public void tweakRemoveTransformInUnitTest(
-      IVariables variables,
-      PipelineMeta pipelineMeta,
-      TransformMeta transformMeta,
-      boolean enable) {
-    tweakUnitTestTransform(
-        variables, pipelineMeta, transformMeta, PipelineTweak.REMOVE_TRANSFORM, enable);
+  private void tweakRemoveTransformInUnitTest(
+      HopGuiPipelineTransformContext context, boolean enable) {
+    tweakUnitTestTransform(context, PipelineTweak.REMOVE_TRANSFORM, enable);
   }
 
   @GuiContextAction(
@@ -1265,11 +1255,7 @@ public class TestingGuiPlugin {
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void enableTweakBypassTransformInUnitTest(HopGuiPipelineTransformContext context) {
-    tweakBypassTransformInUnitTest(
-        context.getPipelineGraph().getVariables(),
-        context.getPipelineMeta(),
-        context.getTransformMeta(),
-        true);
+    tweakBypassTransformInUnitTest(context, true);
   }
 
   @GuiContextAction(
@@ -1282,39 +1268,31 @@ public class TestingGuiPlugin {
       category = "i18n::TestingGuiPlugin.Category",
       categoryOrder = "8")
   public void disableTweakBypassTransformInUnitTest(HopGuiPipelineTransformContext context) {
-    tweakBypassTransformInUnitTest(
-        context.getPipelineGraph().getVariables(),
-        context.getPipelineMeta(),
-        context.getTransformMeta(),
-        false);
+    tweakBypassTransformInUnitTest(context, false);
   }
 
-  public void tweakBypassTransformInUnitTest(
-      IVariables variables,
-      PipelineMeta pipelineMeta,
-      TransformMeta transformMeta,
-      boolean enable) {
-    tweakUnitTestTransform(
-        variables, pipelineMeta, transformMeta, PipelineTweak.BYPASS_TRANSFORM, enable);
+  private void tweakBypassTransformInUnitTest(
+      HopGuiPipelineTransformContext context, boolean enable) {
+    tweakUnitTestTransform(context, PipelineTweak.BYPASS_TRANSFORM, enable);
   }
 
   private void tweakUnitTestTransform(
-      IVariables variables,
-      PipelineMeta pipelineMeta,
-      TransformMeta transformMeta,
-      PipelineTweak tweak,
-      boolean enable) {
+      HopGuiPipelineTransformContext context, PipelineTweak tweak, boolean enable) {
     HopGui hopGui = HopGui.getInstance();
     IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+    PipelineMeta pipelineMeta = context.getPipelineMeta();
+    TransformMeta transformMeta = context.getTransformMeta();
+    IVariables variables = context.getPipelineGraph().getVariables();
+
     if (transformMeta == null || pipelineMeta == null) {
       return;
     }
-    if (checkTestPresent(hopGui, pipelineMeta)) {
+    if (checkTestPresent(hopGui, context)) {
       return;
     }
 
     try {
-      PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
+      PipelineUnitTest unitTest = getUnitTestFromContext(context);
       PipelineUnitTestTweak unitTestTweak = unitTest.findTweak(transformMeta.getName());
       if (unitTestTweak != null) {
         unitTest.getTweaks().remove(unitTestTweak);
@@ -1327,7 +1305,7 @@ public class TestingGuiPlugin {
 
       selectUnitTest(pipelineMeta, unitTest);
 
-      hopGui.getActiveFileTypeHandler().updateGui();
+      context.getPipelineGraph().updateGui();
     } catch (Exception exception) {
       new ErrorDialog(
           hopGui.getShell(),

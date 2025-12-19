@@ -32,7 +32,6 @@ import org.apache.hop.pipeline.PipelinePainterExtension;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
-import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 
 @ExtensionPoint(
@@ -48,7 +47,11 @@ public class DrawInputDataSetOnTransformExtensionPoint
     TransformMeta transformMeta = ext.transformMeta;
     PipelineMeta pipelineMeta = ext.pipelineMeta;
 
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest(pipelineMeta);
+    // Get unit test directly from stateMap (works in both desktop and web/RAP mode)
+    PipelineUnitTest unitTest = null;
+    if (ext.stateMap != null) {
+      unitTest = (PipelineUnitTest) ext.stateMap.get(DataSetConst.STATE_KEY_ACTIVE_UNIT_TEST);
+    }
     if (unitTest != null) {
       drawInputDataSetMarker(ext, transformMeta, unitTest, ext.areaOwners);
     }

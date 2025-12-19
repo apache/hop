@@ -26,8 +26,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
-import org.apache.hop.testing.PipelineUnitTest;
-import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 
 @ExtensionPoint(
@@ -54,21 +52,17 @@ public class HopGuiFlagPipelineForUnitTestExtensionPoint
       return;
     }
 
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest(pipeline.getPipelineMeta());
-    if (unitTest == null) {
-      return;
-    }
+    // The unit test variables should already be set by HopGuiFlagUnitTestExtensionPoint
+    // Just pass them through to the pipeline engine
+    String runUnitTest = variables.getVariable(DataSetConst.VAR_RUN_UNIT_TEST);
+    String unitTestName = variables.getVariable(DataSetConst.VAR_UNIT_TEST_NAME);
 
-    String unitTestName = unitTest.getName();
-
-    if (!StringUtil.isEmpty(unitTestName)) {
+    if ("Y".equalsIgnoreCase(runUnitTest) && !StringUtil.isEmpty(unitTestName)) {
       // We found the variables in the GUI and pass them to the pipeline right before (prepare)
       // execution
       //
-      pipeline.setVariable(
-          DataSetConst.VAR_RUN_UNIT_TEST, variables.getVariable(DataSetConst.VAR_RUN_UNIT_TEST));
-      pipeline.setVariable(
-          DataSetConst.VAR_UNIT_TEST_NAME, variables.getVariable(DataSetConst.VAR_UNIT_TEST_NAME));
+      pipeline.setVariable(DataSetConst.VAR_RUN_UNIT_TEST, runUnitTest);
+      pipeline.setVariable(DataSetConst.VAR_UNIT_TEST_NAME, unitTestName);
     }
   }
 }
