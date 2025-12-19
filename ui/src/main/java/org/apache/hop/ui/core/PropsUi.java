@@ -526,7 +526,9 @@ public class PropsUi extends Props {
    */
   private static void ensureSafeRenderer(CTabFolder tabFolder) {
     // CTabFolderRenderer and SafeCTabFolderRenderer are not available in RAP (web mode),
-    // so skip entirely to avoid NoClassDefFoundError
+    // so skip entirely. The class is also removed from the hop-ui JAR during Docker build.
+    // Use reflection to avoid compile-time class resolution that would cause NoClassDefFoundError
+    // in web mode when the class doesn't exist in the JAR.
     if (EnvironmentUtils.getInstance().isWeb()) {
       return;
     }
@@ -534,27 +536,16 @@ public class PropsUi extends Props {
     if (Const.isLinux()) {
       try {
         // Use reflection to avoid compile-time dependency on SafeCTabFolderRenderer
-        // This prevents NoClassDefFoundError in web mode where CTabFolderRenderer doesn't exist
+        // This prevents Java's bytecode verifier from trying to resolve the class at load time
         Class<?> rendererClass = Class.forName("org.apache.hop.ui.core.SafeCTabFolderRenderer");
         Object currentRenderer = tabFolder.getRenderer();
-        // Check if already using SafeCTabFolderRenderer using reflection
         if (currentRenderer == null || !rendererClass.isInstance(currentRenderer)) {
           Object safeRenderer =
               rendererClass.getConstructor(CTabFolder.class).newInstance(tabFolder);
-          // Use reflection to call setRenderer to avoid compile-time dependency on
-          // CTabFolderRenderer
-          // Find the setRenderer method by iterating (avoids Class.forName on CTabFolderRenderer)
-          java.lang.reflect.Method[] methods = CTabFolder.class.getMethods();
-          for (java.lang.reflect.Method m : methods) {
-            if ("setRenderer".equals(m.getName()) && m.getParameterCount() == 1) {
-              m.invoke(tabFolder, safeRenderer);
-              break;
-            }
-          }
+          tabFolder.setRenderer((org.eclipse.swt.custom.CTabFolderRenderer) safeRenderer);
         }
       } catch (Exception e) {
-        // If SafeCTabFolderRenderer can't be loaded (shouldn't happen in desktop mode),
-        // just continue without the safe renderer
+        // If SafeCTabFolderRenderer can't be loaded, just continue without the safe renderer
         LogChannel.GENERAL.logDetailed("Could not apply SafeCTabFolderRenderer: " + e.getMessage());
       }
     }
