@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 /** This class knows how to handle the MetaData for the Json output transform */
 @Transform(
     id = "JsonOutput",
-    image = "JSO.svg",
+    image = "json-output.svg",
     name = "i18n::JsonOutput.name",
     description = "i18n::JsonOutput.description",
     categoryDescription = "i18n::JsonOutput.category",

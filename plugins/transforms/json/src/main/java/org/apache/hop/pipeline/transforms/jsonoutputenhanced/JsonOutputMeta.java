@@ -42,7 +42,7 @@ import org.w3c.dom.Node;
 
 @Transform(
     id = "EnhancedJsonOutput",
-    image = "JSO.svg",
+    image = "json-output.svg",
     name = "i18n::EnhancedJsonOutput.name",
     description = "i18n::EnhancedJsonOutput.description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
