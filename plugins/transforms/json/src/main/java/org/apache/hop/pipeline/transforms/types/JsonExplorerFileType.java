@@ -33,7 +33,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     id = "JsonExplorerFileType",
     name = "JSON File Type",
     description = "JSON file handling in the explorer perspective",
-    image = "json.svg")
+    image = "json-file.svg")
 public class JsonExplorerFileType extends BaseTextExplorerFileType<JsonExplorerFileTypeHandler> {
 
   public JsonExplorerFileType() {

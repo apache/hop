@@ -55,7 +55,7 @@ import org.w3c.dom.Node;
 /** Store run-time data on the JsonInput transform. */
 @Transform(
     id = "JsonInput",
-    image = "JSI.svg",
+    image = "json-input.svg",
     documentationUrl = "/pipeline/transforms/jsoninput.html",
     name = "i18n::JsonInput.name",
     description = "i18n::JsonInput.description",
