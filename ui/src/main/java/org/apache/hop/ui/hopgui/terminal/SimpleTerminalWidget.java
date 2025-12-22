@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Text;
  * </ul>
  *
  * <p>Use this for reliable command execution. For advanced features like tab completion and full
- * shell prompts, use {@link TerminalWidget} instead.
+ * shell prompts, use {@link JediTerminalWidget} instead.
  */
 public class SimpleTerminalWidget implements ITerminalWidget {
 
@@ -244,7 +244,6 @@ public class SimpleTerminalWidget implements ITerminalWidget {
     try {
       // Detect shell
       shellPath = detectShell();
-      log.logBasic("Simple Terminal: Starting shell: " + shellPath);
 
       // Create process
       ProcessBuilder processBuilder = new ProcessBuilder(shellPath);

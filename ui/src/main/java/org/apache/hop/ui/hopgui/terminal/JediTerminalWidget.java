@@ -48,8 +48,7 @@ import org.eclipse.swt.widgets.Composite;
  * <p>Uses JetBrains JediTerm library for full VT100/xterm emulation. This is embedded via SWT_AWT
  * bridge.
  *
- * <p>This is a proof-of-concept to evaluate JediTerm as a replacement for the custom PTY
- * implementation. Can easily switch back to TerminalWidget if needed.
+ * <p>Uses JetBrains JediTerm library for full VT100/xterm emulation with PTY support.
  */
 public class JediTerminalWidget implements ITerminalWidget {
 
@@ -125,8 +124,6 @@ public class JediTerminalWidget implements ITerminalWidget {
                 }
               });
         });
-
-    log.logBasic("JediTerm widget created with " + (isDarkMode ? "dark" : "light") + " theme");
   }
 
   /** Create a SettingsProvider that respects Hop's dark mode setting */
@@ -186,8 +183,6 @@ public class JediTerminalWidget implements ITerminalWidget {
       jediTermWidget.setTtyConnector(ttyConnector);
       jediTermWidget.start();
 
-      log.logBasic("JediTerm started: " + shellPath + " in " + workingDirectory);
-
     } catch (Exception e) {
       log.logError("Error starting JediTerm shell process", e);
     }
@@ -219,7 +214,6 @@ public class JediTerminalWidget implements ITerminalWidget {
       // Dispose SWT/AWT widgets immediately (must be on UI thread, but is fast)
       if (bridgeComposite != null && !bridgeComposite.isDisposed()) {
         bridgeComposite.dispose(); // This also disposes awtFrame
-        log.logBasic("JediTerm widgets disposed");
       }
 
       // Clean up PTY/terminal in background (can be slow, don't block)
@@ -239,7 +233,6 @@ public class JediTerminalWidget implements ITerminalWidget {
                   if (process != null && process.isAlive()) {
                     process.destroy();
                   }
-                  log.logBasic("JediTerm PTY cleaned up");
                 } catch (Exception e) {
                   log.logError("Error cleaning up JediTerm PTY", e);
                 }

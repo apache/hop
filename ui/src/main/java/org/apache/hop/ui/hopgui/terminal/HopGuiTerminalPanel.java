@@ -173,7 +173,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     fdTabs.bottom = new FormAttachment(100, 0);
     terminalTabs.setLayoutData(fdTabs);
 
-    // Add toolbar with panel controls (maximize, split orientation, close)
+    // Add toolbar with panel controls (maximize, close)
     createTerminalToolbar();
 
     // Create a special "+" tab that acts as a button to create new terminals
@@ -227,7 +227,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
                   composite.forceFocus();
                 }
               } else if (widget.getOutputText() != null && !widget.getOutputText().isDisposed()) {
-                // For TerminalWidget (PTY), focus the StyledText
+                // For terminals with StyledText output, focus the StyledText
                 widget.getOutputText().forceFocus();
               } else if (widget instanceof SimpleTerminalWidget) {
                 // For SimpleTerminalWidget in web mode, focus the output control
@@ -336,30 +336,25 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     PropsUi props = PropsUi.getInstance();
     ITerminalWidget terminalWidget;
 
-    // Debug: Log configuration state
-    boolean isWeb = EnvironmentUtils.getInstance().isWeb();
-    hopGui
-        .getLog()
-        .logDebug("Terminal config - useJediTerm: " + props.useJediTerm() + ", isWeb: " + isWeb);
-
     // JediTerm uses SWT_AWT bridge which doesn't work in RAP/web mode
     // Force simple terminal in web mode regardless of configuration
+    boolean isWeb = EnvironmentUtils.getInstance().isWeb();
     if (isWeb) {
       // Web mode: always use simple terminal (JediTerm not available in RAP)
-      hopGui.getLog().logBasic("Hop Web detected, using Simple Terminal Console");
       terminalWidget = new SimpleTerminalWidget(terminalWidgetComposite, workingDirectory);
     } else if (props.useJediTerm()) {
       // JediTerm (default) - JetBrains terminal emulator (desktop only)
-      hopGui.getLog().logBasic("Creating JediTerm Terminal");
       terminalWidget = new JediTerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
     } else {
       // Simple ProcessBuilder-based console
-      hopGui.getLog().logBasic("Creating Simple Terminal Console");
       terminalWidget = new SimpleTerminalWidget(terminalWidgetComposite, workingDirectory);
     }
 
     // Store widget in tab data for later access
     terminalTab.setData("terminalWidget", terminalWidget);
+
+    // Update tab text with terminal type indicator
+    updateTabTextWithTerminalType(terminalTab, terminalWidget);
 
     // Register in audit system for persistence
     registerTerminal(terminalId, workingDirectory, shellPath);
@@ -427,6 +422,35 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     }
 
     return shellPath;
+  }
+
+  /**
+   * Update tab text with terminal type indicator (JediTerm or Simple)
+   *
+   * @param terminalTab The tab item to update
+   * @param terminalWidget The terminal widget instance
+   */
+  private void updateTabTextWithTerminalType(CTabItem terminalTab, ITerminalWidget terminalWidget) {
+    if (terminalTab == null || terminalWidget == null) {
+      return;
+    }
+
+    String currentText = terminalTab.getText();
+    String indicator;
+
+    if (terminalWidget instanceof JediTerminalWidget) {
+      indicator = " [JT]";
+    } else if (terminalWidget instanceof SimpleTerminalWidget) {
+      indicator = " [Simple]";
+    } else {
+      // Unknown type, don't add indicator
+      return;
+    }
+
+    // Only add indicator if it's not already present (to avoid duplicates)
+    if (!currentText.contains(indicator)) {
+      terminalTab.setText(currentText + indicator);
+    }
   }
 
   /** Show the terminal panel */
@@ -612,7 +636,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     return items;
   }
 
-  /** Create toolbar with panel controls (maximize/minimize, split orientation, close) */
+  /** Create toolbar with panel controls (maximize/minimize, close) */
   private void createTerminalToolbar() {
     ToolBar toolBar = new ToolBar(terminalTabs, SWT.FLAT);
     terminalTabs.setTopRight(toolBar, SWT.RIGHT);
@@ -763,16 +787,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       return;
     }
 
-    int currentCount = terminalTabs.getItemCount() - 1; // Exclude + tab
-    hopGui
-        .getLog()
-        .logBasic(
-            "Clearing "
-                + currentCount
-                + " terminal(s) for project switch (namespace: "
-                + HopNamespace.getNamespace()
-                + ")");
-
     // Set flag to prevent + tab from creating terminals during cleanup
     isClearing = true;
 
@@ -787,8 +801,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           itemsToClose.add(item);
         }
       }
-
-      hopGui.getLog().logBasic("Found " + itemsToClose.size() + " terminal(s) to close");
 
       // Close each terminal tab (widgets dispose on UI thread automatically now)
       for (CTabItem item : itemsToClose) {
@@ -805,8 +817,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       if (terminalVisible) {
         hideTerminal();
       }
-
-      hopGui.getLog().logBasic("Cleared " + itemsToClose.size() + " terminal tab(s)");
     } finally {
       // Always clear the flag
       isClearing = false;
@@ -839,20 +849,15 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         // Resolve in case it contains other variables
         projectHome = hopGui.getVariables().resolve(projectHome);
         if (StringUtils.isNotEmpty(projectHome)) {
-          hopGui
-              .getLog()
-              .logDebug("Using project home as terminal working directory: " + projectHome);
           return projectHome;
         }
       }
     } catch (Exception e) {
-      hopGui.getLog().logDebug("Could not get project home directory, using user home", e);
+      // Ignore - fall back to user home
     }
 
     // Fallback to user home directory
-    String userHome = System.getProperty("user.home");
-    hopGui.getLog().logDebug("Using user home as terminal working directory: " + userHome);
-    return userHome;
+    return System.getProperty("user.home");
   }
 
   /** Restore terminals from previous session */
@@ -868,20 +873,8 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         }
       }
 
-      hopGui
-          .getLog()
-          .logBasic(
-              "Restoring terminals for namespace: "
-                  + namespace
-                  + " (existing: "
-                  + existingCount
-                  + ")");
-
       // If terminals already exist, don't restore (avoid duplicates)
       if (existingCount > 0) {
-        hopGui
-            .getLog()
-            .logBasic("Skipping restore - terminals already open (" + existingCount + " tabs)");
         return;
       }
 
@@ -889,17 +882,8 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       AuditList auditList = AuditManager.getActive().retrieveList(namespace, TERMINAL_AUDIT_TYPE);
 
       if (auditList.getNames().isEmpty()) {
-        hopGui.getLog().logBasic("No terminals to restore for project: " + namespace);
         return;
       }
-
-      hopGui
-          .getLog()
-          .logBasic(
-              "Found "
-                  + auditList.getNames().size()
-                  + " terminal(s) to restore for project: "
-                  + namespace);
 
       // Get the state map (custom tab names, etc.)
       AuditStateMap stateMap;
@@ -913,7 +897,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       }
 
       for (String terminalId : auditList.getNames()) {
-        hopGui.getLog().logDebug("Restoring terminal ID: " + terminalId);
         // Get terminal state (tab name, working dir, shell path)
         String customTabName = null;
         String workingDir = null;
@@ -936,6 +919,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         }
 
         // Create terminal with stored state
+        // Note: createNewTerminal will automatically add terminal type indicator
         createNewTerminal(workingDir, shellPath, customTabName);
       }
     } catch (Exception e) {
