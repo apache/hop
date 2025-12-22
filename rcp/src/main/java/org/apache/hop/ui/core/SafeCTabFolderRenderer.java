@@ -115,4 +115,3 @@ public class SafeCTabFolderRenderer extends CTabFolderRenderer {
     }
   }
 }
-
