@@ -92,6 +92,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   private static final String STATE_TAB_NAME = "tabName";
   private static final String STATE_SHELL_PATH = "shellPath";
   private static final String STATE_WORKING_DIR = "workingDirectory";
+  private static final String STATE_TERMINAL_TYPE = "terminalType";
 
   /**
    * Constructor - Creates the terminal panel structure
@@ -296,6 +297,19 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
    * @param customTabName Optional custom tab name (null for auto-generated)
    */
   public void createNewTerminal(String workingDirectory, String shellPath, String customTabName) {
+    createNewTerminal(workingDirectory, shellPath, customTabName, null);
+  }
+
+  /**
+   * Create a new terminal tab with custom name and terminal type
+   *
+   * @param workingDirectory Optional working directory (null for user home)
+   * @param shellPath Optional shell path (null for auto-detect)
+   * @param customTabName Optional custom tab name (null for auto-generated)
+   * @param terminalType Optional terminal type ("JediTerm" or "Simple", null to use config default)
+   */
+  public void createNewTerminal(
+      String workingDirectory, String shellPath, String customTabName, String terminalType) {
     // Detect shell if not specified
     if (shellPath == null) {
       shellPath = TerminalShellDetector.detectDefaultShell();
@@ -332,21 +346,27 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     terminalWidgetComposite.setLayout(new FormLayout());
     terminalTab.setControl(terminalWidgetComposite);
 
-    // Create terminal widget based on configuration
+    // Create terminal widget based on saved type or configuration
     PropsUi props = PropsUi.getInstance();
     ITerminalWidget terminalWidget;
 
     // JediTerm uses SWT_AWT bridge which doesn't work in RAP/web mode
-    // Force simple terminal in web mode regardless of configuration
+    // Force simple terminal in web mode regardless of configuration or saved type
     boolean isWeb = EnvironmentUtils.getInstance().isWeb();
     if (isWeb) {
       // Web mode: always use simple terminal (JediTerm not available in RAP)
       terminalWidget = new SimpleTerminalWidget(terminalWidgetComposite, workingDirectory);
+    } else if (terminalType != null && terminalType.equals("JediTerm")) {
+      // Use saved terminal type (JediTerm)
+      terminalWidget = new JediTerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
+    } else if (terminalType != null && terminalType.equals("Simple")) {
+      // Use saved terminal type (Simple)
+      terminalWidget = new SimpleTerminalWidget(terminalWidgetComposite, workingDirectory);
     } else if (props.useJediTerm()) {
-      // JediTerm (default) - JetBrains terminal emulator (desktop only)
+      // Use configuration default (JediTerm)
       terminalWidget = new JediTerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
     } else {
-      // Simple ProcessBuilder-based console
+      // Use configuration default (Simple)
       terminalWidget = new SimpleTerminalWidget(terminalWidgetComposite, workingDirectory);
     }
 
@@ -753,11 +773,19 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         if (terminalId != null) {
           terminalIds.add(terminalId);
 
-          // Save terminal state (tab name, working dir, shell path)
+          // Save terminal state (tab name, working dir, shell path, terminal type)
           java.util.Map<String, Object> state = new java.util.HashMap<>();
           state.put(STATE_TAB_NAME, item.getText());
           state.put(STATE_WORKING_DIR, item.getData("workingDirectory"));
           state.put(STATE_SHELL_PATH, item.getData("shellPath"));
+
+          // Save terminal type (Simple or JediTerm)
+          ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
+          if (widget != null) {
+            String terminalType = widget instanceof JediTerminalWidget ? "JediTerm" : "Simple";
+            state.put(STATE_TERMINAL_TYPE, terminalType);
+          }
+
           stateMap.add(new AuditState(terminalId, state));
         }
       }
@@ -897,10 +925,11 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       }
 
       for (String terminalId : auditList.getNames()) {
-        // Get terminal state (tab name, working dir, shell path)
+        // Get terminal state (tab name, working dir, shell path, terminal type)
         String customTabName = null;
         String workingDir = null;
         String shellPath = null;
+        String terminalType = null;
 
         AuditState state = stateMap.get(terminalId);
         if (state != null && state.getStateMap() != null) {
@@ -916,11 +945,15 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           if (shellPathObj != null) {
             shellPath = shellPathObj.toString();
           }
+          Object terminalTypeObj = state.getStateMap().get(STATE_TERMINAL_TYPE);
+          if (terminalTypeObj != null) {
+            terminalType = terminalTypeObj.toString();
+          }
         }
 
-        // Create terminal with stored state
+        // Create terminal with stored state (including terminal type)
         // Note: createNewTerminal will automatically add terminal type indicator
-        createNewTerminal(workingDir, shellPath, customTabName);
+        createNewTerminal(workingDir, shellPath, customTabName, terminalType);
       }
     } catch (Exception e) {
       hopGui.getLog().logError("Error restoring terminals", e);
