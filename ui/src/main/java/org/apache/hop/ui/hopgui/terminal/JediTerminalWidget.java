@@ -239,7 +239,15 @@ public class JediTerminalWidget implements ITerminalWidget {
     if (Const.isWindows()) {
       // Windows: PowerShell or cmd
       if (shell.toLowerCase().contains("powershell")) {
-        return new String[] {shell, "-NoLogo"};
+        // Use -NoLogo and -NoExit with -Command to set colors and keep PowerShell interactive
+        // This prevents PowerShell's default yellow text color which is hard to read on white
+        return new String[] {
+          shell,
+          "-NoLogo",
+          "-NoExit",
+          "-Command",
+          "$Host.UI.RawUI.ForegroundColor = 'Black'; $Host.UI.RawUI.BackgroundColor = 'White'"
+        };
       } else {
         return new String[] {shell};
       }
