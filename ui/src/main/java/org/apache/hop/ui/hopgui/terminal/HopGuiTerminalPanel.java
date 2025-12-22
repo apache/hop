@@ -662,6 +662,19 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     terminalTabs.setTopRight(toolBar, SWT.RIGHT);
     PropsUi.setLook(toolBar);
 
+    // Explicitly set toolbar background to match tab folder background
+    // This prevents the toolbar from inheriting the terminal's dark blue background
+    // The toolbar is positioned using setTopRight, so it needs an explicit background
+    GuiResource gui = GuiResource.getInstance();
+    if (PropsUi.getInstance().isDarkMode()) {
+      // Dark mode: CTabFolder uses white background, toolbar should match
+      toolBar.setBackground(gui.getColorWhite());
+    } else {
+      // Light mode: Match the CTabFolder's background (typically white or light gray)
+      // Use the same background as the tab folder itself
+      toolBar.setBackground(terminalTabs.getBackground());
+    }
+
     // Maximize/Minimize button
     final ToolItem maximizeItem = new ToolItem(toolBar, SWT.PUSH);
     maximizeItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
