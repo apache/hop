@@ -4230,11 +4230,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     extraViewTabFolder.dispose();
     extraViewTabFolder = null;
 
-    // Notify terminal panel that logs are hidden
-    if (hopGui.getTerminalPanel() != null) {
-      hopGui.getTerminalPanel().hideLogs();
-    }
-
     sashForm.layout();
     sashForm.setWeights(100);
 
@@ -4265,80 +4260,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void rotateExtraView() {
-    // Determine old and new integration states
-    boolean oldOrientation = PropsUi.getInstance().isGraphExtraViewVerticalOrientation();
-    boolean newOrientation = !oldOrientation;
+    // Toggle orientation
+    boolean orientation = !PropsUi.getInstance().isGraphExtraViewVerticalOrientation();
+    PropsUi.getInstance().setGraphExtraViewVerticalOrientation(orientation);
 
-    boolean terminalVisible =
-        hopGui.getTerminalPanel() != null && hopGui.getTerminalPanel().isTerminalVisible();
-
-    // Check WHERE execution results actually ARE (not just where they should be)
-    boolean actuallyIntegrated =
-        extraViewTabFolder != null
-            && hopGui.getTerminalPanel() != null
-            && extraViewTabFolder.getParent() == hopGui.getTerminalPanel().getLogsPlaceholder();
-
-    // Determine where they SHOULD be based on new state
-    boolean shouldBeIntegrated = terminalVisible && !newOrientation;
-
-    // Toggle orientation preference
-    PropsUi.getInstance().setGraphExtraViewVerticalOrientation(newOrientation);
-
-    // If execution results are in wrong parent OR switching between modes, recreate them
-    if (actuallyIntegrated != shouldBeIntegrated && extraViewTabFolder != null) {
-      // Remember that execution results are open
-      boolean wasShowing = extraViewTabFolder != null;
-
-      // Dispose old execution results
-      disposeExtraView();
-
-      // Recreate in correct parent based on new orientation
-      if (wasShowing) {
-        addAllTabs();
-
-        // After recreation, ensure horizontal sash has correct orientation if we're integrated
-        if (shouldBeIntegrated && hopGui.getTerminalPanel() != null) {
-          SashForm horizontalSash = hopGui.getTerminalPanel().getBottomHorizontalSash();
-          // When integrated and horizontal preference, sash should be HORIZONTAL (side-by-side)
-          // When integrated and vertical preference, sash should be VERTICAL (stacked)
-          horizontalSash.setOrientation(newOrientation ? SWT.VERTICAL : SWT.HORIZONTAL);
-          rotateItem.setImage(
-              newOrientation
-                  ? GuiResource.getInstance().getImageRotateRight()
-                  : GuiResource.getInstance().getImageRotateLeft());
-          horizontalSash.layout(true);
-        } else {
-          // Standalone mode - ensure pipeline's sashForm has correct orientation
-          sashForm.setOrientation(newOrientation ? SWT.VERTICAL : SWT.HORIZONTAL);
-          rotateItem.setImage(
-              newOrientation
-                  ? GuiResource.getInstance().getImageRotateRight()
-                  : GuiResource.getInstance().getImageRotateLeft());
-        }
-      }
+    if (orientation) {
+      sashForm.setOrientation(SWT.VERTICAL);
+      rotateItem.setImage(GuiResource.getInstance().getImageRotateRight());
     } else {
-      // Same mode, just rotate the appropriate sashForm
-      if (shouldBeIntegrated) {
-        // Integrated mode: rotate the terminal panel's horizontal sash
-        SashForm horizontalSash = hopGui.getTerminalPanel().getBottomHorizontalSash();
-        if (newOrientation) {
-          horizontalSash.setOrientation(SWT.VERTICAL);
-          rotateItem.setImage(GuiResource.getInstance().getImageRotateRight());
-        } else {
-          horizontalSash.setOrientation(SWT.HORIZONTAL);
-          rotateItem.setImage(GuiResource.getInstance().getImageRotateLeft());
-        }
-        horizontalSash.layout(true);
-      } else {
-        // Standalone mode: rotate the pipeline's own sashForm
-        if (newOrientation) {
-          sashForm.setOrientation(SWT.VERTICAL);
-          rotateItem.setImage(GuiResource.getInstance().getImageRotateRight());
-        } else {
-          sashForm.setOrientation(SWT.HORIZONTAL);
-          rotateItem.setImage(GuiResource.getInstance().getImageRotateLeft());
-        }
-      }
+      sashForm.setOrientation(SWT.HORIZONTAL);
+      rotateItem.setImage(GuiResource.getInstance().getImageRotateLeft());
     }
   }
 
@@ -4348,25 +4279,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
 
-    // Determine where to parent the execution results based on orientation and terminal state
-    Composite logsParent = sashForm; // Default to standalone mode (pipeline's own sashForm)
-    boolean isVertical = PropsUi.getInstance().isGraphExtraViewVerticalOrientation();
-
-    // Only integrate with terminal panel if:
-    // 1. Terminal panel exists
-    // 2. Terminal is visible
-    // 3. Orientation is HORIZONTAL (bottom) - meaning side-by-side with terminal
-    // When orientation is VERTICAL (right), always use standalone mode
-    if (hopGui.getTerminalPanel() != null
-        && hopGui.getTerminalPanel().isTerminalVisible()
-        && !isVertical) {
-      // Integrated mode: render in terminal panel's logs placeholder
-      logsParent = hopGui.getTerminalPanel().getLogsPlaceholder();
-      hopGui.getTerminalPanel().showLogs();
-    }
-
-    // Add a tab folder in the appropriate parent
-    extraViewTabFolder = new CTabFolder(logsParent, SWT.MULTI);
+    // Always use standalone mode - execution results render in pipeline's own sashForm
+    // Add a tab folder in the pipeline's sashForm
+    extraViewTabFolder = new CTabFolder(sashForm, SWT.MULTI);
     PropsUi.setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
 
     // Layout the tab folder to fill its parent
@@ -4420,21 +4335,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
 
-    // Force layout refresh to ensure execution results are visible
-    // Check if we're integrated with terminal panel
-    boolean integratedWithTerminalPanel =
-        hopGui.getTerminalPanel() != null
-            && logsParent == hopGui.getTerminalPanel().getLogsPlaceholder();
-
-    if (integratedWithTerminalPanel) {
-      // Refresh layouts for integrated mode
-      logsParent.layout(true, true);
-      hopGui.getTerminalPanel().getBottomHorizontalSash().layout(true, true);
-      hopGui.getTerminalPanel().layout(true, true);
-    } else {
-      // Refresh layout for standalone mode
-      sashForm.layout(true, true);
-    }
+    // Refresh layout for standalone mode
+    sashForm.layout(true, true);
     sashForm.setWeights(60, 40);
   }
 

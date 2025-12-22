@@ -660,7 +660,8 @@ public class HopGui
       PropsUi.setLook(bottomToolbar, Props.WIDGET_STYLE_TOOLBAR);
       FormData fdBottomToolbar = new FormData();
       fdBottomToolbar.left = new FormAttachment(0, 0);
-      fdBottomToolbar.bottom = new FormAttachment(100, 0);
+      // Add small margin at bottom to create visual separation from project/environment dropdowns
+      fdBottomToolbar.bottom = new FormAttachment(100, -4);
       bottomToolbar.setLayoutData(fdBottomToolbar);
 
       // Execution results toggle button (show/hide logging/metrics/problems)

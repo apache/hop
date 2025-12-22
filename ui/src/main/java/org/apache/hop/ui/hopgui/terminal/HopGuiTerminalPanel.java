@@ -66,9 +66,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       perspectiveComposite; // Where perspectives render (replaces mainPerspectivesComposite)
   private Composite bottomPanelComposite; // Container for bottom panel
 
-  // Bottom panel layout (logs + terminal side-by-side)
-  private SashForm bottomHorizontalSash; // Horizontal split: logs left, terminal right
-  private Composite logsPlaceholder; // Where pipeline/workflow logs render
+  // Bottom panel layout
   private Composite terminalComposite; // Terminal panel container
 
   // Terminal UI components
@@ -77,9 +75,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
   // State
   private boolean terminalVisible = false;
-  private boolean logsVisible = false;
   private int terminalHeightPercent = 35; // Default: 35% of window height
-  private int logsWidthPercent = 50; // Default: 50% width when both visible
   private boolean isClearing = false; // Flag to prevent tab creation during cleanup
 
   // Terminal tab counter for naming and unique IDs
@@ -128,7 +124,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     perspectiveComposite = new Composite(verticalSash, SWT.NONE);
     perspectiveComposite.setLayout(new FormLayout());
 
-    // Bottom part: Container for logs and terminal (side-by-side)
+    // Bottom part: Container for terminal
     bottomPanelComposite = new Composite(verticalSash, SWT.NONE);
     bottomPanelComposite.setLayout(new FormLayout());
     createBottomPanel();
@@ -137,28 +133,20 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     verticalSash.setMaximizedControl(perspectiveComposite);
   }
 
-  /** Create the bottom panel with horizontal sash for logs (left) and terminal (right) */
+  /** Create the bottom panel with terminal */
   private void createBottomPanel() {
-    // Create horizontal sash for side-by-side layout
-    bottomHorizontalSash = new SashForm(bottomPanelComposite, SWT.HORIZONTAL | SWT.SMOOTH);
-    FormData fdHorizontalSash = new FormData();
-    fdHorizontalSash.left = new FormAttachment(0, 0);
-    fdHorizontalSash.top = new FormAttachment(0, 0);
-    fdHorizontalSash.right = new FormAttachment(100, 0);
-    fdHorizontalSash.bottom = new FormAttachment(100, 0);
-    bottomHorizontalSash.setLayoutData(fdHorizontalSash);
-
-    // Left side: Placeholder for pipeline/workflow logs
-    logsPlaceholder = new Composite(bottomHorizontalSash, SWT.NONE);
-    logsPlaceholder.setLayout(new FormLayout());
-
-    // Right side: Terminal area
-    terminalComposite = new Composite(bottomHorizontalSash, SWT.NONE);
+    // Terminal area directly in bottom panel composite
+    terminalComposite = new Composite(bottomPanelComposite, SWT.NONE);
     terminalComposite.setLayout(new FormLayout());
-    createTerminalArea();
 
-    // Initially show only terminal (hide logs placeholder)
-    bottomHorizontalSash.setMaximizedControl(terminalComposite);
+    FormData fdTerminal = new FormData();
+    fdTerminal.left = new FormAttachment(0, 0);
+    fdTerminal.top = new FormAttachment(0, 0);
+    fdTerminal.right = new FormAttachment(100, 0);
+    fdTerminal.bottom = new FormAttachment(100, 0);
+    terminalComposite.setLayoutData(fdTerminal);
+
+    createTerminalArea();
   }
 
   /** Create the terminal area with tab folder */
@@ -481,9 +469,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       verticalSash.setWeights(new int[] {perspectivePercent, terminalHeightPercent});
       terminalVisible = true;
 
-      // Update horizontal sash to show terminal
-      updateBottomPanelLayout();
-
       // Create first terminal if none exist (only + tab present, or count is 0)
       // Count <= 1 means either empty or just the + tab
       if (terminalTabs.getItemCount() <= 1) {
@@ -503,67 +488,9 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   public void hideTerminal() {
     if (terminalVisible) {
       terminalVisible = false;
-
-      // If logs are still visible, show only logs in bottom panel
-      if (logsVisible) {
-        bottomHorizontalSash.setMaximizedControl(logsPlaceholder);
-        // Keep bottom panel visible
-      } else {
-        // Hide entire bottom panel
-        verticalSash.setMaximizedControl(perspectiveComposite);
-      }
-
+      // Hide entire bottom panel
+      verticalSash.setMaximizedControl(perspectiveComposite);
       layout(true, true);
-    }
-  }
-
-  /** Show the logs area (called by pipeline/workflow when showing execution results) */
-  public void showLogs() {
-    if (!logsVisible) {
-      logsVisible = true;
-
-      // Show bottom panel if hidden
-      if (!terminalVisible && verticalSash.getMaximizedControl() != null) {
-        verticalSash.setMaximizedControl(null);
-        int perspectivePercent = 100 - terminalHeightPercent;
-        verticalSash.setWeights(new int[] {perspectivePercent, terminalHeightPercent});
-      }
-
-      // Update horizontal layout
-      updateBottomPanelLayout();
-      layout(true, true);
-    }
-  }
-
-  /** Hide the logs area (called by pipeline/workflow when hiding execution results) */
-  public void hideLogs() {
-    if (logsVisible) {
-      logsVisible = false;
-
-      // Update horizontal layout
-      updateBottomPanelLayout();
-
-      // If terminal also hidden, hide entire bottom panel
-      if (!terminalVisible) {
-        verticalSash.setMaximizedControl(perspectiveComposite);
-      }
-
-      layout(true, true);
-    }
-  }
-
-  /** Update the bottom panel layout based on what's visible */
-  private void updateBottomPanelLayout() {
-    if (logsVisible && terminalVisible) {
-      // Both visible: side-by-side split
-      bottomHorizontalSash.setMaximizedControl(null);
-      bottomHorizontalSash.setWeights(new int[] {logsWidthPercent, 100 - logsWidthPercent});
-    } else if (logsVisible) {
-      // Only logs: full width
-      bottomHorizontalSash.setMaximizedControl(logsPlaceholder);
-    } else if (terminalVisible) {
-      // Only terminal: full width
-      bottomHorizontalSash.setMaximizedControl(terminalComposite);
     }
   }
 
@@ -981,27 +908,9 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     return perspectiveComposite;
   }
 
-  /** Check if logs panel is visible */
-  public boolean isLogsVisible() {
-    return logsVisible;
-  }
-
   /** Get the terminal tabs folder (for advanced control if needed) */
   public CTabFolder getTerminalTabs() {
     return terminalTabs;
-  }
-
-  /**
-   * Get the logs placeholder composite where pipeline/workflow logs should render This is the left
-   * side of the horizontal sash in the bottom panel
-   */
-  public Composite getLogsPlaceholder() {
-    return logsPlaceholder;
-  }
-
-  /** Get the horizontal sash (for resizing between logs and terminal) */
-  public SashForm getBottomHorizontalSash() {
-    return bottomHorizontalSash;
   }
 
   /** Set terminal height percentage (default is 35%) */
