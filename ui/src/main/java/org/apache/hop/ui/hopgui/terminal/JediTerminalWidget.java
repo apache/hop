@@ -38,7 +38,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
@@ -131,32 +130,13 @@ public class JediTerminalWidget implements ITerminalWidget {
   /** Create a SettingsProvider that respects Hop's dark mode setting */
   private DefaultSettingsProvider createHopSettingsProvider(
       final boolean isDarkMode, Display display) {
-    // Get Windows system colors if on Windows and not in dark mode
-    RGB windowsBg = null;
-    RGB windowsFg = null;
-    if (Const.isWindows() && !isDarkMode && display != null) {
-      try {
-        // Get Windows system colors for console (white background, black foreground)
-        org.eclipse.swt.graphics.Color bgColor = display.getSystemColor(SWT.COLOR_WHITE);
-        org.eclipse.swt.graphics.Color fgColor = display.getSystemColor(SWT.COLOR_BLACK);
-        if (bgColor != null && fgColor != null) {
-          windowsBg = bgColor.getRGB();
-          windowsFg = fgColor.getRGB();
-        }
-      } catch (Exception e) {
-        // Fall back to defaults if system colors unavailable
-      }
-    }
-
-    final RGB finalWindowsBg = windowsBg;
-    final RGB finalWindowsFg = windowsFg;
-
     return new DefaultSettingsProvider() {
       @Override
       public TerminalColor getDefaultBackground() {
-        if (Const.isWindows() && !isDarkMode && finalWindowsBg != null) {
-          // Windows light mode: Use system white color
-          return new TerminalColor(finalWindowsBg.red, finalWindowsBg.green, finalWindowsBg.blue);
+        if (Const.isWindows() && !isDarkMode) {
+          // Windows light mode: Use black background (traditional terminal look)
+          // This matches PowerShell's black background and provides better contrast
+          return new TerminalColor(0, 0, 0);
         } else if (Const.isWindows() && isDarkMode) {
           // Windows dark mode: dark gray background
           return new TerminalColor(43, 43, 43);
@@ -171,9 +151,10 @@ public class JediTerminalWidget implements ITerminalWidget {
 
       @Override
       public TerminalColor getDefaultForeground() {
-        if (Const.isWindows() && !isDarkMode && finalWindowsFg != null) {
-          // Windows light mode: Use system black color
-          return new TerminalColor(finalWindowsFg.red, finalWindowsFg.green, finalWindowsFg.blue);
+        if (Const.isWindows() && !isDarkMode) {
+          // Windows light mode: Use light gray/white foreground on black background
+          // This provides good contrast and matches traditional terminal appearance
+          return new TerminalColor(200, 200, 200);
         } else if (Const.isWindows() && isDarkMode) {
           // Windows dark mode: light gray foreground
           return new TerminalColor(187, 187, 187);
