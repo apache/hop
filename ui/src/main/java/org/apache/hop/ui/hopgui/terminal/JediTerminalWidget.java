@@ -38,9 +38,11 @@ import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * JediTerm-based terminal widget (POC).
@@ -67,7 +69,7 @@ public class JediTerminalWidget implements ITerminalWidget {
     this.shellPath = shellPath;
     this.workingDirectory = workingDirectory;
 
-    createWidget(parent);
+    createWidget(parent, parent.getDisplay());
 
     // Defer shell process start to avoid blocking UI during terminal creation
     // This significantly improves perceived startup time for the first terminal
@@ -81,7 +83,7 @@ public class JediTerminalWidget implements ITerminalWidget {
             });
   }
 
-  public void createWidget(Composite parent) {
+  public void createWidget(Composite parent, Display display) {
     // Create SWT_AWT bridge composite
     bridgeComposite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
     PropsUi.setLook(bridgeComposite);
@@ -99,7 +101,7 @@ public class JediTerminalWidget implements ITerminalWidget {
 
     // Create JediTerm widget with Hop dark mode support
     boolean isDarkMode = PropsUi.getInstance().isDarkMode();
-    DefaultSettingsProvider settings = createHopSettingsProvider(isDarkMode);
+    DefaultSettingsProvider settings = createHopSettingsProvider(isDarkMode, display);
     jediTermWidget = new JediTermWidget(settings);
     awtFrame.add(jediTermWidget);
 
@@ -127,18 +129,61 @@ public class JediTerminalWidget implements ITerminalWidget {
   }
 
   /** Create a SettingsProvider that respects Hop's dark mode setting */
-  private DefaultSettingsProvider createHopSettingsProvider(final boolean isDarkMode) {
+  private DefaultSettingsProvider createHopSettingsProvider(
+      final boolean isDarkMode, Display display) {
+    // Get Windows system colors if on Windows and not in dark mode
+    RGB windowsBg = null;
+    RGB windowsFg = null;
+    if (Const.isWindows() && !isDarkMode && display != null) {
+      try {
+        // Get Windows system colors for console (white background, black foreground)
+        org.eclipse.swt.graphics.Color bgColor = display.getSystemColor(SWT.COLOR_WHITE);
+        org.eclipse.swt.graphics.Color fgColor = display.getSystemColor(SWT.COLOR_BLACK);
+        if (bgColor != null && fgColor != null) {
+          windowsBg = bgColor.getRGB();
+          windowsFg = fgColor.getRGB();
+        }
+      } catch (Exception e) {
+        // Fall back to defaults if system colors unavailable
+      }
+    }
+
+    final RGB finalWindowsBg = windowsBg;
+    final RGB finalWindowsFg = windowsFg;
+
     return new DefaultSettingsProvider() {
       @Override
       public TerminalColor getDefaultBackground() {
-        // Dark: dark gray (43,43,43), Light: white (255,255,255)
-        return isDarkMode ? new TerminalColor(43, 43, 43) : new TerminalColor(255, 255, 255);
+        if (Const.isWindows() && !isDarkMode && finalWindowsBg != null) {
+          // Windows light mode: Use system white color
+          return new TerminalColor(finalWindowsBg.red, finalWindowsBg.green, finalWindowsBg.blue);
+        } else if (Const.isWindows() && isDarkMode) {
+          // Windows dark mode: dark gray background
+          return new TerminalColor(43, 43, 43);
+        } else if (isDarkMode) {
+          // Mac/Linux dark mode: dark gray background
+          return new TerminalColor(43, 43, 43);
+        } else {
+          // Mac/Linux light mode: white background
+          return new TerminalColor(255, 255, 255);
+        }
       }
 
       @Override
       public TerminalColor getDefaultForeground() {
-        // Dark: light gray (187,187,187), Light: black (0,0,0)
-        return isDarkMode ? new TerminalColor(187, 187, 187) : new TerminalColor(0, 0, 0);
+        if (Const.isWindows() && !isDarkMode && finalWindowsFg != null) {
+          // Windows light mode: Use system black color
+          return new TerminalColor(finalWindowsFg.red, finalWindowsFg.green, finalWindowsFg.blue);
+        } else if (Const.isWindows() && isDarkMode) {
+          // Windows dark mode: light gray foreground
+          return new TerminalColor(187, 187, 187);
+        } else if (isDarkMode) {
+          // Mac/Linux dark mode: light gray foreground
+          return new TerminalColor(187, 187, 187);
+        } else {
+          // Mac/Linux light mode: black foreground
+          return new TerminalColor(0, 0, 0);
+        }
       }
 
       @Override
