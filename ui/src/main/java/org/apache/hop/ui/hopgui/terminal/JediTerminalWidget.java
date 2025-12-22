@@ -134,9 +134,9 @@ public class JediTerminalWidget implements ITerminalWidget {
       @Override
       public TerminalColor getDefaultBackground() {
         if (Const.isWindows() && !isDarkMode) {
-          // Windows light mode: Use black background (traditional terminal look)
-          // This matches PowerShell's black background and provides better contrast
-          return new TerminalColor(0, 0, 0);
+          // Windows light mode: Use PowerShell's default dark blue background (#012456)
+          // RGB(1, 36, 86) matches PowerShell's classic console appearance
+          return new TerminalColor(1, 36, 86);
         } else if (Const.isWindows() && isDarkMode) {
           // Windows dark mode: dark gray background
           return new TerminalColor(43, 43, 43);
@@ -152,9 +152,9 @@ public class JediTerminalWidget implements ITerminalWidget {
       @Override
       public TerminalColor getDefaultForeground() {
         if (Const.isWindows() && !isDarkMode) {
-          // Windows light mode: Use light gray/white foreground on black background
-          // This provides good contrast and matches traditional terminal appearance
-          return new TerminalColor(200, 200, 200);
+          // Windows light mode: Use PowerShell's default light gray foreground (#CCCCCC)
+          // RGB(204, 204, 204) matches PowerShell's classic console text color
+          return new TerminalColor(204, 204, 204);
         } else if (Const.isWindows() && isDarkMode) {
           // Windows dark mode: light gray foreground
           return new TerminalColor(187, 187, 187);
@@ -220,15 +220,9 @@ public class JediTerminalWidget implements ITerminalWidget {
     if (Const.isWindows()) {
       // Windows: PowerShell or cmd
       if (shell.toLowerCase().contains("powershell")) {
-        // Use -NoLogo and -NoExit with -Command to set colors and keep PowerShell interactive
-        // This prevents PowerShell's default yellow text color which is hard to read on white
-        return new String[] {
-          shell,
-          "-NoLogo",
-          "-NoExit",
-          "-Command",
-          "$Host.UI.RawUI.ForegroundColor = 'Black'; $Host.UI.RawUI.BackgroundColor = 'White'"
-        };
+        // Use -NoLogo to skip logo, but let PowerShell use its default colors
+        // The terminal widget's background/foreground colors will match PowerShell's defaults
+        return new String[] {shell, "-NoLogo"};
       } else {
         return new String[] {shell};
       }
