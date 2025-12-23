@@ -190,7 +190,7 @@ public class ModelValidator {
 
   private void readIndexesData(Session session) {
     indexesList =
-        session.readTransaction(
+        session.executeRead(
             transaction -> {
               List<IndexDetails> list = new ArrayList<>();
               Result result = transaction.run("call db.indexes()");
@@ -203,7 +203,7 @@ public class ModelValidator {
 
   private void readConstraintsData(Session session) {
     constraintsList =
-        session.readTransaction(
+        session.executeRead(
             transaction -> {
               List<ConstraintDetails> list = new ArrayList<>();
               Result result = transaction.run("call db.constraints()");

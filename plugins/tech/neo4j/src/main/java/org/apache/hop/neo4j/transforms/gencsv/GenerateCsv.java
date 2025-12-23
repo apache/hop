@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -513,7 +514,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
       List<GraphRelationshipData> relationships,
       List<IdType> props,
       Map<String, Integer> propertyIndexes)
-      throws IOException {
+      throws IOException, HopException {
 
     // Now write the actual rows of data...
     //
@@ -552,9 +553,14 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
           .append(GraphPropertyData.escapeString(relationship.getTargetNodeId()))
           .append('"');
 
-      // Now write the labels for this node
-      //
-      row.append(",").append(relationship.getLabel());
+      // Now write the relationship type/label
+      // Neo4j import requires a valid relationship type - cannot be null
+      String relationshipLabel = relationship.getLabel();
+      if (StringUtils.isEmpty(relationshipLabel)) {
+        throw new HopException(
+            "Relationship label/type cannot be null or empty. All relationships must have a type specified.");
+      }
+      row.append(",").append(relationshipLabel);
       row.append(Const.CR);
 
       // Write it out

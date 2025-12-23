@@ -33,6 +33,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.neo4j.core.GraphUsage;
 import org.apache.hop.neo4j.core.data.GraphData;
 import org.apache.hop.neo4j.core.data.GraphNodeData;
@@ -336,7 +337,15 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       Object valueData = row[nodePropIndexes[i]];
 
       GraphPropertyType propertyType = propertyTypes[i];
-      Object neoValue = propertyType.convertFromHop(valueMeta, valueData);
+      Object neoValue;
+      if (propertyType == GraphPropertyType.Array) {
+        // Use overloaded method with separator and enclosure for Array type
+        String separator = resolve(Const.NVL(meta.getArraySeparator(), ","));
+        String enclosure = resolve(Const.NVL(meta.getArrayEnclosure(), ""));
+        neoValue = propertyType.convertFromHop(valueMeta, valueData, separator, enclosure);
+      } else {
+        neoValue = propertyType.convertFromHop(valueMeta, valueData);
+      }
 
       String propName = "p" + nodePropIndexes[i];
       rowMap.put(propName, neoValue);
@@ -460,6 +469,12 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
 
       // The cypher for the relationship:
       //
+      // Use previousRelationshipLabel (first row of batch) for consistency with node labels
+      // Fallback to relationshipLabel if previousRelationshipLabel is null (first batch)
+      String relationshipLabelToUse =
+          data.previousRelationshipLabel != null
+              ? data.previousRelationshipLabel
+              : data.relationshipLabel;
       String relationshipSetClause = getSetClause("r", meta.getRelProps(), data.relPropIndexes);
       switch (data.relOperationType) {
         case NONE:
@@ -468,23 +483,23 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
           cypher
               .append("MERGE (f)-[")
               .append("r:")
-              .append(data.relationshipLabel)
+              .append(relationshipLabelToUse)
               .append("]->(t) ")
               .append(Const.CR)
               .append(relationshipSetClause)
               .append(Const.CR);
-          updateUsageMap(List.of(data.relationshipLabel), GraphUsage.RELATIONSHIP_UPDATE);
+          updateUsageMap(List.of(relationshipLabelToUse), GraphUsage.RELATIONSHIP_UPDATE);
           break;
         case CREATE:
           cypher
               .append("CREATE (f)-[")
               .append("r:")
-              .append(data.relationshipLabel)
+              .append(relationshipLabelToUse)
               .append("]->(t) ")
               .append(Const.CR)
               .append(getSetClause("r", meta.getRelProps(), data.relPropIndexes))
               .append(Const.CR);
-          updateUsageMap(List.of(data.relationshipLabel), GraphUsage.RELATIONSHIP_CREATE);
+          updateUsageMap(List.of(relationshipLabelToUse), GraphUsage.RELATIONSHIP_CREATE);
           break;
         default:
           break;
@@ -500,9 +515,18 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       }
 
       // Run it always without beginTransaction()...
+      // In Neo4j 5.x, Result must be consumed within the callback
       //
-      Result result = data.session.writeTransaction(tx -> tx.run(data.cypher, properties));
-      processSummary(result);
+      data.session.executeWrite(
+          tx -> {
+            Result result = tx.run(data.cypher, properties);
+            try {
+              processSummary(result);
+            } catch (HopException e) {
+              throw new RuntimeException("Error processing result summary", e);
+            }
+            return null;
+          });
 
       setLinesOutput(getLinesOutput() + data.unwindList.size());
 
@@ -680,8 +704,22 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
           Object valueData = row[data.relPropIndexes[i]];
 
           String propertyName = meta.getRelProps().get(i).getPropertyName();
-          GraphPropertyDataType propertyType = GraphPropertyDataType.getTypeFromHop(valueMeta);
-          Object propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
+          // Use user-selected property type for relationship properties
+          GraphPropertyType userSelectedType =
+              GraphPropertyType.parseCode(meta.getRelProps().get(i).getPropertyType());
+          Object propertyNeoValue;
+          GraphPropertyDataType propertyType;
+          if (userSelectedType == GraphPropertyType.Array) {
+            // Use overloaded method with separator and enclosure for Array type
+            String separator = resolve(Const.NVL(meta.getArraySeparator(), ","));
+            String enclosure = resolve(Const.NVL(meta.getArrayEnclosure(), ""));
+            propertyNeoValue =
+                userSelectedType.convertFromHop(valueMeta, valueData, separator, enclosure);
+            propertyType = GraphPropertyDataType.List; // Array maps to List in Neo4j
+          } else {
+            propertyType = convertGraphPropertyTypeToDataType(userSelectedType);
+            propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
+          }
           boolean propertyPrimary = false;
 
           relationshipData
@@ -732,13 +770,43 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
     //
     for (int i = 0; i < nodeField.getProperties().size(); i++) {
 
-      IValueMeta valueMeta = rowMeta.getValueMeta(i);
-      Object valueData = row[i];
+      PropertyField propertyField = nodeField.getProperties().get(i);
+      String propertyValue = propertyField.getPropertyValue();
 
-      String propertyName = nodeField.getProperties().get(i).getPropertyName();
-      GraphPropertyDataType propertyType = GraphPropertyDataType.getTypeFromHop(valueMeta);
-      Object propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
-      boolean propertyPrimary = nodeField.getProperties().get(i).isPropertyPrimary();
+      // Look up the actual field index in the row using the property value field name
+      int fieldIndex = rowMeta.indexOfValue(propertyValue);
+      if (fieldIndex < 0) {
+        throw new HopException(
+            "Unable to find field '"
+                + propertyValue
+                + "' in input row for node property '"
+                + propertyField.getPropertyName()
+                + "'");
+      }
+
+      IValueMeta valueMeta = rowMeta.getValueMeta(fieldIndex);
+      Object valueData = row[fieldIndex];
+
+      String propertyName = propertyField.getPropertyName();
+      // Use user-selected property type, not auto-detected type
+      GraphPropertyType userSelectedType =
+          GraphPropertyType.parseCode(propertyField.getPropertyType());
+      Object propertyNeoValue;
+      GraphPropertyDataType propertyType;
+      if (userSelectedType == GraphPropertyType.Array) {
+        // Use overloaded method with separator and enclosure for Array type
+        String separator = resolve(Const.NVL(meta.getArraySeparator(), ","));
+        String enclosure = resolve(Const.NVL(meta.getArrayEnclosure(), ""));
+        propertyNeoValue =
+            userSelectedType.convertFromHop(valueMeta, valueData, separator, enclosure);
+        // Map Array to List for GraphPropertyDataType
+        propertyType = GraphPropertyDataType.List;
+      } else {
+        // Convert GraphPropertyType to GraphPropertyDataType
+        propertyType = convertGraphPropertyTypeToDataType(userSelectedType);
+        propertyNeoValue = propertyType.convertFromHop(valueMeta, valueData);
+      }
+      boolean propertyPrimary = propertyField.isPropertyPrimary();
 
       nodeData
           .getProperties()
@@ -746,7 +814,7 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
               new GraphPropertyData(propertyName, propertyNeoValue, propertyType, propertyPrimary));
 
       // Part of the key...
-      if (nodeField.getProperties().get(i).isPropertyPrimary()) {
+      if (propertyPrimary) {
         if (!nodeId.isEmpty()) {
           nodeId.append("-");
         }
@@ -783,7 +851,6 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
                   + metadataProvider.getDescription());
           return false;
         }
-        data.version4 = data.neoConnection.isVersion4();
       } catch (HopException e) {
         logError(
             "Could not gencsv Neo4j connection '"
@@ -972,6 +1039,263 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
       if (StringUtils.isNotEmpty(label)) {
         labelSet.add(label);
       }
+    }
+  }
+
+  /**
+   * Generate preview Cypher template based on meta configuration (without executing it)
+   *
+   * @param meta The Neo4J Output meta configuration
+   * @param variables Variables for resolving values
+   * @return The generated Cypher template statement
+   */
+  public static String generatePreviewCypher(Neo4JOutputMeta meta, IVariables variables) {
+    StringBuilder cypher = new StringBuilder();
+    cypher.append("-- Generated Cypher template (batch processing with UNWIND)").append(Const.CR);
+    cypher
+        .append("-- Note: Actual values come from input rows via $props parameter")
+        .append(Const.CR);
+    cypher.append(Const.CR);
+    cypher.append("UNWIND $props as pr").append(Const.CR);
+    cypher.append(Const.CR);
+
+    // Determine operation types
+    OperationType fromOpType = OperationType.NONE;
+    OperationType toOpType = OperationType.NONE;
+    OperationType relOpType = OperationType.NONE;
+
+    if (!meta.getNodeFromField().getLabels().isEmpty()) {
+      fromOpType = meta.isUsingCreate() ? OperationType.CREATE : OperationType.MERGE;
+    }
+    if (!meta.getNodeToField().getLabels().isEmpty()
+        && !(Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabel())
+            && Utils.isEmpty(meta.getNodeToField().getLabels().get(0).getLabelField()))) {
+      toOpType = meta.isUsingCreate() ? OperationType.CREATE : OperationType.MERGE;
+    }
+    if (StringUtils.isNotEmpty(meta.getRelationship())
+        || StringUtils.isNotEmpty(meta.getRelationshipValue())) {
+      relOpType = meta.isUsingCreate() ? OperationType.CREATE : OperationType.MERGE;
+    }
+
+    // Build 'from' node Cypher
+    if (fromOpType != OperationType.NONE) {
+      // Get static labels or show placeholder
+      String fromLabelsClause =
+          buildPreviewLabelsClause("f", meta.getNodeFromField().getLabels(), variables);
+      String fromMatchClause = buildPreviewMatchClause(meta.getNodeFromField().getProperties());
+
+      switch (fromOpType) {
+        case CREATE:
+          cypher.append("CREATE (").append(fromLabelsClause);
+          if (StringUtils.isNotEmpty(fromMatchClause)) {
+            cypher.append(" ").append(fromMatchClause);
+          }
+          cypher.append(")").append(Const.CR);
+          String fromSetClause =
+              buildPreviewSetClause("f", meta.getNodeFromField().getProperties());
+          if (StringUtils.isNotEmpty(fromSetClause)) {
+            cypher.append(fromSetClause).append(Const.CR);
+          }
+          break;
+        case MERGE:
+          cypher.append("MERGE (").append(fromLabelsClause);
+          if (StringUtils.isNotEmpty(fromMatchClause)) {
+            cypher.append(" ").append(fromMatchClause);
+          }
+          cypher.append(")").append(Const.CR);
+          fromSetClause = buildPreviewSetClause("f", meta.getNodeFromField().getProperties());
+          if (StringUtils.isNotEmpty(fromSetClause)) {
+            cypher.append(fromSetClause).append(Const.CR);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Build 'to' node Cypher
+    if (toOpType != OperationType.NONE) {
+      String toLabelsClause =
+          buildPreviewLabelsClause("t", meta.getNodeToField().getLabels(), variables);
+      String toMatchClause = buildPreviewMatchClause(meta.getNodeToField().getProperties());
+
+      switch (toOpType) {
+        case CREATE:
+          cypher.append("CREATE (").append(toLabelsClause);
+          if (StringUtils.isNotEmpty(toMatchClause)) {
+            cypher.append(" ").append(toMatchClause);
+          }
+          cypher.append(")").append(Const.CR);
+          String toSetClause = buildPreviewSetClause("t", meta.getNodeToField().getProperties());
+          if (StringUtils.isNotEmpty(toSetClause)) {
+            cypher.append(toSetClause).append(Const.CR);
+          }
+          break;
+        case MERGE:
+          cypher.append("MERGE (").append(toLabelsClause);
+          if (StringUtils.isNotEmpty(toMatchClause)) {
+            cypher.append(" ").append(toMatchClause);
+          }
+          cypher.append(")").append(Const.CR);
+          toSetClause = buildPreviewSetClause("t", meta.getNodeToField().getProperties());
+          if (StringUtils.isNotEmpty(toSetClause)) {
+            cypher.append(toSetClause).append(Const.CR);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Build relationship Cypher
+    if (relOpType != OperationType.NONE) {
+      String relLabel = variables.resolve(meta.getRelationshipValue());
+      if (StringUtils.isEmpty(relLabel) && StringUtils.isNotEmpty(meta.getRelationship())) {
+        relLabel = "${" + meta.getRelationship() + "}"; // Dynamic label placeholder
+      }
+      if (StringUtils.isEmpty(relLabel)) {
+        relLabel = "RELATES_TO"; // Fallback placeholder
+      }
+
+      String relSetClause = buildPreviewSetClause("r", meta.getRelProps());
+
+      switch (relOpType) {
+        case CREATE:
+          cypher.append("CREATE (f)-[r:").append(relLabel).append("]->(t)").append(Const.CR);
+          if (StringUtils.isNotEmpty(relSetClause)) {
+            cypher.append(relSetClause).append(Const.CR);
+          }
+          break;
+        case MERGE:
+          cypher.append("MERGE (f)-[r:").append(relLabel).append("]->(t)").append(Const.CR);
+          if (StringUtils.isNotEmpty(relSetClause)) {
+            cypher.append(relSetClause).append(Const.CR);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    return cypher.toString();
+  }
+
+  /** Build preview labels clause from label fields */
+  private static String buildPreviewLabelsClause(
+      String alias, List<LabelField> labelFields, IVariables variables) {
+    if (labelFields.isEmpty()) {
+      return alias;
+    }
+
+    StringBuilder labels = new StringBuilder(alias);
+    for (LabelField labelField : labelFields) {
+      String label = variables.resolve(labelField.getLabel());
+      if (StringUtils.isEmpty(label) && StringUtils.isNotEmpty(labelField.getLabelField())) {
+        // Dynamic label - show placeholder
+        labels.append(":${").append(labelField.getLabelField()).append("}");
+      } else if (StringUtils.isNotEmpty(label)) {
+        labels.append(":").append(escapeLabelForPreview(label));
+      } else {
+        labels.append(":Label"); // Fallback placeholder
+      }
+    }
+    return labels.toString();
+  }
+
+  /** Escape label name for preview (same logic as in Neo4JOutput.escapeLabel) */
+  private static String escapeLabelForPreview(String label) {
+    // Simple escaping - backticks for labels with special characters
+    if (label.contains(" ") || label.contains("-") || label.contains(".")) {
+      return "`" + label + "`";
+    }
+    return label;
+  }
+
+  /** Build preview match clause from property fields (primary properties only) */
+  private static String buildPreviewMatchClause(List<PropertyField> propertyFields) {
+    StringBuilder clause = new StringBuilder();
+
+    for (PropertyField propertyField : propertyFields) {
+      if (propertyField.isPropertyPrimary()) {
+        if (!clause.isEmpty()) {
+          clause.append(", ");
+        }
+        clause
+            .append(propertyField.getPropertyName())
+            .append(": pr.p")
+            .append(propertyField.getPropertyValue());
+      }
+    }
+
+    if (clause.isEmpty()) {
+      return "";
+    } else {
+      return "{ " + clause + " }";
+    }
+  }
+
+  /** Build preview set clause from property fields (non-primary properties only) */
+  private static String buildPreviewSetClause(String alias, List<PropertyField> propertyFields) {
+    StringBuilder clause = new StringBuilder();
+
+    for (PropertyField propertyField : propertyFields) {
+      if (!propertyField.isPropertyPrimary()) {
+        if (!clause.isEmpty()) {
+          clause.append(", ");
+        }
+        clause
+            .append(alias)
+            .append(".")
+            .append(propertyField.getPropertyName())
+            .append(" = pr.p")
+            .append(propertyField.getPropertyValue());
+      }
+    }
+
+    if (clause.isEmpty()) {
+      return "";
+    } else {
+      return "SET " + clause;
+    }
+  }
+
+  /**
+   * Convert GraphPropertyType (user-selected) to GraphPropertyDataType (Neo4j internal)
+   *
+   * @param graphPropertyType The user-selected property type
+   * @return The corresponding GraphPropertyDataType
+   */
+  private GraphPropertyDataType convertGraphPropertyTypeToDataType(
+      GraphPropertyType graphPropertyType) {
+    switch (graphPropertyType) {
+      case String:
+        return GraphPropertyDataType.String;
+      case Integer:
+        return GraphPropertyDataType.Integer;
+      case Float:
+        return GraphPropertyDataType.Float;
+      case Boolean:
+        return GraphPropertyDataType.Boolean;
+      case Date:
+        return GraphPropertyDataType.Date;
+      case LocalDateTime:
+        return GraphPropertyDataType.LocalDateTime;
+      case ByteArray:
+        return GraphPropertyDataType.ByteArray;
+      case Time:
+        return GraphPropertyDataType.Time;
+      case Point:
+        return GraphPropertyDataType.Point;
+      case Duration:
+        return GraphPropertyDataType.Duration;
+      case LocalTime:
+        return GraphPropertyDataType.LocalTime;
+      case DateTime:
+        return GraphPropertyDataType.DateTime;
+      case Array:
+        return GraphPropertyDataType.List; // Array maps to List in Neo4j
+      default:
+        return GraphPropertyDataType.String;
     }
   }
 }

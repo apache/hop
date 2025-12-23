@@ -45,6 +45,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -308,6 +309,9 @@ public class GraphOutputDialog extends BaseTransformDialog {
 
     // Some buttons at the bottom...
     //
+    Button wShowCypher = new Button(shell, SWT.PUSH);
+    wShowCypher.setText(BaseMessages.getString(PKG, "GraphOutputDialog.Button.ShowCypher"));
+    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
@@ -317,7 +321,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
 
     // Position the buttons at the bottom of the dialog.
     //
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
+    setButtonPositions(new Button[] {wShowCypher, wOk, wCancel}, margin, null);
 
     // The tab folder goes between the last control and the OK button:
     //
@@ -674,6 +678,31 @@ public class GraphOutputDialog extends BaseTransformDialog {
       wRelMappings.optimizeTableView();
     } catch (Exception e) {
       new ErrorDialog(shell, CONST_ERROR, "Error listing fields or loading graph model", e);
+    }
+  }
+
+  private void showCypherPreview() {
+    try {
+      // Use current input meta (it's updated as user changes dialog)
+      // Generate preview Cypher based on current dialog state
+      String cypherPreview = GraphOutput.generatePreviewCypher(input, variables);
+
+      // Show in read-only dialog
+      EnterTextDialog dialog =
+          new EnterTextDialog(
+              shell,
+              BaseMessages.getString(PKG, "GraphOutputDialog.ShowCypher.Title"),
+              BaseMessages.getString(PKG, "GraphOutputDialog.ShowCypher.Message"),
+              cypherPreview,
+              true);
+      dialog.setReadOnly();
+      dialog.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "GraphOutputDialog.ShowCypher.Error.Title"),
+          BaseMessages.getString(PKG, "GraphOutputDialog.ShowCypher.Error.Message"),
+          e);
     }
   }
 

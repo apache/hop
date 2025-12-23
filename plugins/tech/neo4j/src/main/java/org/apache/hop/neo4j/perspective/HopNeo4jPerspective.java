@@ -521,7 +521,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     loggingCypher.append("AND   e.type = $type ");
     loggingCypher.append("RETURN e.loggingText ");
 
-    session.readTransaction(
+    session.executeRead(
         tx -> {
           Result result = tx.run(loggingCypher.toString(), loggingParameters);
           while (result.hasNext()) {
@@ -572,7 +572,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
       errorPathCypher.append("ORDER BY size(RELATIONSHIPS(p)) DESC ");
       errorPathCypher.append("LIMIT 10");
 
-      session.readTransaction(
+      session.executeRead(
           tx -> {
             Result pathResult = tx.run(errorPathCypher.toString(), errorPathParams);
 
@@ -804,7 +804,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
       try (Driver driver = connection.getDriver(log, hopGui.getVariables())) {
         try (Session session = connection.getSession(log, driver, hopGui.getVariables())) {
 
-          session.readTransaction(
+          session.executeRead(
               tx -> {
                 Result result = tx.run(resultsCypher.toString(), resultsParameters);
                 while (result.hasNext()) {
@@ -853,7 +853,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
           //
           String execCypher =
               "match(e:Execution) where e.type in ['PIPELINE', 'WORKFLOW'] return distinct e.name order by e.name";
-          session.readTransaction(
+          session.executeRead(
               tx -> {
                 List<String> list = new ArrayList<>();
                 Result result = tx.run(execCypher);
@@ -946,7 +946,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     cypher.append("RETURN p.filename, t.name ");
 
     String[] names =
-        session.readTransaction(
+        session.executeRead(
             tx -> {
               Result statementResult = tx.run(cypher.toString(), params);
               if (!statementResult.hasNext()) {
@@ -1019,7 +1019,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     cypher.append("RETURN w.filename, a.name ");
 
     String[] names =
-        session.readTransaction(
+        session.executeRead(
             tx -> {
               Result statementResult = tx.run(cypher.toString(), params);
               if (!statementResult.hasNext()) {
@@ -1085,7 +1085,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     cypher.append("RETURN tr.filename ");
 
     String filename =
-        session.readTransaction(
+        session.executeRead(
             tx -> {
               Result statementResult = tx.run(cypher.toString(), params);
               if (!statementResult.hasNext()) {

@@ -100,6 +100,12 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
 
   @HopMetadataProperty protected String processors;
 
+  @HopMetadataProperty(key = "neo4j_version")
+  protected String neo4jVersion; // "4.x" or "5.x"
+
+  @HopMetadataProperty(key = "overwrite_destination")
+  protected boolean overwriteDestination;
+
   public ImporterMeta() {
     databaseName = "neo4j";
     adminCommand = "neo4j-admin";
@@ -119,6 +125,8 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     skippingBadEntriesLogging = false;
     skippingBadRelationships = false;
     skippingDuplicateNodes = false;
+    neo4jVersion = "4.x"; // Default to 4.x for backward compatibility
+    overwriteDestination = false; // Default to false for safety
   }
 
   @Override
@@ -483,5 +491,37 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
    */
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
+  }
+
+  /**
+   * Gets neo4jVersion
+   *
+   * @return value of neo4jVersion
+   */
+  public String getNeo4jVersion() {
+    return neo4jVersion;
+  }
+
+  /**
+   * @param neo4jVersion The neo4jVersion to set
+   */
+  public void setNeo4jVersion(String neo4jVersion) {
+    this.neo4jVersion = neo4jVersion;
+  }
+
+  /**
+   * Gets overwriteDestination
+   *
+   * @return value of overwriteDestination
+   */
+  public boolean isOverwriteDestination() {
+    return overwriteDestination;
+  }
+
+  /**
+   * @param overwriteDestination The overwriteDestination to set
+   */
+  public void setOverwriteDestination(boolean overwriteDestination) {
+    this.overwriteDestination = overwriteDestination;
   }
 }

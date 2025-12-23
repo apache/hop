@@ -106,3 +106,17 @@ Here are the node mapping types:
 
 * `Select the first label`: for the specified node we only use the first label from the graph model to match/merge on.
 |===
+
+== Show Cypher Preview
+
+The transform dialog includes a "Show Cypher" button that displays a preview of the 
+general Cypher pattern that will be generated. Since Graph Output generates Cypher 
+dynamically based on input row data and field mappings, the preview shows:
+
+* The general pattern and structure
+* Graph Model details if available
+* Example Cypher structure
+* Processing mode (per-row or UNWIND-based if out-of-order updates are allowed)
+
+The preview is read-only and helps you understand how the transform will generate Cypher 
+statements based on your configuration.

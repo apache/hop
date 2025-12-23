@@ -29,6 +29,16 @@ The Neo4j Import transform runs an import command using the provided CSV files.
 
 Check the https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin-import/[neo4j-admin-import] docs for full details.
 
+[NOTE]
+====
+The transform supports both Neo4j 4.x and 5.x syntax. Use the "Neo4j version" option 
+to select the appropriate version. Neo4j 5.x introduced changes to the `neo4j-admin` 
+command syntax, and the transform automatically adjusts the generated command accordingly.
+
+The transform also supports running `neo4j-admin` commands inside Docker containers 
+when configured appropriately.
+====
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -48,6 +58,9 @@ Check the https://neo4j.com/docs/operations-manual/current/tools/neo4j-admin-imp
 |Fiel type field||the field to get the file type to import from
 |Database filename|neo4j|the Neo4j database to import to
 |neo4j-admin command path|neo4j-admin|the (full) path to the `neo4j-admin` command
+|Neo4j version|4.x|Select the Neo4j version (4.x or 5.x) to determine the correct command syntax.
+Neo4j 5.x introduced changes to the `neo4j-admin import` command syntax, and this option 
+ensures the correct command format is used.
 |Base folder (below import/ folder)||the folder to read the import files from
 |Verbose output||Enable verbose output.
 |High IO|true|Ignore environment-based heuristics, and specify whether the target storage subsystem can support parallel IO with high throughput.

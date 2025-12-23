@@ -31,6 +31,10 @@ if [ -z "${SUREFIRE_REPORT}" ]; then
   SUREFIRE_REPORT="true"
 fi
 
+# Ensure surefire-reports directory exists and is writable
+mkdir -p "${CURRENT_DIR}"/../surefire-reports/
+chmod 777 "${CURRENT_DIR}"/../surefire-reports/ 2>/dev/null || true
+
 # Get kafka parameters
 if [ -z "${BOOTSTRAP_SERVERS}" ]; then
   BOOTSTRAP_SERVERS=kafka:9092

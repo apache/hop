@@ -36,4 +36,12 @@ For similar operations on Neo4j constraints, check the xref:workflow/actions/neo
 ** Object name: the label of the node or relationship you want to update an index for
 ** Properties: the comma separated list of node or relationship properties to index
 
+== Show Cypher Preview
+
+The action dialog includes a "Show Cypher" button that displays a preview of the 
+Cypher statements that will be executed for creating or dropping indexes. This preview 
+shows the exact `CREATE INDEX` or `DROP INDEX` statements before execution.
+
+The preview is read-only and helps you verify the index operations that will be performed.
+
 
