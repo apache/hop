@@ -28,6 +28,10 @@ services:
 
   hop_server:
     image: apache/hop:Development
+    build:
+      context: ../../.
+      dockerfile: docker/Dockerfile
+    pull_policy: never
     hostname: hop-server
     ports:
       - "8181"
@@ -35,6 +39,9 @@ services:
       - HOP_SERVER_PORT=8181
       - HOP_SERVER_HOSTNAME=hop-server
       - HOP_SERVER_METADATA_FOLDER=/hop_server_volume/metadata
+      - HOP_PROJECT_NAME=samples
+      - HOP_PROJECT_FOLDER=/opt/hop/config/projects/samples
+      - HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
     volumes:
       - ./../../integration-tests/hop_server/:/hop_server_volume
     healthcheck:

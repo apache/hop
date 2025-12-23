@@ -760,6 +760,160 @@ Example result:
 </HTML>
 ----
 
+== Execute Pipeline from File
+
+name::
+execPipeline
+
+description::
+Execute a pipeline directly from a file path on the server's file system.
+The pipeline is loaded, executed synchronously, and the result is returned immediately.
+This servlet supports variable resolution in file paths (e.g., `${PROJECT_HOME}`) and can pass parameters and variables to the pipeline.
+
+endPoint::
+GET `/hop/execPipeline`
+
+parameters::
+* pipeline (required): File path to the pipeline (.hpl file). Can use variables like `${PROJECT_HOME}` which will be resolved by the server.
+* level (optional): Logging level (e.g., Debug, Basic, Detailed, Error, Minimal, Nothing, RowLevel). Defaults to server's default log level.
+* runConfig (optional): Run configuration name to use for execution. If not specified, the default run configuration from metadata is used, or "local" if no default is found.
+* *any parameter name*: Any additional URL parameters will be passed as pipeline parameters or variables. If the parameter name matches a pipeline parameter, it will be set as a parameter; otherwise, it will be set as a variable.
+
+example request::
+GET `+http://localhost:8081/hop/execPipeline?pipeline=/opt/hop/config/projects/samples/pipelines/pipeline-with-parameter.hpl&PRM_EXAMPLE=test_value&level=BASIC+`
+
+Using project variables:
+GET `+http://localhost:8081/hop/execPipeline?pipeline=${PROJECT_HOME}/pipelines/my-pipeline.hpl&runConfig=local&level=Detailed+`
+
+result::
+
+Success response (HTTP 200):
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>OK</result>
+    <message>Pipeline executed successfully</message>
+    <id/>
+</webresult>
+----
+
+Error response - Missing parameter (HTTP 400):
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>ERROR</result>
+    <message>Missing mandatory parameter: pipeline</message>
+    <id/>
+</webresult>
+----
+
+Error response - File not found (HTTP 404):
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>ERROR</result>
+    <message>Unable to find pipeline: /path/to/nonexistent.hpl (resolved: /path/to/nonexistent.hpl)</message>
+    <id/>
+</webresult>
+----
+
+Error response - Execution error (HTTP 500):
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>ERROR</result>
+    <message>Error executing pipeline: [log output]</message>
+    <id/>
+</webresult>
+----
+
+notes::
+* The pipeline path supports variable resolution. If the server is started with a project (using `-j` flag), variables like `${PROJECT_HOME}` will be resolved.
+* The execution is synchronous - the servlet waits for the pipeline to complete before returning.
+* The pipeline is automatically registered in the server's pipeline map and can be queried using `getPipelineStatus`.
+* All URL parameters except `pipeline`, `level`, and `runConfig` are passed to the pipeline as parameters or variables.
+
+== Execute Workflow from File
+
+name::
+execWorkflow
+
+description::
+Execute a workflow directly from a file path on the server's file system.
+The workflow is loaded, executed synchronously, and the result is returned immediately.
+This servlet supports variable resolution in file paths (e.g., `${PROJECT_HOME}`) and can pass parameters and variables to the workflow.
+
+endPoint::
+GET `/hop/execWorkflow`
+
+parameters::
+* workflow (required): File path to the workflow (.hwf file). Can use variables like `${PROJECT_HOME}` which will be resolved by the server.
+* level (optional): Logging level (e.g., Debug, Basic, Detailed, Error, Minimal, Nothing, RowLevel). Defaults to server's default log level.
+* runConfig (optional): Run configuration name to use for execution. If not specified, the default run configuration from metadata is used, or "local" if no default is found.
+* *any parameter name*: Any additional URL parameters will be passed as workflow parameters or variables. If the parameter name matches a workflow parameter, it will be set as a parameter; otherwise, it will be set as a variable.
+
+example request::
+GET `+http://localhost:8081/hop/execWorkflow?workflow=/opt/hop/config/projects/samples/workflows/parallel/parallel-workflow.hwf&level=BASIC+`
+
+Using project variables:
+GET `+http://localhost:8081/hop/execWorkflow?workflow=${PROJECT_HOME}/workflows/my-workflow.hwf&runConfig=local&level=Detailed+`
+
+result::
+
+Success response (HTTP 200):
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>OK</result>
+    <message>Workflow executed successfully</message>
+    <id/>
+</webresult>
+----
+
+Error response - Missing parameter (HTTP 400):
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>ERROR</result>
+    <message>Missing mandatory parameter: workflow</message>
+    <id/>
+</webresult>
+----
+
+Error response - File not found (HTTP 404):
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>ERROR</result>
+    <message>Unable to find workflow: /path/to/nonexistent.hwf (resolved: /path/to/nonexistent.hwf)</message>
+    <id/>
+</webresult>
+----
+
+Error response - Execution error (HTTP 500):
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<webresult>
+    <result>ERROR</result>
+    <message>Error executing workflow: [log output]</message>
+    <id/>
+</webresult>
+----
+
+notes::
+* The workflow path supports variable resolution. If the server is started with a project (using `-j` flag), variables like `${PROJECT_HOME}` will be resolved.
+* The execution is synchronous - the servlet waits for the workflow to complete before returning.
+* The workflow is automatically registered in the server's workflow map and can be queried using `getWorkflowStatus`.
+* All URL parameters except `workflow`, `level`, and `runConfig` are passed to the workflow as parameters or variables.
+
 == Stop Pipeline
 
 name::
