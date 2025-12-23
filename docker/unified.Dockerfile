@@ -189,20 +189,6 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/lib/beam/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
-    # Remove SafeCTabFolderRenderer.class from hop-ui JAR - it extends CTabFolderRenderer
-    # which doesn't exist in RAP/web mode, causing NoClassDefFoundError
-    for jar in /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-*.jar; do \
-        if [ -f "$jar" ]; then \
-            cd /tmp && \
-            unzip -q "$jar" -d hop-ui-temp && \
-            rm -f hop-ui-temp/org/apache/hop/ui/core/SafeCTabFolderRenderer.class && \
-            rm -f "$jar" && \
-            cd hop-ui-temp && \
-            zip -q -r "$jar" . && \
-            cd /build && \
-            rm -rf /tmp/hop-ui-temp; \
-        fi; \
-    done && \
     mkdir -p /build/hop-web-prepared/bin && \
     cp -r /build/docker/resources/run-web.sh /build/hop-web-prepared/bin/run-web.sh
 

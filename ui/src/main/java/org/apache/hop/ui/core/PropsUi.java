@@ -522,30 +522,43 @@ public class PropsUi extends Props {
    * on Wayland) where images may be invalid or disposed. Only applied on Linux to avoid any
    * potential impact on unaffected platforms.
    *
+   * <p>SafeCTabFolderRenderer is in the RCP module (desktop-specific) and loaded via reflection.
+   * Since this method short-circuits in web mode and SafeCTabFolderRenderer is not included in web
+   * builds (hop-ui-rcp is excluded), it will never be loaded in RAP/web mode.
+   *
    * @param tabFolder the CTabFolder to protect
    */
   private static void ensureSafeRenderer(CTabFolder tabFolder) {
-    // CTabFolderRenderer and SafeCTabFolderRenderer are not available in RAP (web mode),
-    // so skip entirely. The class is also removed from the hop-ui JAR during Docker build.
-    // Use reflection to avoid compile-time class resolution that would cause NoClassDefFoundError
-    // in web mode when the class doesn't exist in the JAR.
+    // CTabFolderRenderer is not available in RAP (web mode), so skip entirely.
+    // SafeCTabFolderRenderer is in the RCP module (not included in web builds), so it's never
+    // available in web mode.
     if (EnvironmentUtils.getInstance().isWeb()) {
       return;
     }
     // Only apply safe renderer on Linux where the issue occurs
     if (Const.isLinux()) {
       try {
-        // Use reflection to avoid compile-time dependency on SafeCTabFolderRenderer
-        // This prevents Java's bytecode verifier from trying to resolve the class at load time
+        // Use reflection to load SafeCTabFolderRenderer from the RCP module (desktop-specific).
+        // This avoids compile-time dependencies and ensures the class isn't loaded in web mode
+        // (where hop-ui-rcp is excluded from the build).
         Class<?> rendererClass = Class.forName("org.apache.hop.ui.core.SafeCTabFolderRenderer");
         Object currentRenderer = tabFolder.getRenderer();
         if (currentRenderer == null || !rendererClass.isInstance(currentRenderer)) {
           Object safeRenderer =
               rendererClass.getConstructor(CTabFolder.class).newInstance(tabFolder);
-          tabFolder.setRenderer((org.eclipse.swt.custom.CTabFolderRenderer) safeRenderer);
+          // Use reflection to call setRenderer to avoid compile-time dependency on
+          // CTabFolderRenderer which doesn't exist in RAP/web mode
+          Class<?> rendererParamClass = Class.forName("org.eclipse.swt.custom.CTabFolderRenderer");
+          java.lang.reflect.Method setRendererMethod =
+              CTabFolder.class.getMethod("setRenderer", rendererParamClass);
+          setRendererMethod.invoke(tabFolder, safeRenderer);
         }
+      } catch (ClassNotFoundException e) {
+        // SafeCTabFolderRenderer not available (e.g., in web builds where hop-ui-rcp is excluded)
+        // This is expected and safe to ignore
       } catch (Exception e) {
-        // If SafeCTabFolderRenderer can't be loaded, just continue without the safe renderer
+        // If CTabFolderRenderer can't be loaded or setRenderer fails, just continue without
+        // the safe renderer
         LogChannel.GENERAL.logDetailed("Could not apply SafeCTabFolderRenderer: " + e.getMessage());
       }
     }
