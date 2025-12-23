@@ -23,16 +23,19 @@ public class ExplorerPerspectiveConfig {
 
   private String lazyLoadingDepth;
   private String fileLoadingMaxSize;
+  private Boolean fileExplorerVisibleByDefault;
 
   public ExplorerPerspectiveConfig() {
     this.lazyLoadingDepth = "0";
     this.fileLoadingMaxSize = "16";
+    this.fileExplorerVisibleByDefault = true;
   }
 
   public ExplorerPerspectiveConfig(ExplorerPerspectiveConfig config) {
     this();
     this.lazyLoadingDepth = config.lazyLoadingDepth;
     this.fileLoadingMaxSize = config.fileLoadingMaxSize;
+    this.fileExplorerVisibleByDefault = config.fileExplorerVisibleByDefault;
   }
 
   public String getLazyLoadingDepth() {
@@ -49,5 +52,13 @@ public class ExplorerPerspectiveConfig {
 
   public void setFileLoadingMaxSize(String fileLoadingMaxSize) {
     this.fileLoadingMaxSize = fileLoadingMaxSize;
+  }
+
+  public Boolean getFileExplorerVisibleByDefault() {
+    return fileExplorerVisibleByDefault;
+  }
+
+  public void setFileExplorerVisibleByDefault(Boolean fileExplorerVisibleByDefault) {
+    this.fileExplorerVisibleByDefault = fileExplorerVisibleByDefault;
   }
 }
