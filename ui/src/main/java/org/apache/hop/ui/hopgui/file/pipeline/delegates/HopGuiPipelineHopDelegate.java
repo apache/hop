@@ -78,7 +78,7 @@ public class HopGuiPipelineHopDelegate {
             new int[] {pipelineMeta.indexOfPipelineHop(pipelineHopMeta)});
       }
 
-      pipelineGraph.redraw();
+      pipelineGraph.updateGui();
     }
   }
 
