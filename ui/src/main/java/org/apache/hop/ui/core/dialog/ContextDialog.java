@@ -580,6 +580,12 @@ public class ContextDialog extends Dialog {
 
     activeInstance = null;
 
+    // When automatic closing occurs upon loss of focus, we must help set the focus to the parent
+    // (Widows only).
+    if (focusLost) {
+      getParent().setFocus();
+    }
+
     return selectedAction;
   }
 
