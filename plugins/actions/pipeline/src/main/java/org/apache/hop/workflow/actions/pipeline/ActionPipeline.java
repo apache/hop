@@ -519,6 +519,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         pipeline.copyParametersFromDefinitions(pipelineMeta);
 
         // Pass the parameter values and activate...
+        // Note: getValues() returns unresolved values, which will be resolved once in
+        // activateParams()
+        // We must NOT resolve them here to avoid double resolution
         //
         TransformWithMappingMeta.activateParams(
             pipeline,
@@ -849,8 +852,11 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       // parameter.getValue()
       //
       String thisValue = namedParam.getParameterValue(parameter.getName());
-      // Set value only if is not empty at namedParam and exists in parameter.getField
+      // Only set variables for field-based parameters, not for value-based parameters
+      // Value-based parameters will be passed directly and should not be set as variables
+      // to avoid double resolution issues in activateParams()
       if (!Utils.isEmpty(Const.trim(parameter.getField()))) {
+        // Field-based parameter: set as variable so it can be used in the pipeline
         // If is not empty then we have to ask if it exists too in parameter.getValue(), since
         // the values in parameter.getValue() prevail over parameterFieldNames
         // If is empty at parameter.getValue(), then we can finally add that variable with that
@@ -858,10 +864,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         if (Utils.isEmpty(Const.trim(parameter.getValue()))) {
           actionPipeline.setVariable(parameter.getName(), Const.NVL(thisValue, ""));
         }
-      } else {
-        // Or if not in parameter.getValue() then we can add that variable with that value too
-        actionPipeline.setVariable(parameter.getName(), Const.NVL(thisValue, ""));
       }
+      // For value-based parameters (those with parameter.getValue() set), do NOT set as variable
+      // They will be passed as parameters and resolved in activateParams()
     }
   }
 

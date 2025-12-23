@@ -1,11 +1,14 @@
 charset,delimiter,enclosure,field_count,skip_header_lines,skip_footer_lines,header_line_present,name,type,length,precision,mask,decimal_symbol,grouping_symbol
-US-ASCII,;,,10,0,0,Y,id,Integer,15,0," #",.,","
-US-ASCII,;,,10,0,0,Y,name,String,10,,,.,","
-US-ASCII,;,,10,0,0,Y,firstname,String,13,,,.,","
-US-ASCII,;,,10,0,0,Y,zip,Integer,15,0," #",.,","
-US-ASCII,;,,10,0,0,Y,city,String,8,,,.,","
-US-ASCII,;,,10,0,0,Y,birthdate,Date,,,yyyy/MM/dd,.,","
-US-ASCII,;,,10,0,0,Y,street,String,11,,,.,","
-US-ASCII,;,,10,0,0,Y,housenr,Integer,15,0," #",.,","
-US-ASCII,;,,10,0,0,Y,stateCode,String,9,,,.,","
-US-ASCII,;,,10,0,0,Y,state,String,30,,,.,","
+US-ASCII,;,"""",13,0,0,Y,id,Integer,15,0," #",",",.
+US-ASCII,;,"""",13,0,0,Y,name,String,10,,,",",.
+US-ASCII,;,"""",13,0,0,Y,firstname,String,13,,,",",.
+US-ASCII,;,"""",13,0,0,Y,zip,Integer,15,0," #",",",.
+US-ASCII,;,"""",13,0,0,Y,city,String,8,,,",",.
+US-ASCII,;,"""",13,0,0,Y,birthdate,Date,,,yyyy/MM/dd,",",.
+US-ASCII,;,"""",13,0,0,Y,street,String,11,,,",",.
+US-ASCII,;,"""",13,0,0,Y,housenr,Integer,15,0," #",",",.
+US-ASCII,;,"""",13,0,0,Y,stateCode,String,9,,,",",.
+US-ASCII,;,"""",13,0,0,Y,state,String,30,,,",",.
+US-ASCII,;,"""",13,0,0,Y,isActive,Boolean,,,,",",.
+US-ASCII,;,"""",13,0,0,Y,registrationTimestamp,Date,,,yyyy-MM-dd HH:mm:ss.SSS,",",.
+US-ASCII,;,"""",13,0,0,Y,metadataJson,String,64,,,",",.
