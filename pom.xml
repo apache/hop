@@ -154,7 +154,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
-        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
         <target.jdk.version>17</target.jdk.version>
     </properties>
 
