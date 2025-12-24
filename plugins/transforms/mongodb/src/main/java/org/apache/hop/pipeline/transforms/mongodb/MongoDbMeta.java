@@ -16,51 +16,23 @@
  */
 package org.apache.hop.pipeline.transforms.mongodb;
 
-import org.apache.hop.core.injection.Injection;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
 
+@Getter
+@Setter
 public abstract class MongoDbMeta<Main extends ITransform, Data extends ITransformData>
     extends BaseTransformMeta<Main, Data> {
   protected static Class<?> PKG = MongoDbInputMeta.class;
 
-  @Injection(name = "CONNECTION")
+  @HopMetadataProperty(key = "connection", injectionKey = "CONNECTION")
   protected String connectionName;
 
-  @Injection(name = "COLLECTION")
+  @HopMetadataProperty(key = "collection", injectionKey = "COLLECTION")
   protected String collection;
-
-  /**
-   * Gets connectionName
-   *
-   * @return value of connectionName
-   */
-  public String getConnectionName() {
-    return connectionName;
-  }
-
-  /**
-   * @param connectionName The connectionName to set
-   */
-  public void setConnectionName(String connectionName) {
-    this.connectionName = connectionName;
-  }
-
-  /**
-   * Gets collection
-   *
-   * @return value of collection
-   */
-  public String getCollection() {
-    return collection;
-  }
-
-  /**
-   * @param collection The collection to set
-   */
-  public void setCollection(String collection) {
-    this.collection = collection;
-  }
 }

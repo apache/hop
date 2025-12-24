@@ -92,7 +92,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>mongo</connection>
+    <connection>${MONGO_CONNECTION}</connection>
     <mongo_collection>json_insert</mongo_collection>
     <batch_insert_size>5</batch_insert_size>
     <truncate>Y</truncate>

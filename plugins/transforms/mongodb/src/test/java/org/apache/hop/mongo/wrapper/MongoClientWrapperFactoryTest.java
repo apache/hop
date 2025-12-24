@@ -35,11 +35,12 @@ class MongoClientWrapperFactoryTest {
   @BeforeEach
   void before() {
     MockitoAnnotations.openMocks(this);
-    NoAuthMongoClientWrapper.clientFactory = mongoClientFactory;
+    MongoClientWrapperImpl.clientFactory = mongoClientFactory;
   }
 
   @Test
   void testCreateMongoClientWrapper() throws Exception {
+    // Test with authentication
     MongoClientWrapper wrapper =
         MongoClientWrapperFactory.createMongoClientWrapper(
             new MongoProperties.Builder()
@@ -48,11 +49,12 @@ class MongoClientWrapperFactoryTest {
                 .set(MongoProp.DBNAME, "dbname")
                 .build(),
             logger);
-    assertTrue(wrapper instanceof UsernamePasswordMongoClientWrapper);
+    assertTrue(wrapper instanceof MongoClientWrapperImpl);
 
+    // Test without authentication
     wrapper =
         MongoClientWrapperFactory.createMongoClientWrapper(
             new MongoProperties.Builder().set(MongoProp.USE_KERBEROS, "false").build(), logger);
-    assertTrue(wrapper instanceof NoAuthMongoClientWrapper);
+    assertTrue(wrapper instanceof MongoClientWrapperImpl);
   }
 }

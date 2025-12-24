@@ -175,7 +175,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>mongo</connection>
+    <connection>${MONGO_CONNECTION}</connection>
     <fields_name>{"_id":0, "z_fighter": 1}</fields_name>
     <collection>json_insert</collection>
     <json_field_name>json</json_field_name>

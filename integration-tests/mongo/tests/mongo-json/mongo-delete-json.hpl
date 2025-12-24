@@ -65,39 +65,6 @@ limitations under the License.
     </hop>
   </order>
   <transform>
-    <name>MongoDB Delete</name>
-    <type>MongoDbDelete</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <collection>json_insert</collection>
-    <connection>mongo</connection>
-    <execute_for_each_row>N</execute_for_each_row>
-    <fields>
-      <field>
-        <comparator>=</comparator>
-        <doc_path>z_fighter</doc_path>
-        <incoming_field_1>z_fighter</incoming_field_1>
-        <incoming_field_2/>
-      </field>
-    </fields>
-    <json_query/>
-    <retries>5</retries>
-    <retry_delay>10</retry_delay>
-    <use_json_query>N</use_json_query>
-    <write_retries>5</write_retries>
-    <attributes/>
-    <GUI>
-      <xloc>720</xloc>
-      <yloc>176</yloc>
-    </GUI>
-  </transform>
-  <transform>
     <name>Data grid</name>
     <type>DataGrid</type>
     <description/>
@@ -120,18 +87,47 @@ limitations under the License.
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>z_fighter</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>JSON</type>
       </field>
     </fields>
     <attributes/>
     <GUI>
       <xloc>528</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>MongoDB Delete</name>
+    <type>MongoDbDelete</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <collection>json_insert</collection>
+    <connection>${MONGO_CONNECTION}</connection>
+    <execute_for_each_row>N</execute_for_each_row>
+    <fields>
+      <field>
+        <comparator>=</comparator>
+        <doc_path>z_fighter</doc_path>
+        <incoming_field_1>z_fighter</incoming_field_1>
+        <incoming_field_2/>
+      </field>
+    </fields>
+    <json_query/>
+    <retries>5</retries>
+    <retry_delay>10</retry_delay>
+    <use_json_query>N</use_json_query>
+    <write_retries>5</write_retries>
+    <attributes/>
+    <GUI>
+      <xloc>720</xloc>
       <yloc>176</yloc>
     </GUI>
   </transform>

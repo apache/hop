@@ -48,8 +48,6 @@ import org.eclipse.swt.widgets.Text;
 public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     implements IMetadataEditor<MongoDbConnection> {
 
-  private static final Class<?> PKG = MongoDbConnectionEditor.class;
-
   public static final String PARENT_WIDGET_ID = "MongoDbConnectionEditor.Widgets.ParentId";
 
   private Composite parent;
@@ -123,7 +121,6 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
 
   @Override
   public Button[] createButtonsForButtonBar(Composite parent) {
-    PropsUi props = PropsUi.getInstance();
 
     Button wbGetDbs = new Button(parent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbGetDbs);

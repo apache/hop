@@ -17,9 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +33,7 @@ import org.apache.hop.mongo.wrapper.field.MongoArrayExpansion;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.bson.Document;
 
 @SuppressWarnings("java:S1104")
 public class MongoDbInputData extends BaseTransformData implements ITransformData {
@@ -53,7 +51,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
   public MongoDbConnection connection;
 
   /** results of an aggregation pipeline */
-  Iterator<DBObject> pipelineResult;
+  Iterator<Document> pipelineResult;
 
   private List<MongoField> userFields;
   private MongoArrayExpansion expansionHandler;
@@ -176,19 +174,14 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    * @return populated Hop row(s)
    * @throws HopException if a problem occurs
    */
-  public Object[][] mongoDocumentToHop(DBObject mongoObj, IVariables variables)
+  public Object[][] mongoDocumentToHop(Document mongoObj, IVariables variables)
       throws HopException {
 
     Object[][] result = null;
 
     if (expansionHandler != null) {
       expansionHandler.reset(variables);
-
-      if (mongoObj instanceof BasicDBObject basicDBObject) {
-        result = expansionHandler.convertToHopValue(basicDBObject, variables);
-      } else {
-        result = expansionHandler.convertToHopValue((BasicDBList) mongoObj, variables);
-      }
+      result = expansionHandler.convertToHopValue(mongoObj, variables);
     } else {
       result = new Object[1][];
     }
@@ -199,13 +192,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     for (MongoField f : userFields) {
       value = null;
       f.reset(variables);
-
-      if (mongoObj instanceof BasicDBObject basicDBObject) {
-        value = f.convertToHopValue(basicDBObject);
-      } else if (mongoObj instanceof BasicDBList basicDBList) {
-        value = f.convertToHopValue(basicDBList);
-      }
-
+      value = f.convertToHopValue(mongoObj);
       normalData[f.outputIndex] = value;
     }
 

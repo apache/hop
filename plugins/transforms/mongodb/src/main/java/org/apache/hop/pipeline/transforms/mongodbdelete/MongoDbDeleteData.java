@@ -18,12 +18,12 @@
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -39,9 +39,12 @@ import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.bson.Document;
 
 /** Data class for the MongoDbDelete step */
 @SuppressWarnings("java:S1104")
+@Getter
+@Setter
 public class MongoDbDeleteData extends BaseTransformData implements ITransformData {
 
   private static final Class<?> PKG = MongoDbDeleteMeta.class;
@@ -59,10 +62,8 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
   /**
    * Initialize all the paths by locating the index for their field name in the outgoing row
    * structure.
-   *
-   * @throws HopException
    */
-  public void init(IVariables vars) throws HopException {
+  public void init(IVariables vars) {
     if (mUserFields != null) {
       for (MongoDbDeleteField f : mUserFields) {
         f.init(vars);
@@ -103,42 +104,6 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
   }
 
   /**
-   * Set the collection to use
-   *
-   * @param col the collection to use
-   */
-  public void setCollection(MongoCollectionWrapper col) {
-    collection = col;
-  }
-
-  /**
-   * Get the collection in use
-   *
-   * @return the collection in use
-   */
-  public MongoCollectionWrapper getCollection() {
-    return collection;
-  }
-
-  /**
-   * Set the output row format
-   *
-   * @param outM the output row format
-   */
-  public void setOutputRowMeta(IRowMeta outM) {
-    outputRowMeta = outM;
-  }
-
-  /**
-   * Get the output row format
-   *
-   * @return the output row format
-   */
-  public IRowMeta getOutputRowMeta() {
-    return outputRowMeta;
-  }
-
-  /**
    * Set the field paths to use for creating the document structure
    *
    * @param fields the field paths to use
@@ -152,11 +117,11 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
     }
   }
 
-  public static DBObject getQueryObject(
+  public static Document getQueryObject(
       List<MongoDbDeleteField> fieldDefs, IRowMeta inputMeta, Object[] row, IVariables vars)
       throws HopException {
 
-    DBObject query = new BasicDBObject();
+    Document query = new Document();
 
     boolean haveMatchFields = false;
     boolean hasNonNullMatchValues = false;
@@ -201,7 +166,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
         if (vm.isNull(row[index])) {
           continue;
         }
-        DBObject notEqual = new BasicDBObject();
+        Document notEqual = new Document();
         setMongoValueFromValueMeta(notEqual, "$ne", vm, row[index]);
         query.put(path, notEqual);
       } else if (Comparator.GREATER_THAN.getValue().equals(field.comparator)) {
@@ -213,7 +178,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
         if (vm.isNull(row[index])) {
           continue;
         }
-        DBObject greaterThan = new BasicDBObject();
+        Document greaterThan = new Document();
         setMongoValueFromValueMeta(greaterThan, "$gt", vm, row[index]);
         query.put(path, greaterThan);
 
@@ -226,7 +191,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
         if (vm.isNull(row[index])) {
           continue;
         }
-        DBObject greaterThanEqual = new BasicDBObject();
+        Document greaterThanEqual = new Document();
         setMongoValueFromValueMeta(greaterThanEqual, "$gte", vm, row[index]);
         query.put(path, greaterThanEqual);
       } else if (Comparator.LESS_THAN.getValue().equals(field.comparator)) {
@@ -238,7 +203,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
         if (vm.isNull(row[index])) {
           continue;
         }
-        DBObject lessThan = new BasicDBObject();
+        Document lessThan = new Document();
         setMongoValueFromValueMeta(lessThan, "$lt", vm, row[index]);
         query.put(path, lessThan);
       } else if (Comparator.LESS_THAN_EQUAL.getValue().equals(field.comparator)) {
@@ -250,7 +215,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
         if (vm.isNull(row[index])) {
           continue;
         }
-        DBObject lessThanEqual = new BasicDBObject();
+        Document lessThanEqual = new Document();
         setMongoValueFromValueMeta(lessThanEqual, "$lte", vm, row[index]);
         query.put(path, lessThanEqual);
       } else if (Comparator.BETWEEN.getValue().equals(field.comparator)) {
@@ -273,25 +238,23 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
           continue;
         }
 
-        BasicDBObject between = new BasicDBObject();
+        Document between = new Document();
         setMongoValueFromValueMeta(between, "$gt", vm1, row[index1]);
         setMongoValueFromValueMeta(between, "$lt", vm2, row[index2]);
         query.put(path, between);
 
       } else if (Comparator.IS_NULL.getValue().equals(field.comparator)) {
-        BasicDBObject exist = new BasicDBObject();
+        Document exist = new Document();
         exist.put("$exists", false);
         query.put(path, exist);
       } else if (Comparator.IS_NOT_NULL.getValue().equals(field.comparator)) {
-        BasicDBObject exist = new BasicDBObject();
+        Document exist = new Document();
         exist.put("$exists", true);
         query.put(path, exist);
       } else {
         throw new HopException(
             BaseMessages.getString(
-                PKG,
-                "MongoDbDelete.ErrorMessage.ComparatorNotSupported",
-                new String[] {field.comparator}));
+                PKG, "MongoDbDelete.ErrorMessage.ComparatorNotSupported", field.comparator));
       }
     }
 
@@ -309,7 +272,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
   }
 
   private static boolean setMongoValueFromValueMeta(
-      DBObject mongoObject, Object lookup, IValueMeta valueMeta, Object objectValue)
+      Document mongoObject, Object lookup, IValueMeta valueMeta, Object objectValue)
       throws HopValueException {
     if (valueMeta.isNull(objectValue)) {
       return false; // don't insert nulls!

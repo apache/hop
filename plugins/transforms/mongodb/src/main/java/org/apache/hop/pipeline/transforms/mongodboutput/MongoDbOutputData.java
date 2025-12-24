@@ -18,18 +18,15 @@
 package org.apache.hop.pipeline.transforms.mongodboutput;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.MongoException;
-import com.mongodb.util.JSON;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -48,8 +45,11 @@ import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.bson.Document;
 
 /** Data class for the MongoDbOutput transform */
+@Getter
+@Setter
 public class MongoDbOutputData extends BaseTransformData implements ITransformData {
 
   private static final Class<?> PKG = MongoDbOutputMeta.class;
@@ -87,14 +87,14 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
   /**
    * Map for grouping together $set operations that involve setting complex array-based objects. Key
-   * = dot path to array name; value = DBObject specifying array to set to
+   * = dot path to array name; value = Document specifying array to set to
    */
   protected Map<String, List<MongoDbOutputMeta.MongoField>> setComplexArrays = new HashMap<>();
 
   /**
    * Map for grouping together $push operations that involve complex objects. Use [] to indicate the
    * start of the complex object to push. Key - dot path to the array name to push to; value -
-   * DBObject specifying the complex object to push
+   * Document specifying the complex object to push
    */
   protected Map<String, List<MongoDbOutputMeta.MongoField>> pushComplexStructures = new HashMap<>();
 
@@ -131,16 +131,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       }
     }
 
-    // Invalid path specification would be one where there is a top level
-    // JSON doc to be inserted (as is) but other field paths have been defined.
-    // TODO we could allow exactly one top level JSON doc and then have other
-    // paths punch data into this document I guess (which is kind of the
-    // opposite of the current functionality that allows the document to be
-    // defined from the specified paths and then allows non top-level JSON docs
-    // to punched into this structure)
-
     if (hasTopLevelJSONDocInsert && countNonMatchFields > 1) {
-      // TODO
       throw new HopException(
           "Path specifications contains a top-level document in "
               + "JSON format to be inserted as is, but there are other insert paths "
@@ -218,42 +209,6 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   }
 
   /**
-   * Set the collection to use
-   *
-   * @param col the collection to use
-   */
-  public void setCollection(MongoCollectionWrapper col) {
-    collection = col;
-  }
-
-  /**
-   * Get the collection in use
-   *
-   * @return the collection in use
-   */
-  public MongoCollectionWrapper getCollection() {
-    return collection;
-  }
-
-  /**
-   * Set the output row format
-   *
-   * @param outM the output row format
-   */
-  public void setOutputRowMeta(IRowMeta outM) {
-    outputRowMeta = outM;
-  }
-
-  /**
-   * Get the output row format
-   *
-   * @return the output row format
-   */
-  public IRowMeta getOutputRowMeta() {
-    return outputRowMeta;
-  }
-
-  /**
    * Apply the supplied index operations to the collection. Indexes can be defined on one or more
    * fields in the document. Operation is either create or drop.
    *
@@ -270,7 +225,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
     for (MongoDbOutputMeta.MongoIndex index : indexes) {
       String[] indexParts = index.pathToFields.split(",");
-      BasicDBObject mongoIndex = new BasicDBObject();
+      Document mongoIndex = new Document();
       for (String indexKey : indexParts) {
         String[] nameAndDirection = indexKey.split(":");
         int direction = 1;
@@ -297,7 +252,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         }
         log.logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.DropIndex", index));
       } else {
-        BasicDBObject options = new BasicDBObject();
+        Document options = new Document();
 
         // create indexes in the background
         options.put("background", true);
@@ -313,43 +268,15 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    * Get an object that encapsulates the fields and modifier operations to use for a modifier
    * update.
    *
-   * <p>NOTE: that with modifier upserts the query conditions get created if the record does not
-   * exist (i.e. insert). This is different than straight non- modifier upsert where the query
-   * conditions just locate a matching record (if any) and then a complete object replacement is
-   * done. So for standard upsert it is necessary to duplicate the query condition paths in order
-   * for these fields to be in the object that is inserted/updated.
-   *
-   * <p>This also means that certain modifier upserts are not possible in the case of insert. E.g.
-   * here we are wanting to test if the field "f1" in record "rec1" in the first element of array
-   * "two" is set to "george". If so, then we want to push a new record to the end of the array;
-   * otherwise create a new document with the array containing just the new record:
-   *
-   * <p>
-   *
-   * <p>
-   *
-   * <pre>
-   * db.collection.update({ "one.two.0.rec1.f1" : "george"},
-   * { "$push" : { "one.two" : { "rec1" : { "f1" : "bob" , "f2" : "fred"}}}},
-   * true)
-   * </pre>
-   *
-   * <p>This does not work and results in a "Cannot apply $push/$pushAll modifier to non-array"
-   * error if there is no match (i.e. insert condition). This is because the query conditions get
-   * created as well as the modifier opps and, furthermore, they get created first. Since mongo
-   * doesn't know whether ".0." indicates an array index or a field name it defaults to creating a
-   * field with name "0". This means that "one.two" gets created as a record (not an array) before
-   * the $push operation is executed. Hence the error.
-   *
    * @param fieldDefs the list of document field definitions
    * @param inputMeta the input row format
    * @param row the current incoming row
    * @param vars environment variables
    * @param topLevelStructure the top level structure of the document
-   * @return a DBObject encapsulating the update to make
+   * @return a Document encapsulating the update to make
    * @throws HopException if a problem occurs
    */
-  protected DBObject getModifierUpdateObject(
+  protected Document getModifierUpdateObject(
       List<MongoDbOutputMeta.MongoField> fieldDefs,
       IRowMeta inputMeta,
       Object[] row,
@@ -362,7 +289,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     String mongoOperatorUpdateAllArray = "$[]";
 
     // main update object, keyed by $ operator
-    BasicDBObject updateObject = new BasicDBObject();
+    Document updateObject = new Document();
 
     setComplexArrays.clear();
     primitiveLeafModifiers.clear();
@@ -381,7 +308,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
     boolean isUpdate = false;
     if (checkForMatch) {
-      DBObject query = getQueryObject(fieldDefs, inputMeta, row, vars, topLevelStructure);
+      Document query = getQueryObject(fieldDefs, inputMeta, row, vars, topLevelStructure);
 
       MongoCursorWrapper cursor = getCollection().find(query).limit(1);
       if (cursor.hasNext()) {
@@ -503,18 +430,14 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     // do the array $sets
     for (String path : setComplexArrays.keySet()) {
       List<MongoDbOutputMeta.MongoField> fds = setComplexArrays.get(path);
-      DBObject valueToSet = hopRowToMongo(fds, inputMeta, row, MongoTopLevel.ARRAY, false);
+      Object valueToSet = hopRowToMongo(fds, inputMeta, row, MongoTopLevel.ARRAY, false);
 
-      DBObject fieldsToUpdateWithValues;
+      Document fieldsToUpdateWithValues;
 
       if (updateObject.get("$set") != null) {
-        // if we have some field(s) already associated with this type of
-        // modifier
-        // operation then just add to them
-        fieldsToUpdateWithValues = (DBObject) updateObject.get("$set");
+        fieldsToUpdateWithValues = (Document) updateObject.get("$set");
       } else {
-        // otherwise create a new DBObject for this modifier operation
-        fieldsToUpdateWithValues = new BasicDBObject();
+        fieldsToUpdateWithValues = new Document();
       }
 
       fieldsToUpdateWithValues.put(path, valueToSet);
@@ -531,18 +454,14 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         topLevel = MongoTopLevel.RECORD;
       }
 
-      DBObject valueToSet = hopRowToMongo(fds, inputMeta, row, topLevel, false);
+      Object valueToSet = hopRowToMongo(fds, inputMeta, row, topLevel, false);
 
-      DBObject fieldsToUpdateWithValues = null;
+      Document fieldsToUpdateWithValues = null;
 
       if (updateObject.get(CONST_PUSH) != null) {
-        // if we have some field(s) already associated with this type of
-        // modifier
-        // operation then just add to them
-        fieldsToUpdateWithValues = (DBObject) updateObject.get(CONST_PUSH);
+        fieldsToUpdateWithValues = (Document) updateObject.get(CONST_PUSH);
       } else {
-        // otherwise create a new DBObject for this modifier operation
-        fieldsToUpdateWithValues = new BasicDBObject();
+        fieldsToUpdateWithValues = new Document();
       }
 
       fieldsToUpdateWithValues.put(path, valueToSet);
@@ -559,16 +478,12 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       boolean allowNull = (Boolean) params[3];
       IValueMeta vm = inputMeta.getValueMeta(index);
 
-      DBObject fieldsToUpdateWithValues = null;
+      Document fieldsToUpdateWithValues = null;
 
       if (updateObject.get(modifierUpdateOpp) != null) {
-        // if we have some field(s) already associated with this type of
-        // modifier
-        // operation then just add to them
-        fieldsToUpdateWithValues = (DBObject) updateObject.get(modifierUpdateOpp);
+        fieldsToUpdateWithValues = (Document) updateObject.get(modifierUpdateOpp);
       } else {
-        // otherwise create a new DBObject for this modifier operation
-        fieldsToUpdateWithValues = new BasicDBObject();
+        fieldsToUpdateWithValues = new Document();
       }
       setMongoValueFromHopValue(fieldsToUpdateWithValues, path, vm, row[index], isJSON, allowNull);
 
@@ -595,17 +510,17 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    * @param inputMeta the input row format
    * @param row the current incoming row
    * @param vars environment variables
-   * @return a DBObject encapsulating the query
+   * @return a Document encapsulating the query
    * @throws HopException if something goes wrong
    */
-  protected static DBObject getQueryObject(
+  protected static Document getQueryObject(
       List<MongoDbOutputMeta.MongoField> fieldDefs,
       IRowMeta inputMeta,
       Object[] row,
       IVariables vars,
       MongoTopLevel topLevelStructure)
       throws HopException {
-    BasicDBObject query = new BasicDBObject();
+    Document query = new Document();
 
     boolean haveMatchFields = false;
     boolean hasNonNullMatchValues = false;
@@ -632,7 +547,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
           if (vm.isString()) {
             String val = vm.getString(row[index]);
-            query = (BasicDBObject) JSON.parse(val);
+            query = Document.parse(val);
           } else {
             throw new HopException(
                 BaseMessages.getString(
@@ -644,21 +559,18 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         // query objects have fields using "dot" notation to reach into embedded
         // documents
         String path =
-            (field.environUpdateMongoDocPath != null) ? field.environUpdateMongoDocPath : ""; //
+            (field.environUpdateMongoDocPath != null) ? field.environUpdateMongoDocPath : "";
 
         boolean hasPath = !StringUtils.isEmpty(path);
         path +=
             ((field.useIncomingFieldNameAsMongoFieldName)
-                ? (hasPath
-                    ? "." //
-                        + incomingFieldName
-                    : incomingFieldName)
-                : ""); //
+                ? (hasPath ? "." + incomingFieldName : incomingFieldName)
+                : "");
 
         // post process arrays to fit the dot notation (if not already done
         // by the user)
         if (path.contains("[")) {
-          path = path.replace("[", ".").replace("]", ""); //   // //
+          path = path.replace("[", ".").replace("]", "");
         }
 
         setMongoValueFromHopValue(query, path, vm, row[index], field.inputJson, field.insertNull);
@@ -668,7 +580,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     if (!haveMatchFields) {
       throw new HopException(
           BaseMessages.getString(
-              PKG, "MongoDbOutput.Messages.Error.NoFieldsToUpdateSpecifiedForMatch")); //
+              PKG, "MongoDbOutput.Messages.Error.NoFieldsToUpdateSpecifiedForMatch"));
     }
 
     if (!hasNonNullMatchValues) {
@@ -689,11 +601,11 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    * @param topLevelStructure the top level structure of the Mongo document
    * @param hasTopLevelJSONDocInsert true if the user-specified paths include a single incoming Hop
    *     field value that contains a JSON document that is to be inserted as is
-   * @return a DBObject encapsulating the document to insert/upsert or null if there are no non-null
+   * @return a Document encapsulating the document to insert/upsert or null if there are no non-null
    *     incoming fields
    * @throws HopException if a problem occurs
    */
-  protected static DBObject hopRowToMongo(
+  protected static Object hopRowToMongo(
       List<MongoDbOutputMeta.MongoField> fieldDefs,
       IRowMeta inputMeta,
       Object[] row,
@@ -712,9 +624,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
           IValueMeta vm = inputMeta.getValueMeta(index);
           if (!vm.isNull(row[index])) {
             String jsonDoc = vm.getString(row[index]);
-            // TODO: change JSON.parse into Document.parse and adjust all the returned
-            //  types since the mongoObject.put() accepts a Document and JSON is deprecated
-            return (DBObject) JSON.parse(jsonDoc);
+            return Document.parse(jsonDoc);
           } else {
             return null;
           }
@@ -722,16 +632,16 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       }
     }
 
-    DBObject root = null;
+    Object root = null;
     if (topLevelStructure == MongoTopLevel.RECORD) {
-      root = new BasicDBObject();
+      root = new Document();
     } else if (topLevelStructure == MongoTopLevel.ARRAY) {
-      root = new BasicDBList();
+      root = new ArrayList<>();
     }
 
     boolean haveNonNullFields = false;
     for (MongoDbOutputMeta.MongoField field : fieldDefs) {
-      DBObject current = root;
+      Object current = root;
 
       field.reset();
       List<String> pathParts = field.tempPathList;
@@ -744,8 +654,14 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       do {
         // array?
         if (lookup != null && lookup instanceof Integer) {
-          BasicDBList temp = (BasicDBList) current;
-          if (temp.get(lookup.toString()) == null) {
+          @SuppressWarnings("unchecked")
+          List<Object> temp = (List<Object>) current;
+          int idx = (Integer) lookup;
+          // Ensure list is large enough
+          while (temp.size() <= idx) {
+            temp.add(null);
+          }
+          if (temp.get(idx) == null) {
             if (pathParts.isEmpty() && !field.useIncomingFieldNameAsMongoFieldName) {
               // leaf - primitive element of the array (unless Hop field
               // value is JSON)
@@ -754,13 +670,9 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
                       temp, lookup, vm, row[index], field.inputJson, field.insertNull);
               haveNonNullFields = (haveNonNullFields || res);
             } else {
-              // must be a record here (since multi-dimensional array creation
-              // is handled
-              // in getPathElementName())
-
-              // need to create this record/object
-              BasicDBObject newRec = new BasicDBObject();
-              temp.put(lookup.toString(), newRec);
+              // must be a record here
+              Document newRec = new Document();
+              temp.set(idx, newRec);
               current = newRec;
 
               // end of the path?
@@ -779,18 +691,17 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
                   throw new HopException(
                       BaseMessages.getString(
                           PKG,
-                          CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH)); //
+                          CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH));
                 }
               }
             }
           } else {
             // existing element of the array
-            current = (DBObject) temp.get(lookup.toString());
+            current = temp.get(idx);
 
             // no more path parts so we must be setting a field in an array
-            // element
-            // that is a record
-            if ((Utils.isEmpty(pathParts)) && current instanceof BasicDBObject) {
+            // element that is a record
+            if ((Utils.isEmpty(pathParts)) && current instanceof Document) {
               if (field.useIncomingFieldNameAsMongoFieldName) {
                 boolean res =
                     setMongoValueFromHopValue(
@@ -805,7 +716,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
                 throw new HopException(
                     BaseMessages.getString(
                         PKG,
-                        CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH)); //
+                        CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH));
               }
             }
           }
@@ -825,8 +736,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             } else {
               throw new HopException(
                   BaseMessages.getString(
-                      PKG,
-                      CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH)); //
+                      PKG, CONST_MONGO_DB_OUTPUT_MESSAGES_ERROR_NO_FIELD_NAME_SPECIFIED_FOR_PATH));
             }
           } else {
             if (pathParts.isEmpty()) {
@@ -841,7 +751,8 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
                         field.insertNull);
                 haveNonNullFields = (haveNonNullFields || res);
               } else {
-                current = (DBObject) current.get(lookup.toString());
+                Document doc = (Document) current;
+                current = doc.get(lookup.toString());
                 boolean res =
                     setMongoValueFromHopValue(
                         current,
@@ -853,7 +764,8 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
                 haveNonNullFields = (haveNonNullFields || res);
               }
             } else {
-              current = (DBObject) current.get(lookup.toString());
+              Document doc = (Document) current;
+              current = doc.get(lookup.toString());
             }
           }
         }
@@ -870,7 +782,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
   }
 
   private static boolean setMongoValueFromHopValue(
-      DBObject mongoObject,
+      Object mongoObject,
       Object lookup,
       IValueMeta hopType,
       Object hopValue,
@@ -879,68 +791,60 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
       throws HopValueException {
     if (hopType.isNull(hopValue)) {
       if (allowNull) {
-        mongoObject.put(lookup.toString(), null);
+        if (mongoObject instanceof Document doc) {
+          doc.put(lookup.toString(), null);
+        } else if (mongoObject instanceof List) {
+          @SuppressWarnings("unchecked")
+          List<Object> list = (List<Object>) mongoObject;
+          int idx = (Integer) lookup;
+          while (list.size() <= idx) {
+            list.add(null);
+          }
+          list.set(idx, null);
+        }
         return true;
       } else {
         return false;
       }
     }
 
+    Object valueToSet = null;
+
     switch (hopType.getType()) {
       case IValueMeta.TYPE_STRING:
         {
           String val = hopType.getString(hopValue);
           if (hopValueIsJSON) {
-            Object mongoO = JSON.parse(val);
-            mongoObject.put(lookup.toString(), mongoO);
+            valueToSet = Document.parse(val);
           } else {
-            mongoObject.put(lookup.toString(), val);
+            valueToSet = val;
           }
-          return true;
+          break;
         }
       case IValueMeta.TYPE_BOOLEAN:
-        {
-          Boolean val = hopType.getBoolean(hopValue);
-          mongoObject.put(lookup.toString(), val);
-          return true;
-        }
+        valueToSet = hopType.getBoolean(hopValue);
+        break;
       case IValueMeta.TYPE_INTEGER:
-        {
-          Long val = hopType.getInteger(hopValue);
-          mongoObject.put(lookup.toString(), val.longValue());
-          return true;
-        }
+        valueToSet = hopType.getInteger(hopValue).longValue();
+        break;
       case IValueMeta.TYPE_DATE:
-        {
-          Date val = hopType.getDate(hopValue);
-          mongoObject.put(lookup.toString(), val);
-          return true;
-        }
+        valueToSet = hopType.getDate(hopValue);
+        break;
       case IValueMeta.TYPE_NUMBER:
-        {
-          Double val = hopType.getNumber(hopValue);
-          mongoObject.put(lookup.toString(), val.doubleValue());
-          return true;
-        }
+        valueToSet = hopType.getNumber(hopValue).doubleValue();
+        break;
       case IValueMeta.TYPE_BIGNUMBER:
-        {
-          // use string value - user can use Hop to convert back
-          String val = hopType.getString(hopValue);
-          mongoObject.put(lookup.toString(), val);
-          return true;
-        }
+        // use string value - user can use Hop to convert back
+        valueToSet = hopType.getString(hopValue);
+        break;
       case IValueMeta.TYPE_BINARY:
-        {
-          byte[] val = hopType.getBinary(hopValue);
-          mongoObject.put(lookup.toString(), val);
-          return true;
-        }
+        valueToSet = hopType.getBinary(hopValue);
+        break;
       case IValueMeta.TYPE_JSON:
         {
           JsonNode node = hopType.getJson(hopValue);
-          Object bson = MongoField.toBsonFromJsonNode(node);
-          mongoObject.put(lookup.toString(), bson);
-          return true;
+          valueToSet = MongoField.toBsonFromJsonNode(node);
+          break;
         }
       default:
         {
@@ -948,9 +852,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
           try {
             int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
             if (hopType.getType() == uuidTypeId) {
-              UUID val = (UUID) hopType.convertData(hopType, hopValue);
-              mongoObject.put(lookup.toString(), val);
-              return true;
+              valueToSet = (UUID) hopType.convertData(hopType, hopValue);
             }
           } catch (Exception ignore) {
             // UUID plugin not present, fall through
@@ -958,23 +860,39 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
           if (hopType.isSerializableType()) {
             throw new HopValueException(
                 BaseMessages.getString(
-                    PKG, "MongoDbOutput.Messages.Error.CantStoreHopSerializableVals")); //
+                    PKG, "MongoDbOutput.Messages.Error.CantStoreHopSerializableVals"));
           }
-
-          return false;
+          break;
         }
     }
+
+    if (valueToSet != null) {
+      if (mongoObject instanceof Document doc) {
+        doc.put(lookup.toString(), valueToSet);
+      } else if (mongoObject instanceof List) {
+        @SuppressWarnings("unchecked")
+        List<Object> list = (List<Object>) mongoObject;
+        int idx = (Integer) lookup;
+        while (list.size() <= idx) {
+          list.add(null);
+        }
+        list.set(idx, valueToSet);
+      }
+      return true;
+    }
+    return false;
   }
 
+  @SuppressWarnings("unchecked")
   private static Object getPathElementName(
-      List<String> pathParts, DBObject current, boolean incomingAsFieldName) throws HopException {
+      List<String> pathParts, Object current, boolean incomingAsFieldName) throws HopException {
 
     if (Utils.isEmpty(pathParts)) {
       return null;
     }
 
     String part = pathParts.get(0);
-    if (part.startsWith("[")) { //
+    if (part.startsWith("[")) {
       String index = part.substring(1, part.indexOf(']')).trim();
       part = part.substring(part.indexOf(']') + 1).trim();
       if (!part.isEmpty()) {
@@ -982,28 +900,46 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         pathParts.set(0, part);
 
         // does this next array exist?
-        if (current.get(index) == null) {
-          BasicDBList newArr = new BasicDBList();
-          current.put(index, newArr);
+        if (current instanceof List) {
+          List<Object> list = (List<Object>) current;
+          int idx = Integer.parseInt(index);
+          while (list.size() <= idx) {
+            list.add(null);
+          }
+          if (list.get(idx) == null) {
+            List<Object> newArr = new ArrayList<>();
+            list.set(idx, newArr);
+          }
+        } else if (current instanceof Document) {
+          Document doc = (Document) current;
+          if (doc.get(index) == null) {
+            List<Object> newArr = new ArrayList<>();
+            doc.put(index, newArr);
+          }
         }
       } else {
         // remove - we're finished with this part
         pathParts.remove(0);
       }
       return Integer.valueOf(index);
-    } else if (part.endsWith("]")) { //
+    } else if (part.endsWith("]")) {
       String fieldName = part.substring(0, part.indexOf('['));
-      Object mongoField = current.get(fieldName);
+      Object mongoField = null;
+      if (current instanceof Document) {
+        mongoField = ((Document) current).get(fieldName);
+      }
       if (mongoField == null) {
         // create this field
-        BasicDBList newField = new BasicDBList();
-        current.put(fieldName, newField);
+        List<Object> newField = new ArrayList<>();
+        if (current instanceof Document) {
+          ((Document) current).put(fieldName, newField);
+        }
       } else {
         // check type - should be an array
-        if (!(mongoField instanceof BasicDBList)) {
+        if (!(mongoField instanceof List)) {
           throw new HopException(
               BaseMessages.getString(
-                  PKG, "MongoDbOutput.Messages.Error.FieldExistsButIsntAnArray", part)); //
+                  PKG, "MongoDbOutput.Messages.Error.FieldExistsButIsntAnArray", part));
         }
       }
       part = part.substring(part.indexOf('['));
@@ -1013,21 +949,25 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     }
 
     // otherwise this path part is a record (object) or possibly a leaf (if we
-    // are not
-    // using the incoming Hop field name as the mongo field name)
-    Object mongoField = current.get(part);
+    // are not using the incoming Hop field name as the mongo field name)
+    Object mongoField = null;
+    if (current instanceof Document) {
+      mongoField = ((Document) current).get(part);
+    }
     if (mongoField == null) {
       if (incomingAsFieldName || pathParts.size() > 1) {
         // create this field
-        BasicDBObject newField = new BasicDBObject();
-        current.put(part, newField);
+        Document newField = new Document();
+        if (current instanceof Document) {
+          ((Document) current).put(part, newField);
+        }
       }
     } else {
       // check type = should be a record (object)
-      if (!(mongoField instanceof BasicDBObject) && pathParts.size() > 1) {
+      if (!(mongoField instanceof Document) && pathParts.size() > 1) {
         throw new HopException(
             BaseMessages.getString(
-                PKG, "MongoDbOutput.Messages.Error.FieldExistsButIsntARecord", part)); //
+                PKG, "MongoDbOutput.Messages.Error.FieldExistsButIsntARecord", part));
       }
     }
     pathParts.remove(0);
@@ -1060,7 +1000,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
 
       if (StringUtils.isEmpty(mongoPath)) {
         numRecords++;
-      } else if (mongoPath.startsWith("[")) { //
+      } else if (mongoPath.startsWith("[")) {
         numArrays++;
       } else {
         numRecords++;

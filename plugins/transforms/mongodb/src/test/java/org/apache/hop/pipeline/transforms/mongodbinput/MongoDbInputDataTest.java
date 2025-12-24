@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.mongodbinput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
@@ -29,8 +28,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
@@ -45,6 +42,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.field.MongoField;
+import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -78,7 +76,7 @@ class MongoDbInputDataTest {
     when(meta.getName()).thenReturn(dbName);
     when(meta.getCollection()).thenReturn(collection);
     when(meta.getJsonQuery()).thenReturn(query);
-    when(meta.getFieldsName()).thenReturn(fields);
+    when(meta.getJsonField()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
     when(vars.resolve(dbName)).thenReturn(dbName);
@@ -122,7 +120,7 @@ class MongoDbInputDataTest {
     when(meta.getName()).thenReturn(dbName);
     when(meta.getCollection()).thenReturn(collection);
     when(meta.getJsonQuery()).thenReturn(query);
-    when(meta.getFieldsName()).thenReturn(fields);
+    when(meta.getJsonField()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
     when(vars.resolve(dbName)).thenReturn(dbName);
@@ -163,7 +161,7 @@ class MongoDbInputDataTest {
     when(meta.getName()).thenReturn(dbName);
     when(meta.getCollection()).thenReturn(collection);
     when(meta.getJsonQuery()).thenReturn(query);
-    when(meta.getFieldsName()).thenReturn(fields);
+    when(meta.getJsonField()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
     when(vars.resolve(dbName)).thenReturn(dbName);
@@ -195,8 +193,8 @@ class MongoDbInputDataTest {
 
   @Test
   void testGetNonExistentField() throws HopException {
-    Object mongoO = BasicDBObject.parse(sTestData);
-    assertTrue(mongoO instanceof DBObject);
+    Document mongoDoc = Document.parse(sTestData);
+    assertNotNull(mongoDoc);
 
     List<MongoField> discoveredFields = new ArrayList<>();
     MongoField mm = new MongoField();
@@ -217,7 +215,7 @@ class MongoDbInputDataTest {
     data.setMongoFields(discoveredFields);
     data.init();
     Variables vars = new Variables();
-    Object[] result = data.mongoDocumentToHop((DBObject) mongoO, vars)[0];
+    Object[] result = data.mongoDocumentToHop(mongoDoc, vars)[0];
 
     assertNotNull(result);
     assertEquals(1, result.length - RowDataUtil.OVER_ALLOCATE_SIZE);
@@ -226,8 +224,8 @@ class MongoDbInputDataTest {
 
   @Test
   void testArrayUnwindArrayFieldsOnly() throws HopException {
-    Object mongoO = BasicDBObject.parse(sTestData2);
-    assertTrue(mongoO instanceof DBObject);
+    Document mongoDoc = Document.parse(sTestData2);
+    assertNotNull(mongoDoc);
 
     List<MongoField> fields = new ArrayList<>();
 
@@ -250,7 +248,7 @@ class MongoDbInputDataTest {
     data.init();
     Variables vars = new Variables();
 
-    Object[][] result = data.mongoDocumentToHop((DBObject) mongoO, vars);
+    Object[][] result = data.mongoDocumentToHop(mongoDoc, vars);
 
     assertNotNull(result);
     assertEquals(2, result.length);
@@ -264,8 +262,8 @@ class MongoDbInputDataTest {
 
   @Test
   void testArrayUnwindOneArrayExpandFieldAndOneNormalField() throws HopException {
-    Object mongoO = BasicDBObject.parse(sTestData2);
-    assertTrue(mongoO instanceof DBObject);
+    Document mongoDoc = Document.parse(sTestData2);
+    assertNotNull(mongoDoc);
 
     List<MongoField> fields = new ArrayList<>();
 
@@ -294,7 +292,7 @@ class MongoDbInputDataTest {
     data.init();
     Variables vars = new Variables();
 
-    Object[][] result = data.mongoDocumentToHop((DBObject) mongoO, vars);
+    Object[][] result = data.mongoDocumentToHop(mongoDoc, vars);
 
     assertNotNull(result);
     assertEquals(2, result.length);
@@ -315,8 +313,8 @@ class MongoDbInputDataTest {
 
   @Test
   void testArrayUnwindWithOneExistingAndOneNonExistingField() throws HopException {
-    Object mongoO = BasicDBObject.parse(sTestData2);
-    assertTrue(mongoO instanceof DBObject);
+    Document mongoDoc = Document.parse(sTestData2);
+    assertNotNull(mongoDoc);
 
     List<MongoField> fields = new ArrayList<>();
 
@@ -345,7 +343,7 @@ class MongoDbInputDataTest {
     data.init();
     Variables vars = new Variables();
 
-    Object[][] result = data.mongoDocumentToHop((DBObject) mongoO, vars);
+    Object[][] result = data.mongoDocumentToHop(mongoDoc, vars);
 
     assertNotNull(result);
     assertEquals(2, result.length);

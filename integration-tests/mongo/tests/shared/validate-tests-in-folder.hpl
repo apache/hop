@@ -29,7 +29,7 @@ limitations under the License.
     <parameters>
       <parameter>
         <name>PARENT_FOLDER</name>
-        <default_value></default_value>
+        <default_value/>
         <description>The folder in which the parent workflow was executed.</description>
       </parameter>
     </parameters>
@@ -40,31 +40,29 @@ limitations under the License.
     <created_date>2019/08/07 14:54:33.013</created_date>
     <modified_user>-</modified_user>
     <modified_date>2019/08/07 14:54:33.013</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>11</fontsize>
+      <height>-1</height>
+      <xloc>112</xloc>
+      <yloc>368</yloc>
       <note>Find all tests and limit the pipelines to the ones in ${TEST_FOLDER}
 Then execute all the tests and get the results.
 If any of the tests fails, log a report and abort.  </note>
-      <xloc>112</xloc>
-      <yloc>368</yloc>
       <width>354</width>
-      <heigth>58</heigth>
-      <fontname>Noto Sans</fontname>
-      <fontsize>11</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>14</fontcolorred>
-      <fontcolorgreen>58</fontcolorgreen>
-      <fontcolorblue>90</fontcolorblue>
-      <backgroundcolorred>201</backgroundcolorred>
-      <backgroundcolorgreen>232</backgroundcolorgreen>
-      <backgroundcolorblue>251</backgroundcolorblue>
-      <bordercolorred>14</bordercolorred>
-      <bordercolorgreen>58</bordercolorgreen>
-      <bordercolorblue>90</bordercolorblue>
     </notepad>
   </notepads>
   <order>
@@ -135,10 +133,10 @@ If any of the tests fails, log a report and abort.  </note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <row_threshold>0</row_threshold>
-    <message>There was at least one failing unit test in ${TEST_FOLDER}</message>
-    <always_log_rows>N</always_log_rows>
     <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>N</always_log_rows>
+    <message>There was at least one failing unit test in ${TEST_FOLDER}</message>
+    <row_threshold>0</row_threshold>
     <attributes/>
     <GUI>
       <xloc>848</xloc>
@@ -156,22 +154,21 @@ If any of the tests fails, log a report and abort.  </note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to/>
-    <send_false_to/>
     <compare>
       <condition>
-        <negated>N</negated>
-        <leftvalue>error</leftvalue>
+        <conditions>
+</conditions>
         <function>=</function>
-        <rightvalue/>
+        <leftvalue>error</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
         <value>
-          <name>constant</name>
-          <type>Boolean</type>
-          <text>Y</text>
-          <length>-1</length>
-          <precision>-1</precision>
           <isnull>N</isnull>
-          <mask/>
+          <length>-1</length>
+          <name>constant</name>
+          <precision>-1</precision>
+          <text>Y</text>
+          <type>Boolean</type>
         </value>
       </condition>
     </compare>
@@ -192,14 +189,14 @@ If any of the tests fails, log a report and abort.  </note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <test_name_input_field>name</test_name_input_field>
-    <type_to_execute>DEVELOPMENT</type_to_execute>
-    <pipeline_name_field>pipeline</pipeline_name_field>
-    <unit_test_name_field>unittest</unit_test_name_field>
-    <data_set_name_field>dataset</data_set_name_field>
-    <transform_name_field>transform</transform_name_field>
-    <error_field>error</error_field>
     <comment_field>comment</comment_field>
+    <data_set_name_field>dataset</data_set_name_field>
+    <error_field>error</error_field>
+    <pipeline_name_field>pipeline</pipeline_name_field>
+    <test_name_input_field>name</test_name_input_field>
+    <transform_name_field>transform</transform_name_field>
+    <type_to_execute>DEVELOPMENT</type_to_execute>
+    <unit_test_name_field>unittest</unit_test_name_field>
     <attributes/>
     <GUI>
       <xloc>560</xloc>
@@ -292,16 +289,16 @@ If any of the tests fails, log a report and abort.  </note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <loglevel>log_level_basic</loglevel>
     <displayHeader>Y</displayHeader>
-    <limitRows>N</limitRows>
-    <limitRowsNumber>0</limitRowsNumber>
-    <logmessage>There are failing tests:</logmessage>
     <fields>
       <field>
         <name>failingTests</name>
       </field>
     </fields>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <loglevel>Basic</loglevel>
+    <logmessage>There are failing tests:</logmessage>
     <attributes/>
     <GUI>
       <xloc>736</xloc>
@@ -319,22 +316,14 @@ If any of the tests fails, log a report and abort.  </note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <all_rows>N</all_rows>
-    <ignore_aggregate>N</ignore_aggregate>
-    <field_ignore/>
-    <directory>${java.io.tmpdir}</directory>
-    <prefix>grp</prefix>
     <add_linenr>N</add_linenr>
-    <linenr_fieldname/>
-    <give_back_row>Y</give_back_row>
-    <group>
-      </group>
+    <all_rows>N</all_rows>
+    <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
         <aggregate>count</aggregate>
         <subject>comment</subject>
         <type>COUNT_ALL</type>
-        <valuefield/>
       </field>
       <field>
         <aggregate>failingTests</aggregate>
@@ -343,6 +332,11 @@ If any of the tests fails, log a report and abort.  </note>
         <valuefield>, </valuefield>
       </field>
     </fields>
+    <give_back_row>Y</give_back_row>
+    <group>
+</group>
+    <ignore_aggregate>N</ignore_aggregate>
+    <prefix>grp</prefix>
     <attributes/>
     <GUI>
       <xloc>512</xloc>
@@ -360,22 +354,22 @@ If any of the tests fails, log a report and abort.  </note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to/>
-    <send_false_to/>
     <compare>
       <condition>
-        <negated>N</negated>
-        <leftvalue>count</leftvalue>
+        <conditions>
+</conditions>
         <function>&gt;</function>
-        <rightvalue/>
+        <leftvalue>count</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
         <value>
-          <name>constant</name>
-          <type>Integer</type>
-          <text>0</text>
-          <length>-1</length>
-          <precision>0</precision>
           <isnull>N</isnull>
+          <length>-1</length>
           <mask>####0;-####0</mask>
+          <name>constant</name>
+          <precision>0</precision>
+          <text>0</text>
+          <type>Integer</type>
         </value>
       </condition>
     </compare>
@@ -386,8 +380,8 @@ If any of the tests fails, log a report and abort.  </note>
     </GUI>
   </transform>
   <transform>
-    <name>parentFolder</name>
-    <type>GetVariable</type>
+    <name>folder</name>
+    <type>ReplaceString</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -398,21 +392,19 @@ If any of the tests fails, log a report and abort.  </note>
     </partitioning>
     <fields>
       <field>
-        <name>parentFolder</name>
-        <variable>${PARENT_FOLDER}</variable>
-        <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>parentFolder</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <out_stream_name>folder</out_stream_name>
+        <replace_string>file://${PROJECT_HOME}</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>N</use_regex>
+        <whole_word>N</whole_word>
       </field>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>176</xloc>
+      <xloc>288</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>
@@ -427,13 +419,14 @@ If any of the tests fails, log a report and abort.  </note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to/>
-    <send_false_to/>
     <compare>
       <condition>
-        <negated>N</negated>
-        <leftvalue>filename</leftvalue>
+        <conditions>
+</conditions>
         <function>CONTAINS</function>
+        <leftvalue>filename</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
         <rightvalue>folder</rightvalue>
       </condition>
     </compare>
@@ -487,35 +480,8 @@ if (error==true) {
     </GUI>
   </transform>
   <transform>
-    <name>with data set</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <send_true_to/>
-    <send_false_to/>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>dataset</leftvalue>
-        <function>IS NOT NULL</function>
-        <rightvalue/>
-      </condition>
-    </compare>
-    <attributes/>
-    <GUI>
-      <xloc>208</xloc>
-      <yloc>224</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>folder</name>
-    <type>ReplaceString</type>
+    <name>parentFolder</name>
+    <type>GetVariable</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -526,22 +492,45 @@ if (error==true) {
     </partitioning>
     <fields>
       <field>
-        <in_stream_name>parentFolder</in_stream_name>
-        <out_stream_name>folder</out_stream_name>
-        <use_regex>no</use_regex>
-        <replace_string>file://${PROJECT_HOME}</replace_string>
-        <replace_by_string/>
-        <set_empty_string>N</set_empty_string>
-        <replace_field_by_string/>
-        <whole_word>no</whole_word>
-        <case_sensitive>no</case_sensitive>
-        <is_unicode>no</is_unicode>
+        <length>-1</length>
+        <name>parentFolder</name>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <variable>${PARENT_FOLDER}</variable>
       </field>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>288</xloc>
+      <xloc>176</xloc>
       <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>with data set</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>IS NOT NULL</function>
+        <leftvalue>dataset</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>208</xloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

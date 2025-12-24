@@ -112,64 +112,33 @@ If this fails, also check the prev transforms.</note>
       <schema_name/>
     </partitioning>
     <concat_errors>N</concat_errors>
-    <concat_separator/>
     <validate_all>N</validate_all>
     <validator_field>
       <allowed_value>
 </allowed_value>
-      <conversion_mask/>
       <data_type>UUID</data_type>
       <data_type_verified>Y</data_type_verified>
-      <decimal_symbol/>
-      <end_string/>
-      <end_string_not_allowed/>
-      <error_code/>
-      <error_description/>
-      <grouping_symbol/>
       <is_sourcing_values>N</is_sourcing_values>
       <max_length/>
-      <max_value/>
       <min_length/>
-      <min_value/>
       <name>id1</name>
       <null_allowed>N</null_allowed>
       <only_null_allowed>N</only_null_allowed>
       <only_numeric_allowed>N</only_numeric_allowed>
-      <regular_expression/>
-      <regular_expression_not_allowed/>
-      <sourcing_field/>
-      <sourcing_transform/>
-      <start_string/>
-      <start_string_not_allowed/>
       <validation_name>uuid_type_id1</validation_name>
     </validator_field>
     <validator_field>
       <allowed_value>
 </allowed_value>
-      <conversion_mask/>
       <data_type>UUID</data_type>
       <data_type_verified>Y</data_type_verified>
-      <decimal_symbol/>
-      <end_string/>
-      <end_string_not_allowed/>
-      <error_code/>
-      <error_description/>
-      <grouping_symbol/>
       <is_sourcing_values>N</is_sourcing_values>
       <max_length/>
-      <max_value/>
       <min_length/>
-      <min_value/>
       <name>id2</name>
       <null_allowed>N</null_allowed>
       <only_null_allowed>N</only_null_allowed>
       <only_numeric_allowed>N</only_numeric_allowed>
-      <regular_expression/>
-      <regular_expression_not_allowed/>
-      <sourcing_field/>
-      <sourcing_transform/>
-      <start_string/>
-      <start_string_not_allowed/>
       <validation_name>uuid_type_id2</validation_name>
     </validator_field>
     <attributes/>
@@ -258,7 +227,7 @@ If this fails, also check the prev transforms.</note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>mongo</connection>
+    <connection>${MONGO_CONNECTION}</connection>
     <fields_name/>
     <collection>uuid_insert</collection>
     <json_field_name>json</json_field_name>

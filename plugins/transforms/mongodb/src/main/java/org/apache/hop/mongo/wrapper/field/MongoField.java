@@ -18,48 +18,52 @@
 package org.apache.hop.mongo.wrapper.field;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputData;
 import org.bson.BsonUndefined;
 import org.bson.Document;
 import org.bson.types.Binary;
 import org.bson.types.Decimal128;
 
+@Getter
+@Setter
 public class MongoField implements Comparable<MongoField> {
   protected static final Class<?> PKG = MongoField.class;
 
-  /** The name the the field will take in the outputted Hop stream */
-  @Injection(name = "FIELD_NAME", group = "FIELDS")
+  /** The name the field will take in the outputted Hop stream */
+  @HopMetadataProperty(key = "field_name", injectionKey = "FIELD_NAME")
   public String fieldName = "";
 
   /** The path to the field in the Mongo object */
-  @Injection(name = "FIELD_PATH", group = "FIELDS")
+  @HopMetadataProperty(key = "field_path", injectionKey = "FIELD_PATH")
   public String fieldPath = "";
 
   /** The Hop type for this field */
-  @Injection(name = "FIELD_TYPE", group = "FIELDS")
+  @HopMetadataProperty(key = "field_type", injectionKey = "FIELD_TYPE")
   public String hopType = "";
 
   /** User-defined indexed values for String types */
+  @HopMetadataProperty(key = "indexed_vals", injectionKey = "FIELD_INDEXED")
   public List<String> indexedValues;
 
   /**
    * Temporary variable to hold the min:max array index info for fields determined when sampling
    * documents for paths/types
    */
-  @Injection(name = "FIELD_ARRAY_INDEX", group = "FIELDS")
+  // @Injection(name = "FIELD_ARRAY_INDEX", group = "FIELDS")
   @SuppressWarnings("java:S2065") // disable sonar warning on transient
   public transient String arrayIndexInfo;
 
@@ -67,7 +71,7 @@ public class MongoField implements Comparable<MongoField> {
    * Temporary variable to hold the number of times this path was seen when sampling documents to
    * determine paths/types.
    */
-  @Injection(name = "FIELD_PERCENTAGE", group = "FIELDS")
+  // @Injection(name = "FIELD_PERCENTAGE", group = "FIELDS")
   @SuppressWarnings("java:S2065") // disable sonar warning on transient
   public transient int percentageOfSample = -1;
 
@@ -87,7 +91,7 @@ public class MongoField implements Comparable<MongoField> {
    * documents and that the types differ. In this case we should default to Hop type String as a
    * catch-all
    */
-  @Injection(name = "FIELD_DISPARATE_TYPES", group = "FIELDS")
+  // @Injection(name = "FIELD_DISPARATE_TYPES", group = "FIELDS")
   @SuppressWarnings("java:S2065") // disable sonar warning on transient
   public transient boolean disparateTypes;
 
@@ -131,9 +135,7 @@ public class MongoField implements Comparable<MongoField> {
 
     String[] temp = fieldPath.split("\\.");
     pathParts = new ArrayList<>();
-    for (String part : temp) {
-      pathParts.add(part);
-    }
+    Collections.addAll(pathParts, temp);
 
     if (pathParts.get(0).equals("$")) {
       pathParts.remove(0); // root record indicator
@@ -269,7 +271,7 @@ public class MongoField implements Comparable<MongoField> {
    * @return the Hop field value
    * @throws HopException if a problem occurs
    */
-  public Object convertToHopValue(BasicDBObject mongoObject) throws HopException {
+  public Object convertToHopValue(Document mongoObject) throws HopException {
 
     if (mongoObject == null) {
       return null;
@@ -309,12 +311,12 @@ public class MongoField implements Comparable<MongoField> {
       return getHopValue(fieldValue);
     }
 
-    if (fieldValue instanceof BasicDBObject basicDBObject) {
-      return convertToHopValue(basicDBObject);
+    if (fieldValue instanceof Document doc) {
+      return convertToHopValue(doc);
     }
 
-    if (fieldValue instanceof BasicDBList basicDBList) {
-      return convertToHopValue(basicDBList);
+    if (fieldValue instanceof List list) {
+      return convertToHopValue(list);
     }
 
     // must mean we have a primitive here, but we're expecting to process more
@@ -329,7 +331,7 @@ public class MongoField implements Comparable<MongoField> {
    * @return the Hop field value
    * @throws HopException if a problem occurs
    */
-  public Object convertToHopValue(BasicDBList mongoList) throws HopException {
+  public Object convertToHopValue(List<?> mongoList) throws HopException {
 
     if (mongoList == null) {
       return null;
@@ -378,12 +380,12 @@ public class MongoField implements Comparable<MongoField> {
       return getHopValue(element);
     }
 
-    if (element instanceof BasicDBObject basicDBObject) {
-      return convertToHopValue(basicDBObject);
+    if (element instanceof Document doc) {
+      return convertToHopValue(doc);
     }
 
-    if (element instanceof BasicDBList basicDBList) {
-      return convertToHopValue(basicDBList);
+    if (element instanceof List list) {
+      return convertToHopValue(list);
     }
 
     // must mean we have a primitive here, but we're expecting to process more
@@ -405,21 +407,12 @@ public class MongoField implements Comparable<MongoField> {
     return pathName;
   }
 
-  /**
-   * Returns the name of the MongoDB field
-   *
-   * @return String MongoDB Field Name
-   */
-  public String getName() {
-    return fieldName;
-  }
-
   @Override
   public int compareTo(MongoField comp) {
     return fieldName.compareTo(comp.fieldName);
   }
 
-  @Injection(name = "FIELD_INDEXED", group = "FIELDS")
+  // @Injection(name = "FIELD_INDEXED", group = "FIELDS")
   public void setIndexedVals(String vals) {
     indexedValues = MongoDbInputData.indexedValsList(vals);
   }

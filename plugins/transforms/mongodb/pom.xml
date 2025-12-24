@@ -32,14 +32,14 @@
     <properties>
         <easymock.version>3.4</easymock.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <mongo-driver.version>3.12.14</mongo-driver.version>
+        <mongo-driver.version>5.6.1</mongo-driver.version>
     </properties>
 
     <dependencies>
 
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
+            <artifactId>mongodb-driver-sync</artifactId>
             <version>${mongo-driver.version}</version>
         </dependency>
         <dependency>

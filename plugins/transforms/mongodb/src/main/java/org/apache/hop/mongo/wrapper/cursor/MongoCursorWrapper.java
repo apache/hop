@@ -17,9 +17,9 @@
 
 package org.apache.hop.mongo.wrapper.cursor;
 
-import com.mongodb.DBObject;
 import com.mongodb.ServerAddress;
 import org.apache.hop.mongo.MongoDbException;
+import org.bson.Document;
 
 /**
  * Defines the wrapper interface for all interactions with a MongoCursor via a MongoClientWrapper.
@@ -35,10 +35,10 @@ public interface MongoCursorWrapper {
   boolean hasNext() throws MongoDbException;
 
   /**
-   * @return the next DBObject
+   * @return the next Document
    * @throws MongoDbException
    */
-  DBObject next() throws MongoDbException;
+  Document next() throws MongoDbException;
 
   /**
    * @return the server address the cursor is retrieving data from.
@@ -55,7 +55,7 @@ public interface MongoCursorWrapper {
 
   /**
    * @param i the limit to use. Should be positive.
-   * @return a cursor which will will allow iterating over a maximum of i DBObjects.
+   * @return a cursor which will allow iterating over a maximum of n Documents.
    * @throws MongoDbException
    */
   MongoCursorWrapper limit(int i) throws MongoDbException;

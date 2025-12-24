@@ -29,10 +29,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Test class for {@link org.apache.hop.mongo.wrapper.UsernamePasswordMongoClientWrapper}. */
-class UsernamePasswordMongoClientWrapperTest {
+/**
+ * Test class for {@link org.apache.hop.mongo.wrapper.MongoClientWrapperImpl} credential handling.
+ */
+class MongoClientWrapperImplCredentialTest {
 
-  /** Mocked MongoUtilLogger for UsernamePasswordMongoClientWrapper initialization. */
+  /** Mocked MongoUtilLogger for MongoClientWrapperImpl initialization. */
   @Mock private MongoUtilLogger log;
 
   /** Builder for MongoProperties initialization. */
@@ -44,7 +46,7 @@ class UsernamePasswordMongoClientWrapperTest {
   }
 
   /**
-   * Test of {@link UsernamePasswordMongoClientWrapper#getCredentialList()} method basic behavior.
+   * Test of {@link MongoClientWrapperImpl#getCredentialList()} method basic behavior.
    *
    * @throws Exception
    */
@@ -61,8 +63,8 @@ class UsernamePasswordMongoClientWrapperTest {
             .set(MongoProp.PASSWORD, password)
             .set(MongoProp.AUTH_DATABASE, authDb)
             .set(MongoProp.DBNAME, dbName);
-    UsernamePasswordMongoClientWrapper mongoClientWrapper =
-        new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
+    MongoClientWrapperImpl mongoClientWrapper =
+        new MongoClientWrapperImpl(mongoPropertiesBuilder.build(), log);
     List<MongoCredential> credentials = mongoClientWrapper.getCredentialList();
     assertEquals(1, credentials.size());
     assertEquals(null, credentials.get(0).getMechanism());
@@ -72,8 +74,7 @@ class UsernamePasswordMongoClientWrapperTest {
   }
 
   /**
-   * Test of {@link UsernamePasswordMongoClientWrapper#getCredentialList()} method's default
-   * behavior.
+   * Test of {@link MongoClientWrapperImpl#getCredentialList()} method's default behavior.
    *
    * @throws Exception
    */
@@ -85,8 +86,8 @@ class UsernamePasswordMongoClientWrapperTest {
         new MongoProperties.Builder()
             .set(MongoProp.USERNAME, username)
             .set(MongoProp.DBNAME, source);
-    UsernamePasswordMongoClientWrapper mongoClientWrapper =
-        new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
+    MongoClientWrapperImpl mongoClientWrapper =
+        new MongoClientWrapperImpl(mongoPropertiesBuilder.build(), log);
     List<MongoCredential> credentials = mongoClientWrapper.getCredentialList();
     assertEquals(1, credentials.size());
     assertEquals(null, credentials.get(0).getMechanism());
@@ -96,7 +97,7 @@ class UsernamePasswordMongoClientWrapperTest {
   }
 
   /**
-   * Test of {@link UsernamePasswordMongoClientWrapper#getCredentialList()} method's behavior when
+   * Test of {@link MongoClientWrapperImpl#getCredentialList()} method's behavior when
    * MongoProp.AUTH_DATABASE is null or empty. In this case MongoProp.AUTH_DATABASE should be used
    * for the backward compatibility.
    *
@@ -115,8 +116,8 @@ class UsernamePasswordMongoClientWrapperTest {
             .set(MongoProp.PASSWORD, password)
             .set(MongoProp.AUTH_DATABASE, "")
             .set(MongoProp.DBNAME, dbName);
-    UsernamePasswordMongoClientWrapper mongoClientWrapper =
-        new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
+    MongoClientWrapperImpl mongoClientWrapper =
+        new MongoClientWrapperImpl(mongoPropertiesBuilder.build(), log);
     List<MongoCredential> credentials = mongoClientWrapper.getCredentialList();
     assertEquals(1, credentials.size());
     assertEquals(null, credentials.get(0).getMechanism());
@@ -126,8 +127,7 @@ class UsernamePasswordMongoClientWrapperTest {
 
     // MongoProp.AUTH_DATABASE is empty string
     mongoPropertiesBuilder.set(MongoProp.AUTH_DATABASE, null);
-    mongoClientWrapper =
-        new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
+    mongoClientWrapper = new MongoClientWrapperImpl(mongoPropertiesBuilder.build(), log);
     credentials = mongoClientWrapper.getCredentialList();
     assertEquals(1, credentials.size());
     assertEquals(null, credentials.get(0).getMechanism());
@@ -155,8 +155,8 @@ class UsernamePasswordMongoClientWrapperTest {
               .set(MongoProp.DBNAME, dbName)
               .set(MongoProp.AUTH_MECHA, authMecha);
 
-      UsernamePasswordMongoClientWrapper mongoClientWrapper =
-          new UsernamePasswordMongoClientWrapper(mongoPropertiesBuilder.build(), log);
+      MongoClientWrapperImpl mongoClientWrapper =
+          new MongoClientWrapperImpl(mongoPropertiesBuilder.build(), log);
       List<MongoCredential> credentials = mongoClientWrapper.getCredentialList();
       assertEquals(1, credentials.size());
       assertEquals(authMecha, credentials.get(0).getMechanism());

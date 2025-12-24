@@ -17,17 +17,24 @@
 
 package org.apache.hop.mongo;
 
-import com.mongodb.MongoClientOptions;
-import javax.net.ssl.SSLSocketFactory;
+import com.mongodb.MongoClientSettings;
+import java.util.concurrent.TimeUnit;
 import org.bson.UuidRepresentation;
 
 /**
  * Enumeration of the available properties that can be used when configuring a MongoDB client via a
  * MongoClientWrapper. These properties roughly break down into a set relevant to MongoCredentials,
- * a set relevant to the ServerAddress(es) being used, and the raw MongoClientOptions.
+ * a set relevant to the ServerAddress(es) being used, and the raw MongoClientSettings.
  */
 @SuppressWarnings("java:S115")
 public enum MongoProp {
+
+  /**
+   * A full MongoDB connection string (e.g., mongodb+srv://user:pass@cluster.mongodb.net/dbname).
+   * When provided, this takes precedence over individual hostname/port settings. Supports both
+   * standard mongodb:// and SRV-based mongodb+srv:// connection strings.
+   */
+  CONNECTION_STRING,
 
   // Properties relevant to MongoCredential creation
   /** Authentication database. The database under which db.createUser() command were executed. */
@@ -38,22 +45,24 @@ public enum MongoProp {
   PASSWORD,
 
   /**
-   * Indicates whether to use GSSAPI credentials. Defaults to "false" unless the string value can be
-   * parsed as true.
+   * @deprecated Kerberos authentication is no longer supported. This property is kept for backward
+   *     compatibility but is ignored.
    */
+  @Deprecated
   USE_KERBEROS,
 
   /**
-   * The variable name that may specify the authentication mode to use when creating a JAAS
-   * LoginContext. See {@link org.apache.hop.mongo.KerberosUtil.JaasAuthenticationMode} for possible
-   * values.
+   * @deprecated Kerberos authentication is no longer supported. This property is kept for backward
+   *     compatibility but is ignored.
    */
+  @Deprecated
   HOP_JAAS_AUTH_MODE,
 
   /**
-   * The variable name that may specify the location of the keytab file to use when authenticating
-   * with "KERBEROS_KEYTAB" mode.
+   * @deprecated Kerberos authentication is no longer supported. This property is kept for backward
+   *     compatibility but is ignored.
    */
+  @Deprecated
   HOP_JAAS_KEYTAB_FILE,
 
   /** The database to be used during initial authentication. */
@@ -85,17 +94,19 @@ public enum MongoProp {
    */
   USE_ALL_REPLICA_SET_MEMBERS,
 
-  // MongoClientOptions values.  The following properties correspond to
-  // http://api.mongodb.org/java/2.12/com/mongodb/MongoClientOptions.html
+  // MongoClientSettings values. The following properties correspond to
+  // https://mongodb.github.io/mongo-java-driver/5.0/apidocs/mongodb-driver-core/com/mongodb/MongoClientSettings.html
 
   /** The maximum num of allowed connections. */
   connectionsPerHost {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption) {
-      builder.connectionsPerHost(propToOption.intValue(props.get(connectionsPerHost), 100));
+      int maxPoolSize = propToOption.intValue(props.get(connectionsPerHost), 100);
+      builder.applyToConnectionPoolSettings(
+          poolBuilder -> poolBuilder.maxSize(maxPoolSize).minSize(0));
     }
   },
 
@@ -103,10 +114,12 @@ public enum MongoProp {
   connectTimeout {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption) {
-      builder.connectTimeout(propToOption.intValue(props.get(connectTimeout), 10000));
+      int timeout = propToOption.intValue(props.get(connectTimeout), 10000);
+      builder.applyToSocketSettings(
+          socketBuilder -> socketBuilder.connectTimeout(timeout, TimeUnit.MILLISECONDS));
     }
   },
 
@@ -114,36 +127,42 @@ public enum MongoProp {
   maxWaitTime {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption) {
-      builder.maxWaitTime(propToOption.intValue(props.get(maxWaitTime), 120000));
+      long wait = propToOption.longValue(props.get(maxWaitTime), 120000);
+      builder.applyToConnectionPoolSettings(
+          poolBuilder -> poolBuilder.maxWaitTime(wait, TimeUnit.MILLISECONDS));
     }
   },
 
   /**
-   * Sets whether DBCursors should be cleaned up in finalize to guard against programming errors in
-   * which .close is not called.
+   * Sets whether cursors should be cleaned up in finalize to guard against programming errors in
+   * which .close is not called. Note: In MongoDB 5.x driver, cursor cleanup is handled differently.
    */
   cursorFinalizerEnabled {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption) {
-      builder.cursorFinalizerEnabled(
-          propToOption.boolValue(props.get(cursorFinalizerEnabled), true));
+      // In MongoDB 5.x, cursor cleanup is automatic and this option is no longer available.
+      // This is kept for backward compatibility with property files but does nothing.
     }
   },
 
-  /** Boolean which controls whether connections are kept alive through firewalls. */
+  /**
+   * Boolean which controls whether connections are kept alive through firewalls. Note: In MongoDB
+   * 5.x, socket keep alive is always enabled.
+   */
   socketKeepAlive {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption) {
-      builder.socketKeepAlive(propToOption.boolValue(props.get(socketKeepAlive), false));
+      // In MongoDB 5.x driver, TCP keep-alive is always enabled and cannot be disabled.
+      // This is kept for backward compatibility with property files but does nothing.
     }
   },
 
@@ -151,10 +170,12 @@ public enum MongoProp {
   socketTimeout {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption) {
-      builder.socketTimeout(propToOption.intValue(props.get(socketTimeout), 0));
+      int timeout = propToOption.intValue(props.get(socketTimeout), 0);
+      builder.applyToSocketSettings(
+          socketBuilder -> socketBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS));
     }
   },
 
@@ -162,11 +183,11 @@ public enum MongoProp {
   useSSL {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption) {
       if ("true".equalsIgnoreCase(props.get(useSSL))) {
-        builder.socketFactory(SSLSocketFactory.getDefault());
+        builder.applyToSslSettings(sslBuilder -> sslBuilder.enabled(true));
       }
     }
   },
@@ -179,11 +200,14 @@ public enum MongoProp {
   readPreference {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption)
         throws MongoDbException {
-      builder.readPreference(propToOption.readPrefValue(props));
+      com.mongodb.ReadPreference readPref = propToOption.readPrefValue(props);
+      if (readPref != null) {
+        builder.readPreference(readPref);
+      }
     }
   },
 
@@ -207,11 +231,14 @@ public enum MongoProp {
   writeConcern {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption)
         throws MongoDbException {
-      builder.writeConcern(propToOption.writeConcernValue(props));
+      com.mongodb.WriteConcern wc = propToOption.writeConcernValue(props);
+      if (wc != null) {
+        builder.writeConcern(wc);
+      }
     }
   },
 
@@ -224,7 +251,7 @@ public enum MongoProp {
   uuidRepresentation {
     @Override
     public void setOption(
-        MongoClientOptions.Builder builder,
+        MongoClientSettings.Builder builder,
         org.apache.hop.mongo.MongoProperties props,
         MongoPropToOption propToOption) {
       builder.uuidRepresentation(UuidRepresentation.STANDARD);
@@ -232,10 +259,10 @@ public enum MongoProp {
   };
 
   public void setOption(
-      MongoClientOptions.Builder builder,
+      MongoClientSettings.Builder builder,
       org.apache.hop.mongo.MongoProperties props,
       MongoPropToOption propToOption)
       throws MongoDbException {
-    // default is do nothing since some of the Props are not a MongoClientOption
+    // default is do nothing since some of the Props are not a MongoClientSettings option
   }
 }

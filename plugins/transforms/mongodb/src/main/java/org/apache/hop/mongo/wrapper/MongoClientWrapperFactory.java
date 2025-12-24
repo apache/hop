@@ -17,12 +17,9 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import java.lang.reflect.Proxy;
 import org.apache.hop.mongo.MongoDbException;
-import org.apache.hop.mongo.MongoProp;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
-import org.apache.hop.mongo.Util;
 
 /**
  * MongoClientWrapperFactory is used to instantiate MongoClientWrapper objects appropriate for given
@@ -39,24 +36,7 @@ public class MongoClientWrapperFactory {
    */
   public static org.apache.hop.mongo.wrapper.MongoClientWrapper createMongoClientWrapper(
       MongoProperties props, MongoUtilLogger log) throws MongoDbException {
-    if (props.useKerberos()) {
-      return initKerberosProxy(new KerberosMongoClientWrapper(props, log));
-    } else if (!Util.isEmpty(props.get(MongoProp.USERNAME))
-        || !Util.isEmpty(props.get(MongoProp.PASSWORD))
-        || !Util.isEmpty(props.get(MongoProp.AUTH_DATABASE))) {
-      return new org.apache.hop.mongo.wrapper.UsernamePasswordMongoClientWrapper(props, log);
-    }
-    // default
-    return new org.apache.hop.mongo.wrapper.NoAuthMongoClientWrapper(props, log);
-  }
-
-  private static org.apache.hop.mongo.wrapper.MongoClientWrapper initKerberosProxy(
-      KerberosMongoClientWrapper wrapper) {
-    return (org.apache.hop.mongo.wrapper.MongoClientWrapper)
-        Proxy.newProxyInstance(
-            wrapper.getClass().getClassLoader(),
-            new Class<?>[] {org.apache.hop.mongo.wrapper.MongoClientWrapper.class},
-            new org.apache.hop.mongo.wrapper.KerberosInvocationHandler(
-                wrapper.getAuthContext(), wrapper));
+    // Single unified wrapper handles both authenticated and non-authenticated connections
+    return new org.apache.hop.mongo.wrapper.MongoClientWrapperImpl(props, log);
   }
 }
