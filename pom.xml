@@ -148,7 +148,7 @@
         <netty.version>4.2.7.Final</netty.version>
         <objenesis.version>3.4</objenesis.version>
         <opentelemetry.version>1.56.0</opentelemetry.version>
-        <org.eclipse.platform.version>3.131.0</org.eclipse.platform.version>
+        <org.eclipse.platform.version>3.132.0</org.eclipse.platform.version>
         <project.build.outputTimestamp>1762773326</project.build.outputTimestamp>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
