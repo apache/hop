@@ -1538,8 +1538,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       toolTip = "i18n::ExplorerPerspective.ToolbarElement.Delete.Tooltip",
       image = "ui/images/delete.svg",
       separator = true)
-  @GuiKeyboardShortcut(key = SWT.DEL)
-  @GuiOsxKeyboardShortcut(key = SWT.DEL)
+  // Do not add a DELETE shortcut here, already used for file type handler
   public void deleteFile() {
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length == 0) {
