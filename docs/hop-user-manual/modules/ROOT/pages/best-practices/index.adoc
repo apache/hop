@@ -65,5 +65,7 @@ include::../snippets/best-practices/loops.adoc[]
 
 include::../snippets/best-practices/governance.adoc[]
 
+include::../snippets/best-practices/security.adoc[]
+
 
 
