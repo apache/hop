@@ -72,6 +72,11 @@ class TextExplorerFileTypeTest {
   }
 
   @Test
+  void testHasCapabilitySaveAs() {
+    assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_SAVE_AS));
+  }
+
+  @Test
   void testHasCapabilityClose() {
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_CLOSE));
   }
