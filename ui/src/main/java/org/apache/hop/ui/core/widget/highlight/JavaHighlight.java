@@ -85,8 +85,7 @@ public class JavaHighlight implements LineStyleListener {
   }
 
   boolean inBlockComment(int start, int end) {
-    for (int i = 0; i < blockComments.size(); i++) {
-      int[] offsets = blockComments.get(i);
+    for (int[] offsets : blockComments) {
       // start of comment in the line
       if ((offsets[0] >= start) && (offsets[0] <= end)) {
         return true;
@@ -244,8 +243,8 @@ public class JavaHighlight implements LineStyleListener {
     protected boolean fEofSeen = false;
 
     public JavaScanner() {
-      JAVA_KEYWORDS.forEach(name -> reserved.put(name, Integer.valueOf(KEY)));
-      UDJC_FUNCTIONS.forEach(name -> reserved.put(name, Integer.valueOf(FUNCTION)));
+      JAVA_KEYWORDS.forEach(name -> reserved.put(name, KEY));
+      UDJC_FUNCTIONS.forEach(name -> reserved.put(name, FUNCTION));
     }
 
     /** Returns the ending location of the current token in the document. */
@@ -360,7 +359,7 @@ public class JavaHighlight implements LineStyleListener {
               String name = fBuffer.toString();
               Integer token = reserved.get(name);
               if (token != null) {
-                return token.intValue();
+                return token;
               }
               return WORD;
             }

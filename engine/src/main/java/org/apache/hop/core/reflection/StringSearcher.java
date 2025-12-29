@@ -66,9 +66,7 @@ public class StringSearcher {
 
     Class<? extends Object> baseClass = object.getClass();
     Field[] fields = baseClass.getDeclaredFields();
-    for (int i = 0; i < fields.length; i++) {
-      Field field = fields[i];
-
+    for (Field field : fields) {
       boolean processThisOne = true;
 
       if ((field.getModifiers() & Modifier.FINAL) > 0) {
@@ -239,10 +237,10 @@ public class StringSearcher {
 
     } catch (Exception e) {
       // Nope try case insensitive.
-      for (int i = 0; i < methods.length; i++) {
-        String methodName = methods[i].getName();
+      for (Method value : methods) {
+        String methodName = value.getName();
         if (methodName.equalsIgnoreCase(getter)) {
-          return methods[i];
+          return value;
         }
       }
     }

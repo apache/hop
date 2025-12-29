@@ -1267,35 +1267,21 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
    */
   private GraphPropertyDataType convertGraphPropertyTypeToDataType(
       GraphPropertyType graphPropertyType) {
-    switch (graphPropertyType) {
-      case String:
-        return GraphPropertyDataType.String;
-      case Integer:
-        return GraphPropertyDataType.Integer;
-      case Float:
-        return GraphPropertyDataType.Float;
-      case Boolean:
-        return GraphPropertyDataType.Boolean;
-      case Date:
-        return GraphPropertyDataType.Date;
-      case LocalDateTime:
-        return GraphPropertyDataType.LocalDateTime;
-      case ByteArray:
-        return GraphPropertyDataType.ByteArray;
-      case Time:
-        return GraphPropertyDataType.Time;
-      case Point:
-        return GraphPropertyDataType.Point;
-      case Duration:
-        return GraphPropertyDataType.Duration;
-      case LocalTime:
-        return GraphPropertyDataType.LocalTime;
-      case DateTime:
-        return GraphPropertyDataType.DateTime;
-      case Array:
-        return GraphPropertyDataType.List; // Array maps to List in Neo4j
-      default:
-        return GraphPropertyDataType.String;
-    }
+    return switch (graphPropertyType) {
+      case String -> GraphPropertyDataType.String;
+      case Integer -> GraphPropertyDataType.Integer;
+      case Float -> GraphPropertyDataType.Float;
+      case Boolean -> GraphPropertyDataType.Boolean;
+      case Date -> GraphPropertyDataType.Date;
+      case LocalDateTime -> GraphPropertyDataType.LocalDateTime;
+      case ByteArray -> GraphPropertyDataType.ByteArray;
+      case Time -> GraphPropertyDataType.Time;
+      case Point -> GraphPropertyDataType.Point;
+      case Duration -> GraphPropertyDataType.Duration;
+      case LocalTime -> GraphPropertyDataType.LocalTime;
+      case DateTime -> GraphPropertyDataType.DateTime;
+      case Array -> GraphPropertyDataType.List; // Array maps to List in Neo4j
+      default -> GraphPropertyDataType.String;
+    };
   }
 }

@@ -95,17 +95,15 @@ class MongodbInputDiscoverFieldsImplTest {
   private void setupPerform() throws MongoDbException {
     when(clientWrapper.perform(any(String.class), any(MongoDBAction.class)))
         .thenAnswer(
-            new Answer<List<MongoField>>() {
-              @Override
-              public List<MongoField> answer(InvocationOnMock invocationOnMock) throws Throwable {
-                MongoDBAction action = (MongoDBAction) invocationOnMock.getArguments()[1];
-                if (action != null) {
-                  return (List<MongoField>) action.perform(mockDb);
-                } else {
-                  return null;
-                }
-              }
-            });
+            (Answer<List<MongoField>>)
+                invocationOnMock -> {
+                  MongoDBAction action = (MongoDBAction) invocationOnMock.getArguments()[1];
+                  if (action != null) {
+                    return (List<MongoField>) action.perform(mockDb);
+                  } else {
+                    return null;
+                  }
+                });
     when(connection.createWrapper(any(), any())).thenReturn(mock(MongoClientWrapper.class));
     setupCursorWithNRows(NUM_DOCS_TO_SAMPLE);
   }

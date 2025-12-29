@@ -257,8 +257,8 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   @Override
   public String getSqlLockTables(String[] tableNames) {
     StringBuilder sql = new StringBuilder(128);
-    for (int i = 0; i < tableNames.length; i++) {
-      sql.append("LOCK TABLE " + tableNames[i] + " IN EXCLUSIVE MODE;" + Const.CR);
+    for (String tableName : tableNames) {
+      sql.append("LOCK TABLE " + tableName + " IN EXCLUSIVE MODE;" + Const.CR);
     }
     return sql.toString();
   }

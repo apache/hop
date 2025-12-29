@@ -344,16 +344,14 @@ public class HistoryResult {
     List<HistoryResult> shortestPath = getShortestPaths().get(pathIndex);
 
     for (HistoryResult result : shortestPath) {
-      String metaLabel = null;
-      if (result.getType().equals("PIPELINE")) {
-        metaLabel = "Pipeline";
-      } else if (result.getType().equals("WORKFLOW")) {
-        metaLabel = "Workflow";
-      } else if (result.getType().equals("ACTION")) {
-        metaLabel = "Action";
-      } else if (result.getType().equals("TRANSFORM")) {
-        metaLabel = "Transform";
-      }
+      String metaLabel =
+          switch (result.getType()) {
+            case "PIPELINE" -> "Pipeline";
+            case "WORKFLOW" -> "Workflow";
+            case "ACTION" -> "Action";
+            case "TRANSFORM" -> "Transform";
+            default -> null;
+          };
       if (metaLabel != null) {
         cmd.append(
                 "MATCH (:Execution { type : \""

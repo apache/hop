@@ -46,8 +46,8 @@ public class ArrowsAppImporter {
       // Import the nodes
       //
       JSONArray jNodes = (JSONArray) jModel.get("nodes");
-      for (int n = 0; n < jNodes.size(); n++) {
-        JSONObject jNode = (JSONObject) jNodes.get(n);
+      for (Object node : jNodes) {
+        JSONObject jNode = (JSONObject) node;
 
         GraphNode graphNode = new GraphNode();
 
@@ -59,8 +59,8 @@ public class ArrowsAppImporter {
 
         // Labels
         JSONArray jLabels = (JSONArray) jNode.get("labels");
-        for (int l = 0; l < jLabels.size(); l++) {
-          String label = (String) jLabels.get(l);
+        for (Object jLabel : jLabels) {
+          String label = (String) jLabel;
           graphNode.getLabels().add(label);
         }
 
@@ -80,8 +80,8 @@ public class ArrowsAppImporter {
       // Import the relationships...
       //
       JSONArray jRelationships = (JSONArray) jModel.get("relationships");
-      for (int r = 0; r < jRelationships.size(); r++) {
-        JSONObject jRelationship = (JSONObject) jRelationships.get(r);
+      for (Object relationship : jRelationships) {
+        JSONObject jRelationship = (JSONObject) relationship;
 
         GraphRelationship graphRelationship = new GraphRelationship();
 

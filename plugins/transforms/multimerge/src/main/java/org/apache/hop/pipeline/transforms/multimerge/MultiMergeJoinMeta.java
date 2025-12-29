@@ -147,8 +147,8 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
         .append("    ")
         .append(XmlHandler.addTagValue("number_input", inputTransformsNames.length));
     retval.append("    ").append(XmlHandler.openTag("keys")).append(Const.CR);
-    for (int i = 0; i < keyFields.length; i++) {
-      retval.append("      ").append(XmlHandler.addTagValue("key", keyFields[i]));
+    for (String keyField : keyFields) {
+      retval.append("      ").append(XmlHandler.addTagValue("key", keyField));
     }
     retval.append("    ").append(XmlHandler.closeTag("keys")).append(Const.CR);
 
@@ -245,9 +245,9 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
     // So we just merge in the info fields.
     //
     if (info != null) {
-      for (int i = 0; i < info.length; i++) {
-        if (info[i] != null) {
-          r.mergeRowMeta(info[i]);
+      for (IRowMeta iRowMeta : info) {
+        if (iRowMeta != null) {
+          r.mergeRowMeta(iRowMeta);
         }
       }
     }

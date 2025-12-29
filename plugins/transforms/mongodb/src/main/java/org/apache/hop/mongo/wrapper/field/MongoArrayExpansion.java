@@ -190,8 +190,7 @@ public class MongoArrayExpansion {
       for (int i = 0; i < mongoList.size(); i++) {
         Object element = mongoList.get(i);
 
-        for (int j = 0; j < subFields.size(); j++) {
-          MongoField sf = subFields.get(j);
+        for (MongoField sf : subFields) {
           sf.reset(variables);
 
           // what have we got?

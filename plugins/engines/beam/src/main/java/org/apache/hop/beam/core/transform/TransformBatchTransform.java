@@ -131,7 +131,7 @@ public class TransformBatchTransform extends TransformTransform {
       TupleTagList targetTupleTagList = null;
       for (String targetTransform : targetTransforms) {
         String tupleId = HopBeamUtil.createTargetTupleId(transformName, targetTransform);
-        TupleTag<HopRow> tupleTag = new TupleTag<HopRow>(tupleId) {};
+        TupleTag<HopRow> tupleTag = new TupleTag<>(tupleId) {};
         targetTupleTags.add(tupleTag);
         if (targetTupleTagList == null) {
           targetTupleTagList = TupleTagList.of(tupleTag);
@@ -537,8 +537,7 @@ public class TransformBatchTransform extends TransformTransform {
 
           // Create a list of TupleTag to direct the target rows
           //
-          mainTupleTag =
-              new TupleTag<HopRow>(HopBeamUtil.createMainOutputTupleId(transformName)) {};
+          mainTupleTag = new TupleTag<>(HopBeamUtil.createMainOutputTupleId(transformName)) {};
           tupleTagList = new ArrayList<>();
 
           // The lists in here will contain all the rows that ended up in the various target
@@ -554,7 +553,7 @@ public class TransformBatchTransform extends TransformTransform {
                 pipelineMeta.getTransformFields(pipeline, transformCombi.transformName));
 
             String tupleId = HopBeamUtil.createTargetTupleId(transformName, targetTransform);
-            TupleTag<HopRow> tupleTag = new TupleTag<HopRow>(tupleId) {};
+            TupleTag<HopRow> tupleTag = new TupleTag<>(tupleId) {};
             tupleTagList.add(tupleTag);
             final List<Object[]> targetResultRows = new ArrayList<>();
             targetResultRowsList.add(targetResultRows);

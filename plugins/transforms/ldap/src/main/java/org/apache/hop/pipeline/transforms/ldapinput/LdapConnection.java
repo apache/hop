@@ -577,8 +577,8 @@ public class LdapConnection {
           // examine response controls
           Control[] rc = getInitialContext().getResponseControls();
           if (rc != null) {
-            for (int i = 0; i < rc.length; i++) {
-              if (rc[i] instanceof PagedResultsResponseControl pagedResultsResponseControl) {
+            for (Control control : rc) {
+              if (control instanceof PagedResultsResponseControl pagedResultsResponseControl) {
                 cookie = pagedResultsResponseControl.getCookie();
               }
             }
@@ -716,8 +716,8 @@ public class LdapConnection {
    */
   private static String byteToHexEncode(byte[] inArr) {
     StringBuilder guid = new StringBuilder();
-    for (int i = 0; i < inArr.length; i++) {
-      StringBuilder dblByte = new StringBuilder(Integer.toHexString(inArr[i] & 0xff));
+    for (byte b : inArr) {
+      StringBuilder dblByte = new StringBuilder(Integer.toHexString(b & 0xff));
       if (dblByte.length() == 1) {
         guid.append("0");
       }

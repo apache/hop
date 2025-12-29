@@ -596,9 +596,9 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
       throws HopTransformException {
     // remove argument source fields coming from the input
     if (argumentSourceFields && removeArgumentFields) {
-      for (int i = 0; i < arguments.size(); i++) {
+      for (String argument : arguments) {
         try {
-          rowMeta.removeValueMeta(arguments.get(i));
+          rowMeta.removeValueMeta(argument);
         } catch (HopValueException ex) {
           // this probably means the requested field could not be found.
           // we can't really handle this here; however, it's not a problem
@@ -620,8 +620,8 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
 
     for (int i = 0; i < n; i++) {
       outputField = outputFields.get(i);
-      for (int j = 0; j < m; j++) {
-        field = fields[j];
+      for (IValueMeta iValueMeta : fields) {
+        field = iValueMeta;
         fieldName = field.getName();
         if (!fieldName.equals(outputField.getName())) {
           continue;

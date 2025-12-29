@@ -317,14 +317,14 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                 HashMap<String, String> collection1 = new HashMap<>();
                 HashMap<String, String> collection2 = new HashMap<>();
 
-                for (int i = 0; i < list1.length; i++) {
+                for (FileObject object : list1) {
                   // Put files list1 in TreeMap collection1
-                  collection1.put(list1[i].getName().getBaseName(), list1[i].toString());
+                  collection1.put(object.getName().getBaseName(), object.toString());
                 }
 
-                for (int i = 0; i < list2.length; i++) {
+                for (FileObject fileObject : list2) {
                   // Put files list2 in TreeMap collection2
-                  collection2.put(list2[i].getName().getBaseName(), list2[i].toString());
+                  collection2.put(fileObject.getName().getBaseName(), fileObject.toString());
                 }
 
                 // Let's now fetch Folder1

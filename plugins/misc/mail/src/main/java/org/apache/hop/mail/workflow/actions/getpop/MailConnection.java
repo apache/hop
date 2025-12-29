@@ -440,8 +440,8 @@ public class MailConnection {
     String[] folderparts = folderName.split("/");
     dfolder = this.getStore().getDefaultFolder();
     // Open destination folder
-    for (int i = 0; i < folderparts.length; i++) {
-      dfolder = dfolder.getFolder(folderparts[i]);
+    for (String folderpart : folderparts) {
+      dfolder = dfolder.getFolder(folderpart);
     }
     return dfolder;
   }
@@ -930,8 +930,8 @@ public class MailConnection {
       String[] folderparts = folderName.split("/");
       Folder f = this.getStore().getDefaultFolder();
       // Open destination folder
-      for (int i = 0; i < folderparts.length; i++) {
-        f = f.getFolder(folderparts[i]);
+      for (String folderpart : folderparts) {
+        f = f.getFolder(folderpart);
         if (!f.exists()) {
           if (createFolder) {
             // Create folder
@@ -1132,11 +1132,11 @@ public class MailConnection {
     try {
       if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0) {
         Folder[] f = folder.list();
-        for (int i = 0; i < f.length; i++) {
+        for (Folder value : f) {
           // Search for sub folders
-          if ((f[i].getType() & Folder.HOLDS_FOLDERS) != 0) {
-            list.add(f[i].getFullName());
-            list.addAll(returnSubfolders(f[i]));
+          if ((value.getType() & Folder.HOLDS_FOLDERS) != 0) {
+            list.add(value.getFullName());
+            list.addAll(returnSubfolders(value));
           }
         }
       }

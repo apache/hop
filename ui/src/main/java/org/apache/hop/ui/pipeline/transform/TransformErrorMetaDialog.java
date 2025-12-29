@@ -164,8 +164,8 @@ public class TransformErrorMetaDialog extends Dialog {
     fdTargetTransform.left = new FormAttachment(middle, 0); // To the right of the label
     fdTargetTransform.right = new FormAttachment(95, 0);
     wTargetTransform.setLayoutData(fdTargetTransform);
-    for (int i = 0; i < targetTransforms.size(); i++) {
-      wTargetTransform.add(targetTransforms.get(i).getName());
+    for (TransformMeta targetTransform : targetTransforms) {
+      wTargetTransform.add(targetTransform.getName());
     }
 
     // is the error handling enabled?

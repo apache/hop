@@ -346,7 +346,7 @@ public class PipelineLoggingExtensionPoint
                     transformPars.put("type", EXECUTION_TYPE_TRANSFORM);
                     transformPars.put("id", transformLogChannelId);
                     transformPars.put("transId", transLogChannelId);
-                    transformPars.put("copy", Long.valueOf(combi.copy));
+                    transformPars.put("copy", (long) combi.copy);
                     transformPars.put(CONST_STATUS, combi.transform.getStatus().getDescription());
                     transformPars.put("loggingText", transformLoggingText);
                     transformPars.put("errors", combi.transform.getErrors());

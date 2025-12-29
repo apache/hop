@@ -165,8 +165,7 @@ public abstract class ConfigurationDialog extends Dialog {
     ArrayList<String> paramNames = new ArrayList<>(configuration.getParametersMap().keySet());
     Collections.sort(paramNames);
 
-    for (int i = 0; i < paramNames.size(); i++) {
-      String paramName = paramNames.get(i);
+    for (String paramName : paramNames) {
       String paramValue = configuration.getParametersMap().get(paramName);
       String defaultValue;
       try {

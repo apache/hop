@@ -174,7 +174,7 @@ public class ColumnSpec {
         }
         break;
       case BOOLEAN:
-        this.mainBuffer.put((valueMeta.getBoolean(value)).booleanValue() ? BYTE_ONE : BYTE_ZERO);
+        this.mainBuffer.put(valueMeta.getBoolean(value) ? BYTE_ONE : BYTE_ZERO);
         break;
       case CHAR:
         this.charBuffer.clear();

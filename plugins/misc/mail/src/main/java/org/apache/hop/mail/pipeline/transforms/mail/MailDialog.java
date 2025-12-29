@@ -2654,14 +2654,11 @@ public class MailDialog extends BaseTransformDialog {
 
     // Sensitivity
     if (input.getSensitivity() != null) {
-      if (input.getSensitivity().equals("personal")) {
-        wSensitivity.select(1);
-      } else if (input.getSensitivity().equals("private")) {
-        wSensitivity.select(2);
-      } else if (input.getSensitivity().equals("company-confidential")) {
-        wSensitivity.select(3);
-      } else {
-        wSensitivity.select(0);
+      switch (input.getSensitivity()) {
+        case "personal" -> wSensitivity.select(1);
+        case "private" -> wSensitivity.select(2);
+        case "company-confidential" -> wSensitivity.select(3);
+        default -> wSensitivity.select(0);
       }
     } else {
       wSensitivity.select(0); // Default normal

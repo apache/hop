@@ -85,7 +85,7 @@ public class MailInputField implements Cloneable {
   };
 
   public static final Map<String, String> columns =
-      new HashMap<String, String>() {
+      new HashMap<>() {
         {
           put("messagenumber", BaseMessages.getString(PKG, "MailInputField.Column.MessageNumber"));
           put("subject", BaseMessages.getString(PKG, "MailInputField.Column.Subject"));

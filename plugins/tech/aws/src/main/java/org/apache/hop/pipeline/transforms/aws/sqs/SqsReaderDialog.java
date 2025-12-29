@@ -21,7 +21,6 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.sqs.AmazonSQS;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
@@ -671,8 +670,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
 
       List<Region> snsRegions = RegionUtils.getRegionsForService(AmazonSQS.ENDPOINT_PREFIX);
 
-      for (Iterator<Region> i = snsRegions.iterator(); i.hasNext(); ) {
-        Region region = i.next();
+      for (Region region : snsRegions) {
         tAWSRegion2.add(region.getName());
       }
 

@@ -356,12 +356,12 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     }
     int datenul = 0;
 
-    for (int i = 0; i < samples.length; i++) {
-      if (!samples[i].isEmpty() && samples[i].equalsIgnoreCase(nullString)) {
+    for (String sample : samples) {
+      if (!sample.isEmpty() && sample.equalsIgnoreCase(nullString)) {
         datenul++;
       } else {
         for (int x = 0; x < dateFormats.length; x++) {
-          if (samples[i] == null || Const.onlySpaces(samples[i]) || samples[i].isEmpty()) {
+          if (sample == null || Const.onlySpaces(sample) || sample.isEmpty()) {
             datefmt[x] = false;
             datefmtCnt--;
           }
@@ -369,7 +369,7 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
           if (datefmt[x]) {
             try {
               daf.applyPattern(dateFormats[x]);
-              Date date = daf.parse(samples[i]);
+              Date date = daf.parse(sample);
 
               Calendar cal = Calendar.getInstance();
               cal.setTime(date);

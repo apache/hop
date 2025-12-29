@@ -308,15 +308,12 @@ public class TokenReplacementMeta
   }
 
   public String getOutputFileFormatString() {
-    if (outputFileFormat.equals("DOS")) {
-      return "\r\n";
-    } else if (outputFileFormat.equals("UNIX")) {
-      return "\n";
-    } else if (outputFileFormat.equals("CR")) {
-      return "\r";
-    } else {
-      return "";
-    }
+    return switch (outputFileFormat) {
+      case "DOS" -> "\r\n";
+      case "UNIX" -> "\n";
+      case "CR" -> "\r";
+      default -> "";
+    };
   }
 
   public void setOutputFileFormat(String outputFileFormat) {
@@ -585,9 +582,7 @@ public class TokenReplacementMeta
     retval.append("    " + XmlHandler.addTagValue(TOKEN_END_STRING, tokenEndString));
 
     retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < tokenReplacementFields.length; i++) {
-      TokenReplacementField field = tokenReplacementFields[i];
-
+    for (TokenReplacementField field : tokenReplacementFields) {
       if (!Utils.isEmpty(field.getName())) {
         retval.append("      <field>").append(Const.CR);
         retval.append("        ").append(XmlHandler.addTagValue(FIELD_NAME, field.getName()));

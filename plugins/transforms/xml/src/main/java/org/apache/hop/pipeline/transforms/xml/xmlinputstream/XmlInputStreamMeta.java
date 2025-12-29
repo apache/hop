@@ -137,7 +137,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta<XmlInputStream, XmlInp
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     int defaultStringLenNameValueElements =
-        Const.toInt(variables.resolve(defaultStringLen), Integer.valueOf(DEFAULT_STRING_LEN));
+        Const.toInt(variables.resolve(defaultStringLen), Integer.parseInt(DEFAULT_STRING_LEN));
 
     if (includeFilenameField) {
       IValueMeta v = new ValueMetaString(variables.resolve(filenameField));

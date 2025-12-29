@@ -464,8 +464,8 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
 
     String[] files = getFilePaths(variables);
     if (files != null) {
-      for (int i = 0; i < files.length; i++) {
-        reference.getEntries().add(new ResourceEntry(files[i], ResourceType.FILE));
+      for (String file : files) {
+        reference.getEntries().add(new ResourceEntry(file, ResourceType.FILE));
       }
     }
     return references;
@@ -499,8 +499,7 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
 
         // Replace the filename ONLY (folder or filename)
         //
-        for (int i = 0; i < filesList.size(); i++) {
-          FileItem fi = filesList.get(i);
+        for (FileItem fi : filesList) {
           FileObject fileObject = HopVfs.getFileObject(variables.resolve(fi.getFileName()));
           fi.setFileName(
               iResourceNaming.nameResource(fileObject, variables, Utils.isEmpty(fi.getFileMask())));

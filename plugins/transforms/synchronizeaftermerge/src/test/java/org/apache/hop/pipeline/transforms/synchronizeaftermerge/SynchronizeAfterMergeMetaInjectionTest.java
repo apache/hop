@@ -39,161 +39,27 @@ class SynchronizeAfterMergeMetaInjectionTest
 
   @Test
   void test() throws Exception {
-    check(
-        "SHEMA_NAME",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getSchemaName();
-          }
-        });
-    check(
-        "TABLE_NAME",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getTableName();
-          }
-        });
-    check(
-        "TABLE_FIELD",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getKeyLookup()[0];
-          }
-        });
-    check(
-        "STREAM_FIELD1",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getKeyStream()[0];
-          }
-        });
-    check(
-        "STREAM_FIELD2",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getKeyStream2()[0];
-          }
-        });
-    check(
-        "COMPARATOR",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getKeyCondition()[0];
-          }
-        });
+    check("SHEMA_NAME", (IStringGetter) () -> meta.getSchemaName());
+    check("TABLE_NAME", (IStringGetter) () -> meta.getTableName());
+    check("TABLE_FIELD", (IStringGetter) () -> meta.getKeyLookup()[0]);
+    check("STREAM_FIELD1", (IStringGetter) () -> meta.getKeyStream()[0]);
+    check("STREAM_FIELD2", (IStringGetter) () -> meta.getKeyStream2()[0]);
+    check("COMPARATOR", (IStringGetter) () -> meta.getKeyCondition()[0]);
 
-    check(
-        "UPDATE_TABLE_FIELD",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getUpdateLookup()[0];
-          }
-        });
-    check(
-        "STREAM_FIELD",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getUpdateStream()[0];
-          }
-        });
-    check(
-        "UPDATE",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getUpdate()[0];
-          }
-        });
+    check("UPDATE_TABLE_FIELD", (IStringGetter) () -> meta.getUpdateLookup()[0]);
+    check("STREAM_FIELD", (IStringGetter) () -> meta.getUpdateStream()[0]);
+    check("UPDATE", (IBooleanGetter) () -> meta.getUpdate()[0]);
 
-    check(
-        "COMMIT_SIZE",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getCommitSize();
-          }
-        });
-    check(
-        "TABLE_NAME_IN_FIELD",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.isTableNameInField();
-          }
-        });
-    check(
-        "TABLE_NAME_FIELD",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getTableNameField();
-          }
-        });
-    check(
-        "OPERATION_ORDER_FIELD",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getOperationOrderField();
-          }
-        });
-    check(
-        "USE_BATCH_UPDATE",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.useBatchUpdate();
-          }
-        });
-    check(
-        "PERFORM_LOOKUP",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.isPerformLookup();
-          }
-        });
-    check(
-        "ORDER_INSERT",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getOrderInsert();
-          }
-        });
-    check(
-        "ORDER_UPDATE",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getOrderUpdate();
-          }
-        });
-    check(
-        "ORDER_DELETE",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getOrderDelete();
-          }
-        });
-    check(
-        "CONNECTION_NAME",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return "My Connection";
-          }
-        },
-        "My Connection");
+    check("COMMIT_SIZE", (IStringGetter) () -> meta.getCommitSize());
+    check("TABLE_NAME_IN_FIELD", (IBooleanGetter) () -> meta.isTableNameInField());
+    check("TABLE_NAME_FIELD", (IStringGetter) () -> meta.getTableNameField());
+    check("OPERATION_ORDER_FIELD", (IStringGetter) () -> meta.getOperationOrderField());
+    check("USE_BATCH_UPDATE", (IBooleanGetter) () -> meta.useBatchUpdate());
+    check("PERFORM_LOOKUP", (IBooleanGetter) () -> meta.isPerformLookup());
+    check("ORDER_INSERT", (IStringGetter) () -> meta.getOrderInsert());
+    check("ORDER_UPDATE", (IStringGetter) () -> meta.getOrderUpdate());
+    check("ORDER_DELETE", (IStringGetter) () -> meta.getOrderDelete());
+    check("CONNECTION_NAME", (IStringGetter) () -> "My Connection", "My Connection");
   }
 
   @Test
@@ -216,30 +82,9 @@ class SynchronizeAfterMergeMetaInjectionTest
         "COMMIT_SIZE",
         "TABLE_NAME_FIELD");
     meta.setDefault();
-    check(
-        "STREAM_FIELD1",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getKeyStream()[0];
-          }
-        });
-    check(
-        "UPDATE_TABLE_FIELD",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getUpdateLookup()[0];
-          }
-        });
-    check(
-        "UPDATE",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getUpdate()[0];
-          }
-        });
+    check("STREAM_FIELD1", (IStringGetter) () -> meta.getKeyStream()[0]);
+    check("UPDATE_TABLE_FIELD", (IStringGetter) () -> meta.getUpdateLookup()[0]);
+    check("UPDATE", (IBooleanGetter) () -> meta.getUpdate()[0]);
 
     meta.getXml();
 

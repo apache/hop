@@ -1360,25 +1360,23 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     if (value.isNull()) {
       return null;
     }
-    switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_STRING:
-        return value.asString();
-      case IValueMeta.TYPE_INTEGER:
-        return value.asLong();
-      case IValueMeta.TYPE_DATE:
+    return switch (valueMeta.getType()) {
+      case IValueMeta.TYPE_STRING -> value.asString();
+      case IValueMeta.TYPE_INTEGER -> value.asLong();
+      case IValueMeta.TYPE_DATE -> {
         LocalDateTime localDateTime = value.asLocalDateTime();
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-      case IValueMeta.TYPE_BOOLEAN:
-        return value.asBoolean();
-      case IValueMeta.TYPE_NUMBER:
-        return value.asDouble();
-      default:
+        yield Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+      }
+      case IValueMeta.TYPE_BOOLEAN -> value.asBoolean();
+      case IValueMeta.TYPE_NUMBER -> value.asDouble();
+      default -> {
         log.logError(
             "Data type not yet supported : "
                 + valueMeta.getTypeDesc()
                 + " (non-fatal, returning null)");
-        return null;
-    }
+        yield null;
+      }
+    };
   }
 
   private ExecutionDataSetMeta getNeo4jExecutionDataSetMeta(

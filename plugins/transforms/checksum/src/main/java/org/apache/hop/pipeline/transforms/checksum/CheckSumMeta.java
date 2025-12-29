@@ -221,14 +221,11 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
       if (checkSumType == CheckSumType.CRC32 || checkSumType == CheckSumType.ADLER32) {
         v = new ValueMetaInteger(variables.resolve(resultFieldName));
       } else {
-        switch (resultType) {
-          case BINARY:
-            v = new ValueMetaBinary(variables.resolve(resultFieldName));
-            break;
-          default:
-            v = new ValueMetaString(variables.resolve(resultFieldName));
-            break;
-        }
+        v =
+            switch (resultType) {
+              case BINARY -> new ValueMetaBinary(variables.resolve(resultFieldName));
+              default -> new ValueMetaString(variables.resolve(resultFieldName));
+            };
       }
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
@@ -278,8 +275,7 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
       errorMessage = "";
 
       // Starting from selected fields in ...
-      for (int i = 0; i < fields.size(); i++) {
-        Field field = fields.get(i);
+      for (Field field : fields) {
         int idx = prev.indexOfValue(field.getName());
         if (idx < 0) {
           errorMessage += "\t\t" + field.getName() + Const.CR;

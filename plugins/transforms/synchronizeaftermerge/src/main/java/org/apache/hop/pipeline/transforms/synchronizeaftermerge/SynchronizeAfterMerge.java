@@ -233,7 +233,7 @@ public class SynchronizeAfterMerge
             }
 
             for (int i = 0; i < data.valuenrs.length; i++) {
-              if (meta.getUpdate()[i].booleanValue()) {
+              if (meta.getUpdate()[i]) {
                 IValueMeta valueMeta = data.inputRowMeta.getValueMeta(data.valuenrs[i]);
                 IValueMeta retMeta = data.db.getReturnRowMeta().getValueMeta(i);
 
@@ -271,7 +271,7 @@ public class SynchronizeAfterMerge
             Object[] updateRow = new Object[data.updateParameterRowMeta.size()];
             int j = 0;
             for (int i = 0; i < data.valuenrs.length; i++) {
-              if (meta.getUpdate()[i].booleanValue()) {
+              if (meta.getUpdate()[i]) {
                 updateRow[j] = row[data.valuenrs[i]]; // the setters
                 j++;
               }
@@ -384,9 +384,9 @@ public class SynchronizeAfterMerge
 
         Integer commitCounter = data.commitCounterMap.get(tableName);
         if (commitCounter == null) {
-          commitCounter = Integer.valueOf(0);
+          commitCounter = 0;
         }
-        data.commitCounterMap.put(tableName, Integer.valueOf(commitCounter.intValue() + 1));
+        data.commitCounterMap.put(tableName, commitCounter + 1);
 
         // Release the savepoint if needed
         //
@@ -424,7 +424,7 @@ public class SynchronizeAfterMerge
           }
           // Clear the batch/commit counter...
           //
-          data.commitCounterMap.put(tableName, Integer.valueOf(0));
+          data.commitCounterMap.put(tableName, 0);
           rowIsSafe = true;
         } else {
           rowIsSafe = false;
@@ -635,7 +635,7 @@ public class SynchronizeAfterMerge
     boolean comma = false;
 
     for (int i = 0; i < meta.getUpdateLookup().length; i++) {
-      if (meta.getUpdate()[i].booleanValue()) {
+      if (meta.getUpdate()[i]) {
         if (comma) {
           sql.append(",   ");
         } else {

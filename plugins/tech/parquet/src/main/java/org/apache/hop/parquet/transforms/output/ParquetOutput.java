@@ -173,14 +173,11 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     // Parquet Properties
     //
     ParquetProperties.Builder builder = ParquetProperties.builder();
-    switch (meta.getVersion()) {
-      case Version1:
-        builder = builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_1_0);
-        break;
-      case Version2:
-        builder = builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_2_0);
-        break;
-    }
+    builder =
+        switch (meta.getVersion()) {
+          case Version1 -> builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_1_0);
+          case Version2 -> builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_2_0);
+        };
     data.props = builder.build();
 
     SchemaBuilder.FieldAssembler<Schema> fieldAssembler =
@@ -199,12 +196,12 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       // Match these data types with class ParquetWriteSupport
       //
       Schema timestampMilliType;
-      switch (valueMeta.getType()) {
-        case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
-          timestampMilliType =
-              LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG));
-          fieldAssembler =
-              fieldAssembler
+      fieldAssembler =
+          switch (valueMeta.getType()) {
+            case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE -> {
+              timestampMilliType =
+                  LogicalTypes.timestampMillis().addToSchema(Schema.create(Schema.Type.LONG));
+              yield fieldAssembler
                   .name(field.getTargetFieldName())
                   .type()
                   .unionOf()
@@ -213,36 +210,23 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
                   .type(timestampMilliType)
                   .endUnion()
                   .noDefault();
-          break;
-        case IValueMeta.TYPE_INTEGER:
-          fieldAssembler = fieldBuilder.longType().noDefault();
-          break;
-        case IValueMeta.TYPE_NUMBER:
-          fieldAssembler = fieldBuilder.doubleType().noDefault();
-          break;
-        case IValueMeta.TYPE_BOOLEAN:
-          fieldAssembler = fieldBuilder.booleanType().noDefault();
-          break;
-        case IValueMeta.TYPE_STRING, IValueMeta.TYPE_BIGNUMBER:
-          // Convert BigDecimal to String,otherwise we'll have all sorts of conversion issues.
-          //
-          fieldAssembler = fieldBuilder.stringType().noDefault();
-          break;
-        case IValueMeta.TYPE_BINARY:
-          fieldAssembler = fieldBuilder.bytesType().noDefault();
-          break;
-        case IValueMeta.TYPE_JSON:
-          fieldAssembler = fieldBuilder.stringType().noDefault();
-          break;
-        case IValueMeta.TYPE_UUID:
-          fieldAssembler = fieldBuilder.stringType().noDefault();
-          break;
-        default:
-          throw new HopException(
-              "Writing Hop data type '"
-                  + valueMeta.getTypeDesc()
-                  + "' to Parquet is not supported");
-      }
+            }
+            case IValueMeta.TYPE_INTEGER -> fieldBuilder.longType().noDefault();
+            case IValueMeta.TYPE_NUMBER -> fieldBuilder.doubleType().noDefault();
+            case IValueMeta.TYPE_BOOLEAN -> fieldBuilder.booleanType().noDefault();
+            case IValueMeta.TYPE_STRING, IValueMeta.TYPE_BIGNUMBER ->
+                // Convert BigDecimal to String,otherwise we'll have all sorts of conversion issues.
+                //
+                fieldBuilder.stringType().noDefault();
+            case IValueMeta.TYPE_BINARY -> fieldBuilder.bytesType().noDefault();
+            case IValueMeta.TYPE_JSON -> fieldBuilder.stringType().noDefault();
+            case IValueMeta.TYPE_UUID -> fieldBuilder.stringType().noDefault();
+            default ->
+                throw new HopException(
+                    "Writing Hop data type '"
+                        + valueMeta.getTypeDesc()
+                        + "' to Parquet is not supported");
+          };
     }
     data.avroSchema = fieldAssembler.endRecord();
 

@@ -335,18 +335,13 @@ public class HopPipelineMetaToBeamPipelineConverter {
     if (runnerType == null) {
       throw new HopException("Please specify a valid runner type");
     }
-    switch (runnerType) {
-      case Direct:
-        return DirectRunner.class;
-      case Flink:
-        return FlinkRunner.class;
-      case Spark:
-        return SparkRunner.class;
-      case DataFlow:
-        return DataflowRunner.class;
-      default:
-        throw new HopException("Unsupported runner type: " + runnerType.name());
-    }
+    return switch (runnerType) {
+      case Direct -> DirectRunner.class;
+      case Flink -> FlinkRunner.class;
+      case Spark -> SparkRunner.class;
+      case DataFlow -> DataflowRunner.class;
+      default -> throw new HopException("Unsupported runner type: " + runnerType.name());
+    };
   }
 
   private void handleBeamInputTransforms(

@@ -81,32 +81,23 @@ public class Field {
 
     @Override
     public String getCode(int type) {
-      switch (type) {
-        case 0:
-          return "NONE";
-        case 1:
-          return "ONE";
-        case 2:
-          return "TWO";
-        case 3:
-          return "THREE";
-        default:
-          return "NONE";
-      }
+      return switch (type) {
+        case 0 -> "NONE";
+        case 1 -> "ONE";
+        case 2 -> "TWO";
+        case 3 -> "THREE";
+        default -> "NONE";
+      };
     }
 
     @Override
     public int getType(String code) {
-      switch (code) {
-        case "ONE":
-          return 1;
-        case "TWO":
-          return 2;
-        case "THREE":
-          return 3;
-        default:
-          return 0;
-      }
+      return switch (code) {
+        case "ONE" -> 1;
+        case "TWO" -> 2;
+        case "THREE" -> 3;
+        default -> 0;
+      };
     }
   }
 

@@ -170,23 +170,15 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
             hopType = IValueMeta.TYPE_INTEGER;
           }
         } else {
-          switch (primitiveType.getPrimitiveTypeName()) {
-            case INT32, INT64:
-              hopType = IValueMeta.TYPE_INTEGER;
-              break;
-            case INT96:
-              hopType = IValueMeta.TYPE_BINARY;
-              break;
-            case FLOAT, DOUBLE:
-              hopType = IValueMeta.TYPE_NUMBER;
-              break;
-            case BOOLEAN:
-              hopType = IValueMeta.TYPE_BOOLEAN;
-              break;
-            case BINARY:
-              hopType = IValueMeta.TYPE_BINARY;
-              break;
-          }
+          hopType =
+              switch (primitiveType.getPrimitiveTypeName()) {
+                case INT32, INT64 -> IValueMeta.TYPE_INTEGER;
+                case INT96 -> IValueMeta.TYPE_BINARY;
+                case FLOAT, DOUBLE -> IValueMeta.TYPE_NUMBER;
+                case BOOLEAN -> IValueMeta.TYPE_BOOLEAN;
+                case BINARY -> IValueMeta.TYPE_BINARY;
+                default -> hopType;
+              };
         }
         IValueMeta valueMeta = ValueMetaFactory.createValueMeta(sourceField, hopType, -1, -1);
         rowMeta.addValueMeta(valueMeta);

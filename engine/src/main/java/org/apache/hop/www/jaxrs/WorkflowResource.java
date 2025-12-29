@@ -215,15 +215,14 @@ public class WorkflowResource {
       workflow.copyParametersFromDefinitions(workflowMeta);
       workflow.clearParameterValues();
       String[] parameterNames = workflow.listParameters();
-      for (int idx = 0; idx < parameterNames.length; idx++) {
+      for (String parameterName : parameterNames) {
         // Grab the parameter value set in the action
         //
-        String thisValue =
-            workflowExecutionConfiguration.getParametersMap().get(parameterNames[idx]);
+        String thisValue = workflowExecutionConfiguration.getParametersMap().get(parameterName);
         if (!Utils.isEmpty(thisValue)) {
           // Set the value as specified by the user in the action
           //
-          workflow.setParameterValue(parameterNames[idx], thisValue);
+          workflow.setParameterValue(parameterName, thisValue);
         }
       }
       workflow.activateParameters(workflow);

@@ -111,7 +111,7 @@ public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
     }
 
     public STAttrMap put(String attrName, int value) {
-      super.put(attrName, Integer.valueOf(value));
+      super.put(attrName, value);
       return this;
     }
   }

@@ -55,8 +55,8 @@ class GetXMLDataTest {
 
     IValueMeta[] valuesMeta = {new ValueMetaString("field1")};
 
-    for (int i = 0; i < valuesMeta.length; i++) {
-      rm.addValueMeta(valuesMeta[i]);
+    for (IValueMeta iValueMeta : valuesMeta) {
+      rm.addValueMeta(iValueMeta);
     }
 
     return rm;
@@ -120,8 +120,8 @@ class GetXMLDataTest {
       new ValueMetaString("merkmalname"), new ValueMetaString("merkmalswert")
     };
 
-    for (int i = 0; i < valuesMeta.length; i++) {
-      rm.addValueMeta(valuesMeta[i]);
+    for (IValueMeta iValueMeta : valuesMeta) {
+      rm.addValueMeta(iValueMeta);
     }
 
     return rm;

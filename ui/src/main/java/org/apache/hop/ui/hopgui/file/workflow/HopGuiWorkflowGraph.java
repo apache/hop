@@ -2767,8 +2767,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               tip.append(" (10 files of ").append(result.getResultFiles().size()).append(" shown");
             }
             List<ResultFile> files = new ArrayList<>(result.getResultFiles().values());
-            for (int i = 0; i < files.size(); i++) {
-              ResultFile file = files.get(i);
+            for (ResultFile file : files) {
               tip.append("  - ").append(file.toString()).append(Const.CR);
             }
           }
@@ -3890,7 +3889,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   private IActionListener createRefreshActionListener() {
-    return new IActionListener<WorkflowMeta>() {
+    return new IActionListener<>() {
 
       @Override
       public void beforeExecution(

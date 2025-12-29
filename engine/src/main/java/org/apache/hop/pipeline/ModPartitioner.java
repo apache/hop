@@ -94,7 +94,7 @@ public class ModPartitioner extends BasePartitioner {
         if (longValue == null) {
           value = valueMeta.hashCode(valueData);
         } else {
-          value = longValue.longValue();
+          value = longValue;
         }
         break;
       default:

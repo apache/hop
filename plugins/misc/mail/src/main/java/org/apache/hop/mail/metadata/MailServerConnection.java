@@ -359,7 +359,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
           new URLName(
               protocol,
               variables.resolve(serverHost),
-              Integer.valueOf(variables.resolve(serverPort)),
+              Integer.parseInt(variables.resolve(serverPort)),
               "",
               variables.resolve(username),
               variables.resolve(password));
@@ -426,10 +426,10 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
         // the connection is established via SSL.
         this.store.connect();
       } else {
-        if (Integer.valueOf(variables.resolve(this.serverPort)) > -1) {
+        if (Integer.parseInt(variables.resolve(this.serverPort)) > -1) {
           this.store.connect(
               variables.resolve(this.serverHost),
-              Integer.valueOf(variables.resolve(this.serverPort)),
+              Integer.parseInt(variables.resolve(this.serverPort)),
               variables.resolve(this.username),
               variables.resolve(this.password));
         } else {
@@ -481,8 +481,8 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       }
       Folder f = store.getDefaultFolder();
       // Open destination folder
-      for (int i = 0; i < folderparts.length; i++) {
-        f = f.getFolder(folderparts[i]);
+      for (String folderpart : folderparts) {
+        f = f.getFolder(folderpart);
         if (!f.exists()) {
           if (createFolder) {
             // Create folder
@@ -650,11 +650,11 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     try {
       if ((folder.getType() & Folder.HOLDS_FOLDERS) != 0) {
         Folder[] f = folder.list();
-        for (int i = 0; i < f.length; i++) {
+        for (Folder value : f) {
           // Search for sub folders
-          if ((f[i].getType() & Folder.HOLDS_FOLDERS) != 0) {
-            list.add(f[i].getFullName());
-            list.addAll(returnSubfolders(f[i]));
+          if ((value.getType() & Folder.HOLDS_FOLDERS) != 0) {
+            list.add(value.getFullName());
+            list.addAll(returnSubfolders(value));
           }
         }
       }
@@ -942,8 +942,8 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     }
     dfolder = store.getDefaultFolder();
     // Open destination folder
-    for (int i = 0; i < folderparts.length; i++) {
-      dfolder = dfolder.getFolder(folderparts[i]);
+    for (String folderpart : folderparts) {
+      dfolder = dfolder.getFolder(folderpart);
     }
     return dfolder;
   }

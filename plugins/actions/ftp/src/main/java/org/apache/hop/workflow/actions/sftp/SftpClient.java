@@ -438,6 +438,6 @@ public class SftpClient {
   /** Whether we should use GSSAPI when authenticating or not. */
   private String getPreferredAuthentications() {
     String param = Const.getEnvironmentVariable(ENV_PARAM_USERAUTH_GSSAPI, null);
-    return Boolean.valueOf(param) ? PREFERRED_AUTH_WITH_GSSAPI : PREFERRED_AUTH_DEFAULT;
+    return Boolean.parseBoolean(param) ? PREFERRED_AUTH_WITH_GSSAPI : PREFERRED_AUTH_DEFAULT;
   }
 }

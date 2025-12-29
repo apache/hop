@@ -185,21 +185,20 @@ public class GoogleAnalyticsMeta extends BaseTransformMeta<GoogleAnalytics, Goog
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    for (int i = 0; i < googleAnalyticsFields.size(); i++) {
+    for (GoogleAnalyticsField googleAnalyticsField : googleAnalyticsFields) {
       try {
-        if (!Utils.isEmpty(googleAnalyticsFields.get(i).getOutputFieldName())) {
-          int type = ValueMetaFactory.getIdForValueMeta(googleAnalyticsFields.get(i).getType());
+        if (!Utils.isEmpty(googleAnalyticsField.getOutputFieldName())) {
+          int type = ValueMetaFactory.getIdForValueMeta(googleAnalyticsField.getType());
           if (type == IValueMeta.TYPE_NONE) {
             type = IValueMeta.TYPE_STRING;
           }
           IValueMeta v =
-              ValueMetaFactory.createValueMeta(
-                  googleAnalyticsFields.get(i).getOutputFieldName(), type);
+              ValueMetaFactory.createValueMeta(googleAnalyticsField.getOutputFieldName(), type);
           inputRowMeta.addValueMeta(v);
         }
       } catch (Exception e) {
         throw new HopTransformException(
-            "Unable to create value of type " + googleAnalyticsFields.get(i).getType(), e);
+            "Unable to create value of type " + googleAnalyticsField.getType(), e);
       }
     }
   }

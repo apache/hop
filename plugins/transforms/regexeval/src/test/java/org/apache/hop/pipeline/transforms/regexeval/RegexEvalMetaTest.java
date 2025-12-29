@@ -180,7 +180,7 @@ class RegexEvalMetaTest implements IInitializer<ITransform> {
             "fieldType");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("script", "getScript");
             put("matcher", "getMatcher");
@@ -209,7 +209,7 @@ class RegexEvalMetaTest implements IInitializer<ITransform> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("script", "setScript");
             put("matcher", "setMatcher");

@@ -52,8 +52,8 @@ class ExecSqlRowMetaTest {
             "sendOneStatement",
             "connection");
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester(testMetaClass, attributes, getterMap, setterMap);
   }

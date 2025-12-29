@@ -24,7 +24,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
@@ -161,8 +160,8 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
 
   @Override
   public void close() throws HopException {
-    for (Iterator<Writer> iter = writers.values().iterator(); iter.hasNext(); ) {
-      close(iter.next());
+    for (Writer writer : writers.values()) {
+      close(writer);
     }
     writers = new HashMap<>();
   }

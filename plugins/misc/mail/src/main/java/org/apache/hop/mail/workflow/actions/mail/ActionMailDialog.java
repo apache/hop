@@ -1575,14 +1575,11 @@ public class ActionMailDialog extends ActionDialog {
 
     // Sensitivity
     if (action.getSensitivity() != null) {
-      if (action.getSensitivity().equals("personal")) {
-        wSensitivity.select(1);
-      } else if (action.getSensitivity().equals("private")) {
-        wSensitivity.select(2);
-      } else if (action.getSensitivity().equals("company-confidential")) {
-        wSensitivity.select(3);
-      } else {
-        wSensitivity.select(0);
+      switch (action.getSensitivity()) {
+        case "personal" -> wSensitivity.select(1);
+        case "private" -> wSensitivity.select(2);
+        case "company-confidential" -> wSensitivity.select(3);
+        default -> wSensitivity.select(0);
       }
     } else {
       wSensitivity.select(0); // Default normal
@@ -1641,11 +1638,11 @@ public class ActionMailDialog extends ActionDialog {
 
     java.util.List<String> ft = new ArrayList<>();
     String[] fileTypes = wTypes.getSelection();
-    for (int i = 0; i < fileTypes.length; i++) {
+    for (String fileType : fileTypes) {
       String[] allFileTypes = ResultFile.getAllTypeDesc();
-      for (int j = 0; j < allFileTypes.length; j++) {
-        if (allFileTypes[j].equals(fileTypes[i])) {
-          String typeCode = ResultFile.getTypeCode(ResultFile.getType(allFileTypes[j]));
+      for (String allFileType : allFileTypes) {
+        if (allFileType.equals(fileType)) {
+          String typeCode = ResultFile.getTypeCode(ResultFile.getType(allFileType));
           ft.add(typeCode);
         }
       }

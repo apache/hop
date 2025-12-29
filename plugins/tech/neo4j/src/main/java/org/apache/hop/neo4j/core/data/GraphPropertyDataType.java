@@ -137,85 +137,55 @@ public enum GraphPropertyDataType {
     if (valueMeta.isNull(valueData)) {
       return null;
     }
-    switch (this) {
-      case String:
-        return valueMeta.getString(valueData);
-      case Boolean:
-        return valueMeta.getBoolean(valueData);
-      case Float:
-        return valueMeta.getNumber(valueData);
-      case Integer:
-        return valueMeta.getInteger(valueData);
-      case Date:
-        return valueMeta
-            .getDate(valueData)
-            .toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
-      case LocalDateTime:
-        return valueMeta
-            .getDate(valueData)
-            .toInstant()
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime();
-      case ByteArray:
-        return valueMeta.getBinary(valueData);
-      case Duration, DateTime, Time, Point, LocalTime, Map, List:
-      default:
-        throw new HopValueException(
-            "Data conversion to Neo4j type '"
-                + name()
-                + "' from value '"
-                + valueMeta.toStringMeta()
-                + "' is not supported yet");
-    }
+    return switch (this) {
+      case String -> valueMeta.getString(valueData);
+      case Boolean -> valueMeta.getBoolean(valueData);
+      case Float -> valueMeta.getNumber(valueData);
+      case Integer -> valueMeta.getInteger(valueData);
+      case Date ->
+          valueMeta.getDate(valueData).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+      case LocalDateTime ->
+          valueMeta.getDate(valueData).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+      case ByteArray -> valueMeta.getBinary(valueData);
+      default ->
+          throw new HopValueException(
+              "Data conversion to Neo4j type '"
+                  + name()
+                  + "' from value '"
+                  + valueMeta.toStringMeta()
+                  + "' is not supported yet");
+    };
   }
 
   public int getHopType() throws HopValueException {
 
-    switch (this) {
-      case String, Map, List: // convert to JSON
-        return IValueMeta.TYPE_STRING;
-      case Node, Relationship, Path:
-        return ValueMetaGraph.TYPE_GRAPH;
-      case Boolean:
-        return IValueMeta.TYPE_BOOLEAN;
-      case Float:
-        return IValueMeta.TYPE_NUMBER;
-      case Integer:
-        return IValueMeta.TYPE_INTEGER;
-      case Date, LocalDateTime:
-        return IValueMeta.TYPE_DATE;
-      case ByteArray:
-        return IValueMeta.TYPE_BINARY;
-      case Duration, DateTime, Time, Point, LocalTime:
-      default:
-        throw new HopValueException(
-            "Data conversion to Neo4j type '" + name() + "' is not supported yet");
-    }
+    return switch (this) {
+      case String, Map, List -> // convert to JSON
+          IValueMeta.TYPE_STRING;
+      case Node, Relationship, Path -> ValueMetaGraph.TYPE_GRAPH;
+      case Boolean -> IValueMeta.TYPE_BOOLEAN;
+      case Float -> IValueMeta.TYPE_NUMBER;
+      case Integer -> IValueMeta.TYPE_INTEGER;
+      case Date, LocalDateTime -> IValueMeta.TYPE_DATE;
+      case ByteArray -> IValueMeta.TYPE_BINARY;
+      default ->
+          throw new HopValueException(
+              "Data conversion to Neo4j type '" + name() + "' is not supported yet");
+    };
   }
 
   public static final GraphPropertyDataType getTypeFromHop(IValueMeta valueMeta) {
-    switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_STRING:
-        return GraphPropertyDataType.String;
-      case IValueMeta.TYPE_NUMBER:
-        return GraphPropertyDataType.Float;
-      case IValueMeta.TYPE_DATE:
-        return GraphPropertyDataType.LocalDateTime;
-      case IValueMeta.TYPE_TIMESTAMP:
-        return GraphPropertyDataType.LocalDateTime;
-      case IValueMeta.TYPE_BOOLEAN:
-        return GraphPropertyDataType.Boolean;
-      case IValueMeta.TYPE_BINARY:
-        return GraphPropertyDataType.ByteArray;
-      case IValueMeta.TYPE_BIGNUMBER:
-        return GraphPropertyDataType.String;
-      case IValueMeta.TYPE_INTEGER:
-        return GraphPropertyDataType.Integer;
-      default:
-        return GraphPropertyDataType.String;
-    }
+    return switch (valueMeta.getType()) {
+      case IValueMeta.TYPE_STRING -> GraphPropertyDataType.String;
+      case IValueMeta.TYPE_NUMBER -> GraphPropertyDataType.Float;
+      case IValueMeta.TYPE_DATE -> GraphPropertyDataType.LocalDateTime;
+      case IValueMeta.TYPE_TIMESTAMP -> GraphPropertyDataType.LocalDateTime;
+      case IValueMeta.TYPE_BOOLEAN -> GraphPropertyDataType.Boolean;
+      case IValueMeta.TYPE_BINARY -> GraphPropertyDataType.ByteArray;
+      case IValueMeta.TYPE_BIGNUMBER -> GraphPropertyDataType.String;
+      case IValueMeta.TYPE_INTEGER -> GraphPropertyDataType.Integer;
+      default -> GraphPropertyDataType.String;
+    };
   }
 
   /**

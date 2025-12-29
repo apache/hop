@@ -61,7 +61,7 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
       meta.getFields(
           data.outputRowMeta, getTransformName(), null, null, variables, metadataProvider);
 
-      data.positionsMap = new HashMap<String, Integer>();
+      data.positionsMap = new HashMap<>();
       for (int i = 0; i < meta.getMappingFieldset().size(); i++) {
         SchemaMappingField f = meta.getMappingFieldset().get(i);
         if (data.inputRowMeta.searchValueMeta(f.getFieldStream()) != null) {

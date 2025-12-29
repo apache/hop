@@ -115,8 +115,8 @@ public class NamedParameters implements INamedParameters {
   @Override
   public void clearParameterValues() {
     String[] keys = listParameters();
-    for (int idx = 0; idx < keys.length; idx++) {
-      NamedParameter theParam = params.get(keys[idx]);
+    for (String key : keys) {
+      NamedParameter theParam = params.get(key);
       if (theParam != null) {
         theParam.value = "";
       }

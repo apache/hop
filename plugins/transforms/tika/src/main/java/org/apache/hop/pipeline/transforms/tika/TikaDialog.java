@@ -810,8 +810,8 @@ public class TikaDialog extends BaseTransformDialog {
       String encoding = wEncoding.getText();
       wEncoding.removeAll();
       ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (int i = 0; i < values.size(); i++) {
-        Charset charSet = (Charset) values.get(i);
+      for (Charset value : values) {
+        Charset charSet = (Charset) value;
         wEncoding.add(charSet.displayName());
       }
 

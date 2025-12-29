@@ -68,7 +68,7 @@ class YamlInputMetaTest implements IInitializer<YamlInputMeta> {
             "inputFields");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("includeFilename", "includeFilename");
             put("filenameField", "getFilenameField");
@@ -91,7 +91,7 @@ class YamlInputMetaTest implements IInitializer<YamlInputMeta> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("includeFilename", "setIncludeFilename");
             put("filenameField", "setFilenameField");

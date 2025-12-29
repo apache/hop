@@ -358,9 +358,9 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
       //
 
       row = new RowMeta();
-      for (int i = 0; i < selectFields.size(); i++) {
-        IValueMeta v = inputRowMeta.searchValueMeta(selectFields.get(i).getName());
-        var selectField = selectFields.get(i);
+      for (SelectField field : selectFields) {
+        IValueMeta v = inputRowMeta.searchValueMeta(field.getName());
+        var selectField = field;
         if (v != null) { // We found the value
 
           v = v.clone();
@@ -429,9 +429,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     if (!Utils.isEmpty(meta)) {
       // METADATA mode: change the meta-data of the values mentioned...
 
-      for (int i = 0; i < meta.size(); i++) {
-        SelectMetadataChange metaChange = meta.get(i);
-
+      for (SelectMetadataChange metaChange : meta) {
         int idx = inputRowMeta.indexOfValue(metaChange.getName());
         if (idx >= 0) { // We found the value
 

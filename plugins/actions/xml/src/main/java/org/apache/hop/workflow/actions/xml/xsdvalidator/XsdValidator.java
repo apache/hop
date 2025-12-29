@@ -92,7 +92,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     xmlFilename = null;
     xsdFilename = null;
     allowExternalEntities =
-        Boolean.valueOf(
+        Boolean.parseBoolean(
             System.getProperties()
                 .getProperty(
                     ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION,

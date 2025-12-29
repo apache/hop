@@ -391,7 +391,7 @@ public class EnterListDialog extends Dialog {
     wListSource.removeAll();
     wListDest.removeAll();
     for (int i = 0; i < input.length; i++) {
-      Integer idx = Integer.valueOf(i);
+      Integer idx = i;
       String str = selection.get(idx);
       if (str == null) {
         // Not selected: show in source!
@@ -404,27 +404,27 @@ public class EnterListDialog extends Dialog {
   }
 
   public void addToSelection(String[] string) {
-    for (int i = 0; i < string.length; i++) {
-      addToDestination(string[i]);
+    for (String s : string) {
+      addToDestination(s);
     }
   }
 
   public void delFromSelection(String[] string) {
-    for (int i = 0; i < string.length; i++) {
-      delFromDestination(string[i]);
+    for (String s : string) {
+      delFromDestination(s);
     }
   }
 
   public void addToDestination(String string) {
     int idxInput = Const.indexOfString(string, input);
-    selection.put(Integer.valueOf(idxInput), string);
+    selection.put(idxInput, string);
 
     getData();
   }
 
   public void delFromDestination(String string) {
     int idxInput = Const.indexOfString(string, input);
-    selection.remove(Integer.valueOf(idxInput));
+    selection.remove(idxInput);
 
     getData();
   }

@@ -234,7 +234,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           lineNr++;
 
           if (meta.isAddingLineNrInGroup() && !Utils.isEmpty(meta.getLineNrInGroupField())) {
-            Object lineNrValue = Long.valueOf(lineNr);
+            Object lineNrValue = lineNr;
             row = RowDataUtil.addValueData(row, size, lineNrValue);
           }
 
@@ -283,7 +283,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         lineNr++;
 
         if (meta.isAddingLineNrInGroup() && !Utils.isEmpty(meta.getLineNrInGroupField())) {
-          Object lineNrValue = Long.valueOf(lineNr);
+          Object lineNrValue = lineNr;
           row = RowDataUtil.addValueData(row, size, lineNrValue);
         }
 
@@ -391,7 +391,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         if (sum == null) {
           row[targetIndex] = null;
         } else {
-          row[targetIndex] = Double.valueOf(((Long) sum).doubleValue() / data.previousAvgCount[i]);
+          row[targetIndex] = ((Long) sum).doubleValue() / data.previousAvgCount[i];
         }
       } else {
         row[targetIndex] =
@@ -729,10 +729,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         case Aggregation.TYPE_GROUP_AVERAGE:
           ag =
               ValueDataUtil.divide(
-                  data.aggMeta.getValueMeta(i),
-                  ag,
-                  new ValueMetaInteger("c"),
-                  Long.valueOf(data.counts[i]));
+                  data.aggMeta.getValueMeta(i), ag, new ValueMetaInteger("c"), data.counts[i]);
           break;
         case Aggregation.TYPE_GROUP_MEDIAN, Aggregation.TYPE_GROUP_PERCENTILE:
           double percentile = 50.0;
@@ -759,7 +756,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           ag = latencies[index - 1];
           break;
         case Aggregation.TYPE_GROUP_COUNT_ANY, Aggregation.TYPE_GROUP_COUNT_ALL:
-          ag = Long.valueOf(data.counts[i]);
+          ag = data.counts[i];
           break;
         case Aggregation.TYPE_GROUP_COUNT_DISTINCT:
           break;

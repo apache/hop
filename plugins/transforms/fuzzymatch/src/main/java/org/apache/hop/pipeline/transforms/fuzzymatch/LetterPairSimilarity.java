@@ -61,11 +61,11 @@ public class LetterPairSimilarity {
     // Tokenize the string and put the tokens/words into an array
     String[] words = str.split("\\s");
     // For each word
-    for (int w = 0; w < words.length; w++) {
+    for (String word : words) {
       // Find the pairs of characters
-      String[] pairsInWord = letterPairs(words[w]);
-      for (int p = 0; p < pairsInWord.length; p++) {
-        allPairs.add(pairsInWord[p]);
+      String[] pairsInWord = letterPairs(word);
+      for (String s : pairsInWord) {
+        allPairs.add(s);
       }
     }
     return allPairs;
@@ -76,15 +76,14 @@ public class LetterPairSimilarity {
    */
   public static double getSimiliarity(String str1, String str2) {
     if (Utils.isEmpty(str1) && Utils.isEmpty(str2)) {
-      return Double.valueOf(1);
+      return 1.0;
     }
     ArrayList<String> pairs1 = wordLetterPairs(str1.toUpperCase());
     ArrayList<String> pairs2 = wordLetterPairs(str2.toUpperCase());
     int intersection = 0;
     int union = pairs1.size() + pairs2.size();
 
-    for (int i = 0; i < pairs1.size(); i++) {
-      Object pair1 = pairs1.get(i);
+    for (Object pair1 : pairs1) {
       for (int j = 0; j < pairs2.size(); j++) {
         Object pair2 = pairs2.get(j);
         if (pair1.equals(pair2)) {

@@ -68,8 +68,7 @@ public class GenericCodeHighlight implements LineStyleListener {
   }
 
   boolean inBlockComment(int start, int end) {
-    for (int i = 0; i < blockComments.size(); i++) {
-      int[] offsets = blockComments.get(i);
+    for (int[] offsets : blockComments) {
       // start of comment in the line
       if ((offsets[0] >= start) && (offsets[0] <= end)) {
         return true;
@@ -262,14 +261,14 @@ public class GenericCodeHighlight implements LineStyleListener {
       if (Utils.isEmpty(reservedWords)) {
         return;
       }
-      reservedWords.forEach(name -> reservedKeywords.put(name, Integer.valueOf(KEY)));
+      reservedWords.forEach(name -> reservedKeywords.put(name, KEY));
     }
 
     public void addFunctionNames(List<String> functionNames) {
       if (Utils.isEmpty(functionNames)) {
         return;
       }
-      functionNames.forEach(name -> reservedFunctionNames.put(name, Integer.valueOf(FUNCTION)));
+      functionNames.forEach(name -> reservedFunctionNames.put(name, FUNCTION));
     }
 
     /** Returns the starting location of the current token in the document. */
@@ -357,11 +356,11 @@ public class GenericCodeHighlight implements LineStyleListener {
               String name = fBuffer.toString();
               Integer token = reservedKeywords.get(name);
               if (token != null) {
-                return token.intValue();
+                return token;
               }
               token = reservedFunctionNames.get(name);
               if (token != null) {
-                return token.intValue();
+                return token;
               }
               return WORD;
             }

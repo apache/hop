@@ -220,9 +220,9 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     wPartitions.clearAll(false);
     PartitionSchema partitionSchema = getMetadata();
     List<String> partitionIDs = partitionSchema.getPartitionIDs();
-    for (int i = 0; i < partitionIDs.size(); i++) {
+    for (String partitionID : partitionIDs) {
       TableItem item = new TableItem(wPartitions.table, SWT.NONE);
-      item.setText(1, partitionIDs.get(i));
+      item.setText(1, partitionID);
     }
     wPartitions.removeEmptyRows();
     wPartitions.setRowNums();

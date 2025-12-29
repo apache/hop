@@ -82,8 +82,7 @@ public class ConstantMeta extends BaseTransformMeta<Constant, ConstantData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    for (int i = 0; i < fields.size(); i++) {
-      ConstantField item = fields.get(i);
+    for (ConstantField item : fields) {
       if (!StringUtils.isEmpty(item.getFieldName())) {
         int type = ValueMetaFactory.getIdForValueMeta(item.getFieldType());
         if (type == IValueMeta.TYPE_NONE) {

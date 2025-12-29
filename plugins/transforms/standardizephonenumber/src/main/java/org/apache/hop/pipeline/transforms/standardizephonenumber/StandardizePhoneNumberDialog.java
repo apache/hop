@@ -67,8 +67,7 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
     List<StandardizePhoneField> standardizes = input.getFields();
     if (!standardizes.isEmpty()) {
       Table table = wFields.getTable();
-      for (int i = 0; i < standardizes.size(); i++) {
-        StandardizePhoneField standardize = standardizes.get(i);
+      for (StandardizePhoneField standardize : standardizes) {
         TableItem item = new TableItem(table, SWT.NONE);
         item.setText(1, StringUtils.stripToEmpty(standardize.getInputField()));
         item.setText(2, StringUtils.stripToEmpty(standardize.getOutputField()));
@@ -261,24 +260,22 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
               HopGui.getInstance()
                   .getDisplay()
                   .asyncExec(
-                      new Runnable() {
-                        public void run() {
-                          if (!wFields.isDisposed()) {
-                            for (int i = 0; i < wFields.table.getItemCount(); i++) {
-                              TableItem item = wFields.table.getItem(i);
+                      () -> {
+                        if (!wFields.isDisposed()) {
+                          for (int i = 0; i < wFields.table.getItemCount(); i++) {
+                            TableItem item = wFields.table.getItem(i);
 
-                              // Input field
-                              if (!Utils.isEmpty(item.getText(1))
-                                  && !inputFields.contains(item.getText(1))) {
-                                item.setBackground(GuiResource.getInstance().getColorRed());
-                              }
+                            // Input field
+                            if (!Utils.isEmpty(item.getText(1))
+                                && !inputFields.contains(item.getText(1))) {
+                              item.setBackground(GuiResource.getInstance().getColorRed());
+                            }
 
-                              // Country field
-                              if (!Utils.isEmpty(item.getText(3))
-                                  && !inputFields.contains(item.getText(3))) {
+                            // Country field
+                            if (!Utils.isEmpty(item.getText(3))
+                                && !inputFields.contains(item.getText(3))) {
 
-                                item.setBackground(GuiResource.getInstance().getColorRed());
-                              }
+                              item.setBackground(GuiResource.getInstance().getColorRed());
                             }
                           }
                         }

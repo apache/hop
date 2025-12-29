@@ -207,8 +207,7 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
     httpHeaders.put(LoadConstants.LINE_DELIMITER_KEY, resolve(meta.getLineDelimiter()));
     httpHeaders.put(LoadConstants.FIELD_DELIMITER_KEY, resolve(meta.getColumnDelimiter()));
     List<DorisHeader> headers = meta.getHeaders();
-    for (int i = 0; i < headers.size(); i++) {
-      DorisHeader header = headers.get(i);
+    for (DorisHeader header : headers) {
       httpHeaders.put(header.getName(), header.getValue());
     }
 

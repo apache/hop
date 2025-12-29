@@ -264,8 +264,7 @@ class MemoryGroupByAggregationTest {
     MemoryGroupByMeta meta = new MemoryGroupByMeta();
     for (int i = 0; i < rowMeta.size(); i++) {
       String name = rowMeta.getValueMeta(i).getName();
-      for (int j = 0; j < aggKeys.size(); j++) {
-        String aggKey = aggKeys.get(j);
+      for (String aggKey : aggKeys) {
         GAggregate aggregate = new GAggregate();
         aggregate.setField(name + "_" + aggKey);
         aggregate.setSubject(name);

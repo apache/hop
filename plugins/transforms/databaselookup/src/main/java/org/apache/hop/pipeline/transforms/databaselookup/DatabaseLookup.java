@@ -498,8 +498,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       // Also grab the return field...
       //
       List<ReturnValue> returnValues = lookup.getReturnValues();
-      for (int i = 0; i < returnValues.size(); i++) {
-        ReturnValue returnValue = returnValues.get(i);
+      for (ReturnValue returnValue : returnValues) {
         sql += ", " + dbMeta.quoteField(returnValue.getTableField());
       }
       // The schema/table

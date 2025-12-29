@@ -35,7 +35,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -906,9 +905,9 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
               zipOutputStream = new ZipOutputStream(new FileOutputStream(masterZipfile));
             }
 
-            for (int i = 0; i < list.length; i++) {
+            for (FileObject object : list) {
 
-              file = HopVfs.getFileObject(HopVfs.getFilename(list[i]), variables);
+              file = HopVfs.getFileObject(HopVfs.getFilename(object), variables);
 
               if (zipFiles) {
 
@@ -950,9 +949,9 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
                 zipOutputStream = new ZipOutputStream(new FileOutputStream(masterZipfile));
 
-                for (int i = 0; i < list.length; i++) {
+                for (FileObject fileObject : list) {
 
-                  file = HopVfs.getFileObject(HopVfs.getFilename(list[i]), variables);
+                  file = HopVfs.getFileObject(HopVfs.getFilename(fileObject), variables);
 
                   ZipEntry zipEntry = new ZipEntry(file.getName().getBaseName());
                   zipOutputStream.putNextEntry(zipEntry);
@@ -1044,8 +1043,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
   private void addImagePart() throws Exception {
     data.nrEmbeddedImages = 0;
     if (!Utils.isEmpty(data.embeddedMimePart)) {
-      for (Iterator<MimeBodyPart> i = data.embeddedMimePart.iterator(); i.hasNext(); ) {
-        MimeBodyPart part = i.next();
+      for (MimeBodyPart part : data.embeddedMimePart) {
         data.parts.addBodyPart(part);
         data.nrEmbeddedImages++;
       }

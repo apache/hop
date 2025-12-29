@@ -160,7 +160,7 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> {
 
   private Object[] addCounter(IRowMeta outputRowMeta, Object[] r, long count) {
     if (meta.isCountRows()) {
-      return RowDataUtil.addValueData(r, outputRowMeta.size() - 1, Long.valueOf(count));
+      return RowDataUtil.addValueData(r, outputRowMeta.size() - 1, count);
     } else {
       return r; // nothing to do
     }

@@ -987,8 +987,7 @@ public class JsonOutputDialog extends BaseTransformDialog {
 
       wEncoding.removeAll();
       List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for (int i = 0; i < values.size(); i++) {
-        Charset charSet = values.get(i);
+      for (Charset charSet : values) {
         wEncoding.add(charSet.displayName());
       }
 

@@ -376,8 +376,8 @@ public class ActionShell extends ActionBase {
       // Construct the arguments...
       if (argFromPrevious && cmdRows != null) {
         // Add the base command...
-        for (int i = 0; i < base.length; i++) {
-          cmds.add(base[i]);
+        for (String s : base) {
+          cmds.add(s);
         }
 
         if (Const.getSystemOs().equals(CONST_WINDOWS_95)
@@ -391,10 +391,9 @@ public class ActionShell extends ActionBase {
           cmdline.append('"');
           cmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
           // Add the arguments from previous results...
-          for (int i = 0; i < cmdRows.size(); i++) {
+          for (RowMetaAndData r : cmdRows) {
             // Normally just one row, but once in a while to remain compatible we have multiple.
 
-            RowMetaAndData r = cmdRows.get(i);
             for (int j = 0; j < r.size(); j++) {
               cmdline.append(' ');
               cmdline.append(Const.optionallyQuoteStringByOS(r.getString(j, null)));
@@ -404,10 +403,9 @@ public class ActionShell extends ActionBase {
           cmds.add(cmdline.toString());
         } else {
           // Add the arguments from previous results...
-          for (int i = 0; i < cmdRows.size(); i++) {
+          for (RowMetaAndData r : cmdRows) {
             // Normally just one row, but once in a while to remain compatible we have multiple.
 
-            RowMetaAndData r = cmdRows.get(i);
             for (int j = 0; j < r.size(); j++) {
               cmds.add(Const.optionallyQuoteStringByOS(r.getString(j, null)));
             }
@@ -415,8 +413,8 @@ public class ActionShell extends ActionBase {
         }
       } else if (args != null) {
         // Add the base command...
-        for (int i = 0; i < base.length; i++) {
-          cmds.add(base[i]);
+        for (String s : base) {
+          cmds.add(s);
         }
 
         if (Const.getSystemOs().equals(CONST_WINDOWS_95)
@@ -430,15 +428,15 @@ public class ActionShell extends ActionBase {
           cmdline.append('"');
           cmdline.append(Const.optionallyQuoteStringByOS(HopVfs.getFilename(fileObject)));
 
-          for (int i = 0; i < args.length; i++) {
+          for (String arg : args) {
             cmdline.append(' ');
-            cmdline.append(Const.optionallyQuoteStringByOS(args[i]));
+            cmdline.append(Const.optionallyQuoteStringByOS(arg));
           }
           cmdline.append('"');
           cmds.add(cmdline.toString());
         } else {
-          for (int i = 0; i < args.length; i++) {
-            cmds.add(args[i]);
+          for (String arg : args) {
+            cmds.add(arg);
           }
         }
       }
@@ -463,9 +461,9 @@ public class ActionShell extends ActionBase {
       ProcessBuilder procBuilder = new ProcessBuilder(cmds);
       Map<String, String> env = procBuilder.environment();
       String[] variables = getVariableNames();
-      for (int i = 0; i < variables.length; i++) {
-        if (StringUtils.isNotEmpty(variables[i])) {
-          env.put(variables[i], Const.NVL(getVariable(variables[i]), ""));
+      for (String variable : variables) {
+        if (StringUtils.isNotEmpty(variable)) {
+          env.put(variable, Const.NVL(getVariable(variable), ""));
         }
       }
 

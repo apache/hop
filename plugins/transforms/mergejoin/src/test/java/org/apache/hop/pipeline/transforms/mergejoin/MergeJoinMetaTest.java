@@ -61,9 +61,9 @@ class MergeJoinMetaTest {
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
-        "keyFields1", new ListLoadSaveValidator<String>(new StringLoadSaveValidator()) {});
+        "keyFields1", new ListLoadSaveValidator<>(new StringLoadSaveValidator()) {});
     attrValidatorMap.put(
-        "keyFields2", new ListLoadSaveValidator<String>(new StringLoadSaveValidator()) {});
+        "keyFields2", new ListLoadSaveValidator<>(new StringLoadSaveValidator()) {});
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
@@ -83,7 +83,7 @@ class MergeJoinMetaTest {
         loadSaveTester.getFieldLoadSaveValidatorFactory();
 
     IFieldLoadSaveValidator<MergeJoinMeta> targetValidator =
-        new IFieldLoadSaveValidator<MergeJoinMeta>() {
+        new IFieldLoadSaveValidator<>() {
 
           @Override
           public MergeJoinMeta getTestObject() {

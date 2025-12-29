@@ -633,9 +633,7 @@ public class TextFileInputMeta
         // ignore any errors here.
       }
     } else {
-      for (int i = 0; i < inputFields.length; i++) {
-        BaseFileField field = inputFields[i];
-
+      for (BaseFileField field : inputFields) {
         int type = field.getType();
         if (type == IValueMeta.TYPE_NONE) {
           type = IValueMeta.TYPE_STRING;
@@ -847,8 +845,8 @@ public class TextFileInputMeta
     retval.append("    </file>").append(Const.CR);
 
     retval.append("    <filters>").append(Const.CR);
-    for (int i = 0; i < filter.length; i++) {
-      String filterString = filter[i].getFilterString();
+    for (TextFileFilter textFileFilter : filter) {
+      String filterString = textFileFilter.getFilterString();
       byte[] filterBytes = new byte[] {};
       String filterPrefix = "";
       if (filterString != null) {
@@ -864,25 +862,24 @@ public class TextFileInputMeta
       retval
           .append(CONST_SPACES_LONG)
           .append(
-              XmlHandler.addTagValue(CONST_FILTER_POSITION, filter[i].getFilterPosition(), false));
+              XmlHandler.addTagValue(
+                  CONST_FILTER_POSITION, textFileFilter.getFilterPosition(), false));
       retval
           .append(CONST_SPACES_LONG)
           .append(
               XmlHandler.addTagValue(
-                  CONST_FILTER_IS_LAST_LINE, filter[i].isFilterLastLine(), false));
+                  CONST_FILTER_IS_LAST_LINE, textFileFilter.isFilterLastLine(), false));
       retval
           .append(CONST_SPACES_LONG)
           .append(
               XmlHandler.addTagValue(
-                  CONST_FILTER_IS_POSITIVE, filter[i].isFilterPositive(), false));
+                  CONST_FILTER_IS_POSITIVE, textFileFilter.isFilterPositive(), false));
       retval.append("      </filter>").append(Const.CR);
     }
     retval.append("    </filters>").append(Const.CR);
 
     retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < inputFields.length; i++) {
-      BaseFileField field = inputFields[i];
-
+    for (BaseFileField field : inputFields) {
       retval.append("      <field>").append(Const.CR);
       retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", field.getName()));
       retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("type", field.getTypeDesc()));

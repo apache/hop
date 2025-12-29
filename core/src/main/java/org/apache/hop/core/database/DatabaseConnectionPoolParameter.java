@@ -96,9 +96,9 @@ public class DatabaseConnectionPoolParameter {
 
   public static final DatabaseConnectionPoolParameter findParameter(
       String parameterName, DatabaseConnectionPoolParameter[] poolParameters) {
-    for (int i = 0; i < poolParameters.length; i++) {
-      if (poolParameters[i].getParameter().equalsIgnoreCase(parameterName)) {
-        return poolParameters[i];
+    for (DatabaseConnectionPoolParameter poolParameter : poolParameters) {
+      if (poolParameter.getParameter().equalsIgnoreCase(parameterName)) {
+        return poolParameter;
       }
     }
     return null;
@@ -117,9 +117,7 @@ public class DatabaseConnectionPoolParameter {
 
     List<RowMetaAndData> list = new ArrayList<>();
 
-    for (int i = 0; i < poolParameters.length; i++) {
-      DatabaseConnectionPoolParameter p = poolParameters[i];
-
+    for (DatabaseConnectionPoolParameter p : poolParameters) {
       Object[] row = new Object[rowMeta.size()];
       row[0] = p.getParameter();
       row[1] = p.getDefaultValue();

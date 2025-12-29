@@ -632,8 +632,7 @@ public class RedshiftBulkLoaderMeta
                     }
                   } else {
                     // Specifying the column names explicitly
-                    for (int i = 0; i < fields.size(); i++) {
-                      RedshiftBulkLoaderField vbf = fields.get(i);
+                    for (RedshiftBulkLoaderField vbf : fields) {
                       int idx = prev.indexOfValue(vbf.getStreamField());
                       if (idx < 0) {
                         error_message += "\t\t" + vbf.getStreamField() + Const.CR;

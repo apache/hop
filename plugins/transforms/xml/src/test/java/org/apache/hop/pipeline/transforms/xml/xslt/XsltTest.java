@@ -103,8 +103,8 @@ class XsltTest {
       new ValueMetaString("XML"), new ValueMetaString("XSL"), new ValueMetaString("filename"),
     };
 
-    for (int i = 0; i < valuesMeta.length; i++) {
-      rm.addValueMeta(valuesMeta[i]);
+    for (IValueMeta iValueMeta : valuesMeta) {
+      rm.addValueMeta(iValueMeta);
     }
 
     return rm;
@@ -130,8 +130,8 @@ class XsltTest {
       new ValueMetaString("filename"), new ValueMetaString("result"),
     };
 
-    for (int i = 0; i < valuesMeta.length; i++) {
-      rm.addValueMeta(valuesMeta[i]);
+    for (IValueMeta iValueMeta : valuesMeta) {
+      rm.addValueMeta(iValueMeta);
     }
 
     return rm;

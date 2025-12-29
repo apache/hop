@@ -585,8 +585,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
       Pattern pattern = null;
       if (copyPrevious) {
         // Copy the input row to the (command line) arguments
-        for (int iteration = 0; iteration < rows.size(); iteration++) {
-          resultRow = rows.get(iteration);
+        for (RowMetaAndData row : rows) {
+          resultRow = row;
 
           // Get file names
           String filePrevious = resultRow.getString(0, null);

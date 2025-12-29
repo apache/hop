@@ -39,7 +39,7 @@ public class VariableRegistryTest {
         registry.findDescribedVariable(Const.HOP_PASSWORD_ENCODER_PLUGIN);
     assertNotNull(describedVariable);
 
-    boolean actual = Boolean.valueOf(describedVariable.getValue());
+    boolean actual = Boolean.parseBoolean(describedVariable.getValue());
     assertEquals(false, actual);
 
     assertEquals(

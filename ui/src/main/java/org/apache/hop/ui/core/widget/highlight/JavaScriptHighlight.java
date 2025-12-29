@@ -70,8 +70,7 @@ public class JavaScriptHighlight implements LineStyleListener {
   }
 
   boolean inBlockComment(int start, int end) {
-    for (int i = 0; i < blockComments.size(); i++) {
-      int[] offsets = blockComments.get(i);
+    for (int[] offsets : blockComments) {
       // start of comment in the line
       if ((offsets[0] >= start) && (offsets[0] <= end)) {
         return true;
@@ -305,14 +304,14 @@ public class JavaScriptHighlight implements LineStyleListener {
       if (Utils.isEmpty(reservedKeywords)) {
         return;
       }
-      reservedKeywords.forEach(name -> reserved.put(name, Integer.valueOf(KEY)));
+      reservedKeywords.forEach(name -> reserved.put(name, KEY));
     }
 
     public void addFunctionNames(List<String> functionNames) {
       if (Utils.isEmpty(functionNames)) {
         return;
       }
-      functionNames.forEach(name -> reserved.put(name, Integer.valueOf(FUNCTION)));
+      functionNames.forEach(name -> reserved.put(name, FUNCTION));
     }
 
     /** Returns the ending location of the current token in the document. */
@@ -424,7 +423,7 @@ public class JavaScriptHighlight implements LineStyleListener {
               unread(c);
               Integer token = reserved.get(fBuffer.toString());
               if (token != null) {
-                return token.intValue();
+                return token;
               }
               return WORD;
             }

@@ -420,40 +420,40 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       int idx = 0;
 
       if (!Utils.isEmpty(meta.getExecutionTimeField())) {
-        outputRow[idx++] = Long.valueOf(System.currentTimeMillis() - getData().groupTimeStart);
+        outputRow[idx++] = System.currentTimeMillis() - getData().groupTimeStart;
       }
       if (!Utils.isEmpty(meta.getExecutionResultField())) {
-        outputRow[idx++] = Boolean.valueOf(result.isResult());
+        outputRow[idx++] = result.isResult();
       }
       if (!Utils.isEmpty(meta.getExecutionNrErrorsField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrErrors());
+        outputRow[idx++] = result.getNrErrors();
       }
       if (!Utils.isEmpty(meta.getExecutionLinesReadField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrLinesRead());
+        outputRow[idx++] = result.getNrLinesRead();
       }
       if (!Utils.isEmpty(meta.getExecutionLinesWrittenField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrLinesWritten());
+        outputRow[idx++] = result.getNrLinesWritten();
       }
       if (!Utils.isEmpty(meta.getExecutionLinesInputField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrLinesInput());
+        outputRow[idx++] = result.getNrLinesInput();
       }
       if (!Utils.isEmpty(meta.getExecutionLinesOutputField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrLinesOutput());
+        outputRow[idx++] = result.getNrLinesOutput();
       }
       if (!Utils.isEmpty(meta.getExecutionLinesRejectedField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrLinesRejected());
+        outputRow[idx++] = result.getNrLinesRejected();
       }
       if (!Utils.isEmpty(meta.getExecutionLinesUpdatedField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrLinesUpdated());
+        outputRow[idx++] = result.getNrLinesUpdated();
       }
       if (!Utils.isEmpty(meta.getExecutionLinesDeletedField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrLinesDeleted());
+        outputRow[idx++] = result.getNrLinesDeleted();
       }
       if (!Utils.isEmpty(meta.getExecutionFilesRetrievedField())) {
-        outputRow[idx++] = Long.valueOf(result.getNrFilesRetrieved());
+        outputRow[idx++] = result.getNrFilesRetrieved();
       }
       if (!Utils.isEmpty(meta.getExecutionExitStatusField())) {
-        outputRow[idx++] = Long.valueOf(result.getExitStatus());
+        outputRow[idx++] = (long) result.getExitStatus();
       }
       if (!Utils.isEmpty(meta.getExecutionLogTextField())) {
         String channelId = getData().getExecutorPipeline().getLogChannelId();
@@ -602,8 +602,8 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
             Arrays.asList(pipelineExecutorData.groupBuffer.get(lastIncomingFieldIndex).getData()));
     lastGroupBufferData.removeAll(Collections.singleton(null));
 
-    for (int i = 0; i < lastGroupBufferData.size(); i++) {
-      lastIncomingFieldValues.add(lastGroupBufferData.get(i).toString());
+    for (Object lastGroupBufferDatum : lastGroupBufferData) {
+      lastIncomingFieldValues.add(lastGroupBufferDatum.toString());
     }
     return lastIncomingFieldValues;
   }

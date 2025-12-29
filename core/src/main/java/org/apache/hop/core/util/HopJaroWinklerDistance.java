@@ -40,11 +40,11 @@ public class HopJaroWinklerDistance {
   private double jw = 0D;
 
   public Double getJaroDistance() {
-    return Double.valueOf(j);
+    return j;
   }
 
   public Double getJaroWinklerDistance() {
-    return Double.valueOf(jw);
+    return jw;
   }
 
   /**

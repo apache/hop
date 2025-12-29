@@ -440,18 +440,15 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       case IValueMeta
           .TYPE_BOOLEAN: // while the JDBC spec prescribes boolean, not all drivers actually
         // can deliver.
-        boolean v;
-        switch (resultSetMetaData.getColumnType(k)) {
-          case Types.INTEGER, Types.SMALLINT, Types.TINYINT:
-            v = resultSet.getInt(k) == 1;
-            break;
-          default:
-            v = resultSet.getBoolean(k);
-        }
-        value = Boolean.valueOf(v);
+        boolean v =
+            switch (resultSetMetaData.getColumnType(k)) {
+              case Types.INTEGER, Types.SMALLINT, Types.TINYINT -> resultSet.getInt(k) == 1;
+              default -> resultSet.getBoolean(k);
+            };
+        value = v;
         break;
       case IValueMeta.TYPE_INTEGER:
-        value = Long.valueOf(resultSet.getInt(k));
+        value = (long) resultSet.getInt(k);
         break;
       default:
         value = resultSet.getObject(k);

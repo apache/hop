@@ -82,8 +82,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
         int[] valueTypes = new int[rowMeta.size()];
 
         List<TableFieldSchema> fields = tableSchema.getFields();
-        for (int i = 0; i < fields.size(); i++) {
-          TableFieldSchema fieldSchema = fields.get(i);
+        for (TableFieldSchema fieldSchema : fields) {
           String name = fieldSchema.getName();
           int index = rowMeta.indexOfValue(name);
           // Ignore everything we didn't ask for.

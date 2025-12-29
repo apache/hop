@@ -75,7 +75,7 @@ public class SalesforceInsertMeta
   @Override
   public Object clone() {
     SalesforceInsertMeta retval = (SalesforceInsertMeta) super.clone();
-    retval.fields = new ArrayList<SalesforceInsertField>();
+    retval.fields = new ArrayList<>();
     int nrFields = fields.size();
     for (int i = 0; i < fields.size(); i++) {
       if (fields.get(i) != null) {

@@ -89,7 +89,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
       return null;
     }
 
-    return Double.valueOf(timestamp.getTime());
+    return (double) timestamp.getTime();
   }
 
   @Override
@@ -120,64 +120,57 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     }
     switch (type) {
       case TYPE_TIMESTAMP:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return (Timestamp) object;
-          case STORAGE_TYPE_BINARY_STRING:
-            return (Timestamp) convertBinaryStringToNativeType((byte[]) object);
-          case STORAGE_TYPE_INDEXED:
-            return (Timestamp) index[((Integer) object).intValue()];
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> (Timestamp) object;
+          case STORAGE_TYPE_BINARY_STRING ->
+              (Timestamp) convertBinaryStringToNativeType((byte[]) object);
+          case STORAGE_TYPE_INDEXED -> (Timestamp) index[(Integer) object];
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_STRING:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return convertStringToTimestamp((String) object);
-          case STORAGE_TYPE_BINARY_STRING:
-            return convertStringToTimestamp(
-                (String) convertBinaryStringToNativeType((byte[]) object));
-          case STORAGE_TYPE_INDEXED:
-            return convertStringToTimestamp((String) index[((Integer) object).intValue()]);
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> convertStringToTimestamp((String) object);
+          case STORAGE_TYPE_BINARY_STRING ->
+              convertStringToTimestamp((String) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED -> convertStringToTimestamp((String) index[(Integer) object]);
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_NUMBER:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return convertNumberToTimestamp((Double) object);
-          case STORAGE_TYPE_BINARY_STRING:
-            return convertNumberToTimestamp(
-                (Double) convertBinaryStringToNativeType((byte[]) object));
-          case STORAGE_TYPE_INDEXED:
-            return convertNumberToTimestamp((Double) index[((Integer) object).intValue()]);
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> convertNumberToTimestamp((Double) object);
+          case STORAGE_TYPE_BINARY_STRING ->
+              convertNumberToTimestamp((Double) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED -> convertNumberToTimestamp((Double) index[(Integer) object]);
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_INTEGER:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return convertIntegerToTimestamp((Long) object);
-          case STORAGE_TYPE_BINARY_STRING:
-            return convertIntegerToTimestamp(
-                (Long) convertBinaryStringToNativeType((byte[]) object));
-          case STORAGE_TYPE_INDEXED:
-            return convertIntegerToTimestamp((Long) index[((Integer) object).intValue()]);
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> convertIntegerToTimestamp((Long) object);
+          case STORAGE_TYPE_BINARY_STRING ->
+              convertIntegerToTimestamp((Long) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED -> convertIntegerToTimestamp((Long) index[(Integer) object]);
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_BIGNUMBER:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return convertBigNumberToTimestamp((BigDecimal) object);
-          case STORAGE_TYPE_BINARY_STRING:
-            return convertBigNumberToTimestamp(
-                (BigDecimal) convertBinaryStringToNativeType((byte[]) object));
-          case STORAGE_TYPE_INDEXED:
-            return convertBigNumberToTimestamp((BigDecimal) index[((Integer) object).intValue()]);
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> convertBigNumberToTimestamp((BigDecimal) object);
+          case STORAGE_TYPE_BINARY_STRING ->
+              convertBigNumberToTimestamp(
+                  (BigDecimal) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED ->
+              convertBigNumberToTimestamp((BigDecimal) index[(Integer) object]);
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_BOOLEAN:
         throw new HopValueException(
             this + " : I don't know how to convert a boolean to a timestamp.");
@@ -289,32 +282,17 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     //
     String nullValue = nullIf;
     if (nullValue == null) {
-      switch (convertMeta.getType()) {
-        case IValueMeta.TYPE_BOOLEAN:
-          nullValue = Const.NULL_BOOLEAN;
-          break;
-        case IValueMeta.TYPE_STRING:
-          nullValue = Const.NULL_STRING;
-          break;
-        case IValueMeta.TYPE_BIGNUMBER:
-          nullValue = Const.NULL_BIGNUMBER;
-          break;
-        case IValueMeta.TYPE_NUMBER:
-          nullValue = Const.NULL_NUMBER;
-          break;
-        case IValueMeta.TYPE_INTEGER:
-          nullValue = Const.NULL_INTEGER;
-          break;
-        case IValueMeta.TYPE_DATE:
-          nullValue = Const.NULL_DATE;
-          break;
-        case IValueMeta.TYPE_BINARY:
-          nullValue = Const.NULL_BINARY;
-          break;
-        default:
-          nullValue = Const.NULL_NONE;
-          break;
-      }
+      nullValue =
+          switch (convertMeta.getType()) {
+            case IValueMeta.TYPE_BOOLEAN -> Const.NULL_BOOLEAN;
+            case IValueMeta.TYPE_STRING -> Const.NULL_STRING;
+            case IValueMeta.TYPE_BIGNUMBER -> Const.NULL_BIGNUMBER;
+            case IValueMeta.TYPE_NUMBER -> Const.NULL_NUMBER;
+            case IValueMeta.TYPE_INTEGER -> Const.NULL_INTEGER;
+            case IValueMeta.TYPE_DATE -> Const.NULL_DATE;
+            case IValueMeta.TYPE_BINARY -> Const.NULL_BINARY;
+            default -> Const.NULL_NONE;
+          };
     }
 
     // See if we need to convert a null value into a String
@@ -417,22 +395,17 @@ public class ValueMetaTimestamp extends ValueMetaDate {
    */
   @Override
   public Object convertData(IValueMeta meta2, Object data2) throws HopValueException {
-    switch (meta2.getType()) {
-      case TYPE_TIMESTAMP:
-        return ((ValueMetaTimestamp) meta2).getTimestamp(data2);
-      case TYPE_STRING:
-        return convertStringToTimestamp(meta2.getString(data2));
-      case TYPE_INTEGER:
-        return convertIntegerToTimestamp(meta2.getInteger(data2));
-      case TYPE_NUMBER:
-        return convertNumberToTimestamp(meta2.getNumber(data2));
-      case TYPE_DATE:
-        return convertDateToTimestamp(meta2.getDate(data2));
-      case TYPE_BIGNUMBER:
-        return convertBigNumberToTimestamp(meta2.getBigNumber(data2));
-      default:
-        throw new HopValueException(meta2.toStringMeta() + " : can't be converted to a timestamp");
-    }
+    return switch (meta2.getType()) {
+      case TYPE_TIMESTAMP -> ((ValueMetaTimestamp) meta2).getTimestamp(data2);
+      case TYPE_STRING -> convertStringToTimestamp(meta2.getString(data2));
+      case TYPE_INTEGER -> convertIntegerToTimestamp(meta2.getInteger(data2));
+      case TYPE_NUMBER -> convertNumberToTimestamp(meta2.getNumber(data2));
+      case TYPE_DATE -> convertDateToTimestamp(meta2.getDate(data2));
+      case TYPE_BIGNUMBER -> convertBigNumberToTimestamp(meta2.getBigNumber(data2));
+      default ->
+          throw new HopValueException(
+              meta2.toStringMeta() + " : can't be converted to a timestamp");
+    };
   }
 
   @Override
@@ -564,17 +537,14 @@ public class ValueMetaTimestamp extends ValueMetaDate {
       return (byte[]) object; // shortcut it directly for better performance.
     }
 
-    switch (storageType) {
-      case STORAGE_TYPE_NORMAL:
-        return convertStringToBinaryString(getString(object));
-      case STORAGE_TYPE_BINARY_STRING:
-        return convertStringToBinaryString(
-            (String) convertBinaryStringToNativeType((byte[]) object));
-      case STORAGE_TYPE_INDEXED:
-        return convertStringToBinaryString(getString(index[((Integer) object).intValue()]));
-      default:
-        throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-    }
+    return switch (storageType) {
+      case STORAGE_TYPE_NORMAL -> convertStringToBinaryString(getString(object));
+      case STORAGE_TYPE_BINARY_STRING ->
+          convertStringToBinaryString((String) convertBinaryStringToNativeType((byte[]) object));
+      case STORAGE_TYPE_INDEXED -> convertStringToBinaryString(getString(index[(Integer) object]));
+      default ->
+          throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+    };
   }
 
   @Override

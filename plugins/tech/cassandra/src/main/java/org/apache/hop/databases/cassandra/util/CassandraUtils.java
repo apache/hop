@@ -80,46 +80,28 @@ public class CassandraUtils {
    * @return the corresponding CQL type
    */
   public static String getCQLTypeForValueMeta(IValueMeta vm) {
-    switch (vm.getType()) {
-      case IValueMeta.TYPE_STRING:
-        return "varchar";
-      case IValueMeta.TYPE_BIGNUMBER:
-        return "decimal";
-      case IValueMeta.TYPE_BOOLEAN:
-        return "boolean";
-      case IValueMeta.TYPE_INTEGER:
-        return "bigint";
-      case IValueMeta.TYPE_NUMBER:
-        return "double";
-      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
-        return "timestamp";
-      case IValueMeta.TYPE_BINARY, IValueMeta.TYPE_SERIALIZABLE:
-        return "blob";
-      default:
-        break;
-    }
-
-    return "blob";
+    return switch (vm.getType()) {
+      case IValueMeta.TYPE_STRING -> "varchar";
+      case IValueMeta.TYPE_BIGNUMBER -> "decimal";
+      case IValueMeta.TYPE_BOOLEAN -> "boolean";
+      case IValueMeta.TYPE_INTEGER -> "bigint";
+      case IValueMeta.TYPE_NUMBER -> "double";
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> "timestamp";
+      case IValueMeta.TYPE_BINARY, IValueMeta.TYPE_SERIALIZABLE -> "blob";
+      default -> "blob";
+    };
   }
 
   public static DataType getCassandraDataTypeFromValueMeta(IValueMeta vm) {
-    switch (vm.getType()) {
-      case IValueMeta.TYPE_STRING:
-        return DataTypes.TEXT;
-      case IValueMeta.TYPE_BIGNUMBER:
-        return DataTypes.DECIMAL;
-      case IValueMeta.TYPE_BOOLEAN:
-        return DataTypes.BOOLEAN;
-      case IValueMeta.TYPE_INTEGER:
-        return DataTypes.BIGINT;
-      case IValueMeta.TYPE_NUMBER:
-        return DataTypes.DOUBLE;
-      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
-        return DataTypes.TIMESTAMP; // CQL timestamp
-      case IValueMeta.TYPE_BINARY, IValueMeta.TYPE_SERIALIZABLE:
-      default:
-        return DataTypes.BLOB;
-    }
+    return switch (vm.getType()) {
+      case IValueMeta.TYPE_STRING -> DataTypes.TEXT;
+      case IValueMeta.TYPE_BIGNUMBER -> DataTypes.DECIMAL;
+      case IValueMeta.TYPE_BOOLEAN -> DataTypes.BOOLEAN;
+      case IValueMeta.TYPE_INTEGER -> DataTypes.BIGINT;
+      case IValueMeta.TYPE_NUMBER -> DataTypes.DOUBLE;
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> DataTypes.TIMESTAMP; // CQL timestamp
+      default -> DataTypes.BLOB;
+    };
   }
 
   /**
@@ -707,18 +689,14 @@ public class CassandraUtils {
    * @return the partitioner class instance
    */
   public static IPartitioner getPartitionerClassInstance(String partitionerClass) {
-    switch (partitionerClass) {
-      case "org.apache.cassandra.dht.Murmur3Partitioner":
-        return Murmur3Partitioner.instance;
-      case "org.apache.cassandra.dht.ByteOrderedPartitioner":
-        return ByteOrderedPartitioner.instance;
-      case "org.apache.cassandra.dht.RandomPartitioner":
-        return RandomPartitioner.instance;
-      case "org.apache.cassandra.dht.OrderPreservingPartitioner":
-        return OrderPreservingPartitioner.instance;
-      default:
-        return null;
-    }
+    return switch (partitionerClass) {
+      case "org.apache.cassandra.dht.Murmur3Partitioner" -> Murmur3Partitioner.instance;
+      case "org.apache.cassandra.dht.ByteOrderedPartitioner" -> ByteOrderedPartitioner.instance;
+      case "org.apache.cassandra.dht.RandomPartitioner" -> RandomPartitioner.instance;
+      case "org.apache.cassandra.dht.OrderPreservingPartitioner" ->
+          OrderPreservingPartitioner.instance;
+      default -> null;
+    };
   }
 
   /**
@@ -738,10 +716,10 @@ public class CassandraUtils {
     if (cassandraMeta != null) {
       List<String> colNames = cassandraMeta.getColumnNames();
       // List of rows
-      for (int i = 0; i < batch.size(); i++) {
+      for (Object[] objects : batch) {
         // Columns
-        for (int j = 0; j < batch.get(i).length; j++) {
-          if (batch.get(i)[j] != null) {
+        for (int j = 0; j < objects.length; j++) {
+          if (objects[j] != null) {
             DataType dataType = cassandraMeta.getColumnCQLType(colNames.get(j));
             String typeCql = dataType.asCql(true, false);
             String dateCql = DataTypes.DATE.asCql(true, false);
@@ -750,12 +728,12 @@ public class CassandraUtils {
               // Check that Hop type isn't actually more like a timestamp
               // NOTE: batch order does not match cassandraMeta order, need to pair up
               int index = inputMeta.indexOfValue(colNames.get(j));
-              if (batch.get(i)[index].getClass() == Date.class) {
-                Date d = (Date) batch.get(i)[index];
+              if (objects[index].getClass() == Date.class) {
+                Date d = (Date) objects[index];
 
                 // Convert java.util.Date to CQL friendly Date format (rounds to the day)
                 LocalDate ld = LocalDate.fromMillisSinceEpoch(d.getTime());
-                batch.get(i)[index] = ld;
+                objects[index] = ld;
               }
             }
           }

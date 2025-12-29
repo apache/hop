@@ -125,32 +125,21 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       for (ConfigOption configOption : configOptions) {
         Object value;
         String optionValue = configOption.getValue();
-        switch (configOption.getType()) {
-          case String:
-            value = optionValue;
-            break;
-          case Short:
-            value = Short.valueOf(optionValue);
-            break;
-          case Int:
-            value = Integer.valueOf(optionValue);
-            break;
-          case Long:
-            value = Long.valueOf(optionValue);
-            break;
-          case Double:
-            value = Double.valueOf(optionValue);
-            break;
-          case Boolean:
-            value = Boolean.valueOf(optionValue);
-            break;
-          default:
-            throw new RuntimeException(
-                "Config option parameter "
-                    + configOption.getParameter()
-                    + " uses unsupported type "
-                    + configOption.getType().name());
-        }
+        value =
+            switch (configOption.getType()) {
+              case String -> optionValue;
+              case Short -> Short.valueOf(optionValue);
+              case Int -> Integer.valueOf(optionValue);
+              case Long -> Long.valueOf(optionValue);
+              case Double -> Double.valueOf(optionValue);
+              case Boolean -> Boolean.valueOf(optionValue);
+              default ->
+                  throw new RuntimeException(
+                      "Config option parameter "
+                          + configOption.getParameter()
+                          + " uses unsupported type "
+                          + configOption.getType().name());
+            };
         producerConfigUpdates.put(configOption.getParameter(), value);
       }
 

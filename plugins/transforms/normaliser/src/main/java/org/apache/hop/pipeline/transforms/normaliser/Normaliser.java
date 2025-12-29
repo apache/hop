@@ -114,10 +114,10 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       int irmSize = data.inputRowMeta.size();
 
       for (int i = 0; i < irmSize; i++) {
-        IValueMeta v = data.inputRowMeta.getValueMeta(Integer.valueOf(i));
+        IValueMeta v = data.inputRowMeta.getValueMeta(i);
         // Backwards compatibility - old loop called Const.indexofstring which uses equalsIgnoreCase
         if (!normaliserFields.contains(v.getName().toLowerCase())) {
-          data.copyFieldnrs.add(Integer.valueOf(i));
+          data.copyFieldnrs.add(i);
         }
       }
     }
@@ -161,8 +161,8 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       //
       normFieldList = data.typeToFieldIndex.get(typeValue);
       int normFieldListSz = normFieldList.size();
-      for (int i = 0; i < normFieldListSz; i++) {
-        value = r[normFieldList.get(i)];
+      for (Integer integer : normFieldList) {
+        value = r[integer];
         outputRowData[outputIndex++] = value;
       }
 

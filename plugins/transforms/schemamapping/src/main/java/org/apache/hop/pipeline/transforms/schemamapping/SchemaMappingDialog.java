@@ -579,8 +579,7 @@ public class SchemaMappingDialog extends BaseTransformDialog {
         if (input.getMappingFieldset() != null) input.getMappingFieldset().clear();
         ArrayList<SchemaFieldDefinition> staticFieldset =
             (ArrayList<SchemaFieldDefinition>) schemaDefinition.getFieldDefinitions();
-        for (int i = 0; i < staticFieldset.size(); i++) {
-          SchemaFieldDefinition sfItem = staticFieldset.get(i);
+        for (SchemaFieldDefinition sfItem : staticFieldset) {
           if (smfMap.get(sfItem.getName()) != null)
             input.getMappingFieldset().add(smfMap.get(sfItem.getName()));
         }

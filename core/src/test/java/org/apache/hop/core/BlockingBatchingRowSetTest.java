@@ -44,8 +44,8 @@ public class BlockingBatchingRowSetTest {
       new ValueMetaInteger("ROWNR"),
     };
 
-    for (int i = 0; i < valuesMeta.length; i++) {
-      rm.addValueMeta(valuesMeta[i]);
+    for (IValueMeta iValueMeta : valuesMeta) {
+      rm.addValueMeta(iValueMeta);
     }
 
     return rm;
@@ -71,7 +71,7 @@ public class BlockingBatchingRowSetTest {
     for (int i = 0; i < 5; i++) {
       rows.add(
           new Object[] {
-            Long.valueOf(i),
+            (long) i,
           });
     }
 

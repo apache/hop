@@ -698,7 +698,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       SalesforceInsertField field = new SalesforceInsertField();
       field.setUpdateLookup(item.getText(1));
       field.setUpdateStream(item.getText(2));
-      field.setUseExternalId(Boolean.valueOf(item.getText(3)));
+      field.setUseExternalId(Boolean.parseBoolean(item.getText(3)));
       fields.add(field);
     }
     meta.setFields(fields);
@@ -824,8 +824,8 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     try {
 
       String[] fields = getModuleFields();
-      for (int i = 0; i < fields.length; i++) {
-        targetFields.addValueMeta(new ValueMetaNone(fields[i]));
+      for (String field : fields) {
+        targetFields.addValueMeta(new ValueMetaNone(field));
       }
     } catch (Exception e) {
       new ErrorDialog(
@@ -1033,8 +1033,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       display.asyncExec(
           () -> {
             // clear
-            for (int i = 0; i < tableFieldColumns.size(); i++) {
-              ColumnInfo colInfo = tableFieldColumns.get(i);
+            for (ColumnInfo colInfo : tableFieldColumns) {
               colInfo.setComboValues(new String[] {});
             }
             if (wModule.isDisposed()) {
@@ -1047,14 +1046,12 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
                 String[] fieldsName = getModuleFields();
 
                 if (fieldsName != null) {
-                  for (int i = 0; i < tableFieldColumns.size(); i++) {
-                    ColumnInfo colInfo = tableFieldColumns.get(i);
+                  for (ColumnInfo colInfo : tableFieldColumns) {
                     colInfo.setComboValues(fieldsName);
                   }
                 }
               } catch (Exception e) {
-                for (int i = 0; i < tableFieldColumns.size(); i++) {
-                  ColumnInfo colInfo = tableFieldColumns.get(i);
+                for (ColumnInfo colInfo : tableFieldColumns) {
                   colInfo.setComboValues(new String[] {});
                 }
                 // ignore any errors here. drop downs will not be

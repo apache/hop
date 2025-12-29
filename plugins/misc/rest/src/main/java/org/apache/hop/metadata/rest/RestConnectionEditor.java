@@ -820,20 +820,23 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     } else {
       wAuthType.select(Arrays.asList(authTypes).indexOf(metadata.getAuthType()));
     }
-    if (metadata.getAuthType().equals("Basic")) {
-      addBasicAuthFields();
-      wUsername.setText(Const.NVL(metadata.getUsername(), ""));
-      wPassword.setText(Const.NVL(metadata.getPassword(), ""));
-    } else if (metadata.getAuthType().equals("Bearer")) {
-      addBearerFields();
-      wBearerValue.setText(metadata.getBearerToken());
-    } else if (metadata.getAuthType().equals("API Key")) {
-      addApiKeyFields();
-      wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
-      wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
-      wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
-    } else if (metadata.getAuthType().equals("Certificate")) {
-      addCertificateFields();
+    switch (metadata.getAuthType()) {
+      case "Basic" -> {
+        addBasicAuthFields();
+        wUsername.setText(Const.NVL(metadata.getUsername(), ""));
+        wPassword.setText(Const.NVL(metadata.getPassword(), ""));
+      }
+      case "Bearer" -> {
+        addBearerFields();
+        wBearerValue.setText(metadata.getBearerToken());
+      }
+      case "API Key" -> {
+        addApiKeyFields();
+        wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
+        wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
+        wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
+      }
+      case "Certificate" -> addCertificateFields();
     }
   }
 

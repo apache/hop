@@ -69,12 +69,10 @@ public class BlockUntilTransformsFinish
         }
         if (targetTransforms != null) {
           // We can not get metrics from the target transforms
-          for (int j = 0; j < targetTransforms.length; j++) {
-            if (blockingTransform.getName().equals(targetTransforms[j])) {
+          for (String targetTransform : targetTransforms) {
+            if (blockingTransform.getName().equals(targetTransform)) {
               throw new HopException(
-                  "You can not get metrics for the target transform ["
-                      + targetTransforms[j]
-                      + "]!");
+                  "You can not get metrics for the target transform [" + targetTransform + "]!");
             }
           }
         }

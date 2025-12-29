@@ -405,16 +405,14 @@ public class WorkflowMeta extends AbstractMeta
 
     xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
     String[] parameters = listParameters();
-    for (int idx = 0; idx < parameters.length; idx++) {
+    for (String parameter : parameters) {
       xml.append("      ").append(XmlHandler.openTag(CONST_PARAMETER)).append(Const.CR);
-      xml.append(CONST_SPACE).append(XmlHandler.addTagValue("name", parameters[idx]));
+      xml.append(CONST_SPACE).append(XmlHandler.addTagValue("name", parameter));
       try {
         xml.append(CONST_SPACE)
-            .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameters[idx])));
+            .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameter)));
         xml.append(CONST_SPACE)
-            .append(
-                XmlHandler.addTagValue(
-                    CONST_DESCRIPTION, getParameterDescription(parameters[idx])));
+            .append(XmlHandler.addTagValue(CONST_DESCRIPTION, getParameterDescription(parameter)));
       } catch (UnknownParamException e) {
         // skip the default value and/or description. This exception should never happen because we
         // use listParameters()

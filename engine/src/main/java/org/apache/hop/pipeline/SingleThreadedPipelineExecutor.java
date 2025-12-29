@@ -400,9 +400,8 @@ public class SingleThreadedPipelineExecutor {
 
   public void buildExecutionSummary() {
 
-    for (int s = 0; s < transforms.size(); s++) {
+    for (TransformMetaDataCombi combi : transforms) {
       // Summarize execution results
-      TransformMetaDataCombi combi = transforms.get(s);
       long li = combi.transform.getLinesInput();
       long lo = combi.transform.getLinesOutput();
       long lr = combi.transform.getLinesRead();

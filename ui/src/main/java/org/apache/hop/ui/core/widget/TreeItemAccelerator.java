@@ -35,8 +35,8 @@ public class TreeItemAccelerator {
             @Override
             public void widgetDefaultSelected(SelectionEvent selectionEvent) {
               TreeItem[] items = tree.getSelection();
-              for (int i = 0; i < items.length; i++) {
-                String[] path2 = ConstUi.getTreeStrings(items[i]);
+              for (TreeItem item : items) {
+                String[] path2 = ConstUi.getTreeStrings(item);
                 if (equalPaths(path1, path2)) {
                   doubleClick.action(treeItem);
                 }

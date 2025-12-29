@@ -219,25 +219,22 @@ public class CoalesceDialog extends BaseTransformDialog {
 
     // Search the fields in the background
     final Runnable runnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-            if (transformMeta != null) {
-              try {
-                IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-                fieldNames = new String[row.size()];
-                for (int i = 0; i < row.size(); i++) {
-                  fieldNames[i] = row.getValueMeta(i).getName();
-                }
-
-                if (PropsUi.getInstance().isSortFieldByName()) {
-                  Const.sortStrings(fieldNames);
-                }
-              } catch (HopException e) {
-                logError(BaseMessages.getString(PKG, "CoalesceDialog.Log.UnableToFindInput"));
+              fieldNames = new String[row.size()];
+              for (int i = 0; i < row.size(); i++) {
+                fieldNames[i] = row.getValueMeta(i).getName();
               }
+
+              if (PropsUi.getInstance().isSortFieldByName()) {
+                Const.sortStrings(fieldNames);
+              }
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "CoalesceDialog.Log.UnableToFindInput"));
             }
           }
         };

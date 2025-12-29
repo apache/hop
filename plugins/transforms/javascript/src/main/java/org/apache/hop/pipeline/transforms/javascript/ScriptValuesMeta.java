@@ -458,17 +458,17 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     retval.append("    ").append(XmlHandler.addTagValue("optimizationLevel", optimizationLevel));
 
     retval.append("    <jsScripts>");
-    for (int i = 0; i < jsScripts.length; i++) {
+    for (ScriptValuesScript jsScript : jsScripts) {
       retval.append("      <jsScript>");
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue(JSSCRIPT_TAG_TYPE, jsScripts[i].getScriptType()));
+          .append(XmlHandler.addTagValue(JSSCRIPT_TAG_TYPE, jsScript.getScriptType()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue(JSSCRIPT_TAG_NAME, jsScripts[i].getScriptName()));
+          .append(XmlHandler.addTagValue(JSSCRIPT_TAG_NAME, jsScript.getScriptName()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue(JSSCRIPT_TAG_SCRIPT, jsScripts[i].getScript()));
+          .append(XmlHandler.addTagValue(JSSCRIPT_TAG_SCRIPT, jsScript.getScript()));
       retval.append("      </jsScript>");
     }
     retval.append("    </jsScripts>");
@@ -513,7 +513,7 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     jscx = ContextFactory.getGlobal().enterContext();
     jsscope = jscx.initStandardObjects(null, false);
     try {
-      jscx.setOptimizationLevel(Integer.valueOf(variables.resolve(optimizationLevel)));
+      jscx.setOptimizationLevel(Integer.parseInt(variables.resolve(optimizationLevel)));
     } catch (NumberFormatException nfe) {
       errorMessage =
           "Error with optimization level.  Could not convert the value of "
@@ -535,15 +535,15 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
 
     // Building the Scripts
     if (jsScripts.length > 0) {
-      for (int i = 0; i < jsScripts.length; i++) {
-        if (jsScripts[i].isTransformScript()) {
-          strActiveScript = jsScripts[i].getScript();
-        } else if (jsScripts[i].isStartScript()) {
-          strActiveStartScriptName = jsScripts[i].getScriptName();
-          strActiveStartScript = jsScripts[i].getScript();
-        } else if (jsScripts[i].isEndScript()) {
-          strActiveEndScriptName = jsScripts[i].getScriptName();
-          strActiveEndScript = jsScripts[i].getScript();
+      for (ScriptValuesScript jsScript : jsScripts) {
+        if (jsScript.isTransformScript()) {
+          strActiveScript = jsScript.getScript();
+        } else if (jsScript.isStartScript()) {
+          strActiveStartScriptName = jsScript.getScriptName();
+          strActiveStartScript = jsScript.getScript();
+        } else if (jsScript.isEndScript()) {
+          strActiveEndScriptName = jsScript.getScriptName();
+          strActiveEndScript = jsScript.getScript();
         }
       }
     }
@@ -595,10 +595,10 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
 
       // Adding some Constants to the JavaScript
       try {
-        jsscope.put("SKIP_PIPELINE", jsscope, Integer.valueOf(ScriptValues.SKIP_PIPELINE));
-        jsscope.put("ABORT_PIPELINE", jsscope, Integer.valueOf(ScriptValues.ABORT_PIPELINE));
-        jsscope.put("ERROR_PIPELINE", jsscope, Integer.valueOf(ScriptValues.ERROR_PIPELINE));
-        jsscope.put("CONTINUE_PIPELINE", jsscope, Integer.valueOf(ScriptValues.CONTINUE_PIPELINE));
+        jsscope.put("SKIP_PIPELINE", jsscope, ScriptValues.SKIP_PIPELINE);
+        jsscope.put("ABORT_PIPELINE", jsscope, ScriptValues.ABORT_PIPELINE);
+        jsscope.put("ERROR_PIPELINE", jsscope, ScriptValues.ERROR_PIPELINE);
+        jsscope.put("CONTINUE_PIPELINE", jsscope, ScriptValues.CONTINUE_PIPELINE);
       } catch (Exception ex) {
         errorMessage = "Couldn't add Pipeline Constants! Error:" + Const.CR + ex.toString();
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
@@ -629,10 +629,10 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
                     + "test value test value test value test value test value";
           }
           if (valueMeta.isInteger()) {
-            valueData = Long.valueOf(0L);
+            valueData = 0L;
           }
           if (valueMeta.isNumber()) {
-            valueData = Double.valueOf(0.0);
+            valueData = 0.0;
           }
           if (valueMeta.isBigNumber()) {
             valueData = BigDecimal.ZERO;

@@ -267,8 +267,8 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     if (input.length > 0) {
       boolean targetTransformFound = false;
       boolean sourceTransformFound = false;
-      for (int i = 0; i < input.length; i++) {
-        if (this.targetXmlTransform != null && this.targetXmlTransform.equals(input[i])) {
+      for (String s : input) {
+        if (this.targetXmlTransform != null && this.targetXmlTransform.equals(s)) {
           targetTransformFound = true;
           cr =
               new CheckResult(
@@ -278,7 +278,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
                   transformMeta);
           remarks.add(cr);
         }
-        if (this.sourceXmlTransform != null && this.sourceXmlTransform.equals(input[i])) {
+        if (this.sourceXmlTransform != null && this.sourceXmlTransform.equals(s)) {
           sourceTransformFound = true;
           cr =
               new CheckResult(

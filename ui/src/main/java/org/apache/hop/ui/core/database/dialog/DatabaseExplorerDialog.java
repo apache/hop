@@ -540,13 +540,13 @@ public class DatabaseExplorerDialog extends Dialog {
         tiCat.setImage(GuiResource.getInstance().getImageFolder());
         tiCat.setText(STRING_CATALOG);
 
-        for (int i = 0; i < catalogs.length; i++) {
+        for (Catalog catalog : catalogs) {
           TreeItem newCat = new TreeItem(tiCat, SWT.NONE);
           newCat.setImage(GuiResource.getInstance().getImageFolder());
-          newCat.setText(catalogs[i].getCatalogName());
+          newCat.setText(catalog.getCatalogName());
 
-          for (int j = 0; j < catalogs[i].getItems().length; j++) {
-            String tableName = catalogs[i].getItems()[j];
+          for (int j = 0; j < catalog.getItems().length; j++) {
+            String tableName = catalog.getItems()[j];
 
             TreeItem ti = new TreeItem(newCat, SWT.NONE);
             ti.setImage(GuiResource.getInstance().getImageTable());
@@ -562,13 +562,13 @@ public class DatabaseExplorerDialog extends Dialog {
         tiSch.setImage(GuiResource.getInstance().getImageFolder());
         tiSch.setText(STRING_SCHEMAS);
 
-        for (int i = 0; i < schemas.length; i++) {
+        for (Schema schema : schemas) {
           TreeItem newSch = new TreeItem(tiSch, SWT.NONE);
           newSch.setImage(GuiResource.getInstance().getImageSchema());
-          newSch.setText(schemas[i].getSchemaName());
+          newSch.setText(schema.getSchemaName());
 
-          for (int j = 0; j < schemas[i].getItems().length; j++) {
-            String tableName = schemas[i].getItems()[j];
+          for (int j = 0; j < schema.getItems().length; j++) {
+            String tableName = schema.getItems()[j];
 
             TreeItem ti = new TreeItem(newSch, SWT.NONE);
             ti.setImage(GuiResource.getInstance().getImageTable());
@@ -586,10 +586,10 @@ public class DatabaseExplorerDialog extends Dialog {
         tiTab.setText(STRING_TABLES);
         tiTab.setExpanded(true);
 
-        for (int i = 0; i < tabnames.length; i++) {
+        for (String tabname : tabnames) {
           TreeItem newTab = new TreeItem(tiTab, SWT.NONE);
           newTab.setImage(GuiResource.getInstance().getImageTable());
-          newTab.setText(tabnames[i]);
+          newTab.setText(tabname);
         }
       }
 
@@ -600,10 +600,10 @@ public class DatabaseExplorerDialog extends Dialog {
         tiView = new TreeItem(tiTree, SWT.NONE);
         tiView.setImage(GuiResource.getInstance().getImageFolder());
         tiView.setText(STRING_VIEWS);
-        for (int i = 0; i < views.length; i++) {
+        for (String view : views) {
           TreeItem newView = new TreeItem(tiView, SWT.NONE);
           newView.setImage(GuiResource.getInstance().getImageView());
-          newView.setText(views[i]);
+          newView.setText(view);
         }
       }
 
@@ -614,10 +614,10 @@ public class DatabaseExplorerDialog extends Dialog {
         tiSyn = new TreeItem(tiTree, SWT.NONE);
         tiSyn.setImage(GuiResource.getInstance().getImageFolder());
         tiSyn.setText(STRING_SYNONYMS);
-        for (int i = 0; i < syn.length; i++) {
+        for (String s : syn) {
           TreeItem newSyn = new TreeItem(tiSyn, SWT.NONE);
           newSyn.setImage(GuiResource.getInstance().getImageSynonym());
-          newSyn.setText(syn[i]);
+          newSyn.setText(s);
         }
       }
 
@@ -880,8 +880,8 @@ public class DatabaseExplorerDialog extends Dialog {
 
         // Only take non-SAP ERP connections....
         List<DatabaseMeta> databaseMetaList = new ArrayList<>();
-        for (int i = 0; i < databases.size(); i++) {
-          databaseMetaList.add(databases.get(i));
+        for (DatabaseMeta databaseMeta : databases) {
+          databaseMetaList.add(databaseMeta);
         }
 
         String[] connectionNames = new String[databaseMetaList.size()];

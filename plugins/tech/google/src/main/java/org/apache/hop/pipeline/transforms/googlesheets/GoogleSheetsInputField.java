@@ -337,12 +337,12 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
     }
     int datenul = 0;
 
-    for (int i = 0; i < samples.length; i++) {
-      if (!samples[i].isEmpty() && samples[i].equalsIgnoreCase(nullString)) {
+    for (String sample : samples) {
+      if (!sample.isEmpty() && sample.equalsIgnoreCase(nullString)) {
         datenul++;
       } else {
         for (int x = 0; x < date_formats.length; x++) {
-          if (samples[i] == null || Const.onlySpaces(samples[i]) || samples[i].isEmpty()) {
+          if (sample == null || Const.onlySpaces(sample) || sample.isEmpty()) {
             datefmt[x] = false;
             datefmt_cnt--;
           }
@@ -350,7 +350,7 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
           if (datefmt[x]) {
             try {
               daf.applyPattern(date_formats[x]);
-              Date date = daf.parse(samples[i]);
+              Date date = daf.parse(sample);
 
               Calendar cal = Calendar.getInstance();
               cal.setTime(date);

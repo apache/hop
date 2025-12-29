@@ -22,7 +22,6 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.sns.AmazonSNS;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -581,8 +580,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
 
       List<Region> snsRegions = RegionUtils.getRegionsForService(AmazonSNS.ENDPOINT_PREFIX);
 
-      for (Iterator<Region> i = snsRegions.iterator(); i.hasNext(); ) {
-        Region region = i.next();
+      for (Region region : snsRegions) {
         tAWSRegion2.add(region.getName());
       }
 

@@ -276,16 +276,16 @@ public class SqlStatementsDialog extends Dialog {
     }
 
     int errors = 0;
-    for (int i = 0; i < idx.length; i++) {
-      SqlStatement stat = stats.get(idx[i]);
+    for (int k : idx) {
+      SqlStatement stat = stats.get(k);
       if (stat.hasError()) {
         errors++;
       }
     }
 
     if (errors == 0) {
-      for (int i = 0; i < idx.length; i++) {
-        SqlStatement stat = stats.get(idx[i]);
+      for (int j : idx) {
+        SqlStatement stat = stats.get(j);
         DatabaseMeta databaseMeta = stat.getDatabase();
         if (databaseMeta != null && !stat.hasError()) {
           Database db = new Database(loggingObject, variables, databaseMeta);

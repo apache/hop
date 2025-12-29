@@ -43,8 +43,8 @@ public class TreeUtil {
 
   public static final TreeItem findTreeItem(Tree tree, String[] path) {
     TreeItem[] items = tree.getItems();
-    for (int i = 0; i < items.length; i++) {
-      TreeItem treeItem = findTreeItem(items[i], path, 0);
+    for (TreeItem item : items) {
+      TreeItem treeItem = findTreeItem(item, path, 0);
       if (treeItem != null) {
         return treeItem;
       }
@@ -59,8 +59,8 @@ public class TreeUtil {
       }
 
       TreeItem[] items = treeItem.getItems();
-      for (int i = 0; i < items.length; i++) {
-        TreeItem found = findTreeItem(items[i], path, level + 1);
+      for (TreeItem item : items) {
+        TreeItem found = findTreeItem(item, path, level + 1);
         if (found != null) {
           return found;
         }

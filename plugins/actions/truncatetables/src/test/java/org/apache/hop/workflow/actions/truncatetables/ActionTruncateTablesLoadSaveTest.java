@@ -47,7 +47,7 @@ class ActionTruncateTablesLoadSaveTest
 
   @Override
   protected Map<String, String> createGettersMap() {
-    return new HashMap<String, String>() {
+    return new HashMap<>() {
       {
         put("connection", "getConnection");
         put("arg_from_previous", "isArgFromPrevious");
@@ -58,7 +58,7 @@ class ActionTruncateTablesLoadSaveTest
 
   @Override
   protected Map<String, String> createSettersMap() {
-    return new HashMap<String, String>() {
+    return new HashMap<>() {
       {
         put("connection", "setConnection");
         put("arg_from_previous", "setArgFromPrevious");
@@ -71,9 +71,7 @@ class ActionTruncateTablesLoadSaveTest
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
 
-    validators.put(
-        "items",
-        new ListLoadSaveValidator<TruncateTableItem>(new TruncateTableItemLoadSaveValidator()));
+    validators.put("items", new ListLoadSaveValidator<>(new TruncateTableItemLoadSaveValidator()));
 
     return validators;
   }

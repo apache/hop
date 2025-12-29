@@ -583,9 +583,7 @@ public class StringOperationsMeta
       remarks.add(cr);
     } else {
 
-      for (int i = 0; i < fieldInStream.length; i++) {
-        String field = fieldInStream[i];
-
+      for (String field : fieldInStream) {
         IValueMeta v = prev.searchValueMeta(field);
         if (v == null) {
           if (first) {
@@ -613,9 +611,7 @@ public class StringOperationsMeta
       // Check whether all are strings
       first = true;
       errorFound = false;
-      for (int i = 0; i < fieldInStream.length; i++) {
-        String field = fieldInStream[i];
-
+      for (String field : fieldInStream) {
         IValueMeta v = prev.searchValueMeta(field);
         if (v != null && v.getType() != IValueMeta.TYPE_STRING) {
           if (first) {

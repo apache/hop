@@ -32,7 +32,6 @@ import org.kie.api.builder.Results;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.ObjectFilter;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.utils.KieHelper;
 
@@ -145,14 +144,11 @@ public class RulesAccumulatorData extends BaseTransformData implements ITransfor
       Collection<Object> oList =
           (Collection<Object>)
               session.getObjects(
-                  new ObjectFilter() {
-                    @Override
-                    public boolean accept(Object o) {
-                      if (o instanceof Rules.Row row && !row.isExternalSource()) {
-                        return true;
-                      }
-                      return false;
+                  o -> {
+                    if (o instanceof Rules.Row row && !row.isExternalSource()) {
+                      return true;
                     }
+                    return false;
                   });
 
       for (Object o : oList) {

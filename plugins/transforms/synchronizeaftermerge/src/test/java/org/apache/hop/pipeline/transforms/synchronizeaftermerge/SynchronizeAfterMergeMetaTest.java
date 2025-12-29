@@ -70,7 +70,7 @@ class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
             "update");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("tableNameInField", "isTableNameInField");
             put("tableNameField", "getTableNameField");
@@ -78,7 +78,7 @@ class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("tableNameInField", "setTableNameInField");
             put("tableNameField", "setTableNameField");

@@ -1660,7 +1660,7 @@ public class TableView extends Composite {
         if (!bg.equals(defaultBackgroundColor)) {
           String colorName = "bg " + bg.toString();
           r[0] = colorName;
-          r[1] = Long.valueOf((bg.getRed() << 16) + (bg.getGreen() << 8) + (bg.getBlue()));
+          r[1] = (long) ((bg.getRed() << 16) + (bg.getGreen() << 8) + (bg.getBlue()));
           // Save it in the used colors map!
           usedColors.put(colorName, bg);
         }
@@ -1701,8 +1701,7 @@ public class TableView extends Composite {
       table.removeAll();
 
       // Refill the table
-      for (int i = 0; i < v.size(); i++) {
-        Object[] r = v.get(i);
+      for (Object[] r : v) {
         TableItem item = new TableItem(table, SWT.NONE);
 
         String colorName = (String) r[0];
@@ -2178,8 +2177,7 @@ public class TableView extends Composite {
       ArrayUtils.reverse(items);
     }
 
-    for (int r = 0; r < items.length; r++) {
-      TableItem ti = items[r];
+    for (TableItem ti : items) {
       for (int c = 1; c < table.getColumnCount(); c++) {
         if (c > 1) {
           selection.append(CLIPBOARD_DELIMITER);
@@ -3202,8 +3200,8 @@ public class TableView extends Composite {
       case NewTableRow:
         int[] idx = ta.getCurrentIndex();
         table.remove(idx);
-        for (int i = 0; i < idx.length; i++) {
-          if (idx[i] < rowNr) {
+        for (int j : idx) {
+          if (j < rowNr) {
             rowNr--; // shift with the rest.
           }
         }
@@ -3311,8 +3309,8 @@ public class TableView extends Composite {
       case DeleteTableRow:
         idx = ta.getCurrentIndex();
         table.remove(idx);
-        for (int i = 0; i < idx.length; i++) {
-          if (idx[i] < rowNr) {
+        for (int j : idx) {
+          if (j < rowNr) {
             rowNr--; // shift with the rest.
           }
         }
@@ -3529,8 +3527,8 @@ public class TableView extends Composite {
   public IRowMeta getRowWithoutValues() {
     IRowMeta f = new RowMeta();
     f.addValueMeta(new ValueMetaInteger("#"));
-    for (int i = 0; i < columns.length; i++) {
-      f.addValueMeta(new ValueMetaString(columns[i].getName()));
+    for (ColumnInfo column : columns) {
+      f.addValueMeta(new ValueMetaString(column.getName()));
     }
     return f;
   }
@@ -3540,7 +3538,7 @@ public class TableView extends Composite {
     IRowMeta rowMeta = getRowWithoutValues();
     Object[] rowData = new Object[rowMeta.size()];
 
-    rowData[0] = Long.valueOf(nr);
+    rowData[0] = (long) nr;
     for (int i = 1; i < rowMeta.size(); i++) {
       rowData[i] = ti.getText(i);
     }

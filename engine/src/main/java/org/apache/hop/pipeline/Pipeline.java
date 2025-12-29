@@ -706,7 +706,7 @@ public abstract class Pipeline
                 Boolean batchingRowSet =
                     ValueMetaBase.convertStringToBoolean(
                         System.getProperty(Const.HOP_BATCHING_ROWSET));
-                if (batchingRowSet != null && batchingRowSet.booleanValue()) {
+                if (batchingRowSet != null && batchingRowSet) {
                   rowSet = new BlockingBatchingRowSet(rowSetSize);
                 } else {
                   rowSet = new BlockingRowSet(rowSetSize);
@@ -2016,17 +2016,13 @@ public abstract class Pipeline
     }
 
     // We are going to add an extra IRowSet to this iTransform.
-    IRowSet rowSet;
-    switch (pipelineMeta.getPipelineType()) {
-      case Normal:
-        rowSet = new BlockingRowSet(rowSetSize);
-        break;
-      case SingleThreaded:
-        rowSet = new QueueRowSet();
-        break;
-      default:
-        throw new HopException("Unhandled pipeline type: " + pipelineMeta.getPipelineType());
-    }
+    IRowSet rowSet =
+        switch (pipelineMeta.getPipelineType()) {
+          case Normal -> new BlockingRowSet(rowSetSize);
+          case SingleThreaded -> new QueueRowSet();
+          default ->
+              throw new HopException("Unhandled pipeline type: " + pipelineMeta.getPipelineType());
+        };
 
     // Add this rowset to the list of active rowsets for the selected transform
     transform.addRowSetToInputRowSets(rowSet);

@@ -63,8 +63,8 @@ public class Variables implements IVariables {
       // If variables is not null and this variable is not already
       // the same object as the argument.
       String[] variableNames = variables.getVariableNames();
-      for (int idx = 0; idx < variableNames.length; idx++) {
-        properties.put(variableNames[idx], variables.getVariable(variableNames[idx]));
+      for (String variableName : variableNames) {
+        properties.put(variableName, variables.getVariable(variableName));
       }
     }
   }

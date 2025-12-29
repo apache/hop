@@ -387,47 +387,27 @@ public class SvgGc implements IGc {
   }
 
   private Color getColor(EColor color) {
-    switch (color) {
-      case BACKGROUND:
-        return background;
-      case BLACK:
-        return black;
-      case RED:
-        return red;
-      case YELLOW:
-        return yellow;
-      case GREEN:
-        return green;
-      case BLUE:
-        return blue;
-      case MAGENTA:
-        return magenta;
-      case PURPULE:
-        return purpule;
-      case INDIGO:
-        return indigo;
-      case GRAY:
-        return gray;
-      case LIGHTGRAY:
-        return lightGray;
-      case DARKGRAY:
-        return darkGray;
-      case LIGHTBLUE:
-        return lightBlue;
-      case CRYSTAL:
-        return crystal;
-      case HOP_DEFAULT:
-        return hopDefault;
-      case HOP_TRUE:
-        return hopTrue;
-      case HOP_FALSE:
-        return hopFalse;
-      case DEPRECATED:
-        return deprecated;
-      default:
-        break;
-    }
-    return null;
+    return switch (color) {
+      case BACKGROUND -> background;
+      case BLACK -> black;
+      case RED -> red;
+      case YELLOW -> yellow;
+      case GREEN -> green;
+      case BLUE -> blue;
+      case MAGENTA -> magenta;
+      case PURPULE -> purpule;
+      case INDIGO -> indigo;
+      case GRAY -> gray;
+      case LIGHTGRAY -> lightGray;
+      case DARKGRAY -> darkGray;
+      case LIGHTBLUE -> lightBlue;
+      case CRYSTAL -> crystal;
+      case HOP_DEFAULT -> hopDefault;
+      case HOP_TRUE -> hopTrue;
+      case HOP_FALSE -> hopFalse;
+      case DEPRECATED -> deprecated;
+      default -> null;
+    };
   }
 
   @Override
@@ -459,38 +439,27 @@ public class SvgGc implements IGc {
   }
 
   private Stroke createStroke() {
-    float[] dash;
-    switch (lineStyle) {
-      case SOLID:
-        dash = null;
-        break;
-      case DOT:
-        dash =
-            new float[] {
-              5,
-            };
-        break;
-      case DASHDOT:
-        dash =
-            new float[] {
-              10, 5, 5, 5,
-            };
-        break;
-      case PARALLEL:
-        dash =
-            new float[] {
-              10, 5, 10, 5,
-            };
-        break;
-      case DASH:
-        dash =
-            new float[] {
-              6, 2,
-            };
-        break;
-      default:
-        throw new RuntimeException("Unhandled line style!");
-    }
+    float[] dash =
+        switch (lineStyle) {
+          case SOLID -> null;
+          case DOT ->
+              new float[] {
+                5,
+              };
+          case DASHDOT ->
+              new float[] {
+                10, 5, 5, 5,
+              };
+          case PARALLEL ->
+              new float[] {
+                10, 5, 10, 5,
+              };
+          case DASH ->
+              new float[] {
+                6, 2,
+              };
+          default -> throw new RuntimeException("Unhandled line style!");
+        };
     return new BasicStroke(lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2, dash, 0);
   }
 
@@ -748,14 +717,16 @@ public class SvgGc implements IGc {
     for (int c = 0; c < childNodes.getLength(); c++) {
       Node childNode = childNodes.item(c);
 
-      if ("metadata".equals(childNode.getNodeName())) {
-        continue; // skip some junk
-      }
-      if ("defs".equals(childNode.getNodeName())) {
-        continue; // skip some junk
-      }
-      if ("sodipodi:namedview".equals(childNode.getNodeName())) {
-        continue; // skip some junk
+      switch (childNode.getNodeName()) {
+        case "metadata" -> {
+          continue; // skip some junk
+        }
+        case "defs" -> {
+          continue; // skip some junk
+        }
+        case "sodipodi:namedview" -> {
+          continue; // skip some junk
+        }
       }
 
       // Copy this node over to the svgSvg element

@@ -18,7 +18,6 @@
 package org.apache.hop.core.hash;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.map.AbstractHashedMap;
@@ -116,8 +115,8 @@ public class ByteArrayHashMap extends AbstractHashedMap {
   public List<byte[]> getKeys() {
     List<byte[]> rtn = new ArrayList<>(this.size());
     Set<byte[]> kSet = this.keySet();
-    for (Iterator<byte[]> it = kSet.iterator(); it.hasNext(); ) {
-      rtn.add(it.next());
+    for (byte[] bytes : kSet) {
+      rtn.add(bytes);
     }
     return rtn;
   }

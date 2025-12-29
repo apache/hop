@@ -60,18 +60,15 @@ public enum NamedReadPreference {
   public ReadPreference getTaggableReadPreference(
       Document firstTagSet, Document... remainingTagSets) {
 
-    switch (this) {
-      case PRIMARY_PREFERRED:
-        return ReadPreference.primaryPreferred(toTagsList(firstTagSet, remainingTagSets));
-      case SECONDARY:
-        return ReadPreference.secondary(toTagsList(firstTagSet, remainingTagSets));
-      case SECONDARY_PREFERRED:
-        return ReadPreference.secondaryPreferred(toTagsList(firstTagSet, remainingTagSets));
-      case NEAREST:
-        return ReadPreference.nearest(toTagsList(firstTagSet, remainingTagSets));
-      default:
-        return (pref instanceof TaggableReadPreference) ? pref : null;
-    }
+    return switch (this) {
+      case PRIMARY_PREFERRED ->
+          ReadPreference.primaryPreferred(toTagsList(firstTagSet, remainingTagSets));
+      case SECONDARY -> ReadPreference.secondary(toTagsList(firstTagSet, remainingTagSets));
+      case SECONDARY_PREFERRED ->
+          ReadPreference.secondaryPreferred(toTagsList(firstTagSet, remainingTagSets));
+      case NEAREST -> ReadPreference.nearest(toTagsList(firstTagSet, remainingTagSets));
+      default -> (pref instanceof TaggableReadPreference) ? pref : null;
+    };
   }
 
   private static List<TagSet> toTagsList(Document firstTagSet, Document[] remainingTagSets) {

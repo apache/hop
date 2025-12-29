@@ -538,9 +538,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     retval.append("      </additional_fields>" + Const.CR);
 
     retval.append("    <key_fields>").append(Const.CR);
-    for (int i = 0; i < keyFields.length; i++) {
-      JsonOutputKeyField keyField = keyFields[i];
-
+    for (JsonOutputKeyField keyField : keyFields) {
       if (!Utils.isEmpty(keyField.getFieldName())) {
         retval.append("      <key_field>").append(Const.CR);
         retval
@@ -555,9 +553,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     retval.append("    </key_fields>").append(Const.CR);
 
     retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < outputFields.length; i++) {
-      JsonOutputField field = outputFields[i];
-
+    for (JsonOutputField field : outputFields) {
       if (!Utils.isEmpty(field.getFieldName())) {
         retval.append("      <field>").append(Const.CR);
         retval
@@ -634,10 +630,10 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < outputFields.length; i++) {
-        int idx = prev.indexOfValue(outputFields[i].getFieldName());
+      for (JsonOutputField outputField : outputFields) {
+        int idx = prev.indexOfValue(outputField.getFieldName());
         if (idx < 0) {
-          errorMessage += "\t\t" + outputFields[i].getFieldName() + Const.CR;
+          errorMessage += "\t\t" + outputField.getFieldName() + Const.CR;
           errorFound = true;
         }
       }

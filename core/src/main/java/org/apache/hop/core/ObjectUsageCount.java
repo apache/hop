@@ -54,7 +54,7 @@ public class ObjectUsageCount
 
   @Override
   public int compareTo(ObjectUsageCount count) {
-    return Integer.valueOf(count.getNrUses()).compareTo(Integer.valueOf(getNrUses()));
+    return Integer.valueOf(count.getNrUses()).compareTo(getNrUses());
   }
 
   public void reset() {

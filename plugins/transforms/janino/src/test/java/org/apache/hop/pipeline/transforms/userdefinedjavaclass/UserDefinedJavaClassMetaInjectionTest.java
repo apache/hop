@@ -73,8 +73,7 @@ class UserDefinedJavaClassMetaInjectionTest
     assertEquals(-1, meta.getFieldInfo().get(0).length);
     injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaString("5"), "5"), "5");
     assertEquals(5, meta.getFieldInfo().get(0).length);
-    injector.setProperty(
-        meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("4"), Long.valueOf(4)), "4");
+    injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("4"), 4L), "4");
     assertEquals(4, meta.getFieldInfo().get(0).length);
 
     injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaString(""), ""), "");
@@ -83,8 +82,7 @@ class UserDefinedJavaClassMetaInjectionTest
     assertEquals(-1, meta.getFieldInfo().get(0).precision);
     injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaString("5"), "5"), "5");
     assertEquals(5, meta.getFieldInfo().get(0).precision);
-    injector.setProperty(
-        meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("4"), Long.valueOf(4)), "4");
+    injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("4"), 4L), "4");
     assertEquals(4, meta.getFieldInfo().get(0).precision);
 
     ArrayList<UserDefinedJavaClassDef> definitions = new ArrayList<>();

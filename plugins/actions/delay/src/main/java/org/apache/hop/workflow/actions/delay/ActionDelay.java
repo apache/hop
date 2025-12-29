@@ -83,26 +83,26 @@ public class ActionDelay extends ActionBase implements Cloneable {
     Result result = previousResult;
     result.setResult(false);
     int multiple;
-    String waitscale;
+    String waitscale =
+        switch (scaleTime) {
+          case 0 -> {
+            // Second
+            multiple = 1000;
+            yield BaseMessages.getString(PKG, "ActionDelay.SScaleTime.Label");
+          }
+          case 1 -> {
+            // Minute
+            multiple = 60000;
+            yield BaseMessages.getString(PKG, "ActionDelay.MnScaleTime.Label");
+          }
+          default -> {
+            // Hour
+            multiple = 3600000;
+            yield BaseMessages.getString(PKG, "ActionDelay.HrScaleTime.Label");
+          }
+        };
 
     // Scale time
-    switch (scaleTime) {
-      case 0:
-        // Second
-        multiple = 1000;
-        waitscale = BaseMessages.getString(PKG, "ActionDelay.SScaleTime.Label");
-        break;
-      case 1:
-        // Minute
-        multiple = 60000;
-        waitscale = BaseMessages.getString(PKG, "ActionDelay.MnScaleTime.Label");
-        break;
-      default:
-        // Hour
-        multiple = 3600000;
-        waitscale = BaseMessages.getString(PKG, "ActionDelay.HrScaleTime.Label");
-        break;
-    }
 
     try {
       // starttime (in seconds ,Minutes or Hours)

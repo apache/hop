@@ -101,8 +101,7 @@ public class SnapAllignDistribute {
     int min = 99999;
 
     // First look for the minimum x coordinate...
-    for (int i = 0; i < elements.size(); i++) {
-      IGuiPosition element = elements.get(i);
+    for (IGuiPosition element : elements) {
       Point p = element.getLocation();
       if (p.x < min) {
         min = p.x;
@@ -138,9 +137,7 @@ public class SnapAllignDistribute {
     int max = -99999;
 
     // First look for the maximum x coordinate...
-    for (int i = 0; i < elements.size(); i++) {
-      IGuiPosition element = elements.get(i);
-
+    for (IGuiPosition element : elements) {
       Point p = element.getLocation();
       if (p.x > max) {
         max = p.x;
@@ -175,8 +172,7 @@ public class SnapAllignDistribute {
     int min = 99999;
 
     // First look for the minimum y coordinate...
-    for (int i = 0; i < elements.size(); i++) {
-      IGuiPosition element = elements.get(i);
+    for (IGuiPosition element : elements) {
       Point p = element.getLocation();
       if (p.y < min) {
         min = p.y;
@@ -211,9 +207,7 @@ public class SnapAllignDistribute {
     int max = -99999;
 
     // First look for the maximum y coordinate...
-    for (int i = 0; i < elements.size(); i++) {
-      IGuiPosition element = elements.get(i);
-
+    for (IGuiPosition element : elements) {
       Point p = element.getLocation();
       if (p.y > max) {
         max = p.y;

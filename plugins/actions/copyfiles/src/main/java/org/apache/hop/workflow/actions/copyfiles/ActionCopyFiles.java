@@ -548,8 +548,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               int trimPathLength = destinationFilefoldername.length() + 1;
               FileObject addFile;
 
-              for (Iterator<String> iter = listAddResult.iterator(); iter.hasNext(); ) {
-                String fileaddentry = iter.next();
+              for (String fileaddentry : listAddResult) {
                 addFile = null; // re=null each iteration
 
                 // Try to get the file relative to the existing connection

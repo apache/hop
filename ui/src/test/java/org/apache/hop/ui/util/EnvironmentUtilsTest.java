@@ -129,46 +129,33 @@ public class EnvironmentUtilsTest {
 
     @Override
     protected String getWebkitPath() {
-      switch (option) {
-        case UBUNTU_16, UBUNTU_14:
-          return WEBKIT_PATH;
-        case UBUNTU_WRONG:
-          return "";
-        default:
-          return null;
-      }
+      return switch (option) {
+        case UBUNTU_16, UBUNTU_14 -> WEBKIT_PATH;
+        case UBUNTU_WRONG -> "";
+        default -> null;
+      };
     }
 
     @Override
     protected String getOsName() {
-      switch (option) {
-        case UBUNTU_16, UBUNTU_WRONG, UBUNTU_14:
-          return LINUX_NAME;
-        case MAC_OS_X, MACOS_X_WRONG:
-          return MAC_OS_X_NAME;
-        case WINDOWS, WINDOWS_WRONG:
-          return WINDOWS_NAME;
-        default:
-          return null;
-      }
+      return switch (option) {
+        case UBUNTU_16, UBUNTU_WRONG, UBUNTU_14 -> LINUX_NAME;
+        case MAC_OS_X, MACOS_X_WRONG -> MAC_OS_X_NAME;
+        case WINDOWS, WINDOWS_WRONG -> WINDOWS_NAME;
+        default -> null;
+      };
     }
 
     @Override
     protected String getUserAgent() {
-      switch (option) {
-        case UBUNTU_16, UBUNTU_14:
-          return MIDORI_AGENT;
-        case MAC_OS_X:
-          return SAFARI_9_AGENT;
-        case MACOS_X_WRONG:
-          return SAFARI_7_AGENT;
-        case WINDOWS:
-          return IE_11_AGENT;
-        case WINDOWS_WRONG:
-          return IE_10_AGENT;
-        default:
-          return null;
-      }
+      return switch (option) {
+        case UBUNTU_16, UBUNTU_14 -> MIDORI_AGENT;
+        case MAC_OS_X -> SAFARI_9_AGENT;
+        case MACOS_X_WRONG -> SAFARI_7_AGENT;
+        case WINDOWS -> IE_11_AGENT;
+        case WINDOWS_WRONG -> IE_10_AGENT;
+        default -> null;
+      };
     }
 
     @Override

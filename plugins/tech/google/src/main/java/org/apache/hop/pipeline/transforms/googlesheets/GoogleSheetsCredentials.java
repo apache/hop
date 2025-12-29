@@ -17,7 +17,6 @@
  */
 package org.apache.hop.pipeline.transforms.googlesheets;
 
-import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.sqladmin.SQLAdminScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
@@ -66,14 +65,11 @@ public class GoogleSheetsCredentials {
 
   public static HttpRequestInitializer setHttpTimeout(
       final HttpRequestInitializer requestInitializer, final String timeout) {
-    return new HttpRequestInitializer() {
-      @Override
-      public void initialize(HttpRequest httpRequest) throws IOException {
-        Integer TO = Integer.parseInt(timeout);
-        requestInitializer.initialize(httpRequest);
-        httpRequest.setConnectTimeout(TO * 60000); // 10 minutes connect timeout
-        httpRequest.setReadTimeout(TO * 60000); // 10 minutes read timeout
-      }
+    return httpRequest -> {
+      Integer TO = Integer.parseInt(timeout);
+      requestInitializer.initialize(httpRequest);
+      httpRequest.setConnectTimeout(TO * 60000); // 10 minutes connect timeout
+      httpRequest.setReadTimeout(TO * 60000); // 10 minutes read timeout
     };
   }
 }

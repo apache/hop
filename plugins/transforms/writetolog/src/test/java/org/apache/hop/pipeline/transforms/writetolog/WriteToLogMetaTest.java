@@ -88,7 +88,7 @@ class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
-        new LoadSaveTester<WriteToLogMeta>(
+        new LoadSaveTester<>(
             WriteToLogMeta.class,
             attributes,
             getterMap,

@@ -39,8 +39,8 @@ public class RowSetTest {
       new ValueMetaInteger("ROWNR"),
     };
 
-    for (int i = 0; i < valuesMeta.length; i++) {
-      rm.addValueMeta(valuesMeta[i]);
+    for (IValueMeta iValueMeta : valuesMeta) {
+      rm.addValueMeta(iValueMeta);
     }
 
     return rm;
@@ -64,11 +64,11 @@ public class RowSetTest {
 
     IRowMeta rm = createRowMetaInterface();
 
-    Object[] r1 = new Object[] {Long.valueOf(1L)};
-    Object[] r2 = new Object[] {Long.valueOf(2L)};
-    Object[] r3 = new Object[] {Long.valueOf(3L)};
-    Object[] r4 = new Object[] {Long.valueOf(4L)};
-    Object[] r5 = new Object[] {Long.valueOf(5L)};
+    Object[] r1 = new Object[] {1L};
+    Object[] r2 = new Object[] {2L};
+    Object[] r3 = new Object[] {3L};
+    Object[] r4 = new Object[] {4L};
+    Object[] r5 = new Object[] {5L};
 
     // TODO assertTrue(set.isEmpty());
     assertEquals(0, set.size());

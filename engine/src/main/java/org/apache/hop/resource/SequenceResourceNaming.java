@@ -57,12 +57,12 @@ public class SequenceResourceNaming extends SimpleResourceNaming {
     String key = filename + extension;
     Integer seq = sequenceMap.get(key);
     if (seq == null) {
-      seq = Integer.valueOf(2);
+      seq = 2;
       sequenceMap.put(key, seq);
       return null;
     }
 
-    sequenceMap.put(key, Integer.valueOf(seq.intValue() + 1));
+    sequenceMap.put(key, seq + 1);
 
     return seq.toString();
   }

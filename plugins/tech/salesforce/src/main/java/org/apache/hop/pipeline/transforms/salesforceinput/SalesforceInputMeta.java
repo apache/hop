@@ -262,7 +262,7 @@ public class SalesforceInputMeta
   @Override
   public Object clone() {
     SalesforceInputMeta retval = (SalesforceInputMeta) super.clone();
-    retval.fields = new ArrayList<SalesforceInputField>();
+    retval.fields = new ArrayList<>();
 
     int nrFields = fields.size();
 

@@ -133,9 +133,9 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
     Properties properties = new Properties();
 
     String[] keys = variables.getVariableNames();
-    for (int i = 0; i < keys.length; i++) {
-      if (StringUtils.isNotEmpty(keys[i])) {
-        properties.put(keys[i], Const.NVL(variables.getVariable(keys[i]), ""));
+    for (String key : keys) {
+      if (StringUtils.isNotEmpty(key)) {
+        properties.put(key, Const.NVL(variables.getVariable(key), ""));
       }
     }
 
@@ -143,8 +143,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
     if (!Utils.isEmpty(vars)) {
       HashMap<String, String> newVariables = new HashMap<>();
 
-      for (int i = 0; i < vars.size(); i++) {
-        String varname = vars.get(i);
+      for (String varname : vars) {
         if (!varname.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
           // add all new non-internal variables to newVariablesMap
           newVariables.put(

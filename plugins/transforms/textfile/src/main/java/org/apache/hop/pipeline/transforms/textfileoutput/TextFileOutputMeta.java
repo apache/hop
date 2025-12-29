@@ -575,8 +575,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     // No values are added to the row in this type of transform
     // However, in case of Fixed length records,
     // the field precisions and lengths are altered!
-    for (int i = 0; i < outputFields.length; i++) {
-      TextFileField field = outputFields[i];
+    for (TextFileField field : outputFields) {
       IValueMeta v = row.searchValueMeta(field.getName());
       if (v != null) {
         v.setLength(field.getLength());
@@ -627,9 +626,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     retval.append("    </file>").append(Const.CR);
 
     retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < outputFields.length; i++) {
-      TextFileField field = outputFields[i];
-
+    for (TextFileField field : outputFields) {
       if (!Utils.isEmpty(field.getName())) {
         retval.append("      <field>").append(Const.CR);
         retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", field.getName()));
@@ -725,10 +722,10 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < outputFields.length; i++) {
-        int idx = prev.indexOfValue(outputFields[i].getName());
+      for (TextFileField outputField : outputFields) {
+        int idx = prev.indexOfValue(outputField.getName());
         if (idx < 0) {
-          errorMessage += "\t\t" + outputFields[i].getName() + Const.CR;
+          errorMessage += "\t\t" + outputField.getName() + Const.CR;
           errorFound = true;
         }
       }

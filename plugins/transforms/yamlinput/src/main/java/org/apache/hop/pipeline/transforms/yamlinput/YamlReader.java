@@ -211,7 +211,7 @@ public class YamlReader {
         if (value instanceof Integer integerValue) {
           o = Long.valueOf(integerValue);
         } else if (value instanceof BigInteger bigIntegerValue) {
-          o = Long.valueOf(bigIntegerValue.longValue());
+          o = bigIntegerValue.longValue();
         } else if (value instanceof Long longValue) {
           o = Long.valueOf(longValue);
         } else {
@@ -222,7 +222,7 @@ public class YamlReader {
         if (value instanceof Integer integerValue) {
           o = Double.valueOf(integerValue);
         } else if (value instanceof BigInteger bigIntegerValue) {
-          o = Double.valueOf(bigIntegerValue.doubleValue());
+          o = bigIntegerValue.doubleValue();
         } else if (value instanceof Long longValue) {
           o = Double.valueOf(longValue);
         } else if (value instanceof Double) {

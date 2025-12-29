@@ -251,7 +251,7 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
     } else {
       dateBuffer = super.format(timestamp, toAppendTo, pos);
       String milliseconds = defaultMillisecondDateFormat.format(timestamp);
-      nan = formatNanoseconds(Integer.valueOf(milliseconds) * Math.pow(10, 6));
+      nan = formatNanoseconds(Integer.parseInt(milliseconds) * Math.pow(10, 6));
     }
 
     int placeholderPosition = replaceHolder(dateBuffer, false);

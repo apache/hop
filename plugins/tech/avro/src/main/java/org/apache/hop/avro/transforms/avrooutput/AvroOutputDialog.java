@@ -1177,8 +1177,8 @@ public class AvroOutputDialog extends BaseTransformDialog {
         TableItem tableItem = table.getItem(i);
 
         if (!typesPopulated) {
-          for (int c = 0; c < typeColumn.length; c++) {
-            if (!Utils.isEmpty(tableItem.getText(typeColumn[c]))) {
+          for (int j : typeColumn) {
+            if (!Utils.isEmpty(tableItem.getText(j))) {
               typesPopulated = true;
               break;
             }
@@ -1225,21 +1225,21 @@ public class AvroOutputDialog extends BaseTransformDialog {
           if (fieldSchema != null) {
             String[] types = AvroOutputField.mapAvroType(fieldSchema, fieldSchema.getType());
             if (types.length > 0) {
-              for (int c = 0; c < typeColumn.length; c++) {
-                if (choice == 0 && !Utils.isEmpty(tableItem.getText(typeColumn[c]))) {
+              for (int j : typeColumn) {
+                if (choice == 0 && !Utils.isEmpty(tableItem.getText(j))) {
                   // do nothing
                 } else {
-                  tableItem.setText(typeColumn[c], types[0]);
+                  tableItem.setText(j, types[0]);
                 }
               }
             } else if (choice == 1) {
-              for (int c = 0; c < typeColumn.length; c++) {
-                tableItem.setText(typeColumn[c], "");
+              for (int j : typeColumn) {
+                tableItem.setText(j, "");
               }
             }
           } else if (choice == 1) {
-            for (int c = 0; c < typeColumn.length; c++) {
-              tableItem.setText(typeColumn[c], "");
+            for (int j : typeColumn) {
+              tableItem.setText(j, "");
             }
           }
         } else if (createSchemaFile && !(streamName.isEmpty())) { // create schema file
@@ -1351,8 +1351,8 @@ public class AvroOutputDialog extends BaseTransformDialog {
         }
         if (validSchema && !wCreateSchemaFile.getSelection()) {
           for (int anAvroNameColumn : avroNameColumn) {
-            for (int o = 0; o < avroFieldNames.length; o++) {
-              String fieldName = avroFieldNames[o];
+            for (String avroFieldName : avroFieldNames) {
+              String fieldName = avroFieldName;
               String matchName = fieldName;
               if (fieldName != null && fieldName.startsWith("$.")) {
                 matchName = fieldName.substring(2);

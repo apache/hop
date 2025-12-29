@@ -171,9 +171,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       // Take the second, not the fist in the list, otherwise we would be removing a single entry =
       // not good.
       if (samples.size() > 1) {
-        data.smallestCacheKey = samples.get(1).longValue();
+        data.smallestCacheKey = samples.get(1);
       } else { // except when there is only one sample
-        data.smallestCacheKey = samples.get(0).longValue();
+        data.smallestCacheKey = samples.get(0);
       }
 
       // Remove anything in the cache <= smallest.
@@ -181,10 +181,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       // This algorithm is not 100% correct, but I guess it beats sorting the whole cache all the
       // time.
       //
-      for (int i = 0; i < keys.size(); i++) {
-        RowMetaAndData key = keys.get(i);
+      for (RowMetaAndData key : keys) {
         Long value = data.cache.get(key);
-        if (value != null && value.longValue() <= data.smallestCacheKey) {
+        if (value != null && value <= data.smallestCacheKey) {
           data.cache.remove(key); // this one has to go.
         }
       }
@@ -262,7 +261,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
                     data.realSchemaName, data.realTableName, returnFields.getTechnicalKeyField());
             break;
           case CREATION_METHOD_AUTOINC:
-            valKey = Long.valueOf(0); // value to accept new key...
+            valKey = 0L; // value to accept new key...
             break;
           case CREATION_METHOD_SEQUENCE:
             valKey =
@@ -649,7 +648,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         try {
           keys = data.prepStatementInsert.getGeneratedKeys(); // 1 key
           if (keys.next()) {
-            valKey = Long.valueOf(keys.getLong(1));
+            valKey = keys.getLong(1);
           } else {
             throw new HopDatabaseException(
                 CONST_UNABLE_TO_RETRIEVE_AUTO_INCREMENT_OF_COMBI_INSERT_KEY

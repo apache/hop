@@ -78,12 +78,12 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
         inputRowMeta = JsonRowMeta.fromJson(rowMetaJson);
 
         groupRowMeta = new RowMeta();
-        for (int i = 0; i < groupFields.length; i++) {
-          groupRowMeta.addValueMeta(inputRowMeta.searchValueMeta(groupFields[i]));
+        for (String groupField : groupFields) {
+          groupRowMeta.addValueMeta(inputRowMeta.searchValueMeta(groupField));
         }
         subjectRowMeta = new RowMeta();
-        for (int i = 0; i < subjects.length; i++) {
-          subjectRowMeta.addValueMeta(inputRowMeta.searchValueMeta(subjects[i]));
+        for (String subject : subjects) {
+          subjectRowMeta.addValueMeta(inputRowMeta.searchValueMeta(subject));
         }
       }
 

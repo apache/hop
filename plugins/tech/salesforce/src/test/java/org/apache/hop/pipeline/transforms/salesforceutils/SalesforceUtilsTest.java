@@ -46,8 +46,8 @@ class SalesforceUtilsTest {
   @Test
   void testNoInstances() {
     Constructor<?>[] methods = SalesforceUtils.class.getConstructors();
-    for (int i = 0; i < methods.length; i++) {
-      assertFalse(methods[i].isAccessible());
+    for (Constructor<?> method : methods) {
+      assertFalse(method.isAccessible());
     }
   }
 

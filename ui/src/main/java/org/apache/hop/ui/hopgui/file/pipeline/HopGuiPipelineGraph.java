@@ -2515,35 +2515,37 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiContextActionFilter(parentId = HopGuiPipelineTransformContext.CONTEXT_ID)
   public boolean filterTransformActions(
       String contextActionId, HopGuiPipelineTransformContext context) {
-    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_DISTRIBUTE)) {
-      return !context.getTransformMeta().isDistributes();
-    }
-    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_COPY)) {
-      return context.getTransformMeta().isDistributes();
-    }
-    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPECIFY_COPIES)) {
-      return context.getTransformMeta().supportsMultiCopyExecution();
-    }
-    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ERROR_HANDLING)) {
-      return context.getTransformMeta().supportsErrorHandling();
-    }
-
-    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO)) {
-      // See if the pipeline is running and that the transform is running in one or more copies.
-      // Also disable this if the running pipeline doesn't have a location configured.
-      //
-      if (pipeline == null) {
-        return false;
+    switch (contextActionId) {
+      case ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_DISTRIBUTE -> {
+        return !context.getTransformMeta().isDistributes();
       }
-      PipelineRunConfiguration runConfiguration = pipeline.getPipelineRunConfiguration();
-      String runConfigName = variables.resolve(runConfiguration.getExecutionInfoLocationName());
-      if (StringUtils.isEmpty(runConfigName)) {
-        return false;
+      case ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_COPY -> {
+        return context.getTransformMeta().isDistributes();
       }
+      case ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPECIFY_COPIES -> {
+        return context.getTransformMeta().supportsMultiCopyExecution();
+      }
+      case ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ERROR_HANDLING -> {
+        return context.getTransformMeta().supportsErrorHandling();
+      }
+      case ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO -> {
+        // See if the pipeline is running and that the transform is running in one or more copies.
+        // Also disable this if the running pipeline doesn't have a location configured.
+        //
+        if (pipeline == null) {
+          return false;
+        }
+        PipelineRunConfiguration runConfiguration = pipeline.getPipelineRunConfiguration();
+        String runConfigName = variables.resolve(runConfiguration.getExecutionInfoLocationName());
+        if (StringUtils.isEmpty(runConfigName)) {
+          return false;
+        }
 
-      TransformMeta transformMeta = context.getTransformMeta();
-      List<IEngineComponent> componentCopies = pipeline.getComponentCopies(transformMeta.getName());
-      return !Utils.isEmpty(componentCopies);
+        TransformMeta transformMeta = context.getTransformMeta();
+        List<IEngineComponent> componentCopies =
+            pipeline.getComponentCopies(transformMeta.getName());
+        return !Utils.isEmpty(componentCopies);
+      }
     }
 
     return true;

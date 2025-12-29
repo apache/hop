@@ -105,8 +105,7 @@ public class HopServerPipelineStatus {
     xml.append("  ").append(XmlHandler.addTagValue("paused", paused));
 
     xml.append("  ").append(XmlHandler.openTag(CONST_TRANSFORM_STATUS)).append(Const.CR);
-    for (int i = 0; i < transformStatusList.size(); i++) {
-      TransformStatus transformStatus = transformStatusList.get(i);
+    for (TransformStatus transformStatus : transformStatusList) {
       xml.append("    ").append(transformStatus.getXml()).append(Const.CR);
     }
     xml.append("  ").append(XmlHandler.closeTag(CONST_TRANSFORM_STATUS)).append(Const.CR);
@@ -298,8 +297,7 @@ public class HopServerPipelineStatus {
 
   public long getNrTransformErrors() {
     long errors = 0L;
-    for (int i = 0; i < transformStatusList.size(); i++) {
-      TransformStatus transformStatus = transformStatusList.get(i);
+    for (TransformStatus transformStatus : transformStatusList) {
       errors += transformStatus.getErrors();
     }
     return errors;

@@ -299,8 +299,8 @@ public class EnterOrderedListDialog extends Dialog {
           public void dragSetData(DragSourceEvent event) {
             String[] ti = wListSource.getSelection();
             String data = new String();
-            for (int i = 0; i < ti.length; i++) {
-              data += ti[i] + Const.CR;
+            for (String s : ti) {
+              data += s + Const.CR;
             }
             event.data = data;
           }

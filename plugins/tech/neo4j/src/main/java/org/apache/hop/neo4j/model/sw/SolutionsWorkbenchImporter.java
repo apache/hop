@@ -91,8 +91,8 @@ public class SolutionsWorkbenchImporter {
             JSONArray jSecondaryNodeLabelKeys =
                 (JSONArray) jNodeLabel.get("secondaryNodeLabelKeys");
             List<String> keys = new ArrayList<>();
-            for (int s = 0; s < jSecondaryNodeLabelKeys.size(); s++) {
-              keys.add((String) jSecondaryNodeLabelKeys.get(s));
+            for (Object jSecondaryNodeLabelKey : jSecondaryNodeLabelKeys) {
+              keys.add((String) jSecondaryNodeLabelKey);
             }
             secondaryNodeLabels.put(graphNode.getName(), keys);
 
@@ -159,7 +159,7 @@ public class SolutionsWorkbenchImporter {
 
   private static Double getDouble(Object obj) {
     if (obj == null) {
-      return Double.valueOf(0);
+      return (double) 0;
     }
     if (obj instanceof Double doubleValue) {
       return doubleValue;

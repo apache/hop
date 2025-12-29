@@ -116,7 +116,7 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
 
   @Override
   public boolean boolean2booleanPrimitive(Boolean v) throws HopValueException {
-    return v.booleanValue();
+    return v;
   }
 
   @Override
@@ -144,7 +144,7 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
 
   @Override
   public long integer2longPrimitive(Long v) throws HopValueException {
-    return v.longValue();
+    return v;
   }
 
   @Override
@@ -154,7 +154,7 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
 
   @Override
   public boolean integer2booleanPrimitive(Long v) throws HopValueException {
-    return v.longValue() != 0;
+    return v != 0;
   }
 
   @Override

@@ -126,14 +126,14 @@ public class GraphData {
   public GraphData(JSONObject jGraph) {
     this();
     JSONArray jNodes = (JSONArray) jGraph.get("nodes");
-    for (int i = 0; i < jNodes.size(); i++) {
-      JSONObject jNode = (JSONObject) jNodes.get(i);
+    for (Object node : jNodes) {
+      JSONObject jNode = (JSONObject) node;
       nodes.add(new GraphNodeData(jNode));
     }
 
     JSONArray jRelationships = (JSONArray) jGraph.get("relationships");
-    for (int i = 0; i < jRelationships.size(); i++) {
-      JSONObject jRelationship = (JSONObject) jRelationships.get(i);
+    for (Object relationship : jRelationships) {
+      JSONObject jRelationship = (JSONObject) relationship;
       relationships.add(new GraphRelationshipData(jRelationship));
     }
 

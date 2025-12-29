@@ -86,7 +86,7 @@ class ValueMetaUuidTest {
     indexSrc.setStorageType(IValueMeta.STORAGE_TYPE_INDEXED);
     UUID u2 = UUID.randomUUID();
     indexSrc.setIndex(new Object[] {u.toString(), u2.toString()});
-    out = dst.convertData(indexSrc, Integer.valueOf(1));
+    out = dst.convertData(indexSrc, 1);
     assertInstanceOf(UUID.class, out);
     assertEquals(u2, out);
 

@@ -645,7 +645,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
+                inputFields.put(row.getValueMeta(i).getName(), i);
               }
 
               setComboBoxes();
@@ -853,7 +853,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       SalesforceInsertField field = new SalesforceInsertField();
       field.setUpdateLookup(item.getText(1));
       field.setUpdateStream(item.getText(2));
-      field.setUseExternalId(Boolean.valueOf(item.getText(3)));
+      field.setUseExternalId(Boolean.parseBoolean(item.getText(3)));
       fields.add(field);
     }
     meta.setFields(fields);
@@ -1001,8 +1001,8 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     try {
 
       String[] fields = getModuleFields();
-      for (int i = 0; i < fields.length; i++) {
-        targetFields.addValueMeta(new ValueMetaNone(fields[i]));
+      for (String field : fields) {
+        targetFields.addValueMeta(new ValueMetaNone(field));
       }
     } catch (Exception e) {
       new ErrorDialog(
@@ -1207,8 +1207,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     }
 
     // clear
-    for (int i = 0; i < tableFieldColumns.size(); i++) {
-      ColumnInfo colInfo = tableFieldColumns.get(i);
+    for (ColumnInfo colInfo : tableFieldColumns) {
       colInfo.setComboValues(new String[] {});
     }
     String selectedModule = variables.resolve(wModule.getText());
@@ -1218,14 +1217,12 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
         String[] fieldsName = getModuleFields();
 
         if (fieldsName != null) {
-          for (int i = 0; i < tableFieldColumns.size(); i++) {
-            ColumnInfo colInfo = tableFieldColumns.get(i);
+          for (ColumnInfo colInfo : tableFieldColumns) {
             colInfo.setComboValues(fieldsName);
           }
         }
       } catch (Exception e) {
-        for (int i = 0; i < tableFieldColumns.size(); i++) {
-          ColumnInfo colInfo = tableFieldColumns.get(i);
+        for (ColumnInfo colInfo : tableFieldColumns) {
           colInfo.setComboValues(new String[] {});
         }
         // ignore any errors here. drop downs will not be

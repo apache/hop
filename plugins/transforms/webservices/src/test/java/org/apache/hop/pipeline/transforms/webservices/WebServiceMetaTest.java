@@ -132,7 +132,7 @@ class WebServiceMetaTest {
   }
 
   private Matcher<IValueMeta> matchValueMetaString(final String fieldName) {
-    return new BaseMatcher<IValueMeta>() {
+    return new BaseMatcher<>() {
       @Override
       public boolean matches(Object item) {
         return fieldName.equals(((ValueMetaString) item).getName());

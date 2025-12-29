@@ -89,7 +89,7 @@ public class HadoopSnappyCompressionProvider implements ICompressionProvider {
     try {
       Object snappyShim = getActiveSnappyShim();
       Method m = snappyShim.getClass().getMethod("isHadoopSnappyAvailable");
-      return ((Boolean) m.invoke(snappyShim)).booleanValue();
+      return (Boolean) m.invoke(snappyShim);
     } catch (Exception ex) {
       return false;
     }

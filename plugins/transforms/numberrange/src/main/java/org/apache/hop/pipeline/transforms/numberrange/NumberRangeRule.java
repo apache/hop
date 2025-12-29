@@ -60,11 +60,11 @@ public class NumberRangeRule {
     try {
       // Empty value is equal to minimal possible value
       if (Utils.isEmpty(this.lowerBound)) this.lowerBoundValue = -Double.MAX_VALUE;
-      else this.lowerBoundValue = Double.valueOf(lowerBound);
+      else this.lowerBoundValue = Double.parseDouble(lowerBound);
 
       // Empty value is equal to maximal possible value
       if (Utils.isEmpty(this.upperBound)) this.upperBoundValue = Double.MAX_VALUE;
-      else this.upperBoundValue = Double.valueOf(upperBound);
+      else this.upperBoundValue = Double.parseDouble(upperBound);
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException(
           "Bounds of this rule are not numeric: lowerBound="

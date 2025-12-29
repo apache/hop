@@ -281,10 +281,10 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         // Adding some Constants to the JavaScript
         try {
 
-          data.scope.put("SKIP_PIPELINE", data.scope, Integer.valueOf(SKIP_PIPELINE));
-          data.scope.put("ABORT_PIPELINE", data.scope, Integer.valueOf(ABORT_PIPELINE));
-          data.scope.put("ERROR_PIPELINE", data.scope, Integer.valueOf(ERROR_PIPELINE));
-          data.scope.put("CONTINUE_PIPELINE", data.scope, Integer.valueOf(CONTINUE_PIPELINE));
+          data.scope.put("SKIP_PIPELINE", data.scope, SKIP_PIPELINE);
+          data.scope.put("ABORT_PIPELINE", data.scope, ABORT_PIPELINE);
+          data.scope.put("ERROR_PIPELINE", data.scope, ERROR_PIPELINE);
+          data.scope.put("CONTINUE_PIPELINE", data.scope, CONTINUE_PIPELINE);
 
         } catch (Exception ex) {
           throw new HopValueException(
@@ -530,16 +530,16 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
       // Add init code here.
       // Get the actual Scripts from our MetaData
       jsScripts = meta.getJSScripts();
-      for (int j = 0; j < jsScripts.length; j++) {
-        switch (jsScripts[j].getScriptType()) {
+      for (ScriptValuesScript jsScript : jsScripts) {
+        switch (jsScript.getScriptType()) {
           case ScriptValuesScript.TRANSFORM_SCRIPT:
-            strTransformScript = jsScripts[j].getScript();
+            strTransformScript = jsScript.getScript();
             break;
           case ScriptValuesScript.START_SCRIPT:
-            strStartScript = jsScripts[j].getScript();
+            strStartScript = jsScript.getScript();
             break;
           case ScriptValuesScript.END_SCRIPT:
-            strEndScript = jsScripts[j].getScript();
+            strEndScript = jsScript.getScript();
             break;
           default:
             break;

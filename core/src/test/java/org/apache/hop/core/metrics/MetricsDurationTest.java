@@ -32,7 +32,7 @@ public class MetricsDurationTest {
   @Test
   public void test() {
     Date startDate = new Date((2016 - 1900), Calendar.JANUARY, 10);
-    Long duration = Long.valueOf(4L);
+    Long duration = 4L;
     MetricsDuration metric =
         new MetricsDuration(startDate, "theDesc", "theSubj", "theLogChannel", duration);
 

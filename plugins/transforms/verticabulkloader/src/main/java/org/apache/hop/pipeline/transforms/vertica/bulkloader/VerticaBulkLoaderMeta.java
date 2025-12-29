@@ -492,8 +492,7 @@ public class VerticaBulkLoaderMeta
                     }
                   } else {
                     // Specifying the column names explicitly
-                    for (int i = 0; i < fields.size(); i++) {
-                      VerticaBulkLoaderField vbf = fields.get(i);
+                    for (VerticaBulkLoaderField vbf : fields) {
                       int idx = prev.indexOfValue(vbf.getFieldStream());
                       if (idx < 0) {
                         error_message += "\t\t" + vbf.getFieldStream() + Const.CR;

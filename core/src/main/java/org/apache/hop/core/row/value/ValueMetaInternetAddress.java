@@ -84,65 +84,63 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
     switch (type) {
       case TYPE_INET:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return (InetAddress) object;
-          case STORAGE_TYPE_BINARY_STRING:
-            return (InetAddress) convertBinaryStringToNativeType((byte[]) object);
-          case STORAGE_TYPE_INDEXED:
-            return (InetAddress) index[((Integer) object)];
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> (InetAddress) object;
+          case STORAGE_TYPE_BINARY_STRING ->
+              (InetAddress) convertBinaryStringToNativeType((byte[]) object);
+          case STORAGE_TYPE_INDEXED -> (InetAddress) index[((Integer) object)];
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_STRING:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return convertStringToInternetAddress((String) object);
-          case STORAGE_TYPE_BINARY_STRING:
-            return convertStringToInternetAddress(
-                (String) convertBinaryStringToNativeType((byte[]) object));
-          case STORAGE_TYPE_INDEXED:
-            return convertStringToInternetAddress((String) index[((Integer) object).intValue()]);
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> convertStringToInternetAddress((String) object);
+          case STORAGE_TYPE_BINARY_STRING ->
+              convertStringToInternetAddress(
+                  (String) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED ->
+              convertStringToInternetAddress((String) index[(Integer) object]);
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_NUMBER:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return convertNumberToInternetAddress((Double) object);
-          case STORAGE_TYPE_BINARY_STRING:
-            return convertNumberToInternetAddress(
-                (Double) convertBinaryStringToNativeType((byte[]) object));
-          case STORAGE_TYPE_INDEXED:
-            return convertNumberToInternetAddress((Double) index[((Integer) object).intValue()]);
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> convertNumberToInternetAddress((Double) object);
+          case STORAGE_TYPE_BINARY_STRING ->
+              convertNumberToInternetAddress(
+                  (Double) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED ->
+              convertNumberToInternetAddress((Double) index[(Integer) object]);
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_INTEGER:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return convertIntegerToInternetAddress((Long) object);
-          case STORAGE_TYPE_BINARY_STRING:
-            return convertIntegerToInternetAddress(
-                (Long) convertBinaryStringToNativeType((byte[]) object));
-          case STORAGE_TYPE_INDEXED:
-            return convertIntegerToInternetAddress((Long) index[((Integer) object).intValue()]);
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> convertIntegerToInternetAddress((Long) object);
+          case STORAGE_TYPE_BINARY_STRING ->
+              convertIntegerToInternetAddress(
+                  (Long) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED ->
+              convertIntegerToInternetAddress((Long) index[(Integer) object]);
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_BIGNUMBER:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return convertBigNumberToInternetAddress((BigDecimal) object);
-          case STORAGE_TYPE_BINARY_STRING:
-            return convertBigNumberToInternetAddress(
-                (BigDecimal) convertBinaryStringToNativeType((byte[]) object));
-          case STORAGE_TYPE_INDEXED:
-            return convertBigNumberToInternetAddress(
-                (BigDecimal) index[((Integer) object).intValue()]);
-          default:
-            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> convertBigNumberToInternetAddress((BigDecimal) object);
+          case STORAGE_TYPE_BINARY_STRING ->
+              convertBigNumberToInternetAddress(
+                  (BigDecimal) convertBinaryStringToNativeType((byte[]) object));
+          case STORAGE_TYPE_INDEXED ->
+              convertBigNumberToInternetAddress((BigDecimal) index[(Integer) object]);
+          default ->
+              throw new HopValueException(
+                  this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        };
       case TYPE_BOOLEAN:
         throw new HopValueException(
             this + " : I don't know how to convert a boolean to a Internet address.");
@@ -232,19 +230,18 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     if (object == null) {
       return null;
     }
-    switch (storageType) {
-      case STORAGE_TYPE_NORMAL:
-        return convertStringToBinaryString(getString(object));
-      case STORAGE_TYPE_BINARY_STRING:
-        return convertStringToBinaryString(
-            getString(
-                convertStringToInternetAddress(convertBinaryStringToString((byte[]) object))));
-      case STORAGE_TYPE_INDEXED:
-        return convertStringToBinaryString(
-            convertInternetAddressToString((InetAddress) index[((Integer) object)]));
-      default:
-        throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
-    }
+    return switch (storageType) {
+      case STORAGE_TYPE_NORMAL -> convertStringToBinaryString(getString(object));
+      case STORAGE_TYPE_BINARY_STRING ->
+          convertStringToBinaryString(
+              getString(
+                  convertStringToInternetAddress(convertBinaryStringToString((byte[]) object))));
+      case STORAGE_TYPE_INDEXED ->
+          convertStringToBinaryString(
+              convertInternetAddressToString((InetAddress) index[((Integer) object)]));
+      default ->
+          throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+    };
   }
 
   protected InetAddress convertBigNumberToInternetAddress(BigDecimal bd) throws HopValueException {
@@ -322,32 +319,17 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     //
     String nullValue = nullIf;
     if (nullValue == null) {
-      switch (convertMeta.getType()) {
-        case IValueMeta.TYPE_BOOLEAN:
-          nullValue = Const.NULL_BOOLEAN;
-          break;
-        case IValueMeta.TYPE_STRING:
-          nullValue = Const.NULL_STRING;
-          break;
-        case IValueMeta.TYPE_BIGNUMBER:
-          nullValue = Const.NULL_BIGNUMBER;
-          break;
-        case IValueMeta.TYPE_NUMBER:
-          nullValue = Const.NULL_NUMBER;
-          break;
-        case IValueMeta.TYPE_INTEGER:
-          nullValue = Const.NULL_INTEGER;
-          break;
-        case IValueMeta.TYPE_DATE:
-          nullValue = Const.NULL_DATE;
-          break;
-        case IValueMeta.TYPE_BINARY:
-          nullValue = Const.NULL_BINARY;
-          break;
-        default:
-          nullValue = Const.NULL_NONE;
-          break;
-      }
+      nullValue =
+          switch (convertMeta.getType()) {
+            case IValueMeta.TYPE_BOOLEAN -> Const.NULL_BOOLEAN;
+            case IValueMeta.TYPE_STRING -> Const.NULL_STRING;
+            case IValueMeta.TYPE_BIGNUMBER -> Const.NULL_BIGNUMBER;
+            case IValueMeta.TYPE_NUMBER -> Const.NULL_NUMBER;
+            case IValueMeta.TYPE_INTEGER -> Const.NULL_INTEGER;
+            case IValueMeta.TYPE_DATE -> Const.NULL_DATE;
+            case IValueMeta.TYPE_BINARY -> Const.NULL_BINARY;
+            default -> Const.NULL_NONE;
+          };
     }
 
     // See if we need to convert a null value into a String
@@ -438,21 +420,16 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
    */
   @Override
   public Object convertData(IValueMeta meta2, Object data2) throws HopValueException {
-    switch (meta2.getType()) {
-      case TYPE_STRING:
-        return convertStringToInternetAddress(meta2.getString(data2));
-      case TYPE_INTEGER:
-        return convertIntegerToInternetAddress(meta2.getInteger(data2));
-      case TYPE_NUMBER:
-        return convertNumberToInternetAddress(meta2.getNumber(data2));
-      case TYPE_BIGNUMBER:
-        return convertBigNumberToInternetAddress(meta2.getBigNumber(data2));
-      case TYPE_INET:
-        return ((ValueMetaInternetAddress) meta2).getInternetAddress(data2);
-      default:
-        throw new HopValueException(
-            meta2.toStringMeta() + " : can't be converted to an Internet Address");
-    }
+    return switch (meta2.getType()) {
+      case TYPE_STRING -> convertStringToInternetAddress(meta2.getString(data2));
+      case TYPE_INTEGER -> convertIntegerToInternetAddress(meta2.getInteger(data2));
+      case TYPE_NUMBER -> convertNumberToInternetAddress(meta2.getNumber(data2));
+      case TYPE_BIGNUMBER -> convertBigNumberToInternetAddress(meta2.getBigNumber(data2));
+      case TYPE_INET -> ((ValueMetaInternetAddress) meta2).getInternetAddress(data2);
+      default ->
+          throw new HopValueException(
+              meta2.toStringMeta() + " : can't be converted to an Internet Address");
+    };
   }
 
   @Override

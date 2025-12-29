@@ -42,7 +42,7 @@ class RowKeyTest {
     String dateInString = "1/1/2018";
     Date dateObj = sdf.parse(dateInString);
     arr1[1] = dateObj;
-    arr1[2] = Double.valueOf(5.1);
+    arr1[2] = 5.1;
     arr1[3] = "test";
     arr1[4] = 123L;
     arr1[5] = new BigDecimal(123.1);

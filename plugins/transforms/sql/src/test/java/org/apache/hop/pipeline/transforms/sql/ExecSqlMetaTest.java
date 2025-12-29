@@ -65,7 +65,7 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
             "arguments");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("connection", "getConnection");
             put("sql", "getSql");
@@ -82,7 +82,7 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("connection", "setConnection");
             put("sql", "setSql");
@@ -121,12 +121,12 @@ class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
             validatorFactory,
             ExecSqlArgumentItem.class,
             Arrays.asList("name"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getName");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "setName");
               }

@@ -109,8 +109,8 @@ public class EnterPreviewRowsDialog extends Dialog {
         new List(
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
-    for (int i = 0; i < transformNames.size(); i++) {
-      wTransformList.add(transformNames.get(i));
+    for (String name : transformNames) {
+      wTransformList.add(name);
     }
     wTransformList.select(0);
     PropsUi.setLook(wTransformList);

@@ -70,11 +70,11 @@ public class ValueMetaAndDataTest {
     assertEquals("NumberName", result.getValueMeta().getName());
     assertEquals(Double.valueOf("123.45"), result.getValueData());
 
-    result = new ValueMetaAndData("IntegerName", Long.valueOf(234));
+    result = new ValueMetaAndData("IntegerName", 234L);
     assertNotNull(result);
     assertEquals(IValueMeta.TYPE_INTEGER, result.getValueMeta().getType());
     assertEquals("IntegerName", result.getValueMeta().getName());
-    assertEquals(Long.valueOf(234), result.getValueData());
+    assertEquals(234L, result.getValueData());
 
     Date testDate = Calendar.getInstance().getTime();
     result = new ValueMetaAndData("DateName", testDate);

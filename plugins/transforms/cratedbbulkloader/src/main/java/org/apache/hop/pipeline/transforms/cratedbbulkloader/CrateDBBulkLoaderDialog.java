@@ -71,9 +71,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -384,13 +382,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
     fdDoMapping.right = new FormAttachment(100, 0);
     wDoMapping.setLayoutData(fdDoMapping);
 
-    wDoMapping.addListener(
-        SWT.Selection,
-        new Listener() {
-          public void handleEvent(Event arg0) {
-            generateMappings();
-          }
-        });
+    wDoMapping.addListener(SWT.Selection, arg0 -> generateMappings());
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
@@ -427,7 +419,7 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
 
                 // Remember these fields...
                 for (int i = 0; i < row.size(); i++) {
-                  inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
+                  inputFields.put(row.getValueMeta(i).getName(), i);
                 }
 
                 setComboBoxes();
@@ -1015,8 +1007,8 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
     Runnable fieldLoader =
         () -> {
           // clear
-          for (int i = 0; i < tableFieldColumns.size(); i++) {
-            ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
+          for (ColumnInfo fieldColumn : tableFieldColumns) {
+            ColumnInfo colInfo = (ColumnInfo) fieldColumn;
             colInfo.setComboValues(new String[] {});
           }
           if (!StringUtil.isEmpty(wTable.getText())) {
@@ -1034,15 +1026,15 @@ public class CrateDBBulkLoaderDialog extends BaseTransformDialog {
                 if (null != r) {
                   String[] fieldNames = r.getFieldNames();
                   if (null != fieldNames) {
-                    for (int i = 0; i < tableFieldColumns.size(); i++) {
-                      ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
+                    for (ColumnInfo tableFieldColumn : tableFieldColumns) {
+                      ColumnInfo colInfo = (ColumnInfo) tableFieldColumn;
                       colInfo.setComboValues(fieldNames);
                     }
                   }
                 }
               } catch (Exception e) {
-                for (int i = 0; i < tableFieldColumns.size(); i++) {
-                  ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
+                for (ColumnInfo tableFieldColumn : tableFieldColumns) {
+                  ColumnInfo colInfo = (ColumnInfo) tableFieldColumn;
                   colInfo.setComboValues(new String[] {});
                 }
                 // ignore any errors here. drop downs will not be

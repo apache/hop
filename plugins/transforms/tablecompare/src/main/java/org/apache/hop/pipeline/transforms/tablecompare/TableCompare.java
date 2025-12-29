@@ -299,7 +299,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     // If something is wrong here, we can't continue...
     //
     if (nrErrors > 0) {
-      result[0] = Long.valueOf(nrErrors);
+      result[0] = nrErrors;
       return result;
     }
 
@@ -390,7 +390,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
         // If we can't find all key fields, stop here...
         //
         if (nrErrors > 0) {
-          result[0] = Long.valueOf(nrErrors);
+          result[0] = nrErrors;
           return result;
         }
 
@@ -459,8 +459,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
           incrementLinesInput();
           if (oneMeta == null) {
             oneMeta = data.referenceDb.getReturnRowMeta();
-            for (int i = 0; i < keys.length; i++) {
-              keyRowMeta.addValueMeta(oneMeta.searchValueMeta(keys[i]));
+            for (String key : keys) {
+              keyRowMeta.addValueMeta(oneMeta.searchValueMeta(key));
             }
           }
         }
@@ -470,8 +470,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
           if (twoMeta == null) {
             twoMeta = data.compareDb.getReturnRowMeta();
             if (keyRowMeta.isEmpty()) {
-              for (int i = 0; i < keys.length; i++) {
-                keyRowMeta.addValueMeta(twoMeta.searchValueMeta(keys[i]));
+              for (String key : keys) {
+                keyRowMeta.addValueMeta(twoMeta.searchValueMeta(key));
               }
             }
           }
@@ -658,12 +658,12 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     }
 
     int index = 0;
-    result[index++] = Long.valueOf(nrErrors);
-    result[index++] = Long.valueOf(nrRecordsReference);
-    result[index++] = Long.valueOf(nrRecordsCompare);
-    result[index++] = Long.valueOf(nrLeftErrors);
-    result[index++] = Long.valueOf(nrInnerErrors);
-    result[index++] = Long.valueOf(nrRightErrors);
+    result[index++] = nrErrors;
+    result[index++] = nrRecordsReference;
+    result[index++] = nrRecordsCompare;
+    result[index++] = nrLeftErrors;
+    result[index++] = nrInnerErrors;
+    result[index++] = nrRightErrors;
 
     r[data.keyDescIndex] = null;
     r[data.valueReferenceIndex] = null;

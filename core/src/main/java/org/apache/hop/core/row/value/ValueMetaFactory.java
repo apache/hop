@@ -121,7 +121,7 @@ public class ValueMetaFactory {
     List<String> strings = new ArrayList<>();
     List<IPlugin> plugins = pluginRegistry.getPlugins(ValueMetaPluginType.class);
     for (IPlugin plugin : plugins) {
-      int id = Integer.valueOf(plugin.getIds()[0]);
+      int id = Integer.parseInt(plugin.getIds()[0]);
       if (id > 0 && id != IValueMeta.TYPE_SERIALIZABLE) {
         strings.add(plugin.getName());
       }
@@ -153,7 +153,7 @@ public class ValueMetaFactory {
   public static int getIdForValueMeta(String valueMetaName) {
     for (IPlugin plugin : pluginRegistry.getPlugins(ValueMetaPluginType.class)) {
       if (valueMetaName != null && valueMetaName.equalsIgnoreCase(plugin.getName())) {
-        return Integer.valueOf(plugin.getIds()[0]);
+        return Integer.parseInt(plugin.getIds()[0]);
       }
     }
     return IValueMeta.TYPE_NONE;

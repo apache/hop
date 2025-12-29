@@ -649,9 +649,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
       retval.append("      <field>").append(Const.CR);
       retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", updateLookup[i]));
       retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_FIELD, updateStream[i]));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue(CONST_UPDATE, update[i].booleanValue()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue(CONST_UPDATE, update[i]));
       retval.append("      </field>").append(Const.CR);
     }
 

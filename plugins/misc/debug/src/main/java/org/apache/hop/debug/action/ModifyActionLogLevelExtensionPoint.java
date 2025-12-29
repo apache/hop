@@ -129,7 +129,7 @@ public class ModifyActionLogLevelExtensionPoint
       jobLog.logDetailed("Found debug level info for workflow actions : " + entries.toString());
 
       workflow.addActionListener(
-          new IActionListener<WorkflowMeta>() {
+          new IActionListener<>() {
 
             @Override
             public void beforeExecution(

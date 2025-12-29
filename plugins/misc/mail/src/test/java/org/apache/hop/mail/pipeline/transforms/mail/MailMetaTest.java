@@ -94,13 +94,13 @@ class MailMetaTest implements IInitializer<ITransformMeta> {
             "embeddedImages");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("isFilenameDynamic", "FilenameDynamic");
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("isFilenameDynamic", "setFilenameDynamic");
             put("embeddedImages", "setEmbeddedImages");

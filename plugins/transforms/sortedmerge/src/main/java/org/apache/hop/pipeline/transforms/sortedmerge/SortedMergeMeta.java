@@ -184,10 +184,10 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < fieldName.length; i++) {
-        int idx = prev.indexOfValue(fieldName[i]);
+      for (String s : fieldName) {
+        int idx = prev.indexOfValue(s);
         if (idx < 0) {
-          errorMessage += "\t\t" + fieldName[i] + Const.CR;
+          errorMessage += "\t\t" + s + Const.CR;
           errorFound = true;
         }
       }

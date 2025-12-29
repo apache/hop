@@ -93,27 +93,27 @@ public class DataGridMeta extends BaseTransformMeta<DataGrid, DataGridData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    for (int i = 0; i < dataGridFields.size(); i++) {
+    for (DataGridFieldMeta dataGridField : dataGridFields) {
       try {
-        if (!Utils.isEmpty(dataGridFields.get(i).getName())) {
-          int type = ValueMetaFactory.getIdForValueMeta(dataGridFields.get(i).getType());
+        if (!Utils.isEmpty(dataGridField.getName())) {
+          int type = ValueMetaFactory.getIdForValueMeta(dataGridField.getType());
           if (type == IValueMeta.TYPE_NONE) {
             type = IValueMeta.TYPE_STRING;
           }
-          IValueMeta v = ValueMetaFactory.createValueMeta(dataGridFields.get(i).getName(), type);
-          v.setLength(dataGridFields.get(i).getLenght());
-          v.setPrecision(dataGridFields.get(i).getPrecision());
+          IValueMeta v = ValueMetaFactory.createValueMeta(dataGridField.getName(), type);
+          v.setLength(dataGridField.getLenght());
+          v.setPrecision(dataGridField.getPrecision());
           v.setOrigin(name);
-          v.setConversionMask(dataGridFields.get(i).getFormat());
-          v.setCurrencySymbol(dataGridFields.get(i).getCurrency());
-          v.setGroupingSymbol(dataGridFields.get(i).getGroup());
-          v.setDecimalSymbol(dataGridFields.get(i).getDecimal());
+          v.setConversionMask(dataGridField.getFormat());
+          v.setCurrencySymbol(dataGridField.getCurrency());
+          v.setGroupingSymbol(dataGridField.getGroup());
+          v.setDecimalSymbol(dataGridField.getDecimal());
 
           rowMeta.addValueMeta(v);
         }
       } catch (Exception e) {
         throw new HopTransformException(
-            "Unable to create value of type " + dataGridFields.get(i).getType(), e);
+            "Unable to create value of type " + dataGridField.getType(), e);
       }
     }
   }

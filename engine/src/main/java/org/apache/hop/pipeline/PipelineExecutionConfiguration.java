@@ -135,16 +135,15 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     Properties sp = new Properties();
 
     String[] keys = variables.getVariableNames();
-    for (int i = 0; i < keys.length; i++) {
-      sp.put(keys[i], variables.getVariable(keys[i]));
+    for (String key : keys) {
+      sp.put(key, variables.getVariable(key));
     }
 
     String[] vars = variables.getVariableNames();
     if (vars != null && vars.length > 0) {
       HashMap<String, String> newVariables = new HashMap<>();
 
-      for (int i = 0; i < vars.length; i++) {
-        String varname = vars[i];
+      for (String varname : vars) {
         newVariables.put(
             varname, Const.NVL(variablesMap.get(varname), sp.getProperty(varname, "")));
       }
@@ -165,9 +164,9 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     Properties sp = new Properties();
 
     String[] keys = variables.getVariableNames();
-    for (int i = 0; i < keys.length; i++) {
-      if (StringUtils.isNotEmpty(keys[i])) {
-        sp.put(keys[i], Const.NVL(variables.getVariable(keys[i]), ""));
+    for (String key : keys) {
+      if (StringUtils.isNotEmpty(key)) {
+        sp.put(key, Const.NVL(variables.getVariable(key), ""));
       }
     }
 
@@ -175,8 +174,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     if (!Utils.isEmpty(vars)) {
       HashMap<String, String> newVariables = new HashMap<>();
 
-      for (int i = 0; i < vars.size(); i++) {
-        String varname = vars.get(i);
+      for (String varname : vars) {
         if (!varname.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
           newVariables.put(
               varname, Const.NVL(variablesMap.get(varname), sp.getProperty(varname, "")));

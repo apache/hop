@@ -578,8 +578,8 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
       try {
         RowMetaAndData resultRow = null;
         // Copy the input row to the (command line) arguments
-        for (int iteration = 0; iteration < rows.size(); iteration++) {
-          resultRow = rows.get(iteration);
+        for (RowMetaAndData row : rows) {
+          resultRow = row;
 
           // Get file names
           String filePrevious = resultRow.getString(0, null);
@@ -796,10 +796,10 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
         FileObject localFiles = HopVfs.getFileObject(realLocalDirectory);
         FileObject[] children = localFiles.getChildren();
         if (children != null) {
-          for (int i = 0; i < children.length; i++) {
+          for (FileObject child : children) {
             // Get filename of file or directory
-            if (children[i].getType().equals(FileType.FILE)) {
-              myFileList.add(children[i]);
+            if (child.getType().equals(FileType.FILE)) {
+              myFileList.add(child);
             }
           } // end for
         }

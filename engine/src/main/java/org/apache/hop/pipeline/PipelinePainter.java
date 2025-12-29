@@ -369,8 +369,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             Long inputRowsValue = component.getInputBufferSize();
             Long outputRowsValue = component.getOutputBufferSize();
             if (inputRowsValue != null && outputRowsValue != null) {
-              long inputRows = inputRowsValue.longValue();
-              long outputRows = outputRowsValue.longValue();
+              long inputRows = inputRowsValue;
+              long outputRows = outputRowsValue;
 
               // if the transform can't keep up with its input, mark it by drawing an animation
               boolean isSlow = inputRows * 0.85 > outputRows;

@@ -234,7 +234,7 @@ public class GoogleSheetsOutput
 
             String fileId = spreadsheetID;
             JsonBatchCallback<Permission> callback =
-                new JsonBatchCallback<Permission>() {
+                new JsonBatchCallback<>() {
                   @Override
                   public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders)
                       throws IOException {

@@ -186,8 +186,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   }
 
   public void assignSortingCriteria(IRowMeta inputRowMeta) {
-    for (int i = 0; i < sortFields.size(); i++) {
-      SortRowsField field = sortFields.get(i);
+    for (SortRowsField field : sortFields) {
       int idx = inputRowMeta.indexOfValue(field.getFieldName());
       if (idx >= 0) {
         IValueMeta valueMeta = inputRowMeta.getValueMeta(idx);
@@ -231,8 +230,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < sortFields.size(); i++) {
-        SortRowsField field = sortFields.get(i);
+      for (SortRowsField field : sortFields) {
         int idx = prev.indexOfValue(field.getFieldName());
         if (idx < 0) {
           errorMessage += "\t\t" + field.getFieldName() + Const.CR;

@@ -60,28 +60,25 @@ public class NeoHopData {
         case IValueMeta.TYPE_DATE:
           if (neoType != null) {
             // Standard...
-            switch (neoType) {
-              case LocalDateTime:
-                {
-                  LocalDateTime localDateTime = recordValue.asLocalDateTime();
-                  return java.sql.Date.valueOf(localDateTime.toLocalDate());
-                }
-              case Date:
-                {
-                  LocalDate localDate = recordValue.asLocalDate();
-                  return java.sql.Date.valueOf(localDate);
-                }
-              case DateTime:
-                {
-                  ZonedDateTime zonedDateTime = recordValue.asZonedDateTime();
-                  return Date.from(zonedDateTime.toInstant());
-                }
-              default:
-                throw new HopException(
-                    "Conversion from Neo4j daa type "
-                        + neoType.name()
-                        + " to a Hop Date isn't supported yet");
-            }
+            return switch (neoType) {
+              case LocalDateTime -> {
+                LocalDateTime localDateTime = recordValue.asLocalDateTime();
+                yield java.sql.Date.valueOf(localDateTime.toLocalDate());
+              }
+              case Date -> {
+                LocalDate localDate = recordValue.asLocalDate();
+                yield java.sql.Date.valueOf(localDate);
+              }
+              case DateTime -> {
+                ZonedDateTime zonedDateTime = recordValue.asZonedDateTime();
+                yield Date.from(zonedDateTime.toInstant());
+              }
+              default ->
+                  throw new HopException(
+                      "Conversion from Neo4j daa type "
+                          + neoType.name()
+                          + " to a Hop Date isn't supported yet");
+            };
           } else {
             LocalDate localDate = recordValue.asLocalDate();
             return java.sql.Date.valueOf(localDate);

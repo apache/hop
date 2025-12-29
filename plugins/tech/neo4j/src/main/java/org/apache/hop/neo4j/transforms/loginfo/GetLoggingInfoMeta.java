@@ -107,10 +107,10 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
       IVariables space,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    for (int i = 0; i < fields.size(); i++) {
+    for (GetLoggingInfoField field : fields) {
       IValueMeta v;
 
-      switch (GetLoggingInfoTypes.getTypeFromString(fields.get(i).getFieldType())) {
+      switch (GetLoggingInfoTypes.getTypeFromString(field.getFieldType())) {
         case TYPE_SYSTEM_INFO_PIPELINE_DATE_FROM,
             TYPE_SYSTEM_INFO_PIPELINE_DATE_TO,
             TYPE_SYSTEM_INFO_WORKFLOW_DATE_FROM,
@@ -119,10 +119,10 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
             TYPE_SYSTEM_INFO_PIPELINE_PREVIOUS_SUCCESS_DATE,
             TYPE_SYSTEM_INFO_WORKFLOW_PREVIOUS_EXECUTION_DATE,
             TYPE_SYSTEM_INFO_WORKFLOW_PREVIOUS_SUCCESS_DATE:
-          v = new ValueMetaDate(fields.get(i).getFieldName());
+          v = new ValueMetaDate(field.getFieldName());
           break;
         default:
-          v = new ValueMetaNone(fields.get(i).getFieldName());
+          v = new ValueMetaNone(field.getFieldName());
           break;
       }
       v.setOrigin(name);
@@ -143,14 +143,14 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
       IHopMetadataProvider metadataProvider) {
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
-    for (int i = 0; i < fields.size(); i++) {
-      if (GetLoggingInfoTypes.getTypeFromString(fields.get(i).getFieldType()).ordinal()
+    for (GetLoggingInfoField field : fields) {
+      if (GetLoggingInfoTypes.getTypeFromString(field.getFieldType()).ordinal()
           <= GetLoggingInfoTypes.TYPE_SYSTEM_INFO_NONE.ordinal()) {
         CheckResult cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    PKG, "SystemDataMeta.CheckResult.FieldHasNoType", fields.get(i).getFieldName()),
+                    PKG, "SystemDataMeta.CheckResult.FieldHasNoType", field.getFieldName()),
                 transformMeta);
         remarks.add(cr);
       }

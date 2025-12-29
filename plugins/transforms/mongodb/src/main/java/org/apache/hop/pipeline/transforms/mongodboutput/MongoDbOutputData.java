@@ -825,13 +825,13 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
         valueToSet = hopType.getBoolean(hopValue);
         break;
       case IValueMeta.TYPE_INTEGER:
-        valueToSet = hopType.getInteger(hopValue).longValue();
+        valueToSet = hopType.getInteger(hopValue);
         break;
       case IValueMeta.TYPE_DATE:
         valueToSet = hopType.getDate(hopValue);
         break;
       case IValueMeta.TYPE_NUMBER:
-        valueToSet = hopType.getNumber(hopValue).doubleValue();
+        valueToSet = hopType.getNumber(hopValue);
         break;
       case IValueMeta.TYPE_BIGNUMBER:
         // use string value - user can use Hop to convert back

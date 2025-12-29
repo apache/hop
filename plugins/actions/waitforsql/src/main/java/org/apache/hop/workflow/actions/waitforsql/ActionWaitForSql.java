@@ -461,8 +461,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     // ad rows to result
     if (successOK && addRowsResult && customSqlEnabled && ar != null) {
       List<RowMetaAndData> rows = new ArrayList<>();
-      for (int i = 0; i < ar.size(); i++) {
-        rows.add(new RowMetaAndData(rowMeta, ar.get(i)));
+      for (Object[] objects : ar) {
+        rows.add(new RowMetaAndData(rowMeta, objects));
       }
       if (rows != null) {
         result.getRows().addAll(rows);

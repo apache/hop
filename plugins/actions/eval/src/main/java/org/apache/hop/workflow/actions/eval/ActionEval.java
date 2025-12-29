@@ -99,16 +99,16 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
     try {
       scope = cx.initStandardObjects(null);
 
-      Long errors = Long.valueOf(result.getNrErrors());
-      Long linesInput = Long.valueOf(result.getNrLinesInput());
-      Long linesOutput = Long.valueOf(result.getNrLinesOutput());
-      Long linesUpdated = Long.valueOf(result.getNrLinesUpdated());
-      Long linesRejected = Long.valueOf(result.getNrLinesRejected());
-      Long linesRead = Long.valueOf(result.getNrLinesRead());
-      Long linesWritten = Long.valueOf(result.getNrLinesWritten());
-      Long exitStatus = Long.valueOf(result.getExitStatus());
-      Long filesRetrieved = Long.valueOf(result.getNrFilesRetrieved());
-      Long nr = Long.valueOf(result.getEntryNr());
+      Long errors = result.getNrErrors();
+      Long linesInput = result.getNrLinesInput();
+      Long linesOutput = result.getNrLinesOutput();
+      Long linesUpdated = result.getNrLinesUpdated();
+      Long linesRejected = result.getNrLinesRejected();
+      Long linesRead = result.getNrLinesRead();
+      Long linesWritten = result.getNrLinesWritten();
+      Long exitStatus = (long) result.getExitStatus();
+      Long filesRetrieved = result.getNrFilesRetrieved();
+      Long nr = result.getEntryNr();
 
       scope.put("errors", scope, errors);
       scope.put("lines_input", scope, linesInput);
@@ -120,7 +120,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
       scope.put("files_retrieved", scope, filesRetrieved);
       scope.put("exit_status", scope, exitStatus);
       scope.put("nr", scope, nr);
-      scope.put("is_windows", scope, Boolean.valueOf(Const.isWindows()));
+      scope.put("is_windows", scope, Const.isWindows());
       scope.put("_entry_", scope, this); // Compatible
       scope.put("_action_", scope, this);
       scope.put("action", scope, this); // doc issue

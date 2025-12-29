@@ -570,8 +570,8 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         } else {
           int currIndex = text.length;
           for (int i = 0; i < (length - string.length()); i++) {
-            for (int j = 0; j < filler.length; j++) {
-              bytes[currIndex++] = filler[j];
+            for (byte b : filler) {
+              bytes[currIndex++] = b;
             }
           }
         }
@@ -640,8 +640,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         } else {
           // Skip the enclosures, double them instead...
           int from = 0;
-          for (int i = 0; i < enclosures.size(); i++) {
-            int position = enclosures.get(i);
+          for (int position : enclosures) {
             data.writer.write(str, from, position + data.binaryEnclosure.length - from);
             data.writer.write(data.binaryEnclosure); // write enclosure a second time
             from = position + data.binaryEnclosure.length;

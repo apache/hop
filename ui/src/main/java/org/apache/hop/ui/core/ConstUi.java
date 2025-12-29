@@ -210,8 +210,8 @@ public class ConstUi {
     }
 
     TreeItem[] ti = parent.getItems();
-    for (int i = 0; i < ti.length; i++) {
-      TreeItem child = findTreeItem(parent, ti[i], parentName, name);
+    for (TreeItem treeItem : ti) {
+      TreeItem child = findTreeItem(parent, treeItem, parentName, name);
       if (child != null) {
         return child;
       }

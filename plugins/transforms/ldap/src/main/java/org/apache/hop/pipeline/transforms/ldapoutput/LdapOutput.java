@@ -90,7 +90,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
           data.fieldsAttribute[i] = resolve(meta.getUpdateLookup()[i]);
 
           if (meta.getOperationType() == LdapOutputMeta.OPERATION_TYPE_UPSERT
-              && meta.getUpdate()[i].booleanValue()) {
+              && meta.getUpdate()[i]) {
             // We need also to keep care of the fields to update
             fieldsToUpdateInStreaml.add(data.fieldStream[i]);
             fieldsToUpdateAttributel.add(data.fieldsAttribute[i]);

@@ -129,20 +129,14 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
   }
 
   private static int getBasicType(Schema.Type type) {
-    switch (type) {
-      case BYTES:
-        return IValueMeta.TYPE_BINARY;
-      case INT, LONG:
-        return IValueMeta.TYPE_INTEGER;
-      case FLOAT, DOUBLE:
-        return IValueMeta.TYPE_NUMBER;
-      case BOOLEAN:
-        return IValueMeta.TYPE_BOOLEAN;
-      case STRING, RECORD, ARRAY, MAP, FIXED:
-        return IValueMeta.TYPE_STRING;
-      default:
-        return IValueMeta.TYPE_NONE;
-    }
+    return switch (type) {
+      case BYTES -> IValueMeta.TYPE_BINARY;
+      case INT, LONG -> IValueMeta.TYPE_INTEGER;
+      case FLOAT, DOUBLE -> IValueMeta.TYPE_NUMBER;
+      case BOOLEAN -> IValueMeta.TYPE_BOOLEAN;
+      case STRING, RECORD, ARRAY, MAP, FIXED -> IValueMeta.TYPE_STRING;
+      default -> IValueMeta.TYPE_NONE;
+    };
   }
 
   public static final Object getStandardHopObject(Schema.Field field, Object avroValue)
@@ -166,13 +160,13 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
           hopValue = avroValue;
           break;
         case INT:
-          hopValue = Long.valueOf((int) avroValue);
+          hopValue = (long) (int) avroValue;
           break;
         case FLOAT:
-          hopValue = Double.valueOf((float) avroValue);
+          hopValue = (double) (float) avroValue;
           break;
         case BOOLEAN:
-          hopValue = Boolean.valueOf((boolean) avroValue);
+          hopValue = (boolean) avroValue;
           break;
         case RECORD:
           GenericData.Record record = (GenericData.Record) avroValue;
@@ -196,7 +190,7 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
               || avroValue instanceof byte[]) {
             hopValue = avroValue;
           } else if (avroValue instanceof Float) {
-            hopValue = Double.valueOf((float) avroValue).doubleValue();
+            hopValue = Double.valueOf((float) avroValue);
           } else if (avroValue instanceof Integer) {
             hopValue = Integer.valueOf((int) avroValue).longValue();
           } else {
