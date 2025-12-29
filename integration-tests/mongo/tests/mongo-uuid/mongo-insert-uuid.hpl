@@ -81,34 +81,22 @@ limitations under the License.
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>id1</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>UUID</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>id2</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>UUID</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>amount</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>Integer</type>
       </field>
     </fields>
@@ -129,7 +117,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>mongo</connection>
+    <connection>${MONGO_CONNECTION}</connection>
     <mongo_collection>uuid_insert</mongo_collection>
     <batch_insert_size>5</batch_insert_size>
     <truncate>Y</truncate>

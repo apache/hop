@@ -35,30 +35,28 @@ limitations under the License.
     <created_date>2019/08/06 16:10:49.753</created_date>
     <modified_user>-</modified_user>
     <modified_date>2019/08/06 16:10:49.753</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
-      <note>Commit size set to 1000 to see that a commit is 
-done at the end (borderline case)</note>
-      <xloc>592</xloc>
-      <yloc>96</yloc>
-      <width>191</width>
-      <heigth>34</heigth>
+      <backgroundcolorblue>112</backgroundcolorblue>
+      <backgroundcolorgreen>205</backgroundcolorgreen>
+      <backgroundcolorred>255</backgroundcolorred>
+      <bordercolorblue>155</bordercolorblue>
+      <bordercolorgreen>155</bordercolorgreen>
+      <bordercolorred>155</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>83</fontcolorblue>
+      <fontcolorgreen>87</fontcolorgreen>
+      <fontcolorred>85</fontcolorred>
+      <fontitalic>N</fontitalic>
       <fontname>Sans</fontname>
       <fontsize>10</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>85</fontcolorred>
-      <fontcolorgreen>87</fontcolorgreen>
-      <fontcolorblue>83</fontcolorblue>
-      <backgroundcolorred>255</backgroundcolorred>
-      <backgroundcolorgreen>205</backgroundcolorgreen>
-      <backgroundcolorblue>112</backgroundcolorblue>
-      <bordercolorred>155</bordercolorred>
-      <bordercolorgreen>155</bordercolorgreen>
-      <bordercolorblue>155</bordercolorblue>
+      <height>-1</height>
+      <xloc>592</xloc>
+      <yloc>96</yloc>
+      <note>Commit size set to 1000 to see that a commit is 
+done at the end (borderline case)</note>
+      <width>191</width>
     </notepad>
   </notepads>
   <order>
@@ -90,12 +88,12 @@ done at the end (borderline case)</note>
       <schema_name/>
     </partitioning>
     <fields>
-    </fields>
+</fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
     <limit>1000</limit>
     <never_ending>N</never_ending>
-    <interval_in_ms>5000</interval_in_ms>
     <row_time_field>now</row_time_field>
-    <last_time_field>FiveSecondsAgo</last_time_field>
     <attributes/>
     <GUI>
       <xloc>160</xloc>
@@ -113,16 +111,13 @@ done at the end (borderline case)</note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <valuename>id</valuename>
-    <use_database>N</use_database>
-    <connection/>
-    <schema/>
-    <seqname>SEQ_</seqname>
-    <use_counter>Y</use_counter>
-    <counter_name/>
-    <start_at>1</start_at>
     <increment_by>1</increment_by>
     <max_value>999999999</max_value>
+    <seqname>SEQ_</seqname>
+    <start_at>1</start_at>
+    <use_counter>Y</use_counter>
+    <use_database>N</use_database>
+    <valuename>id</valuename>
     <attributes/>
     <GUI>
       <xloc>304</xloc>
@@ -140,7 +135,7 @@ done at the end (borderline case)</note>
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>mongo</connection>
+    <connection>${MONGO_CONNECTION}</connection>
     <mongo_collection>m_updates_1</mongo_collection>
     <batch_insert_size>1000</batch_insert_size>
     <truncate>N</truncate>

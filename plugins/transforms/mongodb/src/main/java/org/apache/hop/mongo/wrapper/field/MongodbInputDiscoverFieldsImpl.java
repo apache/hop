@@ -17,13 +17,11 @@
 
 package org.apache.hop.mongo.wrapper.field;
 
-import com.mongodb.AggregationOptions;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -45,6 +43,7 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.pipeline.transforms.mongodbinput.DiscoverFieldsCallback;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputDiscoverFields;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputMeta;
+import org.bson.Document;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.Binary;
 import org.bson.types.Code;
@@ -98,9 +97,9 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       String fields,
       boolean isPipeline,
       int docsToSample,
-      com.mongodb.DB db)
+      MongoDatabase db)
       throws MongoDbException {
-    DBCursor cursor = null;
+    MongoCursor<Document> cursor = null;
     int numDocsToSample = docsToSample;
     if (numDocsToSample < 1) {
       numDocsToSample = 100; // default
@@ -113,26 +112,32 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
         throw new HopException(
             BaseMessages.getString(PKG, "MongoNoAuthWrapper.ErrorMessage.NoCollectionSpecified"));
       }
-      DBCollection dbcollection = db.getCollection(collection);
+      MongoCollection<Document> dbcollection = db.getCollection(collection);
 
-      Iterator<DBObject> pipeSample = null;
+      Iterator<Document> pipeSample = null;
 
       if (isPipeline) {
         pipeSample = setUpPipelineSample(query, numDocsToSample, dbcollection);
       } else {
+        FindIterable<Document> findIterable;
         if (StringUtils.isEmpty(query) && StringUtils.isEmpty(fields)) {
-          cursor = dbcollection.find().limit(numDocsToSample);
+          findIterable = dbcollection.find().limit(numDocsToSample);
         } else {
-          DBObject dbObject = (DBObject) JSON.parse(StringUtils.isEmpty(query) ? "{}" : query);
-          DBObject dbObject2 = (DBObject) JSON.parse(fields);
-          cursor = dbcollection.find(dbObject, dbObject2).limit(numDocsToSample);
+          Document queryDoc = Document.parse(StringUtils.isEmpty(query) ? "{}" : query);
+          Document fieldsDoc = StringUtils.isEmpty(fields) ? null : Document.parse(fields);
+          findIterable = dbcollection.find(queryDoc);
+          if (fieldsDoc != null) {
+            findIterable = findIterable.projection(fieldsDoc);
+          }
+          findIterable = findIterable.limit(numDocsToSample);
         }
+        cursor = findIterable.iterator();
       }
 
       int actualCount = 0;
       while (cursor != null ? cursor.hasNext() : pipeSample.hasNext()) {
         actualCount++;
-        DBObject nextDoc = (cursor != null ? cursor.next() : pipeSample.next());
+        Document nextDoc = (cursor != null ? cursor.next() : pipeSample.next());
         docToFields(nextDoc, fieldLookup);
       }
 
@@ -271,26 +276,22 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     m.fieldPath = updated.toString();
   }
 
-  protected static void docToFields(DBObject doc, Map<String, MongoField> lookup) {
+  protected static void docToFields(Document doc, Map<String, MongoField> lookup) {
     String root = "$";
     String name = "$";
 
-    if (doc instanceof BasicDBObject basicDBObject) {
-      processRecord(basicDBObject, root, name, lookup);
-    } else if (doc instanceof BasicDBList basicDBList) {
-      processList(basicDBList, root, name, lookup);
-    }
+    processRecord(doc, root, name, lookup);
   }
 
   private static void processRecord(
-      BasicDBObject rec, String path, String name, Map<String, MongoField> lookup) {
+      Document rec, String path, String name, Map<String, MongoField> lookup) {
     for (String key : rec.keySet()) {
       Object fieldValue = rec.get(key);
 
-      if (fieldValue instanceof BasicDBObject basicDBObject) {
-        processRecord(basicDBObject, path + "." + key, name + "." + key, lookup);
-      } else if (fieldValue instanceof BasicDBList basicDBList) {
-        processList(basicDBList, path + "." + key, name + "." + key, lookup);
+      if (fieldValue instanceof Document subDoc) {
+        processRecord(subDoc, path + "." + key, name + "." + key, lookup);
+      } else if (fieldValue instanceof List list) {
+        processList(list, path + "." + key, name + "." + key, lookup);
       } else {
         // some sort of primitive
         String finalPath = path + "." + key;
@@ -326,8 +327,9 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static void processList(
-      BasicDBList list, String path, String name, Map<String, MongoField> lookup) {
+      List<?> list, String path, String name, Map<String, MongoField> lookup) {
 
     if (list.isEmpty()) {
       return; // can't infer anything about an empty list
@@ -339,10 +341,10 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     for (int i = 0; i < list.size(); i++) {
       Object element = list.get(i);
 
-      if (element instanceof BasicDBObject basicDBObject) {
-        processRecord(basicDBObject, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
-      } else if (element instanceof BasicDBList basicDBList) {
-        processList(basicDBList, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
+      if (element instanceof Document doc) {
+        processRecord(doc, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
+      } else if (element instanceof List subList) {
+        processList(subList, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
       } else {
         // some sort of primitive
         String finalPath = primitivePath + "[" + i + "]";
@@ -473,16 +475,17 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     return IValueMeta.TYPE_STRING;
   }
 
-  private static Iterator<DBObject> setUpPipelineSample(
-      String query, int numDocsToSample, DBCollection collection) throws HopException {
+  private static Iterator<Document> setUpPipelineSample(
+      String query, int numDocsToSample, MongoCollection<Document> collection) throws HopException {
 
     query = query + ", {$limit : " + numDocsToSample + "}";
-    List<DBObject> samplePipe = jsonPipelineToDBObjectList(query);
-    return collection.aggregate(samplePipe, AggregationOptions.builder().build());
+    List<Document> samplePipe = jsonPipelineToDocumentList(query);
+    AggregateIterable<Document> result = collection.aggregate(samplePipe);
+    return result.iterator();
   }
 
-  public static List<DBObject> jsonPipelineToDBObjectList(String jsonPipeline) throws HopException {
-    List<DBObject> pipeline = new ArrayList<>();
+  public static List<Document> jsonPipelineToDocumentList(String jsonPipeline) throws HopException {
+    List<Document> pipeline = new ArrayList<>();
     StringBuilder b = new StringBuilder(jsonPipeline.trim());
 
     // extract the parts of the pipeline
@@ -519,7 +522,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
 
     for (String p : parts) {
       if (!StringUtils.isEmpty(p)) {
-        DBObject o = (DBObject) JSON.parse(p);
+        Document o = Document.parse(p);
         pipeline.add(o);
       }
     }

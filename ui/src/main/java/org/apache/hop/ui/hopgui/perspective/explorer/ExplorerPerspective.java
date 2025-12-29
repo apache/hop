@@ -189,6 +189,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @Getter private GuiMenuWidgets menuWidgets;
   private final List<TabItemHandler> items;
   private boolean showingHiddenFiles;
+  private Composite treeComposite;
+  private boolean fileExplorerPanelVisible = true;
   @Getter private String rootFolder;
   @Getter private String rootName;
   private String dragFile;
@@ -268,6 +270,16 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     createTabFolder(sash);
 
     sash.setWeights(new int[] {20, 80});
+
+    // Set initial file explorer panel visibility from configuration
+    Boolean visibleByDefault =
+        ExplorerPerspectiveConfigSingleton.getConfig().getFileExplorerVisibleByDefault();
+    if (visibleByDefault != null && !visibleByDefault) {
+      fileExplorerPanelVisible = false;
+      sash.setMaximizedControl(tabFolder);
+    } else {
+      fileExplorerPanelVisible = true;
+    }
 
     // Refresh the file explorer when a project is activated or updated.
     //
@@ -381,15 +393,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   protected void createTree(Composite parent) {
     // Create composite
     //
-    Composite composite = new Composite(parent, SWT.BORDER);
+    treeComposite = new Composite(parent, SWT.BORDER);
     FormLayout layout = new FormLayout();
     layout.marginWidth = 0;
     layout.marginHeight = 0;
-    composite.setLayout(layout);
+    treeComposite.setLayout(layout);
 
     // Create toolbar
     //
-    toolBar = new ToolBar(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBar = new ToolBar(treeComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
     toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
@@ -401,7 +413,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     toolBar.pack();
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
-    tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    tree = new Tree(treeComposite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(SWT.DefaultSelection, this::openFile);
@@ -1964,6 +1976,36 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
     activeHandler.updateGui();
+  }
+
+  /**
+   * Toggle the visibility of the file explorer panel (tree). When hidden, the tab folder is
+   * maximized. When shown, normal sash weights are restored.
+   */
+  public void toggleFileExplorerPanel() {
+    if (sash == null || sash.isDisposed()) {
+      return;
+    }
+
+    fileExplorerPanelVisible = !fileExplorerPanelVisible;
+
+    if (fileExplorerPanelVisible) {
+      // Show the file explorer panel - restore normal layout
+      sash.setMaximizedControl(null);
+      sash.setWeights(new int[] {20, 80});
+    } else {
+      // Hide the file explorer panel - maximize the tab folder
+      sash.setMaximizedControl(tabFolder);
+    }
+  }
+
+  /**
+   * Check if the file explorer panel is currently visible.
+   *
+   * @return true if the file explorer panel is visible, false otherwise
+   */
+  public boolean isFileExplorerPanelVisible() {
+    return fileExplorerPanelVisible;
   }
 
   public static class DetermineRootFolderExtension {

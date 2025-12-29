@@ -17,14 +17,14 @@
 
 package org.apache.hop.mongo;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.DBObject;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
-import com.mongodb.util.JSON;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.hop.i18n.BaseMessages;
+import org.bson.Document;
 
 class MongoPropToOption {
   private static final Class<?> PKG = MongoPropToOption.class;
@@ -82,7 +82,7 @@ class MongoPropToOption {
       // nothing to do
       return null;
     }
-    DBObject[] tagSets = getTagSets(props);
+    Document[] tagSets = getTagSets(props);
     NamedReadPreference preference = NamedReadPreference.byName(readPreference);
     if (preference == null) {
       throw new MongoDbException(
@@ -108,8 +108,8 @@ class MongoPropToOption {
               PKG,
               "MongoPropToOption.Message.UsingReadPreferenceTagSets",
               Arrays.toString(tagSets)));
-      DBObject[] remainder =
-          tagSets.length > 1 ? Arrays.copyOfRange(tagSets, 1, tagSets.length) : new DBObject[0];
+      Document[] remainder =
+          tagSets.length > 1 ? Arrays.copyOfRange(tagSets, 1, tagSets.length) : new Document[0];
       return preference.getTaggableReadPreference(tagSets[0], remainder);
     } else {
       logInfo(
@@ -123,17 +123,20 @@ class MongoPropToOption {
     return Arrays.toString(new ArrayList<>(NamedReadPreference.getPreferenceNames()).toArray());
   }
 
-  DBObject[] getTagSets(MongoProperties props) throws MongoDbException {
+  Document[] getTagSets(MongoProperties props) throws MongoDbException {
     String tagSet = props.get(MongoProp.tagSet);
     if (tagSet != null) {
-      BasicDBList list;
+      List<Document> list;
       if (!tagSet.trim().startsWith("[")) {
         // wrap the set in an array
         tagSet = "[" + tagSet + "]";
       }
       try {
-        list = (BasicDBList) JSON.parse(tagSet);
-        return list.toArray(new DBObject[list.size()]);
+        // Parse as a JSON array of documents
+        Document wrapper = Document.parse("{\"tagSets\":" + tagSet + "}");
+        @SuppressWarnings("unchecked")
+        List<Document> tagSetList = (List<Document>) wrapper.get("tagSets");
+        return tagSetList.toArray(new Document[0]);
       } catch (Exception parseException) {
         throw new MongoDbException(
             BaseMessages.getString(
@@ -141,7 +144,7 @@ class MongoPropToOption {
             parseException);
       }
     }
-    return new DBObject[0];
+    return new Document[0];
   }
 
   public WriteConcern writeConcernValue(final MongoProperties props) throws MongoDbException {
@@ -154,7 +157,7 @@ class MongoPropToOption {
 
     if (!Util.isEmpty(writeConcern) && Util.isEmpty(wTimeout) && !journaled) {
       // all defaults - timeout 0, journal = false, w = 1
-      concern = new WriteConcern(1);
+      concern = WriteConcern.W1;
 
       if (log != null) {
         log.info(
@@ -175,14 +178,23 @@ class MongoPropToOption {
         // try parsing as a number first
         try {
           int wc = Integer.parseInt(writeConcern);
-          concern = new WriteConcern(wc, wt, false, journaled);
+          concern = new WriteConcern(wc).withWTimeout(wt, TimeUnit.MILLISECONDS);
+          if (journaled) {
+            concern = concern.withJournal(true);
+          }
         } catch (NumberFormatException n) {
           // assume its a valid string - e.g. "majority" or a custom
           // getLastError label associated with a tag set
-          concern = new WriteConcern(writeConcern, wt, false, journaled);
+          concern = new WriteConcern(writeConcern).withWTimeout(wt, TimeUnit.MILLISECONDS);
+          if (journaled) {
+            concern = concern.withJournal(true);
+          }
         }
       } else {
-        concern = new WriteConcern(1, wt, false, journaled);
+        concern = WriteConcern.W1.withWTimeout(wt, TimeUnit.MILLISECONDS);
+        if (journaled) {
+          concern = concern.withJournal(true);
+        }
       }
 
       if (log != null) {
@@ -190,9 +202,9 @@ class MongoPropToOption {
             "w = "
                 + String.valueOf(concern.getWObject())
                 + ", wTimeout = "
-                + concern.getWtimeout()
+                + concern.getWTimeout(TimeUnit.MILLISECONDS)
                 + ", journaled = "
-                + concern.getJ();
+                + concern.getJournal();
         log.info(
             BaseMessages.getString(
                 PKG, "MongoPropToOption.Message.ConfiguringWithWriteConcern", lwc));

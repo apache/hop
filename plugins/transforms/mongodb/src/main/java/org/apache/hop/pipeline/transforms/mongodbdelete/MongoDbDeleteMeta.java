@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
@@ -31,6 +33,8 @@ import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
     documentationUrl = "/pipeline/transforms/mongodbdelete.html",
     keywords = "i18n::MongoDbDelete.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
+@Getter
+@Setter
 public class MongoDbDeleteMeta extends MongoDbMeta<MongoDbDelete, MongoDbDeleteData> {
 
   @HopMetadataProperty(key = "connection", injectionKey = "CONNECTION")
@@ -70,107 +74,5 @@ public class MongoDbDeleteMeta extends MongoDbMeta<MongoDbDelete, MongoDbDeleteD
   @Override
   public void setDefault() {
     // Do nothing
-  }
-
-  @Override
-  public void setConnectionName(String connectionName) {
-    this.connectionName = connectionName;
-  }
-
-  @Override
-  public String getConnectionName() {
-    return connectionName;
-  }
-
-  public void setMongoFields(List<MongoDbDeleteField> mongoFields) {
-    this.mongoFields = mongoFields;
-  }
-
-  public List<MongoDbDeleteField> getMongoFields() {
-    return mongoFields;
-  }
-
-  public void setUseJsonQuery(boolean useJsonQuery) {
-    this.useJsonQuery = useJsonQuery;
-  }
-
-  public boolean isUseJsonQuery() {
-    return useJsonQuery;
-  }
-
-  public boolean isExecuteForEachIncomingRow() {
-    return executeForEachIncomingRow;
-  }
-
-  public void setExecuteForEachIncomingRow(boolean executeForEachIncomingRow) {
-    this.executeForEachIncomingRow = executeForEachIncomingRow;
-  }
-
-  public void setJsonQuery(String jsonQuery) {
-    this.jsonQuery = jsonQuery;
-  }
-
-  public String getJsonQuery() {
-    return jsonQuery;
-  }
-
-  /**
-   * Sets write retries.
-   *
-   * @param r the number of retry attempts to make
-   */
-  public void setWriteRetries(String r) {
-    writeRetries = r;
-  }
-
-  /**
-   * Get the number of retry attempts to make if a particular write operation fails
-   *
-   * @return the number of retry attempts to make
-   */
-  public String getWriteRetries() {
-    return writeRetries;
-  }
-
-  /**
-   * Set the delay (in seconds) between write retry attempts
-   *
-   * @param d the delay in seconds between retry attempts
-   */
-  public void setWriteRetryDelay(String d) {
-    writeRetryDelay = d;
-  }
-
-  /**
-   * Get the delay (in seconds) between write retry attempts
-   *
-   * @return the delay in seconds between retry attempts
-   */
-  public String getWriteRetryDelay() {
-    return writeRetryDelay;
-  }
-
-  /**
-   * @return the collection
-   */
-  @Override
-  public String getCollection() {
-    return collection;
-  }
-
-  /**
-   * @param collection the collection to set
-   */
-  @Override
-  public void setCollection(String collection) {
-    this.collection = collection;
-  }
-
-  public int getNbRetries() {
-    return nbRetries;
-  }
-
-  public void setNbRetries(int nbRetries) {
-    this.nbRetries = nbRetries;
   }
 }

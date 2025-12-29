@@ -37,6 +37,7 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -51,6 +52,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
@@ -522,30 +524,43 @@ public class PropsUi extends Props {
    * on Wayland) where images may be invalid or disposed. Only applied on Linux to avoid any
    * potential impact on unaffected platforms.
    *
+   * <p>SafeCTabFolderRenderer is in the RCP module (desktop-specific) and loaded via reflection.
+   * Since this method short-circuits in web mode and SafeCTabFolderRenderer is not included in web
+   * builds (hop-ui-rcp is excluded), it will never be loaded in RAP/web mode.
+   *
    * @param tabFolder the CTabFolder to protect
    */
   private static void ensureSafeRenderer(CTabFolder tabFolder) {
-    // CTabFolderRenderer and SafeCTabFolderRenderer are not available in RAP (web mode),
-    // so skip entirely. The class is also removed from the hop-ui JAR during Docker build.
-    // Use reflection to avoid compile-time class resolution that would cause NoClassDefFoundError
-    // in web mode when the class doesn't exist in the JAR.
+    // CTabFolderRenderer is not available in RAP (web mode), so skip entirely.
+    // SafeCTabFolderRenderer is in the RCP module (not included in web builds), so it's never
+    // available in web mode.
     if (EnvironmentUtils.getInstance().isWeb()) {
       return;
     }
     // Only apply safe renderer on Linux where the issue occurs
     if (Const.isLinux()) {
       try {
-        // Use reflection to avoid compile-time dependency on SafeCTabFolderRenderer
-        // This prevents Java's bytecode verifier from trying to resolve the class at load time
+        // Use reflection to load SafeCTabFolderRenderer from the RCP module (desktop-specific).
+        // This avoids compile-time dependencies and ensures the class isn't loaded in web mode
+        // (where hop-ui-rcp is excluded from the build).
         Class<?> rendererClass = Class.forName("org.apache.hop.ui.core.SafeCTabFolderRenderer");
         Object currentRenderer = tabFolder.getRenderer();
         if (currentRenderer == null || !rendererClass.isInstance(currentRenderer)) {
           Object safeRenderer =
               rendererClass.getConstructor(CTabFolder.class).newInstance(tabFolder);
-          tabFolder.setRenderer((org.eclipse.swt.custom.CTabFolderRenderer) safeRenderer);
+          // Use reflection to call setRenderer to avoid compile-time dependency on
+          // CTabFolderRenderer which doesn't exist in RAP/web mode
+          Class<?> rendererParamClass = Class.forName("org.eclipse.swt.custom.CTabFolderRenderer");
+          java.lang.reflect.Method setRendererMethod =
+              CTabFolder.class.getMethod("setRenderer", rendererParamClass);
+          setRendererMethod.invoke(tabFolder, safeRenderer);
         }
+      } catch (ClassNotFoundException e) {
+        // SafeCTabFolderRenderer not available (e.g., in web builds where hop-ui-rcp is excluded)
+        // This is expected and safe to ignore
       } catch (Exception e) {
-        // If SafeCTabFolderRenderer can't be loaded, just continue without the safe renderer
+        // If CTabFolderRenderer can't be loaded or setRenderer fails, just continue without
+        // the safe renderer
         LogChannel.GENERAL.logDetailed("Could not apply SafeCTabFolderRenderer: " + e.getMessage());
       }
     }
@@ -640,57 +655,73 @@ public class PropsUi extends Props {
   protected static void setLookOnMac(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
-    Color background = gui.getColorWhite();
-    Color foreground = gui.getColorBlack();
+    Color background = null;
+
+    Display display = Display.getCurrent();
+    if (display == null) {
+      return;
+    }
+
+    // Use system colors that automatically adapt to light/dark mode
+    // Only set backgrounds where needed - let macOS handle text colors natively
+    Color systemWidgetBackground = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+    Color systemListBackground = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+    Color systemListForeground = display.getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+
+    // Handle Shell windows with system background, but let macOS handle text color
+    if (widget instanceof Shell shell) {
+      shell.setBackground(systemWidgetBackground);
+      shell.setBackgroundMode(SWT.INHERIT_FORCE);
+      // Don't set foreground - let macOS handle it natively
+      return;
+    }
 
     switch (style) {
       case WIDGET_STYLE_DEFAULT:
+        // Use system widget background for default composites
+        // Don't set foreground - let macOS handle text colors
+        background = systemWidgetBackground;
         break;
       case WIDGET_STYLE_OSX_GROUP:
-        background = gui.getColorWhite();
-        foreground = gui.getColorBlack();
+        background = systemWidgetBackground;
         font = gui.getFontDefault();
         Group group = ((Group) widget);
+        final Color groupBg = background;
         group.addPaintListener(
             paintEvent -> {
-              paintEvent.gc.setForeground(gui.getColorBlack());
-              paintEvent.gc.setBackground(gui.getColorWhite());
+              // Use system colors in paint listener
+              paintEvent.gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
+              paintEvent.gc.setBackground(groupBg);
               paintEvent.gc.fillRectangle(
                   2, 0, group.getBounds().width - 8, group.getBounds().height - 20);
             });
         break;
       case WIDGET_STYLE_FIXED:
         font = gui.getFontFixed();
+        background = systemWidgetBackground;
         break;
       case WIDGET_STYLE_TABLE:
-        background = gui.getColorLightGray();
-        foreground = gui.getColorDarkGray();
+        background = systemWidgetBackground;
         Table table = (Table) widget;
-        table.setHeaderBackground(gui.getColorLightGray());
-        table.setHeaderForeground(gui.getColorDarkGray());
+        table.setHeaderBackground(systemWidgetBackground);
+        // Don't set foreground colors - let macOS handle them
         break;
       case WIDGET_STYLE_TREE:
-        // TODO: Adjust for Linux
+        background = systemWidgetBackground;
         break;
       case WIDGET_STYLE_TOOLBAR:
-        if (PropsUi.getInstance().isDarkMode()) {
-          background = gui.getColorLightGray();
-        } else {
-          background = gui.getColorDemoGray();
-        }
+        background = systemWidgetBackground;
         break;
       case WIDGET_STYLE_TAB:
         CTabFolder tabFolder = (CTabFolder) widget;
         tabFolder.setBorderVisible(true);
-        tabFolder.setBackground(gui.getColorGray());
-        tabFolder.setForeground(gui.getColorBlack());
+        tabFolder.setBackground(systemWidgetBackground);
+        tabFolder.setSelectionBackground(systemWidgetBackground);
+        // Don't set foreground colors - let macOS handle them
         ensureSafeRenderer(tabFolder);
-        tabFolder.setSelectionBackground(gui.getColorWhite());
-        tabFolder.setSelectionForeground(gui.getColorBlack());
         break;
       case WIDGET_STYLE_PUSH_BUTTON:
         background = null;
-        foreground = null;
         break;
       default:
         background = gui.getColorBackground();
@@ -708,14 +739,22 @@ public class PropsUi extends Props {
       controlWidget.setBackground(background);
     }
 
-    if (foreground != null
-        && !foreground.isDisposed()
-        && (widget instanceof Control controlWidget)) {
-      controlWidget.setForeground(foreground);
+    // Only set backgrounds and foregrounds for text input widgets to ensure visibility
+    // with the new glass look in modern macOS versions.
+    // Use system list colors for text fields which provide proper contrast
+    if (widget instanceof Combo combo) {
+      combo.setBackground(systemListBackground);
+      combo.setForeground(systemListForeground);
     }
 
-    if (widget instanceof Combo combo) {
-      combo.setBackground(gui.getColorWhite());
+    if (widget instanceof Text text) {
+      text.setBackground(systemListBackground);
+      text.setForeground(systemListForeground);
+    }
+
+    if (widget instanceof StyledText styledText) {
+      styledText.setBackground(systemListBackground);
+      styledText.setForeground(systemListForeground);
     }
   }
 

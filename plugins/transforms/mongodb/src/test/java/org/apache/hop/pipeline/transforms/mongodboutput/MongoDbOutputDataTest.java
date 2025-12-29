@@ -28,11 +28,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,9 +42,10 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
-import org.apache.hop.mongo.wrapper.collection.DefaultMongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.pipeline.transforms.mongodboutput.MongoDbOutputMeta.MongoIndex;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,12 +82,11 @@ class MongoDbOutputDataTest {
   void testApplyIndexesOptions() throws HopException, MongoDbException {
     MongoDbOutputData data = new MongoDbOutputData();
     ILogChannel log = LogChannel.GENERAL;
-    DBCollection collection = mock(DBCollection.class);
-    MongoCollectionWrapper collectionWrapper = spy(new DefaultMongoCollectionWrapper(collection));
+    MongoCollectionWrapper collectionWrapper = mock(MongoCollectionWrapper.class);
     data.setCollection(collectionWrapper);
 
-    ArgumentCaptor<BasicDBObject> captorIndexes = ArgumentCaptor.forClass(BasicDBObject.class);
-    ArgumentCaptor<BasicDBObject> captorOptions = ArgumentCaptor.forClass(BasicDBObject.class);
+    ArgumentCaptor<Bson> captorIndexes = ArgumentCaptor.forClass(Bson.class);
+    ArgumentCaptor<Bson> captorOptions = ArgumentCaptor.forClass(Bson.class);
     doNothing()
         .when(collectionWrapper)
         .createIndex(captorIndexes.capture(), captorOptions.capture());
@@ -102,68 +99,68 @@ class MongoDbOutputDataTest {
 
     // Test with all options false
     data.applyIndexes(Collections.singletonList(index), log, false);
-    BasicDBObject createdIndex = captorIndexes.getValue();
-    BasicDBObject createdOptions = captorOptions.getValue();
+    Document createdIndex = (Document) captorIndexes.getValue();
+    Document createdOptions = (Document) captorOptions.getValue();
 
     assertEquals(1, createdIndex.size());
-    assertTrue(createdIndex.containsField("FirstName"));
-    assertEquals("1", createdIndex.getString("FirstName"));
-    assertTrue(createdOptions.containsField("background"));
+    assertTrue(createdIndex.containsKey("FirstName"));
+    assertEquals(1, createdIndex.getInteger("FirstName").intValue());
+    assertTrue(createdOptions.containsKey("background"));
     assertTrue(createdOptions.getBoolean("background"));
-    assertTrue(createdOptions.containsField("sparse"));
+    assertTrue(createdOptions.containsKey("sparse"));
     assertFalse(createdOptions.getBoolean("sparse"));
-    assertTrue(createdOptions.containsField("unique"));
+    assertTrue(createdOptions.containsKey("unique"));
     assertFalse(createdOptions.getBoolean("unique"));
 
     // Test with only "sparse" true
     index.sparse = true;
     index.unique = false;
     data.applyIndexes(Collections.singletonList(index), log, false);
-    createdIndex = captorIndexes.getValue();
-    createdOptions = captorOptions.getValue();
+    createdIndex = (Document) captorIndexes.getValue();
+    createdOptions = (Document) captorOptions.getValue();
 
     assertEquals(1, createdIndex.size());
-    assertTrue(createdIndex.containsField("FirstName"));
-    assertEquals("1", createdIndex.getString("FirstName"));
-    assertTrue(createdOptions.containsField("background"));
+    assertTrue(createdIndex.containsKey("FirstName"));
+    assertEquals(1, createdIndex.getInteger("FirstName").intValue());
+    assertTrue(createdOptions.containsKey("background"));
     assertTrue(createdOptions.getBoolean("background"));
-    assertTrue(createdOptions.containsField("sparse"));
+    assertTrue(createdOptions.containsKey("sparse"));
     assertTrue(createdOptions.getBoolean("sparse"));
-    assertTrue(createdOptions.containsField("unique"));
+    assertTrue(createdOptions.containsKey("unique"));
     assertFalse(createdOptions.getBoolean("unique"));
 
     // Test with only "unique" true
     index.sparse = false;
     index.unique = true;
     data.applyIndexes(Collections.singletonList(index), log, false);
-    createdIndex = captorIndexes.getValue();
-    createdOptions = captorOptions.getValue();
+    createdIndex = (Document) captorIndexes.getValue();
+    createdOptions = (Document) captorOptions.getValue();
 
     assertEquals(1, createdIndex.size());
-    assertTrue(createdIndex.containsField("FirstName"));
-    assertEquals("1", createdIndex.getString("FirstName"));
-    assertTrue(createdOptions.containsField("background"));
+    assertTrue(createdIndex.containsKey("FirstName"));
+    assertEquals(1, createdIndex.getInteger("FirstName").intValue());
+    assertTrue(createdOptions.containsKey("background"));
     assertTrue(createdOptions.getBoolean("background"));
-    assertTrue(createdOptions.containsField("sparse"));
+    assertTrue(createdOptions.containsKey("sparse"));
     assertFalse(createdOptions.getBoolean("sparse"));
-    assertTrue(createdOptions.containsField("unique"));
+    assertTrue(createdOptions.containsKey("unique"));
     assertTrue(createdOptions.getBoolean("unique"));
 
     // Test with "sparse" and "unique" true
     index.sparse = true;
     index.unique = true;
     data.applyIndexes(Collections.singletonList(index), log, false);
-    createdIndex = captorIndexes.getValue();
-    createdOptions = captorOptions.getValue();
+    createdIndex = (Document) captorIndexes.getValue();
+    createdOptions = (Document) captorOptions.getValue();
 
     assertEquals(1, createdIndex.size());
-    assertTrue(createdIndex.containsField("FirstName"));
-    assertEquals("1", createdIndex.getString("FirstName"));
-    assertTrue(createdOptions.containsField("background"));
+    assertTrue(createdIndex.containsKey("FirstName"));
+    assertEquals(1, createdIndex.getInteger("FirstName").intValue());
+    assertTrue(createdOptions.containsKey("background"));
     assertTrue(createdOptions.getBoolean("background"));
-    assertTrue(createdOptions.containsField("sparse"));
+    assertTrue(createdOptions.containsKey("sparse"));
     assertTrue(createdOptions.getBoolean("sparse"));
-    assertTrue(createdOptions.containsField("unique"));
+    assertTrue(createdOptions.containsKey("unique"));
     assertTrue(createdOptions.getBoolean("unique"));
   }
 
@@ -171,14 +168,11 @@ class MongoDbOutputDataTest {
   void testApplyIndexesSplits() throws HopException, MongoDbException {
     MongoDbOutputData data = new MongoDbOutputData();
     ILogChannel log = LogChannel.GENERAL;
-    DBCollection collection = mock(DBCollection.class);
-    MongoCollectionWrapper collectionWrapper = spy(new DefaultMongoCollectionWrapper(collection));
+    MongoCollectionWrapper collectionWrapper = mock(MongoCollectionWrapper.class);
     data.setCollection(collectionWrapper);
 
-    ArgumentCaptor<BasicDBObject> captorIndexes = ArgumentCaptor.forClass(BasicDBObject.class);
-    doNothing()
-        .when(collectionWrapper)
-        .createIndex(captorIndexes.capture(), any(BasicDBObject.class));
+    ArgumentCaptor<Bson> captorIndexes = ArgumentCaptor.forClass(Bson.class);
+    doNothing().when(collectionWrapper).createIndex(captorIndexes.capture(), any(Bson.class));
 
     MongoIndex index = new MongoIndex();
     index.pathToFields = "FirstName:1";
@@ -187,22 +181,22 @@ class MongoDbOutputDataTest {
     index.unique = false;
 
     data.applyIndexes(Collections.singletonList(index), log, false);
-    BasicDBObject createdIndex = captorIndexes.getValue();
+    Document createdIndex = (Document) captorIndexes.getValue();
     assertEquals(1, createdIndex.size());
-    assertTrue(createdIndex.containsField("FirstName"));
-    assertEquals("1", createdIndex.getString("FirstName"));
+    assertTrue(createdIndex.containsKey("FirstName"));
+    assertEquals(1, createdIndex.getInteger("FirstName").intValue());
 
     // Test multiple fields
     index.pathToFields = "FirstName:1,LastName:-1,Street:1";
     data.applyIndexes(Collections.singletonList(index), log, false);
-    createdIndex = captorIndexes.getValue();
+    createdIndex = (Document) captorIndexes.getValue();
     assertEquals(3, createdIndex.size());
-    assertTrue(createdIndex.containsField("FirstName"));
-    assertEquals("1", createdIndex.getString("FirstName"));
-    assertTrue(createdIndex.containsField("LastName"));
-    assertEquals("-1", createdIndex.getString("LastName"));
-    assertTrue(createdIndex.containsField("Street"));
-    assertEquals("1", createdIndex.getString("Street"));
+    assertTrue(createdIndex.containsKey("FirstName"));
+    assertEquals(1, createdIndex.getInteger("FirstName").intValue());
+    assertTrue(createdIndex.containsKey("LastName"));
+    assertEquals(-1, createdIndex.getInteger("LastName").intValue());
+    assertTrue(createdIndex.containsKey("Street"));
+    assertEquals(1, createdIndex.getInteger("Street").intValue());
   }
 
   @Test
@@ -251,14 +245,16 @@ class MongoDbOutputDataTest {
     }
 
     when(valueMeta.isString()).thenReturn(true);
-    assertThat(
+    Document result =
         MongoDbOutputData.getQueryObject(
             Collections.singletonList(field1),
             rowMeta,
             row,
             variables,
-            MongoDbOutputData.MongoTopLevel.RECORD),
-        equalTo(BasicDBObject.parse(query)));
+            MongoDbOutputData.MongoTopLevel.RECORD);
+    // Compare the contents rather than toString() representation
+    Document expected = Document.parse(query);
+    assertThat(result.get("foo"), equalTo(expected.get("foo")));
   }
 
   @Test

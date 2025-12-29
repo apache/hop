@@ -207,7 +207,7 @@ public class NeoExecutionViewerErrorTab extends NeoExecutionViewerTabBase {
     String pathCypher = getPathToFailedCypher();
 
     getSession()
-        .readTransaction(
+        .executeRead(
             tx -> {
               Result pathResult = tx.run(pathCypher, pathParams);
 

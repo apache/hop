@@ -81,7 +81,7 @@ import org.eclipse.swt.SWT;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
+import org.neo4j.driver.TransactionContext;
 import org.neo4j.driver.Value;
 
 @GuiPlugin(description = "Neo4j execution information location GUI elements")
@@ -411,14 +411,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         assert execution.getExecutionType() != null
             : "Please register executions with an execution type";
 
-        session.writeTransaction(transaction -> registerNeo4jExecution(transaction, execution));
+        session.executeWrite(transaction -> registerNeo4jExecution(transaction, execution));
       } catch (Exception e) {
         throw new HopException("Error registering execution in Neo4j", e);
       }
     }
   }
 
-  private boolean registerNeo4jExecution(Transaction transaction, Execution execution) {
+  private boolean registerNeo4jExecution(TransactionContext transaction, Execution execution) {
     try {
       CypherMergeBuilder builder =
           CypherMergeBuilder.of()
@@ -447,10 +447,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         execute(transaction, selfRelationshipBuilder);
       }
 
-      transaction.commit();
+      // Transaction is automatically committed by executeWrite
       return true;
     } catch (Exception e) {
-      transaction.rollback();
+      // Transaction is automatically rolled back by executeWrite on exception
       throw e;
     }
   }
@@ -459,15 +459,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public boolean deleteExecution(String executionId) throws HopException {
     synchronized (this) {
       try {
-        return session.writeTransaction(
-            transaction -> deleteNeo4jExecution(transaction, executionId));
+        return session.executeWrite(transaction -> deleteNeo4jExecution(transaction, executionId));
       } catch (Exception e) {
         throw new HopException("Error deleting execution with id " + executionId + " in Neo4j", e);
       }
     }
   }
 
-  private boolean deleteNeo4jExecution(Transaction transaction, String executionId) {
+  private boolean deleteNeo4jExecution(TransactionContext transaction, String executionId) {
     // Get the children of this execution. Delete those first
     //
     List<Execution> childExecutions = findNeo4jExecutions(transaction, executionId);
@@ -532,14 +531,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public Execution getExecution(String executionId) throws HopException {
     synchronized (this) {
       try {
-        return session.readTransaction(transaction -> getNeo4jExecution(transaction, executionId));
+        return session.executeRead(transaction -> getNeo4jExecution(transaction, executionId));
       } catch (Exception e) {
         throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
 
-  private Execution getNeo4jExecution(Transaction transaction, String executionId) {
+  private Execution getNeo4jExecution(TransactionContext transaction, String executionId) {
     CypherQueryBuilder builder =
         CypherQueryBuilder.of()
             .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
@@ -585,7 +584,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public List<String> getExecutionIds(boolean includeChildren, int limit) throws HopException {
     synchronized (this) {
       try {
-        return session.readTransaction(
+        return session.executeRead(
             transaction -> getNeo4jExecutionIds(transaction, includeChildren, limit));
       } catch (Exception e) {
         throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
@@ -594,7 +593,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private List<String> getNeo4jExecutionIds(
-      Transaction transaction, boolean includeChildren, int limit) {
+      TransactionContext transaction, boolean includeChildren, int limit) {
     List<String> ids = new ArrayList<>();
 
     CypherQueryBuilder builder =
@@ -624,15 +623,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         assert executionState.getExecutionType() != null
             : "Please update execution states with an execution type";
 
-        session.writeTransaction(
-            transaction -> updateNeo4jExecutionState(transaction, executionState));
+        session.executeWrite(transaction -> updateNeo4jExecutionState(transaction, executionState));
       } catch (Exception e) {
         throw new HopException("Error updating execution state in Neo4j", e);
       }
     }
   }
 
-  private boolean updateNeo4jExecutionState(Transaction transaction, ExecutionState state) {
+  private boolean updateNeo4jExecutionState(TransactionContext transaction, ExecutionState state) {
     try {
       // Update information in the Execution node
       //
@@ -672,10 +670,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         }
       }
 
-      transaction.commit();
+      // Transaction is automatically committed by executeWrite
       return true;
     } catch (Exception e) {
-      transaction.rollback();
+      // Transaction is automatically rolled back by executeWrite on exception
       throw e;
     }
   }
@@ -690,7 +688,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       throws HopException {
     synchronized (this) {
       try {
-        return session.readTransaction(
+        return session.executeRead(
             transaction -> getNeo4jExecutionState(transaction, executionId, includeLogging));
       } catch (Exception e) {
         throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
@@ -699,7 +697,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private ExecutionState getNeo4jExecutionState(
-      Transaction transaction, String executionId, boolean includeLogging) {
+      TransactionContext transaction, String executionId, boolean includeLogging) {
     CypherQueryBuilder executionBuilder =
         CypherQueryBuilder.of()
             .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
@@ -790,7 +788,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       throws HopException {
     synchronized (this) {
       try {
-        return session.readTransaction(
+        return session.executeRead(
             transaction -> getNeo4jExecutionStateLoggingText(transaction, executionId, sizeLimit));
       } catch (Exception e) {
         throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
@@ -799,7 +797,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private String getNeo4jExecutionStateLoggingText(
-      Transaction transaction, String executionId, int sizeLimit) {
+      TransactionContext transaction, String executionId, int sizeLimit) {
     CypherQueryBuilder executionBuilder =
         CypherQueryBuilder.of()
             .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
@@ -831,7 +829,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public List<Execution> findExecutions(String parentExecutionId) throws HopException {
     synchronized (this) {
       try {
-        return session.readTransaction(
+        return session.executeRead(
             transaction -> findNeo4jExecutions(transaction, parentExecutionId));
       } catch (Exception e) {
         throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
@@ -853,7 +851,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       throws HopException {
     synchronized (this) {
       try {
-        return session.readTransaction(
+        return session.executeRead(
             transaction -> findNeo4jPreviousSuccessfulExecution(transaction, executionType, name));
       } catch (Exception e) {
         throw new HopException("Error find previous successful execution in Neo4j", e);
@@ -862,7 +860,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private Execution findNeo4jPreviousSuccessfulExecution(
-      Transaction transaction, ExecutionType executionType, String name) {
+      TransactionContext transaction, ExecutionType executionType, String name) {
     List<Execution> executions =
         findNeo4jExecutions(
             transaction, e -> e.getExecutionType() == executionType && name.equals(e.getName()));
@@ -882,7 +880,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
    * @param parentExecutionId
    * @return The list of executions or an empty list if nothing was found
    */
-  private List<Execution> findNeo4jExecutions(Transaction transaction, String parentExecutionId) {
+  private List<Execution> findNeo4jExecutions(
+      TransactionContext transaction, String parentExecutionId) {
     List<Execution> executions = new ArrayList<>();
 
     Result result =
@@ -912,14 +911,15 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public List<Execution> findExecutions(IExecutionMatcher matcher) throws HopException {
     synchronized (this) {
       try {
-        return session.readTransaction(transaction -> findNeo4jExecutions(transaction, matcher));
+        return session.executeRead(transaction -> findNeo4jExecutions(transaction, matcher));
       } catch (Exception e) {
         throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
 
-  private List<Execution> findNeo4jExecutions(Transaction transaction, IExecutionMatcher matcher) {
+  private List<Execution> findNeo4jExecutions(
+      TransactionContext transaction, IExecutionMatcher matcher) {
     List<Execution> executions = new ArrayList<>();
 
     // Get all
@@ -937,14 +937,14 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public void registerData(ExecutionData data) throws HopException {
     synchronized (this) {
       try {
-        session.writeTransaction(transaction -> registerNeo4jData(transaction, data));
+        session.executeWrite(transaction -> registerNeo4jData(transaction, data));
       } catch (Exception e) {
         throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
       }
     }
   }
 
-  private boolean registerNeo4jData(Transaction transaction, ExecutionData data) {
+  private boolean registerNeo4jData(TransactionContext transaction, ExecutionData data) {
     try {
       assert data != null : "no execution data provided";
       assert data.getExecutionType() != null : "execution data has no type";
@@ -1010,16 +1010,16 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
             transaction, data.getParentId(), data.getOwnerId(), rowBuffer, setMeta);
       }
 
-      transaction.commit();
+      // Transaction is automatically committed by executeWrite
       return true;
     } catch (Exception e) {
-      transaction.rollback();
+      // Transaction is automatically rolled back by executeWrite on exception
       throw e;
     }
   }
 
   private void saveNeo4jRowsAndMeta(
-      Transaction transaction,
+      TransactionContext transaction,
       String parentId,
       String ownerId,
       RowBuffer rowBuffer,
@@ -1182,7 +1182,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private void saveDataSetMeta(
-      Transaction transaction, String parentId, String ownerId, ExecutionDataSetMeta dataSetMeta) {
+      TransactionContext transaction,
+      String parentId,
+      String ownerId,
+      ExecutionDataSetMeta dataSetMeta) {
     // Save the data set meta node
     //
     execute(
@@ -1210,7 +1213,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       throws HopException {
     synchronized (this) {
       try {
-        return session.readTransaction(
+        return session.executeRead(
             transaction -> getNeo4jExecutionData(transaction, parentExecutionId, executionId));
       } catch (Exception e) {
         throw new HopException(CONST_ERROR_GETTING_EXECUTION_FROM_NEO_4_J, e);
@@ -1219,7 +1222,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private ExecutionData getNeo4jExecutionData(
-      Transaction transaction, String parentExecutionId, String executionId) {
+      TransactionContext transaction, String parentExecutionId, String executionId) {
     // Find the Execution Data node information.
     //
     ExecutionDataBuilder builder =
@@ -1379,7 +1382,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private ExecutionDataSetMeta getNeo4jExecutionDataSetMeta(
-      Transaction transaction, String parentExecutionId, String ownerId) {
+      TransactionContext transaction, String parentExecutionId, String ownerId) {
     // If there is a direct relationship between Data and DataSetMeta we can
     // follow that relationship and get the metadata from the result.
     // There should always just be one node found.  There's no need to include the set key to do
@@ -1427,7 +1430,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
    * @return
    */
   private ExecutionDataSetMeta getNeo4jExecutionDataSetMeta(
-      Transaction transaction, String parentExecutionId, String ownerId, String setKey) {
+      TransactionContext transaction, String parentExecutionId, String ownerId, String setKey) {
     // If there is a direct relationship between Data and DataSetMeta we can
     // follow that relationship and get the metadata from the result.
     // There should always just be one node found.  There's no need to include the set key to do
@@ -1524,7 +1527,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
   }
 
-  private Result execute(Transaction transaction, ICypherBuilder builder) {
+  private Result execute(TransactionContext transaction, ICypherBuilder builder) {
     return transaction.run(builder.cypher(), builder.parameters());
   }
 

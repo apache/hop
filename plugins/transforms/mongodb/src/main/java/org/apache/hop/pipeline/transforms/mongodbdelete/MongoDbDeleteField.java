@@ -19,10 +19,14 @@ package org.apache.hop.pipeline.transforms.mongodbdelete;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class MongoDbDeleteField implements Cloneable {
 
   @HopMetadataProperty(
@@ -78,37 +82,5 @@ public class MongoDbDeleteField implements Cloneable {
     if (tempPathList != null) {
       tempPathList.addAll(pathList);
     }
-  }
-
-  public String getIncomingField1() {
-    return incomingField1;
-  }
-
-  public void setIncomingField1(String incomingField1) {
-    this.incomingField1 = incomingField1;
-  }
-
-  public String getIncomingField2() {
-    return incomingField2;
-  }
-
-  public void setIncomingField2(String incomingField2) {
-    this.incomingField2 = incomingField2;
-  }
-
-  public String getMongoDocPath() {
-    return mongoDocPath;
-  }
-
-  public void setMongoDocPath(String mongoDocPath) {
-    this.mongoDocPath = mongoDocPath;
-  }
-
-  public String getComparator() {
-    return comparator;
-  }
-
-  public void setComparator(String comparator) {
-    this.comparator = comparator;
   }
 }

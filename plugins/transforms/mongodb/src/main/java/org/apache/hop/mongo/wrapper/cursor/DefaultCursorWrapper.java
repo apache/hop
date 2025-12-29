@@ -17,44 +17,66 @@
 
 package org.apache.hop.mongo.wrapper.cursor;
 
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCursor;
 import org.apache.hop.mongo.MongoDbException;
+import org.bson.Document;
 
 public class DefaultCursorWrapper implements MongoCursorWrapper {
-  private final DBCursor cursor;
+  private final FindIterable<Document> findIterable;
+  private MongoCursor<Document> cursor;
+  private ServerAddress serverAddress;
 
-  public DefaultCursorWrapper(DBCursor cursor) {
-    this.cursor = cursor;
+  public DefaultCursorWrapper(FindIterable<Document> findIterable) {
+    this.findIterable = findIterable;
+    this.cursor = null;
+  }
+
+  private MongoCursor<Document> getCursor() {
+    if (cursor == null) {
+      cursor = findIterable.iterator();
+    }
+    return cursor;
   }
 
   @Override
   public boolean hasNext() throws MongoDbException {
-    return cursor.hasNext();
+    return getCursor().hasNext();
   }
 
   @Override
-  public DBObject next() throws MongoDbException {
-    return cursor.next();
+  public Document next() throws MongoDbException {
+    Document doc = getCursor().next();
+    // Capture server address from first result
+    if (serverAddress == null) {
+      serverAddress = getCursor().getServerAddress();
+    }
+    return doc;
   }
 
   @Override
   public ServerAddress getServerAddress() throws MongoDbException {
-    return cursor.getServerAddress();
+    if (serverAddress != null) {
+      return serverAddress;
+    }
+    return getCursor().getServerAddress();
   }
 
   @Override
   public void close() throws MongoDbException {
-    cursor.close();
+    if (cursor != null) {
+      cursor.close();
+    }
   }
 
   @Override
   public MongoCursorWrapper limit(int i) throws MongoDbException {
-    return wrap(cursor.limit(i));
-  }
-
-  protected MongoCursorWrapper wrap(DBCursor cursor) {
-    return new DefaultCursorWrapper(cursor);
+    // Close existing cursor if open
+    if (cursor != null) {
+      cursor.close();
+      cursor = null;
+    }
+    return new DefaultCursorWrapper(findIterable.limit(i));
   }
 }

@@ -212,7 +212,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
     String pathCypher = getPathToRootCypher();
 
     getSession()
-        .readTransaction(
+        .executeRead(
             tx -> {
               Result pathResult = tx.run(pathCypher, pathParams);
 

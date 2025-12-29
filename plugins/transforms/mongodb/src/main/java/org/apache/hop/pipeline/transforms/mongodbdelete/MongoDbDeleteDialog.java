@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
-import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +50,7 @@ import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.bson.Document;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -818,7 +818,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
       String toDisplay = "";
       String windowTitle =
           BaseMessages.getString(PKG, "MongoDbDeleteDialog.PreviewDocStructure.Title");
-      DBObject query = MongoDbDeleteData.getQueryObject(mongoFields, r, dummyRow, vs);
+      Document query = MongoDbDeleteData.getQueryObject(mongoFields, r, dummyRow, vs);
       toDisplay =
           BaseMessages.getString(PKG, "MongoDbDeleteDialog.PreviewModifierUpdate.Heading1")
               + ": \n\n"

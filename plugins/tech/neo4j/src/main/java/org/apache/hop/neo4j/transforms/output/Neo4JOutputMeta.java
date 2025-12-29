@@ -79,6 +79,12 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
       injectionGroupKey = "REL_PROPS")
   private List<PropertyField> relProps;
 
+  @HopMetadataProperty(key = "array_separator", injectionKey = "ARRAY_SEPARATOR")
+  private String arraySeparator;
+
+  @HopMetadataProperty(key = "array_enclosure", injectionKey = "ARRAY_ENCLOSURE")
+  private String arrayEnclosure;
+
   @HopMetadataProperty(key = "returning_graph", injectionKey = "RETURNING_GRAPH")
   private boolean returningGraph;
 
@@ -108,6 +114,8 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     returnGraphField = "graph";
     nodeFromField = new NodeFromField();
     nodeToField = new NodeToField();
+    arraySeparator = ","; // Default: comma separator
+    arrayEnclosure = ""; // Default: no enclosure
   }
 
   @Override

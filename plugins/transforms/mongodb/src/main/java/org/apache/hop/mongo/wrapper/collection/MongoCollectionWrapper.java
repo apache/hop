@@ -16,14 +16,15 @@
  */
 package org.apache.hop.mongo.wrapper.collection;
 
-import com.mongodb.AggregationOptions;
-import com.mongodb.BasicDBObject;
-import com.mongodb.Cursor;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.UpdateResult;
 import java.util.List;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
 /**
  * Defines the wrapper interface for all interactions with a MongoCollection via a
@@ -32,34 +33,34 @@ import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
  */
 public interface MongoCollectionWrapper {
 
-  MongoCursorWrapper find(DBObject dbObject, DBObject dbObject2) throws MongoDbException;
+  MongoCursorWrapper find(Bson query, Bson projection) throws MongoDbException;
 
-  Cursor aggregate(List<? extends DBObject> pipeline, AggregationOptions options);
+  AggregateIterable<Document> aggregate(List<? extends Bson> pipeline);
 
-  Cursor aggregate(DBObject firstP, DBObject[] remainder) throws MongoDbException;
+  AggregateIterable<Document> aggregate(Bson firstP, Bson[] remainder) throws MongoDbException;
 
   MongoCursorWrapper find() throws MongoDbException;
 
   void drop() throws MongoDbException;
 
-  WriteResult update(DBObject updateQuery, DBObject insertUpdate, boolean upsert, boolean multi)
+  UpdateResult update(Bson updateQuery, Bson insertUpdate, boolean upsert, boolean multi)
       throws MongoDbException;
 
-  WriteResult insert(List<DBObject> batch) throws MongoDbException;
+  InsertManyResult insert(List<Document> batch) throws MongoDbException;
 
-  MongoCursorWrapper find(DBObject query) throws MongoDbException;
+  MongoCursorWrapper find(Bson query) throws MongoDbException;
 
-  void dropIndex(BasicDBObject mongoIndex) throws MongoDbException;
+  void dropIndex(Bson mongoIndex) throws MongoDbException;
 
-  void createIndex(BasicDBObject mongoIndex) throws MongoDbException;
+  void createIndex(Bson mongoIndex) throws MongoDbException;
 
-  void createIndex(BasicDBObject mongoIndex, BasicDBObject options) throws MongoDbException;
+  void createIndex(Bson mongoIndex, Bson options) throws MongoDbException;
 
-  WriteResult remove() throws MongoDbException;
+  DeleteResult remove() throws MongoDbException;
 
-  WriteResult remove(DBObject query) throws MongoDbException;
+  DeleteResult remove(Bson query) throws MongoDbException;
 
-  WriteResult save(DBObject toTry) throws MongoDbException;
+  UpdateResult save(Document toTry) throws MongoDbException;
 
   long count() throws MongoDbException;
 

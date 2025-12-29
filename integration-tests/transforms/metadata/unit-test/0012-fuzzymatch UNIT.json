@@ -35,7 +35,7 @@
           "data_set_field": "measure value"
         },
         {
-          "transform_field": "name",
+          "transform_field": "lookupName",
           "data_set_field": "name"
         },
         {

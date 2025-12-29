@@ -627,7 +627,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
-    fdlIfFileExists.right = new FormAttachment(middle, 0);
+    fdlIfFileExists.right = new FormAttachment(middle, -margin);
     fdlIfFileExists.top = new FormAttachment(wlAddDateBeforeExtension, 2 * margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
 
@@ -875,7 +875,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlIfMovedFileExists);
     FormData fdlIfMovedFileExists = new FormData();
     fdlIfMovedFileExists.left = new FormAttachment(0, 0);
-    fdlIfMovedFileExists.right = new FormAttachment(middle, 0);
+    fdlIfMovedFileExists.right = new FormAttachment(middle, -margin);
     fdlIfMovedFileExists.top = new FormAttachment(wlAddMovedDateBeforeExtension, 2 * margin);
     wlIfMovedFileExists.setLayoutData(fdlIfMovedFileExists);
     wIfMovedFileExists = new CCombo(wMoveToGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);

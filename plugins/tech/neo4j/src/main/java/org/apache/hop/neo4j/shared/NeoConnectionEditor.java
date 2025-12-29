@@ -73,8 +73,6 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
 
   // Advanced
   //
-  private Label wlVersion4;
-  private CheckBoxVar wVersion4;
   private TextVar wBrowserPort;
   private Label wlPolicy;
   private TextVar wPolicy;
@@ -155,7 +153,6 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
       wAutomatic,
       wServer,
       wDatabaseName,
-      wVersion4,
       wDatabasePort,
       wBrowserPort,
       wPolicy,
@@ -355,23 +352,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     formLayout.marginHeight = 3;
     wProtocolComp.setLayout(formLayout);
 
-    // Version4?
-    wlVersion4 = new Label(wProtocolComp, SWT.RIGHT);
-    wlVersion4.setText(BaseMessages.getString(PKG, "NeoConnectionEditor.Version4.Label"));
-    PropsUi.setLook(wlVersion4);
-    FormData fdlVersion4 = new FormData();
-    fdlVersion4.top = new FormAttachment(0, margin);
-    fdlVersion4.left = new FormAttachment(0, 0);
-    fdlVersion4.right = new FormAttachment(middle, -margin);
-    wlVersion4.setLayoutData(fdlVersion4);
-    wVersion4 = new CheckBoxVar(variables, wProtocolComp, SWT.CHECK);
-    PropsUi.setLook(wVersion4);
-    FormData fdVersion4 = new FormData();
-    fdVersion4.top = new FormAttachment(wlVersion4, 0, SWT.CENTER);
-    fdVersion4.left = new FormAttachment(middle, 0);
-    fdVersion4.right = new FormAttachment(95, 0);
-    wVersion4.setLayoutData(fdVersion4);
-    Control lastControl = wVersion4;
+    Control lastControl = null;
 
     // Browser port?
     Label wlBrowserPort = new Label(wProtocolComp, SWT.RIGHT);
@@ -720,8 +701,6 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     boolean routing = neo.isRouting();
     boolean encryption = neo.isUsingEncryption();
 
-    wlVersion4.setEnabled(!automatic);
-    wVersion4.setEnabled(!automatic);
     wRouting.setEnabled(!automatic);
     wlRouting.setEnabled(!automatic);
     wRouting.setEnabled(!automatic);
@@ -744,8 +723,6 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     wProtocol.setText(Const.NVL(metadata.getProtocol(), ""));
     wServer.setText(Const.NVL(metadata.getServer(), ""));
     wDatabaseName.setText(Const.NVL(metadata.getDatabaseName(), ""));
-    wVersion4.setSelection(metadata.isVersion4());
-    wVersion4.setVariableName(Const.NVL(metadata.getVersion4Variable(), ""));
     wDatabasePort.setText(Const.NVL(metadata.getBoltPort(), ""));
     wBrowserPort.setText(Const.NVL(metadata.getBrowserPort(), ""));
     wRouting.setSelection(metadata.isRouting());
@@ -785,8 +762,6 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     neoConnection.setProtocol(wProtocol.getText());
     neoConnection.setServer(wServer.getText());
     neoConnection.setDatabaseName(wDatabaseName.getText());
-    neoConnection.setVersion4(wVersion4.getSelection());
-    neoConnection.setVersion4Variable(wVersion4.getVariableName());
     neoConnection.setBoltPort(wDatabasePort.getText());
     neoConnection.setBrowserPort(wBrowserPort.getText());
     neoConnection.setRouting(wRouting.getSelection());

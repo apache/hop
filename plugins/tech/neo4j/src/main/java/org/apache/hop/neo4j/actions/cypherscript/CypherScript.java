@@ -29,7 +29,7 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.TransactionWork;
+import org.neo4j.driver.TransactionCallback;
 
 @Action(
     id = "NEO4J_CYPHER_SCRIPT",
@@ -115,7 +115,7 @@ public class CypherScript extends ActionBase implements IAction {
       //
       try (Session session = connection.getSession(getLogChannel(), driver, this)) {
 
-        TransactionWork<Integer> transactionWork =
+        TransactionCallback<Integer> transactionWork =
             transaction -> {
               int executed = 0;
 
@@ -136,19 +136,17 @@ public class CypherScript extends ActionBase implements IAction {
                     logDetailed("Executed cypher statement: " + cypher);
                   }
                 }
-                // All statements executed successfully so commit
-                //
-                transaction.commit();
+                // Transaction is automatically committed by executeWrite
               } catch (Exception e) {
                 logError("Error executing cypher statements...", e);
                 result.increaseErrors(1L);
-                transaction.rollback();
                 result.setResult(false);
+                // Transaction is automatically rolled back by executeWrite on exception
               }
 
               return executed;
             };
-        nrExecuted = session.writeTransaction(transactionWork);
+        nrExecuted = session.executeWrite(transactionWork);
       }
     }
 

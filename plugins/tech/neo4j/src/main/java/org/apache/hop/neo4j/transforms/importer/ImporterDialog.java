@@ -66,10 +66,13 @@ public class ImporterDialog extends BaseTransformDialog {
   private Button wSkipBadRelationships;
   private Button wSkipDuplicateNodes;
   private Button wTrimStrings;
+  private Button wOverwriteDestination;
   private TextVar wBadTolerance;
   private TextVar wMaxMemory;
   private TextVar wReadBufferSize;
   private TextVar wProcessors;
+
+  private CCombo wNeo4jVersion;
 
   private ImporterMeta input;
 
@@ -228,6 +231,60 @@ public class ImporterDialog extends BaseTransformDialog {
     fdAdminCommand.top = new FormAttachment(wlAdminCommand, 0, SWT.CENTER);
     wAdminCommand.setLayoutData(fdAdminCommand);
     lastControl = wAdminCommand;
+
+    // Neo4j version selector
+    //
+    Label wlNeo4jVersion = new Label(wComposite, SWT.RIGHT);
+    wlNeo4jVersion.setText("Neo4j version ");
+    PropsUi.setLook(wlNeo4jVersion);
+    FormData fdlNeo4jVersion = new FormData();
+    fdlNeo4jVersion.left = new FormAttachment(0, 0);
+    fdlNeo4jVersion.right = new FormAttachment(middle, -margin);
+    fdlNeo4jVersion.top = new FormAttachment(lastControl, 2 * margin);
+    wlNeo4jVersion.setLayoutData(fdlNeo4jVersion);
+    wNeo4jVersion = new CCombo(wComposite, SWT.BORDER | SWT.READ_ONLY);
+    wNeo4jVersion.setItems(new String[] {"4.x", "5.x"});
+    PropsUi.setLook(wNeo4jVersion);
+    wNeo4jVersion.addModifyListener(lsMod);
+    FormData fdNeo4jVersion = new FormData();
+    fdNeo4jVersion.left = new FormAttachment(middle, 0);
+    fdNeo4jVersion.right = new FormAttachment(100, 0);
+    fdNeo4jVersion.top = new FormAttachment(wlNeo4jVersion, 0, SWT.CENTER);
+    wNeo4jVersion.setLayoutData(fdNeo4jVersion);
+    lastControl = wlNeo4jVersion;
+
+    // Overwrite destination checkbox (Neo4j 5.x only)
+    //
+    Label wlOverwriteDestination = new Label(wComposite, SWT.RIGHT);
+    wlOverwriteDestination.setText("Overwrite existing database (5.x only) ");
+    PropsUi.setLook(wlOverwriteDestination);
+    FormData fdlOverwriteDestination = new FormData();
+    fdlOverwriteDestination.left = new FormAttachment(0, 0);
+    fdlOverwriteDestination.right = new FormAttachment(middle, -margin);
+    fdlOverwriteDestination.top = new FormAttachment(lastControl, 2 * margin);
+    wlOverwriteDestination.setLayoutData(fdlOverwriteDestination);
+    wOverwriteDestination = new Button(wComposite, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wOverwriteDestination);
+    FormData fdOverwriteDestination = new FormData();
+    fdOverwriteDestination.left = new FormAttachment(middle, 0);
+    fdOverwriteDestination.right = new FormAttachment(100, 0);
+    fdOverwriteDestination.top = new FormAttachment(wlOverwriteDestination, 0, SWT.CENTER);
+    wOverwriteDestination.setLayoutData(fdOverwriteDestination);
+    wOverwriteDestination.addListener(SWT.Selection, e -> input.setChanged());
+    lastControl = wlOverwriteDestination;
+
+    // Note about database stopping requirement
+    //
+    Label wlNote = new Label(wComposite, SWT.WRAP);
+    wlNote.setText(
+        "Note: Neo4j database must be stopped before import. For Community Edition, use 'neo4j stop' to stop Neo4j entirely. For Enterprise Edition, use Cypher 'STOP DATABASE <name>' to stop the specific database.");
+    PropsUi.setLook(wlNote);
+    FormData fdlNote = new FormData();
+    fdlNote.left = new FormAttachment(0, 0);
+    fdlNote.right = new FormAttachment(100, 0);
+    fdlNote.top = new FormAttachment(lastControl, margin);
+    wlNote.setLayoutData(fdlNote);
+    lastControl = wlNote;
 
     // The base folder to run the command from
     //
@@ -443,6 +500,9 @@ public class ImporterDialog extends BaseTransformDialog {
     //
     Label wlSkipDuplicateNodes = new Label(wComposite, SWT.RIGHT);
     wlSkipDuplicateNodes.setText("Skip duplicate nodes? ");
+    String ttSkipDuplicateNodes =
+        "If enabled, skip duplicate node IDs in CSV files. Required when the same node appears multiple times (e.g., as both source and target in relationships).";
+    wlSkipDuplicateNodes.setToolTipText(ttSkipDuplicateNodes);
     PropsUi.setLook(wlSkipDuplicateNodes);
     FormData fdlSkipDuplicateNodes = new FormData();
     fdlSkipDuplicateNodes.left = new FormAttachment(0, 0);
@@ -450,6 +510,7 @@ public class ImporterDialog extends BaseTransformDialog {
     fdlSkipDuplicateNodes.top = new FormAttachment(lastControl, 2 * margin);
     wlSkipDuplicateNodes.setLayoutData(fdlSkipDuplicateNodes);
     wSkipDuplicateNodes = new Button(wComposite, SWT.CHECK | SWT.LEFT);
+    wSkipDuplicateNodes.setToolTipText(ttSkipDuplicateNodes);
     PropsUi.setLook(wSkipDuplicateNodes);
     FormData fdSkipDuplicateNodes = new FormData();
     fdSkipDuplicateNodes.left = new FormAttachment(middle, 0);
@@ -608,6 +669,15 @@ public class ImporterDialog extends BaseTransformDialog {
     wAdminCommand.setText(Const.NVL(input.getAdminCommand(), ""));
     wBaseFolder.setText(Const.NVL(input.getBaseFolder(), ""));
 
+    String neo4jVersion = Const.NVL(input.getNeo4jVersion(), "4.x");
+    if (neo4jVersion.equals("5.x") || neo4jVersion.startsWith("5.")) {
+      wNeo4jVersion.setText("5.x");
+    } else {
+      wNeo4jVersion.setText("4.x");
+    }
+
+    wOverwriteDestination.setSelection(input.isOverwriteDestination());
+
     wHighIo.setSelection(input.isHighIo());
     wCacheOnHeap.setSelection(input.isCacheOnHeap());
     wIgnoreEmptyStrings.setSelection(input.isIgnoringEmptyStrings());
@@ -640,6 +710,9 @@ public class ImporterDialog extends BaseTransformDialog {
     meta.setAdminCommand(wAdminCommand.getText());
     meta.setDatabaseName(wDatabaseFilename.getText());
     meta.setBaseFolder(wBaseFolder.getText());
+
+    meta.setNeo4jVersion(wNeo4jVersion.getText());
+    meta.setOverwriteDestination(wOverwriteDestination.getSelection());
 
     meta.setHighIo(wHighIo.getSelection());
     meta.setCacheOnHeap(wCacheOnHeap.getSelection());

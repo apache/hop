@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>0011-movefilesmultiple-addtoresultset</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2025/12/26 18:09:07.427</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2025/12/26 18:09:07.427</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>50</xloc>
+      <yloc>50</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Move files</name>
+      <description/>
+      <type>MOVE_FILES</type>
+      <attributes/>
+      <move_empty_folders>N</move_empty_folders>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>Y</add_result_filesname>
+      <destination_is_a_file>N</destination_is_a_file>
+      <create_destination_folder>Y</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>do_nothing</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <simulate>N</simulate>
+      <fields>
+        <field>
+          <source_filefolder>${PROJECT_HOME}/files-0011/from</source_filefolder>
+          <destination_filefolder>${PROJECT_HOME}/files-0011/to</destination_filefolder>
+          <wildcard>.*.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Prepare Move</name>
+      <description/>
+      <type>COPY_FILES</type>
+      <attributes/>
+      <copy_empty_folders>Y</copy_empty_folders>
+      <arg_from_previous>N</arg_from_previous>
+      <overwrite_files>N</overwrite_files>
+      <include_subfolders>N</include_subfolders>
+      <remove_source_files>N</remove_source_files>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>N</destination_is_a_file>
+      <create_destination_folder>Y</create_destination_folder>
+      <fields>
+        <field>
+          <source_filefolder>EMPTY_SOURCE_URL-0-${PROJECT_HOME}/files-0011</source_filefolder>
+          <source_configuration_name>LOCAL-SOURCE-FILE-0</source_configuration_name>
+          <destination_filefolder>EMPTY_DEST_URL-0-${PROJECT_HOME}/files-0011/from</destination_filefolder>
+          <destination_configuration_name>LOCAL-DEST-FILE-0</destination_configuration_name>
+          <wildcard>.*.txt</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>192</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <parallel>N</parallel>
+      <xloc>352</xloc>
+      <yloc>304</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Dummy</name>
+      <description/>
+      <type>DUMMY</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>352</xloc>
+      <yloc>176</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Cleanup Dirs</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <fields>
+        <field>
+          <name>${PROJECT_HOME}/files-0011/from</name>
+        </field>
+        <field>
+          <name>${PROJECT_HOME}/files-0011/to</name>
+        </field>
+      </fields>
+      <limit_folders>10</limit_folders>
+      <success_condition>success_if_no_errors</success_condition>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>736</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check result</name>
+      <description/>
+      <type>EVAL</type>
+      <attributes/>
+      <script>
+var result = true;
+var filesList = previous_result.getResultFilesList();
+
+if (filesList.size()!=3) {
+ action.logError("We expected three result file to be present in the result of the 'Add filenames to result' action");
+ result=false;
+} else {
+  var resultFile1 = filesList.get(0);
+  if (resultFile1.getFile()==null) {
+   action.logError("The 1st result file added using the 'Move files' action has its content null");
+   result=false;
+  }
+  var resultFile2 = filesList.get(1);
+  if (resultFile2.getFile()==null) {
+   action.logError("The 2nd result file added using the 'Move files' action has its content null");
+   result=false;
+  }
+  var resultFile3 = filesList.get(2);
+  if (resultFile3.getFile()==null) {
+   action.logError("The 3rd result file added using the 'Move files' action has its content null");
+   result=false;
+  }
+}
+
+action.logBasic("3 files added to the files' result collection as expected!");
+
+result;</script>
+      <parallel>N</parallel>
+      <xloc>464</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Prepare Move</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Prepare Move</from>
+      <to>Move files</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Prepare Move</from>
+      <to>Dummy</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Move files</from>
+      <to>Dummy</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Dummy</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Cleanup Dirs</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Cleanup Dirs</from>
+      <to>Dummy</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Move files</from>
+      <to>Check result</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check result</from>
+      <to>Cleanup Dirs</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check result</from>
+      <to>Dummy</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

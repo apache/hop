@@ -1,8 +1,9 @@
 {
   "authenticationDatabaseName": "admin",
+  "connectionString": "mongodb+srv://hans:YA3WDb8XxYDkZ8fJHrBF@hans-test.ovlgcdt.mongodb.net/?appName\u003dhans-test",
   "usingKerberos": false,
   "journaled": true,
-  "dbName": "local",
+  "dbName": "hop_test",
   "authenticationUser": "${MONGO_USERNAME}",
   "connectTimeoutMs": "",
   "writeConcern": "",

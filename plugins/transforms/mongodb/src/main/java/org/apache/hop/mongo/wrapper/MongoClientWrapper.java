@@ -17,13 +17,12 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import com.mongodb.DBObject;
 import com.mongodb.MongoCredential;
-import com.mongodb.ReplicaSetStatus;
 import java.util.List;
 import java.util.Set;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
+import org.bson.Document;
 
 /**
  * Defines the wrapper interface for all interactions with a MongoClient. This interface for the
@@ -69,7 +68,7 @@ public interface MongoClientWrapper {
    * @return a list of replica set members who's tags satisfy the supplied list of tag sets
    * @throws MongoDbException if a problem occurs
    */
-  List<String> getReplicaSetMembersThatSatisfyTagSets(List<DBObject> tagSets)
+  List<String> getReplicaSetMembersThatSatisfyTagSets(List<Document> tagSets)
       throws MongoDbException;
 
   /**
@@ -90,7 +89,7 @@ public interface MongoClientWrapper {
    *
    * @param db The database name
    * @param name The new collection name
-   * @return a MongoCollectionWrapper which wraps the DBCollection object.
+   * @return a MongoCollectionWrapper which wraps the MongoCollection object.
    * @throws MongoDbException
    */
   MongoCollectionWrapper createCollection(String db, String name) throws MongoDbException;
@@ -101,7 +100,7 @@ public interface MongoClientWrapper {
    *
    * @param db database name
    * @param name collection name
-   * @return a MongoCollectionWrapper which wraps the DBCollection object
+   * @return a MongoCollectionWrapper which wraps the MongoCollection object
    * @throws MongoDbException
    */
   MongoCollectionWrapper getCollection(String db, String name) throws MongoDbException;
@@ -125,7 +124,7 @@ public interface MongoClientWrapper {
       throws MongoDbException;
 
   /**
-   * @return the ReplicaSetStatus for the cluster.
+   * @return true if connected to a replica set
    */
-  ReplicaSetStatus getReplicaSetStatus();
+  boolean isReplicaSet();
 }

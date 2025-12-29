@@ -129,7 +129,10 @@ The following plugins are available by default:
 
 * xref:vfs/azure-blob-storage-vfs.adoc#_configuration[Azure Blob Storage] VFS configuration options.
 * xref:vfs/dropbox-vfs.adoc#_configuration[Dropbox] VFS configuration options.
-* xref:hop-gui/perspective-file-explorer.adoc[Explorer perspective] configuration options.
+* **Explorer perspective**: Configuration options for the file explorer perspective:
+  ** The initial depth to load not lazily: Controls how many folder levels are loaded immediately when opening folders.
+  ** The maximum file size to load: Sets the maximum file size (in MB) that will be loaded when opening files.
+  ** Show file explorer panel by default: When enabled, the file explorer panel (project tree) is shown by default when opening the explorer perspective. When disabled, the panel starts hidden.
 * xref:technology/google/index.adoc[Google Cloud] configuration options (service account JSON key file).
 * xref:vfs/google-drive-vfs.adoc#_configuration[Google Drive] VFS configuration options.
 * xref:projects/index.adoc[Project] configuration options

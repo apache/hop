@@ -50,8 +50,6 @@ limitations under the License.
     <created_date>2022/07/11 10:26:42.842</created_date>
     <modified_user>-</modified_user>
     <modified_date>2022/07/11 10:26:42.842</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -74,17 +72,13 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <collection>m_inserts_1</collection>
-    <connection>mongo</connection>
+    <connection>${MONGO_CONNECTION}</connection>
     <execute_for_each_row>N</execute_for_each_row>
     <json_query>{$or: [{"name": "${NAME1}"},{"name": "${NAME2}"}, {"name": "${NAME3}"} ]}</json_query>
     <retries>5</retries>
-    <read_preference/>
-    <journaled_writes>N</journaled_writes>
-    <use_json_query>Y</use_json_query>
-    <write_timeout/>
-    <write_concern/>
-    <write_retries>5</write_retries>
     <retry_delay>10</retry_delay>
+    <use_json_query>Y</use_json_query>
+    <write_retries>5</write_retries>
     <attributes/>
     <GUI>
       <xloc>320</xloc>
@@ -106,8 +100,8 @@ limitations under the License.
 </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <never_ending>N</never_ending>
     <limit>1</limit>
+    <never_ending>N</never_ending>
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>

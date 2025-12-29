@@ -33,10 +33,13 @@ import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.neo4j.transforms.output.fields.LabelField;
+import org.apache.hop.neo4j.transforms.output.fields.NodeFromField;
+import org.apache.hop.neo4j.transforms.output.fields.NodeToField;
 import org.apache.hop.neo4j.transforms.output.fields.PropertyField;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -81,6 +84,10 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
   private Button wUseCreate;
   private Label wlOnlyCreateRelationships;
   private Button wOnlyCreateRelationships;
+  private Label wlArraySeparator;
+  private TextVar wArraySeparator;
+  private Label wlArrayEnclosure;
+  private TextVar wArrayEnclosure;
   private Button wReturnGraph;
   private Label wlReturnGraphField;
   private TextVar wReturnGraphField;
@@ -108,6 +115,14 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
   @Override
   public String open() {
     Shell parent = getParent();
+
+    // Initialize nodeFromField and nodeToField if they are null (e.g., for new transforms)
+    if (input.getNodeFromField() == null) {
+      input.setNodeFromField(new NodeFromField());
+    }
+    if (input.getNodeToField() == null) {
+      input.setNodeToField(new NodeToField());
+    }
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     PropsUi.setLook(shell);
@@ -249,6 +264,54 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wOnlyCreateRelationships.addListener(SWT.Selection, e -> enableFields());
     lastControl = wOnlyCreateRelationships;
 
+    // Array separator (for Array type properties)
+    //
+    wlArraySeparator = new Label(shell, SWT.RIGHT);
+    wlArraySeparator.setText("Array separator ");
+    String ttArraySeparator =
+        "Character used to separate array elements (e.g., comma, semicolon, pipe). Used when property type is Array.";
+    wlArraySeparator.setToolTipText(ttArraySeparator);
+    PropsUi.setLook(wlArraySeparator);
+    FormData fdlArraySeparator = new FormData();
+    fdlArraySeparator.left = new FormAttachment(0, 0);
+    fdlArraySeparator.right = new FormAttachment(middle, -margin);
+    fdlArraySeparator.top = new FormAttachment(lastControl, 2 * margin);
+    wlArraySeparator.setLayoutData(fdlArraySeparator);
+    wArraySeparator = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wArraySeparator.setToolTipText(ttArraySeparator);
+    PropsUi.setLook(wArraySeparator);
+    wArraySeparator.addModifyListener(lsMod);
+    FormData fdArraySeparator = new FormData();
+    fdArraySeparator.left = new FormAttachment(middle, 0);
+    fdArraySeparator.right = new FormAttachment(100, 0);
+    fdArraySeparator.top = new FormAttachment(wlArraySeparator, 0, SWT.CENTER);
+    wArraySeparator.setLayoutData(fdArraySeparator);
+    lastControl = wlArraySeparator;
+
+    // Array enclosure (for Array type properties)
+    //
+    wlArrayEnclosure = new Label(shell, SWT.RIGHT);
+    wlArrayEnclosure.setText("Array enclosure ");
+    String ttArrayEnclosure =
+        "Character used to enclose each array element (e.g., quotes, single quotes). Leave empty for no enclosure. Used when property type is Array.";
+    wlArrayEnclosure.setToolTipText(ttArrayEnclosure);
+    PropsUi.setLook(wlArrayEnclosure);
+    FormData fdlArrayEnclosure = new FormData();
+    fdlArrayEnclosure.left = new FormAttachment(0, 0);
+    fdlArrayEnclosure.right = new FormAttachment(middle, -margin);
+    fdlArrayEnclosure.top = new FormAttachment(lastControl, 2 * margin);
+    wlArrayEnclosure.setLayoutData(fdlArrayEnclosure);
+    wArrayEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wArrayEnclosure.setToolTipText(ttArrayEnclosure);
+    PropsUi.setLook(wArrayEnclosure);
+    wArrayEnclosure.addModifyListener(lsMod);
+    FormData fdArrayEnclosure = new FormData();
+    fdArrayEnclosure.left = new FormAttachment(middle, 0);
+    fdArrayEnclosure.right = new FormAttachment(100, 0);
+    fdArrayEnclosure.top = new FormAttachment(wlArrayEnclosure, 0, SWT.CENTER);
+    wArrayEnclosure.setLayoutData(fdArrayEnclosure);
+    lastControl = wlArrayEnclosure;
+
     Label wlReturnGraph = new Label(shell, SWT.RIGHT);
     wlReturnGraph.setText("Return graph data?");
     String returnGraphTooltipText =
@@ -290,12 +353,16 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     lastControl = wReturnGraphField;
 
     // Some buttons
+    Button wShowCypher = new Button(shell, SWT.PUSH);
+    wShowCypher.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.Button.ShowCypher"));
+    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wShowCypher, wOk, wCancel}, margin, null);
 
     // Add listeners
     //
@@ -815,6 +882,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wCreateIndexes.setSelection(input.isCreatingIndexes());
     wUseCreate.setSelection(input.isUsingCreate());
     wOnlyCreateRelationships.setSelection(input.isOnlyCreatingRelationships());
+    wArraySeparator.setText(Const.NVL(input.getArraySeparator(), ","));
+    wArrayEnclosure.setText(Const.NVL(input.getArrayEnclosure(), ""));
     wReturnGraph.setSelection(input.isReturningGraph());
     wReturnGraphField.setText(Const.NVL(input.getReturnGraphField(), ""));
 
@@ -885,6 +954,31 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     enableFields();
   }
 
+  private void showCypherPreview() {
+    try {
+      // Use current input meta (it's updated as user changes dialog)
+      // Generate preview Cypher based on current dialog state
+      String cypherPreview = Neo4JOutput.generatePreviewCypher(input, variables);
+
+      // Show in read-only dialog
+      EnterTextDialog dialog =
+          new EnterTextDialog(
+              shell,
+              BaseMessages.getString(PKG, "Neo4JOutputDialog.ShowCypher.Title"),
+              BaseMessages.getString(PKG, "Neo4JOutputDialog.ShowCypher.Message"),
+              cypherPreview,
+              true);
+      dialog.setReadOnly();
+      dialog.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.ShowCypher.Error.Title"),
+          BaseMessages.getString(PKG, "Neo4JOutputDialog.ShowCypher.Error.Message"),
+          e);
+    }
+  }
+
   private void cancel() {
     transformName = null;
     input.setChanged(changed);
@@ -899,6 +993,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     input.setCreatingIndexes(wCreateIndexes.getSelection());
     input.setUsingCreate(wUseCreate.getSelection());
     input.setOnlyCreatingRelationships(wOnlyCreateRelationships.getSelection());
+    input.setArraySeparator(wArraySeparator.getText());
+    input.setArrayEnclosure(wArrayEnclosure.getText());
     input.setReturningGraph(wReturnGraph.getSelection());
     input.setReturnGraphField(wReturnGraphField.getText());
 

@@ -17,10 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
+import com.mongodb.client.result.DeleteResult;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +35,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.bson.Document;
 
 /**
  * Class MongoDbDelete, providing MongoDB delete functionality. User able to create criteria base on
@@ -75,7 +74,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
         }
         data.init(MongoDbDelete.this);
 
-        DBObject query = getQueryFromJSON(meta.getJsonQuery(), row);
+        Document query = getQueryFromJSON(meta.getJsonQuery(), row);
         commitDelete(query, row);
       } else if (meta.isExecuteForEachIncomingRow()) {
 
@@ -85,7 +84,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
           return false;
         }
 
-        DBObject query = getQueryFromJSON(meta.getJsonQuery(), row);
+        Document query = getQueryFromJSON(meta.getJsonQuery(), row);
         commitDelete(query, row);
       }
 
@@ -127,7 +126,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
 
         putRow(data.getOutputRowMeta(), row);
 
-        DBObject query =
+        Document query =
             MongoDbDeleteData.getQueryObject(
                 data.mUserFields, getInputRowMeta(), row, MongoDbDelete.this);
         if (isDebug()) {
@@ -178,15 +177,10 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
 
         if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
           String authInfo =
-              (data.connection.isUsingKerberos()
-                  ? BaseMessages.getString(
-                      PKG,
-                      "MongoDbInput.Message.KerberosAuthentication",
-                      resolve(data.connection.getAuthenticationUser()))
-                  : BaseMessages.getString(
-                      PKG,
-                      "MongoDbInput.Message.NormalAuthentication",
-                      resolve(data.connection.getAuthenticationUser())));
+              BaseMessages.getString(
+                  PKG,
+                  "MongoDbInput.Message.NormalAuthentication",
+                  resolve(data.connection.getAuthenticationUser()));
           logBasic(authInfo);
         }
 
@@ -212,13 +206,16 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
 
         return true;
       } catch (Exception e) {
+        String hostname = data.connection != null ? data.connection.getHostname() : "unknown";
+        String port = data.connection != null ? data.connection.getPort() : "unknown";
+        String dbName = data.connection != null ? data.connection.getDbName() : "unknown";
         logError(
             BaseMessages.getString(
                 PKG,
                 "MongoDbInput.ErrorConnectingToMongoDb.Exception",
-                data.connection.getHostname(),
-                data.connection.getPort(),
-                data.connection.getDbName(),
+                hostname,
+                port,
+                dbName,
                 meta.getCollection()),
             e);
         return false;
@@ -258,12 +255,12 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
     }
   }
 
-  protected void commitDelete(DBObject deleteQuery, Object[] row) throws HopException {
+  protected void commitDelete(Document deleteQuery, Object[] row) throws HopException {
     int retrys = 0;
     MongoException lastEx = null;
 
     while (retrys <= writeRetries && !isStopped()) {
-      WriteResult result = null;
+      DeleteResult result = null;
       try {
         try {
           logDetailed(
@@ -304,17 +301,17 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
     }
   }
 
-  public DBObject getQueryFromJSON(String json, Object[] row) throws HopException {
-    DBObject query;
+  public Document getQueryFromJSON(String json, Object[] row) throws HopException {
+    Document query;
     String jsonQuery = resolve(json);
     if (StringUtil.isEmpty(jsonQuery)) {
-      query = new BasicDBObject();
+      query = new Document();
     } else {
       if (meta.isExecuteForEachIncomingRow() && row != null) {
         jsonQuery = resolve(jsonQuery, getInputRowMeta(), row);
       }
 
-      query = BasicDBObject.parse(jsonQuery);
+      query = Document.parse(jsonQuery);
     }
     return query;
   }

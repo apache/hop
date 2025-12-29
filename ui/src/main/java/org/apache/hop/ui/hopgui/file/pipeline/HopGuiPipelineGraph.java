@@ -1587,7 +1587,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             } else {
               noInputTransform = transformMeta;
               toolTip.setText(
-                  "This transform doesn't pass any output to other transforms. (except perhaps for targetted output)");
+                  "This transform doesn't pass any output to other transforms. (except perhaps for targeted output)");
               showToolTip(new org.eclipse.swt.graphics.Point(real.x, real.y));
             }
           }

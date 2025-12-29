@@ -80,7 +80,6 @@ public class Neo4JOutputData extends BaseNeoTransformData implements ITransformD
   public OperationType relOperationType;
 
   public String cypher;
-  public boolean version4;
 
   public Neo4JOutputData() {
     super();

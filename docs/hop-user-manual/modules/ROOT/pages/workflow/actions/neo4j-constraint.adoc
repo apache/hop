@@ -32,9 +32,23 @@ For similar operations on Neo4j indexes, check the xref:workflow/actions/neo4j-i
 * Constraint updates to perform: You can specify your list of constraint updates here
 ** Update type : CREATE or DROP
 ** Type of object to index on: NODE or RELATIONSHIP
-** Type of constraint: UNIQUE or NOT_NULL
+** Type of constraint: UNIQUE, NOT_NULL, or NODE_KEY
 ** Constraint name: The name for your constraint (mandatory)
 ** Object name: the label of the node or relationship you want to update a constraint for
-** Property: the property to put the constraint on
+** Property: the property to put the constraint on (for NODE_KEY, use comma-separated properties like "id,name")
+
+[NOTE]
+====
+NODE_KEY constraints are only available in Neo4j Enterprise Edition. NODE_KEY constraints require multiple properties (comma-separated) and can only be applied to nodes, not relationships.
+====
+
+== Show Cypher Preview
+
+The action dialog includes a "Show Cypher" button that displays a preview of the 
+Cypher statements that will be executed for creating or dropping constraints. This preview 
+shows the exact `CREATE CONSTRAINT` or `DROP CONSTRAINT` statements before execution.
+
+The preview is read-only and helps you verify the constraint operations that will be performed, 
+including the correct syntax for UNIQUE, NOT_NULL, and NODE_KEY constraints.
 
 

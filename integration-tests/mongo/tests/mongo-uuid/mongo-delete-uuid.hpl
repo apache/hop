@@ -120,7 +120,7 @@ If this fails, also check the prev transform.</note>
       <schema_name/>
     </partitioning>
     <collection>uuid_insert</collection>
-    <connection>mongo</connection>
+    <connection>${MONGO_CONNECTION}</connection>
     <execute_for_each_row>N</execute_for_each_row>
     <fields>
       <field>

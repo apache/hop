@@ -1,0 +1,21 @@
+{
+  "authenticationDatabaseName": "admin",
+  "journaled": true,
+  "appName": "",
+  "dbName": "hop_test",
+  "authenticationUser": "${MONGO_USERNAME}",
+  "connectTimeoutMs": "",
+  "writeConcern": "",
+  "authenticationPassword": "${MONGO_PASSWORD}",
+  "connectionType": "STANDARD",
+  "usingAllReplicaSetMembers": false,
+  "usingSslSocketFactory": false,
+  "replicationTimeoutMs": "",
+  "hostname": "${MONGO_ATLAS_HOSTNAME}",
+  "port": "${MONGO_PORT}",
+  "name": "mongo-atlas",
+  "readPreference": "PRIMARY",
+  "socketTimeoutMs": "",
+  "readPrefTagSets": "",
+  "authenticationMechanism": "SCRAM_SHA_1"
+}

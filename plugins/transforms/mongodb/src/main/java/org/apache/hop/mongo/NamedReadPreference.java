@@ -17,7 +17,6 @@
 
 package org.apache.hop.mongo;
 
-import com.mongodb.DBObject;
 import com.mongodb.ReadPreference;
 import com.mongodb.Tag;
 import com.mongodb.TagSet;
@@ -25,6 +24,7 @@ import com.mongodb.TaggableReadPreference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.bson.Document;
 
 public enum NamedReadPreference {
   PRIMARY(ReadPreference.primary()),
@@ -58,7 +58,7 @@ public enum NamedReadPreference {
   }
 
   public ReadPreference getTaggableReadPreference(
-      DBObject firstTagSet, DBObject... remainingTagSets) {
+      Document firstTagSet, Document... remainingTagSets) {
 
     switch (this) {
       case PRIMARY_PREFERRED:
@@ -74,18 +74,18 @@ public enum NamedReadPreference {
     }
   }
 
-  private static List<TagSet> toTagsList(DBObject firstTagSet, DBObject[] remainingTagSets) {
-    List tagsList = new ArrayList(remainingTagSets.length + 1);
+  private static List<TagSet> toTagsList(Document firstTagSet, Document[] remainingTagSets) {
+    List<TagSet> tagsList = new ArrayList<>(remainingTagSets.length + 1);
     tagsList.add(toTags(firstTagSet));
-    for (DBObject cur : remainingTagSets) {
+    for (Document cur : remainingTagSets) {
       tagsList.add(toTags(cur));
     }
 
     return tagsList;
   }
 
-  private static TagSet toTags(DBObject tagsDocument) {
-    List tagList = new ArrayList();
+  private static TagSet toTags(Document tagsDocument) {
+    List<Tag> tagList = new ArrayList<>();
     for (String key : tagsDocument.keySet()) {
       tagList.add(new Tag(key, tagsDocument.get(key).toString()));
     }

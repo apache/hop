@@ -17,7 +17,7 @@
 
 package org.apache.hop.mongo;
 
-import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.ReadPreference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +29,8 @@ import java.util.Objects;
 
 /**
  * A container for all properties associated with a MongoClientWrapper, including properties for
- * handling credentials, server lists, and MongoClientOptions. MongoProperties objects are immutable
- * and constructed via a MongoProperties.Builder.
+ * handling credentials, server lists, and MongoClientSettings. MongoProperties objects are
+ * immutable and constructed via a MongoProperties.Builder.
  */
 public class MongoProperties {
 
@@ -48,30 +48,26 @@ public class MongoProperties {
   }
 
   /**
-   * Constructs MongoClientOptions from the relevant set of properties. See the descriptions of each
-   * property in {@link MongoProp}
+   * Constructs MongoClientSettings.Builder from the relevant set of properties. See the
+   * descriptions of each property in {@link MongoProp}
    *
    * @param log
    * @return
    * @throws MongoDbException
    */
-  public MongoClientOptions buildMongoClientOptions(MongoUtilLogger log) throws MongoDbException {
-    MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
+  public MongoClientSettings.Builder buildMongoClientSettings(MongoUtilLogger log)
+      throws MongoDbException {
+    MongoClientSettings.Builder builder = MongoClientSettings.builder();
     MongoPropToOption propToOption = new MongoPropToOption(log);
     for (MongoProp prop : MongoProp.values()) {
       prop.setOption(builder, this, propToOption);
     }
-    return builder.build();
-  }
-
-  /** Convenience method to determine the boolean property USE_KERBEROS. */
-  public boolean useKerberos() {
-    return Boolean.parseBoolean(props.get(MongoProp.USE_KERBEROS));
+    return builder;
   }
 
   /** Convenience method to determine the boolean property USE_ALL_REPLICA_SET_MEMBERS. */
   public boolean useAllReplicaSetMembers() {
-    return Boolean.valueOf(props.get(MongoProp.USE_ALL_REPLICA_SET_MEMBERS));
+    return Boolean.parseBoolean(props.get(MongoProp.USE_ALL_REPLICA_SET_MEMBERS));
   }
 
   /**

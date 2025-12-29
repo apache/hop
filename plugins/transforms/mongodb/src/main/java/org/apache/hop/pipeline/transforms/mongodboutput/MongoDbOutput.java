@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mongodboutput;
 
-import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 import com.mongodb.MongoExecutionTimeoutException;
-import com.mongodb.WriteResult;
+import com.mongodb.client.result.InsertManyResult;
+import com.mongodb.client.result.UpdateResult;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.bson.Document;
 
 /**
  * Class providing an output transform for writing data to a MongoDB collection. Supports insert,
@@ -54,7 +55,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
   protected int batchInsertSize = 100;
 
   /** Holds a batch of rows converted to documents */
-  protected List<DBObject> batch;
+  protected List<Document> batch;
 
   /** Holds an original batch of rows (corresponding to the converted documents) */
   protected List<Object[]> batchRows;
@@ -102,7 +103,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       if (!Utils.isEmpty(indexes)) {
         logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.ApplyingIndexOpps"));
         try {
-          data.applyIndexes(indexes, getLogChannel(), meta.getTruncate());
+          data.applyIndexes(indexes, getLogChannel(), meta.isTruncate());
         } catch (MongoDbException e) {
           throw new HopException(e);
         }
@@ -148,7 +149,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       data.init(MongoDbOutput.this);
 
       // check truncate
-      if (meta.getTruncate()) {
+      if (meta.isTruncate()) {
         try {
           logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.TruncatingCollection"));
           data.getCollection().remove();
@@ -161,8 +162,8 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
 
     if (!isStopped()) {
 
-      if (meta.getUpdate()) {
-        DBObject updateQuery =
+      if (meta.isUpdate()) {
+        Document updateQuery =
             MongoDbOutputData.getQueryObject(
                 data.getMongoFields(),
                 getInputRowMeta(),
@@ -178,19 +179,22 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
 
         if (updateQuery != null) {
           // i.e. we have some non-null incoming query field values
-          DBObject insertUpdate = null;
+          Document insertUpdate = null;
 
           // get the record to update the match with
-          if (!meta.getModifierUpdate()) {
+          if (!meta.isModifierUpdate()) {
             // complete record replace or insert
 
-            insertUpdate =
+            Object result =
                 MongoDbOutputData.hopRowToMongo(
                     data.getMongoFields(),
                     getInputRowMeta(),
                     row,
                     mongoTopLevelStructure,
                     data.hasTopLevelJsonDocInsert);
+            if (result instanceof Document) {
+              insertUpdate = (Document) result;
+            }
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -225,7 +229,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       } else {
         // straight insert
 
-        DBObject mongoInsert =
+        Object mongoInsert =
             MongoDbOutputData.hopRowToMongo(
                 data.getMongoFields(),
                 getInputRowMeta(),
@@ -233,8 +237,8 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                 mongoTopLevelStructure,
                 data.hasTopLevelJsonDocInsert);
 
-        if (mongoInsert != null) {
-          batch.add(mongoInsert);
+        if (mongoInsert != null && mongoInsert instanceof Document) {
+          batch.add((Document) mongoInsert);
           batchRows.add(row);
         }
         if (batch.size() == batchInsertSize) {
@@ -253,14 +257,14 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
     return true;
   }
 
-  protected void commitUpdate(DBObject updateQuery, DBObject insertUpdate, Object[] row)
+  protected void commitUpdate(Document updateQuery, Document insertUpdate, Object[] row)
       throws HopException {
 
     int retrys = 0;
     MongoException lastEx = null;
 
     while (retrys <= writeRetries && !isStopped()) {
-      WriteResult result = null;
+      UpdateResult result = null;
       try {
         // TODO It seems that doing an update() via a secondary node does not
         // generate any sort of exception or error result! (at least via
@@ -274,7 +278,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         try {
           result =
               data.getCollection()
-                  .update(updateQuery, insertUpdate, meta.getUpsert(), meta.getMulti());
+                  .update(updateQuery, insertUpdate, meta.isUpsert(), meta.isMulti());
         } catch (MongoDbException e) {
           throw new MongoException(e.getMessage(), e);
         }
@@ -312,13 +316,13 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
     }
   }
 
-  protected WriteResult batchRetryUsingSave(boolean lastRetry)
+  protected UpdateResult batchRetryUsingSave(boolean lastRetry)
       throws MongoException, HopException, MongoDbException {
-    WriteResult result = null;
+    UpdateResult result = null;
     int count = 0;
     logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.CurrentBatchSize", batch.size()));
     for (int i = 0, len = batch.size(); i < len; i++) {
-      DBObject toTry = batch.get(i);
+      Document toTry = batch.get(i);
       Object[] correspondingRow = batchRows.get(i);
       try {
         result = data.getCollection().save(toTry);
@@ -362,7 +366,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
     MongoException lastEx = null;
 
     while (retries <= writeRetries && !isStopped()) {
-      WriteResult result = null;
+      InsertManyResult result = null;
       try {
         if (retries == 0) {
           result = data.getCollection().insert(batch);
@@ -371,7 +375,9 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           logBasic(
               BaseMessages.getString(
                   PKG, "MongoDbOutput.Messages.SavingIndividualDocsInCurrentBatch"));
-          result = batchRetryUsingSave(retries == writeRetries);
+          batchRetryUsingSave(retries == writeRetries);
+          result = null; // Signal success via different path
+          break;
         }
       } catch (MongoException me) {
         // avoid exception if a timeout issue occurred and it was exactly the first attempt
@@ -460,15 +466,10 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
 
         if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
           String authInfo =
-              (data.connection.isUsingKerberos()
-                  ? BaseMessages.getString(
-                      PKG,
-                      "MongoDbInput.Message.KerberosAuthentication",
-                      resolve(data.connection.getAuthenticationUser()))
-                  : BaseMessages.getString(
-                      PKG,
-                      "MongoDbInput.Message.NormalAuthentication",
-                      resolve(data.connection.getAuthenticationUser())));
+              BaseMessages.getString(
+                  PKG,
+                  "MongoDbInput.Message.NormalAuthentication",
+                  resolve(data.connection.getAuthenticationUser()));
           logBasic(authInfo);
         }
 
@@ -499,18 +500,16 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
 
         return true;
       } catch (UnknownHostException ex) {
+        String hostname = data.connection != null ? data.connection.getHostname() : "unknown";
         logError(
-            BaseMessages.getString(
-                PKG, "MongoDbOutput.Messages.Error.UnknownHost", data.connection.getHostname()),
-            ex);
+            BaseMessages.getString(PKG, "MongoDbOutput.Messages.Error.UnknownHost", hostname), ex);
         return false;
       } catch (Exception e) {
+        String hostname = data.connection != null ? data.connection.getHostname() : "unknown";
+        String port = data.connection != null ? data.connection.getPort() : "unknown";
         logError(
             BaseMessages.getString(
-                PKG,
-                "MongoDbOutput.Messages.Error.ProblemConnecting",
-                data.connection.getHostname(),
-                data.connection.getPort()),
+                PKG, "MongoDbOutput.Messages.Error.ProblemConnecting", hostname, port),
             e);
         return false;
       }
@@ -520,7 +519,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
   }
 
   protected void disconnect() {
-    if (data != null) {
+    if (data != null && data.getConnection() != null) {
       try {
         data.getConnection().dispose();
       } catch (MongoDbException e) {

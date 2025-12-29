@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.mongodb.BasicDBObject;
 import java.math.BigDecimal;
 import java.util.Date;
 import org.apache.hop.core.exception.HopException;
@@ -34,6 +33,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.mongo.wrapper.field.MongoField;
+import org.bson.BsonUndefined;
+import org.bson.Document;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -122,8 +123,7 @@ class MongoFieldTest {
 
   @Test
   void testConvertArrayIndicesToHopValue() throws HopException {
-    BasicDBObject dbObj =
-        (BasicDBObject) BasicDBObject.parse("{ parent : { fieldName : ['valA', 'valB'] } } ");
+    Document dbObj = Document.parse("{ parent : { fieldName : ['valA', 'valB'] } } ");
 
     initField("fieldName", "$.parent.fieldName[0]", "String");
     assertEquals("valA", field.convertToHopValue(dbObj));
@@ -133,7 +133,11 @@ class MongoFieldTest {
 
   @Test
   void testConvertUndefinedOrNullToHopValue() throws HopException {
-    BasicDBObject dbObj = BasicDBObject.parse("{ test1 : undefined, test2 : null } ");
+    // Note: Document.parse doesn't support undefined, so we'll test null and missing
+    Document dbObj = Document.parse("{ test2 : null } ");
+    // Add undefined manually
+    dbObj.put("test1", new BsonUndefined());
+
     initField("fieldName", "$.test1", "String");
     assertNull(field.convertToHopValue(dbObj), "Undefined should be interpreted as null ");
     initField("fieldName", "$.test2", "String");
