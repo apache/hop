@@ -168,8 +168,11 @@ public abstract class BaseExplorerFileTypeHandler implements IExplorerFileTypeHa
     hopGui
         .getDisplay()
         .asyncExec(
-            () ->
-                hopGui.handleFileCapabilities(this.getFileType(), this.hasChanged(), false, false));
+            () -> {
+              hopGui.handleFileCapabilities(this.getFileType(), this.hasChanged(), false, false);
+              perspective.updateTabItem(this);
+              perspective.updateTreeItem(this);
+            });
   }
 
   @Override

@@ -26,13 +26,13 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class CsvExplorerFileTypeTest {
+class JsonExplorerFileTypeTest {
 
-  private CsvExplorerFileType fileType;
+  private JsonExplorerFileType fileType;
 
   @BeforeEach
   void setUp() {
-    fileType = new CsvExplorerFileType();
+    fileType = new JsonExplorerFileType();
   }
 
   @Test
@@ -42,12 +42,12 @@ class CsvExplorerFileTypeTest {
 
   @Test
   void testGetName() {
-    assertEquals("CSV File", fileType.getName());
+    assertEquals("JSON File", fileType.getName());
   }
 
   @Test
   void testGetDefaultFileExtension() {
-    assertEquals(".csv", fileType.getDefaultFileExtension());
+    assertEquals(".json", fileType.getDefaultFileExtension());
   }
 
   @Test
@@ -55,7 +55,7 @@ class CsvExplorerFileTypeTest {
     String[] extensions = fileType.getFilterExtensions();
     assertNotNull(extensions);
     assertEquals(1, extensions.length);
-    assertEquals("*.csv", extensions[0]);
+    assertEquals("*.json", extensions[0]);
   }
 
   @Test
@@ -63,7 +63,7 @@ class CsvExplorerFileTypeTest {
     String[] names = fileType.getFilterNames();
     assertNotNull(names);
     assertEquals(1, names.length);
-    assertEquals("CSV files", names[0]);
+    assertEquals("JSON files", names[0]);
   }
 
   @Test
@@ -131,9 +131,9 @@ class CsvExplorerFileTypeTest {
   }
 
   @Test
-  void testFileTypeIsForCsvFiles() {
-    assertTrue(fileType.getDefaultFileExtension().endsWith(".csv"));
-    assertTrue(fileType.getFilterExtensions()[0].contains("csv"));
-    assertTrue(fileType.getFilterNames()[0].toLowerCase().contains("csv"));
+  void testFileTypeIsForJsonFiles() {
+    assertTrue(fileType.getDefaultFileExtension().endsWith(".json"));
+    assertTrue(fileType.getFilterExtensions()[0].contains("json"));
+    assertTrue(fileType.getFilterNames()[0].toLowerCase().contains("json"));
   }
 }

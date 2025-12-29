@@ -19,12 +19,14 @@ package org.apache.hop.ui.hopgui.perspective.explorer.file.types.text;
 
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -97,8 +99,8 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
       this.clearChanged();
 
-      // Update menu options
-      perspective.updateGui();
+      // Update menu options, tab and tree item
+      updateGui();
 
       // If we create a new file, refresh the explorer perspective tree
       if (!fileExist) {
@@ -106,6 +108,39 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       }
     } catch (Exception e) {
       throw new HopException("Unable to save file '" + explorerFile.getFilename() + "'", e);
+    }
+  }
+
+  @Override
+  public void saveAs(String filename) throws HopException {
+    try {
+
+      // Enforce file extension
+      if (!filename.toLowerCase().endsWith(this.getFileType().getDefaultFileExtension())) {
+        filename = filename + this.getFileType().getDefaultFileExtension();
+      }
+
+      // Normalize file name
+      filename = HopVfs.normalize(filename);
+
+      FileObject fileObject = HopVfs.getFileObject(filename);
+      if (fileObject.exists()) {
+        MessageBox box =
+            new MessageBox(hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        box.setText("Overwrite?");
+        box.setMessage("Are you sure you want to overwrite file '" + filename + "'?");
+        int answer = box.open();
+        if ((answer & SWT.YES) == 0) {
+          return;
+        }
+      }
+
+      setFilename(filename);
+
+      save();
+      hopGui.fileRefreshDelegate.register(filename, this);
+    } catch (Exception e) {
+      throw new HopException("Error validating file existence for '" + filename + "'", e);
     }
   }
 

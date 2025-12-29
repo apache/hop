@@ -72,6 +72,11 @@ class MarkDownExplorerFileTypeTest {
   }
 
   @Test
+  void testHasCapabilitySaveAs() {
+    assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_SAVE_AS));
+  }
+
+  @Test
   void testHasCapabilityClose() {
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_CLOSE));
   }
@@ -89,6 +94,11 @@ class MarkDownExplorerFileTypeTest {
   @Test
   void testHasCapabilitySelect() {
     assertTrue(fileType.hasCapability(IHopFileType.CAPABILITY_SELECT));
+  }
+
+  @Test
+  void testDoesNotHaveCapabilityStart() {
+    assertFalse(fileType.hasCapability(IHopFileType.CAPABILITY_START));
   }
 
   @Test
@@ -117,7 +127,7 @@ class MarkDownExplorerFileTypeTest {
   @Test
   void testGetCapabilities() {
     assertNotNull(fileType.getCapabilities());
-    assertTrue(fileType.getCapabilities().size() > 0);
+    assertFalse(fileType.getCapabilities().isEmpty());
   }
 
   @Test

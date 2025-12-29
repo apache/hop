@@ -45,6 +45,7 @@ public class MarkDownExplorerFileType
         new String[] {"MarkDown files"},
         FileTypeCapabilities.getCapabilities(
             IHopFileType.CAPABILITY_SAVE,
+            IHopFileType.CAPABILITY_SAVE_AS,
             IHopFileType.CAPABILITY_CLOSE,
             IHopFileType.CAPABILITY_FILE_HISTORY,
             IHopFileType.CAPABILITY_COPY,
