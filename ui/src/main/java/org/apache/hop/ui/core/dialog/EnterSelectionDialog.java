@@ -223,8 +223,8 @@ public class EnterSelectionDialog extends Dialog {
     }
 
     wSelection = new List(shell, options);
-    for (int i = 0; i < choices.length; i++) {
-      wSelection.add(choices[i]);
+    for (String choice : choices) {
+      wSelection.add(choice);
     }
     if (selectedNrs != null) {
       wSelection.select(selectedNrs);
@@ -360,8 +360,8 @@ public class EnterSelectionDialog extends Dialog {
     int options = SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL;
 
     wSelection = new List(shell, options);
-    for (int i = 0; i < choices.length; i++) {
-      wSelection.add(choices[i]);
+    for (String choice : choices) {
+      wSelection.add(choice);
     }
 
     Label separator = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -540,32 +540,32 @@ public class EnterSelectionDialog extends Dialog {
   private void refresh() {
     wSelection.removeAll();
 
-    for (int i = 0; i < choices.length; i++) {
+    for (String choice : choices) {
       if (quickSearch) {
         if (wbRegex.getSelection()) {
           // use regex
           if (pattern != null) {
-            Matcher matcher = pattern.matcher(choices[i]);
+            Matcher matcher = pattern.matcher(choice);
             if (matcher.matches()) {
-              wSelection.add(choices[i]);
+              wSelection.add(choice);
             }
           } else {
-            wSelection.add(choices[i]);
+            wSelection.add(choice);
           }
         } else {
           if (filterString != null) {
-            if (choices[i]
+            if (choice
                 .replaceAll("\\s+", "")
                 .toUpperCase()
                 .contains(filterString.replaceAll("\\s+", ""))) {
-              wSelection.add(choices[i]);
+              wSelection.add(choice);
             }
           } else {
-            wSelection.add(choices[i]);
+            wSelection.add(choice);
           }
         }
       } else {
-        wSelection.add(choices[i]);
+        wSelection.add(choice);
       }
     }
     wSelection.redraw();

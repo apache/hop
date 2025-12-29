@@ -884,7 +884,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   private static final Future<Map<String, IDatabase>> createDatabaseInterfacesMap() {
     return ExecutorUtil.getExecutor()
         .submit(
-            new Callable<Map<String, IDatabase>>() {
+            new Callable<>() {
               private Map<String, IDatabase> doCreate() {
                 ILogChannel log = LogChannel.GENERAL;
                 PluginRegistry registry = PluginRegistry.getInstance();
@@ -2008,8 +2008,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       return null;
     }
 
-    for (int i = 0; i < databases.size(); i++) {
-      DatabaseMeta ci = databases.get(i);
+    for (DatabaseMeta ci : databases) {
       if (ci.getName().trim().equalsIgnoreCase(dbname.trim())) {
         return ci;
       }

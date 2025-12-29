@@ -104,8 +104,8 @@ public class HopRow implements Serializable {
     if (row.length == 0) {
       return false;
     }
-    for (int i = 0; i < row.length; i++) {
-      if (row[i] != null) {
+    for (Object o : row) {
+      if (o != null) {
         return true;
       }
     }

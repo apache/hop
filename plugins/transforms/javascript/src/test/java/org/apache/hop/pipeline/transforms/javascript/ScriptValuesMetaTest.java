@@ -66,7 +66,7 @@ class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
             "optimizationLevel");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("fieldname", "getFieldname");
             put("rename", "getRename");
@@ -80,7 +80,7 @@ class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("fieldname", "setFieldname");
             put("rename", "setRename");

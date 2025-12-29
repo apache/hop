@@ -264,7 +264,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     int precision = v.getPrecision();
 
     Boolean mode = MonetDBDatabaseMeta.safeModeLocal.get();
-    boolean safeMode = mode != null && mode.booleanValue();
+    boolean safeMode = mode != null && mode;
 
     if (addFieldName) {
       // protect the fieldname

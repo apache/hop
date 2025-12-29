@@ -22,15 +22,11 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 public class MethodProcessorFactory {
 
   public static IMethodProcessor create(int methodType) {
-    switch (methodType) {
-      case TransformPartitioningMeta.PARTITIONING_METHOD_NONE:
-        return new NoneMethodProcessor();
-      case TransformPartitioningMeta.PARTITIONING_METHOD_MIRROR:
-        return new MirrorMethodProcessor();
-      case TransformPartitioningMeta.PARTITIONING_METHOD_SPECIAL:
-        return new SpecialMethodProcessor();
-      default:
-        return new NoneMethodProcessor();
-    }
+    return switch (methodType) {
+      case TransformPartitioningMeta.PARTITIONING_METHOD_NONE -> new NoneMethodProcessor();
+      case TransformPartitioningMeta.PARTITIONING_METHOD_MIRROR -> new MirrorMethodProcessor();
+      case TransformPartitioningMeta.PARTITIONING_METHOD_SPECIAL -> new SpecialMethodProcessor();
+      default -> new NoneMethodProcessor();
+    };
   }
 }

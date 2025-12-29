@@ -309,88 +309,100 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
     String targetColumnTypeName = targetValueMeta.getOriginalColumnTypeName().toUpperCase();
 
-    if (targetColumnTypeName.equals("INTEGER") || targetColumnTypeName.equals("BIGINT")) {
-      return new ColumnSpec(ColumnSpec.ConstantWidthType.INTEGER_64);
-    } else if (targetColumnTypeName.equals("BOOLEAN")) {
-      return new ColumnSpec(ColumnSpec.ConstantWidthType.BOOLEAN);
-    } else if (targetColumnTypeName.equals("FLOAT")
-        || targetColumnTypeName.equals("DOUBLE PRECISION")) {
-      return new ColumnSpec(ColumnSpec.ConstantWidthType.FLOAT);
-    } else if (targetColumnTypeName.equals("CHAR")) {
-      return new ColumnSpec(ColumnSpec.UserDefinedWidthType.CHAR, targetValueMeta.getLength());
-    } else if (targetColumnTypeName.equals("VARCHAR")
-        || targetColumnTypeName.equals("CHARACTER VARYING")) {
-      return new ColumnSpec(ColumnSpec.VariableWidthType.VARCHAR, targetValueMeta.getLength());
-    } else if (targetColumnTypeName.equals("DATE")) {
-      if (inputValueMeta.isDate() == false) {
-        throw new IllegalArgumentException(
-            CONST_FIELD
-                + inputValueMeta.getName()
-                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                + insertValueMeta.getName());
-      } else {
-        return new ColumnSpec(ColumnSpec.ConstantWidthType.DATE);
+    switch (targetColumnTypeName) {
+      case "INTEGER", "BIGINT" -> {
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.INTEGER_64);
       }
-    } else if (targetColumnTypeName.equals("TIME")) {
-      if (inputValueMeta.isDate() == false) {
-        throw new IllegalArgumentException(
-            CONST_FIELD
-                + inputValueMeta.getName()
-                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                + insertValueMeta.getName());
-      } else {
-        return new ColumnSpec(ColumnSpec.ConstantWidthType.TIME);
+      case "BOOLEAN" -> {
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.BOOLEAN);
       }
-    } else if (targetColumnTypeName.equals("TIMETZ")) {
-      if (inputValueMeta.isDate() == false) {
-        throw new IllegalArgumentException(
-            CONST_FIELD
-                + inputValueMeta.getName()
-                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                + insertValueMeta.getName());
-      } else {
-        return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMETZ);
+      case "FLOAT", "DOUBLE PRECISION" -> {
+        return new ColumnSpec(ColumnSpec.ConstantWidthType.FLOAT);
       }
-    } else if (targetColumnTypeName.equals("TIMESTAMP")) {
-      if (inputValueMeta.isDate() == false) {
-        throw new IllegalArgumentException(
-            CONST_FIELD
-                + inputValueMeta.getName()
-                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                + insertValueMeta.getName());
-      } else {
-        return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMP);
+      case "CHAR" -> {
+        return new ColumnSpec(ColumnSpec.UserDefinedWidthType.CHAR, targetValueMeta.getLength());
       }
-    } else if (targetColumnTypeName.equals("TIMESTAMPTZ")) {
-      if (inputValueMeta.isDate() == false) {
-        throw new IllegalArgumentException(
-            CONST_FIELD
-                + inputValueMeta.getName()
-                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                + insertValueMeta.getName());
-      } else {
-        return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMPTZ);
+      case "VARCHAR", "CHARACTER VARYING" -> {
+        return new ColumnSpec(ColumnSpec.VariableWidthType.VARCHAR, targetValueMeta.getLength());
       }
-    } else if (targetColumnTypeName.equals("INTERVAL")
-        || targetColumnTypeName.equals("INTERVAL DAY TO SECOND")) {
-      if (inputValueMeta.isDate() == false) {
-        throw new IllegalArgumentException(
-            CONST_FIELD
-                + inputValueMeta.getName()
-                + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
-                + insertValueMeta.getName());
-      } else {
-        return new ColumnSpec(ColumnSpec.ConstantWidthType.INTERVAL);
+      case "DATE" -> {
+        if (inputValueMeta.isDate() == false) {
+          throw new IllegalArgumentException(
+              CONST_FIELD
+                  + inputValueMeta.getName()
+                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
+                  + insertValueMeta.getName());
+        } else {
+          return new ColumnSpec(ColumnSpec.ConstantWidthType.DATE);
+        }
       }
-    } else if (targetColumnTypeName.equals("BINARY")) {
-      return new ColumnSpec(ColumnSpec.VariableWidthType.VARBINARY, targetValueMeta.getLength());
-    } else if (targetColumnTypeName.equals("VARBINARY")) {
-      return new ColumnSpec(ColumnSpec.VariableWidthType.VARBINARY, targetValueMeta.getLength());
-    } else if (targetColumnTypeName.equals("NUMERIC")) {
-      return new ColumnSpec(
-          ColumnSpec.PrecisionScaleWidthType.NUMERIC,
-          targetValueMeta.getLength(),
-          targetValueMeta.getPrecision());
+      case "TIME" -> {
+        if (inputValueMeta.isDate() == false) {
+          throw new IllegalArgumentException(
+              CONST_FIELD
+                  + inputValueMeta.getName()
+                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
+                  + insertValueMeta.getName());
+        } else {
+          return new ColumnSpec(ColumnSpec.ConstantWidthType.TIME);
+        }
+      }
+      case "TIMETZ" -> {
+        if (inputValueMeta.isDate() == false) {
+          throw new IllegalArgumentException(
+              CONST_FIELD
+                  + inputValueMeta.getName()
+                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
+                  + insertValueMeta.getName());
+        } else {
+          return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMETZ);
+        }
+      }
+      case "TIMESTAMP" -> {
+        if (inputValueMeta.isDate() == false) {
+          throw new IllegalArgumentException(
+              CONST_FIELD
+                  + inputValueMeta.getName()
+                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
+                  + insertValueMeta.getName());
+        } else {
+          return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMP);
+        }
+      }
+      case "TIMESTAMPTZ" -> {
+        if (inputValueMeta.isDate() == false) {
+          throw new IllegalArgumentException(
+              CONST_FIELD
+                  + inputValueMeta.getName()
+                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
+                  + insertValueMeta.getName());
+        } else {
+          return new ColumnSpec(ColumnSpec.ConstantWidthType.TIMESTAMPTZ);
+        }
+      }
+      case "INTERVAL", "INTERVAL DAY TO SECOND" -> {
+        if (inputValueMeta.isDate() == false) {
+          throw new IllegalArgumentException(
+              CONST_FIELD
+                  + inputValueMeta.getName()
+                  + CONST_MUST_BE_A_DATE_COMPATIBLE_TYPE_TO_MATCH_TARGET_COLUMN
+                  + insertValueMeta.getName());
+        } else {
+          return new ColumnSpec(ColumnSpec.ConstantWidthType.INTERVAL);
+        }
+      }
+      case "BINARY" -> {
+        return new ColumnSpec(ColumnSpec.VariableWidthType.VARBINARY, targetValueMeta.getLength());
+      }
+      case "VARBINARY" -> {
+        return new ColumnSpec(ColumnSpec.VariableWidthType.VARBINARY, targetValueMeta.getLength());
+      }
+      case "NUMERIC" -> {
+        return new ColumnSpec(
+            ColumnSpec.PrecisionScaleWidthType.NUMERIC,
+            targetValueMeta.getLength(),
+            targetValueMeta.getPrecision());
+      }
     }
     throw new IllegalArgumentException(
         "Column type " + targetColumnTypeName + " not supported."); // $NON-NLS-1$
@@ -402,35 +414,32 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     data.workerThread =
         Executors.defaultThreadFactory()
             .newThread(
-                new Runnable() {
-                  @Override
-                  public void run() {
-                    try {
-                      VerticaCopyStream stream = createVerticaCopyStream(dml);
-                      stream.start();
-                      stream.addStream(data.pipedInputStream);
-                      setLinesRejected(stream.getRejects().size());
-                      stream.execute();
-                      long rowsLoaded = stream.finish();
-                      if (getLinesOutput() != rowsLoaded) {
-                        logMinimal(
-                            String.format(
-                                "%d records loaded out of %d records sent.",
-                                rowsLoaded, getLinesOutput()));
-                      }
-                      data.db.disconnect();
-                    } catch (SQLException
-                        | IllegalStateException
-                        | ClassNotFoundException
-                        | HopException e) {
-                      if (e.getCause() instanceof InterruptedIOException) {
-                        logBasic("SQL statement interrupted by halt of pipeline");
-                      } else {
-                        logError("SQL Error during statement execution.", e);
-                        setErrors(1);
-                        stopAll();
-                        setOutputDone(); // signal end to receiver(s)
-                      }
+                () -> {
+                  try {
+                    VerticaCopyStream stream = createVerticaCopyStream(dml);
+                    stream.start();
+                    stream.addStream(data.pipedInputStream);
+                    setLinesRejected(stream.getRejects().size());
+                    stream.execute();
+                    long rowsLoaded = stream.finish();
+                    if (getLinesOutput() != rowsLoaded) {
+                      logMinimal(
+                          String.format(
+                              "%d records loaded out of %d records sent.",
+                              rowsLoaded, getLinesOutput()));
+                    }
+                    data.db.disconnect();
+                  } catch (SQLException
+                      | IllegalStateException
+                      | ClassNotFoundException
+                      | HopException e) {
+                    if (e.getCause() instanceof InterruptedIOException) {
+                      logBasic("SQL statement interrupted by halt of pipeline");
+                    } else {
+                      logError("SQL Error during statement execution.", e);
+                      setErrors(1);
+                      stopAll();
+                      setOutputDone(); // signal end to receiver(s)
                     }
                   }
                 });

@@ -761,8 +761,8 @@ public class PipelineMeta extends AbstractMeta
     if (infoTransforms == null) {
       return false;
     }
-    for (int i = 0; i < infoTransforms.length; i++) {
-      if (prevTransform.getName().equalsIgnoreCase(infoTransforms[i])) {
+    for (String infoTransform : infoTransforms) {
+      if (prevTransform.getName().equalsIgnoreCase(infoTransform)) {
         return true;
       }
     }
@@ -1079,10 +1079,10 @@ public class PipelineMeta extends AbstractMeta
       throws HopTransformException {
     IRowMeta fields = new RowMeta();
 
-    for (int i = 0; i < transformMeta.length; i++) {
-      IRowMeta flds = getTransformFields(variables, transformMeta[i]);
+    for (TransformMeta meta : transformMeta) {
+      IRowMeta flds = getTransformFields(variables, meta);
       if (flds != null) {
-        fields.mergeRowMeta(flds, transformMeta[i].getName());
+        fields.mergeRowMeta(flds, meta.getName());
       }
     }
     return fields;
@@ -1541,14 +1541,13 @@ public class PipelineMeta extends AbstractMeta
 
     xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
     String[] parameters = listParameters();
-    for (int idx = 0; idx < parameters.length; idx++) {
+    for (String parameter : parameters) {
       xml.append("      ").append(XmlHandler.openTag(CONST_PARAMETER)).append(Const.CR);
-      xml.append(CONST_EMPTY).append(XmlHandler.addTagValue("name", parameters[idx]));
+      xml.append(CONST_EMPTY).append(XmlHandler.addTagValue("name", parameter));
       xml.append(CONST_EMPTY)
-          .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameters[idx])));
+          .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameter)));
       xml.append(CONST_EMPTY)
-          .append(
-              XmlHandler.addTagValue(CONST_DESCRIPTION, getParameterDescription(parameters[idx])));
+          .append(XmlHandler.addTagValue(CONST_DESCRIPTION, getParameterDescription(parameter)));
       xml.append("      ").append(XmlHandler.closeTag(CONST_PARAMETER)).append(Const.CR);
     }
     xml.append("    ").append(XmlHandler.closeTag(XML_TAG_PARAMETERS)).append(Const.CR);
@@ -2157,8 +2156,7 @@ public class PipelineMeta extends AbstractMeta
 
     List<TransformMeta> prevTransforms = findPreviousTransforms(transformMeta, true);
     int nr = prevTransforms.size();
-    for (int i = 0; i < nr; i++) {
-      TransformMeta prevTransformMeta = prevTransforms.get(i);
+    for (TransformMeta prevTransformMeta : prevTransforms) {
       if (prevTransformMeta != null
           && (prevTransformMeta.equals(lookup)
               || (!checkedEntries.contains(prevTransformMeta)
@@ -3236,8 +3234,7 @@ public class PipelineMeta extends AbstractMeta
     List<String> varList = new ArrayList<>();
 
     // Look around in the strings, see what we find...
-    for (int i = 0; i < stringList.size(); i++) {
-      StringSearchResult result = stringList.get(i);
+    for (StringSearchResult result : stringList) {
       StringUtil.getUsedVariables(result.getString(), varList, false);
     }
 
@@ -3261,8 +3258,7 @@ public class PipelineMeta extends AbstractMeta
     if (nrPrevious > 1) {
       IRowMeta referenceRow = null;
       // See if all previous transforms send out the same rows...
-      for (int i = 0; i < nrPrevious; i++) {
-        TransformMeta previousTransform = prevTransforms.get(i);
+      for (TransformMeta previousTransform : prevTransforms) {
         try {
           IRowMeta row =
               getTransformFields(

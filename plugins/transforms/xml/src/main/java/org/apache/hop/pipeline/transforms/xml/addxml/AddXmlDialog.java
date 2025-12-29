@@ -401,7 +401,7 @@ public class AddXmlDialog extends BaseTransformDialog {
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
+                inputFields.put(row.getValueMeta(i).getName(), i);
               }
               setComboBoxes();
             } catch (HopException e) {

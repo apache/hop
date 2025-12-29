@@ -103,7 +103,7 @@ public class TreeMemory {
   public void storeExpanded(String treeName, String[] path, boolean expanded) {
     TreeMemoryEntry key = new TreeMemoryEntry(treeName, path);
     if (expanded) {
-      map.put(key, Boolean.valueOf(expanded));
+      map.put(key, expanded);
     } else {
       map.remove(key);
     }
@@ -162,8 +162,8 @@ public class TreeMemory {
    */
   public static void setExpandedFromMemory(Tree tree, String treeName) {
     TreeItem[] items = tree.getItems();
-    for (int i = 0; i < items.length; i++) {
-      setExpandedFromMemory(tree, treeName, items[i]);
+    for (TreeItem item : items) {
+      setExpandedFromMemory(tree, treeName, item);
     }
   }
 
@@ -175,8 +175,8 @@ public class TreeMemory {
     treeItem.setExpanded(expanded);
 
     TreeItem[] items = treeItem.getItems();
-    for (int i = 0; i < items.length; i++) {
-      setExpandedFromMemory(tree, treeName, items[i]);
+    for (TreeItem item : items) {
+      setExpandedFromMemory(tree, treeName, item);
     }
   }
 }

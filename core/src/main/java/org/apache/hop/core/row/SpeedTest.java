@@ -97,15 +97,15 @@ public class SpeedTest {
     IValueMeta meta1 = new ValueMetaDate(CONST_STRINGS + (i * 5 + 1));
     metaMixed10.addValueMeta(meta1);
 
-    rowMixed10[i * 5 + 2] = Double.valueOf(Math.random() * 1000000);
+    rowMixed10[i * 5 + 2] = Math.random() * 1000000;
     IValueMeta meta2 = new ValueMetaNumber(CONST_STRINGS + (i * 5 + 1), 12, 4);
     metaMixed10.addValueMeta(meta2);
 
-    rowMixed10[i * 5 + 3] = Long.valueOf((long) (Math.random() * 1000000));
+    rowMixed10[i * 5 + 3] = (long) (Math.random() * 1000000);
     IValueMeta meta3 = new ValueMetaInteger(CONST_STRINGS + (i * 5 + 1), 8, 0);
     metaMixed10.addValueMeta(meta3);
 
-    rowMixed10[i * 5 + 4] = Boolean.valueOf(Math.random() > 0.5);
+    rowMixed10[i * 5 + 4] = Math.random() > 0.5;
     IValueMeta meta4 = new ValueMetaBoolean(CONST_STRINGS + (i * 5 + 1));
     metaMixed10.addValueMeta(meta4);
   }

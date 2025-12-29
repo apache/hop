@@ -160,21 +160,14 @@ public class TableMetaData implements ITableMetaData {
     // http://docs.datastax.com/en/cql/3.1/cql/cql_reference/cql_data_types_c.html
 
     String typeCql = dataType.asCql(false, false).toUpperCase();
-    switch (typeCql) {
-      case "BIGINT", "COUNTER", "INT", "SMALLINT", "TINYINT":
-        return new ValueMetaInteger(name);
-      case "DOUBLE", "FLOAT":
-        return new ValueMetaNumber(name);
-      case "DATE", "TIMESTAMP":
-        return new ValueMetaDate(name);
-      case "DECIMAL", "VARINT":
-        return new ValueMetaBigNumber(name);
-      case "BLOB":
-        return new ValueMetaBinary(name);
-      case "BOOLEAN":
-        return new ValueMetaBoolean(name);
-      default:
-        return new ValueMetaString(name);
-    }
+    return switch (typeCql) {
+      case "BIGINT", "COUNTER", "INT", "SMALLINT", "TINYINT" -> new ValueMetaInteger(name);
+      case "DOUBLE", "FLOAT" -> new ValueMetaNumber(name);
+      case "DATE", "TIMESTAMP" -> new ValueMetaDate(name);
+      case "DECIMAL", "VARINT" -> new ValueMetaBigNumber(name);
+      case "BLOB" -> new ValueMetaBinary(name);
+      case "BOOLEAN" -> new ValueMetaBoolean(name);
+      default -> new ValueMetaString(name);
+    };
   }
 }

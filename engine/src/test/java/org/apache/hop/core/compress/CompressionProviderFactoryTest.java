@@ -96,7 +96,7 @@ public class CompressionProviderFactoryTest {
   @Test
   public void getCoreProviderNames() {
     final HashMap<String, Boolean> foundProvider =
-        new HashMap<String, Boolean>() {
+        new HashMap<>() {
           {
             put("None", false);
             put("Zip", false);
@@ -125,7 +125,7 @@ public class CompressionProviderFactoryTest {
   @Test
   public void getCoreProviders() {
     final HashMap<String, Boolean> foundProvider =
-        new HashMap<String, Boolean>() {
+        new HashMap<>() {
           {
             put("None", false);
             put("Zip", false);

@@ -1907,15 +1907,15 @@ public class Const {
    */
   public static int[] indexesOfFoundStrings(String[] lookup, String[] array) {
     List<Integer> indexesList = new ArrayList<>();
-    for (int i = 0; i < lookup.length; i++) {
-      int idx = indexOfString(lookup[i], array);
+    for (String s : lookup) {
+      int idx = indexOfString(s, array);
       if (idx >= 0) {
-        indexesList.add(Integer.valueOf(idx));
+        indexesList.add(idx);
       }
     }
     int[] indexes = new int[indexesList.size()];
     for (int i = 0; i < indexesList.size(); i++) {
-      indexes[i] = (indexesList.get(i)).intValue();
+      indexes[i] = indexesList.get(i);
     }
     return indexes;
   }
@@ -1930,15 +1930,15 @@ public class Const {
    */
   public static List<Integer> indexesOfFoundStrings(List<String> lookup, List<String> list) {
     List<Integer> indexesList = new ArrayList<>();
-    for (int i = 0; i < lookup.size(); i++) {
-      int idx = indexOfString(lookup.get(i), list);
+    for (String s : lookup) {
+      int idx = indexOfString(s, list);
       if (idx >= 0) {
-        indexesList.add(Integer.valueOf(idx));
+        indexesList.add(idx);
       }
     }
     int[] indexes = new int[indexesList.size()];
     for (int i = 0; i < indexesList.size(); i++) {
-      indexes[i] = (indexesList.get(i)).intValue();
+      indexes[i] = indexesList.get(i);
     }
     return indexesList;
   }
@@ -2531,17 +2531,12 @@ public class Const {
    * @return Trimmed string.
    */
   public static String trimToType(String string, int trimType) {
-    switch (trimType) {
-      case IValueMeta.TRIM_TYPE_BOTH:
-        return trim(string);
-      case IValueMeta.TRIM_TYPE_LEFT:
-        return ltrim(string);
-      case IValueMeta.TRIM_TYPE_RIGHT:
-        return rtrim(string);
-      case IValueMeta.TRIM_TYPE_NONE:
-      default:
-        return string;
-    }
+    return switch (trimType) {
+      case IValueMeta.TRIM_TYPE_BOTH -> trim(string);
+      case IValueMeta.TRIM_TYPE_LEFT -> ltrim(string);
+      case IValueMeta.TRIM_TYPE_RIGHT -> rtrim(string);
+      default -> string;
+    };
   }
 
   /**

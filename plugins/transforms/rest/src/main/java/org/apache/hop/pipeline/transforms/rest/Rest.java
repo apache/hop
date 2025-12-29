@@ -248,41 +248,43 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         }
       }
       try {
-        if (data.method.equals(RestMeta.HTTP_METHOD_GET)) {
-          response = invocationBuilder.get(Response.class);
-        } else if (data.method.equals(RestMeta.HTTP_METHOD_POST)) {
-          if (null != contentType) {
-            response = invocationBuilder.post(Entity.entity(entityString, contentType));
-          } else {
-            response = invocationBuilder.post(Entity.entity(entityString, data.mediaType));
+        switch (data.method) {
+          case RestMeta.HTTP_METHOD_GET -> response = invocationBuilder.get(Response.class);
+          case RestMeta.HTTP_METHOD_POST -> {
+            if (null != contentType) {
+              response = invocationBuilder.post(Entity.entity(entityString, contentType));
+            } else {
+              response = invocationBuilder.post(Entity.entity(entityString, data.mediaType));
+            }
           }
-        } else if (data.method.equals(RestMeta.HTTP_METHOD_PUT)) {
-          if (null != contentType) {
-            response = invocationBuilder.put(Entity.entity(entityString, contentType));
-          } else {
-            response = invocationBuilder.put(Entity.entity(entityString, data.mediaType));
+          case RestMeta.HTTP_METHOD_PUT -> {
+            if (null != contentType) {
+              response = invocationBuilder.put(Entity.entity(entityString, contentType));
+            } else {
+              response = invocationBuilder.put(Entity.entity(entityString, data.mediaType));
+            }
           }
-        } else if (data.method.equals(RestMeta.HTTP_METHOD_DELETE)) {
-          Invocation invocation =
-              invocationBuilder.build("DELETE", Entity.entity(entityString, data.mediaType));
-          response = invocation.invoke();
-        } else if (data.method.equals(RestMeta.HTTP_METHOD_HEAD)) {
-          response = invocationBuilder.head();
-        } else if (data.method.equals(RestMeta.HTTP_METHOD_OPTIONS)) {
-          response = invocationBuilder.options();
-        } else if (data.method.equals(RestMeta.HTTP_METHOD_PATCH)) {
-          if (null != contentType) {
-            response =
-                invocationBuilder.method(
-                    RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, contentType));
-          } else {
-            response =
-                invocationBuilder.method(
-                    RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, data.mediaType));
+          case RestMeta.HTTP_METHOD_DELETE -> {
+            Invocation invocation =
+                invocationBuilder.build("DELETE", Entity.entity(entityString, data.mediaType));
+            response = invocation.invoke();
           }
-        } else {
-          throw new HopException(
-              BaseMessages.getString(PKG, "Rest.Error.UnknownMethod", data.method));
+          case RestMeta.HTTP_METHOD_HEAD -> response = invocationBuilder.head();
+          case RestMeta.HTTP_METHOD_OPTIONS -> response = invocationBuilder.options();
+          case RestMeta.HTTP_METHOD_PATCH -> {
+            if (null != contentType) {
+              response =
+                  invocationBuilder.method(
+                      RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, contentType));
+            } else {
+              response =
+                  invocationBuilder.method(
+                      RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, data.mediaType));
+            }
+          }
+          default ->
+              throw new HopException(
+                  BaseMessages.getString(PKG, "Rest.Error.UnknownMethod", data.method));
         }
       } catch (Exception e) {
         throw new HopException("Request could not be processed", e);
@@ -389,7 +391,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
       // add status to output
       if (!Utils.isEmpty(data.resultCodeFieldName)) {
-        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(status));
+        newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, (long) status);
         returnFieldsOffset++;
       }
 
@@ -700,24 +702,21 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.trustStorePassword = resolve(meta.getTrustStorePassword());
 
       String applicationType = NVL(meta.getApplicationType(), "");
-      if (applicationType.equals(RestMeta.APPLICATION_TYPE_XML)) {
-        data.mediaType = MediaType.APPLICATION_XML_TYPE;
-      } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_JSON)) {
-        data.mediaType = MediaType.APPLICATION_JSON_TYPE;
-      } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_OCTET_STREAM)) {
-        data.mediaType = MediaType.APPLICATION_OCTET_STREAM_TYPE;
-      } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_XHTML)) {
-        data.mediaType = MediaType.APPLICATION_XHTML_XML_TYPE;
-      } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_FORM_URLENCODED)) {
-        data.mediaType = MediaType.APPLICATION_FORM_URLENCODED_TYPE;
-      } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_ATOM_XML)) {
-        data.mediaType = MediaType.APPLICATION_ATOM_XML_TYPE;
-      } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_SVG_XML)) {
-        data.mediaType = MediaType.APPLICATION_SVG_XML_TYPE;
-      } else if (applicationType.equals(RestMeta.APPLICATION_TYPE_TEXT_XML)) {
-        data.mediaType = MediaType.TEXT_XML_TYPE;
-      } else {
-        data.mediaType = MediaType.TEXT_PLAIN_TYPE;
+      switch (applicationType) {
+        case RestMeta.APPLICATION_TYPE_XML -> data.mediaType = MediaType.APPLICATION_XML_TYPE;
+        case RestMeta.APPLICATION_TYPE_JSON -> data.mediaType = MediaType.APPLICATION_JSON_TYPE;
+        case RestMeta.APPLICATION_TYPE_OCTET_STREAM ->
+            data.mediaType = MediaType.APPLICATION_OCTET_STREAM_TYPE;
+        case RestMeta.APPLICATION_TYPE_XHTML ->
+            data.mediaType = MediaType.APPLICATION_XHTML_XML_TYPE;
+        case RestMeta.APPLICATION_TYPE_FORM_URLENCODED ->
+            data.mediaType = MediaType.APPLICATION_FORM_URLENCODED_TYPE;
+        case RestMeta.APPLICATION_TYPE_ATOM_XML ->
+            data.mediaType = MediaType.APPLICATION_ATOM_XML_TYPE;
+        case RestMeta.APPLICATION_TYPE_SVG_XML ->
+            data.mediaType = MediaType.APPLICATION_SVG_XML_TYPE;
+        case RestMeta.APPLICATION_TYPE_TEXT_XML -> data.mediaType = MediaType.TEXT_XML_TYPE;
+        default -> data.mediaType = MediaType.TEXT_PLAIN_TYPE;
       }
       try {
         setConfig();

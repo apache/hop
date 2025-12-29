@@ -509,47 +509,38 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
      * Describe the fields to read
      */
     retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < inputFields.length; i++) {
+    for (LdapInputField inputField : inputFields) {
       retval.append("      <field>").append(Const.CR);
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", inputFields[i].getName()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", inputField.getName()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("attribute", inputFields[i].getAttribute()));
+          .append(XmlHandler.addTagValue("attribute", inputField.getAttribute()));
       retval
           .append(CONST_SPACES)
           .append(
-              XmlHandler.addTagValue(
-                  "attribute_fetch_as", inputFields[i].getFetchAttributeAsCode()));
+              XmlHandler.addTagValue("attribute_fetch_as", inputField.getFetchAttributeAsCode()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("sorted_key", inputFields[i].isSortedKey()));
+          .append(XmlHandler.addTagValue("sorted_key", inputField.isSortedKey()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("type", inputField.getTypeDesc()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("format", inputField.getFormat()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", inputField.getLength()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("type", inputFields[i].getTypeDesc()));
+          .append(XmlHandler.addTagValue("precision", inputField.getPrecision()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("format", inputFields[i].getFormat()));
+          .append(XmlHandler.addTagValue("currency", inputField.getCurrencySymbol()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("length", inputFields[i].getLength()));
+          .append(XmlHandler.addTagValue("decimal", inputField.getDecimalSymbol()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("precision", inputFields[i].getPrecision()));
+          .append(XmlHandler.addTagValue("group", inputField.getGroupSymbol()));
       retval
           .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("currency", inputFields[i].getCurrencySymbol()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("decimal", inputFields[i].getDecimalSymbol()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("group", inputFields[i].getGroupSymbol()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("trim_type", inputFields[i].getTrimTypeCode()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("repeat", inputFields[i].isRepeated()));
+          .append(XmlHandler.addTagValue("trim_type", inputField.getTrimTypeCode()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("repeat", inputField.isRepeated()));
 
       retval.append("      </field>").append(Const.CR);
     }

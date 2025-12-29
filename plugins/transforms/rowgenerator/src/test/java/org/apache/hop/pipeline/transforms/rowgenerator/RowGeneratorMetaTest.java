@@ -57,7 +57,7 @@ class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
             "neverEnding", "intervalInMs", "rowTimeField", "lastTimeField", "rowLimit", "fields");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("neverEnding", "isNeverEnding");
             put("intervalInMs", "getIntervalInMs");
@@ -67,7 +67,7 @@ class RowGeneratorMetaTest implements IInitializer<ITransformMeta> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("neverEnding", "setNeverEnding");
             put("intervalInMs", "setIntervalInMs");

@@ -1661,12 +1661,11 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       // This algorithm is not 100% correct, but I guess it beats sorting the whole cache all the
       // time.
       //
-      for (int i = 0; i < keys.size(); i++) {
-        byte[] key = keys.get(i);
+      for (byte[] key : keys) {
         byte[] value = data.cache.get(key);
         if (value != null) {
           Object[] values = RowMeta.getRow(data.cacheValueRowMeta, value);
-          long tk = data.cacheValueRowMeta.getInteger(values, 0).longValue();
+          long tk = data.cacheValueRowMeta.getInteger(values, 0);
           if (tk <= data.smallestCacheKey) {
             data.cache.remove(key); // this one has to go.
           }
@@ -1766,7 +1765,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
               + startTechnicalKey;
       RowMetaAndData r = data.db.getOneRow(sql);
       Long count = r.getRowMeta().getInteger(r.getData(), 0);
-      if (count.longValue() != 0) {
+      if (count != 0) {
         return; // Can't insert below the rows already in there...
       }
     }
@@ -1780,7 +1779,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
             + startTechnicalKey;
     RowMetaAndData r = data.db.getOneRow(sql);
     Long count = r.getRowMeta().getInteger(r.getData(), 0);
-    if (count.longValue() == 0) {
+    if (count == 0) {
       String isql = null;
       try {
         if (!data.databaseMeta.supportsAutoinc() || !isAutoIncrement()) {

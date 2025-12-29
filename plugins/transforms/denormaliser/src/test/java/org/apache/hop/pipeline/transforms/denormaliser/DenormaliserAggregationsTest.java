@@ -80,7 +80,7 @@ class DenormaliserAggregationsTest {
   @Test
   void testDenormalizeSum100PlusNull() throws HopValueException {
     // prevTargetData
-    Long sto = Long.valueOf(100);
+    Long sto = 100L;
     data.targetResult = new Object[] {sto};
 
     transform.deNormalise(
@@ -93,7 +93,7 @@ class DenormaliserAggregationsTest {
   @Test
   void testDenormalizeSumNullPlus100() throws HopValueException {
     // prevTargetData
-    Long sto = Long.valueOf(100);
+    Long sto = 100L;
     data.targetResult = new Object[] {null};
 
     transform.deNormalise(
@@ -112,7 +112,7 @@ class DenormaliserAggregationsTest {
   void testDenormalizeMinValueY() throws HopValueException {
     transform.setMinNullIsValued(true);
 
-    Long trinadzat = Long.valueOf(-13);
+    Long trinadzat = (long) -13;
     data.targetResult = new Object[] {trinadzat};
 
     transform.deNormalise(
@@ -131,7 +131,7 @@ class DenormaliserAggregationsTest {
   void testDenormalizeMinValueN() throws HopValueException {
     transform.setVariable(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, "N");
 
-    Long sto = Long.valueOf(100);
+    Long sto = 100L;
     data.targetResult = new Object[] {sto};
 
     transform.deNormalise(
@@ -196,7 +196,7 @@ class DenormaliserAggregationsTest {
     data.removeNrs = new int[] {0};
     Object[] outputRowData = transform.buildResult(rmi, rowData);
 
-    assertEquals(Long.valueOf(0), outputRowData[2], "Output row: nulls are zeros");
+    assertEquals(0L, outputRowData[2], "Output row: nulls are zeros");
   }
 
   @Test

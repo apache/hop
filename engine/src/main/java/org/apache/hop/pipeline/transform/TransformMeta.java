@@ -340,7 +340,7 @@ public class TransformMeta
     }
 
     if (copiesCache != null) {
-      return copiesCache.intValue();
+      return copiesCache;
     }
 
     if (parentPipelineMeta != null) {

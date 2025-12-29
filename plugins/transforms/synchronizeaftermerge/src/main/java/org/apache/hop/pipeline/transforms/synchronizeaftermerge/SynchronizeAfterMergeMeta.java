@@ -533,9 +533,7 @@ public class SynchronizeAfterMergeMeta
       retval.append("      <value>").append(Const.CR);
       retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", updateLookup[i]));
       retval.append(CONST_SPACES).append(XmlHandler.addTagValue("rename", updateStream[i]));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("update", update[i].booleanValue()));
+      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("update", update[i]));
       retval.append("      </value>").append(Const.CR);
     }
 
@@ -585,8 +583,7 @@ public class SynchronizeAfterMergeMeta
                     transformMeta);
             remarks.add(cr);
 
-            for (int i = 0; i < keyLookup.length; i++) {
-              String lufield = keyLookup[i];
+            for (String lufield : keyLookup) {
               IValueMeta v = r.searchValueMeta(lufield);
               if (v == null) {
                 if (first) {
@@ -621,8 +618,7 @@ public class SynchronizeAfterMergeMeta
             errorFound = false;
             errorMessage.setLength(0);
 
-            for (int i = 0; i < updateLookup.length; i++) {
-              String lufield = updateLookup[i];
+            for (String lufield : updateLookup) {
               IValueMeta v = r.searchValueMeta(lufield);
               if (v == null) {
                 if (first) {
@@ -679,8 +675,8 @@ public class SynchronizeAfterMergeMeta
           errorMessage.setLength(0);
           boolean errorFound = false;
 
-          for (int i = 0; i < keyStream.length; i++) {
-            IValueMeta v = prev.searchValueMeta(keyStream[i]);
+          for (String s : keyStream) {
+            IValueMeta v = prev.searchValueMeta(s);
             if (v == null) {
               if (first) {
                 first = false;
@@ -691,7 +687,7 @@ public class SynchronizeAfterMergeMeta
                     .append(Const.CR);
               }
               errorFound = true;
-              errorMessage.append("\t\t").append(keyStream[i]).append(Const.CR);
+              errorMessage.append("\t\t").append(s).append(Const.CR);
             }
           }
           for (int i = 0; i < keyStream2.length; i++) {
@@ -730,8 +726,7 @@ public class SynchronizeAfterMergeMeta
           errorFound = false;
           errorMessage.setLength(0);
 
-          for (int i = 0; i < updateStream.length; i++) {
-            String lufield = updateStream[i];
+          for (String lufield : updateStream) {
             IValueMeta v = prev.searchValueMeta(lufield);
 
             if (v == null) {

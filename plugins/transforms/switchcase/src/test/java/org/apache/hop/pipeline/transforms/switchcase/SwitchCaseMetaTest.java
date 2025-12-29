@@ -72,7 +72,7 @@ class SwitchCaseMetaTest {
         loadSaveTester.getFieldLoadSaveValidatorFactory();
 
     IFieldLoadSaveValidator<SwitchCaseTarget> targetValidator =
-        new IFieldLoadSaveValidator<SwitchCaseTarget>() {
+        new IFieldLoadSaveValidator<>() {
           @Override
           public SwitchCaseTarget getTestObject() {
             return new SwitchCaseTarget() {

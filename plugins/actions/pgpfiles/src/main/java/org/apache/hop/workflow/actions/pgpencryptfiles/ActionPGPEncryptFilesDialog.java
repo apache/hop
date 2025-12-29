@@ -1577,18 +1577,13 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     }
 
     if (action.getIfFileExists() != null) {
-      if (action.getIfFileExists().equals(CONST_OVERWRITE_FILE)) {
-        wIfFileExists.select(1);
-      } else if (action.getIfFileExists().equals(CONST_UNIQUE_NAME)) {
-        wIfFileExists.select(2);
-      } else if (action.getIfFileExists().equals("delete_file")) {
-        wIfFileExists.select(3);
-      } else if (action.getIfFileExists().equals("move_file")) {
-        wIfFileExists.select(4);
-      } else if (action.getIfFileExists().equals("fail")) {
-        wIfFileExists.select(5);
-      } else {
-        wIfFileExists.select(0);
+      switch (action.getIfFileExists()) {
+        case CONST_OVERWRITE_FILE -> wIfFileExists.select(1);
+        case CONST_UNIQUE_NAME -> wIfFileExists.select(2);
+        case "delete_file" -> wIfFileExists.select(3);
+        case "move_file" -> wIfFileExists.select(4);
+        case "fail" -> wIfFileExists.select(5);
+        default -> wIfFileExists.select(0);
       }
 
     } else {
@@ -1600,14 +1595,11 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog {
     }
 
     if (action.getIfMovedFileExists() != null) {
-      if (action.getIfMovedFileExists().equals(CONST_OVERWRITE_FILE)) {
-        wIfMovedFileExists.select(1);
-      } else if (action.getIfMovedFileExists().equals(CONST_UNIQUE_NAME)) {
-        wIfMovedFileExists.select(2);
-      } else if (action.getIfMovedFileExists().equals("fail")) {
-        wIfMovedFileExists.select(3);
-      } else {
-        wIfMovedFileExists.select(0);
+      switch (action.getIfMovedFileExists()) {
+        case CONST_OVERWRITE_FILE -> wIfMovedFileExists.select(1);
+        case CONST_UNIQUE_NAME -> wIfMovedFileExists.select(2);
+        case "fail" -> wIfMovedFileExists.select(3);
+        default -> wIfMovedFileExists.select(0);
       }
 
     } else {

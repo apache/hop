@@ -24,30 +24,20 @@ import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 public class OperationFactory implements IHopMetadataObjectFactory {
   public static IOperation createOperation(OperationType operationType) {
     assert operationType != null : "Please specify an operation type";
-    switch (operationType) {
-      case MATCH:
-        return new MatchOperation();
-      case MERGE:
-        return new MergeOperation();
-      case CREATE:
-        return new CreateOperation();
-      case RETURN:
-        return new ReturnOperation();
-      case DELETE:
-        return new DeleteOperation();
-      case SET:
-        return new SetOperation();
-      case ORDER_BY:
-        return new OrderByOperation();
-      case EDGE_MATCH:
-        return new EdgeMatchOperation();
-      case EDGE_CREATE:
-        return new EdgeCreateOperation();
-      case EDGE_MERGE:
-        return new EdgeMergeOperation();
-      default:
-        throw new RuntimeException("Operation type " + operationType + " is not supported");
-    }
+    return switch (operationType) {
+      case MATCH -> new MatchOperation();
+      case MERGE -> new MergeOperation();
+      case CREATE -> new CreateOperation();
+      case RETURN -> new ReturnOperation();
+      case DELETE -> new DeleteOperation();
+      case SET -> new SetOperation();
+      case ORDER_BY -> new OrderByOperation();
+      case EDGE_MATCH -> new EdgeMatchOperation();
+      case EDGE_CREATE -> new EdgeCreateOperation();
+      case EDGE_MERGE -> new EdgeMergeOperation();
+      default ->
+          throw new RuntimeException("Operation type " + operationType + " is not supported");
+    };
   }
 
   @Override

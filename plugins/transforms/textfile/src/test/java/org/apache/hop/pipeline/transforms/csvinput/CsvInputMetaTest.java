@@ -120,7 +120,7 @@ class CsvInputMetaTest implements IInitializer<ITransformMeta> {
             "runningInParallel");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("inputFields", "getInputFields");
             put("hasHeader", "hasHeader");
@@ -129,7 +129,7 @@ class CsvInputMetaTest implements IInitializer<ITransformMeta> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("inputFields", "setInputFields");
             put("includeFilename", "includeFilename");

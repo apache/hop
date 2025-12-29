@@ -198,7 +198,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
           row[index] = cal.getTime();
           break;
         case TYPE_SYSTEM_INFO_COPYNR:
-          row[index] = Long.valueOf(getCopy());
+          row[index] = (long) getCopy();
           break;
         case TYPE_SYSTEM_INFO_PIPELINE_NAME:
           row[index] = getPipelineMeta().getName();

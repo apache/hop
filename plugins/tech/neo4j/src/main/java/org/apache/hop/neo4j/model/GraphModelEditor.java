@@ -868,30 +868,16 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
           // add this field as a property...
           //
           IValueMeta valueMeta = inputRowMeta.searchValueMeta(field);
-          GraphPropertyType propertyType;
-          switch (valueMeta.getType()) {
-            case IValueMeta.TYPE_INTEGER:
-              propertyType = GraphPropertyType.Integer;
-              break;
-            case IValueMeta.TYPE_NUMBER:
-              propertyType = GraphPropertyType.Float;
-              break;
-            case IValueMeta.TYPE_DATE:
-              propertyType = GraphPropertyType.LocalDateTime;
-              break;
-            case IValueMeta.TYPE_BOOLEAN:
-              propertyType = GraphPropertyType.Boolean;
-              break;
-            case IValueMeta.TYPE_TIMESTAMP:
-              propertyType = GraphPropertyType.LocalDateTime;
-              break;
-            case IValueMeta.TYPE_BINARY:
-              propertyType = GraphPropertyType.ByteArray;
-              break;
-            default:
-              propertyType = GraphPropertyType.String;
-              break;
-          }
+          GraphPropertyType propertyType =
+              switch (valueMeta.getType()) {
+                case IValueMeta.TYPE_INTEGER -> GraphPropertyType.Integer;
+                case IValueMeta.TYPE_NUMBER -> GraphPropertyType.Float;
+                case IValueMeta.TYPE_DATE -> GraphPropertyType.LocalDateTime;
+                case IValueMeta.TYPE_BOOLEAN -> GraphPropertyType.Boolean;
+                case IValueMeta.TYPE_TIMESTAMP -> GraphPropertyType.LocalDateTime;
+                case IValueMeta.TYPE_BINARY -> GraphPropertyType.ByteArray;
+                default -> GraphPropertyType.String;
+              };
 
           String propertyName = Neo4jUtil.standardizePropertyName(valueMeta);
           activeNode
@@ -1628,8 +1614,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     int size = original.size();
 
     java.util.List<Point> points = new ArrayList<>();
-    for (int i = 0; i < size; i++) {
-      Point point = original.get(i);
+    for (Point point : original) {
       points.add(new Point(point.x, point.y));
     }
 

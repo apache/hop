@@ -774,8 +774,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       String realSourceDirectoryOrFile, FileObject[] filelist, boolean isDirectory)
       throws FileSystemException {
     boolean retval = false;
-    for (int i = 0; i < filelist.length; i++) {
-      FileObject file = filelist[i];
+    for (FileObject file : filelist) {
       if ((file.exists() && file.getType().equals(FileType.FILE))) {
         retval = true;
       }

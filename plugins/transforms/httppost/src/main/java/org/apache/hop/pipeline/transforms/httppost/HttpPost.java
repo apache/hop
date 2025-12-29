@@ -329,11 +329,11 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         }
 
         if (!Utils.isEmpty(meta.getResultFields().get(0).getCode())) {
-          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(statusCode));
+          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, (long) statusCode);
           returnFieldsOffset++;
         }
         if (!Utils.isEmpty(meta.getResultFields().get(0).getResponseTimeFieldName())) {
-          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(responseTime));
+          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, responseTime);
           returnFieldsOffset++;
         }
         if (!Utils.isEmpty(meta.getResultFields().get(0).getResponseHeaderFieldName())) {

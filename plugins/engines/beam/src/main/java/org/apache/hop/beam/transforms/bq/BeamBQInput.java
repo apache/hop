@@ -154,34 +154,21 @@ public class BeamBQInput extends BaseTransform<BeamBQInputMeta, BeamBQInputData>
           FieldValue fieldValue = row.get(field.getName());
           Object hopValue = null;
           if (!fieldValue.isNull()) {
-            switch (fieldTypes[i]) {
-              case IValueMeta.TYPE_STRING:
-                hopValue = fieldValue.getStringValue();
-                break;
-              case IValueMeta.TYPE_INTEGER:
-                hopValue = fieldValue.getLongValue();
-                break;
-              case IValueMeta.TYPE_DATE:
-                hopValue = new Date(fieldValue.getTimestampValue());
-                break;
-              case IValueMeta.TYPE_BOOLEAN:
-                hopValue = fieldValue.getBooleanValue();
-                break;
-              case IValueMeta.TYPE_NUMBER:
-                hopValue = fieldValue.getDoubleValue();
-                break;
-              case IValueMeta.TYPE_BINARY:
-                hopValue = fieldValue.getBytesValue();
-                break;
-              case IValueMeta.TYPE_BIGNUMBER:
-                hopValue = fieldValue.getNumericValue();
-                break;
-              default:
-                throw new HopException(
-                    "Converting BigQuery data to Hop type "
-                        + field.getHopType()
-                        + " isn't supported yet");
-            }
+            hopValue =
+                switch (fieldTypes[i]) {
+                  case IValueMeta.TYPE_STRING -> fieldValue.getStringValue();
+                  case IValueMeta.TYPE_INTEGER -> fieldValue.getLongValue();
+                  case IValueMeta.TYPE_DATE -> new Date(fieldValue.getTimestampValue());
+                  case IValueMeta.TYPE_BOOLEAN -> fieldValue.getBooleanValue();
+                  case IValueMeta.TYPE_NUMBER -> fieldValue.getDoubleValue();
+                  case IValueMeta.TYPE_BINARY -> fieldValue.getBytesValue();
+                  case IValueMeta.TYPE_BIGNUMBER -> fieldValue.getNumericValue();
+                  default ->
+                      throw new HopException(
+                          "Converting BigQuery data to Hop type "
+                              + field.getHopType()
+                              + " isn't supported yet");
+                };
           }
           outputRow[outputIndex++] = hopValue;
         }

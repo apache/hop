@@ -105,14 +105,14 @@ class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
     List<String> attributes = Arrays.asList("fieldName", "fieldType");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("fieldName", "getFieldName");
             put("fieldType", "getFieldType");
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("fieldName", "setFieldName");
             put("fieldType", "setFieldType");

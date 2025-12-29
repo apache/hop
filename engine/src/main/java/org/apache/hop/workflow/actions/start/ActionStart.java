@@ -125,21 +125,14 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
     if (isDoNotWaitOnFirstExecution() && firstExecution) {
       return 0;
     }
-    switch (schedulerType) {
-      case NOSCHEDULING:
-        return 0;
-      case INTERVAL:
-        return getNextIntervalExecutionTime();
-      case DAILY:
-        return getNextDailyExecutionTime();
-      case WEEKLY:
-        return getNextWeeklyExecutionTime();
-      case MONTHLY:
-        return getNextMonthlyExecutionTime();
-      default:
-        break;
-    }
-    return 0;
+    return switch (schedulerType) {
+      case NOSCHEDULING -> 0;
+      case INTERVAL -> getNextIntervalExecutionTime();
+      case DAILY -> getNextDailyExecutionTime();
+      case WEEKLY -> getNextWeeklyExecutionTime();
+      case MONTHLY -> getNextMonthlyExecutionTime();
+      default -> 0;
+    };
   }
 
   private long getNextIntervalExecutionTime() {

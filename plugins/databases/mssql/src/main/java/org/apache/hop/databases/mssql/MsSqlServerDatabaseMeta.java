@@ -192,9 +192,9 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   @Override
   public String getSqlLockTables(String[] tableNames) {
     StringBuilder sql = new StringBuilder(128);
-    for (int i = 0; i < tableNames.length; i++) {
+    for (String tableName : tableNames) {
       sql.append("SELECT top 0 * FROM ")
-          .append(tableNames[i])
+          .append(tableName)
           .append(" WITH (UPDLOCK, HOLDLOCK);")
           .append(Const.CR);
     }

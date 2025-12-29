@@ -21,7 +21,6 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.ReadPreference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,15 +83,11 @@ public class MongoProperties {
     List<MongoProp> propList = new ArrayList<>(props.keySet());
     Collections.sort(
         propList,
-        new Comparator<MongoProp>() {
-          @Override
-          public int compare(MongoProp p1, MongoProp p2) {
-            return Objects.compare(
+        (p1, p2) ->
+            Objects.compare(
                 p1 == null ? null : p1.name(),
                 p2 == null ? null : p2.name(),
-                String.CASE_INSENSITIVE_ORDER);
-          }
-        });
+                String.CASE_INSENSITIVE_ORDER));
     for (MongoProp prop : propList) {
       builder.append(String.format("%s=%s\n", prop.name(), props.get(prop)));
     }

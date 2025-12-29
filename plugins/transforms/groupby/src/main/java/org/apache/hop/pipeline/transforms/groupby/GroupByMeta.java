@@ -225,8 +225,8 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     if (!passAllRows) {
       // Add the grouping fields in the correct order...
       //
-      for (int i = 0; i < groupingFields.size(); i++) {
-        IValueMeta valueMeta = rowMeta.searchValueMeta(groupingFields.get(i).getName());
+      for (GroupingField groupingField : groupingFields) {
+        IValueMeta valueMeta = rowMeta.searchValueMeta(groupingField.getName());
         if (valueMeta != null) {
           fields.addValueMeta(valueMeta);
         }

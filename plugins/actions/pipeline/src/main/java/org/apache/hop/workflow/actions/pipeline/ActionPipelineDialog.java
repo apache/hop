@@ -166,10 +166,10 @@ public class ActionPipelineDialog extends ActionBaseDialog {
 
       String[] existing = wParameters.getItems(1);
 
-      for (int i = 0; i < parameters.length; i++) {
-        if (Const.indexOfString(parameters[i], existing) < 0) {
+      for (String parameter : parameters) {
+        if (Const.indexOfString(parameter, existing) < 0) {
           TableItem item = new TableItem(wParameters.table, SWT.NONE);
-          item.setText(1, parameters[i]);
+          item.setText(1, parameter);
         }
       }
       wParameters.removeEmptyRows();

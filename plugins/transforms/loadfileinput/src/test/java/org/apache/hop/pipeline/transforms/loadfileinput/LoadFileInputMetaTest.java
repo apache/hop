@@ -143,7 +143,7 @@ class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
             "inputFields");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("includeFilename", "getIncludeFilename");
             put("filenameField", "getFilenameField");
@@ -173,7 +173,7 @@ class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
         };
 
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("includeFilename", "setIncludeFilename");
             put("filenameField", "setFilenameField");

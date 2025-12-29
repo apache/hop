@@ -150,14 +150,11 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String getDriverClass() {
 
-    switch (driverClassName) {
-      case "Mysql":
-        return "org.gjt.mm.mysql.Driver";
-      case CONST_MYSQL_8:
-        return "com.mysql.cj.jdbc.Driver";
-      default:
-        return "com.mysql.cj.jdbc.Driver";
-    }
+    return switch (driverClassName) {
+      case "Mysql" -> "org.gjt.mm.mysql.Driver";
+      case CONST_MYSQL_8 -> "com.mysql.cj.jdbc.Driver";
+      default -> "com.mysql.cj.jdbc.Driver";
+    };
   }
 
   public String getDriverClassName() {

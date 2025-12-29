@@ -548,8 +548,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
               for (ResultFile resultFile : resultFiles) {
                 boolean found = false;
-                for (int i = 0; i < fileTypes.size(); i++) {
-                  if (fileTypes.get(i).equals(resultFile.getTypeCode())) {
+                for (String fileType : fileTypes) {
+                  if (fileType.equals(resultFile.getTypeCode())) {
                     found = true;
                   }
                 }
@@ -617,9 +617,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       int nrEmbeddedImages = 0;
       if (!Utils.isEmpty(embeddedimages)) {
         FileObject imageFile = null;
-        for (int i = 0; i < embeddedimages.size(); i++) {
-          String realImageFile = resolve(embeddedimages.get(i).getEmbeddedimage());
-          String realcontenID = resolve(embeddedimages.get(i).getContentId());
+        for (MailEmbeddedImageField embeddedimage : embeddedimages) {
+          String realImageFile = resolve(embeddedimage.getEmbeddedimage());
+          String realcontenID = resolve(embeddedimage.getContentId());
           if (messageText.indexOf("cid:" + realcontenID) < 0) {
             if (isDebug()) {
               logDebug("Image [" + realImageFile + "] is not used in message body!");
@@ -717,8 +717,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           Address[] invalid = sfex.getInvalidAddresses();
           if (invalid != null) {
             logError("    ** Invalid Addresses");
-            for (int i = 0; i < invalid.length; i++) {
-              logError(CONST_SPACES_LONG + invalid[i]);
+            for (Address address : invalid) {
+              logError(CONST_SPACES_LONG + address);
               result.setNrErrors(1);
             }
           }
@@ -726,16 +726,16 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           Address[] validUnsent = sfex.getValidUnsentAddresses();
           if (validUnsent != null) {
             logError("    ** ValidUnsent Addresses");
-            for (int i = 0; i < validUnsent.length; i++) {
-              logError(CONST_SPACES_LONG + validUnsent[i]);
+            for (Address address : validUnsent) {
+              logError(CONST_SPACES_LONG + address);
               result.setNrErrors(1);
             }
           }
 
           Address[] validSent = sfex.getValidSentAddresses();
           if (validSent != null) {
-            for (int i = 0; i < validSent.length; i++) {
-              logError(CONST_SPACES_LONG + validSent[i]);
+            for (Address address : validSent) {
+              logError(CONST_SPACES_LONG + address);
               result.setNrErrors(1);
             }
           }

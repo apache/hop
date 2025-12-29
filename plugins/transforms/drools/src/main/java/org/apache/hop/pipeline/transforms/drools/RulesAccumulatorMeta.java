@@ -106,10 +106,9 @@ public class RulesAccumulatorMeta
     }
     try {
       if (ruleResultColumns != null) {
-        for (int i = 0; i < ruleResultColumns.size(); i++) {
-          int type = ValueMetaFactory.getIdForValueMeta(ruleResultColumns.get(i).getType());
-          IValueMeta vm =
-              ValueMetaFactory.createValueMeta(ruleResultColumns.get(i).getName(), type);
+        for (RuleResultItem ruleResultColumn : ruleResultColumns) {
+          int type = ValueMetaFactory.getIdForValueMeta(ruleResultColumn.getType());
+          IValueMeta vm = ValueMetaFactory.createValueMeta(ruleResultColumn.getName(), type);
 
           vm.setOrigin(name);
           inputRowMeta.addValueMeta(vm);

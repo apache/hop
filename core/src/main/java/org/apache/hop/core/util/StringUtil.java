@@ -227,9 +227,9 @@ public class StringUtil {
         String[] hexStringArray = hexString.split(",");
         int hexInt;
         byte[] hexByte = new byte[1];
-        for (int pos = 0; pos < hexStringArray.length; pos++) {
+        for (String s : hexStringArray) {
           try {
-            hexInt = Integer.parseInt(hexStringArray[pos], 16);
+            hexInt = Integer.parseInt(s, 16);
           } catch (NumberFormatException e) {
             hexInt = 0; // in case we get an invalid hex value, ignore: we can not log here
           }

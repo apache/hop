@@ -70,8 +70,8 @@ public class VariableItem {
   public static final String[] getVariableTypeDescriptionsList() {
     ArrayList<String> variableTypesList = new ArrayList<>(variableTypeDescriptions.length);
 
-    for (int i = 0; i < variableTypeDescriptions.length; i++) {
-      variableTypesList.add(BaseMessages.getString(PKG, variableTypeDescriptions[i]));
+    for (String variableTypeDescription : variableTypeDescriptions) {
+      variableTypesList.add(BaseMessages.getString(PKG, variableTypeDescription));
     }
     return variableTypesList.toArray(new String[0]);
   }

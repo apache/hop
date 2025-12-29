@@ -83,28 +83,17 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     for (RVField field : fields) {
-      IValueMeta v;
+      IValueMeta v =
+          switch (field.getType()) {
+            case NUMBER -> new ValueMetaNumber(field.getName(), 10, 5);
+            case INTEGER -> new ValueMetaInteger(field.getName(), 10, 0);
+            case STRING -> new ValueMetaString(field.getName(), 13, 0);
+            case UUID, UUID4 -> new ValueMetaString(field.getName(), 36, 0);
+            case HMAC_MD5, HMAC_SHA1, HMAC_SHA256, HMAC_SHA512, HMAC_SHA384 ->
+                new ValueMetaString(field.getName(), 100, 0);
+            default -> new ValueMetaNone(field.getName());
+          };
 
-      switch (field.getType()) {
-        case NUMBER:
-          v = new ValueMetaNumber(field.getName(), 10, 5);
-          break;
-        case INTEGER:
-          v = new ValueMetaInteger(field.getName(), 10, 0);
-          break;
-        case STRING:
-          v = new ValueMetaString(field.getName(), 13, 0);
-          break;
-        case UUID, UUID4:
-          v = new ValueMetaString(field.getName(), 36, 0);
-          break;
-        case HMAC_MD5, HMAC_SHA1, HMAC_SHA256, HMAC_SHA512, HMAC_SHA384:
-          v = new ValueMetaString(field.getName(), 100, 0);
-          break;
-        default:
-          v = new ValueMetaNone(field.getName());
-          break;
-      }
       v.setOrigin(name);
       row.addValueMeta(v);
     }

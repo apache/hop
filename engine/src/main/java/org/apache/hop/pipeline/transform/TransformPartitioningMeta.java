@@ -235,9 +235,9 @@ public class TransformPartitioningMeta implements Cloneable {
       }
     }
 
-    for (int i = 0; i < methodCodes.length; i++) {
-      if (methodCodes[i].equalsIgnoreCase(name)) {
-        return methodCodes[i];
+    for (String methodCode : methodCodes) {
+      if (methodCode.equalsIgnoreCase(name)) {
+        return methodCode;
       }
     }
 

@@ -226,10 +226,10 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
         // Calculate the unique list of node properties
         //
         List<GraphPropertyData> properties = nodeData.getProperties();
-        for (int i = 0; i < properties.size(); i++) {
+        for (GraphPropertyData graphPropertyData : properties) {
           csvFile
               .getPropsList()
-              .add(new IdType(properties.get(i).getId(), properties.get(i).getType()));
+              .add(new IdType(graphPropertyData.getId(), graphPropertyData.getType()));
         }
         for (int i = 0; i < properties.size(); i++) {
           csvFile.getPropsIndexes().put(properties.get(i).getId(), i);
@@ -303,10 +303,10 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
         // Calculate the unique list of node properties
         //
         List<GraphPropertyData> properties = relationshipData.getProperties();
-        for (int i = 0; i < properties.size(); i++) {
+        for (GraphPropertyData graphPropertyData : properties) {
           csvFile
               .getPropsList()
-              .add(new IdType(properties.get(i).getId(), properties.get(i).getType()));
+              .add(new IdType(graphPropertyData.getId(), graphPropertyData.getType()));
         }
         for (int i = 0; i < properties.size(); i++) {
           csvFile.getPropsIndexes().put(properties.get(i).getId(), i);
@@ -456,8 +456,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
       // First write the index field...
       //
       boolean indexFound = false;
-      for (int i = 0; i < sortedProperties.length; i++) {
-        GraphPropertyData prop = sortedProperties[i];
+      for (GraphPropertyData prop : sortedProperties) {
         if (prop.isPrimary()) {
           if (prop.getType() == GraphPropertyDataType.String) {
             row.append('"').append(prop.toString()).append('"');
@@ -476,8 +475,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
 
       // Now write the other properties to the file
       //
-      for (int i = 0; i < sortedProperties.length; i++) {
-        GraphPropertyData prop = sortedProperties[i];
+      for (GraphPropertyData prop : sortedProperties) {
         if (!prop.isPrimary()) {
           row.append(",");
           if (prop != null) {
@@ -535,8 +533,7 @@ public class GenerateCsv extends BaseTransform<GenerateCsvMeta, GenerateCsvData>
 
       // Now write the list of properties to the file starting with the ID.
       //
-      for (int i = 0; i < sortedProperties.length; i++) {
-        GraphPropertyData prop = sortedProperties[i];
+      for (GraphPropertyData prop : sortedProperties) {
         row.append(",");
         if (prop != null) {
 

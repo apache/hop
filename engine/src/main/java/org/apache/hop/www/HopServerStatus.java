@@ -120,7 +120,7 @@ public class HopServerStatus {
     String cpuCoresStr = XmlHandler.getTagValue(statusNode, "cpu_cores");
     cpuCores = Const.toInt(cpuCoresStr, -1);
     String cpuProcessTimeStr = XmlHandler.getTagValue(statusNode, "cpu_process_time");
-    cpuProcessTime = Utils.isEmpty(cpuProcessTimeStr) ? 0L : Long.valueOf(cpuProcessTimeStr);
+    cpuProcessTime = Utils.isEmpty(cpuProcessTimeStr) ? 0L : Long.parseLong(cpuProcessTimeStr);
 
     uptime = Const.toLong(XmlHandler.getTagValue(statusNode, "uptime"), -1);
     threadCount = Const.toInt(XmlHandler.getTagValue(statusNode, "thread_count"), -1);

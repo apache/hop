@@ -214,8 +214,8 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
             errorFound = false;
             errorMessage = "";
 
-            for (int i = 0; i < fields.size(); i++) {
-              String field = fields.get(i).getFieldTable();
+            for (Field value : fields) {
+              String field = value.getFieldTable();
 
               IValueMeta v = r.searchValueMeta(field);
               if (v == null) {
@@ -267,8 +267,8 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < fields.size(); i++) {
-            IValueMeta v = prev.searchValueMeta(fields.get(i).getFieldStream());
+          for (Field field : fields) {
+            IValueMeta v = prev.searchValueMeta(field.getFieldStream());
             if (v == null) {
               if (first) {
                 first = false;
@@ -278,7 +278,7 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + fields.get(i).getFieldStream() + Const.CR;
+              errorMessage += "\t\t" + field.getFieldStream() + Const.CR;
             }
           }
           if (errorFound) {
@@ -352,15 +352,15 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
         IRowMeta tableFields = new RowMeta();
 
         // Now change the field names
-        for (int i = 0; i < fields.size(); i++) {
-          IValueMeta v = prev.searchValueMeta(fields.get(i).getFieldStream());
+        for (Field field : fields) {
+          IValueMeta v = prev.searchValueMeta(field.getFieldStream());
           if (v != null) {
             IValueMeta tableField = v.clone();
-            tableField.setName(fields.get(i).getFieldStream());
+            tableField.setName(field.getFieldStream());
             tableFields.addValueMeta(tableField);
           } else {
             throw new HopTransformException(
-                "Unable to find field [" + fields.get(i).getFieldStream() + "] in the input rows");
+                "Unable to find field [" + field.getFieldStream() + "] in the input rows");
           }
         }
 

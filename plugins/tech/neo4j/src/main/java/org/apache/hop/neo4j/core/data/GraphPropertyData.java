@@ -45,14 +45,11 @@ public class GraphPropertyData {
     if (value == null) {
       return "";
     }
-    switch (type) {
-      case Boolean:
-        return ((Boolean) value) ? "true" : "false";
-      case String:
-        return escapeString((String) value);
-      default:
-        return value.toString();
-    }
+    return switch (type) {
+      case Boolean -> ((Boolean) value) ? "true" : "false";
+      case String -> escapeString((String) value);
+      default -> value.toString();
+    };
   }
 
   public static String escapeString(String string) {

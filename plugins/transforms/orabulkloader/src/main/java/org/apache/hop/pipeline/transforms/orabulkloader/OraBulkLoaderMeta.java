@@ -257,7 +257,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
 
   public int getCommitSizeAsInt(IVariables variables) {
     try {
-      return Integer.valueOf(variables.resolve(getCommitSize()));
+      return Integer.parseInt(variables.resolve(getCommitSize()));
     } catch (NumberFormatException ex) {
       return DEFAULT_COMMIT_SIZE;
     }
@@ -426,8 +426,8 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
             errorFound = false;
             errorMessage = "";
 
-            for (int i = 0; i < mappings.size(); i++) {
-              String field = mappings.get(i).getFieldTable();
+            for (OraBulkLoaderMappingMeta mapping : mappings) {
+              String field = mapping.getFieldTable();
 
               IValueMeta v = rowMeta.searchValueMeta(field);
               if (v == null) {
@@ -477,8 +477,8 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < mappings.size(); i++) {
-            IValueMeta valueMeta = prev.searchValueMeta(mappings.get(i).getFieldStream());
+          for (OraBulkLoaderMappingMeta mapping : mappings) {
+            IValueMeta valueMeta = prev.searchValueMeta(mapping.getFieldStream());
             if (valueMeta == null) {
               if (first) {
                 first = false;
@@ -488,7 +488,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
                         + Const.CR;
               }
               errorFound = true;
-              errorMessage += "\t\t" + mappings.get(i).getFieldStream() + Const.CR;
+              errorMessage += "\t\t" + mapping.getFieldStream() + Const.CR;
             }
           }
           if (errorFound) {
@@ -563,15 +563,15 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
         IRowMeta tableFields = new RowMeta();
 
         // Now change the field names
-        for (int i = 0; i < mappings.size(); i++) {
-          IValueMeta v = prev.searchValueMeta(mappings.get(i).getFieldStream());
+        for (OraBulkLoaderMappingMeta mapping : mappings) {
+          IValueMeta v = prev.searchValueMeta(mapping.getFieldStream());
           if (v != null) {
             IValueMeta tableField = v.clone();
-            tableField.setName(mappings.get(i).getFieldTable());
+            tableField.setName(mapping.getFieldTable());
             tableFields.addValueMeta(tableField);
           } else {
             throw new HopTransformException(
-                "Unable to find field [" + mappings.get(i).getFieldTable() + "] in the input rows");
+                "Unable to find field [" + mapping.getFieldTable() + "] in the input rows");
           }
         }
 
@@ -628,8 +628,8 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
     if (prev != null) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
-      for (int i = 0; i < mappings.size(); i++) {
-        IValueMeta valueMeta = prev.searchValueMeta(mappings.get(i).getFieldStream());
+      for (OraBulkLoaderMappingMeta mapping : mappings) {
+        IValueMeta valueMeta = prev.searchValueMeta(mapping.getFieldStream());
 
         DatabaseImpact ii =
             new DatabaseImpact(
@@ -638,8 +638,8 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
                 transformMeta.getName(),
                 databaseMeta.getDatabaseName(),
                 variables.resolve(tableName),
-                mappings.get(i).getFieldTable(),
-                mappings.get(i).getFieldStream(),
+                mapping.getFieldTable(),
+                mapping.getFieldStream(),
                 valueMeta != null ? valueMeta.getOrigin() : "?",
                 "",
                 "Type = " + valueMeta.toStringMeta());
@@ -798,7 +798,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
 
   public int getBindSizeAsInt(IVariables variables) {
     try {
-      return Integer.valueOf(variables.resolve(getBindSize()));
+      return Integer.parseInt(variables.resolve(getBindSize()));
     } catch (NumberFormatException ex) {
       return DEFAULT_BIND_SIZE;
     }
@@ -814,7 +814,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
 
   public int getMaxErrorsAsInt(IVariables variables) {
     try {
-      return Integer.valueOf(variables.resolve(getMaxErrors()));
+      return Integer.parseInt(variables.resolve(getMaxErrors()));
     } catch (NumberFormatException ex) {
       return DEFAULT_MAX_ERRORS;
     }
@@ -830,7 +830,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
 
   public int getReadSizeAsInt(IVariables variables) {
     try {
-      return Integer.valueOf(variables.resolve(getReadSize()));
+      return Integer.parseInt(variables.resolve(getReadSize()));
     } catch (NumberFormatException ex) {
       return DEFAULT_READ_SIZE;
     }

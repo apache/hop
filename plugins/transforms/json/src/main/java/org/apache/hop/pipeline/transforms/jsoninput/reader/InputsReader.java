@@ -72,7 +72,7 @@ public class InputsReader implements Iterable<InputStream> {
       return new URLContentIterator(errorHandler, getFieldIterator());
     } else {
       // direct content
-      return new ChainedIterator<InputStream, String>(getFieldIterator(), errorHandler) {
+      return new ChainedIterator<>(getFieldIterator(), errorHandler) {
         @Override
         protected InputStream tryNext() throws IOException {
           String next = inner.next();

@@ -35,13 +35,13 @@ public class PluginTest {
   @Test
   public void testFragmentMerge() {
     Map<Class<?>, String> classMap =
-        new HashMap<Class<?>, String>() {
+        new HashMap<>() {
           {
             put(IPluginType.class, String.class.getName());
           }
         };
     List<String> libraries =
-        new ArrayList<String>() {
+        new ArrayList<>() {
           {
             add(String.class.getName());
           }
@@ -81,12 +81,12 @@ public class PluginTest {
             false,
             null,
             false,
-            new HashMap<Class<?>, String>() {
+            new HashMap<>() {
               {
                 put(IPluginTypeListener.class, Integer.class.getName());
               }
             },
-            new ArrayList<String>() {
+            new ArrayList<>() {
               {
                 add(Integer.class.getName());
               }

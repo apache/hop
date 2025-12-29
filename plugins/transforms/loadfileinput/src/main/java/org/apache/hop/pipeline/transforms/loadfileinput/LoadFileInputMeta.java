@@ -560,8 +560,7 @@ public class LoadFileInputMeta extends BaseTransformMeta<LoadFileInput, LoadFile
     retval.append("      </" + FILE + ">" + Const.CR);
 
     retval.append("    <" + FIELDS + ">" + Const.CR);
-    for (int i = 0; i < inputFields.length; i++) {
-      LoadFileInputField field = inputFields[i];
+    for (LoadFileInputField field : inputFields) {
       retval.append(field.getXml());
     }
     retval.append("      </" + FIELDS + ">" + Const.CR);

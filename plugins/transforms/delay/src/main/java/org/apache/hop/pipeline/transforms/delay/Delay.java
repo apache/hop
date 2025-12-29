@@ -219,18 +219,13 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
   }
 
   private long determineMultiple(int scaleCode) {
-    switch (scaleCode) {
-      case 0:
-        return 1L;
-      case 1:
-        return 1000L;
-      case 2:
-        return 60000L;
-      case 3:
-        return 3600000L;
-      default:
-        return 1000L;
-    }
+    return switch (scaleCode) {
+      case 0 -> 1L;
+      case 1 -> 1000L;
+      case 2 -> 60000L;
+      case 3 -> 3600000L;
+      default -> 1000L;
+    };
   }
 
   private String getScaleLabel(long multiple) {
@@ -251,18 +246,13 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> {
 
   private Integer parseScaleTimeCode(String value) {
     String normalized = value.trim().toLowerCase(Locale.ROOT);
-    switch (normalized) {
-      case "ms", "msec", "millisecond", "milliseconds":
-        return 0;
-      case "s", "sec", "secs", "second", "seconds":
-        return 1;
-      case "m", "min", "mins", "minute", "minutes":
-        return 2;
-      case "h", "hr", "hour", "hours":
-        return 3;
-      default:
-        return null;
-    }
+    return switch (normalized) {
+      case "ms", "msec", "millisecond", "milliseconds" -> 0;
+      case "s", "sec", "secs", "second", "seconds" -> 1;
+      case "m", "min", "mins", "minute", "minutes" -> 2;
+      case "h", "hr", "hour", "hours" -> 3;
+      default -> null;
+    };
   }
 
   private void applyDelay(long delayMillis) {

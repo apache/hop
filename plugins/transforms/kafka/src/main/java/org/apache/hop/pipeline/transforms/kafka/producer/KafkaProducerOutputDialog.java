@@ -438,8 +438,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       String[] fieldNames = r.getFieldNames();
-      for (int count = 0; count < fieldNames.length; count++) {
-        if (fieldName.equals(fieldNames[count])) {
+      for (String name : fieldNames) {
+        if (fieldName.equals(name)) {
           fieldFound = true;
           break;
         }

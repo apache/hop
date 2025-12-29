@@ -287,8 +287,8 @@ public class ActionEvalTableContent extends ActionBase {
               IRowMeta rowMeta = db.getQueryFields(countSqlStatement, false);
 
               List<RowMetaAndData> rows = new ArrayList<>();
-              for (int i = 0; i < ar.size(); i++) {
-                rows.add(new RowMetaAndData(rowMeta, ar.get(i)));
+              for (Object[] objects : ar) {
+                rows.add(new RowMetaAndData(rowMeta, objects));
               }
               if (addRowsResult && useCustomSql && rows != null) {
                 result.getRows().addAll(rows);

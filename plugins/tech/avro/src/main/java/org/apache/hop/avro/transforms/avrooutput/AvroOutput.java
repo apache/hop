@@ -77,9 +77,9 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     if (inputSchema.getType() == Schema.Type.UNION) {
       unionSchemas = inputSchema.getTypes();
       if (unionSchemas != null) {
-        for (int i = 0; i < unionSchemas.size(); i++) {
-          if (unionSchemas.get(i).getType() == Schema.Type.RECORD) {
-            recordSchema = unionSchemas.get(i);
+        for (Schema unionSchema : unionSchemas) {
+          if (unionSchema.getType() == Type.RECORD) {
+            recordSchema = unionSchema;
             break;
           }
         }

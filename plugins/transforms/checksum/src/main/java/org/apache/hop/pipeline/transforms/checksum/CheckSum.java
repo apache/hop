@@ -110,20 +110,18 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
         // get checksum
         byte[] o = createCheckSum(r);
 
-        switch (meta.getResultType()) {
-          case BINARY:
-            outputRowData = RowDataUtil.addValueData(r, data.nrInfields, o);
-            break;
-          case HEXADECIMAL:
-            String hex = (o == null) ? null : Hex.encodeHexString(o);
-            outputRowData = RowDataUtil.addValueData(r, data.nrInfields, hex);
-            break;
-          case STRING:
-          default:
-            String str = (o == null) ? null : getStringFromBytes(o);
-            outputRowData = RowDataUtil.addValueData(r, data.nrInfields, str);
-            break;
-        }
+        outputRowData =
+            switch (meta.getResultType()) {
+              case BINARY -> RowDataUtil.addValueData(r, data.nrInfields, o);
+              case HEXADECIMAL -> {
+                String hex = (o == null) ? null : Hex.encodeHexString(o);
+                yield RowDataUtil.addValueData(r, data.nrInfields, hex);
+              }
+              default -> {
+                String str = (o == null) ? null : getStringFromBytes(o);
+                yield RowDataUtil.addValueData(r, data.nrInfields, str);
+              }
+            };
       }
 
       if (checkFeedback(getLinesRead()) && isDetailed()) {
@@ -241,11 +239,11 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
     if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.CRC32) {
       CRC32 crc32 = new CRC32();
       crc32.update(byteArray);
-      retval = Long.valueOf(crc32.getValue());
+      retval = crc32.getValue();
     } else {
       Adler32 adler32 = new Adler32();
       adler32.update(byteArray);
-      retval = Long.valueOf(adler32.getValue());
+      retval = adler32.getValue();
     }
 
     return retval;

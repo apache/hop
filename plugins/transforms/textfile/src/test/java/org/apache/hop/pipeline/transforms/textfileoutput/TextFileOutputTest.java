@@ -511,8 +511,8 @@ class TextFileOutputTest {
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(endedLine);
     Mockito.when(transformMockHelper.iTransformMeta.isFastDump()).thenReturn(true);
 
-    for (int i = 0; i < rows.size(); i++) {
-      textFileOutput.setRow(rows.get(i));
+    for (Object[] objects : rows) {
+      textFileOutput.setRow(objects);
       textFileOutput.processRow();
     }
     textFileOutput.setRow(null);

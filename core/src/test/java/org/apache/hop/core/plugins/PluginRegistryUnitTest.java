@@ -95,7 +95,7 @@ public class PluginRegistryUnitTest {
     when(mockPlugin1.getName()).thenReturn("mockPlugin");
     when(mockPlugin1.getClassMap())
         .thenReturn(
-            new HashMap<Class<?>, String>() {
+            new HashMap<>() {
               {
                 put(IPluginType.class, String.class.getName());
               }
@@ -109,7 +109,7 @@ public class PluginRegistryUnitTest {
     when(mockPlugin2.getName()).thenReturn("mockPlugin2");
     when(mockPlugin2.getClassMap())
         .thenReturn(
-            new HashMap<Class<?>, String>() {
+            new HashMap<>() {
               {
                 put(IPluginType.class, Integer.class.getName());
               }
@@ -143,8 +143,7 @@ public class PluginRegistryUnitTest {
     // initialize Fragment Type
     PluginRegistry registry = PluginRegistry.getInstance();
     BaseFragmentType<ValueMetaPlugin> fragmentType =
-        new BaseFragmentType<ValueMetaPlugin>(
-            ValueMetaPlugin.class, "", "", ValueMetaPluginType.class) {
+        new BaseFragmentType<>(ValueMetaPlugin.class, "", "", ValueMetaPluginType.class) {
           @Override
           protected void initListeners(
               Class<? extends IPluginType> aClass, Class<? extends IPluginType> typeToTrack) {

@@ -203,37 +203,25 @@ public class AvroOutputField implements Cloneable, Comparable<AvroOutputField> {
   }
 
   public static int getDefaultAvroType(int pentahoType) {
-    switch (pentahoType) {
-      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
-        return AVRO_TYPE_DOUBLE;
-      case IValueMeta.TYPE_INTEGER:
-        return AVRO_TYPE_LONG;
-      case IValueMeta.TYPE_BOOLEAN:
-        return AVRO_TYPE_BOOLEAN;
-      default:
-        return AVRO_TYPE_STRING;
-    }
+    return switch (pentahoType) {
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER -> AVRO_TYPE_DOUBLE;
+      case IValueMeta.TYPE_INTEGER -> AVRO_TYPE_LONG;
+      case IValueMeta.TYPE_BOOLEAN -> AVRO_TYPE_BOOLEAN;
+      default -> AVRO_TYPE_STRING;
+    };
   }
 
   public Schema.Type getAvroSchemaType() throws HopException {
-    switch (avroType) {
-      case AVRO_TYPE_BOOLEAN:
-        return Schema.Type.BOOLEAN;
-      case AVRO_TYPE_DOUBLE:
-        return Schema.Type.DOUBLE;
-      case AVRO_TYPE_FLOAT:
-        return Schema.Type.FLOAT;
-      case AVRO_TYPE_INT:
-        return Schema.Type.INT;
-      case AVRO_TYPE_LONG:
-        return Schema.Type.LONG;
-      case AVRO_TYPE_STRING:
-        return Schema.Type.STRING;
-      case AVRO_TYPE_ENUM:
-        return Schema.Type.ENUM;
-      default:
-        throw new HopException("Unsupported Avro Type " + avroDescriptions[avroType]);
-    }
+    return switch (avroType) {
+      case AVRO_TYPE_BOOLEAN -> Schema.Type.BOOLEAN;
+      case AVRO_TYPE_DOUBLE -> Schema.Type.DOUBLE;
+      case AVRO_TYPE_FLOAT -> Schema.Type.FLOAT;
+      case AVRO_TYPE_INT -> Schema.Type.INT;
+      case AVRO_TYPE_LONG -> Schema.Type.LONG;
+      case AVRO_TYPE_STRING -> Schema.Type.STRING;
+      case AVRO_TYPE_ENUM -> Schema.Type.ENUM;
+      default -> throw new HopException("Unsupported Avro Type " + avroDescriptions[avroType]);
+    };
   }
 
   public void setAvroTypeDesc(String avroTypeDesc) {
@@ -297,8 +285,8 @@ public class AvroOutputField implements Cloneable, Comparable<AvroOutputField> {
         int i = 0;
         while (itUnion.hasNext()) {
           String[] union = itUnion.next();
-          for (int e = 0; e < union.length; e++) {
-            avroTypeDesc[i] = union[e];
+          for (String s : union) {
+            avroTypeDesc[i] = s;
             i++;
           }
         }

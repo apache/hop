@@ -74,8 +74,7 @@ public class SqlHighlight implements LineStyleListener {
   }
 
   boolean inBlockComment(int start, int end) {
-    for (int i = 0; i < blockComments.size(); i++) {
-      int[] offsets = blockComments.get(i);
+    for (int[] offsets : blockComments) {
       // start of comment in the line
       if ((offsets[0] >= start) && (offsets[0] <= end)) {
         return true;
@@ -658,14 +657,14 @@ public class SqlHighlight implements LineStyleListener {
       if (Utils.isEmpty(keywords)) {
         return;
       }
-      keywords.forEach(name -> reservedKeywords.put(name, Integer.valueOf(KEY)));
+      keywords.forEach(name -> reservedKeywords.put(name, KEY));
     }
 
     public void addFunctionNames(List<String> functionNames) {
       if (Utils.isEmpty(functionNames)) {
         return;
       }
-      functionNames.forEach(name -> reservedFunctionNames.put(name, Integer.valueOf(FUNCTION)));
+      functionNames.forEach(name -> reservedFunctionNames.put(name, FUNCTION));
     }
 
     /** Returns the ending location of the current token in the document. */
@@ -779,12 +778,12 @@ public class SqlHighlight implements LineStyleListener {
               if (c == '(') {
                 Integer token = reservedFunctionNames.get(name);
                 if (token != null) {
-                  return token.intValue();
+                  return token;
                 }
               } else {
                 Integer token = reservedKeywords.get(name);
                 if (token != null) {
-                  return token.intValue();
+                  return token;
                 }
               }
               return WORD;

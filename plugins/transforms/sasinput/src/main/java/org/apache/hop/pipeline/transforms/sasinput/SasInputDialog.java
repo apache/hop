@@ -334,8 +334,7 @@ public class SasInputDialog extends BaseTransformDialog {
           SasFileProperties fileProperties = sasFileReader.getSasFileProperties();
 
           List<Column> columns = sasFileReader.getColumns();
-          for (int c = 0; c < columns.size(); c++) {
-            Column column = columns.get(c);
+          for (Column column : columns) {
             ColumnFormat format = column.getFormat();
 
             int length = format.getWidth() == 0 ? -1 : format.getWidth();

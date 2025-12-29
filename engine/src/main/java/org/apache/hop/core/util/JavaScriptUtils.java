@@ -34,37 +34,19 @@ public class JavaScriptUtils {
   public static Object convertFromJs(Object value, int type, String fieldName)
       throws HopValueException {
     String classType = value.getClass().getName();
-    switch (type) {
-      case IValueMeta.TYPE_NUMBER:
-        return jsToNumber(value, classType);
-
-      case IValueMeta.TYPE_INTEGER:
-        return jsToInteger(value, value.getClass());
-
-      case IValueMeta.TYPE_STRING:
-        return jsToString(value, classType);
-
-      case IValueMeta.TYPE_DATE:
-        return jsToDate(value, classType);
-
-      case IValueMeta.TYPE_BOOLEAN:
-        return value;
-
-      case IValueMeta.TYPE_BIGNUMBER:
-        return jsToBigNumber(value, classType);
-
-      case IValueMeta.TYPE_BINARY:
-        {
-          return Context.jsToJava(value, byte[].class);
-        }
-      case IValueMeta.TYPE_NONE:
-        {
+    return switch (type) {
+      case IValueMeta.TYPE_NUMBER -> jsToNumber(value, classType);
+      case IValueMeta.TYPE_INTEGER -> jsToInteger(value, value.getClass());
+      case IValueMeta.TYPE_STRING -> jsToString(value, classType);
+      case IValueMeta.TYPE_DATE -> jsToDate(value, classType);
+      case IValueMeta.TYPE_BOOLEAN -> value;
+      case IValueMeta.TYPE_BIGNUMBER -> jsToBigNumber(value, classType);
+      case IValueMeta.TYPE_BINARY -> Context.jsToJava(value, byte[].class);
+      case IValueMeta.TYPE_NONE ->
           throw new RuntimeException(
               "No data output data type was specified for new field [" + fieldName + "]");
-        }
-      default:
-        return Context.jsToJava(value, Object.class);
-    }
+      default -> Context.jsToJava(value, Object.class);
+    };
   }
 
   public static Number jsToNumber(Object value, String classType) {
@@ -171,11 +153,11 @@ public class JavaScriptUtils {
     } else if (classType.equalsIgnoreCase("java.lang.Integer")) {
       return BigDecimal.valueOf(((Integer) value).longValue());
     } else if (classType.equalsIgnoreCase("java.lang.Long")) {
-      return BigDecimal.valueOf(((Long) value).longValue());
+      return BigDecimal.valueOf((Long) value);
     } else if (classType.equalsIgnoreCase("java.lang.Double")) {
-      return BigDecimal.valueOf(((Double) value).doubleValue());
+      return BigDecimal.valueOf((Double) value);
     } else if (classType.equalsIgnoreCase("java.lang.String")) {
-      return BigDecimal.valueOf((Long.valueOf((String) value)).longValue());
+      return BigDecimal.valueOf(Long.valueOf((String) value));
     } else {
       throw new RuntimeException(
           "JavaScript conversion to BigNumber not implemented for " + classType);

@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
@@ -117,8 +116,8 @@ public final class ComplexType implements java.io.Serializable {
   private void processAll(Element all) {
     // annotation?, element*
     List<Element> elements = DomUtils.getChildElementsByName(all, "element");
-    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processElement(itr.next());
+    for (Element element : elements) {
+      processElement(element);
     }
   }
 
@@ -238,28 +237,28 @@ public final class ComplexType implements java.io.Serializable {
   private void processSequence(Element sequence) {
     // annotation?, (element | group | choice | sequence | any)*
     List<Element> elements = DomUtils.getChildElementsByName(sequence, "element");
-    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processElement(itr.next());
+    for (Element element2 : elements) {
+      processElement(element2);
     }
 
     elements = DomUtils.getChildElementsByName(sequence, CONST_GROUP);
-    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processGroup(itr.next());
+    for (Element element1 : elements) {
+      processGroup(element1);
     }
 
     elements = DomUtils.getChildElementsByName(sequence, CONST_CHOICE);
-    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processChoice(itr.next());
+    for (Element item : elements) {
+      processChoice(item);
     }
 
     elements = DomUtils.getChildElementsByName(sequence, CONST_SEQUENCE);
-    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processSequence(itr.next());
+    for (Element value : elements) {
+      processSequence(value);
     }
 
     elements = DomUtils.getChildElementsByName(sequence, "any");
-    for (Iterator<Element> itr = elements.iterator(); itr.hasNext(); ) {
-      processAny(itr.next());
+    for (Element element : elements) {
+      processAny(element);
     }
   }
 

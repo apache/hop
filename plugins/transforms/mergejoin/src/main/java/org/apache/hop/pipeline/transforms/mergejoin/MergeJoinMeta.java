@@ -175,9 +175,9 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
     // So we just merge in the info fields.
     //
     if (info != null) {
-      for (int i = 0; i < info.length; i++) {
-        if (info[i] != null) {
-          r.mergeRowMeta(info[i], name);
+      for (IRowMeta iRowMeta : info) {
+        if (iRowMeta != null) {
+          r.mergeRowMeta(iRowMeta, name);
         }
       }
     }

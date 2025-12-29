@@ -69,7 +69,7 @@ class LdapOutputMetaTest {
             "deleteRDN");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("updateLookup", "getUpdateLookup");
             put("updateStream", "getUpdateStream");
@@ -91,7 +91,7 @@ class LdapOutputMetaTest {
         };
 
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("updateLookup", "setUpdateLookup");
             put("updateStream", "setUpdateStream");

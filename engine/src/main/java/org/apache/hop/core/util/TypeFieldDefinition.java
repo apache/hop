@@ -62,14 +62,11 @@ public class TypeFieldDefinition {
   }
 
   public String getTypeDescription() {
-    switch (type) {
-      case IValueMeta.TYPE_BOOLEAN:
-        return "boolean";
-      case IValueMeta.TYPE_INTEGER:
-        return "int";
-      default:
-        return ValueMetaFactory.getValueMetaName(type);
-    }
+    return switch (type) {
+      case IValueMeta.TYPE_BOOLEAN -> "boolean";
+      case IValueMeta.TYPE_INTEGER -> "int";
+      default -> ValueMetaFactory.getValueMetaName(type);
+    };
   }
 
   public String getMemberName() {

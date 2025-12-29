@@ -79,7 +79,7 @@ public class PoiCell implements IKCell {
     try {
       switch (getType()) {
         case BOOLEAN_FORMULA, BOOLEAN:
-          return Boolean.valueOf(cell.getBooleanCellValue());
+          return cell.getBooleanCellValue();
         case DATE_FORMULA, DATE:
           // Timezone conversion needed since POI doesn't support this apparently
           //
@@ -88,7 +88,7 @@ public class PoiCell implements IKCell {
 
           return new Date(time + tzOffset);
         case NUMBER_FORMULA, NUMBER:
-          return Double.valueOf(cell.getNumericCellValue());
+          return cell.getNumericCellValue();
         case STRING_FORMULA, LABEL:
           return cell.getStringCellValue();
         case EMPTY:

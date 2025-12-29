@@ -119,8 +119,8 @@ public class FunctionLib {
    */
   public String[] getImportPackages() {
     ArrayList<String> importPackages = new ArrayList<>();
-    for (int i = 0; i < functions.size(); i++) {
-      importPackages.add(functions.get(i).getImportPackage());
+    for (FunctionDescription function : functions) {
+      importPackages.add(function.getImportPackage());
     }
     importPackages.sort(Comparator.naturalOrder());
     return importPackages.stream().distinct().toArray(String[]::new);

@@ -300,19 +300,19 @@ public class WorkflowExecutorMeta
     row.clear();
 
     if (nextTransform != null && nextTransform.equals(resultRowsTargetTransformMeta)) {
-      for (int i = 0; i < resultRowsField.size(); i++) {
+      for (WorkflowExecutorResultRows workflowExecutorResultRows : resultRowsField) {
         IValueMeta value;
         try {
           value =
               ValueMetaFactory.createValueMeta(
-                  resultRowsField.get(i).getName(),
-                  ValueMetaFactory.getIdForValueMeta(resultRowsField.get(i).getType()),
-                  resultRowsField.get(i).getLength(),
-                  resultRowsField.get(i).getPrecision());
+                  workflowExecutorResultRows.getName(),
+                  ValueMetaFactory.getIdForValueMeta(workflowExecutorResultRows.getType()),
+                  workflowExecutorResultRows.getLength(),
+                  workflowExecutorResultRows.getPrecision());
         } catch (HopPluginException e) {
-          value = new ValueMetaNone(resultRowsField.get(i).getName());
+          value = new ValueMetaNone(workflowExecutorResultRows.getName());
           value.setLength(
-              resultRowsField.get(i).getLength(), resultRowsField.get(i).getPrecision());
+              workflowExecutorResultRows.getLength(), workflowExecutorResultRows.getPrecision());
         }
         row.addValueMeta(value);
       }

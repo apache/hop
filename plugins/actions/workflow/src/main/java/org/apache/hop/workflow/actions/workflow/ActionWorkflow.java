@@ -341,8 +341,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         //
         if (paramsFromPrevious) {
           String[] parentParameters = parentWorkflow.listParameters();
-          for (int idx = 0; idx < parentParameters.length; idx++) {
-            String par = parentParameters[idx];
+          for (String par : parentParameters) {
             String def = parentWorkflow.getParameterDefault(par);
             String val = parentWorkflow.getParameterValue(par);
             String des = parentWorkflow.getParameterDescription(par);
@@ -461,23 +460,23 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         //
         workflow.clearParameterValues();
         String[] parameterNames = workflow.listParameters();
-        for (int idx = 0; idx < parameterNames.length; idx++) {
+        for (String parameterName : parameterNames) {
           // Grab the parameter value set in the action
           //
-          String thisValue = namedParam.getParameterValue(parameterNames[idx]);
+          String thisValue = namedParam.getParameterValue(parameterName);
           if (!Utils.isEmpty(thisValue)) {
             // Set the value as specified by the user in the action
             //
-            workflow.setParameterValue(parameterNames[idx], thisValue);
+            workflow.setParameterValue(parameterName, thisValue);
           } else {
             // See if the parameter had a value set in the parent workflow...
             // This value should pass down to the sub-workflow if that's what we
             // opted to do.
             //
             if (parameterDefinition.isPassingAllParameters()) {
-              String parentValue = parentWorkflow.getParameterValue(parameterNames[idx]);
+              String parentValue = parentWorkflow.getParameterValue(parameterName);
               if (!Utils.isEmpty(parentValue)) {
-                workflow.setParameterValue(parameterNames[idx], parentValue);
+                workflow.setParameterValue(parameterName, parentValue);
               }
             }
           }

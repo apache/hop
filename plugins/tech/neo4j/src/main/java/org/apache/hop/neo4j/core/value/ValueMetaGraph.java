@@ -68,13 +68,12 @@ public class ValueMetaGraph extends ValueMetaBase {
   public GraphData getGraphData(Object object) throws HopValueException {
     switch (type) {
       case TYPE_GRAPH:
-        switch (storageType) {
-          case STORAGE_TYPE_NORMAL:
-            return (GraphData) object;
-          default:
-            throw new HopValueException(
-                "Only normal storage type is supported for Graph value : " + toString());
-        }
+        return switch (storageType) {
+          case STORAGE_TYPE_NORMAL -> (GraphData) object;
+          default ->
+              throw new HopValueException(
+                  "Only normal storage type is supported for Graph value : " + toString());
+        };
       case TYPE_STRING:
         switch (storageType) {
           case STORAGE_TYPE_NORMAL:
@@ -109,20 +108,17 @@ public class ValueMetaGraph extends ValueMetaBase {
 
       switch (type) {
         case TYPE_STRING:
-          switch (storageType) {
-            case STORAGE_TYPE_NORMAL:
-              string = object == null ? null : object.toString();
-              break;
-            case STORAGE_TYPE_BINARY_STRING:
-              string = (String) convertBinaryStringToNativeType((byte[]) object);
-              break;
-            case STORAGE_TYPE_INDEXED:
-              string = object == null ? null : (String) index[((Integer) object).intValue()];
-              break;
-            default:
-              throw new HopValueException(
-                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
-          }
+          string =
+              switch (storageType) {
+                case STORAGE_TYPE_NORMAL -> object == null ? null : object.toString();
+                case STORAGE_TYPE_BINARY_STRING ->
+                    (String) convertBinaryStringToNativeType((byte[]) object);
+                case STORAGE_TYPE_INDEXED ->
+                    object == null ? null : (String) index[(Integer) object];
+                default ->
+                    throw new HopValueException(
+                        toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
+              };
           if (string != null) {
             string = trim(string);
           }
@@ -149,55 +145,49 @@ public class ValueMetaGraph extends ValueMetaBase {
               "You can't convert a Boolean to a Graph data type for : " + toString());
 
         case TYPE_BINARY:
-          switch (storageType) {
-            case STORAGE_TYPE_NORMAL:
-              string = convertBinaryStringToString((byte[]) object);
-              break;
-            case STORAGE_TYPE_BINARY_STRING:
-              string = convertBinaryStringToString((byte[]) object);
-              break;
-            case STORAGE_TYPE_INDEXED:
-              string =
-                  object == null
-                      ? null
-                      : convertBinaryStringToString((byte[]) index[((Integer) object).intValue()]);
-              break;
-            default:
-              throw new HopValueException(
-                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
-          }
+          string =
+              switch (storageType) {
+                case STORAGE_TYPE_NORMAL -> convertBinaryStringToString((byte[]) object);
+                case STORAGE_TYPE_BINARY_STRING -> convertBinaryStringToString((byte[]) object);
+                case STORAGE_TYPE_INDEXED ->
+                    object == null
+                        ? null
+                        : convertBinaryStringToString((byte[]) index[(Integer) object]);
+                default ->
+                    throw new HopValueException(
+                        toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
+              };
           break;
 
         case TYPE_SERIALIZABLE:
-          switch (storageType) {
-            case STORAGE_TYPE_NORMAL:
-              string = object == null ? null : object.toString();
-              break; // just go for the default toString()
-            case STORAGE_TYPE_BINARY_STRING:
-              string = convertBinaryStringToString((byte[]) object);
-              break;
-            case STORAGE_TYPE_INDEXED:
-              string = object == null ? null : index[((Integer) object).intValue()].toString();
-              break; // just go for the default toString()
-            default:
-              throw new HopValueException(
-                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
-          }
+          string =
+              switch (storageType) {
+                case STORAGE_TYPE_NORMAL ->
+                    object == null ? null : object.toString(); // just go for the default toString()
+                case STORAGE_TYPE_BINARY_STRING -> convertBinaryStringToString((byte[]) object);
+                case STORAGE_TYPE_INDEXED ->
+                    object == null
+                        ? null
+                        : index[(Integer) object].toString(); // just go for the default toString()
+                default ->
+                    throw new HopValueException(
+                        toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
+              };
           break;
 
         case TYPE_GRAPH:
-          switch (storageType) {
-            case STORAGE_TYPE_NORMAL:
-              string = object == null ? null : ((GraphData) object).toJsonString();
-              break;
-            default:
-              throw new HopValueException(
-                  toString()
-                      + " : Unsupported storage type "
-                      + getStorageTypeDesc()
-                      + " for "
-                      + toString());
-          }
+          string =
+              switch (storageType) {
+                case STORAGE_TYPE_NORMAL ->
+                    object == null ? null : ((GraphData) object).toJsonString();
+                default ->
+                    throw new HopValueException(
+                        toString()
+                            + " : Unsupported storage type "
+                            + getStorageTypeDesc()
+                            + " for "
+                            + toString());
+              };
           break;
 
         default:

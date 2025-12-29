@@ -414,11 +414,11 @@ public class ActionMysqlBulkFile extends ActionBase {
     String returnString = "";
     String[] split = listcolumns.split(",");
 
-    for (int i = 0; i < split.length; i++) {
+    for (String s : split) {
       if (returnString.equals("")) {
-        returnString = "`" + Const.trim(split[i]) + "`";
+        returnString = "`" + Const.trim(s) + "`";
       } else {
-        returnString = returnString + ", `" + Const.trim(split[i]) + "`";
+        returnString = returnString + ", `" + Const.trim(s) + "`";
       }
     }
 

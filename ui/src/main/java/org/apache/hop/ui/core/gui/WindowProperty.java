@@ -119,19 +119,19 @@ public class WindowProperty {
 
   public void setStateProperties(Map<String, Object> map) {
     Boolean bMaximized = (Boolean) map.get("max");
-    maximized = bMaximized == null ? false : bMaximized.booleanValue();
+    maximized = bMaximized == null ? false : bMaximized;
 
     Integer iX = (Integer) map.get("x");
-    x = iX == null ? -1 : iX.intValue();
+    x = iX == null ? -1 : iX;
 
     Integer iY = (Integer) map.get("y");
-    y = iY == null ? -1 : iY.intValue();
+    y = iY == null ? -1 : iY;
 
     Integer iWidth = (Integer) map.get("width");
-    width = iWidth == null ? -1 : iWidth.intValue();
+    width = iWidth == null ? -1 : iWidth;
 
     Integer iHeight = (Integer) map.get("height");
-    height = iHeight == null ? -1 : iHeight.intValue();
+    height = iHeight == null ? -1 : iHeight;
   }
 
   /**

@@ -226,8 +226,8 @@ public class EnterMappingDialog extends Dialog {
     fdlSource.top = new FormAttachment(0, margin);
     wlSource.setLayoutData(fdlSource);
     wSource = new List(shell, SWT.SINGLE | SWT.RIGHT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    for (int i = 0; i < sourceList.length; i++) {
-      wSource.add(sourceList[i]);
+    for (String value : sourceList) {
+      wSource.add(value);
     }
     PropsUi.setLook(wSource);
     FormData fdSource = new FormData();
@@ -246,8 +246,8 @@ public class EnterMappingDialog extends Dialog {
     fdlTarget.top = new FormAttachment(0, margin);
     wlTarget.setLayoutData(fdlTarget);
     wTarget = new List(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-    for (int i = 0; i < targetList.length; i++) {
-      wTarget.add(targetList[i]);
+    for (String string : targetList) {
+      wTarget.add(string);
     }
     PropsUi.setLook(wTarget);
     FormData fdTarget = new FormData();
@@ -488,45 +488,44 @@ public class EnterMappingDialog extends Dialog {
       Collections.sort(mappings, Comparator.comparing(this::getMappingResultString));
     }
 
-    for (int i = 0; i < mappings.size(); i++) {
-      SourceToTargetMapping mapping = mappings.get(i);
+    for (SourceToTargetMapping mapping : mappings) {
       String mappingString = getMappingResultString(mapping);
       wResult.add(mappingString);
     }
 
     wSource.removeAll();
     // Refresh the sources
-    for (int a = 0; a < sourceList.length; a++) {
+    for (String string : sourceList) {
       boolean found = false;
       if (wSourceHide.getSelection()) {
         for (int b = 0; b < mappings.size() && !found; b++) {
           SourceToTargetMapping mapping = mappings.get(b);
-          if (mapping.getSourcePosition() == Const.indexOfString(sourceList[a], sourceList)) {
+          if (mapping.getSourcePosition() == Const.indexOfString(string, sourceList)) {
             found = true;
           }
         }
       }
 
       if (!found) {
-        wSource.add(sourceList[a]);
+        wSource.add(string);
       }
     }
 
     wTarget.removeAll();
     // Refresh the targets
-    for (int a = 0; a < targetList.length; a++) {
+    for (String s : targetList) {
       boolean found = false;
       if (wTargetHide.getSelection()) {
         for (int b = 0; b < mappings.size() && !found; b++) {
           SourceToTargetMapping mapping = mappings.get(b);
-          if (mapping.getTargetPosition() == Const.indexOfString(targetList[a], targetList)) {
+          if (mapping.getTargetPosition() == Const.indexOfString(s, targetList)) {
             found = true;
           }
         }
       }
 
       if (!found) {
-        wTarget.add(targetList[a]);
+        wTarget.add(s);
       }
     }
   }

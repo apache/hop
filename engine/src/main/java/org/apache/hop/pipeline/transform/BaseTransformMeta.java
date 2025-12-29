@@ -384,9 +384,9 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
     // Cancel all defined queries...
     //
     if (databases != null) {
-      for (int i = 0; i < databases.length; i++) {
-        if (databases[i] != null) {
-          databases[i].cancelQuery();
+      for (Database database : databases) {
+        if (database != null) {
+          database.cancelQuery();
         }
       }
     }

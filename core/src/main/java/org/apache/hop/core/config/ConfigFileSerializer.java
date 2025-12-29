@@ -89,8 +89,7 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
         return new HashMap<>();
       }
       ObjectMapper objectMapper = HopJson.newMapper();
-      TypeReference<HashMap<String, Object>> typeRef =
-          new TypeReference<HashMap<String, Object>>() {};
+      TypeReference<HashMap<String, Object>> typeRef = new TypeReference<>() {};
       try (InputStream inputStream = HopVfs.getInputStream(file)) {
         return objectMapper.readValue(inputStream, typeRef);
       }

@@ -1290,16 +1290,16 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       maxdrawn.width += 100;
     } else {
       if (sizeCond != null) {
-        for (int i = 0; i < sizeCond.length; i++) {
-          if (sizeCond[i] != null) {
-            maxdrawn = maxdrawn.union(sizeCond[i]);
+        for (Rectangle rectangle : sizeCond) {
+          if (rectangle != null) {
+            maxdrawn = maxdrawn.union(rectangle);
           }
         }
       }
       if (sizeOper != null) {
-        for (int i = 0; i < sizeOper.length; i++) {
-          if (sizeOper[i] != null) {
-            maxdrawn = maxdrawn.union(sizeOper[i]);
+        for (Rectangle rectangle : sizeOper) {
+          if (rectangle != null) {
+            maxdrawn = maxdrawn.union(rectangle);
           }
         }
       }
@@ -1356,8 +1356,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   }
 
   public void setModified() {
-    for (int i = 0; i < modListeners.size(); i++) {
-      ModifyListener lsMod = modListeners.get(i);
+    for (ModifyListener lsMod : modListeners) {
       if (lsMod != null) {
         Event e = new Event();
         e.widget = this;

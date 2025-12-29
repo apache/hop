@@ -337,16 +337,16 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
 
     // Determine the largest button in the array
     Rectangle largest = null;
-    for (int i = 0; i < buttons.length; i++) {
-      buttons[i].pack(true);
-      Rectangle r = buttons[i].getBounds();
+    for (Button value : buttons) {
+      value.pack(true);
+      Rectangle r = value.getBounds();
       if (largest == null || r.width > largest.width) {
         largest = r;
       }
 
       // Also, set the tooltip the same as the name if we don't have one...
-      if (buttons[i].getToolTipText() == null) {
-        buttons[i].setToolTipText(Const.replace(buttons[i].getText(), "&", ""));
+      if (value.getToolTipText() == null) {
+        value.setToolTipText(Const.replace(value.getText(), "&", ""));
       }
     }
 
@@ -652,8 +652,8 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   public static void setMinimalShellHeight(Shell shell, Control[] controls, int margin, int extra) {
     int height = 0;
 
-    for (int i = 0; i < controls.length; i++) {
-      Rectangle bounds = controls[i].getBounds();
+    for (Control control : controls) {
+      Rectangle bounds = control.getBounds();
       height += bounds.height + margin;
     }
     height += extra;
@@ -961,12 +961,12 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
       if (add) {
         TableItem tableItem = new TableItem(table, SWT.NONE);
 
-        for (int c = 0; c < nameColumn.length; c++) {
-          tableItem.setText(nameColumn[c], Const.NVL(v.getName(), ""));
+        for (int k : nameColumn) {
+          tableItem.setText(k, Const.NVL(v.getName(), ""));
         }
         if (dataTypeColumn != null) {
-          for (int c = 0; c < dataTypeColumn.length; c++) {
-            tableItem.setText(dataTypeColumn[c], v.getTypeDesc());
+          for (int j : dataTypeColumn) {
+            tableItem.setText(j, v.getTypeDesc());
           }
         }
         if (lengthColumn > 0 && v.getLength() >= 0) {

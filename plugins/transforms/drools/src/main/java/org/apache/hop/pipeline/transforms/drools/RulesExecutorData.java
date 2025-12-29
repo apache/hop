@@ -32,7 +32,6 @@ import org.kie.api.builder.Results;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.ObjectFilter;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.utils.KieHelper;
 
@@ -142,8 +141,8 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
     if (kieHelper != null) {
       KieSession session = kieHelper.getKieContainer().newKieSession();
 
-      for (int i = 0; i < columnList.length; i++) {
-        session.insert(columnList[i]);
+      for (Rules.Column column : columnList) {
+        session.insert(column);
       }
 
       session.fireAllRules();
@@ -163,14 +162,11 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
 
     return (Collection<Object>)
         session.getObjects(
-            new ObjectFilter() {
-              @Override
-              public boolean accept(Object o) {
-                if (o instanceof Rules.Column column && !column.isExternalSource()) {
-                  return true;
-                }
-                return false;
+            o -> {
+              if (o instanceof Rules.Column column && !column.isExternalSource()) {
+                return true;
               }
+              return false;
             });
   }
 

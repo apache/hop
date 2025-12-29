@@ -49,14 +49,14 @@ class SetValueConstantMetaTest implements IInitializer<ITransformMeta> {
     List<String> attributes = Arrays.asList("fields", "usevar");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("fields", "getFields");
             put("usevar", "isUseVars");
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("fields", "setFields");
             put("usevar", "setUseVars");

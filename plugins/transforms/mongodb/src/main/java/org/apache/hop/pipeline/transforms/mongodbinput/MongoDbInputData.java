@@ -200,8 +200,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     if (expansionHandler == null) {
       result[0] = normalData;
     } else {
-      for (int i = 0; i < result.length; i++) {
-        Object[] row = result[i];
+      for (Object[] row : result) {
         for (MongoField f : userFields) {
           row[f.outputIndex] = normalData[f.outputIndex];
         }

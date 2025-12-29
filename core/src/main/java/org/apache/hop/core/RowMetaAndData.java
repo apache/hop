@@ -152,7 +152,7 @@ public class RowMetaAndData implements Cloneable {
     if (number == null) {
       return def;
     }
-    return number.longValue();
+    return number;
   }
 
   public Long getInteger(String valueName) throws HopValueException {
@@ -180,7 +180,7 @@ public class RowMetaAndData implements Cloneable {
     if (number == null) {
       return def;
     }
-    return number.doubleValue();
+    return number;
   }
 
   public Date getDate(String valueName, Date def) throws HopValueException {
@@ -228,7 +228,7 @@ public class RowMetaAndData implements Cloneable {
     if (b == null) {
       return def;
     }
-    return b.booleanValue();
+    return b;
   }
 
   public String getString(String valueName, String def) throws HopValueException {
@@ -287,26 +287,17 @@ public class RowMetaAndData implements Cloneable {
 
     IValueMeta metaType = rowMeta.getValueMeta(idx);
     // find by source value type
-    switch (metaType.getType()) {
-      case IValueMeta.TYPE_STRING:
-        return rowMeta.getString(data, idx) == null;
-      case IValueMeta.TYPE_BOOLEAN:
-        return rowMeta.getBoolean(data, idx) == null;
-      case IValueMeta.TYPE_INTEGER:
-        return rowMeta.getInteger(data, idx) == null;
-      case IValueMeta.TYPE_NUMBER:
-        return rowMeta.getNumber(data, idx) == null;
-      case IValueMeta.TYPE_BIGNUMBER:
-        return rowMeta.getBigNumber(data, idx) == null;
-      case IValueMeta.TYPE_BINARY:
-        return rowMeta.getBinary(data, idx) == null;
-      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
-        return rowMeta.getDate(data, idx) == null;
-      case IValueMeta.TYPE_INET:
-        return rowMeta.getString(data, idx) == null;
-      default:
-        throw new HopValueException("Unknown source type: " + metaType.getTypeDesc());
-    }
+    return switch (metaType.getType()) {
+      case IValueMeta.TYPE_STRING -> rowMeta.getString(data, idx) == null;
+      case IValueMeta.TYPE_BOOLEAN -> rowMeta.getBoolean(data, idx) == null;
+      case IValueMeta.TYPE_INTEGER -> rowMeta.getInteger(data, idx) == null;
+      case IValueMeta.TYPE_NUMBER -> rowMeta.getNumber(data, idx) == null;
+      case IValueMeta.TYPE_BIGNUMBER -> rowMeta.getBigNumber(data, idx) == null;
+      case IValueMeta.TYPE_BINARY -> rowMeta.getBinary(data, idx) == null;
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP -> rowMeta.getDate(data, idx) == null;
+      case IValueMeta.TYPE_INET -> rowMeta.getString(data, idx) == null;
+      default -> throw new HopValueException("Unknown source type: " + metaType.getTypeDesc());
+    };
   }
 
   /** Converts string value into specified type. Used for constant injection. */

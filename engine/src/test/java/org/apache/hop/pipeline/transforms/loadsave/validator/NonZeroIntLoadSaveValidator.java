@@ -30,7 +30,7 @@ public class NonZeroIntLoadSaveValidator extends IntLoadSaveValidator {
   @Override
   public Integer getTestObject() {
     Integer rtn = super.getTestObject();
-    if (rtn.intValue() == 0) {
+    if (rtn == 0) {
       return 1;
     } else {
       return rtn;

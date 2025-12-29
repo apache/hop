@@ -34,35 +34,35 @@ public class WorkbookFactory {
   public static IKWorkbook getWorkbook(
       SpreadSheetType type, String filename, String encoding, IVariables variables)
       throws HopException {
-    switch (type) {
-      case POI:
-        return new PoiWorkbook(
-            filename, encoding, variables); // encoding is not used, perhaps detected automatically?
-      case SAX_POI:
-        return new StaxPoiWorkbook(filename, encoding, variables);
-      case ODS:
-        return new OdfWorkbook(
-            filename, encoding, variables); // encoding is not used, perhaps detected automatically?
-      default:
-        throw new HopException(
-            "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported");
-    }
+    return switch (type) {
+      case POI ->
+          new PoiWorkbook(
+              filename, encoding,
+              variables); // encoding is not used, perhaps detected automatically?
+      case SAX_POI -> new StaxPoiWorkbook(filename, encoding, variables);
+      case ODS ->
+          new OdfWorkbook(
+              filename, encoding,
+              variables); // encoding is not used, perhaps detected automatically?
+      default ->
+          throw new HopException(
+              "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported");
+    };
   }
 
   public static IKWorkbook getWorkbook(
       SpreadSheetType type, InputStream inputStream, String encoding) throws HopException {
-    switch (type) {
-      case POI:
-        return new PoiWorkbook(
-            inputStream, encoding); // encoding is not used, perhaps detected automatically?
-      case SAX_POI:
-        return new StaxPoiWorkbook(inputStream, encoding);
-      case ODS:
-        return new OdfWorkbook(
-            inputStream, encoding); // encoding is not used, perhaps detected automatically?
-      default:
-        throw new HopException(
-            "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported");
-    }
+    return switch (type) {
+      case POI ->
+          new PoiWorkbook(
+              inputStream, encoding); // encoding is not used, perhaps detected automatically?
+      case SAX_POI -> new StaxPoiWorkbook(inputStream, encoding);
+      case ODS ->
+          new OdfWorkbook(
+              inputStream, encoding); // encoding is not used, perhaps detected automatically?
+      default ->
+          throw new HopException(
+              "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported");
+    };
   }
 }

@@ -95,8 +95,8 @@ public class DatabaseMetaInformation {
             && connectionExtraOptions.containsKey(catalogFilterKey)) {
           String catsFilterCommaList = connectionExtraOptions.get(catalogFilterKey);
           String[] catsFilterArray = catsFilterCommaList.split(",");
-          for (int i = 0; i < catsFilterArray.length; i++) {
-            catalogList.add(new Catalog(catsFilterArray[i].trim()));
+          for (String s : catsFilterArray) {
+            catalogList.add(new Catalog(s.trim()));
           }
         }
         if (catalogList.isEmpty()) {
@@ -166,8 +166,8 @@ public class DatabaseMetaInformation {
               && connectionExtraOptions.containsKey(schemaFilterKey)) {
             String schemasFilterCommaList = connectionExtraOptions.get(schemaFilterKey);
             String[] schemasFilterArray = schemasFilterCommaList.split(",");
-            for (int i = 0; i < schemasFilterArray.length; i++) {
-              schemaList.add(new Schema(schemasFilterArray[i].trim()));
+            for (String s : schemasFilterArray) {
+              schemaList.add(new Schema(s.trim()));
             }
           }
           if (schemaList.isEmpty()) {

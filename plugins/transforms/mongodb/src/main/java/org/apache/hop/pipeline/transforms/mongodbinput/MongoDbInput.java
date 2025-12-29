@@ -117,8 +117,8 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
 
           // there may be more than one row if the paths contain an array
           // unwind
-          for (int i = 0; i < outputRows.length; i++) {
-            putRow(data.outputRowMeta, outputRows[i]);
+          for (Object[] outputRow : outputRows) {
+            putRow(data.outputRowMeta, outputRow);
           }
         }
       } else {

@@ -40,7 +40,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 class Cql3SsTableWriterTest {
@@ -68,13 +67,11 @@ class Cql3SsTableWriterTest {
       CQLSSTableWriter ssWriter = mock(CQLSSTableWriter.class);
       try {
         doAnswer(
-                new Answer<Void>() {
-                  @Override
-                  public Void answer(InvocationOnMock invocation) throws Throwable {
-                    checker.set(false);
-                    return null;
-                  }
-                })
+                (Answer<Void>)
+                    invocation -> {
+                      checker.set(false);
+                      return null;
+                    })
             .when(ssWriter)
             .close();
       } catch (IOException e) {
@@ -83,13 +80,11 @@ class Cql3SsTableWriterTest {
 
       try {
         doAnswer(
-                new Answer<Void>() {
-                  @Override
-                  public Void answer(InvocationOnMock invocation) throws Throwable {
-                    checker.set(true);
-                    return null;
-                  }
-                })
+                (Answer<Void>)
+                    invocation -> {
+                      checker.set(true);
+                      return null;
+                    })
             .when(ssWriter)
             .addRow(anyMap());
       } catch (Exception e) {

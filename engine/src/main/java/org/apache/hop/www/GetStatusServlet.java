@@ -1209,8 +1209,8 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     long allThreadsCpuTime = 0L;
 
     long[] threadIds = threadMXBean.getAllThreadIds();
-    for (int i = 0; i < threadIds.length; i++) {
-      allThreadsCpuTime += threadMXBean.getThreadCpuTime(threadIds[i]);
+    for (long threadId : threadIds) {
+      allThreadsCpuTime += threadMXBean.getThreadCpuTime(threadId);
     }
 
     long uptime = runtimeMXBean.getUptime();

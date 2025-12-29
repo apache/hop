@@ -138,7 +138,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {
         int pos = len - 1;
         while (pos >= 0) {
           if (data.sql.charAt(pos) == '?') {
-            data.markerPositions.add(Integer.valueOf(pos)); // save the
+            data.markerPositions.add(pos); // save the
           }
           // marker
           // position

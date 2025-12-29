@@ -102,7 +102,7 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
             "use_batch");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("connection", "getConnection");
             put("lookup", "getLookupField");
@@ -114,7 +114,7 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("connection", "setConnection");
             put("lookup", "setLookupField");
@@ -144,11 +144,11 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(UpdateLookupField.class),
-        new ObjectValidator<UpdateLookupField>(
+        new ObjectValidator<>(
             validatorFactory,
             UpdateLookupField.class,
             Arrays.asList("schema", "table", "key", "value"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("schema", "getSchemaName");
                 put("table", "getTableName");
@@ -156,7 +156,7 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
                 put("value", "getUpdateFields");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("schema", "setSchemaName");
                 put("table", "setTableName");
@@ -167,15 +167,15 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(List.class, UpdateLookupField.class),
-        new ListLoadSaveValidator<UpdateLookupField>(new UpdateLookupFieldLoadSaveValidator()));
+        new ListLoadSaveValidator<>(new UpdateLookupFieldLoadSaveValidator()));
 
     validatorFactory.registerValidator(
         validatorFactory.getName(UpdateKeyField.class),
-        new ObjectValidator<UpdateKeyField>(
+        new ObjectValidator<>(
             validatorFactory,
             UpdateKeyField.class,
             Arrays.asList("name", "field", "condition", "name2"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getKeyStream");
                 put("field", "getKeyLookup");
@@ -183,7 +183,7 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
                 put("name2", "getKeyStream2");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "setKeyStream");
                 put("field", "setKeyLookup");
@@ -194,21 +194,21 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(List.class, UpdateKeyField.class),
-        new ListLoadSaveValidator<UpdateKeyField>(new UpdateKeyFieldLoadSaveValidator()));
+        new ListLoadSaveValidator<>(new UpdateKeyFieldLoadSaveValidator()));
 
     validatorFactory.registerValidator(
         validatorFactory.getName(UpdateField.class),
-        new ObjectValidator<UpdateField>(
+        new ObjectValidator<>(
             validatorFactory,
             UpdateField.class,
             Arrays.asList("name", "rename"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getUpdateLookup");
                 put("rename", "getUpdateStream");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "setUpdateLookup");
                 put("rename", "setUpdateStream");
@@ -217,7 +217,7 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(List.class, UpdateField.class),
-        new ListLoadSaveValidator<UpdateField>(new UpdateFieldLoadSaveValidator()));
+        new ListLoadSaveValidator<>(new UpdateFieldLoadSaveValidator()));
   }
 
   @AfterEach
@@ -287,8 +287,8 @@ class UpdateMetaTest implements IInitializer<ITransformMeta> {
       return new UpdateLookupField(
           UUID.randomUUID().toString(),
           UUID.randomUUID().toString(),
-          new ArrayList<UpdateKeyField>(),
-          new ArrayList<UpdateField>());
+          new ArrayList<>(),
+          new ArrayList<>());
     }
 
     @Override

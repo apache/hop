@@ -737,7 +737,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
         try {
           switch (meta.getInputFields().get(i).getColumn()) {
             case MailInputField.COLUMN_MESSAGE_NR:
-              r[index] = Long.valueOf(message.getMessageNumber());
+              r[index] = (long) message.getMessageNumber();
               break;
             case MailInputField.COLUMN_SUBJECT:
               r[index] = message.getSubject();
@@ -780,48 +780,48 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
               }
               break;
             case MailInputField.COLUMN_SIZE:
-              r[index] = Long.valueOf(message.getSize());
+              r[index] = (long) message.getSize();
               break;
             case MailInputField.COLUMN_FLAG_DRAFT:
               if (connection != null) {
-                r[index] = Boolean.valueOf(connection.isMessageDraft(message));
+                r[index] = connection.isMessageDraft(message);
               } else {
-                r[index] = Boolean.valueOf(data.mailConn.isMessageDraft(message));
+                r[index] = data.mailConn.isMessageDraft(message);
               }
               break;
             case MailInputField.COLUMN_FLAG_FLAGGED:
               if (connection != null) {
-                r[index] = Boolean.valueOf(connection.isMessageFlagged(message));
+                r[index] = connection.isMessageFlagged(message);
               } else {
-                r[index] = Boolean.valueOf(data.mailConn.isMessageFlagged(message));
+                r[index] = data.mailConn.isMessageFlagged(message);
               }
               break;
             case MailInputField.COLUMN_FLAG_NEW:
               if (connection != null) {
-                r[index] = Boolean.valueOf(connection.isMessageNew(message));
+                r[index] = connection.isMessageNew(message);
               } else {
-                r[index] = Boolean.valueOf(data.mailConn.isMessageNew(message));
+                r[index] = data.mailConn.isMessageNew(message);
               }
               break;
             case MailInputField.COLUMN_FLAG_READ:
               if (connection != null) {
-                r[index] = Boolean.valueOf(connection.isMessageRead(message));
+                r[index] = connection.isMessageRead(message);
               } else {
-                r[index] = Boolean.valueOf(data.mailConn.isMessageRead(message));
+                r[index] = data.mailConn.isMessageRead(message);
               }
               break;
             case MailInputField.COLUMN_FLAG_DELETED:
               if (connection != null) {
-                r[index] = Boolean.valueOf(connection.isMessageDeleted(message));
+                r[index] = connection.isMessageDeleted(message);
               } else {
-                r[index] = Boolean.valueOf(data.mailConn.isMessageDeleted(message));
+                r[index] = data.mailConn.isMessageDeleted(message);
               }
               break;
             case MailInputField.COLUMN_ATTACHED_FILES_COUNT:
               if (connection != null) {
-                r[index] = Long.valueOf(connection.getAttachedFilesCount(message, null));
+                r[index] = (long) connection.getAttachedFilesCount(message, null);
               } else {
-                r[index] = Long.valueOf(data.mailConn.getAttachedFilesCount(message, null));
+                r[index] = (long) data.mailConn.getAttachedFilesCount(message, null);
               }
               break;
             case MailInputField.COLUMN_HEADER:

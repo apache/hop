@@ -507,7 +507,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       try {
         maxErrors =
             (!Utils.isEmpty(transformErrorMeta.getMaxErrors())
-                ? Long.valueOf(pipeline.resolve(transformErrorMeta.getMaxErrors()))
+                ? Long.parseLong(pipeline.resolve(transformErrorMeta.getMaxErrors()))
                 : -1L);
       } catch (NumberFormatException nfe) {
         log.logError(
@@ -544,7 +544,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       try {
         maxPercentErrors =
             (!Utils.isEmpty(transformErrorMeta.getMaxPercentErrors())
-                ? Integer.valueOf(pipeline.resolve(transformErrorMeta.getMaxPercentErrors()))
+                ? Integer.parseInt(pipeline.resolve(transformErrorMeta.getMaxPercentErrors()))
                 : -1);
       } catch (NumberFormatException nfe) {
         log.logError(

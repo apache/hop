@@ -137,8 +137,8 @@ public class GraphRelationshipData {
 
     JSONArray jProperties = (JSONArray) jRelationship.get("properties");
     if (jProperties != null) {
-      for (int i = 0; i < jProperties.size(); i++) {
-        JSONObject jProperty = (JSONObject) jProperties.get(i);
+      for (Object property : jProperties) {
+        JSONObject jProperty = (JSONObject) property;
         properties.add(new GraphPropertyData(jProperty));
       }
     }

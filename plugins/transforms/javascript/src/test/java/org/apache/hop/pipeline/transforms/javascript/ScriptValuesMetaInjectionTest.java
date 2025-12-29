@@ -72,14 +72,12 @@ class ScriptValuesMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Scri
     assertEquals(-1, meta.getLength()[0]);
     injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaString("5"), "5"), "5");
     assertEquals(5, meta.getLength()[0]);
-    injector.setProperty(
-        meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("5"), Long.valueOf(5)), "5");
+    injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("5"), 5L), "5");
     assertEquals(5, meta.getLength()[0]);
     injector.setProperty(
         meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("5"), (Long) null), "5");
     assertEquals(-1, meta.getLength()[0]);
-    injector.setProperty(
-        meta, "FIELD_LENGTH", setValue(new ValueMetaNumber("5"), Double.valueOf(5)), "5");
+    injector.setProperty(meta, "FIELD_LENGTH", setValue(new ValueMetaNumber("5"), 5.0), "5");
     assertEquals(5, meta.getLength()[0]);
     injector.setProperty(
         meta, "FIELD_LENGTH", setValue(new ValueMetaInteger("5"), (Double) null), "5");
@@ -94,14 +92,12 @@ class ScriptValuesMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Scri
     assertEquals(-1, meta.getPrecision()[0]);
     injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaString("5"), "5"), "5");
     assertEquals(5, meta.getPrecision()[0]);
-    injector.setProperty(
-        meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("5"), Long.valueOf(5)), "5");
+    injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("5"), 5L), "5");
     assertEquals(5, meta.getPrecision()[0]);
     injector.setProperty(
         meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("5"), (Long) null), "5");
     assertEquals(-1, meta.getPrecision()[0]);
-    injector.setProperty(
-        meta, "FIELD_PRECISION", setValue(new ValueMetaNumber("5"), Double.valueOf(5)), "5");
+    injector.setProperty(meta, "FIELD_PRECISION", setValue(new ValueMetaNumber("5"), 5.0), "5");
     assertEquals(5, meta.getPrecision()[0]);
     injector.setProperty(
         meta, "FIELD_PRECISION", setValue(new ValueMetaInteger("5"), (Double) null), "5");

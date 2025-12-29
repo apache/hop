@@ -281,9 +281,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
         FieldList fieldList = schema.getFields();
 
         IRowMeta rowMeta = new RowMeta();
-        for (int i = 0; i < fieldList.size(); i++) {
-          Field field = fieldList.get(i);
-
+        for (Field field : fieldList) {
           String name = field.getName();
           String type = field.getType().name();
 

@@ -196,9 +196,9 @@ public class UniqueRowsByHashSetMeta
         CONST_SPACES + XmlHandler.addTagValue("reject_duplicate_row", rejectDuplicateRow));
     retval.append(CONST_SPACES + XmlHandler.addTagValue("error_description", errorDescription));
     retval.append("    <fields>");
-    for (int i = 0; i < compareFields.length; i++) {
+    for (String compareField : compareFields) {
       retval.append("      <field>");
-      retval.append("        " + XmlHandler.addTagValue("name", compareFields[i]));
+      retval.append("        " + XmlHandler.addTagValue("name", compareField));
       retval.append("        </field>");
     }
     retval.append("      </fields>");

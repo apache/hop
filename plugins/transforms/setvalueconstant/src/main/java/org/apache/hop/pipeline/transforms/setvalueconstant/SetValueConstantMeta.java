@@ -170,10 +170,10 @@ public class SetValueConstantMeta
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < fields.size(); i++) {
-        int idx = prev.indexOfValue(fields.get(i).getFieldName());
+      for (Field field : fields) {
+        int idx = prev.indexOfValue(field.getFieldName());
         if (idx < 0) {
-          errorMessage += "\t\t" + fields.get(i).getFieldName() + Const.CR;
+          errorMessage += "\t\t" + field.getFieldName() + Const.CR;
           errorFound = true;
         }
       }

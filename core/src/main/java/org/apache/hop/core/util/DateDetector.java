@@ -29,7 +29,7 @@ public class DateDetector {
   private static final String DEFAULT_DATE_FORMAT_2 = "dd/MM/yyyy";
 
   static final BidiMap<String, String> DATE_FORMAT_TO_REGEXPS_US =
-      new DualHashBidiMap<String, String>() {
+      new DualHashBidiMap<>() {
         {
           put("MM-dd-yyyy", "^[0-1]?[0-9]-[0-3]?[0-9]-\\d{4}$");
           put(DEFAULT_DATE_FORMAT_2, "^[0-3]?[0-9]/[0-1]?[0-9]/\\d{4}$");

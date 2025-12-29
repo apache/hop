@@ -91,8 +91,8 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
     StringBuilder retval = new StringBuilder();
 
     if (formula != null) {
-      for (int i = 0; i < formula.length; i++) {
-        retval.append("       " + formula[i].getXml() + Const.CR);
+      for (JaninoMetaFunction janinoMetaFunction : formula) {
+        retval.append("       " + janinoMetaFunction.getXml() + Const.CR);
       }
     }
 
@@ -140,8 +140,7 @@ public class JaninoMeta extends BaseTransformMeta<Janino, JaninoData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    for (int i = 0; i < formula.length; i++) {
-      JaninoMetaFunction fn = formula[i];
+    for (JaninoMetaFunction fn : formula) {
       if (Utils.isEmpty(fn.getReplaceField())) {
         // Not replacing a field.
         if (!Utils.isEmpty(fn.getFieldName())) {

@@ -411,8 +411,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     retval.append("    </file>").append(Const.CR);
 
     retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < inputFields.length; i++) {
-      YamlInputField field = inputFields[i];
+    for (YamlInputField field : inputFields) {
       retval.append(field.getXml());
     }
     retval.append("    </fields>").append(Const.CR);

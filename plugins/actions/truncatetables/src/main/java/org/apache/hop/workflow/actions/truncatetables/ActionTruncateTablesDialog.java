@@ -362,9 +362,9 @@ public class ActionTruncateTablesDialog extends ActionDialog {
         dialog.setAvoidQuickSearch();
         if (dialog.open() != null) {
           int[] idx = dialog.getSelectionIndeces();
-          for (int i = 0; i < idx.length; i++) {
+          for (int j : idx) {
             TableItem tableItem = new TableItem(wFields.table, SWT.NONE);
-            tableItem.setText(1, tableNames[idx[i]]);
+            tableItem.setText(1, tableNames[j]);
           }
         }
       } catch (HopDatabaseException e) {

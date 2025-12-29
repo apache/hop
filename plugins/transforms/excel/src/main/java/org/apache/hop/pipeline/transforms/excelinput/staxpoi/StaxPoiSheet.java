@@ -321,18 +321,14 @@ public class StaxPoiSheet implements IKSheet {
       }
       return isFormula ? KCellType.NUMBER_FORMULA : KCellType.NUMBER;
     }
-    switch (cellType) {
-      case "s":
-        return KCellType.LABEL;
-      case "b":
-        return isFormula ? KCellType.BOOLEAN_FORMULA : KCellType.BOOLEAN;
-      case "e":
-        // error
-        return KCellType.EMPTY;
-      case "str":
-      default:
-        return KCellType.STRING_FORMULA;
-    }
+    return switch (cellType) {
+      case "s" -> KCellType.LABEL;
+      case "b" -> isFormula ? KCellType.BOOLEAN_FORMULA : KCellType.BOOLEAN;
+      case "e" ->
+          // error
+          KCellType.EMPTY;
+      default -> KCellType.STRING_FORMULA;
+    };
   }
 
   @VisibleForTesting
@@ -355,18 +351,15 @@ public class StaxPoiSheet implements IKSheet {
       return null;
     }
     try {
-      switch (type) {
-        case NUMBER, NUMBER_FORMULA:
-          return Double.parseDouble(vContent);
-        case BOOLEAN, BOOLEAN_FORMULA:
-          return vContent.equals("1");
-        case DATE, DATE_FORMULA:
+      return switch (type) {
+        case NUMBER, NUMBER_FORMULA -> Double.parseDouble(vContent);
+        case BOOLEAN, BOOLEAN_FORMULA -> vContent.equals("1");
+        case DATE, DATE_FORMULA -> {
           Double xlDate = Double.parseDouble(vContent);
-          return DateUtil.getJavaDate(xlDate, DATE_TZ);
-        case LABEL, STRING_FORMULA, EMPTY:
-        default:
-          return vContent;
-      }
+          yield DateUtil.getJavaDate(xlDate, DATE_TZ);
+        }
+        default -> vContent;
+      };
     } catch (Exception e) {
       return vContent;
     }

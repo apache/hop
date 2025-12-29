@@ -803,8 +803,7 @@ public class ScriptDialog extends BaseTransformDialog {
 
     List<SScript> jsScripts = input.getScripts();
     if (!jsScripts.isEmpty()) {
-      for (int i = 0; i < jsScripts.size(); i++) {
-        SScript script = jsScripts.get(i);
+      for (SScript script : jsScripts) {
         if (script.isTransformScript()) {
           strActiveScript = script.getScriptName();
         } else if (script.isStartScript()) {
@@ -889,17 +888,15 @@ public class ScriptDialog extends BaseTransformDialog {
     meta.getScripts().clear();
     CTabItem[] cTabs = folder.getItems();
     if (cTabs.length > 0) {
-      for (int i = 0; i < cTabs.length; i++) {
+      for (CTabItem cTab : cTabs) {
         SScript jsScript =
             new SScript(
-                ScriptType.NORMAL_SCRIPT,
-                cTabs[i].getText(),
-                getStyledTextComp(cTabs[i]).getText());
-        if (cTabs[i].getImage().equals(imageActiveScript)) {
+                ScriptType.NORMAL_SCRIPT, cTab.getText(), getStyledTextComp(cTab).getText());
+        if (cTab.getImage().equals(imageActiveScript)) {
           jsScript.setScriptType(ScriptType.TRANSFORM_SCRIPT);
-        } else if (cTabs[i].getImage().equals(imageActiveStartScript)) {
+        } else if (cTab.getImage().equals(imageActiveStartScript)) {
           jsScript.setScriptType(ScriptType.START_SCRIPT);
-        } else if (cTabs[i].getImage().equals(imageActiveEndScript)) {
+        } else if (cTab.getImage().equals(imageActiveEndScript)) {
           jsScript.setScriptType(ScriptType.END_SCRIPT);
         }
         meta.getScripts().add(jsScript);
@@ -964,8 +961,8 @@ public class ScriptDialog extends BaseTransformDialog {
     boolean bRC = false;
     if (itemToCheck.getItemCount() > 0) {
       TreeItem[] items = itemToCheck.getItems();
-      for (int i = 0; i < items.length; i++) {
-        if (items[i].getText().equals(strItemName)) {
+      for (TreeItem item : items) {
+        if (item.getText().equals(strItemName)) {
           return true;
         }
       }

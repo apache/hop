@@ -112,20 +112,14 @@ public class DriverCqlRowHandler implements CqlRowHandler {
       return null;
     }
 
-    switch (meta.getType()) {
-      case IValueMeta.TYPE_INTEGER:
-        return row.getLong(i);
-      case IValueMeta.TYPE_NUMBER:
-        return row.getDouble(i);
-      case IValueMeta.TYPE_BIGNUMBER:
-        return row.get(i, GenericType.BIG_DECIMAL);
-      case IValueMeta.TYPE_DATE:
-        return row.get(i, GenericType.of(Date.class));
-      case IValueMeta.TYPE_TIMESTAMP:
-        return row.get(i, GenericType.of(Timestamp.class));
-      default:
-        return row.getObject(i);
-    }
+    return switch (meta.getType()) {
+      case IValueMeta.TYPE_INTEGER -> row.getLong(i);
+      case IValueMeta.TYPE_NUMBER -> row.getDouble(i);
+      case IValueMeta.TYPE_BIGNUMBER -> row.get(i, GenericType.BIG_DECIMAL);
+      case IValueMeta.TYPE_DATE -> row.get(i, GenericType.of(Date.class));
+      case IValueMeta.TYPE_TIMESTAMP -> row.get(i, GenericType.of(Timestamp.class));
+      default -> row.getObject(i);
+    };
   }
 
   public static Object[] readRow(IRowMeta rowMeta, Row row) {

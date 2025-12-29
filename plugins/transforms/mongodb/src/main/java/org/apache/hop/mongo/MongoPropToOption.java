@@ -151,7 +151,7 @@ class MongoPropToOption {
     // write concern
     String writeConcern = props.get(MongoProp.writeConcern);
     String wTimeout = props.get(MongoProp.wTimeout);
-    boolean journaled = Boolean.valueOf(props.get(MongoProp.JOURNALED));
+    boolean journaled = Boolean.parseBoolean(props.get(MongoProp.JOURNALED));
 
     WriteConcern concern;
 

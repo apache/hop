@@ -368,7 +368,7 @@ public class ValueDataUtilTest {
 
     assertNull(ValueDataUtil.sum(metaA, null, metaB, null));
 
-    Long valueB = Long.valueOf(2);
+    Long valueB = 2L;
     ValueDataUtil.sum(metaA, null, metaB, valueB);
   }
 
@@ -381,7 +381,7 @@ public class ValueDataUtilTest {
     metaB.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     Object valueB = "2";
 
-    when(metaA.convertData(metaB, valueB)).thenAnswer((Answer<Long>) invocation -> Long.valueOf(2));
+    when(metaA.convertData(metaB, valueB)).thenAnswer((Answer<Long>) invocation -> 2L);
 
     Object returnValue = ValueDataUtil.sum(metaA, null, metaB, valueB);
     verify(metaA).convertData(metaB, valueB);
@@ -539,27 +539,25 @@ public class ValueDataUtilTest {
   // Math operations tests
   @Test
   public void testAbs() throws HopValueException {
-    assertEquals(Long.valueOf(5), ValueDataUtil.abs(new ValueMetaInteger(), Long.valueOf(-5)));
-    assertEquals(
-        Double.valueOf(5.5), ValueDataUtil.abs(new ValueMetaNumber(), Double.valueOf(-5.5)));
+    assertEquals(5L, ValueDataUtil.abs(new ValueMetaInteger(), (long) -5));
+    assertEquals(5.5, ValueDataUtil.abs(new ValueMetaNumber(), -5.5));
     assertEquals(
         new BigDecimal("5.5"), ValueDataUtil.abs(new ValueMetaBigNumber(), new BigDecimal("-5.5")));
   }
 
   @Test
   public void testSqrt() throws HopValueException {
-    Object result = ValueDataUtil.sqrt(new ValueMetaNumber(), Double.valueOf(16.0));
-    assertEquals(4.0, ((Double) result).doubleValue(), 0.001);
+    Object result = ValueDataUtil.sqrt(new ValueMetaNumber(), 16.0);
+    assertEquals(4.0, (Double) result, 0.001);
 
-    result = ValueDataUtil.sqrt(new ValueMetaInteger(), Long.valueOf(25));
-    assertEquals(Long.valueOf(5), result);
+    result = ValueDataUtil.sqrt(new ValueMetaInteger(), 25L);
+    assertEquals(5L, result);
   }
 
   @Test
   public void testCeil() throws HopValueException {
-    assertEquals(
-        Double.valueOf(6.0), ValueDataUtil.ceil(new ValueMetaNumber(), Double.valueOf(5.3)));
-    assertEquals(Long.valueOf(5), ValueDataUtil.ceil(new ValueMetaInteger(), Long.valueOf(5)));
+    assertEquals(6.0, ValueDataUtil.ceil(new ValueMetaNumber(), 5.3));
+    assertEquals(5L, ValueDataUtil.ceil(new ValueMetaInteger(), 5L));
     assertEquals(
         BigDecimal.valueOf(6.0),
         ValueDataUtil.ceil(new ValueMetaBigNumber(), new BigDecimal("5.3")));
@@ -567,9 +565,8 @@ public class ValueDataUtilTest {
 
   @Test
   public void testFloor() throws HopValueException {
-    assertEquals(
-        Double.valueOf(5.0), ValueDataUtil.floor(new ValueMetaNumber(), Double.valueOf(5.9)));
-    assertEquals(Long.valueOf(5), ValueDataUtil.floor(new ValueMetaInteger(), Long.valueOf(5)));
+    assertEquals(5.0, ValueDataUtil.floor(new ValueMetaNumber(), 5.9));
+    assertEquals(5L, ValueDataUtil.floor(new ValueMetaInteger(), 5L));
     assertEquals(
         BigDecimal.valueOf(5.0),
         ValueDataUtil.floor(new ValueMetaBigNumber(), new BigDecimal("5.9")));
@@ -577,20 +574,15 @@ public class ValueDataUtilTest {
 
   @Test
   public void testRoundNoDigits() throws HopValueException {
-    assertEquals(
-        Double.valueOf(5.0), ValueDataUtil.round(new ValueMetaNumber(), Double.valueOf(5.4)));
-    assertEquals(
-        Double.valueOf(6.0), ValueDataUtil.round(new ValueMetaNumber(), Double.valueOf(5.5)));
-    assertEquals(Long.valueOf(5), ValueDataUtil.round(new ValueMetaInteger(), Long.valueOf(5)));
+    assertEquals(5.0, ValueDataUtil.round(new ValueMetaNumber(), 5.4));
+    assertEquals(6.0, ValueDataUtil.round(new ValueMetaNumber(), 5.5));
+    assertEquals(5L, ValueDataUtil.round(new ValueMetaInteger(), 5L));
   }
 
   @Test
   public void testRoundWithDigits() throws HopValueException {
-    Object result =
-        ValueDataUtil.round(
-            new ValueMetaNumber(), Double.valueOf(5.456),
-            new ValueMetaInteger(), Long.valueOf(2));
-    assertEquals(5.46, ((Double) result).doubleValue(), 0.001);
+    Object result = ValueDataUtil.round(new ValueMetaNumber(), 5.456, new ValueMetaInteger(), 2L);
+    assertEquals(5.46, (Double) result, 0.001);
   }
 
   // Date operations tests
@@ -617,9 +609,7 @@ public class ValueDataUtilTest {
     Date date = cal.getTime();
 
     Date result =
-        (Date)
-            ValueDataUtil.addDays(
-                new ValueMetaDate(), date, new ValueMetaInteger(), Long.valueOf(5));
+        (Date) ValueDataUtil.addDays(new ValueMetaDate(), date, new ValueMetaInteger(), 5L);
 
     Calendar resultCal = Calendar.getInstance();
     resultCal.setTime(result);
@@ -633,9 +623,7 @@ public class ValueDataUtilTest {
     Date date = cal.getTime();
 
     Date result =
-        (Date)
-            ValueDataUtil.addHours(
-                new ValueMetaDate(), date, new ValueMetaInteger(), Long.valueOf(5));
+        (Date) ValueDataUtil.addHours(new ValueMetaDate(), date, new ValueMetaInteger(), 5L);
 
     Calendar resultCal = Calendar.getInstance();
     resultCal.setTime(result);
@@ -649,9 +637,7 @@ public class ValueDataUtilTest {
     Date date = cal.getTime();
 
     Date result =
-        (Date)
-            ValueDataUtil.addMinutes(
-                new ValueMetaDate(), date, new ValueMetaInteger(), Long.valueOf(45));
+        (Date) ValueDataUtil.addMinutes(new ValueMetaDate(), date, new ValueMetaInteger(), 45L);
 
     Calendar resultCal = Calendar.getInstance();
     resultCal.setTime(result);
@@ -719,9 +705,7 @@ public class ValueDataUtilTest {
   @Test
   public void testNvlWithIntegers() throws HopValueException {
     Long result =
-        (Long)
-            ValueDataUtil.nvl(
-                new ValueMetaInteger(), null, new ValueMetaInteger(), Long.valueOf(100));
+        (Long) ValueDataUtil.nvl(new ValueMetaInteger(), null, new ValueMetaInteger(), 100L);
     assertEquals(Long.valueOf(100), result);
   }
 
@@ -785,8 +769,8 @@ public class ValueDataUtilTest {
   // Test getZeroForValueMetaType
   @Test
   public void testGetZeroForValueMetaType() throws HopValueException {
-    assertEquals(Long.valueOf(0), ValueDataUtil.getZeroForValueMetaType(new ValueMetaInteger()));
-    assertEquals(Double.valueOf(0), ValueDataUtil.getZeroForValueMetaType(new ValueMetaNumber()));
+    assertEquals(0L, ValueDataUtil.getZeroForValueMetaType(new ValueMetaInteger()));
+    assertEquals((double) 0, ValueDataUtil.getZeroForValueMetaType(new ValueMetaNumber()));
     assertEquals(
         new BigDecimal(0), ValueDataUtil.getZeroForValueMetaType(new ValueMetaBigNumber()));
     assertEquals("", ValueDataUtil.getZeroForValueMetaType(new ValueMetaString()));
@@ -807,15 +791,15 @@ public class ValueDataUtilTest {
   public void testMinus() throws HopValueException {
     Object result =
         ValueDataUtil.minus(
-            new ValueMetaInteger(), Long.valueOf(10),
-            new ValueMetaInteger(), Long.valueOf(3));
-    assertEquals(Long.valueOf(7), result);
+            new ValueMetaInteger(), 10L,
+            new ValueMetaInteger(), 3L);
+    assertEquals(7L, result);
 
     result =
         ValueDataUtil.minus(
-            new ValueMetaNumber(), Double.valueOf(10.5),
-            new ValueMetaNumber(), Double.valueOf(3.2));
-    assertEquals(7.3, ((Double) result).doubleValue(), 0.001);
+            new ValueMetaNumber(), 10.5,
+            new ValueMetaNumber(), 3.2);
+    assertEquals(7.3, (Double) result, 0.001);
   }
 
   // Test multiply operation
@@ -823,15 +807,15 @@ public class ValueDataUtilTest {
   public void testMultiply() throws HopValueException {
     Object result =
         ValueDataUtil.multiply(
-            new ValueMetaInteger(), Long.valueOf(5),
-            new ValueMetaInteger(), Long.valueOf(3));
-    assertEquals(Long.valueOf(15), result);
+            new ValueMetaInteger(), 5L,
+            new ValueMetaInteger(), 3L);
+    assertEquals(15L, result);
 
     result =
         ValueDataUtil.multiply(
-            new ValueMetaNumber(), Double.valueOf(2.5),
-            new ValueMetaNumber(), Double.valueOf(4.0));
-    assertEquals(10.0, ((Double) result).doubleValue(), 0.001);
+            new ValueMetaNumber(), 2.5,
+            new ValueMetaNumber(), 4.0);
+    assertEquals(10.0, (Double) result, 0.001);
   }
 
   // Test divide operation
@@ -839,15 +823,15 @@ public class ValueDataUtilTest {
   public void testDivide() throws HopValueException {
     Object result =
         ValueDataUtil.divide(
-            new ValueMetaInteger(), Long.valueOf(10),
-            new ValueMetaInteger(), Long.valueOf(2));
-    assertEquals(Long.valueOf(5), result);
+            new ValueMetaInteger(), 10L,
+            new ValueMetaInteger(), 2L);
+    assertEquals(5L, result);
 
     result =
         ValueDataUtil.divide(
-            new ValueMetaNumber(), Double.valueOf(10.0),
-            new ValueMetaNumber(), Double.valueOf(2.0));
-    assertEquals(5.0, ((Double) result).doubleValue(), 0.001);
+            new ValueMetaNumber(), 10.0,
+            new ValueMetaNumber(), 2.0);
+    assertEquals(5.0, (Double) result, 0.001);
   }
 
   // Test isXmlWellFormed (for string content, not file)
@@ -882,11 +866,9 @@ public class ValueDataUtilTest {
     // percent1: A / B * 100
     Object result =
         ValueDataUtil.percent1(
-            new ValueMetaNumber(),
-            Double.valueOf(50.0),
-            new ValueMetaNumber(),
-            Double.valueOf(200.0));
-    assertEquals(25.0, ((Double) result).doubleValue(), 0.001);
+            new ValueMetaNumber(), 50.0,
+            new ValueMetaNumber(), 200.0);
+    assertEquals(25.0, (Double) result, 0.001);
   }
 
   @Test
@@ -894,11 +876,9 @@ public class ValueDataUtilTest {
     // percent2: A - (A * B / 100)
     Object result =
         ValueDataUtil.percent2(
-            new ValueMetaNumber(),
-            Double.valueOf(100.0),
-            new ValueMetaNumber(),
-            Double.valueOf(20.0));
-    assertEquals(80.0, ((Double) result).doubleValue(), 0.001);
+            new ValueMetaNumber(), 100.0,
+            new ValueMetaNumber(), 20.0);
+    assertEquals(80.0, (Double) result, 0.001);
   }
 
   @Test
@@ -906,11 +886,9 @@ public class ValueDataUtilTest {
     // percent3: A + (A * B / 100)
     Object result =
         ValueDataUtil.percent3(
-            new ValueMetaNumber(),
-            Double.valueOf(100.0),
-            new ValueMetaNumber(),
-            Double.valueOf(20.0));
-    assertEquals(120.0, ((Double) result).doubleValue(), 0.001);
+            new ValueMetaNumber(), 100.0,
+            new ValueMetaNumber(), 20.0);
+    assertEquals(120.0, (Double) result, 0.001);
   }
 
   // Combination functions tests
@@ -919,22 +897,18 @@ public class ValueDataUtilTest {
     // combination1: A + B * C
     Object result =
         ValueDataUtil.combination1(
-            new ValueMetaNumber(),
-            Double.valueOf(10.0),
-            new ValueMetaNumber(),
-            Double.valueOf(5.0),
-            new ValueMetaNumber(),
-            Double.valueOf(2.0));
-    assertEquals(20.0, ((Double) result).doubleValue(), 0.001);
+            new ValueMetaNumber(), 10.0,
+            new ValueMetaNumber(), 5.0,
+            new ValueMetaNumber(), 2.0);
+    assertEquals(20.0, (Double) result, 0.001);
   }
 
   @Test
   public void testCombination2() throws HopValueException {
     // combination2: SQRT(A * A + B * B)
     Object result =
-        ValueDataUtil.combination2(
-            new ValueMetaNumber(), Double.valueOf(3.0), new ValueMetaNumber(), Double.valueOf(4.0));
-    assertEquals(5.0, ((Double) result).doubleValue(), 0.001);
+        ValueDataUtil.combination2(new ValueMetaNumber(), 3.0, new ValueMetaNumber(), 4.0);
+    assertEquals(5.0, (Double) result, 0.001);
   }
 
   // Additional date operations tests
@@ -945,9 +919,7 @@ public class ValueDataUtilTest {
     Date date = cal.getTime();
 
     Date result =
-        (Date)
-            ValueDataUtil.addSeconds(
-                new ValueMetaDate(), date, new ValueMetaInteger(), Long.valueOf(90));
+        (Date) ValueDataUtil.addSeconds(new ValueMetaDate(), date, new ValueMetaInteger(), 90L);
 
     Calendar resultCal = Calendar.getInstance();
     resultCal.setTime(result);
@@ -962,9 +934,7 @@ public class ValueDataUtilTest {
     Date date = cal.getTime();
 
     Date result =
-        (Date)
-            ValueDataUtil.addMonths(
-                new ValueMetaDate(), date, new ValueMetaInteger(), Long.valueOf(3));
+        (Date) ValueDataUtil.addMonths(new ValueMetaDate(), date, new ValueMetaInteger(), 3L);
 
     Calendar resultCal = Calendar.getInstance();
     resultCal.setTime(result);
@@ -1211,23 +1181,17 @@ public class ValueDataUtilTest {
   public void testPlus3() throws HopValueException {
     Object result =
         ValueDataUtil.plus3(
-            new ValueMetaInteger(),
-            Long.valueOf(10),
-            new ValueMetaInteger(),
-            Long.valueOf(20),
-            new ValueMetaInteger(),
-            Long.valueOf(30));
-    assertEquals(Long.valueOf(60), result);
+            new ValueMetaInteger(), 10L,
+            new ValueMetaInteger(), 20L,
+            new ValueMetaInteger(), 30L);
+    assertEquals(60L, result);
 
     result =
         ValueDataUtil.plus3(
-            new ValueMetaNumber(),
-            Double.valueOf(10.5),
-            new ValueMetaNumber(),
-            Double.valueOf(20.3),
-            new ValueMetaNumber(),
-            Double.valueOf(5.2));
-    assertEquals(36.0, ((Double) result).doubleValue(), 0.001);
+            new ValueMetaNumber(), 10.5,
+            new ValueMetaNumber(), 20.3,
+            new ValueMetaNumber(), 5.2);
+    assertEquals(36.0, (Double) result, 0.001);
   }
 
   // Test multiplyDoubles and multiplyLongs

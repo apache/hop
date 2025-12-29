@@ -233,7 +233,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
             break;
           case IValueMeta.TYPE_BOOLEAN:
             Boolean b = iRowMeta.getBoolean(row, i);
-            if (b.booleanValue()) {
+            if (b) {
               dataFilePrintStream.print("Y");
             } else {
               dataFilePrintStream.print("N");

@@ -176,8 +176,8 @@ public class MongoField implements Comparable<MongoField> {
    */
   public Object getHopValue(Object fieldValue) throws HopException {
 
-    switch (tempValueMeta.getType()) {
-      case IValueMeta.TYPE_BIGNUMBER:
+    return switch (tempValueMeta.getType()) {
+      case IValueMeta.TYPE_BIGNUMBER -> {
         if (fieldValue instanceof Number number) {
           fieldValue = BigDecimal.valueOf(number.doubleValue());
         } else if (fieldValue instanceof Date date) {
@@ -185,8 +185,9 @@ public class MongoField implements Comparable<MongoField> {
         } else {
           fieldValue = new BigDecimal(fieldValue.toString());
         }
-        return tempValueMeta.getBigNumber(fieldValue);
-      case IValueMeta.TYPE_BINARY:
+        yield tempValueMeta.getBigNumber(fieldValue);
+      }
+      case IValueMeta.TYPE_BINARY -> {
         if (fieldValue instanceof Binary binary) {
           fieldValue = binary.getData();
         } else if (fieldValue instanceof byte[]) {
@@ -194,21 +195,22 @@ public class MongoField implements Comparable<MongoField> {
         } else {
           fieldValue = fieldValue.toString().getBytes();
         }
-        return tempValueMeta.getBinary(fieldValue);
-      case IValueMeta.TYPE_BOOLEAN:
+        yield tempValueMeta.getBinary(fieldValue);
+      }
+      case IValueMeta.TYPE_BOOLEAN -> {
         if (fieldValue instanceof Number number) {
-          fieldValue = Boolean.valueOf(number.intValue() != 0);
+          fieldValue = number.intValue() != 0;
         } else if (fieldValue instanceof Date date) {
-          fieldValue = Boolean.valueOf(date.getTime() != 0);
+          fieldValue = date.getTime() != 0;
         } else if (!(fieldValue instanceof Boolean)) {
           fieldValue =
-              Boolean.valueOf(
-                  fieldValue.toString().equalsIgnoreCase("Y")
-                      || fieldValue.toString().equalsIgnoreCase("T")
-                      || fieldValue.toString().equalsIgnoreCase("1"));
+              fieldValue.toString().equalsIgnoreCase("Y")
+                  || fieldValue.toString().equalsIgnoreCase("T")
+                  || fieldValue.toString().equalsIgnoreCase("1");
         }
-        return tempValueMeta.getBoolean(fieldValue);
-      case IValueMeta.TYPE_DATE:
+        yield tempValueMeta.getBoolean(fieldValue);
+      }
+      case IValueMeta.TYPE_DATE -> {
         if (fieldValue instanceof Number number) {
           fieldValue = new Date(number.longValue());
         } else if (!(fieldValue instanceof Date)) {
@@ -216,10 +218,11 @@ public class MongoField implements Comparable<MongoField> {
               BaseMessages.getString(
                   PKG, "MongoDbInput.ErrorMessage.DateConversion", fieldValue.toString()));
         }
-        return tempValueMeta.getDate(fieldValue);
-      case IValueMeta.TYPE_INTEGER:
+        yield tempValueMeta.getDate(fieldValue);
+      }
+      case IValueMeta.TYPE_INTEGER -> {
         if (fieldValue instanceof Number number) {
-          fieldValue = Long.valueOf(number.intValue());
+          fieldValue = (long) number.intValue();
         } else if (fieldValue instanceof Binary binary) {
           byte[] b = binary.getData();
           String s = new String(b);
@@ -227,10 +230,11 @@ public class MongoField implements Comparable<MongoField> {
         } else {
           fieldValue = Long.valueOf(fieldValue.toString());
         }
-        return tempValueMeta.getInteger(fieldValue);
-      case IValueMeta.TYPE_NUMBER:
+        yield tempValueMeta.getInteger(fieldValue);
+      }
+      case IValueMeta.TYPE_NUMBER -> {
         if (fieldValue instanceof Number number) {
-          fieldValue = Double.valueOf(number.doubleValue());
+          fieldValue = number.doubleValue();
         } else if (fieldValue instanceof Binary binary) {
           byte[] b = binary.getData();
           String s = new String(b);
@@ -238,30 +242,31 @@ public class MongoField implements Comparable<MongoField> {
         } else {
           fieldValue = Double.valueOf(fieldValue.toString());
         }
-        return tempValueMeta.getNumber(fieldValue);
-      case IValueMeta.TYPE_STRING:
-        return tempValueMeta.getString(fieldValue);
-      case IValueMeta.TYPE_JSON:
-        // Jackson JsonNode handling:
-        // Supports JSON values (and binary type 0), BSON objects like Date/UUID
-        // are not supported since they're not JSON values
-        return tempValueMeta.getJson(fieldValue);
-      default:
+        yield tempValueMeta.getNumber(fieldValue);
+      }
+      case IValueMeta.TYPE_STRING -> tempValueMeta.getString(fieldValue);
+      case IValueMeta.TYPE_JSON ->
+          // Jackson JsonNode handling:
+          // Supports JSON values (and binary type 0), BSON objects like Date/UUID
+          // are not supported since they're not JSON values
+          tempValueMeta.getJson(fieldValue);
+      default -> {
         // UUID support
         try {
           int uuidTypeId = ValueMetaFactory.getIdForValueMeta("UUID");
           if (tempValueMeta.getType() == uuidTypeId) {
             if (fieldValue instanceof java.util.UUID uuid) {
-              return uuid;
+              yield uuid;
             } else {
-              return java.util.UUID.fromString(fieldValue.toString());
+              yield java.util.UUID.fromString(fieldValue.toString());
             }
           }
         } catch (Exception ignore) {
           // UUID plugin not present, fall through
         }
-        return null;
-    }
+        yield null;
+      }
+    };
   }
 
   /**

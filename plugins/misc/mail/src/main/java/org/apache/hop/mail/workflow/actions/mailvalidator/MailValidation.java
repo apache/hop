@@ -196,13 +196,13 @@ public class MailValidation {
     // a message [store and forwarder for example] and another [like
     // the actual mail server] to reject it. This is why we REALLY ought
     // to take the preference into account.
-    for (int mx = 0; mx < mxList.size(); mx++) {
+    for (String s : mxList) {
       boolean valid = false;
       BufferedReader rdr = null;
       BufferedWriter wtr = null;
       Socket skt = null;
       try {
-        String exhanger = mxList.get(mx);
+        String exhanger = s;
         if (log.isDebug()) {
           log.logDebug(
               className(), BaseMessages.getString(PKG, "MailValidator.TryingExchanger", exhanger));

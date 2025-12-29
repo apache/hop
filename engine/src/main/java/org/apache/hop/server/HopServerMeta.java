@@ -612,7 +612,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     if (!Utils.isEmpty(nonProxyHosts) && hostName.matches(nonProxyHosts)) {
       return;
     }
-    HttpHost httpHost = new HttpHost(proxyHost, Integer.valueOf(proxyPort));
+    HttpHost httpHost = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
 
     RequestConfig requestConfig = RequestConfig.custom().setProxy(httpHost).build();
 

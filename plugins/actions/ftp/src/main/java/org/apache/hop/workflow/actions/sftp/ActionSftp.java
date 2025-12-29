@@ -443,8 +443,8 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
       try {
 
         // Copy the input row to the (command line) arguments
-        for (int iteration = 0; iteration < rows.size(); iteration++) {
-          resultRow = rows.get(iteration);
+        for (RowMetaAndData row : rows) {
+          resultRow = row;
 
           // Get file names
           String filePrevious = resultRow.getString(0, null);

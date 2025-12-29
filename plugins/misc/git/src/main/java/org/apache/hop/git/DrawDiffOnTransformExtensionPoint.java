@@ -64,14 +64,13 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
                   String status = transform.getAttribute(ATTR_GIT, ATTR_STATUS);
                   Point n = transform.getLocation();
                   String location;
-                  if (status.equals(REMOVED)) {
-                    location = "removed.svg";
-                  } else if (status.equals(CHANGED)) {
-                    location = "changed.svg";
-                  } else if (status.equals(ADDED)) {
-                    location = "added.svg";
-                  } else { // Unchanged
-                    return;
+                  switch (status) {
+                    case REMOVED -> location = "removed.svg";
+                    case CHANGED -> location = "changed.svg";
+                    case ADDED -> location = "added.svg";
+                    default -> {
+                      return;
+                    }
                   }
                   int iconSize = ConstUi.ICON_SIZE;
                   try {

@@ -66,7 +66,7 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   public int conditionReceivedDate;
 
   public Map<String, String> valueImaps =
-      new HashMap<String, String>() {
+      new HashMap<>() {
         {
           put("imaplistall", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetAll.Label"));
           put("imaplistnew", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNew.Label"));
@@ -200,10 +200,10 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     MailInputMeta retval = (MailInputMeta) super.clone();
     int nrFields = inputFields.size();
     //    retval.allocate(nrFields);
-    List<MailInputField> retvalFields = new ArrayList<MailInputField>();
-    for (int i = 0; i < nrFields; i++) {
-      if (inputFields.get(i) != null) {
-        retvalFields.add((MailInputField) inputFields.get(i).clone());
+    List<MailInputField> retvalFields = new ArrayList<>();
+    for (MailInputField inputField : inputFields) {
+      if (inputField != null) {
+        retvalFields.add((MailInputField) inputField.clone());
         //        retval.inputFields.set(i) = (MailInputField) inputFields.get(i).clone();
       }
     }

@@ -207,25 +207,16 @@ public enum GraphPropertyType {
   }
 
   public static final GraphPropertyType getTypeFromHop(IValueMeta valueMeta) {
-    switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_STRING:
-        return GraphPropertyType.String;
-      case IValueMeta.TYPE_NUMBER:
-        return GraphPropertyType.Float;
-      case IValueMeta.TYPE_DATE:
-        return GraphPropertyType.LocalDateTime;
-      case IValueMeta.TYPE_TIMESTAMP:
-        return GraphPropertyType.LocalDateTime;
-      case IValueMeta.TYPE_BOOLEAN:
-        return GraphPropertyType.Boolean;
-      case IValueMeta.TYPE_BINARY:
-        return GraphPropertyType.ByteArray;
-      case IValueMeta.TYPE_BIGNUMBER:
-        return GraphPropertyType.String;
-      case IValueMeta.TYPE_INTEGER:
-        return GraphPropertyType.Integer;
-      default:
-        return GraphPropertyType.String;
-    }
+    return switch (valueMeta.getType()) {
+      case IValueMeta.TYPE_STRING -> GraphPropertyType.String;
+      case IValueMeta.TYPE_NUMBER -> GraphPropertyType.Float;
+      case IValueMeta.TYPE_DATE -> GraphPropertyType.LocalDateTime;
+      case IValueMeta.TYPE_TIMESTAMP -> GraphPropertyType.LocalDateTime;
+      case IValueMeta.TYPE_BOOLEAN -> GraphPropertyType.Boolean;
+      case IValueMeta.TYPE_BINARY -> GraphPropertyType.ByteArray;
+      case IValueMeta.TYPE_BIGNUMBER -> GraphPropertyType.String;
+      case IValueMeta.TYPE_INTEGER -> GraphPropertyType.Integer;
+      default -> GraphPropertyType.String;
+    };
   }
 }

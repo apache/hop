@@ -246,9 +246,7 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     xml.append("      ").append(XmlHandler.addTagValue("omitNullValues", omitNullValues));
     xml.append("    </file>").append(Const.CR);
     xml.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < outputFields.length; i++) {
-      XmlField field = outputFields[i];
-
+    for (XmlField field : outputFields) {
       if (!Utils.isEmpty(field.getFieldName())) {
         xml.append("      <field>").append(Const.CR);
         xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", field.getFieldName()));
@@ -302,10 +300,10 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < outputFields.length; i++) {
-        int idx = prev.indexOfValue(outputFields[i].getFieldName());
+      for (XmlField outputField : outputFields) {
+        int idx = prev.indexOfValue(outputField.getFieldName());
         if (idx < 0) {
-          errorMessage += "\t\t" + outputFields[i].getFieldName() + Const.CR;
+          errorMessage += "\t\t" + outputField.getFieldName() + Const.CR;
           errorFound = true;
         }
       }

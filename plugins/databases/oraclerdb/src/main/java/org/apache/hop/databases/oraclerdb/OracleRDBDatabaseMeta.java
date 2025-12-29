@@ -412,11 +412,8 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   @Override
   public String getSqlLockTables(String[] tableNames) {
     StringBuilder sql = new StringBuilder(128);
-    for (int i = 0; i < tableNames.length; i++) {
-      sql.append("LOCK TABLE ")
-          .append(tableNames[i])
-          .append(" IN EXCLUSIVE MODE;")
-          .append(Const.CR);
+    for (String tableName : tableNames) {
+      sql.append("LOCK TABLE ").append(tableName).append(" IN EXCLUSIVE MODE;").append(Const.CR);
     }
     return sql.toString();
   }

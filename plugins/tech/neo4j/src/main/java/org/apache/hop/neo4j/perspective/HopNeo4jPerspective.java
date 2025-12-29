@@ -833,8 +833,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
                   Value vExecutionStart = record.get(pos++);
                   item.setText(pos, Const.NVL(vExecutionStart.asString(), "").replace("T", " "));
                   Value vDurationMs = record.get(pos++);
-                  String durationHMS =
-                      LoggingCore.getFancyDurationFromMs(Long.valueOf(vDurationMs.asLong(0)));
+                  String durationHMS = LoggingCore.getFancyDurationFromMs(vDurationMs.asLong(0));
                   item.setText(pos, durationHMS);
 
                   if (errors != 0) {

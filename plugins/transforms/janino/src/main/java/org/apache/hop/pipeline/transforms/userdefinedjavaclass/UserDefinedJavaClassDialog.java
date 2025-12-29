@@ -956,9 +956,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   private TreeItem getTreeItemByName(String strTabName) {
     TreeItem[] tItems = wTreeClassesItem.getItems();
-    for (int i = 0; i < tItems.length; i++) {
-      if (tItems[i].getText().equals(strTabName)) {
-        return tItems[i];
+    for (TreeItem tItem : tItems) {
+      if (tItem.getText().equals(strTabName)) {
+        return tItem;
       }
     }
     return null;
@@ -976,9 +976,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   private CTabItem getCTabItemByName(String strTabName) {
     CTabItem[] cItems = folder.getItems();
-    for (int i = 0; i < cItems.length; i++) {
-      if (cItems[i].getText().equals(strTabName)) {
-        return cItems[i];
+    for (CTabItem cItem : cItems) {
+      if (cItem.getText().equals(strTabName)) {
+        return cItem;
       }
     }
     return null;
@@ -1205,9 +1205,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
     CTabItem[] cTabs = folder.getItems();
     if (cTabs.length > 0) {
-      for (int i = 0; i < cTabs.length; i++) {
+      for (CTabItem cTab : cTabs) {
         JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
-        List<String> codeCheck = janinoCheckerUtil.checkCode(getStyledTextComp(cTabs[i]).getText());
+        List<String> codeCheck = janinoCheckerUtil.checkCode(getStyledTextComp(cTab).getText());
         if (!codeCheck.isEmpty()) {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
           mb.setText("Invalid Code");
@@ -1220,11 +1220,11 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
     if (cTabs.length > 0) {
       List<UserDefinedJavaClassDef> definitions = new ArrayList<>(cTabs.length);
-      for (int i = 0; i < cTabs.length; i++) {
+      for (CTabItem cTab : cTabs) {
         UserDefinedJavaClassDef def =
             new UserDefinedJavaClassDef(
-                ClassType.NORMAL_CLASS, cTabs[i].getText(), getStyledTextComp(cTabs[i]).getText());
-        if (cTabs[i].getImage().equals(imageActiveScript)) {
+                ClassType.NORMAL_CLASS, cTab.getText(), getStyledTextComp(cTab).getText());
+        if (cTab.getImage().equals(imageActiveScript)) {
           def.setClassType(ClassType.TRANSFORM_CLASS);
         }
         definitions.add(def);
@@ -1388,12 +1388,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
               case IValueMeta.TYPE_INTEGER:
                 field.setFormat("#");
                 valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(Long.valueOf(0L));
+                string = valueMeta.getString(0L);
                 break;
               case IValueMeta.TYPE_NUMBER:
                 field.setFormat("#.#");
                 valueMeta.setConversionMask(field.getFormat());
-                string = valueMeta.getString(Double.valueOf(0.0D));
+                string = valueMeta.getString(0.0D);
                 break;
               case IValueMeta.TYPE_BIGNUMBER:
                 field.setFormat("#.#");
@@ -1539,8 +1539,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     boolean bRC = false;
     if (itemToCheck.getItemCount() > 0) {
       TreeItem[] items = itemToCheck.getItems();
-      for (int i = 0; i < items.length; i++) {
-        if (items[i].getText().equals(strItemName)) {
+      for (TreeItem item : items) {
+        if (item.getText().equals(strItemName)) {
           return true;
         }
       }

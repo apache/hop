@@ -150,8 +150,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
       fieldItem.setText(inputField);
     }
 
-    for (int i = 0; i < categories.length; i++) {
-      String category = categories[i];
+    for (String category : categories) {
       String i18nCategory = category;
       // Look up the category in i18n if needed.
       if (category.startsWith("%")) {

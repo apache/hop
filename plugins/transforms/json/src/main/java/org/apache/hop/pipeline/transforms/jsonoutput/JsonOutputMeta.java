@@ -295,10 +295,10 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < outputFields.size(); i++) {
-        int idx = prev.indexOfValue(outputFields.get(i).getFieldName());
+      for (JsonOutputField outputField : outputFields) {
+        int idx = prev.indexOfValue(outputField.getFieldName());
         if (idx < 0) {
-          errorMessage += "\t\t" + outputFields.get(i).getFieldName() + Const.CR;
+          errorMessage += "\t\t" + outputField.getFieldName() + Const.CR;
           errorFound = true;
         }
       }

@@ -243,8 +243,8 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
 
       // Delete all the hits (in case some duplicates were introduced)
       //
-      for (int i = 0; i < jHits.size(); i++) {
-        JSONObject jHit = (JSONObject) jHits.get(i);
+      for (Object hit : jHits) {
+        JSONObject jHit = (JSONObject) hit;
         String elasticId = (String) jHit.get("_id");
 
         URI deleteUri = uri.resolve(actualIndexName + "/_doc/" + elasticId);

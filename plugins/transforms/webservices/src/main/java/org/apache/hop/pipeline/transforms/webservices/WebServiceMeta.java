@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.webservices;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -357,8 +356,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
 
   public WebServiceField getFieldInFromName(String name) {
     WebServiceField param = null;
-    for (Iterator<WebServiceField> iter = getFieldsIn().iterator(); iter.hasNext(); ) {
-      WebServiceField paramCour = iter.next();
+    for (WebServiceField paramCour : getFieldsIn()) {
       if (name.equals(paramCour.getName())) {
         param = paramCour;
         break;
@@ -391,8 +389,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     }
 
     // we now look for the wsname
-    for (Iterator<WebServiceField> iter = getFieldsOut().iterator(); iter.hasNext(); ) {
-      WebServiceField paramCour = iter.next();
+    for (WebServiceField paramCour : getFieldsOut()) {
       if (paramCour.getWsName().equals(wsName)) {
         param = paramCour;
         break;

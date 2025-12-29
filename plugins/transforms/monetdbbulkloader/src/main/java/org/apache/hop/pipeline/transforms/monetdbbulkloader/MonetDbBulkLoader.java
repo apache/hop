@@ -313,7 +313,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
                     colMeta = physicalTableRowMeta.getValueMeta(index);
                   }
                   IValueMeta valueMetaInt = new ValueMetaInteger(valueMeta.getName());
-                  Long precision = Long.valueOf(colMeta.getPrecision());
+                  Long precision = (long) colMeta.getPrecision();
                   line.append(
                       ValueDataUtil.round(
                           valueMeta,
@@ -338,7 +338,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
                     colMeta = physicalTableRowMeta.getValueMeta(index);
                   }
                   IValueMeta valueMetaInt = new ValueMetaInteger(valueMeta.getName());
-                  Long precision = Long.valueOf(colMeta.getPrecision());
+                  Long precision = (long) colMeta.getPrecision();
                   line.append(
                       ValueDataUtil.round(
                           valueMeta,

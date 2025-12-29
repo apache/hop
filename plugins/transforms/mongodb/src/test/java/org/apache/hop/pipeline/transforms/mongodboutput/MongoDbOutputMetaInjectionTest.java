@@ -54,181 +54,36 @@ public class MongoDbOutputMetaInjectionTest
 
   @Test
   void test() throws Exception {
-    check(
-        "TRUNCATE",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.truncate;
-          }
-        });
-    check(
-        "UPDATE",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.update;
-          }
-        });
-    check(
-        "UPSERT",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.upsert;
-          }
-        });
-    check(
-        "MULTI",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.multi;
-          }
-        });
-    check(
-        "MODIFIER_UPDATE",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.modifierUpdate;
-          }
-        });
-    check(
-        "BATCH_INSERT_SIZE",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.batchInsertSize;
-          }
-        });
-    check(
-        "RETRY_NUMBER",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getWriteRetries();
-          }
-        });
-    check(
-        "RETRY_DELAY",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getWriteRetryDelay();
-          }
-        });
-    check(
-        "CONNECTION",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getConnectionName();
-          }
-        });
-    check(
-        "COLLECTION",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getCollection();
-          }
-        });
+    check("TRUNCATE", (IBooleanGetter) () -> meta.truncate);
+    check("UPDATE", (IBooleanGetter) () -> meta.update);
+    check("UPSERT", (IBooleanGetter) () -> meta.upsert);
+    check("MULTI", (IBooleanGetter) () -> meta.multi);
+    check("MODIFIER_UPDATE", (IBooleanGetter) () -> meta.modifierUpdate);
+    check("BATCH_INSERT_SIZE", (IStringGetter) () -> meta.batchInsertSize);
+    check("RETRY_NUMBER", (IStringGetter) () -> meta.getWriteRetries());
+    check("RETRY_DELAY", (IStringGetter) () -> meta.getWriteRetryDelay());
+    check("CONNECTION", (IStringGetter) () -> meta.getConnectionName());
+    check("COLLECTION", (IStringGetter) () -> meta.getCollection());
     check(
         "INCOMING_FIELD_NAME",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getMongoFields().get(0).incomingFieldName;
-          }
-        });
-    check(
-        "MONGO_DOCUMENT_PATH",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getMongoFields().get(0).mongoDocPath;
-          }
-        });
+        (IStringGetter) () -> meta.getMongoFields().get(0).incomingFieldName);
+    check("MONGO_DOCUMENT_PATH", (IStringGetter) () -> meta.getMongoFields().get(0).mongoDocPath);
     check(
         "INCOMING_AS_MONGO",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getMongoFields().get(0).useIncomingFieldNameAsMongoFieldName;
-          }
-        });
+        (IBooleanGetter) () -> meta.getMongoFields().get(0).useIncomingFieldNameAsMongoFieldName);
     check(
-        "UPDATE_MATCH_FIELD",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getMongoFields().get(0).updateMatchField;
-          }
-        });
+        "UPDATE_MATCH_FIELD", (IBooleanGetter) () -> meta.getMongoFields().get(0).updateMatchField);
     check(
         "MODIFIER_OPERATION",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getMongoFields().get(0).modifierUpdateOperation;
-          }
-        });
+        (IStringGetter) () -> meta.getMongoFields().get(0).modifierUpdateOperation);
     check(
         "MODIFIER_POLICY",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getMongoFields().get(0).modifierOperationApplyPolicy;
-          }
-        });
-    check(
-        "INSERT_NULL",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getMongoFields().get(0).insertNull;
-          }
-        });
-    check(
-        "JSON",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getMongoFields().get(0).inputJson;
-          }
-        });
-    check(
-        "INDEX_FIELD",
-        new IStringGetter() {
-          @Override
-          public String get() {
-            return meta.getMongoIndexes().get(0).pathToFields;
-          }
-        });
-    check(
-        "DROP",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getMongoIndexes().get(0).drop;
-          }
-        });
-    check(
-        "UNIQUE",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getMongoIndexes().get(0).unique;
-          }
-        });
-    check(
-        "SPARSE",
-        new IBooleanGetter() {
-          @Override
-          public boolean get() {
-            return meta.getMongoIndexes().get(0).sparse;
-          }
-        });
+        (IStringGetter) () -> meta.getMongoFields().get(0).modifierOperationApplyPolicy);
+    check("INSERT_NULL", (IBooleanGetter) () -> meta.getMongoFields().get(0).insertNull);
+    check("JSON", (IBooleanGetter) () -> meta.getMongoFields().get(0).inputJson);
+    check("INDEX_FIELD", (IStringGetter) () -> meta.getMongoIndexes().get(0).pathToFields);
+    check("DROP", (IBooleanGetter) () -> meta.getMongoIndexes().get(0).drop);
+    check("UNIQUE", (IBooleanGetter) () -> meta.getMongoIndexes().get(0).unique);
+    check("SPARSE", (IBooleanGetter) () -> meta.getMongoIndexes().get(0).sparse);
   }
 }

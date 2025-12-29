@@ -171,7 +171,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
           }
           if (sasValue instanceof Float) {
             inputValueMeta = new ValueMetaNumber(fieldName);
-            value = Double.valueOf((double) sasValue);
+            value = (double) sasValue;
           }
           if (sasValue instanceof Long) {
             inputValueMeta = new ValueMetaInteger(fieldName);
@@ -179,7 +179,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
           }
           if (sasValue instanceof Integer) {
             inputValueMeta = new ValueMetaInteger(fieldName);
-            value = Long.valueOf((int) sasValue);
+            value = (long) (int) sasValue;
           }
           if (sasValue instanceof Date) {
             inputValueMeta = new ValueMetaDate(fieldName);

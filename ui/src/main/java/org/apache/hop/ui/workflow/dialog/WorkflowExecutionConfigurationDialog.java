@@ -198,8 +198,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
     List<String> paramNames = new ArrayList<>(configuration.getParametersMap().keySet());
 
-    for (int i = 0; i < variableNames.size(); i++) {
-      String variableName = variableNames.get(i);
+    for (String variableName : variableNames) {
       String variableValue = configuration.getVariablesMap().get(variableName);
 
       if (!paramNames.contains(variableName)) {

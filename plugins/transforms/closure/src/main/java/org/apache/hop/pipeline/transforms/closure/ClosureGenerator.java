@@ -133,7 +133,7 @@ public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, Closur
 
       data.topLevel = null;
       if (meta.isRootIdZero()) {
-        data.topLevel = Long.valueOf(0);
+        data.topLevel = 0L;
       }
 
       return true;

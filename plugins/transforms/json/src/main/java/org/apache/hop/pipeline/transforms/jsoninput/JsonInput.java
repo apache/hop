@@ -466,7 +466,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     }
     // See if we need to add the row number to the row...
     if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-      outputRowData[rowIndex++] = Long.valueOf(data.rownr);
+      outputRowData[rowIndex++] = data.rownr;
     }
     // Possibly add short filename...
     if (!Utils.isEmpty(meta.getShortFileNameField())) {

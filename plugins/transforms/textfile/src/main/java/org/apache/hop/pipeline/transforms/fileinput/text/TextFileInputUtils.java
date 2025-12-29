@@ -387,7 +387,7 @@ public class TextFileInputUtils {
     if (info.errorHandling.errorIgnored
         && info.getErrorCountField() != null
         && !info.getErrorCountField().isEmpty()) {
-      errorCount = Long.valueOf(0L);
+      errorCount = 0L;
     }
     String errorFields = null;
     if (info.errorHandling.errorIgnored
@@ -452,7 +452,7 @@ public class TextFileInputUtils {
                 value = null;
 
                 if (errorCount != null) {
-                  errorCount = Long.valueOf(errorCount.longValue() + 1L);
+                  errorCount = errorCount + 1L;
                 }
                 if (errorFields != null) {
                   StringBuilder sb = new StringBuilder(errorFields);

@@ -652,8 +652,7 @@ public class CrateDBBulkLoaderMeta
                     }
                   } else {
                     // Specifying the column names explicitly
-                    for (int i = 0; i < fields.size(); i++) {
-                      CrateDBBulkLoaderField vbf = fields.get(i);
+                    for (CrateDBBulkLoaderField vbf : fields) {
                       int idx = prev.indexOfValue(vbf.getStreamField());
                       if (idx < 0) {
                         error_message += "\t\t" + vbf.getStreamField() + Const.CR;

@@ -342,8 +342,8 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     IStream infoStream = getTransformIOMeta().getInfoStreams().get(0);
     if (!Utils.isEmpty(infoStream.getTransformName())) {
       boolean found = false;
-      for (int i = 0; i < input.length; i++) {
-        if (infoStream.getTransformName().equalsIgnoreCase(input[i])) {
+      for (String s : input) {
+        if (infoStream.getTransformName().equalsIgnoreCase(s)) {
           found = true;
         }
       }

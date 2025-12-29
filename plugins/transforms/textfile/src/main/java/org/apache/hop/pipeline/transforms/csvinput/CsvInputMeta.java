@@ -251,9 +251,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
     retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
 
     retval.append("    ").append(XmlHandler.openTag(CONST_FIELDS)).append(Const.CR);
-    for (int i = 0; i < inputFields.length; i++) {
-      TextFileInputField field = inputFields[i];
-
+    for (TextFileInputField field : inputFields) {
       retval.append(CONST_SPACES).append(XmlHandler.openTag(CONST_FIELD)).append(Const.CR);
       retval.append(CONST_SPACES_LONG).append(XmlHandler.addTagValue("name", field.getName()));
       retval
@@ -340,9 +338,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
           // ignore any errors here.
         }
       } else {
-        for (int i = 0; i < inputFields.length; i++) {
-          TextFileInputField field = inputFields[i];
-
+        for (TextFileInputField field : inputFields) {
           IValueMeta valueMeta = ValueMetaFactory.createValueMeta(field.getName(), field.getType());
           valueMeta.setConversionMask(field.getFormat());
           valueMeta.setLength(field.getLength());

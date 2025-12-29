@@ -23,7 +23,7 @@ import org.apache.hop.core.Const;
 
 public class HopLogLayout {
   private static final ThreadLocal<SimpleDateFormat> LOCAL_SIMPLE_DATE_PARSER =
-      new ThreadLocal<SimpleDateFormat>() {
+      new ThreadLocal<>() {
         @Override
         protected SimpleDateFormat initialValue() {
           return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");

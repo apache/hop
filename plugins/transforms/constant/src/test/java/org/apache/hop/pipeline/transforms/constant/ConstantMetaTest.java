@@ -89,7 +89,7 @@ class ConstantMetaTest implements IInitializer<ConstantMeta> {
                 "group",
                 "decimal",
                 "currency"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getFieldName");
                 put("type", "getFieldType");
@@ -103,7 +103,7 @@ class ConstantMetaTest implements IInitializer<ConstantMeta> {
                 put("currency", "getCurrency");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "setFieldName");
                 put("type", "setFieldType");

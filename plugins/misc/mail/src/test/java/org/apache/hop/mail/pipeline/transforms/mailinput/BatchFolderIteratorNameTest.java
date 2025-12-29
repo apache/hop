@@ -43,8 +43,8 @@ class BatchFolderIteratorNameTest {
             (Answer<Message[]>)
                 invocation -> {
                   Object[] args = invocation.getArguments();
-                  int start = ((Integer) args[0]).intValue();
-                  int end = ((Integer) args[1]).intValue();
+                  int start = (Integer) args[0];
+                  int end = (Integer) args[1];
                   return new Message[end - start + 1];
                 });
   }

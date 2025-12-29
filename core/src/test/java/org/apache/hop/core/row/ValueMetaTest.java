@@ -122,7 +122,7 @@ public class ValueMetaTest {
     intValueMeta.setConversionMask(null);
     intValueMeta.setLength(7);
 
-    Long originalValue = Long.valueOf(123L);
+    Long originalValue = 123L;
 
     String string = intValueMeta.getString(originalValue);
 
@@ -144,7 +144,7 @@ public class ValueMetaTest {
     numValueMeta.setDecimalSymbol(",");
     numValueMeta.setGroupingSymbol(".");
 
-    Double originalValue = Double.valueOf(123.456);
+    Double originalValue = 123.456;
 
     String string = numValueMeta.getString(originalValue);
 
@@ -924,10 +924,10 @@ public class ValueMetaTest {
 
   @Test
   public void testCompareIntegersNormalStorageData() throws Exception {
-    Long integer1 = Long.valueOf(1234L);
-    Long integer2 = Long.valueOf(1235L);
-    Long integer3 = Long.valueOf(1233L);
-    Long integer4 = Long.valueOf(1234L);
+    Long integer1 = 1234L;
+    Long integer2 = 1235L;
+    Long integer3 = 1233L;
+    Long integer4 = 1234L;
     Long integer5 = null;
     Long integer6 = null;
 
@@ -949,10 +949,10 @@ public class ValueMetaTest {
 
   @Test
   public void testCompareNumbersNormalStorageData() throws Exception {
-    Double number1 = Double.valueOf(1234.56);
-    Double number2 = Double.valueOf(1235.56);
-    Double number3 = Double.valueOf(1233.56);
-    Double number4 = Double.valueOf(1234.56);
+    Double number1 = 1234.56;
+    Double number2 = 1235.56;
+    Double number3 = 1233.56;
+    Double number4 = 1234.56;
     Double number5 = null;
     Double number6 = null;
 
@@ -1024,9 +1024,9 @@ public class ValueMetaTest {
 
   @Test
   public void testCompareBooleanNormalStorageData() throws Exception {
-    Boolean boolean1 = Boolean.valueOf(false);
-    Boolean boolean2 = Boolean.valueOf(true);
-    Boolean boolean3 = Boolean.valueOf(false);
+    Boolean boolean1 = Boolean.FALSE;
+    Boolean boolean2 = Boolean.TRUE;
+    Boolean boolean3 = Boolean.FALSE;
     Boolean boolean4 = null;
     Boolean boolean5 = null;
 
@@ -1082,8 +1082,8 @@ public class ValueMetaTest {
     PluginRegistry.init();
     String[] valueMetaNames = ValueMetaFactory.getValueMetaNames();
 
-    for (int i = 0; i < valueMetaNames.length; i++) {
-      int vmId = ValueMetaFactory.getIdForValueMeta(valueMetaNames[i]);
+    for (String valueMetaName : valueMetaNames) {
+      int vmId = ValueMetaFactory.getIdForValueMeta(valueMetaName);
 
       IValueMeta vm = ValueMetaFactory.createValueMeta("", vmId);
       IValueMeta vmi = ValueMetaFactory.createValueMeta(vmId);

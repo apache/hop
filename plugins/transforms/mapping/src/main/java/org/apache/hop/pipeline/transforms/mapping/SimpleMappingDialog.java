@@ -653,8 +653,7 @@ public class SimpleMappingDialog extends BaseTransformDialog {
                   definition.getValueRenames().clear();
 
                   // Now add the new values...
-                  for (int i = 0; i < mappings.size(); i++) {
-                    SourceToTargetMapping mapping = mappings.get(i);
+                  for (SourceToTargetMapping mapping : mappings) {
                     TableItem item = new TableItem(wFieldMappings.table, SWT.NONE);
                     item.setText(1, mapping.getSourceString(sourceFields));
                     item.setText(2, mapping.getTargetString(targetFields));

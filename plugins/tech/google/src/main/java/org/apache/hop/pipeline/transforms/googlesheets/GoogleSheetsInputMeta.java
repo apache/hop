@@ -185,9 +185,7 @@ public class GoogleSheetsInputMeta
       throws HopTransformException {
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
-      for (int i = 0; i < inputFields.size(); i++) {
-        GoogleSheetsInputField field = inputFields.get(i);
-
+      for (GoogleSheetsInputField field : inputFields) {
         int type = field.getType();
         if (type == IValueMeta.TYPE_NONE) {
           type = IValueMeta.TYPE_STRING;

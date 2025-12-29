@@ -138,7 +138,7 @@ class InsertUpdateMetaTest {
     List<String> attributes = Arrays.asList("connection", "lookup", "commit", "update_bypassed");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("connection", "getConnection");
             put("lookup", "getInsertUpdateLookupField");
@@ -147,7 +147,7 @@ class InsertUpdateMetaTest {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("connection", "setConnection");
             put("lookup", "setInsertUpdateLookupField");
@@ -173,11 +173,11 @@ class InsertUpdateMetaTest {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(InsertUpdateLookupField.class),
-        new ObjectValidator<InsertUpdateLookupField>(
+        new ObjectValidator<>(
             validatorFactory,
             InsertUpdateLookupField.class,
             Arrays.asList("schema", "table", "key", "value"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("schema", "getSchemaName");
                 put("table", "getTableName");
@@ -185,7 +185,7 @@ class InsertUpdateMetaTest {
                 put("value", "getValueFields");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("schema", "setSchemaName");
                 put("table", "setTableName");
@@ -196,16 +196,15 @@ class InsertUpdateMetaTest {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(List.class, InsertUpdateLookupField.class),
-        new ListLoadSaveValidator<InsertUpdateLookupField>(
-            new InsertUpdateLookupFieldLoadSaveValidator()));
+        new ListLoadSaveValidator<>(new InsertUpdateLookupFieldLoadSaveValidator()));
 
     validatorFactory.registerValidator(
         validatorFactory.getName(InsertUpdateKeyField.class),
-        new ObjectValidator<InsertUpdateKeyField>(
+        new ObjectValidator<>(
             validatorFactory,
             InsertUpdateKeyField.class,
             Arrays.asList("name", "field", "condition", "name2"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getKeyStream");
                 put("field", "getKeyLookup");
@@ -213,7 +212,7 @@ class InsertUpdateMetaTest {
                 put("name2", "getKeyStream2");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "setKeyStream");
                 put("field", "setKeyLookup");
@@ -224,22 +223,21 @@ class InsertUpdateMetaTest {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(List.class, InsertUpdateKeyField.class),
-        new ListLoadSaveValidator<InsertUpdateKeyField>(
-            new InsertUpdateKeyFieldLoadSaveValidator()));
+        new ListLoadSaveValidator<>(new InsertUpdateKeyFieldLoadSaveValidator()));
 
     validatorFactory.registerValidator(
         validatorFactory.getName(InsertUpdateValue.class),
-        new ObjectValidator<InsertUpdateValue>(
+        new ObjectValidator<>(
             validatorFactory,
             InsertUpdateValue.class,
             Arrays.asList("name", "rename"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "getUpdateLookup");
                 put("rename", "getUpdateStream");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("name", "setUpdateLookup");
                 put("rename", "setUpdateStream");
@@ -248,7 +246,7 @@ class InsertUpdateMetaTest {
 
     validatorFactory.registerValidator(
         validatorFactory.getName(List.class, InsertUpdateValue.class),
-        new ListLoadSaveValidator<InsertUpdateValue>(new InsertUpdateValueLoadSaveValidator()));
+        new ListLoadSaveValidator<>(new InsertUpdateValueLoadSaveValidator()));
   }
 
   @Test
@@ -296,8 +294,8 @@ class InsertUpdateMetaTest {
       return new InsertUpdateLookupField(
           UUID.randomUUID().toString(),
           UUID.randomUUID().toString(),
-          new ArrayList<InsertUpdateKeyField>(),
-          new ArrayList<InsertUpdateValue>());
+          new ArrayList<>(),
+          new ArrayList<>());
     }
 
     @Override

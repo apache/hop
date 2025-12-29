@@ -211,8 +211,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
             remarks.add(cr);
 
             List<DeleteKeyField> keyFields = lookup.getFields();
-            for (int i = 0; i < keyFields.size(); i++) {
-              String lufield = keyFields.get(i).getKeyLookup();
+            for (DeleteKeyField keyField : keyFields) {
+              String lufield = keyField.getKeyLookup();
 
               IValueMeta v = r.searchValueMeta(lufield);
               if (v == null) {
@@ -262,8 +262,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
           boolean errorFound = false;
 
           List<DeleteKeyField> keyFields = lookup.getFields();
-          for (int i = 0; i < keyFields.size(); i++) {
-            String keyStr = keyFields.get(i).getKeyStream();
+          for (DeleteKeyField field : keyFields) {
+            String keyStr = field.getKeyStream();
             IValueMeta v = prev.searchValueMeta(keyStr);
             if (v == null) {
               if (first) {
@@ -275,8 +275,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
               errorMessage += "\t\t" + keyStr + Const.CR;
             }
           }
-          for (int i = 0; i < keyFields.size(); i++) {
-            String keyStr2 = keyFields.get(i).getKeyStream2();
+          for (DeleteKeyField keyField : keyFields) {
+            String keyStr2 = keyField.getKeyStream2();
             if (!StringUtils.isEmpty(keyStr2)) {
               IValueMeta v = prev.searchValueMeta(keyStr2);
               if (v == null) {
@@ -436,8 +436,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
     if (prev != null) {
       // Lookup: we do a lookup on the natural keys
       List<DeleteKeyField> keyFields = lookup.getFields();
-      for (int i = 0; i < keyFields.size(); i++) {
-        String keyStr = keyFields.get(i).getKeyStream();
+      for (DeleteKeyField keyField : keyFields) {
+        String keyStr = keyField.getKeyStream();
         IValueMeta v = prev.searchValueMeta(keyStr);
 
         try {
@@ -452,8 +452,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
                   transformMeta.getName(),
                   databaseMeta.getDatabaseName(),
                   lookup.getTableName(),
-                  keyFields.get(i).getKeyLookup(),
-                  keyFields.get(i).getKeyStream(),
+                  keyField.getKeyLookup(),
+                  keyField.getKeyStream(),
                   v != null ? v.getOrigin() : "?",
                   "",
                   "Type = " + v.toStringMeta());

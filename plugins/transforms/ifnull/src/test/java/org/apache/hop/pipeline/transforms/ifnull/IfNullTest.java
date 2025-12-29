@@ -101,9 +101,9 @@ class IfNullTest {
 
   private static List<Field> createFields(String... fieldNames) {
     List<Field> fields = new ArrayList<>();
-    for (int i = 0; i < fieldNames.length; i++) {
+    for (String fieldName : fieldNames) {
       Field field = new Field();
-      field.setName(fieldNames[i]);
+      field.setName(fieldName);
       fields.add(field);
     }
     return fields;

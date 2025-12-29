@@ -638,8 +638,8 @@ public class HopVfs {
 
       boolean found = false;
       String[] schemes = fsManager.getSchemes();
-      for (int i = 0; i < schemes.length; i++) {
-        if (vfsFileName.startsWith(schemes[i] + ":")) {
+      for (String scheme : schemes) {
+        if (vfsFileName.startsWith(scheme + ":")) {
           found = true;
           break;
         }

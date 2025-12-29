@@ -166,9 +166,9 @@ public class MetricsDuration {
 
   public void incrementCount() {
     if (count == null) {
-      count = Long.valueOf(1L);
+      count = 1L;
     } else {
-      count = Long.valueOf(count + 1);
+      count = count + 1;
     }
   }
 

@@ -415,14 +415,11 @@ public class ActionFoldersCompareDialog extends ActionDialog {
       wName.setText(action.getName());
     }
     if (action.getCompareOnly() != null) {
-      if (action.getCompareOnly().equals("only_files")) {
-        wCompareOnly.select(1);
-      } else if (action.getCompareOnly().equals("only_folders")) {
-        wCompareOnly.select(2);
-      } else if (action.getCompareOnly().equals("specify")) {
-        wCompareOnly.select(3);
-      } else {
-        wCompareOnly.select(0);
+      switch (action.getCompareOnly()) {
+        case "only_files" -> wCompareOnly.select(1);
+        case "only_folders" -> wCompareOnly.select(2);
+        case "specify" -> wCompareOnly.select(3);
+        default -> wCompareOnly.select(0);
       }
     } else {
       wCompareOnly.select(0);

@@ -223,8 +223,8 @@ public final class Wsdl implements java.io.Serializable {
     PortType pt = port.getBinding().getPortType();
 
     List<Operation> operations = pt.getOperations();
-    for (Iterator<Operation> itr = operations.iterator(); itr.hasNext(); ) {
-      WsdlOperation operation = getOperation(itr.next().getName());
+    for (Operation value : operations) {
+      WsdlOperation operation = getOperation(value.getName());
       if (operation != null) {
         opList.add(operation);
       }

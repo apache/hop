@@ -79,20 +79,18 @@ public class BeanInjector<Meta extends Object> {
       return getObjFromBeanInfo(obj, info);
     }
     obj = getObjFromBeanInfo(obj, info);
-    switch (info.dim) {
-      case LIST:
-        return ((List) requireNonNull(obj))
-            .stream()
-                .map(o -> getPropVal(o, propName, newLinkedList(beanInfos)))
-                .collect(Collectors.toList());
-      case ARRAY:
-        return Arrays.stream((Object[]) requireNonNull(obj))
-            .map(o -> getPropVal(o, propName, newLinkedList(beanInfos)))
-            .toArray(Object[]::new);
-      case NONE:
-        return getPropVal(obj, propName, beanInfos);
-    }
-    throw new IllegalStateException("Unexpected value of BeanLevelInfo.dim " + info.dim);
+    return switch (info.dim) {
+      case LIST ->
+          ((List) requireNonNull(obj))
+              .stream()
+                  .map(o -> getPropVal(o, propName, newLinkedList(beanInfos)))
+                  .collect(Collectors.toList());
+      case ARRAY ->
+          Arrays.stream((Object[]) requireNonNull(obj))
+              .map(o -> getPropVal(o, propName, newLinkedList(beanInfos)))
+              .toArray(Object[]::new);
+      case NONE -> getPropVal(obj, propName, beanInfos);
+    };
   }
 
   private Object getObjFromBeanInfo(Object obj, BeanLevelInfo beanLevelInfo) {

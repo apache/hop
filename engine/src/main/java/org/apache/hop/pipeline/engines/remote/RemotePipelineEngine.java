@@ -777,22 +777,18 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       // For every transform metric, take the maximum amount
       //
       Long read = engineMetrics.getComponentMetric(component, Pipeline.METRIC_READ);
-      result.setNrLinesRead(Math.max(result.getNrLinesRead(), read == null ? 0 : read.longValue()));
+      result.setNrLinesRead(Math.max(result.getNrLinesRead(), read == null ? 0 : read));
       Long written = engineMetrics.getComponentMetric(component, Pipeline.METRIC_WRITTEN);
-      result.setNrLinesWritten(
-          Math.max(result.getNrLinesWritten(), written == null ? 0 : written.longValue()));
+      result.setNrLinesWritten(Math.max(result.getNrLinesWritten(), written == null ? 0 : written));
       Long input = engineMetrics.getComponentMetric(component, Pipeline.METRIC_INPUT);
-      result.setNrLinesInput(
-          Math.max(result.getNrLinesInput(), input == null ? 0 : input.longValue()));
+      result.setNrLinesInput(Math.max(result.getNrLinesInput(), input == null ? 0 : input));
       Long output = engineMetrics.getComponentMetric(component, Pipeline.METRIC_OUTPUT);
-      result.setNrLinesOutput(
-          Math.max(result.getNrLinesOutput(), output == null ? 0 : output.longValue()));
+      result.setNrLinesOutput(Math.max(result.getNrLinesOutput(), output == null ? 0 : output));
       Long updated = engineMetrics.getComponentMetric(component, Pipeline.METRIC_UPDATED);
-      result.setNrLinesUpdated(
-          Math.max(result.getNrLinesUpdated(), updated == null ? 0 : updated.longValue()));
+      result.setNrLinesUpdated(Math.max(result.getNrLinesUpdated(), updated == null ? 0 : updated));
       Long rejected = engineMetrics.getComponentMetric(component, Pipeline.METRIC_REJECTED);
       result.setNrLinesRejected(
-          Math.max(result.getNrLinesRejected(), rejected == null ? 0 : rejected.longValue()));
+          Math.max(result.getNrLinesRejected(), rejected == null ? 0 : rejected));
     }
 
     result.setStopped(isStopped());

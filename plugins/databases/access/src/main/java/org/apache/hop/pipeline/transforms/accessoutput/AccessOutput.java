@@ -273,10 +273,10 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
       switch (valueMeta.getType()) {
         case IValueMeta.TYPE_INTEGER:
           if (length < 3) {
-            values[i] = Byte.valueOf(valueMeta.getInteger(valueData).byteValue());
+            values[i] = valueMeta.getInteger(valueData).byteValue();
           } else {
             if (length < 5) {
-              values[i] = Short.valueOf(valueMeta.getInteger(valueData).shortValue());
+              values[i] = valueMeta.getInteger(valueData).shortValue();
             } else {
               values[i] = valueMeta.getInteger(valueData);
             }

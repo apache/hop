@@ -125,9 +125,7 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
       }
     }
 
-    for (int i = 0; i < arguments.size(); i++) {
-      ProcArgument argument = arguments.get(i);
-
+    for (ProcArgument argument : arguments) {
       if (argument.getDirection().equalsIgnoreCase("OUT")) {
         IValueMeta v;
         try {
@@ -181,9 +179,7 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
           errorMessage = "";
           boolean errorFound = false;
 
-          for (int i = 0; i < arguments.size(); i++) {
-            ProcArgument argument = arguments.get(i);
-
+          for (ProcArgument argument : arguments) {
             IValueMeta v = prev.searchValueMeta(argument.getName());
             if (v == null) {
               if (first) {

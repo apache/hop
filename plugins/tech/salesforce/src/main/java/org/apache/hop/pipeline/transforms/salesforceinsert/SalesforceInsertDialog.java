@@ -575,7 +575,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
+                inputFields.put(row.getValueMeta(i).getName(), i);
               }
 
               setComboBoxes();
@@ -1068,8 +1068,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
       display.asyncExec(
           () -> {
             // clear
-            for (int i = 0; i < tableFieldColumns.size(); i++) {
-              ColumnInfo colInfo = tableFieldColumns.get(i);
+            for (ColumnInfo colInfo : tableFieldColumns) {
               colInfo.setComboValues(new String[] {});
             }
             if (wModule.isDisposed()) {
@@ -1082,14 +1081,12 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
                 String[] fieldsName = getFieldNames();
 
                 if (fieldsName != null) {
-                  for (int i = 0; i < tableFieldColumns.size(); i++) {
-                    ColumnInfo colInfo = tableFieldColumns.get(i);
+                  for (ColumnInfo colInfo : tableFieldColumns) {
                     colInfo.setComboValues(fieldsName);
                   }
                 }
               } catch (Exception e) {
-                for (int i = 0; i < tableFieldColumns.size(); i++) {
-                  ColumnInfo colInfo = tableFieldColumns.get(i);
+                for (ColumnInfo colInfo : tableFieldColumns) {
                   colInfo.setComboValues(new String[] {});
                 }
                 // ignore any errors here. drop downs will not be

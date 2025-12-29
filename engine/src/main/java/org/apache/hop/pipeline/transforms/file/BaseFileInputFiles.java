@@ -166,8 +166,8 @@ public class BaseFileInputFiles implements Cloneable {
             fileRequired,
             includeSubFolderBoolean());
     if (textFiles != null) {
-      for (int i = 0; i < textFiles.length; i++) {
-        reference.getEntries().add(new ResourceEntry(textFiles[i], ResourceType.FILE));
+      for (String textFile : textFiles) {
+        reference.getEntries().add(new ResourceEntry(textFile, ResourceType.FILE));
       }
     }
     return references;

@@ -1497,7 +1497,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     for (String strFunction : v) {
       String strFunctionType = hatFunctions.get(strFunction);
-      int iFunctionType = Integer.valueOf(strFunctionType);
+      int iFunctionType = Integer.parseInt(strFunctionType);
 
       TreeItem itemFunction = null;
       switch (iFunctionType) {

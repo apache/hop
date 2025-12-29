@@ -321,8 +321,7 @@ public class ExcelWriterTransformMeta
       }
 
       // Starting from selected fields in ...
-      for (int i = 0; i < outputFields.size(); i++) {
-        ExcelWriterOutputField field = outputFields.get(i);
+      for (ExcelWriterOutputField field : outputFields) {
         int idx = prev.indexOfValue(field.getName());
         if (idx < 0) {
           errorMessage += "\t\t" + field.getName() + Const.CR;

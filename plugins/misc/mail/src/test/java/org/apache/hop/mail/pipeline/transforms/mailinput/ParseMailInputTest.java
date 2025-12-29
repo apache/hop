@@ -560,11 +560,11 @@ class ParseMailInputTest {
   }
 
   private List<MailInputField> getDefaultInputFields(int[] arr) {
-    List<MailInputField> fields = new ArrayList<MailInputField>();
-    for (int i = 0; i < arr.length; i++) {
+    List<MailInputField> fields = new ArrayList<>();
+    for (int j : arr) {
       MailInputField field = new MailInputField();
-      field.setColumn(arr[i]);
-      field.setName(MailInputField.getColumnDesc(arr[i]));
+      field.setColumn(j);
+      field.setName(MailInputField.getColumnDesc(j));
       fields.add(field);
     }
     return fields;

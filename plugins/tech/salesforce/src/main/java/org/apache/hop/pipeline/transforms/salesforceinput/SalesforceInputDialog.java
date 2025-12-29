@@ -1510,8 +1510,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         if (fields != null) {
           int nrFields = fields.length;
           Set<String> fieldNames = new HashSet<>();
-          for (int i = 0; i < nrFields; i++) {
-            addFields("", fieldNames, fields[i]);
+          for (XmlObject field : fields) {
+            addFields("", fieldNames, field);
           }
           fieldsName = fieldNames.toArray(new String[fieldNames.size()]);
         } else {
@@ -1663,22 +1663,20 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
 
     // Try to get the Type
-    if (fieldType.equals(CONST_BOOLEAN)) {
-      item.setText(4, "Boolean");
-    } else if (fieldType.equals("date")) {
-      item.setText(4, "Date");
-      item.setText(5, DEFAULT_DATE_FORMAT);
-    } else if (fieldType.equals(CONST_DATETIME)) {
-      item.setText(4, "Date");
-      item.setText(5, DEFAULT_DATE_TIME_FORMAT);
-    } else if (fieldType.equals("double")) {
-      item.setText(4, "Number");
-    } else if (fieldType.equals("int")) {
-      item.setText(4, "Integer");
-    } else if (fieldType.equals("base64")) {
-      item.setText(4, "Binary");
-    } else {
-      item.setText(4, "String");
+    switch (fieldType) {
+      case CONST_BOOLEAN -> item.setText(4, "Boolean");
+      case "date" -> {
+        item.setText(4, "Date");
+        item.setText(5, DEFAULT_DATE_FORMAT);
+      }
+      case CONST_DATETIME -> {
+        item.setText(4, "Date");
+        item.setText(5, DEFAULT_DATE_TIME_FORMAT);
+      }
+      case "double" -> item.setText(4, "Number");
+      case "int" -> item.setText(4, "Integer");
+      case "base64" -> item.setText(4, "Binary");
+      default -> item.setText(4, "String");
     }
 
     if (fieldLength != null) {

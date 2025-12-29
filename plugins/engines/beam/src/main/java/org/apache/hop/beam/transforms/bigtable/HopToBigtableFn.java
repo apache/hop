@@ -84,8 +84,8 @@ public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutati
       JSONArray array = (JSONArray) parser.parse(columnsJson);
       columns = new ArrayList<>();
       sourceFieldIndexes = new ArrayList<>();
-      for (int i = 0; i < array.size(); i++) {
-        JSONObject jc = (JSONObject) array.get(i);
+      for (Object o : array) {
+        JSONObject jc = (JSONObject) o;
         String qualifier = (String) jc.get("qualifier");
         String family = (String) jc.get("family");
         String sourceField = (String) jc.get("field");

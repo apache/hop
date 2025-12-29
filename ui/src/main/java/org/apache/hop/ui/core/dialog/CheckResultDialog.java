@@ -205,8 +205,7 @@ public class CheckResultDialog extends Dialog {
   public void getData() {
     wFields.table.removeAll();
 
-    for (int i = 0; i < remarks.size(); i++) {
-      ICheckResult cr = remarks.get(i);
+    for (ICheckResult cr : remarks) {
       if (showSuccessfulResults || cr.getType() != ICheckResult.TYPE_RESULT_OK) {
         TableItem ti = new TableItem(wFields.table, SWT.NONE);
         // MB - Support both Action and Transform Checking

@@ -42,7 +42,7 @@ public class DefaultFieldLoadSaveValidatorFactory implements IFieldLoadSaveValid
     this.typeMap.put(long.class.getCanonicalName(), new LongLoadSaveValidator());
     registerValidator(
         getName(List.class, String.class),
-        new ListLoadSaveValidator<String>(new StringLoadSaveValidator()) {});
+        new ListLoadSaveValidator<>(new StringLoadSaveValidator()) {});
     registerValidator(
         String[].class.getCanonicalName(),
         new ArrayLoadSaveValidator<>(new StringLoadSaveValidator()));

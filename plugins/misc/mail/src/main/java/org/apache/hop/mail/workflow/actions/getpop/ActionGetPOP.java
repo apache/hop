@@ -666,10 +666,10 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
             logDebug(BaseMessages.getString(PKG, "ActionGetPOP.NoSubFolders"));
           }
         } else {
-          for (int i = 0; i < subfolders.length; i++) {
+          for (String subfolder : subfolders) {
             fetchOneFolder(
                 usePOP3,
-                subfolders[i],
+                subfolder,
                 realOutputFolder,
                 targetAttachmentFolder,
                 realMoveToIMAPFolder,

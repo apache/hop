@@ -515,8 +515,7 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     // However, in case of Fixed length records,
     // the field precisions and lengths are altered!
 
-    for (int i = 0; i < outputFields.length; i++) {
-      XmlField field = outputFields[i];
+    for (XmlField field : outputFields) {
       IValueMeta v = row.searchValueMeta(field.getFieldName());
       if (v != null) {
         v.setLength(field.getLength(), field.getPrecision());
@@ -527,8 +526,7 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
   @Override
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     RowMeta row = new RowMeta();
-    for (int i = 0; i < outputFields.length; i++) {
-      XmlField field = outputFields[i];
+    for (XmlField field : outputFields) {
       row.addValueMeta(
           new ValueMetaBase(
               field.getFieldName(), field.getType(), field.getLength(), field.getPrecision()));
@@ -565,9 +563,7 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     retval.append(CONST_SPACES).append(XmlHandler.addTagValue("splitevery", splitEvery));
     retval.append("    </file>").append(Const.CR);
     retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < outputFields.length; i++) {
-      XmlField field = outputFields[i];
-
+    for (XmlField field : outputFields) {
       if (!Utils.isEmpty(field.getFieldName())) {
         retval.append("      <field>").append(Const.CR);
         retval
@@ -638,10 +634,10 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < outputFields.length; i++) {
-        int idx = prev.indexOfValue(outputFields[i].getFieldName());
+      for (XmlField outputField : outputFields) {
+        int idx = prev.indexOfValue(outputField.getFieldName());
         if (idx < 0) {
-          errorMessage += "\t\t" + outputFields[i].getFieldName() + Const.CR;
+          errorMessage += "\t\t" + outputField.getFieldName() + Const.CR;
           errorFound = true;
         }
       }

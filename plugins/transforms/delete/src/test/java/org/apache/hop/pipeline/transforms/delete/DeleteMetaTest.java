@@ -62,7 +62,7 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
     List<String> attributes = Arrays.asList("commit", "connection", "lookup");
 
     Map<String, String> getterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("commit", "getCommitSize");
             put("connection", "getConnection");
@@ -70,7 +70,7 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
           }
         };
     Map<String, String> setterMap =
-        new HashMap<String, String>() {
+        new HashMap<>() {
           {
             put("commit", "setCommitSize");
             put("connection", "setConnection");
@@ -100,14 +100,14 @@ class DeleteMetaTest implements IInitializer<ITransformMeta> {
             validatorFactory,
             DeleteLookupField.class,
             Arrays.asList("schema", "table", "key"),
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("table", "getTableName");
                 put("schema", "getSchemaName");
                 put("key", "getFields");
               }
             },
-            new HashMap<String, String>() {
+            new HashMap<>() {
               {
                 put("table", "setTableName");
                 put("schema", "setSchemaName");

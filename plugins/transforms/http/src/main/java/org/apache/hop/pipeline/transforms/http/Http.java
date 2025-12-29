@@ -230,11 +230,11 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         }
 
         if (!Utils.isEmpty(meta.getResultCodeFieldName())) {
-          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(statusCode));
+          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, (long) statusCode);
           returnFieldsOffset++;
         }
         if (!Utils.isEmpty(meta.getResponseTimeFieldName())) {
-          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, Long.valueOf(responseTime));
+          newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, responseTime);
           returnFieldsOffset++;
         }
         if (!Utils.isEmpty(meta.getResponseHeaderFieldName())) {

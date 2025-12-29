@@ -166,21 +166,15 @@ public class ParquetValueConverter extends PrimitiveConverter {
     if (rowIndex < 0) {
       return;
     }
-    Object object;
-    switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_NUMBER:
-        object = value;
-        break;
-      case IValueMeta.TYPE_STRING:
-        object = Double.toString(value);
-        break;
-      case IValueMeta.TYPE_BIGNUMBER:
-        object = BigDecimal.valueOf(value);
-        break;
-      default:
-        throw new RuntimeException(
-            "Unable to convert Double/Float source data to type " + valueMeta.getTypeDesc());
-    }
+    Object object =
+        switch (valueMeta.getType()) {
+          case IValueMeta.TYPE_NUMBER -> value;
+          case IValueMeta.TYPE_STRING -> Double.toString(value);
+          case IValueMeta.TYPE_BIGNUMBER -> BigDecimal.valueOf(value);
+          default ->
+              throw new RuntimeException(
+                  "Unable to convert Double/Float source data to type " + valueMeta.getTypeDesc());
+        };
     group.getData()[rowIndex] = object;
   }
 
@@ -189,21 +183,15 @@ public class ParquetValueConverter extends PrimitiveConverter {
     if (rowIndex < 0) {
       return;
     }
-    Object object;
-    switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_BOOLEAN:
-        object = value;
-        break;
-      case IValueMeta.TYPE_STRING:
-        object = value ? "true" : "false";
-        break;
-      case IValueMeta.TYPE_INTEGER:
-        object = value ? 1L : 0L;
-        break;
-      default:
-        throw new RuntimeException(
-            "Unable to convert Boolean source data to type " + valueMeta.getTypeDesc());
-    }
+    Object object =
+        switch (valueMeta.getType()) {
+          case IValueMeta.TYPE_BOOLEAN -> value;
+          case IValueMeta.TYPE_STRING -> value ? "true" : "false";
+          case IValueMeta.TYPE_INTEGER -> value ? 1L : 0L;
+          default ->
+              throw new RuntimeException(
+                  "Unable to convert Boolean source data to type " + valueMeta.getTypeDesc());
+        };
     group.getData()[rowIndex] = object;
   }
 
@@ -241,21 +229,14 @@ public class ParquetValueConverter extends PrimitiveConverter {
       throw new RuntimeException(
           "Unknown timestamp unit for the logical type: " + logicalTypeAnnotation);
     }
-    long epochMillis;
+    long epochMillis =
+        switch (unit) {
+          case MILLIS -> value;
+          case MICROS -> value / 1_000L;
+          case NANOS -> value / 1_000_000L;
+          default -> throw new RuntimeException("Unknown timestamp unit: " + unit);
+        };
     // Convert the timestamp to milliseconds since the Epoch based on the original unit
-    switch (unit) {
-      case MILLIS:
-        epochMillis = value;
-        break;
-      case MICROS:
-        epochMillis = value / 1_000L;
-        break;
-      case NANOS:
-        epochMillis = value / 1_000_000L;
-        break;
-      default:
-        throw new RuntimeException("Unknown timestamp unit: " + unit);
-    }
     Timestamp ts = new Timestamp(epochMillis);
     // If the timestamp is local time, adjust it to UTC
     if (!isUTC) {
