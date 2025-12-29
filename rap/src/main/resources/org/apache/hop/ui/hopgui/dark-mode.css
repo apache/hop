@@ -1360,6 +1360,10 @@ ToolItem[VERTICAL] {
     border: none;
     border-top: 1px solid transparent;
     border-bottom: 1px solid transparent;
+    padding: 6px;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
 }
 
 ToolItem:first, ToolItem[RIGHT_TO_LEFT]:last {
@@ -1426,23 +1430,15 @@ ToolItem:selected {
 }
 
 ToolItem[VERTICAL]:hover {
-    background-image: gradient(
-            linear, left top, right top,
-            from(#d9d9d9),
-            color-stop(45%, #161616),
-            color-stop(55%, #161616),
-            to(#d9d9d9)
-    );
+    background-color: #3C3F41;
+    background-image: none;
+    border-radius: 6px;
 }
 
 ToolItem[VERTICAL]:pressed, ToolItem[VERTICAL]:selected {
-    background-image: gradient(
-            linear, left top, right top,
-            from(#161616),
-            color-stop(45%, #252525),
-            color-stop(55%, #252525),
-            to(#161616)
-    );
+    background-color: #4A9EFF;
+    background-image: none;
+    border-radius: 6px;
 }
 
 ToolItem:first:hover,
@@ -2507,6 +2503,16 @@ FileUpload-FocusIndicator {
     margin: 2px;
     padding: 0px;
     opacity: 1;
+}
+
+/* Sidebar button styling */
+
+Composite.sidebarButton {
+    border-radius: 6px;
+}
+
+Label.sidebarButton {
+    border-radius: 6px;
 }
 
 /* JFace specific theming */
