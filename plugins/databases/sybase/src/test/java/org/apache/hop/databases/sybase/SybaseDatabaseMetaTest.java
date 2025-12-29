@@ -40,6 +40,7 @@ class SybaseDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new SybaseDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

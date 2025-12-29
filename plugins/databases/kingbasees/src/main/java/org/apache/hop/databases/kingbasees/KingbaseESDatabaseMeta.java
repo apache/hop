@@ -987,4 +987,9 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   public boolean isSupportsTimeStampToDateConversion() {
     return false;
   }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+  }
 }

@@ -41,6 +41,7 @@ class ClickhouseDatabaseMetaTest {
   void setupOnce() throws Exception {
     nativeMeta = new ClickhouseDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
 
     HopClientEnvironment.init();
   }

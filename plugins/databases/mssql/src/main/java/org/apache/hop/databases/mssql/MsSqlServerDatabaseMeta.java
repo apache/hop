@@ -911,4 +911,9 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
   public String getEndQuote() {
     return "]";
   }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+  }
 }

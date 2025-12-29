@@ -286,4 +286,9 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   public boolean isInformixVariant() {
     return true;
   }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+  }
 }

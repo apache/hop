@@ -42,6 +42,7 @@ class SnowflakeDatabaseMetaTest {
   void setupOnce() throws Exception {
     nativeMeta = new SnowflakeDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
 
     HopClientEnvironment.init();
   }

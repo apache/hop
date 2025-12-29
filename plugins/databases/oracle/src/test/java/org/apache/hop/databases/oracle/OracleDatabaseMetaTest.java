@@ -76,6 +76,7 @@ class OracleDatabaseMetaTest {
   void setupOnce() throws Exception {
     nativeMeta = new OracleDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
     HopClientEnvironment.init();
     variables = Mockito.spy(new Variables());
   }

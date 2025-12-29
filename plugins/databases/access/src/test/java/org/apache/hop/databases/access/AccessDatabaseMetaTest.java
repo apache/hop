@@ -46,6 +46,7 @@ class AccessDatabaseMetaTest {
   void setupOnce() throws Exception {
     nativeMeta = new AccessDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
     HopClientEnvironment.init();
   }
 

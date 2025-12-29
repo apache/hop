@@ -575,11 +575,6 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
-  }
-
   /**
    * @return true if the database requires you to cast a parameter to varchar before comparing to
    *     null. Only required for DB2 and Vertica
@@ -665,5 +660,10 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public boolean isDisplaySizeTwiceThePrecision() {
     return true;
+  }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
   }
 }

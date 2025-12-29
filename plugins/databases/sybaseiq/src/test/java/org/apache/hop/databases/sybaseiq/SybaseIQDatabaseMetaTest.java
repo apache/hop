@@ -41,6 +41,7 @@ class SybaseIQDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new SybaseIQDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

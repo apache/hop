@@ -599,4 +599,9 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         + sequenceName
         + "'";
   }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+  }
 }

@@ -228,14 +228,6 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   /**
-   * @return true if the database supports a boolean, bit, logical
-   */
-  @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
-  }
-
-  /**
    * Generates the SQL statement to add a column to the specified table
    *
    * @param tableName The table to add
@@ -730,6 +722,8 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     addExtraOption(getPluginId(), "defaultFetchSize", "500");
     addExtraOption(getPluginId(), "useCursorFetch", "true");
     addExtraOption(getPluginId(), "zeroDateTimeBehaviorValue", "CONVERT_TO_NULL");
+    setSupportsTimestampDataType(true);
+    setSupportsBooleanDataType(true);
   }
 
   @Override
@@ -795,10 +789,5 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     names.add(CONST_MYSQL_8);
     names.add("Mysql");
     return names;
-  }
-
-  @Override
-  public boolean isSupportsTimestampDataType() {
-    return true;
   }
 }

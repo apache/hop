@@ -76,6 +76,7 @@ class MsSqlServerDatabaseMetaTest {
   void setupOnce() {
     nativeMeta = new MsSqlServerDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
     databaseMeta = new DatabaseMeta();
     iDatabase = mock(IDatabase.class);
     databaseMeta.setIDatabase(iDatabase);
@@ -539,7 +540,7 @@ class MsSqlServerDatabaseMetaTest {
   @Test
   void testGetFieldDefinition() {
     assertEquals(
-        "CHAR(1)",
+        "BIT",
         nativeMeta.getFieldDefinition(new ValueMetaBoolean("BAR"), "", "", false, false, false));
 
     assertEquals(

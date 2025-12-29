@@ -42,6 +42,7 @@ class KingbaseESDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new KingbaseESDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

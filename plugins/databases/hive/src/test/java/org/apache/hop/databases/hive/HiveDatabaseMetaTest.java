@@ -75,6 +75,7 @@ class HiveDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new HiveDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test
@@ -262,7 +263,7 @@ class HiveDatabaseMetaTest {
             "FOO", new ValueMetaTimestamp("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR CHAR(1)",
+        "ALTER TABLE FOO ADD BAR BOOLEAN",
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
 
     assertEquals(

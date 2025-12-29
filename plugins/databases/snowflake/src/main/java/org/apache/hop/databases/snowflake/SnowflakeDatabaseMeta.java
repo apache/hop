@@ -372,11 +372,6 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   }
 
   @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
-  }
-
-  @Override
   public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return true;
   }
@@ -496,5 +491,10 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   @Override
   public boolean isRequiringTransactionsOnQueries() {
     return false;
+  }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
   }
 }

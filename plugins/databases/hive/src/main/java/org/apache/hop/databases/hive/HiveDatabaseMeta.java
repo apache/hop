@@ -614,8 +614,6 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     setForcingIdentifiersToLowerCase(true);
     setSupportsTimestampDataType(true);
     setSupportsBooleanDataType(true);
-
-    // addExtraOption(getPluginId(), "option", "value");
   }
 
   @Override

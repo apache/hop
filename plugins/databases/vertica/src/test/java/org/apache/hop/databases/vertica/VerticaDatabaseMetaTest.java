@@ -95,6 +95,7 @@ class VerticaDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new VerticaDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

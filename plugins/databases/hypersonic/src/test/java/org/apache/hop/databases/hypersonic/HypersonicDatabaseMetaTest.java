@@ -46,7 +46,9 @@ class HypersonicDatabaseMetaTest {
 
   public HypersonicDatabaseMetaTest() {
     hypersonicDatabaseMeta = new HypersonicDatabaseMeta();
+    hypersonicDatabaseMeta.addDefaultOptions();
     hypersonicDatabaseMetaQouting = new HypersonicDatabaseMeta();
+    hypersonicDatabaseMetaQouting.addDefaultOptions();
     hypersonicDatabaseMetaQouting.setQuoteAllFields(true);
     hypersonicDatabaseMetaUppercase = new HypersonicDatabaseMeta();
     hypersonicDatabaseMetaUppercase.setForcingIdentifiersToUpperCase(true);

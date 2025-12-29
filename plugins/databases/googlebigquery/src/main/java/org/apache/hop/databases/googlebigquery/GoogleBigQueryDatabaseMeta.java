@@ -186,11 +186,6 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
   }
 
   @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
-  }
-
-  @Override
   public boolean isRequiringTransactionsOnQueries() {
     return false;
   }
@@ -339,5 +334,10 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
   @Override
   public String getUnsupportedTableOutputMessage() {
     return BaseMessages.getString(PKG, "GoogleBigQueryDatabaseMeta.UnsupportedTableOutputMessage");
+  }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
   }
 }

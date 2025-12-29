@@ -41,6 +41,7 @@ class MonetDBDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new MonetDBDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

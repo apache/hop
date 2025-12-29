@@ -313,11 +313,6 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public boolean isSupportsBooleanDataType() {
-    return false;
-  }
-
-  @Override
   public boolean IsSupportsErrorHandlingOnBatchUpdates() {
     return true;
   }
@@ -459,5 +454,10 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public boolean isSupportsTimeStampToDateConversion() {
     return false;
+  }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsTimestampDataType(true);
   }
 }

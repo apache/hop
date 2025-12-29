@@ -259,4 +259,10 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
   public String getSqlUnlockTables(String[] tableName) {
     throw new UnsupportedOperationException("CrateDB does not support locking tables");
   }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+    setSupportsTimestampDataType(true);
+  }
 }
