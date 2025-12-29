@@ -162,6 +162,11 @@ public class Condition implements Cloneable {
   private int rightFieldIndex;
   private String rightString;
 
+  // Cache for constant right values (only used when rightFieldIndex == -2)
+  private IValueMeta cachedFieldMeta2;
+  private Object cachedField2;
+  private boolean rightValueCached;
+
   /**
    * Temporary variable, no need to persist this one. Contains the sorted array of strings in an IN
    * LIST condition
@@ -177,6 +182,7 @@ public class Condition implements Cloneable {
 
     leftFieldIndex = -2;
     rightFieldIndex = -2;
+    rightValueCached = false;
   }
 
   public Condition(String valueName, Function function, String valueName2, ValueMetaAndData exact)
@@ -305,6 +311,9 @@ public class Condition implements Cloneable {
   public void clearFieldPositions() {
     leftFieldIndex = -2;
     rightFieldIndex = -2;
+    rightValueCached = false;
+    cachedFieldMeta2 = null;
+    cachedField2 = null;
   }
 
   /**
@@ -356,15 +365,25 @@ public class Condition implements Cloneable {
 
         // Get field index: right value
         //
-        IValueMeta fieldMeta2 = rightValue != null ? rightValue.createValueMeta() : null;
-        // Old metadata contains a right value block without name, type and so on.  This means: no
-        // value
-        // Removed the name check, old fixed values do not contain a name element causing regression
-        Object field2 =
-            rightValue != null && rightFieldIndex == -2 ? rightValue.createValueData() : null;
-        if (field2 == null && rightFieldIndex >= 0) {
+        IValueMeta fieldMeta2;
+        Object field2;
+
+        if (rightFieldIndex >= 0) {
+          // Right value is a field from the row - get it dynamically
           fieldMeta2 = rowMeta.getValueMeta(rightFieldIndex);
           field2 = r[rightFieldIndex];
+        } else if (rightValue != null) {
+          // Right value is a constant - cache it for performance
+          if (!rightValueCached) {
+            cachedFieldMeta2 = rightValue.createValueMeta();
+            cachedField2 = rightValue.createValueData();
+            rightValueCached = true;
+          }
+          fieldMeta2 = cachedFieldMeta2;
+          field2 = cachedField2;
+        } else {
+          fieldMeta2 = null;
+          field2 = null;
         }
 
         // Evaluate
