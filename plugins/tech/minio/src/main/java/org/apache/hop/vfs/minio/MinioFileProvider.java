@@ -125,7 +125,7 @@ public class MinioFileProvider extends AbstractOriginatingFileProvider {
       fileSystem.setRegion(region);
 
       // The part size
-      String partSize = variables.resolve(minioMeta.getRegion());
+      String partSize = variables.resolve(minioMeta.getPartSize());
       fileSystem.setPartSize(Const.toLong(partSize, DEFAULT_PART_SIZE));
 
       return fileSystem;
