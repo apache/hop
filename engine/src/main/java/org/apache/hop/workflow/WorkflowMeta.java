@@ -215,17 +215,16 @@ public class WorkflowMeta extends AbstractMeta
    * @return the start
    */
   public ActionMeta getStart() {
-    for (int i = 0; i < nrActions(); i++) {
-      ActionMeta cge = getAction(i);
-      if (cge.isStart()) {
-        return cge;
+    for (ActionMeta action : workflowActions) {
+      if (action.isStart()) {
+        return action;
       }
     }
     return null;
   }
 
   /**
-   * Compares two workflow on name, filename, etc. The comparison algorithm is as follows:<br>
+   * Compares two workflows on name, filename, etc. The comparison algorithm is as follows:<br>
    *
    * <ol>
    *   <li>The first workflow's filename is checked first; if it has none, the workflow is created.
@@ -341,8 +340,7 @@ public class WorkflowMeta extends AbstractMeta
     changedActions = false;
     changedHops = false;
 
-    for (int i = 0; i < nrActions(); i++) {
-      ActionMeta action = getAction(i);
+    for (ActionMeta action : workflowActions) {
       action.setChanged(false);
     }
     for (WorkflowHopMeta hop : workflowHops) {
@@ -359,14 +357,7 @@ public class WorkflowMeta extends AbstractMeta
    */
   @Override
   public boolean hasChanged() {
-    if (super.hasChanged()) {
-      return true;
-    }
-
-    if (haveActionsChanged()) {
-      return true;
-    }
-    return haveWorkflowHopsChanged();
+    return super.hasChanged() || haveActionsChanged() || haveWorkflowHopsChanged();
   }
 
   /**
@@ -791,8 +782,7 @@ public class WorkflowMeta extends AbstractMeta
    * @return The ActionMeta or null if nothing was found!
    */
   public ActionMeta findAction(String name) {
-    for (int i = 0; i < nrActions(); i++) {
-      ActionMeta action = getAction(i);
+    for (ActionMeta action : workflowActions) {
       if (action.getName().equalsIgnoreCase(name)) {
         return action;
       }
@@ -1176,14 +1166,11 @@ public class WorkflowMeta extends AbstractMeta
 
   /** Select all. */
   public void selectAll() {
-    int i;
-    for (i = 0; i < nrActions(); i++) {
-      ActionMeta action = getAction(i);
+    for (ActionMeta action : workflowActions) {
       action.setSelected(true);
     }
-    for (i = 0; i < nrNotes(); i++) {
-      NotePadMeta ni = getNote(i);
-      ni.setSelected(true);
+    for (NotePadMeta note : getNotes()) {
+      note.setSelected(true);
     }
     setChanged();
     notifyObservers("refreshGraph");
@@ -1191,14 +1178,11 @@ public class WorkflowMeta extends AbstractMeta
 
   /** Unselect all. */
   public void unselectAll() {
-    int i;
-    for (i = 0; i < nrActions(); i++) {
-      ActionMeta action = getAction(i);
+    for (ActionMeta action : workflowActions) {
       action.setSelected(false);
     }
-    for (i = 0; i < nrNotes(); i++) {
-      NotePadMeta ni = getNote(i);
-      ni.setSelected(false);
+    for (NotePadMeta note : getNotes()) {
+      note.setSelected(false);
     }
   }
 
@@ -1210,8 +1194,7 @@ public class WorkflowMeta extends AbstractMeta
   public Point getMaximum() {
     int maxx = 0;
     int maxy = 0;
-    for (int i = 0; i < nrActions(); i++) {
-      ActionMeta action = getAction(i);
+    for (ActionMeta action : workflowActions) {
       Point loc = action.getLocation();
       if (loc.x > maxx) {
         maxx = loc.x;
@@ -1220,14 +1203,13 @@ public class WorkflowMeta extends AbstractMeta
         maxy = loc.y;
       }
     }
-    for (int i = 0; i < nrNotes(); i++) {
-      NotePadMeta ni = getNote(i);
-      Point loc = ni.getLocation();
-      if (loc.x + ni.width > maxx) {
-        maxx = loc.x + ni.width;
+    for (NotePadMeta note : getNotes()) {
+      Point loc = note.getLocation();
+      if (loc.x + note.width > maxx) {
+        maxx = loc.x + note.width;
       }
-      if (loc.y + ni.height > maxy) {
-        maxy = loc.y + ni.height;
+      if (loc.y + note.height > maxy) {
+        maxy = loc.y + note.height;
       }
     }
 
@@ -1242,9 +1224,8 @@ public class WorkflowMeta extends AbstractMeta
   public Point getMinimum() {
     int minx = Integer.MAX_VALUE;
     int miny = Integer.MAX_VALUE;
-    for (int i = 0; i < nrActions(); i++) {
-      ActionMeta actionMeta = getAction(i);
-      Point loc = actionMeta.getLocation();
+    for (ActionMeta action : workflowActions) {
+      Point loc = action.getLocation();
       if (loc.x < minx) {
         minx = loc.x;
       }
@@ -1252,9 +1233,8 @@ public class WorkflowMeta extends AbstractMeta
         miny = loc.y;
       }
     }
-    for (int i = 0; i < nrNotes(); i++) {
-      NotePadMeta notePadMeta = getNote(i);
-      Point loc = notePadMeta.getLocation();
+    for (NotePadMeta note : getNotes()) {
+      Point loc = note.getLocation();
       if (loc.x < minx) {
         minx = loc.x;
       }
@@ -1346,9 +1326,9 @@ public class WorkflowMeta extends AbstractMeta
    * @return the action copy
    */
   public ActionMeta findStart() {
-    for (int i = 0; i < nrActions(); i++) {
-      if (getAction(i).isStart()) {
-        return getAction(i);
+    for (ActionMeta actionMeta : workflowActions) {
+      if (actionMeta.isStart()) {
+        return actionMeta;
       }
     }
     return null;
@@ -1571,9 +1551,8 @@ public class WorkflowMeta extends AbstractMeta
       return true;
     }
 
-    for (int i = 0; i < nrActions(); i++) {
-      ActionMeta action = getAction(i);
-      if (action.hasChanged()) {
+    for (ActionMeta actionMeta : workflowActions) {
+      if (actionMeta.hasChanged()) {
         return true;
       }
     }
@@ -1590,10 +1569,9 @@ public class WorkflowMeta extends AbstractMeta
       return true;
     }
 
-    for (WorkflowHopMeta hi : workflowHops) {
-      // Look at all the hops
-
-      if (hi.hasChanged()) {
+    // Look at all the hops
+    for (WorkflowHopMeta hop : workflowHops) {
+      if (hop.hasChanged()) {
         return true;
       }
     }
@@ -1813,11 +1791,8 @@ public class WorkflowMeta extends AbstractMeta
    */
   public List<ResourceReference> getResourceDependencies(IVariables variables) {
     List<ResourceReference> resourceReferences = new ArrayList<>();
-    ActionMeta copy = null;
-    IAction action = null;
-    for (int i = 0; i < workflowActions.size(); i++) {
-      copy = workflowActions.get(i); // get the action copy
-      action = copy.getAction();
+    for (ActionMeta actionMeta : workflowActions) {
+      IAction action = actionMeta.getAction();
       resourceReferences.addAll(action.getResourceDependencies(variables, this));
     }
 

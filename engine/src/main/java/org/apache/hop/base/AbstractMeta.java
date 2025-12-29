@@ -1067,14 +1067,13 @@ public abstract class AbstractMeta
     maxUndo = Const.MAX_UNDO;
     clearUndo();
     clearChanged();
-    setChanged(false);
   }
 
   @Override
   public void clearChanged() {
     changedNotes = false;
-    for (int i = 0; i < nrNotes(); i++) {
-      getNote(i).setChanged(false);
+    for (NotePadMeta note : notes) {
+      note.setChanged(false);
     }
     changedFlag.clearChanged();
     fireContentChangedListeners(false);
@@ -1125,10 +1124,7 @@ public abstract class AbstractMeta
 
   @Override
   public boolean hasChanged() {
-    if (changedFlag.hasChanged()) {
-      return true;
-    }
-    return haveNotesChanged();
+    return changedFlag.hasChanged() || haveNotesChanged();
   }
 
   /**

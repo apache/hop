@@ -196,21 +196,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiWorkflowGraph-ToolBar-10100-Undo";
   public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiWorkflowGraph-ToolBar-10110-Redo";
 
-  public static final String TOOLBAR_ITEM_SNAP_TO_GRID =
-      "HopGuiWorkflowGraph-ToolBar-10190-Snap-To-Grid";
-  public static final String TOOLBAR_ITEM_ALIGN_LEFT =
-      "HopGuiWorkflowGraph-ToolBar-10200-Align-Left";
-  public static final String TOOLBAR_ITEM_ALIGN_RIGHT =
-      "HopGuiWorkflowGraph-ToolBar-10210-Align-Right";
-  public static final String TOOLBAR_ITEM_ALIGN_TOP =
-      "HopGuiWorkflowGraph-ToolBar-10250-Align-Ttop";
-  public static final String TOOLBAR_ITEM_ALIGN_BOTTOM =
-      "HopGuiWorkflowGraph-ToolBar-10260-Align-Bottom";
-  public static final String TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY =
-      "HopGuiWorkflowGraph-ToolBar-10300-Distribute-Horizontally";
-  public static final String TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY =
-      "HopGuiWorkflowGraph-ToolBar-10310-Distribute-Vertically";
-
   public static final String TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS =
       "HopGuiWorkflowGraph-ToolBar-10400-Execution-Results";
 
@@ -1318,25 +1303,25 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       // Are we creating a new hop with the middle button or pressing SHIFT?
       //
 
-      ActionMeta actionCopy = workflowMeta.getAction(real.x, real.y, iconSize);
+      ActionMeta actionMeta = workflowMeta.getAction(real.x, real.y, iconSize);
       endHopLocation = new Point(real.x, real.y);
-      if (actionCopy != null
-          && ((startHopAction != null && !startHopAction.equals(actionCopy))
-              || (endHopAction != null && !endHopAction.equals(actionCopy)))) {
+      if (actionMeta != null
+          && ((startHopAction != null && !startHopAction.equals(actionMeta))
+              || (endHopAction != null && !endHopAction.equals(actionMeta)))) {
         if (hopCandidate == null) {
           // See if the transform accepts input. If not, we can't create a new hop...
           //
           if (startHopAction != null) {
-            if (!actionCopy.isStart()) {
-              hopCandidate = new WorkflowHopMeta(startHopAction, actionCopy);
+            if (!actionMeta.isStart()) {
+              hopCandidate = new WorkflowHopMeta(startHopAction, actionMeta);
               endHopLocation = null;
             } else {
-              noInputAction = actionCopy;
+              noInputAction = actionMeta;
               toolTip.setText("The start action can only be used at the start of a Workflow");
-              showToolTip(new org.eclipse.swt.graphics.Point(real.x, real.y));
+              showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
             }
           } else if (endHopAction != null) {
-            hopCandidate = new WorkflowHopMeta(actionCopy, endHopAction);
+            hopCandidate = new WorkflowHopMeta(actionMeta, endHopAction);
             endHopLocation = null;
           }
         }
@@ -3329,20 +3314,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               toolBarWidgets.enableToolbarItem(
                   TOOLBAR_ITEM_REDO_ID, workflowMeta.viewNextUndo() != null);
 
-              // Enable/disable the align/distribute toolbar buttons
+              // Enable/disable the execution toolbar buttons
               //
-              boolean selectedAction = !workflowMeta.getSelectedActions().isEmpty();
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_SNAP_TO_GRID, selectedAction);
-
-              boolean selectedActions = workflowMeta.getSelectedActions().size() > 1;
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ALIGN_LEFT, selectedActions);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ALIGN_RIGHT, selectedActions);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ALIGN_TOP, selectedActions);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_ALIGN_BOTTOM, selectedActions);
-              toolBarWidgets.enableToolbarItem(
-                  TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedActions);
-              toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedActions);
-
               boolean running = isRunning() && !workflow.isStopped();
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_START, !running);
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_STOP, running);

@@ -2629,8 +2629,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     boolean hasLoop = false;
 
-    for (int i = 0; i < pipelineMeta.nrPipelineHops(); i++) {
-      PipelineHopMeta hop = pipelineMeta.getPipelineHop(i);
+    for (PipelineHopMeta hop : pipelineMeta.getPipelineHops()) {
       if (list.contains(hop.getFromTransform()) && list.contains(hop.getToTransform())) {
 
         PipelineHopMeta before = hop.clone();
@@ -5127,6 +5126,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               toolBarWidgets.enableToolbarItem(
                   TOOLBAR_ITEM_REDO_ID, pipelineMeta.viewNextUndo() != null);
 
+              // Enable/disable the execution toolbar buttons
+              //
               boolean running = isRunning();
               boolean paused = running && pipeline.isPaused();
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_START, !running || paused);
@@ -5136,7 +5137,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               hopGui.setUndoMenu(pipelineMeta);
               hopGui.handleFileCapabilities(fileType, pipelineMeta.hasChanged(), running, paused);
 
-              // Enable the align/distribute toolbar menus if one or more transforms are selected.
+              // Enable the align/distribute menus if one or more transforms are selected.
               //
               super.enableSnapAlignDistributeMenuItems(
                   fileType, !pipelineMeta.getSelectedTransforms().isEmpty());
@@ -5148,7 +5149,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                     HopGuiExtensionPoint.HopGuiPipelineGraphUpdateGui.id,
                     this);
               } catch (Exception xe) {
-                LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
+                LogChannel.UI.logError(
+                    "Error handling extension point 'HopGuiPipelineGraphUpdateGui'", xe);
               }
 
               perspective.updateTabItem(this);

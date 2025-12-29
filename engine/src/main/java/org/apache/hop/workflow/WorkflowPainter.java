@@ -97,7 +97,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     gc.setBackground(EColor.BACKGROUND);
     gc.fillRectangle(0, 0, area.x, area.y);
 
-    // Draw the pipeline onto the image
+    // Draw the workflow onto the image
     //
     gc.setAlpha(255);
     gc.setTransform((float) offset.x, (float) offset.y, magnification);
