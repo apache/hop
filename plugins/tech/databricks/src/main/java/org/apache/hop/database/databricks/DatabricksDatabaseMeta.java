@@ -143,16 +143,6 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
-  }
-
-  @Override
-  public boolean isSupportsTimestampDataType() {
-    return true;
-  }
-
-  @Override
   public boolean isSupportsOptionsInURL() {
     return true;
   }
@@ -201,5 +191,11 @@ public class DatabricksDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public boolean isRequiresName() {
     return false;
+  }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+    setSupportsTimestampDataType(true);
   }
 }

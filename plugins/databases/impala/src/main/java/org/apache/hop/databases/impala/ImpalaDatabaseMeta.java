@@ -248,4 +248,9 @@ public class ImpalaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public void setPrincipalName(String principalName) {
     this.principalName = principalName;
   }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+  }
 }

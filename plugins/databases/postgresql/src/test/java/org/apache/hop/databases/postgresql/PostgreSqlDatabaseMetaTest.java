@@ -42,6 +42,7 @@ public class PostgreSqlDatabaseMetaTest {
 
     nativeMeta = new PostgreSqlDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

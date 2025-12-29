@@ -188,17 +188,9 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   }
 
   @Override
-  public boolean isSupportsTimestampDataType() {
-    return true;
-  }
-
-  @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
-  }
-
-  @Override
   public void addDefaultOptions() {
     addExtraOption(getPluginId(), "encrypt", "false");
+    setSupportsTimestampDataType(true);
+    setSupportsBooleanDataType(true);
   }
 }

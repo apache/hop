@@ -191,16 +191,6 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
-  }
-
-  @Override
-  public boolean isSupportsTimestampDataType() {
-    return true;
-  }
-
-  @Override
   public boolean isSupportsOptionsInURL() {
     return false;
   }
@@ -208,5 +198,11 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public String[] getTableTypes() {
     return new String[] {"BASE TABLE", "LOCAL TEMPORARY"};
+  }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+    setSupportsTimestampDataType(true);
   }
 }

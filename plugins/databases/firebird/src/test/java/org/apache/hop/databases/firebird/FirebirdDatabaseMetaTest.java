@@ -42,6 +42,7 @@ class FirebirdDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new FirebirdDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

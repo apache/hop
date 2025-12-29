@@ -1087,16 +1087,6 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
-  }
-
-  @Override
-  public boolean isSupportsTimestampDataType() {
-    return true;
-  }
-
-  @Override
   public boolean isSupportsGetBlob() {
     return false;
   }
@@ -1118,5 +1108,11 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   @Override
   public int getMaxTextFieldLength() {
     return GB_LIMIT;
+  }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+    setSupportsTimestampDataType(true);
   }
 }

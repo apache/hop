@@ -43,6 +43,7 @@ class CrateDBDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new CrateDBDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

@@ -405,4 +405,9 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     String realSequenceName = sequenceName.replace(getStartQuote(), "").replace(getEndQuote(), "");
     return String.format("SELECT next_value_for( 'sys', '%s' )", realSequenceName);
   }
+
+  @Override
+  public void addDefaultOptions() {
+    setSupportsBooleanDataType(true);
+  }
 }

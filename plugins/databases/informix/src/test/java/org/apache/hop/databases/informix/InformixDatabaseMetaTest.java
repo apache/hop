@@ -42,6 +42,7 @@ class InformixDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new InformixDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

@@ -75,6 +75,7 @@ class SingleStoreDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new SingleStoreDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

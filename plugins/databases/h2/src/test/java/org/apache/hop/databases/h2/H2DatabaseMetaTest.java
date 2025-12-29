@@ -41,6 +41,7 @@ class H2DatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new H2DatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test

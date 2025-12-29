@@ -57,6 +57,8 @@ public class AccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public void addDefaultOptions() {
     addExtraOption(getPluginId(), "newDatabaseVersion", "V2010");
+    setSupportsBooleanDataType(true);
+    setSupportsTimestampDataType(true);
   }
 
   @Override
@@ -300,11 +302,6 @@ public class AccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public boolean isSupportsSequences() {
     return false;
-  }
-
-  @Override
-  public boolean isSupportsBooleanDataType() {
-    return true;
   }
 
   @Override

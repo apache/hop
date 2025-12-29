@@ -78,6 +78,7 @@ class MySqlDatabaseMetaTest {
   void setupBefore() {
     nativeMeta = new MySqlDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
+    nativeMeta.addDefaultOptions();
   }
 
   @Test
