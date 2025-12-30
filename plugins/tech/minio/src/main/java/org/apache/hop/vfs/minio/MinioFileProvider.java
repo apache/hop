@@ -35,14 +35,15 @@ import org.apache.hop.vfs.minio.metadata.MinioMeta;
 public class MinioFileProvider extends AbstractOriginatingFileProvider {
   public static final long DEFAULT_PART_SIZE = 5L * 1024 * 1024;
 
-  private static final FileSystemOptions defaultOptions = new FileSystemOptions();
+    private static final FileSystemOptions defaultOptions = new FileSystemOptions();
 
   public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
       new UserAuthenticationData.Type[] {
         UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
       };
+    public static final int DEFAULT_ENDPOINT_PORT = 9000;
 
-  public static FileSystemOptions getDefaultFileSystemOptions() {
+    public static FileSystemOptions getDefaultFileSystemOptions() {
     return defaultOptions;
   }
 
@@ -92,7 +93,7 @@ public class MinioFileProvider extends AbstractOriginatingFileProvider {
 
       // The end point port
       String endPointPort = variables.resolve(minioMeta.getEndPointPort());
-      fileSystem.setEndPointPort(Const.toInt(endPointPort, 9000));
+      fileSystem.setEndPointPort(Const.toInt(endPointPort, DEFAULT_ENDPOINT_PORT));
 
       // Is the end point secure? (https)
       boolean endPointSecure = minioMeta.isEndPointSecure();

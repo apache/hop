@@ -128,7 +128,10 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
         path += DELIMITER;
       }
       // The regular case
-      ListObjectsArgs args = ListObjectsArgs.builder().bucket(bucketName).prefix(path).build();
+      ListObjectsArgs.Builder listObjectsArgsBuilder = ListObjectsArgs.builder().bucket(bucketName);
+      if (!path.equals(DELIMITER)) listObjectsArgsBuilder.prefix(path);
+
+      ListObjectsArgs args = listObjectsArgsBuilder.build();
       Iterable<Result<Item>> results = fileSystem.getClient().listObjects(args);
       for (Result<Item> result : results) {
         Item item = result.get();
