@@ -144,6 +144,7 @@ public class MessageDialogWithToggle {
           });
     }
     BaseTransformDialog.positionBottomButtons(shell, buttons, margin, wToggle);
+    shell.setDefaultButton(buttons[0]);
 
     BaseTransformDialog.setSize(shell);
     shell.pack();
