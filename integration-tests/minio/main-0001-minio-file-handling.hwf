@@ -246,7 +246,7 @@ limitations under the License.
       <attributes/>
       <parallel>N</parallel>
       <xloc>576</xloc>
-      <yloc>304</yloc>
+      <yloc>416</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -330,17 +330,17 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>minio-get-filenames UNIT</name>
+      <name>minio-get-filenames UNIT 1</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
       <test_names>
         <test_name>
-          <name>0001-minio-validate-files UNIT</name>
+          <name>0001-minio-validate-files1 UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>576</xloc>
+      <xloc>464</xloc>
       <yloc>224</yloc>
       <attributes_hac/>
     </action>
@@ -379,7 +379,22 @@ limitations under the License.
       <filename>minio:///demo/copy/</filename>
       <parallel>N</parallel>
       <xloc>160</xloc>
-      <yloc>304</yloc>
+      <yloc>416</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>minio-get-filenames UNIT 2</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
+      <test_names>
+        <test_name>
+          <name>0001-minio-validate-files2 UNIT</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>624</xloc>
+      <yloc>224</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -483,15 +498,8 @@ limitations under the License.
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>minio-get-filenames UNIT</from>
-      <to>Delete minio:///demo folders</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
       <from>Copy files</from>
-      <to>minio-get-filenames UNIT</to>
+      <to>minio-get-filenames UNIT 1</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -501,6 +509,20 @@ limitations under the License.
       <to>Success</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>minio-get-filenames UNIT 1</from>
+      <to>minio-get-filenames UNIT 2</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>minio-get-filenames UNIT 2</from>
+      <to>Delete minio:///demo folders</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>
