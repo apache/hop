@@ -569,51 +569,38 @@ public class PropsUi extends Props {
   protected static void setLookOnWindows(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
-    Color background = null;
-    Color foreground = null;
+    Color background = GuiResource.getInstance().getWidgetBackGroundColor();
+    ;
+    Color foreground = gui.getColorBlack();
 
     if (widget instanceof Shell shell) {
-      background = gui.getColorWhite();
-      foreground = gui.getColorBlack();
       shell.setBackgroundMode(SWT.INHERIT_FORCE);
-      shell.setForeground(gui.getColorBlack());
-      shell.setBackground(gui.getColorWhite());
+      shell.setForeground(foreground);
+      shell.setBackground(background);
       return;
     }
 
     switch (style) {
       case WIDGET_STYLE_DEFAULT:
-        background = gui.getColorWhite();
-        foreground = gui.getColorBlack();
         break;
       case WIDGET_STYLE_FIXED:
         font = gui.getFontFixed();
-        background = gui.getColorWhite();
-        foreground = gui.getColorBlack();
         break;
       case WIDGET_STYLE_TABLE:
         if (PropsUi.getInstance().isDarkMode()) {
-          background = gui.getColorWhite();
-          foreground = gui.getColorBlack();
           Table table = (Table) widget;
-          table.setHeaderBackground(gui.getColorLightGray());
-          table.setHeaderForeground(gui.getColorDarkGray());
+          table.setHeaderBackground(background);
+          table.setHeaderForeground(foreground);
         }
         break;
       case WIDGET_STYLE_TREE:
         if (PropsUi.getInstance().isDarkMode()) {
-          background = gui.getColorWhite();
-          foreground = gui.getColorBlack();
           Tree tree = (Tree) widget;
-          tree.setHeaderBackground(gui.getColorLightGray());
-          tree.setHeaderForeground(gui.getColorDarkGray());
+          tree.setHeaderBackground(background);
+          tree.setHeaderForeground(foreground);
         }
         break;
       case WIDGET_STYLE_TOOLBAR:
-        if (PropsUi.getInstance().isDarkMode()) {
-          background = gui.getColorLightGray();
-          foreground = gui.getColorBlack();
-        }
         break;
       case WIDGET_STYLE_TAB:
         CTabFolder tabFolder = (CTabFolder) widget;
@@ -621,16 +608,16 @@ public class PropsUi extends Props {
         tabFolder.setTabHeight(28);
         ensureSafeRenderer(tabFolder);
         if (PropsUi.getInstance().isDarkMode()) {
-          tabFolder.setBackground(gui.getColorWhite());
-          tabFolder.setForeground(gui.getColorBlack());
-          tabFolder.setSelectionBackground(gui.getColorWhite());
-          tabFolder.setSelectionForeground(gui.getColorBlack());
+          tabFolder.setBackground(background);
+          tabFolder.setForeground(foreground);
+          tabFolder.setSelectionBackground(background);
+          tabFolder.setSelectionForeground(foreground);
         }
         break;
       case WIDGET_STYLE_PUSH_BUTTON:
         break;
       default:
-        background = gui.getColorGray();
+        background = GuiResource.getInstance().getWidgetBackGroundColor();
         font = null;
         break;
     }
@@ -655,22 +642,19 @@ public class PropsUi extends Props {
   protected static void setLookOnMac(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
-    Color background = null;
+    Color background = GuiResource.getInstance().getWidgetBackGroundColor();
 
     Display display = Display.getCurrent();
     if (display == null) {
       return;
     }
 
-    // Use system colors that automatically adapt to light/dark mode
-    // Only set backgrounds where needed - let macOS handle text colors natively
-    Color systemWidgetBackground = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
     Color systemListBackground = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
     Color systemListForeground = display.getSystemColor(SWT.COLOR_LIST_FOREGROUND);
 
     // Handle Shell windows with system background, but let macOS handle text color
     if (widget instanceof Shell shell) {
-      shell.setBackground(systemWidgetBackground);
+      shell.setBackground(background);
       shell.setBackgroundMode(SWT.INHERIT_FORCE);
       // Don't set foreground - let macOS handle it natively
       return;
@@ -680,10 +664,8 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_DEFAULT:
         // Use system widget background for default composites
         // Don't set foreground - let macOS handle text colors
-        background = systemWidgetBackground;
         break;
       case WIDGET_STYLE_OSX_GROUP:
-        background = systemWidgetBackground;
         font = gui.getFontDefault();
         Group group = ((Group) widget);
         final Color groupBg = background;
@@ -698,25 +680,25 @@ public class PropsUi extends Props {
         break;
       case WIDGET_STYLE_FIXED:
         font = gui.getFontFixed();
-        background = systemWidgetBackground;
+        background = background;
         break;
       case WIDGET_STYLE_TABLE:
-        background = systemWidgetBackground;
+        background = background;
         Table table = (Table) widget;
-        table.setHeaderBackground(systemWidgetBackground);
+        table.setHeaderBackground(background);
         // Don't set foreground colors - let macOS handle them
         break;
       case WIDGET_STYLE_TREE:
-        background = systemWidgetBackground;
+        background = background;
         break;
       case WIDGET_STYLE_TOOLBAR:
-        background = systemWidgetBackground;
+        background = background;
         break;
       case WIDGET_STYLE_TAB:
         CTabFolder tabFolder = (CTabFolder) widget;
         tabFolder.setBorderVisible(true);
-        tabFolder.setBackground(systemWidgetBackground);
-        tabFolder.setSelectionBackground(systemWidgetBackground);
+        tabFolder.setBackground(background);
+        tabFolder.setSelectionBackground(background);
         // Don't set foreground colors - let macOS handle them
         ensureSafeRenderer(tabFolder);
         break;
@@ -761,7 +743,7 @@ public class PropsUi extends Props {
   protected static void setLookOnLinux(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
-    Color background = gui.getColorWhite();
+    Color background = GuiResource.getInstance().getWidgetBackGroundColor();
     Color foreground = gui.getColorBlack();
 
     switch (style) {

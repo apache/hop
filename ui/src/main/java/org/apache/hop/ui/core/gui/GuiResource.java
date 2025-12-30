@@ -1020,13 +1020,6 @@ public class GuiResource {
   }
 
   /**
-   * @return Returns the imagesTransforms.
-   */
-  public Map<String, SwtUniversalImage> getImagesTransforms() {
-    return imagesTransforms;
-  }
-
-  /**
    * Get an image of an action or a missing image if not found.
    *
    * @param pluginId the action plugin id
@@ -1052,13 +1045,6 @@ public class GuiResource {
       return getSwtImageMissing();
     }
     return image;
-  }
-
-  /**
-   * @return Returns the imagesActions.
-   */
-  public Map<String, SwtUniversalImage> getImagesActions() {
-    return imagesActions;
   }
 
   /**
@@ -1486,14 +1472,6 @@ public class GuiResource {
   }
 
   /**
-   * @return The image map used to cache images loaded from certain location using getImage(String
-   *     location);
-   */
-  public Map<String, Image> getImageMap() {
-    return imageMap;
-  }
-
-  /**
    * @return the imageTrue
    */
   public Image getImageTrue() {
@@ -1624,5 +1602,15 @@ public class GuiResource {
 
   public SwtUniversalImage getSwtImageArrowCandidate() {
     return imageArrowCandidate;
+  }
+
+  public Color getWidgetBackGroundColor() {
+    if (OsHelper.isWindows()) {
+      return colorWhite;
+    } else if (OsHelper.isMac()) {
+      return display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+    } else {
+      return colorLightGray;
+    }
   }
 }
