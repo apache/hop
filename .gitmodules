@@ -1,0 +1,3 @@
+[submodule "custom-plugins/hop-plugin-sample"]
+	path = custom-plugins/hop-plugin-sample
+	url = git@github.com:project-hop/hop-plugin-sample.git
