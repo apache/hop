@@ -231,8 +231,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     return "explorer-perspective";
   }
 
-  @GuiKeyboardShortcut(control = true, shift = true, key = 'e')
-  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'e')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'd')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'd')
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -269,7 +269,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     createTree(sash);
     createTabFolder(sash);
 
-    sash.setWeights(new int[] {20, 80});
+    sash.setWeights(20, 80);
 
     // Set initial file explorer panel visibility from configuration
     Boolean visibleByDefault =

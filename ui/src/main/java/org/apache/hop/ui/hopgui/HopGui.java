@@ -141,6 +141,9 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -598,7 +601,6 @@ public class HopGui
                 perspective.getId());
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
 
-        ToolItem item;
         int sidebarIconSize = 21;
         Image image =
             GuiResource.getInstance()
@@ -607,19 +609,18 @@ public class HopGui
                     classLoader,
                     sidebarIconSize,
                     sidebarIconSize);
-
-        // Create styled sidebar button with hover, selection, and rounded corners
-        // This works for both desktop SWT and web/RAP modes
-        createStyledSidebarButton(perspectivesSidebar, image, tooltip, perspective);
-
         // See if there's a shortcut for the perspective, add it to tooltip...
         KeyboardShortcut shortcut =
             GuiRegistry.getInstance()
                 .findKeyboardShortcut(perspectiveClass.getName(), "activate", Const.isOSX());
+
         if (shortcut != null) {
-          // Update tooltip with shortcut - handled in SidebarButton constructor
-          // The tooltip was already set when creating the button
+          tooltip += " (" + shortcut + ")";
         }
+
+        // Create styled sidebar button with hover, selection, and rounded corners
+        // This works for both desktop SWT and web/RAP modes
+        createStyledSidebarButton(perspectivesSidebar, image, tooltip, perspective);
       }
 
       perspectivesSidebar.layout(true, true);
@@ -1269,8 +1270,6 @@ public class HopGui
   }
 
   protected void addPerspectivesToolbar() {
-    // We can't mix horizontal and vertical toolbars so we need to add a composite.
-    //
     shell.setLayout(new FormLayout());
     mainHopGuiComposite = new Composite(shell, SWT.NO_BACKGROUND);
     mainHopGuiComposite.setLayout(new FormLayout());
@@ -1284,7 +1283,6 @@ public class HopGui
     // Create custom sidebar composite instead of ToolBar for better control
     perspectivesSidebar = new Composite(mainHopGuiComposite, SWT.NONE);
     PropsUi.setLook(perspectivesSidebar);
-    perspectivesSidebar.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 
     // Use GridLayout for vertical stacking
     org.eclipse.swt.layout.GridLayout sidebarLayout =
@@ -1298,7 +1296,7 @@ public class HopGui
     fdSidebar.left = new FormAttachment(0, 0);
     fdSidebar.top = new FormAttachment(0, 0);
     fdSidebar.bottom = new FormAttachment(100, 0);
-    fdSidebar.width = 40; // Fixed width for sidebar (80% of 50px)
+    fdSidebar.width = (int) (40 * PropsUi.getNativeZoomFactor());
     perspectivesSidebar.setLayoutData(fdSidebar);
   }
 
@@ -1535,73 +1533,63 @@ public class HopGui
     SidebarButton button = new SidebarButton(parent, image, tooltip, perspective);
     sidebarButtons.add(button);
 
-    // Set layout data for GridLayout (34px = 80% of 42px)
     org.eclipse.swt.layout.GridData gd = new org.eclipse.swt.layout.GridData();
-    gd.widthHint = 34;
-    gd.heightHint = 34;
+    gd.widthHint = (int) (34 * PropsUi.getNativeZoomFactor());
+    gd.heightHint = (int) (34 * PropsUi.getNativeZoomFactor());
     button.composite.setLayoutData(gd);
   }
 
   /** Custom sidebar button class with hover, selection, and rounded corners */
   private class SidebarButton {
-    Composite composite;
+    Control composite; // Use Control to allow both Composite (RAP) and Canvas (desktop)
     Image image;
     IHopPerspective perspective;
     boolean isHovered = false;
     boolean isSelected = false;
 
-    Color selectionBg;
-    Color hoverBg;
-    Color normalBg;
+    Color selectionBg = GuiResource.getInstance().getColorLightBlue();
+    Color hoverBg = GuiResource.getInstance().getColorLightGray();
+    Color normalBg = GuiResource.getInstance().getWidgetBackGroundColor();
 
     public SidebarButton(
         Composite parent, Image image, String tooltip, IHopPerspective perspective) {
       this.image = image;
       this.perspective = perspective;
 
-      // Get colors for light/dark mode
-      PropsUi props = PropsUi.getInstance();
-      boolean isDarkMode = props.isDarkMode();
-
-      selectionBg = new Color(display, 0x4A, 0x9E, 0xFF);
-      if (isDarkMode) {
-        hoverBg = new Color(display, 0x3C, 0x3F, 0x41);
-      } else {
-        // Darker gray for more distinct hover effect
-        hoverBg = new Color(display, 0xD0, 0xD0, 0xD0);
-      }
-      // Use system background color to match the default background
-      normalBg = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
-
-      // Create composite
-      composite = new Composite(parent, SWT.NONE);
-      composite.setToolTipText(tooltip);
-      composite.setBackground(normalBg);
-
       // Create a label inside the composite to display the image (only for RAP)
       final Label imageLabel;
       if (EnvironmentUtils.getInstance().isWeb()) {
+        // For RAP/web: use Composite with Label child
+        Composite comp = new Composite(parent, SWT.NONE);
+        composite = comp;
+        comp.setToolTipText(tooltip);
+        comp.setBackground(normalBg);
+
         // Set custom variant for CSS styling in RAP
-        composite.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
+        comp.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
 
         // Use GridLayout to center the image without stretching
-        org.eclipse.swt.layout.GridLayout layout = new org.eclipse.swt.layout.GridLayout(1, false);
+        GridLayout layout = new GridLayout(1, false);
         layout.marginWidth = 0;
         layout.marginHeight = 0;
         layout.horizontalSpacing = 0;
         layout.verticalSpacing = 0;
-        composite.setLayout(layout);
+        comp.setLayout(layout);
 
-        imageLabel = new Label(composite, SWT.NONE);
+        imageLabel = new Label(comp, SWT.NONE);
         imageLabel.setImage(image);
         imageLabel.setBackground(normalBg);
+        imageLabel.setToolTipText(tooltip);
         imageLabel.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
 
         // Center the label in the composite
-        org.eclipse.swt.layout.GridData gd =
-            new org.eclipse.swt.layout.GridData(SWT.CENTER, SWT.CENTER, true, true);
+        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
         imageLabel.setLayoutData(gd);
       } else {
+        Canvas canvas = new Canvas(parent, SWT.NONE);
+        composite = canvas;
+        canvas.setToolTipText(tooltip);
+        canvas.setBackground(normalBg);
         imageLabel = null;
       }
 
@@ -1625,9 +1613,11 @@ public class HopGui
               }
               // Force redraw in RAP
               composite.redraw();
-              composite.layout();
+              if (composite instanceof Composite) {
+                ((Composite) composite).layout();
+              }
             } else {
-              // For desktop, trigger repaint
+              // For desktop Canvas, trigger repaint
               composite.redraw();
             }
           };
