@@ -77,7 +77,7 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0001-minio-validate-files UNIT",
+  "name": "0001-minio-validate-files2 UNIT",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0001-minio-validate-files.hpl"
+  "pipeline_filename": "./0001-minio-validate-files2.hpl"
 }
