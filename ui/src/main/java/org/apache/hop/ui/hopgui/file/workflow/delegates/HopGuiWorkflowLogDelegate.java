@@ -47,7 +47,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -139,7 +138,7 @@ public class HopGuiWorkflowLogDelegate {
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
     fdText.right = new FormAttachment(100, 0);
-    fdText.top = new FormAttachment( toolbar, 0);
+    fdText.top = new FormAttachment(toolbar, 0);
     fdText.bottom = new FormAttachment(100, 0);
     workflowLogText.setLayoutData(fdText);
 
