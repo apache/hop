@@ -33,19 +33,22 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.widget.LogStyledTextComp;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.shared.TextZoom;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -69,7 +72,7 @@ public class HopGuiPipelineLogDelegate {
 
   @Getter private CTabItem pipelineLogTab;
 
-  private Text pipelineLogText;
+  private TextComposite pipelineLogText;
   private TextZoom textZoom;
 
   private ToolBar toolbar;
@@ -113,10 +116,23 @@ public class HopGuiPipelineLogDelegate {
     fd.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fd);
 
-    pipelineLogText =
-        new Text(
-            pipelineLogComposite,
-            SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    // Use StyledTextComp for web (uses Text widget), LogStyledTextComp for desktop (with
+    // highlighting)
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      pipelineLogText =
+          new StyledTextComp(
+              pipelineGraph.getVariables(),
+              pipelineLogComposite,
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    } else {
+      pipelineLogText =
+          new LogStyledTextComp(
+              pipelineGraph.getVariables(),
+              pipelineLogComposite,
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+      // Add log highlighting (only works in SWT, not RWT)
+      pipelineLogText.addLineStyleListener();
+    }
     PropsUi.setLook(pipelineLogText);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
@@ -196,11 +212,8 @@ public class HopGuiPipelineLogDelegate {
   public void clearLog() {
     if (pipelineLogText != null && !pipelineLogText.isDisposed()) {
       // add a CR to avoid fontStyle from getting lost on macos HOP-2583
-      if (OsHelper.isMac()) {
-        pipelineLogText.setText(Const.CR);
-      } else {
-        pipelineLogText.setText("");
-      }
+      String textToSet = OsHelper.isMac() ? Const.CR : "";
+      pipelineLogText.setText(textToSet);
     }
     Map<String, String> transformLogMap = pipelineGraph.getTransformLogMap();
     if (transformLogMap != null) {
@@ -345,9 +358,10 @@ public class HopGuiPipelineLogDelegate {
   }
 
   public boolean hasSelectedText() {
-    return pipelineLogText != null
-        && !pipelineLogText.isDisposed()
-        && StringUtils.isNotEmpty(pipelineLogText.getSelectionText());
+    if (pipelineLogText == null || pipelineLogText.isDisposed()) {
+      return false;
+    }
+    return StringUtils.isNotEmpty(pipelineLogText.getSelectionText());
   }
 
   public void copySelected() {

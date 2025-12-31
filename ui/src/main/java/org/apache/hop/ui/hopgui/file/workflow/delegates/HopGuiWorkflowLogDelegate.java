@@ -29,12 +29,16 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.widget.LogStyledTextComp;
 import org.apache.hop.ui.core.widget.OsHelper;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiLogBrowser;
 import org.apache.hop.ui.hopgui.file.shared.TextZoom;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
@@ -44,7 +48,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -67,7 +70,7 @@ public class HopGuiWorkflowLogDelegate {
 
   private CTabItem workflowLogTab;
 
-  private Text workflowLogText;
+  private TextComposite workflowLogText;
   private TextZoom textZoom;
 
   /** The number of lines in the log tab */
@@ -115,15 +118,28 @@ public class HopGuiWorkflowLogDelegate {
     fd.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fd);
 
-    workflowLogText =
-        new Text(
-            workflowLogComposite,
-            SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    // Use StyledTextComp for web (uses Text widget), LogStyledTextComp for desktop (with
+    // highlighting)
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      workflowLogText =
+          new StyledTextComp(
+              workflowGraph.getVariables(),
+              workflowLogComposite,
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+    } else {
+      workflowLogText =
+          new LogStyledTextComp(
+              workflowGraph.getVariables(),
+              workflowLogComposite,
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+      // Add log highlighting (only works in SWT, not RWT)
+      workflowLogText.addLineStyleListener();
+    }
     PropsUi.setLook(workflowLogText);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
     fdText.right = new FormAttachment(100, 0);
-    fdText.top = new FormAttachment((Control) toolbar, 0);
+    fdText.top = new FormAttachment( toolbar, 0);
     fdText.bottom = new FormAttachment(100, 0);
     workflowLogText.setLayoutData(fdText);
 
@@ -188,11 +204,8 @@ public class HopGuiWorkflowLogDelegate {
   public void clearLog() {
     if (workflowLogText != null && !workflowLogText.isDisposed()) {
       // add a CR to avoid fontStyle from getting lost on macos HOP-2583
-      if (OsHelper.isMac()) {
-        workflowLogText.setText(Const.CR);
-      } else {
-        workflowLogText.setText("");
-      }
+      String textToSet = OsHelper.isMac() ? Const.CR : "";
+      workflowLogText.setText(textToSet);
     }
   }
 
@@ -202,7 +215,8 @@ public class HopGuiWorkflowLogDelegate {
       toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.LogCopyToClipboard",
       image = "ui/images/copy.svg")
   public void copyToClipboard() {
-    GuiResource.getInstance().toClipboard(workflowLogText.getText());
+    String text = workflowLogText.getText();
+    GuiResource.getInstance().toClipboard(text);
   }
 
   @GuiToolbarElement(
@@ -324,9 +338,10 @@ public class HopGuiWorkflowLogDelegate {
   }
 
   public boolean hasSelectedText() {
-    return workflowLogText != null
-        && !workflowLogText.isDisposed()
-        && StringUtils.isNotEmpty(workflowLogText.getSelectionText());
+    if (workflowLogText == null || workflowLogText.isDisposed()) {
+      return false;
+    }
+    return StringUtils.isNotEmpty(workflowLogText.getSelectionText());
   }
 
   public void copySelected() {

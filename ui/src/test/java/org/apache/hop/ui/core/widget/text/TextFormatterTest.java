@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget.text;
 
+import org.eclipse.swt.custom.StyleRange;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,11 +34,14 @@ public class TextFormatterTest {
     Assert.assertEquals(
         "This has one this is the first value this is the second value", format.getText());
     Assert.assertEquals(2, format.getStyleRanges().size());
-    Assert.assertEquals(
-        "http://www.example.com/page/index.html?query=test1", format.getStyleRanges().get(0).data);
-    Assert.assertEquals(
-        "http://www.example.com/page/index.html?query=test2", format.getStyleRanges().get(1).data);
-    Assert.assertEquals(13, format.getStyleRanges().get(0).start);
-    Assert.assertEquals(37, format.getStyleRanges().get(1).start);
+
+    // Cast Object to StyleRange to access properties
+    StyleRange styleRange0 = (StyleRange) format.getStyleRanges().get(0);
+    StyleRange styleRange1 = (StyleRange) format.getStyleRanges().get(1);
+
+    Assert.assertEquals("http://www.example.com/page/index.html?query=test1", styleRange0.data);
+    Assert.assertEquals("http://www.example.com/page/index.html?query=test2", styleRange1.data);
+    Assert.assertEquals(13, styleRange0.start);
+    Assert.assertEquals(37, styleRange1.start);
   }
 }
