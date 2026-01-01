@@ -104,7 +104,9 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
           return false;
         } else {
           List<List<Object>> values = response.getValues();
-          logBasic("Reading Sheet, found: " + values.size() + " rows");
+          if (isBasic()) {
+            logBasic("Reading Sheet, found: " + values.size() + " rows");
+          }
           if (Utils.isEmpty(values)) {
             throw new HopTransformException(
                 "No response found for worksheet : "
@@ -208,35 +210,41 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
 
   private Object[] readRow() {
     try {
-      logRowlevel("Allocating :" + Integer.toString(data.outputRowMeta.size()));
+      if (isRowLevel()) {
+        logRowlevel("Allocating :" + data.outputRowMeta.size());
+      }
       Object[] outputRowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
       int outputIndex = 0;
-      logRowlevel(
-          "Reading Row: "
-              + Integer.toString(data.currentRow)
-              + " out of : "
-              + Integer.toString(data.rows.size()));
+      if (isRowLevel()) {
+        logRowlevel("Reading Row: " + data.currentRow + " out of : " + data.rows.size());
+      }
       if (data.currentRow < data.rows.size()) {
         List<Object> row = data.rows.get(data.currentRow);
         for (IValueMeta column : data.outputRowMeta.getValueMetaList()) {
           Object value = null;
-          logRowlevel(
-              "Reading columns: "
-                  + Integer.toString(outputIndex)
-                  + " out of : "
-                  + Integer.toString(row.size()));
+          if (isRowLevel()) {
+            logRowlevel("Reading columns: " + outputIndex + " out of : " + row.size());
+          }
           if (outputIndex > row.size() - 1) {
-            logRowlevel("Beyond size");
+            if (isRowLevel()) {
+              logRowlevel("Beyond size");
+            }
             outputRowData[outputIndex++] = null;
           } else {
             if (row.get(outputIndex) != null) {
-              logRowlevel("getting value" + outputIndex);
+              if (isRowLevel()) {
+                logRowlevel("getting value" + outputIndex);
+              }
               value = row.get(outputIndex);
-              logRowlevel("got value " + outputIndex);
+              if (isRowLevel()) {
+                logRowlevel("got value " + outputIndex);
+              }
             }
             if (value == null || value.toString().isEmpty()) {
               outputRowData[outputIndex++] = null;
-              logRowlevel("null value");
+              if (isRowLevel()) {
+                logRowlevel("null value");
+              }
             } else {
               GoogleSheetsInputField input = meta.getInputFields().get(outputIndex);
               DateFormat df =
@@ -244,16 +252,17 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
                       ? new SimpleDateFormat(input.getFormat())
                       : null;
               outputRowData[outputIndex++] = getRowDataValue(column, column, value, df);
-              logRowlevel("value : " + value.toString());
+              if (isRowLevel()) {
+                logRowlevel("value : " + value);
+              }
             }
           }
         }
       } else {
-        logBasic(
-            "Finished reading last row "
-                + Integer.toString(data.currentRow)
-                + " / "
-                + Integer.toString(data.rows.size()));
+        if (isBasic()) {
+          logBasic("Finished reading last row " + data.currentRow + " / " + data.rows.size());
+        }
+
         return null;
       }
       return outputRowData;

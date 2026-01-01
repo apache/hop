@@ -289,11 +289,13 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
 
       data.filenames = filenames.toArray(new String[filenames.size()]);
 
-      logDetailed(
-          BaseMessages.getString(
-              PKG,
-              "XMLInputStream.Log.ReadingFromNrFiles",
-              Integer.toString(data.filenames.length)));
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "XMLInputStream.Log.ReadingFromNrFiles",
+                Integer.toString(data.filenames.length)));
+      }
     }
   }
 
@@ -485,7 +487,9 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         break;
 
       default:
-        logBasic("Event:" + eventType);
+        if (isBasic()) {
+          logBasic("Event:" + eventType);
+        }
         outputRowData = null; // ignore & continue
     }
 

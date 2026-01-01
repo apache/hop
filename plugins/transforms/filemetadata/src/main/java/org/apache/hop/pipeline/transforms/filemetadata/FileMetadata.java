@@ -116,7 +116,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
       buildOutputRows();
 
       // log progress if it is time to to so
-      if (checkFeedback(getLinesRead())) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic("LineNr " + getLinesRead());
       }
 
@@ -200,9 +200,9 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     ArrayList<Character> delimiterCandidates = new ArrayList<>(4);
     for (FileMetadataMeta.FMCandidate delimiterCandidate : meta.getDelimiterCandidates()) {
       String candidate = resolve(delimiterCandidate.getCandidate());
-      if (candidate.isEmpty()) {
+      if (candidate.isEmpty() && isBasic()) {
         logBasic("Warning: file metadata transform ignores empty delimiter candidate");
-      } else if (candidate.length() > 1) {
+      } else if (candidate.length() > 1 && isBasic()) {
         logBasic(
             "Warning: file metadata transform ignores non-character delimiter candidate: "
                 + candidate);
@@ -214,9 +214,9 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     ArrayList<Character> enclosureCandidates = new ArrayList<>(4);
     for (FileMetadataMeta.FMCandidate enclosureCandidate : meta.getEnclosureCandidates()) {
       String candidate = resolve(enclosureCandidate.getCandidate());
-      if (candidate.isEmpty()) {
+      if (candidate.isEmpty() && isBasic()) {
         logBasic("Warning: file metadata transform ignores empty enclosure candidate");
-      } else if (candidate.length() > 1) {
+      } else if (candidate.length() > 1 && isBasic()) {
         logBasic(
             "Warning: file metadata transform ignores non-character enclosure candidate: "
                 + candidate);

@@ -279,7 +279,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
 
     putRow(data.outputRowMeta, r); // in case we want it to go further...
     data.rowNumber++;
-    if (checkFeedback(getLinesOutput())) {
+    if (checkFeedback(getLinesOutput()) && isBasic()) {
       logBasic("linenr " + getLinesOutput());
     }
 
@@ -305,7 +305,9 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
 
   public void openNewOutputFile(String filename) throws HopException {
     if (data.openFiles.contains(filename)) {
-      logDetailed("File " + filename + " is already open.");
+      if (isDetailed()) {
+        logDetailed("File " + filename + " is already open.");
+      }
       return;
     }
     if (meta.isCreateParentFolder()) {

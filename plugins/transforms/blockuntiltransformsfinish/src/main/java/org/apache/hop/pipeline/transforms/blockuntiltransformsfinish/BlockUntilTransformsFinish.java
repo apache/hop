@@ -107,8 +107,13 @@ public class BlockUntilTransformsFinish
           // This transform is still running...
           data.continueLoop = true;
         } else {
-          logBasic(
-              "Transform " + transform.getName() + " status: " + transform.getStatusDescription());
+          if (isBasic()) {
+            logBasic(
+                "Transform "
+                    + transform.getName()
+                    + " status: "
+                    + transform.getStatusDescription());
+          }
           // We have done with this transform.
           // remove it from the map
           data.componentMap.remove(e.getKey());

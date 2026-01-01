@@ -100,7 +100,9 @@ public class AzureWrite extends BaseTransform<AzureWriterMeta, AzureWriterData> 
             "Unable to find field '" + meta.getMessageField() + "' in the Transform input");
       }
 
-      logBasic("Creating connection string");
+      if (isBasic()) {
+        logBasic("Creating connection string");
+      }
 
       String namespace = resolve(meta.getNamespace());
       String eventHubName = resolve(meta.getEventHubName());
@@ -114,9 +116,13 @@ public class AzureWrite extends BaseTransform<AzureWriterMeta, AzureWriterData> 
               .setSasKeyName(sasKeyName)
               .setSasKey(sasKey);
 
-      logBasic("Opening new executor service");
+      if (isBasic()) {
+        logBasic("Opening new executor service");
+      }
       data.executorService = Executors.newSingleThreadScheduledExecutor();
-      logBasic("Creating event hub client");
+      if (isBasic()) {
+        logBasic("Creating event hub client");
+      }
       try {
         data.eventHubClient =
             EventHubClient.createFromConnectionStringSync(

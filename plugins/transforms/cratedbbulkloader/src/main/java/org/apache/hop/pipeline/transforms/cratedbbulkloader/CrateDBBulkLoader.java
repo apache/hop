@@ -158,7 +158,9 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
                 meta.getFields().stream()
                     .map(CrateDBBulkLoaderField::getDatabaseField)
                     .toArray(String[]::new);
-            data.outputRowMeta.getValueMetaList().forEach(v -> logBasic(v.toString()));
+            if (isBasic()) {
+              data.outputRowMeta.getValueMetaList().forEach(v -> logBasic(v.toString()));
+            }
             String schema = meta.getSchemaName();
             String table = meta.getTableName();
             writeBatchToCrateDB(schema, table, columns);
@@ -457,7 +459,9 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
           break;
       }
     }
-    logDetailed("Field: " + v.getName() + " - Converted Value: " + convertedValue);
+    if (isDetailed()) {
+      logDetailed("Field: " + v.getName() + " - Converted Value: " + convertedValue);
+    }
 
     if (vc != null && !data.convertedRowMetaReady) data.convertedRowMeta.setValueMeta(pos, vc);
 
@@ -548,7 +552,9 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     sb.append(")");
     sb.append(" RETURN SUMMARY");
 
-    logDetailed("Copy stmt: " + sb.toString());
+    if (isDetailed()) {
+      logDetailed("Copy stmt: " + sb);
+    }
 
     return sb.toString();
   }

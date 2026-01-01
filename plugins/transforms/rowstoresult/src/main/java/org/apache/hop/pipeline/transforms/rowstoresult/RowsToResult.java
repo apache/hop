@@ -59,7 +59,7 @@ public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultDa
     putRow(data.outputRowMeta, r); // copy row to possible alternate
     // rowset(s).
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "RowsToResult.Log.LineNumber") + getLinesRead());
     }
 

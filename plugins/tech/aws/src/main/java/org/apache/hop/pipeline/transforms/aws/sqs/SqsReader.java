@@ -123,7 +123,9 @@ public class SqsReader extends BaseTransform<SqsReaderMeta, SqsReaderData> {
       // use meta.getFields() to change it, so it reflects the output row structure
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, variables, null);
 
-      logBasic("Start reading from queue");
+      if (isBasic()) {
+        logBasic("Start reading from queue");
+      }
     }
 
     if (Utils.isEmpty(data.realMessageIDFieldName)
@@ -178,17 +180,21 @@ public class SqsReader extends BaseTransform<SqsReaderMeta, SqsReaderData> {
         }
       } else {
         setOutputDone();
-        logBasic("Finished reading from queue");
+        if (isBasic()) {
+          logBasic("Finished reading from queue");
+        }
         return false;
       }
     } else {
       setOutputDone();
-      logBasic("Finished reading from queue");
+      if (isBasic()) {
+        logBasic("Finished reading from queue");
+      }
       return false;
     }
 
     // log progress if it is time to to so
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead()); // Some basic logging
     }
 

@@ -194,7 +194,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Line nr " + getLinesRead());
     }
 

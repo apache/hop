@@ -143,7 +143,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     if (isRowLevel()) {
       logRowlevel("Wrote row #" + getLinesWritten() + " : " + getInputRowMeta().getString(r));
     }
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead());
     }
 

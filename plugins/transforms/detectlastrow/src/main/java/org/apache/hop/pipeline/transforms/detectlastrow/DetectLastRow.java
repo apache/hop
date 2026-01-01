@@ -85,7 +85,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
                   + data.outputRowMeta.getString(outputRow));
         }
 
-        if (checkFeedback(getLinesRead())) {
+        if (checkFeedback(getLinesRead()) && isBasic()) {
           logBasic(BaseMessages.getString(PKG, "DetectLastRow.Log.LineNumber") + getLinesRead());
         }
       }
@@ -106,7 +106,7 @@ public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRo
                 + data.outputRowMeta.getString(outputRow));
       }
 
-      if (checkFeedback(getLinesRead())) {
+      if (checkFeedback(getLinesRead()) && isBasic()) {
         logBasic(BaseMessages.getString(PKG, "DetectLastRow.Log.LineNumber") + getLinesRead());
       }
     }

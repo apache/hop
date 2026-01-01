@@ -166,7 +166,9 @@ public class SnowflakeBulkLoader
     putRow(data.outputRowMeta, row); // in case we want it to go further...
 
     if (checkFeedback(data.outputCount)) {
-      logBasic("linenr " + data.outputCount);
+      if (isBasic()) {
+        logBasic("linenr " + data.outputCount);
+      }
     }
 
     return true;
@@ -187,7 +189,9 @@ public class SnowflakeBulkLoader
       sql += resolve(meta.getTargetSchema()) + ".";
     }
     sql += resolve(meta.getTargetTable());
-    logDetailed(CONST_EXECUTING_SQL + sql);
+    if (isDetailed()) {
+      logDetailed(CONST_EXECUTING_SQL + sql);
+    }
     try {
       try (ResultSet resultSet =
           data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
@@ -240,17 +244,25 @@ public class SnowflakeBulkLoader
             + meta.getStage(this)
             + ";";
 
-    logDebug(CONST_EXECUTING_SQL + sql);
+    if (isDebug()) {
+      logDebug(CONST_EXECUTING_SQL + sql);
+    }
     try (ResultSet putResultSet =
         data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
       IRowMeta putRowMeta = data.db.getReturnRowMeta();
       Object[] putRow = data.db.getRow(putResultSet);
-      logDebug("=========================Put File Results======================");
+      if (isDebug()) {
+        logDebug("=========================Put File Results======================");
+      }
       int fileNum = 0;
       while (putRow != null) {
-        logDebug("------------------------ File " + fileNum + "--------------------------");
+        if (isDebug()) {
+          logDebug("------------------------ File " + fileNum + "--------------------------");
+        }
         for (int i = 0; i < putRowMeta.getFieldNames().length; i++) {
-          logDebug(putRowMeta.getFieldNames()[i] + " = " + putRowMeta.getString(putRow, i));
+          if (isDebug()) {
+            logDebug(putRowMeta.getFieldNames()[i] + " = " + putRowMeta.getString(putRow, i));
+          }
           if (putRowMeta.getFieldNames()[i].equalsIgnoreCase("status")
               && putRowMeta.getString(putRow, i).equalsIgnoreCase("ERROR")) {
             throw new HopDatabaseException(
@@ -267,7 +279,9 @@ public class SnowflakeBulkLoader
       throw new HopDatabaseException(exception);
     }
     String copySQL = meta.getCopyStatement(this, data.getPreviouslyOpenedFiles());
-    logDebug(CONST_EXECUTING_SQL + copySQL);
+    if (isDebug()) {
+      logDebug(CONST_EXECUTING_SQL + copySQL);
+    }
     try (ResultSet resultSet =
         data.db.openQuery(copySQL, null, null, ResultSet.FETCH_FORWARD, false)) {
       IRowMeta rowMeta = data.db.getReturnRowMeta();
@@ -277,12 +291,16 @@ public class SnowflakeBulkLoader
       int rowsLoadedField = rowMeta.indexOfValue("rows_loaded");
       int rowsError = 0;
       int errorField = rowMeta.indexOfValue("errors_seen");
-      logBasic("====================== Bulk Load Results======================");
+      if (isDetailed()) {
+        logDetailed("====================== Bulk Load Results======================");
+      }
       int rowNum = 1;
       while (row != null) {
-        logBasic("---------------------- Row " + rowNum + " ----------------------");
-        for (int i = 0; i < rowMeta.getFieldNames().length; i++) {
-          logBasic(rowMeta.getFieldNames()[i] + " = " + rowMeta.getString(row, i));
+        if (isDetailed()) {
+          logDetailed("---------------------- Row " + rowNum + " ----------------------");
+          for (int i = 0; i < rowMeta.getFieldNames().length; i++) {
+            logDetailed(rowMeta.getFieldNames()[i] + " = " + rowMeta.getString(row, i));
+          }
         }
 
         if (rowsLoadedField >= 0) {
@@ -785,7 +803,9 @@ public class SnowflakeBulkLoader
       for (String filename : data.previouslyOpenedFiles) {
         try {
           HopVfs.getFileObject(filename, variables).delete();
-          logDetailed("Deleted temp file " + filename);
+          if (isDetailed()) {
+            logDetailed("Deleted temp file " + filename);
+          }
         } catch (Exception ex) {
           logMinimal("Unable to delete temp file", ex);
         }

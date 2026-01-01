@@ -104,9 +104,11 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
       } else if (pipelineHopMeta.isEnabled()) {
         inputTransformNameList.add(inputTransformName);
       } else {
-        logDetailed(
-            BaseMessages.getString(
-                PKG, "MultiMergeJoin.Log.IgnoringTransform", inputTransformName));
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "MultiMergeJoin.Log.IgnoringTransform", inputTransformName));
+        }
       }
     }
 
@@ -383,7 +385,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
         }
       }
     }
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "MultiMergeJoin.LineNumber") + getLinesRead());
     }
     return true;

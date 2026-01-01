@@ -101,7 +101,9 @@ public class ActionCreateFile extends ActionBase implements Cloneable {
           } else {
             // File already exists, no reason to try to create it
             result.setResult(true);
-            logBasic(CONST_FILE + realFilename + "] already exists, not recreating.");
+            if (isBasic()) {
+              logBasic(CONST_FILE + realFilename + "] already exists, not recreating.");
+            }
           }
           // add filename to result filenames if needed
           if (isAddFilenameToResult()) {
@@ -110,7 +112,9 @@ public class ActionCreateFile extends ActionBase implements Cloneable {
         } else {
           // No file yet, create an empty file.
           fileObject.createFile();
-          logBasic(CONST_FILE + realFilename + "] created!");
+          if (isBasic()) {
+            logBasic(CONST_FILE + realFilename + "] created!");
+          }
           // add filename to result filenames if needed
           if (isAddFilenameToResult()) {
             addFilenameToResult(realFilename, result, parentWorkflow);

@@ -123,12 +123,14 @@ public class ActionDelay extends ActionBase implements Cloneable {
       //
       if (iMaximumTimeout < 0) {
         iMaximumTimeout = Const.toInt(DEFAULT_MAXIMUM_TIMEOUT, 0);
-        logBasic(
-            BaseMessages.getString(
-                PKG,
-                "ActionDelay.MaximumTimeReset.Label",
-                String.valueOf(iMaximumTimeout),
-                String.valueOf(waitscale)));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG,
+                  "ActionDelay.MaximumTimeReset.Label",
+                  String.valueOf(iMaximumTimeout),
+                  String.valueOf(waitscale)));
+        }
       }
 
       // Loop until the delay time has expired.

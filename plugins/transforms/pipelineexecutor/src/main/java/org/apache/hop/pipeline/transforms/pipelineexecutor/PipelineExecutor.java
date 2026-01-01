@@ -101,7 +101,9 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
         String filename = (String) row[pos];
         if (pipelineExecutorData.prevFilename == null
             || !pipelineExecutorData.prevFilename.equals(filename)) {
-          logDetailed("Identified a new pipeline to execute: '" + filename + "'");
+          if (isDetailed()) {
+            logDetailed("Identified a new pipeline to execute: '" + filename + "'");
+          }
           meta.setFilename(filename);
           pipelineExecutorData.prevFilename = filename;
           initPipeline(pipelineExecutorData);

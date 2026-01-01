@@ -175,7 +175,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
               BaseMessages.getString(PKG, "MongoInput.ErrorMessage.NoCollectionSpecified"));
         }
 
-        if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
+        if (!StringUtils.isEmpty(data.connection.getAuthenticationUser()) && isBasic()) {
           String authInfo =
               BaseMessages.getString(
                   PKG,
@@ -263,8 +263,10 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
       DeleteResult result = null;
       try {
         try {
-          logDetailed(
-              BaseMessages.getString(PKG, "MongoDbDelete.Message.ExecutingQuery", deleteQuery));
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(PKG, "MongoDbDelete.Message.ExecutingQuery", deleteQuery));
+          }
           result = data.getCollection().remove(deleteQuery);
         } catch (MongoDbException e) {
           throw new MongoException(e.getMessage(), e);

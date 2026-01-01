@@ -286,7 +286,9 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
         }
         data.db = new Database(this, this, databaseMeta);
 
-        logBasic("Connected to database [" + meta.getConnection() + "]");
+        if (isBasic()) {
+          logBasic("Connected to database [" + meta.getConnection() + "]");
+        }
 
         if (meta.getFile().isCreateParentFolder()) {
           // Check for parent folder
@@ -296,10 +298,15 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
             String filename = resolve(meta.getFile().getFileName());
             parentfolder = HopVfs.getFileObject(filename, variables).getParent();
             if (!parentfolder.exists()) {
-              logBasic(
-                  "Folder parent", "Folder parent " + parentfolder.getName() + " does not exist !");
+              if (isBasic()) {
+                logBasic(
+                    "Folder parent",
+                    "Folder parent " + parentfolder.getName() + " does not exist !");
+              }
               parentfolder.createFolder();
-              logBasic("Folder parent", "Folder parent was created.");
+              if (isBasic()) {
+                logBasic("Folder parent", "Folder parent was created.");
+              }
             }
           } catch (Exception e) {
             logError("Couldn't created parent folder " + parentfolder.getName());

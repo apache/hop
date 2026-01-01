@@ -50,9 +50,11 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
       for (ResultFile resultFile : data.filenames) {
         addResultFile(resultFile);
       }
-      logBasic(
-          BaseMessages.getString(
-              PKG, "FilesToResult.Log.AddedNrOfFiles", String.valueOf(data.filenames.size())));
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                PKG, "FilesToResult.Log.AddedNrOfFiles", String.valueOf(data.filenames.size())));
+      }
       setOutputDone();
       return false;
     }
@@ -97,7 +99,7 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
     putRow(data.outputRowMeta, r); // copy row to possible alternate
     // rowset(s).
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "FilesToResult.Log.LineNumber") + getLinesRead());
     }
 

@@ -411,13 +411,15 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> {
         }
         break;
       default:
-        logDebug("We shouldn't be here!!");
+        if (isDebug()) {
+          logDebug("We shouldn't be here!!");
+        }
         // Make sure we do not go into an infinite loop by continuing to read data
         data.one = getRowFrom(data.oneRowSet);
         data.two = getRowFrom(data.twoRowSet);
         break;
     }
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "MergeJoin.LineNumber") + getLinesRead());
     }
     return true;

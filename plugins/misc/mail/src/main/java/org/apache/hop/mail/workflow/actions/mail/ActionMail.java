@@ -531,7 +531,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
                   // add the part with the file in the BodyPart()
                   parts.addBodyPart(files);
                   nrattachedFiles++;
-                  logBasic("Added file '" + fds.getName() + "' to the mail message.");
+                  if (isBasic()) {
+                    logBasic("Added file '" + fds.getName() + "' to the mail message.");
+                  }
                 }
               }
             }
@@ -571,10 +573,12 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
                   }
                   zipOutputStream.closeEntry();
                   nrattachedFiles++;
-                  logBasic(
-                      "Added file '"
-                          + file.getName().getURI()
-                          + "' to the mail message in a zip archive.");
+                  if (isBasic()) {
+                    logBasic(
+                        "Added file '"
+                            + file.getName().getURI()
+                            + "' to the mail message in a zip archive.");
+                  }
                 }
               }
             } catch (Exception e) {
@@ -644,7 +648,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
                 // Add part to multi-part
                 parts.addBodyPart(messageBodyPart);
                 nrEmbeddedImages++;
-                logBasic("Image '" + fds.getName() + "' was embedded in message.");
+                if (isBasic()) {
+                  logBasic("Image '" + fds.getName() + "' was embedded in message.");
+                }
               }
             } catch (Exception e) {
               logError(

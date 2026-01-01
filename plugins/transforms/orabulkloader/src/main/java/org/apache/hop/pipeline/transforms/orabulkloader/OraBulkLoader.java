@@ -479,8 +479,11 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
         // any error???
         int exitVal = sqlldrProcess.waitFor();
         sqlldrProcess = null;
-        logBasic(
-            BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
+        }
         checkExitVal(exitVal);
       }
     } catch (Exception ex) {
@@ -526,9 +529,11 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
               if (sqlldrProcess != null) {
                 int exitVal = sqlldrProcess.waitFor();
                 sqlldrProcess = null;
-                logBasic(
-                    BaseMessages.getString(
-                        PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
+                if (isBasic()) {
+                  logBasic(
+                      BaseMessages.getString(
+                          PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
+                }
                 checkExitVal(exitVal);
               } else if (!first) {
                 throw new HopException("Internal error: no sqlldr process running");
@@ -627,8 +632,11 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       try {
         int exitVal = sqlldrProcess.waitFor();
         sqlldrProcess = null;
-        logBasic(
-            BaseMessages.getString(PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, CONST_ORA_BULK_LOADER_LOG_EXIT_VALUE_SQLLDR, "" + exitVal));
+        }
       } catch (InterruptedException e) {
         /* process should be destroyed */
         e.printStackTrace();
@@ -673,7 +681,9 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       }
 
       if (OraBulkLoaderMeta.METHOD_MANUAL.equals(method)) {
-        logBasic("Deletion of files is not compatible with \'manual load method\'");
+        if (isBasic()) {
+          logBasic("Deletion of files is not compatible with \'manual load method\'");
+        }
       }
     }
   }

@@ -437,8 +437,9 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
               imagePart.setHeader("Content-ID", "<" + contentID + ">");
               // keep this part for further user
               data.embeddedMimePart.add(imagePart);
-              logBasic(BaseMessages.getString(PKG, "Mail.Log.ImageAdded", imageFile));
-
+              if (isBasic()) {
+                logBasic(BaseMessages.getString(PKG, "Mail.Log.ImageAdded", imageFile));
+              }
             } else {
               logError(BaseMessages.getString(PKG, "Mail.Log.WrongImage", imageFile));
             }

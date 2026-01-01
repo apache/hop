@@ -451,7 +451,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
               BaseMessages.getString(PKG, "DatabaseLookup.Log.WroteRowToNextTransform")
                   + getInputRowMeta().getString(r));
         }
-        if (checkFeedback(getLinesRead())) {
+        if (checkFeedback(getLinesRead()) && isBasic()) {
           logBasic("linenr " + getLinesRead());
         }
       }

@@ -329,8 +329,11 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    logDetailed(
-        BaseMessages.getString(PKG, "ActionPipeline.Log.OpeningPipeline", resolve(getFilename())));
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "ActionPipeline.Log.OpeningPipeline", resolve(getFilename())));
+    }
 
     // Load the pipeline only once for the complete loop!
     // Throws an exception if it was not possible to load the pipeline, for example if the XML file
@@ -494,7 +497,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         }
 
         runConfiguration = resolve(runConfiguration);
-        logBasic(BaseMessages.getString(PKG, "ActionPipeline.RunConfig.Message", runConfiguration));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(PKG, "ActionPipeline.RunConfig.Message", runConfiguration));
+        }
 
         // Create the pipeline from meta-data
         //

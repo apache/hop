@@ -182,7 +182,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
 
     putRow(data.rowMeta, row); // copy row to possible alternate rowset(s).
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "SortedMerge.Log.LineNumber") + getLinesRead());
     }
 

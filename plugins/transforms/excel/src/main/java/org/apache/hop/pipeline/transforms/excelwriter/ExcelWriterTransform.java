@@ -810,10 +810,12 @@ public class ExcelWriterTransform
       FileObject file = getFileLocation(row);
 
       if (!file.getParent().exists() && meta.getFile().isCreateParentFolder()) {
-        logDebug(
-            "Create parent directory for "
-                + file.getName().toString()
-                + " because it does not exist.");
+        if (isDebug()) {
+          logDebug(
+              "Create parent directory for "
+                  + file.getName().toString()
+                  + " because it does not exist.");
+        }
         createParentFolder(file);
       }
 

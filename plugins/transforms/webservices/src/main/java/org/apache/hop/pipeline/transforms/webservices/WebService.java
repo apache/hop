@@ -495,8 +495,10 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       soapAction += "/";
     }
     soapAction += meta.getOperationName() + "\"";
-    logDetailed(
-        BaseMessages.getString(PKG, "WebServices.Log.UsingRequestHeaderSOAPAction", soapAction));
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(PKG, "WebServices.Log.UsingRequestHeaderSOAPAction", soapAction));
+    }
     vHttpMethod.setHeader("SOAPAction", soapAction);
 
     return vHttpMethod;

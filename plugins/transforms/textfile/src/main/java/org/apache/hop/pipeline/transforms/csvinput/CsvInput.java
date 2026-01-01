@@ -242,14 +242,16 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       }
 
       if (data.filenames.length > 0) {
-        logBasic(
-            BaseMessages.getString(
-                PKG,
-                "CsvInput.Log.ParallelFileNrAndPositionFeedback",
-                data.filenames[data.filenr],
-                Long.toString(data.fileSizes.get(data.filenr)),
-                Long.toString(data.bytesToSkipInFirstFile),
-                Long.toString(data.blockToRead)));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG,
+                  "CsvInput.Log.ParallelFileNrAndPositionFeedback",
+                  data.filenames[data.filenr],
+                  Long.toString(data.fileSizes.get(data.filenr)),
+                  Long.toString(data.bytesToSkipInFirstFile),
+                  Long.toString(data.blockToRead)));
+        }
       }
     } catch (Exception e) {
       throw new HopException(
@@ -286,9 +288,11 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
     data.filenames = filenames.toArray(new String[filenames.size()]);
 
-    logBasic(
-        BaseMessages.getString(
-            PKG, "CsvInput.Log.ReadingFromNrFiles", Integer.toString(data.filenames.length)));
+    if (isBasic()) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "CsvInput.Log.ReadingFromNrFiles", Integer.toString(data.filenames.length)));
+    }
   }
 
   @Override
@@ -403,9 +407,11 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       if (meta.isHeaderPresent() && (!data.parallel || data.bytesToSkipInFirstFile <= 0)) {
         // Standard flat file : skip header
         readOneRow(true, false); // skip this row.
-        logBasic(
-            BaseMessages.getString(
-                PKG, "CsvInput.Log.HeaderRowSkipped", data.filenames[data.filenr - 1]));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "CsvInput.Log.HeaderRowSkipped", data.filenames[data.filenr - 1]));
+        }
         if (data.fieldsMapping.size() == 0) {
           return false;
         }

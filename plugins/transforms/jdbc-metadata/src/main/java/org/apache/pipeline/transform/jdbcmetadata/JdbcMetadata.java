@@ -87,33 +87,45 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
    */
   private void initMethod(JdbcMetadataMeta meta, JdbcMetadataData data) throws Exception {
     // Set up the method to call
-    logDebug("Setting up method to call.");
+    if (isDebug()) {
+      logDebug("Setting up method to call.");
+    }
     Method method = meta.getMethod();
     data.method = method;
 
     // Try to set up the arguments for the method
-    logDebug("Setting up method arguments.");
+    if (isDebug()) {
+      logDebug("Setting up method arguments.");
+    }
     Class<?>[] argumentTypes = method.getParameterTypes();
     int argc = argumentTypes.length;
-    logDebug("Method has " + argc + " arguments.");
+    if (isDebug()) {
+      logDebug("Method has " + argc + " arguments.");
+    }
     // If no arguments, treat it as an input transform and run it without any providing any input
     // stream
     treatAsInputTransform = argc == 0;
     String[] arguments = new String[meta.getArguments().size()];
     meta.getArguments().toArray(arguments);
-    logDebug("We expected " + arguments.length + " arguments' values.");
+    if (isDebug()) {
+      logDebug("We expected " + arguments.length + " arguments' values.");
+    }
     if (argc != arguments.length) {
       throw new Exception(
           "Method has a " + argc + " arguments, we expected " + arguments.length + " values.");
     }
-    logDebug("Allocating arguments array.");
+    if (isDebug()) {
+      logDebug("Allocating arguments array.");
+    }
     data.arguments = new Object[argc];
     String stringArgument;
     if (meta.isArgumentSourceFields()) {
       // arguments are specified by values coming from fields.
       // we don't know about the fields yet, so we
       // initialize with bogus value so we can check if all fields were found
-      logDebug("Allocating field indices array for arguments.");
+      if (isDebug()) {
+        logDebug("Allocating field indices array for arguments.");
+      }
       data.argumentFieldIndices = new int[argc];
       for (int i = 0; i < argc; i++) {
         data.argumentFieldIndices[i] = -1;
@@ -226,7 +238,9 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       argumentType = argumentTypes[i];
       if (argumentType.isArray() && argument != null) {
         if ("".equals(argument)) {
-          logDebug("Converted empty string to null for argument array");
+          if (isDebug()) {
+            logDebug("Converted empty string to null for argument array");
+          }
           argument = null;
         } else {
           argument = stringListToObjectArray((String) argument, argumentType.getComponentType());
@@ -274,9 +288,13 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
         IRowMeta inputRowMeta = getInputRowMeta();
         data.outputRowOffset = inputRowMeta.size();
         boolean argumentSourceFields = meta.isArgumentSourceFields();
-        logDebug("Looking up indices of input fields.");
+        if (isDebug()) {
+          logDebug("Looking up indices of input fields.");
+        }
         String[] fieldNames = inputRowMeta.getFieldNames();
-        logDebug("We have " + fieldNames.length + " input fields.");
+        if (isDebug()) {
+          logDebug("We have " + fieldNames.length + " input fields.");
+        }
         List<String> arguments = meta.getArguments();
         int argc = arguments.size();
         // store indices for argument fields
@@ -284,12 +302,18 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
           String stringArgument;
           for (int i = 0; i < fieldNames.length; i++) {
             String fieldName = fieldNames[i];
-            logDebug("Looking at field: " + fieldName);
+            if (isDebug()) {
+              logDebug("Looking at field: " + fieldName);
+            }
             for (int j = 0; j < argc; j++) {
               stringArgument = arguments.get(j);
-              logDebug("Found argument " + j + ": " + stringArgument);
+              if (isDebug()) {
+                logDebug("Found argument " + j + ": " + stringArgument);
+              }
               if (fieldName.equals(stringArgument)) {
-                logDebug("Match, storing index " + i);
+                if (isDebug()) {
+                  logDebug("Match, storing index " + i);
+                }
                 data.argumentFieldIndices[j] = i;
               }
             }
@@ -301,7 +325,9 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
           // ensure all argument fields are bound to a valid field
           argumentFields:
           for (int j = 0; j < argc; j++) {
-            logDebug("Argument indices at " + j + ": " + data.argumentFieldIndices[j]);
+            if (isDebug()) {
+              logDebug("Argument indices at " + j + ": " + data.argumentFieldIndices[j]);
+            }
             if (data.argumentFieldIndices[j] == -1) {
               // this argument does not point to any existing field.
               if (Utils.isEmpty(arguments.get(j))) {
@@ -353,7 +379,9 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
             }
           }
         }
-        logDebug("Done looking up indices of input fields.");
+        if (isDebug()) {
+          logDebug("Done looking up indices of input fields.");
+        }
         // clone the input row structure and place it in our data object
         data.outputRowMeta = getInputRowMeta().clone();
       } else {
@@ -364,20 +392,26 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     } // end of first
 
     try {
-      logRowlevel("Processing 1 input row");
+      if (isRowLevel()) {
+        logRowlevel("Processing 1 input row");
+      }
       prepareMethodArguments(meta, data, r);
       if (getLogLevel() == LogLevel.ROWLEVEL) {
-        logRowlevel("About to invoke method");
+        if (isRowLevel()) {
+          logRowlevel("About to invoke method");
+        }
         for (int i = 0; i < data.arguments.length; i++) {
-          logRowlevel(
-              "Argument "
-                  + i
-                  + "; "
-                  + (data.arguments[i] == null
-                      ? "null"
-                      : data.arguments[i].toString()
-                          + "; "
-                          + data.arguments[i].getClass().getName()));
+          if (isRowLevel()) {
+            logRowlevel(
+                "Argument "
+                    + i
+                    + "; "
+                    + (data.arguments[i] == null
+                        ? "null"
+                        : data.arguments[i].toString()
+                            + "; "
+                            + data.arguments[i].getClass().getName()));
+          }
         }
       }
 
@@ -389,7 +423,9 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       boolean outputRows = false;
       int k;
       while (resultSet.next()) {
-        logRowlevel("Processing 1 output row.");
+        if (isRowLevel()) {
+          logRowlevel("Processing 1 output row.");
+        }
         Object[] outputRow = createOutputRow(meta, data, r);
         for (int i = data.outputRowOffset, j = 0; i < data.outputRowMeta.size(); i++, j++) {
           k = data.resultSetIndices[j];
@@ -401,14 +437,18 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
         }
         // put the row to the output row stream
         putRow(data.outputRowMeta, outputRow);
-        logRowlevel("Done processing 1 output row.");
+        if (isRowLevel()) {
+          logRowlevel("Done processing 1 output row.");
+        }
       }
       resultSet.close();
       if (!outputRows && meta.isAlwaysPassInputRow()) {
         Object[] outputRow = createOutputRow(meta, data, r);
         putRow(data.outputRowMeta, outputRow);
       }
-      logRowlevel("Done processing 1 input row.");
+      if (isRowLevel()) {
+        logRowlevel("Done processing 1 input row.");
+      }
     } catch (Exception exception) {
       exception.printStackTrace();
       if (exception instanceof HopException hopException) {
@@ -419,8 +459,10 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     }
 
     // log progress if it is time to to so
-    if (checkFeedback(getLinesRead())) {
-      logBasic("Linenr " + getLinesRead()); // Some basic logging
+    if (checkFeedback(getLinesRead()) && isBasic()) {
+      if (isBasic()) {
+        logBasic("Linenr " + getLinesRead());
+      }
     }
 
     if (treatAsInputTransform) {

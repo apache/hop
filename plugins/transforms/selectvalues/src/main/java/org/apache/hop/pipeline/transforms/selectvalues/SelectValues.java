@@ -458,7 +458,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "SelectValues.Log.LineNumber") + getLinesRead());
     }
 

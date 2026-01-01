@@ -295,17 +295,19 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
   private ColumnSpec getColumnSpecFromField(
       IValueMeta inputValueMeta, IValueMeta insertValueMeta, IValueMeta targetValueMeta) {
-    logBasic(
-        "Mapping input field "
-            + inputValueMeta.getName()
-            + " ("
-            + inputValueMeta.getTypeDesc()
-            + ")"
-            + " to target column "
-            + insertValueMeta.getName()
-            + " ("
-            + targetValueMeta.getOriginalColumnTypeName()
-            + ") ");
+    if (isBasic()) {
+      logBasic(
+          "Mapping input field "
+              + inputValueMeta.getName()
+              + " ("
+              + inputValueMeta.getTypeDesc()
+              + ")"
+              + " to target column "
+              + insertValueMeta.getName()
+              + " ("
+              + targetValueMeta.getOriginalColumnTypeName()
+              + ") ");
+    }
 
     String targetColumnTypeName = targetValueMeta.getOriginalColumnTypeName().toUpperCase();
 
@@ -521,7 +523,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     // NO COMMIT does not seem to work even when the pipeline setting 'make the pipeline database
     // transactional' is on
 
-    logDebug("copy stmt: " + sb.toString());
+    if (isDebug()) {
+      logDebug("copy stmt: " + sb);
+    }
 
     return sb.toString();
   }

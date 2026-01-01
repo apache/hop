@@ -111,7 +111,7 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
       logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(row));
     }
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Line number " + getLinesRead());
     }
     return true;
@@ -126,14 +126,16 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
       List<Object[]> samples = data.getSamples();
 
       int numRows = (samples != null) ? samples.size() : 0;
-      logBasic(
-          this.getTransformName()
-              + " Actual/Sample: "
-              + numRows
-              + "/"
-              + data.sampleSize
-              + " Seed:"
-              + resolve(meta.seed));
+      if (isBasic()) {
+        logBasic(
+            this.getTransformName()
+                + " Actual/Sample: "
+                + numRows
+                + "/"
+                + data.sampleSize
+                + " Seed:"
+                + resolve(meta.seed));
+      }
       if (samples != null) {
         for (Object[] sample : samples) {
           if (sample != null) {

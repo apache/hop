@@ -233,7 +233,9 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
       }
       // upload success.
       prevResult.setResult(true);
-      logBasic(BaseMessages.getString(PKG, "ActionFtpPut.Log.WeHavePut", "" + filesPut));
+      if (isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "ActionFtpPut.Log.WeHavePut", "" + filesPut));
+      }
     } catch (Exception e) {
       prevResult.setNrErrors(1);
       logError(Const.getStackTracker(e));

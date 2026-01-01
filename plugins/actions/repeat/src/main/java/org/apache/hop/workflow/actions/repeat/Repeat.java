@@ -405,7 +405,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       Result result = workflow.startExecution();
 
       boolean flagSet = workflow.getExtensionDataMap().get(REPEAT_END_LOOP) != null;
-      if (flagSet) {
+      if (flagSet && isBasic()) {
         logBasic("End loop flag found, stopping loop.");
       }
 

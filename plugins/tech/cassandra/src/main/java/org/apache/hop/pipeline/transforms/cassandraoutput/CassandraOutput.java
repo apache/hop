@@ -126,9 +126,11 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
         try {
           cqlBatchInsertTimeout = Integer.parseInt(batchTimeoutS);
           if (cqlBatchInsertTimeout < 500) {
-            logBasic(
-                BaseMessages.getString(
-                    CassandraOutputMeta.PKG, "CassandraOutput.Message.MinimumTimeout"));
+            if (isBasic()) {
+              logBasic(
+                  BaseMessages.getString(
+                      CassandraOutputMeta.PKG, "CassandraOutput.Message.MinimumTimeout"));
+            }
             cqlBatchInsertTimeout = 500;
           }
         } catch (NumberFormatException e) {
@@ -180,14 +182,15 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
         keyIndexes.add(index);
       }
 
-      logBasic(
-          BaseMessages.getString(
-              CassandraOutputMeta.PKG,
-              "CassandraOutput.Message.ConnectingForSchemaOperations",
-              cassandraConnection.getSchemaHostname(),
-              cassandraConnection.getSchemaPort(),
-              keyspaceName));
-
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                CassandraOutputMeta.PKG,
+                "CassandraOutput.Message.ConnectingForSchemaOperations",
+                cassandraConnection.getSchemaHostname(),
+                cassandraConnection.getSchemaPort(),
+                keyspaceName));
+      }
       DriverConnection connection = null;
 
       // open up a connection to perform any schema changes
@@ -235,9 +238,11 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
         }
 
         // get the table meta data
-        logBasic(
-            BaseMessages.getString(
-                CassandraOutputMeta.PKG, "CassandraOutput.Message.GettingMetaData", tableName));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  CassandraOutputMeta.PKG, "CassandraOutput.Message.GettingMetaData", tableName));
+        }
 
         cassandraMeta = keyspace.getTableMetaData(tableName);
 
@@ -353,16 +358,20 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
   protected void doBatch(List<Object[]> batch) throws Exception {
     // stopped?
     if (isStopped()) {
-      logDebug(
-          BaseMessages.getString(
-              CassandraOutputMeta.PKG, "CassandraOutput.Message.StoppedSkippingBatch"));
+      if (isDebug()) {
+        logDebug(
+            BaseMessages.getString(
+                CassandraOutputMeta.PKG, "CassandraOutput.Message.StoppedSkippingBatch"));
+      }
       return;
     }
     // ignore empty batch
     if (Utils.isEmpty(batch)) {
-      logDebug(
-          BaseMessages.getString(
-              CassandraOutputMeta.PKG, "CassandraOutput.Message.SkippingEmptyBatch"));
+      if (isDebug()) {
+        logDebug(
+            BaseMessages.getString(
+                CassandraOutputMeta.PKG, "CassandraOutput.Message.SkippingEmptyBatch"));
+      }
       return;
     }
     // construct CQL/thrift batch and commit
@@ -381,31 +390,34 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
           cassandraMeta,
           consistencyLevel,
           getMeta().isInsertFieldsNotInMeta());
-      // commit
       if (data.connection == null) {
         openConnection(false);
       }
 
-      logDetailed(
-          BaseMessages.getString(
-              CassandraOutputMeta.PKG,
-              "CassandraOutput.Message.CommittingBatch",
-              tableName,
-              "" + rowsAdded));
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                CassandraOutputMeta.PKG,
+                "CassandraOutput.Message.CommittingBatch",
+                tableName,
+                "" + rowsAdded));
+      }
     } catch (Exception e) {
       logError(e.getLocalizedMessage(), e);
       setErrors(getErrors() + 1);
       closeConnection(data.connection);
       data.connection = null;
-      logDetailed(
-          BaseMessages.getString(
-              CassandraOutputMeta.PKG, "CassandraOutput.Error.FailedToInsertBatch", "" + size),
-          e);
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                CassandraOutputMeta.PKG, "CassandraOutput.Error.FailedToInsertBatch", "" + size),
+            e);
 
-      logDetailed(
-          BaseMessages.getString(
-              CassandraOutputMeta.PKG,
-              "CassandraOutput.Message.WillNowTrySplittingIntoSubBatches"));
+        logDetailed(
+            BaseMessages.getString(
+                CassandraOutputMeta.PKG,
+                "CassandraOutput.Message.WillNowTrySplittingIntoSubBatches"));
+      }
 
       // is it possible to divide and conquer?
       if (size == 1) {
@@ -450,9 +462,11 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
       try {
         handler.setTtlSec(Integer.parseInt(ttl));
       } catch (NumberFormatException e) {
-        logDebug(
-            BaseMessages.getString(
-                CassandraOutputMeta.PKG, "CassandraOutput.Error.CantParseTTL", ttl));
+        if (isDebug()) {
+          logDebug(
+              BaseMessages.getString(
+                  CassandraOutputMeta.PKG, "CassandraOutput.Error.CantParseTTL", ttl));
+        }
       }
     }
   }
@@ -484,11 +498,13 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
     setTTLIfSpecified();
 
     if (!options.isEmpty()) {
-      logBasic(
-          BaseMessages.getString(
-              CassandraOutputMeta.PKG,
-              "CassandraOutput.Message.UsingConnectionOptions",
-              CassandraUtils.optionsToString(options)));
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                CassandraOutputMeta.PKG,
+                "CassandraOutput.Message.UsingConnectionOptions",
+                CassandraUtils.optionsToString(options)));
+      }
     }
 
     // Get the connection to Cassandra
@@ -563,9 +579,11 @@ public class CassandraOutput extends BaseTransform<CassandraOutputMeta, Cassandr
 
   protected void closeConnection(DriverConnection conn) throws HopException {
     if (conn != null) {
-      logBasic(
-          BaseMessages.getString(
-              CassandraOutputMeta.PKG, "CassandraOutput.Message.ClosingConnection"));
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                CassandraOutputMeta.PKG, "CassandraOutput.Message.ClosingConnection"));
+      }
       try {
         conn.close();
       } catch (Exception e) {

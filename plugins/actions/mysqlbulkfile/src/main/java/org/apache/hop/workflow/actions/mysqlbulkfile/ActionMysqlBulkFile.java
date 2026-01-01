@@ -204,10 +204,12 @@ public class ActionMysqlBulkFile extends ActionBase {
             realFilename = realFilename + "_" + StringUtil.getFormattedDateTimeNow(true);
           }
 
-          logDebug(
-              BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileNameChange1.Label")
-                  + realFilename
-                  + BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileNameChange1.Label"));
+          if (isDebug()) {
+            logDebug(
+                BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileNameChange1.Label")
+                    + realFilename
+                    + BaseMessages.getString(PKG, "ActionMysqlBulkFile.FileNameChange1.Label"));
+          }
         }
 
         // User has specified an existing file, We can continue ...

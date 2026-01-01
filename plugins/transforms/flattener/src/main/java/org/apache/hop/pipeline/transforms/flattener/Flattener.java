@@ -98,7 +98,7 @@ public class Flattener extends BaseTransform<FlattenerMeta, FlattenerData> {
     // Keep track in case we want to send out the last couple of flattened values.
     data.previousRow = r;
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "Flattener.Log.LineNumber") + getLinesRead());
     }
 

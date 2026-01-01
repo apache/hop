@@ -110,7 +110,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
     meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     putRow(data.outputRowMeta, r); // in case we want it to go further...
 
-    if (checkFeedback(getLinesOutput())) {
+    if (checkFeedback(getLinesOutput()) && isBasic()) {
       logBasic("linenr " + getLinesOutput());
     }
 
@@ -288,11 +288,15 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
         outputStream = HopVfs.getOutputStream(file, false);
       }
       if (!Utils.isEmpty(meta.getEncoding())) {
-        logBasic("Opening output stream in encoding: " + meta.getEncoding());
+        if (isBasic()) {
+          logBasic("Opening output stream in encoding: " + meta.getEncoding());
+        }
         data.writer = XML_OUT_FACTORY.createXMLStreamWriter(outputStream, meta.getEncoding());
         data.writer.writeStartDocument(meta.getEncoding(), "1.0");
       } else {
-        logBasic("Opening output stream in default encoding : " + Const.XML_ENCODING);
+        if (isBasic()) {
+          logBasic("Opening output stream in default encoding : " + Const.XML_ENCODING);
+        }
         data.writer = XML_OUT_FACTORY.createXMLStreamWriter(outputStream);
         data.writer.writeStartDocument(Const.XML_ENCODING, "1.0");
       }
