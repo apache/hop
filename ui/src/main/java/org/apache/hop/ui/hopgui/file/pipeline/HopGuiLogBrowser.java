@@ -42,10 +42,8 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.text.Format;
-import org.apache.hop.ui.core.widget.text.TextFormatter;
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -53,18 +51,17 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Text;
 
 public class HopGuiLogBrowser {
   private static final Class<?> PKG = HopGui.class;
 
-  @Getter private Text text;
+  @Getter private TextComposite text;
   @Getter private ILogParentProvided logProvider;
   private List<String> childIds = new ArrayList<>();
   private Date lastLogRegistryChange;
   private AtomicBoolean paused;
 
-  public HopGuiLogBrowser(final Text text, final ILogParentProvided logProvider) {
+  public HopGuiLogBrowser(final TextComposite text, final ILogParentProvided logProvider) {
     this.text = text;
     this.logProvider = logProvider;
     this.paused = new AtomicBoolean(false);
@@ -146,30 +143,36 @@ public class HopGuiLogBrowser {
                                 int length = line.length();
 
                                 if (length > 0) {
-                                  Format format = TextFormatter.getInstance().execute(line);
-                                  text.append(format.getText());
-                                  text.append(Const.CR);
+                                  // Append by inserting at end
+                                  String currentText = text.getText();
+                                  text.setText(currentText + line + Const.CR);
                                 }
                               }
                             }
 
                             // Erase it all in one go
                             // This makes it a bit more efficient
-                            // getLineCount is not supported in RAP
+                            String textContent = text.getText();
+                            // Calculate line count
                             int size;
-                            if (!EnvironmentUtils.getInstance().isWeb()) {
-                              size = text.getLineCount();
+                            if (textContent == null || textContent.isEmpty()) {
+                              size = 0;
                             } else {
-                              size = text.getText().length();
+                              size = 1;
+                              for (int i = 0; i < textContent.length(); i++) {
+                                if (textContent.charAt(i) == '\n') {
+                                  size++;
+                                }
+                              }
                             }
 
                             if (maxSize > 0 && size > maxSize) {
                               int dropIndex =
-                                  StringUtils.lastOrdinalIndexOf(text.getText(), "\n", maxSize + 1);
-                              text.setText(text.getText().substring(dropIndex + 1));
+                                  StringUtils.lastOrdinalIndexOf(textContent, "\n", maxSize + 1);
+                              text.setText(textContent.substring(dropIndex + 1));
                             }
 
-                            text.setSelection(text.getText().length());
+                            text.setSelection(text.getCharCount());
                             lastLogId.set(lastNr);
                           }
                         }

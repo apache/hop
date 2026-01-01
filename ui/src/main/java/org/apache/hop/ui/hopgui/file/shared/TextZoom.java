@@ -17,28 +17,67 @@
 
 package org.apache.hop.ui.hopgui.file.shared;
 
+import org.apache.hop.ui.core.widget.TextComposite;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
 
+/**
+ * Utility class to handle font zooming for text widgets. Supports both Text and StyledText widgets
+ * for RAP/RWT compatibility.
+ */
 public class TextZoom {
   public static final int STEP_DEFAULT = 1;
   public static final int MIN_HEIGHT = 4;
 
-  private Text widget;
+  private Control widget;
   private Font font;
   private int step;
   private int minHeight;
 
   public TextZoom(Text widget, Font font) {
-    this(widget, font, TextZoom.STEP_DEFAULT);
+    this.widget = (Control) widget;
+    this.font = font;
+    this.step = TextZoom.STEP_DEFAULT;
+    this.minHeight = MIN_HEIGHT;
   }
 
   public TextZoom(Text widget, Font font, int step) {
-    this(widget, font, step, MIN_HEIGHT);
+    this.widget = (Control) widget;
+    this.font = font;
+    this.step = step;
+    this.minHeight = MIN_HEIGHT;
   }
 
   public TextZoom(Text widget, Font font, int step, int minHeight) {
+    this.widget = (Control) widget;
+    this.font = font;
+    this.step = step;
+    this.minHeight = minHeight;
+  }
+
+  /**
+   * Constructor that accepts TextComposite (works for both Text and StyledText without direct
+   * StyledText dependency).
+   */
+  public TextZoom(TextComposite widget, Font font) {
+    this.widget = widget;
+    this.font = font;
+    this.step = TextZoom.STEP_DEFAULT;
+    this.minHeight = MIN_HEIGHT;
+  }
+
+  /** Constructor that accepts TextComposite with custom step. */
+  public TextZoom(TextComposite widget, Font font, int step) {
+    this.widget = widget;
+    this.font = font;
+    this.step = step;
+    this.minHeight = MIN_HEIGHT;
+  }
+
+  /** Constructor that accepts TextComposite with custom step and minHeight. */
+  public TextZoom(TextComposite widget, Font font, int step, int minHeight) {
     this.widget = widget;
     this.font = font;
     this.step = step;
