@@ -659,7 +659,8 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_OSX_GROUP:
         font = gui.getFontDefault();
         Group group = ((Group) widget);
-        final Color groupBg = background;
+        // Use system background color for macOS groups
+        final Color groupBg = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
         group.addPaintListener(
             paintEvent -> {
               // Use system colors in paint listener
