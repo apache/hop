@@ -37,14 +37,12 @@ import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -52,7 +50,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
@@ -570,7 +567,6 @@ public class PropsUi extends Props {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = GuiResource.getInstance().getWidgetBackGroundColor();
-    ;
     Color foreground = gui.getColorBlack();
 
     if (widget instanceof Shell shell) {
@@ -642,21 +638,16 @@ public class PropsUi extends Props {
   protected static void setLookOnMac(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
-    Color background = GuiResource.getInstance().getWidgetBackGroundColor();
+    Color background = null;
 
     Display display = Display.getCurrent();
     if (display == null) {
       return;
     }
 
-    Color systemListBackground = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
-    Color systemListForeground = display.getSystemColor(SWT.COLOR_LIST_FOREGROUND);
-
     // Handle Shell windows with system background, but let macOS handle text color
     if (widget instanceof Shell shell) {
-      shell.setBackground(background);
       shell.setBackgroundMode(SWT.INHERIT_FORCE);
-      // Don't set foreground - let macOS handle it natively
       return;
     }
 
@@ -668,7 +659,8 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_OSX_GROUP:
         font = gui.getFontDefault();
         Group group = ((Group) widget);
-        final Color groupBg = background;
+        // Use system background color for macOS groups
+        final Color groupBg = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
         group.addPaintListener(
             paintEvent -> {
               // Use system colors in paint listener
@@ -680,33 +672,26 @@ public class PropsUi extends Props {
         break;
       case WIDGET_STYLE_FIXED:
         font = gui.getFontFixed();
-        background = background;
         break;
       case WIDGET_STYLE_TABLE:
-        background = background;
         Table table = (Table) widget;
         table.setHeaderBackground(background);
         // Don't set foreground colors - let macOS handle them
         break;
       case WIDGET_STYLE_TREE:
-        background = background;
         break;
       case WIDGET_STYLE_TOOLBAR:
-        background = background;
         break;
       case WIDGET_STYLE_TAB:
         CTabFolder tabFolder = (CTabFolder) widget;
         tabFolder.setBorderVisible(true);
         tabFolder.setBackground(background);
         tabFolder.setSelectionBackground(background);
-        // Don't set foreground colors - let macOS handle them
         ensureSafeRenderer(tabFolder);
         break;
       case WIDGET_STYLE_PUSH_BUTTON:
-        background = null;
         break;
       default:
-        background = gui.getColorBackground();
         font = null;
         break;
     }
@@ -719,24 +704,6 @@ public class PropsUi extends Props {
         && !background.isDisposed()
         && (widget instanceof Control controlWidget)) {
       controlWidget.setBackground(background);
-    }
-
-    // Only set backgrounds and foregrounds for text input widgets to ensure visibility
-    // with the new glass look in modern macOS versions.
-    // Use system list colors for text fields which provide proper contrast
-    if (widget instanceof Combo combo) {
-      combo.setBackground(systemListBackground);
-      combo.setForeground(systemListForeground);
-    }
-
-    if (widget instanceof Text text) {
-      text.setBackground(systemListBackground);
-      text.setForeground(systemListForeground);
-    }
-
-    if (widget instanceof StyledText styledText) {
-      styledText.setBackground(systemListBackground);
-      styledText.setForeground(systemListForeground);
     }
   }
 

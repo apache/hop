@@ -46,6 +46,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -63,6 +65,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   private Map<String, GuiToolbarItem> guiToolBarMap;
   @Getter private Map<String, Control> widgetsMap;
   private Map<String, ToolItem> toolItemMap;
+  private Map<String, Label> textLabelMap; // For web/RWT: stores text labels separately
   private List<String> removeToolItems;
   private Color itemBackgroundColor;
 
@@ -71,6 +74,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     guiToolBarMap = new HashMap<>();
     widgetsMap = new HashMap<>();
     toolItemMap = new HashMap<>();
+    textLabelMap = new HashMap<>();
     removeToolItems = new ArrayList<>();
   }
 
@@ -317,18 +321,33 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   private void addWebToolbarButton(GuiToolbarItem toolbarItem, ToolBar toolBar) {
     ToolItem item = new ToolItem(toolBar, SWT.SEPARATOR);
 
-    Label label = new Label(toolBar, SWT.NONE);
+    // Create a Composite to hold both the image and text label
+    Composite composite = new Composite(toolBar, SWT.NONE);
+    GridLayout layout = new GridLayout(2, false);
+    layout.marginWidth = 0;
+    layout.marginHeight = 0;
+    layout.horizontalSpacing = 4;
+    layout.verticalSpacing = 0;
+    composite.setLayout(layout);
+
+    // Create the image label
+    Label imageLabel = new Label(composite, SWT.NONE);
     if (StringUtils.isNotEmpty(toolbarItem.getToolTip())) {
-      label.setToolTipText(toolbarItem.getToolTip());
+      imageLabel.setToolTipText(toolbarItem.getToolTip());
+      composite.setToolTipText(toolbarItem.getToolTip());
     }
     Listener listener = SvgLabelListener.getInstance();
-    label.addListener(SWT.MouseDown, listener);
-    label.addListener(SWT.Hide, listener);
-    label.addListener(SWT.Show, listener);
-    label.addListener(SWT.MouseEnter, listener);
-    label.addListener(SWT.MouseExit, listener);
-    label.addListener(SWT.MouseDown, getListener(toolbarItem));
-    label.pack();
+    Listener toolbarListener = getListener(toolbarItem);
+
+    // Add SVG listeners to image label
+    imageLabel.addListener(SWT.MouseDown, listener);
+    imageLabel.addListener(SWT.Hide, listener);
+    imageLabel.addListener(SWT.Show, listener);
+    imageLabel.addListener(SWT.MouseEnter, listener);
+    imageLabel.addListener(SWT.MouseExit, listener);
+
+    // Make the entire composite clickable (image + text)
+    composite.addListener(SWT.MouseDown, toolbarListener);
 
     // Take into account zooming and the extra room for widget decorations
     //
@@ -337,11 +356,32 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             (ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor() + toolbarItem.getExtraWidth());
 
     String imageFilename = findImageFilename(toolbarItem);
-    SvgLabelFacade.setData(toolbarItem.getId(), label, imageFilename, size);
-    item.setWidth(size);
-    item.setControl(label);
+    SvgLabelFacade.setData(toolbarItem.getId(), imageLabel, imageFilename, size);
 
-    widgetsMap.put(toolbarItem.getId(), label);
+    GridData imageData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+    imageData.widthHint = size;
+    imageData.heightHint = size;
+    imageLabel.setLayoutData(imageData);
+
+    // Create the text label (initially empty, will be set later if needed)
+    Label textLabel = new Label(composite, SWT.NONE);
+    textLabel.setText("");
+    PropsUi.setLook(textLabel, Props.WIDGET_STYLE_TOOLBAR);
+    if (StringUtils.isNotEmpty(toolbarItem.getToolTip())) {
+      textLabel.setToolTipText(toolbarItem.getToolTip());
+    }
+    // Make text label part of the clickable button
+    textLabel.addListener(SWT.MouseDown, toolbarListener);
+    GridData textData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+    textLabel.setLayoutData(textData);
+    textLabel.setVisible(false); // Hidden until text is set
+
+    composite.pack();
+    item.setWidth(composite.getSize().x);
+    item.setControl(composite);
+
+    widgetsMap.put(toolbarItem.getId(), composite);
+    textLabelMap.put(toolbarItem.getId(), textLabel);
     toolItemMap.put(toolbarItem.getId(), item);
   }
 
@@ -395,9 +435,15 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
       return;
     }
     if (EnvironmentUtils.getInstance().isWeb()) {
-      //
-      Label label = (Label) widgetsMap.get(id);
-      SvgLabelFacade.enable(toolItem, id, label, enabled);
+      // In web/RWT, the widget is a Composite containing the image label
+      Control control = widgetsMap.get(id);
+      if (control instanceof Composite composite) {
+        // Find the image label (first child)
+        Control[] children = composite.getChildren();
+        if (children.length > 0 && children[0] instanceof Label imageLabel) {
+          SvgLabelFacade.enable(toolItem, id, imageLabel, enabled);
+        }
+      }
     } else {
       if (enabled != toolItem.isEnabled()) {
         toolItem.setEnabled(enabled);
@@ -439,8 +485,15 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     if (enabled != item.isEnabled()) {
       boolean enable = hasCapability && active;
       if (EnvironmentUtils.getInstance().isWeb()) {
-        Label label = (Label) widgetsMap.get(id);
-        SvgLabelFacade.enable(null, id, label, enable);
+        // In web/RWT, the widget is a Composite containing the image label
+        Control control = widgetsMap.get(id);
+        if (control instanceof Composite composite) {
+          // Find the image label (first child)
+          Control[] children = composite.getChildren();
+          if (children.length > 0 && children[0] instanceof Label imageLabel) {
+            SvgLabelFacade.enable(null, id, imageLabel, enable);
+          }
+        }
       } else {
         item.setEnabled(enable);
       }
@@ -450,6 +503,46 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
   public ToolItem findToolItem(String id) {
     return toolItemMap.get(id);
+  }
+
+  /**
+   * Set text on a toolbar item. Handles both SWT (desktop) and RWT (web) environments. In SWT, sets
+   * text directly on the ToolItem. In RWT, updates the separate text Label next to the image.
+   *
+   * @param id The ID of the toolbar item
+   * @param text The text to set
+   */
+  public void setToolbarItemText(String id, String text) {
+    ToolItem toolItem = toolItemMap.get(id);
+    if (toolItem == null || toolItem.isDisposed()) {
+      return;
+    }
+
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // In web/RWT, update the separate text label
+      Label textLabel = textLabelMap.get(id);
+      if (textLabel != null && !textLabel.isDisposed()) {
+        String textToSet = Const.NVL(text, "");
+        textLabel.setText(textToSet);
+        textLabel.setVisible(!Utils.isEmpty(textToSet));
+
+        // Update the composite width to accommodate the text
+        Composite composite = (Composite) widgetsMap.get(id);
+        if (composite != null && !composite.isDisposed()) {
+          composite.pack();
+          toolItem.setWidth(composite.getSize().x);
+
+          // Force layout update
+          ToolBar toolbar = (ToolBar) toolItem.getParent();
+          if (toolbar != null && !toolbar.isDisposed()) {
+            toolbar.layout(true, true);
+          }
+        }
+      }
+    } else {
+      // In SWT, set text directly on the ToolItem
+      toolItem.setText(Const.NVL(text, ""));
+    }
   }
 
   public void refreshComboItemList(String id) {
