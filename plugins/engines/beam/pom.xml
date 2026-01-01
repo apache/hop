@@ -594,12 +594,20 @@
                     <artifactId>commons-lang3</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.checkerframework</groupId>
-                    <artifactId>checker-qual</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>*</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j2-impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -1155,10 +1163,6 @@
                     <artifactId>jakarta.servlet-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>net.minidev</groupId>
                     <artifactId>json-smart</artifactId>
                 </exclusion>
@@ -1205,6 +1209,10 @@
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.zookeeper</groupId>
@@ -1310,10 +1318,6 @@
                     <artifactId>jakarta.servlet-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>net.minidev</groupId>
                     <artifactId>json-smart</artifactId>
                 </exclusion>
@@ -1360,6 +1364,10 @@
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.zookeeper</groupId>
