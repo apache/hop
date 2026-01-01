@@ -603,7 +603,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
       boolean nextsheet = false;
 
       // What sheet were we handling?
-      if (isDebug()) {
+      if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "ExcelInput.Log.GetSheet", "" + data.filenr + "." + data.sheetnr));

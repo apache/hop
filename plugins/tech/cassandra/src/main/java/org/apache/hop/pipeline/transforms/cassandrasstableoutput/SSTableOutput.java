@@ -80,8 +80,11 @@ public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutpu
       throw new Exception(
           BaseMessages.getString(SSTableOutputMeta.PKG, "SSTableOutput.Error.NoPathToYAML"));
     }
-    logBasic(
-        BaseMessages.getString(SSTableOutputMeta.PKG, "SSTableOutput.Message.YAMLPath", yamlPath));
+    if (isBasic()) {
+      logBasic(
+          BaseMessages.getString(
+              SSTableOutputMeta.PKG, "SSTableOutput.Message.YAMLPath", yamlPath));
+    }
 
     File outputDir;
     if (Utils.isEmpty(directory)) {

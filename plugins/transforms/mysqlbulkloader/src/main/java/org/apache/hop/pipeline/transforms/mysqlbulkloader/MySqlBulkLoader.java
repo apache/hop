@@ -73,9 +73,11 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
         //
         String mkFifoCmd = "mkfifo " + data.fifoFilename;
         //
-        logBasic(
-            BaseMessages.getString(
-                PKG, "MySqlBulkLoader.Message.CREATINGFIFO", data.dbDescription, mkFifoCmd));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "MySqlBulkLoader.Message.CREATINGFIFO", data.dbDescription, mkFifoCmd));
+        }
         Process mkFifoProcess = rt.exec(mkFifoCmd);
         StreamLogger errorLogger =
             new StreamLogger(getLogChannel(), mkFifoProcess.getErrorStream(), "mkFifoError");
@@ -91,12 +93,14 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
         }
 
         String chmodCmd = "chmod 666 " + data.fifoFilename;
-        logBasic(
-            BaseMessages.getString(
-                PKG,
-                "MySqlBulkLoader.Message.SETTINGPERMISSIONSFIFO",
-                data.dbDescription,
-                chmodCmd));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG,
+                  "MySqlBulkLoader.Message.SETTINGPERMISSIONSFIFO",
+                  data.dbDescription,
+                  chmodCmd));
+        }
         Process chmodProcess = rt.exec(chmodCmd);
         errorLogger =
             new StreamLogger(getLogChannel(), chmodProcess.getErrorStream(), "chmodError");
@@ -124,8 +128,10 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
               this, variables, getPipelineMeta().findDatabase(meta.getConnection(), variables));
       data.db.connect();
 
-      logBasic(
-          BaseMessages.getString(PKG, "MySqlBulkLoader.Message.CONNECTED", data.dbDescription));
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(PKG, "MySqlBulkLoader.Message.CONNECTED", data.dbDescription));
+      }
 
       // 3) Now we are ready to run the load command...
       //
@@ -182,9 +188,11 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
 
     loadCommand.append(");" + Const.CR);
 
-    logBasic(
-        BaseMessages.getString(
-            PKG, "MySqlBulkLoader.Message.STARTING", data.dbDescription, loadCommand));
+    if (isBasic()) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "MySqlBulkLoader.Message.STARTING", data.dbDescription, loadCommand));
+    }
 
     data.sqlRunner = new SqlRunner(data, loadCommand.toString());
     data.sqlRunner.start();
@@ -192,7 +200,10 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
     // Ready to start writing rows to the FIFO file now...
     //
     if (!Const.isWindows()) {
-      logBasic(BaseMessages.getString(PKG, "MySqlBulkLoader.Message.OPENFIFO", data.fifoFilename));
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(PKG, "MySqlBulkLoader.Message.OPENFIFO", data.fifoFilename));
+      }
       OpenFifo openFifo = new OpenFifo(data.fifoFilename, 1000);
       openFifo.start();
 
@@ -313,11 +324,13 @@ public class MySqlBulkLoader extends BaseTransform<MySqlBulkLoaderMeta, MySqlBul
     if (data.sqlRunner != null) {
 
       // wait for the INSERT statement to finish and check for any error and/or warning...
-      logDebug(
-          "Waiting up to "
-              + THREAD_WAIT_TIME_TEXT
-              + " for the MySql load command thread to finish processing."); // no requirement for
-      // NLS debug messages
+      if (isDebug()) {
+        logDebug(
+            "Waiting up to "
+                + THREAD_WAIT_TIME_TEXT
+                + " for the MySql load command thread to finish processing."); // no requirement for
+        // NLS debug messages
+      }
       data.sqlRunner.join(THREAD_WAIT_TIME);
       SqlRunner sqlRunner = data.sqlRunner;
       data.sqlRunner = null;

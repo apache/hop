@@ -101,7 +101,9 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
 
       List<MongoDbOutputMeta.MongoIndex> indexes = meta.getMongoIndexes();
       if (!Utils.isEmpty(indexes)) {
-        logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.ApplyingIndexOpps"));
+        if (isBasic()) {
+          logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.ApplyingIndexOpps"));
+        }
         try {
           data.applyIndexes(indexes, getLogChannel(), meta.isTruncate());
         } catch (MongoDbException e) {
@@ -151,7 +153,9 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       // check truncate
       if (meta.isTruncate()) {
         try {
-          logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.TruncatingCollection"));
+          if (isBasic()) {
+            logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.TruncatingCollection"));
+          }
           data.getCollection().remove();
         } catch (Exception m) {
           disconnect();
@@ -242,7 +246,9 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           batchRows.add(row);
         }
         if (batch.size() == batchInsertSize) {
-          logDetailed(BaseMessages.getString(PKG, "MongoDbOutput.Messages.CommitingABatch"));
+          if (isDetailed()) {
+            logDetailed(BaseMessages.getString(PKG, "MongoDbOutput.Messages.CommitingABatch"));
+          }
           try {
             doBatch();
           } catch (MongoDbException e) {
@@ -289,8 +295,11 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           logError(
               BaseMessages.getString(
                   PKG, "MongoDbOutput.Messages.Error.ErrorWritingToMongo", me.toString()));
-          logBasic(
-              BaseMessages.getString(PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay));
+          if (isBasic()) {
+            logBasic(
+                BaseMessages.getString(
+                    PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay));
+          }
           try {
             Thread.sleep(writeRetryDelay * 1000);
 
@@ -320,7 +329,10 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       throws MongoException, HopException, MongoDbException {
     UpdateResult result = null;
     int count = 0;
-    logBasic(BaseMessages.getString(PKG, "MongoDbOutput.Messages.CurrentBatchSize", batch.size()));
+    if (isBasic()) {
+      logBasic(
+          BaseMessages.getString(PKG, "MongoDbOutput.Messages.CurrentBatchSize", batch.size()));
+    }
     for (int i = 0, len = batch.size(); i < len; i++) {
       Document toTry = batch.get(i);
       Object[] correspondingRow = batchRows.get(i);
@@ -329,9 +341,11 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         count++;
       } catch (MongoException ex) {
         if (!lastRetry) {
-          logBasic(
-              BaseMessages.getString(
-                  PKG, "MongoDbOutput.Messages.SuccessfullySavedXDocuments", count));
+          if (isBasic()) {
+            logBasic(
+                BaseMessages.getString(
+                    PKG, "MongoDbOutput.Messages.SuccessfullySavedXDocuments", count));
+          }
           batch = copyExceptFirst(count, batch);
           batchRows = copyExceptFirst(count, batchRows);
           throw ex;
@@ -351,8 +365,10 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
     batch.clear();
     batchRows.clear();
 
-    logBasic(
-        BaseMessages.getString(PKG, "MongoDbOutput.Messages.SuccessfullySavedXDocuments", count));
+    if (isBasic()) {
+      logBasic(
+          BaseMessages.getString(PKG, "MongoDbOutput.Messages.SuccessfullySavedXDocuments", count));
+    }
 
     return result;
   }
@@ -372,9 +388,11 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           result = data.getCollection().insert(batch);
         } else {
           // fall back to save
-          logBasic(
-              BaseMessages.getString(
-                  PKG, "MongoDbOutput.Messages.SavingIndividualDocsInCurrentBatch"));
+          if (isBasic()) {
+            logBasic(
+                BaseMessages.getString(
+                    PKG, "MongoDbOutput.Messages.SavingIndividualDocsInCurrentBatch"));
+          }
           batchRetryUsingSave(retries == writeRetries);
           result = null; // Signal success via different path
           break;
@@ -394,9 +412,11 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
             logError(
                 BaseMessages.getString(
                     PKG, "MongoDbOutput.Messages.Error.ErrorWritingToMongo", me.toString()));
-            logBasic(
-                BaseMessages.getString(
-                    PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay));
+            if (isBasic()) {
+              logBasic(
+                  BaseMessages.getString(
+                      PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay));
+            }
           }
           try {
             Thread.sleep(writeRetryDelay * 1000);
@@ -465,12 +485,15 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         }
 
         if (!StringUtils.isEmpty(data.connection.getAuthenticationUser())) {
-          String authInfo =
-              BaseMessages.getString(
-                  PKG,
-                  "MongoDbInput.Message.NormalAuthentication",
-                  resolve(data.connection.getAuthenticationUser()));
-          logBasic(authInfo);
+          if (isBasic()) {
+            String authInfo =
+                BaseMessages.getString(
+                    PKG,
+                    "MongoDbInput.Message.NormalAuthentication",
+                    resolve(data.connection.getAuthenticationUser()));
+
+            logBasic(authInfo);
+          }
         }
 
         // init connection constructs a MongoCredentials object if necessary
@@ -575,9 +598,11 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         b.append("'").append(name).append("', ");
       }
       // just put a log record on it
-      logBasic(
-          BaseMessages.getString(
-              PKG, "MongoDbOutput.Messages.FieldsNotToBeInserted", b.toString()));
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                PKG, "MongoDbOutput.Messages.FieldsNotToBeInserted", b.toString()));
+      }
     }
   }
 }

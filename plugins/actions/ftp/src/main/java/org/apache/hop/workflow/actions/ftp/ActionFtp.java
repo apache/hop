@@ -324,7 +324,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
 
   @Override
   public Result execute(Result previousResult, int nr) {
-    logBasic(BaseMessages.getString(PKG, "ActionFTP.Started", serverName));
+    if (isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "ActionFTP.Started", serverName));
+    }
 
     Result result = previousResult;
     result.setNrErrors(1);

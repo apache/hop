@@ -161,7 +161,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
     if (!sameGroup && !data.jsonKeyGroupItems.isEmpty()) {
       // Output the new row
-      logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
+      if (isDebug()) {
+        logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
+      }
       outputRow(prevRow);
       data.jsonKeyGroupItems = new ArrayList<>();
     }
@@ -294,7 +296,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
     if (meta.getSplitOutputAfter() > 0 && (data.nrRow) % meta.getSplitOutputAfter() == 0) {
       // Output the new row
-      logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
+      if (isDebug()) {
+        logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
+      }
       serializeJson(data.jsonItems);
       writeJsonFile();
       data.jsonItems = new ArrayList<>();

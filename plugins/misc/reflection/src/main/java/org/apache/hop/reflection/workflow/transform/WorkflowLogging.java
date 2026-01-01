@@ -56,7 +56,10 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
   public boolean processRow() throws HopException {
 
     if (loggingWorkflow == null) {
-      logBasic("This transform will produce output when called by the Pipeline Log configuration");
+      if (isBasic()) {
+        logBasic(
+            "This transform will produce output when called by the Pipeline Log configuration");
+      }
       setOutputDone();
       return false;
     }

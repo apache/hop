@@ -129,12 +129,16 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     try {
       try (ResultSet rs = statement.executeQuery("show client_encoding")) {
         if (!rs.next() || rs.getMetaData().getColumnCount() != 1) {
-          logBasic("Cannot detect client_encoding, using system default encoding");
+          if (isBasic()) {
+            logBasic("Cannot detect client_encoding, using system default encoding");
+          }
           return;
         }
 
         String clientEncodingStr = rs.getString(1);
-        logBasic("Detect client_encoding: " + clientEncodingStr);
+        if (isBasic()) {
+          logBasic("Detect client_encoding: " + clientEncodingStr);
+        }
         clientEncoding = Charset.forName(clientEncodingStr);
       }
     } catch (SQLException | IllegalArgumentException ex) {
@@ -154,7 +158,9 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
       processTruncate();
 
-      logBasic("Launching command: " + copyCmd);
+      if (isBasic()) {
+        logBasic("Launching command: " + copyCmd);
+      }
       pgCopyOut = new PGCopyOutputStream((PGConnection) data.db.getConnection(), copyCmd);
 
     } catch (Exception ex) {
@@ -169,7 +175,9 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     String dbNameOverride = resolve(pgBulkLoaderMeta.getDbNameOverride());
     if (!Utils.isEmpty(dbNameOverride)) {
       dbMeta.setDBName(dbNameOverride.trim());
-      logDebug("DB name overridden to the value: " + dbNameOverride);
+      if (isDebug()) {
+        logDebug("DB name overridden to the value: " + dbNameOverride);
+      }
     }
     return new Database(parentObject, variables, dbMeta);
   }
@@ -187,7 +195,9 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
       DatabaseMeta dm = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       String tableName =
           dm.getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
-      logBasic("Launching command: " + "TRUNCATE " + tableName);
+      if (isBasic()) {
+        logBasic("Launching command: " + "TRUNCATE " + tableName);
+      }
 
       Statement statement = connection.createStatement();
 

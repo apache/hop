@@ -330,7 +330,9 @@ public class RedshiftBulkLoader
       sb.append(" FORMAT AS PARQUET;");
     }
 
-    logDebug("copy stmt: " + sb.toString());
+    if (isDebug()) {
+      logDebug("copy stmt: " + sb);
+    }
 
     return sb.toString();
   }

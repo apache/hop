@@ -147,7 +147,9 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
   private void reconnect() throws HopConfigException {
     closeSessionDriver();
 
-    logBasic("RECONNECTING to database");
+    if (isBasic()) {
+      logBasic("RECONNECTING to database");
+    }
 
     // Wait for 30 seconds before reconnecting.
     // Let's give the server a breath of fresh air.
@@ -381,7 +383,9 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
     try {
       for (int attempt = 0; attempt < data.attempts; attempt++) {
         if (attempt > 0) {
-          logBasic("Attempt #" + (attempt + 1) + "/" + data.attempts + " on Neo4j transaction");
+          if (isBasic()) {
+            logBasic("Attempt #" + (attempt + 1) + "/" + data.attempts + " on Neo4j transaction");
+          }
         }
         try {
           if (meta.isReadOnly()) {
@@ -592,16 +596,18 @@ public class Cypher extends BaseTransform<CypherMeta, CypherData> {
       for (Notification notification : summary.notifications()) {
         if ("WARNING".equalsIgnoreCase(notification.severity())) {
           // Log it
-          logBasic(
-              notification.severity()
-                  + " : "
-                  + notification.title()
-                  + " : "
-                  + notification.code()
-                  + " : "
-                  + notification.description()
-                  + ", position "
-                  + notification.position());
+          if (isBasic()) {
+            logBasic(
+                notification.severity()
+                    + " : "
+                    + notification.title()
+                    + " : "
+                    + notification.code()
+                    + " : "
+                    + notification.description()
+                    + ", position "
+                    + notification.position());
+          }
         } else {
           // This is an error
           //

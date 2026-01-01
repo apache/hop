@@ -63,7 +63,7 @@ public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFro
     putRow(data.outputRowMeta, r.getData()); // copy row to possible alternate
     // rowset(s).
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "FilesFromResult.Log.LineNumber") + getLinesRead());
     }
 

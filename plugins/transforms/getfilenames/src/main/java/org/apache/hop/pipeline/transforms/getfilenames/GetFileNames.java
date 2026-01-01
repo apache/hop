@@ -321,14 +321,18 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
     if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
-      logBasic("ERROR: Missing " + message);
+      if (isBasic()) {
+        logBasic("ERROR: Missing " + message);
+      }
       throw new HopException("Following required files are missing: " + message);
     }
 
     List<FileObject> nonAccessibleFiles = data.files.getNonAccessibleFiles();
     if (!nonAccessibleFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
-      logBasic("WARNING: Not accessible " + message);
+      if (isBasic()) {
+        logBasic("WARNING: Not accessible " + message);
+      }
       throw new HopException("Following required files are not accessible: " + message);
     }
   }

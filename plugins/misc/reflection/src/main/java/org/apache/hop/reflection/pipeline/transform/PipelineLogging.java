@@ -50,7 +50,10 @@ public class PipelineLogging extends BaseTransform<PipelineLoggingMeta, Pipeline
   public boolean processRow() throws HopException {
 
     if (loggingPipeline == null) {
-      logBasic("This transform will produce output when called by the Pipeline Log configuration");
+      if (isBasic()) {
+        logBasic(
+            "This transform will produce output when called by the Pipeline Log configuration");
+      }
       setOutputDone();
       return false;
     }

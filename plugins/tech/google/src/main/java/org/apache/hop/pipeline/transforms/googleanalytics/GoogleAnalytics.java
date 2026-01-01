@@ -137,7 +137,9 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
 
       readResponse();
     }
-    logBasic("all rows processed. ready to shut down.");
+    if (isBasic()) {
+      logBasic("all rows processed. ready to shut down.");
+    }
     setOutputDone();
     return false;
   }

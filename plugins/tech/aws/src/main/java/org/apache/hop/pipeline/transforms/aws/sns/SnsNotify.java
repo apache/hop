@@ -160,7 +160,7 @@ public class SnsNotify extends BaseTransform<SnsNotifyMeta, SnsNotifyData> {
     }
 
     // log progress if it is time to do so
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead()); // Some basic logging
     }
 

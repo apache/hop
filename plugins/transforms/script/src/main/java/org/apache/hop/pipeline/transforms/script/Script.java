@@ -667,7 +667,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "Script.Log.LineNumber") + getLinesRead());
     }
     previousRow = r;

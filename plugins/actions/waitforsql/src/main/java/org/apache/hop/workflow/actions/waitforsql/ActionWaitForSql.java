@@ -292,26 +292,36 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       //
       if (iMaximumTimeout < 0) {
         iMaximumTimeout = Const.toInt(DEFAULT_MAXIMUM_TIMEOUT, 0);
-        logBasic("Maximum timeout invalid, reset to " + iMaximumTimeout);
+        if (isBasic()) {
+          logBasic("Maximum timeout invalid, reset to " + iMaximumTimeout);
+        }
       }
 
       if (iCycleTime < 1) {
         // If lower than 1 set to the default
         iCycleTime = Const.toInt(DEFAULT_CHECK_CYCLE_TIME, 1);
-        logBasic("Check cycle time invalid, reset to " + iCycleTime);
+        if (isBasic()) {
+          logBasic("Check cycle time invalid, reset to " + iCycleTime);
+        }
       }
 
       if (iMaximumTimeout == 0) {
-        logBasic("Waiting indefinitely for SQL data");
+        if (isBasic()) {
+          logBasic("Waiting indefinitely for SQL data");
+        }
       } else {
-        logBasic("Waiting " + iMaximumTimeout + " seconds for SQL data");
+        if (isBasic()) {
+          logBasic("Waiting " + iMaximumTimeout + " seconds for SQL data");
+        }
       }
 
       boolean continueLoop = true;
       while (continueLoop && !parentWorkflow.isStopped()) {
         if (sqlDataOK(result, nrRowsLimit, realSchemaname, realTablename, realCustomSql)) {
           // SQL data exists, we're happy to exit
-          logBasic("Detected SQL data within timeout");
+          if (isBasic()) {
+            logBasic("Detected SQL data within timeout");
+          }
           result.setResult(true);
           continueLoop = false;
         } else {
@@ -322,10 +332,14 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
             // SQL data doesn't exist after timeout, either true or false
             if (isSuccessOnTimeout()) {
-              logBasic("Didn't detect SQL data before timeout, success");
+              if (isBasic()) {
+                logBasic("Didn't detect SQL data before timeout, success");
+              }
               result.setResult(true);
             } else {
-              logBasic("Didn't detect SQL data before timeout, failure");
+              if (isBasic()) {
+                logBasic("Didn't detect SQL data before timeout, failure");
+              }
               result.setResult(false);
             }
           }

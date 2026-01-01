@@ -55,7 +55,7 @@ public class MappingOutput extends BaseTransform<MappingOutputMeta, MappingOutpu
     //
     putRow(getInputRowMeta(), r);
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "MappingOutput.Log.LineNumber") + getLinesRead());
     }
 

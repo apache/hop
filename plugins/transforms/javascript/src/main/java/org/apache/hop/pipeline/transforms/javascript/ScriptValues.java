@@ -182,17 +182,23 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
         String optimizationLevelAsString = resolve(meta.getOptimizationLevel());
         if (!Utils.isEmpty(Const.trim(optimizationLevelAsString))) {
           data.cx.setOptimizationLevel(Integer.parseInt(optimizationLevelAsString.trim()));
-          logBasic(
-              BaseMessages.getString(
-                  PKG, "ScriptValuesMod.Optimization.Level", resolve(meta.getOptimizationLevel())));
+          if (isBasic()) {
+            logBasic(
+                BaseMessages.getString(
+                    PKG,
+                    "ScriptValuesMod.Optimization.Level",
+                    resolve(meta.getOptimizationLevel())));
+          }
         } else {
           data.cx.setOptimizationLevel(
               Integer.parseInt(ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT));
-          logBasic(
-              BaseMessages.getString(
-                  PKG,
-                  "ScriptValuesMod.Optimization.UsingDefault",
-                  ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT));
+          if (isBasic()) {
+            logBasic(
+                BaseMessages.getString(
+                    PKG,
+                    "ScriptValuesMod.Optimization.UsingDefault",
+                    ScriptValuesMeta.OPTIMIZATION_LEVEL_DEFAULT));
+          }
         }
       } catch (NumberFormatException nfe) {
         throw new HopTransformException(
@@ -516,7 +522,7 @@ public class ScriptValues extends BaseTransform<ScriptValuesMeta, ScriptValuesDa
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "ScriptValuesMod.Log.LineNumber") + getLinesRead());
     }
     return bRC;

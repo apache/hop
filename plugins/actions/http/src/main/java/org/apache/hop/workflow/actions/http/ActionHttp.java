@@ -194,7 +194,9 @@ public class ActionHttp extends ActionBase {
     Result result = previousResult;
     result.setResult(false);
 
-    logBasic(BaseMessages.getString(PKG, "ActionHTTP.StartAction"));
+    if (isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "ActionHTTP.StartAction"));
+    }
 
     // Get previous result rows...
     List<RowMetaAndData> resultRows;
@@ -257,7 +259,9 @@ public class ActionHttp extends ActionBase {
         String realUploadFile = resolve(row.getString(uploadFieldnameToUse, ""));
         String realTargetFile = resolve(row.getString(destinationFieldnameToUse, ""));
 
-        logBasic(BaseMessages.getString(PKG, "ActionHTTP.Log.ConnectingURL", urlToUse));
+        if (isBasic()) {
+          logBasic(BaseMessages.getString(PKG, "ActionHTTP.Log.ConnectingURL", urlToUse));
+        }
 
         if (!Utils.isEmpty(proxyHostname)) {
           System.setProperty(CONST_HTTP_PROXY_HOST, resolve(proxyHostname));
@@ -371,9 +375,11 @@ public class ActionHttp extends ActionBase {
         // Read the result from the server...
         input = connection.getInputStream();
         Date date = new Date(connection.getLastModified());
-        logBasic(
-            BaseMessages.getString(
-                PKG, "ActionHTTP.Log.ReplayInfo", connection.getContentType(), date));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ActionHTTP.Log.ReplayInfo", connection.getContentType(), date));
+        }
 
         int oneChar;
         long bytesRead = 0L;
@@ -382,9 +388,11 @@ public class ActionHttp extends ActionBase {
           bytesRead++;
         }
 
-        logBasic(
-            BaseMessages.getString(
-                PKG, "ActionHTTP.Log.FinisedWritingReply", bytesRead, realTargetFile));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "ActionHTTP.Log.FinisedWritingReply", bytesRead, realTargetFile));
+        }
 
         if (addFilenameResult) {
           // Add to the result files...

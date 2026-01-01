@@ -57,7 +57,7 @@ public class Injector extends BaseTransform<InjectorMeta, InjectorData> {
 
     putRow(getInputRowMeta(), row); // copy row to possible alternate rowset(s).
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "Injector.Log.LineNumber") + getLinesRead());
     }
 

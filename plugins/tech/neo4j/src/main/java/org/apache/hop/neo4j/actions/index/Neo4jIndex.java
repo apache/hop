@@ -141,7 +141,9 @@ public class Neo4jIndex extends ActionBase implements IAction {
         session.executeWrite(
             tx -> {
               try {
-                logDetailed("Dropping index with cypher: " + _cypher);
+                if (isDetailed()) {
+                  logDetailed("Dropping index with cypher: " + _cypher);
+                }
                 org.neo4j.driver.Result result = tx.run(_cypher);
                 result.consume();
                 return true;
@@ -207,7 +209,9 @@ public class Neo4jIndex extends ActionBase implements IAction {
         session.executeWrite(
             tx -> {
               try {
-                logDetailed("Creating index with cypher: " + _cypher);
+                if (isDetailed()) {
+                  logDetailed("Creating index with cypher: " + _cypher);
+                }
                 org.neo4j.driver.Result result = tx.run(_cypher);
                 result.consume();
                 return true;

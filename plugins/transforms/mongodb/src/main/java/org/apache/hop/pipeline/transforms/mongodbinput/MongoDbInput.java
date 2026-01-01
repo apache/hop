@@ -99,9 +99,11 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
           ServerAddress s = data.cursor.getServerAddress();
           if (s != null) {
             serverDetermined = true;
-            logBasic(
-                BaseMessages.getString(
-                    PKG, "MongoDbInput.Message.QueryPulledDataFrom", s.toString()));
+            if (isBasic()) {
+              logBasic(
+                  BaseMessages.getString(
+                      PKG, "MongoDbInput.Message.QueryPulledDataFrom", s.toString()));
+            }
           }
         }
 
@@ -178,7 +180,10 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
           query = resolve(query, getInputRowMeta(), currentInputRowDrivingQuery);
         }
 
-        logDetailed(BaseMessages.getString(PKG, "MongoDbInput.Message.QueryPulledDataFrom", query));
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(PKG, "MongoDbInput.Message.QueryPulledDataFrom", query));
+        }
 
         List<Document> pipeline = MongodbInputDiscoverFieldsImpl.jsonPipelineToDocumentList(query);
         Document firstP = pipeline.get(0);
@@ -204,7 +209,9 @@ public class MongoDbInput extends BaseTransform<MongoDbInputMeta, MongoDbInputDa
           fields = resolve(fields, getInputRowMeta(), currentInputRowDrivingQuery);
         }
 
-        logDetailed(BaseMessages.getString(PKG, "MongoDbInput.Message.ExecutingQuery", query));
+        if (isDetailed()) {
+          logDetailed(BaseMessages.getString(PKG, "MongoDbInput.Message.ExecutingQuery", query));
+        }
 
         Document queryDoc = Document.parse(StringUtils.isEmpty(query) ? "{}" : query);
         Document fieldsDoc = StringUtils.isEmpty(fields) ? null : Document.parse(fields);

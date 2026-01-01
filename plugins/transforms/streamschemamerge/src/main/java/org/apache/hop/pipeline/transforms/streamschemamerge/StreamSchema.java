@@ -161,7 +161,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
     putRow(data.outputRowMeta, outputRow);
 
     // log progress if it is time to to so
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead()); // Some basic logging
     }
 

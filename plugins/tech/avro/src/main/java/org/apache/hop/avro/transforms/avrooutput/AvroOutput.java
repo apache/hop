@@ -362,7 +362,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
     //
     putRow(data.outputRowMeta, r); // in case we want it to go further...
 
-    if (checkFeedback(getLinesOutput())) {
+    if (checkFeedback(getLinesOutput()) && isBasic()) {
       logBasic("linenr " + getLinesOutput());
     }
 
@@ -372,10 +372,14 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
   private void createFileAndSchema() throws HopException {
     try {
       if (meta.isCreateSchemaFile()) {
-        logDetailed("Generating Avro schema.");
+        if (isDetailed()) {
+          logDetailed("Generating Avro schema.");
+        }
         writeSchemaFile();
       } else {
-        logDetailed("Reading Avro schema from file.");
+        if (isDetailed()) {
+          logDetailed("Reading Avro schema from file.");
+        }
         try {
           data.avroSchema = new Schema.Parser().parse(new File(meta.getSchemaFileName()));
         } catch (Exception e) {

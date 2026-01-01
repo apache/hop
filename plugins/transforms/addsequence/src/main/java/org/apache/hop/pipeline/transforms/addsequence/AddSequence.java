@@ -229,7 +229,9 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         // regardless of the number of transform copies asking for it.
         //
         synchronized (getPipeline()) {
-          logBasic("init counter name: {0}", data.getLookup());
+          if (isDetailed()) {
+            logDetailed("init counter name: {0}", data.getLookup());
+          }
           data.counter =
               Counters.getInstance()
                   .getOrUpdateCounter(

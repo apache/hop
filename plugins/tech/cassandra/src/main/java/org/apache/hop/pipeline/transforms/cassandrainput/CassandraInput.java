@@ -102,13 +102,15 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
           throw new HopException("Please specify the keyspace to use.");
         }
 
-        logBasic(
-            BaseMessages.getString(
-                CassandraInputMeta.PKG,
-                "CassandraInput.Info.Connecting",
-                hostname,
-                port,
-                keyspace));
+        if (isBasic()) {
+          logBasic(
+              BaseMessages.getString(
+                  CassandraInputMeta.PKG,
+                  "CassandraInput.Info.Connecting",
+                  hostname,
+                  port,
+                  keyspace));
+        }
 
         Map<String, String> connectionOptions = data.cassandraConnection.getOptionsMap(variables);
 
@@ -116,7 +118,7 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
           connectionOptions.put(CassandraUtils.ConnectionOptions.MAX_LENGTH, maxLength);
         }
 
-        if (!connectionOptions.isEmpty()) {
+        if (!connectionOptions.isEmpty() && isBasic()) {
           logBasic(
               BaseMessages.getString(
                   CassandraInputMeta.PKG,
@@ -206,7 +208,7 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
           logRowlevel(toString(), "Outputted row #" + getProcessed() + " : " + outRowData);
         }
 
-        if (checkFeedback(getProcessed())) {
+        if (checkFeedback(getProcessed()) && isBasic()) {
           logBasic("Read " + getProcessed() + " rows from Cassandra");
         }
       }
@@ -237,15 +239,17 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
     boolean usingCompression = data.cassandraConnection.isUsingCompression();
     Compression compression = usingCompression ? Compression.GZIP : Compression.NONE;
     try {
-      logBasic(
-          BaseMessages.getString(
-              CassandraInputMeta.PKG,
-              "CassandraInput.Info.ExecutingQuery",
-              queryS,
-              (usingCompression
-                  ? BaseMessages.getString(
-                      CassandraInputMeta.PKG, "CassandraInput.Info.UsingGZIPCompression")
-                  : "")));
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                CassandraInputMeta.PKG,
+                "CassandraInput.Info.ExecutingQuery",
+                queryS,
+                (usingCompression
+                    ? BaseMessages.getString(
+                        CassandraInputMeta.PKG, "CassandraInput.Info.UsingGZIPCompression")
+                    : "")));
+      }
       if (cqlHandler == null) {
         cqlHandler = data.keyspace.getCQLRowHandler();
       }
@@ -276,8 +280,11 @@ public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraI
 
   protected void closeConnection() throws HopException {
     if (data.connection != null) {
-      logBasic(
-          BaseMessages.getString(CassandraInputMeta.PKG, "CassandraInput.Info.ClosingConnection"));
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                CassandraInputMeta.PKG, "CassandraInput.Info.ClosingConnection"));
+      }
       try {
         data.connection.close();
         data.connection = null;

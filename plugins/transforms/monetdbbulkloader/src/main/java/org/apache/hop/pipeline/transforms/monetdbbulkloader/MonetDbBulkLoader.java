@@ -648,12 +648,12 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
     List<?> warnings = mserver.connect(host, port, user, password);
     if (warnings != null) {
       for (Object warning : warnings) {
-        if (log != null) {
+        if (log != null && log.isBasic()) {
           log.logBasic("MonetDB connection warning: " + warning);
         }
       }
     } else {
-      if (log != null) {
+      if (log != null && log.isDebug()) {
         log.logDebug("Successful MapiSocket connection to MonetDB established.");
       }
     }

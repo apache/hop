@@ -299,7 +299,9 @@ public class KafkaConsumerInput
             }
             incrementLinesInput();
           }
-          logBasic("Number of rows read: " + data.rowProducer.getRowSet().size());
+          if (isBasic()) {
+            logBasic("Number of rows read: " + data.rowProducer.getRowSet().size());
+          }
           // Pass them to the single threaded transformation and do an iteration...
           //
           data.executor.oneIteration();
@@ -307,7 +309,9 @@ public class KafkaConsumerInput
           if (data.executor.isStopped() || data.executor.getErrors() > 0) {
             // An error occurred in the sub-transformation
             //
-            logDebug("Executor's reported errors #: " + data.executor.getErrors());
+            if (isDebug()) {
+              logDebug("Executor's reported errors #: " + data.executor.getErrors());
+            }
             if (data.executor.getErrors() > 0 && errorHandlingConditionIsSatisfied()) {
               // If error handling is enabled return record that generates error in subpipeline
               // For future improvements in managing rows that generates error in sub pipeline

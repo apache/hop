@@ -120,9 +120,13 @@ public class ExecCql extends ActionBase implements IAction {
         executeCqlStatements(this, getLogChannel(), result, cassandraConnection, cqlStatements);
 
     if (result.getNrErrors() == 0) {
-      logBasic("Cassandra executed " + nrExecuted + " CQL commands without error");
+      if (isBasic()) {
+        logBasic("Cassandra executed " + nrExecuted + " CQL commands without error");
+      }
     } else {
-      logBasic("Cassandra Exec CQL: some command(s) executed with error(s)");
+      if (isBasic()) {
+        logBasic("Cassandra Exec CQL: some command(s) executed with error(s)");
+      }
     }
 
     return result;
@@ -174,7 +178,9 @@ public class ExecCql extends ActionBase implements IAction {
                 Thread.sleep(50);
               }
               nrExecuted++;
-              log.logDetailed("Executed cql statement: " + cql);
+              if (log.isDetailed()) {
+                log.logDetailed("Executed cql statement: " + cql);
+              }
             }
           }
         } catch (Exception e) {

@@ -113,7 +113,7 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
       }
     }
 
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead());
     }
 

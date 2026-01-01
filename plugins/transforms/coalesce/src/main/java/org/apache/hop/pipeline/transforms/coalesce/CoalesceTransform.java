@@ -150,7 +150,7 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
     }
 
     // log progress if it is time to to so
-    if (checkFeedback(getLinesRead())) {
+    if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Line nr " + getLinesRead());
     }
 

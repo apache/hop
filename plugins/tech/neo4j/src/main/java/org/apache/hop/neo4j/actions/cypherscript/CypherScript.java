@@ -133,7 +133,9 @@ public class CypherScript extends ActionBase implements IAction {
                   if (StringUtils.isNotEmpty(cypher)) {
                     transaction.run(cypher);
                     executed++;
-                    logDetailed("Executed cypher statement: " + cypher);
+                    if (isDetailed()) {
+                      logDetailed("Executed cypher statement: " + cypher);
+                    }
                   }
                 }
                 // Transaction is automatically committed by executeWrite
@@ -151,9 +153,13 @@ public class CypherScript extends ActionBase implements IAction {
     }
 
     if (result.getNrErrors() == 0) {
-      logBasic("Neo4j script executed " + nrExecuted + " statements without error");
+      if (isBasic()) {
+        logBasic("Neo4j script executed " + nrExecuted + " statements without error");
+      }
     } else {
-      logBasic("Neo4j script executed with error(s)");
+      if (isBasic()) {
+        logBasic("Neo4j script executed with error(s)");
+      }
     }
 
     return result;

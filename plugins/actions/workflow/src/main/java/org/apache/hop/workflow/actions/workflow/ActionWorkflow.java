@@ -297,7 +297,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
       // Explain what we are loading...
       //
-      logDetailed("Loading workflow from XML file : [" + resolve(filename) + "]");
+      if (isDetailed()) {
+        logDetailed("Loading workflow from XML file : [" + resolve(filename) + "]");
+      }
 
       WorkflowMeta workflowMeta = getWorkflowMeta(getMetadataProvider(), this);
 

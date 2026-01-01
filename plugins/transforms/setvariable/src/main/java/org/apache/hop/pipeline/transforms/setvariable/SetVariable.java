@@ -57,7 +57,9 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
 
       if (first) {
         // We do not received any row !!
-        logBasic(BaseMessages.getString(PKG, "SetVariable.Log.NoInputRowSetDefault"));
+        if (isBasic()) {
+          logBasic(BaseMessages.getString(PKG, "SetVariable.Log.NoInputRowSetDefault"));
+        }
         List<VariableItem> vars = meta.getVariables();
         for (int i = 0; i < vars.size(); i++) {
           if (!Utils.isEmpty(vars.get(i).getDefaultValue())) {
@@ -66,7 +68,9 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         }
       }
 
-      logBasic("Finished after " + getLinesWritten() + " rows.");
+      if (isBasic()) {
+        logBasic("Finished after " + getLinesWritten() + " rows.");
+      }
       setOutputDone();
       return false;
     }
@@ -75,7 +79,9 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
       first = false;
       data.outputMeta = getInputRowMeta().clone();
 
-      logBasic(BaseMessages.getString(PKG, "SetVariable.Log.SettingVar"));
+      if (isBasic()) {
+        logBasic(BaseMessages.getString(PKG, "SetVariable.Log.SettingVar"));
+      }
 
       for (int i = 0; i < meta.getVariables().size(); i++) {
         setValue(rowData, i, false);
@@ -179,10 +185,12 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         if (parentWorkflow != null) {
           parentWorkflow.setVariable(varname, value);
         } else {
-          logBasic(
-              CONST_WARNING_CAN_T_SET_VARIABLE
-                  + varname
-                  + "] on parent workflow: the parent workflow is not available");
+          if (isBasic()) {
+            logBasic(
+                CONST_WARNING_CAN_T_SET_VARIABLE
+                    + varname
+                    + "] on parent workflow: the parent workflow is not available");
+          }
         }
 
         // Set the variable on the grand-parent workflow
@@ -191,10 +199,12 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         if (gpJob != null) {
           gpJob.setVariable(varname, value);
         } else {
-          logBasic(
-              CONST_WARNING_CAN_T_SET_VARIABLE
-                  + varname
-                  + "] on grand parent workflow: the grand parent workflow is not available");
+          if (isBasic()) {
+            logBasic(
+                CONST_WARNING_CAN_T_SET_VARIABLE
+                    + varname
+                    + "] on grand parent workflow: the grand parent workflow is not available");
+          }
         }
         break;
 
@@ -205,10 +215,12 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         if (parentWorkflow != null) {
           parentWorkflow.setVariable(varname, value);
         } else {
-          logBasic(
-              CONST_WARNING_CAN_T_SET_VARIABLE
-                  + varname
-                  + "] on parent workflow: the parent workflow is not available");
+          if (isBasic()) {
+            logBasic(
+                CONST_WARNING_CAN_T_SET_VARIABLE
+                    + varname
+                    + "] on parent workflow: the parent workflow is not available");
+          }
         }
         break;
 
@@ -216,8 +228,10 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         break;
     }
 
-    logBasic(
-        BaseMessages.getString(
-            PKG, "SetVariable.Log.SetVariableToValue", vars.get(i).getVariableName(), value));
+    if (isBasic()) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "SetVariable.Log.SetVariableToValue", vars.get(i).getVariableName(), value));
+    }
   }
 }
