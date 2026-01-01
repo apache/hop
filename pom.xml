@@ -97,7 +97,7 @@
     </distributionManagement>
 
     <properties>
-        <apache-beam.version>2.62.0</apache-beam.version>
+        <apache-beam.version>2.70.0</apache-beam.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
         <attach-sources-phase>verify</attach-sources-phase>
