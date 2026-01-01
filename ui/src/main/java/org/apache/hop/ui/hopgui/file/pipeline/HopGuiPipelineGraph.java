@@ -709,6 +709,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           done = true;
           break;
 
+        case TRANSFORM_OUTPUT_DATA:
+          done = true;
+          break;
+
         case HOP_COPY_ICON:
           done = true;
           break;
