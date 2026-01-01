@@ -864,10 +864,12 @@ public class GitGuiPlugin
   }
 
   private void setBranchLabel(String branch) {
-    // Set the branch name
+    // Set the branch name using the new method that handles both SWT and RWT
     ToolItem item = getGitToolItem();
     if (item != null && !item.isDisposed()) {
-      item.setText(Const.NVL(branch, ""));
+      HopGui.getInstance()
+          .getStatusToolbarWidgets()
+          .setToolbarItemText(ID_TOOLBAR_ITEM_GIT, Const.NVL(branch, ""));
     }
   }
 }

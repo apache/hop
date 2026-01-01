@@ -289,7 +289,10 @@ public class ProjectsGuiPlugin {
       if (projectConfig != null) {
         String projectHome = projectConfig.getProjectHome();
         if (StringUtils.isNotEmpty(projectHome)) {
-          item.setText(projectName);
+          // Use the new method that handles both SWT and RWT
+          HopGui.getInstance()
+              .getStatusToolbarWidgets()
+              .setToolbarItemText(ID_TOOLBAR_ITEM_PROJECT, projectName);
           item.setToolTipText(
               BaseMessages.getString(
                   PKG,
@@ -306,7 +309,10 @@ public class ProjectsGuiPlugin {
     ToolItem item = getEnvironmentToolItem();
     if (item != null && !item.isDisposed()) {
       if (Utils.isEmpty(environmentName)) {
-        item.setText("");
+        // Use the new method that handles both SWT and RWT
+        HopGui.getInstance()
+            .getStatusToolbarWidgets()
+            .setToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT, "");
         item.setToolTipText(
             BaseMessages.getString(PKG, "HopGui.Toolbar.Environment.Select.Tooltip"));
         return;
@@ -315,7 +321,10 @@ public class ProjectsGuiPlugin {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
       LifecycleEnvironment environment = config.findEnvironment(environmentName);
       if (environment != null) {
-        item.setText(environmentName);
+        // Use the new method that handles both SWT and RWT
+        HopGui.getInstance()
+            .getStatusToolbarWidgets()
+            .setToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT, environmentName);
         item.setToolTipText(
             BaseMessages.getString(
                 PKG,

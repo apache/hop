@@ -1257,7 +1257,7 @@ public class HopGui
   protected void addStatusToolbar() {
     statusToolbar = new ToolBar(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
     FormData fdToolBar = new FormData();
-    fdToolBar.left = new FormAttachment(0, 0);
+    fdToolBar.left = new FormAttachment(0, 10);
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.bottom = new FormAttachment(100, 0);
     statusToolbar.setLayoutData(fdToolBar);

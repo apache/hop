@@ -1605,12 +1605,10 @@ public class GuiResource {
   }
 
   public Color getWidgetBackGroundColor() {
-    if (OsHelper.isWindows()) {
-      return colorWhite;
-    } else if (OsHelper.isMac()) {
+    if (OsHelper.isMac()) {
       return display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
     } else {
-      return colorLightGray;
+      return colorWhite;
     }
   }
 }
