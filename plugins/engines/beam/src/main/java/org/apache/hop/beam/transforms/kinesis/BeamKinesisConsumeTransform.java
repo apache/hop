@@ -17,11 +17,10 @@
 
 package org.apache.hop.beam.transforms.kinesis;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.kinesis.clientlibrary.lib.worker.InitialPositionInStream;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.beam.sdk.io.kinesis.KinesisIO;
-import org.apache.beam.sdk.io.kinesis.KinesisRecord;
+import org.apache.beam.sdk.io.aws2.common.ClientConfiguration;
+import org.apache.beam.sdk.io.aws2.kinesis.KinesisIO;
+import org.apache.beam.sdk.io.aws2.kinesis.KinesisRecord;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -39,6 +38,10 @@ import org.apache.hop.pipeline.Pipeline;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.kinesis.common.InitialPositionInStream;
 
 public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<HopRow>> {
 
@@ -49,7 +52,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
 
   private String accessKey;
   private String secretKey;
-  private Regions regions;
+  private String region;
   private String streamName;
   private String uniqueIdField;
   private String dataField;
@@ -80,7 +83,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
       String transformName,
       String accessKey,
       String secretKey,
-      Regions regions,
+      String region,
       String rowMetaJson,
       String streamName,
       String uniqueIdField,
@@ -107,7 +110,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
     this.streamName = streamName;
     this.accessKey = accessKey;
     this.secretKey = secretKey;
-    this.regions = regions;
+    this.region = region;
     this.uniqueIdField = uniqueIdField;
     this.dataField = dataField;
     this.dataType = dataType;
@@ -146,9 +149,19 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
 
       PCollection<HopRow> output;
 
-      KinesisIO.Read<KinesisRecord> kinesisRecordRead =
+      StaticCredentialsProvider credentialsProvider =
+          StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
+      Region awsRegion = Region.of(region);
+
+      ClientConfiguration clientConfig =
+          ClientConfiguration.builder()
+              .credentialsProvider(credentialsProvider)
+              .region(awsRegion)
+              .build();
+
+      KinesisIO.Read kinesisRecordRead =
           KinesisIO.read()
-              .withAWSClientsProvider(accessKey, secretKey, regions)
+              .withClientConfiguration(clientConfig)
               .withStreamName(streamName)
               .withInitialPositionInStream(InitialPositionInStream.LATEST) // TODO make configurable
           ;

@@ -17,18 +17,19 @@
 
 package org.apache.hop.beam.transforms.kinesis;
 
-import com.amazonaws.regions.Regions;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import org.apache.beam.sdk.io.kinesis.KinesisIO;
+import org.apache.beam.sdk.io.aws2.common.ClientConfiguration;
+import org.apache.beam.sdk.io.aws2.kinesis.KinesisIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.exception.HopException;
@@ -38,6 +39,9 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 
 public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>, PDone> {
 
@@ -46,7 +50,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
 
   private String accessKey;
   private String secretKey;
-  private Regions regions;
+  private String region;
   private String streamName;
   private String dataField;
   private String dataType;
@@ -66,7 +70,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
       String rowMetaJson,
       String accessKey,
       String secretKey,
-      Regions regions,
+      String region,
       String streamName,
       String dataField,
       String dataType,
@@ -80,7 +84,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
     this.rowMetaJson = rowMetaJson;
     this.accessKey = accessKey;
     this.secretKey = secretKey;
-    this.regions = regions;
+    this.region = region;
     this.streamName = streamName;
     this.dataField = dataField;
     this.dataType = dataType;
@@ -114,27 +118,49 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
         throw new HopException("For now, only Strings are supported as Kinesis data messages");
       }
 
-      // Add custom configuration options to this map:
-      Properties producerProperties = new Properties();
-      for (KinesisConfigOption configOption : configOptions) {
-        producerProperties.put(configOption.getParameter(), configOption.getValue());
+      // Note: Producer properties are not directly supported in the new aws2 API
+      // Custom configuration options would need to be set through ClientConfiguration
+      // if needed in the future
+
+      // Convert to PCollection of KV<String, byte[]> where key is partition key
+      //
+      int partitionKeyIndex = -1;
+      if (StringUtils.isNotEmpty(partitionKey)) {
+        partitionKeyIndex = rowMeta.indexOfValue(partitionKey);
+        if (partitionKeyIndex < 0) {
+          throw new HopException(
+              "Unable to find partition key field "
+                  + partitionKey
+                  + " in input row: "
+                  + rowMeta.toString());
+        }
       }
 
-      // Convert to PCollection of KV<String, byte[]>
-      //
-      PCollection<byte[]> messages =
-          input.apply(ParDo.of(new HopRowToMessage(transformName, rowMetaJson, messageIndex)));
+      PCollection<KV<String, byte[]>> messages =
+          input.apply(
+              ParDo.of(
+                  new HopRowToKVMessage(
+                      transformName, rowMetaJson, messageIndex, partitionKeyIndex)));
 
-      // Write to Kinesis stream with <String, byte[]>
+      // Write to Kinesis stream with KV<String, byte[]>
       //
-      KinesisIO.Write write =
-          KinesisIO.write()
-              .withAWSClientsProvider(accessKey, secretKey, regions)
-              .withStreamName(streamName)
-              .withPartitionKey(partitionKey)
-              .withProducerProperties(producerProperties);
+      StaticCredentialsProvider credentialsProvider =
+          StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
+      Region awsRegion = Region.of(region);
 
-      return messages.apply(write);
+      ClientConfiguration clientConfig =
+          ClientConfiguration.builder()
+              .credentialsProvider(credentialsProvider)
+              .region(awsRegion)
+              .build();
+
+      KinesisIO.Write<KV<String, byte[]>> write =
+          KinesisIO.<KV<String, byte[]>>write()
+              .withClientConfiguration(clientConfig)
+              .withStreamName(streamName);
+
+      messages.apply(write);
+      return PDone.in(messages.getPipeline());
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in Beam Kinesis Produce transform", e);
@@ -142,21 +168,25 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
     }
   }
 
-  // Simply convert HopRow to byte[]
+  // Convert HopRow to KV<String, byte[]> where key is partition key
   //
-  private static class HopRowToMessage extends DoFn<HopRow, byte[]> {
+  private static class HopRowToKVMessage extends DoFn<HopRow, KV<String, byte[]>> {
     private final int messageIndex;
+    private final int partitionKeyIndex;
     private final String transformName;
     private final String rowMetaJson;
 
     private transient IValueMeta valueMeta;
+    private transient IValueMeta partitionKeyValueMeta;
     private transient Counter outputCounter;
     private transient Counter readCounter;
 
-    public HopRowToMessage(String transformName, String rowMetaJson, int messageIndex) {
+    public HopRowToKVMessage(
+        String transformName, String rowMetaJson, int messageIndex, int partitionKeyIndex) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
       this.messageIndex = messageIndex;
+      this.partitionKeyIndex = partitionKeyIndex;
     }
 
     @Setup
@@ -170,6 +200,9 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
         BeamHop.init();
         IRowMeta rowMeta = JsonRowMeta.fromJson(rowMetaJson);
         valueMeta = rowMeta.getValueMeta(messageIndex);
+        if (partitionKeyIndex >= 0) {
+          partitionKeyValueMeta = rowMeta.getValueMeta(partitionKeyIndex);
+        }
 
         Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
       } catch (Exception e) {
@@ -190,7 +223,17 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
       //
       try {
         byte[] message = valueMeta.getBinary(hopRow.getRow()[messageIndex]);
-        processContext.output(message);
+
+        // Extract partition key
+        String partitionKeyValue = "";
+        if (partitionKeyIndex >= 0) {
+          partitionKeyValue = partitionKeyValueMeta.getString(hopRow.getRow()[partitionKeyIndex]);
+          if (partitionKeyValue == null) {
+            partitionKeyValue = "";
+          }
+        }
+
+        processContext.output(KV.of(partitionKeyValue, message));
         outputCounter.inc();
       } catch (Exception e) {
         throw new RuntimeException(

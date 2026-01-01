@@ -19,7 +19,7 @@
 package org.apache.hop.beam.transforms.kinesis;
 
 import java.nio.charset.StandardCharsets;
-import org.apache.beam.sdk.io.kinesis.KinesisRecord;
+import org.apache.beam.sdk.io.aws2.kinesis.KinesisRecord;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;

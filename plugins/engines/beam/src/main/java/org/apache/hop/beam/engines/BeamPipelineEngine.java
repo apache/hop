@@ -101,6 +101,8 @@ public abstract class BeamPipelineEngine extends Variables
           Collections.emptyList(),
           Collections.emptyList(),
           Collections.emptyList(),
+          Collections.emptyList(),
+          Collections.emptyList(),
           Collections.emptyList());
 
   /**
