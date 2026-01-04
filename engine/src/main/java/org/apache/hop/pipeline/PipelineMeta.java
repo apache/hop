@@ -581,10 +581,10 @@ public class PipelineMeta extends AbstractMeta
    * metadata at the specified index to the specified meta-data object.
    *
    * @param i The index into the hops list
-   * @param hi The hop meta-data to set
+   * @param hop The hop meta-data to set
    */
-  public void setPipelineHop(int i, PipelineHopMeta hi) {
-    hops.set(i, hi);
+  public void setPipelineHop(int i, PipelineHopMeta hop) {
+    hops.set(i, hop);
     clearCaches();
   }
 
@@ -649,15 +649,12 @@ public class PipelineMeta extends AbstractMeta
    * Searches the list of hops for a hop with a certain name.
    *
    * @param name The name of the hop to look for
-   * @return The hop information or null if nothing was found.
+   * @return The hop found or null if nothing was found.
    */
   public PipelineHopMeta findPipelineHop(String name) {
-    int i;
-
-    for (i = 0; i < nrPipelineHops(); i++) {
-      PipelineHopMeta hi = getPipelineHop(i);
-      if (hi.toString().equalsIgnoreCase(name)) {
-        return hi;
+    for (PipelineHopMeta hop : hops) {
+      if (hop.toString().equalsIgnoreCase(name)) {
+        return hop;
       }
     }
     return null;
@@ -667,13 +664,14 @@ public class PipelineMeta extends AbstractMeta
    * Search all hops for a hop where a certain transform is at the start.
    *
    * @param fromTransform The transform at the start of the hop.
-   * @return The hop or null if no hop was found.
+   * @return The first hop found or null if nothing was found.
    */
   public PipelineHopMeta findPipelineHopFrom(TransformMeta fromTransform) {
-    for (PipelineHopMeta hop : hops) {
-      if (hop.getFromTransform() != null
-          && hop.getFromTransform().equals(fromTransform)) { // return the first
-        return hop;
+    if (fromTransform != null) {
+      for (PipelineHopMeta hop : hops) {
+        if (fromTransform.equals(hop.getFromTransform())) { // return the first
+          return hop;
+        }
       }
     }
     return null;
@@ -689,11 +687,11 @@ public class PipelineMeta extends AbstractMeta
   /**
    * Find a certain hop in the pipeline.
    *
-   * @param hi The hop information to look for.
+   * @param hop The hop information to look for.
    * @return The hop or null if no hop was found.
    */
-  public PipelineHopMeta findPipelineHop(PipelineHopMeta hi) {
-    return findPipelineHop(hi.getFromTransform(), hi.getToTransform());
+  public PipelineHopMeta findPipelineHop(PipelineHopMeta hop) {
+    return findPipelineHop(hop.getFromTransform(), hop.getToTransform());
   }
 
   /**
@@ -712,13 +710,13 @@ public class PipelineMeta extends AbstractMeta
    *
    * @param from The transform at the start of the hop.
    * @param to The transform at the end of the hop.
-   * @param disabledToo the disabled too
+   * @param includeDisabled include disabled hop
    * @return The hop or null if no hop was found.
    */
   public PipelineHopMeta findPipelineHop(
-      TransformMeta from, TransformMeta to, boolean disabledToo) {
+      TransformMeta from, TransformMeta to, boolean includeDisabled) {
     for (PipelineHopMeta hop : hops) {
-      if ((hop.isEnabled() || disabledToo)
+      if ((hop.isEnabled() || includeDisabled)
           && hop.getFromTransform() != null
           && hop.getToTransform() != null
           && hop.getFromTransform().equals(from)
@@ -733,13 +731,14 @@ public class PipelineMeta extends AbstractMeta
    * Search all hops for a hop where a certain transform is at the end.
    *
    * @param toTransform The transform at the end of the hop.
-   * @return The hop or null if no hop was found.
+   * @return The hop or null if nothing was found.
    */
   public PipelineHopMeta findPipelineHopTo(TransformMeta toTransform) {
-    for (PipelineHopMeta hop : hops) {
-      if (hop.getToTransform() != null
-          && hop.getToTransform().equals(toTransform)) { // Return the first!
-        return hop;
+    if (toTransform != null) {
+      for (PipelineHopMeta hop : hops) {
+        if (toTransform.equals(hop.getToTransform())) { // Return the first!
+          return hop;
+        }
       }
     }
     return null;
