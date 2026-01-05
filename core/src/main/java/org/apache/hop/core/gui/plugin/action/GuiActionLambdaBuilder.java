@@ -67,7 +67,7 @@ public class GuiActionLambdaBuilder<T> {
 
       try {
         Method getInstanceMethod = guiPluginClass.getDeclaredMethod("getInstance");
-        guiPlugin = getInstanceMethod.invoke(null, null);
+        guiPlugin = getInstanceMethod.invoke(null, (Object[]) null);
       } catch (Exception nsme) {
         // On the rebound we'll try to simply construct a new instance...
         // This makes the plugins even simpler.

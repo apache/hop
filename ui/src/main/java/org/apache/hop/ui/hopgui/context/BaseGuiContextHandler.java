@@ -124,7 +124,7 @@ public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
       Object guiPlugin;
       try {
         Method getInstanceMethod = filterClass.getDeclaredMethod("getInstance");
-        guiPlugin = getInstanceMethod.invoke(null, null);
+        guiPlugin = getInstanceMethod.invoke(null, (Object[]) null);
       } catch (Exception nsme) {
         // On the rebound we'll try to simply construct a new instance...
         // This makes the plugins even simpler.

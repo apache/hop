@@ -100,7 +100,8 @@ public class HopGuiEventsHandlerTest {
     // We need at least 1 non-null event ID
     //
     assertThrows(RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}));
-    assertThrows(RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}, null));
+    assertThrows(
+        RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}, (String[]) null));
     assertThrows(RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}, ""));
   }
 
@@ -110,7 +111,7 @@ public class HopGuiEventsHandlerTest {
     //
     assertThrows(RuntimeException.class, () -> events.fire());
     assertThrows(RuntimeException.class, () -> events.fire(""));
-    assertThrows(RuntimeException.class, () -> events.fire(null));
+    assertThrows(RuntimeException.class, () -> events.fire((Object[]) null));
   }
 
   @Test
