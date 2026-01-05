@@ -17,7 +17,6 @@
 
 package org.apache.hop.beam.transforms.kinesis;
 
-import com.amazonaws.regions.Regions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +145,7 @@ public class BeamKinesisProduceMeta extends BaseTransformMeta<BeamKinesisProduce
             JsonRowMeta.toJson(rowMeta),
             variables.resolve(accessKey),
             variables.resolve(secretKey),
-            Regions.DEFAULT_REGION,
+            "us-east-1",
             variables.resolve(streamName),
             dataFieldName,
             variables.resolve(dataType),
