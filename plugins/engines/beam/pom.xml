@@ -321,7 +321,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-grpc-1_60_1</artifactId>
+                    <artifactId>beam-vendor-grpc-1_69_0</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -415,7 +415,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-grpc-1_60_1</artifactId>
+                    <artifactId>beam-vendor-grpc-1_69_0</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -521,7 +521,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-grpc-1_60_1</artifactId>
+                    <artifactId>beam-vendor-grpc-1_69_0</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -583,7 +583,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-grpc-1_60_1</artifactId>
+                    <artifactId>beam-vendor-grpc-1_69_0</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -658,8 +658,16 @@
                     <artifactId>joda-time</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.beam</groupId>
                     <artifactId>beam-sdks-java-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.beam</groupId>
+                    <artifactId>beam-vendor-grpc-1_69_0</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -676,6 +684,10 @@
                 <exclusion>
                     <groupId>org.checkerframework</groupId>
                     <artifactId>checker-qual</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.conscrypt</groupId>
+                    <artifactId>conscrypt-openjdk-uber</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -879,7 +891,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-grpc-1_60_1</artifactId>
+                    <artifactId>beam-vendor-grpc-1_69_0</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -1023,7 +1035,7 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
-                    <artifactId>beam-vendor-grpc-1_60_1</artifactId>
+                    <artifactId>beam-vendor-grpc-1_69_0</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.beam</groupId>
@@ -1387,12 +1399,6 @@
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-core</artifactId>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.xerial.snappy</groupId>
-                    <artifactId>snappy-java</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
