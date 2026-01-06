@@ -43,16 +43,9 @@
         <dependencySet>
             <includes>
                 <include>com.github.mwiede:jsch:jar</include>
-            </includes>
-            <outputDirectory>lib/core</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <dependencySet>
-            <includes>
                 <include>commons-net:commons-net:jar</include>
             </includes>
-            <outputDirectory>plugins/actions/ftp/lib</outputDirectory>
+            <outputDirectory>lib/core</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
