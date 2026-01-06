@@ -134,6 +134,7 @@ import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExten
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
@@ -691,6 +692,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       currentNotePad = (NotePadMeta) areaOwner.getOwner();
       selectedNotes = workflowMeta.getSelectedNotes();
       selectedNote = currentNotePad;
+      // Track that a note was selected
+      HopGuiSelectionTracker.getInstance()
+          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
       Point loc = currentNotePad.getLocation();
 
       previousNoteLocations = workflowMeta.getSelectedNoteLocations();
@@ -828,6 +832,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         workflowMeta.unselectAll();
         selectInRect(workflowMeta, selectionRegion);
         selectionRegion = null;
+        // Track that actions/notes were selected via region selection
+        if (!workflowMeta.getSelectedActions().isEmpty()
+            || !workflowMeta.getSelectedNotes().isEmpty()) {
+          HopGuiSelectionTracker.getInstance()
+              .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
+        }
         updateGui();
         return;
       }
@@ -880,11 +890,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               workflowMeta.unselectAll();
               selectedAction.setSelected(true);
             }
+            // Track that an action was selected
+            HopGuiSelectionTracker.getInstance()
+                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
           }
         } else {
           // Find out which Transforms & Notes are selected
           selectedActions = workflowMeta.getSelectedActions();
           selectedNotes = workflowMeta.getSelectedNotes();
+          // Track that actions/notes were selected
+          if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {
+            HopGuiSelectionTracker.getInstance()
+                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
+          }
 
           // We moved around some items: store undo info...
           //
@@ -977,11 +995,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 workflowMeta.unselectAll();
                 selectedNote.setSelected(true);
               }
+              // Track that a note was selected
+              HopGuiSelectionTracker.getInstance()
+                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
             }
           } else {
             // Find out which Transforms & Notes are selected
             selectedActions = workflowMeta.getSelectedActions();
             selectedNotes = workflowMeta.getSelectedNotes();
+            // Track that actions/notes were selected
+            if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {
+              HopGuiSelectionTracker.getInstance()
+                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
+            }
 
             // We moved around some items: store undo info...
             boolean also = false;
@@ -2065,6 +2091,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut(key = SWT.DEL)
   @Override
   public void deleteSelected() {
+    // Only handle delete if a workflow graph item was the last selected item
+    HopGuiSelectionTracker selectionTracker = HopGuiSelectionTracker.getInstance();
+    if (!selectionTracker.isLastSelection(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH)) {
+      return;
+    }
+
     deleteSelected(null);
   }
 
