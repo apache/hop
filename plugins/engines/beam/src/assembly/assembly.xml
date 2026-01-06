@@ -154,6 +154,9 @@
                 <exclude>com.google.code.gson:gson:jar</exclude>
                 <exclude>org.apache.commons:commons-collections4:jar</exclude>
                 <exclude>org.jspecify:jspecify:jar</exclude>
+                <exclude>org.apache.commons:commons-lang3:jar</exclude>
+                <exclude>commons-collections:commons-collections:jar</exclude>
+                <exclude>com.fasterxml.woodstox:woodstox-core:jar</exclude>
             </excludes>
             <outputDirectory>lib/beam</outputDirectory>
         </dependencySet>
@@ -252,6 +255,9 @@
                 <include>io.confluent::jar</include>
                 <include>com.google.code.gson:gson:jar</include>
                 <include>org.apache.commons:commons-collections4:jar</include>
+                <include>org.apache.commons:commons-lang3:jar</include>
+                <include>commons-collections:commons-collections:jar</include>
+                <include>com.fasterxml.woodstox:woodstox-core:jar</include>
             </includes>
             <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
