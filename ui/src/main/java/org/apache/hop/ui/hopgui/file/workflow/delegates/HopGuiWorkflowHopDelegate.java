@@ -29,7 +29,7 @@ import org.eclipse.swt.SWT;
 
 public class HopGuiWorkflowHopDelegate {
 
-  private static final Class<?> PKG = HopGui.class;
+  private static final Class<?> PKG = HopGuiWorkflowGraph.class;
 
   private HopGui hopGui;
   private HopGuiWorkflowGraph workflowGraph;
@@ -42,8 +42,8 @@ public class HopGuiWorkflowHopDelegate {
   }
 
   public void newHop(WorkflowMeta workflowMeta, ActionMeta fr, ActionMeta to) {
-    WorkflowHopMeta hi = new WorkflowHopMeta(fr, to);
-    newHop(workflowMeta, hi);
+    WorkflowHopMeta hop = new WorkflowHopMeta(fr, to);
+    newHop(workflowMeta, hop);
   }
 
   public void newHop(WorkflowMeta workflowMeta, WorkflowHopMeta hopMeta) {
@@ -78,8 +78,8 @@ public class HopGuiWorkflowHopDelegate {
       MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
-              PKG, "HopGui.Dialog.HopExists.Message")); // "This hop already exists!"
-      mb.setText(BaseMessages.getString(PKG, "HopGui.Dialog.HopExists.Title")); // Error!
+              PKG, "WorkflowGraph.Dialog.HopExists.Message")); // "This hop already exists!"
+      mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopExists.Title")); // Error!
       mb.open();
       ok = false;
     }

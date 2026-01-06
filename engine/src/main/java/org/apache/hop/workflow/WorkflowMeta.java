@@ -662,7 +662,7 @@ public class WorkflowMeta extends AbstractMeta
   /**
    * Adds the action.
    *
-   * @param action the je
+   * @param action the action meta to add
    */
   public void addAction(ActionMeta action) {
     workflowActions.add(action);
@@ -673,7 +673,7 @@ public class WorkflowMeta extends AbstractMeta
   /**
    * Adds the workflow hop.
    *
-   * @param hop the hi
+   * @param hop the workflow hop meta to add
    */
   public void addWorkflowHop(WorkflowHopMeta hop) {
     workflowHops.add(hop);
@@ -683,23 +683,23 @@ public class WorkflowMeta extends AbstractMeta
   /**
    * Adds the action.
    *
-   * @param p the p
-   * @param action the si
+   * @param index index at which the specified action is to be inserted
+   * @param action the action meta to add
    */
-  public void addAction(int p, ActionMeta action) {
-    workflowActions.add(p, action);
+  public void addAction(int index, ActionMeta action) {
+    workflowActions.add(index, action);
     changedActions = true;
   }
 
   /**
    * Adds the workflow hop.
    *
-   * @param p the p
-   * @param hop the hi
+   * @param index index at which the specified hop is to be inserted
+   * @param hop the workflow hop meta to add
    */
-  public void addWorkflowHop(int p, WorkflowHopMeta hop) {
+  public void addWorkflowHop(int index, WorkflowHopMeta hop) {
     try {
-      workflowHops.add(p, hop);
+      workflowHops.add(index, hop);
     } catch (IndexOutOfBoundsException e) {
       workflowHops.add(hop);
     }
@@ -709,10 +709,10 @@ public class WorkflowMeta extends AbstractMeta
   /**
    * Removes the action.
    *
-   * @param i the i
+   * @param index the index of the action to be removed
    */
-  public void removeAction(int i) {
-    ActionMeta deleted = workflowActions.remove(i);
+  public void removeAction(int index) {
+    ActionMeta deleted = workflowActions.remove(index);
     if (deleted != null) {
       // give transform a chance to cleanup
       deleted.setParentWorkflowMeta(null);
@@ -791,8 +791,8 @@ public class WorkflowMeta extends AbstractMeta
   /**
    * Find workflow hop.
    *
-   * @param name the name
-   * @return the workflow hop meta
+   * @param name the name of the hop to look for
+   * @return the workflow hop meta or null if nothing was found.
    */
   public WorkflowHopMeta findWorkflowHop(String name) {
     for (WorkflowHopMeta hop : workflowHops) {
@@ -806,18 +806,15 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Find workflow hop from.
+   * Find the first workflow hop from.
    *
-   * @param action the action meta
-   * @return the workflow hop meta
+   * @param action the action meta at the start of the hop.
+   * @return the first hop found or null if nothing was found.
    */
   public WorkflowHopMeta findWorkflowHopFrom(ActionMeta action) {
     if (action != null) {
       for (WorkflowHopMeta hop : workflowHops) {
-
-        // Return the first we find!
-        //
-        if (hop != null && (hop.getFromAction() != null) && hop.getFromAction().equals(action)) {
+        if (action.equals(hop.getFromAction())) {
           return hop;
         }
       }
@@ -828,9 +825,9 @@ public class WorkflowMeta extends AbstractMeta
   /**
    * Find workflow hop.
    *
-   * @param from the from
-   * @param to the to
-   * @return the workflow hop meta
+   * @param from the action meta at the start of the hop
+   * @param to the to action meta at the end of the hop.
+   * @return the workflow hop meta or null if nothing was found.
    */
   public WorkflowHopMeta findWorkflowHop(ActionMeta from, ActionMeta to) {
     return findWorkflowHop(from, to, false);
@@ -839,15 +836,14 @@ public class WorkflowMeta extends AbstractMeta
   /**
    * Find workflow hop.
    *
-   * @param from the from
-   * @param to the to
-   * @param includeDisabled the include disabled
-   * @return the workflow hop meta
+   * @param from the action meta at the start of the hop
+   * @param to the to action meta at the end of the hop.
+   * @param includeDisabled include disabled hop
+   * @return the workflow hop meta or null if nothing was found.
    */
   public WorkflowHopMeta findWorkflowHop(ActionMeta from, ActionMeta to, boolean includeDisabled) {
     for (WorkflowHopMeta hop : workflowHops) {
       if ((hop.isEnabled() || includeDisabled)
-          && hop != null
           && hop.getFromAction() != null
           && hop.getToAction() != null
           && hop.getFromAction().equals(from)
@@ -859,16 +855,17 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   /**
-   * Find workflow hop to.
+   * Find the first workflow hop to.
    *
-   * @param actionMeta the action meta
-   * @return the workflow hop meta
+   * @param action the to action meta at the end of the hop.
+   * @return the first workflow hop meta or null if nothing was found.
    */
-  public WorkflowHopMeta findWorkflowHopTo(ActionMeta actionMeta) {
-    for (WorkflowHopMeta hop : workflowHops) {
-      if (hop != null && hop.getToAction() != null && hop.getToAction().equals(actionMeta)) {
-        // Return the first!
-        return hop;
+  public WorkflowHopMeta findWorkflowHopTo(ActionMeta action) {
+    if (action != null) {
+      for (WorkflowHopMeta hop : workflowHops) {
+        if (action.equals(hop.getToAction())) {
+          return hop;
+        }
       }
     }
     return null;

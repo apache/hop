@@ -325,7 +325,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private Point endHopLocation;
 
   private ActionMeta endHopAction;
-  private ActionMeta noInputAction;
+  private ActionMeta forbiddenAction;
   private Point[] previousActionLocations;
   private Point[] previousNoteLocations;
   private ActionMeta currentAction;
@@ -584,9 +584,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           currentAction = (ActionMeta) areaOwner.getOwner();
 
-          if (hopCandidate != null) {
-            addCandidateAsHop();
-
+          if (startHopAction != null) {
+            // If we click on the start hop action or a forbidden action, then we don't have a
+            // candidate hop, but we need to ignore this click to not start a drag operation
+            if (hopCandidate != null) {
+              addCandidateAsHop();
+            }
           } else if (event.button == 2 || (event.button == 1 && shift)) {
             // SHIFT CLICK is start of drag to create a new hop
             //
@@ -654,7 +657,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     // Layer 2: click on hop links between actions
-    if (!done) {
+    if (!done && startHopAction == null) {
       // Hop links between actions are found searching by (x,y) coordinates.
       WorkflowHopMeta hop = findWorkflowHop(real.x, real.y);
       if (hop != null) {
@@ -681,7 +684,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     // Layer 3: click on a note
-    if (!done && areaOwner != null && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+    if (!done
+        && startHopAction == null
+        && areaOwner != null
+        && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
       currentNotePad = (NotePadMeta) areaOwner.getOwner();
       selectedNotes = workflowMeta.getSelectedNotes();
       selectedNote = currentNotePad;
@@ -719,6 +725,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if (startHopAction != null) {
         startHopAction = null;
         hopCandidate = null;
+        endHopLocation = null;
         lastClick = null;
         redraw();
         return;
@@ -758,6 +765,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void mouseUp(MouseEvent event) {
     resize = null;
     dragSelection = false;
+    forbiddenAction = null;
 
     // canvas.setData("mode", null); does not work.
     canvas.setData("mode", "null");
@@ -771,6 +779,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     if (viewPortNavigation || viewDrag) {
       viewDrag = false;
+      viewDragStart = null;
       viewPortNavigation = false;
       viewPortStart = null;
       return;
@@ -783,8 +792,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     ActionMeta singleClickAction = null;
     NotePadMeta singleClickNote = null;
     WorkflowHopMeta singleClickHop = null;
-    viewDrag = false;
-    viewDragStart = null;
     mouseOverName = null;
 
     if (iconOffset == null) {
@@ -832,8 +839,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       switch (areaOwner.getAreaType()) {
         case ACTION_ICON:
           if (startHopAction != null) {
-            currentAction = (ActionMeta) areaOwner.getOwner();
-            hopCandidate = new WorkflowHopMeta(startHopAction, currentAction);
+            // Mouse up while drawing a hop candidate
             addCandidateAsHop();
             redraw();
           }
@@ -844,9 +850,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               && selectedActions == null
               && selectedNotes == null) {
             // This is available only in single click mode...
-            //
-            startHopAction = null;
-            selectionRegion = null;
             ActionMeta actionMeta = (ActionMeta) areaOwner.getParent();
             editAction(actionMeta);
             return;
@@ -1153,12 +1156,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void mouseMove(MouseEvent event) {
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
-    noInputAction = null;
     boolean doRedraw = false;
 
     // disable the tooltip
     //
     hideToolTips();
+
+    // First, check for operations that have been started, such as move selection, dragging the
+    // view, creating a hop or resizing a note.
+
+    // Drag the view around with middle button on the background?
+    //
+    if (viewDrag && lastClick != null) {
+      dragView(viewDragStart, new Point(event.x, event.y));
+      return;
+    }
 
     // Check to see if we're navigating with the view port
     //
@@ -1173,6 +1185,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     lastMove = real;
 
+    // Resizing the current note
+    if (resize != null) {
+      resizeNote(selectedNote, real);
+      return;
+    }
+
     if (iconOffset == null) {
       iconOffset = new Point(0, 0);
     }
@@ -1182,23 +1200,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       noteOffset = new Point(0, 0);
     }
     Point note = new Point(real.x - noteOffset.x, real.y - noteOffset.y);
-
-    // First, check for operations that have been started, such as move selection, dragging the
-    // view, creating a hop or
-    // resizing a note.
-
-    // Drag the view around with middle button on the background?
-    //
-    if (viewDrag && lastClick != null) {
-      dragView(viewDragStart, new Point(event.x, event.y));
-      return;
-    }
-
-    // Resizing the current note
-    if (resize != null) {
-      resizeNote(selectedNote, real);
-      return;
-    }
 
     // Moved over an area?
     //
@@ -1300,25 +1301,45 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       doRedraw = true;
     } else if ((startHopAction != null && endHopAction == null)
         || (endHopAction != null && startHopAction == null)) {
+
       // Are we creating a new hop with the middle button or pressing SHIFT?
       //
-
       ActionMeta actionMeta = workflowMeta.getAction(real.x, real.y, iconSize);
       endHopLocation = new Point(real.x, real.y);
-      if (actionMeta != null
-          && ((startHopAction != null && !startHopAction.equals(actionMeta))
-              || (endHopAction != null && !endHopAction.equals(actionMeta)))) {
-        if (hopCandidate == null) {
-          // See if the transform accepts input. If not, we can't create a new hop...
-          //
+      if (actionMeta != null) {
+
+        // Checks if mouse over another action
+        if ((startHopAction != null && !startHopAction.equals(actionMeta))
+            || (endHopAction != null && !endHopAction.equals(actionMeta))) {
+
           if (startHopAction != null) {
-            if (!actionMeta.isStart()) {
-              hopCandidate = new WorkflowHopMeta(startHopAction, actionMeta);
-              endHopLocation = null;
-            } else {
-              noInputAction = actionMeta;
-              toolTip.setText("The start action can only be used at the start of a Workflow");
+            // Check if the start action
+            if (actionMeta.isStart()) {
+              forbiddenAction = actionMeta;
+              toolTip.setText(
+                  BaseMessages.getString(PKG, "WorkflowGraph.Hop.CreateHopToStartAction.Tooltip"));
               showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+            }
+            // Check if the hop already exists
+            else if (workflowMeta.findWorkflowHop(startHopAction, actionMeta, true) != null) {
+              forbiddenAction = actionMeta;
+              toolTip.setText(
+                  BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopExists.Message"));
+              showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+            }
+            // Check if the hop candidate creates a loop
+            else {
+              hopCandidate = new WorkflowHopMeta(startHopAction, actionMeta);
+              workflowMeta.addWorkflowHop(hopCandidate);
+              boolean hasLoop = workflowMeta.hasLoop(actionMeta);
+              workflowMeta.removeWorkflowHop(hopCandidate);
+              if (hasLoop) {
+                hopCandidate = null;
+                forbiddenAction = actionMeta;
+                toolTip.setText(
+                    BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message"));
+                showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+              }
             }
           } else if (endHopAction != null) {
             hopCandidate = new WorkflowHopMeta(actionMeta, endHopAction);
@@ -1326,10 +1347,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           }
         }
       } else {
-        if (hopCandidate != null) {
-          hopCandidate = null;
-          doRedraw = true;
-        }
+        hopCandidate = null;
+        forbiddenAction = null;
       }
 
       doRedraw = true;
@@ -1398,42 +1417,44 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   private void addCandidateAsHop() {
-    if (hopCandidate != null) {
 
-      // A couple of sanity checks...
-      //
-      if (hopCandidate.getFromAction() == null || hopCandidate.getToAction() == null) {
-        return;
-      }
-      if (hopCandidate.getFromAction().equals(hopCandidate.getToAction())) {
-        return;
-      }
+    if (hopCandidate == null) {
+      return;
+    }
 
-      if (!hopCandidate.getFromAction().isEvaluation()
-          && hopCandidate.getFromAction().isUnconditional()) {
-        hopCandidate.setUnconditional();
-      } else {
-        hopCandidate.setConditional();
-        int nr = workflowMeta.findNrNextActions(hopCandidate.getFromAction());
+    // A couple of sanity checks...
+    //
+    if (hopCandidate.getFromAction() == null || hopCandidate.getToAction() == null) {
+      return;
+    }
+    if (hopCandidate.getFromAction().equals(hopCandidate.getToAction())) {
+      return;
+    }
 
-        // If there is one green link: make this one red! (or
-        // vice-versa)
-        if (nr == 1) {
-          ActionMeta actionMeta = workflowMeta.findNextAction(hopCandidate.getFromAction(), 0);
-          WorkflowHopMeta other =
-              workflowMeta.findWorkflowHop(hopCandidate.getFromAction(), actionMeta);
-          if (other != null) {
-            hopCandidate.setEvaluation(!other.isEvaluation());
-          }
+    if (!hopCandidate.getFromAction().isEvaluation()
+        && hopCandidate.getFromAction().isUnconditional()) {
+      hopCandidate.setUnconditional();
+    } else {
+      hopCandidate.setConditional();
+      int nr = workflowMeta.findNrNextActions(hopCandidate.getFromAction());
+
+      // If there is one green link: make this one red! (or
+      // vice-versa)
+      if (nr == 1) {
+        ActionMeta actionMeta = workflowMeta.findNextAction(hopCandidate.getFromAction(), 0);
+        WorkflowHopMeta other =
+            workflowMeta.findWorkflowHop(hopCandidate.getFromAction(), actionMeta);
+        if (other != null) {
+          hopCandidate.setEvaluation(!other.isEvaluation());
         }
       }
-
-      // Stop drawing the hop candidate
-      startHopAction = null;
-
-      workflowHopDelegate.newHop(workflowMeta, hopCandidate);
-      clearSettings();
     }
+
+    // Stop drawing the hop candidate
+    startHopAction = null;
+
+    workflowHopDelegate.newHop(workflowMeta, hopCandidate);
+    clearSettings();
   }
 
   public boolean checkIfHopAlreadyExists(WorkflowMeta workflowMeta, WorkflowHopMeta newHop) {
@@ -2993,7 +3014,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       workflowPainter.setStartHopAction(startHopAction);
       workflowPainter.setEndHopLocation(endHopLocation);
       workflowPainter.setEndHopAction(endHopAction);
-      workflowPainter.setNoInputAction(noInputAction);
+      workflowPainter.setNoInputAction(forbiddenAction);
       if (workflow != null) {
         workflowPainter.setActionResults(workflow.getActionResults());
       } else {

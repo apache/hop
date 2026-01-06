@@ -323,15 +323,23 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       drawTransformPerformanceTable(transformMeta);
     }
 
-    // Display an icon on the indicated location signaling to the user that the transform in
-    // question does not accept input
+    // Display a red cross on the indicated location signaling to the user that the transform in
+    // question does not accept input or is not a good candidate for a hop (duplicate hop or loop)
     //
     if (noInputTransform != null) {
       gc.setLineWidth(2);
       gc.setForeground(EColor.RED);
       Point n = noInputTransform.getLocation();
-      gc.drawLine(n.x - 5, n.y - 5, n.x + iconSize + 10, n.y + iconSize + 10);
-      gc.drawLine(n.x - 5, n.y + iconSize + 5, n.x + iconSize + 5, n.y - 5);
+      gc.drawLine(
+          round(offset.x + n.x - 1),
+          round(offset.y + n.y - 1),
+          round(offset.x + n.x + iconSize + 1),
+          round(offset.y + n.y + iconSize + 1));
+      gc.drawLine(
+          round(offset.x + n.x - 1),
+          round(offset.y + n.y + iconSize + 1),
+          round(offset.x + n.x + iconSize + 1),
+          round(offset.y + n.y - 1));
     }
 
     try {
