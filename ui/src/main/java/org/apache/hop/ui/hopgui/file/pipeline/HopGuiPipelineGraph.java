@@ -1478,8 +1478,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         && !dragSelection) {
       // Mouse over the name of the transform
       //
-      if (!PropsUi.getInstance().useDoubleClick()) {
-        if (areaOwner.getAreaType() == AreaType.TRANSFORM_NAME) {
+      if (areaOwner.getAreaType() == AreaType.TRANSFORM_NAME) {
+        if (!PropsUi.getInstance().useDoubleClick()) {
           if (mouseOverName == null) {
             doRedraw = true;
           }
@@ -1488,15 +1488,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
 
       // Mouse over a note
-      if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+      else if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
         // Check if the mouse hovers over the border to resize
         resizeOver = this.getResize(areaOwner.getArea(), real);
+
+        // Remove over name (note behind a transform)
+        if (mouseOverName != null) {
+          mouseOverName = null;
+          doRedraw = true;
+        }
       }
     } else {
       if (mouseOverName != null) {
+        mouseOverName = null;
         doRedraw = true;
       }
-      mouseOverName = null;
     }
 
     //
