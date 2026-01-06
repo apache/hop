@@ -50,7 +50,6 @@ public class LoadFileContentBinary implements ICalculation {
   public CalculationOutput calculate(CalculationInput in)
       throws HopValueException, HopFileNotFoundException {
     return new CalculationOutput(
-        getDefaultResultType(),
-        ValueDataUtil.loadFileContentInBinary(in.metaA, in.dataA, in.isFailIfNoFile));
+        getDefaultResultType(), ValueDataUtil.loadFileContentInBinary(in.dataA, in.isFailIfNoFile));
   }
 }

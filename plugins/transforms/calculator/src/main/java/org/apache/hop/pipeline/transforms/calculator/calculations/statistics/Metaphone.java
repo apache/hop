@@ -45,7 +45,6 @@ public class Metaphone implements ICalculation {
 
   @Override
   public CalculationOutput calculate(CalculationInput in) {
-    return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.get_Metaphone(in.metaA, in.dataA));
+    return new CalculationOutput(getDefaultResultType(), ValueDataUtil.getMetaphone(in.dataA));
   }
 }

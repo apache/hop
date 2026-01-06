@@ -55,7 +55,7 @@ public class MessageDigest implements ICalculation {
   public CalculationOutput calculate(CalculationInput in) throws HopFileNotFoundException {
     return new CalculationOutput(
         getDefaultResultType(),
-        ValueDataUtil.createChecksum(in.metaA, in.dataA, algorithmType, in.isFailIfNoFile));
+        ValueDataUtil.createChecksum(in.dataA, algorithmType, in.isFailIfNoFile));
   }
 
   public enum ALGORITHM {

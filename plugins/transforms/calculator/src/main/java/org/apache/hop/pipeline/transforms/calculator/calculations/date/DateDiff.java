@@ -55,7 +55,7 @@ public class DateDiff implements ICalculation {
   public CalculationOutput calculate(CalculationInput in) throws HopValueException {
     return new CalculationOutput(
         getDefaultResultType(),
-        ValueDataUtil.DateDiff(in.metaA, in.dataA, in.metaB, in.dataB, resultType));
+        ValueDataUtil.dateDiff(in.metaA, in.dataA, in.metaB, in.dataB, resultType));
   }
 
   public enum INTERVAL {

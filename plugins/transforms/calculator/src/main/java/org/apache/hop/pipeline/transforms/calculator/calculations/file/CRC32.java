@@ -47,6 +47,6 @@ public class CRC32 implements ICalculation {
   @Override
   public CalculationOutput calculate(CalculationInput in) throws HopFileNotFoundException {
     return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.checksumCRC32(in.metaA, in.dataA, in.isFailIfNoFile));
+        getDefaultResultType(), ValueDataUtil.checksumCRC32(in.dataA, in.isFailIfNoFile));
   }
 }

@@ -47,7 +47,6 @@ public class ADLER32 implements ICalculation {
   @Override
   public CalculationOutput calculate(CalculationInput in) throws HopFileNotFoundException {
     return new CalculationOutput(
-        getDefaultResultType(),
-        ValueDataUtil.checksumAdler32(in.metaA, in.dataA, in.isFailIfNoFile));
+        getDefaultResultType(), ValueDataUtil.checksumAdler32(in.dataA, in.isFailIfNoFile));
   }
 }

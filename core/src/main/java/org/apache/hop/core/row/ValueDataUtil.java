@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.zip.Adler32;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.language.DoubleMetaphone;
@@ -52,6 +53,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlCheck;
 
+@UtilityClass
 public class ValueDataUtil {
 
   private static final Log log = LogFactory.getLog(ValueDataUtil.class);
@@ -124,7 +126,8 @@ public class ValueDataUtil {
   private static void throwsErrorOnFileNotFound(FileObject file)
       throws HopFileNotFoundException, FileSystemException {
     if (file == null || !file.exists()) {
-      throw new HopFileNotFoundException("File not found", file.getName().getPath());
+      throw new HopFileNotFoundException(
+          "File not found", file != null ? file.getName().getPath() : "null");
     }
   }
 
@@ -133,8 +136,7 @@ public class ValueDataUtil {
    * refer to as the source string (s) and the target string (t). The distance is the number of
    * deletions, insertions, or substitutions required to transform s into t.
    */
-  public static Long getLevenshtein_Distance(
-      IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB) {
+  public static Long getLevenshteinDistance(Object dataA, Object dataB) {
     if (dataA == null || dataB == null) {
       return null;
     }
@@ -146,8 +148,7 @@ public class ValueDataUtil {
    * refer to as the source string (s) and the target string (t). The distance is the number of
    * deletions, insertions, or substitutions required to transform s into t.
    */
-  public static Long getDamerauLevenshtein_Distance(
-      IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB) {
+  public static Long getDamerauLevenshteinDistance(Object dataA, Object dataB) {
     if (dataA == null || dataB == null) {
       return null;
     }
@@ -158,8 +159,7 @@ public class ValueDataUtil {
    * Jaro similitude is a measure of the similarity between two strings, which we will refer to as
    * the source string (s) and the target string (t).
    */
-  public static Double getJaro_Similitude(
-      IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB) {
+  public static Double getJaroSimilitude(Object dataA, Object dataB) {
     if (dataA == null || dataB == null) {
       return null;
     }
@@ -172,8 +172,7 @@ public class ValueDataUtil {
    * JaroWinkler similitude is a measure of the similarity between two strings, which we will refer
    * to as the source string (s) and the target string (t).
    */
-  public static Double getJaroWinkler_Similitude(
-      IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB) {
+  public static Double getJaroWinklerSimilitude(Object dataA, Object dataB) {
     if (dataA == null || dataB == null) {
       return null;
     }
@@ -182,140 +181,140 @@ public class ValueDataUtil {
     return pjwd.getJaroWinklerDistance();
   }
 
-  public static String get_Metaphone(IValueMeta metaA, Object dataA) {
+  public static String getMetaphone(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return (new Metaphone()).metaphone(dataA.toString());
   }
 
-  public static String get_Double_Metaphone(IValueMeta metaA, Object dataA) {
+  public static String getDoubleMetaphone(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return (new DoubleMetaphone()).doubleMetaphone(dataA.toString());
   }
 
-  public static String get_SoundEx(IValueMeta metaA, Object dataA) {
+  public static String getSoundEx(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return (new Soundex()).encode(dataA.toString());
   }
 
-  public static String get_RefinedSoundEx(IValueMeta metaA, Object dataA) {
+  public static String getRefinedSoundEx(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return (new RefinedSoundex()).encode(dataA.toString());
   }
 
-  public static String initCap(IValueMeta metaA, Object dataA) {
+  public static String initCap(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return WordUtils.capitalizeFully(dataA.toString(), new char[] {' ', '_', ',', ':', ';', '-'});
   }
 
-  public static String upperCase(IValueMeta metaA, Object dataA) {
+  public static String upperCase(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return dataA.toString().toUpperCase();
   }
 
-  public static String lowerCase(IValueMeta metaA, Object dataA) {
+  public static String lowerCase(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return dataA.toString().toLowerCase();
   }
 
-  public static String escapeXml(IValueMeta metaA, Object dataA) {
+  public static String escapeXml(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.escapeXml(dataA.toString());
   }
 
-  public static String unEscapeXml(IValueMeta metaA, Object dataA) {
+  public static String unEscapeXml(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.unEscapeXml(dataA.toString());
   }
 
-  public static String escapeHtml(IValueMeta metaA, Object dataA) {
+  public static String escapeHtml(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.escapeHtml(dataA.toString());
   }
 
-  public static String unEscapeHtml(IValueMeta metaA, Object dataA) {
+  public static String unEscapeHtml(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.unEscapeHtml(dataA.toString());
   }
 
-  public static String escapeSql(IValueMeta metaA, Object dataA) {
+  public static String escapeSql(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.escapeSql(dataA.toString());
   }
 
-  public static String useCDATA(IValueMeta metaA, Object dataA) {
+  public static String useCDATA(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return "<![CDATA[" + dataA + "]]>";
   }
 
-  public static String removeCR(IValueMeta metaA, Object dataA) {
+  public static String removeCR(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.removeCR(dataA.toString());
   }
 
-  public static String removeLF(IValueMeta metaA, Object dataA) {
+  public static String removeLF(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.removeLF(dataA.toString());
   }
 
-  public static String removeCRLF(IValueMeta metaA, Object dataA) {
+  public static String removeCRLF(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.removeCRLF(dataA.toString());
   }
 
-  public static String removeTAB(IValueMeta metaA, Object dataA) {
+  public static String removeTAB(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.removeTAB(dataA.toString());
   }
 
-  public static String getDigits(IValueMeta metaA, Object dataA) {
+  public static String getDigits(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.getDigitsOnly(dataA.toString());
   }
 
-  public static String removeDigits(IValueMeta metaA, Object dataA) {
+  public static String removeDigits(Object dataA) {
     if (dataA == null) {
       return null;
     }
     return Const.removeDigits(dataA.toString());
   }
 
-  public static long stringLen(IValueMeta metaA, Object dataA) {
+  public static long stringLen(Object dataA) {
     if (dataA == null) {
       return 0;
     }
@@ -323,15 +322,13 @@ public class ValueDataUtil {
   }
 
   /**
-   * @param metaA The IValueMeta
    * @param dataA Filename
    * @param type Algorithm to be used when computing the checksum (MD5 or SHA-1)
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's checksum
    * @throws HopFileNotFoundException
    */
-  public static String createChecksum(
-      IValueMeta metaA, Object dataA, String type, boolean failIfNoFile)
+  public static String createChecksum(Object dataA, String type, boolean failIfNoFile)
       throws HopFileNotFoundException {
     if (dataA == null) {
       return null;
@@ -372,13 +369,12 @@ public class ValueDataUtil {
   }
 
   /**
-   * @param metaA The IValueMeta
    * @param dataA Filename
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's CRC32 checksum
    * @throws HopFileNotFoundException
    */
-  public static Long checksumCRC32(IValueMeta metaA, Object dataA, boolean failIfNoFile)
+  public static Long checksumCRC32(Object dataA, boolean failIfNoFile)
       throws HopFileNotFoundException {
     long checksum = 0;
 
@@ -417,13 +413,12 @@ public class ValueDataUtil {
   }
 
   /**
-   * @param metaA The IValueMeta
    * @param dataA Filename
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's Adler32 checksum
    * @throws HopFileNotFoundException
    */
-  public static Long checksumAdler32(IValueMeta metaA, Object dataA, boolean failIfNoFile)
+  public static Long checksumAdler32(Object dataA, boolean failIfNoFile)
       throws HopFileNotFoundException {
     long checksum = 0;
 
@@ -570,14 +565,13 @@ public class ValueDataUtil {
   }
 
   /**
-   * @param metaA The IValueMeta
    * @param dataA Filename
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return File's content in binary
    * @throws HopValueException
    * @throws HopFileNotFoundException
    */
-  public static byte[] loadFileContentInBinary(IValueMeta metaA, Object dataA, boolean failIfNoFile)
+  public static byte[] loadFileContentInBinary(Object dataA, boolean failIfNoFile)
       throws HopValueException, HopFileNotFoundException {
     if (dataA == null) {
       return null;
@@ -1303,7 +1297,7 @@ public class ValueDataUtil {
    * @return Number of days
    * @throws HopValueException
    */
-  public static Object DateDiff(
+  public static Object dateDiff(
       IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB, String resultType)
       throws HopValueException {
 
@@ -1344,7 +1338,7 @@ public class ValueDataUtil {
     }
   }
 
-  public static Object DateWorkingDiff(
+  public static Object dateWorkingDiff(
       IValueMeta metaA, Object dataA, IValueMeta metaB, Object dataB) throws HopValueException {
     if (dataA != null && dataB != null) {
       Date fromDate = metaB.getDate(dataB);
@@ -1819,13 +1813,12 @@ public class ValueDataUtil {
   /**
    * Checks an xml file is well formed.
    *
-   * @param metaA The IValueMeta
    * @param dataA The value (filename)
    * @param failIfNoFile Indicates if the pipeline should fail if no file is found
    * @return true if the file is well formed.
    * @throws HopFileNotFoundException
    */
-  public static boolean isXmlFileWellFormed(IValueMeta metaA, Object dataA, boolean failIfNoFile)
+  public static boolean isXmlFileWellFormed(Object dataA, boolean failIfNoFile)
       throws HopFileNotFoundException {
     if (dataA == null) {
       return false;
@@ -1928,7 +1921,7 @@ public class ValueDataUtil {
     };
   }
 
-  public static String urlEncode(IValueMeta metaA, Object dataA) {
+  public static String urlEncode(Object dataA) {
     if (dataA == null) {
       return null;
     }
@@ -1939,7 +1932,7 @@ public class ValueDataUtil {
     }
   }
 
-  public static String urlDecode(IValueMeta metaA, Object dataA) {
+  public static String urlDecode(Object dataA) {
     if (dataA == null) {
       return null;
     }

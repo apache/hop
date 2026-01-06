@@ -46,6 +46,6 @@ public class DoubleMetaphone implements ICalculation {
   @Override
   public CalculationOutput calculate(CalculationInput in) {
     return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.get_Double_Metaphone(in.metaA, in.dataA));
+        getDefaultResultType(), ValueDataUtil.getDoubleMetaphone(in.dataA));
   }
 }

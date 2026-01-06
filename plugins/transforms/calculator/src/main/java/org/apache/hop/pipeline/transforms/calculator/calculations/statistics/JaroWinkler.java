@@ -46,7 +46,6 @@ public class JaroWinkler implements ICalculation {
   @Override
   public CalculationOutput calculate(CalculationInput in) {
     return new CalculationOutput(
-        getDefaultResultType(),
-        ValueDataUtil.getJaroWinkler_Similitude(in.metaA, in.dataA, in.metaB, in.dataB));
+        getDefaultResultType(), ValueDataUtil.getJaroWinklerSimilitude(in.dataA, in.dataB));
   }
 }

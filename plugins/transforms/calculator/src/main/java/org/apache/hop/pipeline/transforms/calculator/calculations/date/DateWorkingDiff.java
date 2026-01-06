@@ -48,6 +48,6 @@ public class DateWorkingDiff implements ICalculation {
   public CalculationOutput calculate(CalculationInput in) throws HopValueException {
     return new CalculationOutput(
         getDefaultResultType(),
-        ValueDataUtil.DateWorkingDiff(in.metaA, in.dataA, in.metaB, in.dataB));
+        ValueDataUtil.dateWorkingDiff(in.metaA, in.dataA, in.metaB, in.dataB));
   }
 }
