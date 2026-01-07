@@ -92,6 +92,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
+import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.eclipse.swt.SWT;
@@ -1541,6 +1542,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @GuiKeyboardShortcut(key = SWT.DEL)
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
+    // Only handle delete if a file was the last selected item
+    HopGuiSelectionTracker selectionTracker = HopGuiSelectionTracker.getInstance();
+    if (!selectionTracker.isLastSelection(HopGuiSelectionTracker.SelectionType.FILE_EXPLORER)) {
+      return;
+    }
+
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length == 0) {
       return;
@@ -1872,6 +1879,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       if (tif == null) {
         return;
       }
+      // Track that a file was selected
+      HopGuiSelectionTracker.getInstance()
+          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.FILE_EXPLORER);
     }
 
     boolean isFolderSelected = tif != null && tif.fileType instanceof FolderFileType;
