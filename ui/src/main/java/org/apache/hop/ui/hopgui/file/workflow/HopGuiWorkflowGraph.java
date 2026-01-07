@@ -1213,25 +1213,30 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         && !dragSelection) {
       // Mouse over the name of the action
       //
-      if (!PropsUi.getInstance().useDoubleClick()) {
-        if (areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
+      if (areaOwner.getAreaType() == AreaOwner.AreaType.ACTION_NAME) {
+        if (!PropsUi.getInstance().useDoubleClick()) {
           if (mouseOverName == null) {
             doRedraw = true;
           }
           mouseOverName = (String) areaOwner.getOwner();
         }
       }
-
       // Mouse over note
-      if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+      else if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
         // Check if the mouse is over the border to activate a resize cursor
         resizeOver = this.getResize(areaOwner.getArea(), real);
+
+        // Remove over name (note behind an action)
+        if (mouseOverName != null) {
+          mouseOverName = null;
+          doRedraw = true;
+        }
       }
     } else {
       if (mouseOverName != null) {
+        mouseOverName = null;
         doRedraw = true;
       }
-      mouseOverName = null;
     }
 
     //
