@@ -34,6 +34,7 @@ import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILogParentProvided;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.ExecutorUtil;
@@ -42,9 +43,12 @@ import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.StyledTextVar;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -137,23 +141,59 @@ public class HopGuiLogBrowser {
                                   Const.toInt(describedVariable.getValue(), Const.MAX_NR_LOG_LINES);
                             }
 
+                            // Get the StyledText widget if available for direct style application
+                            StyledText styledText = null;
+                            if (text instanceof StyledTextVar) {
+                              styledText = ((StyledTextVar) text).getTextWidget();
+                            }
+
                             synchronized (text) {
                               for (HopLoggingEvent event : logLines) {
                                 String line = logLayout.format(event).trim();
                                 int length = line.length();
 
                                 if (length > 0) {
-                                  // Append by inserting at end
-                                  String currentText = text.getText();
-                                  text.setText(currentText + line + Const.CR);
+                                  boolean isError =
+                                      event.getLevel() != null
+                                          && event.getLevel().getLevel()
+                                              == LogLevel.ERROR.getLevel();
+
+                                  if (styledText != null && !styledText.isDisposed()) {
+                                    try {
+                                      // Get the current text length (this is where we'll insert)
+                                      int startOffset = styledText.getCharCount();
+                                      String textToAdd = line + Const.CR;
+
+                                      // Use replaceTextRange to add text at the end
+                                      styledText.replaceTextRange(startOffset, 0, textToAdd);
+
+                                      // Apply red color directly if this is an ERROR level event
+                                      if (isError) {
+                                        StyleRange styleRange = new StyleRange();
+                                        styleRange.start = startOffset;
+                                        styleRange.length = line.length();
+                                        styleRange.foreground =
+                                            GuiResource.getInstance().getColorRed();
+                                        styleRange.fontStyle = SWT.NORMAL;
+                                        styledText.setStyleRange(styleRange);
+                                      }
+                                    } catch (Exception e) {
+                                      // Fallback to setText if there's any error
+                                      String currentText = text.getText();
+                                      text.setText(currentText + line + Const.CR);
+                                    }
+                                  } else {
+                                    // Fallback for non-StyledText widgets (e.g., web mode)
+                                    String currentText = text.getText();
+                                    text.setText(currentText + line + Const.CR);
+                                  }
                                 }
                               }
                             }
 
-                            // Erase it all in one go
-                            // This makes it a bit more efficient
-                            String textContent = text.getText();
+                            // Trim old lines if needed to stay within maxSize
                             // Calculate line count
+                            String textContent = text.getText();
                             int size;
                             if (textContent == null || textContent.isEmpty()) {
                               size = 0;
@@ -169,7 +209,13 @@ public class HopGuiLogBrowser {
                             if (maxSize > 0 && size > maxSize) {
                               int dropIndex =
                                   StringUtils.lastOrdinalIndexOf(textContent, "\n", maxSize + 1);
-                              text.setText(textContent.substring(dropIndex + 1));
+                              if (styledText != null && !styledText.isDisposed()) {
+                                // Use replaceTextRange to preserve styles on remaining text
+                                styledText.replaceTextRange(0, dropIndex + 1, "");
+                              } else {
+                                // Fallback for non-StyledText widgets
+                                text.setText(textContent.substring(dropIndex + 1));
+                              }
                             }
 
                             text.setSelection(text.getCharCount());

@@ -29,9 +29,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
-import org.apache.hop.ui.core.widget.LogStyledTextComp;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.StyledTextVar;
 import org.apache.hop.ui.core.widget.TextComposite;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -117,8 +117,8 @@ public class HopGuiWorkflowLogDelegate {
     fd.right = new FormAttachment(100, 0);
     toolbar.setLayoutData(fd);
 
-    // Use StyledTextComp for web (uses Text widget), LogStyledTextComp for desktop (with
-    // highlighting)
+    // Use StyledTextComp for web (uses Text widget), StyledTextVar for desktop (uses StyledText
+    // for highlighting)
     if (EnvironmentUtils.getInstance().isWeb()) {
       workflowLogText =
           new StyledTextComp(
@@ -127,12 +127,13 @@ public class HopGuiWorkflowLogDelegate {
               SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
     } else {
       workflowLogText =
-          new LogStyledTextComp(
+          new StyledTextVar(
               workflowGraph.getVariables(),
               workflowLogComposite,
-              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
-      // Add log highlighting (only works in SWT, not RWT)
-      workflowLogText.addLineStyleListener();
+              SWT.READ_ONLY | SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+              false,
+              false);
+      // Error highlighting is applied directly in HopGuiLogBrowser when adding lines
     }
     PropsUi.setLook(workflowLogText);
     FormData fdText = new FormData();

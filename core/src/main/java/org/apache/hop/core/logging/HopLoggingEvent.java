@@ -17,6 +17,11 @@
 
 package org.apache.hop.core.logging;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class HopLoggingEvent {
 
   private Object message;
@@ -33,30 +38,6 @@ public class HopLoggingEvent {
     super();
     this.message = message;
     this.timeStamp = timeStamp;
-    this.level = level;
-  }
-
-  public Object getMessage() {
-    return message;
-  }
-
-  public void setMessage(Object message) {
-    this.message = message;
-  }
-
-  public long getTimeStamp() {
-    return timeStamp;
-  }
-
-  public void setTimeStamp(long timeStamp) {
-    this.timeStamp = timeStamp;
-  }
-
-  public LogLevel getLevel() {
-    return level;
-  }
-
-  public void setLevel(LogLevel level) {
     this.level = level;
   }
 }
