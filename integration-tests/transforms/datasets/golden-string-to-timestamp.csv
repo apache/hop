@@ -1,0 +1,13 @@
+timestamp_string,nb_errors,error_description,error_field,error_codes
+I am not a timestamp,1,"
+
+timestamp_string Timestamp : couldn't convert string [I am not a timestamp] to a timestamp, expecting format [yyyy-mm-dd hh:mm:ss.ffffff]
+Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]
+
+",timestamp_string,SELECT001
+null,1,"
+
+timestamp_string Timestamp : couldn't convert string [null] to a timestamp, expecting format [yyyy-mm-dd hh:mm:ss.ffffff]
+Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]
+
+",timestamp_string,SELECT001
