@@ -1195,4 +1195,5 @@ public abstract class ActionBase
   public String getEntryTransformSetVariable(String variableName) {
     return entryTransformSetVariablesMap.get(variableName);
   }
+
 }

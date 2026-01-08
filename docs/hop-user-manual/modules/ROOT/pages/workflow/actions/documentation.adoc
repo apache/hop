@@ -29,8 +29,11 @@ This action builds documentation of your Hop files or project.
 * The target folder in which you want your project documentation to end up in.
 * Include notes?
 * Include parameters?
+* Include metadata?
+* Generate HTML?
+* Remove MarkDown after HTML is generated?
 
-== Generating HTML
+== Generating HTML from MarkDown
 
 The links from the index are currently set to the .md.html files.
 I ran the following command in the target folder to generate the HTML files:
