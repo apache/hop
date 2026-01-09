@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -292,5 +293,18 @@ public class SimpleTimestampFormatTest {
           stf.toLocalizedPattern());
       checkFormat("LOCALE.DEFAULT", stf);
     }
+  }
+
+  @Test
+  public void testParseNull() throws Exception {
+    String pattern = "yyyy-MM-dd HH:mm:ss.S";
+    SimpleTimestampFormat stf = new SimpleTimestampFormat(pattern);
+    // This value mimics a bad parse that might return null from super.parse()
+    // but previously caused an NPE in SimpleTimestampFormat
+    String invalidValue = "this-is-not-a-date";
+    ParsePosition pos = new ParsePosition(0);
+    java.util.Date result = stf.parse(invalidValue, pos);
+    // Should return null (and set error index) instead of throwing NPE
+    assertEquals(null, result);
   }
 }

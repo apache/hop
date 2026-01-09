@@ -103,7 +103,8 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
       final Class<?>[] paramTypes = new Class<?>[] {localeCategoryClass};
       getDefaultLocaleMethod = localeClass.getMethod("getDefault", paramTypes);
       final java.lang.reflect.Field formatField = localeCategoryClass.getField("FORMAT");
-      // we pass null because the FORMAT is an enumeration constant(the same applies for class
+      // we pass null because the FORMAT is an enumeration constant(the same applies
+      // for class
       // variables)
       formatCategory = formatField.get(null);
     } catch (Exception e) {
@@ -338,6 +339,9 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
     Date tempDate;
     if (compatibleToSuperPattern) {
       tempDate = super.parse(text, pos);
+      if (tempDate == null) {
+        return null;
+      }
       return new Timestamp(tempDate.getTime());
     }
 

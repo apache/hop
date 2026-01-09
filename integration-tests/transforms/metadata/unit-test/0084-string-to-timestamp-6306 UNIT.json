@@ -1,0 +1,48 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "timestamp_string",
+          "data_set_field": "timestamp_string"
+        },
+        {
+          "transform_field": "nb_errors",
+          "data_set_field": "nb_errors"
+        },
+        {
+          "transform_field": "error_description",
+          "data_set_field": "error_description"
+        },
+        {
+          "transform_field": "error_field",
+          "data_set_field": "error_field"
+        },
+        {
+          "transform_field": "error_codes",
+          "data_set_field": "error_codes"
+        }
+      ],
+      "field_order": [
+        "timestamp_string",
+        "nb_errors",
+        "error_description",
+        "error_field",
+        "error_codes"
+      ],
+      "data_set_name": "golden-string-to-timestamp",
+      "transform_name": "error"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0084-string-to-timestamp-6306 UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0084-string-to-timestamp-6306.hpl"
+}

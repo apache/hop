@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-string-to-timestamp.csv",
+  "name": "golden-string-to-timestamp",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "timestamp_string",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 3,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "nb_errors",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "error_description",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "error_field",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "error_codes",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
