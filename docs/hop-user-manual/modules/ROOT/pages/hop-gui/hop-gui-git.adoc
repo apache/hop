@@ -89,3 +89,15 @@ For workflows and pipelines, click 'Visual diff' to open the file in the Data Or
 Hop will show an additional icon in the upper right corner of the action or transform icon to indicate the git change that was made (green for added or yellow for changed)
 
 image::hop-gui/git-visual-diff.png[Git visual diff,width="65%"]
+
+== Git Configuration options
+
+There are a few global configuration options available for the git GUI plugin.
+You can find these in the configuration perspective under the "Plugins" tab and the "git" section.
+
+[options="header", cols="1,2"]
+|===
+|Option|Description
+|Enable the git plugin|If disabled the plugin will be loaded but will not try to detect a git repository in the project folder.
+|Search parent folders for git repository|this option will search for a git repository (`.git/config` file detection) not just in the project folder but also in all parent folders. Please note that enabling this option can lead to the git plugin having to consider large amounts of files not always associated with the Hop project you're working with.  For this reason the option is disabled by default.
+|===
