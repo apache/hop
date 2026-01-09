@@ -60,7 +60,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 @HopMetadata(
     key = "rdbms",
     name = "i18n::DatabaseMeta.name",
-    description = "i18n::DatabaseMeta.Description",
+    description = "i18n::DatabaseMeta.description",
     image = "ui/images/database.svg",
     documentationUrl = "/metadata-types/rdbms-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
