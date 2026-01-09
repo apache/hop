@@ -517,6 +517,18 @@ public class Const {
       description = "Set this variable to 'Y' to redirect stdout to Hop logging.")
   public static final String HOP_REDIRECT_STDOUT = "HOP_REDIRECT_STDOUT";
 
+  /**
+   * System wide flag to enable ANSI color codes in console output. Values: 'true', 'false', or
+   * 'auto' (default). 'auto' detects if output is to a terminal and enables colors only when
+   * appropriate (not when piped to files or log collectors).
+   */
+  @Variable(
+      scope = VariableScope.SYSTEM,
+      value = "auto",
+      description =
+          "Enable ANSI color codes in console output. Values: 'true' (always), 'false' (never), or 'auto' (only when output is to a terminal)")
+  public static final String HOP_CONSOLE_COLORS = "HOP_CONSOLE_COLORS";
+
   /** System wide flag to log stack traces in a simpler, more human readable format */
   @Variable(
       scope = VariableScope.SYSTEM,

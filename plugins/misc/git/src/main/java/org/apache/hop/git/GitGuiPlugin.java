@@ -39,6 +39,8 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.git.config.GitConfig;
+import org.apache.hop.git.config.GitConfigSingleton;
 import org.apache.hop.git.info.GitInfoExplorerFileType;
 import org.apache.hop.git.info.GitInfoExplorerFileTypeHandler;
 import org.apache.hop.git.model.UIFile;
@@ -658,29 +660,33 @@ public class GitGuiPlugin
   public void rootChanged(String rootFolder, String rootName) {
     // OK, let's see if we can determine the current git instance...
     //
-    try (FileObject folder = findGitConfig(rootFolder)) {
-      if (folder != null) {
-        git = new UIGit();
-        git.openRepo(HopVfs.getFilename(folder));
-        setBranchLabel(git.getBranch());
-      } else {
+    GitConfig config = GitConfigSingleton.getConfig();
+
+    git = null;
+    setBranchLabel(null);
+
+    if (config.isEnabled()) {
+      try (FileObject folder = findGitConfig(rootFolder, config.isSearchingParentFolders())) {
+        if (folder != null) {
+          git = new UIGit();
+          git.openRepo(HopVfs.getFilename(folder));
+          setBranchLabel(git.getBranch());
+        }
+      } catch (Exception e) {
+        // This is not a git project...
         git = null;
-        setBranchLabel(null);
+        LogChannel.UI.logBasic("No git project found in " + rootFolder);
       }
-    } catch (Exception e) {
-      // This is not a git project...
-      git = null;
-      LogChannel.UI.logBasic("No git project found in " + rootFolder);
     }
     refreshChangedFiles();
     enableButtons();
   }
 
-  private FileObject findGitConfig(String rootFolderName)
+  private FileObject findGitConfig(String rootFolderName, boolean searchParentFolders)
       throws HopFileException, FileSystemException {
     FileObject folder = HopVfs.getFileObject(rootFolderName);
     FileObject fileObject = folder.resolveFile(".git/config");
-    while (!fileObject.exists() && folder.getParent() != null) {
+    while (searchParentFolders && !fileObject.exists() && folder.getParent() != null) {
       folder = folder.getParent();
       fileObject = folder.resolveFile(".git/config");
     }

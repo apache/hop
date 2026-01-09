@@ -156,7 +156,7 @@ public class HopGuiKeyHandler extends KeyAdapter {
         Method method = parentClass.getMethod(shortcut.getParentMethodName());
         if (method != null) {
           method.invoke(parentObject);
-          return true; // Stop looking after 1 execution
+          // return true; // disable for now until we can clean this up
         }
       } catch (Exception ex) {
         LogChannel.UI.logError(

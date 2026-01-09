@@ -61,7 +61,7 @@
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-logging.version>1.3.5</commons-logging.version>
         <commons-math3.version>3.6.1</commons-math3.version>
-        <commons-net.version>3.11.1</commons-net.version>
+        <commons-net.version>3.12.0</commons-net.version>
         <commons-pool.version>1.6</commons-pool.version>
         <commons-text.version>1.13.1</commons-text.version>
         <commons-vfs2.version>2.10.0</commons-vfs2.version>
@@ -112,7 +112,6 @@
         <kotlin.version>1.9.25</kotlin.version>
         <kryo.version>5.3.0</kryo.version>
         <log4j.version>2.25.3</log4j.version>
-        <lz4.version>1.8.0</lz4.version>
         <metrics.version>4.2.12</metrics.version>
         <minlog.version>1.3.1</minlog.version>
         <msal4j-persistence.version>1.3.0</msal4j-persistence.version>
@@ -140,7 +139,7 @@
         <springframework4.version>4.3.18</springframework4.version>
         <stax2-api.version>4.2.2</stax2-api.version>
         <tyrus-standalone-client.version>1.13.1</tyrus-standalone-client.version>
-        <woodstox.version>6.4.0</woodstox.version>
+        <woodstox.version>7.1.1</woodstox.version>
         <xerces.version>2.12.2</xerces.version>
         <xml-apis-ext.version>1.3.04</xml-apis-ext.version>
         <xmlunit.version>1.5</xmlunit.version>
@@ -578,6 +577,11 @@
                 <version>${commons-vfs2.version}</version>
             </dependency>
             <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>${commons-net.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-hdfs-client</artifactId>
                 <version>${hadoop.version}</version>
@@ -813,6 +817,11 @@
                 <groupId>org.jsoup</groupId>
                 <artifactId>jsoup</artifactId>
                 <version>${jsoup.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.woodstox</groupId>
+                <artifactId>woodstox-core</artifactId>
+                <version>${woodstox.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

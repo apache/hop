@@ -145,7 +145,6 @@ import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -179,6 +178,7 @@ import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
+import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -383,7 +383,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private Point endHopLocation;
   private boolean startErrorHopTransform;
 
-  private TransformMeta noInputTransform;
+  private TransformMeta forbiddenTransform;
 
   private TransformMeta endHopTransform;
 
@@ -735,26 +735,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             return;
           }
 
-          if (candidate != null && !OsHelper.isMac()) {
-            // Avoid duplicate pop-up for hop handling as candidate is never null? */
-            addCandidateAsHop(event.x, event.y);
-          }
-
           currentTransform = (TransformMeta) areaOwner.getOwner();
 
-          for (ITransformSelectionListener listener : currentTransformListeners) {
-            listener.onUpdateSelection(currentTransform);
-          }
-
-          // ALT-Click: edit error handling
-          //
-          if (event.button == 1 && alt && currentTransform.supportsErrorHandling()) {
+          if (startHopTransform != null) {
+            // If we click on the start hop transform or a forbidden transform, then we don't have a
+            // candidate hop, but we need to ignore this click to not start a drag operation.
+            if (candidate != null) {
+              addCandidateAsHop(event.x, event.y);
+            }
+          } else if (event.button == 1 && alt && currentTransform.supportsErrorHandling()) {
+            // ALT-Click: edit error handling
+            //
             pipelineTransformDelegate.editTransformErrorHandling(pipelineMeta, currentTransform);
             return;
-          } else if (event.button == 1 && startHopTransform != null && endHopTransform == null) {
-            candidate = new PipelineHopMeta(startHopTransform, currentTransform);
           } else if (event.button == 2 || (event.button == 1 && shift)) {
-            // SHIFT CLICK is start of drag to create a new hop
+            // SHIFT CLICK: start drawing a new hop
             //
             canvas.setData("mode", "hop");
             startHopTransform = currentTransform;
@@ -763,6 +758,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             dragSelection = true;
             selectedTransforms = pipelineMeta.getSelectedTransforms();
             selectedTransform = currentTransform;
+
+            // Track that a transform was selected
+            HopGuiSelectionTracker.getInstance()
+                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+
+            for (ITransformSelectionListener listener : currentTransformListeners) {
+              listener.onUpdateSelection(currentTransform);
+            }
+
             //
             // When an icon is moved that is not selected, it gets
             // selected too late.
@@ -792,8 +796,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
-    // Layer 2: click on hop links between transforms
-    if (!done) {
+    // Layer 2: click on hop links between transforms and not drawing a hop
+    if (!done && startHopTransform == null) {
       // hop links between transforms are found searching by (x,y) coordinates.
       PipelineHopMeta hop = findPipelineHop(real.x, real.y);
       if (hop != null) {
@@ -818,11 +822,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
-    // Layer 3: click on a note
-    if (!done && areaOwner != null && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+    // Layer 3: click on a note and not drawing a hop
+    if (!done
+        && startHopTransform == null
+        && areaOwner != null
+        && areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
       currentNotePad = (NotePadMeta) areaOwner.getOwner();
       selectedNotes = pipelineMeta.getSelectedNotes();
       selectedNote = currentNotePad;
+      // Track that a note was selected
+      HopGuiSelectionTracker.getInstance()
+          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
       Point loc = currentNotePad.getLocation();
 
       previousNoteLocations = pipelineMeta.getSelectedNoteLocations();
@@ -844,11 +854,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // Layer 4: Click on the background of the graph
     if (!done) {
-      // If we're dragging a candidate hop around and click on the background it simply needs to
+      // If we're drawing a candidate hop and click on the background it simply needs to
       // go away.
       //
       if (startHopTransform != null) {
         startHopTransform = null;
+        endHopLocation = null;
         candidate = null;
         lastClick = null;
         avoidContextDialog = true;
@@ -890,6 +901,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void mouseUp(MouseEvent e) {
     resize = null;
+    forbiddenTransform = null;
 
     // canvas.setData("mode", null); does not work.
     canvas.setData("mode", "null");
@@ -904,6 +916,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     if (viewPortNavigation || viewDrag) {
       viewDrag = false;
+      viewDragStart = null;
       viewPortNavigation = false;
       viewPortStart = null;
       return;
@@ -914,8 +927,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     updateErrorMetaForHop(selectedHop);
     boolean singleClick = false;
     mouseOverName = null;
-    viewDrag = false;
-    viewDragStart = null;
     SingleClickType singleClickType = null;
     TransformMeta singleClickTransform = null;
     NotePadMeta singleClickNote = null;
@@ -954,6 +965,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         pipelineMeta.unselectAll();
         selectInRect(pipelineMeta, selectionRegion);
         selectionRegion = null;
+        // Track that transforms were selected via region selection
+        if (!pipelineMeta.getSelectedTransforms().isEmpty()
+            || !pipelineMeta.getSelectedNotes().isEmpty()) {
+          HopGuiSelectionTracker.getInstance()
+              .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+        }
         updateGui();
         return;
       }
@@ -971,10 +988,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
         case TRANSFORM_ICON:
           if (startHopTransform != null) {
-            // Mouse up while dragging around a hop candidate
-            //
-            currentTransform = (TransformMeta) areaOwner.getOwner();
-            candidate = new PipelineHopMeta(startHopTransform, currentTransform);
+            // Mouse up while drawing a hop candidate
             addCandidateAsHop(e.x, e.y);
             redraw();
             return;
@@ -987,14 +1001,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               && selectedNotes == null) {
             // This is available only in single click mode...
             //
-            startHopTransform = null;
-            selectionRegion = null;
-
             TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
             editTransform(transformMeta);
           }
           return;
-
         default:
           break;
       }
@@ -1009,6 +1019,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // Flip selection when control is pressed!
           if (control) {
             selectedTransform.flipSelected();
+            // Track that a transform selection changed (if it's now selected)
+            if (selectedTransform.isSelected()) {
+              HopGuiSelectionTracker.getInstance()
+                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+            }
           } else {
             singleClick = true;
             singleClickType = SingleClickType.Transform;
@@ -1020,11 +1035,19 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               pipelineMeta.unselectAll();
               selectedTransform.setSelected(true);
             }
+            // Track that a transform was selected
+            HopGuiSelectionTracker.getInstance()
+                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
           }
         } else {
           // Find out which Transforms & Notes are selected
           selectedTransforms = pipelineMeta.getSelectedTransforms();
           selectedNotes = pipelineMeta.getSelectedNotes();
+          // Track that transforms were selected
+          if (!selectedTransforms.isEmpty() || !selectedNotes.isEmpty()) {
+            HopGuiSelectionTracker.getInstance()
+                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+          }
 
           // We moved around some items: store undo info...
           //
@@ -1057,10 +1080,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // OK, we moved the transform, did we move it across a hop?
       // If so, ask to split the hop!
       if (splitHop) {
-        PipelineHopMeta hi =
+        PipelineHopMeta hop =
             findPipelineHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedTransform);
-        if (hi != null) {
-          splitHop(hi);
+        if (hop != null) {
+          splitHop(hop);
         }
         splitHop = false;
       }
@@ -1083,6 +1106,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             // Flip selection when control is pressed!
             if (control) {
               selectedNote.flipSelected();
+              // Track that a note selection changed (if it's now selected)
+              if (selectedNote.isSelected()) {
+                HopGuiSelectionTracker.getInstance()
+                    .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+              }
             } else {
               // single click on a note: ask what needs to happen...
               //
@@ -1096,11 +1124,19 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 pipelineMeta.unselectAll();
                 selectedNote.setSelected(true);
               }
+              // Track that a note was selected
+              HopGuiSelectionTracker.getInstance()
+                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
             }
           } else {
             // Find out which Transforms & Notes are selected
             selectedTransforms = pipelineMeta.getSelectedTransforms();
             selectedNotes = pipelineMeta.getSelectedNotes();
+            // Track that notes were selected
+            if (!selectedTransforms.isEmpty() || !selectedNotes.isEmpty()) {
+              HopGuiSelectionTracker.getInstance()
+                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+            }
 
             // We moved around some items: store undo info...
 
@@ -1409,13 +1445,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void mouseMove(MouseEvent event) {
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
-    noInputTransform = null;
     mouseMovedSinceClick = true;
     boolean doRedraw = false;
 
     // disable the tooltip
     //
     toolTip.setVisible(false);
+
+    // First, check for operations that have been started, such as move selection, dragging the
+    // view, creating a hop or resizing a note.
+
+    // Drag the view around with middle button on the background?
+    //
+    if (viewDrag && lastClick != null) {
+      dragView(viewDragStart, new Point(event.x, event.y));
+      return;
+    }
 
     // Check to see if we're navigating with the view port
     //
@@ -1473,8 +1518,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         && !dragSelection) {
       // Mouse over the name of the transform
       //
-      if (!PropsUi.getInstance().useDoubleClick()) {
-        if (areaOwner.getAreaType() == AreaType.TRANSFORM_NAME) {
+      if (areaOwner.getAreaType() == AreaType.TRANSFORM_NAME) {
+        if (!PropsUi.getInstance().useDoubleClick()) {
           if (mouseOverName == null) {
             doRedraw = true;
           }
@@ -1483,15 +1528,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
 
       // Mouse over a note
-      if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
+      else if (areaOwner.getAreaType() == AreaOwner.AreaType.NOTE) {
         // Check if the mouse hovers over the border to resize
         resizeOver = this.getResize(areaOwner.getArea(), real);
+
+        // Remove over name (note behind a transform)
+        if (mouseOverName != null) {
+          mouseOverName = null;
+          doRedraw = true;
+        }
       }
     } else {
       if (mouseOverName != null) {
+        mouseOverName = null;
         doRedraw = true;
       }
-      mouseOverName = null;
     }
 
     //
@@ -1505,6 +1556,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedTransforms = new ArrayList<>();
       selectedTransforms.add(selectedTransform);
       previousTransformLocations = new Point[] {selectedTransform.getLocation()};
+      // Track that a transform was selected
+      HopGuiSelectionTracker.getInstance()
+          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
       doRedraw = true;
     } else if (selectedNote != null && !selectedNote.isSelected()) {
       pipelineMeta.unselectAll();
@@ -1512,6 +1566,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedNotes = new ArrayList<>();
       selectedNotes.add(selectedNote);
       previousNoteLocations = new Point[] {selectedNote.getLocation()};
+      // Track that a note was selected
+      HopGuiSelectionTracker.getInstance()
+          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
       doRedraw = true;
     } else if (selectionRegion != null && startHopTransform == null) {
       // Did we select a region...?
@@ -1563,53 +1620,66 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       doRedraw = true;
     } else if ((startHopTransform != null && endHopTransform == null)
         || (endHopTransform != null && startHopTransform == null)) {
+
       // Are we creating a new hop with the middle button or pressing SHIFT?
       //
-
       TransformMeta transformMeta = pipelineMeta.getTransform(real.x, real.y, iconSize);
       endHopLocation = new Point(real.x, real.y);
-      if (transformMeta != null
-          && ((startHopTransform != null && !startHopTransform.equals(transformMeta))
-              || (endHopTransform != null && !endHopTransform.equals(transformMeta)))) {
+      if (transformMeta != null) {
         ITransformIOMeta ioMeta = transformMeta.getTransform().getTransformIOMeta();
-        if (candidate == null) {
-          // See if the transform accepts input. If not, we can't create a new hop...
-          //
+
+        // Checks if mouse over another transformn
+        if ((startHopTransform != null && !startHopTransform.equals(transformMeta))
+            || (endHopTransform != null && !endHopTransform.equals(transformMeta))) {
+
           if (startHopTransform != null) {
-            if (ioMeta.isInputAcceptor()) {
-              candidate = new PipelineHopMeta(startHopTransform, transformMeta);
-              endHopLocation = null;
-            } else {
-              noInputTransform = transformMeta;
+
+            // Check if the transform accepts input. If not, we can't create a new hop...
+            //
+            if (!ioMeta.isInputAcceptor()) {
+              forbiddenTransform = transformMeta;
               toolTip.setText("This transform does not accept any input from other transforms");
-              showToolTip(new org.eclipse.swt.graphics.Point(real.x, real.y));
+              showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+            }
+            // Check if the hop already exists
+            else if (pipelineMeta.findPipelineHop(startHopTransform, transformMeta, true) != null) {
+              forbiddenTransform = transformMeta;
+              toolTip.setText(BaseMessages.getString(PKG, "HopGui.Dialog.HopExists.Message"));
+              showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+            }
+            // Check if the hop candidate creates a loop
+            else {
+              candidate = new PipelineHopMeta(startHopTransform, transformMeta);
+              pipelineMeta.addPipelineHop(candidate);
+              boolean hasLoop = pipelineMeta.hasLoop(transformMeta);
+              pipelineMeta.removePipelineHop(candidate);
+
+              if (hasLoop) {
+                candidate = null;
+                forbiddenTransform = transformMeta;
+                toolTip.setText(
+                    BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesLoop.Message"));
+                showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
+              }
             }
           } else if (endHopTransform != null) {
             if (ioMeta.isOutputProducer()) {
               candidate = new PipelineHopMeta(transformMeta, endHopTransform);
               endHopLocation = null;
             } else {
-              noInputTransform = transformMeta;
+              forbiddenTransform = transformMeta;
               toolTip.setText(
                   "This transform doesn't pass any output to other transforms. (except perhaps for targeted output)");
-              showToolTip(new org.eclipse.swt.graphics.Point(real.x, real.y));
+              showToolTip(new org.eclipse.swt.graphics.Point(event.x, event.y));
             }
           }
         }
       } else {
-        if (candidate != null) {
-          candidate = null;
-          doRedraw = true;
-        }
+        candidate = null;
+        forbiddenTransform = null;
       }
 
       doRedraw = true;
-    } else {
-      // Drag the view around with middle button on the background?
-      //
-      if (viewDrag && lastClick != null) {
-        dragView(viewDragStart, new Point(event.x, event.y));
-      }
     }
 
     // Move around notes and transforms
@@ -1710,11 +1780,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private void addCandidateAsHop(int mouseX, int mouseY) {
 
-    boolean forward = startHopTransform != null;
+    if (candidate == null) {
+      return;
+    }
 
+    boolean forward = startHopTransform != null;
     TransformMeta fromTransform = candidate.getFromTransform();
     TransformMeta toTransform = candidate.getToTransform();
-    if (fromTransform.equals(toTransform)) {
+
+    // A couple of sanity checks...
+    //
+    if (fromTransform == null || toTransform == null || fromTransform.equals(toTransform)) {
       return; // Don't add
     }
 
@@ -1815,7 +1891,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return;
     }
 
-    candidate = null;
     selectedTransforms = null;
     startHopTransform = null;
     endHopLocation = null;
@@ -1833,7 +1908,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (candidate == null) {
       return;
     }
-    this.startHopTransform = null;
+
+    startHopTransform = null;
+    endHopLocation = null;
+
     switch (stream.getStreamType()) {
       case ERROR:
         addErrorHop();
@@ -2102,7 +2180,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void clearSettings() {
     selectedTransform = null;
-    noInputTransform = null;
+    forbiddenTransform = null;
     selectedNote = null;
     selectedTransforms = null;
     selectionRegion = null;
@@ -3435,7 +3513,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       pipelinePainter.setTransformLogMap(transformLogMap);
       pipelinePainter.setStartHopTransform(startHopTransform);
       pipelinePainter.setEndHopLocation(endHopLocation);
-      pipelinePainter.setNoInputTransform(noInputTransform);
+      pipelinePainter.setNoInputTransform(forbiddenTransform);
       pipelinePainter.setEndHopTransform(endHopTransform);
       pipelinePainter.setCandidateHopType(candidateHopType);
       pipelinePainter.setStartErrorHopTransform(startErrorHopTransform);
@@ -5211,6 +5289,19 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut(key = SWT.DEL)
   @Override
   public void deleteSelected() {
+    // Only handle delete if a pipeline graph item was the last selected item
+    // OR if there are actually selected transforms/notes in the pipeline
+    HopGuiSelectionTracker selectionTracker = HopGuiSelectionTracker.getInstance();
+    boolean hasPipelineSelection =
+        !pipelineMeta.getSelectedTransforms().isEmpty()
+            || !pipelineMeta.getSelectedNotes().isEmpty();
+    boolean isLastPipelineSelection =
+        selectionTracker.isLastSelection(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+
+    if (!isLastPipelineSelection || !hasPipelineSelection) {
+      return;
+    }
+
     delSelected(null);
     updateGui();
   }

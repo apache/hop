@@ -194,23 +194,24 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       drawAction(actionMeta);
     }
 
-    // Display an icon on the indicated location signaling to the user that the action in
-    // question does not accept input
+    // Display a red cross on the indicated location signaling to the user that the action in
+    // question does not accept input or is not a good candidate for a hop (duplicate hop or
+    // workflow loop)
     //
     if (noInputAction != null) {
       gc.setLineWidth(2);
       gc.setForeground(EColor.RED);
       Point n = noInputAction.getLocation();
       gc.drawLine(
-          round(offset.x + n.x - 5),
-          round(offset.y + n.y - 5),
-          round(offset.x + n.x + iconSize + 5),
-          round(offset.y + n.y + iconSize + 5));
+          round(offset.x + n.x - 1),
+          round(offset.y + n.y - 1),
+          round(offset.x + n.x + iconSize + 1),
+          round(offset.y + n.y + iconSize + 1));
       gc.drawLine(
-          round(offset.x + n.x - 5),
-          round(offset.y + n.y + iconSize + 5),
-          round(offset.x + n.x + iconSize + 5),
-          round(offset.y + n.y - 5));
+          round(offset.x + n.x - 1),
+          round(offset.y + n.y + iconSize + 1),
+          round(offset.x + n.x + iconSize + 1),
+          round(offset.y + n.y - 1));
     }
 
     try {

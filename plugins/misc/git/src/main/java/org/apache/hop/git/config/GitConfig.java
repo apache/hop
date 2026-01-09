@@ -6,38 +6,35 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.core.logging;
+package org.apache.hop.git.config;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class HopLoggingEvent {
+public class GitConfig {
+  public static final String HOP_CONFIG_GIT_CONFIG_KEY = "gitConfig";
+  private boolean enabled;
+  private boolean searchingParentFolders;
 
-  private Object message;
-
-  public long timeStamp;
-
-  private LogLevel level;
-
-  public HopLoggingEvent() {
-    this(null, System.currentTimeMillis(), LogLevel.BASIC);
+  public GitConfig() {
+    this.enabled = true;
+    this.searchingParentFolders = false;
   }
 
-  public HopLoggingEvent(Object message, long timeStamp, LogLevel level) {
-    super();
-    this.message = message;
-    this.timeStamp = timeStamp;
-    this.level = level;
+  public GitConfig(GitConfig config) {
+    this.enabled = config.enabled;
+    this.searchingParentFolders = config.searchingParentFolders;
   }
 }

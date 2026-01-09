@@ -346,6 +346,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     imageLabel.addListener(SWT.MouseEnter, listener);
     imageLabel.addListener(SWT.MouseExit, listener);
 
+    // Also add the toolbar click handler to the image label
+    imageLabel.addListener(SWT.MouseDown, toolbarListener);
+
     // Make the entire composite clickable (image + text)
     composite.addListener(SWT.MouseDown, toolbarListener);
 
