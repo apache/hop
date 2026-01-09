@@ -172,12 +172,19 @@ RUN echo "=== Extracting assemblies ===" && \
         echo "WARNING: Plugins assembly not found, will use built plugins directly"; \
     fi
 
-# Step 2: Generate fat jar for dataflow template
-RUN if [ -f /build/assemblies/client/target/hop/hop-conf.sh ]; then \
-        /build/assemblies/client/target/hop/hop-conf.sh \
-        --generate-fat-jar=/tmp/hop-fatjar.jar; \
+# Step 2: Generate fat jar for dataflow template (only if needed)
+ARG SKIP_FAT_JAR=false
+RUN if [ "${SKIP_FAT_JAR}" = "false" ]; then \
+        echo "=== Generating fat jar ===" && \
+        if [ -f /build/assemblies/client/target/hop/hop-conf.sh ]; then \
+            /build/assemblies/client/target/hop/hop-conf.sh \
+            --generate-fat-jar=/tmp/hop-fatjar.jar; \
+        else \
+            echo "ERROR: hop-conf.sh not found" && exit 1; \
+        fi; \
     else \
-        echo "ERROR: hop-conf.sh not found" && exit 1; \
+        echo "=== Skipping fat jar generation (not needed) ===" && \
+        touch /tmp/hop-fatjar.jar; \
     fi
 
 # Step 3: Prepare optimized directory structures for final images
@@ -189,12 +196,11 @@ RUN mkdir -p /build/hop-web-prepared/webapps/ROOT && \
     cp -r /build/assemblies/client/target/hop/lib/beam/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     cp -r /build/assemblies/client/target/hop/lib/core/* /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/ && \
     rm /build/hop-web-prepared/webapps/ROOT/WEB-INF/lib/hop-ui-rcp* && \
-    mkdir -p /build/hop-web-prepared/bin && \
-    cp -r /build/docker/resources/run-web.sh /build/hop-web-prepared/bin/run-web.sh
+    cp /build/docker/resources/run-web.sh /build/hop-web-prepared/run-web.sh && \
+    chmod +x /build/hop-web-prepared/run-web.sh
 
 # Make scripts executable
-RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh \
-    && chmod +x /build/hop-web-prepared/bin/run-web.sh
+RUN chmod +x /build/hop-web-prepared/webapps/ROOT/*.sh
 
     # Fix hop-config.json
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' /build/hop-web-prepared/webapps/ROOT/config/hop-config.json
@@ -221,14 +227,13 @@ RUN mkdir -p /build/hop-client-prepared && \
 RUN mkdir -p /build/hop-rest-prepared/plugins && \
     mkdir -p /build/hop-rest-prepared/webapps && \
     mkdir -p /build/hop-rest-prepared/lib/swt/linux/x86_64 && \
-    mkdir -p /build/hop-rest-prepared/bin && \
     # Copy plugins
     cp -r /build/assemblies/plugins/target/plugins/* /build/hop-rest-prepared/plugins/ && \
     # Copy REST war
     cp /build/rest/target/hop-rest*.war /build/hop-rest-prepared/webapps/hop.war && \
     # Copy run script
-    cp /build/docker/resources/run-rest.sh /build/hop-rest-prepared/bin/run-rest.sh && \
-    chmod +x /build/hop-rest-prepared/bin/run-rest.sh
+    cp /build/docker/resources/run-rest.sh /build/hop-rest-prepared/run-rest.sh && \
+    chmod +x /build/hop-rest-prepared/run-rest.sh
 
 ################################################################################
 # Stage 4a: Hop Client/Server Image (Standard)
@@ -299,7 +304,7 @@ USER hop
 ENV PATH=${PATH}:${DEPLOYMENT_PATH}/hop
 WORKDIR /home/hop
 
-CMD bash -c "$DEPLOYMENT_PATH/run.sh"
+ENTRYPOINT ["/bin/bash", "/opt/hop/run.sh"]
 
 ################################################################################
 # Stage 4b: Hop Web Image
@@ -352,11 +357,46 @@ COPY --from=builder --chown=hop /build/hop-web-prepared/ "${CATALINA_HOME}"
 
 USER hop
 
-CMD bash -c "$CATALINA_HOME/bin/run-web.sh"
+CMD ["/bin/bash", "/usr/local/tomcat/run-web.sh"]
 
 
 ################################################################################
-# Stage 4c: Hop Dataflow Template Image
+# Stage 4c: Hop REST Image
+################################################################################
+FROM tomcat:10-jdk17 AS rest
+
+# Environment variables
+ENV HOP_CONFIG_FOLDER=""
+ENV HOP_AES_ENCODER_KEY=""
+ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
+ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
+ENV HOP_LOG_LEVEL="Basic"
+ENV HOP_OPTIONS="-Xmx4g"
+ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
+ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
+ENV HOP_SHARED_JDBC_FOLDERS=""
+ENV HOP_REST_CONFIG_FOLDER="/config"
+
+# Set TOMCAT start variables
+ENV CATALINA_OPTS='${HOP_OPTIONS} \
+  -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KEY}" \
+  -DHOP_AUDIT_FOLDER="${HOP_AUDIT_FOLDER}" \
+  -DHOP_CONFIG_FOLDER="${HOP_CONFIG_FOLDER}" \
+  -DHOP_LOG_LEVEL="${HOP_LOG_LEVEL}" \
+  -DHOP_PASSWORD_ENCODER_PLUGIN="${HOP_PASSWORD_ENCODER_PLUGIN}" \
+  -DHOP_PLUGIN_BASE_FOLDERS="${HOP_PLUGIN_BASE_FOLDERS}" \
+  -DHOP_REST_CONFIG_FOLDER="${HOP_REST_CONFIG_FOLDER}" \
+  -DHOP_SHARED_JDBC_FOLDERS="${HOP_SHARED_JDBC_FOLDERS}"\'
+
+# Cleanup and copy resources
+RUN rm -rf webapps/*
+
+COPY --from=builder /build/hop-rest-prepared/ "${CATALINA_HOME}"/
+
+CMD ["/bin/bash", "/usr/local/tomcat/run-rest.sh"]
+
+################################################################################
+# Stage 4d: Hop Dataflow Template Image
 ################################################################################
 FROM gcr.io/dataflow-templates-base/java17-template-launcher-base AS dataflow
 
@@ -380,7 +420,7 @@ ENTRYPOINT ["/opt/google/dataflow/java_template_launcher"]
 ################################################################################
 
 ################################################################################
-# Stage 4e: Hop Web with Beam (includes fat jar for Dataflow)
+# Stage 4f: Hop Web with Beam (includes fat jar for Dataflow)
 ################################################################################
 FROM web AS web-beam
 LABEL variant="beam"

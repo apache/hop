@@ -39,6 +39,7 @@
 #   --maven-threads <threads>     Maven build threads (default: 1C, e.g., 2C, 4, 8)
 #   --progress <mode>             Docker build output mode: auto (default), plain (verbose), tty (compact)
 #   --builder <type>              Builder type: full (Maven, default) or fast (pre-built artifacts)
+#   --skip-fat-jar                Skip building the fat jar (auto-detected based on images, only needed for dataflow/web-beam)
 #   --no-cache                    Build without using cache
 #   -h, --help                    Show this help message
 #
@@ -55,11 +56,17 @@
 #   # Build web image with beam variant (includes fat jar for Dataflow)
 #   ./build-hop-images.sh --images web-beam
 #
+#   # Build web image only (fat jar automatically skipped)
+#   ./build-hop-images.sh --images web
+#
 #   # Build specific variants
 #   ./build-hop-images.sh --images client-minimal,web-beam
 #
 #   # Build for multiple platforms and push to Docker Hub
 #   ./build-hop-images.sh --platforms linux/amd64,linux/arm64 --push --registry apache
+#
+#   # Manually skip fat jar generation (saves time if not building dataflow/web-beam)
+#   ./build-hop-images.sh --images web,client --skip-fat-jar
 #
 ################################################################################
 
@@ -105,6 +112,7 @@ USE_CACHE="true"
 MAVEN_THREADS="1C"  # Maven thread count (1C, 2C, or specific number like 4)
 BUILD_PROGRESS="auto"  # Docker build progress output (auto, plain, tty)
 BUILDER_TYPE="full"  # Builder type: full (Maven build) or fast (pre-built artifacts)
+SKIP_FAT_JAR="auto"  # Whether to skip fat jar generation (auto, true, false)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -171,6 +179,29 @@ print_header() {
 show_help() {
     sed -n '/^# Usage:/,/^################################################################################$/p' "$0" | grep -v "^#####" | sed 's/^# //'
     exit 0
+}
+
+# Function to determine if fat jar is needed based on images being built
+needs_fat_jar() {
+    local images_list="$1"
+    
+    # Fat jar is only needed for dataflow and web-beam images
+    if [[ "$images_list" == "all" ]]; then
+        # Building all images includes dataflow and web-beam
+        return 0
+    fi
+    
+    # Check if any of the requested images needs the fat jar
+    IFS=',' read -ra images_array <<< "$images_list"
+    for img in "${images_array[@]}"; do
+        img=$(echo "$img" | xargs)  # trim whitespace
+        if [[ "$img" == "dataflow"* ]] || [[ "$img" == "web-beam"* ]]; then
+            return 0
+        fi
+    done
+    
+    # No images that need fat jar
+    return 1
 }
 
 # Function to detect version from pom.xml
@@ -285,6 +316,10 @@ parse_args() {
                 BUILDER_TYPE="$2"
                 shift 2
                 ;;
+            --skip-fat-jar)
+                SKIP_FAT_JAR="true"
+                shift
+                ;;
             --no-cache)
                 USE_CACHE="false"
                 shift
@@ -358,12 +393,28 @@ build_image() {
         version_tag="${VERSION}-${variant_suffix}"
     fi
     
+    # Determine if we should skip fat jar for this specific image
+    local skip_fat_jar_value="false"
+    if [[ "$SKIP_FAT_JAR" == "true" ]]; then
+        skip_fat_jar_value="true"
+    elif [[ "$SKIP_FAT_JAR" == "auto" ]]; then
+        # Auto-detect: skip if this image doesn't need it
+        if [[ "$stage_name" != "dataflow"* ]] && [[ "$stage_name" != "web-beam"* ]]; then
+            skip_fat_jar_value="true"
+        fi
+    fi
+    
+    if [[ "$skip_fat_jar_value" == "true" ]]; then
+        print_info "Skipping fat jar generation (not needed for $stage_name)"
+    fi
+    
     # Build arguments
     local build_args=(
         "--build-arg" "HOP_BUILD_FROM_SOURCE=$SOURCE_TYPE"
         "--build-arg" "TARGET_IMAGE=$stage_name"
         "--build-arg" "MAVEN_THREADS=$maven_threads"
         "--build-arg" "BUILDER_TYPE=$BUILDER_TYPE"
+        "--build-arg" "SKIP_FAT_JAR=$skip_fat_jar_value"
         "--progress" "$BUILD_PROGRESS"
         "--file" "$SCRIPT_DIR/unified.Dockerfile"
         "--target" "$stage_name"
@@ -464,6 +515,20 @@ build_images() {
     if [[ "$BUILDER_TYPE" == "full" ]]; then
         echo "Maven threads: $MAVEN_THREADS"
     fi
+    
+    # Show fat jar status
+    if [[ "$SKIP_FAT_JAR" == "auto" ]]; then
+        if needs_fat_jar "$IMAGES"; then
+            echo "Fat jar:       enabled (auto-detected, needed for dataflow/web-beam)"
+        else
+            echo "Fat jar:       disabled (auto-detected, not needed for selected images)"
+        fi
+    elif [[ "$SKIP_FAT_JAR" == "true" ]]; then
+        echo "Fat jar:       disabled (manual)"
+    else
+        echo "Fat jar:       enabled"
+    fi
+    
     echo "Push:          $PUSH"
     echo "Cache:         $USE_CACHE"
     echo ""
