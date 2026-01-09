@@ -18,7 +18,9 @@
 
 package org.apache.hop.documentation;
 
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +45,9 @@ import org.apache.hop.hop.plugin.HopCommand;
 import org.apache.hop.hop.plugin.IHopCommand;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import picocli.CommandLine;
 
 @Getter
@@ -100,6 +105,16 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
       description = "The source folder to document")
   private String sourceFolder;
 
+  @CommandLine.Option(
+      names = {"-gh", "--generate-html"},
+      description = "Generate HTML versions of documentation files")
+  private boolean generateHtml;
+
+  @CommandLine.Option(
+      names = {"-rmmd", "--remove-markdown"},
+      description = "Removes markdown after generating html files")
+  private boolean removeMarkdown;
+
   public DocBuilder() {}
 
   public DocBuilder(
@@ -111,7 +126,9 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
       String targetParentFolder,
       boolean includingParameters,
       boolean includingNotes,
-      boolean includingMetadata) {
+      boolean includingMetadata,
+      boolean generateHtml,
+      boolean removeMarkdown) {
     this.log = log;
     this.variables = variables;
     this.metadataProvider = metadataProvider;
@@ -121,6 +138,8 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
     this.includingParameters = includingParameters;
     this.includingNotes = includingNotes;
     this.includingMetadata = includingMetadata;
+    this.generateHtml = generateHtml;
+    this.removeMarkdown = removeMarkdown;
   }
 
   @Override
@@ -182,7 +201,9 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
               targetParentFolder,
               includingParameters,
               includingNotes,
-              includingMetadata);
+              includingMetadata,
+              generateHtml,
+              removeMarkdown);
       docBuilder.buildDocumentation(new Result());
     } catch (Exception e) {
       log.logError("Error generating documentation", e);
@@ -220,6 +241,8 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
         }
       }
       writeToc(toc, targetParentFolder, projectName);
+      generateHtmlFromToc(toc, targetParentFolder);
+
       log.logBasic("Finished generating documentation for project " + projectName);
     } catch (Exception e) {
       log.logError("Error building documentation", e);
@@ -410,10 +433,74 @@ public class DocBuilder implements Runnable, IHopCommand, IHasHopMetadataProvide
     }
   }
 
-  public void saveFile(String svgFilename, String pipelineSvg) throws Exception {
-    try (OutputStream outputStream = HopVfs.getOutputStream(svgFilename, false)) {
-      outputStream.write(pipelineSvg.getBytes());
+  public void saveFile(String filename, String content) throws Exception {
+    try (OutputStream outputStream = HopVfs.getOutputStream(filename, false)) {
+      outputStream.write(content.getBytes());
       outputStream.flush();
+    }
+  }
+
+  public String readFile(String fileName) throws HopException {
+    try (InputStream inputStream = HopVfs.getInputStream(fileName)) {
+      return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new HopException("Unable to read file " + fileName, e);
+    }
+  }
+
+  private String markdownToHtml(String markdown) {
+    Parser parser = Parser.builder().build();
+    HtmlRenderer renderer = HtmlRenderer.builder().build();
+
+    Node document = parser.parse(markdown);
+    return renderer.render(document);
+  }
+
+  private void generateHtmlFromToc(Toc toc, String targetParentFolder) throws Exception {
+    log.logBasic("generateHtml flag = " + generateHtml);
+    log.logBasic("removeMarkdown flag = " + removeMarkdown);
+    if (!generateHtml) {
+      return;
+    }
+
+    // Generate index.html from index.md
+    String indexMdFile = targetParentFolder + "/" + INDEX_MD;
+    if (new java.io.File(indexMdFile).exists()) {
+      String indexMarkdown = readFile(indexMdFile);
+      String indexHtml = markdownToHtml(indexMarkdown);
+      indexHtml = indexHtml.replaceAll("\\.md([^a-zA-Z0-9])", ".html$1");
+      String indexHtmlFile = indexMdFile.replace(".md", ".html");
+      saveFile(indexHtmlFile, indexHtml);
+      log.logBasic("Generated: " + indexHtmlFile + " (with fixed links)");
+    }
+
+    // DELETE index.md if removeMarkdown flag is set
+    if (removeMarkdown) {
+      java.io.File indexFile = new java.io.File(indexMdFile);
+      if (indexFile.exists() && indexFile.delete()) {
+        log.logBasic("Deleted index markdown file: " + indexMdFile);
+      } else {
+        log.logBasic("Failed to delete index markdown file: " + indexMdFile);
+      }
+    }
+
+    // Generate other HTML files & removing the markdown if applicable
+    for (TocEntry entry : toc.getEntries()) {
+      String mdFile = targetParentFolder + "/" + entry.targetDocFile();
+      String markdown = readFile(mdFile);
+      String html = markdownToHtml(markdown);
+      String htmlFile = mdFile.replace(".md", ".html");
+      saveFile(htmlFile, html);
+      log.logBasic("Generated: " + htmlFile);
+
+      if (removeMarkdown) {
+        java.io.File file = new java.io.File(mdFile);
+        if (file.exists() && file.delete()) {
+          log.logBasic("Deleted markdown file: " + mdFile);
+        } else {
+          log.logBasic("Failed to delete markdown file (or not found): " + mdFile);
+        }
+      }
     }
   }
 

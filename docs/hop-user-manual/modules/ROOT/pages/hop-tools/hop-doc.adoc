@@ -1,0 +1,158 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing
+permissions and limitations under the License.
+////
+:description: Hop Doc generates project documentation
+= Hop Doc
+
+Hop Doc generates documentation for Hop projects in Markdown format with optional HTML output.
+
+== Usage
+
+Generate documentation for a Hop project:
+
+[source,command]
+----
+./hop.bat doc -s /path/to/project -t /path/to/docs [--generate-html] [--remove-markdown]
+----
+
+Or using Hop project variables:
+[source,command]
+----
+./hop.bat run -j my-project doc -t /path/to/docs --generate-html
+----
+
+== Options
+
+[options="header"]
+|===
+|Option |Description |Default
+|-s, --source-folder |Source project folder to document |Required (or use project)
+|-t, --target-folder |Target documentation folder |Required
+|-ip, --include-parameters |Include pipeline/workflow parameters |true
+|-in, --include-notes |Include notes text |false
+|-im, --include-metadata |Include metadata overview |true
+|-n, --project-name |Project name |"Hop" (or HOP_PROJECT_NAME)
+|-gh, --generate-html |Generate HTML versions of all docs |false
+|-rmmd, --remove-markdown |Remove .md files after HTML generation |false
+|===
+
+== Examples
+
+=== Basic Documentation
+
+Generate Markdown documentation only:
+
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+----
+./hop.bat doc -s "C:\Projects\my-hop-project" -t "C:\yourLocation\docs"
+----
+
+Linux/macOS::
++
+--
+[source,shell]
+----
+./hop.sh doc -s ~/projects/my-hop-project -t ~/docs
+----
+====
+
+=== HTML Documentation
+
+Generate HTML + remove Markdown source:
+
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+----
+./hop.bat doc -s "C:\Projects\my-hop-project" -t "C:\yourLocation\docs" --generate-html --remove-markdown
+----
+
+Generates:
+[source]
+----
+C:\docs\
+├── index.html (project TOC)
+├── pipelines\
+│   └── my-pipeline.html
+├── workflows\
+│   └── my-workflow.html
+└── assets\
+    ├── styles.css
+    └── images\
+----
+
+Linux/macOS::
++
+--
+[source,shell]
+----
+./hop.sh doc -s ~/projects/my-hop-project -t ~/docs --generate-html --remove-markdown
+----
+====
+
+=== Using Hop Project Context
+
+[source,shell]
+----
+./hop.bat run -j IT-mongo doc -t "C:\yourLocation\docs" --generate-html
+----
+
+Uses `HOP_PROJECT_HOME` and `HOP_PROJECT_NAME` automatically.
+
+== Workflow Action Usage
+
+Add "Documentation" action to any Hop workflow:
+
+1. Drag **Documentation** action from Utility category
+2. Set **Target folder** (`C:\yourLocation\docs`)
+3. Optional: Check **Generate HTML**
+4. Optional: Check **Remove markdown** (only when Generate HTML enabled)
+5. Configure content options:
+   - ☑ **Include parameters** (optional)
+   - ☑ **Include metadata** (optional)
+   - ☐ **Include notes** (optional)
+
+== Generated Structure
+
+docs/
+├── index.html (Table of Contents)
+├── pipelines/ (all .hpl files)
+│ ├── pipeline1.html
+│ └── subfolder/
+│ └── pipeline2.html
+├── workflows/ (all .hwf files)
+│ └── workflow1.html
+├── metadata/ (metadata overview)
+└── assets/
+├── styles.css
+└── images/
+
+== Notes
+
+* `--remove-markdown` is **automatically disabled** if `--generate-html` is false
+* HTML output includes custom CSS styling and responsive images
+* All links in `index.html` automatically point to `.html` files
+* Supports nested folders and metadata documentation
+* Uses CommonMark for Markdown → HTML conversion

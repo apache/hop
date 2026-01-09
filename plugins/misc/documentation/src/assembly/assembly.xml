@@ -47,5 +47,17 @@
             </includes>
             <outputDirectory>plugins/misc/documentation</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <scope>runtime</scope>
+            <excludes>
+                <exclude>commons-codec:*</exclude>
+                <exclude>commons-logging:*</exclude>
+                <exclude>org.slf4j:*</exclude>
+                <exclude>org.apache.httpcomponents:*</exclude>
+            </excludes>
+            <outputDirectory>plugins/misc/documentation/lib</outputDirectory>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
     </dependencySets>
 </assembly>
