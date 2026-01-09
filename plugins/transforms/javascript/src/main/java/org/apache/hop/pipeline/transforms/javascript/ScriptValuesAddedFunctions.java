@@ -2873,7 +2873,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   public static String initCap(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
     if (argList.length == 1) {
-      return ValueDataUtil.initCap(null, Context.toString(argList[0]));
+      return ValueDataUtil.initCap(Context.toString(argList[0]));
     } else {
       throw Context.reportRuntimeError("The function call initCap requires 1 argument.");
     }

@@ -107,7 +107,7 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
         case StringOperationsMeta.INIT_CAP_NO:
           break;
         case StringOperationsMeta.INIT_CAP_YES:
-          rcode = ValueDataUtil.initCap(null, rcode);
+          rcode = ValueDataUtil.initCap(rcode);
           break;
         default:
           break;
