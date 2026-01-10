@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.net.URLEncoder;
 import java.util.UUID;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -45,8 +46,7 @@ import org.owasp.encoder.Encode;
 public class StartPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final Class<?> PKG = StartPipelineServlet.class;
-
-  private static final long serialVersionUID = -5879200987669847357L;
+  @Serial private static final long serialVersionUID = -5879200987669847357L;
 
   public static final String CONTEXT_PATH = "/hop/startPipeline";
 

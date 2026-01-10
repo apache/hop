@@ -17,11 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
+import java.io.Serial;
 import javax.xml.namespace.QName;
 
 /** Represents the return value for a WSDL operation. */
 public class WsdlOpReturnType implements java.io.Serializable {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   protected QName xmlType;
 

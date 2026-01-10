@@ -17,10 +17,11 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 /** This exception is used by the Database class. */
 public class HopSecurityException extends HopException {
-  /** */
-  private static final long serialVersionUID = 6697156126695280683L;
+  @Serial private static final long serialVersionUID = 6697156126695280683L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopSecurityException() {

@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.util.Enumeration;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
@@ -44,8 +45,7 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
 @HopServerServlet(id = "execPipeline", name = "Execute pipeline from file path")
 public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-
-  private static final long serialVersionUID = -5879219287669847357L;
+  @Serial private static final long serialVersionUID = -5879219287669847357L;
 
   private static final String UNABLE_TO_FIND_PIPELINE = "Unable to find pipeline";
 

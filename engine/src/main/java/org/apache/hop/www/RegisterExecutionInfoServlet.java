@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -39,7 +40,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 @HopServerServlet(id = "registerExecInfo", name = "Register execution information")
 public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final long serialVersionUID = -2817136625869923847L;
+  @Serial private static final long serialVersionUID = -2817136625869923847L;
 
   public static final String CONTEXT_PATH = "/hop/registerExecInfo";
   public static final String TYPE_EXECUTION = "execution";

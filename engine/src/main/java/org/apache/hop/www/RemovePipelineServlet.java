@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.HopLogStore;
@@ -35,8 +36,7 @@ import org.owasp.encoder.Encode;
 @HopServerServlet(id = "removePipeline", name = "Remove a pipeline")
 public class RemovePipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = RemovePipelineServlet.class;
-
-  private static final long serialVersionUID = 6618979989596401783L;
+  @Serial private static final long serialVersionUID = 6618979989596401783L;
 
   public static final String CONTEXT_PATH = "/hop/removePipeline";
 

@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -65,8 +66,7 @@ import org.json.simple.JSONObject;
 public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final Class<?> PKG = WebServiceServlet.class;
-
-  private static final long serialVersionUID = 3834384735363246432L;
+  @Serial private static final long serialVersionUID = 3834384735363246432L;
 
   public static final String CONTEXT_PATH = "/hop/asyncRun";
   public static final String CONST_ERROR_RUNNING_ASYNCHRONOUS_WEB_SERVICE =

@@ -16,8 +16,10 @@
  */
 package org.apache.hop.core.row.value;
 
+import java.io.Serial;
+
 public class ValueMetaConversionException extends Exception {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   public ValueMetaConversionException(String errorMessage, Exception e) {
     super(errorMessage, e);

@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.Utils;
@@ -33,8 +34,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 @HopServerServlet(id = "workflowImage", name = "Generate a PNG image of a workflow")
 public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServerPlugin {
-
-  private static final long serialVersionUID = -4365372274638005929L;
+  @Serial private static final long serialVersionUID = -4365372274638005929L;
   public static final float ZOOM_FACTOR = 1.5f;
 
   private static final Class<?> PKG = GetPipelineStatusServlet.class;

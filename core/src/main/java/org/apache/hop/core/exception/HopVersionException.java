@@ -17,11 +17,12 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
 import org.apache.hop.core.Const;
 
 /** This is a general Hop Exception. */
 public class HopVersionException extends Exception {
-  public static final long serialVersionUID = 0x8D8EA0264F7A1C12L;
+  @Serial private static final long serialVersionUID = 0x8D8EA0264F7A1C12L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopVersionException() {

@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.Serial;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -39,8 +40,7 @@ import org.apache.commons.collections4.IteratorUtils;
 
 /** Thread Safe version of Java Properties class. */
 public class ConcurrentMapProperties extends Properties {
-
-  private static final long serialVersionUID = -7444528393201025496L;
+  @Serial private static final long serialVersionUID = -7444528393201025496L;
 
   protected ConcurrentMap<Object, Object> storageMap = new ConcurrentHashMap<>();
 

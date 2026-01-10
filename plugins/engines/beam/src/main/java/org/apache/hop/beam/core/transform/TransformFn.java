@@ -19,6 +19,7 @@
 package org.apache.hop.beam.core.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.beam.sdk.metrics.Counter;
@@ -65,8 +66,7 @@ import org.joda.time.Instant;
 import org.json.simple.parser.ParseException;
 
 public class TransformFn extends TransformBaseFn {
-
-  private static final long serialVersionUID = 95700000000000001L;
+  @Serial private static final long serialVersionUID = 95700000000000001L;
 
   public static final String INJECTOR_TRANSFORM_NAME = "_INJECTOR_";
 

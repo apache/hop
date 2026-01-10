@@ -17,11 +17,12 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
 import org.apache.hop.core.Const;
 
 /** This is an exception thrown by file handling (I/O) */
 public class HopEofException extends HopFileException {
-  public static final long serialVersionUID = 0x8D8EA0264F7A1C11L;
+  @Serial private static final long serialVersionUID = 0x8D8EA0264F7A1C11L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopEofException() {

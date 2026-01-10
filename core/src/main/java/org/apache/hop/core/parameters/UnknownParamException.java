@@ -17,9 +17,11 @@
 
 package org.apache.hop.core.parameters;
 
+import java.io.Serial;
+
 /** This is an Apache Hop Exception for the named parameters. */
 public class UnknownParamException extends NamedParamsException {
-  private static final long serialVersionUID = -4447368601975248474L;
+  @Serial private static final long serialVersionUID = -4447368601975248474L;
 
   /** Constructs a new throwable with null as its detail message. */
   public UnknownParamException() {

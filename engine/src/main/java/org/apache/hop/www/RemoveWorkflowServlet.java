@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.HopLogStore;
@@ -36,7 +37,7 @@ import org.owasp.encoder.Encode;
 public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final Class<?> PKG = RemoveWorkflowServlet.class;
-  private static final long serialVersionUID = -2051906998698124039L;
+  @Serial private static final long serialVersionUID = -2051906998698124039L;
 
   public static final String CONTEXT_PATH = "/hop/removeWorkflow";
 

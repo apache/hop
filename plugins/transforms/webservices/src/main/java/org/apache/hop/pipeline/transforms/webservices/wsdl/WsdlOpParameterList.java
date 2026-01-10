@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,8 +29,7 @@ import org.w3c.dom.Element;
 
 /** WsdlOpParameterList represents the list of parameters for an operation. */
 public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
-
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
   private final Operation _operation;
   private final WsdlTypes _wsdlTypes;
   private final HashSet<String> _headerNames;

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +37,7 @@ type registration.
  * complex type.
  */
 public final class ComplexType implements java.io.Serializable {
-
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
   public static final String CONST_GROUP = "group";
   public static final String CONST_CHOICE = "choice";
   public static final String CONST_SEQUENCE = "sequence";

@@ -17,10 +17,11 @@
 
 package org.apache.hop.core.auth.core;
 
+import java.io.Serial;
 import org.apache.hop.core.exception.HopException;
 
 public class AuthenticationFactoryException extends HopException {
-  private static final long serialVersionUID = -7649037092966810244L;
+  @Serial private static final long serialVersionUID = -7649037092966810244L;
 
   public AuthenticationFactoryException(String message) {
     super(message);

@@ -17,8 +17,10 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 public class HopObjectExistsException extends HopException {
-  public static final long serialVersionUID = 0x1L;
+  @Serial private static final long serialVersionUID = 0x1L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopObjectExistsException() {

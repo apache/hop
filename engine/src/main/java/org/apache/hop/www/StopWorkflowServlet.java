@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.net.URLEncoder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -37,8 +38,7 @@ import org.owasp.encoder.Encode;
 @HopServerServlet(id = "stopWorkflow", name = "Stop a workflow")
 public class StopWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = StopWorkflowServlet.class;
-
-  private static final long serialVersionUID = 3634806745372015720L;
+  @Serial private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/stopWorkflow";
 
   public StopWorkflowServlet() {}

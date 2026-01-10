@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.net.URLEncoder;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -44,8 +45,7 @@ import org.owasp.encoder.Encode;
 @HopServerServlet(id = "sniffTransform", name = "Sniff test a pipeline transform")
 public class SniffTransformServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = GetPipelineStatusServlet.class;
-
-  private static final long serialVersionUID = 3634806745372015720L;
+  @Serial private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/sniffTransform";
   private static final String CONST_HEADER_END = "</H1>";
   private static final String CONST_HEADER_START = "<H1>";

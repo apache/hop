@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.sort;
 
 import java.io.File;
+import java.io.Serial;
 import java.io.Serializable;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/sort.html")
 public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     implements Serializable {
-  private static final long serialVersionUID = -9075883720765645655L;
+  @Serial private static final long serialVersionUID = -9075883720765645655L;
   private static final Class<?> PKG = SortRowsMeta.class;
   private static final String CONST_SPACE = "      ";
   private static final String CONST_SPACE_LONG = "        ";

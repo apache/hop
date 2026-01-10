@@ -21,8 +21,6 @@ package org.apache.hop.pipeline.transforms.script;
 public class ScriptAddedFunctions {
   public static Object undefinedValue = null;
 
-  public static final long serialVersionUID = 2L;
-
   public static final int STRING_FUNCTION = 0;
   public static final int NUMERIC_FUNCTION = 1;
   public static final int DATE_FUNCTION = 2;

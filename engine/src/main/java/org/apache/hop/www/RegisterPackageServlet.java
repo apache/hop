@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import org.apache.commons.io.IOUtils;
@@ -52,8 +53,7 @@ import org.w3c.dom.Node;
 public class RegisterPackageServlet extends BaseWorkflowServlet {
 
   public static final String CONTEXT_PATH = "/hop/registerPackage";
-
-  private static final long serialVersionUID = -7582587179862317791L;
+  @Serial private static final long serialVersionUID = -7582587179862317791L;
 
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
