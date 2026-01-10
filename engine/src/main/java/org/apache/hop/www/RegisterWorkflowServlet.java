@@ -19,6 +19,7 @@ package org.apache.hop.www;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -31,8 +32,7 @@ import org.json.simple.parser.ParseException;
 
 @HopServerServlet(id = "registerWorkflow", name = "Add a workflow to the server")
 public class RegisterWorkflowServlet extends BaseWorkflowServlet {
-
-  private static final long serialVersionUID = 7416802722393075758L;
+  @Serial private static final long serialVersionUID = 7416802722393075758L;
   public static final String CONTEXT_PATH = "/hop/registerWorkflow";
 
   @Override

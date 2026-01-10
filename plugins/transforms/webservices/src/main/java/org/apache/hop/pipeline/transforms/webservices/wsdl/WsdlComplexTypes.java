@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -25,8 +26,7 @@ import org.w3c.dom.Element;
 
 /** Represents a map of all named complex types in the WSDL. */
 public final class WsdlComplexTypes implements java.io.Serializable {
-
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
   private HashMap<String, ComplexType> complexTypes = new HashMap<>();
 
   /**

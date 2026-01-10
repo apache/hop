@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -25,7 +26,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 
 /** This Exception is throws when an error occurs loading plugins. */
 public class HopMissingPluginsException extends HopException {
-  private static final long serialVersionUID = -3008319146447259788L;
+  @Serial private static final long serialVersionUID = -3008319146447259788L;
 
   public static class PluginDetails {
     private final Class<? extends IPluginType> pluginTypeClass;

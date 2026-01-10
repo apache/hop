@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -51,8 +52,7 @@ import org.owasp.encoder.Encode;
 public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final Class<?> PKG = GetPipelineStatusServlet.class;
-
-  private static final long serialVersionUID = 3634806745372015720L;
+  @Serial private static final long serialVersionUID = 3634806745372015720L;
 
   public static final String CONTEXT_PATH = "/hop/pipelineStatus";
   private static final String CONST_HREF = "<a target=\"_blank\" href=\"";

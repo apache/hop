@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ import org.w3c.dom.Document;
 
 /** Wsdl abstraction. */
 public final class Wsdl implements java.io.Serializable {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
   public static final String CONST_COULD_NOT_LOAD_WSDL_FILE = "Could not load WSDL file: ";
   private Port port;
   private final Definition wsdlDefinition;

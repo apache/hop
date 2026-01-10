@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.net.URLEncoder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -46,7 +47,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
   private static final String CONST_LINK_OPEN = "<a href=\"";
   private static final String CONST_LINK_CLOSE = "</a><p>";
   private static final String CONST_CLOSE_TAG = "\">";
-  private static final long serialVersionUID = 3634806745372015720L;
+  @Serial private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/prepareExec";
 
   public PrepareExecutionPipelineServlet() {}

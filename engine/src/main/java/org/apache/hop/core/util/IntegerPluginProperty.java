@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.util;
 
+import java.io.Serial;
 import java.util.prefs.Preferences;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
@@ -24,7 +25,7 @@ import org.w3c.dom.Node;
 public class IntegerPluginProperty extends KeyValue<Integer> implements IPluginProperty {
 
   /** Serial version UID. */
-  private static final long serialVersionUID = -2990345692552430357L;
+  @Serial private static final long serialVersionUID = -2990345692552430357L;
 
   /**
    * Constructor. Value is null.

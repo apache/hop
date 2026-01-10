@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
@@ -44,8 +45,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 @HopServerServlet(id = "status", name = "Get the status of the server")
 public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = GetStatusServlet.class;
-
-  private static final long serialVersionUID = 3634806745372015720L;
+  @Serial private static final long serialVersionUID = 3634806745372015720L;
 
   public static final String CONTEXT_PATH = "/hop/status";
   private static final String CONST_DIV_CLOSE = "\"/></div></td>";

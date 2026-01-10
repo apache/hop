@@ -17,9 +17,11 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 /** This is an exception thrown during parsing of SQL by Hop. */
 public class HopSqlException extends HopException {
-  private static final long serialVersionUID = 2358671508821350095L;
+  @Serial private static final long serialVersionUID = 2358671508821350095L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopSqlException() {

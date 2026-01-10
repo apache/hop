@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.util;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import org.apache.commons.collections4.Closure;
 
@@ -26,7 +27,7 @@ import org.apache.commons.collections4.Closure;
 public class AddClosureArrayList<T> extends ArrayList<T> implements Closure {
 
   /** Serial version UID. */
-  private static final long serialVersionUID = 2395583665248110276L;
+  @Serial private static final long serialVersionUID = 2395583665248110276L;
 
   /**
    * {@inheritDoc}

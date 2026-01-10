@@ -17,8 +17,9 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 public class HopNotUsedException extends HopException {
 
-  /** */
-  private static final long serialVersionUID = -1901002205330981489L;
+  @Serial private static final long serialVersionUID = -1901002205330981489L;
 }

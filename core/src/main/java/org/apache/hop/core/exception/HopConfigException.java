@@ -17,8 +17,10 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 public class HopConfigException extends HopException {
-  private static final long serialVersionUID = -5576046720306675340L;
+  @Serial private static final long serialVersionUID = -5576046720306675340L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopConfigException() {

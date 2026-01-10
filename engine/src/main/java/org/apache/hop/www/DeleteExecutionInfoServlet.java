@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -35,7 +36,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
 @HopServerServlet(id = "registerExecInfo", name = "Register execution information")
 public class DeleteExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final long serialVersionUID = -1901302231769020201L;
+  @Serial private static final long serialVersionUID = -1901302231769020201L;
 
   public static final String CONTEXT_PATH = "/hop/deleteExecInfo";
   public static final String PARAMETER_ID = "id";

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 import javax.wsdl.Binding;
@@ -32,8 +33,7 @@ import org.apache.hop.core.exception.HopTransformException;
 
 /** WSDL operation abstraction. */
 public final class WsdlOperation implements java.io.Serializable {
-
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** Parameter style enumeration. */
   public enum SOAPParameterStyle {

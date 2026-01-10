@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.util.UUID;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -63,8 +64,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
 
   public static final String TYPE_WORKFLOW = "workflow";
   public static final String TYPE_PIPELINE = "pipeline";
-
-  private static final long serialVersionUID = -6850701762586992604L;
+  @Serial private static final long serialVersionUID = -6850701762586992604L;
   public static final String CONTEXT_PATH = "/hop/addExport";
 
   public AddExportServlet() {}

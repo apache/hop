@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.xml.bind.DataBindingException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -42,8 +43,7 @@ import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 @HopServerServlet(id = "getExecInfo", name = "Get execution information")
 public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = GetExecutionInfoServlet.class;
-
-  private static final long serialVersionUID = -1624876141322415729L;
+  @Serial private static final long serialVersionUID = -1624876141322415729L;
 
   public static final String CONTEXT_PATH = "/hop/getExecInfo";
   public static final String PARAMETER_TYPE = "type";

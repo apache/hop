@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serial;
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.List;
@@ -37,8 +38,7 @@ import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 
 public class HopServerServlet extends HttpServlet {
-
-  private static final long serialVersionUID = 2434694833497859776L;
+  @Serial private static final long serialVersionUID = 2434694833497859776L;
 
   public static final String STRING_HOP_SERVER_SERVLET = "HopServer Servlet";
 

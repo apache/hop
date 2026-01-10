@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
+import java.io.Serial;
 import javax.xml.namespace.QName;
 
 /** Wsdl operation fault abstraction. */
 public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Serializable {
-
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
   private final QName name;
   private final boolean isComplexType;
   private final boolean isElementFormQualified;

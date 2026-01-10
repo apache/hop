@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.net.URLEncoder;
 import java.util.UUID;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -47,8 +48,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
   private static final Class<?> PKG = StartWorkflowServlet.class;
   // needed by
   // Translator!!
-
-  private static final long serialVersionUID = -8487225953910464032L;
+  @Serial private static final long serialVersionUID = -8487225953910464032L;
 
   public static final String CONTEXT_PATH = "/hop/startWorkflow";
 

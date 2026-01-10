@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.UUID;
@@ -58,8 +59,7 @@ import org.apache.hop.www.service.WebService;
 public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final Class<?> PKG = WebServiceServlet.class;
-
-  private static final long serialVersionUID = 3634806745373343432L;
+  @Serial private static final long serialVersionUID = 3634806745373343432L;
 
   public static final String CONTEXT_PATH = "/hop/webService";
 

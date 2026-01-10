@@ -17,13 +17,14 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
 import org.apache.hop.core.Const;
 
 /**
  * This is an exception thrown by file handling (I/O) when an End Of File marker has been reached.
  */
 public class HopFileException extends HopException {
-  public static final long serialVersionUID = 0x8D8EA0264F7A1C13L;
+  @Serial private static final long serialVersionUID = 0x8D8EA0264F7A1C13L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopFileException() {

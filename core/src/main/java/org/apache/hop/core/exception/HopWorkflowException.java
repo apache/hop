@@ -17,9 +17,11 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 /** This exception is used when handling Workflows. */
 public class HopWorkflowException extends HopException {
-  public static final long serialVersionUID = 0x8D8EA0264F7A1C14L;
+  @Serial private static final long serialVersionUID = 0x8D8EA0264F7A1C14L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopWorkflowException() {

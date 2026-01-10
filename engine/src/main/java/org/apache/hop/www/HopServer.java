@@ -22,6 +22,7 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Date;
@@ -693,7 +694,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand
 
   /** Exception generated when command line fails */
   public static class HopServerCommandException extends Exception {
-    private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
     public HopServerCommandException(final String message) {
       super(message);

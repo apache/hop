@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serial;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -34,8 +35,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 @HopServerServlet(id = "pipelineImage", name = "Generate a PNG image of a pipeline")
 public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServerPlugin {
-
-  private static final long serialVersionUID = -4365372274638005929L;
+  @Serial private static final long serialVersionUID = -4365372274638005929L;
   public static final float ZOOM_FACTOR = 1.0f;
 
   private static final Class<?> PKG = GetPipelineImageServlet.class;

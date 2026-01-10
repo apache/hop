@@ -17,14 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
+import java.io.Serial;
 import java.util.Objects;
 import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
 
 /** WSDL operation parameter abstraction. */
 public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.Serializable {
-
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   public static class ParameterMode {
     private String mode;

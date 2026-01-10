@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
@@ -51,8 +52,7 @@ import org.apache.hop.www.WebServiceServlet;
 public class AsyncStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final Class<?> PKG = WebServiceServlet.class;
-
-  private static final long serialVersionUID = 2943295824369134751L;
+  @Serial private static final long serialVersionUID = 2943295824369134751L;
 
   public static final String CONTEXT_PATH = "/hop/asyncStatus";
 

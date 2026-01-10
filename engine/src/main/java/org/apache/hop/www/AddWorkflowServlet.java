@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -43,7 +44,7 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
 @HopServerServlet(id = "addWorkflow", name = "Add a workflow to the server")
 public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final long serialVersionUID = -6850701762586992604L;
+  @Serial private static final long serialVersionUID = -6850701762586992604L;
 
   public static final String CONTEXT_PATH = "/hop/addWorkflow";
 

@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.hop.core.Const;
@@ -29,8 +30,7 @@ import org.apache.hop.i18n.PackageMessages;
 import org.owasp.encoder.Encode;
 
 public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopServerPlugin {
-
-  private static final long serialVersionUID = 6576714217004890327L;
+  @Serial private static final long serialVersionUID = 6576714217004890327L;
   private final PackageMessages messages;
 
   public BodyHttpServlet() {

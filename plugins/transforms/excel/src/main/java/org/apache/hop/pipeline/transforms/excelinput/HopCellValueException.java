@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import java.io.Serial;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -30,8 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
 public class HopCellValueException extends HopException {
 
   private static final Class<?> PKG = ExcelInputMeta.class;
-
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final int sheetnr;
   private final int rownr;

@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.util.Enumeration;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
@@ -44,8 +45,7 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
 @HopServerServlet(id = "execWorkflow", name = "Execute workflow from file path")
 public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
-
-  private static final long serialVersionUID = -5879219287669847357L;
+  @Serial private static final long serialVersionUID = -5879219287669847357L;
 
   private static final String UNABLE_TO_FIND_WORKFLOW = "Unable to find workflow";
 

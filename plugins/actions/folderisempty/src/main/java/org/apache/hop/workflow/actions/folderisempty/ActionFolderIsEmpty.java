@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.folderisempty;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -208,7 +209,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   private class ExpectedException extends Exception {
-    private static final long serialVersionUID = -692662556327569162L;
+    @Serial private static final long serialVersionUID = -692662556327569162L;
   }
 
   private class TextFileSelector implements FileSelector {

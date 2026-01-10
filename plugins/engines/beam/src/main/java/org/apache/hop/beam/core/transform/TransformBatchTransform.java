@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.core.transform;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -192,8 +193,7 @@ public class TransformBatchTransform extends TransformTransform {
   }
 
   private class TransformBatchFn extends TransformBaseFn {
-
-    private static final long serialVersionUID = 95700000000000002L;
+    @Serial private static final long serialVersionUID = 95700000000000002L;
 
     public static final String INJECTOR_TRANSFORM_NAME = "_INJECTOR_";
 

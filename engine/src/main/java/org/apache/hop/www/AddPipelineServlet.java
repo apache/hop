@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -43,7 +44,7 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
 @HopServerServlet(id = "addPipeline", name = "Add a pipeline for execution")
 public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static final long serialVersionUID = -6850701762586992604L;
+  @Serial private static final long serialVersionUID = -6850701762586992604L;
 
   public static final String CONTEXT_PATH = "/hop/addPipeline";
 

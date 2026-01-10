@@ -17,10 +17,11 @@
 
 package org.apache.hop.core.auth.core;
 
+import java.io.Serial;
 import org.apache.hop.core.exception.HopException;
 
 public class AuthenticationConsumptionException extends HopException {
-  private static final long serialVersionUID = 1139802265031922758L;
+  @Serial private static final long serialVersionUID = 1139802265031922758L;
 
   public AuthenticationConsumptionException(Exception cause) {
     super(cause);

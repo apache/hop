@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
 import java.util.List;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -26,8 +27,7 @@ public class HopConversionException extends HopException {
   private List<IValueMeta> fields;
   private Object[] rowData;
 
-  /** */
-  private static final long serialVersionUID = 1697154653111622296L;
+  @Serial private static final long serialVersionUID = 1697154653111622296L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopConversionException() {

@@ -16,11 +16,11 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
+import java.io.Serial;
 import org.apache.hop.core.exception.HopException;
 
 public class MonetDbVersionException extends HopException {
-
-  private static final long serialVersionUID = 3876078230581782431L;
+  @Serial private static final long serialVersionUID = 3876078230581782431L;
 
   /** Constructs a new throwable with null as its detail message. */
   public MonetDbVersionException() {

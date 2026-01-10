@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.net.URLEncoder;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hop.core.Const;
@@ -39,8 +40,7 @@ import org.owasp.encoder.Encode;
 @HopServerServlet(id = "startExec", name = "Start the execution of a pipeline")
 public class StartExecutionPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = StartExecutionPipelineServlet.class;
-
-  private static final long serialVersionUID = 3634806745372015720L;
+  @Serial private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/startExec";
   private static final String CONST_HREF = "<a href=\"";
 

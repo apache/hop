@@ -17,9 +17,11 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 /** This Exception is used when handling transforms. */
 public class HopTransformException extends HopPipelineException {
-  public static final long serialVersionUID = 0x8D8EA0264F7A1C15L;
+  @Serial private static final long serialVersionUID = 0x8D8EA0264F7A1C15L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopTransformException() {

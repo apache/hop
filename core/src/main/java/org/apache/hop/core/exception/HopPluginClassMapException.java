@@ -16,8 +16,10 @@
  */
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 public class HopPluginClassMapException extends HopPluginException {
-  private static final long serialVersionUID = 3928198226583274564L;
+  @Serial private static final long serialVersionUID = 3928198226583274564L;
 
   public HopPluginClassMapException() {
     super();

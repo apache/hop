@@ -17,9 +17,10 @@
 
 package org.apache.hop;
 
-public class TestFailedException extends Exception {
+import java.io.Serial;
 
-  private static final long serialVersionUID = 8585395841938180974L;
+public class TestFailedException extends Exception {
+  @Serial private static final long serialVersionUID = 8585395841938180974L;
 
   TestFailedException(String message) {
     super(message);

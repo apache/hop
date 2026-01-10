@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.row.value.timestamp;
 
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.text.AttributedCharacterIterator;
@@ -31,8 +32,7 @@ import java.util.Locale;
 
 /** User: Dzmitry Stsiapanau Date: 3/13/14 Time: 6:32 PM */
 public class SimpleTimestampFormat extends SimpleDateFormat {
-
-  private static final long serialVersionUID = -848077738238548608L;
+  @Serial private static final long serialVersionUID = -848077738238548608L;
 
   /** Cached nanosecond positions in specified pattern. */
   private int startNanosecondPatternPosition;

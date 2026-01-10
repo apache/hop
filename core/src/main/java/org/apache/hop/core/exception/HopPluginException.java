@@ -17,10 +17,11 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 /** This exception is thrown in case there is an error in the Hop plugin loader */
 public class HopPluginException extends HopException {
-
-  private static final long serialVersionUID = -7251001771637436705L;
+  @Serial private static final long serialVersionUID = -7251001771637436705L;
 
   public HopPluginException() {
     super();

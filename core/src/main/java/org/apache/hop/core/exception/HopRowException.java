@@ -17,9 +17,11 @@
 
 package org.apache.hop.core.exception;
 
+import java.io.Serial;
+
 /** This exception is used in row manipulations */
 public class HopRowException extends HopException {
-  public static final long serialVersionUID = 0x8D8EA0264F7A1C18L;
+  @Serial private static final long serialVersionUID = 0x8D8EA0264F7A1C18L;
 
   /** Constructs a new throwable with null as its detail message. */
   public HopRowException() {

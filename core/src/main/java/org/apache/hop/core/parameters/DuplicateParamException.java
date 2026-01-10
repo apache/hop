@@ -17,9 +17,11 @@
 
 package org.apache.hop.core.parameters;
 
+import java.io.Serial;
+
 /** This is am Apache Hop Exception for the named parameters. */
 public class DuplicateParamException extends NamedParamsException {
-  private static final long serialVersionUID = 5054176336008115985L;
+  @Serial private static final long serialVersionUID = 5054176336008115985L;
 
   /** Constructs a new throwable with null as its detail message. */
   public DuplicateParamException() {

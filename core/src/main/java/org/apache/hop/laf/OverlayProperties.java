@@ -19,13 +19,13 @@ package org.apache.hop.laf;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
 public class OverlayProperties extends Properties implements IPropertyHandler {
-
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
   private final String name = null;
 
   public OverlayProperties(String file) throws IOException {
