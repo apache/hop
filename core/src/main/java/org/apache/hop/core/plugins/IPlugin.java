@@ -118,7 +118,7 @@ public interface IPlugin {
   /**
    * @param keywords keywords describing this plugin
    */
-  public void setKeywords(String[] keywords);
+  void setKeywords(String[] keywords);
 
   URL getPluginDirectory();
 

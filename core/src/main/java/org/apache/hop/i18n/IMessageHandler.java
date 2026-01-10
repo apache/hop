@@ -32,7 +32,7 @@ public interface IMessageHandler extends IHandler {
    * @param key
    * @return
    */
-  public String getString(String key);
+  String getString(String key);
 
   /**
    * get a key from the defined package bundle, by key
@@ -41,7 +41,7 @@ public interface IMessageHandler extends IHandler {
    * @param key
    * @return
    */
-  public String getString(String packageName, String key);
+  String getString(String packageName, String key);
 
   /**
    * get a key from the defined package bundle, by key
@@ -51,7 +51,7 @@ public interface IMessageHandler extends IHandler {
    * @param parameters
    * @return
    */
-  public String getString(String packageName, String key, String... parameters);
+  String getString(String packageName, String key, String... parameters);
 
   /**
    * Get a string from the defined package bundle, by key and by a resource class
@@ -62,6 +62,5 @@ public interface IMessageHandler extends IHandler {
    * @param parameters
    * @return
    */
-  public String getString(
-      String packageName, String key, Class<?> resourceClass, String... parameters);
+  String getString(String packageName, String key, Class<?> resourceClass, String... parameters);
 }
