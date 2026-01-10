@@ -196,6 +196,7 @@ public class GuiResource {
   @Getter private Image imageEmpty;
   @Getter private Image imageExpandAll;
   @Getter private Image imageFunction;
+  @Getter private Image imageKeyboard;
   @Getter private Image imageHelp;
   @Getter private Image imageHide;
   @Getter private Image imageHideResults;
@@ -480,6 +481,7 @@ public class GuiResource {
     disposeImage(imageDown);
     disposeImage(imageDuplicate);
     disposeImage(imageFunction);
+    disposeImage(imageKeyboard);
     disposeImage(imageHelp);
     disposeImage(imageHide);
     disposeImage(imageHideResults);
@@ -710,6 +712,8 @@ public class GuiResource {
     imageExpandAll = loadAsResource(display, "ui/images/expand-all.svg", ConstUi.SMALL_ICON_SIZE);
     imageLabel = loadAsResource(display, "ui/images/label.svg", ConstUi.SMALL_ICON_SIZE);
     imageFunction = loadAsResource(display, "ui/images/function.svg", ConstUi.SMALL_ICON_SIZE);
+    imageKeyboard = loadAsResource(display, "ui/images/keyboard.svg", ConstUi.SMALL_ICON_SIZE);
+
     imageNavigateBack =
         loadAsResource(display, "ui/images/navigate-back.svg", ConstUi.SMALL_ICON_SIZE);
     imageNavigateForward =

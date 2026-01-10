@@ -176,7 +176,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.ToolTip;
 
 /** Handles the display of Workflows in HopGui, in a graphical form. */
-@GuiPlugin(description = "Workflow Graph tab")
+@GuiPlugin(name = "i18n::WorkflowGraph.Name", description = "Workflow Graph GUI plugin")
 @SuppressWarnings("java:S1104")
 public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     implements IRedrawable,

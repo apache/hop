@@ -58,7 +58,7 @@ public class GuiPluginType extends BasePluginType<GuiPlugin> {
 
   @Override
   protected String extractName(GuiPlugin annotation) {
-    return annotation.description();
+    return annotation.name();
   }
 
   @Override

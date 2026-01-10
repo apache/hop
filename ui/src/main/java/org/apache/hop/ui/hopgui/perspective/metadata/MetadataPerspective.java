@@ -100,7 +100,9 @@ import org.eclipse.swt.widgets.TreeItem;
     description = "i18n::MetadataPerspective.Description",
     image = "ui/images/metadata.svg",
     documentationUrl = "/hop-gui/perspective-metadata.html")
-@GuiPlugin(description = "i18n::MetadataPerspective.GuiPlugin.Description")
+@GuiPlugin(
+    name = "i18n::MetadataPerspective.Name",
+    description = "i18n::MetadataPerspective.GuiPlugin.Description")
 public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   public static final Class<?> PKG = MetadataPerspective.class; // i18n

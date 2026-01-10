@@ -215,7 +215,7 @@ import org.eclipse.swt.widgets.ToolTip;
  * This class handles the display of the pipelines in a graphical way using icons, arrows, etc. One
  * pipeline is handled per HopGuiPipelineGraph
  */
-@GuiPlugin(description = "The pipeline graph GUI plugin")
+@GuiPlugin(name = "i18n::PipelineGraph.Name", description = "The pipeline graph GUI plugin")
 @SuppressWarnings("java:S1104")
 public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     implements IRedrawable,

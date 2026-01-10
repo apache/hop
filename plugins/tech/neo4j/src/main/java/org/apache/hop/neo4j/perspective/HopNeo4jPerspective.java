@@ -89,7 +89,7 @@ import org.neo4j.driver.types.Path;
     description = "Neo4j Perspective",
     image = "neo4j_logo.svg",
     documentationUrl = "/hop-gui/perspective-neo4j.html")
-@GuiPlugin
+@GuiPlugin(name = "Neo4j")
 public class HopNeo4jPerspective implements IHopPerspective {
 
   public static final Class<?> PKG = HopNeo4jPerspective.class;

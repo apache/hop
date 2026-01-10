@@ -95,6 +95,7 @@ public class Props implements Cloneable {
   public static final int WIDGET_STYLE_TOOLBAR = 5;
   public static final int WIDGET_STYLE_PUSH_BUTTON = 6;
   public static final int WIDGET_STYLE_TREE = 7;
+  public static final int WIDGET_STYLE_EXPANDBAR = 8;
 
   public Props() {
     log = new LogChannel(STRING_USER_PREFERENCES);

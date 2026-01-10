@@ -57,6 +57,7 @@ public class ConfigKeyboardShortcutsTab {
   private static final Class<?> PKG = BaseDialog.class;
 
   private Font monoFont;
+  private Color keyForegroundColor;
   private Color keyBackgroundColor;
 
   public ConfigKeyboardShortcutsTab() {
@@ -73,7 +74,7 @@ public class ConfigKeyboardShortcutsTab {
     CTabItem wShortcutsTab = new CTabItem(wTabFolder, SWT.NONE);
     wShortcutsTab.setFont(GuiResource.getInstance().getFontDefault());
     wShortcutsTab.setText("Keyboard Shortcuts");
-    wShortcutsTab.setImage(GuiResource.getInstance().getImageEdit());
+    wShortcutsTab.setImage(GuiResource.getInstance().getImageKeyboard());
 
     // Main scrollable composite
     ScrolledComposite scrolledComposite =
@@ -86,8 +87,11 @@ public class ConfigKeyboardShortcutsTab {
 
     // Initialize colors and fonts
     Display display = wTabFolder.getDisplay();
+    keyForegroundColor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
     keyBackgroundColor = new Color(display, 240, 240, 245);
-    Color keyBorderColor = new Color(display, 180, 180, 190);
+    if (PropsUi.getInstance().isDarkMode()) {
+      keyBackgroundColor = new Color(display, 24, 24, 24);
+    }
 
     // Create a monospace font for key labels
     FontData[] fontData = display.getSystemFont().getFontData();
@@ -230,8 +234,8 @@ public class ConfigKeyboardShortcutsTab {
           if (keyBackgroundColor != null && !keyBackgroundColor.isDisposed()) {
             keyBackgroundColor.dispose();
           }
-          if (keyBorderColor != null && !keyBorderColor.isDisposed()) {
-            keyBorderColor.dispose();
+          if (keyForegroundColor != null && !keyForegroundColor.isDisposed()) {
+            keyForegroundColor.dispose();
           }
         });
 
@@ -329,7 +333,7 @@ public class ConfigKeyboardShortcutsTab {
     Label key = new Label(parent, SWT.CENTER | SWT.BORDER);
     key.setText(text);
     key.setBackground(keyBackgroundColor);
-    key.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+    key.setForeground(keyForegroundColor);
     if (monoFont != null) {
       key.setFont(monoFont);
     }
@@ -590,7 +594,7 @@ public class ConfigKeyboardShortcutsTab {
       Label symbolLabel = new Label(itemComposite, SWT.CENTER | SWT.BORDER);
       symbolLabel.setText(symbol[0]);
       symbolLabel.setBackground(keyBackgroundColor);
-      symbolLabel.setForeground(itemComposite.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+      symbolLabel.setForeground(keyForegroundColor);
       if (monoFont != null) {
         symbolLabel.setFont(monoFont);
       }
@@ -606,7 +610,7 @@ public class ConfigKeyboardShortcutsTab {
       Label descLabel = new Label(itemComposite, SWT.LEFT);
       PropsUi.setLook(descLabel);
       descLabel.setText(symbol[1]);
-      descLabel.setForeground(itemComposite.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+      descLabel.setForeground(keyForegroundColor);
 
       FormData fdDesc = new FormData();
       fdDesc.left = new FormAttachment(symbolLabel, margin / 2);
