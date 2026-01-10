@@ -24,10 +24,6 @@ const handleEvent = function (event) {
 
     let img = document.getElementById(id);
 
-    console.log("svg-label event with id: " + id + ", was found? " + (img !== null));
-
-    // img.style.backgroundBlendMode = 'lighten';
-
     if (img===null) {
         return;
     }

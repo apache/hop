@@ -45,11 +45,8 @@ public class CanvasFacadeImpl extends CanvasFacade {
   private void setDataCommon(Canvas canvas, float magnification, DPoint offset, Object meta) {
     JsonObject jsonProps = new JsonObject();
     jsonProps.add("themeId", System.getProperty(HopWeb.HOP_WEB_THEME, "light"));
-    jsonProps.add(
-        "gridSize",
-        PropsUi.getInstance().isShowCanvasGridEnabled()
-            ? PropsUi.getInstance().getCanvasGridSize()
-            : 1);
+    jsonProps.add("gridSize", PropsUi.getInstance().getCanvasGridSize());
+    jsonProps.add("showGrid", PropsUi.getInstance().isShowCanvasGridEnabled());
     jsonProps.add("iconSize", PropsUi.getInstance().getIconSize());
     jsonProps.add("magnification", (float) (magnification * PropsUi.getNativeZoomFactor()));
     jsonProps.add("offsetX", offset.x);

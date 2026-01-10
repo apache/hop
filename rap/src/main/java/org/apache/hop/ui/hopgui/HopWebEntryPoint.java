@@ -38,6 +38,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     WidgetUtil.registerDataKeys("nodes");
     WidgetUtil.registerDataKeys("hops");
     WidgetUtil.registerDataKeys("notes");
+    WidgetUtil.registerDataKeys("startHopNode");
     // WidgetUtil.registerDataKeys("svg");
 
     //  The following options are session specific.
