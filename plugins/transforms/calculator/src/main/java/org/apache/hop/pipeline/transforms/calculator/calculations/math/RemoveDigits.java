@@ -46,7 +46,6 @@ public class RemoveDigits implements ICalculation {
 
   @Override
   public CalculationOutput calculate(CalculationInput in) throws HopValueException {
-    return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.removeDigits(in.metaA, in.dataA));
+    return new CalculationOutput(getDefaultResultType(), ValueDataUtil.removeDigits(in.dataA));
   }
 }

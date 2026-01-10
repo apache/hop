@@ -49,7 +49,6 @@ public class CheckXMLFileWellFormed implements ICalculation {
   public CalculationOutput calculate(CalculationInput in)
       throws HopValueException, HopFileNotFoundException {
     return new CalculationOutput(
-        getDefaultResultType(),
-        ValueDataUtil.isXmlFileWellFormed(in.metaA, in.dataA, in.isFailIfNoFile));
+        getDefaultResultType(), ValueDataUtil.isXmlFileWellFormed(in.dataA, in.isFailIfNoFile));
   }
 }

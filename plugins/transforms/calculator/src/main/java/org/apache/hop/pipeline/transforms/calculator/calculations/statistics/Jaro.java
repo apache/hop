@@ -46,7 +46,6 @@ public class Jaro implements ICalculation {
   @Override
   public CalculationOutput calculate(CalculationInput in) {
     return new CalculationOutput(
-        getDefaultResultType(),
-        ValueDataUtil.getJaro_Similitude(in.metaA, in.dataA, in.metaB, in.dataB));
+        getDefaultResultType(), ValueDataUtil.getJaroSimilitude(in.dataA, in.dataB));
   }
 }

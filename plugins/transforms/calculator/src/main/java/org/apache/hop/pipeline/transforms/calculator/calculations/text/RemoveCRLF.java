@@ -45,7 +45,6 @@ public class RemoveCRLF implements ICalculation {
 
   @Override
   public CalculationOutput calculate(CalculationInput in) {
-    return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.removeCRLF(in.metaA, in.dataA));
+    return new CalculationOutput(getDefaultResultType(), ValueDataUtil.removeCRLF(in.dataA));
   }
 }

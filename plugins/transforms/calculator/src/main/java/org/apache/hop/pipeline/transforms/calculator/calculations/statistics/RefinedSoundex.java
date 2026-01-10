@@ -45,7 +45,6 @@ public class RefinedSoundex implements ICalculation {
 
   @Override
   public CalculationOutput calculate(CalculationInput in) {
-    return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.get_RefinedSoundEx(in.metaA, in.dataA));
+    return new CalculationOutput(getDefaultResultType(), ValueDataUtil.getRefinedSoundEx(in.dataA));
   }
 }

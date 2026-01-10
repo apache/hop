@@ -45,7 +45,6 @@ public class UnescapeHTML implements ICalculation {
 
   @Override
   public CalculationOutput calculate(CalculationInput in) {
-    return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.unEscapeHtml(in.metaA, in.dataA));
+    return new CalculationOutput(getDefaultResultType(), ValueDataUtil.unEscapeHtml(in.dataA));
   }
 }

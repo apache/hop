@@ -46,7 +46,6 @@ public class DamerauLevenshtein implements ICalculation {
   @Override
   public CalculationOutput calculate(CalculationInput in) {
     return new CalculationOutput(
-        getDefaultResultType(),
-        ValueDataUtil.getDamerauLevenshtein_Distance(in.metaA, in.dataA, in.metaB, in.dataB));
+        getDefaultResultType(), ValueDataUtil.getDamerauLevenshteinDistance(in.dataA, in.dataB));
   }
 }

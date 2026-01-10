@@ -45,7 +45,6 @@ public class UnescapeXML implements ICalculation {
 
   @Override
   public CalculationOutput calculate(CalculationInput in) {
-    return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.unEscapeXml(in.metaA, in.dataA));
+    return new CalculationOutput(getDefaultResultType(), ValueDataUtil.unEscapeXml(in.dataA));
   }
 }

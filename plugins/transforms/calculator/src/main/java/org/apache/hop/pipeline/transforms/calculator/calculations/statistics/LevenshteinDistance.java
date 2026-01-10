@@ -46,7 +46,6 @@ public class LevenshteinDistance implements ICalculation {
   @Override
   public CalculationOutput calculate(CalculationInput in) {
     return new CalculationOutput(
-        getDefaultResultType(),
-        ValueDataUtil.getLevenshtein_Distance(in.metaA, in.dataA, in.metaB, in.dataB));
+        getDefaultResultType(), ValueDataUtil.getLevenshteinDistance(in.dataA, in.dataB));
   }
 }

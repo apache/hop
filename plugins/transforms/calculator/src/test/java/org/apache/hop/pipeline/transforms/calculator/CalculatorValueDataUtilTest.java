@@ -107,45 +107,42 @@ class CalculatorValueDataUtilTest {
   @Test
   void checksumTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5", true);
+    String checksum = ValueDataUtil.createChecksum(path, "MD5", true);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
   }
 
   @Test
   void checksumMissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    String checksum =
-        ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
+    String checksum = ValueDataUtil.createChecksum(nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 
   @Test
   void checksumNullPathTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    String checksum =
-        ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
+    String checksum = ValueDataUtil.createChecksum(nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 
   @Test
   void checksumWithFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5", true);
+    String checksum = ValueDataUtil.createChecksum(path, "MD5", true);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
   }
 
   @Test
   void checksumWithoutFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5", false);
+    String checksum = ValueDataUtil.createChecksum(path, "MD5", false);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
   }
 
   @Test
   void checksumNoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingFile = "nonExistingFile";
-    String checksum =
-        ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
+    String checksum = ValueDataUtil.createChecksum(nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 
@@ -155,52 +152,52 @@ class CalculatorValueDataUtilTest {
     assertThrows(
         HopFileNotFoundException.class,
         () -> {
-          ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingPath, "MD5", true);
+          ValueDataUtil.createChecksum(nonExistingPath, "MD5", true);
         });
   }
 
   @Test
   void checksumNullPathNoFailTest() throws HopFileNotFoundException {
-    assertNull(ValueDataUtil.createChecksum(new ValueMetaString(), null, "MD5", false));
+    assertNull(ValueDataUtil.createChecksum(null, "MD5", false));
   }
 
   @Test
   void checksumNullPathFailTest() throws HopFileNotFoundException {
-    assertNull(ValueDataUtil.createChecksum(new ValueMetaString(), null, "MD5", true));
+    assertNull(ValueDataUtil.createChecksum(null, "MD5", true));
   }
 
   @Test
   void checksumCRC32Test() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), path, false);
+    long checksum = ValueDataUtil.checksumCRC32(path, false);
     assertEquals(3632233996L, checksum);
   }
 
   @Test
   void checksumCRC32MissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile, false);
+    long checksum = ValueDataUtil.checksumCRC32(nonExistingFile, false);
     assertEquals(0, checksum);
   }
 
   @Test
   void checksumCRC32NullPathTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile, false);
+    long checksum = ValueDataUtil.checksumCRC32(nonExistingFile, false);
     assertEquals(0, checksum);
   }
 
   @Test
   void checksumCRC32WithoutFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), path, false);
+    long checksum = ValueDataUtil.checksumCRC32(path, false);
     assertEquals(3632233996L, checksum);
   }
 
   @Test
   void checksumCRC32NoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingPath, false);
+    long checksum = ValueDataUtil.checksumCRC32(nonExistingPath, false);
     assertEquals(0, checksum);
   }
 
@@ -208,40 +205,39 @@ class CalculatorValueDataUtilTest {
   void checksumCRC32FailIfNoFileTest() {
     String nonExistingPath = "nonExistingPath";
     assertThrows(
-        HopFileNotFoundException.class,
-        () -> ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingPath, true));
+        HopFileNotFoundException.class, () -> ValueDataUtil.checksumCRC32(nonExistingPath, true));
   }
 
   @Test
   void checksumCRC32NullPathNoFailTest() throws HopFileNotFoundException {
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), null, false);
+    long checksum = ValueDataUtil.checksumCRC32(null, false);
     assertEquals(0, checksum);
   }
 
   @Test
   void checksumCRC32NullPathFailTest() throws HopFileNotFoundException {
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), null, true);
+    long checksum = ValueDataUtil.checksumCRC32(null, true);
     assertEquals(0, checksum);
   }
 
   @Test
   void checksumAdlerWithFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), path, true);
+    long checksum = ValueDataUtil.checksumAdler32(path, true);
     assertEquals(73204161L, checksum);
   }
 
   @Test
   void checksumAdlerWithoutFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), path, false);
+    long checksum = ValueDataUtil.checksumAdler32(path, false);
     assertEquals(73204161L, checksum);
   }
 
   @Test
   void checksumAdlerNoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), nonExistingPath, false);
+    long checksum = ValueDataUtil.checksumAdler32(nonExistingPath, false);
     assertEquals(0, checksum);
   }
 
@@ -249,75 +245,67 @@ class CalculatorValueDataUtilTest {
   void checksumAdlerFailIfNoFileTest() {
     String nonExistingPath = "nonExistingPath";
     assertThrows(
-        HopFileNotFoundException.class,
-        () -> ValueDataUtil.checksumAdler32(new ValueMetaString(), nonExistingPath, true));
+        HopFileNotFoundException.class, () -> ValueDataUtil.checksumAdler32(nonExistingPath, true));
   }
 
   @Test
   void checksumAdlerNullPathNoFailTest() throws HopFileNotFoundException {
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), null, false);
+    long checksum = ValueDataUtil.checksumAdler32(null, false);
     assertEquals(0, checksum);
   }
 
   @Test
   void checksumAdlerNullPathFailTest() throws HopFileNotFoundException {
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), null, true);
+    long checksum = ValueDataUtil.checksumAdler32(null, true);
     assertEquals(0, checksum);
   }
 
   @Test
   void xmlFileWellFormedTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), xmlFilePath, true);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(xmlFilePath, true);
     assertTrue(wellFormed);
   }
 
   @Test
   void xmlFileBadlyFormedTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource("invalid-xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), invalidXmlFilePath, true);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(invalidXmlFilePath, true);
     assertFalse(wellFormed);
   }
 
   @Test
   void xmlFileWellFormedWithFailIfNoFileTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), xmlFilePath, true);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(xmlFilePath, true);
     assertTrue(wellFormed);
   }
 
   @Test
   void xmlFileWellFormedWithoutFailIfNoFileTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), xmlFilePath, false);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(xmlFilePath, false);
     assertTrue(wellFormed);
   }
 
   @Test
   void xmlFileBadlyFormedWithFailIfNoFileTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource("invalid-xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), invalidXmlFilePath, true);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(invalidXmlFilePath, true);
     assertFalse(wellFormed);
   }
 
   @Test
   void xmlFileBadlyFormedWithNoFailIfNoFileTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource("invalid-xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), invalidXmlFilePath, false);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(invalidXmlFilePath, false);
     assertFalse(wellFormed);
   }
 
   @Test
   void xmlFileWellFormedNoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), nonExistingPath, false);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(nonExistingPath, false);
     assertFalse(wellFormed);
   }
 
@@ -326,33 +314,32 @@ class CalculatorValueDataUtilTest {
     String nonExistingPath = "nonExistingPath";
     assertThrows(
         HopFileNotFoundException.class,
-        () -> ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), nonExistingPath, true));
+        () -> ValueDataUtil.isXmlFileWellFormed(nonExistingPath, true));
   }
 
   @Test
   void xmlFileWellFormedNullPathNoFailTest() throws HopFileNotFoundException {
-    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), null, false);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(null, false);
     assertFalse(wellFormed);
   }
 
   @Test
   void xmlFileWellFormedNullPathFailTest() throws HopFileNotFoundException {
-    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), null, true);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(null, true);
     assertFalse(wellFormed);
   }
 
   @Test
   void loadFileContentInBinary() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    byte[] content = ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), path, true);
+    byte[] content = ValueDataUtil.loadFileContentInBinary(path, true);
     assertArrayEquals("test".getBytes(), content);
   }
 
   @Test
   void loadFileContentInBinaryNoFailIfNoFileTest() throws Exception {
     String nonExistingPath = "nonExistingPath";
-    assertNull(
-        ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), nonExistingPath, false));
+    assertNull(ValueDataUtil.loadFileContentInBinary(nonExistingPath, false));
   }
 
   @Test
@@ -360,18 +347,18 @@ class CalculatorValueDataUtilTest {
     String nonExistingPath = "nonExistingPath";
     assertThrows(
         HopFileNotFoundException.class,
-        () -> ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), nonExistingPath, true));
+        () -> ValueDataUtil.loadFileContentInBinary(nonExistingPath, true));
   }
 
   @Test
   void loadFileContentInBinaryNullPathNoFailTest() throws Exception {
-    assertNull(ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), null, false));
+    assertNull(ValueDataUtil.loadFileContentInBinary(null, false));
   }
 
   @Test
   void loadFileContentInBinaryNullPathFailTest()
       throws HopFileNotFoundException, HopValueException {
-    assertNull(ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), null, true));
+    assertNull(ValueDataUtil.loadFileContentInBinary(null, true));
   }
 
   @Test
@@ -1401,15 +1388,15 @@ class CalculatorValueDataUtilTest {
       } else if (calculatorMetaFunction == CalculationType.NVL) {
         return ValueDataUtil.nvl(valueMetaA, dataA, valueMetaB, dataB);
       } else if (calculatorMetaFunction == CalculationType.DATE_DIFF) {
-        return ValueDataUtil.DateDiff(valueMetaA, dataA, valueMetaB, dataB, "");
+        return ValueDataUtil.dateDiff(valueMetaA, dataA, valueMetaB, dataB, "");
       } else if (calculatorMetaFunction == CalculationType.DATE_WORKING_DIFF) {
-        return ValueDataUtil.DateWorkingDiff(valueMetaA, dataA, valueMetaB, dataB);
+        return ValueDataUtil.dateWorkingDiff(valueMetaA, dataA, valueMetaB, dataB);
       } else if (calculatorMetaFunction == CalculationType.REMAINDER) {
         return ValueDataUtil.remainder(valueMetaA, dataA, valueMetaB, dataB);
       } else if (calculatorMetaFunction == CalculationType.JARO) {
-        return ValueDataUtil.getJaro_Similitude(valueMetaA, dataA, valueMetaB, dataB);
+        return ValueDataUtil.getJaroSimilitude(dataA, dataB);
       } else if (calculatorMetaFunction == CalculationType.JARO_WINKLER) {
-        return ValueDataUtil.getJaroWinkler_Similitude(valueMetaA, dataA, valueMetaB, dataB);
+        return ValueDataUtil.getJaroWinklerSimilitude(dataA, dataB);
       } else if (calculatorMetaFunction == CalculationType.MULTIPLY) {
         return ValueDataUtil.multiply(valueMetaA, dataA, valueMetaB, dataB);
       } else {

@@ -45,7 +45,6 @@ public class UrlDecode implements ICalculation {
 
   @Override
   public CalculationOutput calculate(CalculationInput in) {
-    return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.urlDecode(in.metaA, in.dataA));
+    return new CalculationOutput(getDefaultResultType(), ValueDataUtil.urlDecode(in.dataA));
   }
 }

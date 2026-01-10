@@ -45,7 +45,6 @@ public class EscapeHTML implements ICalculation {
 
   @Override
   public CalculationOutput calculate(CalculationInput in) {
-    return new CalculationOutput(
-        getDefaultResultType(), ValueDataUtil.escapeHtml(in.metaA, in.dataA));
+    return new CalculationOutput(getDefaultResultType(), ValueDataUtil.escapeHtml(in.dataA));
   }
 }

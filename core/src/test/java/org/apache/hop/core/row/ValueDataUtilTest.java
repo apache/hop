@@ -19,6 +19,7 @@ package org.apache.hop.core.row;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -58,207 +59,200 @@ public class ValueDataUtilTest {
   @Test
   public void checksumTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5", false);
+    String checksum = ValueDataUtil.createChecksum(path, "MD5", false);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
   }
 
   @Test
   public void checksumMissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    String checksum =
-        ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingFile, "MD5", false);
+    String checksum = ValueDataUtil.createChecksum(nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 
   @Test
   public void checksumWithFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    String checksum = ValueDataUtil.createChecksum(new ValueMetaString(), path, "MD5", true);
+    String checksum = ValueDataUtil.createChecksum(path, "MD5", true);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
   }
 
   @Test(expected = HopFileNotFoundException.class)
   public void checksumFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.createChecksum(new ValueMetaString(), nonExistingPath, "MD5", true);
+    ValueDataUtil.createChecksum(nonExistingPath, "MD5", true);
   }
 
   @Test
   public void checksumNullPathNoFailTest() throws HopFileNotFoundException {
-    assertNull(ValueDataUtil.createChecksum(new ValueMetaString(), null, "MD5", false));
+    assertNull(ValueDataUtil.createChecksum(null, "MD5", false));
   }
 
   @Test
   public void checksumNullPathFailTest() throws HopFileNotFoundException {
-    assertNull(ValueDataUtil.createChecksum(new ValueMetaString(), null, "MD5", true));
+    assertNull(ValueDataUtil.createChecksum(null, "MD5", true));
   }
 
   @Test
   public void checksumCRC32Test() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), path, false);
+    long checksum = ValueDataUtil.checksumCRC32(path, false);
     assertEquals(3632233996l, checksum);
   }
 
   @Test
   public void checksumCRC32MissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingFile, false);
+    long checksum = ValueDataUtil.checksumCRC32(nonExistingFile, false);
     assertEquals(0, checksum);
   }
 
   @Test
   public void checksumCRC32NoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingPath, false);
+    long checksum = ValueDataUtil.checksumCRC32(nonExistingPath, false);
     assertEquals(0, checksum);
   }
 
   @Test(expected = HopFileNotFoundException.class)
   public void checksumCRC32FailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.checksumCRC32(new ValueMetaString(), nonExistingPath, true);
+    ValueDataUtil.checksumCRC32(nonExistingPath, true);
   }
 
   @Test
   public void checksumCRC32NullPathNoFailTest() throws HopFileNotFoundException {
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), null, false);
+    long checksum = ValueDataUtil.checksumCRC32(null, false);
     assertEquals(0, checksum);
   }
 
   @Test
   public void checksumCRC32NullPathFailTest() throws HopFileNotFoundException {
-    long checksum = ValueDataUtil.checksumCRC32(new ValueMetaString(), null, true);
+    long checksum = ValueDataUtil.checksumCRC32(null, true);
     assertEquals(0, checksum);
   }
 
   @Test
   public void checksumAdlerWithFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), path, true);
+    long checksum = ValueDataUtil.checksumAdler32(path, true);
     assertEquals(73204161L, checksum);
   }
 
   @Test
   public void checksumAdlerWithoutFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), path, false);
+    long checksum = ValueDataUtil.checksumAdler32(path, false);
     assertEquals(73204161L, checksum);
   }
 
   @Test
   public void checksumAdlerNoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), nonExistingPath, false);
+    long checksum = ValueDataUtil.checksumAdler32(nonExistingPath, false);
     assertEquals(0, checksum);
   }
 
   @Test(expected = HopFileNotFoundException.class)
   public void checksumAdlerFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.checksumAdler32(new ValueMetaString(), nonExistingPath, true);
+    ValueDataUtil.checksumAdler32(nonExistingPath, true);
   }
 
   @Test
   public void checksumAdlerNullPathNoFailTest() throws HopFileNotFoundException {
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), null, false);
+    long checksum = ValueDataUtil.checksumAdler32(null, false);
     assertEquals(0, checksum);
   }
 
   @Test
   public void checksumAdlerNullPathFailTest() throws HopFileNotFoundException {
-    long checksum = ValueDataUtil.checksumAdler32(new ValueMetaString(), null, true);
+    long checksum = ValueDataUtil.checksumAdler32(null, true);
     assertEquals(0, checksum);
   }
 
   @Test
   public void xmlFileWellFormedTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), xmlFilePath, true);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(xmlFilePath, true);
     assertTrue(wellFormed);
   }
 
   @Test
   public void xmlFileBadlyFormedTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource("invalid-xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), invalidXmlFilePath, true);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(invalidXmlFilePath, true);
     assertFalse(wellFormed);
   }
 
   @Test
   public void xmlFileWellFormedWithoutFailIfNoFileTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), xmlFilePath, false);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(xmlFilePath, false);
     assertTrue(wellFormed);
   }
 
   @Test
   public void xmlFileBadlyFormedWithNoFailIfNoFileTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource("invalid-xml-sample.xml").getPath();
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), invalidXmlFilePath, false);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(invalidXmlFilePath, false);
     assertFalse(wellFormed);
   }
 
   @Test
   public void xmlFileWellFormedNoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    boolean wellFormed =
-        ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), nonExistingPath, false);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(nonExistingPath, false);
     assertFalse(wellFormed);
   }
 
   @Test(expected = HopFileNotFoundException.class)
   public void xmlFileWellFormedFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), nonExistingPath, true);
+    ValueDataUtil.isXmlFileWellFormed(nonExistingPath, true);
   }
 
   @Test
   public void xmlFileWellFormedNullPathNoFailTest() throws HopFileNotFoundException {
-    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), null, false);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(null, false);
     assertFalse(wellFormed);
   }
 
   @Test
   public void xmlFileWellFormedNullPathFailTest() throws HopFileNotFoundException {
-    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(new ValueMetaString(), null, true);
+    boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(null, true);
     assertFalse(wellFormed);
   }
 
   @Test
   public void loadFileContentInBinary() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
-    byte[] content = ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), path, true);
+    byte[] content = ValueDataUtil.loadFileContentInBinary(path, true);
     assertTrue(Arrays.equals("test".getBytes(), content));
   }
 
   @Test
   public void loadFileContentInBinaryNoFailIfNoFileTest() throws Exception {
     String nonExistingPath = "nonExistingPath";
-    assertNull(
-        ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), nonExistingPath, false));
+    assertNull(ValueDataUtil.loadFileContentInBinary(nonExistingPath, false));
   }
 
   @Test(expected = HopFileNotFoundException.class)
   public void loadFileContentInBinaryFailIfNoFileTest()
       throws HopFileNotFoundException, HopValueException {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), nonExistingPath, true);
+    ValueDataUtil.loadFileContentInBinary(nonExistingPath, true);
   }
 
   @Test
   public void loadFileContentInBinaryNullPathNoFailTest() throws Exception {
-    assertNull(ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), null, false));
+    assertNull(ValueDataUtil.loadFileContentInBinary(null, false));
   }
 
   @Test
   public void loadFileContentInBinaryNullPathFailTest()
       throws HopFileNotFoundException, HopValueException {
-    assertNull(ValueDataUtil.loadFileContentInBinary(new ValueMetaString(), null, true));
+    assertNull(ValueDataUtil.loadFileContentInBinary(null, true));
   }
 
   @Test
@@ -392,148 +386,131 @@ public class ValueDataUtilTest {
   // String manipulation tests
   @Test
   public void testInitCap() {
-    assertEquals("Hello World", ValueDataUtil.initCap(new ValueMetaString(), "hello world"));
-    assertEquals("Apache Hop", ValueDataUtil.initCap(new ValueMetaString(), "apache hop"));
-    assertNull(ValueDataUtil.initCap(new ValueMetaString(), null));
+    assertEquals("Hello World", ValueDataUtil.initCap("hello world"));
+    assertEquals("Apache Hop", ValueDataUtil.initCap("apache hop"));
+    assertNull(ValueDataUtil.initCap(null));
   }
 
   @Test
   public void testUpperCase() {
-    assertEquals("HELLO", ValueDataUtil.upperCase(new ValueMetaString(), "hello"));
-    assertEquals("APACHE HOP", ValueDataUtil.upperCase(new ValueMetaString(), "Apache Hop"));
-    assertNull(ValueDataUtil.upperCase(new ValueMetaString(), null));
+    assertEquals("HELLO", ValueDataUtil.upperCase("hello"));
+    assertEquals("APACHE HOP", ValueDataUtil.upperCase("Apache Hop"));
+    assertNull(ValueDataUtil.upperCase(null));
   }
 
   @Test
   public void testLowerCase() {
-    assertEquals("hello", ValueDataUtil.lowerCase(new ValueMetaString(), "HELLO"));
-    assertEquals("apache hop", ValueDataUtil.lowerCase(new ValueMetaString(), "Apache Hop"));
-    assertNull(ValueDataUtil.lowerCase(new ValueMetaString(), null));
+    assertEquals("hello", ValueDataUtil.lowerCase("HELLO"));
+    assertEquals("apache hop", ValueDataUtil.lowerCase("Apache Hop"));
+    assertNull(ValueDataUtil.lowerCase(null));
   }
 
   @Test
   public void testRemoveCR() {
-    assertEquals("helloworld", ValueDataUtil.removeCR(new ValueMetaString(), "hello\rworld"));
-    assertNull(ValueDataUtil.removeCR(new ValueMetaString(), null));
+    assertEquals("helloworld", ValueDataUtil.removeCR("hello\rworld"));
+    assertNull(ValueDataUtil.removeCR(null));
   }
 
   @Test
   public void testRemoveLF() {
-    assertEquals("helloworld", ValueDataUtil.removeLF(new ValueMetaString(), "hello\nworld"));
-    assertNull(ValueDataUtil.removeLF(new ValueMetaString(), null));
+    assertEquals("helloworld", ValueDataUtil.removeLF("hello\nworld"));
+    assertNull(ValueDataUtil.removeLF(null));
   }
 
   @Test
   public void testRemoveCRLF() {
-    assertEquals("helloworld", ValueDataUtil.removeCRLF(new ValueMetaString(), "hello\r\nworld"));
-    assertNull(ValueDataUtil.removeCRLF(new ValueMetaString(), null));
+    assertEquals("helloworld", ValueDataUtil.removeCRLF("hello\r\nworld"));
+    assertNull(ValueDataUtil.removeCRLF(null));
   }
 
   @Test
   public void testRemoveTAB() {
-    assertEquals("helloworld", ValueDataUtil.removeTAB(new ValueMetaString(), "hello\tworld"));
-    assertNull(ValueDataUtil.removeTAB(new ValueMetaString(), null));
+    assertEquals("helloworld", ValueDataUtil.removeTAB("hello\tworld"));
+    assertNull(ValueDataUtil.removeTAB(null));
   }
 
   @Test
   public void testGetDigits() {
-    assertEquals("123", ValueDataUtil.getDigits(new ValueMetaString(), "abc123def"));
-    assertEquals("", ValueDataUtil.getDigits(new ValueMetaString(), "abcdef"));
-    assertNull(ValueDataUtil.getDigits(new ValueMetaString(), null));
+    assertEquals("123", ValueDataUtil.getDigits("abc123def"));
+    assertEquals("", ValueDataUtil.getDigits("abcdef"));
+    assertNull(ValueDataUtil.getDigits(null));
   }
 
   @Test
   public void testRemoveDigits() {
-    assertEquals("abcdef", ValueDataUtil.removeDigits(new ValueMetaString(), "abc123def"));
-    assertEquals("abcdef", ValueDataUtil.removeDigits(new ValueMetaString(), "abcdef"));
-    assertNull(ValueDataUtil.removeDigits(new ValueMetaString(), null));
+    assertEquals("abcdef", ValueDataUtil.removeDigits("abc123def"));
+    assertEquals("abcdef", ValueDataUtil.removeDigits("abcdef"));
+    assertNull(ValueDataUtil.removeDigits(null));
   }
 
   @Test
   public void testStringLen() {
-    assertEquals(5, ValueDataUtil.stringLen(new ValueMetaString(), "hello"));
-    assertEquals(0, ValueDataUtil.stringLen(new ValueMetaString(), ""));
-    assertEquals(0, ValueDataUtil.stringLen(new ValueMetaString(), null));
+    assertEquals(5, ValueDataUtil.stringLen("hello"));
+    assertEquals(0, ValueDataUtil.stringLen(""));
+    assertEquals(0, ValueDataUtil.stringLen(null));
   }
 
   // String distance/similarity tests
   @Test
   public void testLevenshteinDistance() {
-    Long distance =
-        ValueDataUtil.getLevenshtein_Distance(
-            new ValueMetaString(), "kitten", new ValueMetaString(), "sitting");
+    Long distance = ValueDataUtil.getLevenshteinDistance("kitten", "sitting");
     assertEquals(Long.valueOf(3), distance);
 
-    assertNull(
-        ValueDataUtil.getLevenshtein_Distance(
-            new ValueMetaString(), null, new ValueMetaString(), "test"));
-    assertNull(
-        ValueDataUtil.getLevenshtein_Distance(
-            new ValueMetaString(), "test", new ValueMetaString(), null));
+    assertNull(ValueDataUtil.getLevenshteinDistance(null, "test"));
+    assertNull(ValueDataUtil.getLevenshteinDistance("test", null));
   }
 
   @Test
   public void testDamerauLevenshteinDistance() {
-    Long distance =
-        ValueDataUtil.getDamerauLevenshtein_Distance(
-            new ValueMetaString(), "abc", new ValueMetaString(), "acb");
+    Long distance = ValueDataUtil.getDamerauLevenshteinDistance("abc", "acb");
     assertEquals(Long.valueOf(1), distance);
 
-    assertNull(
-        ValueDataUtil.getDamerauLevenshtein_Distance(
-            new ValueMetaString(), null, new ValueMetaString(), "test"));
+    assertNull(ValueDataUtil.getDamerauLevenshteinDistance(null, "test"));
   }
 
   @Test
   public void testJaroSimilitude() {
-    Double similarity =
-        ValueDataUtil.getJaro_Similitude(
-            new ValueMetaString(), "martha", new ValueMetaString(), "marhta");
+    Double similarity = ValueDataUtil.getJaroSimilitude("martha", "marhta");
     assertTrue(similarity > 0.9);
 
-    assertNull(
-        ValueDataUtil.getJaro_Similitude(
-            new ValueMetaString(), null, new ValueMetaString(), "test"));
+    assertNull(ValueDataUtil.getJaroSimilitude(null, "test"));
   }
 
   @Test
   public void testJaroWinklerSimilitude() {
-    Double similarity =
-        ValueDataUtil.getJaroWinkler_Similitude(
-            new ValueMetaString(), "martha", new ValueMetaString(), "marhta");
+    Double similarity = ValueDataUtil.getJaroWinklerSimilitude("martha", "marhta");
     assertTrue(similarity > 0.9);
 
-    assertNull(
-        ValueDataUtil.getJaroWinkler_Similitude(
-            new ValueMetaString(), null, new ValueMetaString(), "test"));
+    assertNull(ValueDataUtil.getJaroWinklerSimilitude(null, "test"));
   }
 
   // Phonetic algorithms tests
   @Test
   public void testMetaphone() {
-    String metaphone = ValueDataUtil.get_Metaphone(new ValueMetaString(), "hello");
+    String metaphone = ValueDataUtil.getMetaphone("hello");
     assertEquals("HL", metaphone);
-    assertNull(ValueDataUtil.get_Metaphone(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.getMetaphone(null));
   }
 
   @Test
   public void testDoubleMetaphone() {
-    String doubleMetaphone = ValueDataUtil.get_Double_Metaphone(new ValueMetaString(), "hello");
+    String doubleMetaphone = ValueDataUtil.getDoubleMetaphone("hello");
     assertEquals("HL", doubleMetaphone);
-    assertNull(ValueDataUtil.get_Double_Metaphone(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.getDoubleMetaphone(null));
   }
 
   @Test
   public void testSoundEx() {
-    String soundex = ValueDataUtil.get_SoundEx(new ValueMetaString(), "hello");
+    String soundex = ValueDataUtil.getSoundEx("hello");
     assertEquals("H400", soundex);
-    assertNull(ValueDataUtil.get_SoundEx(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.getSoundEx(null));
   }
 
   @Test
   public void testRefinedSoundEx() {
-    String refinedSoundex = ValueDataUtil.get_RefinedSoundEx(new ValueMetaString(), "hello");
-    assertNull(ValueDataUtil.get_RefinedSoundEx(new ValueMetaString(), null));
+    String refinedSoundex = ValueDataUtil.getRefinedSoundEx("hello");
+    assertNotNull(refinedSoundex);
+    assertNull(ValueDataUtil.getRefinedSoundEx(null));
   }
 
   // Math operations tests
@@ -712,16 +689,16 @@ public class ValueDataUtilTest {
   // URL encoding/decoding tests
   @Test
   public void testUrlEncode() {
-    String encoded = ValueDataUtil.urlEncode(new ValueMetaString(), "hello world");
+    String encoded = ValueDataUtil.urlEncode("hello world");
     assertEquals("hello+world", encoded);
-    assertNull(ValueDataUtil.urlEncode(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.urlEncode(null));
   }
 
   @Test
   public void testUrlDecode() {
-    String decoded = ValueDataUtil.urlDecode(new ValueMetaString(), "hello+world");
+    String decoded = ValueDataUtil.urlDecode("hello+world");
     assertEquals("hello world", decoded);
-    assertNull(ValueDataUtil.urlDecode(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.urlDecode(null));
   }
 
   // Hex encoding/decoding tests
@@ -740,30 +717,30 @@ public class ValueDataUtilTest {
   // XML/HTML escape tests
   @Test
   public void testEscapeXml() {
-    String escaped = ValueDataUtil.escapeXml(new ValueMetaString(), "<hello>");
+    String escaped = ValueDataUtil.escapeXml("<hello>");
     assertTrue(escaped.contains("&lt;") && escaped.contains("&gt;"));
-    assertNull(ValueDataUtil.escapeXml(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.escapeXml(null));
   }
 
   @Test
   public void testUnEscapeXml() {
-    String unescaped = ValueDataUtil.unEscapeXml(new ValueMetaString(), "&lt;hello&gt;");
+    String unescaped = ValueDataUtil.unEscapeXml("&lt;hello&gt;");
     assertEquals("<hello>", unescaped);
-    assertNull(ValueDataUtil.unEscapeXml(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.unEscapeXml(null));
   }
 
   @Test
   public void testEscapeHtml() {
-    String escaped = ValueDataUtil.escapeHtml(new ValueMetaString(), "<hello>");
+    String escaped = ValueDataUtil.escapeHtml("<hello>");
     assertTrue(escaped.contains("&lt;") && escaped.contains("&gt;"));
-    assertNull(ValueDataUtil.escapeHtml(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.escapeHtml(null));
   }
 
   @Test
   public void testUnEscapeHtml() {
-    String unescaped = ValueDataUtil.unEscapeHtml(new ValueMetaString(), "&lt;hello&gt;");
+    String unescaped = ValueDataUtil.unEscapeHtml("&lt;hello&gt;");
     assertEquals("<hello>", unescaped);
-    assertNull(ValueDataUtil.unEscapeHtml(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.unEscapeHtml(null));
   }
 
   // Test getZeroForValueMetaType
@@ -847,17 +824,17 @@ public class ValueDataUtilTest {
   // SQL escape test
   @Test
   public void testEscapeSql() {
-    String escaped = ValueDataUtil.escapeSql(new ValueMetaString(), "O'Reilly");
+    String escaped = ValueDataUtil.escapeSql("O'Reilly");
     assertEquals("O''Reilly", escaped);
-    assertNull(ValueDataUtil.escapeSql(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.escapeSql(null));
   }
 
   // CDATA test
   @Test
   public void testUseCDATA() {
-    String cdata = ValueDataUtil.useCDATA(new ValueMetaString(), "<test>data</test>");
+    String cdata = ValueDataUtil.useCDATA("<test>data</test>");
     assertTrue(cdata.startsWith("<![CDATA[") && cdata.endsWith("]]>"));
-    assertNull(ValueDataUtil.useCDATA(new ValueMetaString(), null));
+    assertNull(ValueDataUtil.useCDATA(null));
   }
 
   // Percentage functions tests
@@ -1119,7 +1096,7 @@ public class ValueDataUtilTest {
     Date date2 = cal2.getTime();
 
     Long diff =
-        (Long) ValueDataUtil.DateDiff(new ValueMetaDate(), date2, new ValueMetaDate(), date1, "d");
+        (Long) ValueDataUtil.dateDiff(new ValueMetaDate(), date2, new ValueMetaDate(), date1, "d");
     assertEquals(Long.valueOf(5), diff);
   }
 
@@ -1134,7 +1111,7 @@ public class ValueDataUtilTest {
     Date date2 = cal2.getTime();
 
     Long diff =
-        (Long) ValueDataUtil.DateDiff(new ValueMetaDate(), date2, new ValueMetaDate(), date1, "h");
+        (Long) ValueDataUtil.dateDiff(new ValueMetaDate(), date2, new ValueMetaDate(), date1, "h");
     assertEquals(Long.valueOf(5), diff);
   }
 
@@ -1149,7 +1126,7 @@ public class ValueDataUtilTest {
     Date date2 = cal2.getTime();
 
     Long diff =
-        (Long) ValueDataUtil.DateDiff(new ValueMetaDate(), date2, new ValueMetaDate(), date1, "mn");
+        (Long) ValueDataUtil.dateDiff(new ValueMetaDate(), date2, new ValueMetaDate(), date1, "mn");
     assertEquals(Long.valueOf(30), diff);
   }
 
