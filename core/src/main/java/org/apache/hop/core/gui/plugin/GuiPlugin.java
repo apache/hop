@@ -30,5 +30,7 @@ import java.lang.annotation.Target;
 public @interface GuiPlugin {
   String id() default ""; // defaults to class name
 
+  String name() default "";
+
   String description() default "";
 }

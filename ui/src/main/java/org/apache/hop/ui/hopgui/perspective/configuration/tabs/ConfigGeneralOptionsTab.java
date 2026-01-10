@@ -26,7 +26,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
@@ -43,7 +42,10 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.ExpandBar;
+import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -55,22 +57,58 @@ public class ConfigGeneralOptionsTab {
   private Text wDefaultPreview;
   private Button wUseCache;
   private Button wOpenLast;
+  private Button wReloadFileOnChange;
   private Button wAutoSave;
   private Button wAutoSplit;
   private Button wCopyDistribute;
   private Button wExitWarning;
   private Button wToolTip;
   private Button wResolveVarsInTips;
-  private Button wHelpTip;
-  private Button wbUseDoubleClick;
-  private Button wbDrawBorderAroundCanvasNames;
   private Button wbUseGlobalFileBookmarks;
   private Button wSortFieldByName;
   private Text wMaxExecutionLoggingTextSize;
 
+  private boolean isReloading = false; // Flag to prevent saving during reload
+
   public ConfigGeneralOptionsTab() {
     // This instance is created in the GuiPlugin system by calling this constructor, after which it
     // calls the addGeneralOptionsTab() method.
+  }
+
+  /**
+   * Reload values from PropsUi into the widgets. This is useful when values are changed outside of
+   * the options dialog (e.g., "Do not ask this again" checkboxes).
+   */
+  public void reloadValues() {
+    if (wDefaultPreview == null || wDefaultPreview.isDisposed()) {
+      return; // Tab not yet initialized or already disposed
+    }
+
+    // Set flag to prevent saveValues from being triggered during reload
+    isReloading = true;
+
+    try {
+      PropsUi props = PropsUi.getInstance();
+
+      // Reload all checkbox and text values from PropsUi
+      wDefaultPreview.setText(Integer.toString(props.getDefaultPreviewSize()));
+      wUseCache.setSelection(props.useDBCache());
+      wOpenLast.setSelection(props.openLastFile());
+      wReloadFileOnChange.setSelection(props.isReloadingFilesOnChange());
+      wAutoSave.setSelection(!props.getAutoSave()); // Inverted logic
+      wCopyDistribute.setSelection(props.showCopyOrDistributeWarning());
+      wExitWarning.setSelection(props.showExitWarning());
+      wAutoSplit.setSelection(!props.getAutoSplit()); // Inverted logic
+      wToolTip.setSelection(props.showToolTips());
+      wResolveVarsInTips.setSelection(props.resolveVariablesInToolTips());
+      wSortFieldByName.setSelection(props.isSortFieldByName());
+      wbUseGlobalFileBookmarks.setSelection(props.useGlobalFileBookmarks());
+      wMaxExecutionLoggingTextSize.setText(
+          Integer.toString(props.getMaxExecutionLoggingTextSize()));
+    } finally {
+      // Always reset the flag
+      isReloading = false;
+    }
   }
 
   @GuiTab(
@@ -81,7 +119,6 @@ public class ConfigGeneralOptionsTab {
     Shell shell = wTabFolder.getShell();
     PropsUi props = PropsUi.getInstance();
     int margin = PropsUi.getMargin();
-    int middle = props.getMiddlePct();
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setImage(GuiResource.getInstance().getImageOptions());
@@ -99,23 +136,19 @@ public class ConfigGeneralOptionsTab {
     wGeneralComp.setLayout(generalLayout);
 
     // The name of the Hop configuration filename
-    Label wlFilename = new Label(wGeneralComp, SWT.RIGHT);
-    wlFilename.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.ConfigFilename.Label"));
-    PropsUi.setLook(wlFilename);
-    FormData fdlFilename = new FormData();
-    fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.right = new FormAttachment(middle, -margin);
-    fdlFilename.top = new FormAttachment(0, margin);
-    wlFilename.setLayoutData(fdlFilename);
-    Text wFilename = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT);
-    wFilename.setText(Const.NVL(HopConfig.getInstance().getConfigFilename(), ""));
-    wFilename.setEditable(false);
-    PropsUi.setLook(wFilename);
-    FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.right = new FormAttachment(100, 0);
-    fdFilename.top = new FormAttachment(0, margin);
-    wFilename.setLayoutData(fdFilename);
+    Control[] filenameControls =
+        createTextField(
+            wGeneralComp,
+            "EnterOptionsDialog.ConfigFilename.Label",
+            null,
+            Const.NVL(HopConfig.getInstance().getConfigFilename(), ""),
+            null,
+            margin);
+    Text wFilename = (Text) filenameControls[1];
+    // Disable the field if config folder is set via HOP_CONFIG_FOLDER environment variable
+    String configFolder = System.getProperty("HOP_CONFIG_FOLDER");
+    boolean isConfigFromEnv = configFolder != null && !configFolder.trim().isEmpty();
+    wFilename.setEnabled(!isConfigFromEnv);
     Control lastControl = wFilename;
 
     // Explain HOP_CONFIG
@@ -124,378 +157,302 @@ public class ConfigGeneralOptionsTab {
         BaseMessages.getString(PKG, "EnterOptionsDialog.WhatIsHopConfigSize.Label"));
     PropsUi.setLook(wlWhatIsHopConfig);
     FormData fdlWhatIsHopConfig = new FormData();
-    fdlWhatIsHopConfig.left = new FormAttachment(middle, 0);
+    fdlWhatIsHopConfig.left = new FormAttachment(0, 0);
     fdlWhatIsHopConfig.right = new FormAttachment(100, 0);
     fdlWhatIsHopConfig.top = new FormAttachment(lastControl, margin);
     wlWhatIsHopConfig.setLayoutData(fdlWhatIsHopConfig);
     lastControl = wlWhatIsHopConfig;
 
     // The default preview size
-    Label wlDefaultPreview = new Label(wGeneralComp, SWT.RIGHT);
-    wlDefaultPreview.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.DefaultPreviewSize.Label"));
-    PropsUi.setLook(wlDefaultPreview);
-    FormData fdlDefaultPreview = new FormData();
-    fdlDefaultPreview.left = new FormAttachment(0, 0);
-    fdlDefaultPreview.right = new FormAttachment(middle, -margin);
-    fdlDefaultPreview.top = new FormAttachment(lastControl, margin);
-    wlDefaultPreview.setLayoutData(fdlDefaultPreview);
-    wDefaultPreview = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wDefaultPreview.setText(Integer.toString(props.getDefaultPreviewSize()));
-    PropsUi.setLook(wDefaultPreview);
-    FormData fdDefaultPreview = new FormData();
-    fdDefaultPreview.left = new FormAttachment(middle, 0);
-    fdDefaultPreview.right = new FormAttachment(100, 0);
-    fdDefaultPreview.top = new FormAttachment(wlDefaultPreview, 0, SWT.CENTER);
-    wDefaultPreview.setLayoutData(fdDefaultPreview);
-    wDefaultPreview.addListener(SWT.Modify, this::saveValues);
+    Control[] previewControls =
+        createTextField(
+            wGeneralComp,
+            "EnterOptionsDialog.DefaultPreviewSize.Label",
+            null,
+            Integer.toString(props.getDefaultPreviewSize()),
+            lastControl,
+            margin);
+    wDefaultPreview = (Text) previewControls[1];
+    // Add hint text for empty field
+    wDefaultPreview.setMessage(BaseMessages.getString(PKG, "EnterOptionsDialog.EnterNumber.Hint"));
+    // Add validation to only allow integer values
+    wDefaultPreview.addListener(
+        SWT.Verify,
+        e -> {
+          String currentText = ((Text) e.widget).getText();
+          String newText =
+              currentText.substring(0, e.start) + e.text + currentText.substring(e.end);
+          if (!newText.isEmpty() && !newText.matches("\\d+")) {
+            e.doit = false; // Reject the input if it's not a valid integer
+          }
+        });
     lastControl = wDefaultPreview;
 
     // Use DB Cache?
-    Label wlUseCache = new Label(wGeneralComp, SWT.RIGHT);
-    wlUseCache.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.UseDatabaseCache.Label"));
-    PropsUi.setLook(wlUseCache);
-    FormData fdlUseCache = new FormData();
-    fdlUseCache.left = new FormAttachment(0, 0);
-    fdlUseCache.top = new FormAttachment(lastControl, margin);
-    fdlUseCache.right = new FormAttachment(middle, -margin);
-    wlUseCache.setLayoutData(fdlUseCache);
-    wUseCache = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wUseCache);
-    wUseCache.setSelection(props.useDBCache());
-    FormData fdUseCache = new FormData();
-    fdUseCache.left = new FormAttachment(middle, 0);
-    fdUseCache.top = new FormAttachment(wlUseCache, 0, SWT.CENTER);
-    fdUseCache.right = new FormAttachment(100, 0);
-    wUseCache.setLayoutData(fdUseCache);
-    wUseCache.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlUseCache;
+    wUseCache =
+        createCheckbox(
+            wGeneralComp,
+            "EnterOptionsDialog.UseDatabaseCache.Label",
+            null,
+            props.useDBCache(),
+            lastControl,
+            margin);
+    lastControl = wUseCache;
 
     // Auto load last file at startup?
-    Label wlOpenLast = new Label(wGeneralComp, SWT.RIGHT);
-    wlOpenLast.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.OpenLastFileStartup.Label"));
-    PropsUi.setLook(wlOpenLast);
-    FormData fdlOpenLast = new FormData();
-    fdlOpenLast.left = new FormAttachment(0, 0);
-    fdlOpenLast.top = new FormAttachment(lastControl, margin);
-    fdlOpenLast.right = new FormAttachment(middle, -margin);
-    wlOpenLast.setLayoutData(fdlOpenLast);
-    wOpenLast = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wOpenLast);
-    wOpenLast.setSelection(props.openLastFile());
-    FormData fdOpenLast = new FormData();
-    fdOpenLast.left = new FormAttachment(middle, 0);
-    fdOpenLast.top = new FormAttachment(wlOpenLast, 0, SWT.CENTER);
-    fdOpenLast.right = new FormAttachment(100, 0);
-    wOpenLast.setLayoutData(fdOpenLast);
-    wOpenLast.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlOpenLast;
+    wOpenLast =
+        createCheckbox(
+            wGeneralComp,
+            "EnterOptionsDialog.OpenLastFileStartup.Label",
+            null,
+            props.openLastFile(),
+            lastControl,
+            margin);
+    lastControl = wOpenLast;
 
-    // Auto save changed files?
-    Label wlAutoSave = new Label(wGeneralComp, SWT.RIGHT);
-    wlAutoSave.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.AutoSave.Label"));
-    PropsUi.setLook(wlAutoSave);
-    FormData fdlAutoSave = new FormData();
-    fdlAutoSave.left = new FormAttachment(0, 0);
-    fdlAutoSave.top = new FormAttachment(lastControl, margin);
-    fdlAutoSave.right = new FormAttachment(middle, -margin);
-    wlAutoSave.setLayoutData(fdlAutoSave);
-    wAutoSave = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wAutoSave);
-    wAutoSave.setSelection(props.getAutoSave());
-    FormData fdAutoSave = new FormData();
-    fdAutoSave.left = new FormAttachment(middle, 0);
-    fdAutoSave.top = new FormAttachment(wlAutoSave, 0, SWT.CENTER);
-    fdAutoSave.right = new FormAttachment(100, 0);
-    wAutoSave.setLayoutData(fdAutoSave);
-    wAutoSave.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlAutoSave;
-
-    // Automatically split hops?
-    Label wlAutoSplit = new Label(wGeneralComp, SWT.RIGHT);
-    wlAutoSplit.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.AutoSplitHops.Label"));
-    PropsUi.setLook(wlAutoSplit);
-    FormData fdlAutoSplit = new FormData();
-    fdlAutoSplit.left = new FormAttachment(0, 0);
-    fdlAutoSplit.top = new FormAttachment(lastControl, margin);
-    fdlAutoSplit.right = new FormAttachment(middle, -margin);
-    wlAutoSplit.setLayoutData(fdlAutoSplit);
-    wAutoSplit = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wAutoSplit);
-    wAutoSplit.setToolTipText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.AutoSplitHops.Tooltip"));
-    wAutoSplit.setSelection(props.getAutoSplit());
-    FormData fdAutoSplit = new FormData();
-    fdAutoSplit.left = new FormAttachment(middle, 0);
-    fdAutoSplit.top = new FormAttachment(wlAutoSplit, 0, SWT.CENTER);
-    fdAutoSplit.right = new FormAttachment(100, 0);
-    wAutoSplit.setLayoutData(fdAutoSplit);
-    wAutoSplit.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlAutoSplit;
-
-    // Show warning for copy / distribute...
-    Label wlCopyDistrib = new Label(wGeneralComp, SWT.RIGHT);
-    wlCopyDistrib.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.CopyOrDistributeDialog.Label"));
-    PropsUi.setLook(wlCopyDistrib);
-    FormData fdlCopyDistrib = new FormData();
-    fdlCopyDistrib.left = new FormAttachment(0, 0);
-    fdlCopyDistrib.top = new FormAttachment(lastControl, margin);
-    fdlCopyDistrib.right = new FormAttachment(middle, -margin);
-    wlCopyDistrib.setLayoutData(fdlCopyDistrib);
-    wCopyDistribute = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wCopyDistribute);
-    wCopyDistribute.setToolTipText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.CopyOrDistributeDialog.Tooltip"));
-    wCopyDistribute.setSelection(props.showCopyOrDistributeWarning());
-    FormData fdCopyDistrib = new FormData();
-    fdCopyDistrib.left = new FormAttachment(middle, 0);
-    fdCopyDistrib.top = new FormAttachment(wlCopyDistrib, 0, SWT.CENTER);
-    fdCopyDistrib.right = new FormAttachment(100, 0);
-    wCopyDistribute.setLayoutData(fdCopyDistrib);
-    wCopyDistribute.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlCopyDistrib;
-
-    // Show exit warning?
-    Label wlExitWarning = new Label(wGeneralComp, SWT.RIGHT);
-    wlExitWarning.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.AskOnExit.Label"));
-    PropsUi.setLook(wlExitWarning);
-    FormData fdlExitWarning = new FormData();
-    fdlExitWarning.left = new FormAttachment(0, 0);
-    fdlExitWarning.top = new FormAttachment(lastControl, margin);
-    fdlExitWarning.right = new FormAttachment(middle, -margin);
-    wlExitWarning.setLayoutData(fdlExitWarning);
-    wExitWarning = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wExitWarning);
-    wExitWarning.setSelection(props.showExitWarning());
-    FormData fdExitWarning = new FormData();
-    fdExitWarning.left = new FormAttachment(middle, 0);
-    fdExitWarning.top = new FormAttachment(wlExitWarning, 0, SWT.CENTER);
-    fdExitWarning.right = new FormAttachment(100, 0);
-    wExitWarning.setLayoutData(fdExitWarning);
-    wExitWarning.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlExitWarning;
-
-    // Clear custom parameters. (from transform)
-    Label wlClearCustom = new Label(wGeneralComp, SWT.RIGHT);
-    wlClearCustom.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.ClearCustomParameters.Label"));
-    PropsUi.setLook(wlClearCustom);
-    FormData fdlClearCustom = new FormData();
-    fdlClearCustom.left = new FormAttachment(0, 0);
-    fdlClearCustom.top = new FormAttachment(lastControl, margin + 10);
-    fdlClearCustom.right = new FormAttachment(middle, -margin);
-    wlClearCustom.setLayoutData(fdlClearCustom);
-
-    Button wClearCustom = new Button(wGeneralComp, SWT.PUSH);
-    PropsUi.setLook(wClearCustom);
-    FormData fdClearCustom = layoutResetOptionButton(wClearCustom);
-    fdClearCustom.width = fdClearCustom.width + 6;
-    fdClearCustom.height = fdClearCustom.height + 18;
-    fdClearCustom.left = new FormAttachment(middle, 0);
-    fdClearCustom.top = new FormAttachment(wlClearCustom, 0, SWT.CENTER);
-    wClearCustom.setLayoutData(fdClearCustom);
-    wClearCustom.setToolTipText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.ClearCustomParameters.Tooltip"));
-    wClearCustom.addListener(
-        SWT.Selection,
-        e -> {
-          MessageBox mb = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "EnterOptionsDialog.ClearCustomParameters.Question"));
-          mb.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.ClearCustomParameters.Title"));
-          int id = mb.open();
-          if (id == SWT.YES) {
-            try {
-              props.clearCustomParameters();
-              saveValues(null);
-              MessageBox ok = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-              ok.setMessage(
-                  BaseMessages.getString(
-                      PKG, "EnterOptionsDialog.ClearCustomParameters.Confirmation"));
-              ok.open();
-            } catch (Exception ex) {
-              new ErrorDialog(
-                  shell, "Error", "Error clearing custom parameters, saving config file", ex);
-            }
-          }
-        });
-    lastControl = wClearCustom;
+    // Reload file if changed on filesystem?
+    wReloadFileOnChange =
+        createCheckbox(
+            wGeneralComp,
+            "EnterOptionsDialog.ReloadFileOnChange.Label",
+            "EnterOptionsDialog.ReloadFileOnChange.ToolTip",
+            props.isReloadingFilesOnChange(),
+            lastControl,
+            margin);
+    lastControl = wReloadFileOnChange;
 
     // Sort field by name
-    Label wlSortFieldByName = new Label(wGeneralComp, SWT.RIGHT);
-    wlSortFieldByName.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.SortFieldByName.Label"));
-    wlSortFieldByName.setToolTipText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.SortFieldByName.ToolTip"));
-    PropsUi.setLook(wlSortFieldByName);
-    FormData fdlSortFieldByName = new FormData();
-    fdlSortFieldByName.left = new FormAttachment(0, 0);
-    fdlSortFieldByName.right = new FormAttachment(middle, -margin);
-    fdlSortFieldByName.top = new FormAttachment(lastControl, 2 * margin);
-    wlSortFieldByName.setLayoutData(fdlSortFieldByName);
-    wSortFieldByName = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wSortFieldByName);
-    FormData fdSortFieldByName = new FormData();
-    fdSortFieldByName.left = new FormAttachment(middle, 0);
-    fdSortFieldByName.right = new FormAttachment(100, -margin);
-    fdSortFieldByName.top = new FormAttachment(wlSortFieldByName, 0, SWT.CENTER);
-    wSortFieldByName.setLayoutData(fdSortFieldByName);
-    wSortFieldByName.setSelection(props.isSortFieldByName());
-    wSortFieldByName.addListener(SWT.Selection, this::saveValues);
+    wSortFieldByName =
+        createCheckbox(
+            wGeneralComp,
+            "EnterOptionsDialog.SortFieldByName.Label",
+            "EnterOptionsDialog.SortFieldByName.ToolTip",
+            props.isSortFieldByName(),
+            lastControl,
+            2 * margin);
     lastControl = wSortFieldByName;
 
-    // Tooltips
-    Label wlToolTip = new Label(wGeneralComp, SWT.RIGHT);
-    wlToolTip.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.ToolTipsEnabled.Label"));
-    PropsUi.setLook(wlToolTip);
-    FormData fdlToolTip = new FormData();
-    fdlToolTip.left = new FormAttachment(0, 0);
-    fdlToolTip.top = new FormAttachment(lastControl, margin);
-    fdlToolTip.right = new FormAttachment(middle, -margin);
-    wlToolTip.setLayoutData(fdlToolTip);
-    wToolTip = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wToolTip);
-    wToolTip.setSelection(props.showToolTips());
-    FormData fdbToolTip = new FormData();
-    fdbToolTip.left = new FormAttachment(middle, 0);
-    fdbToolTip.top = new FormAttachment(wlToolTip, 0, SWT.CENTER);
-    fdbToolTip.right = new FormAttachment(100, 0);
-    wToolTip.setLayoutData(fdbToolTip);
-    wToolTip.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlToolTip;
+    // Use global file bookmarks?
+    wbUseGlobalFileBookmarks =
+        createCheckbox(
+            wGeneralComp,
+            "EnterOptionsDialog.UseGlobalFileBookmarks.Label",
+            null,
+            props.useGlobalFileBookmarks(),
+            lastControl,
+            margin);
+    lastControl = wbUseGlobalFileBookmarks;
+
+    // Maximum execution logging text size
+    Control[] loggingControls =
+        createTextField(
+            wGeneralComp,
+            "EnterOptionsDialog.MaxExecutionLoggingTextSizeSize.Label",
+            "EnterOptionsDialog.MaxExecutionLoggingTextSizeSize.ToolTip",
+            Integer.toString(props.getMaxExecutionLoggingTextSize()),
+            lastControl,
+            2 * margin);
+    wMaxExecutionLoggingTextSize = (Text) loggingControls[1];
+    // Add hint text for empty field
+    wMaxExecutionLoggingTextSize.setMessage(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.EnterNumber.Hint"));
+    // Add validation to only allow integer values
+    wMaxExecutionLoggingTextSize.addListener(
+        SWT.Verify,
+        e -> {
+          String currentText = ((Text) e.widget).getText();
+          String newText =
+              currentText.substring(0, e.start) + e.text + currentText.substring(e.end);
+          if (!newText.isEmpty() && !newText.matches("\\d+")) {
+            e.doit = false; // Reject the input if it's not a valid integer
+          }
+        });
+    lastControl = wMaxExecutionLoggingTextSize;
+
+    // Confirmation dialogs section (at the bottom) - using ExpandBar
+    ExpandBar expandBar = new ExpandBar(wGeneralComp, SWT.V_SCROLL);
+    PropsUi.setLook(expandBar);
+
+    FormData fdExpandBar = new FormData();
+    fdExpandBar.left = new FormAttachment(0, 0);
+    fdExpandBar.right = new FormAttachment(100, 0);
+    fdExpandBar.top = new FormAttachment(lastControl, 2 * margin);
+    expandBar.setLayoutData(fdExpandBar);
+
+    // Create expandable item for confirmation dialogs
+    Composite confirmationContent = new Composite(expandBar, SWT.NONE);
+    PropsUi.setLook(confirmationContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    confirmationContent.setLayout(contentLayout);
+
+    // Exit warning checkbox inside the expandable content
+    Control lastConfirmControl = null;
+    wExitWarning =
+        createCheckbox(
+            confirmationContent,
+            "EnterOptionsDialog.AskOnExit.Label",
+            null,
+            props.showExitWarning(),
+            lastConfirmControl,
+            margin);
+    lastConfirmControl = wExitWarning;
+
+    // Show warning for copy / distribute...
+    wCopyDistribute =
+        createCheckbox(
+            confirmationContent,
+            "EnterOptionsDialog.CopyOrDistributeDialog.Label",
+            "EnterOptionsDialog.CopyOrDistributeDialog.Tooltip",
+            props.showCopyOrDistributeWarning(),
+            lastConfirmControl,
+            margin);
+    lastConfirmControl = wCopyDistribute;
+
+    // Show confirmation when splitting hops (inverted logic from autoSplit)
+    wAutoSplit =
+        createCheckbox(
+            confirmationContent,
+            "EnterOptionsDialog.SplitHopsConfirm.Label",
+            "EnterOptionsDialog.SplitHopsConfirm.Tooltip",
+            !props.getAutoSplit(),
+            lastConfirmControl,
+            margin);
+    lastConfirmControl = wAutoSplit;
+
+    // Show confirmation to save file when starting pipeline or workflow (inverted logic from
+    // autoSave)
+    wAutoSave =
+        createCheckbox(
+            confirmationContent,
+            "EnterOptionsDialog.SaveConfirm.Label",
+            "EnterOptionsDialog.SaveConfirm.Tooltip",
+            !props.getAutoSave(),
+            lastConfirmControl,
+            margin);
+    lastConfirmControl = wAutoSave;
+
+    // Reset button - enables all confirmation dialogs
+    Control[] resetButtonControls =
+        createButton(
+            confirmationContent,
+            "EnterOptionsDialog.ResetConfirmations.Label",
+            "EnterOptionsDialog.ResetConfirmations.Tooltip",
+            lastConfirmControl,
+            2 * margin);
+    Button wResetConfirmations = (Button) resetButtonControls[0];
+    wResetConfirmations.addListener(
+        SWT.Selection,
+        e -> {
+          // Enable all confirmation checkboxes
+          wExitWarning.setSelection(true);
+          wCopyDistribute.setSelection(true);
+          wAutoSplit.setSelection(true);
+          wAutoSave.setSelection(true);
+
+          // Clear all custom parameters to re-enable transform warnings
+          try {
+            props.clearCustomParameters();
+          } catch (Exception ex) {
+            new ErrorDialog(shell, "Error", "Error clearing transform warning preferences", ex);
+          }
+
+          // Trigger save to persist the changes
+          saveValues(null);
+        });
+
+    // Create the expand item
+    ExpandItem confirmationItem = new ExpandItem(expandBar, SWT.NONE);
+    confirmationItem.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.Section.ConfirmationDialogs"));
+    confirmationItem.setControl(confirmationContent);
+    confirmationItem.setHeight(confirmationContent.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+    confirmationItem.setExpanded(true); // Start expanded
+
+    // Tooltips section - using ExpandBar
+    Composite tooltipsContent = new Composite(expandBar, SWT.NONE);
+    PropsUi.setLook(tooltipsContent);
+    FormLayout tooltipsLayout = new FormLayout();
+    tooltipsLayout.marginWidth = PropsUi.getFormMargin();
+    tooltipsLayout.marginHeight = PropsUi.getFormMargin();
+    tooltipsContent.setLayout(tooltipsLayout);
+
+    // Display tooltips checkbox
+    Control lastTooltipControl = null;
+    wToolTip =
+        createCheckbox(
+            tooltipsContent,
+            "EnterOptionsDialog.ToolTipsEnabled.Label",
+            null,
+            props.showToolTips(),
+            lastTooltipControl,
+            margin);
+    lastTooltipControl = wToolTip;
 
     // Resolve variables in tooltips
-    //
-    Label wlResolveVarInTips = new Label(wGeneralComp, SWT.RIGHT);
-    wlResolveVarInTips.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.ResolveVarsInTips.Label"));
-    PropsUi.setLook(wlResolveVarInTips);
-    FormData fdlResolveVarInTips = new FormData();
-    fdlResolveVarInTips.left = new FormAttachment(0, 0);
-    fdlResolveVarInTips.top = new FormAttachment(lastControl, margin);
-    fdlResolveVarInTips.right = new FormAttachment(middle, -margin);
-    wlResolveVarInTips.setLayoutData(fdlResolveVarInTips);
-    wResolveVarsInTips = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wResolveVarsInTips);
-    wResolveVarsInTips.setSelection(props.resolveVariablesInToolTips());
-    FormData fdbResolveVarInTips = new FormData();
-    fdbResolveVarInTips.left = new FormAttachment(middle, 0);
-    fdbResolveVarInTips.top = new FormAttachment(wlResolveVarInTips, 0, SWT.CENTER);
-    fdbResolveVarInTips.right = new FormAttachment(100, 0);
-    wResolveVarsInTips.setLayoutData(fdbResolveVarInTips);
-    wResolveVarsInTips.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlResolveVarInTips;
+    wResolveVarsInTips =
+        createCheckbox(
+            tooltipsContent,
+            "EnterOptionsDialog.ResolveVarsInTips.Label",
+            null,
+            props.resolveVariablesInToolTips(),
+            lastTooltipControl,
+            margin);
+    lastTooltipControl = wResolveVarsInTips;
 
-    // Help tool tips
-    Label wlHelpTip = new Label(wGeneralComp, SWT.RIGHT);
-    wlHelpTip.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.HelpToolTipsEnabled.Label"));
-    PropsUi.setLook(wlHelpTip);
-    FormData fdlHelpTip = new FormData();
-    fdlHelpTip.left = new FormAttachment(0, 0);
-    fdlHelpTip.top = new FormAttachment(lastControl, margin);
-    fdlHelpTip.right = new FormAttachment(middle, -margin);
-    wlHelpTip.setLayoutData(fdlHelpTip);
-    wHelpTip = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wHelpTip);
-    wHelpTip.setSelection(props.isShowingHelpToolTips());
-    FormData fdbHelpTip = new FormData();
-    fdbHelpTip.left = new FormAttachment(middle, 0);
-    fdbHelpTip.top = new FormAttachment(wlHelpTip, 0, SWT.CENTER);
-    fdbHelpTip.right = new FormAttachment(100, 0);
-    wHelpTip.setLayoutData(fdbHelpTip);
-    wHelpTip.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlHelpTip;
+    // Reset button - enables all tooltip options
+    Control[] resetTooltipControls =
+        createButton(
+            tooltipsContent,
+            "EnterOptionsDialog.ResetTooltips.Label",
+            "EnterOptionsDialog.ResetTooltips.Tooltip",
+            lastTooltipControl,
+            2 * margin);
+    Button wResetTooltips = (Button) resetTooltipControls[0];
+    wResetTooltips.addListener(
+        SWT.Selection,
+        e -> {
+          // Enable all tooltip checkboxes
+          wToolTip.setSelection(true);
+          wResolveVarsInTips.setSelection(true);
 
-    // Use double click on the canvas
-    //
-    Label wlUseDoubleClick = new Label(wGeneralComp, SWT.RIGHT);
-    wlUseDoubleClick.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.UseDoubleClickOnCanvas.Label"));
-    PropsUi.setLook(wlUseDoubleClick);
-    FormData fdlUseDoubleClick = new FormData();
-    fdlUseDoubleClick.left = new FormAttachment(0, 0);
-    fdlUseDoubleClick.top = new FormAttachment(lastControl, margin);
-    fdlUseDoubleClick.right = new FormAttachment(middle, -margin);
-    wlUseDoubleClick.setLayoutData(fdlUseDoubleClick);
-    wbUseDoubleClick = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wbUseDoubleClick);
-    wbUseDoubleClick.setSelection(props.useDoubleClick());
-    FormData fdbUseDoubleClick = new FormData();
-    fdbUseDoubleClick.left = new FormAttachment(middle, 0);
-    fdbUseDoubleClick.top = new FormAttachment(wlUseDoubleClick, 0, SWT.CENTER);
-    fdbUseDoubleClick.right = new FormAttachment(100, 0);
-    wbUseDoubleClick.setLayoutData(fdbUseDoubleClick);
-    wbUseDoubleClick.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlUseDoubleClick;
+          // Trigger save to persist the changes
+          saveValues(null);
+        });
 
-    // Use double click on the canvas
-    //
-    Label wlDrawBorderAroundCanvasNames = new Label(wGeneralComp, SWT.RIGHT);
-    wlDrawBorderAroundCanvasNames.setText(
-        BaseMessages.getString(
-            PKG, "EnterOptionsDialog.DrawBorderAroundCanvasNamesOnCanvas.Label"));
-    PropsUi.setLook(wlDrawBorderAroundCanvasNames);
-    FormData fdlDrawBorderAroundCanvasNames = new FormData();
-    fdlDrawBorderAroundCanvasNames.left = new FormAttachment(0, 0);
-    fdlDrawBorderAroundCanvasNames.top = new FormAttachment(lastControl, margin);
-    fdlDrawBorderAroundCanvasNames.right = new FormAttachment(middle, -margin);
-    wlDrawBorderAroundCanvasNames.setLayoutData(fdlDrawBorderAroundCanvasNames);
-    wbDrawBorderAroundCanvasNames = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wbDrawBorderAroundCanvasNames);
-    wbDrawBorderAroundCanvasNames.setSelection(props.useDoubleClick());
-    FormData fdbDrawBorderAroundCanvasNames = new FormData();
-    fdbDrawBorderAroundCanvasNames.left = new FormAttachment(middle, 0);
-    fdbDrawBorderAroundCanvasNames.top =
-        new FormAttachment(wlDrawBorderAroundCanvasNames, 0, SWT.CENTER);
-    fdbDrawBorderAroundCanvasNames.right = new FormAttachment(100, 0);
-    wbDrawBorderAroundCanvasNames.setLayoutData(fdbDrawBorderAroundCanvasNames);
-    wbDrawBorderAroundCanvasNames.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlDrawBorderAroundCanvasNames;
+    // Create the tooltips expand item
+    ExpandItem tooltipsItem = new ExpandItem(expandBar, SWT.NONE);
+    tooltipsItem.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Section.Tooltips"));
+    tooltipsItem.setControl(tooltipsContent);
+    tooltipsItem.setHeight(tooltipsContent.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+    tooltipsItem.setExpanded(true); // Start expanded
 
-    // Use global file bookmarks?
-    Label wlUseGlobalFileBookmarks = new Label(wGeneralComp, SWT.RIGHT);
-    wlUseGlobalFileBookmarks.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.UseGlobalFileBookmarks.Label"));
-    PropsUi.setLook(wlUseGlobalFileBookmarks);
-    FormData fdlUseGlobalFileBookmarks = new FormData();
-    fdlUseGlobalFileBookmarks.left = new FormAttachment(0, 0);
-    fdlUseGlobalFileBookmarks.top = new FormAttachment(lastControl, margin);
-    fdlUseGlobalFileBookmarks.right = new FormAttachment(middle, -margin);
-    wlUseGlobalFileBookmarks.setLayoutData(fdlUseGlobalFileBookmarks);
-    wbUseGlobalFileBookmarks = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wbUseGlobalFileBookmarks);
-    wbUseGlobalFileBookmarks.setSelection(props.useGlobalFileBookmarks());
-    FormData fdbUseGlobalFileBookmarks = new FormData();
-    fdbUseGlobalFileBookmarks.left = new FormAttachment(middle, 0);
-    fdbUseGlobalFileBookmarks.top = new FormAttachment(wlUseGlobalFileBookmarks, 0, SWT.CENTER);
-    fdbUseGlobalFileBookmarks.right = new FormAttachment(100, 0);
-    wbUseGlobalFileBookmarks.setLayoutData(fdbUseGlobalFileBookmarks);
-    wbUseGlobalFileBookmarks.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlUseGlobalFileBookmarks;
-
-    // The default preview size
-    Label wlMaxExecutionLoggingTextSize = new Label(wGeneralComp, SWT.RIGHT);
-    wlMaxExecutionLoggingTextSize.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.MaxExecutionLoggingTextSizeSize.Label"));
-    PropsUi.setLook(wlMaxExecutionLoggingTextSize);
-    FormData fdlMaxExecutionLoggingTextSize = new FormData();
-    fdlMaxExecutionLoggingTextSize.left = new FormAttachment(0, 0);
-    fdlMaxExecutionLoggingTextSize.right = new FormAttachment(middle, -margin);
-    fdlMaxExecutionLoggingTextSize.top = new FormAttachment(lastControl, 2 * margin);
-    wlMaxExecutionLoggingTextSize.setLayoutData(fdlMaxExecutionLoggingTextSize);
-    wMaxExecutionLoggingTextSize = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wMaxExecutionLoggingTextSize.setToolTipText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.MaxExecutionLoggingTextSizeSize.ToolTip"));
-    wMaxExecutionLoggingTextSize.setText(Integer.toString(props.getMaxExecutionLoggingTextSize()));
-    PropsUi.setLook(wMaxExecutionLoggingTextSize);
-    FormData fdMaxExecutionLoggingTextSize = new FormData();
-    fdMaxExecutionLoggingTextSize.left = new FormAttachment(middle, 0);
-    fdMaxExecutionLoggingTextSize.right = new FormAttachment(100, 0);
-    fdMaxExecutionLoggingTextSize.top =
-        new FormAttachment(wlMaxExecutionLoggingTextSize, 0, SWT.CENTER);
-    wMaxExecutionLoggingTextSize.setLayoutData(fdMaxExecutionLoggingTextSize);
-    wMaxExecutionLoggingTextSize.addListener(SWT.Modify, this::saveValues);
+    // Add expand/collapse listeners for space reclamation
+    expandBar.addListener(
+        SWT.Expand,
+        e ->
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      if (!wGeneralComp.isDisposed() && !sGeneralComp.isDisposed()) {
+                        wGeneralComp.layout();
+                        sGeneralComp.setMinHeight(
+                            wGeneralComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+                      }
+                    }));
+    expandBar.addListener(
+        SWT.Collapse,
+        e ->
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      if (!wGeneralComp.isDisposed() && !sGeneralComp.isDisposed()) {
+                        wGeneralComp.layout();
+                        sGeneralComp.setMinHeight(
+                            wGeneralComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+                      }
+                    }));
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
@@ -518,44 +475,180 @@ public class ConfigGeneralOptionsTab {
   }
 
   /**
-   * Setting the layout of a <i>Reset</i> option button. Either a button image is set - if existing
-   * - or a text.
+   * Creates a text field with label above it.
    *
-   * @param button The button
+   * @param parent The parent composite
+   * @param labelKey The message key for the label text
+   * @param tooltipKey Optional tooltip message key (can be null)
+   * @param initialValue The initial text value
+   * @param lastControl The last control to attach to
+   * @param margin The margin to use
+   * @return An array containing [Label, Text] controls
    */
-  private FormData layoutResetOptionButton(Button button) {
-    FormData fd = new FormData();
-    Image editButton = GuiResource.getInstance().getImageResetOption();
-    if (editButton != null) {
-      button.setImage(editButton);
+  private Control[] createTextField(
+      Composite parent,
+      String labelKey,
+      String tooltipKey,
+      String initialValue,
+      Control lastControl,
+      int margin) {
+    // Label above
+    Label label = new Label(parent, SWT.LEFT);
+    PropsUi.setLook(label);
+    label.setText(BaseMessages.getString(PKG, labelKey));
+
+    FormData fdLabel = new FormData();
+    fdLabel.left = new FormAttachment(0, 0);
+    fdLabel.right = new FormAttachment(100, 0);
+    if (lastControl != null) {
+      fdLabel.top = new FormAttachment(lastControl, margin);
+    } else {
+      fdLabel.top = new FormAttachment(0, margin);
+    }
+    label.setLayoutData(fdLabel);
+
+    // Text field below label
+    Text text = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(text);
+    text.setText(initialValue);
+    if (tooltipKey != null) {
+      text.setToolTipText(BaseMessages.getString(PKG, tooltipKey));
+    }
+    text.addListener(SWT.Modify, this::saveValues);
+
+    FormData fdText = new FormData();
+    fdText.left = new FormAttachment(0, 0);
+    fdText.right = new FormAttachment(100, 0);
+    fdText.top = new FormAttachment(label, margin / 2);
+    text.setLayoutData(fdText);
+
+    return new Control[] {label, text};
+  }
+
+  /**
+   * Creates a button with image in front and text label behind it (like checkboxes).
+   *
+   * @param parent The parent composite
+   * @param labelKey The message key for the label text
+   * @param tooltipKey Optional tooltip message key (can be null)
+   * @param lastControl The last control to attach to
+   * @param margin The margin to use
+   * @return An array containing [Button, Label] controls
+   */
+  private Control[] createButton(
+      Composite parent, String labelKey, String tooltipKey, Control lastControl, int margin) {
+    // Button with image
+    Button button = new Button(parent, SWT.PUSH);
+    PropsUi.setLook(button);
+
+    // Try to set image, otherwise use text
+    Image buttonImage = GuiResource.getInstance().getImageResetOption();
+    if (buttonImage != null) {
+      button.setImage(buttonImage);
       button.setBackground(GuiResource.getInstance().getColorWhite());
-      fd.width = editButton.getBounds().width + 20;
-      fd.height = editButton.getBounds().height;
     } else {
       button.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.Button.Reset"));
     }
 
-    button.setToolTipText(BaseMessages.getString(PKG, "EnterOptionsDialog.Button.Reset.Tooltip"));
-    return fd;
+    if (tooltipKey != null) {
+      button.setToolTipText(BaseMessages.getString(PKG, tooltipKey));
+    }
+
+    // Calculate proper button height based on image and zoom factor
+    int buttonHeight = (int) (32 * PropsUi.getInstance().getZoomFactor());
+    if (buttonImage != null) {
+      // Ensure button is at least as tall as the image with some padding
+      buttonHeight = Math.max(buttonHeight, buttonImage.getBounds().height + 8);
+    }
+
+    FormData fdButton = new FormData();
+    fdButton.left = new FormAttachment(0, 0);
+    fdButton.height = buttonHeight;
+    if (lastControl != null) {
+      fdButton.top = new FormAttachment(lastControl, margin);
+    } else {
+      fdButton.top = new FormAttachment(0, margin);
+    }
+    button.setLayoutData(fdButton);
+
+    // Label with text behind the button
+    Label label = new Label(parent, SWT.LEFT);
+    PropsUi.setLook(label);
+    label.setText(BaseMessages.getString(PKG, labelKey));
+
+    FormData fdLabel = new FormData();
+    fdLabel.left = new FormAttachment(button, margin);
+    fdLabel.top = new FormAttachment(button, 0, SWT.CENTER);
+    fdLabel.right = new FormAttachment(100, 0);
+    label.setLayoutData(fdLabel);
+
+    return new Control[] {button, label};
+  }
+
+  /**
+   * Creates a checkbox with the checkbox in front of the label text (not centered).
+   *
+   * @param parent The parent composite
+   * @param labelKey The message key for the label text
+   * @param tooltipKey Optional tooltip message key (can be null)
+   * @param selected Whether the checkbox is initially selected
+   * @param lastControl The last control to attach to
+   * @param margin The margin to use
+   * @return The created Button (checkbox)
+   */
+  private Button createCheckbox(
+      Composite parent,
+      String labelKey,
+      String tooltipKey,
+      boolean selected,
+      Control lastControl,
+      int margin) {
+    Button checkbox = new Button(parent, SWT.CHECK);
+    PropsUi.setLook(checkbox);
+    checkbox.setText(BaseMessages.getString(PKG, labelKey));
+    if (tooltipKey != null) {
+      checkbox.setToolTipText(BaseMessages.getString(PKG, tooltipKey));
+    }
+    checkbox.setSelection(selected);
+    checkbox.addListener(SWT.Selection, this::saveValues);
+
+    FormData fdCheckbox = new FormData();
+    fdCheckbox.left = new FormAttachment(0, 0);
+    fdCheckbox.right = new FormAttachment(100, 0);
+    if (lastControl != null) {
+      fdCheckbox.top = new FormAttachment(lastControl, margin);
+    } else {
+      fdCheckbox.top = new FormAttachment(0, margin);
+    }
+    checkbox.setLayoutData(fdCheckbox);
+
+    return checkbox;
   }
 
   private void saveValues(Event event) {
+    // Don't save if we're currently reloading values
+    if (isReloading) {
+      return;
+    }
+
     PropsUi props = PropsUi.getInstance();
 
     props.setDefaultPreviewSize(
         Const.toInt(wDefaultPreview.getText(), props.getDefaultPreviewSize()));
     props.setUseDBCache(wUseCache.getSelection());
     props.setOpenLastFile(wOpenLast.getSelection());
-    props.setAutoSave(wAutoSave.getSelection());
-    props.setAutoSplit(wAutoSplit.getSelection());
+    props.setReloadingFilesOnChange(wReloadFileOnChange.getSelection());
+    props.setAutoSave(
+        !wAutoSave
+            .getSelection()); // Inverted: checkbox is "show confirmation", property is "auto save"
+    props.setAutoSplit(
+        !wAutoSplit
+            .getSelection()); // Inverted: checkbox is "show confirmation", property is "auto split"
     props.setShowCopyOrDistributeWarning(wCopyDistribute.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setShowToolTips(wToolTip.getSelection());
     props.setResolveVariablesInToolTips(wResolveVarsInTips.getSelection());
     props.setSortFieldByName(wSortFieldByName.getSelection());
-    props.setShowingHelpToolTips(wHelpTip.getSelection());
-    props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
-    props.setDrawBorderAroundCanvasNames(wbDrawBorderAroundCanvasNames.getSelection());
     props.setUseGlobalFileBookmarks(wbUseGlobalFileBookmarks.getSelection());
     props.setMaxExecutionLoggingTextSize(
         Const.toInt(

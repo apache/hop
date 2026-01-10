@@ -19,6 +19,8 @@
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -43,7 +45,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 @GuiPlugin
@@ -51,7 +52,7 @@ public class ConfigPluginOptionsTab {
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 
-  private List wPluginsList;
+  private static Map<String, Object> pluginDataMap = new HashMap<>();
   private Composite wPluginComposite;
 
   public ConfigPluginOptionsTab() {
@@ -65,7 +66,6 @@ public class ConfigPluginOptionsTab {
       description = "Plugins options tab")
   public void addPluginOptionsTab(CTabFolder wTabFolder) {
     Shell shell = wTabFolder.getShell();
-    int margin = PropsUi.getMargin();
 
     CTabItem wPluginsTab = new CTabItem(wTabFolder, SWT.NONE);
     wPluginsTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -80,31 +80,21 @@ public class ConfigPluginOptionsTab {
     lookLayout.marginHeight = PropsUi.getFormMargin();
     wPluginsTabComp.setLayout(lookLayout);
 
-    // Plugins list on the left
+    // A composite to show settings for a plugin - takes full width
     //
-    wPluginsList = new List(wPluginsTabComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wPluginsList);
-    FormData fdPluginsList = new FormData();
-    fdPluginsList.left = new FormAttachment(0, 0);
-    fdPluginsList.right = new FormAttachment(20, 0);
-    fdPluginsList.top = new FormAttachment(0, 0);
-    fdPluginsList.bottom = new FormAttachment(100, 0);
-    wPluginsList.setLayoutData(fdPluginsList);
-
-    // A composite to show settings for a plugin on the right.
-    //
-    wPluginComposite = new Composite(wPluginsTabComp, SWT.NO_BACKGROUND | SWT.BORDER);
+    wPluginComposite = new Composite(wPluginsTabComp, SWT.NO_BACKGROUND);
     PropsUi.setLook(wPluginComposite);
     FormData fdPluginComposite = new FormData();
-    fdPluginComposite.left = new FormAttachment(wPluginsList, margin);
+    fdPluginComposite.left = new FormAttachment(0, 0);
     fdPluginComposite.right = new FormAttachment(100, 0);
     fdPluginComposite.top = new FormAttachment(0, 0);
     fdPluginComposite.bottom = new FormAttachment(100, 0);
     wPluginComposite.setLayoutData(fdPluginComposite);
     wPluginComposite.setLayout(new FormLayout());
 
-    // Add the list of configuration plugins
+    // Load all configuration plugins and store their data
     //
+    pluginDataMap.clear();
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
     java.util.List<IPlugin> configPlugins = pluginRegistry.getPlugins(ConfigPluginType.class);
     for (IPlugin configPlugin : configPlugins) {
@@ -118,15 +108,13 @@ public class ConfigPluginOptionsTab {
           Object sourceData = method.invoke(null, (Object[]) null);
 
           // This config plugin is also a GUI plugin
-          // Add a tab
+          // Store the plugin data in the map
           //
           String name =
               Const.NVL(
                   TranslateUtil.translate(annotation.description(), emptySourceData.getClass()),
                   "");
-          wPluginsList.add(name);
-          wPluginsList.setData(name, sourceData);
-          wPluginsList.addListener(SWT.Selection, e -> showConfigPluginSettings());
+          pluginDataMap.put(name, sourceData);
         }
       } catch (Exception e) {
         new ErrorDialog(
@@ -138,7 +126,8 @@ public class ConfigPluginOptionsTab {
       }
     }
 
-    wPluginsList.select(new int[] {});
+    // Show a helpful message when no plugin is selected
+    showPluginInstructions(wPluginComposite);
 
     FormData fdPluginsTabComp = new FormData();
     fdPluginsTabComp.left = new FormAttachment(0, 0);
@@ -150,23 +139,24 @@ public class ConfigPluginOptionsTab {
     wPluginsTab.setControl(wPluginsTabComp);
   }
 
-  /** Someone selected the settings of a plugin to edit */
-  private void showConfigPluginSettings() {
-    int index = wPluginsList.getSelectionIndex();
-    if (index < 0) {
+  /**
+   * Show settings for a specific plugin. This is called from the tree selection in
+   * ConfigurationPerspective.
+   */
+  public static void showConfigPluginSettings(String pluginName, Composite targetComposite) {
+    Object pluginSourceData = pluginDataMap.get(pluginName);
+    if (pluginSourceData == null) {
       return;
     }
-    String name = wPluginsList.getSelection()[0];
-    Object pluginSourceData = wPluginsList.getData(name);
 
-    // Delete everything
-    for (Control child : wPluginComposite.getChildren()) {
+    // Delete everything in the target composite
+    for (Control child : targetComposite.getChildren()) {
       child.dispose();
     }
 
     // Rebuild
     ScrolledComposite sPluginsComp =
-        new ScrolledComposite(wPluginComposite, SWT.V_SCROLL | SWT.H_SCROLL);
+        new ScrolledComposite(targetComposite, SWT.V_SCROLL | SWT.H_SCROLL);
     sPluginsComp.setLayout(new FormLayout());
     FormData fdsPluginsComp = new FormData();
     fdsPluginsComp.left = new FormAttachment(0, 0);
@@ -179,7 +169,7 @@ public class ConfigPluginOptionsTab {
     PropsUi.setLook(wPluginsComp);
     wPluginsComp.setLayout(new FormLayout());
 
-    wPluginComposite.layout();
+    targetComposite.layout();
 
     GuiCompositeWidgets compositeWidgets =
         new GuiCompositeWidgets(HopGui.getInstance().getVariables());
@@ -203,6 +193,52 @@ public class ConfigPluginOptionsTab {
     sPluginsComp.setMinWidth(bounds.width);
     sPluginsComp.setMinHeight(bounds.height);
 
-    wPluginComposite.layout(true, true);
+    targetComposite.layout(true, true);
+  }
+
+  /** Get all available plugin names for tree population */
+  public static java.util.Set<String> getPluginNames() {
+    return pluginDataMap.keySet();
+  }
+
+  /** Show instruction message when no plugin is selected */
+  public static void showPluginInstructions(Composite targetComposite) {
+    // Clear the composite
+    for (Control child : targetComposite.getChildren()) {
+      child.dispose();
+    }
+
+    // Create a centered label with instructions
+    Composite instructionsComp = new Composite(targetComposite, SWT.NONE);
+    PropsUi.setLook(instructionsComp);
+    instructionsComp.setLayout(new FormLayout());
+
+    FormData fdInstructions = new FormData();
+    fdInstructions.left = new FormAttachment(0, 0);
+    fdInstructions.right = new FormAttachment(100, 0);
+    fdInstructions.top = new FormAttachment(0, 0);
+    fdInstructions.bottom = new FormAttachment(100, 0);
+    instructionsComp.setLayoutData(fdInstructions);
+
+    org.eclipse.swt.widgets.Label instructionLabel =
+        new org.eclipse.swt.widgets.Label(instructionsComp, SWT.CENTER | SWT.WRAP);
+    instructionLabel.setText(
+        "Select a plugin from the tree on the left to configure its settings.");
+    PropsUi.setLook(instructionLabel);
+    instructionLabel.setForeground(
+        instructionsComp.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+
+    FormData fdLabel = new FormData();
+    fdLabel.left = new FormAttachment(20, 0);
+    fdLabel.right = new FormAttachment(80, 0);
+    fdLabel.top = new FormAttachment(40, 0);
+    instructionLabel.setLayoutData(fdLabel);
+
+    targetComposite.layout(true, true);
+  }
+
+  /** Get the plugin composite for a tab item */
+  public Composite getPluginComposite() {
+    return wPluginComposite;
   }
 }

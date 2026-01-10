@@ -29,6 +29,7 @@ import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -37,11 +38,14 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineSvgPainter;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -59,6 +63,7 @@ import org.eclipse.swt.SWT;
 
 public class HopGuiFileDelegate {
 
+  private static final Class<?> PKG = BaseDialog.class;
   public static final String CONST_ERROR = "Error";
   private final HopGui hopGui;
 
@@ -266,6 +271,47 @@ public class HopGuiFileDelegate {
     if (!saveGuardAllFiles()) {
       return false;
     }
+
+    // Check if we should ask the user for confirmation before exiting
+    //
+    PropsUi props = PropsUi.getInstance();
+    if (props.showExitWarning()) {
+      String title = BaseMessages.getString(PKG, "EnterOptionsDialog.AskOnExit.Label");
+      String message = BaseMessages.getString(PKG, "EnterOptionsDialog.AskOnExit.ConfirmMessage");
+      String toggleLabel =
+          BaseMessages.getString(PKG, "EnterOptionsDialog.AskOnExit.DoNotAskAgain");
+      String[] buttonLabels = {
+        BaseMessages.getString(PKG, "System.Button.Yes"),
+        BaseMessages.getString(PKG, "System.Button.No")
+      };
+
+      MessageDialogWithToggle dialog =
+          new MessageDialogWithToggle(
+              hopGui.getShell(),
+              title,
+              message,
+              SWT.ICON_QUESTION,
+              buttonLabels,
+              toggleLabel,
+              false);
+      int answer = dialog.open();
+
+      // If user checked "Do not ask this again", disable the exit warning
+      if (dialog.getToggleState()) {
+        props.setExitWarningShown(false);
+        try {
+          HopConfig.getInstance().saveToFile();
+        } catch (Exception e) {
+          new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error saving configuration", e);
+        }
+      }
+
+      // Return code 0 is Yes, 1 is No
+      if (answer != 0) {
+        return false; // User chose not to exit
+      }
+    }
+
     // Also save all the open files in a list
     //
     hopGui.auditDelegate.writeLastOpenFiles();

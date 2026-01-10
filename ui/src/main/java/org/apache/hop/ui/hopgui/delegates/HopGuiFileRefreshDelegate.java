@@ -80,6 +80,9 @@ public class HopGuiFileRefreshDelegate {
   // saved in the file system
   //
   public void register(String fileName, IHopFileTypeHandler fileTypeHandler) {
+    if (!hopGui.getProps().isReloadingFilesOnChange()) {
+      return;
+    }
     try {
       FileObject file = HopVfs.getFileObject(fileName);
       fileMonitor.addFile(file);
@@ -91,6 +94,9 @@ public class HopGuiFileRefreshDelegate {
   }
 
   public void remove(String fileName) {
+    if (!hopGui.getProps().isReloadingFilesOnChange()) {
+      return;
+    }
     try {
       FileObject file = HopVfs.getFileObject(fileName);
       fileName = file.getPublicURIString();

@@ -75,6 +75,7 @@ public class PropsUi extends Props {
   private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
   private static final String DRAW_BORDER_AROUND_CANVAS_NAMES = "DrawBorderAroundCanvasNames";
   private static final String USE_GLOBAL_FILE_BOOKMARKS = "UseGlobalFileBookmarks";
+  private static final String RELOAD_FILES_ON_CHANGE = "ReloadFilesOnChange";
   private static final String DARK_MODE = "DarkMode";
   private static final String GLOBAL_ZOOMFACTOR = "GlobalZoomFactor";
   private static final String MAX_EXECUTION_LOGGING_TEXT_SIZE = "MaxExecutionLoggingTextSize";
@@ -401,6 +402,15 @@ public class PropsUi extends Props {
   public boolean openLastFile() {
     String open = getProperty(STRING_OPEN_LAST_FILE);
     return !NO.equalsIgnoreCase(open);
+  }
+
+  public void setReloadingFilesOnChange(boolean reload) {
+    setProperty(RELOAD_FILES_ON_CHANGE, reload ? YES : NO);
+  }
+
+  public boolean isReloadingFilesOnChange() {
+    String reload = getProperty(RELOAD_FILES_ON_CHANGE);
+    return YES.equalsIgnoreCase(reload); // Default = OFF
   }
 
   public void setAutoSave(boolean autosave) {

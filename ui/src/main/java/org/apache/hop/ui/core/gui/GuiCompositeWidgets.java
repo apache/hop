@@ -159,14 +159,15 @@ public class GuiCompositeWidgets {
 
       GuiElementType elementType = guiElements.getType();
 
-      // Add the label on the left-hand side...
-      // For metadata, the label is handled in the meta selection line widget below
+      // Add the label above the control (left-aligned)
+      // For metadata, checkbox, button, and link, the label is handled in the widget itself
       //
       if (StringUtils.isNotEmpty(guiElements.getLabel())
           && elementType != GuiElementType.METADATA
           && elementType != GuiElementType.BUTTON
-          && elementType != GuiElementType.LINK) {
-        label = new Label(parent, SWT.RIGHT | SWT.SINGLE);
+          && elementType != GuiElementType.LINK
+          && elementType != GuiElementType.CHECKBOX) {
+        label = new Label(parent, SWT.LEFT);
         PropsUi.setLook(label);
         label.setText(Const.NVL(guiElements.getLabel(), ""));
         if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
@@ -174,12 +175,12 @@ public class GuiCompositeWidgets {
         }
         FormData fdLabel = new FormData();
         fdLabel.left = new FormAttachment(0, 0);
+        fdLabel.right = new FormAttachment(100, 0);
         if (lastControl == null) {
           fdLabel.top = new FormAttachment(0, PropsUi.getMargin());
         } else {
           fdLabel.top = new FormAttachment(lastControl, PropsUi.getMargin() + extraVerticalMargin);
         }
-        fdLabel.right = new FormAttachment(props.getMiddlePct(), -PropsUi.getMargin());
         label.setLayoutData(fdLabel);
         labelsMap.put(guiElements.getId(), label);
       }
@@ -434,11 +435,17 @@ public class GuiCompositeWidgets {
     Control control;
     Button button = new Button(parent, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(button);
+    // Set the label text on the checkbox itself
+    button.setText(Const.NVL(guiElements.getLabel(), ""));
+    if (StringUtils.isNotEmpty(guiElements.getToolTip())) {
+      button.setToolTipText(guiElements.getToolTip());
+    }
     widgetsMap.put(guiElements.getId(), button);
     addModifyListener(button, guiElements.getId());
     control = button;
 
-    layoutControlBetweenLabelAndRightControl(props, lastControl, label, control, null);
+    // Checkboxes are laid out below the last control, full width
+    layoutControlBelowLast(props, lastControl, control);
 
     return control;
   }
@@ -563,7 +570,8 @@ public class GuiCompositeWidgets {
     FormData fdControl = new FormData();
     fdControl.right = new FormAttachment(100, 0);
     if (label != null) {
-      fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
+      // Control goes on the right, aligned with the row below the label
+      fdControl.top = new FormAttachment(label, PropsUi.getMargin() / 2);
     } else {
       if (lastControl != null) {
         fdControl.top = new FormAttachment(lastControl, PropsUi.getMargin());
@@ -578,19 +586,21 @@ public class GuiCompositeWidgets {
       PropsUi props, Control lastControl, Label label, Control control, Control rightControl) {
     FormData fdControl = new FormData();
     if (label != null) {
-      fdControl.left = new FormAttachment(props.getMiddlePct(), 0);
+      // Control goes below the label, full width (or next to right control)
+      fdControl.left = new FormAttachment(0, 0);
       if (rightControl == null) {
         fdControl.right = new FormAttachment(100, 0);
       } else {
-        fdControl.right = new FormAttachment(rightControl, -5);
+        fdControl.right = new FormAttachment(rightControl, -PropsUi.getMargin());
       }
-      fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
+      fdControl.top = new FormAttachment(label, PropsUi.getMargin() / 2);
     } else {
-      fdControl.left = new FormAttachment(props.getMiddlePct(), 0);
+      // No label, control goes full width
+      fdControl.left = new FormAttachment(0, 0);
       if (rightControl == null) {
         fdControl.right = new FormAttachment(100, 0);
       } else {
-        fdControl.right = new FormAttachment(rightControl, -5);
+        fdControl.right = new FormAttachment(rightControl, -PropsUi.getMargin());
       }
       if (lastControl != null) {
         fdControl.top = new FormAttachment(lastControl, PropsUi.getMargin());
