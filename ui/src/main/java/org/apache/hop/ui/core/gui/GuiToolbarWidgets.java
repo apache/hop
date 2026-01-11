@@ -239,7 +239,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
                 | (toolbarItem.isReadOnly() ? SWT.READ_ONLY : SWT.NONE));
     combo.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     combo.setItems(getComboItems(toolbarItem));
-    PropsUi.setLook(combo);
+    PropsUi.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
     combo.pack();
     comboSeparator.setWidth(
         calculateComboWidth(combo)
@@ -260,7 +260,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         new Button(toolBar, SWT.CHECK | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT));
     checkbox.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
     checkbox.setText(Const.NVL(toolbarItem.getLabel(), ""));
-    PropsUi.setLook(checkbox);
+    PropsUi.setLook(checkbox, Props.WIDGET_STYLE_TOOLBAR);
     checkbox.pack();
     checkboxSeparator.setWidth(
         checkbox.getSize().x + toolbarItem.getExtraWidth()); // extra room for widget decorations
@@ -329,6 +329,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     layout.horizontalSpacing = 4;
     layout.verticalSpacing = 0;
     composite.setLayout(layout);
+    PropsUi.setLook(composite, Props.WIDGET_STYLE_TOOLBAR);
 
     // Create the image label
     Label imageLabel = new Label(composite, SWT.NONE);
@@ -497,6 +498,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             SvgLabelFacade.enable(null, id, imageLabel, enable);
           }
         }
+        // Update ToolItem state so future checks work correctly
+        item.setEnabled(enable);
       } else {
         item.setEnabled(enable);
       }
@@ -536,7 +539,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           toolItem.setWidth(composite.getSize().x);
 
           // Force layout update
-          ToolBar toolbar = (ToolBar) toolItem.getParent();
+          ToolBar toolbar = toolItem.getParent();
           if (toolbar != null && !toolbar.isDisposed()) {
             toolbar.layout(true, true);
           }

@@ -70,7 +70,13 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
     } else {
       opacity = "'0.3'";
     }
-    exec("document.getElementById('", id, "').style.opacity=", opacity, ";");
+    // Check if element exists before setting opacity to avoid JS errors
+    exec(
+        "var el = document.getElementById('",
+        id,
+        "'); if (el) { el.style.opacity=",
+        opacity,
+        "; }");
   }
 
   @Override
@@ -81,7 +87,13 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
     } else {
       color = "'transparent'";
     }
-    exec("document.getElementById('", id, "').style.background=", color, ";");
+    // Check if element exists before setting background to avoid JS errors
+    exec(
+        "var el = document.getElementById('",
+        id,
+        "'); if (el) { el.style.background=",
+        color,
+        "; }");
   }
 
   private static void exec(String... strings) {
