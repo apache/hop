@@ -28,5 +28,5 @@ public interface ISearchableCallback {
    * @param searchResult
    * @throws HopException
    */
-  public void callback(ISearchable searchable, ISearchResult searchResult) throws HopException;
+  void callback(ISearchable searchable, ISearchResult searchResult) throws HopException;
 }

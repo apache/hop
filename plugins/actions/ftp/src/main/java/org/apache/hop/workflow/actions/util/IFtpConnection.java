@@ -129,5 +129,5 @@ public interface IFtpConnection {
    *
    * @return value of activeConnection
    */
-  public boolean isActiveConnection();
+  boolean isActiveConnection();
 }
