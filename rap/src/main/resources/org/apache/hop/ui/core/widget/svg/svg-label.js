@@ -37,9 +37,10 @@ const handleEvent = function (event) {
             break;
         case SWT.Show:
             // We always get one call here, so we can set the background transparent and adjust the style in general.
+            // Respect the initial enabled state from props
             //
             img.style.background = 'transparent';
-            img.style.opacity = '1.0';
+            img.style.opacity = props.enabled ? '1.0' : '0.3';
             img.parentElement.style.background = 'transparent';
             img.parentElement.parentElement.style.background = 'transparent';
             break;
