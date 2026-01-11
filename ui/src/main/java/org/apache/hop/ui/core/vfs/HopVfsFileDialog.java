@@ -323,7 +323,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     // A toolbar above the browser, below the filename
     ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
-    PropsUi.setLook(navigateToolBar, Props.WIDGET_STYLE_DEFAULT);
+    PropsUi.setLook(navigateToolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     navigateToolbarWidgets = new GuiToolbarWidgets();
     navigateToolbarWidgets.registerGuiPluginObject(this);
