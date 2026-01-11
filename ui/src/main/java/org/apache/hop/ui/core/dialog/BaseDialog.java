@@ -356,13 +356,40 @@ public abstract class BaseDialog extends Dialog {
             fileObject = null;
           }
         } else {
-
-          // Take the first extension with "filename" prepended
+          // If fileObject is provided, try to extract the filename from it
           //
-          if (filterExtensions != null && filterExtensions.length > 0) {
-            String filterExtension = filterExtensions[0];
-            String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
-            vfsDialog.setSaveFilename("filename" + extension);
+          try {
+            if (fileObject != null) {
+              String baseName = fileObject.getName().getBaseName();
+              // Check if this looks like a file (has content and possibly an extension)
+              // rather than a folder. Even non-existent files should have a basename.
+              if (StringUtils.isNotEmpty(baseName)) {
+                vfsDialog.setSaveFilename(baseName);
+              } else {
+                // Take the first extension with "filename" prepended
+                //
+                if (filterExtensions != null && filterExtensions.length > 0) {
+                  String filterExtension = filterExtensions[0];
+                  String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
+                  vfsDialog.setSaveFilename("filename" + extension);
+                }
+              }
+            } else {
+              // Take the first extension with "filename" prepended
+              //
+              if (filterExtensions != null && filterExtensions.length > 0) {
+                String filterExtension = filterExtensions[0];
+                String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
+                vfsDialog.setSaveFilename("filename" + extension);
+              }
+            }
+          } catch (Exception e) {
+            // If there's an error checking fileObject, fall back to default
+            if (filterExtensions != null && filterExtensions.length > 0) {
+              String filterExtension = filterExtensions[0];
+              String extension = filterExtension.substring(filterExtension.lastIndexOf("."));
+              vfsDialog.setSaveFilename("filename" + extension);
+            }
           }
         }
       }
@@ -397,14 +424,31 @@ public abstract class BaseDialog extends Dialog {
     }
 
     if (fileObject != null) {
-      dialog.setFileName(HopVfs.getFilename(fileObject));
       try {
-        if (fileObject.isFile()) {
-          dialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
+        if (save) {
+          // For save dialogs, we've already set saveFilename above
+          // Just set the filter path to the parent directory
+          if (fileObject.isFile()) {
+            dialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
+          } else {
+            // If it doesn't exist or is a folder, try to get the parent
+            FileObject parent = fileObject.getParent();
+            if (parent != null && parent.exists()) {
+              dialog.setFilterPath(HopVfs.getFilename(parent));
+            } else {
+              // Fall back to the fileObject itself
+              dialog.setFilterPath(HopVfs.getFilename(fileObject));
+            }
+          }
         } else {
-          dialog.setFilterPath(HopVfs.getFilename(fileObject));
+          // For open dialogs, set fileName to navigate to that location
+          dialog.setFileName(HopVfs.getFilename(fileObject));
+          if (fileObject.isFile()) {
+            dialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
+          } else {
+            dialog.setFilterPath(HopVfs.getFilename(fileObject));
+          }
         }
-
       } catch (FileSystemException fse) {
         // This wasn't a valid filename, ignore the error to reduce spamming
       }
