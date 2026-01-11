@@ -105,7 +105,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.w3c.dom.Node;
 
-@GuiPlugin
+@GuiPlugin(name = "i18n::WorkflowExecutionViewer.Name")
 public class WorkflowExecutionViewer extends BaseExecutionViewer
     implements IExecutionViewer, PaintListener, MouseListener {
   private static final Class<?> PKG = WorkflowExecutionViewer.class;

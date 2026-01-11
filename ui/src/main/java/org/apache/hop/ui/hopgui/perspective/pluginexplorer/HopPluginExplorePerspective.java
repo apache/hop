@@ -61,7 +61,9 @@ import org.eclipse.swt.widgets.TableItem;
     description = "i18n::PluginExplorerPerspective.Description",
     image = "ui/images/plugin.svg",
     documentationUrl = "/hop-gui/perspective-plugin.html")
-@GuiPlugin(description = "i18n::PluginExplorerPerspective.GuiPlugin.Description")
+@GuiPlugin(
+    name = "i18n::PluginExplorerPerspective.Name",
+    description = "i18n::PluginExplorerPerspective.GuiPlugin.Description")
 public class HopPluginExplorePerspective implements IHopPerspective {
   public static final Class<?> PKG = HopPluginExplorePerspective.class; // i18n
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20030-perspective-plugins";

@@ -64,7 +64,9 @@ import org.eclipse.swt.widgets.TableItem;
     description = "i18n::HopSearchPerspective.Description",
     image = "ui/images/search.svg",
     documentationUrl = "/hop-gui/perspective-search.html")
-@GuiPlugin(description = "i18n::HopSearchPerspective.GuiPlugin.Description")
+@GuiPlugin(
+    name = "i18n::HopSearchPerspective.Name",
+    description = "i18n::HopSearchPerspective.GuiPlugin.Description")
 public class HopSearchPerspective implements IHopPerspective {
 
   private static final Class<?> PKG = HopSearchPerspective.class;

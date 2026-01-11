@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.ExpandBar;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
@@ -150,7 +151,7 @@ public class PropsUi extends Props {
       }
     }
 
-    // Various tweaks to improve dark theme experience on Windows
+    // Various tweaks to improve the dark theme experience on Windows
     if (OsHelper.isWindows() && isDarkMode()) {
       display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", true);
       display.setData("org.eclipse.swt.internal.win32.useShellTitleColoring", true);
@@ -496,6 +497,8 @@ public class PropsUi extends Props {
       style = WIDGET_STYLE_TOOLBAR;
     } else if (widget instanceof CTabFolder) {
       style = WIDGET_STYLE_TAB;
+    } else if (widget instanceof ExpandBar) {
+      style = WIDGET_STYLE_EXPANDBAR;
     } else if (OS.contains("mac") && (widget instanceof Group)) {
       style = WIDGET_STYLE_OSX_GROUP;
     } else if (widget instanceof Button) {
@@ -576,7 +579,7 @@ public class PropsUi extends Props {
   protected static void setLookOnWindows(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
-    Color background = GuiResource.getInstance().getWidgetBackGroundColor();
+    Color background = gui.getWidgetBackGroundColor();
     Color foreground = gui.getColorBlack();
 
     if (widget instanceof Shell shell) {
@@ -608,6 +611,11 @@ public class PropsUi extends Props {
         break;
       case WIDGET_STYLE_TOOLBAR:
         break;
+      case WIDGET_STYLE_EXPANDBAR:
+        if (PropsUi.getInstance().isDarkMode()) {
+          foreground = gui.getColorWhite();
+        }
+        break;
       case WIDGET_STYLE_TAB:
         CTabFolder tabFolder = (CTabFolder) widget;
         tabFolder.setBorderVisible(true);
@@ -623,7 +631,7 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_PUSH_BUTTON:
         break;
       default:
-        background = GuiResource.getInstance().getWidgetBackGroundColor();
+        background = gui.getWidgetBackGroundColor();
         font = null;
         break;
     }

@@ -70,7 +70,9 @@ import org.eclipse.swt.widgets.TreeItem;
     description = "i18n::ConfigurationPerspective.Description",
     image = "ui/images/gear.svg",
     documentationUrl = "/hop-gui/perspective-configuration.html")
-@GuiPlugin(description = "i18n::HopConfigurationPerspective.GuiPlugin.Description")
+@GuiPlugin(
+    name = "i18n::ConfigurationPerspective.Name",
+    description = "i18n::HopConfigurationPerspective.GuiPlugin.Description")
 public class ConfigurationPerspective implements IHopPerspective {
 
   private static final Class<?> PKG = ConfigurationPerspective.class;
@@ -162,7 +164,7 @@ public class ConfigurationPerspective implements IHopPerspective {
     PropsUi.setLook(searchBox);
     searchBox.setMessage(BaseMessages.getString(PKG, "HopConfigurationperspective.Search.Text"));
     FormData fdSearchBox = new FormData();
-    fdSearchBox.left = new FormAttachment(0, PropsUi.getMargin());
+    fdSearchBox.left = new FormAttachment(0, 0);
     fdSearchBox.top = new FormAttachment(0, PropsUi.getMargin());
     fdSearchBox.right = new FormAttachment(100, -PropsUi.getMargin());
     searchBox.setLayoutData(fdSearchBox);
@@ -174,7 +176,7 @@ public class ConfigurationPerspective implements IHopPerspective {
     FormData fdSashForm = new FormData();
     fdSashForm.left = new FormAttachment(0, 0);
     fdSashForm.top = new FormAttachment(searchBox, PropsUi.getMargin());
-    fdSashForm.right = new FormAttachment(100, 0);
+    fdSashForm.right = new FormAttachment(100, -PropsUi.getMargin());
     fdSashForm.bottom = new FormAttachment(100, 0);
     sashForm.setLayoutData(fdSashForm);
 
