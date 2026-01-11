@@ -327,13 +327,19 @@ public class LifecycleEnvironmentDialog extends Dialog {
         if (projectConfig != null) {
           String environmentName = Const.NVL(wName.getText(), projectName);
           filename =
-              projectConfig.getProjectHome() + "/" + ".." + "/" + environmentName + "-config.json";
+              projectConfig.getProjectHome()
+                  + Const.FILE_SEPARATOR
+                  + ".."
+                  + Const.FILE_SEPARATOR
+                  + environmentName
+                  + "-config.json";
         }
       }
       FileObject fileObject = HopVfs.getFileObject(filename);
 
       String configFile =
           BaseDialog.presentFileDialog(
+              true, // save dialog
               shell,
               null,
               variables,
