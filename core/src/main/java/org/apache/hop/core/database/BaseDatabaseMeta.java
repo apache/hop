@@ -1415,7 +1415,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   /**
    * @param string
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete,
-   *     etc)
+   *     etc.)
    */
   @Override
   public String quoteSqlString(String string) {

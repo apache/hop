@@ -77,7 +77,7 @@ public class QueryField {
   @HopMetadataProperty(key = "subject", injectionKey = "OUTPUT.SUBJECT_FIELD")
   private String subjectField;
 
-  /** Aggregate type (LEAD/LAG, etc) */
+  /** Aggregate type (LEAD/LAG, etc.) */
   // @Injection(group = "fields", name = "OUTPUT.AGGREGATE_TYPE")
   @HopMetadataProperty(key = "type", injectionKey = "OUTPUT.AGGREGATE_TYPE")
   private AggregateType aggregateType;

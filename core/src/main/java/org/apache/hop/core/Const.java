@@ -1649,7 +1649,7 @@ public class Const {
   }
 
   /**
-   * Get the primary IP address tied to a network interface (excluding loop-back etc)
+   * Get the primary IP address tied to a network interface (excluding loop-back etc.)
    *
    * @param networkInterfaceName the name of the network interface to interrogate
    * @return null if the network interface or address wasn't found.

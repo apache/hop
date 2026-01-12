@@ -1541,7 +1541,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         log.snap(Metrics.METRIC_DATABASE_PREPARE_SQL_STOP, databaseMeta.getName());
 
         log.snap(Metrics.METRIC_DATABASE_SQL_VALUES_START, databaseMeta.getName());
-        setValues(params, data); // set the dates etc!
+        setValues(params, data); // set the dates etc.
         log.snap(Metrics.METRIC_DATABASE_SQL_VALUES_STOP, databaseMeta.getName());
 
         if (canWeSetFetchSize(pstmt)) {
