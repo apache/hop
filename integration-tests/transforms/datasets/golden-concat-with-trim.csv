@@ -1,0 +1,3 @@
+fields,to,concat,fields_1
+"data   ",with,"spaces   ","data   withspaces   "
+"    data   ","with   ",spaces,data   with   spaces
