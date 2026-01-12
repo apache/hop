@@ -663,9 +663,15 @@ public class PropsUi extends Props {
       return;
     }
 
-    // Handle Shell windows with system background, but let macOS handle text color
+    // Handle Shell windows with appropriate background color
     if (widget instanceof Shell shell) {
       shell.setBackgroundMode(SWT.INHERIT_FORCE);
+      // Use gray background in light mode, system background in dark mode
+      if (PropsUi.getInstance().isDarkMode()) {
+        shell.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+      } else {
+        shell.setBackground(gui.getColorDemoGray());
+      }
       return;
     }
 
