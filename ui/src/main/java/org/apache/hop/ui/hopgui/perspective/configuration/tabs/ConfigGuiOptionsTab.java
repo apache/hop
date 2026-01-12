@@ -198,6 +198,9 @@ public class ConfigGuiOptionsTab {
       parentId = ConfigurationPerspective.CONFIG_PERSPECTIVE_TABS,
       description = "GUI options tab")
   public void addGuiOptionsTab(CTabFolder wTabFolder) {
+    // Set initialization flag to prevent saving during widget creation
+    isInitializing = true;
+
     Shell shell = wTabFolder.getShell();
     PropsUi props = PropsUi.getInstance();
     int margin = PropsUi.getMargin();
@@ -1141,6 +1144,9 @@ public class ConfigGuiOptionsTab {
     sLookComp.setMinHeight(bounds.height);
 
     wLookTab.setControl(sLookComp);
+
+    // Reset initialization flag so saveValues can work normally
+    isInitializing = false;
   }
 
   private void paintNoteFont(PaintEvent pe) {
@@ -1352,7 +1358,9 @@ public class ConfigGuiOptionsTab {
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
     // Inverted: checked = use simple terminal, unchecked = use JediTerm (default)
-    props.setUseJediTerm(!wUseSimpleTerminal.getSelection());
+    if (wUseSimpleTerminal != null && !wUseSimpleTerminal.isDisposed()) {
+      props.setUseJediTerm(!wUseSimpleTerminal.getSelection());
+    }
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {
