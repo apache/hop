@@ -21,7 +21,6 @@ import static org.apache.hop.core.row.IValueMeta.storageTypeCodes;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -89,6 +87,13 @@ public class SelectValuesDialog extends BaseTransformDialog {
   private final SelectValuesMeta input;
 
   private final List<ColumnInfo> fieldColumns = new ArrayList<>();
+
+  // Separate lists for different tabs to show appropriate fields at each stage
+  private ColumnInfo selectFieldColumn; // Select & Alter: shows original input fields
+  private final List<ColumnInfo> removeFieldColumns =
+      new ArrayList<>(); // Remove: shows output of Select & Alter
+  private final List<ColumnInfo> metaFieldColumns =
+      new ArrayList<>(); // Metadata: shows output of Select & Alter minus Remove
 
   private String[] charsets = null;
 
@@ -209,6 +214,23 @@ public class SelectValuesDialog extends BaseTransformDialog {
     fdUnspecified.bottom = new FormAttachment(wlUnspecified, 0, SWT.CENTER);
     wUnspecified.setLayoutData(fdUnspecified);
     wUnspecified.addSelectionListener(lsSel);
+    // Update combo boxes when "Include unspecified fields" checkbox is toggled
+    wUnspecified.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            if (bPreviousFieldsLoaded) {
+              shell
+                  .getDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (!shell.isDisposed() && bPreviousFieldsLoaded) {
+                          setComboBoxes();
+                        }
+                      });
+            }
+          }
+        });
 
     Label wlFields = new Label(wSelectComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Fields.Label"));
@@ -247,6 +269,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
             false);
 
     fieldColumns.add(colinf[0]);
+    selectFieldColumn =
+        colinf[0]; // Save reference to Select & Alter column (should always show original fields)
     wFields =
         new TableView(
             variables,
@@ -323,6 +347,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
             },
             false);
     fieldColumns.add(colrem[0]);
+    removeFieldColumns.add(colrem[0]); // Remove tab should show renamed fields from Select & Alter
     wRemove =
         new TableView(
             variables,
@@ -417,10 +442,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Label"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
-              }),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Format"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
@@ -428,10 +451,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateLenient"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
-              }),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.DateFormatLocale"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -443,10 +464,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.LenientStringToNumber"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              new String[] {
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
-                BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO),
-              }),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES),
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Encoding"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -467,11 +486,12 @@ public class SelectValuesDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.RoundingType"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaNumber.roundingTypeDesc),
+              ValueMetaBase.roundingTypeDesc),
         };
     colmeta[5].setToolTip(
         BaseMessages.getString(PKG, "SelectValuesDialog.ColumnInfo.Storage.Tooltip"));
     fieldColumns.add(colmeta[0]);
+    metaFieldColumns.add(colmeta[0]); // Metadata tab should show fields remaining after Remove
     wMeta =
         new TableView(
             variables,
@@ -518,6 +538,28 @@ public class SelectValuesDialog extends BaseTransformDialog {
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
+    // Add a listener to update combo boxes when switching tabs
+    // This ensures Remove and Metadata tabs see any field renamings from Select & Alter tab
+    wTabFolder.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            int tabIndex = wTabFolder.getSelectionIndex();
+            // Update combo boxes when switching to Remove (1) or Metadata (2) tabs
+            if (bPreviousFieldsLoaded && (tabIndex == 1 || tabIndex == 2)) {
+              // Use asyncExec to ensure update happens after tab switch completes
+              shell
+                  .getDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (!shell.isDisposed() && bPreviousFieldsLoaded) {
+                          setComboBoxes();
+                        }
+                      });
+            }
+          }
+        });
+
     // ///////////////////////////////////////////////////////////
     // / END OF TAB FOLDER
     // ///////////////////////////////////////////////////////////
@@ -536,7 +578,15 @@ public class SelectValuesDialog extends BaseTransformDialog {
               for (int i = 0; i < row.size(); i++) {
                 inputFields.put(row.getValueMeta(i).getName(), i);
               }
-              setComboBoxes();
+              // Must use asyncExec to access SWT widgets from background thread
+              shell
+                  .getDisplay()
+                  .asyncExec(
+                      () -> {
+                        if (!shell.isDisposed()) {
+                          setComboBoxes();
+                        }
+                      });
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
@@ -548,6 +598,17 @@ public class SelectValuesDialog extends BaseTransformDialog {
     input.setChanged(changed);
     setComboValues();
 
+    // After getData() sets the initial tab, ensure combo boxes are updated for that tab
+    // This handles the case where the dialog opens on Remove or Metadata tab
+    shell
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              if (!shell.isDisposed() && bPreviousFieldsLoaded) {
+                setComboBoxes();
+              }
+            });
+
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -558,19 +619,22 @@ public class SelectValuesDialog extends BaseTransformDialog {
         () -> {
           try {
             prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
+            // Populate inputFields map if not already done by the background thread
+            if (inputFields.isEmpty() && prevFields != null) {
+              for (int i = 0; i < prevFields.size(); i++) {
+                inputFields.put(prevFields.getValueMeta(i).getName(), i);
+              }
+            }
           } catch (HopException e) {
             prevFields = new RowMeta();
             String msg =
                 BaseMessages.getString(PKG, "SelectValuesDialog.DoMapping.UnableToFindInput");
             logError(msg);
           }
-          String[] prevTransformFieldNames =
-              prevFields != null ? prevFields.getFieldNames() : new String[0];
-          Arrays.sort(prevTransformFieldNames);
           bPreviousFieldsLoaded = true;
-          for (ColumnInfo colInfo : fieldColumns) {
-            colInfo.setComboValues(prevTransformFieldNames);
-          }
+          // Use setComboBoxes() to properly set values for each tab
+          // (Select & Alter gets original fields, Remove/Metadata get renamed/filtered fields)
+          setComboBoxes();
         };
     shell.getDisplay().asyncExec(fieldLoader);
   }
@@ -650,13 +714,9 @@ public class SelectValuesDialog extends BaseTransformDialog {
                 ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
                 : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
         item.setText(
-            index++,
-            change.getDateFormatLocale() == null ? "" : change.getDateFormatLocale().toString());
+            index++, change.getDateFormatLocale() == null ? "" : change.getDateFormatLocale());
         item.setText(
-            index++,
-            change.getDateFormatTimeZone() == null
-                ? ""
-                : change.getDateFormatTimeZone().toString());
+            index++, change.getDateFormatTimeZone() == null ? "" : change.getDateFormatTimeZone());
         item.setText(
             index++,
             change.isLenientStringToNumber()
@@ -774,16 +834,12 @@ public class SelectValuesDialog extends BaseTransformDialog {
       // If DateFormatLenient is anything but Yes (including blank) then it is false
       change.setDateFormatLenient(
           item.getText(index++)
-                  .equalsIgnoreCase(BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES))
-              ? true
-              : false);
+              .equalsIgnoreCase(BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)));
       change.setDateFormatLocale(item.getText(index++));
       change.setDateFormatTimeZone(item.getText(index++));
       change.setLenientStringToNumber(
           item.getText(index++)
-                  .equalsIgnoreCase(BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES))
-              ? true
-              : false);
+              .equalsIgnoreCase(BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)));
       change.setEncoding(item.getText(index++));
       change.setDecimalSymbol(item.getText(index++));
       change.setGroupingSymbol(item.getText(index++));
@@ -834,23 +890,154 @@ public class SelectValuesDialog extends BaseTransformDialog {
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
+    final Map<String, Integer> inputFieldsMap = new HashMap<>();
 
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
+    // Add the currentMeta fields (original input fields from previous transform)
+    inputFieldsMap.putAll(inputFields);
 
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
+    // Prepare field names for Select & Alter tab (always shows ALL original input fields)
+    Set<String> inputKeySet = inputFieldsMap.keySet();
+    List<String> inputEntries = new ArrayList<>(inputKeySet);
+    String[] inputFieldNames = inputEntries.toArray(new String[inputEntries.size()]);
 
     if (PropsUi.getInstance().isSortFieldByName()) {
-      Const.sortStrings(fieldNames);
+      Const.sortStrings(inputFieldNames);
+    }
+
+    // Update Select & Alter tab combo box with original input fields
+    if (selectFieldColumn != null) {
+      selectFieldColumn.setComboValues(inputFieldNames);
+    }
+
+    // Now prepare field names for Remove and Metadata tabs
+    // These tabs should see the output of Select & Alter (with renaming and filtering)
+    final Map<String, Integer> outputFields = new HashMap<>();
+    outputFields.putAll(inputFieldsMap);
+
+    if (wFields != null) {
+      int nrFields = wFields.nrNonEmpty();
+
+      // If there are fields specified in Select & Alter tab
+      if (nrFields > 0) {
+        Map<String, Integer> selectedFields = new HashMap<>();
+
+        for (int i = 0; i < nrFields; i++) {
+          TableItem item = wFields.getNonEmpty(i);
+          String originalName = item.getText(1);
+          String renamedName = item.getText(2);
+
+          // Skip if no field name is specified
+          if (originalName == null || originalName.trim().isEmpty()) {
+            continue;
+          }
+
+          // Determine the output field name (renamed or original)
+          String outputName =
+              (renamedName != null
+                      && !renamedName.trim().isEmpty()
+                      && !renamedName.equals(originalName))
+                  ? renamedName
+                  : originalName;
+
+          // Add the output field name to the available fields for Remove/Metadata tabs
+          if (inputFieldsMap.containsKey(originalName)) {
+            selectedFields.put(outputName, inputFieldsMap.get(originalName));
+          } else {
+            // Field might not exist in input, but add it anyway for combo box
+            selectedFields.put(outputName, i);
+          }
+        }
+
+        // If "Include unspecified fields" is checked, also include non-selected fields
+        if (wUnspecified != null && wUnspecified.getSelection()) {
+          // Add any fields that weren't explicitly selected
+          for (Map.Entry<String, Integer> entry : inputFieldsMap.entrySet()) {
+            boolean alreadySelected = false;
+            for (int i = 0; i < nrFields; i++) {
+              TableItem item = wFields.getNonEmpty(i);
+              String originalName = item.getText(1);
+              if (originalName != null
+                  && !originalName.trim().isEmpty()
+                  && entry.getKey().equals(originalName)) {
+                alreadySelected = true;
+                break;
+              }
+            }
+            if (!alreadySelected) {
+              selectedFields.put(entry.getKey(), entry.getValue());
+            }
+          }
+        }
+
+        // Replace output fields with the selected/renamed fields
+        outputFields.clear();
+        outputFields.putAll(selectedFields);
+      }
+    }
+
+    // Prepare field names for Remove tab (output of Select & Alter)
+    Set<String> outputKeySet = outputFields.keySet();
+    List<String> outputEntries = new ArrayList<>(outputKeySet);
+    String[] outputFieldNames = outputEntries.toArray(new String[outputEntries.size()]);
+
+    if (PropsUi.getInstance().isSortFieldByName()) {
+      Const.sortStrings(outputFieldNames);
+    }
+
+    // Update Remove tab combo boxes with output fields from Select & Alter
+    for (ColumnInfo colInfo : removeFieldColumns) {
+      colInfo.setComboValues(outputFieldNames);
+    }
+
+    // Now prepare field names for Metadata tab (output of Select & Alter minus Remove)
+    final Map<String, Integer> metadataFields = new HashMap<>();
+    metadataFields.putAll(outputFields);
+
+    // Remove any fields that are specified in the Remove tab
+    if (wRemove != null) {
+      int nrRemove = wRemove.nrNonEmpty();
+      for (int i = 0; i < nrRemove; i++) {
+        TableItem item = wRemove.getNonEmpty(i);
+        String removedFieldName = item.getText(1);
+        if (removedFieldName != null && !removedFieldName.trim().isEmpty()) {
+          metadataFields.remove(removedFieldName);
+        }
+      }
+    }
+
+    // Prepare field names for Metadata tab
+    Set<String> metadataKeySet = metadataFields.keySet();
+    List<String> metadataEntries = new ArrayList<>(metadataKeySet);
+    String[] metadataFieldNames = metadataEntries.toArray(new String[metadataEntries.size()]);
+
+    if (PropsUi.getInstance().isSortFieldByName()) {
+      Const.sortStrings(metadataFieldNames);
+    }
+
+    // Update Metadata tab combo boxes with fields remaining after Remove
+    for (ColumnInfo colInfo : metaFieldColumns) {
+      colInfo.setComboValues(metadataFieldNames);
     }
 
     bPreviousFieldsLoaded = true;
-    for (ColumnInfo colInfo : fieldColumns) {
-      colInfo.setComboValues(fieldNames);
+
+    // Force a refresh of the table widgets to ensure combo boxes display updated values
+    // Just redrawing isn't enough - we need to dispose any cached combo editors
+    if (wRemove != null
+        && !wRemove.isDisposed()
+        && wRemove.getEditor() != null
+        && wRemove.getEditor().getEditor() != null
+        && !wRemove.getEditor().getEditor().isDisposed()) {
+      // Dispose the active editor (if any) to force recreation with new values
+      wRemove.getEditor().getEditor().dispose();
+    }
+    if (wMeta != null
+        && !wMeta.isDisposed()
+        && wMeta.getEditor() != null
+        && wMeta.getEditor().getEditor() != null
+        && !wMeta.getEditor().getEditor().isDisposed()) {
+      // Dispose the active editor (if any) to force recreation with new values
+      wMeta.getEditor().getEditor().dispose();
     }
   }
 }
