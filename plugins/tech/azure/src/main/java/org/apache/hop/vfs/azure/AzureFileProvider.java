@@ -18,6 +18,8 @@
 
 package org.apache.hop.vfs.azure;
 
+import com.azure.identity.DefaultAzureCredential;
+import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.file.datalake.DataLakeServiceClient;
 import com.azure.storage.file.datalake.DataLakeServiceClientBuilder;
@@ -111,6 +113,8 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
       logger.info("Initialize Azure client");
 
       AzureFileName azureRootName = (AzureFileName) fileName;
+      DataLakeServiceClient serviceClient;
+
       if (azureMetadataType != null) {
 
         if (StringUtils.isEmpty(azureMetadataType.getStorageAccountName())) {
@@ -119,21 +123,52 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
                   + azureMetadataType.getName()
                   + "\" is missing a storage account name");
         }
-        if (StringUtils.isEmpty(azureMetadataType.getStorageAccountKey())) {
-          throw new FileSystemException(
-              "Azure configuration \""
-                  + azureMetadataType.getName()
-                  + "\" is missing a storage account key");
-        }
 
         account = variables.resolve(azureMetadataType.getStorageAccountName());
-        key =
-            Encr.decryptPasswordOptionallyEncrypted(
-                variables.resolve(azureMetadataType.getStorageAccountKey()));
         endpoint =
             (!Utils.isEmpty(azureMetadataType.getStorageAccountEndpoint()))
                 ? variables.resolve(azureMetadataType.getStorageAccountEndpoint())
                 : String.format(Locale.ROOT, "https://%s.dfs.core.windows.net", account);
+
+        // Determine authentication type (default to "Key" for backward compatibility)
+        String authType = azureMetadataType.getAuthenticationType();
+        if (StringUtils.isEmpty(authType)) {
+          authType = "Key";
+        }
+
+        DataLakeServiceClientBuilder clientBuilder =
+            new DataLakeServiceClientBuilder().endpoint(endpoint);
+
+        if ("Managed Identity".equals(authType)) {
+          // Use Managed Identity authentication (supports Azure CLI, Managed Identity, etc.)
+          try {
+            DefaultAzureCredential credential = new DefaultAzureCredentialBuilder().build();
+            serviceClient = clientBuilder.credential(credential).buildClient();
+          } catch (Exception e) {
+            throw new FileSystemException(
+                "Failed to authenticate using Managed Identity. Please ensure you have: "
+                    + "1) Azure CLI installed and logged in (az login), OR "
+                    + "2) Running on Azure with Managed Identity enabled, OR "
+                    + "3) Environment variables configured (AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET). "
+                    + "Also ensure your identity has proper permissions (e.g., 'Storage Blob Data Contributor' role) on the storage account.",
+                e);
+          }
+        } else {
+          // Use Key-based authentication
+          if (StringUtils.isEmpty(azureMetadataType.getStorageAccountKey())) {
+            throw new FileSystemException(
+                "Azure configuration \""
+                    + azureMetadataType.getName()
+                    + "\" is missing a storage account key");
+          }
+
+          key =
+              Encr.decryptPasswordOptionallyEncrypted(
+                  variables.resolve(azureMetadataType.getStorageAccountKey()));
+
+          StorageSharedKeyCredential storageCreds = new StorageSharedKeyCredential(account, key);
+          serviceClient = clientBuilder.credential(storageCreds).buildClient();
+        }
       } else {
         AzureConfig config = AzureConfigSingleton.getConfig();
 
@@ -153,16 +188,14 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
             (!Utils.isEmpty(config.getEmulatorUrl()))
                 ? newVariables.resolve(config.getEmulatorUrl())
                 : String.format(Locale.ROOT, "https://%s.dfs.core.windows.net", account);
+
+        StorageSharedKeyCredential storageCreds = new StorageSharedKeyCredential(account, key);
+        serviceClient =
+            new DataLakeServiceClientBuilder()
+                .endpoint(endpoint)
+                .credential(storageCreds)
+                .buildClient();
       }
-
-      StorageSharedKeyCredential storageCreds = new StorageSharedKeyCredential(account, key);
-
-      DataLakeServiceClient serviceClient =
-          new DataLakeServiceClientBuilder()
-              .endpoint(endpoint)
-              .credential(storageCreds)
-              // .httpClient((HttpClient) client)
-              .buildClient();
 
       azureFileSystem =
           new AzureFileSystem(
