@@ -204,6 +204,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @Getter private List<IExplorerSelectionListener> selectionListeners;
   private List<IHopFileType> fileTypes;
   private Map<String, Image> typeImageMap;
+  private Text searchText;
+  private String filterText = "";
+  private Map<String, Boolean> treeStateBeforeFilter = null;
 
   public ExplorerPerspective() {
     instance = this;
@@ -416,6 +419,40 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     toolBar.pack();
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
+    // Create search/filter text box
+    //
+    searchText = new Text(treeComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
+    searchText.setMessage(BaseMessages.getString(PKG, "ExplorerPerspective.Search.Placeholder"));
+    PropsUi.setLook(searchText);
+    FormData searchFormData = new FormData();
+    searchFormData.left = new FormAttachment(0, 0);
+    searchFormData.top = new FormAttachment(toolBar, PropsUi.getMargin());
+    searchFormData.right = new FormAttachment(100, 0);
+    searchText.setLayoutData(searchFormData);
+
+    // Add listener to filter tree on text change
+    searchText.addListener(
+        SWT.Modify,
+        event -> {
+          String text = searchText.getText();
+          boolean wasFiltering = !Utils.isEmpty(filterText);
+          boolean willFilter = text != null && text.length() > 2;
+
+          // Save tree state before filtering starts
+          if (!wasFiltering && willFilter) {
+            saveTreeState();
+          }
+
+          // Only filter when we have more than 2 characters, otherwise show all
+          filterText = willFilter ? text.toLowerCase() : "";
+          refresh();
+
+          // Restore tree state after filtering ends
+          if (wasFiltering && !willFilter) {
+            restoreTreeState();
+          }
+        });
+
     tree = new Tree(treeComposite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> updateSelection());
@@ -424,7 +461,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
-    treeFormData.top = new FormAttachment(toolBar, 0);
+    treeFormData.top = new FormAttachment(searchText, PropsUi.getMargin());
     treeFormData.right = new FormAttachment(100, 0);
     treeFormData.bottom = new FormAttachment(100, 0);
     tree.setLayoutData(treeFormData);
@@ -1640,8 +1677,21 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       // Paint the top level folder only
       //
       refreshFolder(rootItem, rootFolder, 0);
-      TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
-      TreeMemory.setExpandedFromMemory(tree, FILE_EXPLORER_TREE);
+
+      // Always expand root item when filtering
+      if (!Utils.isEmpty(filterText)) {
+        rootItem.setExpanded(true);
+        TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
+      } else {
+        TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, rootItem, true);
+
+        // When not filtering, use tree memory (but don't call it here as it will be called later)
+        // The TreeMemory will be applied either by restoreTreeState() or setExpandedFromMemory()
+        if (treeStateBeforeFilter == null) {
+          // Only restore from memory if we're not about to restore from saved state
+          TreeMemory.setExpandedFromMemory(tree, FILE_EXPLORER_TREE);
+        }
+      }
 
       tree.setRedraw(true);
     } catch (Exception e) {
@@ -1744,6 +1794,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             continue;
           }
 
+          // Apply filter if search text is not empty
+          if (!Utils.isEmpty(filterText)
+              && !childName.toLowerCase().contains(filterText)
+              && !hasMatchingDescendant(child)) {
+            continue;
+          }
+
           String childPath = HopVfs.getFilename(child);
 
           IHopFileType fileType = getFileType(childPath);
@@ -1761,7 +1818,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
             String maxDepthString =
                 ExplorerPerspectiveConfigSingleton.getConfig().getLazyLoadingDepth();
             int maxDepth = Const.toInt(hopGui.getVariables().resolve(maxDepthString), 0);
-            if (depth + 1 <= maxDepth) {
+
+            // If filtering is active, we want to load and expand more to show matches
+            boolean isFiltering = !Utils.isEmpty(filterText);
+
+            if (depth + 1 <= maxDepth || isFiltering) {
               // Remember folder data to expand easily
               //
               childItem.setData(
@@ -1771,6 +1832,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
               // We actually load the content up to the desired depth
               //
               refreshFolder(childItem, childPath, depth + 1);
+
+              // Auto-expand if filtering and this folder has visible children
+              if (isFiltering && childItem.getItemCount() > 0) {
+                childItem.setExpanded(true);
+                TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, childItem, true);
+              }
             } else {
               // Remember folder data to expand easily
               //
@@ -1801,6 +1868,145 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     for (IExplorerFilePaintListener filePaintListener : filePaintListeners) {
       filePaintListener.filePainted(tree, treeItem, path, name);
     }
+  }
+
+  /**
+   * Save the current expanded/collapsed state of all tree items before filtering. This allows us to
+   * restore the exact state when the filter is cleared.
+   */
+  private void saveTreeState() {
+    treeStateBeforeFilter = new HashMap<>();
+    if (tree != null && !tree.isDisposed()) {
+      for (TreeItem item : tree.getItems()) {
+        saveTreeItemState(item);
+      }
+    }
+  }
+
+  /** Recursively save the expanded state of a tree item and its children. */
+  private void saveTreeItemState(TreeItem item) {
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+
+    TreeItemFolder tif = (TreeItemFolder) item.getData();
+    if (tif != null && tif.path != null) {
+      treeStateBeforeFilter.put(tif.path, item.getExpanded());
+    }
+
+    // Recursively save children
+    for (TreeItem child : item.getItems()) {
+      saveTreeItemState(child);
+    }
+  }
+
+  /**
+   * Restore the tree state that was saved before filtering started. This is called after the tree
+   * is refreshed when the filter is cleared.
+   */
+  private void restoreTreeState() {
+    if (treeStateBeforeFilter != null && tree != null && !tree.isDisposed()) {
+      tree.setRedraw(false);
+      try {
+        for (TreeItem item : tree.getItems()) {
+          restoreTreeItemState(item);
+        }
+      } finally {
+        tree.setRedraw(true);
+        treeStateBeforeFilter = null; // Clear the saved state
+      }
+    }
+  }
+
+  /** Recursively restore the expanded state of a tree item and its children. */
+  private void restoreTreeItemState(TreeItem item) {
+    if (item == null || item.isDisposed()) {
+      return;
+    }
+
+    TreeItemFolder tif = (TreeItemFolder) item.getData();
+    if (tif != null && tif.path != null && treeStateBeforeFilter.containsKey(tif.path)) {
+      boolean wasExpanded = treeStateBeforeFilter.get(tif.path);
+
+      // If it should be expanded but has a dummy child, load it first
+      if (wasExpanded && !tif.loaded && item.getItemCount() == 1) {
+        TreeItem firstChild = item.getItem(0);
+        if (firstChild.getData() == null) {
+          // This is a dummy item, load the folder contents
+          refreshFolder(item, tif.path, tif.depth + 1);
+          tif.loaded = true;
+        }
+      }
+
+      item.setExpanded(wasExpanded);
+      TreeMemory.getInstance().storeExpanded(FILE_EXPLORER_TREE, item, wasExpanded);
+    }
+
+    // Recursively restore children
+    for (TreeItem child : item.getItems()) {
+      restoreTreeItemState(child);
+    }
+  }
+
+  /**
+   * Check if a folder has any descendants (files or folders) that match the filter text. This
+   * allows parent folders to be shown if any of their children match the filter.
+   *
+   * @param folder The folder to check
+   * @return true if the folder or any of its descendants match the filter
+   */
+  private boolean hasMatchingDescendant(FileObject folder) {
+    return hasMatchingDescendant(folder, 0, 10); // Limit search depth to 10 levels
+  }
+
+  /**
+   * Check if a folder has any descendants (files or folders) that match the filter text.
+   *
+   * @param folder The folder to check
+   * @param currentDepth The current recursion depth
+   * @param maxDepth The maximum depth to search
+   * @return true if the folder or any of its descendants match the filter
+   */
+  private boolean hasMatchingDescendant(FileObject folder, int currentDepth, int maxDepth) {
+    if (Utils.isEmpty(filterText)) {
+      return true;
+    }
+
+    // Limit recursion depth to avoid performance issues
+    if (currentDepth >= maxDepth) {
+      return false;
+    }
+
+    try {
+      if (!folder.isFolder()) {
+        return false;
+      }
+
+      FileObject[] children = folder.getChildren();
+      for (FileObject child : children) {
+        String childName = child.getName().getBaseName();
+
+        // Skip hidden files if needed
+        if (!showingHiddenFiles && (child.isHidden() || childName.startsWith("."))) {
+          continue;
+        }
+
+        // Check if this child matches
+        if (childName.toLowerCase().contains(filterText)) {
+          return true;
+        }
+
+        // Recursively check descendants
+        if (child.isFolder() && hasMatchingDescendant(child, currentDepth + 1, maxDepth)) {
+          return true;
+        }
+      }
+    } catch (Exception e) {
+      // If there's an error reading the folder, assume no match
+      return false;
+    }
+
+    return false;
   }
 
   /** Update de tab name, tooltip and set the tab bold if the file has changed and vice versa. */
