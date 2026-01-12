@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-concat-with-trim.csv",
+  "name": "golden-concat-with-trim",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "fields",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "to",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "concat",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 500,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "fields_1",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

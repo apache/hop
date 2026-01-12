@@ -186,9 +186,17 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
       targetField.append(nullString);
     } else {
       if (trimType != null) {
+        // Get the raw string value without applying the incoming field's trim type
+        // by temporarily setting trim type to NONE
+        int originalTrimType = valueMeta.getTrimType();
+        valueMeta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
+        String stringValue = valueMeta.getString(valueData);
+        // Restore the original trim type
+        valueMeta.setTrimType(originalTrimType);
+
+        // Apply only the configured trim type from the transform
         targetField.append(
-            Const.trimToType(
-                valueMeta.getString(valueData), ValueMetaBase.getTrimTypeByCode(trimType)));
+            Const.trimToType(stringValue, ValueMetaBase.getTrimTypeByCode(trimType)));
       }
     }
     if (meta.isForceEnclosure()) {
