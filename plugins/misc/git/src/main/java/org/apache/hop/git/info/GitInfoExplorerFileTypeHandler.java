@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.LogChannel;
@@ -50,6 +51,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Constants;
@@ -88,7 +90,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   private Text wBranch;
   private TableView wFiles;
   private TableView wRevisions;
-  private Text wDiff;
+  private Control wDiff; // Can be Text (web) or DiffStyledTextComp (desktop)
+  private DiffStyledTextComp wDiffStyled; // Desktop only - for colored diff
+  private Text wDiffText; // Web only - for plain text diff
   private Button wbDiff;
 
   public GitInfoExplorerFileTypeHandler(
@@ -324,14 +328,33 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     fdlDiff.top = new FormAttachment(wbDiff, 0, SWT.CENTER);
     wlDiff.setLayoutData(fdlDiff);
 
-    wDiff = new Text(wDiffComposite, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    PropsUi.setLook(wDiff);
+    // Create appropriate diff widget based on desktop vs web mode
+    // Desktop: Use DiffStyledTextComp for colored syntax highlighting
+    // Web: Use plain Text widget (StyledText not supported in Hop Web)
     FormData fdDiff = new FormData();
     fdDiff.left = new FormAttachment(0, 0);
     fdDiff.right = new FormAttachment(100, 0);
     fdDiff.top = new FormAttachment(wbDiff, margin);
     fdDiff.bottom = new FormAttachment(100, 0);
-    wDiff.setLayoutData(fdDiff);
+
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // Hop Web: Use plain Text widget
+      wDiffText = new Text(wDiffComposite, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      wDiffText.setEditable(false);
+      PropsUi.setLook(wDiffText);
+      wDiffText.setLayoutData(fdDiff);
+      wDiff = wDiffText;
+    } else {
+      // Desktop: Use DiffStyledTextComp for colored diff
+      wDiffStyled =
+          new DiffStyledTextComp(
+              hopGui.getVariables(),
+              wDiffComposite,
+              SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      PropsUi.setLook(wDiffStyled, Props.WIDGET_STYLE_FIXED);
+      wDiffStyled.setLayoutData(fdDiff);
+      wDiff = wDiffStyled;
+    }
 
     sashForm.setWeights(40, 60);
 
@@ -724,8 +747,22 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       String parentCommitId = git.getParentCommitId(revisionId);
       diff = git.diff(parentCommitId, revisionId, filename);
     }
-    wDiff.setText(Const.NVL(diff, ""));
+    setDiffText(Const.NVL(diff, ""));
     return filename;
+  }
+
+  /**
+   * Sets the diff text in the appropriate widget (colored styled text for desktop, plain text for
+   * web).
+   */
+  private void setDiffText(String text) {
+    if (wDiffStyled != null) {
+      // Desktop: Use colored diff
+      wDiffStyled.setDiffText(text);
+    } else if (wDiffText != null) {
+      // Web: Use plain text
+      wDiffText.setText(text);
+    }
   }
 
   private void refreshChangedFiles() {
@@ -739,7 +776,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     boolean showStaged = true;
 
     // Clear the diff text field and disable the visual diff button
-    wDiff.setText("");
+    setDiffText("");
     wbDiff.setEnabled(false);
 
     // Pick up the revision ID...
