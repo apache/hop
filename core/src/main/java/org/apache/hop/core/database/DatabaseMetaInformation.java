@@ -32,7 +32,9 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
-/** Contains the schema's, catalogs, tables, views, synonyms, etc we can find in the databases... */
+/**
+ * Contains the schema's, catalogs, tables, views, synonyms, etc. we can find in the databases...
+ */
 public class DatabaseMetaInformation {
   private static final Class<?> PKG = Database.class;
 
