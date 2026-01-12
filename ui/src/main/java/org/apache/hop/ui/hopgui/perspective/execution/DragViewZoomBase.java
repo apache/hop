@@ -379,6 +379,11 @@ public abstract class DragViewZoomBase extends Composite {
   }
 
   protected void mouseScrolled(MouseEvent mouseEvent) {
+    // Check if zoom scrolling is disabled
+    if (PropsUi.getInstance().isZoomScrollingDisabled()) {
+      return;
+    }
+
     // Zoom in or out every time we get an event.
     //
     // In the future we do want to take the location of the mouse into account.
