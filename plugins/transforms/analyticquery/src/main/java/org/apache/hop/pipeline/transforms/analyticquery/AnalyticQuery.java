@@ -28,7 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/** Performs analytic queries (LEAD/LAG, etc) based on a group */
+/** Performs analytic queries (LEAD/LAG, etc.) based on a group */
 public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData> {
 
   private static final Class<?> PKG = AnalyticQuery.class;

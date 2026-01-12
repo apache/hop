@@ -315,7 +315,7 @@ public class HopVfs {
    * Read a text file (like an XML document). WARNING DO NOT USE FOR DATA FILES.
    *
    * @param vfsFilename the filename or URL to read from
-   * @param charSetName the character set of the string (UTF-8, ISO8859-1, etc)
+   * @param charSetName the character set of the string (UTF-8, ISO8859-1, etc.)
    * @return The content of the file as a String
    * @throws org.apache.hop.core.exception.HopFileException
    */

@@ -46,7 +46,7 @@ public class GetQueryFieldsProgressDialog {
   private Database db;
 
   /**
-   * Creates a new dialog that will handle the wait while we're finding out what tables, views etc
+   * Creates a new dialog that will handle the wait while we're finding out what tables, views etc.
    * we can reach in the database.
    */
   public GetQueryFieldsProgressDialog(

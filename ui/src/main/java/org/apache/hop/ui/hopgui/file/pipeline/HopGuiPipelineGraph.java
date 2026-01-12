@@ -541,7 +541,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     setBackground(GuiResource.getInstance().getColorBackground());
 
-    // Add keyboard listeners from the main GUI and this class (toolbar etc) to the canvas. That's
+    // Add keyboard listeners from the main GUI and this class (toolbar etc.) to the canvas. That's
     // where the focus should be
     //
     hopGui.replaceKeyboardShortcutListeners(this);
@@ -4860,7 +4860,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     final List<IRowMeta> rowMetas = new ArrayList<>();
     final List<List<Object[]>> rowBuffers = new ArrayList<>();
 
-    // Assemble the buffers etc in the old style...
+    // Assemble the buffers etc. in the old style...
     //
     for (TransformMeta transformMeta : lastPipelineDebugMeta.getTransformDebugMetaMap().keySet()) {
       TransformDebugMeta transformDebugMeta =

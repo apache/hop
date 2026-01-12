@@ -850,7 +850,7 @@ public interface IDatabase extends Cloneable {
    *
    * @param string
    * @return A string that is properly quoted for use in a SQL statement (insert, update, delete,
-   *     etc)
+   *     etc.)
    */
   String quoteSqlString(String string);
 

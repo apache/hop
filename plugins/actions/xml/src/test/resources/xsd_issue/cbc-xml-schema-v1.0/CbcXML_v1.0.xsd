@@ -299,7 +299,7 @@ taken from the ISO codelist 4217 and added in attribute currCode.
 	<!-- Message specification: Data identifying and describing the message as a whole -->
 	<xsd:complexType name="MessageSpec_Type">
 		<xsd:annotation>
-			<xsd:documentation xml:lang="en">Information in the message header identifies the Tax Administration that is sending the message.  It specifies when the message was created, what period (normally a year) the report is for, and the nature of the report (original, corrected, supplemental, etc).</xsd:documentation>
+			<xsd:documentation xml:lang="en">Information in the message header identifies the Tax Administration that is sending the message.  It specifies when the message was created, what period (normally a year) the report is for, and the nature of the report (original, corrected, supplemental, etc.).</xsd:documentation>
 		</xsd:annotation>
 		<xsd:sequence>
 			<xsd:element name="SendingEntityIN" type="xsd:string" minOccurs="0"/>
@@ -469,7 +469,7 @@ Equivalents</xsd:documentation>
 			<xsd:documentation xml:lang="en">
 This container brings together all data about an organisation as a party. Name and address are required components and each can
 be present more than once to enable as complete a description as possible. Whenever possible one or more identifiers (TIN
-etc) should be added as well as a residence country code. Additional data that describes and identifies the party can be
+etc.) should be added as well as a residence country code. Additional data that describes and identifies the party can be
 given . The code for the legal type according to the OECD codelist must be added. The structures of
 all of the subelements are defined elsewhere in this schema.</xsd:documentation>
 		</xsd:annotation>

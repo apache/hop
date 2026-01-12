@@ -19,7 +19,7 @@ package org.apache.hop.core.row;
 
 /**
  * This class of static methods can be used to manipulate rows: add, delete, resize, etc... That
- * way, when we want to go for a metadata driven system with hiding deletes, over sized arrays etc,
+ * way, when we want to go for a metadata driven system with hiding deletes, over sized arrays etc.,
  * we can change these methods to find occurrences.
  *
  * <p>For example, a transform adding a field to the row should always call

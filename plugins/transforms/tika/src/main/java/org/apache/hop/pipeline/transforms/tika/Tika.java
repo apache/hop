@@ -276,7 +276,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
    * Read a text file.
    *
    * @param vfsFilename the filename or URL to read from
-   * @param encoding the character set of the string (UTF-8, ISO8859-1, etc)
+   * @param encoding the character set of the string (UTF-8, ISO8859-1, etc.)
    * @return The content of the file as a String
    * @throws HopException
    */

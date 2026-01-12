@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out what tables,
- * views etc we can reach in the database.
+ * views etc. we can reach in the database.
  */
 public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProgressDialog {
   private static final Class<?> PKG = TextFileInputMeta.class;
@@ -82,7 +82,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
   private EncodingType encodingType;
 
   /**
-   * Creates a new dialog that will handle the wait while we're finding out what tables, views etc
+   * Creates a new dialog that will handle the wait while we're finding out what tables, views etc.
    * we can reach in the database.
    */
   public TextFileCSVImportProgressDialog(

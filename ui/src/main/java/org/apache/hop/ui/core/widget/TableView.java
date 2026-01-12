@@ -572,7 +572,7 @@ public class TableView extends Composite {
 
     /*
      * It seems there is an other keyListener active to help control the cursor. There is support for keys like
-     * LEFT/RIGHT/UP/DOWN/HOME/END/etc It presents us with a problem because we only get the position of the row/column
+     * LEFT/RIGHT/UP/DOWN/HOME/END/etc. It presents us with a problem because we only get the position of the row/column
      * AFTER the other listener did its workflow. Therefor we added global variables prevRowNr and prevColNr
      */
     table.addKeyListener(createTableKeyListener());

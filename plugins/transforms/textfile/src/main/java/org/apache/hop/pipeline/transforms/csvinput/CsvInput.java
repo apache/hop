@@ -600,7 +600,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
       // The strategy is as follows...
       // We read a block of byte[] from the file.
-      // We scan for the separators in the file (NOT for line feeds etc)
+      // We scan for the separators in the file (NOT for line feeds etc.)
       // Then we scan that block of data.
       // We keep a byte[] that we extend if needed..
       // At the end of the block we read another, etc.
