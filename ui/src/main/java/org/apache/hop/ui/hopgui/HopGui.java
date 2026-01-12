@@ -134,10 +134,17 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -264,7 +271,8 @@ public class HopGui
   private Control statusToolbar;
   private GuiToolbarWidgets statusToolbarWidgets;
 
-  private ToolBar perspectivesToolbar;
+  private Composite perspectivesSidebar;
+  private java.util.List<SidebarButton> sidebarButtons = new java.util.ArrayList<>();
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
@@ -607,86 +615,32 @@ public class HopGui
                 perspective.getId());
         ClassLoader classLoader = pluginRegistry.getClassLoader(perspectivePlugin);
 
-        ToolItem item;
-        if (EnvironmentUtils.getInstance().isWeb()) {
-          item =
-              addWebToolbarButton(
-                  perspectivePlugin.getIds()[0],
-                  this.perspectivesToolbar,
-                  perspectivePlugin.getImageFile(),
-                  tooltip,
-                  // TODO: check if there is unnecessary refresh
-                  event -> setActivePerspective(perspective));
-        } else {
-          item = new ToolItem(this.perspectivesToolbar, SWT.RADIO);
-          item.setToolTipText(tooltip);
-          item.addListener(
-              SWT.Selection,
-              event -> {
-                // Event is sent first to the unselected tool item and then the selected item.
-                // To avoid unnecessary refresh, only activate perspective on the selected item.
-                if (item.getSelection()) {
-                  setActivePerspective(perspective);
-                }
-              });
-          Image image =
-              GuiResource.getInstance()
-                  .getImage(
-                      perspectivePlugin.getImageFile(),
-                      classLoader,
-                      ConstUi.SMALL_ICON_SIZE,
-                      ConstUi.SMALL_ICON_SIZE);
-          if (image != null) {
-            item.setImage(image);
-          }
-        }
-        item.setData(perspective);
-
+        int sidebarIconSize = 21;
+        Image image =
+            GuiResource.getInstance()
+                .getImage(
+                    perspectivePlugin.getImageFile(),
+                    classLoader,
+                    sidebarIconSize,
+                    sidebarIconSize);
         // See if there's a shortcut for the perspective, add it to tooltip...
         KeyboardShortcut shortcut =
             GuiRegistry.getInstance()
                 .findKeyboardShortcut(perspectiveClass.getName(), "activate", Const.isOSX());
+
         if (shortcut != null) {
-          item.setToolTipText(item.getToolTipText() + " (" + shortcut + ')');
+          tooltip += " (" + shortcut + ")";
         }
+
+        // Create styled sidebar button with hover, selection, and rounded corners
+        // This works for both desktop SWT and web/RAP modes
+        // Get the perspectives container from the sidebar
+        Composite perspectivesContainer =
+            (Composite) perspectivesSidebar.getData("perspectivesContainer");
+        createStyledSidebarButton(perspectivesContainer, image, tooltip, perspective);
       }
 
-      perspectivesToolbar.pack();
-
-      // Create bottom toolbar for terminal button (anchored to bottom of screen)
-      ToolBar bottomToolbar =
-          new ToolBar(
-              (Composite) perspectivesToolbar.getParent(), SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
-      PropsUi.setLook(bottomToolbar, Props.WIDGET_STYLE_TOOLBAR);
-      FormData fdBottomToolbar = new FormData();
-      fdBottomToolbar.left = new FormAttachment(0, 0);
-      // Add small margin at bottom to create visual separation from project/environment dropdowns
-      fdBottomToolbar.bottom = new FormAttachment(100, -4);
-      bottomToolbar.setLayoutData(fdBottomToolbar);
-
-      // Execution results toggle button (show/hide logging/metrics/problems)
-      ToolItem executionResultsButton = new ToolItem(bottomToolbar, SWT.PUSH);
-      executionResultsButton.setImage(GuiResource.getInstance().getImageShowResults());
-      executionResultsButton.setToolTipText("Toggle Execution Results (Logging/Metrics/Problems)");
-      executionResultsButton.addListener(
-          SWT.Selection,
-          event -> {
-            toggleExecutionResults();
-          });
-
-      // Terminal toggle button
-      ToolItem terminalButton = new ToolItem(bottomToolbar, SWT.PUSH);
-      terminalButton.setImage(GuiResource.getInstance().getImageTerminal());
-      terminalButton.setToolTipText("Toggle Terminal Panel");
-      terminalButton.addListener(
-          SWT.Selection,
-          event -> {
-            if (terminalPanel != null) {
-              terminalPanel.toggleTerminal();
-            }
-          });
-
-      bottomToolbar.pack();
+      perspectivesSidebar.layout(true, true);
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error loading perspectives", e);
     }
@@ -718,6 +672,229 @@ public class HopGui
     SvgLabelFacade.setData(id, label, filename, size);
     item.setData("id", id);
     return item;
+  }
+
+  /**
+   * Create a styled sidebar button with modern appearance. Features rounded corners, hover effects,
+   * and selection colors.
+   */
+  private void createStyledSidebarButton(
+      Composite parent, Image image, String tooltip, IHopPerspective perspective) {
+
+    SidebarButton button = new SidebarButton(parent, image, tooltip, perspective);
+    sidebarButtons.add(button);
+
+    GridData gd = new GridData();
+    gd.widthHint = (int) (34 * PropsUi.getNativeZoomFactor());
+    gd.heightHint = (int) (34 * PropsUi.getNativeZoomFactor());
+    button.composite.setLayoutData(gd);
+  }
+
+  /** Custom sidebar button class with hover, selection, and rounded corners */
+  private class SidebarButton {
+    Control composite; // Use Control to allow both Composite (RAP) and Canvas (desktop)
+    Image image;
+    IHopPerspective perspective;
+    boolean isHovered = false;
+    boolean isSelected = false;
+
+    Color selectionBg = GuiResource.getInstance().getColorLightBlue();
+    Color hoverBg = GuiResource.getInstance().getColorLightGray();
+    Color normalBg = GuiResource.getInstance().getWidgetBackGroundColor();
+
+    public SidebarButton(
+        Composite parent, Image image, String tooltip, IHopPerspective perspective) {
+      this.image = image;
+      this.perspective = perspective;
+
+      // Create a label inside the composite to display the image (only for RAP)
+      final Label imageLabel;
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        // For RAP/web: use Composite with Label child
+        Composite comp = new Composite(parent, SWT.NONE);
+        composite = comp;
+        comp.setToolTipText(tooltip);
+        comp.setBackground(normalBg);
+
+        // Set custom variant for CSS styling in RAP
+        comp.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
+
+        // Use GridLayout to center the image without stretching
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.horizontalSpacing = 0;
+        layout.verticalSpacing = 0;
+        comp.setLayout(layout);
+
+        imageLabel = new Label(comp, SWT.NONE);
+        imageLabel.setImage(image);
+        imageLabel.setBackground(normalBg);
+        imageLabel.setToolTipText(tooltip);
+        imageLabel.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
+
+        // Center the label in the composite
+        GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
+        imageLabel.setLayoutData(gd);
+      } else {
+        Canvas canvas = new Canvas(parent, SWT.NONE);
+        composite = canvas;
+        canvas.setToolTipText(tooltip);
+        canvas.setBackground(normalBg);
+        imageLabel = null;
+      }
+
+      // Update background colors method for both RAP and desktop
+      final Runnable updateColors =
+          () -> {
+            if (EnvironmentUtils.getInstance().isWeb()) {
+              // For RAP, update composite background color (rounded corners applied via CSS)
+              Color bgColor;
+              if (isSelected) {
+                bgColor = selectionBg;
+              } else if (isHovered) {
+                bgColor = hoverBg;
+              } else {
+                bgColor = normalBg;
+              }
+              composite.setBackground(bgColor);
+              // Keep label background transparent/matching to show composite background
+              if (imageLabel != null) {
+                imageLabel.setBackground(bgColor);
+              }
+              // Force redraw in RAP
+              composite.redraw();
+              if (composite instanceof Composite) {
+                ((Composite) composite).layout();
+              }
+            } else {
+              // For desktop Canvas, trigger repaint
+              composite.redraw();
+            }
+          };
+
+      // Only add paint listener for desktop SWT (RAP doesn't support it)
+      if (!EnvironmentUtils.getInstance().isWeb()) {
+        composite.addPaintListener(
+            e -> {
+              GC gc = e.gc;
+              Point size = composite.getSize();
+
+              gc.setAntialias(SWT.ON);
+
+              // Choose background color
+              if (isSelected) {
+                gc.setBackground(selectionBg);
+              } else if (isHovered) {
+                gc.setBackground(hoverBg);
+              } else {
+                gc.setBackground(normalBg);
+              }
+
+              // Fill rounded rectangle
+              gc.fillRoundRectangle(4, 4, size.x - 8, size.y - 8, 8, 8);
+
+              // Draw image centered
+              if (image != null && !image.isDisposed()) {
+                Rectangle imgBounds = image.getBounds();
+                int x = (size.x - imgBounds.width) / 2;
+                int y = (size.y - imgBounds.height) / 2;
+                gc.drawImage(image, x, y);
+              }
+            });
+      }
+
+      // Mouse listeners
+      composite.addListener(
+          SWT.MouseEnter,
+          e -> {
+            isHovered = true;
+            updateColors.run();
+          });
+
+      composite.addListener(
+          SWT.MouseExit,
+          e -> {
+            isHovered = false;
+            updateColors.run();
+          });
+
+      composite.addListener(
+          SWT.MouseDown,
+          e -> {
+            // Deselect all other buttons
+            for (SidebarButton btn : sidebarButtons) {
+              btn.setSelected(false);
+            }
+
+            // Select this button
+            setSelected(true);
+
+            // Handle perspective activation
+            if (perspective instanceof ExplorerPerspective explorerPerspective
+                && mainPerspectivesComposite != null
+                && !mainPerspectivesComposite.isDisposed()) {
+              StackLayout layout = (StackLayout) mainPerspectivesComposite.getLayout();
+              if (layout.topControl == explorerPerspective.getControl()) {
+                explorerPerspective.toggleFileExplorerPanel();
+                return;
+              }
+            }
+            setActivePerspective(perspective);
+          });
+
+      // Also attach listeners to the image label for better hit detection (RAP only)
+      if (imageLabel != null) {
+        imageLabel.addListener(
+            SWT.MouseEnter,
+            e -> {
+              isHovered = true;
+              updateColors.run();
+            });
+        imageLabel.addListener(
+            SWT.MouseExit,
+            e -> {
+              isHovered = false;
+              updateColors.run();
+            });
+        imageLabel.addListener(
+            SWT.MouseDown,
+            e -> {
+              // Deselect all other buttons
+              for (SidebarButton btn : sidebarButtons) {
+                btn.setSelected(false);
+              }
+
+              // Select this button
+              setSelected(true);
+
+              // Handle perspective activation
+              if (perspective instanceof ExplorerPerspective explorerPerspective
+                  && mainPerspectivesComposite != null
+                  && !mainPerspectivesComposite.isDisposed()) {
+                StackLayout layout = (StackLayout) mainPerspectivesComposite.getLayout();
+                if (layout.topControl == explorerPerspective.getControl()) {
+                  explorerPerspective.toggleFileExplorerPanel();
+                  return;
+                }
+              }
+              setActivePerspective(perspective);
+            });
+      }
+
+      // Store the update method for later use
+      composite.setData("updateColors", updateColors);
+    }
+
+    public void setSelected(boolean selected) {
+      this.isSelected = selected;
+      if (!composite.isDisposed()) {
+        Runnable updateColors = (Runnable) composite.getData("updateColors");
+        if (updateColors != null) {
+          updateColors.run();
+        }
+      }
+    }
   }
 
   private static Display setupDisplay() {
@@ -1408,23 +1585,79 @@ public class HopGui
     formData.bottom = new FormAttachment(statusToolbar, 0);
     mainHopGuiComposite.setLayoutData(formData);
 
-    // Create a composite container for the left toolbar area
-    // This allows us to position perspectives at top and terminal button at bottom
-    Composite toolbarContainer = new Composite(mainHopGuiComposite, SWT.NO_BACKGROUND);
-    toolbarContainer.setLayout(new FormLayout());
-    FormData fdContainer = new FormData();
-    fdContainer.left = new FormAttachment(0, 0);
-    fdContainer.top = new FormAttachment(0, 0);
-    fdContainer.bottom = new FormAttachment(100, 0);
-    toolbarContainer.setLayoutData(fdContainer);
+    // Create custom sidebar composite instead of ToolBar for better control
+    perspectivesSidebar = new Composite(mainHopGuiComposite, SWT.NONE);
+    PropsUi.setLook(perspectivesSidebar);
+    perspectivesSidebar.setLayout(new FormLayout());
 
-    // Perspectives toolbar (anchored to top)
-    perspectivesToolbar = new ToolBar(toolbarContainer, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
-    PropsUi.setLook(perspectivesToolbar, Props.WIDGET_STYLE_TOOLBAR);
-    FormData fdToolBar = new FormData();
-    fdToolBar.left = new FormAttachment(0, 0);
-    fdToolBar.top = new FormAttachment(0, 0);
-    perspectivesToolbar.setLayoutData(fdToolBar);
+    // Container for perspective buttons (uses GridLayout for stacking)
+    Composite perspectivesContainer = new Composite(perspectivesSidebar, SWT.NONE);
+    org.eclipse.swt.layout.GridLayout perspectivesLayout =
+        new org.eclipse.swt.layout.GridLayout(1, false);
+    perspectivesLayout.marginWidth = 1;
+    perspectivesLayout.marginHeight = 2;
+    perspectivesLayout.verticalSpacing = 1; // Minimal spacing between buttons
+    perspectivesContainer.setLayout(perspectivesLayout);
+    FormData fdPerspectivesContainer = new FormData();
+    fdPerspectivesContainer.left = new FormAttachment(0, 0);
+    fdPerspectivesContainer.top = new FormAttachment(0, 0);
+    fdPerspectivesContainer.right = new FormAttachment(100, 0);
+    perspectivesContainer.setLayoutData(fdPerspectivesContainer);
+
+    // Bottom toolbar for terminal and execution results buttons
+    ToolBar bottomToolbar = new ToolBar(perspectivesSidebar, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
+    PropsUi.setLook(bottomToolbar, Props.WIDGET_STYLE_TOOLBAR);
+    FormData fdBottomToolbar = new FormData();
+    fdBottomToolbar.left = new FormAttachment(0, 0);
+    fdBottomToolbar.right = new FormAttachment(100, 0);
+    // Add small margin at bottom to create visual separation from project/environment dropdowns
+    fdBottomToolbar.bottom = new FormAttachment(100, -4);
+    bottomToolbar.setLayoutData(fdBottomToolbar);
+
+    // Execution results toggle button (show/hide logging/metrics/problems)
+    // Use same icon size as perspective buttons (21px) for consistency
+    int sidebarIconSize = 21;
+    ToolItem executionResultsButton = new ToolItem(bottomToolbar, SWT.PUSH);
+    Image executionResultsImage =
+        GuiResource.getInstance()
+            .getImage("ui/images/show-results.svg", sidebarIconSize, sidebarIconSize);
+    executionResultsButton.setImage(executionResultsImage);
+    executionResultsButton.setToolTipText("Toggle Execution Results (Logging/Metrics/Problems)");
+    executionResultsButton.addListener(
+        SWT.Selection,
+        event -> {
+          toggleExecutionResults();
+        });
+
+    // Terminal toggle button
+    ToolItem terminalButton = new ToolItem(bottomToolbar, SWT.PUSH);
+    Image terminalImage =
+        GuiResource.getInstance()
+            .getImage("ui/images/terminal.svg", sidebarIconSize, sidebarIconSize);
+    terminalButton.setImage(terminalImage);
+    terminalButton.setToolTipText("Toggle Terminal Panel");
+    terminalButton.addListener(
+        SWT.Selection,
+        event -> {
+          if (terminalPanel != null) {
+            terminalPanel.toggleTerminal();
+          }
+        });
+
+    bottomToolbar.pack();
+
+    // Anchor perspectives container above bottom toolbar
+    fdPerspectivesContainer.bottom = new FormAttachment(bottomToolbar, 0);
+
+    // Store perspectivesContainer for use in loadPerspectives
+    perspectivesSidebar.setData("perspectivesContainer", perspectivesContainer);
+
+    FormData fdSidebar = new FormData();
+    fdSidebar.left = new FormAttachment(0, 0);
+    fdSidebar.top = new FormAttachment(0, 0);
+    fdSidebar.bottom = new FormAttachment(100, 0);
+    fdSidebar.width = (int) (40 * PropsUi.getNativeZoomFactor());
+    perspectivesSidebar.setLayoutData(fdSidebar);
   }
 
   /**
@@ -1435,15 +1668,12 @@ public class HopGui
    * bottom of the screen, with perspectives rendering in the top part.
    */
   private void addMainPerspectivesComposite() {
-    // Get the toolbar container (parent of perspectivesToolbar)
-    Composite toolbarContainer = perspectivesToolbar.getParent();
-
     // Create terminal panel wrapper (this adds the terminal functionality)
     terminalPanel =
         new org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel(mainHopGuiComposite, this);
     FormData fdTerminalPanel = new FormData();
     fdTerminalPanel.top = new FormAttachment(0, 0);
-    fdTerminalPanel.left = new FormAttachment(toolbarContainer, 0);
+    fdTerminalPanel.left = new FormAttachment(perspectivesSidebar, 0);
     fdTerminalPanel.bottom = new FormAttachment(100, 0);
     fdTerminalPanel.right = new FormAttachment(100, 0);
     terminalPanel.setLayoutData(fdTerminalPanel);
