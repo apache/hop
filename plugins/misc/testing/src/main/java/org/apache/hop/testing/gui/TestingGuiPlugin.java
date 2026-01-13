@@ -42,6 +42,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -1139,7 +1140,6 @@ public class TestingGuiPlugin {
       extraWidth = 200,
       toolTip = "i18n::TestingGuiPlugin.ToolbarElement.GetUnitTestList.Tooltip")
   public void selectUnitTest() {
-
     HopGui hopGui = HopGui.getInstance();
     try {
       PipelineMeta pipelineMeta = getActivePipelineMeta();
@@ -1157,7 +1157,7 @@ public class TestingGuiPlugin {
           metadataProvider.getSerializer(PipelineUnitTest.class);
 
       String testName = combo.getText();
-      if (testName != null) {
+      if (!Utils.isEmpty(testName)) {
         PipelineUnitTest unitTest = testSerializer.load(testName);
         if (unitTest == null) {
           throw new HopException(
@@ -1168,7 +1168,6 @@ public class TestingGuiPlugin {
         selectUnitTest(pipelineMeta, unitTest);
 
         // Update the pipeline graph
-        //
         hopGui.getActiveFileTypeHandler().updateGui();
       }
     } catch (Exception e) {
