@@ -70,10 +70,10 @@ public class HtmlExplorerFileType extends BaseExplorerFileType<HtmlExplorerFileT
     if (resolvedFilename.toLowerCase().startsWith("http://")
         || resolvedFilename.toLowerCase().startsWith("https://")) {
       // Create handler without VFS checks for URLs
+      // The tab title will be extracted by ExplorerPerspective.getTabDisplayName()
       //
       ExplorerFile explorerFile = new ExplorerFile();
-      String name = extractTitleFromUrl(resolvedFilename);
-      explorerFile.setName(name);
+      explorerFile.setName(resolvedFilename); // Will be shortened by tab display logic
       explorerFile.setFilename(resolvedFilename);
       explorerFile.setFileType(this);
 
@@ -84,99 +84,5 @@ public class HtmlExplorerFileType extends BaseExplorerFileType<HtmlExplorerFileT
       return handler;
     }
     return super.openFile(hopGui, filename, variables);
-  }
-
-  /**
-   * Extract a meaningful title from a URL for use as a tab name.
-   *
-   * @param url The URL to extract a title from
-   * @return A short, meaningful title (max 30 characters)
-   */
-  private String extractTitleFromUrl(String url) {
-    try {
-      // Remove protocol and query parameters
-      String path = url;
-      if (path.contains("?")) {
-        path = path.substring(0, path.indexOf("?"));
-      }
-      if (path.contains("#")) {
-        path = path.substring(0, path.indexOf("#"));
-      }
-
-      // Extract the last meaningful part of the path
-      // e.g., "https://hop.apache.org/manual/latest/pipelines/transforms/data-grid.html"
-      // becomes "Data Grid"
-      String[] parts = path.split("/");
-      String lastPart = "";
-      for (int i = parts.length - 1; i >= 0; i--) {
-        if (!parts[i].isEmpty() && !parts[i].equals("manual") && !parts[i].equals("latest")) {
-          lastPart = parts[i];
-          break;
-        }
-      }
-
-      // Remove file extension and decode
-      if (lastPart.endsWith(".html") || lastPart.endsWith(".htm")) {
-        lastPart = lastPart.substring(0, lastPart.lastIndexOf("."));
-      }
-
-      // Convert kebab-case, snake_case, or camelCase to Title Case
-      // e.g., "data-grid" -> "Data Grid", "data_grid" -> "Data Grid"
-      String title = lastPart.replaceAll("[-_]", " ");
-      title = title.replaceAll("([a-z])([A-Z])", "$1 $2"); // camelCase
-
-      // Capitalize words
-      String[] words = title.split("\\s+");
-      StringBuilder result = new StringBuilder();
-      for (String word : words) {
-        if (word.length() > 0) {
-          if (result.length() > 0) {
-            result.append(" ");
-          }
-          result.append(word.substring(0, 1).toUpperCase());
-          if (word.length() > 1) {
-            result.append(word.substring(1).toLowerCase());
-          }
-        }
-      }
-      title = result.toString();
-
-      // If we got a meaningful title, use it (limit to 30 chars)
-      if (!title.isEmpty() && title.length() <= 30) {
-        return title;
-      }
-
-      // Fallback: show domain + last part (truncated to 30 chars)
-      if (title.length() > 30) {
-        title = title.substring(0, 27) + "...";
-      }
-
-      // If still no good title, use smart truncation of the full URL
-      if (title.isEmpty() || title.length() < 5) {
-        // Show domain and last path segment
-        int domainEnd = path.indexOf("/", 8); // After "https://"
-        if (domainEnd > 0 && domainEnd < path.length() - 1) {
-          String domain = path.substring(0, domainEnd);
-          String pathPart = path.substring(domainEnd);
-          if (pathPart.length() > 20) {
-            pathPart = "..." + pathPart.substring(pathPart.length() - 17);
-          }
-          title = domain + pathPart;
-        } else {
-          title = path;
-        }
-        if (title.length() > 30) {
-          title = title.substring(0, 27) + "...";
-        }
-      }
-
-      return title;
-    } catch (Exception e) {
-      // Fallback to simple truncation if anything goes wrong
-      if (url.length() > 30) {
-        return url.substring(0, 27) + "...";
-      }
-      return url;
-    }
   }
 }

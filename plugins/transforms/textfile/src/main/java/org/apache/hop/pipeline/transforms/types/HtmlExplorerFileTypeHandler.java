@@ -72,7 +72,7 @@ public class HtmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
 
           @Override
           public void completed(ProgressEvent event) {
-            // Page finished loading, try to update tab title
+            // Page finished loading, try to update tab title from HTML page title
             updateTitleFromPageTitle();
           }
         });
@@ -238,9 +238,10 @@ public class HtmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
                       shortTitle = shortTitle.substring(0, 27) + "...";
                     }
 
-                    // Only update if the title is different and meaningful
+                    // Update the name - ExplorerPerspective will handle the tab display
                     if (!shortTitle.equals(explorerFile.getName())) {
                       explorerFile.setName(shortTitle);
+                      // Update the tab to reflect the new name
                       perspective.updateTabItem(this);
                     }
                   }
