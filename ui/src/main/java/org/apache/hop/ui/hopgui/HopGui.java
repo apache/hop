@@ -1548,7 +1548,7 @@ public class HopGui
     boolean isSelected = false;
 
     Color selectionBg = GuiResource.getInstance().getColorLightBlue();
-    Color hoverBg = GuiResource.getInstance().getColorLightGray();
+    Color hoverBg = GuiResource.getInstance().getColorGray();
     Color normalBg = GuiResource.getInstance().getWidgetBackGroundColor();
 
     public SidebarButton(

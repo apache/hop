@@ -82,6 +82,7 @@ public class PropsUi extends Props {
   private static final String MAX_EXECUTION_LOGGING_TEXT_SIZE = "MaxExecutionLoggingTextSize";
   private static final String GRAPH_EXTRA_VIEW_VERTICAL_ORIENTATION =
       "GraphExtraViewVerticalOrientation";
+  private static final String DISABLE_ZOOM_SCROLLING = "DisableZoomScrolling";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
@@ -663,9 +664,15 @@ public class PropsUi extends Props {
       return;
     }
 
-    // Handle Shell windows with system background, but let macOS handle text color
+    // Handle Shell windows with appropriate background color
     if (widget instanceof Shell shell) {
       shell.setBackgroundMode(SWT.INHERIT_FORCE);
+      // Use gray background in light mode, system background in dark mode
+      if (PropsUi.getInstance().isDarkMode()) {
+        shell.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+      } else {
+        shell.setBackground(gui.getColorDemoGray());
+      }
       return;
     }
 
@@ -1157,5 +1164,13 @@ public class PropsUi extends Props {
     formLayout.marginBottom = getFormMargin();
     formLayout.marginRight = getFormMargin();
     return formLayout;
+  }
+
+  public boolean isZoomScrollingDisabled() {
+    return YES.equalsIgnoreCase(getProperty(DISABLE_ZOOM_SCROLLING, NO));
+  }
+
+  public void setZoomScrollingDisabled(boolean disabled) {
+    setProperty(DISABLE_ZOOM_SCROLLING, disabled ? YES : NO);
   }
 }

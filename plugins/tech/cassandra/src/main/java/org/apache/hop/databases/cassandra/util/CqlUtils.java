@@ -232,8 +232,8 @@ public class CqlUtils {
   }
 
   /**
-   * Clean input from all unnecessary whitespaces: double and etc., before comma, inside functions
-   * and etc. Add whitespace after comma if it is absent.
+   * Clean input from all unnecessary whitespaces: double etc., before comma, inside functions etc.
+   * Add whitespace after comma if it is absent.
    *
    * @param input the input string
    * @return cleaned string

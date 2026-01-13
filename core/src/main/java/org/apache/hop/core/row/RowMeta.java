@@ -722,8 +722,7 @@ public class RowMeta implements IRowMeta {
       }
 
       // If there are 0 values in the row, we write a marker flag to be able to detect an EOF on the
-      // other end (sockets
-      // etc)
+      // other end (sockets etc.)
       //
       if (size() == 0) {
         try {

@@ -104,7 +104,7 @@ public class FtpClientUtil {
                 PKG, "ActionFTP.SetTimeout", String.valueOf(connection.getTimeout())));
       }
 
-      // The control encoding (special filename characters etc)
+      // The control encoding (special filename characters etc.)
       //
       if (StringUtils.isNotEmpty(connection.getControlEncoding())) {
         String realControlEncoding = variables.resolve(connection.getControlEncoding());

@@ -405,6 +405,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-tech-azure</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-tech-google</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -472,6 +478,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-rowgenerator</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-selectvalues</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

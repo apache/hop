@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out what tables,
- * views etc we can reach in the database.
+ * views etc. we can reach in the database.
  */
 public class GetDatabaseInfoProgressDialog {
   private static final Class<?> PKG = GetDatabaseInfoProgressDialog.class;
@@ -45,7 +45,7 @@ public class GetDatabaseInfoProgressDialog {
   private DatabaseMeta databaseMeta;
 
   /**
-   * Creates a new dialog that will handle the wait while we're finding out what tables, views etc
+   * Creates a new dialog that will handle the wait while we're finding out what tables, views etc.
    * we can reach in the database.
    */
   public GetDatabaseInfoProgressDialog(

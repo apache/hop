@@ -36,6 +36,7 @@ limitations under the License.
       <type>SPECIAL</type>
       <attributes/>
       <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
       <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
@@ -65,6 +66,9 @@ limitations under the License.
         </test_name>
         <test_name>
           <name>0004-concat-some-fields UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0004-concat-with-trim UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>

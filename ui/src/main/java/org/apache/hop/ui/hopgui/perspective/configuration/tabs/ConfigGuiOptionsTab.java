@@ -90,6 +90,7 @@ public class ConfigGuiOptionsTab {
   private Button wHideViewport;
   private Button wUseDoubleClick;
   private Button wDrawBorderAroundCanvasNames;
+  private Button wDisableZoomScrolling;
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
   private Combo wDefaultLocale;
@@ -595,6 +596,17 @@ public class ConfigGuiOptionsTab {
             props.isBorderDrawnAroundCanvasNames(),
             lastCanvasControl,
             margin);
+    lastCanvasControl = wDrawBorderAroundCanvasNames;
+
+    // Disable zoom scrolling
+    wDisableZoomScrolling =
+        createCheckbox(
+            canvasContent,
+            "EnterOptionsDialog.DisableZoomScrolling.Label",
+            "EnterOptionsDialog.DisableZoomScrolling.ToolTip",
+            props.isZoomScrollingDisabled(),
+            lastCanvasControl,
+            margin);
 
     // Create the expand item
     ExpandItem canvasItem = new ExpandItem(canvasExpandBar, SWT.NONE);
@@ -907,6 +919,7 @@ public class ConfigGuiOptionsTab {
         !wHideViewport.getSelection()); // Inverted: checkbox is "show", property is "hide"
     props.setUseDoubleClickOnCanvas(wUseDoubleClick.getSelection());
     props.setDrawBorderAroundCanvasNames(wDrawBorderAroundCanvasNames.getSelection());
+    props.setZoomScrollingDisabled(wDisableZoomScrolling.getSelection());
     props.setDarkMode(wDarkMode.getSelection());
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());

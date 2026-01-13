@@ -73,7 +73,7 @@ public class ConfigKeyboardShortcutsTab {
 
     CTabItem wShortcutsTab = new CTabItem(wTabFolder, SWT.NONE);
     wShortcutsTab.setFont(GuiResource.getInstance().getFontDefault());
-    wShortcutsTab.setText("Keyboard Shortcuts");
+    wShortcutsTab.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.KeyboardShortuts"));
     wShortcutsTab.setImage(GuiResource.getInstance().getImageKeyboard());
 
     // Main scrollable composite
@@ -363,7 +363,7 @@ public class ConfigKeyboardShortcutsTab {
     boolean isMacOS = Const.isOSX();
 
     // Spacebar
-    if (keyCode == 32 || keyCode == ' ') {
+    if (keyCode == 32) {
       return "Space";
     }
     // Character upper

@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -30,8 +31,8 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.tab.GuiTabItem;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -50,7 +51,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
@@ -77,14 +77,17 @@ public class ConfigurationPerspective implements IHopPerspective {
 
   private static final Class<?> PKG = ConfigurationPerspective.class;
   public static final String CONFIG_PERSPECTIVE_TABS = "ConfigurationPerspective.Tabs.ID";
+
+  private static final String ORIGINAL = "Original";
+  private static final String ORIGINAL_BACKGROUND = "BackgroundColor";
+  private static final String ORIGINAL_FONT = "Font";
+
   private HopGui hopGui;
-  private Composite composite;
+  private SashForm sashForm;
   public CTabFolder configTabs;
   private Tree categoryTree;
   private Map<String, CTabItem> categoryTabs = new HashMap<>();
   private List<Object> tabInstances = new ArrayList<>(); // Store tab instances for refreshing
-  private Map<Control, Color> originalBackgrounds = new HashMap<>();
-  private Map<Control, Font> originalFonts = new HashMap<>();
   private List<Control> highlightedControls = new ArrayList<>();
   private String currentSearchText = ""; // Track current search for re-applying highlights
   private Color highlightColor; // Custom neutral highlight color
@@ -148,44 +151,30 @@ public class ConfigurationPerspective implements IHopPerspective {
   public void initialize(HopGui hopGui, Composite parent) {
     this.hopGui = hopGui;
 
-    composite = new Composite(parent, SWT.NONE);
-    PropsUi.setLook(composite);
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = 0;
-    formLayout.marginHeight = 0;
-    composite.setLayout(formLayout);
-
     // Create a neutral highlight color (light blue-gray)
     highlightColor = GuiResource.getInstance().getColorLightBlue();
 
-    // Search box at the top
-    Text searchBox =
-        new Text(composite, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
-    PropsUi.setLook(searchBox);
-    searchBox.setMessage(BaseMessages.getString(PKG, "HopConfigurationperspective.Search.Text"));
-    FormData fdSearchBox = new FormData();
-    fdSearchBox.left = new FormAttachment(0, 0);
-    fdSearchBox.top = new FormAttachment(0, PropsUi.getMargin());
-    fdSearchBox.right = new FormAttachment(100, -PropsUi.getMargin());
-    searchBox.setLayoutData(fdSearchBox);
-    searchBox.addListener(SWT.Modify, e -> filterSettings(searchBox.getText()));
-
     // SashForm for tree on left and content on right
-    SashForm sashForm = new SashForm(composite, SWT.HORIZONTAL | SWT.SMOOTH);
+    sashForm = new SashForm(parent, SWT.HORIZONTAL | SWT.SMOOTH);
     PropsUi.setLook(sashForm);
-    FormData fdSashForm = new FormData();
-    fdSashForm.left = new FormAttachment(0, 0);
-    fdSashForm.top = new FormAttachment(searchBox, PropsUi.getMargin());
-    fdSashForm.right = new FormAttachment(100, -PropsUi.getMargin());
-    fdSashForm.bottom = new FormAttachment(100, 0);
-    sashForm.setLayoutData(fdSashForm);
+    sashForm.setLayoutData(new FormDataBuilder().fullSize().result());
 
     // Left side: Tree navigation
-    Composite treeComposite = new Composite(sashForm, SWT.BORDER);
+    Composite treeComposite = new Composite(sashForm, SWT.NONE);
     PropsUi.setLook(treeComposite);
-    treeComposite.setLayout(new FillLayout());
+    treeComposite.setLayout(new FormLayout());
 
-    categoryTree = new Tree(treeComposite, SWT.SINGLE | SWT.V_SCROLL);
+    // Search box at the top
+    Text searchBox =
+        new Text(treeComposite, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
+    PropsUi.setLook(searchBox);
+    searchBox.setMessage(BaseMessages.getString(PKG, "HopConfigurationperspective.Search.Text"));
+    searchBox.setLayoutData(new FormDataBuilder().top().fullWidth().result());
+    searchBox.addListener(SWT.Modify, e -> filterSettings(searchBox.getText()));
+
+    categoryTree = new Tree(treeComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
+    categoryTree.setLayoutData(
+        new FormDataBuilder().top(searchBox, PropsUi.getMargin()).bottom().fullWidth().result());
     PropsUi.setLook(categoryTree, Props.WIDGET_STYLE_TREE);
     categoryTree.addListener(
         SWT.Selection,
@@ -255,8 +244,6 @@ public class ConfigurationPerspective implements IHopPerspective {
     loadSettingCategories();
 
     sashForm.setWeights(20, 80);
-
-    composite.layout();
   }
 
   private void loadSettingCategories() {
@@ -330,7 +317,7 @@ public class ConfigurationPerspective implements IHopPerspective {
     categoryTabs.put(parentItem.getText(), pluginTab);
 
     // Get plugin names from ConfigPluginOptionsTab
-    java.util.Set<String> pluginNames = ConfigPluginOptionsTab.getPluginNames();
+    Set<String> pluginNames = ConfigPluginOptionsTab.getPluginNames();
 
     if (pluginNames != null && !pluginNames.isEmpty()) {
       // Create a tree item for each plugin
@@ -368,25 +355,29 @@ public class ConfigurationPerspective implements IHopPerspective {
 
   private void filterSettings(String searchText) {
     // Store the current search text
-    currentSearchText = searchText != null ? searchText : "";
+    currentSearchText = searchText != null ? searchText.trim() : "";
+
+    // Not enough characters to search
+    if (currentSearchText.length() < 3) {
+      currentSearchText = "";
+    }
 
     // Clear previous highlights
     clearHighlights();
 
-    if (searchText == null || searchText.trim().isEmpty()) {
+    if (currentSearchText.isEmpty()) {
       // Show all categories
       for (TreeItem item : categoryTree.getItems()) {
-        item.setForeground(null);
+        item.setFont(null);
         // Reset children too
         for (TreeItem child : item.getItems()) {
-          child.setForeground(null);
+          child.setFont(null);
         }
       }
       return;
     }
 
-    final String lowerSearch = searchText.toLowerCase();
-    Color grayColor = hopGui.getDisplay().getSystemColor(SWT.COLOR_GRAY);
+    final String lowerSearch = currentSearchText.toLowerCase();
 
     TreeItem firstMatch = null;
 
@@ -435,22 +426,22 @@ public class ConfigurationPerspective implements IHopPerspective {
         boolean pluginContentMatches = searchInPluginContent(pluginName, lowerSearch);
 
         if (pluginMatches || pluginContentMatches) {
-          childItem.setForeground(null);
+          childItem.setFont(GuiResource.getInstance().getFontBold());
           hasMatchingPlugin = true;
           if (firstMatch == null) {
             firstMatch = childItem;
           }
         } else {
-          childItem.setForeground(grayColor);
+          childItem.setFont(null);
         }
       }
 
       // Set tree item appearance based on matches
       if (categoryMatches || hasMatchingContent || hasMatchingPlugin) {
-        item.setForeground(null);
+        item.setFont(GuiResource.getInstance().getFontBold());
         item.setExpanded(true); // Expand if has matching children
       } else {
-        item.setForeground(grayColor);
+        item.setFont(null);
       }
     }
 
@@ -494,7 +485,7 @@ public class ConfigurationPerspective implements IHopPerspective {
 
   private boolean searchInPluginContent(String pluginName, String searchText) {
     // Create a temporary composite to load the plugin's settings
-    Composite tempComposite = new Composite(composite, SWT.NONE);
+    Composite tempComposite = new Composite(sashForm, SWT.NONE);
     tempComposite.setLayout(new FillLayout());
 
     try {
@@ -541,8 +532,7 @@ public class ConfigurationPerspective implements IHopPerspective {
         boolean controlMatches = false;
 
         // Check labels
-        if (control instanceof Label labelControl) {
-          Label label = labelControl;
+        if (control instanceof Label label) {
           String text = label.getText();
           if (text != null && text.toLowerCase().contains(searchText)) {
             matches.add(control);
@@ -550,8 +540,7 @@ public class ConfigurationPerspective implements IHopPerspective {
           }
         }
         // Check text fields
-        else if (control instanceof Text textControl) {
-          Text text = textControl;
+        else if (control instanceof Text text) {
           String value = text.getText();
           if (value != null && value.toLowerCase().contains(searchText)) {
             matches.add(control);
@@ -642,11 +631,12 @@ public class ConfigurationPerspective implements IHopPerspective {
       return;
     }
 
-    // Store original background if not already stored
-    originalBackgrounds.computeIfAbsent(control, k -> control.getBackground());
-
-    // Store original font if not already stored
-    originalBackgrounds.computeIfAbsent(control, k -> control.getBackground());
+    // Store original font and background color only once
+    if (control.getData(ORIGINAL) == null) {
+      control.setData(ORIGINAL, Boolean.TRUE);
+      control.setData(ORIGINAL_BACKGROUND, control.getBackground());
+      control.setData(ORIGINAL_FONT, control.getFont());
+    }
 
     // Apply highlight
     control.setBackground(highlightColor);
@@ -692,11 +682,8 @@ public class ConfigurationPerspective implements IHopPerspective {
 
       // Highlight the row if it matches
       if (rowMatches) {
-        // Store original background using the table as key (we'll restore all rows when clearing)
-        if (!originalBackgrounds.containsKey(table)) {
-          originalBackgrounds.put(table, table.getBackground());
-        }
-
+        // Store original background color
+        item.setData(ORIGINAL_BACKGROUND, item.getBackground());
         item.setBackground(highlightColor);
 
         // Track this table for cleanup
@@ -719,13 +706,13 @@ public class ConfigurationPerspective implements IHopPerspective {
           }
         } else {
           // Restore original background
-          Color originalBg = originalBackgrounds.get(control);
+          Color originalBg = (Color) control.getData(ORIGINAL_BACKGROUND);
           if (originalBg != null) {
             control.setBackground(originalBg);
           }
 
           // Restore original font
-          Font originalFont = originalFonts.get(control);
+          Font originalFont = (Font) control.getData(ORIGINAL_FONT);
           if (originalFont != null) {
             // Dispose the bold font before restoring
             Font currentFont = control.getFont();
@@ -739,8 +726,6 @@ public class ConfigurationPerspective implements IHopPerspective {
     }
 
     highlightedControls.clear();
-    originalBackgrounds.clear();
-    originalFonts.clear();
   }
 
   private void applyHighlightingToCurrentTab() {
@@ -792,7 +777,7 @@ public class ConfigurationPerspective implements IHopPerspective {
 
   @Override
   public Control getControl() {
-    return composite;
+    return sashForm;
   }
 
   private Composite findPluginComposite(Composite parent) {
@@ -817,10 +802,5 @@ public class ConfigurationPerspective implements IHopPerspective {
       }
     }
     return null;
-  }
-
-  @Override
-  public List<ISearchable> getSearchables() {
-    return new ArrayList<>();
   }
 }

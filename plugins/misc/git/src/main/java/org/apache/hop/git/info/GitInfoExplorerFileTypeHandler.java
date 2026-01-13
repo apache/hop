@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.logging.LogChannel;
@@ -50,6 +51,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.Constants;
@@ -88,7 +90,9 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   private Text wBranch;
   private TableView wFiles;
   private TableView wRevisions;
-  private Text wDiff;
+  private Control wDiff; // Can be Text (web) or DiffStyledTextComp (desktop)
+  private DiffStyledTextComp wDiffStyled; // Desktop only - for colored diff
+  private Text wDiffText; // Web only - for plain text diff
   private Button wbDiff;
 
   public GitInfoExplorerFileTypeHandler(
@@ -195,20 +199,34 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     ColumnInfo[] revisionColumns = {
       new ColumnInfo(
           BaseMessages.getString(PKG, "GitInfoDialog.Revisions.ColumnRevision.Label"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
       new ColumnInfo(
           BaseMessages.getString(PKG, "GitInfoDialog.Revisions.ColumnCreation.Label"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
       new ColumnInfo(
           BaseMessages.getString(PKG, "GitInfoDialog.Revisions.ColumnLogin.Label"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
       new ColumnInfo(
           BaseMessages.getString(PKG, "GitInfoDialog.Revisions.ColumnComment.Label"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
     };
     wRevisions =
         new TableView(
-            hopGui.getVariables(), composite, SWT.BORDER, revisionColumns, 1, null, props);
+            hopGui.getVariables(),
+            composite,
+            SWT.BORDER | SWT.SINGLE,
+            revisionColumns,
+            1,
+            null,
+            props);
     wRevisions.setReadonly(true);
     PropsUi.setLook(wRevisions);
     FormData fdRevisions = new FormData();
@@ -217,7 +235,18 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     fdRevisions.right = new FormAttachment(100, 0);
     fdRevisions.bottom = new FormAttachment(40, 0);
     wRevisions.setLayoutData(fdRevisions);
-    wRevisions.table.addListener(SWT.Selection, e -> refreshChangedFiles());
+    // Use MouseDown event instead of Selection to ensure the click is fully processed
+    wRevisions.table.addListener(
+        SWT.MouseDown,
+        e ->
+            // Delay slightly to ensure selection is registered
+            wRevisions.table.getDisplay().asyncExec(this::refreshChangedFiles));
+    // Also handle keyboard navigation (arrow keys, etc.)
+    wRevisions.table.addListener(
+        SWT.KeyDown,
+        e ->
+            // Delay slightly to ensure selection is registered
+            wRevisions.table.getDisplay().asyncExec(this::refreshChangedFiles));
     lastControl = wRevisions;
 
     Label wlFiles = new Label(composite, SWT.LEFT | SWT.SINGLE);
@@ -244,20 +273,37 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     ColumnInfo[] filesColumns = {
       new ColumnInfo(
           BaseMessages.getString(PKG, "GitInfoDialog.ChangedFiles.Filename.Label"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true), // not numeric, read-only
       new ColumnInfo(
           BaseMessages.getString(PKG, "GitInfoDialog.ChangedFiles.Status.Label"),
-          ColumnInfo.COLUMN_TYPE_TEXT),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true), // not numeric, read-only
       new ColumnInfo(
           BaseMessages.getString(PKG, "GitInfoDialog.ChangedFiles.Staged.Label"),
-          ColumnInfo.COLUMN_TYPE_CCOMBO,
-          new String[] {"Y", "N"}),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true), // not numeric, read-only - use TEXT not CCOMBO for true read-only
     };
     wFiles =
-        new TableView(hopGui.getVariables(), sashForm, SWT.BORDER, filesColumns, 1, null, props);
+        new TableView(
+            hopGui.getVariables(), sashForm, SWT.BORDER | SWT.SINGLE, filesColumns, 1, null, props);
     wFiles.setReadonly(true);
     PropsUi.setLook(wFiles);
-    wFiles.table.addListener(SWT.Selection, e -> fileSelected());
+    // Use MouseDown event instead of Selection to ensure the click is fully processed
+    wFiles.table.addListener(
+        SWT.MouseDown,
+        e ->
+            // Delay slightly to ensure selection is registered
+            wFiles.table.getDisplay().asyncExec(this::fileSelected));
+    // Also handle keyboard navigation (arrow keys, etc.)
+    wFiles.table.addListener(
+        SWT.KeyDown,
+        e ->
+            // Delay slightly to ensure selection is registered
+            wFiles.table.getDisplay().asyncExec(this::fileSelected));
 
     Composite wDiffComposite = new Composite(sashForm, SWT.NONE);
     PropsUi.setLook(wDiffComposite);
@@ -282,16 +328,35 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     fdlDiff.top = new FormAttachment(wbDiff, 0, SWT.CENTER);
     wlDiff.setLayoutData(fdlDiff);
 
-    wDiff = new Text(wDiffComposite, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-    PropsUi.setLook(wDiff);
+    // Create appropriate diff widget based on desktop vs web mode
+    // Desktop: Use DiffStyledTextComp for colored syntax highlighting
+    // Web: Use plain Text widget (StyledText not supported in Hop Web)
     FormData fdDiff = new FormData();
     fdDiff.left = new FormAttachment(0, 0);
     fdDiff.right = new FormAttachment(100, 0);
     fdDiff.top = new FormAttachment(wbDiff, margin);
     fdDiff.bottom = new FormAttachment(100, 0);
-    wDiff.setLayoutData(fdDiff);
 
-    sashForm.setWeights(new int[] {40, 60});
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // Hop Web: Use plain Text widget
+      wDiffText = new Text(wDiffComposite, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      wDiffText.setEditable(false);
+      PropsUi.setLook(wDiffText);
+      wDiffText.setLayoutData(fdDiff);
+      wDiff = wDiffText;
+    } else {
+      // Desktop: Use DiffStyledTextComp for colored diff
+      wDiffStyled =
+          new DiffStyledTextComp(
+              hopGui.getVariables(),
+              wDiffComposite,
+              SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+      PropsUi.setLook(wDiffStyled, Props.WIDGET_STYLE_FIXED);
+      wDiffStyled.setLayoutData(fdDiff);
+      wDiff = wDiffStyled;
+    }
+
+    sashForm.setWeights(40, 60);
 
     refresh();
 
@@ -527,8 +592,20 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     UIGit git = guiPlugin.getGit();
     List<ObjectRevision> revisions = new ArrayList<>();
     try {
-      String relativePath =
-          calculateRelativePath(perspective.getRootFolder(), explorerFile.getFilename());
+      // Use the git repository root, not the perspective root folder
+      // The git repository root is what JGit needs for relative paths
+      String gitRoot = git.getDirectory();
+      String relativePath = calculateRelativePath(gitRoot, explorerFile.getFilename());
+      LogChannel.UI.logDebug(
+          "GitInfo refresh - gitRoot: '"
+              + gitRoot
+              + "', perspectiveRoot: '"
+              + perspective.getRootFolder()
+              + "', file: '"
+              + explorerFile.getFilename()
+              + "', relative: '"
+              + relativePath
+              + "'");
       revisions = git.getRevisions(relativePath);
     } catch (Exception e) {
       LogChannel.UI.logError(
@@ -548,13 +625,30 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       item.setText(4, Const.NVL(revision.getComment(), ""));
     }
     wRevisions.optimizeTableView();
-    if (!revisions.isEmpty()) {
-      // Select the first line
-      wRevisions.setSelection(new int[] {0});
-    }
     wbDiff.setEnabled(false);
 
+    // Refresh changed files first, before selecting a revision
     refreshChangedFiles();
+
+    // Select the first revision after the UI is fully rendered
+    // Use asyncExec to ensure the table is ready to handle the selection
+    if (!revisions.isEmpty()) {
+      parentComposite
+          .getDisplay()
+          .asyncExec(
+              () -> {
+                if (!wRevisions.isDisposed() && wRevisions.table.getItemCount() > 0) {
+                  wRevisions.table.setSelection(0);
+                  wRevisions.table.showSelection();
+                  LogChannel.UI.logDebug(
+                      "GitInfo refresh: Auto-selected first revision (index 0) after UI render");
+
+                  // Refresh changed files now that a revision is selected
+                  // This will trigger auto-selection of the file if there's only one
+                  refreshChangedFiles();
+                }
+              });
+    }
   }
 
   private String calculateRelativePath(String rootFolder, String filename)
@@ -562,10 +656,21 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     FileObject root = HopVfs.getFileObject(rootFolder);
     FileObject file = HopVfs.getFileObject(filename);
 
-    return root.getName().getRelativeName(file.getName());
+    String relativePath = root.getName().getRelativeName(file.getName());
+
+    // Normalize for JGit: forward slashes, no leading slash
+    if (relativePath != null && !".".equals(relativePath)) {
+      relativePath = relativePath.replace("\\", "/");
+      if (relativePath.startsWith("/")) {
+        relativePath = relativePath.substring(1);
+      }
+    }
+
+    return relativePath;
   }
 
   private void fileSelected() {
+    LogChannel.UI.logDebug("fileSelected: File clicked in changed files list");
     String filename = showFileDiff();
     wbDiff.setEnabled(false);
 
@@ -573,10 +678,11 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       // Enable visual diff button?
       //
       if (filename != null) {
+        LogChannel.UI.logDebug("fileSelected: Diff generated for file: " + filename);
         // if a folder is selected in the left pane then return
         ExplorerPerspective perspective = HopGui.getExplorerPerspective();
         if (!perspective.getPipelineFileType().isHandledBy(explorerFile.getFilename(), false)
-            & !perspective.getWorkflowFileType().isHandledBy(explorerFile.getFilename(), false)) {
+            && !perspective.getWorkflowFileType().isHandledBy(explorerFile.getFilename(), false)) {
           return;
         }
 
@@ -603,10 +709,12 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     GitGuiPlugin guiPlugin = GitGuiPlugin.getInstance();
     UIGit git = guiPlugin.getGit();
 
-    if (wRevisions.getSelectionIndices().length == 0) {
+    if (wRevisions.table.getSelectionCount() == 0) {
+      LogChannel.UI.logDebug("showFileDiff: No revision selected");
       return null;
     }
-    if (wFiles.getSelectionIndices().length == 0) {
+    if (wFiles.table.getSelectionCount() == 0) {
+      LogChannel.UI.logDebug("showFileDiff: No file selected");
       return null;
     }
 
@@ -614,7 +722,12 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
     // A revision/commit was selected...
     //
-    TableItem revisionItem = wRevisions.table.getSelection()[0];
+    TableItem[] revisionSelection = wRevisions.table.getSelection();
+    if (revisionSelection.length == 0) {
+      LogChannel.UI.logDebug("showFileDiff: Revision selection array is empty");
+      return null;
+    }
+    TableItem revisionItem = revisionSelection[0];
     String revisionId = revisionItem.getText(1);
     boolean workingTree = VCS.WORKINGTREE.equals(revisionId);
 
@@ -634,8 +747,22 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       String parentCommitId = git.getParentCommitId(revisionId);
       diff = git.diff(parentCommitId, revisionId, filename);
     }
-    wDiff.setText(Const.NVL(diff, ""));
+    setDiffText(Const.NVL(diff, ""));
     return filename;
+  }
+
+  /**
+   * Sets the diff text in the appropriate widget (colored styled text for desktop, plain text for
+   * web).
+   */
+  private void setDiffText(String text) {
+    if (wDiffStyled != null) {
+      // Desktop: Use colored diff
+      wDiffStyled.setDiffText(text);
+    } else if (wDiffText != null) {
+      // Web: Use plain text
+      wDiffText.setText(text);
+    }
   }
 
   private void refreshChangedFiles() {
@@ -648,13 +775,21 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     String rootFolder = git.getDirectory();
     boolean showStaged = true;
 
-    // Cleanup the diff text field
-    wDiff.setText("");
+    // Clear the diff text field and disable the visual diff button
+    setDiffText("");
+    wbDiff.setEnabled(false);
 
     // Pick up the revision ID...
     //
     if (wRevisions.table.getSelectionCount() == 0) {
-      changedFiles = new ArrayList<>(guiPlugin.getChangedFiles().values());
+      // No revision selected yet (during initial load)
+      // Still filter by the selected file/folder
+      changedFiles = new ArrayList<>();
+      for (UIFile changedFile : guiPlugin.getChangedFiles().values()) {
+        if (isFilteredPath(rootFolder, changedFile.getName(), selectedFile)) {
+          changedFiles.add(changedFile);
+        }
+      }
     } else {
       String revisionId = wRevisions.table.getSelection()[0].getText(1);
       String parentRevisionId =
@@ -720,6 +855,40 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       }
     }
     wFiles.optimizeTableView();
+
+    // Auto-select file and show diff in certain cases
+    boolean shouldAutoSelect = false;
+
+    if (changedFiles.size() == 1 && wRevisions.table.getSelectionCount() > 0) {
+      // Single file mode - always auto-select
+      shouldAutoSelect = true;
+    } else if (!changedFiles.isEmpty() && wFiles.table.getSelectionCount() > 0) {
+      // Multiple files but one was previously selected - try to keep that selection or select first
+      shouldAutoSelect = true;
+    }
+
+    if (shouldAutoSelect) {
+      wFiles
+          .table
+          .getDisplay()
+          .asyncExec(
+              () -> {
+                if (!wFiles.isDisposed() && wFiles.table.getItemCount() > 0) {
+                  // If no selection, or single file mode, select the first file
+                  if (wFiles.table.getSelectionCount() == 0 || wFiles.table.getItemCount() == 1) {
+                    wFiles.table.setSelection(0);
+                    wFiles.table.showSelection();
+                    LogChannel.UI.logDebug("refreshChangedFiles: Auto-selected file at index 0");
+                  }
+                  // Show the diff for the selected file
+                  if (wFiles.table.getSelectionCount() > 0) {
+                    fileSelected();
+                    LogChannel.UI.logDebug(
+                        "refreshChangedFiles: Triggered diff display for selected file");
+                  }
+                }
+              });
+    }
   }
 
   /**
@@ -733,11 +902,33 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   private boolean isFilteredPath(String root, String path, String selectedFile) {
     try {
       String relativeSelected = calculateRelativePath(root, selectedFile);
+      LogChannel.UI.logDebug(
+          "isFilteredPath: path='"
+              + path
+              + "', relativeSelected='"
+              + relativeSelected
+              + "', selectedFile='"
+              + selectedFile
+              + "'");
+
       if (".".equals(relativeSelected)) {
         return true; // path is whole project
       }
-      return path.startsWith(relativeSelected);
+
+      // Check if the selected file is a directory
+      FileObject selectedFileObject = HopVfs.getFileObject(selectedFile);
+      boolean isDirectory = selectedFileObject.isFolder();
+
+      if (isDirectory) {
+        // For a folder, check if the path is in that folder or subfolder
+        // Use startsWith with a trailing slash to avoid false matches
+        return path.equals(relativeSelected) || path.startsWith(relativeSelected + "/");
+      } else {
+        // For a file, only exact match
+        return path.equals(relativeSelected);
+      }
     } catch (Exception e) {
+      LogChannel.UI.logError("Error in isFilteredPath", e);
       return false;
     }
   }

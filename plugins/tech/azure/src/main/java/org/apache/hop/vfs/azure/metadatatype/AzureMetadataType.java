@@ -39,6 +39,7 @@ public class AzureMetadataType extends HopMetadataBase implements Serializable, 
   private static final Class<?> PKG = AzureMetadataType.class;
   @HopMetadataProperty private String description;
   @HopMetadataProperty private String storageAccountName;
+  @HopMetadataProperty private String authenticationType;
 
   @HopMetadataProperty(password = true)
   private String storageAccountKey;
@@ -46,6 +47,6 @@ public class AzureMetadataType extends HopMetadataBase implements Serializable, 
   @HopMetadataProperty private String storageAccountEndpoint;
 
   public AzureMetadataType() {
-    // Do nothing
+    this.authenticationType = "Key"; // Default to Key authentication
   }
 }

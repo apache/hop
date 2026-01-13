@@ -1,0 +1,43 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "fields",
+          "data_set_field": "fields"
+        },
+        {
+          "transform_field": "to",
+          "data_set_field": "to"
+        },
+        {
+          "transform_field": "concat",
+          "data_set_field": "concat"
+        },
+        {
+          "transform_field": "fields_1",
+          "data_set_field": "fields_1"
+        }
+      ],
+      "field_order": [
+        "fields",
+        "to",
+        "concat",
+        "fields_1"
+      ],
+      "data_set_name": "golden-concat-with-trim",
+      "transform_name": "OUTPUT"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0004-concat-with-trim UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0004-concat-with-trim.hpl"
+}

@@ -27,6 +27,7 @@ import com.azure.storage.file.datalake.DataLakeServiceClient;
 import com.azure.storage.file.datalake.models.ListFileSystemsOptions;
 import com.azure.storage.file.datalake.models.ListPathsOptions;
 import com.azure.storage.file.datalake.models.PathItem;
+import com.azure.storage.file.datalake.options.DataLakePathDeleteOptions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -115,7 +116,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
     containerName = ((AzureFileName) getName()).getContainer();
     String fullPath = ((AzureFileName) getName()).getPath();
-    DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
     ListPathsOptions lpo = new ListPathsOptions();
     children = new ArrayList<>();
     if (isFileSystemRoot(fullPath)) {
@@ -124,7 +124,19 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
           .iterator()
           .forEachRemaining(
               item -> {
-                children.add(StringUtils.substringAfterLast(item.getName(), "/"));
+                String containerName = item.getName();
+                // Extract just the container name (remove any path after last /)
+                String cleanName = StringUtils.substringAfterLast(containerName, "/");
+                // If substringAfterLast returns empty, use the full name
+                if (StringUtils.isEmpty(cleanName)) {
+                  cleanName = containerName;
+                }
+                // Only add valid, non-empty container names
+                if (!StringUtils.isEmpty(cleanName)
+                    && !cleanName.equals(".")
+                    && !cleanName.equals("..")) {
+                  children.add(cleanName);
+                }
               });
 
       size = children.size();
@@ -132,10 +144,27 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       type = FileType.FOLDER;
       dataLakeFileClient = null;
       currentFilePath = "";
-    } else if (isContainer(fullPath)) {
+      return; // Early return for root level - no need to get fileSystemClient
+    }
+
+    // Get the fileSystemClient for container and below
+    DataLakeFileSystemClient fileSystemClient = service.getFileSystemClient(containerName);
+
+    if (isContainer(fullPath)) {
       if (containerExists()) {
         type = FileType.FOLDER;
-        fileSystemClient.listPaths().forEach(pi -> children.add(pi.getName()));
+        ListPathsOptions rootLpo = new ListPathsOptions();
+        rootLpo.setRecursive(false);
+        fileSystemClient
+            .listPaths(rootLpo, null)
+            .forEach(
+                pi -> {
+                  String childName = pi.getName();
+                  // Only add non-empty, valid child names
+                  if (!childName.isEmpty() && !childName.equals(".") && !childName.equals("..")) {
+                    children.add(childName);
+                  }
+                });
       } else {
         type = FileType.IMAGINARY;
         throw new HopException("Container does not exist: " + fullPath);
@@ -145,7 +174,18 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       currentFilePath = ((AzureFileName) getName()).getPathAfterContainer();
       if (StringUtils.isEmpty(currentFilePath)) {
         type = FileType.FOLDER;
-        fileSystemClient.listPaths().forEach(pi -> children.add(pi.getName()));
+        ListPathsOptions rootLpo = new ListPathsOptions();
+        rootLpo.setRecursive(false);
+        fileSystemClient
+            .listPaths(rootLpo, null)
+            .forEach(
+                pi -> {
+                  String childName = pi.getName();
+                  // Only add non-empty, valid child names
+                  if (!childName.isEmpty() && !childName.equals(".") && !childName.equals("..")) {
+                    children.add(childName);
+                  }
+                });
       } else {
         lpo.setPath(currentFilePath);
         DataLakeDirectoryClient directoryClient =
@@ -161,13 +201,38 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         final Boolean isFile = !isDirectory;
         if (exists && isDirectory) {
           children = new ArrayList<>();
+          lpo.setRecursive(false); // Only get immediate children, not recursive
           PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
+
+          // Normalize the current path for comparison
+          final String normalizedCurrentPath;
+          String tempPath = StringUtils.removeStart(currentFilePath, "/");
+          if (!tempPath.isEmpty() && !tempPath.endsWith("/")) {
+            normalizedCurrentPath = tempPath + "/";
+          } else {
+            normalizedCurrentPath = tempPath;
+          }
+
           pathItems.forEach(
               item -> {
-                children.add(
-                    StringUtils.removeStart(
-                        item.getName().replace(StringUtils.removeStart(currentFilePath, "/"), ""),
-                        "/"));
+                String itemName = item.getName();
+                String childName;
+
+                // Remove the current directory prefix to get the child name
+                if (!normalizedCurrentPath.isEmpty()
+                    && itemName.startsWith(normalizedCurrentPath)) {
+                  childName = itemName.substring(normalizedCurrentPath.length());
+                } else {
+                  childName = itemName;
+                }
+
+                // Remove any leading slashes
+                childName = StringUtils.removeStart(childName, "/");
+
+                // Only add non-empty, valid child names
+                if (!childName.isEmpty() && !childName.equals(".") && !childName.equals("..")) {
+                  children.add(childName);
+                }
               });
           size = children.size();
           type = FileType.FOLDER;
@@ -268,26 +333,22 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       FileObject parent = getParent();
       boolean lastFile = ((AzureFileObject) parent).doListChildren().length == 1;
       try {
+        // Create delete options with recursive=true to handle non-empty directories
+        DataLakePathDeleteOptions deleteOptions = new DataLakePathDeleteOptions();
+        deleteOptions.setIsRecursive(true);
+
         if (currentFilePath.equals("")) {
-          fileClient.delete();
+          fileClient.deleteIfExistsWithResponse(deleteOptions, null, null);
         } else {
           if (StringUtils.isNotEmpty(currentFilePath) && fileClient.exists()) {
-            fileClient.delete();
+            fileClient.deleteIfExistsWithResponse(deleteOptions, null, null);
           } else if (dirPathItem != null) {
-            ListPathsOptions lpo = new ListPathsOptions();
-            lpo.setPath(((AzureFileName) getName()).getPathAfterContainer());
-
-            fileSystemClient
-                .listPaths(lpo, null)
-                .forEach(
-                    pi -> {
-                      if (!pi.isDirectory()
-                          && getFilePath(pi.getName()).startsWith(getName().getPath())) {
-                        DataLakeFileClient dataLakeFileClient =
-                            fileSystemClient.getFileClient(pathItem.getName());
-                        dataLakeFileClient.delete();
-                      }
-                    });
+            // For directories, use the directory client with recursive delete
+            DataLakeDirectoryClient directoryClient =
+                fileSystemClient.getDirectoryClient(currentFilePath);
+            if (directoryClient.exists()) {
+              directoryClient.deleteIfExistsWithResponse(deleteOptions, null, null);
+            }
           } else {
             throw new UnsupportedOperationException();
           }
