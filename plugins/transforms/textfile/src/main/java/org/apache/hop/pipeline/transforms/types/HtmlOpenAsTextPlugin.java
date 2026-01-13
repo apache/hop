@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.types;
 
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -32,7 +33,8 @@ public class HtmlOpenAsTextPlugin {
   @GuiMenuElement(
       root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
       id = "ExplorerPerspective-Html-OpenAsText",
-      label = "i18n:org.apache.hop.pipeline.transforms.types:HtmlOpenAsTextPlugin.OpenAsText.Label",
+      label =
+          "i18n:org.apache.hop.ui.hopgui.perspective.explorer:ExplorerPerspective.ToolbarElement.OpenAsText.Label",
       image = "textfile.svg",
       parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
       separator = true)
@@ -60,40 +62,21 @@ public class HtmlOpenAsTextPlugin {
 
         // Create a new ExplorerFile structure but force it to be the Text file type
         ExplorerFile textExplorerFile = new ExplorerFile();
-        String uniqueName = filename + " (Text)";
+        // Use the file URI to ensure a unique string key for the tab, but pointing to
+        // the same physical file
+        // This avoids the "Duplicate Tab" check in ExplorerPerspective while using a
+        // valid file path that won't crash Hop
+        String uniqueName = HopVfs.getFileObject(filename).getName().getURI();
         textExplorerFile.setFilename(uniqueName);
         textExplorerFile.setName(explorerFile.getName() + " (Text)");
         textExplorerFile.setFileType(textFileType);
 
-        // Create the handler with overridden logic to handle the filename check
+        // Create the handler directly - BaseTextExplorerFileTypeHandler handles VFS
+        // URIs correctly
         TextExplorerFileTypeHandler handler =
-            new TextExplorerFileTypeHandler(hopGui, perspective, textExplorerFile) {
-              @Override
-              public void reload() {
-                // Swap filename to real path for loading
-                String temp = textExplorerFile.getFilename();
-                textExplorerFile.setFilename(filename);
-                try {
-                  super.reload();
-                } finally {
-                  textExplorerFile.setFilename(temp);
-                }
-              }
+            new TextExplorerFileTypeHandler(hopGui, perspective, textExplorerFile);
 
-              @Override
-              public void save() throws org.apache.hop.core.exception.HopException {
-                // Swap filename to real path for saving
-                String temp = textExplorerFile.getFilename();
-                textExplorerFile.setFilename(filename);
-                try {
-                  super.save();
-                } finally {
-                  textExplorerFile.setFilename(temp);
-                }
-              }
-            };
-
-        // Add to perspective (this will open a new tab due to unique filename)
+        // Add to perspective (this will open a new tab due to unique URI string)
         perspective.addFile(handler);
       }
     } catch (Exception e) {
