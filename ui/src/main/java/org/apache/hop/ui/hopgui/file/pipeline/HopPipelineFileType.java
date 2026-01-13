@@ -119,7 +119,8 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       filename = HopVfs.normalize(variables.resolve(filename));
 
       // See if the same pipeline isn't already open.
-      // Other file types we might allow to open more than once but not pipelines for now.
+      // Other file types we might allow to open more than once but not pipelines for
+      // now.
       //
       IHopFileTypeHandler fileTypeHandler =
           HopGui.getExplorerPerspective().findFileTypeHandlerByFilename(filename);
@@ -200,7 +201,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
         return super.isHandledBy(filename, checkContent);
       }
     } catch (Exception e) {
-      throw new HopException("Unable to verify file handling of file '" + filename + "'", e);
+      return false;
     }
   }
 

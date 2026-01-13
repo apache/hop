@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -33,6 +34,10 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveConfigSingleton;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -91,7 +96,11 @@ public class HelpUtils {
       try {
         String originalUrl = getDocUrl(plugin.getDocumentationUrl());
         String trackedUrl = appendUtmParameters(originalUrl);
-        EnvironmentUtils.getInstance().openUrl(trackedUrl);
+        if (ExplorerPerspectiveConfigSingleton.getConfig().isOpeningHelpFiles()) {
+          openHelpInTab(trackedUrl);
+        } else {
+          EnvironmentUtils.getInstance().openUrl(trackedUrl);
+        }
       } catch (Exception ex) {
         new ErrorDialog(shell, "Error", "Error opening URL", ex);
       }
@@ -142,5 +151,18 @@ public class HelpUtils {
     }
 
     return URLEncoder.encode(field, StandardCharsets.UTF_8);
+  }
+
+  private static void openHelpInTab(String url) throws HopException {
+    HopGui hopGui = HopGui.getInstance();
+    if (hopGui != null) {
+      IHopFileType htmlFileType = HopFileTypeRegistry.getInstance().findHopFileType("help.html");
+      if (htmlFileType != null) {
+        htmlFileType.openFile(hopGui, url, hopGui.getVariables());
+        return;
+      }
+    }
+    // Fallback
+    EnvironmentUtils.getInstance().openUrl(url);
   }
 }
