@@ -183,6 +183,13 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       // Show it in the editor
       //
       IHopFileTypeHandler fileHandler = HopGui.getExplorerPerspective().addWorkflow(workflowMeta);
+
+      // Ensure the UI is updated to reflect the changed state
+      //
+      if (fileHandler instanceof HopGuiWorkflowGraph) {
+        ((HopGuiWorkflowGraph) fileHandler).updateGui();
+      }
+
       HopGui.getExplorerPerspective().activate();
 
       return fileHandler;

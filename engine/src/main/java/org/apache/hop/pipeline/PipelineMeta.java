@@ -365,6 +365,7 @@ public class PipelineMeta extends AbstractMeta
       addTransformChangeListener(iTransformMetaChangeListener);
     }
     changedTransforms = true;
+    setChanged();
     clearCaches();
   }
 
@@ -401,6 +402,7 @@ public class PipelineMeta extends AbstractMeta
   public void addPipelineHop(PipelineHopMeta hi) {
     hops.add(hi);
     changedHops = true;
+    setChanged();
     clearCaches();
   }
 
@@ -415,6 +417,7 @@ public class PipelineMeta extends AbstractMeta
     transforms.add(p, transformMeta);
     transformMeta.setParentPipelineMeta(this);
     changedTransforms = true;
+    setChanged();
     ITransformMeta iface = transformMeta.getTransform();
     if (iface instanceof ITransformMetaChangeListener) {
       addTransformChangeListener(p, (ITransformMetaChangeListener) transformMeta.getTransform());
@@ -436,6 +439,7 @@ public class PipelineMeta extends AbstractMeta
       hops.add(hi);
     }
     changedHops = true;
+    setChanged();
     clearCaches();
   }
 
@@ -501,6 +505,7 @@ public class PipelineMeta extends AbstractMeta
     }
 
     changedTransforms = true;
+    setChanged();
     clearCaches();
   }
 
@@ -517,6 +522,7 @@ public class PipelineMeta extends AbstractMeta
 
     hops.remove(i);
     changedHops = true;
+    setChanged();
     clearCaches();
   }
 
@@ -528,6 +534,7 @@ public class PipelineMeta extends AbstractMeta
   public void removePipelineHop(PipelineHopMeta hop) {
     hops.remove(hop);
     changedHops = true;
+    setChanged();
     clearCaches();
   }
 

@@ -405,20 +405,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     layout.marginHeight = 0;
     treeComposite.setLayout(layout);
 
-    // Create toolbar
-    //
-    toolBar = new ToolBar(treeComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-    toolBarWidgets = new GuiToolbarWidgets();
-    toolBarWidgets.registerGuiPluginObject(this);
-    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
-    FormData layoutData = new FormData();
-    layoutData.left = new FormAttachment(0, 0);
-    layoutData.top = new FormAttachment(0, 0);
-    layoutData.right = new FormAttachment(100, 0);
-    toolBar.setLayoutData(layoutData);
-    toolBar.pack();
-    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
-
     // Create search/filter text box
     //
     searchText = new Text(treeComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
@@ -426,7 +412,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     PropsUi.setLook(searchText);
     FormData searchFormData = new FormData();
     searchFormData.left = new FormAttachment(0, 0);
-    searchFormData.top = new FormAttachment(toolBar, PropsUi.getMargin());
+    searchFormData.top = new FormAttachment(0, 0);
     searchFormData.right = new FormAttachment(100, 0);
     searchText.setLayoutData(searchFormData);
 
@@ -453,6 +439,20 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           }
         });
 
+    // Create toolbar
+    //
+    toolBar = new ToolBar(treeComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.registerGuiPluginObject(this);
+    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    FormData layoutData = new FormData();
+    layoutData.left = new FormAttachment(0, 0);
+    layoutData.top = new FormAttachment(searchText, PropsUi.getMargin());
+    layoutData.right = new FormAttachment(100, 0);
+    toolBar.setLayoutData(layoutData);
+    toolBar.pack();
+    PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
+
     tree = new Tree(treeComposite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> updateSelection());
@@ -461,7 +461,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
-    treeFormData.top = new FormAttachment(searchText, PropsUi.getMargin());
+    treeFormData.top = new FormAttachment(toolBar, PropsUi.getMargin());
     treeFormData.right = new FormAttachment(100, 0);
     treeFormData.bottom = new FormAttachment(100, 0);
     tree.setLayoutData(treeFormData);
