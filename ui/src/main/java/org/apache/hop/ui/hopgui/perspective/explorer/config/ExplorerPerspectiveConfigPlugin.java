@@ -50,6 +50,7 @@ public class ExplorerPerspectiveConfigPlugin
   private static final String WIDGET_ID_FILE_LOADING_MAX_SIZE = "10100-file-loading-max-size";
   private static final String WIDGET_ID_FILE_EXPLORER_VISIBLE_BY_DEFAULT =
       "10200-file-explorer-visible-by-default";
+  private static final String WIDGET_ID_OPEN_HELP_FILES = "10300-open-help-files";
 
   @GuiWidgetElement(
       id = WIDGET_ID_LAZY_LOADING_DEPTH,
@@ -86,6 +87,17 @@ public class ExplorerPerspectiveConfigPlugin
       description = "Show the file explorer panel by default in the explorer perspective")
   private Boolean fileExplorerVisibleByDefault = true;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_OPEN_HELP_FILES,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      label = "i18n::ExplorerPerspectiveConfig.OpenHelpFiles.Label",
+      toolTip = "i18n::ExplorerPerspectiveConfig.OpenHelpFiles.Tooltip")
+  @CommandLine.Option(
+      names = {"-oh", "--open-help-in-tabs"},
+      description = "Open help files in Hop GUI tabs instead of external browser")
+  private Boolean openingHelpFiles;
+
   /**
    * Gets instance
    *
@@ -99,6 +111,7 @@ public class ExplorerPerspectiveConfigPlugin
     instance.fileLoadingMaxSize = config.getFileLoadingMaxSize();
     Boolean visibleByDefault = config.getFileExplorerVisibleByDefault();
     instance.fileExplorerVisibleByDefault = visibleByDefault != null ? visibleByDefault : true;
+    instance.openingHelpFiles = config.isOpeningHelpFiles();
 
     return instance;
   }
@@ -133,6 +146,13 @@ public class ExplorerPerspectiveConfigPlugin
             "Explorer perspective: file explorer visible by default is set to '"
                 + fileExplorerVisibleByDefault
                 + "'");
+        changed = true;
+      }
+
+      if (openingHelpFiles != null) {
+        config.setOpeningHelpFiles(openingHelpFiles);
+        log.logBasic(
+            "Explorer perspective: open help files in tabs is set to '" + openingHelpFiles + "'");
         changed = true;
       }
 
@@ -181,6 +201,10 @@ public class ExplorerPerspectiveConfigPlugin
           ExplorerPerspectiveConfigSingleton.getConfig()
               .setFileExplorerVisibleByDefault(fileExplorerVisibleByDefault);
           break;
+        case WIDGET_ID_OPEN_HELP_FILES:
+          openingHelpFiles = ((Button) control).getSelection();
+          ExplorerPerspectiveConfigSingleton.getConfig().setOpeningHelpFiles(openingHelpFiles);
+          break;
         default:
           break;
       }
@@ -216,5 +240,13 @@ public class ExplorerPerspectiveConfigPlugin
 
   public void setFileExplorerVisibleByDefault(Boolean fileExplorerVisibleByDefault) {
     this.fileExplorerVisibleByDefault = fileExplorerVisibleByDefault;
+  }
+
+  public Boolean isOpeningHelpFiles() {
+    return openingHelpFiles != null ? openingHelpFiles : false;
+  }
+
+  public void setOpeningHelpFiles(Boolean openingHelpFiles) {
+    this.openingHelpFiles = openingHelpFiles;
   }
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 42 42">
+  <!-- Document background -->
+  <path fill="#E74C3C" d="M6.608,2.564v36.867H34.49V8.996h-6.729V2.564"/>
+  <!-- Document outline and fold -->
+  <path fill="#C0392B" d="M34.477,6.429h-4.029V2.583L27.745,0H3.921v42h33.257V9.008L34.477,6.429z M12.097,2.565h15.665v6.432h6.729v30.436H6.608V2.565h3.591"/>
+  <!-- PDF text -->
+  <text x="21" y="28" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">PDF</text>
+</svg>
