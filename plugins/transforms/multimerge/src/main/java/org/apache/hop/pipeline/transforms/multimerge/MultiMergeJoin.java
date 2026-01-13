@@ -76,11 +76,11 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
     TransformMeta fromTransformMeta;
 
     ArrayList<String> inputTransformNameList = new ArrayList<>();
-    String[] inputTransformNames = meta.getInputTransforms();
+    List<String> inputTransformNames = meta.getInputTransforms();
     String inputTransformName;
 
     for (int i = 0; i < infoStreams.size(); i++) {
-      inputTransformName = inputTransformNames[i];
+      inputTransformName = inputTransformNames.get(i);
       stream = infoStreams.get(i);
       fromTransformMeta = stream.getTransformMeta();
       if (fromTransformMeta == null) {
@@ -136,8 +136,8 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
 
     IRowMeta rowMeta;
     data.outputRowMeta = new RowMeta();
-    for (int i = 0, j = 0; i < inputTransformNames.length; i++) {
-      inputTransformName = inputTransformNames[i];
+    for (int i = 0, j = 0; i < inputTransformNames.size(); i++) {
+      inputTransformName = inputTransformNames.get(i);
       if (!inputTransformNameList.contains(inputTransformName)) {
         // ignore transform with disabled hop.
         continue;
@@ -168,7 +168,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
         queueEntry.row = row;
         rowMeta = rowSet.getRowMeta();
 
-        keyField = meta.getKeyFields()[i];
+        keyField = meta.getKeyFields().get(i);
         String[] keyFieldParts = keyField.split(",");
         String keyFieldPart;
         data.keyNrs[j] = new int[keyFieldParts.length];
@@ -209,13 +209,14 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
     }
 
     if (isRowLevel()) {
-      String metaString =
-          BaseMessages.getString(
-              PKG, "MultiMergeJoin.Log.DataInfo", data.metas[0].getString(data.rows[0]) + "");
+      StringBuilder metaString =
+          new StringBuilder(
+              BaseMessages.getString(
+                  PKG, "MultiMergeJoin.Log.DataInfo", data.metas[0].getString(data.rows[0])));
       for (int i = 1; i < data.metas.length; i++) {
-        metaString += data.metas[i].getString(data.rows[i]);
+        metaString.append(data.metas[i].getString(data.rows[i]));
       }
-      logRowlevel(metaString);
+      logRowlevel(metaString.toString());
     }
 
     /*
@@ -396,12 +397,12 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
 
     if (super.init()) {
       ITransformIOMeta transformIOMeta = meta.getTransformIOMeta();
-      String[] inputTransformNames = meta.getInputTransforms();
+      List<String> inputTransformNames = meta.getInputTransforms();
       String inputTransformName;
       List<IStream> infoStreams = transformIOMeta.getInfoStreams();
       IStream stream;
       for (int i = 0; i < infoStreams.size(); i++) {
-        inputTransformName = inputTransformNames[i];
+        inputTransformName = inputTransformNames.get(i);
         stream = infoStreams.get(i);
         if (stream.getTransformMeta() == null) {
           logError(
@@ -437,9 +438,9 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
   protected boolean isInputLayoutValid(IRowMeta[] rows) {
     if (rows != null) {
       // Compare the key types
-      String[] keyFields = meta.getKeyFields();
+      List<String> keyFields = meta.getKeyFields();
       // check 1 : keys are configured for each stream
-      if (rows.length != keyFields.length) {
+      if (rows.length != keyFields.size()) {
         logError("keys are not configured for all the streams ");
         return false;
       }
@@ -447,8 +448,8 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
       int prevCount = 0;
 
       List<String[]> keyList = new ArrayList<>();
-      for (int i = 0; i < keyFields.length; i++) {
-        String[] keys = keyFields[i].split(",");
+      for (int i = 0; i < keyFields.size(); i++) {
+        String[] keys = keyFields.get(i).split(",");
         keyList.add(keys);
         int count = keys.length;
         if (i != 0 && prevCount != count) {

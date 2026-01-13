@@ -18,19 +18,18 @@
 package org.apache.hop.pipeline.transforms.multimerge;
 
 import java.util.List;
-import org.apache.commons.lang.ArrayUtils;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -41,7 +40,6 @@ import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
 
-@InjectionSupported(localizationPrefix = "MultiMergeJoin.Injection.")
 @Transform(
     id = "MultiwayMergeJoin",
     image = "multimergejoin.svg",
@@ -50,54 +48,27 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
     keywords = "i18n::MultiMergeJoinMeta.keyword",
     documentationUrl = "/pipeline/transforms/multimerge.html")
+@Getter
+@Setter
 public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiMergeJoinData> {
   private static final Class<?> PKG = MultiMergeJoinMeta.class;
 
   public static final String[] joinTypes = {"INNER", "FULL OUTER"};
   public static final boolean[] optionals = {false, true};
 
-  @Injection(name = "JOIN_TYPE")
+  @HopMetadataProperty(key = "join_type", injectionKey = "JOIN_TYPE")
   private String joinType;
 
   /** comma separated key values for each stream */
-  @Injection(name = "KEY_FIELDS")
-  private String[] keyFields;
+  @HopMetadataProperty(key = "key", groupKey = "keys", injectionKey = "JOIN_TYPE")
+  private List<String> keyFields;
 
   /** input stream names */
-  @Injection(name = "INPUT_TRANSFORMS")
-  private String[] inputTransforms;
-
-  /**
-   * The supported join types are INNER, LEFT OUTER, RIGHT OUTER and FULL OUTER
-   *
-   * @return The type of join
-   */
-  public String getJoinType() {
-    return joinType;
-  }
-
-  /**
-   * Sets the type of join
-   *
-   * @param joinType The type of join, e.g. INNER/FULL OUTER
-   */
-  public void setJoinType(String joinType) {
-    this.joinType = joinType;
-  }
-
-  /**
-   * @return Returns the keyFields1.
-   */
-  public String[] getKeyFields() {
-    return keyFields;
-  }
-
-  /**
-   * @param keyFields The keyFields1 to set.
-   */
-  public void setKeyFields(String[] keyFields) {
-    this.keyFields = keyFields;
-  }
+  @HopMetadataProperty(
+      key = "transform",
+      groupKey = "transforms",
+      injectionKey = "INPUT_TRANSFORMS")
+  private List<String> inputTransforms;
 
   @Override
   public boolean excludeFromRowLayoutVerification() {
@@ -108,76 +79,36 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
     super(); // allocate BaseTransformMeta
   }
 
+  /**
+   * keep loadXml to load old style xml information for the transform
+   *
+   * @deprecated
+   * @param transformNode the XML node from the pipeline
+   * @param metadataProvider metadata provider to resolve things
+   * @throws HopXmlException when we can't read the XML correctly
+   */
   @Override
+  @Deprecated(since = "2.17")
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
+    super.loadXml(transformNode, metadataProvider);
+    // keep for backwards compatibility
     readData(transformNode);
-  }
-
-  public void allocateKeys(int nrKeys) {
-    keyFields = new String[nrKeys];
-  }
-
-  @Override
-  public Object clone() {
-    MultiMergeJoinMeta retval = (MultiMergeJoinMeta) super.clone();
-    int nrKeys = keyFields == null ? 0 : keyFields.length;
-    int nrTransforms = inputTransforms == null ? 0 : inputTransforms.length;
-    retval.allocateKeys(nrKeys);
-    retval.allocateInputTransforms(nrTransforms);
-    System.arraycopy(keyFields, 0, retval.keyFields, 0, nrKeys);
-    System.arraycopy(inputTransforms, 0, retval.inputTransforms, 0, nrTransforms);
-    return retval;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    String[] inputTransformsNames =
-        inputTransforms != null ? inputTransforms : ArrayUtils.EMPTY_STRING_ARRAY;
-    retval.append("    ").append(XmlHandler.addTagValue("join_type", getJoinType()));
-    for (int i = 0; i < inputTransformsNames.length; i++) {
-      retval
-          .append("    ")
-          .append(XmlHandler.addTagValue("transform" + i, inputTransformsNames[i]));
-    }
-
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("number_input", inputTransformsNames.length));
-    retval.append("    ").append(XmlHandler.openTag("keys")).append(Const.CR);
-    for (String keyField : keyFields) {
-      retval.append("      ").append(XmlHandler.addTagValue("key", keyField));
-    }
-    retval.append("    ").append(XmlHandler.closeTag("keys")).append(Const.CR);
-
-    return retval.toString();
   }
 
   private void readData(Node transformNode) throws HopXmlException {
     try {
+      String numInputStreamsStr = XmlHandler.getTagValue(transformNode, "number_input");
 
-      Node keysNode = XmlHandler.getSubNode(transformNode, "keys");
-
-      int nrKeys = XmlHandler.countNodes(keysNode, "key");
-
-      allocateKeys(nrKeys);
-
-      for (int i = 0; i < nrKeys; i++) {
-        Node keynode = XmlHandler.getSubNodeByNr(keysNode, "key", i);
-        keyFields[i] = XmlHandler.getNodeValue(keynode);
+      // Skip if number_input doesn't exist (null or empty)
+      if (numInputStreamsStr == null || numInputStreamsStr.trim().isEmpty()) {
+        return;
       }
 
-      int nInputStreams = Integer.parseInt(XmlHandler.getTagValue(transformNode, "number_input"));
-
-      allocateInputTransforms(nInputStreams);
-
+      int nInputStreams = Integer.parseInt(numInputStreamsStr);
       for (int i = 0; i < nInputStreams; i++) {
-        inputTransforms[i] = XmlHandler.getTagValue(transformNode, "transform" + i);
+        inputTransforms.add(XmlHandler.getTagValue(transformNode, "transform" + i));
       }
-
-      joinType = XmlHandler.getTagValue(transformNode, "join_type");
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "MultiMergeJoinMeta.Exception.UnableToLoadTransformMeta"), e);
@@ -187,16 +118,14 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
   @Override
   public void setDefault() {
     joinType = joinTypes[0];
-    allocateKeys(0);
-    allocateInputTransforms(0);
   }
 
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     ITransformIOMeta ioMeta = getTransformIOMeta();
     ioMeta.getInfoStreams().clear();
-    for (int i = 0; i < inputTransforms.length; i++) {
-      String inputTransformName = inputTransforms[i];
+    for (int i = 0; i < inputTransforms.size(); i++) {
+      String inputTransformName = inputTransforms.get(i);
       if (i >= ioMeta.getInfoStreams().size()) {
         ioMeta.addStream(
             new Stream(
@@ -255,23 +184,10 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
     for (int i = 0; i < r.size(); i++) {
       r.getValueMeta(i).setOrigin(name);
     }
-    return;
   }
 
   @Override
   public void resetTransformIoMeta() {
     // Don't reset!
-  }
-
-  public void setInputTransforms(String[] inputTransforms) {
-    this.inputTransforms = inputTransforms;
-  }
-
-  public String[] getInputTransforms() {
-    return inputTransforms;
-  }
-
-  public void allocateInputTransforms(int count) {
-    inputTransforms = new String[count];
   }
 }
