@@ -32,6 +32,8 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
@@ -59,6 +61,21 @@ public class HtmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
     fdBrowser.top = new FormAttachment(0, 0);
     fdBrowser.bottom = new FormAttachment(100, 0);
     wBrowser.setLayoutData(fdBrowser);
+
+    // Add a progress listener to update tab title when page finishes loading
+    wBrowser.addProgressListener(
+        new ProgressListener() {
+          @Override
+          public void changed(ProgressEvent event) {
+            // Progress changed
+          }
+
+          @Override
+          public void completed(ProgressEvent event) {
+            // Page finished loading, try to update tab title
+            updateTitleFromPageTitle();
+          }
+        });
 
     reload();
   }
@@ -138,6 +155,11 @@ public class HtmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
       if (filename.toLowerCase().startsWith("http://")
           || filename.toLowerCase().startsWith("https://")) {
         wBrowser.setUrl(filename);
+
+        // Try to update the tab title after the page loads
+        // This is done asynchronously since the page needs to load first
+        updateTitleFromPageTitle();
+
         clearChanged();
         return;
       }
@@ -182,5 +204,51 @@ public class HtmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
     // Could use JavaScript: wBrowser.execute("document.execCommand('copy', false,
     // null);");
     // For now, do nothing
+  }
+
+  /**
+   * Attempt to update the tab title from the HTML page title after the page loads. This runs
+   * asynchronously since the page needs time to load.
+   */
+  private void updateTitleFromPageTitle() {
+    if (wBrowser == null || wBrowser.isDisposed()) {
+      return;
+    }
+
+    // Use a timer to wait a bit for the page to fully render, then extract the title
+    hopGui
+        .getDisplay()
+        .timerExec(
+            500,
+            () -> {
+              if (wBrowser == null || wBrowser.isDisposed()) {
+                return;
+              }
+              try {
+                // Try to get the page title via JavaScript
+                Object result = wBrowser.evaluate("return document.title;");
+
+                if (result != null) {
+                  String pageTitle = result.toString();
+
+                  if (pageTitle != null && !pageTitle.isEmpty() && !pageTitle.equals("null")) {
+                    // Limit title length to 30 characters for tab display
+                    String shortTitle = pageTitle;
+                    if (shortTitle.length() > 30) {
+                      shortTitle = shortTitle.substring(0, 27) + "...";
+                    }
+
+                    // Only update if the title is different and meaningful
+                    if (!shortTitle.equals(explorerFile.getName())) {
+                      explorerFile.setName(shortTitle);
+                      perspective.updateTabItem(this);
+                    }
+                  }
+                }
+              } catch (Exception e) {
+                // Silently fail - the initial title from URL extraction is fine
+                LogChannel.UI.logDebug("Could not extract page title for tab: " + e.getMessage());
+              }
+            });
   }
 }
