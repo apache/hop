@@ -399,7 +399,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   protected void createTree(Composite parent) {
     // Create composite
     //
-    treeComposite = new Composite(parent, SWT.BORDER);
+    treeComposite = new Composite(parent, SWT.NONE);
     FormLayout layout = new FormLayout();
     layout.marginWidth = 0;
     layout.marginHeight = 0;
@@ -439,21 +439,31 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           }
         });
 
-    // Create toolbar
-    //
-    toolBar = new ToolBar(treeComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
-    toolBarWidgets = new GuiToolbarWidgets();
-    toolBarWidgets.registerGuiPluginObject(this);
-    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    // Create a composite with toolbar and tree for the border
+    Composite composite = new Composite(treeComposite, SWT.BORDER);
+    composite.setLayout(new FormLayout());
     FormData layoutData = new FormData();
     layoutData.left = new FormAttachment(0, 0);
     layoutData.top = new FormAttachment(searchText, PropsUi.getMargin());
     layoutData.right = new FormAttachment(100, 0);
-    toolBar.setLayoutData(layoutData);
+    layoutData.bottom = new FormAttachment(100, 0);
+    composite.setLayoutData(layoutData);
+
+    // Create toolbar
+    //
+    toolBar = new ToolBar(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.registerGuiPluginObject(this);
+    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    FormData toolBarFormData = new FormData();
+    toolBarFormData.left = new FormAttachment(0, 0);
+    toolBarFormData.top = new FormAttachment(0, 0);
+    toolBarFormData.right = new FormAttachment(100, 0);
+    toolBar.setLayoutData(toolBarFormData);
     toolBar.pack();
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
-    tree = new Tree(treeComposite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+    tree = new Tree(composite, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
     tree.setHeaderVisible(false);
     tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(SWT.DefaultSelection, this::openFile);
