@@ -2300,12 +2300,19 @@ public class TableView extends Composite {
     int[] items = table.getSelectionIndices();
     table.setSelection(items);
 
-    // Check if there is an active control (active textbox/combobox/...) and dispose it when
-    // deleting a row
-    Control activeControl = getActiveTableItem().getDisplay().getFocusControl();
-    // Check if the table is the parent
-    if (activeControl != null && activeControl.getParent().equals(table)) {
-      activeControl.dispose();
+    // Check if there is an active editor and save its value before deleting rows
+    // This prevents the editor value from being saved to the wrong row
+    if (text != null && !text.isDisposed() && lsFocusText != null) {
+      lsFocusText.focusLost(null);
+      // Text focus lost handler disposes the control itself
+    } else if (combo != null && !combo.isDisposed() && lsFocusCombo != null) {
+      lsFocusCombo.focusLost(null);
+      // Combo focus lost handler doesn't dispose, so we need to do it
+      safelyDisposeControl(combo);
+    } else if (comboVar != null && !comboVar.isDisposed() && lsFocusCombo != null) {
+      lsFocusCombo.focusLost(null);
+      // ComboVar focus lost handler doesn't dispose, so we need to do it
+      safelyDisposeControl(comboVar);
     }
 
     if (items.length == 0) {
@@ -2402,12 +2409,19 @@ public class TableView extends Composite {
     ta.setDelete(before, itemsToDelete);
     addUndo(ta);
 
-    // Check if there is an active control (active textbox/combobox/...) and dispose it when
-    // deleting a row
-    Control activeControl = getActiveTableItem().getDisplay().getFocusControl();
-    // Check if the table is the parent
-    if (activeControl != null && activeControl.getParent().equals(table)) {
-      activeControl.dispose();
+    // Check if there is an active editor and save its value before deleting rows
+    // This prevents the editor value from being saved to the wrong row
+    if (text != null && !text.isDisposed() && lsFocusText != null) {
+      lsFocusText.focusLost(null);
+      // Text focus lost handler disposes the control itself
+    } else if (combo != null && !combo.isDisposed() && lsFocusCombo != null) {
+      lsFocusCombo.focusLost(null);
+      // Combo focus lost handler doesn't dispose, so we need to do it
+      safelyDisposeControl(combo);
+    } else if (comboVar != null && !comboVar.isDisposed() && lsFocusCombo != null) {
+      lsFocusCombo.focusLost(null);
+      // ComboVar focus lost handler doesn't dispose, so we need to do it
+      safelyDisposeControl(comboVar);
     }
 
     // Delete non-selected items.
