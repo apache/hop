@@ -728,6 +728,7 @@ public abstract class AbstractMeta
   public void addNote(int p, NotePadMeta ni) {
     notes.add(p, ni);
     changedNotes = true;
+    setChanged();
   }
 
   /**
@@ -738,6 +739,7 @@ public abstract class AbstractMeta
   public void addNote(NotePadMeta ni) {
     notes.add(ni);
     changedNotes = true;
+    setChanged();
   }
 
   /**
@@ -824,6 +826,7 @@ public abstract class AbstractMeta
       NotePadMeta note = notes.remove(p);
       notes.add(0, note);
       changedNotes = true;
+      setChanged();
     }
   }
 
@@ -848,6 +851,7 @@ public abstract class AbstractMeta
       NotePadMeta note = notes.remove(p);
       notes.add(note);
       changedNotes = true;
+      setChanged();
     }
   }
 
@@ -863,6 +867,7 @@ public abstract class AbstractMeta
     }
     notes.remove(i);
     changedNotes = true;
+    setChanged();
   }
 
   /**

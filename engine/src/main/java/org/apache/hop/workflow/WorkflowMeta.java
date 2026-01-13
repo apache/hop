@@ -689,6 +689,7 @@ public class WorkflowMeta extends AbstractMeta
   public void addAction(int index, ActionMeta action) {
     workflowActions.add(index, action);
     changedActions = true;
+    setChanged();
   }
 
   /**
@@ -704,6 +705,7 @@ public class WorkflowMeta extends AbstractMeta
       workflowHops.add(hop);
     }
     changedHops = true;
+    setChanged();
   }
 
   /**

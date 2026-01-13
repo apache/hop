@@ -360,7 +360,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             (ConstUi.SMALL_ICON_SIZE * PropsUi.getNativeZoomFactor() + toolbarItem.getExtraWidth());
 
     String imageFilename = findImageFilename(toolbarItem);
-    SvgLabelFacade.setData(toolbarItem.getId(), imageLabel, imageFilename, size);
+    // Create a unique DOM element ID by combining instance ID with toolbar item ID
+    // This prevents ID collisions when multiple tabs have the same toolbar items
+    String uniqueId = instanceId + "-" + toolbarItem.getId();
+    SvgLabelFacade.setData(uniqueId, imageLabel, imageFilename, size);
 
     GridData imageData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
     imageData.widthHint = size;
@@ -445,7 +448,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         // Find the image label (first child)
         Control[] children = composite.getChildren();
         if (children.length > 0 && children[0] instanceof Label imageLabel) {
-          SvgLabelFacade.enable(toolItem, id, imageLabel, enabled);
+          // Use the unique DOM element ID (instance ID + toolbar item ID)
+          String uniqueId = instanceId + "-" + id;
+          SvgLabelFacade.enable(toolItem, uniqueId, imageLabel, enabled);
         }
       }
     } else {
@@ -495,7 +500,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           // Find the image label (first child)
           Control[] children = composite.getChildren();
           if (children.length > 0 && children[0] instanceof Label imageLabel) {
-            SvgLabelFacade.enable(null, id, imageLabel, enable);
+            // Use the unique DOM element ID (instance ID + toolbar item ID)
+            String uniqueId = instanceId + "-" + id;
+            SvgLabelFacade.enable(null, uniqueId, imageLabel, enable);
           }
         }
         // Update ToolItem state so future checks work correctly

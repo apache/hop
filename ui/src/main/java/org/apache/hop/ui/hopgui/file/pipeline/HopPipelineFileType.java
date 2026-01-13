@@ -168,9 +168,20 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       //
       pipelineMeta.setMetadataProvider(hopGui.getMetadataProvider());
 
+      // Mark as changed since it's a new unsaved file
+      //
+      pipelineMeta.setChanged();
+
       // Show it in the editor
       //
       IHopFileTypeHandler fileHandler = HopGui.getExplorerPerspective().addPipeline(pipelineMeta);
+
+      // Ensure the UI is updated to reflect the changed state
+      //
+      if (fileHandler instanceof HopGuiPipelineGraph) {
+        ((HopGuiPipelineGraph) fileHandler).updateGui();
+      }
+
       HopGui.getExplorerPerspective().activate();
       return fileHandler;
     } catch (Exception e) {
