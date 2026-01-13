@@ -24,6 +24,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 @SuppressWarnings("java:S1104")
 public class SasInputData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
+  public long limit;
 
   public SasInputData() {
     super();

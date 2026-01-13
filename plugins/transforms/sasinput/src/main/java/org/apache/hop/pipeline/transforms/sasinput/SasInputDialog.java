@@ -41,6 +41,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -58,10 +59,11 @@ import org.eclipse.swt.widgets.Text;
 public class SasInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SasInputMeta.class;
 
-  private CCombo wAccField;
-
   private final SasInputMeta input;
-  private boolean backupChanged;
+
+  private CCombo wAccField;
+  private TextVar wMetadataFilename;
+  private TextVar wLimit;
   private TableView wFields;
 
   public SasInputDialog(
@@ -131,6 +133,48 @@ public class SasInputDialog extends BaseTransformDialog {
     fdAccField.right = new FormAttachment(100, 0);
     wAccField.setLayoutData(fdAccField);
     lastControl = wAccField;
+
+    // Do we use a file as a reference for metadata?
+    //
+    Label wlMetadataFilename = new Label(shell, SWT.RIGHT);
+    wlMetadataFilename.setText(
+        BaseMessages.getString(PKG, "SASInputDialog.MetadataFilename.Label"));
+    PropsUi.setLook(wlMetadataFilename);
+    FormData fdlMetadataFilename = new FormData();
+    fdlMetadataFilename.top = new FormAttachment(lastControl, margin);
+    fdlMetadataFilename.left = new FormAttachment(0, 0);
+    fdlMetadataFilename.right = new FormAttachment(middle, -margin);
+    wlMetadataFilename.setLayoutData(fdlMetadataFilename);
+    wMetadataFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMetadataFilename.setToolTipText(
+        BaseMessages.getString(PKG, "SASInputDialog.MetadataFilename.Tooltip"));
+    PropsUi.setLook(wMetadataFilename);
+    FormData fdMetadataFilename = new FormData();
+    fdMetadataFilename.top = new FormAttachment(lastControl, margin);
+    fdMetadataFilename.left = new FormAttachment(middle, 0);
+    fdMetadataFilename.right = new FormAttachment(100, 0);
+    wMetadataFilename.setLayoutData(fdMetadataFilename);
+    lastControl = wMetadataFilename;
+
+    // Do we use a file as a reference for metadata?
+    //
+    Label wlLimit = new Label(shell, SWT.RIGHT);
+    wlLimit.setText(BaseMessages.getString(PKG, "SASInputDialog.Limit.Label"));
+    PropsUi.setLook(wlLimit);
+    FormData fdlLimit = new FormData();
+    fdlLimit.top = new FormAttachment(lastControl, margin);
+    fdlLimit.left = new FormAttachment(0, 0);
+    fdlLimit.right = new FormAttachment(middle, -margin);
+    wlLimit.setLayoutData(fdlLimit);
+    wLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLimit.setToolTipText(BaseMessages.getString(PKG, "SASInputDialog.Limit.Tooltip"));
+    PropsUi.setLook(wLimit);
+    FormData fdLimit = new FormData();
+    fdLimit.top = new FormAttachment(lastControl, margin);
+    fdLimit.left = new FormAttachment(middle, 0);
+    fdLimit.right = new FormAttachment(100, 0);
+    wLimit.setLayoutData(fdLimit);
+    lastControl = wLimit;
 
     // Fill in the source fields...
     //
@@ -229,7 +273,8 @@ public class SasInputDialog extends BaseTransformDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wAccField.setText(Const.NVL(input.getAcceptingField(), ""));
-
+    wMetadataFilename.setText(Const.NVL(input.getMetadataFilename(), ""));
+    wLimit.setText(Const.NVL(input.getLimit(), ""));
     for (int i = 0; i < input.getOutputFields().size(); i++) {
       SasInputField field = input.getOutputFields().get(i);
 
@@ -244,7 +289,7 @@ public class SasInputDialog extends BaseTransformDialog {
           colnr++, field.getPrecision() >= 0 ? Integer.toString(field.getPrecision()) : "");
       item.setText(colnr++, Const.NVL(field.getDecimalSymbol(), ""));
       item.setText(colnr++, Const.NVL(field.getGroupingSymbol(), ""));
-      item.setText(colnr++, Const.NVL(field.getTrimTypeDesc(), ""));
+      item.setText(colnr, ValueMetaBase.getTrimTypeDesc(field.getTrimType()));
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -263,6 +308,8 @@ public class SasInputDialog extends BaseTransformDialog {
   public void getInfo(SasInputMeta meta) throws HopTransformException {
     // copy info to Meta class (input)
     meta.setAcceptingField(wAccField.getText());
+    meta.setMetadataFilename(wMetadataFilename.getText());
+    meta.setLimit(wLimit.getText());
 
     int nrNonEmptyFields = wFields.nrNonEmpty();
     meta.getOutputFields().clear();
