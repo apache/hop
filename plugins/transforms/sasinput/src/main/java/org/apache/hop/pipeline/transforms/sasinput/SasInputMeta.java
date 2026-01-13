@@ -60,7 +60,7 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
   @HopMetadataProperty(key = "accept_field")
   private String acceptingField;
 
-  @HopMetadataProperty(inline = true, key = "field")
+  @HopMetadataProperty(key = "field")
   private List<SasInputField> outputFields;
 
   @HopMetadataProperty(key = "meta_filename")
@@ -73,14 +73,19 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
     outputFields = new ArrayList<>();
   }
 
-  @Override
-  public Object clone() {
-    SasInputMeta retval = (SasInputMeta) super.clone();
-    retval.setOutputFields(new ArrayList<>());
-    for (SasInputField field : outputFields) {
-      retval.getOutputFields().add(new SasInputField(field));
+  public SasInputMeta(SasInputMeta m) {
+    this();
+    this.acceptingField = m.acceptingField;
+    this.metadataFilename = m.metadataFilename;
+    this.limit = m.limit;
+    for (SasInputField field : m.outputFields) {
+      outputFields.add(new SasInputField(field));
     }
-    return retval;
+  }
+
+  @Override
+  public SasInputMeta clone() {
+    return new SasInputMeta(this);
   }
 
   @Override

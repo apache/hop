@@ -17,90 +17,65 @@
 
 package org.apache.hop.pipeline.transforms.sasinput;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 class SasInputMetaTest {
-  LoadSaveTester loadSaveTester;
-  Class<SasInputMeta> testMetaClass = SasInputMeta.class;
-
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @BeforeEach
   void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
-    List<String> attributes = Arrays.asList("acceptingField", "outputFields");
-
-    Map<String, String> gsMap = new HashMap<>();
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put(
-        "outputFields", new ListLoadSaveValidator<>(new SasInputFieldLoadSaveValidator(), 5));
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass, attributes, gsMap, gsMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
-  void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
+  void testSerialization() throws Exception {
+    SasInputMeta meta = TransformSerializationTestUtil.testSerialization("/transform.xml", SasInputMeta.class);
+    Assertions.assertNotNull(meta);
+    Assertions.assertEquals("filename", meta.getAcceptingField());
+    Assertions.assertEquals("metaFilename", meta.getMetadataFilename());
+    Assertions.assertEquals("1", meta.getLimit());
+    Assertions.assertEquals(4, meta.getOutputFields().size());
 
-  public class SasInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<SasInputField> {
-    final Random rand = new Random();
+    SasInputField f1 = meta.getOutputFields().get(0);
+    Assertions.assertEquals("a", f1.getName());
+    Assertions.assertEquals("newA", f1.getRename());
+    Assertions.assertEquals(IValueMeta.TYPE_STRING, f1.getType());
+    Assertions.assertNull(f1.getConversionMask());
+    Assertions.assertEquals(50, f1.getLength());
+    Assertions.assertEquals(-1, f1.getPrecision());
+    Assertions.assertEquals(IValueMeta.TRIM_TYPE_NONE, f1.getTrimType());
 
-    @Override
-    public SasInputField getTestObject() {
-      SasInputField rtn = new SasInputField();
-      rtn.setRename(UUID.randomUUID().toString());
-      rtn.setDecimalSymbol(UUID.randomUUID().toString());
-      rtn.setConversionMask(UUID.randomUUID().toString());
-      rtn.setGroupingSymbol(UUID.randomUUID().toString());
-      rtn.setName(UUID.randomUUID().toString());
-      rtn.setTrimType(rand.nextInt(4));
-      rtn.setPrecision(rand.nextInt(9));
-      rtn.setType(rand.nextInt(7));
-      rtn.setLength(rand.nextInt(50));
-      return rtn;
-    }
+    SasInputField f2 = meta.getOutputFields().get(1);
+    Assertions.assertEquals("b", f2.getName());
+    Assertions.assertEquals("newB", f2.getRename());
+    Assertions.assertEquals(IValueMeta.TYPE_INTEGER, f2.getType());
+    Assertions.assertEquals("#", f2.getConversionMask());
+    Assertions.assertEquals(5, f2.getLength());
+    Assertions.assertEquals(-1, f2.getPrecision());
+    Assertions.assertEquals(IValueMeta.TRIM_TYPE_NONE, f2.getTrimType());
 
-    @Override
-    public boolean validateTestObject(SasInputField testObject, Object actual) {
-      if (!(actual instanceof SasInputField)) {
-        return false;
-      }
-      SasInputField another = (SasInputField) actual;
-      return new EqualsBuilder()
-          .append(testObject.getName(), another.getName())
-          .append(testObject.getTrimType(), another.getTrimType())
-          .append(testObject.getType(), another.getType())
-          .append(testObject.getPrecision(), another.getPrecision())
-          .append(testObject.getRename(), another.getRename())
-          .append(testObject.getDecimalSymbol(), another.getDecimalSymbol())
-          .append(testObject.getConversionMask(), another.getConversionMask())
-          .append(testObject.getGroupingSymbol(), another.getGroupingSymbol())
-          .append(testObject.getLength(), another.getLength())
-          .isEquals();
-    }
+    SasInputField f3 = meta.getOutputFields().get(2);
+    Assertions.assertEquals("c", f3.getName());
+    Assertions.assertEquals("newC", f3.getRename());
+    Assertions.assertEquals("yyyy/MM/dd HH:mm:ss", f3.getConversionMask());
+    Assertions.assertEquals(IValueMeta.TYPE_DATE, f3.getType());
+    Assertions.assertEquals(-1, f3.getLength());
+    Assertions.assertEquals(-1, f3.getPrecision());
+    Assertions.assertEquals(IValueMeta.TRIM_TYPE_NONE, f3.getTrimType());
+
+    SasInputField f4 = meta.getOutputFields().get(3);
+    Assertions.assertEquals("d", f4.getName());
+    Assertions.assertEquals("newD", f4.getRename());
+    Assertions.assertEquals("0,000,000.00", f4.getConversionMask());
+    Assertions.assertEquals(IValueMeta.TYPE_NUMBER, f4.getType());
+    Assertions.assertEquals(9, f4.getLength());
+    Assertions.assertEquals(2, f4.getPrecision());
+    Assertions.assertEquals(IValueMeta.TRIM_TYPE_BOTH, f4.getTrimType());
   }
 }

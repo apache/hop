@@ -347,6 +347,7 @@ public class SasInputDialog extends BaseTransformDialog {
     try {
       transformName = wTransformName.getText(); // return value
       getInfo(input);
+      transformMeta.setChanged(changed);
     } catch (HopTransformException e) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(e.toString());
