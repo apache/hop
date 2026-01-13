@@ -34,9 +34,9 @@ The functionality is backed by the https://github.com/epam/parso[Parso java libr
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
 !===
 !Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
 !===
 |===
 
@@ -52,6 +52,10 @@ The functionality is backed by the https://github.com/epam/parso[Parso java libr
 |Field in the input to use as filename
 |Select the input field that will contain the filename at runtime.
 For example, you can use a "Get file names" transform to drive the content of this field.
+
+|Limit
+|Stop reading after the specified number or rows. If nothing is specified or a number smaller than or equal to zero, all rows in the SAS files will be read.
+This can be used to read a single row from a large SAS file when all you want to do is add a xref:pipeline/transforms/metastructure.adoc[Metadata Structure From Stream] transform to determine the file layout.
 
 |The selected fields from the files
 |If you use the "Get Fields" button you can populate this data grid.

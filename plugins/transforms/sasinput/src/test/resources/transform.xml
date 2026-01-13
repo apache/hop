@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<transform>
+    <accept_field>filename</accept_field>
+    <field>
+        <length>50</length>
+        <name>a</name>
+        <precision>-1</precision>
+        <rename>newA</rename>
+        <trim_type>none</trim_type>
+        <type>String</type>
+    </field>
+    <field>
+        <conversion_mask>#</conversion_mask>
+        <length>5</length>
+        <name>b</name>
+        <precision>-1</precision>
+        <rename>newB</rename>
+        <trim_type>none</trim_type>
+        <type>Integer</type>
+    </field>
+    <field>
+        <conversion_mask>yyyy/MM/dd HH:mm:ss</conversion_mask>
+        <length>-1</length>
+        <name>c</name>
+        <precision>-1</precision>
+        <rename>newC</rename>
+        <trim_type>none</trim_type>
+        <type>Date</type>
+    </field>
+    <field>
+        <conversion_mask>0,000,000.00</conversion_mask>
+        <length>9</length>
+        <name>d</name>
+        <precision>2</precision>
+        <rename>newD</rename>
+        <trim_type>both</trim_type>
+        <type>Number</type>
+    </field>
+    <limit>1</limit>
+    <meta_filename>metaFilename</meta_filename>
+</transform>
+

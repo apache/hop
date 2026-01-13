@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.sasinput;
 
 import com.epam.parso.Column;
-import com.epam.parso.ColumnFormat;
 import com.epam.parso.SasFileProperties;
 import com.epam.parso.impl.SasFileReaderImpl;
 import java.io.InputStream;
@@ -35,6 +34,7 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -88,6 +88,8 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
       //
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
+      data.limit = Const.toLong(resolve(meta.getLimit()), -1);
     }
 
     String rawFilename = getInputRowMeta().getString(fileRowData, meta.getAcceptingField(), null);
@@ -116,37 +118,32 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
       //
       List<Column> columns = sasFileReader.getColumns();
 
-      // Map this to the columns we want...
+      // Map this to the columns we want.
       //
-      List<Integer> indexes = new ArrayList<>();
-      for (SasInputField field : meta.getOutputFields()) {
-
-        int index = -1;
-        for (int c = 0; c < columns.size(); c++) {
-          if (columns.get(c).getName().equalsIgnoreCase(field.getName())) {
-            index = c;
-            break;
-          }
-        }
-        if (index < 0) {
-          throw new HopException(
-              "Field '" + field.getName() + " could not be found in input file '" + filename);
-        }
-        indexes.add(index);
-      }
+      String metaFilename = resolve(meta.getMetadataFilename());
+      List<Integer> indexes = getColumnIndexes(columns, filename, metaFilename);
 
       // Now we have the indexes of the output fields to grab.
       // Let's grab them...
       //
       Object[] sasRow;
       while ((sasRow = sasFileReader.readNext()) != null) {
+        incrementLinesInput();
         Object[] outputRow = RowDataUtil.createResizedCopy(fileRowData, data.outputRowMeta.size());
 
-        for (int i = 0; i < meta.getOutputFields().size(); i++) {
-          SasInputField field = meta.getOutputFields().get(i);
+        for (int i = 0; i < indexes.size(); i++) {
           int index = indexes.get(i);
           Column column = columns.get(index);
-          ColumnFormat columnFormat = column.getFormat();
+          SasInputField field;
+          if (StringUtil.isEmpty(metaFilename)) {
+            field = meta.getOutputFields().get(i);
+          } else {
+            field = new SasInputField();
+            field.setName(column.getName());
+            field.setLength(column.getFormat().getWidth());
+            field.setPrecision(column.getFormat().getPrecision());
+            field.setType(SasUtil.getHopDataType(column.getType()));
+          }
           Object sasValue = sasRow[index];
           Object value = null;
           IValueMeta inputValueMeta = null;
@@ -157,7 +154,6 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
             if (sasFileProperties.getEncoding() != null) {
               value = new String(bytes, sasFileProperties.getEncoding());
             } else {
-              // TODO: user defined encoding.
               value = new String(bytes);
             }
           }
@@ -171,7 +167,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
           }
           if (sasValue instanceof Float) {
             inputValueMeta = new ValueMetaNumber(fieldName);
-            value = (double) sasValue;
+            value = sasValue;
           }
           if (sasValue instanceof Long) {
             inputValueMeta = new ValueMetaInteger(fieldName);
@@ -197,11 +193,48 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
         // Send the row on its way...
         //
         putRow(data.outputRowMeta, outputRow);
+
+        // One extra row is handled. Do we need to get more?
+        //
+        if (data.limit > 0 && getLinesInput() >= data.limit) {
+          // Stop the while loop reading lines from the SAS file.
+          break;
+        }
       }
     } catch (Exception e) {
       throw new HopException("Error reading from file " + filename, e);
     }
 
     return true;
+  }
+
+  private List<Integer> getColumnIndexes(List<Column> columns, String filename, String metaFilename)
+      throws HopException {
+    List<Integer> indexes = new ArrayList<>();
+
+    if (StringUtil.isEmpty(metaFilename)) {
+      for (SasInputField field : meta.getOutputFields()) {
+
+        int index = -1;
+        for (int c = 0; c < columns.size(); c++) {
+          if (columns.get(c).getName().equalsIgnoreCase(field.getName())) {
+            index = c;
+            break;
+          }
+        }
+        if (index < 0) {
+          throw new HopException(
+              "Field '" + field.getName() + " could not be found in input file '" + filename);
+        }
+        indexes.add(index);
+      }
+    } else {
+      // Get the column indexes in the same order as in the file.
+      //
+      for (int c = 0; c < columns.size(); c++) {
+        indexes.add(c);
+      }
+    }
+    return indexes;
   }
 }

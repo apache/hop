@@ -17,25 +17,31 @@
 
 package org.apache.hop.pipeline.transforms.sasinput;
 
+import com.epam.parso.Column;
+import com.epam.parso.ColumnFormat;
+import com.epam.parso.impl.SasFileReaderImpl;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "SASInput",
@@ -45,52 +51,41 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::SasInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/sasinput.html")
+@Getter
+@Setter
 public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
   private static final Class<?> PKG = SasInputMeta.class; // for i18n purposes,
 
-  public static final String XML_TAG_FIELD = "field";
-
   /** The field in which the filename is placed */
+  @HopMetadataProperty(key = "accept_field")
   private String acceptingField;
 
+  @HopMetadataProperty(key = "field")
   private List<SasInputField> outputFields;
+
+  @HopMetadataProperty(key = "meta_filename")
+  private String metadataFilename;
+
+  @HopMetadataProperty private String limit;
 
   public SasInputMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  @Override
-  public void setDefault() {
     outputFields = new ArrayList<>();
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      acceptingField = XmlHandler.getTagValue(transformNode, "accept_field");
-      int nrFields = XmlHandler.countNodes(transformNode, XML_TAG_FIELD);
-      outputFields = new ArrayList<>();
-      for (int i = 0; i < nrFields; i++) {
-        Node fieldNode = XmlHandler.getSubNodeByNr(transformNode, XML_TAG_FIELD, i);
-        outputFields.add(new SasInputField(fieldNode));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "SASInputMeta.Exception.UnableToReadTransformInformationFromXml"),
-          e);
+  public SasInputMeta(SasInputMeta m) {
+    this();
+    this.acceptingField = m.acceptingField;
+    this.metadataFilename = m.metadataFilename;
+    this.limit = m.limit;
+    for (SasInputField field : m.outputFields) {
+      outputFields.add(new SasInputField(field));
     }
   }
 
   @Override
-  public Object clone() {
-    SasInputMeta retval = (SasInputMeta) super.clone();
-    retval.setOutputFields(new ArrayList<>());
-    for (SasInputField field : outputFields) {
-      retval.getOutputFields().add(field.clone());
-    }
-    return retval;
+  public SasInputMeta clone() {
+    return new SasInputMeta(this);
   }
 
   @Override
@@ -103,35 +98,47 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
-    for (SasInputField field : outputFields) {
-      try {
-        IValueMeta valueMeta = ValueMetaFactory.createValueMeta(field.getRename(), field.getType());
-        valueMeta.setLength(field.getLength(), field.getPrecision());
-        valueMeta.setDecimalSymbol(field.getDecimalSymbol());
-        valueMeta.setGroupingSymbol(field.getGroupingSymbol());
-        valueMeta.setConversionMask(field.getConversionMask());
-        valueMeta.setTrimType(field.getTrimType());
-        valueMeta.setOrigin(name);
+    String metaFilename = variables.resolve(metadataFilename);
+    if (StringUtils.isEmpty(metaFilename)) {
 
-        inputRowMeta.addValueMeta(valueMeta);
+      for (SasInputField field : outputFields) {
+        try {
+          IValueMeta valueMeta =
+              ValueMetaFactory.createValueMeta(field.getRename(), field.getType());
+          valueMeta.setLength(field.getLength(), field.getPrecision());
+          valueMeta.setDecimalSymbol(field.getDecimalSymbol());
+          valueMeta.setGroupingSymbol(field.getGroupingSymbol());
+          valueMeta.setConversionMask(field.getConversionMask());
+          valueMeta.setTrimType(field.getTrimType());
+          valueMeta.setOrigin(name);
+
+          inputRowMeta.addValueMeta(valueMeta);
+        } catch (Exception e) {
+          throw new HopTransformException(e);
+        }
+      }
+    } else {
+      // We need to get the file metadata from a reference file to get the row layout.
+      try (InputStream inputStream = HopVfs.getInputStream(metaFilename, variables)) {
+        SasFileReaderImpl sasFileReader = new SasFileReaderImpl(inputStream);
+
+        List<Column> columns = sasFileReader.getColumns();
+        for (Column column : columns) {
+          ColumnFormat format = column.getFormat();
+
+          String columnName = column.getName();
+          int length = format.getWidth() == 0 ? -1 : format.getWidth();
+          int precision = format.getPrecision() == 0 ? -1 : format.getWidth();
+          int columnType = SasUtil.getHopDataType(column.getType());
+          IValueMeta valueMeta =
+              ValueMetaFactory.createValueMeta(columnName, columnType, length, precision);
+          valueMeta.setOrigin(name);
+          inputRowMeta.addValueMeta(valueMeta);
+        }
       } catch (Exception e) {
-        throw new HopTransformException(e);
+        throw new HopTransformException("Error reading from metadata file: " + metaFilename);
       }
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    " + XmlHandler.addTagValue("accept_field", acceptingField));
-    for (SasInputField field : outputFields) {
-      retval.append(XmlHandler.openTag(XML_TAG_FIELD));
-      retval.append(field.getXml());
-      retval.append(XmlHandler.closeTag(XML_TAG_FIELD));
-    }
-
-    return retval.toString();
   }
 
   @Override
@@ -156,33 +163,5 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  /**
-   * @return Returns the acceptingField.
-   */
-  public String getAcceptingField() {
-    return acceptingField;
-  }
-
-  /**
-   * @param acceptingField The acceptingField to set.
-   */
-  public void setAcceptingField(String acceptingField) {
-    this.acceptingField = acceptingField;
-  }
-
-  /**
-   * @return the outputFields
-   */
-  public List<SasInputField> getOutputFields() {
-    return outputFields;
-  }
-
-  /**
-   * @param outputFields the outputFields to set
-   */
-  public void setOutputFields(List<SasInputField> outputFields) {
-    this.outputFields = outputFields;
   }
 }
