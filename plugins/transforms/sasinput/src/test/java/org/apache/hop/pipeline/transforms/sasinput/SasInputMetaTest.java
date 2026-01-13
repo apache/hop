@@ -35,7 +35,8 @@ class SasInputMetaTest {
 
   @Test
   void testSerialization() throws Exception {
-    SasInputMeta meta = TransformSerializationTestUtil.testSerialization("/transform.xml", SasInputMeta.class);
+    SasInputMeta meta =
+        TransformSerializationTestUtil.testSerialization("/transform.xml", SasInputMeta.class);
     Assertions.assertNotNull(meta);
     Assertions.assertEquals("filename", meta.getAcceptingField());
     Assertions.assertEquals("metaFilename", meta.getMetadataFilename());
