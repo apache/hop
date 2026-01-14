@@ -163,7 +163,6 @@ public class ProjectDialog extends Dialog {
     scroll.setLayout(new FillLayout());
     scroll.setExpandHorizontal(true);
     scroll.setExpandVertical(true);
-    scroll.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
     PropsUi.setLook(scroll);
     shell.setLayoutData(scroll);
 

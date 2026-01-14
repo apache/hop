@@ -19,6 +19,8 @@ package org.apache.hop.ui.core.dialog;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.FormDataBuilder;
@@ -28,6 +30,8 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -40,6 +44,8 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * A replacement of the system message box dialog to make sure the correct font and colors are used.
  */
+@Getter
+@Setter
 public class MessageBox extends Dialog {
   private static final Class<?> PKG = MessageBox.class;
 
@@ -52,6 +58,9 @@ public class MessageBox extends Dialog {
   private int returnValue;
 
   private Shell shell;
+
+  private int minimumWidth = -1;
+  private int minimumHeight = -1;
 
   public MessageBox(Shell parent) {
     this(parent, SWT.ICON_INFORMATION | SWT.APPLICATION_MODAL);
@@ -89,7 +98,6 @@ public class MessageBox extends Dialog {
     gridLayout.numColumns = 2;
     gridLayout.horizontalSpacing = 15;
     composite.setLayout(gridLayout);
-    composite.setLayoutData(new FormDataBuilder().top().fullWidth().result());
 
     // The message...
     //
@@ -114,6 +122,7 @@ public class MessageBox extends Dialog {
       Button wYes = new Button(shell, SWT.PUSH);
       wYes.setText(BaseMessages.getString(PKG, "System.Button.Yes"));
       wYes.addListener(SWT.Selection, e -> yes());
+      shell.setDefaultButton(wYes);
       buttons.add(wYes);
     }
     if ((style & SWT.NO) != 0) {
@@ -132,17 +141,53 @@ public class MessageBox extends Dialog {
       Button wOk = new Button(shell, SWT.PUSH);
       wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
       wOk.addListener(SWT.Selection, e -> ok());
+      shell.setDefaultButton(wOk);
       buttons.add(0, wOk);
     }
 
+    // Set the composite to fill from top to bottom with margin
+    composite.setLayoutData(
+        new FormDataBuilder().top().left().right(100, 0).bottom(100, -50).result());
+
     BaseTransformDialog.positionBottomButtons(
         shell, buttons.toArray(new Button[0]), margin, composite);
+
+    // Reposition buttons to be attached to the bottom of the shell instead of the composite
+    // This ensures they stay at the bottom when the shell is resized
+    if (!buttons.isEmpty()) {
+      for (Button button : buttons) {
+        FormData fd = (FormData) button.getLayoutData();
+        // Keep horizontal positioning but attach to bottom of shell
+        fd.top = null;
+        fd.bottom = new FormAttachment(100, -margin);
+      }
+      // Update composite to fill space above buttons
+      composite.setLayoutData(
+          new FormDataBuilder()
+              .top()
+              .left()
+              .right(100, 0)
+              .bottom(buttons.get(0), -margin)
+              .result());
+    }
 
     shell.addListener(SWT.Close, e -> cancel());
 
     BaseTransformDialog.setSize(shell);
 
-    shell.pack();
+    // If minimum size is set, use it directly instead of packing
+    if (minimumWidth > 0 || minimumHeight > 0) {
+      shell.layout();
+      shell.pack();
+      int width = Math.max(shell.getSize().x, minimumWidth > 0 ? minimumWidth : 0);
+      int height = Math.max(shell.getSize().y, minimumHeight > 0 ? minimumHeight : 0);
+      shell.setSize(width, height);
+      shell.setMinimumSize(
+          minimumWidth > 0 ? minimumWidth : 0, minimumHeight > 0 ? minimumHeight : 0);
+    } else {
+      shell.pack();
+    }
+
     shell.open();
     while (!shell.isDisposed()) {
       if (!shell.getDisplay().readAndDispatch()) {
@@ -228,38 +273,13 @@ public class MessageBox extends Dialog {
   }
 
   /**
-   * Gets message
+   * Sets the minimum size for the dialog
    *
-   * @return value of message
+   * @param width minimum width in pixels
+   * @param height minimum height in pixels
    */
-  public String getMessage() {
-    return message;
-  }
-
-  /**
-   * Sets message
-   *
-   * @param message value of message
-   */
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  /**
-   * Gets returnValue
-   *
-   * @return value of returnValue
-   */
-  public int getReturnValue() {
-    return returnValue;
-  }
-
-  /**
-   * Sets returnValue
-   *
-   * @param returnValue value of returnValue
-   */
-  public void setReturnValue(int returnValue) {
-    this.returnValue = returnValue;
+  public void setMinimumSize(int width, int height) {
+    this.minimumWidth = width;
+    this.minimumHeight = height;
   }
 }
