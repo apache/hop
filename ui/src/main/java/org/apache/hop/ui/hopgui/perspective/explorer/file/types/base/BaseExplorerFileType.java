@@ -165,7 +165,7 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
   public T openFile(HopGui hopGui, String filename, IVariables variables) throws HopException {
 
     try {
-      FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename));
+      FileObject fileObject = HopVfs.getFileObject(filename, variables);
       String name = fileObject.getName().getBaseName();
 
       // Check the file size before opening.
@@ -203,7 +203,7 @@ public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
 
       // Normalize the filename
       //
-      filename = HopVfs.normalize(variables.resolve(filename));
+      filename = HopVfs.getFilename(fileObject);
 
       // Open the file in the explorer perspective
       //
