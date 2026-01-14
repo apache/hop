@@ -313,7 +313,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
             BaseMessages.getString(PKG, "MailServerConnectionDialog.TrustedHosts.Tooltip"));
     FormData fdTrustedHosts = new FormData();
     fdTrustedHosts.left = new FormAttachment(0, 0);
-    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, 0);
+    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, margin + 5);
     fdTrustedHosts.right = new FormAttachment(100, 0);
     wTrustedHosts.setLayoutData(fdTrustedHosts);
     lastControl = wTrustedHosts;
@@ -475,7 +475,6 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
         mb.setText(BaseMessages.getString(PKG, "ActionGetPOP.Connected.Title.Ok"));
         mb.open();
       }
-      ;
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error connecting mail server:", e);
     }
