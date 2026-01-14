@@ -26,12 +26,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.stream.IStream;
-import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
-import org.apache.hop.pipeline.transform.stream.Stream;
-import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -83,12 +78,11 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
     joinMeta = transformMeta;
 
     allInputTransforms = getInputTransformNames();
-    int numInputs =
-        Math.max(
-            2,
-            joinMeta.getInputTransforms() != null
-                ? joinMeta.getInputTransforms().size()
-                : pipelineMeta.getPrevTransformNames(transformName).length);
+
+    int availableTransforms = allInputTransforms.length;
+    int configuredTransforms =
+        (joinMeta.getInputTransforms() != null) ? joinMeta.getInputTransforms().size() : 0;
+    int numInputs = Math.max(2, Math.max(availableTransforms, configuredTransforms));
 
     wInputTransformArray = new CCombo[numInputs];
     keyValTextBox = new Text[numInputs];
@@ -448,6 +442,12 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
         widgetIndex++;
       }
 
+      while (widgetIndex < wInputTransformArray.length) {
+        wInputTransformArray[widgetIndex].setText("");
+        keyValTextBox[widgetIndex].setText("");
+        widgetIndex++;
+      }
+
       String joinType = joinMeta.getJoinType();
       if (!Utils.isEmpty(joinType)) {
         joinTypeCombo.setText(joinType);
@@ -466,20 +466,12 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
     dispose();
   }
 
-  /**
-   * Get the meta data
-   *
-   * @param meta metadata to fetch information from
-   */
   private void getMeta(MultiMergeJoinMeta meta) {
-    ITransformIOMeta transformIOMeta = meta.getTransformIOMeta();
-    List<IStream> infoStreams = transformIOMeta.getInfoStreams();
-    IStream stream;
-    String streamDescription;
     ArrayList<String> inputTransformNameList = new ArrayList<>();
     ArrayList<String> keyList = new ArrayList<>();
     CCombo wInputTransform;
     String inputTransformName;
+
     for (int i = 0; i < wInputTransformArray.length; i++) {
       wInputTransform = wInputTransformArray[i];
       inputTransformName = wInputTransform.getText();
@@ -490,28 +482,12 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
 
       inputTransformNameList.add(inputTransformName);
       keyList.add(keyValTextBox[i].getText());
-
-      if (infoStreams.size() < inputTransformNameList.size()) {
-        streamDescription = BaseMessages.getString(PKG, "MultiMergeJoin.InfoStream.Description");
-        stream = new Stream(StreamType.INFO, null, streamDescription, StreamIcon.INFO, null);
-        transformIOMeta.addStream(stream);
-      }
     }
 
-    // Save the input transforms and key fields in the order they appear in the UI
     meta.setInputTransforms(inputTransformNameList);
     meta.setKeyFields(keyList);
-
-    int inputTransformCount = inputTransformNameList.size();
-
-    infoStreams = transformIOMeta.getInfoStreams();
-    for (int i = 0; i < inputTransformCount; i++) {
-      inputTransformName = inputTransformNameList.get(i);
-      stream = infoStreams.get(i);
-      stream.setTransformMeta(pipelineMeta.findTransform(inputTransformName));
-    }
-
     meta.setJoinType(joinTypeCombo.getText());
+    meta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
   }
 
   private void ok() {

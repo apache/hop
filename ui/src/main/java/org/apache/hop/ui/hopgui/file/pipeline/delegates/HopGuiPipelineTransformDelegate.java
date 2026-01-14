@@ -700,6 +700,18 @@ public class HopGuiPipelineTransformDelegate {
           int idx = pipelineMeta.indexOfPipelineHop(hi);
           pipelineHops.add((PipelineHopMeta) hi.clone());
           hopIndexes[hopIndex] = idx;
+
+          TransformMeta fromTransform = hi.getFromTransform();
+          TransformMeta toTransform = hi.getToTransform();
+
+          if (!transforms.contains(toTransform) && toTransform.getTransform() != null) {
+            toTransform.getTransform().cleanAfterHopToRemove(fromTransform);
+            toTransform.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+          }
+          if (!transforms.contains(fromTransform) && fromTransform.getTransform() != null) {
+            fromTransform.getTransform().cleanAfterHopFromRemove(toTransform);
+          }
+
           pipelineMeta.removePipelineHop(idx);
           hopIndex++;
           break;

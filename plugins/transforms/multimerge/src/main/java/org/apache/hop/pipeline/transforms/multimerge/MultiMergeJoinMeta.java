@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.multimerge;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,11 +57,14 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
   public static final String[] joinTypes = {"INNER", "FULL OUTER"};
   public static final boolean[] optionals = {false, true};
 
-  @HopMetadataProperty(key = "join_type", injectionKey = "JOIN_TYPE")
+  @HopMetadataProperty(
+      key = "join_type",
+      injectionKey = "JOIN_TYPE",
+      injectionKeyDescription = "MultiMergeJoinMeta.Injection.JoinType")
   private String joinType;
 
   /** comma separated key values for each stream */
-  @HopMetadataProperty(key = "key", groupKey = "keys", injectionKey = "JOIN_TYPE")
+  @HopMetadataProperty(key = "key", groupKey = "keys", injectionKey = "KEY_FIELDS")
   private List<String> keyFields;
 
   /** input stream names */
@@ -76,7 +80,9 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
   }
 
   public MultiMergeJoinMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.keyFields = new ArrayList<>();
+    this.inputTransforms = new ArrayList<>();
   }
 
   /**
@@ -126,15 +132,13 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
     ioMeta.getInfoStreams().clear();
     for (int i = 0; i < inputTransforms.size(); i++) {
       String inputTransformName = inputTransforms.get(i);
-      if (i >= ioMeta.getInfoStreams().size()) {
-        ioMeta.addStream(
-            new Stream(
-                StreamType.INFO,
-                TransformMeta.findTransform(transforms, inputTransformName),
-                BaseMessages.getString(PKG, "MultiMergeJoin.InfoStream.Description"),
-                StreamIcon.INFO,
-                inputTransformName));
-      }
+      ioMeta.addStream(
+          new Stream(
+              StreamType.INFO,
+              TransformMeta.findTransform(transforms, inputTransformName),
+              BaseMessages.getString(PKG, "MultiMergeJoin.InfoStream.Description"),
+              StreamIcon.INFO,
+              inputTransformName));
     }
   }
 
@@ -189,5 +193,30 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
   @Override
   public void resetTransformIoMeta() {
     // Don't reset!
+  }
+
+  @Override
+  public boolean cleanAfterHopToRemove(TransformMeta fromTransform) {
+    if (fromTransform == null || fromTransform.getName() == null) {
+      return false;
+    }
+
+    if (inputTransforms == null || inputTransforms.isEmpty()) {
+      return false;
+    }
+
+    String fromTransformName = fromTransform.getName();
+
+    for (int i = 0; i < inputTransforms.size(); i++) {
+      if (fromTransformName.equals(inputTransforms.get(i))) {
+        inputTransforms.remove(i);
+        if (keyFields != null && i < keyFields.size()) {
+          keyFields.remove(i);
+        }
+        return true;
+      }
+    }
+
+    return false;
   }
 }
