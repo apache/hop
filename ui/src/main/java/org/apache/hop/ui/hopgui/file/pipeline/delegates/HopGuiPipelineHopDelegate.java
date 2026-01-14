@@ -227,14 +227,15 @@ public class HopGuiPipelineHopDelegate {
     TransformMeta toTransformMeta = pipelineHopMeta.getToTransform();
     TransformMeta beforeTo = (TransformMeta) toTransformMeta.clone();
     int indexTo = pipelineMeta.indexOfTransform(toTransformMeta);
-    if (toTransformMeta.getTransform() != null) {
-      toTransformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
-    }
 
     boolean transformFromNeedAddUndoChange =
         fromTransformMeta.getTransform().cleanAfterHopFromRemove(pipelineHopMeta.getToTransform());
     boolean transformToNeedAddUndoChange =
         toTransformMeta.getTransform().cleanAfterHopToRemove(fromTransformMeta);
+
+    if (toTransformMeta.getTransform() != null) {
+      toTransformMeta.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+    }
 
     // If this is an error handling hop, disable it
     //

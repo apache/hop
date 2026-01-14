@@ -32,9 +32,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.stream.IStream;
 
 /**
  * Merge rows from 2 sorted streams and output joined rows with matched key fields. Use this instead
@@ -68,10 +66,6 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
       throws HopException {
 
     PipelineHopMeta pipelineHopMeta;
-
-    ITransformIOMeta transformIOMeta = meta.getTransformIOMeta();
-    List<IStream> infoStreams = transformIOMeta.getInfoStreams();
-    IStream stream;
     TransformMeta toTransformMeta = meta.getParentTransformMeta();
     TransformMeta fromTransformMeta;
 
@@ -79,23 +73,20 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
     List<String> inputTransformNames = meta.getInputTransforms();
     String inputTransformName;
 
-    for (int i = 0; i < infoStreams.size(); i++) {
+    for (int i = 0; i < inputTransformNames.size(); i++) {
       inputTransformName = inputTransformNames.get(i);
-      stream = infoStreams.get(i);
-      fromTransformMeta = stream.getTransformMeta();
+
+      fromTransformMeta = getPipelineMeta().findTransform(inputTransformName);
       if (fromTransformMeta == null) {
-        // should not arrive here, shoud typically have been caught by init.
         throw new HopException(
             BaseMessages.getString(
                 PKG,
                 CONST_MULTI_MERGE_JOIN_LOG_UNABLE_TO_FIND_REFERENCE_STREAM,
                 inputTransformName));
       }
-      // check the hop
+
       pipelineHopMeta = getPipelineMeta().findPipelineHop(fromTransformMeta, toTransformMeta, true);
-      // there is no hop: this is unexpected.
       if (pipelineHopMeta == null) {
-        // should not arrive here, shoud typically have been caught by init.
         throw new HopException(
             BaseMessages.getString(
                 PKG,
@@ -168,7 +159,14 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
         queueEntry.row = row;
         rowMeta = rowSet.getRowMeta();
 
-        keyField = meta.getKeyFields().get(i);
+        List<String> keyFields = meta.getKeyFields();
+        if (keyFields == null || i >= keyFields.size()) {
+          throw new HopException(
+              String.format(
+                  "Key fields configuration missing for input transform '%s' at index %d",
+                  inputTransformName, i));
+        }
+        keyField = keyFields.get(i);
         String[] keyFieldParts = keyField.split(",");
         String keyFieldPart;
         data.keyNrs[j] = new int[keyFieldParts.length];
@@ -396,15 +394,16 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
   public boolean init() {
 
     if (super.init()) {
-      ITransformIOMeta transformIOMeta = meta.getTransformIOMeta();
       List<String> inputTransformNames = meta.getInputTransforms();
-      String inputTransformName;
-      List<IStream> infoStreams = transformIOMeta.getInfoStreams();
-      IStream stream;
-      for (int i = 0; i < infoStreams.size(); i++) {
-        inputTransformName = inputTransformNames.get(i);
-        stream = infoStreams.get(i);
-        if (stream.getTransformMeta() == null) {
+
+      if (inputTransformNames == null || inputTransformNames.isEmpty()) {
+        logError("No input transforms configured for multiway merge join");
+        return false;
+      }
+
+      for (String inputTransformName : inputTransformNames) {
+        TransformMeta transformMeta = getPipelineMeta().findTransform(inputTransformName);
+        if (transformMeta == null) {
           logError(
               BaseMessages.getString(
                   PKG,
@@ -413,6 +412,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
           return false;
         }
       }
+
       String joinType = meta.getJoinType();
       for (int i = 0; i < MultiMergeJoinMeta.joinTypes.length; ++i) {
         if (joinType.equalsIgnoreCase(MultiMergeJoinMeta.joinTypes[i])) {
