@@ -70,9 +70,10 @@ public class HtmlExplorerFileType extends BaseExplorerFileType<HtmlExplorerFileT
     if (resolvedFilename.toLowerCase().startsWith("http://")
         || resolvedFilename.toLowerCase().startsWith("https://")) {
       // Create handler without VFS checks for URLs
+      // The tab title will be extracted by ExplorerPerspective.getTabDisplayName()
       //
       ExplorerFile explorerFile = new ExplorerFile();
-      explorerFile.setName(resolvedFilename);
+      explorerFile.setName(resolvedFilename); // Will be shortened by tab display logic
       explorerFile.setFilename(resolvedFilename);
       explorerFile.setFileType(this);
 

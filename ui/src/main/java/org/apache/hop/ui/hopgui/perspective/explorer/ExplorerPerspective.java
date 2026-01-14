@@ -1112,7 +1112,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     //
     CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
     tabItem.setFont(GuiResource.getInstance().getFontDefault());
-    tabItem.setText(Const.NVL(fileTypeHandler.getName(), ""));
+    String displayName = getTabDisplayName(fileTypeHandler);
+    tabItem.setText(Const.NVL(displayName, ""));
     tabItem.setToolTipText(Const.NVL(fileTypeHandler.getFilename(), ""));
     tabItem.setImage(getFileTypeImage(fileTypeHandler.getFileType()));
     tabItem.setData(fileTypeHandler);
@@ -2025,7 +2026,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     if (tabItemHandler != null) {
       CTabItem tabItem = tabItemHandler.getTabItem();
       if (!tabItem.isDisposed()) {
-        tabItem.setText(Const.NVL(fileTypeHandler.getName(), "<>"));
+        String displayName = getTabDisplayName(fileTypeHandler);
+        tabItem.setText(Const.NVL(displayName, "<>"));
         tabItem.setToolTipText(Const.NVL(fileTypeHandler.getFilename(), ""));
         Font font =
             fileTypeHandler.hasChanged()
@@ -2033,6 +2035,123 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
                 : tabFolder.getFont();
         tabItem.setFont(font);
       }
+    }
+  }
+
+  /**
+   * Get a display name for a tab, extracting a short title from URLs if needed.
+   *
+   * @param fileTypeHandler The file type handler
+   * @return A short display name (max 30 characters for URLs)
+   */
+  private String getTabDisplayName(IHopFileTypeHandler fileTypeHandler) {
+    String name = fileTypeHandler.getName();
+    String filename = fileTypeHandler.getFilename();
+
+    // If the filename is a URL and the name is the full URL or very long, extract a better title
+    if (filename != null
+        && (filename.toLowerCase().startsWith("http://")
+            || filename.toLowerCase().startsWith("https://"))) {
+      // If name is the URL or longer than 30 chars, extract a better title
+      if (name == null || name.equals(filename) || name.length() > 30) {
+        return extractTitleFromUrl(filename);
+      }
+    }
+
+    return name;
+  }
+
+  /**
+   * Extract a meaningful title from a URL for use as a tab name.
+   *
+   * @param url The URL to extract a title from
+   * @return A short, meaningful title (max 30 characters)
+   */
+  private String extractTitleFromUrl(String url) {
+    try {
+      // Remove protocol and query parameters
+      String path = url;
+      if (path.contains("?")) {
+        path = path.substring(0, path.indexOf("?"));
+      }
+      if (path.contains("#")) {
+        path = path.substring(0, path.indexOf("#"));
+      }
+
+      // Extract the last meaningful part of the path
+      // e.g., "https://hop.apache.org/manual/latest/pipelines/transforms/data-grid.html"
+      // becomes "Data Grid"
+      String[] parts = path.split("/");
+      String lastPart = "";
+      for (int i = parts.length - 1; i >= 0; i--) {
+        if (!parts[i].isEmpty() && !parts[i].equals("manual") && !parts[i].equals("latest")) {
+          lastPart = parts[i];
+          break;
+        }
+      }
+
+      // Remove file extension and decode
+      if (lastPart.endsWith(".html") || lastPart.endsWith(".htm")) {
+        lastPart = lastPart.substring(0, lastPart.lastIndexOf("."));
+      }
+
+      // Convert kebab-case, snake_case, or camelCase to Title Case
+      // e.g., "data-grid" -> "Data Grid", "data_grid" -> "Data Grid"
+      String title = lastPart.replaceAll("[-_]", " ");
+      title = title.replaceAll("([a-z])([A-Z])", "$1 $2"); // camelCase
+
+      // Capitalize words
+      String[] words = title.split("\\s+");
+      StringBuilder result = new StringBuilder();
+      for (String word : words) {
+        if (word.length() > 0) {
+          if (result.length() > 0) {
+            result.append(" ");
+          }
+          result.append(word.substring(0, 1).toUpperCase());
+          if (word.length() > 1) {
+            result.append(word.substring(1).toLowerCase());
+          }
+        }
+      }
+      title = result.toString();
+
+      // If we got a meaningful title, use it (limit to 30 chars)
+      if (!title.isEmpty() && title.length() <= 30) {
+        return title;
+      }
+
+      // Fallback: show domain + last part (truncated to 30 chars)
+      if (title.length() > 30) {
+        title = title.substring(0, 27) + "...";
+      }
+
+      // If still no good title, use smart truncation of the full URL
+      if (title.isEmpty() || title.length() < 5) {
+        // Show domain and last path segment
+        int domainEnd = path.indexOf("/", 8); // After "https://"
+        if (domainEnd > 0 && domainEnd < path.length() - 1) {
+          String domain = path.substring(0, domainEnd);
+          String pathPart = path.substring(domainEnd);
+          if (pathPart.length() > 20) {
+            pathPart = "..." + pathPart.substring(pathPart.length() - 17);
+          }
+          title = domain + pathPart;
+        } else {
+          title = path;
+        }
+        if (title.length() > 30) {
+          title = title.substring(0, 27) + "...";
+        }
+      }
+
+      return title;
+    } catch (Exception e) {
+      // Fallback to simple truncation if anything goes wrong
+      if (url.length() > 30) {
+        return url.substring(0, 27) + "...";
+      }
+      return url;
     }
   }
 
