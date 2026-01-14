@@ -62,7 +62,7 @@ public abstract class BaseExplorerFileTypeHandler implements IExplorerFileTypeHa
 
   protected String readTextFileContent(String encoding) throws HopException {
     try {
-      FileObject file = HopVfs.getFileObject(getFilename());
+      FileObject file = HopVfs.getFileObject(getFilename(), getVariables());
       if (file.exists()) {
         try (InputStream inputStream = HopVfs.getInputStream(file)) {
           StringWriter writer = new StringWriter();
