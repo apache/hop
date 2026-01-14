@@ -26,11 +26,12 @@ import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
@@ -40,8 +41,11 @@ import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.SwtErrorHandler;
+import org.eclipse.swt.SWT;
 
 public class HopGuiAuditDelegate {
+
+  private static final Class<?> PKG = HopGuiAuditDelegate.class;
 
   public static final String STATE_PROPERTY_ACTIVE = "active";
   public static final String METADATA_FILENAME_PREFIX = "METADATA:";
@@ -56,6 +60,9 @@ public class HopGuiAuditDelegate {
     if (!hopGui.getProps().openLastFile()) {
       return;
     }
+
+    // Collect files that fail to open
+    List<String> failedFiles = new ArrayList<>();
 
     // Open the last files for each perspective...
     //
@@ -122,8 +129,9 @@ public class HopGuiAuditDelegate {
               }
             }
           } catch (Exception e) {
-            new ErrorDialog(
-                hopGui.getActiveShell(), "Error", "Error opening file '" + filename + "'", e);
+            // Collect failed files instead of showing error dialog immediately
+            hopGui.getLog().logError("Error opening file '" + filename + "'", e);
+            failedFiles.add(filename);
           }
         }
 
@@ -133,6 +141,24 @@ public class HopGuiAuditDelegate {
           perspective.setActiveFileTypeHandler(activeFileTypeHandler);
         }
       }
+    }
+
+    // Show a single dialog with all files that failed to open
+    if (!failedFiles.isEmpty()) {
+      StringBuilder message =
+          new StringBuilder(
+              BaseMessages.getString(
+                  PKG, "HopGuiAuditDelegate.FilesNoLongerAvailable.Dialog.Message"));
+      for (String failedFile : failedFiles) {
+        message.append("  - ").append(failedFile).append("\n");
+      }
+
+      MessageBox box = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_WARNING);
+      box.setText(
+          BaseMessages.getString(PKG, "HopGuiAuditDelegate.FilesNoLongerAvailable.Dialog.Header"));
+      box.setMessage(message.toString());
+      box.setMinimumSize(400, -1);
+      box.open();
     }
   }
 

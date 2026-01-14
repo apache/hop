@@ -470,14 +470,14 @@ public class GitGuiPlugin
           for (int selectedNr : selectedNrs) {
             String file = files[selectedNr];
             git.revertPath(file);
-
-            MessageBox box =
-                new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
-            box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.FilesReverted.Header"));
-            box.setMessage(
-                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.FilesReverted.Message"));
-            box.open();
           }
+
+          // Show confirmation message once after all files have been reverted
+          MessageBox box =
+              new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
+          box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.FilesReverted.Header"));
+          box.setMessage(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.FilesReverted.Message"));
+          box.open();
         }
       }
     } catch (Exception e) {
