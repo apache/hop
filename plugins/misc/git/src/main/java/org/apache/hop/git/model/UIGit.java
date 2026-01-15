@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -108,7 +109,6 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FileUtils;
 import org.eclipse.jgit.util.RawParseUtils;
-import org.eclipse.jgit.util.SystemReader;
 
 public class UIGit extends VCS {
   protected static final Class<?> PKG = UIGit.class;
@@ -307,17 +307,33 @@ public class UIGit extends VCS {
     return remotes.contains(Constants.DEFAULT_REMOTE_NAME);
   }
 
+  /**
+   * Commits changes to the repository with a specified author and message.
+   *
+   * @param authorName The name of the author making the commit.
+   * @param message The message describing the commit.
+   * @return true if the commit is successful; otherwise, false.
+   * @throws HopException If an error occurs during the commit operation.
+   */
   public boolean commit(String authorName, String message) throws HopException {
+    return this.commit(authorName, message, false);
+  }
+
+  /**
+   * Commits changes to the repository with a specified author, message, and amend option.
+   *
+   * @param authorName The name of the author making the commit.
+   * @param message The message describing the commit.
+   * @param amend Whether the commit should amend the previous commit.
+   * @return true if the commit is successful; otherwise, false.
+   * @throws HopException If an error occurs during the commit operation.
+   */
+  public boolean commit(String authorName, String message, boolean amend) throws HopException {
     PersonIdent author = RawParseUtils.parsePersonIdent(authorName);
-    // Set the local time
-    PersonIdent author2 =
-        new PersonIdent(
-            author.getName(),
-            author.getEmailAddress(),
-            SystemReader.getInstance().getCurrentTime(),
-            SystemReader.getInstance().getTimezone(SystemReader.getInstance().getCurrentTime()));
+    // Set the local time and use the system time zone
+    PersonIdent committer = new PersonIdent(author, Instant.now());
     try {
-      git.commit().setAuthor(author2).setMessage(message).call();
+      git.commit().setAuthor(committer).setMessage(message).setAmend(amend).call();
       return true;
     } catch (Exception e) {
       throw new HopException("Error in git commit", e);
@@ -417,7 +433,6 @@ public class UIGit extends VCS {
       return files;
     }
     status.getUntracked().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, false)));
-    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
     status.getConflicting().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, false)));
     status.getMissing().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, false)));
     return files;
@@ -434,6 +449,7 @@ public class UIGit extends VCS {
     }
     status.getAdded().forEach(name -> files.add(new UIFile(name, ChangeType.ADD, true)));
     status.getChanged().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
+    status.getModified().forEach(name -> files.add(new UIFile(name, ChangeType.MODIFY, true)));
     status.getRemoved().forEach(name -> files.add(new UIFile(name, ChangeType.DELETE, true)));
     return files;
   }

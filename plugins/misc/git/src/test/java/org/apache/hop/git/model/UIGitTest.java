@@ -137,6 +137,16 @@ public class UIGitTest extends RepositoryTestCase {
     assertTrue(uiGit.isClean());
     assertTrue(author.toExternalString().contains(uiGit.getAuthorName(commitId)));
     assertEquals(message, uiGit.getCommitMessage(commitId));
+
+    // Test commit with amend flag
+    String amendedMessage = "Initial commit (amended)";
+
+    uiGit.commit(author.toExternalString(), amendedMessage, true);
+    String amendedCommitId = uiGit.getCommitId(Constants.HEAD);
+
+    assertEquals(amendedMessage, uiGit.getCommitMessage(amendedCommitId));
+    List<ObjectRevision> revisions = uiGit.getRevisions();
+    assertEquals(revisions.size(), 1L);
   }
 
   @Test
