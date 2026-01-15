@@ -900,7 +900,9 @@ public class TestingGuiPlugin {
             hopGui.getMetadataProvider(),
             PipelineUnitTest.class,
             hopGui.getShell());
-    if (manager.editMetadata(unitTest.getName())) {
+    if (unitTest != null
+        && !Utils.isEmpty(unitTest.getName())
+        && manager.editMetadata(unitTest.getName())) {
       // Activate the test
       refreshUnitTestsList();
       selectUnitTest(pipelineMeta, unitTest);
@@ -1292,6 +1294,9 @@ public class TestingGuiPlugin {
 
     try {
       PipelineUnitTest unitTest = getUnitTestFromContext(context);
+      if (unitTest == null) {
+        return;
+      }
       PipelineUnitTestTweak unitTestTweak = unitTest.findTweak(transformMeta.getName());
       if (unitTestTweak != null) {
         unitTest.getTweaks().remove(unitTestTweak);
@@ -1401,7 +1406,7 @@ public class TestingGuiPlugin {
   public void switchUnitTest(PipelineUnitTest targetTest, PipelineMeta pipelineMeta) {
     try {
       TestingGuiPlugin.getInstance().detachUnitTest();
-      TestingGuiPlugin.getInstance().selectUnitTest(pipelineMeta, targetTest);
+      TestingGuiPlugin.selectUnitTest(pipelineMeta, targetTest);
     } catch (Exception exception) {
       new ErrorDialog(
           HopGui.getInstance().getShell(),
