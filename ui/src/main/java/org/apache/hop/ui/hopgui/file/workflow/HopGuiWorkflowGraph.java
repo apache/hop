@@ -3381,6 +3381,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_START, !running);
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_STOP, running);
 
+              // Enable/disable the navigate to execution info button
+              //
+              boolean hasExecutionInfoLocations = false;
+              try {
+                IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+                    hopGui.getMetadataProvider().getSerializer(ExecutionInfoLocation.class);
+                List<String> locationNames = serializer.listObjectNames();
+                hasExecutionInfoLocations = !locationNames.isEmpty();
+              } catch (Exception e) {
+                // Ignore, button will be disabled
+              }
+              toolBarWidgets.enableToolbarItem(
+                  TOOLBAR_ITEM_TO_EXECUTION_INFO, hasExecutionInfoLocations);
+
               hopGui.setUndoMenu(workflowMeta);
               hopGui.handleFileCapabilities(fileType, workflowMeta.hasChanged(), running, false);
 

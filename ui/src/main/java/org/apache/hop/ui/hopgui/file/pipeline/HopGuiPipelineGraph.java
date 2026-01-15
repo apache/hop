@@ -5213,6 +5213,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_STOP, running);
               toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_PAUSE, running && !paused);
 
+              // Enable/disable the navigate to execution info button
+              //
+              boolean hasExecutionInfoLocations = false;
+              try {
+                IHopMetadataSerializer<ExecutionInfoLocation> serializer =
+                    hopGui.getMetadataProvider().getSerializer(ExecutionInfoLocation.class);
+                List<String> locationNames = serializer.listObjectNames();
+                hasExecutionInfoLocations = !locationNames.isEmpty();
+              } catch (Exception e) {
+                // Ignore, button will be disabled
+              }
+              toolBarWidgets.enableToolbarItem(
+                  TOOLBAR_ITEM_TO_EXECUTION_INFO, hasExecutionInfoLocations);
+
               hopGui.setUndoMenu(pipelineMeta);
               hopGui.handleFileCapabilities(fileType, pipelineMeta.hasChanged(), running, paused);
 
