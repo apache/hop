@@ -558,6 +558,32 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     }
   }
 
+  /**
+   * Get text from a toolbar item. Handles both SWT (desktop) and RWT (web) environments. In SWT,
+   * gets text directly from the ToolItem. In RWT, gets text from the separate text Label.
+   *
+   * @param id The ID of the toolbar item
+   * @return The text on the toolbar item, or empty string if not found
+   */
+  public String getToolbarItemText(String id) {
+    ToolItem toolItem = toolItemMap.get(id);
+    if (toolItem == null || toolItem.isDisposed()) {
+      return "";
+    }
+
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // In web/RWT, get text from the separate text label
+      Label textLabel = textLabelMap.get(id);
+      if (textLabel != null && !textLabel.isDisposed()) {
+        return Const.NVL(textLabel.getText(), "");
+      }
+      return "";
+    } else {
+      // In SWT, get text directly from the ToolItem
+      return Const.NVL(toolItem.getText(), "");
+    }
+  }
+
   public void refreshComboItemList(String id) {
     GuiToolbarItem item = guiToolBarMap.get(id);
     if (item != null) {
