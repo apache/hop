@@ -183,30 +183,30 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
             lsMod,
             props);
 
-    Button wGetLU = new Button(keysComp, SWT.PUSH);
-    wGetLU.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.GetLookupFields.Button"));
-    FormData fdGetLU = new FormData();
-    fdGetLU.right = new FormAttachment(100, -margin); // Attach to right edge
-    fdGetLU.width = 120;
+    Button wGet = new Button(keysComp, SWT.PUSH);
+    wGet.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.GetLookupFields.Button"));
+    FormData fdGet = new FormData();
+    fdGet.right = new FormAttachment(100, -margin); // Attach to right edge
+    fdGet.width = 120;
     // Vertically center after TableView is packed
-    wGetLU.setLayoutData(fdGetLU);
+    wGet.setLayoutData(fdGet);
 
     FormData fdKey = new FormData();
     fdKey.left = new FormAttachment(0, 0);
     fdKey.top = new FormAttachment(wlKey, margin); // No margin above TableView
-    fdKey.right = new FormAttachment(wGetLU, -margin); // No margin to the right
+    fdKey.right = new FormAttachment(wGet, -margin); // No margin to the right
     fdKey.bottom = new FormAttachment(100, -margin); // No margin below TableView
     wKey.setLayoutData(fdKey);
 
     // After packing, center button vertically to TableView
     keysComp.pack();
     Rectangle keyBounds = wKey.getBounds();
-    Rectangle btnBounds = wGetLU.getBounds();
+    Rectangle btnBounds = wGet.getBounds();
     int tableMidY = keyBounds.y + keyBounds.height / 2;
     int btnMidY = btnBounds.height / 2;
     int btnTop = Math.max(tableMidY - btnMidY, margin);
-    fdGetLU.top = new FormAttachment(0, btnTop);
-    wGetLU.setLayoutData(fdGetLU);
+    fdGet.top = new FormAttachment(0, btnTop);
+    wGet.setLayoutData(fdGet);
 
     FormData fdKeysComp = new FormData();
     fdKeysComp.left = new FormAttachment(0, 0);
@@ -221,7 +221,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     wKeySComp.setMinWidth(keysComp.getBounds().width);
     wKeySComp.setMinHeight(keysComp.getBounds().height);
 
-    wGetLU.addListener(SWT.Selection, e -> getlookup());
+    wGet.addListener(SWT.Selection, e -> get());
     wKeysTab.setControl(wKeySComp);
   }
 
@@ -432,8 +432,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     fdlReturn.top = new FormAttachment(0, margin);
     wlReturn.setLayoutData(fdlReturn);
 
-    Button wGet = new Button(fieldFieldsComp, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.GetFields.Button"));
+    Button wGetLU = new Button(fieldFieldsComp, SWT.PUSH);
+    wGetLU.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.GetFields.Button"));
 
     int upInsCols = 5;
     int upInsRows =
@@ -495,13 +495,13 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     fdReturn.bottom = new FormAttachment(wlReturn, (int) (200 * props.getZoomFactor()));
     wReturn.setLayoutData(fdReturn);
 
-    FormData fdGet = new FormData();
-    fdGet.left = new FormAttachment(wReturn, margin); // Button to the right of TableView
-    fdGet.top =
+    FormData fdGetLU = new FormData();
+    fdGetLU.left = new FormAttachment(wReturn, margin); // Button to the right of TableView
+    fdGetLU.top =
         new FormAttachment(wReturn, 0, SWT.CENTER); // Center vertically with respect to TableView
-    fdGet.right = new FormAttachment(100, 0);
-    fdGet.width = 120; // Fixed width for button
-    wGet.setLayoutData(fdGet);
+    fdGetLU.right = new FormAttachment(100, 0);
+    fdGetLU.width = 120; // Fixed width for button
+    wGetLU.setLayoutData(fdGetLU);
 
     // EatRows?
     Label wlEatRows = new Label(fieldFieldsComp, SWT.RIGHT);
@@ -584,6 +584,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     wFieldsSComp.setExpandVertical(true);
     wFieldsSComp.setMinWidth(bounds.width);
     wFieldsSComp.setMinHeight(bounds.height);
+
+    wGetLU.addListener(SWT.Selection, e -> getlookup());
 
     wFieldsTab.setControl(wFieldsSComp);
   }
@@ -866,7 +868,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
       if (log.isDebug()) {
         logDebug(
             BaseMessages.getString(PKG, "DatabaseLookupDialog.Log.LookingAtConnection")
-                + databaseMeta.toString());
+                + databaseMeta);
       }
 
       DatabaseExplorerDialog std =
