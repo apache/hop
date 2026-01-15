@@ -296,6 +296,10 @@ public class TextVar extends Composite {
     return wText.setFocus();
   }
 
+  public void setMessage(String message) {
+    wText.setMessage(message);
+  }
+
   @Override
   public void addTraverseListener(TraverseListener tl) {
     wText.addTraverseListener(tl);
