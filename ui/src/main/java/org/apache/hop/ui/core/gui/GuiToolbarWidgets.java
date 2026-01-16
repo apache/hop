@@ -547,7 +547,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         Composite composite = (Composite) widgetsMap.get(id);
         if (composite != null && !composite.isDisposed()) {
           composite.pack();
-          toolItem.setWidth(composite.getSize().x);
+          // Add extra margin to the right for spacing between toolbar items
+          int extraMargin = !Utils.isEmpty(textToSet) ? 10 : 0;
+          toolItem.setWidth(composite.getSize().x + extraMargin);
 
           // Force layout update
           ToolBar toolbar = toolItem.getParent();
@@ -559,6 +561,32 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     } else {
       // In SWT, set text directly on the ToolItem
       toolItem.setText(Const.NVL(text, ""));
+    }
+  }
+
+  /**
+   * Get text from a toolbar item. Handles both SWT (desktop) and RWT (web) environments. In SWT,
+   * gets text directly from the ToolItem. In RWT, gets text from the separate text Label.
+   *
+   * @param id The ID of the toolbar item
+   * @return The text on the toolbar item, or empty string if not found
+   */
+  public String getToolbarItemText(String id) {
+    ToolItem toolItem = toolItemMap.get(id);
+    if (toolItem == null || toolItem.isDisposed()) {
+      return "";
+    }
+
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // In web/RWT, get text from the separate text label
+      Label textLabel = textLabelMap.get(id);
+      if (textLabel != null && !textLabel.isDisposed()) {
+        return Const.NVL(textLabel.getText(), "");
+      }
+      return "";
+    } else {
+      // In SWT, get text directly from the ToolItem
+      return Const.NVL(toolItem.getText(), "");
     }
   }
 

@@ -419,7 +419,9 @@ public class ProjectsGuiPlugin {
       image = "ui/images/edit.svg")
   public void editProject() {
     HopGui hopGui = HopGui.getInstance();
-    String projectName = getProjectToolItem().getText();
+    // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+    String projectName =
+        hopGui.getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
@@ -516,8 +518,10 @@ public class ProjectsGuiPlugin {
     menuWidgets.createMenuWidgets(ID_CONTEXT_MENU_PROJECT, shell, menu);
 
     // Enable menus if a project is active.
-    //
-    boolean enabled = !"".equals(getProjectToolItem().getText());
+    // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+    String projectText =
+        HopGui.getInstance().getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
+    boolean enabled = !"".equals(projectText);
     menuWidgets.enableMenuItem(ID_CONTEXT_MENU_PROJECT_EDIT, enabled);
     menuWidgets.enableMenuItem(ID_CONTEXT_MENU_PROJECT_DELETE, enabled);
 
@@ -564,16 +568,25 @@ public class ProjectsGuiPlugin {
     menuWidgets.createMenuWidgets(ID_CONTEXT_MENU_ENVIRONMENT, shell, menu);
 
     // Enable menus if an environment is active.
-    //
-    boolean enabled = !"".equals(getEnvironmentToolItem().getText());
+    // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+    String environmentText =
+        HopGui.getInstance()
+            .getStatusToolbarWidgets()
+            .getToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT);
+    boolean enabled = !"".equals(environmentText);
     menuWidgets.enableMenuItem(ID_CONTEXT_MENU_ENVIRONMENT_EDIT, enabled);
     menuWidgets.enableMenuItem(ID_CONTEXT_MENU_ENVIRONMENT_DUPLICATE, enabled);
     menuWidgets.enableMenuItem(ID_CONTEXT_MENU_ENVIRONMENT_DELETE, enabled);
 
     new MenuItem(menu, SWT.SEPARATOR);
 
-    String currentProjectName = getProjectToolItem().getText();
-    String currentEnvironmentName = getEnvironmentToolItem().getText();
+    // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+    String currentProjectName =
+        HopGui.getInstance().getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
+    String currentEnvironmentName =
+        HopGui.getInstance()
+            .getStatusToolbarWidgets()
+            .getToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT);
 
     // Display list of environments
     //
@@ -583,12 +596,17 @@ public class ProjectsGuiPlugin {
 
       // Exclude environment linked to another project
       LifecycleEnvironment environment = config.findEnvironment(name);
-      if (Utils.isEmpty(environment.getProjectName())
-          || currentProjectName.equals(environment.getProjectName())) {
+      if (environment != null
+          && (Utils.isEmpty(environment.getProjectName())
+              || currentProjectName.equals(environment.getProjectName()))) {
+        // Create a final copy of the name variable for the lambda closure
+        // This is critical for RAP/web compatibility - each menu item needs its own copy
+        final String environmentName = name;
         MenuItem item = new MenuItem(menu, SWT.NONE);
-        item.setText(name);
-        item.addListener(SWT.Selection, e -> selectEnvironment(name));
-        if (currentEnvironmentName.equals(name)) {
+        item.setText(environmentName);
+        // Match projects exactly - use addListener with lambda (projects work this way)
+        item.addListener(SWT.Selection, e -> selectEnvironment(environmentName));
+        if (currentEnvironmentName.equals(environmentName)) {
           item.setImage(GuiResource.getInstance().getImageCheck());
         }
       }
@@ -862,7 +880,9 @@ public class ProjectsGuiPlugin {
       toolTip = "i18n::HopGui.Toolbar.Project.Delete.Tooltip",
       image = "ui/images/delete.svg")
   public void deleteProject() {
-    String projectName = getProjectToolItem().getText();
+    // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+    String projectName =
+        HopGui.getInstance().getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
     if (StringUtils.isEmpty(projectName)) {
       return;
     }
@@ -953,7 +973,12 @@ public class ProjectsGuiPlugin {
       image = "ui/images/edit.svg")
   public void editEnvironment() {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    LifecycleEnvironment environment = config.findEnvironment(getEnvironmentToolItem().getText());
+    // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+    String environmentName =
+        HopGui.getInstance()
+            .getStatusToolbarWidgets()
+            .getToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT);
+    LifecycleEnvironment environment = config.findEnvironment(environmentName);
     if (environment != null) {
       this.editEnvironment(environment);
     }
@@ -1002,7 +1027,11 @@ public class ProjectsGuiPlugin {
     }
     String projectName = environment.getProjectName();
     if (StringUtils.isEmpty(projectName)) {
-      projectName = getProjectToolItem().getText();
+      // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+      projectName =
+          HopGui.getInstance()
+              .getStatusToolbarWidgets()
+              .getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
     }
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig == null) {
@@ -1035,7 +1064,11 @@ public class ProjectsGuiPlugin {
     HopGui hopGui = HopGui.getInstance();
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-      String projectName = getProjectToolItem().getText(); // The default is the active project
+      // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+      String projectName =
+          HopGui.getInstance()
+              .getStatusToolbarWidgets()
+              .getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT); // The default is the active project
 
       LifecycleEnvironment environment =
           new LifecycleEnvironment(null, "", projectName, new ArrayList<>());
@@ -1073,7 +1106,12 @@ public class ProjectsGuiPlugin {
       image = "ui/images/duplicate.svg")
   public void duplicateEnvironment() {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-    LifecycleEnvironment environment = config.findEnvironment(getEnvironmentToolItem().getText());
+    // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+    String environmentName =
+        HopGui.getInstance()
+            .getStatusToolbarWidgets()
+            .getToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT);
+    LifecycleEnvironment environment = config.findEnvironment(environmentName);
     if (environment == null) {
       return;
     }
@@ -1092,7 +1130,11 @@ public class ProjectsGuiPlugin {
       image = "ui/images/delete.svg")
   public void deleteEnvironment() {
     HopGui hopGui = HopGui.getInstance();
-    String environmentName = getEnvironmentToolItem().getText();
+    // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+    String environmentName =
+        HopGui.getInstance()
+            .getStatusToolbarWidgets()
+            .getToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT);
     if (StringUtils.isEmpty(environmentName)) {
       return;
     }
@@ -1117,7 +1159,11 @@ public class ProjectsGuiPlugin {
     int answer = box.open();
     if ((answer & SWT.YES) != 0) {
       try {
-        String projectName = getProjectToolItem().getText(); // The default is the active project
+        // Use getToolbarItemText() for RAP compatibility (text is stored in Label, not ToolItem)
+        String projectName =
+            HopGui.getInstance()
+                .getStatusToolbarWidgets()
+                .getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT); // The default is the active project
         ProjectConfig projectConfig = config.findProjectConfig(projectName);
         Project project = projectConfig.loadProject(hopGui.getVariables());
 
