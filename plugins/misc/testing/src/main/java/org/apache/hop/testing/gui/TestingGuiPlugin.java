@@ -112,6 +112,8 @@ public class TestingGuiPlugin {
 
   private static TestingGuiPlugin instance = null;
 
+  private static final ILogChannel log = LogChannel.GENERAL;
+
   public TestingGuiPlugin() {
     // Do nothing
   }
@@ -871,6 +873,9 @@ public class TestingGuiPlugin {
       // Update the GUI
       //
       pipelineGraph.updateGui();
+
+      // Enable/disable buttons based on selection
+      enableUnitTestButtons();
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
@@ -892,7 +897,30 @@ public class TestingGuiPlugin {
     if (pipelineMeta == null) {
       return;
     }
-    PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
+    Combo combo = getUnitTestsCombo();
+    if (combo == null) {
+      return;
+    }
+    if (StringUtils.isEmpty(combo.getText())) {
+      return;
+    }
+
+    String unitTestName = combo.getText();
+
+    // Load the unit test to verify it exists
+    PipelineUnitTest unitTest = null;
+    try {
+      IHopMetadataSerializer<PipelineUnitTest> testSerializer =
+          hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class);
+      unitTest = testSerializer.load(unitTestName);
+    } catch (Exception e) {
+      log.logError("Error loading unit test: " + unitTestName, e);
+      return;
+    }
+
+    if (unitTest == null || Utils.isEmpty(unitTest.getName())) {
+      return;
+    }
 
     MetadataManager<PipelineUnitTest> manager =
         new MetadataManager<>(
@@ -900,12 +928,25 @@ public class TestingGuiPlugin {
             hopGui.getMetadataProvider(),
             PipelineUnitTest.class,
             hopGui.getShell());
-    if (unitTest != null
-        && !Utils.isEmpty(unitTest.getName())
-        && manager.editMetadata(unitTest.getName())) {
+    if (manager.editMetadata(unitTest.getName())) {
       // Activate the test
       refreshUnitTestsList();
-      selectUnitTest(pipelineMeta, unitTest);
+
+      // Reload the unit test and select it
+      try {
+        IHopMetadataSerializer<PipelineUnitTest> testSerializer =
+            hopGui.getMetadataProvider().getSerializer(PipelineUnitTest.class);
+        PipelineUnitTest reloadedTest = testSerializer.load(unitTestName);
+        if (reloadedTest != null) {
+          selectUnitTest(pipelineMeta, reloadedTest);
+        }
+      } catch (Exception e) {
+        // Log but don't fail
+        log.logError("Error reloading unit test after edit", e);
+      }
+
+      // Enable/disable buttons based on selection
+      enableUnitTestButtons();
     }
   }
 
@@ -939,6 +980,9 @@ public class TestingGuiPlugin {
       // Activate the test
       refreshUnitTestsList();
       selectUnitTest(pipelineMeta, test);
+
+      // Enable/disable buttons based on selection
+      enableUnitTestButtons();
     }
   }
 
@@ -995,6 +1039,9 @@ public class TestingGuiPlugin {
       testSerializer.delete(pipelineUnitTest.getName());
 
       refreshUnitTestsList();
+
+      // Enable/disable buttons based on selection
+      enableUnitTestButtons();
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
@@ -1017,12 +1064,52 @@ public class TestingGuiPlugin {
     return null;
   }
 
+  /**
+   * Enable or disable the unit test buttons (Edit, Detach, Delete) based on whether a unit test is
+   * selected.
+   */
+  public void enableUnitTestButtons() {
+    HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
+    if (pipelineGraph == null) {
+      return;
+    }
+
+    // Check if toolbar widgets are available
+    if (pipelineGraph.getToolBarWidgets() == null) {
+      return;
+    }
+
+    Combo combo = getUnitTestsCombo();
+    boolean hasSelection = combo != null && !StringUtils.isEmpty(combo.getText());
+
+    if (log.isDebug()) {
+      log.logDebug(
+          "Enabling unit test buttons: hasSelection="
+              + hasSelection
+              + ", comboText="
+              + (combo != null ? combo.getText() : "null"));
+    }
+
+    pipelineGraph
+        .getToolBarWidgets()
+        .enableToolbarItem(ID_TOOLBAR_ITEM_UNIT_TEST_EDIT, hasSelection);
+    pipelineGraph
+        .getToolBarWidgets()
+        .enableToolbarItem(ID_TOOLBAR_ITEM_UNIT_TEST_DETACH, hasSelection);
+    pipelineGraph
+        .getToolBarWidgets()
+        .enableToolbarItem(ID_TOOLBAR_ITEM_UNIT_TESTS_DELETE, hasSelection);
+  }
+
   public static void refreshUnitTestsList() {
     HopGuiPipelineGraph pipelineGraph = HopGui.getActivePipelineGraph();
     if (pipelineGraph == null) {
       return;
     }
     pipelineGraph.getToolBarWidgets().refreshComboItemList(ID_TOOLBAR_UNIT_TESTS_COMBO);
+
+    // Update button states after refresh
+    getInstance().enableUnitTestButtons();
   }
 
   public static void selectUnitTestInList(String name) {
@@ -1178,6 +1265,9 @@ public class TestingGuiPlugin {
         // Update the pipeline graph
         hopGui.getActiveFileTypeHandler().updateGui();
       }
+
+      // Enable/disable buttons based on selection
+      enableUnitTestButtons();
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),

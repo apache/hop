@@ -642,8 +642,12 @@ public class GuiCompositeWidgets {
         // New layout: control goes on the right, aligned with the row below the label
         fdControl.top = new FormAttachment(label, PropsUi.getMargin() / 2);
       } else {
-        // Old layout: control aligned with label (center)
-        fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
+        // Old layout: control aligned with lastControl to maintain proper vertical spacing
+        if (lastControl != null) {
+          fdControl.top = new FormAttachment(lastControl, PropsUi.getMargin());
+        } else {
+          fdControl.top = new FormAttachment(0, PropsUi.getMargin());
+        }
       }
     } else {
       if (lastControl != null) {
@@ -681,7 +685,12 @@ public class GuiCompositeWidgets {
         } else {
           fdControl.right = new FormAttachment(rightControl, -5);
         }
-        fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
+        // Attach to lastControl to create proper vertical spacing between widgets
+        if (lastControl != null) {
+          fdControl.top = new FormAttachment(lastControl, PropsUi.getMargin());
+        } else {
+          fdControl.top = new FormAttachment(0, PropsUi.getMargin());
+        }
       }
     } else {
       // No label
