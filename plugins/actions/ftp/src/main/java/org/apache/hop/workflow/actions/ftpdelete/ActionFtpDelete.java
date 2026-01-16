@@ -550,7 +550,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     try {
 
       // Get all the files in the current directory...
-      String[] filelist = null;
+      ArrayList<FileItem> filelist = null;
       if (protocol.equals(PROTOCOL_FTP)) {
 
         // establish the connection

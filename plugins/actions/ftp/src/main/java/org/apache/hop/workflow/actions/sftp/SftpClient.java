@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Date;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.FileUtil;
@@ -183,38 +186,42 @@ public class SftpClient {
     }
   }
 
-  public String[] dir() throws HopWorkflowException {
-    String[] fileList = null;
+  public ArrayList<FileItem> dir() throws HopWorkflowException {
+    // String[] fileList = null;
+    ArrayList<FileItem> remoteFiles = new ArrayList<>();
 
     try {
       java.util.Vector<?> v = c.ls(".");
-      java.util.Vector<String> o = new java.util.Vector<>();
+//      java.util.Vector<String> o = new java.util.Vector<>();
       if (v != null) {
         for (int i = 0; i < v.size(); i++) {
           Object obj = v.elementAt(i);
           if (obj != null
               && obj instanceof com.jcraft.jsch.ChannelSftp.LsEntry lse
               && !lse.getAttrs().isDir()) {
-            o.add(lse.getFilename());
+            remoteFiles.add(new FileItem(lse.getFilename(), lse.getAttrs().getMTime()));
           }
         }
       }
-      if (!o.isEmpty()) {
-        fileList = new String[o.size()];
-        o.copyInto(fileList);
-      }
+//      if (!o.isEmpty()) {
+//        fileList = new String[o.size()];
+//        o.copyInto(fileList);
+//      }
     } catch (SftpException e) {
       throw new HopWorkflowException(e);
     }
 
-    return fileList;
+    return remoteFiles;
   }
 
-  public void get(FileObject localFile, String remoteFile) throws HopWorkflowException {
+  public void get(FileObject localFile, FileItem remoteFile, boolean preserveTimestamp) throws HopWorkflowException {
     OutputStream localStream = null;
     try {
       localStream = HopVfs.getOutputStream(localFile, false);
-      c.get(remoteFile, localStream);
+      c.get(remoteFile.getFileName(), localStream);
+      if (preserveTimestamp) {
+        localFile.getContent().setLastModifiedTime(remoteFile.getLastModified());
+      }
     } catch (SftpException | IOException e) {
       throw new HopWorkflowException(e);
     } finally {
