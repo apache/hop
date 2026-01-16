@@ -930,6 +930,12 @@ public class TestingGuiPlugin {
             hopGui.getShell());
     PipelineUnitTest test = manager.newMetadata();
     if (test != null) {
+      // If the user clicks Cancel or closes the window,
+      // the current unit test will not be added to the list.
+      if (Utils.isEmpty(test.getMetadataProviderName())) {
+        return;
+      }
+
       // Activate the test
       refreshUnitTestsList();
       selectUnitTest(pipelineMeta, test);
