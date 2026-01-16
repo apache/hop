@@ -564,11 +564,11 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     wAdvancedSettings.setText(
         BaseMessages.getString(PKG, "ActionFtpDelete.AdvancedSettings.Group.Label"));
 
-    FormLayout advancedSettingsgroupLayout = new FormLayout();
-    advancedSettingsgroupLayout.marginWidth = 10;
-    advancedSettingsgroupLayout.marginHeight = 10;
+    FormLayout advancedSettingsGroupLayout = new FormLayout();
+    advancedSettingsGroupLayout.marginWidth = 10;
+    advancedSettingsGroupLayout.marginHeight = 10;
 
-    wAdvancedSettings.setLayout(advancedSettingsgroupLayout);
+    wAdvancedSettings.setLayout(advancedSettingsGroupLayout);
 
     // Timeout line
     wTimeout =
@@ -975,10 +975,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     if (wProtocol.getText().equals(ActionFtpDelete.PROTOCOL_FTP)) {
       wSocksProxy.setEnabled(true);
     } else {
-      wUsePublicKey.setSelection(false);
       activeUsePublicKey();
-      wlUsePublicKey.setEnabled(false);
-      wUsePublicKey.setEnabled(false);
       wSocksProxy.setEnabled(false);
     }
   }
