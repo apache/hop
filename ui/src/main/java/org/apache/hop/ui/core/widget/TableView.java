@@ -116,6 +116,12 @@ public class TableView extends Composite {
     if (toolbar != null) {
       toolbar.setEnabled(enabled);
     }
+
+    // Cleanup active editors when disabling the table
+    if (!enabled) {
+      closeActiveEditors();
+    }
+
     this.table.setEnabled(enabled);
   }
 
@@ -2300,20 +2306,9 @@ public class TableView extends Composite {
     int[] items = table.getSelectionIndices();
     table.setSelection(items);
 
-    // Check if there is an active editor and save its value before deleting rows
+    // Close any active editors before deleting rows
     // This prevents the editor value from being saved to the wrong row
-    if (text != null && !text.isDisposed() && lsFocusText != null) {
-      lsFocusText.focusLost(null);
-      // Text focus lost handler disposes the control itself
-    } else if (combo != null && !combo.isDisposed() && lsFocusCombo != null) {
-      lsFocusCombo.focusLost(null);
-      // Combo focus lost handler doesn't dispose, so we need to do it
-      safelyDisposeControl(combo);
-    } else if (comboVar != null && !comboVar.isDisposed() && lsFocusCombo != null) {
-      lsFocusCombo.focusLost(null);
-      // ComboVar focus lost handler doesn't dispose, so we need to do it
-      safelyDisposeControl(comboVar);
-    }
+    closeActiveEditors();
 
     if (items.length == 0) {
       return;
@@ -2409,20 +2404,9 @@ public class TableView extends Composite {
     ta.setDelete(before, itemsToDelete);
     addUndo(ta);
 
-    // Check if there is an active editor and save its value before deleting rows
+    // Close any active editors before deleting rows
     // This prevents the editor value from being saved to the wrong row
-    if (text != null && !text.isDisposed() && lsFocusText != null) {
-      lsFocusText.focusLost(null);
-      // Text focus lost handler disposes the control itself
-    } else if (combo != null && !combo.isDisposed() && lsFocusCombo != null) {
-      lsFocusCombo.focusLost(null);
-      // Combo focus lost handler doesn't dispose, so we need to do it
-      safelyDisposeControl(combo);
-    } else if (comboVar != null && !comboVar.isDisposed() && lsFocusCombo != null) {
-      lsFocusCombo.focusLost(null);
-      // ComboVar focus lost handler doesn't dispose, so we need to do it
-      safelyDisposeControl(comboVar);
-    }
+    closeActiveEditors();
 
     // Delete non-selected items.
     table.remove(itemsToDelete);
@@ -3498,6 +3482,61 @@ public class TableView extends Composite {
     if (combo != null && !combo.isDisposed()) {
       combo.dispose();
       combo = null;
+    }
+  }
+
+  /**
+   * Closes and cleans up any active editors in the table. This method should be called when you
+   * need to ensure that no editors are active, such as when disabling the table, deleting rows, or
+   * performing other operations that require a clean state.
+   *
+   * <p>This method:
+   *
+   * <ul>
+   *   <li>Triggers focus lost handlers to save any pending edits
+   *   <li>Safely disposes all active editor controls (text, combo, comboVar, button)
+   *   <li>Cleans up the TableEditor's active control
+   * </ul>
+   */
+  public void closeActiveEditors() {
+    // Check if there is an active text editor and save its value
+    if (text != null && !text.isDisposed() && lsFocusText != null) {
+      lsFocusText.focusLost(null);
+      // Text focus lost handler disposes the control itself
+    }
+
+    // Check if there is an active combo editor and save its value
+    if (combo != null && !combo.isDisposed() && lsFocusCombo != null) {
+      lsFocusCombo.focusLost(null);
+      // Combo focus lost handler doesn't dispose, so we need to do it
+      safelyDisposeControl(combo);
+      combo = null;
+    }
+
+    // Check if there is an active comboVar editor and save its value
+    if (comboVar != null && !comboVar.isDisposed() && lsFocusCombo != null) {
+      lsFocusCombo.focusLost(null);
+      // ComboVar focus lost handler doesn't dispose, so we need to do it
+      safelyDisposeControl(comboVar);
+      comboVar = null;
+    }
+
+    // Close any active button
+    if (button != null && !button.isDisposed()) {
+      button.dispose();
+      button = null;
+    }
+
+    // Clean up the table editor's active control
+    if (editor != null) {
+      Control oldEditor = editor.getEditor();
+      if (oldEditor != null && !oldEditor.isDisposed()) {
+        try {
+          oldEditor.dispose();
+        } catch (SWTException swte) {
+          // Eat "Widget Is Disposed Exception"
+        }
+      }
     }
   }
 
