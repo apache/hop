@@ -543,7 +543,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         Composite composite = (Composite) widgetsMap.get(id);
         if (composite != null && !composite.isDisposed()) {
           composite.pack();
-          toolItem.setWidth(composite.getSize().x);
+          // Add extra margin to the right for spacing between toolbar items
+          int extraMargin = !Utils.isEmpty(textToSet) ? 10 : 0;
+          toolItem.setWidth(composite.getSize().x + extraMargin);
 
           // Force layout update
           ToolBar toolbar = toolItem.getParent();
