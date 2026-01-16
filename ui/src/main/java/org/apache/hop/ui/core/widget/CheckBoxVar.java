@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
@@ -76,6 +77,8 @@ public class CheckBoxVar extends Composite {
         .getTextWidget()
         .setBackground(composite.getBackground()); // make it blend in with the rest...
     wText.setText(Const.NVL(variable, ""));
+    wText.setMessage(BaseMessages.getString(PKG, "CheckBoxVar.Message.Label"));
+    wText.setToolTipText(BaseMessages.getString(PKG, "CheckBoxVar.Message.ToolTip"));
 
     FormData fdBox = new FormData();
     fdBox.top = new FormAttachment(wText, 0, SWT.CENTER);
