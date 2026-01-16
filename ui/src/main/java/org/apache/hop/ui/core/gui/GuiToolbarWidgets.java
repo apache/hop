@@ -453,6 +453,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           SvgLabelFacade.enable(toolItem, uniqueId, imageLabel, enabled);
         }
       }
+      // Also update the ToolItem state for consistency
+      if (enabled != toolItem.isEnabled()) {
+        toolItem.setEnabled(enabled);
+      }
     } else {
       if (enabled != toolItem.isEnabled()) {
         toolItem.setEnabled(enabled);
