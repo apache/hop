@@ -433,7 +433,11 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
 
           FileObject targetFile =
               HopVfs.getFileObject(realTargetDirectory + Const.FILE_SEPARATOR + sourceFilename);
-          sftpClient.get(targetFile, filelist.get(i), preserveTargetFileTimestamp);
+          sftpClient.get(targetFile, filelist.get(i));
+          if (preserveTargetFileTimestamp) {
+            targetFile.getContent().setLastModifiedTime(filelist.get(i).getLastModified());
+          }
+
           filesRetrieved++;
 
           if (addFilenameToResult) {
@@ -452,14 +456,16 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
             }
           }
           if (isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.TransferedFile", sourceFilename));
+            logDetailed(
+                BaseMessages.getString(PKG, "ActionSftp.Log.TransferedFile", sourceFilename));
           }
 
           // Delete the file if this is needed!
           if (remove) {
             sftpClient.delete(sourceFilename);
             if (isDetailed()) {
-              logDetailed(BaseMessages.getString(PKG, "ActionSftp.Log.DeletedFile", sourceFilename));
+              logDetailed(
+                  BaseMessages.getString(PKG, "ActionSftp.Log.DeletedFile", sourceFilename));
             }
           }
         }

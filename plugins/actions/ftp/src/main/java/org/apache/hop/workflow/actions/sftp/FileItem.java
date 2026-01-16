@@ -20,24 +20,20 @@ package org.apache.hop.workflow.actions.sftp;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
-
-@Getter @Setter
+@Getter
+@Setter
 public class FileItem {
 
-    private String fileName;
-    private long lastModified;
+  private String fileName;
+  private long lastModified;
 
-    public FileItem(String fileName, long lastModified) {
-        this.fileName = fileName;
-        this.lastModified = lastModified;
-    }
+  public FileItem(String fileName, long lastModified) {
+    this.fileName = fileName;
+    this.lastModified = lastModified;
+  }
 
-    @Override
-    public String toString() {
-        return "RemoteFile{" +
-                "fileName='" + fileName + '\'' +
-                ", lastModified=" + lastModified +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "RemoteFile{" + "fileName='" + fileName + '\'' + ", lastModified=" + lastModified + '}';
+  }
 }

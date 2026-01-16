@@ -751,9 +751,8 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wlCompression);
     FormData fdlCompression = new FormData();
     fdlCompression.left = new FormAttachment(0, -margin);
-    fdlCompression.bottom = new FormAttachment(0, -margin);
-    fdlCompression.right = new FormAttachment(middle, 0);
     fdlCompression.top = new FormAttachment(wServerSettings, margin);
+    fdlCompression.right = new FormAttachment(middle, 0);
     wlCompression.setLayoutData(fdlCompression);
 
     wCompression = new CCombo(wGeneralComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
