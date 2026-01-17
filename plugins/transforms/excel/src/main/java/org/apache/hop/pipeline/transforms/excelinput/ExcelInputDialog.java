@@ -818,21 +818,9 @@ public class ExcelInputDialog extends BaseTransformDialog {
           setFlags();
         });
 
-    Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wManualSchemaDefinition);
-    wManualSchemaDefinition.setText(
-        BaseMessages.getString(PKG, "ExcelInputDialog.ManualSchemaDefinition.Label"));
-
-    FormLayout manualSchemaDefinitionLayout = new FormLayout();
-    manualSchemaDefinitionLayout.marginWidth = 10;
-    manualSchemaDefinitionLayout.marginHeight = 10;
-    wManualSchemaDefinition.setLayout(manualSchemaDefinitionLayout);
-
-    wbGetFields = new Button(wManualSchemaDefinition, SWT.PUSH | SWT.CENTER);
+    wbGetFields = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "ExcelInputDialog.GetFields.Button"));
-
-    setButtonPositions(new Button[] {wbGetFields}, margin, null);
 
     final int FieldsRows = input.getFields().size();
     int fieldsWidth = 600;
@@ -885,7 +873,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wFields =
         new TableView(
             variables,
-            wManualSchemaDefinition,
+            wFieldsComp,
             SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER,
             colinf,
             FieldsRows,
@@ -896,9 +884,9 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wIgnoreFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wbGetFields, -margin);
+    fdFields.bottom = new FormAttachment(wbGetFields, -margin * 2);
     wFields.setLayoutData(fdFields);
 
     FormData fdFieldsComp = new FormData();
@@ -908,14 +896,9 @@ public class ExcelInputDialog extends BaseTransformDialog {
     fdFieldsComp.bottom = new FormAttachment(100, 0);
     wFieldsComp.setLayoutData(fdFieldsComp);
 
-    wFieldsComp.layout();
+    setButtonPositions(new Button[] {wbGetFields}, margin, null);
 
-    FormData fdManualSchemaDefinitionComp = new FormData();
-    fdManualSchemaDefinitionComp.left = new FormAttachment(0, 0);
-    fdManualSchemaDefinitionComp.top = new FormAttachment(wIgnoreFields, 0);
-    fdManualSchemaDefinitionComp.right = new FormAttachment(100, 0);
-    fdManualSchemaDefinitionComp.bottom = new FormAttachment(100, 0);
-    wManualSchemaDefinition.setLayoutData(fdManualSchemaDefinitionComp);
+    wFieldsComp.layout();
 
     wFieldsTab.setControl(wFieldsComp);
     PropsUi.setLook(wFieldsComp);

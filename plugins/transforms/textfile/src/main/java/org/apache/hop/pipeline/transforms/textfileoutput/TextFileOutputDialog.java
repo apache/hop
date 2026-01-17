@@ -69,7 +69,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -1054,32 +1053,6 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wFieldsComp);
     wFieldsComp.setLayout(fieldsLayout);
 
-    Group fieldGroup = new Group(wFieldsComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(fieldGroup);
-    fieldGroup.setText(
-        BaseMessages.getString(PKG, "TextFileOutputDialog.ManualSchemaDefinition.Label"));
-
-    FormLayout fieldGroupGroupLayout = new FormLayout();
-    fieldGroupGroupLayout.marginWidth = 10;
-    fieldGroupGroupLayout.marginHeight = 10;
-    fieldGroup.setLayout(fieldGroupGroupLayout);
-
-    wGet = new Button(fieldGroup, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
-    wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
-
-    Button wMinWidth = new Button(fieldGroup, SWT.PUSH);
-    wMinWidth.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Button"));
-    wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Tooltip"));
-    wMinWidth.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
-    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
-
     wSchemaDefinition =
         new MetaSelectionLine<>(
             variables,
@@ -1123,6 +1096,21 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     fdIgnoreFields.right = new FormAttachment(100, 0);
     fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
     wIgnoreFields.setLayoutData(fdIgnoreFields);
+
+    wGet = new Button(wFieldsComp, SWT.PUSH);
+    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
+    wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
+
+    Button wMinWidth = new Button(wFieldsComp, SWT.PUSH);
+    wMinWidth.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Button"));
+    wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Tooltip"));
+    wMinWidth.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
 
     wIgnoreFields.addSelectionListener(
         new SelectionAdapter() {
@@ -1195,7 +1183,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wFields =
         new TableView(
             variables,
-            fieldGroup,
+            wFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -1204,9 +1192,9 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wIgnoreFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wGet, -margin);
+    fdFields.bottom = new FormAttachment(wGet, -margin * 2);
     wFields.setLayoutData(fdFields);
 
     //
@@ -1231,19 +1219,14 @@ public class TextFileOutputDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    FormData fdFieldGroup = new FormData();
-    fdFieldGroup.left = new FormAttachment(0, margin);
-    fdFieldGroup.top = new FormAttachment(wIgnoreFields, margin);
-    fdFieldGroup.right = new FormAttachment(100, -margin);
-    fdFieldGroup.bottom = new FormAttachment(100, 0);
-    fieldGroup.setLayoutData(fdFieldGroup);
-
     FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);
     fdFieldsComp.top = new FormAttachment(0, 0);
     fdFieldsComp.right = new FormAttachment(100, 0);
     fdFieldsComp.bottom = new FormAttachment(100, 0);
     wFieldsComp.setLayoutData(fdFieldsComp);
+
+    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);

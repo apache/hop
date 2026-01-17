@@ -1352,39 +1352,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     PropsUi.setLook(wFieldsComp);
     wFieldsComp.setLayout(fieldLayout);
 
-    Group fieldGroup = new Group(wFieldsComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(fieldGroup);
-    fieldGroup.setText(
-        BaseMessages.getString(PKG, "ExcelWriterDialog.ManualSchemaDefinition.Label"));
-
-    FormLayout fieldGroupGroupLayout = new FormLayout();
-    fieldGroupGroupLayout.marginWidth = 10;
-    fieldGroupGroupLayout.marginHeight = 10;
-    fieldGroup.setLayout(fieldGroupGroupLayout);
-
-    wGet = new Button(fieldGroup, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
-    wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
-
-    wMinWidth = new Button(fieldGroup, SWT.PUSH);
-    wMinWidth.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.MinWidth.Button"));
-    wMinWidth.setToolTipText(BaseMessages.getString(PKG, "ExcelWriterDialog.MinWidth.Tooltip"));
-
-    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
-
-    final int FieldsRows = input.getOutputFields().size();
-
-    // Prepare a list of possible formats, filtering reserved internal formats away
-
-    List<String> allFormats = Arrays.asList(BuiltinFormats.getAll());
-    List<String> nonReservedFormats = new ArrayList<>(allFormats.size());
-
-    for (String format : allFormats) {
-      if (!format.startsWith("reserved")) {
-        nonReservedFormats.add(format);
-      }
-    }
-
     wSchemaDefinition =
         new MetaSelectionLine<>(
             variables,
@@ -1438,6 +1405,27 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
           enableIgnorefiedls();
         });
 
+    wGet = new Button(wFieldsComp, SWT.PUSH);
+    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
+    wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
+
+    wMinWidth = new Button(wFieldsComp, SWT.PUSH);
+    wMinWidth.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.MinWidth.Button"));
+    wMinWidth.setToolTipText(BaseMessages.getString(PKG, "ExcelWriterDialog.MinWidth.Tooltip"));
+
+    final int FieldsRows = input.getOutputFields().size();
+
+    // Prepare a list of possible formats, filtering reserved internal formats away
+
+    List<String> allFormats = Arrays.asList(BuiltinFormats.getAll());
+    List<String> nonReservedFormats = new ArrayList<>(allFormats.size());
+
+    for (String format : allFormats) {
+      if (!format.startsWith("reserved")) {
+        nonReservedFormats.add(format);
+      }
+    }
+
     Collections.sort(nonReservedFormats);
     String[] formats = nonReservedFormats.toArray(new String[0]);
 
@@ -1490,7 +1478,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     wFields =
         new TableView(
             variables,
-            fieldGroup,
+            wFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -1499,9 +1487,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wIgnoreFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wGet, -margin);
+    fdFields.bottom = new FormAttachment(wGet, -margin * 2);
     wFields.setLayoutData(fdFields);
     wFields.addModifyListener(lsMod);
 
@@ -1526,19 +1514,14 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    FormData fdFieldGroup = new FormData();
-    fdFieldGroup.left = new FormAttachment(0, margin);
-    fdFieldGroup.top = new FormAttachment(wIgnoreFields, margin);
-    fdFieldGroup.bottom = new FormAttachment(100, 0);
-    fdFieldGroup.right = new FormAttachment(100, -margin);
-    fieldGroup.setLayoutData(fdFieldGroup);
-
     FormData fdFieldComp = new FormData();
     fdFieldComp.left = new FormAttachment(0, 0);
     fdFieldComp.top = new FormAttachment(0, 0);
     fdFieldComp.right = new FormAttachment(100, 0);
     fdFieldComp.bottom = new FormAttachment(100, 0);
     wFieldsComp.setLayoutData(fdFieldComp);
+
+    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
     wFieldsComp.layout();
     wFieldTab.setControl(wFieldsComp);

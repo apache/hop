@@ -2044,24 +2044,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
     wIgnoreFields.setLayoutData(fdIgnoreFields);
 
-    Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wManualSchemaDefinition);
-    wManualSchemaDefinition.setText(
-        BaseMessages.getString(PKG, "TextFileInputDialog.ManualSchemaDefinition.Label"));
-
-    FormLayout manualSchemaDefinitionLayout = new FormLayout();
-    manualSchemaDefinitionLayout.marginWidth = 10;
-    manualSchemaDefinitionLayout.marginHeight = 10;
-    wManualSchemaDefinition.setLayout(manualSchemaDefinitionLayout);
-
-    wGet = new Button(wManualSchemaDefinition, SWT.PUSH);
+    wGet = new Button(wFieldsComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
-    fdGet = new FormData();
-    fdGet.left = new FormAttachment(50, 0);
-    fdGet.bottom = new FormAttachment(100, 0);
-    wGet.setLayoutData(fdGet);
 
-    wMinWidth = new Button(wManualSchemaDefinition, SWT.PUSH);
+    wMinWidth = new Button(wFieldsComp, SWT.PUSH);
     wMinWidth.setText(BaseMessages.getString(PKG, "TextFileInputDialog.MinWidth.Button"));
     wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileInputDialog.MinWidth.Tooltip"));
     wMinWidth.addSelectionListener(
@@ -2071,7 +2057,6 @@ public class TextFileInputDialog extends BaseTransformDialog
             input.setChanged();
           }
         });
-    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
     final int FieldsRows = input.inputFields.length;
 
@@ -2142,7 +2127,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFields =
         new TableView(
             variables,
-            wManualSchemaDefinition,
+            wFieldsComp,
             SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -2151,17 +2136,10 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wIgnoreFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wGet, -margin);
+    fdFields.bottom = new FormAttachment(wGet, -margin * 2);
     wFields.setLayoutData(fdFields);
-
-    FormData fdManualSchemaDefinitionComp = new FormData();
-    fdManualSchemaDefinitionComp.left = new FormAttachment(0, 0);
-    fdManualSchemaDefinitionComp.top = new FormAttachment(wIgnoreFields, 0);
-    fdManualSchemaDefinitionComp.right = new FormAttachment(100, 0);
-    fdManualSchemaDefinitionComp.bottom = new FormAttachment(100, 0);
-    wManualSchemaDefinition.setLayoutData(fdManualSchemaDefinitionComp);
 
     FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);
@@ -2169,6 +2147,8 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdFieldsComp.right = new FormAttachment(100, 0);
     fdFieldsComp.bottom = new FormAttachment(100, 0);
     wFieldsComp.setLayoutData(fdFieldsComp);
+
+    setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
