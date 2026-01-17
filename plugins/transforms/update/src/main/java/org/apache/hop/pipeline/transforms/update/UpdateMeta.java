@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.update;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -56,9 +58,9 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class;
 
-  private IHopMetadataProvider metadataProvider;
-
   /** Commit size for inserts/updates */
+  @Getter
+  @Setter
   @HopMetadataProperty(
       key = "commit",
       injectionKeyDescription = "UpdateMeta.Injection.CommitSize",
@@ -66,10 +68,14 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private String commitSize;
 
   /** Lookup key fields * */
+  @Setter
+  @Getter
   @HopMetadataProperty(key = "lookup")
   private UpdateLookupField lookupField;
 
   /** update errors are ignored if this flag is set to true */
+  @Getter
+  @Setter
   @HopMetadataProperty(
       key = "error_ignored",
       injectionKeyDescription = "UpdateMeta.Injection.IgnoreLookupFailure",
@@ -77,6 +83,8 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private boolean errorIgnored;
 
   /** adds a boolean field to the output indicating success of the update */
+  @Setter
+  @Getter
   @HopMetadataProperty(
       key = "ignore_flag_field",
       injectionKeyDescription = "UpdateMeta.Injection.IgnoreFlagField",
@@ -84,6 +92,8 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private String ignoreFlagField;
 
   /** adds a boolean field to skip lookup and directly update selected fields */
+  @Setter
+  @Getter
   @HopMetadataProperty(
       key = "skip_lookup",
       injectionKeyDescription = "UpdateMeta.Injection.SkipLookup",
@@ -94,6 +104,8 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
    * Flag to indicate the use of batch updates, enabled by default but disabled for backward
    * compatibility
    */
+  @Setter
+  @Getter
   @HopMetadataProperty(
       key = "use_batch",
       injectionKeyDescription = "UpdateMeta.Injection.UseBatchUpdate",
@@ -101,37 +113,14 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private boolean useBatchUpdate;
 
   /** database connection */
+  @Setter
+  @Getter
   @HopMetadataProperty(
       key = "connection",
       injectionKeyDescription = "UpdateMeta.Injection.Connection",
       injectionKey = "CONNECTIONNAME",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
-
-  public String getConnection() {
-    return connection;
-  }
-
-  public void setConnection(String connection) {
-    this.connection = connection;
-  }
-
-  public UpdateLookupField getLookupField() {
-    return lookupField;
-  }
-
-  public void setLookupField(UpdateLookupField lookupField) {
-    this.lookupField = lookupField;
-  }
-
-  /**
-   * @return Returns the commitSize.
-   * @deprecated use public String getCommitSizeVar() instead
-   */
-  @Deprecated(since = "2.0")
-  public int getCommitSize() {
-    return Integer.parseInt(commitSize);
-  }
 
   /**
    * @return Returns the commitSize.
@@ -149,64 +138,6 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
     // this happens when the transform is created via API and no setDefaults was called
     commitSize = (commitSize == null) ? "0" : commitSize;
     return Integer.parseInt(vs.resolve(commitSize));
-  }
-
-  /**
-   * @param commitSize The commitSize to set.
-   * @deprecated use public void setCommitSize( String commitSize ) instead
-   */
-  @Deprecated(since = "2.0")
-  public void setCommitSize(int commitSize) {
-    this.commitSize = Integer.toString(commitSize);
-  }
-
-  /**
-   * @param commitSize The commitSize to set.
-   */
-  public void setCommitSize(String commitSize) {
-    this.commitSize = commitSize;
-  }
-
-  /**
-   * @return Returns the skipLookup.
-   */
-  public boolean isSkipLookup() {
-    return skipLookup;
-  }
-
-  /**
-   * @param skipLookup The skipLookup to set.
-   */
-  public void setSkipLookup(boolean skipLookup) {
-    this.skipLookup = skipLookup;
-  }
-
-  /**
-   * @return Returns the ignoreError.
-   */
-  public boolean isErrorIgnored() {
-    return errorIgnored;
-  }
-
-  /**
-   * @param ignoreError The ignoreError to set.
-   */
-  public void setErrorIgnored(boolean ignoreError) {
-    this.errorIgnored = ignoreError;
-  }
-
-  /**
-   * @return Returns the ignoreFlagField.
-   */
-  public String getIgnoreFlagField() {
-    return ignoreFlagField;
-  }
-
-  /**
-   * @param ignoreFlagField The ignoreFlagField to set.
-   */
-  public void setIgnoreFlagField(String ignoreFlagField) {
-    this.ignoreFlagField = ignoreFlagField;
   }
 
   public UpdateMeta() {
@@ -276,8 +207,7 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
     }
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
 
         if (!Utils.isEmpty(lookupField.getTableName())) {
@@ -486,8 +416,6 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
                     + e.getMessage(),
                 transformMeta);
         remarks.add(cr);
-      } finally {
-        db.disconnect();
       }
     } else {
       cr =
@@ -531,9 +459,8 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
     try {
       DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
-
-      retval =
-          new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
+      // default: nothing to do!
+      retval = new SqlStatement(transformMeta.getName(), databaseMeta, null);
 
       if (databaseMeta != null) {
         if (prev != null && !prev.isEmpty()) {
@@ -709,19 +636,5 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  /**
-   * @return the useBatchUpdate
-   */
-  public boolean isUseBatchUpdate() {
-    return useBatchUpdate;
-  }
-
-  /**
-   * @param useBatchUpdate the useBatchUpdate to set
-   */
-  public void setUseBatchUpdate(boolean useBatchUpdate) {
-    this.useBatchUpdate = useBatchUpdate;
   }
 }

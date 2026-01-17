@@ -60,17 +60,17 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
     Object[] outputRow = row;
     Object[] add;
 
-    // Create the output row and copy the input values
-    if (!Utils.isEmpty(meta.getIgnoreFlagField())) { // add flag field!
+    // Create the output row and copy the input values. add flag field!
+    if (!Utils.isEmpty(meta.getIgnoreFlagField())) {
 
       outputRow = new Object[data.outputRowMeta.size()];
-      for (int i = 0; i < rowMeta.size(); i++) {
-        outputRow[i] = row[i];
+      if (rowMeta.size() >= 0) {
+        System.arraycopy(row, 0, outputRow, 0, rowMeta.size());
       }
     }
 
     // OK, now do the lookup.
-    // We need the lookupvalues for that.
+    // We need the lookup values for that.
     Object[] lookupRow = new Object[data.lookupParameterRowMeta.size()];
     int lookupIndex = 0;
 
@@ -159,11 +159,11 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> {
       } else {
         for (int i = 0; i < data.valuenrs.length; i++) {
           IValueMeta valueMeta = rowMeta.getValueMeta(data.valuenrs[i]);
-          Object rowvalue = row[data.valuenrs[i]];
+          Object rowValue = row[data.valuenrs[i]];
           IValueMeta returnValueMeta = returnRowMeta.getValueMeta(i);
-          Object retvalue = add[i];
+          Object retValue = add[i];
 
-          if (returnValueMeta.compare(retvalue, valueMeta, rowvalue) != 0) {
+          if (returnValueMeta.compare(retValue, valueMeta, rowValue) != 0) {
             update = true;
           }
         }
