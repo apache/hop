@@ -1428,7 +1428,15 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     fdIgnoreFields.right = new FormAttachment(100, 0);
     fdIgnoreFields.top = new FormAttachment(wlIgnoreFields, 0, SWT.CENTER);
     wIgnoreFields.setLayoutData(fdIgnoreFields);
-    wIgnoreFields.addListener(SWT.Selection, e -> enableIgnorefiedls());
+    wIgnoreFields.addListener(
+        SWT.Selection,
+        e -> {
+          // If checkbox is being checked (not unchecked), refresh from schema
+          if (wIgnoreFields.getSelection()) {
+            fillFieldsLayoutFromSchema(false);
+          }
+          enableIgnorefiedls();
+        });
 
     Collections.sort(nonReservedFormats);
     String[] formats = nonReservedFormats.toArray(new String[0]);
@@ -1660,16 +1668,23 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
   }
 
   private void fillFieldsLayoutFromSchema() {
+    fillFieldsLayoutFromSchema(true);
+  }
+
+  private void fillFieldsLayoutFromSchema(boolean askConfirmation) {
 
     if (!wSchemaDefinition.isDisposed()) {
       final String schemaName = wSchemaDefinition.getText();
 
-      MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG, "ExcelWriterDialog.Load.SchemaDefinition.Message", schemaName));
-      mb.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.Load.SchemaDefinition.Title"));
-      int answer = mb.open();
+      int answer = SWT.YES;
+      if (askConfirmation) {
+        MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+        mb.setMessage(
+            BaseMessages.getString(
+                PKG, "ExcelWriterDialog.Load.SchemaDefinition.Message", schemaName));
+        mb.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.Load.SchemaDefinition.Title"));
+        answer = mb.open();
+      }
 
       if (answer == SWT.YES && !Utils.isEmpty(schemaName)) {
         try {
