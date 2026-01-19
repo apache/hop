@@ -27,6 +27,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -66,7 +67,7 @@ public class ActionSftpDialog extends ActionDialog {
   private TextVar wServerPort;
   private TextVar wUserName;
   private TextVar wPassword;
-  private TextVar wScpDirectory;
+  private TextVar wSftpDirectory;
   private TextVar wTargetDirectory;
   private Label wlWildcard;
   private TextVar wWildcard;
@@ -88,6 +89,7 @@ public class ActionSftpDialog extends ActionDialog {
   private LabelTextVar wProxyPort;
   private LabelTextVar wProxyUsername;
   private LabelTextVar wProxyPassword;
+  private CheckBoxVar wPreserveTimestamp;
 
   public ActionSftpDialog(
       Shell parent, ActionSftp action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -155,9 +157,300 @@ public class ActionSftpDialog extends ActionDialog {
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
+    addGeneralTab(wTabFolder, margin, middle, lsMod);
+    addFilesTab(wTabFolder, margin, middle, lsMod);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF Files TAB
+    // ///////////////////////////////////////////////////////////
+
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    wTabFolder.setLayoutData(fdTabFolder);
+
+    getData();
+    activeCopyFromPrevious();
+    activeUseKey();
+
+    wTabFolder.setSelection(0);
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
+    return action;
+  }
+
+  private void addFilesTab(CTabFolder wTabFolder, int margin, int middle, ModifyListener lsMod) {
+    CTabItem wFilesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFilesTab.setFont(GuiResource.getInstance().getFontDefault());
+    wFilesTab.setText(BaseMessages.getString(PKG, "ActionSftp.Tab.Files.Label"));
+
+    Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wFilesComp);
+
+    FormLayout filesLayout = new FormLayout();
+    filesLayout.marginWidth = 3;
+    filesLayout.marginHeight = 3;
+    wFilesComp.setLayout(filesLayout);
+
     // ////////////////////////
-    // START OF GENERAL TAB ///
+    // START OF Source files GROUP///
+    // /
+    Group wSourceFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wSourceFiles);
+    wSourceFiles.setText(BaseMessages.getString(PKG, "ActionSftp.SourceFiles.Group.Label"));
+    FormLayout sourceFilesgroupLayout = new FormLayout();
+    sourceFilesgroupLayout.marginWidth = 10;
+    sourceFilesgroupLayout.marginHeight = 10;
+    wSourceFiles.setLayout(sourceFilesgroupLayout);
+
+    // Get arguments from previous result...
+    Label wlGetPrevious = new Label(wSourceFiles, SWT.RIGHT);
+    wlGetPrevious.setText(BaseMessages.getString(PKG, "ActionSftp.getPrevious.Label"));
+    PropsUi.setLook(wlGetPrevious);
+    FormData fdlGetPrevious = new FormData();
+    fdlGetPrevious.left = new FormAttachment(0, 0);
+    fdlGetPrevious.top = new FormAttachment(wSourceFiles, 2 * margin);
+    fdlGetPrevious.right = new FormAttachment(middle, -margin);
+    wlGetPrevious.setLayoutData(fdlGetPrevious);
+    wGetPrevious = new Button(wSourceFiles, SWT.CHECK);
+    PropsUi.setLook(wGetPrevious);
+    wGetPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionSftp.getPrevious.Tooltip"));
+    FormData fdGetPrevious = new FormData();
+    fdGetPrevious.left = new FormAttachment(middle, 0);
+    fdGetPrevious.top = new FormAttachment(wlGetPrevious, 0, SWT.CENTER);
+    fdGetPrevious.right = new FormAttachment(100, 0);
+    wGetPrevious.setLayoutData(fdGetPrevious);
+    wGetPrevious.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            activeCopyFromPrevious();
+            action.setChanged();
+          }
+        });
+
+    // FtpDirectory line
+    Label wlScpDirectory = new Label(wSourceFiles, SWT.RIGHT);
+    wlScpDirectory.setText(BaseMessages.getString(PKG, "ActionSftp.RemoteDir.Label"));
+    PropsUi.setLook(wlScpDirectory);
+    FormData fdlScpDirectory = new FormData();
+    fdlScpDirectory.left = new FormAttachment(0, 0);
+    fdlScpDirectory.top = new FormAttachment(wlGetPrevious, 2 * margin);
+    fdlScpDirectory.right = new FormAttachment(middle, -margin);
+    wlScpDirectory.setLayoutData(fdlScpDirectory);
+
+    // Test remote folder button ...
+    Button wbTestChangeFolderExists = new Button(wSourceFiles, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbTestChangeFolderExists);
+    wbTestChangeFolderExists.setText(
+        BaseMessages.getString(PKG, "ActionSftp.TestFolderExists.Label"));
+    FormData fdbTestChangeFolderExists = new FormData();
+    fdbTestChangeFolderExists.right = new FormAttachment(100, 0);
+    fdbTestChangeFolderExists.top = new FormAttachment(wGetPrevious, 2 * margin);
+    wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
+    wbTestChangeFolderExists.addListener(SWT.Selection, e -> checkRemoteFolder());
+
+    wSftpDirectory =
+        new TextVar(
+            variables,
+            wSourceFiles,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "ActionSftp.RemoteDir.Tooltip"));
+    PropsUi.setLook(wSftpDirectory);
+    wSftpDirectory.addModifyListener(lsMod);
+    FormData fdScpDirectory = new FormData();
+    fdScpDirectory.left = new FormAttachment(middle, 0);
+    fdScpDirectory.top = new FormAttachment(wGetPrevious, 2 * margin);
+    fdScpDirectory.right = new FormAttachment(wbTestChangeFolderExists, -margin);
+    wSftpDirectory.setLayoutData(fdScpDirectory);
+
+    // Wildcard line
+    wlWildcard = new Label(wSourceFiles, SWT.RIGHT);
+    wlWildcard.setText(BaseMessages.getString(PKG, "ActionSftp.Wildcard.Label"));
+    PropsUi.setLook(wlWildcard);
+    FormData fdlWildcard = new FormData();
+    fdlWildcard.left = new FormAttachment(0, 0);
+    fdlWildcard.top = new FormAttachment(wSftpDirectory, margin);
+    fdlWildcard.right = new FormAttachment(middle, -margin);
+    wlWildcard.setLayoutData(fdlWildcard);
+    wWildcard =
+        new TextVar(
+            variables,
+            wSourceFiles,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "ActionSftp.Wildcard.Tooltip"));
+    PropsUi.setLook(wWildcard);
+    wWildcard.addModifyListener(lsMod);
+    FormData fdWildcard = new FormData();
+    fdWildcard.left = new FormAttachment(middle, 0);
+    fdWildcard.top = new FormAttachment(wSftpDirectory, margin);
+    fdWildcard.right = new FormAttachment(100, 0);
+    wWildcard.setLayoutData(fdWildcard);
+
+    // Remove files after retrieval...
+    Label wlRemove = new Label(wSourceFiles, SWT.RIGHT);
+    wlRemove.setText(BaseMessages.getString(PKG, "ActionSftp.RemoveFiles.Label"));
+    PropsUi.setLook(wlRemove);
+    FormData fdlRemove = new FormData();
+    fdlRemove.left = new FormAttachment(0, 0);
+    fdlRemove.top = new FormAttachment(wWildcard, margin);
+    fdlRemove.right = new FormAttachment(middle, -margin);
+    wlRemove.setLayoutData(fdlRemove);
+    wRemove = new Button(wSourceFiles, SWT.CHECK);
+    PropsUi.setLook(wRemove);
+    wRemove.setToolTipText(BaseMessages.getString(PKG, "ActionSftp.RemoveFiles.Tooltip"));
+    FormData fdRemove = new FormData();
+    fdRemove.left = new FormAttachment(middle, 0);
+    fdRemove.top = new FormAttachment(wlRemove, 0, SWT.CENTER);
+    fdRemove.right = new FormAttachment(100, 0);
+    wRemove.setLayoutData(fdRemove);
+
+    FormData fdSourceFiles = new FormData();
+    fdSourceFiles.left = new FormAttachment(0, margin);
+    fdSourceFiles.top = new FormAttachment(0, 2 * margin);
+    fdSourceFiles.right = new FormAttachment(100, -margin);
+    wSourceFiles.setLayoutData(fdSourceFiles);
+    // ///////////////////////////////////////////////////////////
+    // / END OF Source files GROUP
+    // ///////////////////////////////////////////////////////////
+
     // ////////////////////////
+    // START OF Target files GROUP///
+    // /
+    Group wTargetFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wTargetFiles);
+    wTargetFiles.setText(BaseMessages.getString(PKG, "ActionSftp.TargetFiles.Group.Label"));
+    FormLayout targetFilesgroupLayout = new FormLayout();
+    targetFilesgroupLayout.marginWidth = 10;
+    targetFilesgroupLayout.marginHeight = 10;
+    wTargetFiles.setLayout(targetFilesgroupLayout);
+
+    // TargetDirectory line
+    Label wlTargetDirectory = new Label(wTargetFiles, SWT.RIGHT);
+    wlTargetDirectory.setText(BaseMessages.getString(PKG, "ActionSftp.TargetDir.Label"));
+    PropsUi.setLook(wlTargetDirectory);
+    FormData fdlTargetDirectory = new FormData();
+    fdlTargetDirectory.left = new FormAttachment(0, 0);
+    fdlTargetDirectory.top = new FormAttachment(wSourceFiles, margin);
+    fdlTargetDirectory.right = new FormAttachment(middle, -margin);
+    wlTargetDirectory.setLayoutData(fdlTargetDirectory);
+
+    // Browse folders button ...
+    Button wbTargetDirectory = new Button(wTargetFiles, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbTargetDirectory);
+    wbTargetDirectory.setText(BaseMessages.getString(PKG, "ActionSftp.BrowseFolders.Label"));
+    FormData fdbTargetDirectory = new FormData();
+    fdbTargetDirectory.right = new FormAttachment(100, 0);
+    fdbTargetDirectory.top = new FormAttachment(wSourceFiles, margin);
+    wbTargetDirectory.setLayoutData(fdbTargetDirectory);
+    wbTargetDirectory.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wTargetDirectory, variables));
+
+    wTargetDirectory =
+        new TextVar(
+            variables,
+            wTargetFiles,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "ActionSftp.TargetDir.Tooltip"));
+    PropsUi.setLook(wTargetDirectory);
+    wTargetDirectory.addModifyListener(lsMod);
+    FormData fdTargetDirectory = new FormData();
+    fdTargetDirectory.left = new FormAttachment(middle, 0);
+    fdTargetDirectory.top = new FormAttachment(wSourceFiles, margin);
+    fdTargetDirectory.right = new FormAttachment(wbTargetDirectory, -margin);
+    wTargetDirectory.setLayoutData(fdTargetDirectory);
+
+    // Create target folder if necessary...
+    Label wlCreateTargetFolder = new Label(wTargetFiles, SWT.RIGHT);
+    wlCreateTargetFolder.setText(
+        BaseMessages.getString(PKG, "ActionSftp.CreateTargetFolder.Label"));
+    PropsUi.setLook(wlCreateTargetFolder);
+    FormData fdlCreateTargetFolder = new FormData();
+    fdlCreateTargetFolder.left = new FormAttachment(0, 0);
+    fdlCreateTargetFolder.top = new FormAttachment(wTargetDirectory, margin);
+    fdlCreateTargetFolder.right = new FormAttachment(middle, -margin);
+    wlCreateTargetFolder.setLayoutData(fdlCreateTargetFolder);
+    wCreateTargetFolder = new Button(wTargetFiles, SWT.CHECK);
+    wCreateTargetFolder.setToolTipText(
+        BaseMessages.getString(PKG, "ActionSftp.CreateTargetFolder.Tooltip"));
+    PropsUi.setLook(wCreateTargetFolder);
+    FormData fdCreateTargetFolder = new FormData();
+    fdCreateTargetFolder.left = new FormAttachment(middle, 0);
+    fdCreateTargetFolder.top = new FormAttachment(wlCreateTargetFolder, 0, SWT.CENTER);
+    fdCreateTargetFolder.right = new FormAttachment(100, 0);
+    wCreateTargetFolder.setLayoutData(fdCreateTargetFolder);
+
+    // Preserve timestamp
+    Label wlPreserveTimestamp = new Label(wTargetFiles, SWT.RIGHT);
+    wlPreserveTimestamp.setText(BaseMessages.getString(PKG, "ActionSftp.PreserveTimestamp.Label"));
+    PropsUi.setLook(wlPreserveTimestamp);
+    FormData fdlPreserveTimestamp = new FormData();
+    fdlPreserveTimestamp.left = new FormAttachment(0, 0);
+    fdlPreserveTimestamp.right = new FormAttachment(middle, -margin);
+    fdlPreserveTimestamp.top = new FormAttachment(wCreateTargetFolder, margin * 2);
+    wlPreserveTimestamp.setLayoutData(fdlPreserveTimestamp);
+    wPreserveTimestamp = new CheckBoxVar(variables, wTargetFiles, SWT.CHECK, "");
+    wPreserveTimestamp.setToolTipText(
+        BaseMessages.getString(PKG, "ActionSftp.PreserveTimestamp.Tooltip"));
+    PropsUi.setLook(wPreserveTimestamp);
+    FormData fdCompress = new FormData();
+    fdCompress.left = new FormAttachment(middle, 0);
+    fdCompress.top = new FormAttachment(wlPreserveTimestamp, 0, SWT.CENTER);
+    fdCompress.right = new FormAttachment(100, 0);
+    wPreserveTimestamp.setLayoutData(fdCompress);
+    wPreserveTimestamp.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            action.setChanged();
+          }
+        });
+
+    // Add filenames to result filenames...
+    Label wlAddFilenameToResult = new Label(wTargetFiles, SWT.RIGHT);
+    wlAddFilenameToResult.setText(
+        BaseMessages.getString(PKG, "ActionSftp.AddFilenameToResult.Label"));
+    PropsUi.setLook(wlAddFilenameToResult);
+    FormData fdlAddFilenameToResult = new FormData();
+    fdlAddFilenameToResult.left = new FormAttachment(0, 0);
+    fdlAddFilenameToResult.top = new FormAttachment(wPreserveTimestamp, margin);
+    fdlAddFilenameToResult.right = new FormAttachment(middle, -margin);
+    wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
+    wAddFilenameToResult = new Button(wTargetFiles, SWT.CHECK);
+    wAddFilenameToResult.setToolTipText(
+        BaseMessages.getString(PKG, "ActionSftp.AddFilenameToResult.Tooltip"));
+    PropsUi.setLook(wAddFilenameToResult);
+    FormData fdAddFilenameToResult = new FormData();
+    fdAddFilenameToResult.left = new FormAttachment(middle, 0);
+    fdAddFilenameToResult.top = new FormAttachment(wlAddFilenameToResult, 0, SWT.CENTER);
+    fdAddFilenameToResult.right = new FormAttachment(100, 0);
+    wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
+
+    FormData fdTargetFiles = new FormData();
+    fdTargetFiles.left = new FormAttachment(0, margin);
+    fdTargetFiles.top = new FormAttachment(wSourceFiles, margin);
+    fdTargetFiles.right = new FormAttachment(100, -margin);
+    wTargetFiles.setLayoutData(fdTargetFiles);
+    // ///////////////////////////////////////////////////////////
+    // / END OF Target files GROUP
+    // ///////////////////////////////////////////////////////////
+
+    FormData fdFilesComp = new FormData();
+    fdFilesComp.left = new FormAttachment(0, 0);
+    fdFilesComp.top = new FormAttachment(0, 0);
+    fdFilesComp.right = new FormAttachment(100, 0);
+    fdFilesComp.bottom = new FormAttachment(100, 0);
+    wFilesComp.setLayoutData(fdFilesComp);
+
+    wFilesComp.layout();
+    wFilesTab.setControl(wFilesComp);
+    PropsUi.setLook(wFilesComp);
+  }
+
+  private void addGeneralTab(CTabFolder wTabFolder, int margin, int middle, ModifyListener lsMod) {
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -448,6 +741,7 @@ public class ActionSftpDialog extends ActionDialog {
     fdServerSettings.top = new FormAttachment(wName, margin);
     fdServerSettings.right = new FormAttachment(100, -margin);
     wServerSettings.setLayoutData(fdServerSettings);
+
     // ///////////////////////////////////////////////////////////
     // / END OF SERVER SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
@@ -457,8 +751,8 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wlCompression);
     FormData fdlCompression = new FormData();
     fdlCompression.left = new FormAttachment(0, -margin);
-    fdlCompression.right = new FormAttachment(middle, 0);
     fdlCompression.top = new FormAttachment(wServerSettings, margin);
+    fdlCompression.right = new FormAttachment(middle, 0);
     wlCompression.setLayoutData(fdlCompression);
 
     wCompression = new CCombo(wGeneralComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -483,275 +777,6 @@ public class ActionSftpDialog extends ActionDialog {
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
     PropsUi.setLook(wGeneralComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF GENERAL TAB
-    // ///////////////////////////////////////////////////////////
-
-    // ////////////////////////
-    // START OF Files TAB ///
-    // ////////////////////////
-
-    CTabItem wFilesTab = new CTabItem(wTabFolder, SWT.NONE);
-    wFilesTab.setFont(GuiResource.getInstance().getFontDefault());
-    wFilesTab.setText(BaseMessages.getString(PKG, "ActionSftp.Tab.Files.Label"));
-
-    Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wFilesComp);
-
-    FormLayout filesLayout = new FormLayout();
-    filesLayout.marginWidth = 3;
-    filesLayout.marginHeight = 3;
-    wFilesComp.setLayout(filesLayout);
-
-    // ////////////////////////
-    // START OF Source files GROUP///
-    // /
-    Group wSourceFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wSourceFiles);
-    wSourceFiles.setText(BaseMessages.getString(PKG, "ActionSftp.SourceFiles.Group.Label"));
-    FormLayout sourceFilesgroupLayout = new FormLayout();
-    sourceFilesgroupLayout.marginWidth = 10;
-    sourceFilesgroupLayout.marginHeight = 10;
-    wSourceFiles.setLayout(sourceFilesgroupLayout);
-
-    // Get arguments from previous result...
-    Label wlGetPrevious = new Label(wSourceFiles, SWT.RIGHT);
-    wlGetPrevious.setText(BaseMessages.getString(PKG, "ActionSftp.getPrevious.Label"));
-    PropsUi.setLook(wlGetPrevious);
-    FormData fdlGetPrevious = new FormData();
-    fdlGetPrevious.left = new FormAttachment(0, 0);
-    fdlGetPrevious.top = new FormAttachment(wServerSettings, 2 * margin);
-    fdlGetPrevious.right = new FormAttachment(middle, -margin);
-    wlGetPrevious.setLayoutData(fdlGetPrevious);
-    wGetPrevious = new Button(wSourceFiles, SWT.CHECK);
-    PropsUi.setLook(wGetPrevious);
-    wGetPrevious.setToolTipText(BaseMessages.getString(PKG, "ActionSftp.getPrevious.Tooltip"));
-    FormData fdGetPrevious = new FormData();
-    fdGetPrevious.left = new FormAttachment(middle, 0);
-    fdGetPrevious.top = new FormAttachment(wlGetPrevious, 0, SWT.CENTER);
-    fdGetPrevious.right = new FormAttachment(100, 0);
-    wGetPrevious.setLayoutData(fdGetPrevious);
-    wGetPrevious.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            activeCopyFromPrevious();
-            action.setChanged();
-          }
-        });
-
-    // FtpDirectory line
-    Label wlScpDirectory = new Label(wSourceFiles, SWT.RIGHT);
-    wlScpDirectory.setText(BaseMessages.getString(PKG, "ActionSftp.RemoteDir.Label"));
-    PropsUi.setLook(wlScpDirectory);
-    FormData fdlScpDirectory = new FormData();
-    fdlScpDirectory.left = new FormAttachment(0, 0);
-    fdlScpDirectory.top = new FormAttachment(wlGetPrevious, 2 * margin);
-    fdlScpDirectory.right = new FormAttachment(middle, -margin);
-    wlScpDirectory.setLayoutData(fdlScpDirectory);
-
-    // Test remote folder button ...
-    Button wbTestChangeFolderExists = new Button(wSourceFiles, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbTestChangeFolderExists);
-    wbTestChangeFolderExists.setText(
-        BaseMessages.getString(PKG, "ActionSftp.TestFolderExists.Label"));
-    FormData fdbTestChangeFolderExists = new FormData();
-    fdbTestChangeFolderExists.right = new FormAttachment(100, 0);
-    fdbTestChangeFolderExists.top = new FormAttachment(wGetPrevious, 2 * margin);
-    wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
-    wbTestChangeFolderExists.addListener(SWT.Selection, e -> checkRemoteFolder());
-
-    wScpDirectory =
-        new TextVar(
-            variables,
-            wSourceFiles,
-            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ActionSftp.RemoteDir.Tooltip"));
-    PropsUi.setLook(wScpDirectory);
-    wScpDirectory.addModifyListener(lsMod);
-    FormData fdScpDirectory = new FormData();
-    fdScpDirectory.left = new FormAttachment(middle, 0);
-    fdScpDirectory.top = new FormAttachment(wGetPrevious, 2 * margin);
-    fdScpDirectory.right = new FormAttachment(wbTestChangeFolderExists, -margin);
-    wScpDirectory.setLayoutData(fdScpDirectory);
-
-    // Wildcard line
-    wlWildcard = new Label(wSourceFiles, SWT.RIGHT);
-    wlWildcard.setText(BaseMessages.getString(PKG, "ActionSftp.Wildcard.Label"));
-    PropsUi.setLook(wlWildcard);
-    FormData fdlWildcard = new FormData();
-    fdlWildcard.left = new FormAttachment(0, 0);
-    fdlWildcard.top = new FormAttachment(wScpDirectory, margin);
-    fdlWildcard.right = new FormAttachment(middle, -margin);
-    wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard =
-        new TextVar(
-            variables,
-            wSourceFiles,
-            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ActionSftp.Wildcard.Tooltip"));
-    PropsUi.setLook(wWildcard);
-    wWildcard.addModifyListener(lsMod);
-    FormData fdWildcard = new FormData();
-    fdWildcard.left = new FormAttachment(middle, 0);
-    fdWildcard.top = new FormAttachment(wScpDirectory, margin);
-    fdWildcard.right = new FormAttachment(100, 0);
-    wWildcard.setLayoutData(fdWildcard);
-
-    // Remove files after retrieval...
-    Label wlRemove = new Label(wSourceFiles, SWT.RIGHT);
-    wlRemove.setText(BaseMessages.getString(PKG, "ActionSftp.RemoveFiles.Label"));
-    PropsUi.setLook(wlRemove);
-    FormData fdlRemove = new FormData();
-    fdlRemove.left = new FormAttachment(0, 0);
-    fdlRemove.top = new FormAttachment(wWildcard, margin);
-    fdlRemove.right = new FormAttachment(middle, -margin);
-    wlRemove.setLayoutData(fdlRemove);
-    wRemove = new Button(wSourceFiles, SWT.CHECK);
-    PropsUi.setLook(wRemove);
-    wRemove.setToolTipText(BaseMessages.getString(PKG, "ActionSftp.RemoveFiles.Tooltip"));
-    FormData fdRemove = new FormData();
-    fdRemove.left = new FormAttachment(middle, 0);
-    fdRemove.top = new FormAttachment(wlRemove, 0, SWT.CENTER);
-    fdRemove.right = new FormAttachment(100, 0);
-    wRemove.setLayoutData(fdRemove);
-
-    FormData fdSourceFiles = new FormData();
-    fdSourceFiles.left = new FormAttachment(0, margin);
-    fdSourceFiles.top = new FormAttachment(wServerSettings, 2 * margin);
-    fdSourceFiles.right = new FormAttachment(100, -margin);
-    wSourceFiles.setLayoutData(fdSourceFiles);
-    // ///////////////////////////////////////////////////////////
-    // / END OF Source files GROUP
-    // ///////////////////////////////////////////////////////////
-
-    // ////////////////////////
-    // START OF Target files GROUP///
-    // /
-    Group wTargetFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wTargetFiles);
-    wTargetFiles.setText(BaseMessages.getString(PKG, "ActionSftp.TargetFiles.Group.Label"));
-    FormLayout targetFilesgroupLayout = new FormLayout();
-    targetFilesgroupLayout.marginWidth = 10;
-    targetFilesgroupLayout.marginHeight = 10;
-    wTargetFiles.setLayout(targetFilesgroupLayout);
-
-    // TargetDirectory line
-    Label wlTargetDirectory = new Label(wTargetFiles, SWT.RIGHT);
-    wlTargetDirectory.setText(BaseMessages.getString(PKG, "ActionSftp.TargetDir.Label"));
-    PropsUi.setLook(wlTargetDirectory);
-    FormData fdlTargetDirectory = new FormData();
-    fdlTargetDirectory.left = new FormAttachment(0, 0);
-    fdlTargetDirectory.top = new FormAttachment(wSourceFiles, margin);
-    fdlTargetDirectory.right = new FormAttachment(middle, -margin);
-    wlTargetDirectory.setLayoutData(fdlTargetDirectory);
-
-    // Browse folders button ...
-    Button wbTargetDirectory = new Button(wTargetFiles, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbTargetDirectory);
-    wbTargetDirectory.setText(BaseMessages.getString(PKG, "ActionSftp.BrowseFolders.Label"));
-    FormData fdbTargetDirectory = new FormData();
-    fdbTargetDirectory.right = new FormAttachment(100, 0);
-    fdbTargetDirectory.top = new FormAttachment(wSourceFiles, margin);
-    wbTargetDirectory.setLayoutData(fdbTargetDirectory);
-    wbTargetDirectory.addListener(
-        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wTargetDirectory, variables));
-
-    wTargetDirectory =
-        new TextVar(
-            variables,
-            wTargetFiles,
-            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "ActionSftp.TargetDir.Tooltip"));
-    PropsUi.setLook(wTargetDirectory);
-    wTargetDirectory.addModifyListener(lsMod);
-    FormData fdTargetDirectory = new FormData();
-    fdTargetDirectory.left = new FormAttachment(middle, 0);
-    fdTargetDirectory.top = new FormAttachment(wSourceFiles, margin);
-    fdTargetDirectory.right = new FormAttachment(wbTargetDirectory, -margin);
-    wTargetDirectory.setLayoutData(fdTargetDirectory);
-
-    // Create target folder if necessary...
-    Label wlCreateTargetFolder = new Label(wTargetFiles, SWT.RIGHT);
-    wlCreateTargetFolder.setText(
-        BaseMessages.getString(PKG, "ActionSftp.CreateTargetFolder.Label"));
-    PropsUi.setLook(wlCreateTargetFolder);
-    FormData fdlCreateTargetFolder = new FormData();
-    fdlCreateTargetFolder.left = new FormAttachment(0, 0);
-    fdlCreateTargetFolder.top = new FormAttachment(wTargetDirectory, margin);
-    fdlCreateTargetFolder.right = new FormAttachment(middle, -margin);
-    wlCreateTargetFolder.setLayoutData(fdlCreateTargetFolder);
-    wCreateTargetFolder = new Button(wTargetFiles, SWT.CHECK);
-    wCreateTargetFolder.setToolTipText(
-        BaseMessages.getString(PKG, "ActionSftp.CreateTargetFolder.Tooltip"));
-    PropsUi.setLook(wCreateTargetFolder);
-    FormData fdCreateTargetFolder = new FormData();
-    fdCreateTargetFolder.left = new FormAttachment(middle, 0);
-    fdCreateTargetFolder.top = new FormAttachment(wlCreateTargetFolder, 0, SWT.CENTER);
-    fdCreateTargetFolder.right = new FormAttachment(100, 0);
-    wCreateTargetFolder.setLayoutData(fdCreateTargetFolder);
-
-    // Add filenames to result filenames...
-    Label wlAddFilenameToResult = new Label(wTargetFiles, SWT.RIGHT);
-    wlAddFilenameToResult.setText(
-        BaseMessages.getString(PKG, "ActionSftp.AddFilenameToResult.Label"));
-    PropsUi.setLook(wlAddFilenameToResult);
-    FormData fdlAddFilenameToResult = new FormData();
-    fdlAddFilenameToResult.left = new FormAttachment(0, 0);
-    fdlAddFilenameToResult.top = new FormAttachment(wCreateTargetFolder, margin);
-    fdlAddFilenameToResult.right = new FormAttachment(middle, -margin);
-    wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
-    wAddFilenameToResult = new Button(wTargetFiles, SWT.CHECK);
-    wAddFilenameToResult.setToolTipText(
-        BaseMessages.getString(PKG, "ActionSftp.AddFilenameToResult.Tooltip"));
-    PropsUi.setLook(wAddFilenameToResult);
-    FormData fdAddFilenameToResult = new FormData();
-    fdAddFilenameToResult.left = new FormAttachment(middle, 0);
-    fdAddFilenameToResult.top = new FormAttachment(wlAddFilenameToResult, 0, SWT.CENTER);
-    fdAddFilenameToResult.right = new FormAttachment(100, 0);
-    wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
-
-    FormData fdTargetFiles = new FormData();
-    fdTargetFiles.left = new FormAttachment(0, margin);
-    fdTargetFiles.top = new FormAttachment(wSourceFiles, margin);
-    fdTargetFiles.right = new FormAttachment(100, -margin);
-    wTargetFiles.setLayoutData(fdTargetFiles);
-    // ///////////////////////////////////////////////////////////
-    // / END OF Target files GROUP
-    // ///////////////////////////////////////////////////////////
-
-    FormData fdFilesComp = new FormData();
-    fdFilesComp.left = new FormAttachment(0, 0);
-    fdFilesComp.top = new FormAttachment(0, 0);
-    fdFilesComp.right = new FormAttachment(100, 0);
-    fdFilesComp.bottom = new FormAttachment(100, 0);
-    wFilesComp.setLayoutData(fdFilesComp);
-
-    wFilesComp.layout();
-    wFilesTab.setControl(wFilesComp);
-    PropsUi.setLook(wFilesComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF Files TAB
-    // ///////////////////////////////////////////////////////////
-
-    FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
-    wTabFolder.setLayoutData(fdTabFolder);
-
-    getData();
-    activeCopyFromPrevious();
-    activeUseKey();
-
-    wTabFolder.setSelection(0);
-
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
-    return action;
   }
 
   private void test() {
@@ -836,7 +861,7 @@ public class ActionSftpDialog extends ActionDialog {
   }
 
   private void checkRemoteFolder() {
-    String changeFtpFolder = variables.resolve(wScpDirectory.getText());
+    String changeFtpFolder = variables.resolve(wSftpDirectory.getText());
     if (!Utils.isEmpty(changeFtpFolder) && connectToSftp(true, changeFtpFolder)) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       mb.setMessage(
@@ -860,14 +885,15 @@ public class ActionSftpDialog extends ActionDialog {
     wServerPort.setText(action.getServerPort());
     wUserName.setText(Const.NVL(action.getUserName(), ""));
     wPassword.setText(Const.NVL(action.getPassword(), ""));
-    wScpDirectory.setText(Const.NVL(action.getScpDirectory(), ""));
+    wSftpDirectory.setText(Const.NVL(action.getSftpDirectory(), ""));
     wTargetDirectory.setText(Const.NVL(action.getTargetDirectory(), ""));
     wWildcard.setText(Const.NVL(action.getWildcard(), ""));
-    wRemove.setSelection(action.getRemove());
-    wAddFilenameToResult.setSelection(action.isAddToResult());
+    wRemove.setSelection(action.isRemove());
+    wAddFilenameToResult.setSelection(action.isAddFilenameToResult());
+    wPreserveTimestamp.setSelection(action.isPreserveTargetFileTimestamp());
     wCreateTargetFolder.setSelection(action.isCreateTargetFolder());
     wGetPrevious.setSelection(action.isCopyPrevious());
-    wUsePublicKey.setSelection(action.isUseKeyFile());
+    wUsePublicKey.setSelection(action.isUseKeyFilename());
     wKeyFilename.setText(Const.NVL(action.getKeyFilename(), ""));
     wKeyfilePass.setText(Const.NVL(action.getKeyPassPhrase(), ""));
     wCompression.setText(Const.NVL(action.getCompression(), "none"));
@@ -901,14 +927,15 @@ public class ActionSftpDialog extends ActionDialog {
     action.setServerPort(wServerPort.getText());
     action.setUserName(wUserName.getText());
     action.setPassword(wPassword.getText());
-    action.setScpDirectory(wScpDirectory.getText());
+    action.setSftpDirectory(wSftpDirectory.getText());
     action.setTargetDirectory(wTargetDirectory.getText());
     action.setWildcard(wWildcard.getText());
     action.setRemove(wRemove.getSelection());
-    action.setAddToResult(wAddFilenameToResult.getSelection());
+    action.setAddFilenameToResult(wAddFilenameToResult.getSelection());
+    action.setPreserveTargetFileTimestamp(wPreserveTimestamp.getSelection());
     action.setCreateTargetFolder(wCreateTargetFolder.getSelection());
     action.setCopyPrevious(wGetPrevious.getSelection());
-    action.setUseKeyFile(wUsePublicKey.getSelection());
+    action.setUseKeyFilename(wUsePublicKey.getSelection());
     action.setKeyFilename(wKeyFilename.getText());
     action.setKeyPassPhrase(wKeyfilePass.getText());
     action.setCompression(wCompression.getText());

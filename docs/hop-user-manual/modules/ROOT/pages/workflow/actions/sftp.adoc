@@ -89,6 +89,7 @@ A.*[ENG:0-9].txt  : files tarting with A, ending with a number and .txt
 2+|*Target files*
 |Target Directory|The directory on the machine on which Hop runs in which you want to place the transferred files
 |Create target folder|Check this option if the destination folder does not exist and should be created.
+|Preserve timestamp|If checked the last modified timestamp of the source file is preserved in the downloaded file. If not checked, the downloaded file will have the last modified timestamp updated to the instant when the file's download happens.
 |Add filenames to result|If checked the information about downloaded files is added to the result files stream.
 |===
 
