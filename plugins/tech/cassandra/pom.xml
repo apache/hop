@@ -29,7 +29,7 @@
     <name>Hop Plugins Technology Cassandra</name>
 
     <properties>
-        <cassandra-all.version>4.1.8</cassandra-all.version>
+        <cassandra-all.version>4.1.10</cassandra-all.version>
         <cassandra-java-driver.version>4.17.0</cassandra-java-driver.version>
     </properties>
 

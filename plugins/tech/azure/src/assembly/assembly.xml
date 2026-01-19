@@ -96,7 +96,6 @@
                 <include>com.squareup.okhttp3:okhttp:jar</include>
                 <include>com.squareup.okio::jar</include>
                 <include>org.reactivestreams:reactive-streams:jar</include>
-                <include>com.azure:azure-security-keyvault-secrets</include>
                 <include>net.java.dev.jna::jar</include>
                 <include>com.microsoft.azure:msal4j-persistence-extension:jar</include>
                 <include>com.microsoft.azure:msal4j:jar</include>
