@@ -401,6 +401,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
     fdlProxyPort.right = new FormAttachment(middle, -margin);
     fdlProxyPort.top = new FormAttachment(wlProxyHost, margin);
     wlProxyPort.setLayoutData(fdlProxyPort);
+    PropsUi.setLook(wlProxyPort);
 
     wProxyPort = new TextVar(variables, proxyComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wProxyPort);
@@ -457,16 +458,43 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
     // Fields
     ColumnInfo[] columnInformation =
         new ColumnInfo[] {
-          new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false),
           new ColumnInfo(
-              "Type", ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), true),
-          new ColumnInfo("Format", ColumnInfo.COLUMN_TYPE_FORMAT, 2),
-          new ColumnInfo("Length", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Precision", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Currency", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Decimal", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Group", ColumnInfo.COLUMN_TYPE_TEXT, false),
-          new ColumnInfo("Trim type", ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaBase.trimTypeDesc),
+              BaseMessages.getString(PKG, "System.Column.Name"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "System.Column.Type"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaFactory.getValueMetaNames(),
+              true),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "System.Column.Format"),
+              ColumnInfo.COLUMN_TYPE_FORMAT,
+              2),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "System.Column.Length"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "System.Column.Precision"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "System.Column.Currency"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "System.Column.Decimal"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "System.Column.Group"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "System.Column.TrimType"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ValueMetaBase.trimTypeDesc)
         };
 
     wFields =
@@ -726,12 +754,11 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
       item.setText(1, Const.NVL(field.getName(), ""));
       String type = field.getTypeDesc();
       String format = field.getFormat();
-      String position = "" + field.getPosition();
       String length = "" + field.getLength();
-      String prec = "" + field.getPrecision();
-      String curr = field.getCurrencySymbol();
-      String group = field.getGroupSymbol();
-      String decim = field.getDecimalSymbol();
+      String precision = "" + field.getPrecision();
+      String currencySymbol = field.getCurrencySymbol();
+      String groupSymbol = field.getGroupSymbol();
+      String decimalSymbol = field.getDecimalSymbol();
       String trim = field.getTrimTypeDesc();
 
       if (type != null) {
@@ -740,17 +767,20 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
       if (format != null) {
         item.setText(3, format);
       }
-      if (prec != null && !"-1".equals(prec)) {
-        item.setText(5, prec);
+      if (!"-1".equals(length)) {
+        item.setText(4, length);
       }
-      if (curr != null) {
-        item.setText(5, curr);
+      if (!"-1".equals(precision)) {
+        item.setText(5, precision);
       }
-      if (decim != null) {
-        item.setText(7, decim);
+      if (currencySymbol != null) {
+        item.setText(6, currencySymbol);
       }
-      if (group != null) {
-        item.setText(8, group);
+      if (decimalSymbol != null) {
+        item.setText(7, decimalSymbol);
+      }
+      if (groupSymbol != null) {
+        item.setText(8, groupSymbol);
       }
       if (trim != null) {
         item.setText(9, trim);
