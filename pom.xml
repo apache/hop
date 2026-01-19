@@ -145,7 +145,7 @@
         <maven.compiler.source>${target.jdk.version}</maven.compiler.source>
         <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
         <mockito-core.version>5.12.0</mockito-core.version>
-        <netty.version>4.2.7.Final</netty.version>
+        <netty.version>4.2.8.Final</netty.version>
         <objenesis.version>3.4</objenesis.version>
         <opentelemetry.version>1.56.0</opentelemetry.version>
         <org.eclipse.platform.version>3.132.0</org.eclipse.platform.version>
