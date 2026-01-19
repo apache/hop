@@ -160,6 +160,8 @@ public class TextFileOutputDialog extends BaseTransformDialog {
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
   private Button wIgnoreFields;
 
+  private Button wMinWidth;
+
   private ColumnInfo[] colinf;
 
   private final List<String> inputFields = new ArrayList<>();
@@ -1101,7 +1103,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
     wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
 
-    Button wMinWidth = new Button(wFieldsComp, SWT.PUSH);
+    wMinWidth = new Button(wFieldsComp, SWT.PUSH);
     wMinWidth.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Button"));
     wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Tooltip"));
     wMinWidth.addSelectionListener(
@@ -1302,6 +1304,8 @@ public class TextFileOutputDialog extends BaseTransformDialog {
             if (r != null) {
               String[] fieldNames = r.getFieldNames();
               if (fieldNames != null) {
+                // Close any active editors to clear cached combo values
+                wFields.closeActiveEditors();
                 wFields.clearAll();
                 for (int i = 0; i < fieldNames.length; i++) {
                   IValueMeta valueMeta = r.getValueMeta(i);
@@ -1327,7 +1331,10 @@ public class TextFileOutputDialog extends BaseTransformDialog {
                   item.setText(10, Const.NVL(schemaFieldDefinition.getIfNullValue(), ""));
                   item.setText(
                       11,
-                      ValueMetaBase.getRoundingTypeDesc(schemaFieldDefinition.getRoundingType()));
+                      Const.NVL(
+                          ValueMetaBase.getRoundingTypeDesc(
+                              schemaFieldDefinition.getRoundingType()),
+                          ""));
                 }
               }
             }
@@ -1340,6 +1347,10 @@ public class TextFileOutputDialog extends BaseTransformDialog {
         wFields.removeEmptyRows();
         wFields.setRowNums();
         wFields.optWidth(true);
+
+        // Force table to redraw to update combo dropdowns with correct values
+        wFields.table.redraw();
+        wFields.table.update();
       }
     }
   }
@@ -1498,6 +1509,15 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wServletOutput.setSelection(input.isServletOutput());
     wSchemaDefinition.setText(Const.NVL(input.getSchemaDefinition(), ""));
     wIgnoreFields.setSelection(input.isIgnoreFields());
+
+    // Apply the ignore fields state (fill from schema and disable/enable controls)
+    if (input.isIgnoreFields()) {
+      fillFieldsLayoutFromSchema(false);
+    }
+    wFields.setEnabled(!input.isIgnoreFields());
+    wGet.setEnabled(!input.isIgnoreFields());
+    wMinWidth.setEnabled(!input.isIgnoreFields());
+
     setFlagsServletOption();
     wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
@@ -1550,42 +1570,46 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
     logDebug("getting fields info...");
 
-    for (int i = 0; i < input.getOutputFields().length; i++) {
-      TextFileField field = input.getOutputFields()[i];
+    // Only populate fields from metadata if NOT ignoring fields (will be filled from schema
+    // instead)
+    if (!input.isIgnoreFields()) {
+      for (int i = 0; i < input.getOutputFields().length; i++) {
+        TextFileField field = input.getOutputFields()[i];
 
-      TableItem item = wFields.table.getItem(i);
-      if (field.getName() != null) {
-        item.setText(1, field.getName());
-      }
-      item.setText(2, field.getTypeDesc());
-      if (field.getFormat() != null) {
-        item.setText(3, field.getFormat());
-      }
-      if (field.getLength() >= 0) {
-        item.setText(4, "" + field.getLength());
-      }
-      if (field.getPrecision() >= 0) {
-        item.setText(5, "" + field.getPrecision());
-      }
-      if (field.getCurrencySymbol() != null) {
-        item.setText(6, field.getCurrencySymbol());
-      }
-      if (field.getDecimalSymbol() != null) {
-        item.setText(7, field.getDecimalSymbol());
-      }
-      if (field.getGroupingSymbol() != null) {
-        item.setText(8, field.getGroupingSymbol());
-      }
-      String trim = field.getTrimTypeDesc();
-      if (trim != null) {
-        item.setText(9, trim);
-      }
-      if (field.getNullString() != null) {
-        item.setText(10, field.getNullString());
-      }
-      String roundingType = ValueMetaBase.getRoundingTypeDesc(field.getRoundingType());
-      if (roundingType != null) {
-        item.setText(11, roundingType);
+        TableItem item = wFields.table.getItem(i);
+        if (field.getName() != null) {
+          item.setText(1, field.getName());
+        }
+        item.setText(2, field.getTypeDesc());
+        if (field.getFormat() != null) {
+          item.setText(3, field.getFormat());
+        }
+        if (field.getLength() >= 0) {
+          item.setText(4, "" + field.getLength());
+        }
+        if (field.getPrecision() >= 0) {
+          item.setText(5, "" + field.getPrecision());
+        }
+        if (field.getCurrencySymbol() != null) {
+          item.setText(6, field.getCurrencySymbol());
+        }
+        if (field.getDecimalSymbol() != null) {
+          item.setText(7, field.getDecimalSymbol());
+        }
+        if (field.getGroupingSymbol() != null) {
+          item.setText(8, field.getGroupingSymbol());
+        }
+        String trim = field.getTrimTypeDesc();
+        if (trim != null) {
+          item.setText(9, trim);
+        }
+        if (field.getNullString() != null) {
+          item.setText(10, field.getNullString());
+        }
+        String roundingType = ValueMetaBase.getRoundingTypeDesc(field.getRoundingType());
+        if (roundingType != null) {
+          item.setText(11, roundingType);
+        }
       }
     }
 

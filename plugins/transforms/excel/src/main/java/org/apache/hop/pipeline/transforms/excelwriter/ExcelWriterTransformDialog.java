@@ -1678,6 +1678,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
             if (r != null) {
               String[] fieldNames = r.getFieldNames();
               if (fieldNames != null) {
+                // Close any active editors to clear cached combo values
+                wFields.closeActiveEditors();
                 wFields.clearAll();
                 for (int i = 0; i < fieldNames.length; i++) {
                   IValueMeta valueMeta = r.getValueMeta(i);
@@ -1698,6 +1700,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
         wFields.removeEmptyRows();
         wFields.setRowNums();
         wFields.optWidth(true);
+
+        // Force table to redraw to update combo dropdowns with correct values
+        wFields.table.redraw();
+        wFields.table.update();
       }
     }
   }
@@ -1791,6 +1797,13 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
     wSchemaDefinition.setText(Const.NVL(input.getSchemaDefinition(), ""));
     wIgnoreFields.setSelection(input.isIgnoreFields());
+
+    // Apply the ignore fields state (fill from schema and disable/enable controls)
+    if (input.isIgnoreFields()) {
+      fillFieldsLayoutFromSchema(false);
+      enableIgnorefiedls();
+    }
+
     wStreamData.setSelection(file.isStreamingData());
     wSplitEvery.setText("" + file.getSplitEvery());
     wEmptyRows.setText("" + input.getAppendEmpty());
@@ -1857,41 +1870,45 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
     logDebug("Getting fields info...");
 
-    for (int i = 0; i < input.getOutputFields().size(); i++) {
-      ExcelWriterOutputField field = input.getOutputFields().get(i);
+    // Only populate fields from metadata if NOT ignoring fields (will be filled from schema
+    // instead)
+    if (!input.isIgnoreFields()) {
+      for (int i = 0; i < input.getOutputFields().size(); i++) {
+        ExcelWriterOutputField field = input.getOutputFields().get(i);
 
-      TableItem item = wFields.table.getItem(i);
-      if (field.getName() != null) {
-        item.setText(1, field.getName());
-      }
-      item.setText(2, field.getType());
+        TableItem item = wFields.table.getItem(i);
+        if (field.getName() != null) {
+          item.setText(1, field.getName());
+        }
+        item.setText(2, field.getType());
 
-      if (field.getFormat() != null) {
-        item.setText(3, field.getFormat());
-      }
-      if (field.getStyleCell() != null) {
-        item.setText(4, field.getStyleCell());
-      }
-      if (field.getTitle() != null) {
-        item.setText(5, field.getTitle());
-      }
-      if (field.getTitleStyleCell() != null) {
-        item.setText(6, field.getTitleStyleCell());
-      }
-      if (field.isFormula()) {
-        item.setText(7, "Y");
-      } else {
-        item.setText(7, "N");
-      }
+        if (field.getFormat() != null) {
+          item.setText(3, field.getFormat());
+        }
+        if (field.getStyleCell() != null) {
+          item.setText(4, field.getStyleCell());
+        }
+        if (field.getTitle() != null) {
+          item.setText(5, field.getTitle());
+        }
+        if (field.getTitleStyleCell() != null) {
+          item.setText(6, field.getTitleStyleCell());
+        }
+        if (field.isFormula()) {
+          item.setText(7, "Y");
+        } else {
+          item.setText(7, "N");
+        }
 
-      if (field.getHyperlinkField() != null) {
-        item.setText(8, field.getHyperlinkField());
-      }
-      if (field.getCommentField() != null) {
-        item.setText(9, field.getCommentField());
-      }
-      if (field.getCommentAuthorField() != null) {
-        item.setText(10, field.getCommentAuthorField());
+        if (field.getHyperlinkField() != null) {
+          item.setText(8, field.getHyperlinkField());
+        }
+        if (field.getCommentField() != null) {
+          item.setText(9, field.getCommentField());
+        }
+        if (field.getCommentAuthorField() != null) {
+          item.setText(10, field.getCommentAuthorField());
+        }
       }
     }
 

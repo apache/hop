@@ -958,6 +958,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
             if (r != null) {
               String[] fieldNames = r.getFieldNames();
               if (fieldNames != null) {
+                // Close any active editors to clear cached combo values
+                wFields.closeActiveEditors();
                 wFields.clearAll();
                 for (int i = 0; i < fieldNames.length; i++) {
                   IValueMeta valueMeta = r.getValueMeta(i);
@@ -992,6 +994,10 @@ public class ExcelInputDialog extends BaseTransformDialog {
         wFields.removeEmptyRows();
         wFields.setRowNums();
         wFields.optWidth(true);
+
+        // Force table to redraw to update combo dropdowns with correct values
+        wFields.table.redraw();
+        wFields.table.update();
       }
     }
   }
@@ -1106,6 +1112,13 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wAccFilenames.setSelection(meta.isAcceptingFilenames());
     wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
     wIgnoreFields.setSelection(meta.isIgnoreFields());
+
+    // Apply the ignore fields state (fill from schema and disable/enable controls)
+    if (meta.isIgnoreFields()) {
+      fillFieldsLayoutFromSchema(false);
+      setFlags();
+    }
+
     if (meta.getAcceptingField() != null && !meta.getAcceptingField().isEmpty()) {
       wAccField.select(wAccField.indexOf(meta.getAcceptingField()));
     }
@@ -1129,33 +1142,38 @@ public class ExcelInputDialog extends BaseTransformDialog {
     if (isDebug()) {
       logDebug("getting fields info...");
     }
-    for (int i = 0; i < meta.getFields().size(); i++) {
-      ExcelInputField f = meta.getFields().get(i);
-      TableItem item = wFields.table.getItem(i);
-      String field = f.getName();
-      String type = f.getTypeDesc();
-      String length = "" + f.getLength();
-      String prec = "" + f.getPrecision();
-      String trim = f.getTrimType().getDescription();
-      String rep =
-          f.isRepeat()
-              ? BaseMessages.getString(PKG, CONST_COMBO_YES)
-              : BaseMessages.getString(PKG, CONST_COMBO_NO);
-      String format = f.getFormat();
-      String currency = f.getCurrencySymbol();
-      String decimal = f.getDecimalSymbol();
-      String grouping = f.getGroupSymbol();
 
-      item.setText(1, Const.NVL(field, ""));
-      item.setText(2, Const.NVL(type, ""));
-      item.setText(3, Const.NVL(length, ""));
-      item.setText(4, Const.NVL(prec, ""));
-      item.setText(5, Const.NVL(trim, ""));
-      item.setText(6, Const.NVL(rep, ""));
-      item.setText(7, Const.NVL(format, ""));
-      item.setText(8, Const.NVL(currency, ""));
-      item.setText(9, Const.NVL(decimal, ""));
-      item.setText(10, Const.NVL(grouping, ""));
+    // Only populate fields from metadata if NOT ignoring fields (will be filled from schema
+    // instead)
+    if (!meta.isIgnoreFields()) {
+      for (int i = 0; i < meta.getFields().size(); i++) {
+        ExcelInputField f = meta.getFields().get(i);
+        TableItem item = wFields.table.getItem(i);
+        String field = f.getName();
+        String type = f.getTypeDesc();
+        String length = "" + f.getLength();
+        String prec = "" + f.getPrecision();
+        String trim = f.getTrimType().getDescription();
+        String rep =
+            f.isRepeat()
+                ? BaseMessages.getString(PKG, CONST_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_COMBO_NO);
+        String format = f.getFormat();
+        String currency = f.getCurrencySymbol();
+        String decimal = f.getDecimalSymbol();
+        String grouping = f.getGroupSymbol();
+
+        item.setText(1, Const.NVL(field, ""));
+        item.setText(2, Const.NVL(type, ""));
+        item.setText(3, Const.NVL(length, ""));
+        item.setText(4, Const.NVL(prec, ""));
+        item.setText(5, Const.NVL(trim, ""));
+        item.setText(6, Const.NVL(rep, ""));
+        item.setText(7, Const.NVL(format, ""));
+        item.setText(8, Const.NVL(currency, ""));
+        item.setText(9, Const.NVL(decimal, ""));
+        item.setText(10, Const.NVL(grouping, ""));
+      }
     }
 
     wFields.removeEmptyRows();

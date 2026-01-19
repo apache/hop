@@ -161,8 +161,7 @@ public class SchemaDefinitionEditor extends MetadataEditor<SchemaDefinition> {
           new ColumnInfo(
               BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldType"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              false),
+              ValueMetaFactory.getValueMetaNames()),
           new ColumnInfo(
               BaseMessages.getString(PKG, "SchemaDefinitionDialog.Fields.Column.FieldFormat"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
@@ -213,7 +212,7 @@ public class SchemaDefinitionEditor extends MetadataEditor<SchemaDefinition> {
         new TableView(
             new Variables(),
             parent,
-            SWT.BORDER,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             columnInfos,
             this.getMetadata().getFieldDefinitions().size(),
             null,
@@ -290,7 +289,7 @@ public class SchemaDefinitionEditor extends MetadataEditor<SchemaDefinition> {
       sfd.setIfNullValue(item.getText(9));
       sfd.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(10)));
       sfd.setComment(item.getText(11));
-      sfd.setRoundingType(ValueMetaBase.getRoundingTypeCode(item.getText(11)));
+      sfd.setRoundingType(ValueMetaBase.getRoundingTypeCode(item.getText(12)));
       SchemaDefinition.getFieldDefinitions().add(sfd);
     }
   }
