@@ -117,11 +117,6 @@ public class TableView extends Composite {
       toolbar.setEnabled(enabled);
     }
 
-    // Cleanup active editors when disabling the table
-    if (!enabled) {
-      closeActiveEditors();
-    }
-
     this.table.setEnabled(enabled);
   }
 
@@ -1525,15 +1520,15 @@ public class TableView extends Composite {
     }
   }
 
-  private void safelyDisposeControl(Control combo) {
-    if (combo == null) {
+  private void safelyDisposeControl(Control control) {
+    if (control == null) {
       return;
     }
-    synchronized (combo) {
-      if (combo.isDisposed()) {
+    synchronized (control) {
+      if (control.isDisposed()) {
         return;
       }
-      combo.dispose();
+      control.dispose();
     }
   }
 
@@ -2441,11 +2436,20 @@ public class TableView extends Composite {
   }
 
   public void edit(int rowNr, int colNr) {
+    // Don't create editors if the table is disabled
+    if (!table.isEnabled() || !this.isEnabled()) {
+      return;
+    }
     setPosition(rowNr, colNr);
     edit(rowNr, colNr, true, (char) 0);
   }
 
   private void edit(int rowNr, int colNr, boolean selectText, char extra) {
+    // Don't create editors if the table is disabled
+    if (!table.isEnabled() || !this.isEnabled()) {
+      return;
+    }
+
     selectionStart = -1;
 
     TableItem row = table.getItem(rowNr);
@@ -2763,13 +2767,13 @@ public class TableView extends Composite {
 
       safelyDisposeControl(comboVar);
 
+      int comboStyle = SWT.SINGLE | SWT.LEFT;
+      if (columnInfo.isReadOnly()) {
+        comboStyle |= SWT.READ_ONLY;
+      }
       comboVar =
           new ComboVar(
-              variables,
-              table,
-              SWT.SINGLE | SWT.LEFT,
-              getCaretPositionInterface,
-              insertTextInterface);
+              variables, table, comboStyle, getCaretPositionInterface, insertTextInterface);
       if (lsFocusInTabItem != null) {
         comboVar.getCComboWidget().addListener(SWT.FocusIn, lsFocusInTabItem);
       } else {

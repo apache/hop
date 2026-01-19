@@ -2064,13 +2064,11 @@ public class TextFileInputDialog extends BaseTransformDialog
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.NameColumn.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
+              ColumnInfo.COLUMN_TYPE_TEXT),
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.TypeColumn.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaFactory.getValueMetaNames(),
-              true),
+              ValueMetaFactory.getValueMetaNames()),
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.FormatColumn.Column"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
@@ -2110,8 +2108,7 @@ public class TextFileInputDialog extends BaseTransformDialog
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.TrimTypeColumn.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ValueMetaBase.trimTypeDesc,
-              true),
+              ValueMetaBase.trimTypeDesc),
           new ColumnInfo(
               BaseMessages.getString(PKG, "TextFileInputDialog.RepeatColumn.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -2182,6 +2179,8 @@ public class TextFileInputDialog extends BaseTransformDialog
             if (r != null) {
               String[] fieldNames = r.getFieldNames();
               if (fieldNames != null) {
+                // Close any active editors to clear cached combo values
+                wFields.closeActiveEditors();
                 wFields.clearAll();
                 for (int i = 0; i < fieldNames.length; i++) {
                   IValueMeta valueMeta = r.getValueMeta(i);
@@ -2216,6 +2215,10 @@ public class TextFileInputDialog extends BaseTransformDialog
         wFields.removeEmptyRows();
         wFields.setRowNums();
         wFields.optWidth(true);
+
+        // Force table to redraw to update combo dropdowns with correct values
+        wFields.table.redraw();
+        wFields.table.update();
       }
     }
   }
@@ -2334,6 +2337,12 @@ public class TextFileInputDialog extends BaseTransformDialog
     wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
     wIgnoreFields.setSelection(meta.ignoreFields);
 
+    // Apply the ignore fields state (fill from schema and disable/enable controls)
+    if (meta.ignoreFields) {
+      fillFieldsLayoutFromSchema(false);
+    }
+    setFlags();
+
     if (meta.getFileName() != null) {
       wFilenameList.removeAll();
 
@@ -2399,7 +2408,11 @@ public class TextFileInputDialog extends BaseTransformDialog
     wLimit.setText("" + meta.content.rowLimit);
 
     logDebug("getting fields info...");
-    getFieldsData(meta, false, reloadAllFields, newFieldNames);
+    // Only populate fields from metadata if NOT ignoring fields (will be filled from schema
+    // instead)
+    if (!meta.ignoreFields) {
+      getFieldsData(meta, false, reloadAllFields, newFieldNames);
+    }
 
     if (meta.getEncoding() != null) {
       wEncoding.setText(meta.getEncoding());
