@@ -51,7 +51,7 @@ public class GlobalMessages extends AbstractMessageHandler {
     "Espa\u00F1ol (Spain) (Beta)",
     "Fran\u00E7ais",
     "Deutsch (Beta)",
-    "Portuguese (Brazil) (Beta)",
+    "Portuguese (Brazil)",
     "Portuguese (Portugal) (Beta)",
     "Espa\u00F1ol (Argentina) (Beta)",
     "Norwegian (Norway) (Beta)",
@@ -68,7 +68,7 @@ public class GlobalMessages extends AbstractMessageHandler {
     "Y", // "Espa\u00F1ol (Spain)"
     "N", // "Fran\u00E7ais"
     "Y", // "Deutsch"
-    "Y", // "Portuguese (Brazil)"
+    "N", // "Portuguese (Brazil)"
     "Y", // "Portuguese (Portugal)"
     "Y", // "Espa\u00F1ol (Argentina)"
     "Y", // "Norwegian (Norway)"
