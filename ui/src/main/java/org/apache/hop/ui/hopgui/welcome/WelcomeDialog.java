@@ -119,7 +119,7 @@ public class WelcomeDialog {
       PropsUi.setLook(doNotShow);
       FormData fdDoNotShow = new FormData();
       fdDoNotShow.bottom = new FormAttachment(100, 0);
-      fdDoNotShow.left = new FormAttachment(0, 0);
+      fdDoNotShow.left = new FormAttachment(0, margin);
       fdDoNotShow.right = new FormAttachment(100, 0);
       doNotShow.setLayoutData(fdDoNotShow);
 
