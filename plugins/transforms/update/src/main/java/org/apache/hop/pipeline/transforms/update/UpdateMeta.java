@@ -55,12 +55,12 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
     keywords = "i18n::UpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/update.html",
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
+@Getter
+@Setter
 public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private static final Class<?> PKG = UpdateMeta.class;
 
   /** Commit size for inserts/updates */
-  @Getter
-  @Setter
   @HopMetadataProperty(
       key = "commit",
       injectionKeyDescription = "UpdateMeta.Injection.CommitSize",
@@ -68,14 +68,10 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private String commitSize;
 
   /** Lookup key fields * */
-  @Setter
-  @Getter
   @HopMetadataProperty(key = "lookup")
   private UpdateLookupField lookupField;
 
   /** update errors are ignored if this flag is set to true */
-  @Getter
-  @Setter
   @HopMetadataProperty(
       key = "error_ignored",
       injectionKeyDescription = "UpdateMeta.Injection.IgnoreLookupFailure",
@@ -83,8 +79,6 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private boolean errorIgnored;
 
   /** adds a boolean field to the output indicating success of the update */
-  @Setter
-  @Getter
   @HopMetadataProperty(
       key = "ignore_flag_field",
       injectionKeyDescription = "UpdateMeta.Injection.IgnoreFlagField",
@@ -92,8 +86,6 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private String ignoreFlagField;
 
   /** adds a boolean field to skip lookup and directly update selected fields */
-  @Setter
-  @Getter
   @HopMetadataProperty(
       key = "skip_lookup",
       injectionKeyDescription = "UpdateMeta.Injection.SkipLookup",
@@ -104,8 +96,6 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
    * Flag to indicate the use of batch updates, enabled by default but disabled for backward
    * compatibility
    */
-  @Setter
-  @Getter
   @HopMetadataProperty(
       key = "use_batch",
       injectionKeyDescription = "UpdateMeta.Injection.UseBatchUpdate",
@@ -113,8 +103,6 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
   private boolean useBatchUpdate;
 
   /** database connection */
-  @Setter
-  @Getter
   @HopMetadataProperty(
       key = "connection",
       injectionKeyDescription = "UpdateMeta.Injection.Connection",
