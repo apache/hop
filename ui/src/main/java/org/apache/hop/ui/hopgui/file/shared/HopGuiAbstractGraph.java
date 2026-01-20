@@ -33,6 +33,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
+import org.apache.hop.ui.core.gui.HopToolTip;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IGraphSnapAlignDistribute;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -41,7 +42,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolTip;
 
 /**
  * The beginnings of a common graph object, used by {@code HopGuiWorkflowGraph} and {@code
@@ -62,7 +62,7 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   protected Point noteOffset;
   protected Rectangle resizeArea;
   protected Resize resize;
-  protected ToolTip toolTip;
+  protected HopToolTip toolTip;
   protected String mouseOverName;
 
   /**

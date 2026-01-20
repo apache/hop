@@ -145,6 +145,7 @@ import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.gui.HopToolTip;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -209,7 +210,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.widgets.ToolTip;
 
 /**
  * This class handles the display of the pipelines in a graphical way using icons, arrows, etc. One
@@ -509,7 +509,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     sashForm.setWeights(100);
 
-    toolTip = new ToolTip(getShell(), SWT.BALLOON);
+    toolTip = new HopToolTip(getShell());
     toolTip.setAutoHide(true);
 
     iconSize = hopGui.getProps().getIconSize();
