@@ -18,6 +18,8 @@
 package org.apache.hop.ui.hopgui.perspective.explorer;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -54,7 +56,10 @@ import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -192,7 +197,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @Getter private GuiMenuWidgets menuWidgets;
   private final List<TabItemHandler> items;
   private boolean showingHiddenFiles;
-  private Composite treeComposite;
+
   private boolean fileExplorerPanelVisible = true;
   @Getter private String rootFolder;
   @Getter private String rootName;
@@ -397,6 +402,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   }
 
   protected void createTree(Composite parent) {
+    Composite treeComposite;
     // Create composite
     //
     treeComposite = new Composite(parent, SWT.NONE);
@@ -900,8 +906,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
-  private void renameFile(FileObject sourceFile, FileObject targetFile)
-      throws FileSystemException, HopFileException {
+  private void renameFile(FileObject sourceFile, FileObject targetFile) throws FileSystemException {
 
     if (sourceFile.isFolder()) {
       // List all impacted files
@@ -921,6 +926,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
           changeFilename(handler.getTypeHandler(), path.toString());
           updateTabItem(handler.getTypeHandler());
+          saveFileIfNameSynchronized(handler.getTypeHandler());
         }
       }
     } else {
@@ -932,6 +938,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       if (handler != null) {
         changeFilename(handler.getTypeHandler(), HopVfs.getFilename(targetFile));
         updateTabItem(handler.getTypeHandler());
+        saveFileIfNameSynchronized(handler.getTypeHandler());
+      } else {
+        // File is not open, but we still need to update the name attribute if name sync is enabled
+        updateClosedFileIfNameSynchronized(targetFile);
       }
     }
 
@@ -984,6 +994,79 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     hopGui.fileRefreshDelegate.remove(oldFilename);
     fileTypeHandler.setFilename(newFilename);
     hopGui.fileRefreshDelegate.register(newFilename, fileTypeHandler);
+  }
+
+  /**
+   * Save the file if it's a pipeline or workflow with name synchronization enabled. This ensures
+   * that when a file is renamed, the name attribute in the XML is updated to match the new
+   * filename.
+   *
+   * @param fileTypeHandler to specify which filetype
+   */
+  private void saveFileIfNameSynchronized(IHopFileTypeHandler fileTypeHandler) {
+    try {
+      Object subject = fileTypeHandler.getSubject();
+      if (subject instanceof PipelineMeta pipelineMeta
+          && pipelineMeta.isNameSynchronizedWithFilename()) {
+        fileTypeHandler.save();
+      } else if (subject instanceof WorkflowMeta workflowMeta
+          && workflowMeta.isNameSynchronizedWithFilename()) {
+        fileTypeHandler.save();
+      }
+
+    } catch (Exception e) {
+      hopGui.getLog().logError("Error saving file after rename", e);
+    }
+  }
+
+  /**
+   * Update a closed file's name attribute if it has name synchronization enabled. This is called
+   * when renaming a file that is not currently open in any tab.
+   */
+  private void updateClosedFileIfNameSynchronized(FileObject targetFile) {
+    try {
+      String filename = HopVfs.getFilename(targetFile);
+      String extension = filename.substring(filename.lastIndexOf('.'));
+
+      // Check if it's a pipeline or workflow file
+      if (".hpl".equalsIgnoreCase(extension)) {
+        // Load pipeline
+        IVariables variables = Variables.getADefaultVariableSpace();
+        PipelineMeta pipelineMeta =
+            new PipelineMeta(filename, hopGui.getMetadataProvider(), variables);
+        if (pipelineMeta.isNameSynchronizedWithFilename()) {
+          // Save to update the name attribute
+          String xml = pipelineMeta.getXml(variables);
+          OutputStream out = HopVfs.getOutputStream(filename, false);
+          try {
+            out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+            out.write(xml.getBytes(StandardCharsets.UTF_8));
+          } finally {
+            out.flush();
+            out.close();
+          }
+        }
+      } else if (".hwf".equalsIgnoreCase(extension)) {
+        // Load workflow
+        IVariables variables = Variables.getADefaultVariableSpace();
+        WorkflowMeta workflowMeta =
+            new WorkflowMeta(variables, filename, hopGui.getMetadataProvider());
+        if (workflowMeta.isNameSynchronizedWithFilename()) {
+          // Save to update the name attribute
+          String xml = workflowMeta.getXml(variables);
+          OutputStream out = HopVfs.getOutputStream(filename, false);
+          try {
+            out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+            out.write(xml.getBytes(StandardCharsets.UTF_8));
+          } finally {
+            out.flush();
+            out.close();
+          }
+        }
+      }
+    } catch (Exception e) {
+      hopGui.getLog().logError("Error updating closed file after rename", e);
+    }
   }
 
   protected void createTabFolder(Composite parent) {
@@ -1682,7 +1765,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       rootItem.setText(Const.NVL(rootName, ""));
       IHopFileType fileType = getFileType(rootFolder);
       setItemImage(rootItem, fileType);
-      callPaintListeners(tree, rootItem, rootFolder, rootName, fileType);
+      callPaintListeners(tree, rootItem, rootFolder, rootName);
       setTreeItemData(rootItem, rootFolder, rootName, fileType, 0, true, true);
 
       // Paint the top level folder only
@@ -1818,7 +1901,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           TreeItem childItem = new TreeItem(item, SWT.NONE);
           childItem.setText(childName);
           setItemImage(childItem, fileType);
-          callPaintListeners(tree, childItem, childPath, childName, fileType);
+          callPaintListeners(tree, childItem, childPath, childName);
           setTreeItemData(childItem, childPath, childName, fileType, depth, folder, true);
 
           // Recursively add children
@@ -1874,8 +1957,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
   }
 
-  private void callPaintListeners(
-      Tree tree, TreeItem treeItem, String path, String name, IHopFileType fileType) {
+  private void callPaintListeners(Tree tree, TreeItem treeItem, String path, String name) {
     for (IExplorerFilePaintListener filePaintListener : filePaintListeners) {
       filePaintListener.filePainted(tree, treeItem, path, name);
     }
@@ -2051,11 +2133,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     // If the filename is a URL and the name is the full URL or very long, extract a better title
     if (filename != null
         && (filename.toLowerCase().startsWith("http://")
-            || filename.toLowerCase().startsWith("https://"))) {
-      // If name is the URL or longer than 30 chars, extract a better title
-      if (name == null || name.equals(filename) || name.length() > 30) {
-        return extractTitleFromUrl(filename);
-      }
+            || filename.toLowerCase().startsWith("https://"))
+        && (name == null || name.equals(filename) || name.length() > 30)) {
+      return extractTitleFromUrl(filename);
     }
 
     return name;
@@ -2104,8 +2184,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       String[] words = title.split("\\s+");
       StringBuilder result = new StringBuilder();
       for (String word : words) {
-        if (word.length() > 0) {
-          if (result.length() > 0) {
+        if (!word.isEmpty()) {
+          if (!result.isEmpty()) {
             result.append(" ");
           }
           result.append(word.substring(0, 1).toUpperCase());
@@ -2176,8 +2256,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
         for (IExplorerRefreshListener listener : refreshListeners) {
           listener.beforeRefresh();
         }
-        callPaintListeners(
-            tree, item, filename, fileTypeHandler.getName(), fileTypeHandler.getFileType());
+        callPaintListeners(tree, item, filename, fileTypeHandler.getName());
       }
     }
   }
@@ -2339,7 +2418,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     if (fileExplorerPanelVisible) {
       // Show the file explorer panel - restore normal layout
       sash.setMaximizedControl(null);
-      sash.setWeights(new int[] {20, 80});
+      sash.setWeights(20, 80);
     } else {
       // Hide the file explorer panel - maximize the tab folder
       sash.setMaximizedControl(tabFolder);
