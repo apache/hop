@@ -115,6 +115,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   public static final String TOOLBAR_ITEM_DUPLICATE = "MetadataPerspective-Toolbar-10030-Duplicate";
   public static final String TOOLBAR_ITEM_DELETE = "MetadataPerspective-Toolbar-10040-Delete";
   public static final String TOOLBAR_ITEM_RENAME = "MetadataPerspective-Toolbar-10020-Rename";
+  public static final String TOOLBAR_ITEM_EXPAND_ALL =
+      "MetadataPerspective-Toolbar-10060-ExpandAll";
+  public static final String TOOLBAR_ITEM_COLLAPSE_ALL =
+      "MetadataPerspective-Toolbar-10070-CollapseAll";
   public static final String TOOLBAR_ITEM_REFRESH = "MetadataPerspective-Toolbar-10100-Refresh";
 
   private static final String KEY_HELP = "Help";
@@ -132,6 +136,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
   private GuiToolbarWidgets toolBarWidgets;
+  private Text searchText;
+  private String currentSearchFilter = "";
 
   private final List<MetadataEditor<?>> editors = new ArrayList<>();
 
@@ -215,11 +221,35 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   protected void createTree(Composite parent) {
     // Create composite
     //
-    Composite composite = new Composite(parent, SWT.BORDER);
+    Composite treeComposite = new Composite(parent, SWT.NONE);
     FormLayout layout = new FormLayout();
     layout.marginWidth = 0;
     layout.marginHeight = 0;
-    composite.setLayout(layout);
+    treeComposite.setLayout(layout);
+
+    // Create search/filter text box
+    //
+    searchText = new Text(treeComposite, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH);
+    searchText.setMessage(BaseMessages.getString(PKG, "MetadataPerspective.Search.Placeholder"));
+    PropsUi.setLook(searchText);
+    FormData searchFormData = new FormData();
+    searchFormData.left = new FormAttachment(0, 0);
+    searchFormData.top = new FormAttachment(0, 0);
+    searchFormData.right = new FormAttachment(100, 0);
+    searchText.setLayoutData(searchFormData);
+
+    // Add search listener
+    searchText.addListener(SWT.Modify, e -> filterTree());
+
+    // Create a composite with toolbar and tree for the border
+    Composite composite = new Composite(treeComposite, SWT.BORDER);
+    composite.setLayout(new FormLayout());
+    FormData layoutData = new FormData();
+    layoutData.left = new FormAttachment(0, 0);
+    layoutData.top = new FormAttachment(searchText, PropsUi.getMargin());
+    layoutData.right = new FormAttachment(100, 0);
+    layoutData.bottom = new FormAttachment(100, 0);
+    composite.setLayoutData(layoutData);
 
     // Create toolbar
     //
@@ -227,11 +257,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
     toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
-    FormData layoutData = new FormData();
-    layoutData.left = new FormAttachment(0, 0);
-    layoutData.top = new FormAttachment(0, 0);
-    layoutData.right = new FormAttachment(100, 0);
-    toolBar.setLayoutData(layoutData);
+    FormData toolBarFormData = new FormData();
+    toolBarFormData.left = new FormAttachment(0, 0);
+    toolBarFormData.top = new FormAttachment(0, 0);
+    toolBarFormData.right = new FormAttachment(100, 0);
+    toolBar.setLayoutData(toolBarFormData);
     toolBar.pack();
     PropsUi.setLook(toolBar, Props.WIDGET_STYLE_TOOLBAR);
 
@@ -316,7 +346,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
-    treeFormData.top = new FormAttachment(toolBar, 0);
+    treeFormData.top = new FormAttachment(toolBar, PropsUi.getMargin());
     treeFormData.right = new FormAttachment(100, 0);
     treeFormData.bottom = new FormAttachment(100, 0);
     tree.setLayoutData(treeFormData);
@@ -779,6 +809,46 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_EXPAND_ALL,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.ExpandAll.Tooltip",
+      image = "ui/images/expand-all.svg")
+  public void expandAll() {
+    if (tree == null || tree.isDisposed()) {
+      return;
+    }
+
+    tree.setRedraw(false);
+    try {
+      for (TreeItem item : tree.getItems()) {
+        expandTreeItem(item, true);
+      }
+    } finally {
+      tree.setRedraw(true);
+    }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_COLLAPSE_ALL,
+      toolTip = "i18n::MetadataPerspective.ToolbarElement.CollapseAll.Tooltip",
+      image = "ui/images/collapse-all.svg")
+  public void collapseAll() {
+    if (tree == null || tree.isDisposed()) {
+      return;
+    }
+
+    tree.setRedraw(false);
+    try {
+      for (TreeItem item : tree.getItems()) {
+        expandTreeItem(item, false);
+      }
+    } finally {
+      tree.setRedraw(true);
+    }
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
       toolTip = "i18n::MetadataPerspective.ToolbarElement.Refresh.Tooltip",
       image = "ui/images/refresh.svg")
@@ -830,6 +900,11 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         Collections.sort(names);
 
         for (final String name : names) {
+          // Apply filter - skip non-matching items
+          if (!matchesFilter(name)) {
+            continue;
+          }
+
           IHopMetadata hopMetadata;
           try {
             hopMetadata = serializer.load(name);
@@ -869,6 +944,12 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                       VIRTUAL_PATH,
                       folderItem.getParentItem().getData(VIRTUAL_PATH) + "/" + folder);
                   folderItem.setData(KEY_TYPE, FOLDER);
+
+                  // Expand folders when filtering to show matches
+                  if (!Utils.isEmpty(currentSearchFilter)) {
+                    folderItem.setExpanded(true);
+                  }
+
                   parentItem = folderItem;
                 }
               }
@@ -886,12 +967,29 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         }
       }
 
+      // Remove empty class items (those with no children after filtering)
+      if (!Utils.isEmpty(currentSearchFilter)) {
+        List<TreeItem> itemsToRemove = new ArrayList<>();
+        for (TreeItem classItem : tree.getItems()) {
+          if (classItem.getItemCount() == 0) {
+            itemsToRemove.add(classItem);
+          } else {
+            // Expand class items when filtering to show matches
+            classItem.setExpanded(true);
+          }
+        }
+        for (TreeItem item : itemsToRemove) {
+          item.dispose();
+        }
+      }
+
       TreeUtil.setOptimalWidthOnColumns(tree);
       TreeMemory.setExpandedFromMemory(tree, METADATA_PERSPECTIVE_TREE);
 
       tree.setRedraw(true);
 
       updateGui();
+      updateSelection();
     } catch (Exception e) {
       new ErrorDialog(
           getShell(),
@@ -901,16 +999,48 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     }
   }
 
+  /** Filter the tree based on search text */
+  protected void filterTree() {
+    if (searchText == null || searchText.isDisposed()) {
+      return;
+    }
+
+    currentSearchFilter = searchText.getText();
+
+    // Refresh to rebuild the tree with or without filter
+    refresh();
+  }
+
+  /** Check if a metadata name matches the current filter */
+  private boolean matchesFilter(String name) {
+    if (Utils.isEmpty(currentSearchFilter)) {
+      return true;
+    }
+    return name != null && name.toLowerCase().contains(currentSearchFilter.toLowerCase());
+  }
+
+  /** Recursively expand or collapse a tree item and all its children */
+  private void expandTreeItem(TreeItem item, boolean expand) {
+    item.setExpanded(expand);
+    for (TreeItem child : item.getItems()) {
+      expandTreeItem(child, expand);
+    }
+  }
+
   protected void updateSelection() {
 
     boolean isMetadataSelected = false;
+    boolean isAnythingSelected = false;
+
     if (tree.getSelectionCount() > 0) {
+      isAnythingSelected = true;
       TreeItem treeItem = tree.getSelection()[0];
       if (treeItem.getData(KEY_TYPE).equals(FILE)) {
         isMetadataSelected = true;
       }
     }
 
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_NEW, isAnythingSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_EDIT, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, isMetadataSelected);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DUPLICATE, isMetadataSelected);
