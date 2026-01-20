@@ -105,6 +105,7 @@ import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.gui.HopToolTip;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -173,7 +174,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.widgets.ToolTip;
 
 /** Handles the display of Workflows in HopGui, in a graphical form. */
 @GuiPlugin(name = "i18n::WorkflowGraph.Name", description = "Workflow Graph GUI plugin")
@@ -421,7 +421,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     sashForm.setWeights(100);
 
-    toolTip = new ToolTip(getShell(), SWT.BALLOON);
+    toolTip = new HopToolTip(getShell());
     toolTip.setAutoHide(true);
 
     newProps();
