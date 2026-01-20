@@ -132,7 +132,13 @@ public class RestDialog extends BaseTransformDialog {
 
   private TextVar wResponseHeader;
 
+  /** trust store password label */
+  private Label wlTrustStorePassword;
+
   private TextVar wTrustStorePassword;
+
+  /** trust store file label */
+  private Label wlTrustStoreFile;
 
   private TextVar wTrustStoreFile;
 
@@ -199,8 +205,8 @@ public class RestDialog extends BaseTransformDialog {
 
     Group gSettings = setupSettingGroup(wGeneralComp);
 
-    setupRestConnectionLine(lsMod, middle, margin, wGeneralComp, gSettings);
-    setupUrlLine(lsMod, middle, margin, wGeneralComp, gSettings);
+    setupRestConnectionLine(margin, wGeneralComp, gSettings);
+    setupUrlLine(lsMod, middle, margin, gSettings);
     setupUrlInFieldLine(middle, margin, gSettings);
     setupUrlFieldNameLine(lsMod, middle, margin, gSettings);
     setupHttpMethodLine(lsMod, middle, margin, gSettings);
@@ -326,8 +332,8 @@ public class RestDialog extends BaseTransformDialog {
 
     Group gSSLTrustStore = setupTrustoreGroup(wSSLComp);
 
-    Button wbTrustStoreFile = setupTrustoreFileLine(lsMod, middle, margin, gSSLTrustStore);
-    setupTrustorePwdLine(lsMod, middle, margin, gSSLTrustStore, wbTrustStoreFile);
+    Button wbTrustStoreFile = setupTrustStoreFileLine(lsMod, middle, margin, gSSLTrustStore);
+    setupTrustStorePwdLine(lsMod, middle, margin, gSSLTrustStore, wbTrustStoreFile);
     setupIgnoreSslLine(middle, margin, gSSLTrustStore);
 
     FormData fdSSLTrustStore = new FormData();
@@ -440,7 +446,7 @@ public class RestDialog extends BaseTransformDialog {
     getData();
     activateUrlInfield();
     activateMethodInfield();
-    activateTrustoreFields();
+    activateTrustStoreFields();
     setMethod();
     input.setChanged(changed);
 
@@ -649,21 +655,26 @@ public class RestDialog extends BaseTransformDialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
-            activateTrustoreFields();
+            activateTrustStoreFields();
           }
         });
   }
 
-  private void activateTrustoreFields() {
+  private void activateTrustStoreFields() {
+    // trust store file(label/text/browse)
+    wlTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
     wTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
     wbTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
+
+    // trust store password(label/text)
+    wlTrustStorePassword.setEnabled(!wIgnoreSsl.getSelection());
     wTrustStorePassword.setEnabled(!wIgnoreSsl.getSelection());
   }
 
-  private void setupTrustorePwdLine(
+  private void setupTrustStorePwdLine(
       ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore, Button wbTrustStoreFile) {
     // TrustStorePassword line
-    Label wlTrustStorePassword = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlTrustStorePassword = new Label(gSSLTrustStore, SWT.RIGHT);
     wlTrustStorePassword.setText(
         BaseMessages.getString(PKG, "RestDialog.TrustStorePassword.Label"));
     PropsUi.setLook(wlTrustStorePassword);
@@ -683,10 +694,10 @@ public class RestDialog extends BaseTransformDialog {
     wTrustStorePassword.setLayoutData(fdTrustStorePassword);
   }
 
-  private Button setupTrustoreFileLine(
+  private Button setupTrustStoreFileLine(
       ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore) {
     // TrustStoreFile line
-    Label wlTrustStoreFile = new Label(gSSLTrustStore, SWT.RIGHT);
+    wlTrustStoreFile = new Label(gSSLTrustStore, SWT.RIGHT);
     wlTrustStoreFile.setText(BaseMessages.getString(PKG, "RestDialog.TrustStoreFile.Label"));
     PropsUi.setLook(wlTrustStoreFile);
     FormData fdlTrustStoreFile = new FormData();
@@ -1197,9 +1208,7 @@ public class RestDialog extends BaseTransformDialog {
         });
   }
 
-  private void setupRestConnectionLine(
-      ModifyListener lsMod, int middle, int margin, Composite wGeneralComp, Group gSettings) {
-
+  private void setupRestConnectionLine(int margin, Composite wGeneralComp, Group gSettings) {
     wSelectionLine =
         new MetaSelectionLine(
             variables,
@@ -1223,8 +1232,7 @@ public class RestDialog extends BaseTransformDialog {
     }
   }
 
-  private void setupUrlLine(
-      ModifyListener lsMod, int middle, int margin, Composite wGeneralComp, Group gSettings) {
+  private void setupUrlLine(ModifyListener lsMod, int middle, int margin, Group gSettings) {
 
     wlUrl = new Label(gSettings, SWT.RIGHT);
     wlUrl.setText(BaseMessages.getString(PKG, "RestDialog.URL.Label"));
