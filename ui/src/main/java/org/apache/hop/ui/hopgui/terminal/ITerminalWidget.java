@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Composite;
  * <p>Implementations:
  *
  * <ul>
- *   <li>{@link SimpleTerminalWidget} - Simple ProcessBuilder-based console (reliable, basic)
  *   <li>{@link JediTerminalWidget} - JediTerm-based terminal with full VT100/xterm emulation
  * </ul>
  */
