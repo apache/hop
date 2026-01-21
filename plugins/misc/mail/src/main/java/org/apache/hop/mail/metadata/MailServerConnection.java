@@ -77,7 +77,7 @@ import org.eclipse.angus.mail.pop3.POP3SSLStore;
     name = "i18n::MailServerConnection.name",
     description = "i18n::MailServerConnection.description",
     image = "mail.svg",
-    documentationUrl = "",
+    documentationUrl = "/metadata-types/mail-server-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.MAIL_SERVER_CONNECTION)
 public class MailServerConnection extends HopMetadataBase implements IHopMetadata {
 
