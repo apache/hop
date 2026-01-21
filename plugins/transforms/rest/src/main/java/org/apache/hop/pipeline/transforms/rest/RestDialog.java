@@ -29,9 +29,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.rest.common.RestConst;
 import org.apache.hop.pipeline.transforms.rest.fields.HeaderField;
 import org.apache.hop.pipeline.transforms.rest.fields.MatrixParameterField;
 import org.apache.hop.pipeline.transforms.rest.fields.ParameterField;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -55,6 +57,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -149,6 +152,13 @@ public class RestDialog extends BaseTransformDialog {
   private Button wMatrixGet;
 
   private MetaSelectionLine wSelectionLine;
+
+  /** retry */
+  private TextVar wRetryTimes;
+
+  private TextVar wRetryDelay;
+  private TableView wStatusCodes;
+  private TableView wMethods;
 
   public RestDialog(
       Shell parent, IVariables variables, RestMeta transformMeta, PipelineMeta pipelineMeta) {
@@ -425,6 +435,9 @@ public class RestDialog extends BaseTransformDialog {
 
     setupMatrixParamTabContent(lsMod, margin, wMatrixParametersTab, wMatrixParametersComp);
 
+    // retry
+    addRetryTabItem(wTabFolder, lsMod);
+
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wTransformName, margin);
@@ -453,6 +466,117 @@ public class RestDialog extends BaseTransformDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private void addRetryTabItem(CTabFolder wTabFolder, ModifyListener lsMod) {
+    CTabItem retryTab = new CTabItem(wTabFolder, SWT.NONE);
+    retryTab.setFont(GuiResource.getInstance().getFontDefault());
+    retryTab.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Title"));
+
+    Composite wRetryComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wRetryComp);
+    FormLayout pl = new FormLayout();
+    pl.marginWidth = PropsUi.getFormMargin();
+    pl.marginHeight = PropsUi.getFormMargin();
+    wRetryComp.setLayout(pl);
+
+    // Retry Times
+    Label wlRetryTimes = new Label(wRetryComp, SWT.RIGHT);
+    wlRetryTimes.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Times"));
+    PropsUi.setLook(wlRetryTimes);
+    wlRetryTimes.setLayoutData(FormDataBuilder.builder().top(0, 5).left().width(300).build());
+
+    wRetryTimes = new TextVar(variables, wRetryComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wRetryTimes);
+    wRetryTimes.setLayoutData(
+        FormDataBuilder.builder().top(0, 5).left(wlRetryTimes, 5).right(100, 0).build());
+
+    // Retry Delay (ms)
+    Label wlRetryDelay = new Label(wRetryComp, SWT.RIGHT);
+    wlRetryDelay.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Delay"));
+    PropsUi.setLook(wlRetryDelay);
+    wlRetryDelay.setLayoutData(
+        FormDataBuilder.builder().top(wlRetryTimes, 5).left().width(300).build());
+
+    wRetryDelay = new TextVar(variables, wRetryComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wRetryDelay);
+    wRetryDelay.setLayoutData(
+        FormDataBuilder.builder().top(wRetryTimes, 5).left(wlRetryDelay, 5).right(100, 0).build());
+
+    // Status Codes table (left)
+    retryResponseCodeLeft(wRetryComp, wlRetryDelay, lsMod);
+    // HTTP Methods table (right)
+    retryRequestMethodRight(wRetryComp, wRetryDelay, lsMod);
+
+    wRetryComp.setLayoutData(
+        FormDataBuilder.builder().top().left().right(100, 0).bottom(100, 0).build());
+    wRetryComp.layout();
+    retryTab.setControl(wRetryComp);
+  }
+
+  private void retryResponseCodeLeft(Composite wRetryComp, Control top, ModifyListener lsMod) {
+    // Status Codes table (left)
+    Label wlStatusCodes = new Label(wRetryComp, SWT.LEFT);
+    wlStatusCodes.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Http.Status"));
+    PropsUi.setLook(wlStatusCodes);
+    wlStatusCodes.setLayoutData(FormDataBuilder.builder().top(top, 30).left(0, 0).build());
+
+    String colName = BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Http.Status.Header");
+    ColumnInfo[] headers =
+        new ColumnInfo[] {new ColumnInfo(colName, ColumnInfo.COLUMN_TYPE_TEXT, false)};
+
+    wStatusCodes =
+        new TableView(
+            variables,
+            wRetryComp,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            headers,
+            0,
+            false,
+            lsMod,
+            props);
+
+    PropsUi.setLook(wStatusCodes);
+    wStatusCodes.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlStatusCodes, PropsUi.getMargin())
+            .left(0, 0)
+            .right(50, -PropsUi.getMargin() / 2)
+            .bottom(100, 0)
+            .build());
+  }
+
+  private void retryRequestMethodRight(Composite wRetryComp, Control top, ModifyListener lsMod) {
+    // HTTP Methods table (right)
+    Label wlMethods = new Label(wRetryComp, SWT.LEFT);
+    wlMethods.setText(BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Http.Method"));
+    PropsUi.setLook(wlMethods);
+    wlMethods.setLayoutData(
+        FormDataBuilder.builder().top(top, 30).left(50, PropsUi.getMargin() / 2).build());
+
+    String colName = BaseMessages.getString(PKG, "RestDialog.Tab.Retry.Http.Method.Header");
+    ColumnInfo[] headers =
+        new ColumnInfo[] {new ColumnInfo(colName, ColumnInfo.COLUMN_TYPE_TEXT, false)};
+
+    wMethods =
+        new TableView(
+            variables,
+            wRetryComp,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            headers,
+            0,
+            false,
+            lsMod,
+            props);
+
+    PropsUi.setLook(wMethods);
+    wMethods.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlMethods, PropsUi.getMargin())
+            .left(50, PropsUi.getMargin() / 2)
+            .right(100, 0)
+            .bottom(100, 0)
+            .build());
   }
 
   private void setupMatrixParamTabContent(
@@ -1460,8 +1584,44 @@ public class RestDialog extends BaseTransformDialog {
     wFields.setRowNums();
     wFields.optWidth(true);
 
+    // get retry data
+    getDataForRetry();
+
     wTransformName.selectAll();
     wTransformName.setFocus();
+  }
+
+  private void getDataForRetry() {
+    if (input.getRetryTimes() != null) {
+      wRetryTimes.setText(input.getRetryTimes().toString());
+    } else {
+      wRetryTimes.setText(RestConst.DEFAULT_RETRY_TIMES + Const.EMPTY_STRING);
+    }
+
+    if (input.getRetryDelayMs() != null) {
+      wRetryDelay.setText(input.getRetryDelayMs().toString());
+    } else {
+      wRetryDelay.setText(RestConst.DEFAULT_RETRY_DELAY_MS + Const.EMPTY_STRING);
+    }
+
+    // http response code
+    List<String> codes = input.getRetryStatusCodes();
+    if (codes != null && !codes.isEmpty()) {
+      wStatusCodes.table.removeAll();
+      for (String code : codes) {
+        TableItem item = new TableItem(wStatusCodes.table, SWT.NONE);
+        item.setText(1, code);
+      }
+    }
+
+    // http request methods
+    List<String> methods = input.getRetryMethods();
+    if (methods != null && !methods.isEmpty()) {
+      wMethods.table.removeAll();
+      for (String method : methods) {
+        wMethods.add(method);
+      }
+    }
   }
 
   private void cancel() {
@@ -1538,7 +1698,41 @@ public class RestDialog extends BaseTransformDialog {
     input.setApplicationType(wApplicationType.getText());
     transformName = wTransformName.getText(); // return value
 
+    okForRetry();
     dispose();
+  }
+
+  private void okForRetry() {
+    // retry times
+    if (!Utils.isEmpty(wRetryTimes.getText())) {
+      int times = Integer.parseInt(wRetryTimes.getText());
+      input.setRetryTimes(Math.max(times, 0));
+    } else {
+      input.setRetryTimes(RestConst.DEFAULT_RETRY_TIMES);
+    }
+
+    // retry delay
+    if (!Utils.isEmpty(wRetryDelay.getText())) {
+      long delay = Long.parseLong(wRetryDelay.getText());
+      input.setRetryDelayMs(Math.max(delay, RestConst.DEFAULT_RETRY_DELAY_MS / 2));
+    } else {
+      input.setRetryDelayMs(RestConst.DEFAULT_RETRY_DELAY_MS);
+    }
+
+    input.getRetryStatusCodes().clear();
+    for (int i = 0; i < wStatusCodes.nrNonEmpty(); i++) {
+      TableItem item = wStatusCodes.getNonEmpty(i);
+      input.getRetryStatusCodes().add(item.getText(1));
+    }
+
+    input.getRetryMethods().clear();
+    for (int i = 0; i < wMethods.nrNonEmpty(); i++) {
+      TableItem item = wMethods.getNonEmpty(i);
+      String text = item.getText(1);
+      if (!Utils.isEmpty(text)) {
+        input.getRetryMethods().add(text.toUpperCase());
+      }
+    }
   }
 
   private void getParametersFields(TableView tView) {

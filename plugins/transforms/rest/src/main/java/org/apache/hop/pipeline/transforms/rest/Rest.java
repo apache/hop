@@ -40,6 +40,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -247,48 +249,24 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           logDebug(BaseMessages.getString(PKG, "Rest.Log.BodyValue", entityString));
         }
       }
-      try {
-        switch (data.method) {
-          case RestMeta.HTTP_METHOD_GET -> response = invocationBuilder.get(Response.class);
-          case RestMeta.HTTP_METHOD_POST -> {
-            if (null != contentType) {
-              response = invocationBuilder.post(Entity.entity(entityString, contentType));
-            } else {
-              response = invocationBuilder.post(Entity.entity(entityString, data.mediaType));
-            }
-          }
-          case RestMeta.HTTP_METHOD_PUT -> {
-            if (null != contentType) {
-              response = invocationBuilder.put(Entity.entity(entityString, contentType));
-            } else {
-              response = invocationBuilder.put(Entity.entity(entityString, data.mediaType));
-            }
-          }
-          case RestMeta.HTTP_METHOD_DELETE -> {
-            Invocation invocation =
-                invocationBuilder.build("DELETE", Entity.entity(entityString, data.mediaType));
-            response = invocation.invoke();
-          }
-          case RestMeta.HTTP_METHOD_HEAD -> response = invocationBuilder.head();
-          case RestMeta.HTTP_METHOD_OPTIONS -> response = invocationBuilder.options();
-          case RestMeta.HTTP_METHOD_PATCH -> {
-            if (null != contentType) {
-              response =
-                  invocationBuilder.method(
-                      RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, contentType));
-            } else {
-              response =
-                  invocationBuilder.method(
-                      RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, data.mediaType));
-            }
-          }
-          default ->
-              throw new HopException(
-                  BaseMessages.getString(PKG, "Rest.Error.UnknownMethod", data.method));
-        }
-      } catch (Exception e) {
-        throw new HopException("Request could not be processed", e);
-      }
+
+      // execute first call
+      final Invocation.Builder finalInvocationBuilder = invocationBuilder;
+      final String finalEntityString = entityString;
+      final String finalContentType = contentType;
+
+      // add retry
+      response =
+          executeWithRetry(
+              () -> {
+                try {
+                  return executeRequest(
+                      finalInvocationBuilder, finalEntityString, finalContentType);
+                } catch (HopException e) {
+                  throw new RuntimeException(e);
+                }
+              });
+
       if (response != null) {
         response.bufferEntity();
       }
@@ -416,6 +394,154 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
     }
     return newRow;
+  }
+
+  private Response executeWithRetry(Supplier<Response> requestSupplier) throws HopException {
+    int maxRetries = meta.getRetryTimes();
+    long baseDelay = meta.getRetryDelayMs();
+    List<String> retryMethods = meta.getRetryMethods();
+    Exception lastException = null;
+
+    if (retryMethods == null || retryMethods.isEmpty() || !retryMethods.contains(data.method)) {
+      return requestSupplier.get();
+    }
+
+    for (int attempt = 0; attempt <= maxRetries; attempt++) {
+      Response response = null;
+      try {
+        response = requestSupplier.get();
+        int status = response.getStatus();
+
+        if (!shouldRetry(String.valueOf(status))) {
+          return response;
+        }
+
+        logRetry(attempt, maxRetries, status);
+        if (attempt >= maxRetries) {
+          throw new HopException("Request failed after retries, status: " + status);
+        }
+      } catch (Exception e) {
+        lastException = e;
+        if (attempt == maxRetries) {
+          throw new HopException("Request failed after retries", e);
+        }
+      }
+
+      if (response != null) {
+        response.close();
+      }
+      sleepBeforeRetry(attempt, baseDelay);
+    }
+
+    throw new HopException("Request failed after retries", lastException);
+  }
+
+  /**
+   * Sleeps for a computed backoff duration before performing the next retry.
+   *
+   * @param attempt the current retry attempt, starting from 0
+   * @param delay the base delay in milliseconds
+   */
+  private void sleepBeforeRetry(int attempt, long delay) {
+    try {
+      Thread.sleep(computeRetryDelay(attempt, delay));
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  /**
+   * Determines whether the current request should be retried.
+   *
+   * @param status the HTTP response status code as a string
+   * @return {@code true} if the request should be retried, {@code false} otherwise
+   */
+  private boolean shouldRetry(String status) {
+    return meta.getRetryStatusCodes().contains(status);
+  }
+
+  /** Logs retry attempt information at detailed log level. */
+  private void logRetry(int attempt, int maxRetries, int status) {
+    if (isDetailed()) {
+      logDetailed(
+          "Retry rest {0}/{1}, status: {2}, method: {3}",
+          attempt + 1, maxRetries, status, meta.getMethod());
+    }
+  }
+
+  /**
+   * Computes the retry delay using an exponential backoff strategy with equal jitter.
+   *
+   * <pre>
+   *   delay = 100
+   *   attempt = 0 → delay     -> 50 ~ 149 ms
+   *   attempt = 1 → delay * 2 -> 100 ~ 199 ms
+   *   attempt = 2 → delay * 4 -> 200 ~ 299 ms
+   * </pre>
+   *
+   * @param attempt the current retry attempt, starting from 0
+   * @param delay the base delay in milliseconds
+   * @return the computed retry delay in milliseconds
+   */
+  private long computeRetryDelay(int attempt, long delay) {
+    long maxDelay = 30_000;
+
+    long expDelay = delay * (1L << attempt);
+    long capped = Math.min(expDelay, maxDelay);
+
+    long jitter = ThreadLocalRandom.current().nextLong(delay);
+    return capped / 2 + jitter;
+  }
+
+  private Response executeRequest(
+      Invocation.Builder invocationBuilder, String entityString, String contentType)
+      throws HopException {
+    try {
+      switch (data.method) {
+        case RestMeta.HTTP_METHOD_GET -> {
+          return invocationBuilder.get(Response.class);
+        }
+        case RestMeta.HTTP_METHOD_POST -> {
+          if (null != contentType) {
+            return invocationBuilder.post(Entity.entity(entityString, contentType));
+          } else {
+            return invocationBuilder.post(Entity.entity(entityString, data.mediaType));
+          }
+        }
+        case RestMeta.HTTP_METHOD_PUT -> {
+          if (null != contentType) {
+            return invocationBuilder.put(Entity.entity(entityString, contentType));
+          } else {
+            return invocationBuilder.put(Entity.entity(entityString, data.mediaType));
+          }
+        }
+        case RestMeta.HTTP_METHOD_DELETE -> {
+          Invocation invocation =
+              invocationBuilder.build("DELETE", Entity.entity(entityString, data.mediaType));
+          return invocation.invoke();
+        }
+        case RestMeta.HTTP_METHOD_HEAD -> {
+          return invocationBuilder.head();
+        }
+        case RestMeta.HTTP_METHOD_OPTIONS -> {
+          return invocationBuilder.options();
+        }
+        case RestMeta.HTTP_METHOD_PATCH -> {
+          if (null != contentType) {
+            return invocationBuilder.method(
+                RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, contentType));
+          } else {
+            return invocationBuilder.method(
+                RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, data.mediaType));
+          }
+        }
+        default ->
+            throw new HopException(
+                BaseMessages.getString(PKG, "Rest.Error.UnknownMethod", data.method));
+      }
+    } catch (Exception e) {
+      throw new HopException("Request could not be processed", e);
+    }
   }
 
   private void setConfig() throws HopException {
@@ -731,7 +857,6 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
   @Override
   public void dispose() {
-
     data.config = null;
     data.headerNames = null;
     data.indexOfHeaderFields = null;
