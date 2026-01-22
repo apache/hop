@@ -95,6 +95,8 @@ public class HopGuiNotePadDelegate {
               note.getBorderColorRed(),
               note.getBorderColorGreen(),
               note.getBorderColorBlue());
+      // Apply grid snapping to ensure correct initial size
+      PropsUi.setSize(newNote, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE);
       meta.addNote(newNote);
       hopGui.undoDelegate.addUndoNew(
           meta, new NotePadMeta[] {newNote}, new int[] {meta.indexOfNote(newNote)});
