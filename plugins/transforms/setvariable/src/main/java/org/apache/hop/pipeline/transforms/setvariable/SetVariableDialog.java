@@ -28,6 +28,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -128,18 +129,18 @@ public class SetVariableDialog extends BaseTransformDialog {
     wlFormat.setText(BaseMessages.getString(PKG, "SetVariableDialog.Format.Label"));
     wlFormat.setToolTipText(BaseMessages.getString(PKG, "SetVariableDialog.Format.Tooltip"));
     PropsUi.setLook(wlFormat);
-    FormData fdlFormat = new FormData();
-    fdlFormat.left = new FormAttachment(0, 0);
-    fdlFormat.right = new FormAttachment(middle, -margin);
-    fdlFormat.top = new FormAttachment(wTransformName, margin);
-    wlFormat.setLayoutData(fdlFormat);
+    wlFormat.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlTransformName, margin)
+            .left()
+            .right(middle, -margin)
+            .build());
+
     wFormat = new Button(shell, SWT.CHECK);
     wFormat.setToolTipText(BaseMessages.getString(PKG, "SetVariableDialog.Format.Tooltip"));
     PropsUi.setLook(wFormat);
-    FormData fdFormat = new FormData();
-    fdFormat.left = new FormAttachment(middle, 0);
-    fdFormat.top = new FormAttachment(wlFormat, 0, SWT.CENTER);
-    wFormat.setLayoutData(fdFormat);
+    wFormat.setLayoutData(
+        FormDataBuilder.builder().top(wTransformName, margin).left(middle, 0).build());
     wFormat.addSelectionListener(new ComponentSelectionListener(input));
 
     Label wlFields = new Label(shell, SWT.NONE);
@@ -150,7 +151,7 @@ public class SetVariableDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(wFormat, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = input.getVariables().size();
+    final int fieldsRows = input.getVariables().size();
     colinf = new ColumnInfo[4];
     colinf[0] =
         new ColumnInfo(
@@ -184,7 +185,7 @@ public class SetVariableDialog extends BaseTransformDialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            fieldsRows,
             lsMod,
             props);
 
@@ -277,8 +278,8 @@ public class SetVariableDialog extends BaseTransformDialog {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-
-    transformName = wTransformName.getText(); // return value
+    // return value
+    transformName = wTransformName.getText();
 
     int count = wFields.nrNonEmpty();
 

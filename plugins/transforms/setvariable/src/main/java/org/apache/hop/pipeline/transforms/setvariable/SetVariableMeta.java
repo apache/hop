@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.setvariable;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -32,6 +34,8 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Sets environment variables based on content in certain fields of a single input row. */
+@Setter
+@Getter
 @Transform(
     id = "SetVariable",
     image = "setvariable.svg",
@@ -52,14 +56,6 @@ public class SetVariableMeta extends BaseTransformMeta<SetVariable, SetVariableD
   public SetVariableMeta() {
     super(); // allocate BaseTransformMeta
     variables = new ArrayList<>();
-  }
-
-  public List<VariableItem> getVariables() {
-    return variables;
-  }
-
-  public void setVariables(List<VariableItem> variables) {
-    this.variables = variables;
   }
 
   @Override
@@ -118,19 +114,5 @@ public class SetVariableMeta extends BaseTransformMeta<SetVariable, SetVariableD
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  /**
-   * @return the usingFormatting
-   */
-  public boolean isUsingFormatting() {
-    return usingFormatting;
-  }
-
-  /**
-   * @param usingFormatting the usingFormatting to set
-   */
-  public void setUsingFormatting(boolean usingFormatting) {
-    this.usingFormatting = usingFormatting;
   }
 }
