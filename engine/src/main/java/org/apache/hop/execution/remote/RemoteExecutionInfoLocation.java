@@ -23,6 +23,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -51,6 +53,8 @@ import org.apache.http.client.utils.URIBuilder;
     id = "remote-location",
     name = "Remote location",
     description = "Stores execution information on a remote Hop server")
+@Getter
+@Setter
 public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
 
   @HopMetadataProperty protected String pluginId;
@@ -72,19 +76,19 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       id = "location",
       order = "020",
       parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
-      type = GuiElementType.METADATA,
-      metadata = ExecutionInfoLocation.class,
+      type = GuiElementType.TEXT,
       toolTip = "i18n::RemoteExecutionInfoLocation.LocationName.Tooltip",
       label = "i18n::RemoteExecutionInfoLocation.LocationName.Label")
   @HopMetadataProperty(key = "location")
   protected String locationName;
 
   private HopServerMeta server;
-  private ExecutionInfoLocation location;
+  private String actualLocationName;
   private IVariables variables;
 
   public RemoteExecutionInfoLocation() {}
 
+  @SuppressWarnings("CopyConstructorMissesField")
   public RemoteExecutionInfoLocation(RemoteExecutionInfoLocation location) {
     this.pluginId = location.pluginId;
     this.pluginName = location.pluginName;
@@ -106,12 +110,9 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
         server =
             metadataProvider.getSerializer(HopServerMeta.class).load(variables.resolve(serverName));
       }
-      if (StringUtils.isNotEmpty(locationName)) {
-        location =
-            metadataProvider
-                .getSerializer(ExecutionInfoLocation.class)
-                .load(variables.resolve(locationName));
-      }
+
+      this.actualLocationName = variables.resolve(locationName);
+
       validateSettings();
     } catch (Exception e) {
       throw new HopException("Error initializing remote execution information location", e);
@@ -119,18 +120,10 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public void close() throws HopException {
-    if (location != null) {
-      location.getExecutionInfoLocation().close();
-    }
-  }
+  public void close() throws HopException {}
 
   @Override
-  public void unBuffer(String executionId) throws HopException {
-    if (location != null) {
-      location.getExecutionInfoLocation().unBuffer(executionId);
-    }
-  }
+  public void unBuffer(String executionId) throws HopException {}
 
   private String getJson(Object object) throws JsonProcessingException {
     return HopJson.newMapper().writeValueAsString(object);
@@ -140,7 +133,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     if (server == null) {
       throw new HopException("Please specify a Hop server to send execution information to.");
     }
-    if (location == null) {
+    if (actualLocationName == null) {
       throw new HopException(
           "Please specify an execution information location (on the Hop server) to send execution information to.");
     }
@@ -155,7 +148,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   RegisterExecutionInfoServlet.PARAMETER_TYPE,
                   RegisterExecutionInfoServlet.TYPE_EXECUTION)
-              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .build();
 
       server.sendJson(variables, getJson(execution), uri.toString());
@@ -172,7 +165,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
                   GetExecutionInfoServlet.Type.DELETE.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
               .build();
 
@@ -194,7 +187,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   RegisterExecutionInfoServlet.PARAMETER_TYPE,
                   RegisterExecutionInfoServlet.TYPE_STATE)
-              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .build();
 
       server.sendJson(variables, getJson(executionState), uri.toString());
@@ -212,7 +205,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   RegisterExecutionInfoServlet.PARAMETER_TYPE,
                   RegisterExecutionInfoServlet.TYPE_DATA)
-              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .build();
 
       server.sendJson(variables, getJson(data), uri.toString());
@@ -229,7 +222,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.IDS.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_CHILDREN, includeChildren ? "Y" : "N")
               .addParameter(GetExecutionInfoServlet.PARAMETER_LIMIT, Integer.toString(limit))
               .build();
@@ -251,7 +244,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
                   GetExecutionInfoServlet.Type.EXECUTION.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
               .build();
 
@@ -271,7 +264,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.STATE.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_INCLUDE_LARGE_LOGGING,
@@ -295,7 +288,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
                   GetExecutionInfoServlet.Type.STATE_LOGGING.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
               .addParameter(GetExecutionInfoServlet.PARAMETER_LIMIT, Integer.toString(sizeLimit))
               .build();
@@ -321,7 +314,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
                   GetExecutionInfoServlet.Type.CHILDREN.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
               .build();
 
@@ -377,7 +370,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.DATA.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_PARENT_ID, parentExecutionId)
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
               .build();
@@ -398,7 +391,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
                   GetExecutionInfoServlet.Type.LAST_EXECUTION.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, executionType.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_NAME, name)
               .build();
@@ -420,7 +413,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
                   GetExecutionInfoServlet.Type.CHILD_IDS.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, parentExecutionType.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
               .build();
@@ -442,7 +435,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
                   GetExecutionInfoServlet.Type.PARENT_ID.name())
-              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, childId)
               .build();
 
@@ -451,135 +444,5 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     } catch (Exception e) {
       throw new HopException("Error finding parent execution ID from remote location", e);
     }
-  }
-
-  /**
-   * Gets pluginId
-   *
-   * @return value of pluginId
-   */
-  @Override
-  public String getPluginId() {
-    return pluginId;
-  }
-
-  /**
-   * Sets pluginId
-   *
-   * @param pluginId value of pluginId
-   */
-  @Override
-  public void setPluginId(String pluginId) {
-    this.pluginId = pluginId;
-  }
-
-  /**
-   * Gets pluginName
-   *
-   * @return value of pluginName
-   */
-  @Override
-  public String getPluginName() {
-    return pluginName;
-  }
-
-  /**
-   * Sets pluginName
-   *
-   * @param pluginName value of pluginName
-   */
-  @Override
-  public void setPluginName(String pluginName) {
-    this.pluginName = pluginName;
-  }
-
-  /**
-   * Gets server
-   *
-   * @return value of server
-   */
-  public HopServerMeta getServer() {
-    return server;
-  }
-
-  /**
-   * Gets serverName
-   *
-   * @return value of serverName
-   */
-  public String getServerName() {
-    return serverName;
-  }
-
-  /**
-   * Sets serverName
-   *
-   * @param serverName value of serverName
-   */
-  public void setServerName(String serverName) {
-    this.serverName = serverName;
-  }
-
-  /**
-   * Gets locationName
-   *
-   * @return value of locationName
-   */
-  public String getLocationName() {
-    return locationName;
-  }
-
-  /**
-   * Sets locationName
-   *
-   * @param locationName value of locationName
-   */
-  public void setLocationName(String locationName) {
-    this.locationName = locationName;
-  }
-
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * Sets variables
-   *
-   * @param variables value of variables
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
-  }
-
-  /**
-   * Sets server
-   *
-   * @param server value of server
-   */
-  public void setServer(HopServerMeta server) {
-    this.server = server;
-  }
-
-  /**
-   * Gets location
-   *
-   * @return value of location
-   */
-  public ExecutionInfoLocation getLocation() {
-    return location;
-  }
-
-  /**
-   * Sets location
-   *
-   * @param location value of location
-   */
-  public void setLocation(ExecutionInfoLocation location) {
-    this.location = location;
   }
 }
