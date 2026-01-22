@@ -19,12 +19,7 @@ package org.apache.hop.ui.hopgui.terminal;
 
 import java.io.File;
 
-/**
- * Utility class to detect the default shell for the current operating system.
- *
- * <p>Attempts to find the best available shell: - Windows: PowerShell 7 > PowerShell 5 > cmd.exe -
- * macOS: User's SHELL env var > zsh > bash - Linux: User's SHELL env var > bash > sh
- */
+/** Utility class to detect the default shell for the current operating system. */
 public class TerminalShellDetector {
 
   /**
@@ -44,9 +39,8 @@ public class TerminalShellDetector {
     }
   }
 
-  /** Detect shell on Windows Priority: PowerShell 7 > PowerShell 5 > cmd.exe */
+  /** Detect shell on Windows */
   private static String detectWindowsShell() {
-    // Try PowerShell 7 (pwsh.exe)
     String programFiles = System.getenv("PROGRAMFILES");
     if (programFiles != null) {
       String pwsh7 = programFiles + "\\PowerShell\\7\\pwsh.exe";
@@ -55,7 +49,6 @@ public class TerminalShellDetector {
       }
     }
 
-    // Try Windows PowerShell 5.x
     String windir = System.getenv("WINDIR");
     if (windir != null) {
       String powershell = windir + "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe";
@@ -64,41 +57,34 @@ public class TerminalShellDetector {
       }
     }
 
-    // Fallback to cmd.exe (always available on Windows)
     return "cmd.exe";
   }
 
-  /** Detect shell on macOS Priority: SHELL env var > zsh > bash */
+  /** Detect shell on macOS */
   private static String detectMacShell() {
-    // Check SHELL environment variable (user's login shell)
     String shell = System.getenv("SHELL");
     if (shell != null && !shell.isEmpty() && new File(shell).exists()) {
       return shell;
     }
 
-    // macOS Catalina+ default: zsh
     if (new File("/bin/zsh").exists()) {
       return "/bin/zsh";
     }
 
-    // Older macOS default: bash
     if (new File("/bin/bash").exists()) {
       return "/bin/bash";
     }
 
-    // Last resort
     return "/bin/sh";
   }
 
-  /** Detect shell on Linux/Unix Priority: SHELL env var > bash > sh */
+  /** Detect shell on Linux/Unix */
   private static String detectLinuxShell() {
-    // Check SHELL environment variable (user's login shell)
     String shell = System.getenv("SHELL");
     if (shell != null && !shell.isEmpty() && new File(shell).exists()) {
       return shell;
     }
 
-    // Common shells in priority order
     String[] commonShells = {
       "/bin/bash", "/usr/bin/bash", "/bin/zsh", "/usr/bin/zsh", "/bin/sh", "/usr/bin/sh"
     };
@@ -109,7 +95,6 @@ public class TerminalShellDetector {
       }
     }
 
-    // Last resort
     return "/bin/sh";
   }
 

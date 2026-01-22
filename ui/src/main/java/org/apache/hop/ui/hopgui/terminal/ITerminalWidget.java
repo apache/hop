@@ -20,15 +20,7 @@ package org.apache.hop.ui.hopgui.terminal;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 
-/**
- * Common interface for terminal widget implementations.
- *
- * <p>Implementations:
- *
- * <ul>
- *   <li>{@link JediTerminalWidget} - JediTerm-based terminal with full VT100/xterm emulation
- * </ul>
- */
+/** Common interface for terminal widget implementations. */
 public interface ITerminalWidget {
 
   /**
@@ -72,7 +64,7 @@ public interface ITerminalWidget {
   /**
    * Get terminal type description
    *
-   * @return "Simple" or "Advanced (PTY)"
+   * @return Terminal type string
    */
   String getTerminalType();
 }

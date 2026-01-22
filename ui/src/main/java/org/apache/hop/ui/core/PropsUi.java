@@ -923,46 +923,6 @@ public class PropsUi extends Props {
   }
 
   /**
-   * Check if the advanced PTY-based terminal should be used. If false, use simple
-   * ProcessBuilder-based console.
-   *
-   * @return true to use advanced terminal (PTY), false for simple console
-   */
-  public boolean useAdvancedTerminal() {
-    return YES.equalsIgnoreCase(
-        getProperty(USE_ADVANCED_TERMINAL, NO)); // Default: simple console (safer)
-  }
-
-  /**
-   * Set whether to use the advanced PTY-based terminal.
-   *
-   * @param useAdvanced true for advanced terminal (PTY), false for simple console
-   */
-  public void setUseAdvancedTerminal(boolean useAdvanced) {
-    setProperty(USE_ADVANCED_TERMINAL, useAdvanced ? YES : NO);
-  }
-
-  private static final String USE_JEDITERM = "UseJediTerm";
-
-  /**
-   * Check whether to use JediTerm implementation (POC).
-   *
-   * @return true to use JediTerm, false otherwise (default: true)
-   */
-  public boolean useJediTerm() {
-    return YES.equalsIgnoreCase(getProperty(USE_JEDITERM, YES));
-  }
-
-  /**
-   * Set whether to use JediTerm implementation (POC).
-   *
-   * @param useJediTerm true to use JediTerm, false otherwise
-   */
-  public void setUseJediTerm(boolean useJediTerm) {
-    setProperty(USE_JEDITERM, useJediTerm ? YES : NO);
-  }
-
-  /**
    * Gets the supported version of the requested software.
    *
    * @param property the key for the software version

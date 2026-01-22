@@ -38,19 +38,14 @@ import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-/**
- * JediTerm-based terminal widget (POC).
- *
- * <p>Uses JetBrains JediTerm library for full VT100/xterm emulation. This is embedded via SWT_AWT
- * bridge.
- *
- * <p>Uses JetBrains JediTerm library for full VT100/xterm emulation with PTY support.
- */
+/** JediTerm-based terminal widget using SWT-AWT bridge for embedding AWT components in SWT. */
 public class JediTerminalWidget implements ITerminalWidget {
 
   private static final LogChannel log = new LogChannel("JediTerminal");
@@ -70,8 +65,7 @@ public class JediTerminalWidget implements ITerminalWidget {
 
     createWidget(parent, parent.getDisplay());
 
-    // Defer shell process start to avoid blocking UI during terminal creation
-    // This significantly improves perceived startup time for the first terminal
+    // Defer shell process start to avoid blocking UI
     parent
         .getDisplay()
         .asyncExec(
@@ -98,44 +92,96 @@ public class JediTerminalWidget implements ITerminalWidget {
     // Create AWT Frame for JediTerm
     awtFrame = SWT_AWT.new_Frame(bridgeComposite);
 
+    // Resize AWT frame when composite resizes
+    bridgeComposite.addListener(
+        SWT.Resize,
+        event -> {
+          if (bridgeComposite.isDisposed() || awtFrame == null) {
+            return;
+          }
+          try {
+            Rectangle rect = bridgeComposite.getClientArea();
+            java.awt.EventQueue.invokeLater(
+                () -> {
+                  if (awtFrame != null) {
+                    try {
+                      awtFrame.setSize(rect.width, rect.height);
+                      awtFrame.validate();
+                    } catch (Exception e) {
+                      log.logDebug("Error resizing AWT frame: " + e.getMessage());
+                    }
+                  }
+                });
+          } catch (Exception e) {
+            log.logDebug("Error in resize handler: " + e.getMessage());
+          }
+        });
+
     // Create JediTerm widget with Hop dark mode support
     boolean isDarkMode = PropsUi.getInstance().isDarkMode();
     DefaultSettingsProvider settings = createHopSettingsProvider(isDarkMode, display);
     jediTermWidget = new JediTermWidget(settings);
     awtFrame.add(jediTermWidget);
 
-    // Make the frame visible and focusable
     awtFrame.setVisible(true);
 
-    // Request focus on the JediTerm widget (needed for keyboard input)
-    java.awt.EventQueue.invokeLater(
-        () -> {
-          jediTermWidget.requestFocusInWindow();
-          jediTermWidget.requestFocus();
-        });
-
-    // Add SWT focus listener to forward focus to AWT component
+    // Defer focus until after terminal initialization
     bridgeComposite.addListener(
         org.eclipse.swt.SWT.FocusIn,
         event -> {
-          java.awt.EventQueue.invokeLater(
+          display.asyncExec(
               () -> {
-                if (jediTermWidget != null) {
-                  jediTermWidget.requestFocusInWindow();
+                if (bridgeComposite.isDisposed() || jediTermWidget == null) {
+                  return;
                 }
+                new Thread(
+                        () -> {
+                          try {
+                            java.awt.EventQueue.invokeLater(
+                                () -> {
+                                  if (jediTermWidget != null) {
+                                    try {
+                                      jediTermWidget.requestFocusInWindow();
+                                    } catch (Exception e) {
+                                      log.logDebug("Could not request focus: " + e.getMessage());
+                                    }
+                                  }
+                                });
+                          } catch (Exception e) {
+                            log.logDebug("Error requesting AWT focus: " + e.getMessage());
+                          }
+                        })
+                    .start();
               });
         });
   }
 
-  /** Create a SettingsProvider that respects Hop's dark mode setting */
+  /** Create SettingsProvider with Hop theme and font scaling */
   private DefaultSettingsProvider createHopSettingsProvider(
-      final boolean isDarkMode, Display display) {
+      final boolean isDarkMode, final Display display) {
+    // Get the SWT system font size as base
+    FontData systemFontData = display.getSystemFont().getFontData()[0];
+    int swtFontSize = systemFontData.getHeight();
+
+    // Get font scale from system property, default 1.0
+    float fontScale = 1.0f;
+    String manualScale = System.getProperty("JediTerm.fontScale");
+    if (manualScale != null && !manualScale.isEmpty()) {
+      try {
+        fontScale = Float.parseFloat(manualScale);
+        log.logBasic("JediTerm: Using font scale from system property: " + fontScale);
+      } catch (NumberFormatException e) {
+        log.logError("JediTerm: Invalid JediTerm.fontScale value: " + manualScale, e);
+      }
+    }
+
+    final int targetFontSize = Math.round(swtFontSize * fontScale);
+
     return new DefaultSettingsProvider() {
       @Override
       public TerminalColor getDefaultBackground() {
         if (Const.isWindows() && !isDarkMode) {
-          // Windows light mode: Use PowerShell's default dark blue background (#012456)
-          // RGB(1, 36, 86) matches PowerShell's classic console appearance
+          // Windows light mode: PowerShell blue background
           return new TerminalColor(1, 36, 86);
         } else if (Const.isWindows() && isDarkMode) {
           // Windows dark mode: dark gray background
@@ -152,8 +198,7 @@ public class JediTerminalWidget implements ITerminalWidget {
       @Override
       public TerminalColor getDefaultForeground() {
         if (Const.isWindows() && !isDarkMode) {
-          // Windows light mode: Use PowerShell's default light gray foreground (#CCCCCC)
-          // RGB(204, 204, 204) matches PowerShell's classic console text color
+          // Windows light mode: PowerShell gray foreground
           return new TerminalColor(204, 204, 204);
         } else if (Const.isWindows() && isDarkMode) {
           // Windows dark mode: light gray foreground
@@ -169,7 +214,6 @@ public class JediTerminalWidget implements ITerminalWidget {
 
       @Override
       public TextStyle getFoundPatternColor() {
-        // Yellow highlight for search results
         TerminalColor bg = new TerminalColor(255, 255, 0);
         TerminalColor fg = new TerminalColor(0, 0, 0);
         return new TextStyle(fg, bg);
@@ -177,10 +221,19 @@ public class JediTerminalWidget implements ITerminalWidget {
 
       @Override
       public TextStyle getHyperlinkColor() {
-        // Dark: bright blue, Light: dark blue
         TerminalColor linkColor =
             isDarkMode ? new TerminalColor(96, 161, 255) : new TerminalColor(0, 0, 238);
         return new TextStyle(linkColor, null);
+      }
+
+      @Override
+      public java.awt.Font getTerminalFont() {
+        return new java.awt.Font("Monospaced", java.awt.Font.PLAIN, targetFontSize);
+      }
+
+      @Override
+      public float getTerminalFontSize() {
+        return (float) targetFontSize;
       }
     };
   }
@@ -209,6 +262,29 @@ public class JediTerminalWidget implements ITerminalWidget {
       jediTermWidget.setTtyConnector(ttyConnector);
       jediTermWidget.start();
 
+      // Request focus after terminal initialization
+      new Thread(
+              () -> {
+                try {
+                  Thread.sleep(100);
+                  java.awt.EventQueue.invokeLater(
+                      () -> {
+                        if (jediTermWidget != null) {
+                          try {
+                            jediTermWidget.requestFocusInWindow();
+                          } catch (Exception e) {
+                            log.logDebug("Could not request initial focus: " + e.getMessage());
+                          }
+                        }
+                      });
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                  log.logDebug("Error requesting initial AWT focus: " + e.getMessage());
+                }
+              })
+          .start();
+
     } catch (Exception e) {
       log.logError("Error starting JediTerm shell process", e);
     }
@@ -218,33 +294,28 @@ public class JediTerminalWidget implements ITerminalWidget {
     String shell = shellPath != null ? shellPath : TerminalShellDetector.detectDefaultShell();
 
     if (Const.isWindows()) {
-      // Windows: PowerShell or cmd
       if (shell.toLowerCase().contains("powershell")) {
-        // Use -NoLogo to skip logo, but let PowerShell use its default colors
-        // The terminal widget's background/foreground colors will match PowerShell's defaults
         return new String[] {shell, "-NoLogo"};
       } else {
         return new String[] {shell};
       }
     } else {
-      // Unix-like: bash, zsh, etc. - start as interactive login shell
       return new String[] {shell, "-i", "-l"};
     }
   }
 
   public void sendRawInput(String input) {
-    // Not needed - JediTerm handles input directly
+    // JediTerm handles input directly
   }
 
   @Override
   public void dispose() {
     try {
-      // Dispose SWT/AWT widgets immediately (must be on UI thread, but is fast)
       if (bridgeComposite != null && !bridgeComposite.isDisposed()) {
-        bridgeComposite.dispose(); // This also disposes awtFrame
+        bridgeComposite.dispose();
       }
 
-      // Clean up PTY/terminal in background (can be slow, don't block)
+      // Clean up PTY in background thread
       final JediTermWidget termWidget = jediTermWidget;
       final Pty4JTtyConnector connector = ttyConnector;
       final PtyProcess process = ptyProcess;
@@ -279,8 +350,7 @@ public class JediTerminalWidget implements ITerminalWidget {
 
   @Override
   public StyledText getOutputText() {
-    // JediTerm doesn't expose a StyledText widget (it's AWT/Swing)
-    // Return null - this is only used for focus in HopGuiTerminalPanel
+    // JediTerm uses AWT, not StyledText
     return null;
   }
 
@@ -304,11 +374,7 @@ public class JediTerminalWidget implements ITerminalWidget {
     return workingDirectory;
   }
 
-  /**
-   * Adapter to connect Pty4J processes to JediTerm's TtyConnector interface.
-   *
-   * <p>JediTerm expects a TtyConnector, but we use Pty4J for PTY management.
-   */
+  /** Adapter connecting Pty4J to JediTerm's TtyConnector */
   private static class Pty4JTtyConnector implements TtyConnector {
 
     private final PtyProcess ptyProcess;
@@ -322,7 +388,7 @@ public class JediTerminalWidget implements ITerminalWidget {
     }
 
     public boolean init() {
-      return true; // PTY already initialized by Pty4J
+      return true;
     }
 
     public void close() {

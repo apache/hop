@@ -44,49 +44,34 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 /**
- * Terminal panel for Hop GUI that provides integrated command-line access.
+ * Terminal panel for Hop GUI providing integrated command-line access.
  *
- * <p>This panel sits at the HopGui main window level and provides: - Multiple terminal tabs (bash,
- * zsh, PowerShell, etc.) - Side-by-side layout with pipeline/workflow log panels - Show/hide
- * functionality - Resizable split panels
- *
- * <p>Architecture: - Created by HopGui during initialization - Wraps the mainPerspectivesComposite
- * in a SashForm - Terminal panel is global (persists across perspective switches) - Independent
- * from pipeline/workflow log panels (different hierarchy level)
+ * <p>The panel wraps the main perspectives composite in a SashForm, with perspectives in the top
+ * section and the terminal panel in the bottom section. The terminal panel persists across
+ * perspective switches.
  */
 public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
   private final HopGui hopGui;
 
-  // Main layout components
-  private SashForm verticalSash; // Splits perspectives (top) and terminal (bottom)
-  private Composite
-      perspectiveComposite; // Where perspectives render (replaces mainPerspectivesComposite)
-  private Composite bottomPanelComposite; // Container for bottom panel
+  private SashForm verticalSash;
+  private Composite perspectiveComposite;
+  private Composite bottomPanelComposite;
+  private Composite terminalComposite;
+  private CTabFolder terminalTabs;
+  private CTabItem newTerminalTab;
 
-  // Bottom panel layout
-  private Composite terminalComposite; // Terminal panel container
-
-  // Terminal UI components
-  private CTabFolder terminalTabs; // Tab folder for multiple terminals
-  private CTabItem newTerminalTab; // Special "+" tab for creating new terminals
-
-  // State
   private boolean terminalVisible = false;
-  private int terminalHeightPercent = 35; // Default: 35% of window height
-  private boolean isClearing = false; // Flag to prevent tab creation during cleanup
-
-  // Terminal tab counter for naming and unique IDs
+  private int terminalHeightPercent = 35;
+  private boolean isClearing = false;
   private int terminalCounter = 1;
 
-  // Audit type for terminal persistence (namespace is HopNamespace.getNamespace())
   private static final String TERMINAL_AUDIT_TYPE = "terminal";
 
   // State map keys
   private static final String STATE_TAB_NAME = "tabName";
   private static final String STATE_SHELL_PATH = "shellPath";
   private static final String STATE_WORKING_DIR = "workingDirectory";
-  private static final String STATE_TERMINAL_TYPE = "terminalType";
 
   /**
    * Constructor - Creates the terminal panel structure
@@ -101,15 +86,10 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     createContents();
   }
 
-  /**
-   * Create the UI structure: - Vertical SashForm splits perspectives and terminal - Top:
-   * Perspectives composite (where all perspectives render) - Bottom: Terminal composite (with tabs
-   * and toolbar)
-   */
+  /** Create the UI structure */
   private void createContents() {
     setLayout(new FormLayout());
 
-    // Main vertical sash form - splits perspective area and terminal area
     verticalSash = new SashForm(this, SWT.VERTICAL | SWT.SMOOTH);
     FormData fdSash = new FormData();
     fdSash.left = new FormAttachment(0, 0);
@@ -118,16 +98,13 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     fdSash.bottom = new FormAttachment(100, 0);
     verticalSash.setLayoutData(fdSash);
 
-    // Top part: Perspective composite (this is where mainPerspectivesComposite will be rendered)
     perspectiveComposite = new Composite(verticalSash, SWT.NONE);
     perspectiveComposite.setLayout(new FormLayout());
 
-    // Bottom part: Container for terminal
     bottomPanelComposite = new Composite(verticalSash, SWT.NONE);
     bottomPanelComposite.setLayout(new FormLayout());
     createBottomPanel();
 
-    // Initially hide bottom panel (show only perspectives)
     verticalSash.setMaximizedControl(perspectiveComposite);
   }
 
@@ -149,8 +126,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
   /** Create the terminal area with tab folder */
   private void createTerminalArea() {
-    // Tab folder for multiple terminals (using standard Hop tab style)
-    // SWT.MULTI matches other tab folders in Hop Gui (logs, metrics, perspectives, etc.)
     terminalTabs = new CTabFolder(terminalComposite, SWT.MULTI | SWT.BORDER);
     PropsUi.setLook(terminalTabs, PropsUi.WIDGET_STYLE_TAB);
     FormData fdTabs = new FormData();
@@ -160,48 +135,33 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     fdTabs.bottom = new FormAttachment(100, 0);
     terminalTabs.setLayoutData(fdTabs);
 
-    // Add toolbar with panel controls (maximize, close)
     createTerminalToolbar();
 
-    // Create a special "+" tab that acts as a button to create new terminals
-    // No SWT.CLOSE flag = no close button
     newTerminalTab = new CTabItem(terminalTabs, SWT.NONE);
     newTerminalTab.setText("+");
     newTerminalTab.setToolTipText("Create a new terminal");
-    // Create an empty composite for the + tab (it won't be displayed)
     Composite newTerminalPlaceholder = new Composite(terminalTabs, SWT.NONE);
     newTerminalTab.setControl(newTerminalPlaceholder);
 
-    // Add context menu with close left/right/others/all options
     new TabCloseHandler(this);
-
-    // Enable drag-and-drop tab reordering
     new TabFolderReorder(terminalTabs);
 
-    // Track if we're closing a tab to prevent auto-creation when + tab is auto-selected
     final boolean[] isClosingTab = {false};
-
-    // Handle tab selection - intercept + tab clicks or focus input field
     terminalTabs.addListener(
         SWT.Selection,
         event -> {
           CTabItem item = terminalTabs.getSelection();
           if (item == newTerminalTab) {
-            // Don't create terminal if we're in the middle of clearing tabs or closing a tab
             if (isClearing || isClosingTab[0]) {
               return;
             }
-            // User clicked the + tab - create a new terminal
             createNewTerminal(null, null);
-            // Don't actually select the + tab, it will be overridden by the new terminal
             return;
           }
 
-          // Regular terminal tab selected - focus its input/output field
           if (item != null) {
             ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
             if (widget != null && widget instanceof JediTerminalWidget) {
-              // For JediTerm, focus the SWT composite (which forwards to AWT)
               Composite composite = widget.getTerminalComposite();
               if (composite != null && !composite.isDisposed()) {
                 composite.forceFocus();
@@ -210,23 +170,19 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           }
         });
 
-    // Modify close handler to set flag
     terminalTabs.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
           @Override
           public void close(CTabFolderEvent event) {
-            // Set flag to prevent auto-creation when + tab is auto-selected
             isClosingTab[0] = true;
             try {
               CTabItem item = (CTabItem) event.item;
-              // Don't allow closing the + tab
               if (item == newTerminalTab) {
                 event.doit = false;
                 return;
               }
               closeTab(event, item);
             } finally {
-              // Reset flag after a short delay
               getDisplay()
                   .asyncExec(
                       () -> {
@@ -235,8 +191,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
             }
           }
         });
-
-    // Add double-click to rename terminal tabs (except + tab)
     terminalTabs.addListener(
         SWT.MouseDoubleClick,
         event -> {
@@ -247,54 +201,23 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         });
   }
 
-  /**
-   * Create a new terminal tab
-   *
-   * @param workingDirectory Optional working directory (null for user home)
-   * @param shellPath Optional shell path (null for auto-detect)
-   */
   public void createNewTerminal(String workingDirectory, String shellPath) {
     createNewTerminal(workingDirectory, shellPath, null);
   }
 
-  /**
-   * Create a new terminal tab with custom name
-   *
-   * @param workingDirectory Optional working directory (null for user home)
-   * @param shellPath Optional shell path (null for auto-detect)
-   * @param customTabName Optional custom tab name (null for auto-generated)
-   */
   public void createNewTerminal(String workingDirectory, String shellPath, String customTabName) {
-    createNewTerminal(workingDirectory, shellPath, customTabName, null);
-  }
-
-  /**
-   * Create a new terminal tab with custom name and terminal type
-   *
-   * @param workingDirectory Optional working directory (null for user home)
-   * @param shellPath Optional shell path (null for auto-detect)
-   * @param customTabName Optional custom tab name (null for auto-generated)
-   * @param terminalType Ignored (kept for API compatibility, always uses JediTerm)
-   */
-  public void createNewTerminal(
-      String workingDirectory, String shellPath, String customTabName, String terminalType) {
-    // Detect shell if not specified
     if (shellPath == null) {
       shellPath = TerminalShellDetector.detectDefaultShell();
     }
 
-    // Default working directory: try project home first, then user home
     if (workingDirectory == null) {
       workingDirectory = getDefaultWorkingDirectory();
     }
 
-    // Create terminal tab - insert after the + tab (at index 1)
     CTabItem terminalTab = new CTabItem(terminalTabs, SWT.CLOSE, 1);
 
-    // Generate unique terminal ID (counter + timestamp to avoid conflicts)
     String terminalId = "terminal-" + terminalCounter++ + "-" + System.currentTimeMillis();
 
-    // Set tab name: use custom name if provided, otherwise generate default
     if (customTabName != null && !customTabName.trim().isEmpty()) {
       terminalTab.setText(customTabName);
     } else {
@@ -304,38 +227,29 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     terminalTab.setImage(GuiResource.getInstance().getImageTerminal());
     terminalTab.setToolTipText("Terminal: " + shellPath + " in " + workingDirectory);
 
-    // Store unique ID and metadata in tab data
     terminalTab.setData("terminalId", terminalId);
     terminalTab.setData("workingDirectory", workingDirectory);
     terminalTab.setData("shellPath", shellPath);
 
-    // Create terminal widget composite
     Composite terminalWidgetComposite = new Composite(terminalTabs, SWT.NONE);
     terminalWidgetComposite.setLayout(new FormLayout());
     terminalTab.setControl(terminalWidgetComposite);
 
-    // Create terminal widget - always use JediTerm (Simple terminal removed)
     ITerminalWidget terminalWidget =
         new JediTerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
 
-    // Store widget in tab data for later access
     terminalTab.setData("terminalWidget", terminalWidget);
 
-    // Update tab text with terminal type indicator
     updateTabTextWithTerminalType(terminalTab, terminalWidget);
 
-    // Register in audit system for persistence
     registerTerminal(terminalId, workingDirectory, shellPath);
 
-    // Select the new tab
     terminalTabs.setSelection(terminalTab);
 
-    // Ensure terminal panel is visible
     if (!terminalVisible) {
       showTerminal();
     }
 
-    // Focus the terminal after a short delay to ensure everything is laid out
     getDisplay()
         .asyncExec(
             () -> {
@@ -344,7 +258,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
               }
 
               if (terminalWidget instanceof JediTerminalWidget) {
-                // For JediTerm, focus the composite (which has AWT focus listener)
                 Composite composite = terminalWidget.getTerminalComposite();
                 if (composite != null && !composite.isDisposed()) {
                   composite.setFocus();
@@ -380,12 +293,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     return shellPath;
   }
 
-  /**
-   * Update tab text with terminal type indicator (JediTerm)
-   *
-   * @param terminalTab The tab item to update
-   * @param terminalWidget The terminal widget instance
-   */
   private void updateTabTextWithTerminalType(CTabItem terminalTab, ITerminalWidget terminalWidget) {
     if (terminalTab == null || terminalWidget == null) {
       return;
@@ -394,7 +301,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     String currentText = terminalTab.getText();
     String indicator = " [JT]";
 
-    // Only add indicator if it's not already present (to avoid duplicates)
     if (!currentText.contains(indicator)) {
       terminalTab.setText(currentText + indicator);
     }
@@ -408,8 +314,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       verticalSash.setWeights(new int[] {perspectivePercent, terminalHeightPercent});
       terminalVisible = true;
 
-      // Create first terminal if none exist (only + tab present, or count is 0)
-      // Count <= 1 means either empty or just the + tab
       if (terminalTabs.getItemCount() <= 1) {
         createNewTerminal(null, null);
       }
@@ -427,7 +331,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   public void hideTerminal() {
     if (terminalVisible) {
       terminalVisible = false;
-      // Hide entire bottom panel
       verticalSash.setMaximizedControl(perspectiveComposite);
       layout(true, true);
     }
@@ -445,7 +348,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   /** Close a terminal tab (implements TabClosable interface) */
   @Override
   public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
-    // Don't allow closing the + tab
     if (tabItem == newTerminalTab) {
       if (event != null) {
         event.doit = false;
@@ -453,23 +355,17 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       return;
     }
 
-    // Get and dispose terminal widget
     ITerminalWidget widget = (ITerminalWidget) tabItem.getData("terminalWidget");
     if (widget != null) {
       widget.dispose();
     }
 
-    // Unregister from audit
     String terminalId = (String) tabItem.getData("terminalId");
     if (terminalId != null) {
       unregisterTerminal(terminalId);
     }
 
-    // Dispose the tab
     tabItem.dispose();
-
-    // User can close all terminal tabs - panel stays open with just the + tab
-    // They can manually close the panel using the close button if desired
   }
 
   /** Get the terminal tabs folder (implements TabClosable interface) */
@@ -487,7 +383,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       if (selectedTabItem.equals(item)) {
         break;
       } else if (item != newTerminalTab) {
-        // Don't include the + tab
         items.add(item);
       }
     }
@@ -502,7 +397,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       if (selectedTabItem.equals(item)) {
         break;
       } else if (item != newTerminalTab) {
-        // Don't include the + tab
         items.add(item);
       }
     }
@@ -515,7 +409,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     java.util.List<CTabItem> items = new java.util.ArrayList<>();
     for (CTabItem item : getTabFolder().getItems()) {
       if (!selectedTabItem.equals(item) && item != newTerminalTab) {
-        // Don't include the + tab
         items.add(item);
       }
     }
@@ -528,16 +421,10 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     terminalTabs.setTopRight(toolBar, SWT.RIGHT);
     PropsUi.setLook(toolBar);
 
-    // Explicitly set toolbar background to match tab folder background
-    // This prevents the toolbar from inheriting the terminal's dark blue background
-    // The toolbar is positioned using setTopRight, so it needs an explicit background
     GuiResource gui = GuiResource.getInstance();
     if (PropsUi.getInstance().isDarkMode()) {
-      // Dark mode: CTabFolder uses white background, toolbar should match
       toolBar.setBackground(gui.getColorWhite());
     } else {
-      // Light mode: Match the CTabFolder's background (typically white or light gray)
-      // Use the same background as the tab folder itself
       toolBar.setBackground(terminalTabs.getBackground());
     }
 
@@ -562,18 +449,12 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           }
         });
 
-    // Split orientation toggle removed - behavior is confusing with new terminal panel structure
-    // The execution results panel (logging/metrics/problems) handles its own orientation
-    // independently within pipeline/workflow graphs. Re-introducing this requires a more
-    // comprehensive layout refactor (floating/dockable panels) which is deferred to future work.
-
     // Close button
     final ToolItem closeItem = new ToolItem(toolBar, SWT.PUSH);
     closeItem.setImage(GuiResource.getInstance().getImageClose());
     closeItem.setToolTipText("Close terminal panel");
     closeItem.addListener(SWT.Selection, e -> hideTerminal());
 
-    // Adjust tab height to accommodate toolbar
     int height = toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     terminalTabs.setTabHeight(Math.max(height, terminalTabs.getTabHeight()));
   }
@@ -584,20 +465,16 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       return;
     }
 
-    // Create a simple inline text editor for renaming
     final Text text = new Text(terminalTabs, SWT.BORDER);
     text.setText(item.getText());
 
-    // Position the text editor over the tab
     org.eclipse.swt.graphics.Rectangle bounds = item.getBounds();
     text.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
     text.moveAbove(null);
 
-    // Focus and select all text
     text.setFocus();
     text.selectAll();
 
-    // Handle Enter key - accept rename
     text.addListener(
         SWT.Traverse,
         event -> {
@@ -605,7 +482,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
             String newName = text.getText().trim();
             if (!newName.isEmpty()) {
               item.setText(newName);
-              // Save terminals to persist the rename
               saveOpenTerminals();
             }
             text.dispose();
@@ -616,7 +492,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           }
         });
 
-    // Handle focus lost - accept rename
     text.addListener(
         SWT.FocusOut,
         event -> {
@@ -624,7 +499,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
             String newName = text.getText().trim();
             if (!newName.isEmpty()) {
               item.setText(newName);
-              // Save terminals to persist the rename
               saveOpenTerminals();
             }
             text.dispose();
@@ -632,48 +506,38 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         });
   }
 
-  /** Public method to save terminals on shutdown (called by HopGuiFileDelegate.fileExit) */
+  /** Save terminals on shutdown */
   public void saveTerminalsOnShutdown() {
     saveOpenTerminals();
   }
 
-  /** Save all open terminals to audit system (per-project using HopNamespace) */
+  /** Save all open terminals */
   private void saveOpenTerminals() {
     try {
       java.util.List<String> terminalIds = new java.util.ArrayList<>();
       AuditStateMap stateMap = new AuditStateMap();
 
-      // Collect terminal IDs and metadata from all open terminal tabs (skip the + tab)
       for (CTabItem item : terminalTabs.getItems()) {
         if (item == newTerminalTab) {
-          continue; // Skip the + tab
+          continue;
         }
         String terminalId = (String) item.getData("terminalId");
         if (terminalId != null) {
           terminalIds.add(terminalId);
 
-          // Save terminal state (tab name, working dir, shell path, terminal type)
           java.util.Map<String, Object> state = new java.util.HashMap<>();
           state.put(STATE_TAB_NAME, item.getText());
           state.put(STATE_WORKING_DIR, item.getData("workingDirectory"));
           state.put(STATE_SHELL_PATH, item.getData("shellPath"));
 
-          // Save terminal type (always JediTerm now)
-          ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
-          if (widget != null) {
-            state.put(STATE_TERMINAL_TYPE, "JediTerm");
-          }
-
           stateMap.add(new AuditState(terminalId, state));
         }
       }
 
-      // Save the list per-project (HopNamespace.getNamespace() handles project context)
       AuditList auditList = new AuditList(terminalIds);
       AuditManager.getActive()
           .storeList(HopNamespace.getNamespace(), TERMINAL_AUDIT_TYPE, auditList);
 
-      // Save the state map (tab names, working dirs, shell paths)
       AuditManager.getActive()
           .saveAuditStateMap(HopNamespace.getNamespace(), TERMINAL_AUDIT_TYPE, stateMap);
 
@@ -685,22 +549,18 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     }
   }
 
-  /** Clear all terminals (called when switching projects) - runs async to avoid blocking */
+  /** Clear all terminals */
   public void clearAllTerminals() {
-    // Safety check - don't run if disposed or not initialized
     if (isDisposed() || terminalTabs == null || terminalTabs.isDisposed()) {
       hopGui.getLog().logDebug("clearAllTerminals: skipped (disposed or not initialized)");
       return;
     }
 
-    // Set flag to prevent + tab from creating terminals during cleanup
     isClearing = true;
 
     try {
-      // Save current terminals synchronously (fast operation)
       saveOpenTerminals();
 
-      // Close all terminal tabs (except the + tab) - MUST be synchronous on UI thread
       java.util.List<CTabItem> itemsToClose = new java.util.ArrayList<>();
       for (CTabItem item : terminalTabs.getItems()) {
         if (item != newTerminalTab && !item.isDisposed()) {
@@ -708,7 +568,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         }
       }
 
-      // Close each terminal tab (widgets dispose on UI thread automatically now)
       for (CTabItem item : itemsToClose) {
         if (!item.isDisposed()) {
           ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
@@ -719,50 +578,35 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         }
       }
 
-      // Hide terminal panel if it was visible
       if (terminalVisible) {
         hideTerminal();
       }
     } finally {
-      // Always clear the flag
       isClearing = false;
     }
   }
 
-  /** Register a terminal in the audit system for persistence */
   private void registerTerminal(String terminalId, String workingDirectory, String shellPath) {
-    // Don't save immediately - let HopGui's shutdown save mechanism handle it
-    // Saving on every create causes duplicates and performance issues
+    // Terminal state is saved on shutdown
   }
 
-  /** Unregister a terminal from the audit system */
   private void unregisterTerminal(String terminalId) {
-    // Save terminals when closing (this is the right time)
     saveOpenTerminals();
   }
 
-  /**
-   * Get the default working directory for new terminals. Tries to use the current project's home
-   * directory if available, otherwise falls back to user home directory.
-   *
-   * @return The default working directory path
-   */
   private String getDefaultWorkingDirectory() {
-    // Try to get PROJECT_HOME variable (set by Projects plugin when project is active)
     try {
       String projectHome = hopGui.getVariables().getVariable("PROJECT_HOME");
       if (StringUtils.isNotEmpty(projectHome)) {
-        // Resolve in case it contains other variables
         projectHome = hopGui.getVariables().resolve(projectHome);
         if (StringUtils.isNotEmpty(projectHome)) {
           return projectHome;
         }
       }
     } catch (Exception e) {
-      // Ignore - fall back to user home
+      // Ignore
     }
 
-    // Fallback to user home directory
     return System.getProperty("user.home");
   }
 
@@ -771,7 +615,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     try {
       String namespace = HopNamespace.getNamespace();
 
-      // Count existing terminals (excluding + tab)
       int existingCount = 0;
       for (CTabItem item : terminalTabs.getItems()) {
         if (item != newTerminalTab) {
@@ -779,19 +622,16 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         }
       }
 
-      // If terminals already exist, don't restore (avoid duplicates)
       if (existingCount > 0) {
         return;
       }
 
-      // Get list of terminals from audit system using current namespace (per-project)
       AuditList auditList = AuditManager.getActive().retrieveList(namespace, TERMINAL_AUDIT_TYPE);
 
       if (auditList.getNames().isEmpty()) {
         return;
       }
 
-      // Get the state map (custom tab names, etc.)
       AuditStateMap stateMap;
       try {
         stateMap =
@@ -803,7 +643,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       }
 
       for (String terminalId : auditList.getNames()) {
-        // Get terminal state (tab name, working dir, shell path)
         String customTabName = null;
         String workingDir = null;
         String shellPath = null;
@@ -822,32 +661,26 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           if (shellPathObj != null) {
             shellPath = shellPathObj.toString();
           }
-          // terminalType is ignored - always uses JediTerm
         }
 
-        // Create terminal with stored state (always uses JediTerm)
-        // Note: createNewTerminal will automatically add terminal type indicator
-        createNewTerminal(workingDir, shellPath, customTabName, null);
+        createNewTerminal(workingDir, shellPath, customTabName);
       }
     } catch (Exception e) {
       hopGui.getLog().logError("Error restoring terminals", e);
     }
   }
 
-  /**
-   * Get the perspective composite where perspectives should render. This replaces the original
-   * mainPerspectivesComposite in HopGui.
-   */
+  /** Get the perspective composite */
   public Composite getPerspectiveComposite() {
     return perspectiveComposite;
   }
 
-  /** Get the terminal tabs folder (for advanced control if needed) */
+  /** Get the terminal tabs folder */
   public CTabFolder getTerminalTabs() {
     return terminalTabs;
   }
 
-  /** Set terminal height percentage (default is 35%) */
+  /** Set terminal height percentage */
   public void setTerminalHeightPercent(int percent) {
     if (percent > 0 && percent < 100) {
       this.terminalHeightPercent = percent;
