@@ -3521,6 +3521,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       pipelinePainter.setShowingNavigationView(true);
       pipelinePainter.setScreenMagnification(magnification);
       pipelinePainter.setShowingNavigationView(!PropsUi.getInstance().isHideViewportEnabled());
+      pipelinePainter.setDarkMode(PropsUi.getInstance().isDarkMode());
 
       try {
         pipelinePainter.drawPipelineImage();

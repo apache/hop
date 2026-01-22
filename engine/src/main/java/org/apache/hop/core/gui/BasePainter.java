@@ -18,6 +18,8 @@
 package org.apache.hop.core.gui;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
@@ -80,6 +82,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected Rectangle graphPort;
   protected Rectangle viewPort;
   protected String mouseOverName;
+
+  @Getter @Setter protected boolean darkMode;
 
   public BasePainter(
       IGc gc,
