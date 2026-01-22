@@ -50,9 +50,9 @@ import org.apache.http.client.utils.URIBuilder;
 
 @GuiPlugin(description = "File execution information location GUI elements")
 @ExecutionInfoLocationPlugin(
-        id = "remote-location",
-        name = "Remote location",
-        description = "Stores execution information on a remote Hop server")
+    id = "remote-location",
+    name = "Remote location",
+    description = "Stores execution information on a remote Hop server")
 @Getter
 @Setter
 public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
@@ -62,23 +62,23 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   @HopMetadataProperty protected String pluginName;
 
   @GuiWidgetElement(
-          id = "hopServer",
-          order = "010",
-          parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
-          type = GuiElementType.METADATA,
-          metadata = HopServerMeta.class,
-          toolTip = "i18n::RemoteExecutionInfoLocation.HopServer.Tooltip",
-          label = "i18n::RemoteExecutionInfoLocation.HopServer.Label")
+      id = "hopServer",
+      order = "010",
+      parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.METADATA,
+      metadata = HopServerMeta.class,
+      toolTip = "i18n::RemoteExecutionInfoLocation.HopServer.Tooltip",
+      label = "i18n::RemoteExecutionInfoLocation.HopServer.Label")
   @HopMetadataProperty(key = "server")
   protected String serverName;
 
   @GuiWidgetElement(
-          id = "location",
-          order = "020",
-          parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
-          type = GuiElementType.TEXT,
-          toolTip = "i18n::RemoteExecutionInfoLocation.LocationName.Tooltip",
-          label = "i18n::RemoteExecutionInfoLocation.LocationName.Label")
+      id = "location",
+      order = "020",
+      parentId = ExecutionInfoLocation.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      toolTip = "i18n::RemoteExecutionInfoLocation.LocationName.Tooltip",
+      label = "i18n::RemoteExecutionInfoLocation.LocationName.Label")
   @HopMetadataProperty(key = "location")
   protected String locationName;
 
@@ -103,12 +103,12 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
-          throws HopException {
+      throws HopException {
     this.variables = variables;
     try {
       if (StringUtils.isNotEmpty(serverName)) {
         server =
-                metadataProvider.getSerializer(HopServerMeta.class).load(variables.resolve(serverName));
+            metadataProvider.getSerializer(HopServerMeta.class).load(variables.resolve(serverName));
       }
 
       this.actualLocationName = variables.resolve(locationName);
@@ -135,7 +135,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     }
     if (actualLocationName == null) {
       throw new HopException(
-              "Please specify an execution information location (on the Hop server) to send execution information to.");
+          "Please specify an execution information location (on the Hop server) to send execution information to.");
     }
   }
 
@@ -144,12 +144,12 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
-                      .addParameter(
-                              RegisterExecutionInfoServlet.PARAMETER_TYPE,
-                              RegisterExecutionInfoServlet.TYPE_EXECUTION)
-                      .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .build();
+          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
+              .addParameter(
+                  RegisterExecutionInfoServlet.PARAMETER_TYPE,
+                  RegisterExecutionInfoServlet.TYPE_EXECUTION)
+              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .build();
 
       server.sendJson(variables, getJson(execution), uri.toString());
     } catch (Exception e) {
@@ -161,13 +161,13 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   public boolean deleteExecution(String executionId) throws HopException {
     try {
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE,
-                              GetExecutionInfoServlet.Type.DELETE.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.DELETE.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .build();
 
       validateSettings();
 
@@ -183,12 +183,12 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
-                      .addParameter(
-                              RegisterExecutionInfoServlet.PARAMETER_TYPE,
-                              RegisterExecutionInfoServlet.TYPE_STATE)
-                      .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .build();
+          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
+              .addParameter(
+                  RegisterExecutionInfoServlet.PARAMETER_TYPE,
+                  RegisterExecutionInfoServlet.TYPE_STATE)
+              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .build();
 
       server.sendJson(variables, getJson(executionState), uri.toString());
     } catch (Exception e) {
@@ -201,12 +201,12 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
-                      .addParameter(
-                              RegisterExecutionInfoServlet.PARAMETER_TYPE,
-                              RegisterExecutionInfoServlet.TYPE_DATA)
-                      .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .build();
+          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
+              .addParameter(
+                  RegisterExecutionInfoServlet.PARAMETER_TYPE,
+                  RegisterExecutionInfoServlet.TYPE_DATA)
+              .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .build();
 
       server.sendJson(variables, getJson(data), uri.toString());
     } catch (Exception e) {
@@ -219,13 +219,13 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.IDS.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_CHILDREN, includeChildren ? "Y" : "N")
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LIMIT, Integer.toString(limit))
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.IDS.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_CHILDREN, includeChildren ? "Y" : "N")
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LIMIT, Integer.toString(limit))
+              .build();
 
       String json = server.execService(variables, uri.toString());
       String[] ids = HopJson.newMapper().readValue(json, String[].class);
@@ -240,13 +240,13 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE,
-                              GetExecutionInfoServlet.Type.EXECUTION.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.EXECUTION.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .build();
 
       String json = server.execService(variables, uri.toString());
       return HopJson.newMapper().readValue(json, Execution.class);
@@ -257,19 +257,19 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public ExecutionState getExecutionState(String executionId, boolean includeLogging)
-          throws HopException {
+      throws HopException {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.STATE.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_INCLUDE_LARGE_LOGGING,
-                              includeLogging ? "Y" : "N")
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.STATE.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_INCLUDE_LARGE_LOGGING,
+                  includeLogging ? "Y" : "N")
+              .build();
 
       String json = server.execService(variables, uri.toString());
       return HopJson.newMapper().readValue(json, ExecutionState.class);
@@ -280,18 +280,18 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public String getExecutionStateLoggingText(String executionId, int sizeLimit)
-          throws HopException {
+      throws HopException {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE,
-                              GetExecutionInfoServlet.Type.STATE_LOGGING.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LIMIT, Integer.toString(sizeLimit))
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.STATE_LOGGING.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LIMIT, Integer.toString(sizeLimit))
+              .build();
 
       String loggingText = server.execService(variables, uri.toString());
       return HopJson.newMapper().readValue(loggingText, String.class);
@@ -310,13 +310,13 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE,
-                              GetExecutionInfoServlet.Type.CHILDREN.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.CHILDREN.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
+              .build();
 
       String json = server.execService(variables, uri.toString());
       Execution[] executions = HopJson.newMapper().readValue(json, Execution[].class);
@@ -345,10 +345,10 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public Execution findPreviousSuccessfulExecution(ExecutionType executionType, String name)
-          throws HopException {
+      throws HopException {
     try {
       List<Execution> executions =
-              findExecutions(e -> e.getExecutionType() == executionType && name.equals(e.getName()));
+          findExecutions(e -> e.getExecutionType() == executionType && name.equals(e.getName()));
       for (Execution execution : executions) {
         ExecutionState executionState = getExecutionState(execution.getId());
         if (executionState != null && !executionState.isFailed()) {
@@ -363,17 +363,17 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public ExecutionData getExecutionData(String parentExecutionId, String executionId)
-          throws HopException {
+      throws HopException {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.DATA.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_PARENT_ID, parentExecutionId)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.DATA.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_PARENT_ID, parentExecutionId)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .build();
 
       String json = server.execService(variables, uri.toString());
       return HopJson.newMapper().readValue(json, ExecutionData.class);
@@ -387,14 +387,14 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE,
-                              GetExecutionInfoServlet.Type.LAST_EXECUTION.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, executionType.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_NAME, name)
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.LAST_EXECUTION.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, executionType.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_NAME, name)
+              .build();
 
       String json = server.execService(variables, uri.toString());
       return HopJson.newMapper().readValue(json, Execution.class);
@@ -405,18 +405,18 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public List<String> findChildIds(ExecutionType parentExecutionType, String parentExecutionId)
-          throws HopException {
+      throws HopException {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE,
-                              GetExecutionInfoServlet.Type.CHILD_IDS.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, parentExecutionType.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.CHILD_IDS.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, parentExecutionType.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
+              .build();
 
       String json = server.execService(variables, uri.toString());
       String[] ids = HopJson.newMapper().readValue(json, String[].class);
@@ -431,13 +431,13 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-              new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              GetExecutionInfoServlet.PARAMETER_TYPE,
-                              GetExecutionInfoServlet.Type.PARENT_ID.name())
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
-                      .addParameter(GetExecutionInfoServlet.PARAMETER_ID, childId)
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.PARENT_ID.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, actualLocationName)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, childId)
+              .build();
 
       String json = server.execService(variables, uri.toString());
       return HopJson.newMapper().readValue(json, String.class);
