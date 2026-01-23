@@ -25,7 +25,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -94,84 +97,96 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   public static final String CONFIGURATION_IN_EXPORT_FILENAME =
       "__workflow_execution_configuration__.xml";
 
-  protected WorkflowMeta workflowMeta;
-  protected String pluginId;
-  protected WorkflowRunConfiguration workflowRunConfiguration;
+  @Getter @Setter protected WorkflowMeta workflowMeta;
+
+  @Getter @Setter protected String pluginId;
+
+  @Getter protected WorkflowRunConfiguration workflowRunConfiguration;
   protected RemoteWorkflowRunConfiguration remoteWorkflowRunConfiguration;
-  protected Result previousResult;
-  protected Result result;
-  protected IHopMetadataProvider metadataProvider;
-  protected ILogChannel logChannel;
-  protected LoggingObject loggingObject;
-  protected LogLevel logLevel;
-  protected long serverPollDelay;
-  protected long serverPollInterval;
+
+  @Getter @Setter protected Result previousResult;
+  @Setter @Getter protected Result result;
+  @Setter @Getter protected IHopMetadataProvider metadataProvider;
+
+  @Getter @Setter protected ILogChannel logChannel;
+
+  @Getter @Setter protected LoggingObject loggingObject;
+  @Setter @Getter protected LogLevel logLevel;
   protected RemoteHopServer hopServer;
-  protected HopServerMeta hopServer;
-  protected String containerId;
-  protected int lastLogLineNr;
-  protected boolean stopped;
+  @Setter @Getter protected String containerId;
+
+  @Setter @Getter protected int lastLogLineNr;
+  @Setter @Getter protected boolean stopped;
   protected HopServerWorkflowStatus workflowStatus;
 
   protected boolean interactive;
-  protected boolean finished;
-  protected boolean initialized;
-  protected boolean running;
-  protected boolean active;
-  protected String statusDescription;
+  @Setter @Getter protected boolean finished;
 
-  protected boolean gatheringMetrics;
-  protected boolean forcingSeparateLogging;
+  @Getter @Setter protected boolean initialized;
 
-  protected Date executionStartDate;
-  protected Date executionEndDate;
+  @Getter @Setter protected boolean running;
 
-  protected List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>>
+  @Getter @Setter protected boolean active;
+
+  @Getter @Setter protected String statusDescription;
+
+  @Setter @Getter protected boolean gatheringMetrics;
+  @Setter @Getter protected boolean forcingSeparateLogging;
+
+  @Getter @Setter protected Date executionStartDate;
+
+  @Getter @Setter protected Date executionEndDate;
+
+  protected final List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>>
       executionFinishedListeners;
-  protected List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>>
+  protected final List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>>
       executionStartedListeners;
-  protected List<IExecutionStoppedListener<IWorkflowEngine<WorkflowMeta>>>
+  protected final List<IExecutionStoppedListener<IWorkflowEngine<WorkflowMeta>>>
       executionStoppedListeners;
 
+  /**
+   * -- SETTER --
+   *
+   * @param actionListeners The actionListeners to set
+   */
+  @Getter
+  @Setter
+  @SuppressWarnings("rawtypes")
   protected List<IActionListener> actionListeners;
 
-  protected List<IDelegationListener> delegationListeners;
+  @Setter @Getter protected List<IDelegationListener> delegationListeners;
 
-  protected Set<ActionMeta> activeActions;
+  @Getter @Setter protected Set<ActionMeta> activeActions;
 
-  protected Map<String, Object> extensionDataMap;
+  @Getter @Setter protected Map<String, Object> extensionDataMap;
 
   /**
    * The rows that were passed onto this workflow by a previous pipeline. These rows are passed onto
    * the first workflow entry in this workflow (on the result object)
    */
-  private List<RowMetaAndData> sourceRows;
+  @Setter @Getter private List<RowMetaAndData> sourceRows;
 
-  /** Parameters of the workflow. */
-  private INamedParameters namedParams = new NamedParameters();
+  @Setter @Getter private INamedParameters namedParams = new NamedParameters();
 
-  private ActionMeta startActionMeta;
+  @Setter @Getter private ActionMeta startActionMeta;
 
   /**
    * The workflow that's launching this (sub-) workflow. This gives us access to the whole chain,
    * including the parent variables, etc.
    */
-  protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
+  @Setter @Getter protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
 
   /** The parent pipeline */
-  protected IPipelineEngine<PipelineMeta> parentPipeline;
+  @Getter @Setter protected IPipelineEngine<PipelineMeta> parentPipeline;
 
   /** The parent logging interface to reference */
-  private ILoggingObject parentLoggingObject;
+  @Setter @Getter private ILoggingObject parentLoggingObject;
 
-  /**
-   * Keep a list of the actions that were executed.
-   * org.apache.hop.core.logging.CentralLogStore.getInstance()
-   */
-  private WorkflowTracker workflowTracker;
+  /** Keep a list of the actions that were executed. */
+  @Getter @Setter private WorkflowTracker<WorkflowMeta> workflowTracker;
 
   /** A flat list of results in THIS workflow, in the order of execution of actions */
-  private final LinkedList<ActionResult> actionResults = new LinkedList<>();
+  @Getter private final LinkedList<ActionResult> actionResults = new LinkedList<>();
 
   public RemoteWorkflowEngine() {
     executionStartedListeners = Collections.synchronizedList(new ArrayList<>());
@@ -182,7 +197,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     extensionDataMap = new HashMap<>();
     logChannel = LogChannel.GENERAL;
     logLevel = LogLevel.BASIC;
-    workflowTracker = new WorkflowTracker(null);
+    workflowTracker = new WorkflowTracker<>(null);
   }
 
   @Override
@@ -216,13 +231,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       loggingObject = new LoggingObject(this);
       logLevel = logChannel.getLogLevel();
 
-      workflowTracker = new WorkflowTracker(workflowMeta);
+      workflowTracker = new WorkflowTracker<>(workflowMeta);
 
-      if (previousResult == null) {
-        result = new Result();
-      } else {
-        result = previousResult;
-      }
+      result = Objects.requireNonNullElseGet(previousResult, Result::new);
 
       IWorkflowEngineRunConfiguration engineRunConfiguration =
           workflowRunConfiguration.getEngineRunConfiguration();
@@ -259,13 +270,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
               + workflowRunConfiguration.getName()
               + "'");
 
-      hopServer = metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
-      if (hopServer == null) {
-      serverPollDelay =
-          Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollDelay()), 1000L);
-      serverPollInterval =
-          Const.toLong(resolve(remoteWorkflowRunConfiguration.getServerPollInterval()), 2000L);
-
       HopServerMeta hopServerMeta =
           metadataProvider.getSerializer(HopServerMeta.class).load(hopServerName);
       if (hopServerMeta == null) {
@@ -273,17 +277,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       }
 
       WorkflowExecutionConfiguration workflowExecutionConfiguration =
-          new WorkflowExecutionConfiguration();
-      workflowExecutionConfiguration.setRunConfiguration(remoteRunConfigurationName);
-      if (logLevel != null) {
-        workflowExecutionConfiguration.setLogLevel(logLevel);
-      }
-      if (previousResult != null) {
-        // This contains result rows, files, ...
-        //
-        workflowExecutionConfiguration.setPreviousResult(previousResult);
-      }
-      workflowExecutionConfiguration.setGatheringMetrics(gatheringMetrics);
+          getWorkflowExecutionConfiguration(remoteRunConfigurationName);
 
       sendToHopServer(this, workflowMeta, workflowExecutionConfiguration, metadataProvider);
       fireExecutionStartedListeners();
@@ -306,6 +300,23 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     }
 
     return result;
+  }
+
+  private WorkflowExecutionConfiguration getWorkflowExecutionConfiguration(
+      String remoteRunConfigurationName) {
+    WorkflowExecutionConfiguration workflowExecutionConfiguration =
+        new WorkflowExecutionConfiguration();
+    workflowExecutionConfiguration.setRunConfiguration(remoteRunConfigurationName);
+    if (logLevel != null) {
+      workflowExecutionConfiguration.setLogLevel(logLevel);
+    }
+    if (previousResult != null) {
+      // This contains result rows, files, ...
+      //
+      workflowExecutionConfiguration.setPreviousResult(previousResult);
+    }
+    workflowExecutionConfiguration.setGatheringMetrics(gatheringMetrics);
+    return workflowExecutionConfiguration;
   }
 
   public void monitorRemoteWorkflowUntilFinished() {
@@ -339,13 +350,12 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
           hopServer.requestWorkflowStatus(this, workflowMeta.getName(), containerId, lastLogLineNr);
       lastLogLineNr = workflowStatus.getLastLoggingLineNr();
       if (StringUtils.isNotEmpty(workflowStatus.getLoggingString())) {
-        // TODO implement detailed logging and add option to log at all
         logChannel.logBasic(workflowStatus.getLoggingString());
       }
       finished = workflowStatus.isFinished();
       stopped = workflowStatus.isStopped();
       running = workflowStatus.isRunning();
-      active = running; // TODO: differentiate
+      active = running;
       statusDescription = workflowStatus.getStatusDescription();
       result = workflowStatus.getResult();
 
@@ -432,36 +442,37 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       if (remoteWorkflowRunConfiguration.isExportingResources()) {
         // First export the workflow...
         //
-        FileObject tempFile =
-            HopVfs.createTempFile("workflowExport", ".zip", System.getProperty("java.io.tmpdir"));
+        try (FileObject tempFile =
+            HopVfs.createTempFile("workflowExport", ".zip", System.getProperty("java.io.tmpdir"))) {
 
-        TopLevelResource topLevelResource =
-            ResourceUtil.serializeResourceExportInterface(
-                tempFile.getName().toString(),
-                workflowMeta,
-                this,
-                metadataProvider,
-                executionConfiguration,
-                CONFIGURATION_IN_EXPORT_FILENAME,
-                remoteWorkflowRunConfiguration.getNamedResourcesSourceFolder(),
-                remoteWorkflowRunConfiguration.getNamedResourcesTargetFolder(),
-                executionConfiguration.getVariablesMap());
+          TopLevelResource topLevelResource =
+              ResourceUtil.serializeResourceExportInterface(
+                  tempFile.getName().toString(),
+                  workflowMeta,
+                  this,
+                  metadataProvider,
+                  executionConfiguration,
+                  CONFIGURATION_IN_EXPORT_FILENAME,
+                  remoteWorkflowRunConfiguration.getNamedResourcesSourceFolder(),
+                  remoteWorkflowRunConfiguration.getNamedResourcesTargetFolder(),
+                  executionConfiguration.getVariablesMap());
 
-        // Send the zip file over to the hop server...
-        String result =
-            hopServer.sendExport(
-                this,
-                topLevelResource.getArchiveName(),
-                RegisterPackageServlet.TYPE_WORKFLOW,
-                topLevelResource.getBaseResourceName());
-        WebResult webResult = WebResult.fromXmlString(result);
-        if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
-          throw new HopException(
-              "There was an error passing the exported workflow to the remote server: "
-                  + Const.CR
-                  + webResult.getMessage());
+          // Send the zip file over to the hop server...
+          String result =
+              hopServer.sendExport(
+                  this,
+                  topLevelResource.getArchiveName(),
+                  RegisterPackageServlet.TYPE_WORKFLOW,
+                  topLevelResource.getBaseResourceName());
+          WebResult webResult = WebResult.fromXmlString(result);
+          if (!webResult.getResult().equalsIgnoreCase(WebResult.STRING_OK)) {
+            throw new HopException(
+                "There was an error passing the exported workflow to the remote server: "
+                    + Const.CR
+                    + webResult.getMessage());
+          }
+          containerId = webResult.getId();
         }
-        containerId = webResult.getId();
       } else {
         String xml =
             new WorkflowConfiguration(workflowMeta, executionConfiguration, metadataProvider)
@@ -493,62 +504,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       throw ke;
     } catch (Exception e) {
       throw new HopException(e);
-    }
-  }
-
-  /**
-   * @deprecated
-   * @param finishedListener
-   */
-  @Override
-  @Deprecated(since = "2.9", forRemoval = true)
-  public void addWorkflowFinishedListener(
-      IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> finishedListener) {
-    synchronized (executionFinishedListeners) {
-      executionFinishedListeners.add(finishedListener);
-    }
-  }
-
-  /**
-   * @deprecated
-   * @throws HopException
-   */
-  @Override
-  @Deprecated(since = "2.9", forRemoval = true)
-  public void fireWorkflowFinishListeners() throws HopException {
-    synchronized (executionFinishedListeners) {
-      for (IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> listener :
-          executionFinishedListeners) {
-        listener.finished(this);
-      }
-    }
-  }
-
-  /**
-   * @deprecated
-   * @param finishedListener
-   */
-  @Override
-  @Deprecated(since = "2.9", forRemoval = true)
-  public void addWorkflowStartedListener(
-      IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> finishedListener) {
-    synchronized (executionStartedListeners) {
-      executionStartedListeners.add(finishedListener);
-    }
-  }
-
-  /**
-   * @deprecated
-   * @throws HopException
-   */
-  @Override
-  @Deprecated(since = "2.9", forRemoval = true)
-  public void fireWorkflowStartedListeners() throws HopException {
-    synchronized (executionStartedListeners) {
-      for (IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> listener :
-          executionStartedListeners) {
-        listener.started(this);
-      }
     }
   }
 
@@ -631,11 +586,11 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   @Override
-  public void addActionListener(IActionListener actionListener) {
+  public void addActionListener(IActionListener<WorkflowMeta> actionListener) {
     actionListeners.add(actionListener);
   }
 
-  public void removeActionListener(IActionListener actionListener) {
+  public void removeActionListener(IActionListener<WorkflowMeta> actionListener) {
     actionListeners.remove(actionListener);
   }
 
@@ -660,9 +615,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Gets LoggingObjectType.JOB, which is always the value for Workflow.
+   * Return value 'LoggingObjectType.WORKFLOW' which is always the value for Workflow.
    *
-   * @return LoggingObjectType LoggingObjectType.JOB
+   * @return LoggingObjectType Always returns the workflow type.
    */
   @Override
   public LoggingObjectType getObjectType() {
@@ -810,49 +765,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Gets workflowMeta
-   *
-   * @return value of workflowMeta
-   */
-  @Override
-  public WorkflowMeta getWorkflowMeta() {
-    return workflowMeta;
-  }
-
-  /**
-   * @param workflowMeta The workflowMeta to set
-   */
-  @Override
-  public void setWorkflowMeta(WorkflowMeta workflowMeta) {
-    this.workflowMeta = workflowMeta;
-  }
-
-  /**
-   * Gets pluginId
-   *
-   * @return value of pluginId
-   */
-  public String getPluginId() {
-    return pluginId;
-  }
-
-  /**
-   * @param pluginId The pluginId to set
-   */
-  public void setPluginId(String pluginId) {
-    this.pluginId = pluginId;
-  }
-
-  /**
-   * Gets workflowRunConfiguration
-   *
-   * @return value of workflowRunConfiguration
-   */
-  public WorkflowRunConfiguration getWorkflowRunConfiguration() {
-    return workflowRunConfiguration;
-  }
-
-  /**
    * @param workflowRunConfiguration The workflowRunConfiguration to set
    */
   @Override
@@ -861,324 +773,10 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Gets previousResult
-   *
-   * @return value of previousResult
-   */
-  public Result getPreviousResult() {
-    return previousResult;
-  }
-
-  /**
-   * @param previousResult The previousResult to set
-   */
-  public void setPreviousResult(Result previousResult) {
-    this.previousResult = previousResult;
-  }
-
-  /**
-   * Gets result
-   *
-   * @return value of result
-   */
-  @Override
-  public Result getResult() {
-    return result;
-  }
-
-  /**
-   * @param result The result to set
-   */
-  @Override
-  public void setResult(Result result) {
-    this.result = result;
-  }
-
-  /**
-   * Gets metadataProvider
-   *
-   * @return value of metadataProvider
-   */
-  @Override
-  public IHopMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
-  }
-
-  /**
-   * Gets logChannel
-   *
-   * @return value of logChannel
-   */
-  @Override
-  public ILogChannel getLogChannel() {
-    return logChannel;
-  }
-
-  /**
-   * @param logChannel The logChannel to set
-   */
-  public void setLogChannel(ILogChannel logChannel) {
-    this.logChannel = logChannel;
-  }
-
-  /**
-   * Gets loggingObject
-   *
-   * @return value of loggingObject
-   */
-  public LoggingObject getLoggingObject() {
-    return loggingObject;
-  }
-
-  /**
-   * @param loggingObject The loggingObject to set
-   */
-  public void setLoggingObject(LoggingObject loggingObject) {
-    this.loggingObject = loggingObject;
-  }
-
-  /**
-   * Gets logLevel
-   *
-   * @return value of logLevel
-   */
-  @Override
-  public LogLevel getLogLevel() {
-    return logLevel;
-  }
-
-  /**
-   * @param logLevel The logLevel to set
-   */
-  @Override
-  public void setLogLevel(LogLevel logLevel) {
-    this.logLevel = logLevel;
-  }
-
-  /**
-   * Gets hopServer
-   *
-   * @return value of hopServer
-   */
-  public HopServerMeta getHopServer() {
-    return hopServer;
-  }
-
-  /**
-   * @param hopServer The hopServer to set
-   */
-  public void setHopServer(HopServerMeta hopServer) {
-    this.hopServer = hopServer;
-  }
-
-  /**
-   * Gets serverObjectId
-   *
-   * @return value of serverObjectId
-   */
-  @Override
-  public String getContainerId() {
-    return containerId;
-  }
-
-  /**
-   * @param containerId The serverObjectId to set
-   */
-  @Override
-  public void setContainerId(String containerId) {
-    this.containerId = containerId;
-  }
-
-  /**
-   * Gets lastLogLineNr
-   *
-   * @return value of lastLogLineNr
-   */
-  public int getLastLogLineNr() {
-    return lastLogLineNr;
-  }
-
-  /**
-   * @param lastLogLineNr The lastLogLineNr to set
-   */
-  public void setLastLogLineNr(int lastLogLineNr) {
-    this.lastLogLineNr = lastLogLineNr;
-  }
-
-  /**
-   * Gets stopped
-   *
-   * @return value of stopped
-   */
-  @Override
-  public boolean isStopped() {
-    return stopped;
-  }
-
-  /**
-   * @param stopped The stopped to set
-   */
-  @Override
-  public void setStopped(boolean stopped) {
-    this.stopped = stopped;
-  }
-
-  /**
-   * @param workflowStatus The workflowStatus to set
-   */
-  public void setWorkflowStatus(HopServerWorkflowStatus workflowStatus) {
-    this.workflowStatus = workflowStatus;
-  }
-
-  /**
-   * Gets interactive
-   *
-   * @return value of interactive
-   */
-  @Override
-  public boolean isInteractive() {
-    return interactive;
-  }
-
-  /**
-   * @param interactive The interactive to set
-   */
-  @Override
-  public void setInteractive(boolean interactive) {
-    this.interactive = interactive;
-  }
-
-  /**
-   * Gets finished
-   *
-   * @return value of finished
-   */
-  @Override
-  public boolean isFinished() {
-    return finished;
-  }
-
-  /**
-   * @param finished The finished to set
-   */
-  @Override
-  public void setFinished(boolean finished) {
-    this.finished = finished;
-  }
-
-  /**
-   * Gets initialized
-   *
-   * @return value of initialized
-   */
-  @Override
-  public boolean isInitialized() {
-    return initialized;
-  }
-
-  /**
-   * @param initialized The initialized to set
-   */
-  public void setInitialized(boolean initialized) {
-    this.initialized = initialized;
-  }
-
-  /**
-   * Gets running
-   *
-   * @return value of running
-   */
-  public boolean isRunning() {
-    return running;
-  }
-
-  /**
-   * @param running The running to set
-   */
-  public void setRunning(boolean running) {
-    this.running = running;
-  }
-
-  /**
-   * Gets statusDescription
-   *
-   * @return value of statusDescription
-   */
-  @Override
-  public String getStatusDescription() {
-    return statusDescription;
-  }
-
-  /**
-   * @param statusDescription The statusDescription to set
-   */
-  public void setStatusDescription(String statusDescription) {
-    this.statusDescription = statusDescription;
-  }
-
-  /**
-   * Gets active
-   *
-   * @return value of active
-   */
-  @Override
-  public boolean isActive() {
-    return active;
-  }
-
-  /**
-   * @param active The active to set
-   */
-  public void setActive(boolean active) {
-    this.active = active;
-  }
-
-  /**
-   * Gets executionStartDate
-   *
-   * @return value of executionStartDate
-   */
-  @Override
-  public Date getExecutionStartDate() {
-    return executionStartDate;
-  }
-
-  /**
-   * @param executionStartDate The executionStartDate to set
-   */
-  public void setExecutionStartDate(Date executionStartDate) {
-    this.executionStartDate = executionStartDate;
-  }
-
-  /**
-   * Gets executionEndDate
-   *
-   * @return value of executionEndDate
-   */
-  @Override
-  public Date getExecutionEndDate() {
-    return executionEndDate;
-  }
-
-  /**
-   * @param executionEndDate The executionEndDate to set
-   */
-  public void setExecutionEndDate(Date executionEndDate) {
-    this.executionEndDate = executionEndDate;
-  }
-
-  /**
    * @deprecated Gets workflowFinishedListeners
    * @return value of workflowFinishedListeners
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>>
@@ -1193,13 +791,15 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   @Deprecated(since = "2.9", forRemoval = true)
   public void setWorkflowFinishedListeners(
       List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>> workflowFinishedListeners) {
-    this.executionFinishedListeners = workflowFinishedListeners;
+    this.executionFinishedListeners.clear();
+    this.executionFinishedListeners.addAll(workflowFinishedListeners);
   }
 
   /**
    * @deprecated Gets workflowStartedListeners
    * @return value of workflowStartedListeners
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>>
@@ -1214,238 +814,87 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   @Deprecated(since = "2.9", forRemoval = true)
   public void setWorkflowStartedListeners(
       List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>> workflowStartedListeners) {
-    this.executionStartedListeners = workflowStartedListeners;
+    this.executionStartedListeners.clear();
+    this.executionStartedListeners.addAll(workflowStartedListeners);
   }
 
   /**
-   * Gets actionListeners
+   * @deprecated
+   * @param finishedListener The listener to add
+   */
+  @SuppressWarnings("removal")
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
+  public void addWorkflowFinishedListener(
+      IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> finishedListener) {
+    synchronized (executionFinishedListeners) {
+      executionFinishedListeners.add(finishedListener);
+    }
+  }
+
+  /**
+   * @deprecated
+   * @throws HopException in case an exception happens during execution of a listener
+   */
+  @SuppressWarnings("removal")
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
+  public void fireWorkflowFinishListeners() throws HopException {
+    synchronized (executionFinishedListeners) {
+      for (IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> listener :
+          executionFinishedListeners) {
+        listener.finished(this);
+      }
+    }
+  }
+
+  /**
+   * @deprecated
+   * @param finishedListener The listener to add
+   */
+  @SuppressWarnings("removal")
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
+  public void addWorkflowStartedListener(
+      IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> finishedListener) {
+    synchronized (executionStartedListeners) {
+      executionStartedListeners.add(finishedListener);
+    }
+  }
+
+  /**
+   * @deprecated
+   * @throws HopException in case an exception happens during execution of a listener
+   */
+  @SuppressWarnings("removal")
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
+  public void fireWorkflowStartedListeners() throws HopException {
+    synchronized (executionStartedListeners) {
+      for (IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> listener :
+          executionStartedListeners) {
+        listener.started(this);
+      }
+    }
+  }
+
+  /**
+   * Gets interactive
    *
-   * @return value of actionListeners
+   * @return value of interactive
    */
+  @SuppressWarnings("removal")
   @Override
-  public List<IActionListener> getActionListeners() {
-    return actionListeners;
+  public boolean isInteractive() {
+    return interactive;
   }
 
   /**
-   * @param actionListeners The actionListeners to set
+   * @param interactive The interactive to set
    */
-  public void setActionListeners(List<IActionListener> actionListeners) {
-    this.actionListeners = actionListeners;
-  }
-
-  /**
-   * Gets delegationListeners
-   *
-   * @return value of delegationListeners
-   */
-  public List<IDelegationListener> getDelegationListeners() {
-    return delegationListeners;
-  }
-
-  /**
-   * @param delegationListeners The delegationListeners to set
-   */
-  public void setDelegationListeners(List<IDelegationListener> delegationListeners) {
-    this.delegationListeners = delegationListeners;
-  }
-
-  /**
-   * Gets activeActionPipeline
-   *
-   * @return value of activeActionPipeline
-   */
+  @SuppressWarnings("removal")
   @Override
-  public Set<ActionMeta> getActiveActions() {
-    return activeActions;
-  }
-
-  /**
-   * @param activeActions The activeActions to set
-   */
-  public void setActiveActions(Set<ActionMeta> activeActions) {
-    this.activeActions = activeActions;
-  }
-
-  /**
-   * Gets namedParams
-   *
-   * @return value of namedParams
-   */
-  public INamedParameters getNamedParams() {
-    return namedParams;
-  }
-
-  /**
-   * @param namedParams The namedParams to set
-   */
-  public void setNamedParams(INamedParameters namedParams) {
-    this.namedParams = namedParams;
-  }
-
-  /**
-   * Gets extensionDataMap
-   *
-   * @return value of extensionDataMap
-   */
-  @Override
-  public Map<String, Object> getExtensionDataMap() {
-    return extensionDataMap;
-  }
-
-  /**
-   * @param extensionDataMap The extensionDataMap to set
-   */
-  public void setExtensionDataMap(Map<String, Object> extensionDataMap) {
-    this.extensionDataMap = extensionDataMap;
-  }
-
-  /**
-   * Gets sourceRows
-   *
-   * @return value of sourceRows
-   */
-  public List<RowMetaAndData> getSourceRows() {
-    return sourceRows;
-  }
-
-  /**
-   * @param sourceRows The sourceRows to set
-   */
-  @Override
-  public void setSourceRows(List<RowMetaAndData> sourceRows) {
-    this.sourceRows = sourceRows;
-  }
-
-  /**
-   * Gets start action meta
-   *
-   * @return value of start action meta
-   */
-  public ActionMeta getStartActionMeta() {
-    return startActionMeta;
-  }
-
-  /**
-   * @param actionMeta The start action to set
-   */
-  @Override
-  public void setStartActionMeta(ActionMeta actionMeta) {
-    this.startActionMeta = actionMeta;
-  }
-
-  /**
-   * Gets workflowTracker
-   *
-   * @return value of workflowTracker
-   */
-  @Override
-  public WorkflowTracker getWorkflowTracker() {
-    return workflowTracker;
-  }
-
-  /**
-   * @param workflowTracker The workflowTracker to set
-   */
-  public void setWorkflowTracker(WorkflowTracker workflowTracker) {
-    this.workflowTracker = workflowTracker;
-  }
-
-  /**
-   * Gets parentWorkflow
-   *
-   * @return value of parentWorkflow
-   */
-  @Override
-  public IWorkflowEngine<WorkflowMeta> getParentWorkflow() {
-    return parentWorkflow;
-  }
-
-  /**
-   * @param parentWorkflow The parentWorkflow to set
-   */
-  @Override
-  public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
-    this.parentWorkflow = parentWorkflow;
-  }
-
-  /**
-   * Gets parentPipeline
-   *
-   * @return value of parentPipeline
-   */
-  @Override
-  public IPipelineEngine<PipelineMeta> getParentPipeline() {
-    return parentPipeline;
-  }
-
-  /**
-   * @param parentPipeline The parentPipeline to set
-   */
-  @Override
-  public void setParentPipeline(IPipelineEngine parentPipeline) {
-    this.parentPipeline = parentPipeline;
-  }
-
-  /**
-   * Gets parentLoggingObject
-   *
-   * @return value of parentLoggingObject
-   */
-  public ILoggingObject getParentLoggingObject() {
-    return parentLoggingObject;
-  }
-
-  /**
-   * @param parentLoggingObject The parentLoggingObject to set
-   */
-  public void setParentLoggingObject(ILoggingObject parentLoggingObject) {
-    this.parentLoggingObject = parentLoggingObject;
-  }
-
-  /**
-   * Gets actionResults
-   *
-   * @return value of actionResults
-   */
-  @Override
-  public LinkedList<ActionResult> getActionResults() {
-    return actionResults;
-  }
-
-  /**
-   * Gets forcingSeparateLogging
-   *
-   * @return value of forcingSeparateLogging
-   */
-  @Override
-  public boolean isForcingSeparateLogging() {
-    return forcingSeparateLogging;
-  }
-
-  /**
-   * @param forcingSeparateLogging The forcingSeparateLogging to set
-   */
-  @Override
-  public void setForcingSeparateLogging(boolean forcingSeparateLogging) {
-    this.forcingSeparateLogging = forcingSeparateLogging;
-  }
-
-  /**
-   * Gets gatheringMetrics
-   *
-   * @return value of gatheringMetrics
-   */
-  @Override
-  public boolean isGatheringMetrics() {
-    return gatheringMetrics;
-  }
-
-  /**
-   * @param gatheringMetrics The gatheringMetrics to set
-   */
-  @Override
-  public void setGatheringMetrics(boolean gatheringMetrics) {
-    this.gatheringMetrics = gatheringMetrics;
+  public void setInteractive(boolean interactive) {
+    this.interactive = interactive;
   }
 }

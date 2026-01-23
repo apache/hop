@@ -16,20 +16,24 @@
  */
 package org.apache.hop.www;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.apache.hop.core.annotations.HopServerServlet;
 
-public class ShutdownServlet extends BaseHttpServlet {
-  private static final long serialVersionUID = -1L;
+@HopServerServlet(id = "shutdown", name = "Shut down the server")
+public class ShutdownServlet extends BaseHttpServlet implements IHopServerPlugin {
+
+  @Serial private static final long serialVersionUID = -911533231051351L;
 
   public static final String CONTEXT_PATH = "/shutdown";
 
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
     logBasic(
@@ -52,5 +56,19 @@ public class ShutdownServlet extends BaseHttpServlet {
     // Delay shutdown to give servlet time to respond
     new Timer("Server shutdown timer").schedule(task, 2000L);
     response.setStatus(HttpServletResponse.SC_OK);
+  }
+
+  public String toString() {
+    return "Shut down the server";
+  }
+
+  @Override
+  public String getService() {
+    return CONTEXT_PATH + " (" + toString() + ")";
+  }
+
+  @Override
+  public String getContextPath() {
+    return CONTEXT_PATH;
   }
 }

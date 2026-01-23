@@ -1059,6 +1059,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    * @deprecated
    * @throws HopException
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStartedListeners() throws HopException {
@@ -1074,6 +1075,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    * @deprecated
    * @throws HopException
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionFinishedListeners() throws HopException {
@@ -1103,6 +1105,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    * @deprecated
    * @throws HopException
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStoppedListeners() throws HopException {

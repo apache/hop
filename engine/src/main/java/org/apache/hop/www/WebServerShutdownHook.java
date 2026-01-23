@@ -15,22 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.hop.core;
+package org.apache.hop.www;
 
-import java.util.List;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.transform.ITransformData;
+public class WebServerShutdownHook extends Thread {
 
-/**
- * @deprecated
- */
-@SuppressWarnings({"removal", "DeprecatedIsStillUsed"})
-@Deprecated(since = "2.9", forRemoval = true)
-public interface IProvidesModelerMeta extends IProvidesDatabaseConnectionInformation {
-  IRowMeta getRowMeta(IVariables variables, ITransformData transformData);
+  WebServer webServer;
+  boolean shuttingDown; // Set when shutting down so we only stop the server once.
 
-  List<String> getDatabaseFields();
+  WebServerShutdownHook(WebServer webServer) {
+    this.webServer = webServer;
+  }
 
-  List<String> getStreamFields();
+  @Override
+  public void run() {
+    if (!shuttingDown) {
+      try {
+        webServer.stopServer();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  public boolean isShuttingDown() {
+    return shuttingDown;
+  }
+
+  public void setShuttingDown(boolean shuttingDown) {
+    this.shuttingDown = shuttingDown;
+  }
 }

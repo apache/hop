@@ -47,9 +47,11 @@ public class WebServerTest {
 
   private static final String HOST_NAME = "localhost";
 
-  private static final int PORT = 8099;
+  private static final int PORT = 8199;
 
-  private static final int SHUTDOWN_PORT = 8098;
+  private static final int SHUTDOWN_PORT = 8198;
+
+  private static final boolean JOIN = true;
 
   private static final String ACCEPTORS = "5";
 
@@ -91,26 +93,24 @@ public class WebServerTest {
   @Test
   public void testSocketConnectors() throws Exception {
     WebServer webserver =
-        new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT);
-    webserver.start();
+        new WebServer(
+            logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT, JOIN);
     assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webserver).size());
-    webserver.stop();
+    webserver.stopServer();
   }
 
   @Test
   public void testShutdownDisabled() throws Exception {
     WebServer webserver =
-        new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, -1);
-    webserver.start();
+        new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, -1, JOIN);
     assertEquals(1, getSocketConnectors(webserver).size());
-    webserver.stop();
+    webserver.stopServer();
   }
 
   @Test
   public void testJettyOption() throws Exception {
     WebServer webserver =
-        new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, -1);
-    webserver.start();
+        new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, -1, JOIN);
 
     // AcceptQueueSizeSetUp
     for (ServerConnector connector : getSocketConnectors(webserver, PUBLIC_CONNECTOR_NAME)) {
@@ -125,7 +125,7 @@ public class WebServerTest {
       assertEquals(EXPECTED_RES_MAX_IDLE_TIME, connector.getIdleTimeout());
     }
 
-    webserver.stop();
+    webserver.stopServer();
   }
 
   @Test
@@ -135,13 +135,13 @@ public class WebServerTest {
     WebServer webserver = null;
     try {
       webserver =
-          new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT);
-      webserver.start();
+          new WebServer(
+              logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT, JOIN);
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
     assertTrue(webserver.getServer().isStarted());
-    webserver.stop();
+    webserver.stopServer();
   }
 
   @Test
@@ -151,13 +151,13 @@ public class WebServerTest {
     WebServer webserver = null;
     try {
       webserver =
-          new WebServer(logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT);
-      webserver.start();
+          new WebServer(
+              logMock, pipelineMapMock, workflowMapMock, HOST_NAME, PORT, SHUTDOWN_PORT, JOIN);
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
     assertTrue(webserver.getServer().isStarted());
-    webserver.stop();
+    webserver.stopServer();
   }
 
   private List<ServerConnector> getSocketConnectors(WebServer webserver, String name) {

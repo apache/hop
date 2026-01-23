@@ -19,17 +19,11 @@ package org.apache.hop.www;
 
 import jakarta.servlet.Servlet;
 import java.awt.GraphicsEnvironment;
-import java.io.File;
-import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -57,7 +51,6 @@ import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.PropertyUserStore;
 import org.eclipse.jetty.security.UserStore;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -75,6 +68,8 @@ import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+@Getter
+@Setter
 public class WebServer {
   private static final Class<?> PKG = WebServer.class;
 
@@ -83,25 +78,24 @@ public class WebServer {
   private static final int DEFAULT_DETECTION_TIMER = 20000;
 
   public static final String CONST_WEB_SERVER_LOG_CONFIG_OPTIONS = "WebServer.Log.ConfigOptions";
-  @Getter @Setter private ILogChannel log;
+  private ILogChannel log;
 
   /** value of variables */
-  @Setter @Getter private IVariables variables;
+  private IVariables variables;
 
-  @Getter @Setter private Server server;
-  @Getter @Setter private PipelineMap pipelineMap;
-  @Setter @Getter private WorkflowMap workflowMap;
+  private Server server;
+  private PipelineMap pipelineMap;
+  private WorkflowMap workflowMap;
 
   /** the hostname */
-  @Setter @Getter private String hostname;
+  private String hostname;
 
-  @Setter @Getter private int port;
+  private int port;
   private final int shutdownPort;
   private String passwordFile;
   private final WebServerShutdownHook webServerShutdownHook;
 
   /** Can be used to override the default shutdown behavior of performing a System.exit */
-  @Setter
   private IWebServerShutdownHandler webServerShutdownHandler =
       new DefaultWebServerShutdownHandler();
 
@@ -114,9 +108,10 @@ public class WebServer {
       String hostname,
       int port,
       int shutdownPort,
+      boolean join,
       String passwordFile)
       throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, passwordFile, null);
+    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, join, passwordFile, null);
   }
 
   public WebServer(
@@ -126,6 +121,7 @@ public class WebServer {
       String hostname,
       int port,
       int shutdownPort,
+      boolean join,
       String passwordFile,
       SslConfiguration sslConfig)
       throws Exception {
@@ -144,7 +140,24 @@ public class WebServer {
     this.shutdownPort = shutdownPort;
     this.passwordFile = passwordFile;
     this.sslConfig = sslConfig;
-    this.server = new Server();
+
+    startServer();
+
+    webServerShutdownHook = new WebServerShutdownHook(this);
+    Runtime.getRuntime().addShutdownHook(webServerShutdownHook);
+
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          log, variables, HopExtensionPoint.HopServerStartup.id, this);
+    } catch (HopException e) {
+      // Log error but continue regular operations to make sure HopServer continues to run properly
+      //
+      log.logError("Error calling extension point HopServerStartup", e);
+    }
+
+    if (join) {
+      server.join();
+    }
   }
 
   public WebServer(
@@ -153,23 +166,12 @@ public class WebServer {
       WorkflowMap workflowMap,
       String hostname,
       int port,
-      int shutdownPort)
+      int shutdownPort,
+      boolean join)
       throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, null, null);
+    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, join, null, null);
   }
 
-  public Server getServer() {
-    return server;
-  }
-
-  /** Start the web server... */
-  public synchronized void start() throws Exception {
-
-    if (server.isStarting() || server.isStarted()) {
-      return;
-    }
-
-    log.logDetailed(BaseMessages.getString(PKG, "WebServer.Log.StartingServer"));
   public void startServer() throws Exception {
     server = new Server();
     HopServerMeta hopServer = pipelineMap.getHopServerConfig().getHopServer();
@@ -271,11 +273,7 @@ public class WebServer {
       contexts.addHandler(servletContext);
       ServletHolder servletHolder = new ServletHolder((Servlet) servlet);
       servletContext.addServlet(servletHolder, "/*");
-          new ServletContextHandler(
-              contexts, getContextPath(servlet), ServletContextHandler.SESSIONS);
-      servletContext.setVirtualHosts(new String[] {"@webserver"});
       servletContext.setAttribute("GraphicsEnvironment", graphicsEnvironment);
-      servletContext.addServlet(new ServletHolder((Servlet) servlet), "/*");
     }
 
     // setup jersey (REST)
@@ -298,38 +296,6 @@ public class WebServer {
 
     root.addServlet(new ServletHolder(rootServlet), "/*");
     return contexts;
-    HandlerList handlers = new HandlerList();
-    handlers.setHandlers(new Handler[] {resourceHandler, contexts});
-    securityHandler.setHandler(handlers);
-
-    server.setHandler(securityHandler);
-
-    // Public connector
-    ServerConnector publicConnector = createConnector("webserver", hostname, port);
-    setupJettyOptions(publicConnector);
-    server.addConnector(publicConnector);
-
-    // If shutdown port is enabled
-    if (shutdownPort > 0) {
-      // Shutdown context
-      ServletContextHandler shutdownHandler =
-          new ServletContextHandler(
-              contexts, ShutdownServlet.CONTEXT_PATH, ServletContextHandler.NO_SESSIONS);
-      ServletHolder shutdownHolder = new ServletHolder(new ShutdownServlet());
-      shutdownHandler.addServlet(shutdownHolder, "/*");
-      shutdownHandler.setVirtualHosts(new String[] {"@shutdown"});
-
-      // Shutdown connector
-      ServerConnector shutdownConnector = createConnector("shutdown", hostname, shutdownPort);
-      shutdownConnector.setAcceptQueueSize(1);
-      server.addConnector(shutdownConnector);
-    }
-
-    // Setup timeout to allow graceful timeout of server components
-    server.setStopTimeout(1000L);
-
-    // Start execution
-    server.start();
   }
 
   public String getContextPath(IHopServerPlugin servlet) {
@@ -340,32 +306,58 @@ public class WebServer {
     server.join();
   }
 
-  /** Stop the web server... */
-  public synchronized void stop() {
-    if (server.isStopping() || server.isStopped()) {
-      return;
+  public void stopServer() {
+
+    webServerShutdownHook.setShuttingDown(true);
+    log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.ShuttingDown"));
+    try {
+      ExtensionPointHandler.callExtensionPoint(
+          log, variables, HopExtensionPoint.HopServerShutdown.id, this);
+    } catch (HopException e) {
+      // Log error but continue regular operations to make sure HopServer can be shut down properly.
+      //
+      log.logError("Error calling extension point HopServerStartup", e);
     }
 
-    log.logDetailed(BaseMessages.getString(PKG, "WebServer.Log.StoppingServer"));
-
     try {
-      server.stop();
+      if (server != null) {
+
+        // Stop the server...
+        //
+        server.stop();
+        HopEnvironment.shutdown();
+        if (webServerShutdownHandler != null) {
+          webServerShutdownHandler.shutdownWebServer();
+        }
+      }
     } catch (Exception e) {
-      log.logError(BaseMessages.getString(PKG, "WebServer.Error.FailedToStop.Msg", e.toString()));
+      log.logError(
+          BaseMessages.getString(PKG, "WebServer.Error.FailedToStop.Title"),
+          BaseMessages.getString(PKG, "WebServer.Error.FailedToStop.Msg", "" + e));
     }
   }
 
-  private ServerConnector createConnector(String name, String hostname, int securePort) {
-    log.logBasic(
-        BaseMessages.getString(
-            PKG, "WebServer.Log.CreateListener", name, hostname, "" + securePort));
+  private void createListeners() {
 
-    ServerConnector connector = null;
+    ServerConnector connector = getConnector();
 
+    setupJettyOptions(connector);
+    connector.setPort(port);
+    connector.setHost(hostname);
+    connector.setName(BaseMessages.getString(PKG, "WebServer.Log.HopHTTPListener", hostname));
+    log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.CreateListener", hostname, "" + port));
+
+    server.setConnectors(new Connector[] {connector});
+  }
+
+  private ServerConnector getConnector() {
     if (sslConfig != null) {
       log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.SslModeUsing"));
 
-      // SSL Context Factory for HTTPS
+      HttpConfiguration httpConfig = new HttpConfiguration();
+      httpConfig.setSecureScheme("https");
+      httpConfig.setSecurePort(port);
+
       String keyStorePassword =
           Encr.decryptPasswordOptionallyEncrypted(sslConfig.getKeyStorePassword());
       String keyPassword = Encr.decryptPasswordOptionallyEncrypted(sslConfig.getKeyPassword());
@@ -378,32 +370,26 @@ public class WebServer {
       factory.setTrustStorePath(sslConfig.getKeyStore());
       factory.setTrustStorePassword(keyStorePassword);
 
-      // HTTPS connection factory
-      HttpConfiguration httpsConfig = new HttpConfiguration();
-      httpsConfig.setSecureScheme("https");
-      httpsConfig.setSecurePort(securePort);
+      HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
       httpsConfig.addCustomizer(new SecureRequestCustomizer());
 
-      connector =
+      ServerConnector sslConnector =
           new ServerConnector(
               server,
               new SslConnectionFactory(factory, HttpVersion.HTTP_1_1.asString()),
               new HttpConnectionFactory(httpsConfig));
+      sslConnector.setPort(port);
 
+      return sslConnector;
     } else {
-      connector = new ServerConnector(server);
+      return new ServerConnector(server);
     }
-    connector.setName(name);
-    connector.setHost(hostname);
-    connector.setPort(securePort);
-
-    return connector;
   }
 
   /**
    * Set up jetty options to the connector
    *
-   * @param connector
+   * @param connector The Jetty connector to set up
    */
   protected void setupJettyOptions(ServerConnector connector) {
     LowResourceMonitor lowResourceMonitor = new LowResourceMonitor(server);
@@ -460,14 +446,6 @@ public class WebServer {
       }
     }
     return isValid;
-  }
-
-  public String getPasswordFile() {
-    return passwordFile;
-  }
-
-  public void setPasswordFile(String passwordFile) {
-    this.passwordFile = passwordFile;
   }
 
   public int defaultDetectionTimer() {

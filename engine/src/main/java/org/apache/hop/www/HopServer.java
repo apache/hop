@@ -40,6 +40,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
+import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -48,7 +49,9 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.JarCache;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -66,11 +69,12 @@ import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.server.HopServerMeta;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 
 @SuppressWarnings("java:S106")
 @Getter
@@ -78,16 +82,12 @@ import picocli.CommandLine.Parameters;
 @Command(
     versionProvider = HopVersionProvider.class,
     mixinStandardHelpOptions = true,
-    description = "Run a Hop server")
-@HopCommand(id = "server", description = "Run a Hop server")
-public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand {
-@CommandLine.Command(
     name = "hop-server",
     description = "Apache Hop server",
-    versionProvider = HopVersionProvider.class,
     abbreviateSynopsis = true,
     usageHelpAutoWidth = true)
-public class HopServer implements Runnable, IHasHopMetadataProvider {
+@HopCommand(id = "server", description = "Run a Hop server")
+public class HopServer implements Runnable, IHasHopMetadataProvider, IHopCommand {
   private static final Class<?> PKG = HopServer.class;
   private static final String CONST_FOUND = " found.";
   private static final String CONST_SPACE = "        ";
@@ -236,7 +236,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   }
 
   public void runHopServer() throws Exception {
-
     log.logDetailed(BaseMessages.getString(PKG, "HopServer.Log.StartingServer"));
     allOK = true;
 
@@ -273,13 +272,9 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
                 hostname,
                 port,
                 shutdownPort,
+                shouldJoin,
                 config.getPasswordFile(),
                 hopServerMeta.getSslConfig());
-
-        // Start the web server
-        webServer.start();
-
-        HopServerSingleton.setHopServer(this);
 
         // Right after the Hop server has started and is fully functional
         try {
@@ -291,13 +286,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
           //
           log.logError("Error calling extension point HopServerStartup", e);
         }
-
-        if (shouldJoin) {
-          webServer.join();
-          webServer = null;
-        }
-
-        HopServerSingleton.setHopServer(null);
 
         // Right after the Hop server shutdown
         try {
@@ -334,7 +322,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         log.logError("Error calling extension point HopServerShutdown", e);
       }
 
-      webServer.stop();
+      webServer.stopServer();
     }
   }
 
@@ -730,8 +718,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         }
       }
       hopServer.setCmd(command);
-      Hop.addMixinPlugins(cmd, ConfigPlugin.CATEGORY_SERVER);
-      hopServer.setCmd(cmd);
+      Hop.addMixinPlugins(command, ConfigPlugin.CATEGORY_SERVER);
+      hopServer.setCmd(command);
 
       // Add optional metadata folder (legacy)
       //
@@ -810,18 +798,18 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     try {
       callStopHopServerRestService(hostname, port, shutdownPort, username, password);
     } catch (Exception e) {
-      e.printStackTrace();
+      e.printStackTrace(System.err);
     }
   }
 
   /**
    * Checks that HopServer is running and if so, shuts down the HopServer server
    *
-   * @param hostname
-   * @param port
-   * @param username
-   * @param password
-   * @throws HopServerCommandException
+   * @param hostname The hostname
+   * @param port The port
+   * @param username The username
+   * @param password The password
+   * @throws HopServerCommandException In case there was a command line error
    */
   @VisibleForTesting
   static void callStopHopServerRestService(

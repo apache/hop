@@ -46,7 +46,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.www.GetExecutionInfoServlet;
 import org.apache.hop.www.RegisterExecutionInfoServlet;
-import org.apache.hop.www.RemoteHopServer;
 import org.apache.http.client.utils.URIBuilder;
 
 @GuiPlugin(description = "File execution information location GUI elements")
