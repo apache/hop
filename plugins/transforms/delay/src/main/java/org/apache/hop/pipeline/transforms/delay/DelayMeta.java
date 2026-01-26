@@ -88,40 +88,33 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
   }
 
   public void setScaleTimeCode(int scaleTimeIndex) {
-    switch (scaleTimeIndex) {
-      case 0:
-        scaletime = SCALE_TIME_CODE[0]; // milliseconds
-        break;
-      case 1:
-        scaletime = SCALE_TIME_CODE[1]; // second
-        break;
-      case 2:
-        scaletime = SCALE_TIME_CODE[2]; // minutes
-        break;
-      case 3:
-        scaletime = SCALE_TIME_CODE[3]; // hours
-        break;
-      default:
-        scaletime = SCALE_TIME_CODE[1]; // seconds
-        break;
-    }
+    scaletime =
+        switch (scaleTimeIndex) {
+            // milliseconds
+          case 0 -> SCALE_TIME_CODE[0];
+            // minutes
+          case 2 -> SCALE_TIME_CODE[2];
+            // hours
+          case 3 -> SCALE_TIME_CODE[3];
+            // seconds
+          default -> SCALE_TIME_CODE[1];
+        };
   }
 
   public int getScaleTimeCode() {
-    int retval = 1; // DEFAULT: seconds
+    // DEFAULT: seconds
+    int retval = 1;
     if (scaletime == null) {
       return retval;
     }
+
     if (scaletime.equals(SCALE_TIME_CODE[0])) {
       retval = 0;
-    } else if (scaletime.equals(SCALE_TIME_CODE[1])) {
-      retval = 1;
     } else if (scaletime.equals(SCALE_TIME_CODE[2])) {
       retval = 2;
     } else if (scaletime.equals(SCALE_TIME_CODE[3])) {
       retval = 3;
     }
-
     return retval;
   }
 
@@ -131,8 +124,10 @@ public class DelayMeta extends BaseTransformMeta<Delay, DelayData> {
 
   @Override
   public void setDefault() {
-    timeout = "1"; // default one second
-    scaletime = DEFAULT_SCALE_TIME; // defaults to "seconds"
+    // default one second
+    timeout = "1";
+    // defaults to "seconds"
+    scaletime = DEFAULT_SCALE_TIME;
     timeoutField = null;
     scaleTimeFromField = false;
     scaleTimeField = null;
