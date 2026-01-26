@@ -119,7 +119,7 @@ You can specify the properties as a comma separated list, e.g. `PROP1=xxx,PROP2=
 
 |```HOP_CONFIG_OPTIONS```
 |
-|If you specify a value for this variable, they will be used to execute `hop-config.sh` right before execution of the short- or long-lived container.
+|If you specify a value for this variable, they will be used to execute `hop-conf.sh` right before execution of the short- or long-lived container.
 You can use it for example to configure values for keys, plugins, and so on.
 
 |===
