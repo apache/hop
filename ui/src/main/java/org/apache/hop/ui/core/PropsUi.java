@@ -143,11 +143,11 @@ public class PropsUi extends Props {
     if (!EnvironmentUtils.getInstance().isWeb() && !OsHelper.isWindows()) {
       if (Display.isSystemDarkTheme()) {
         if (!isDarkMode()) {
-          setDarkMode(true);
+          setDarkMode(false);
         }
       } else {
         if (isDarkMode()) {
-          setDarkMode(false);
+          setDarkMode(true);
         }
       }
     }
