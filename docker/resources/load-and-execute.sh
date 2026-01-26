@@ -204,7 +204,7 @@ if [ -n "${HOP_CONFIG_OPTIONS}" ]; then
   # We have a hop-config to run with the given options
   #
   echo "Configuring Hop with : ${HOP_CONFIG_OPTIONS}"
-  "${DEPLOYMENT_PATH}"/hop-config.sh \
+  "${DEPLOYMENT_PATH}"/hop-conf.sh \
     "{HOP_CONFIG_OPTIONS}" \
     2>&1 | tee ${HOP_LOG_PATH}
 fi

@@ -107,7 +107,7 @@ This can be generated in the Hop GUI under the tools menu or using command:
 
 [source,bash]
 ----
-sh hop-config.sh -fj /path/to/fat.jar
+sh hop-conf.sh -fj /path/to/fat.jar
 ----
 
 **Important** : project configurations, environments and these things are not valid in the context of the Spark runtime.

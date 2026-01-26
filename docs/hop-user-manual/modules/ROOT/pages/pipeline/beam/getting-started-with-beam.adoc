@@ -243,7 +243,7 @@ Apache Hop allows you to create a fat jar in the Hop GUI with the `Tools/Generat
 
 [source]
 ----
-sh hop-config.sh -fj /path/to/fat.jar
+sh hop-conf.sh -fj /path/to/fat.jar
 ----
 
 The path to this fat jar can then be referenced in the various Beam runtime configurations.
