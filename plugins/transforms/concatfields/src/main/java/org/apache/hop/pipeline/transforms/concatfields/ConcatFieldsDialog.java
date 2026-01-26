@@ -31,6 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -43,9 +44,9 @@ import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -72,7 +73,13 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
 
   private Button wRemove;
 
+  /** enclosure label / text */
+  private Label wlEnclosure;
+
   private Button wForceEnclosure;
+
+  /** skip empty value(empty/null) */
+  private Button skipEmptyBtn;
 
   private TableView wFields;
 
@@ -124,18 +131,16 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
     wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
     PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
+    wlTransformName.setLayoutData(
+        FormDataBuilder.builder().top(0, margin).left().right(middle, -margin).build());
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    wTransformName.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlTransformName, 0, SWT.CENTER)
+            .left(middle, 0)
+            .right(100, 0)
+            .build());
     Control lastControl = wTransformName;
 
     // TargetFieldName line
@@ -145,19 +150,16 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     wlTargetFieldName.setToolTipText(
         BaseMessages.getString(PKG, "ConcatFieldsDialog.TargetFieldName.Tooltip"));
     PropsUi.setLook(wlTargetFieldName);
-    FormData fdlTargetFieldName = new FormData();
-    fdlTargetFieldName.left = new FormAttachment(0, 0);
-    fdlTargetFieldName.top = new FormAttachment(lastControl, margin);
-    fdlTargetFieldName.right = new FormAttachment(middle, -margin);
-    wlTargetFieldName.setLayoutData(fdlTargetFieldName);
+    wlTargetFieldName.setLayoutData(
+        FormDataBuilder.builder().top(lastControl, margin).left().right(middle, -margin).build());
     wTargetFieldName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTargetFieldName);
-    FormData fdTargetFieldName = new FormData();
-    fdTargetFieldName.left = new FormAttachment(middle, 0);
-    fdTargetFieldName.top = new FormAttachment(wlTargetFieldName, 0, SWT.CENTER);
-    fdTargetFieldName.right = new FormAttachment(100, 0);
-    wTargetFieldName.setLayoutData(fdTargetFieldName);
-    lastControl = wTargetFieldName;
+    wTargetFieldName.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlTargetFieldName, 0, SWT.CENTER)
+            .left(middle, 0)
+            .right(100, 0)
+            .build());
 
     // TargetFieldLength line
     Label wlTargetFieldLength = new Label(shell, SWT.RIGHT);
@@ -166,101 +168,116 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     wlTargetFieldLength.setToolTipText(
         BaseMessages.getString(PKG, "ConcatFieldsDialog.TargetFieldLength.Tooltip"));
     PropsUi.setLook(wlTargetFieldLength);
-    FormData fdlTargetFieldLength = new FormData();
-    fdlTargetFieldLength.left = new FormAttachment(0, 0);
-    fdlTargetFieldLength.top = new FormAttachment(wTargetFieldName, margin);
-    fdlTargetFieldLength.right = new FormAttachment(middle, -margin);
-    wlTargetFieldLength.setLayoutData(fdlTargetFieldLength);
+    wlTargetFieldLength.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wTargetFieldName, margin)
+            .left()
+            .right(middle, -margin)
+            .build());
     wTargetFieldLength = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTargetFieldLength);
-    FormData fdTargetFieldLength = new FormData();
-    fdTargetFieldLength.left = new FormAttachment(middle, 0);
-    fdTargetFieldLength.top = new FormAttachment(wlTargetFieldLength, 0, SWT.CENTER);
-    fdTargetFieldLength.right = new FormAttachment(100, 0);
-    wTargetFieldLength.setLayoutData(fdTargetFieldLength);
+    wTargetFieldLength.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlTargetFieldLength, 0, SWT.CENTER)
+            .left(middle, 0)
+            .right(100, 0)
+            .build());
     lastControl = wTargetFieldLength;
 
     // Separator
     Label wlSeparator = new Label(shell, SWT.RIGHT);
     wlSeparator.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Separator.Label"));
     PropsUi.setLook(wlSeparator);
-    FormData fdlSeparator = new FormData();
-    fdlSeparator.left = new FormAttachment(0, 0);
-    fdlSeparator.top = new FormAttachment(lastControl, margin);
-    fdlSeparator.right = new FormAttachment(middle, -margin);
-    wlSeparator.setLayoutData(fdlSeparator);
+    wlSeparator.setLayoutData(
+        FormDataBuilder.builder().top(lastControl, margin).left().right(middle, -margin).build());
 
     Button wbSeparator = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSeparator);
     wbSeparator.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Separator.Button"));
-    FormData fdbSeparator = new FormData();
-    fdbSeparator.right = new FormAttachment(100, 0);
-    fdbSeparator.top = new FormAttachment(wlSeparator, 0, SWT.CENTER);
-    wbSeparator.setLayoutData(fdbSeparator);
+    wbSeparator.setLayoutData(
+        FormDataBuilder.builder().top(wlSeparator, 0, SWT.CENTER).right(100, 0).build());
     wbSeparator.addListener(SWT.Selection, se -> wSeparator.getTextWidget().insert("\t"));
 
     wSeparator = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSeparator);
-    FormData fdSeparator = new FormData();
-    fdSeparator.left = new FormAttachment(middle, 0);
-    fdSeparator.top = new FormAttachment(wlSeparator, 0, SWT.CENTER);
-    fdSeparator.right = new FormAttachment(wbSeparator, -margin);
-    wSeparator.setLayoutData(fdSeparator);
+    wSeparator.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlSeparator, 0, SWT.CENTER)
+            .left(middle, 0)
+            .right(wbSeparator, -margin)
+            .build());
     lastControl = wbSeparator;
-
-    // Enclosure line...
-    Label wlEnclosure = new Label(shell, SWT.RIGHT);
-    wlEnclosure.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Enclosure.Label"));
-    PropsUi.setLook(wlEnclosure);
-    FormData fdlEnclosure = new FormData();
-    fdlEnclosure.left = new FormAttachment(0, 0);
-    fdlEnclosure.top = new FormAttachment(lastControl, margin);
-    fdlEnclosure.right = new FormAttachment(middle, -margin);
-    wlEnclosure.setLayoutData(fdlEnclosure);
-    wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wEnclosure);
-    FormData fdEnclosure = new FormData();
-    fdEnclosure.left = new FormAttachment(middle, 0);
-    fdEnclosure.top = new FormAttachment(wlEnclosure, 0, SWT.CENTER);
-    fdEnclosure.right = new FormAttachment(100, 0);
-    wEnclosure.setLayoutData(fdEnclosure);
-    lastControl = wEnclosure;
 
     // Force enclosure
     Label wlForceEnclosure = new Label(shell, SWT.RIGHT);
     wlForceEnclosure.setText(
         BaseMessages.getString(PKG, "ConcatFieldsDialog.ForceEnclosure.Label"));
     PropsUi.setLook(wlForceEnclosure);
-    FormData fdlForceEnclosure = new FormData();
-    fdlForceEnclosure.left = new FormAttachment(0, 0);
-    fdlForceEnclosure.top = new FormAttachment(lastControl, margin);
-    fdlForceEnclosure.right = new FormAttachment(middle, -margin);
-    wlForceEnclosure.setLayoutData(fdlForceEnclosure);
+    wlForceEnclosure.setLayoutData(
+        FormDataBuilder.builder().left().top(lastControl, margin).right(middle, -margin).build());
     wForceEnclosure = new Button(shell, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wForceEnclosure);
-    FormData fdForceEnclosure = new FormData();
-    fdForceEnclosure.left = new FormAttachment(middle, 0);
-    fdForceEnclosure.top = new FormAttachment(wlForceEnclosure, 0, SWT.CENTER);
-    fdForceEnclosure.right = new FormAttachment(100, 0);
-    wForceEnclosure.setLayoutData(fdForceEnclosure);
+    wForceEnclosure.setLayoutData(
+        FormDataBuilder.builder().left(middle, 0).top(wlForceEnclosure, 0, SWT.CENTER).build());
     lastControl = wForceEnclosure;
+    wForceEnclosure.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            activateEnclosure();
+          }
+        });
+
+    // Enclosure line...
+    wlEnclosure = new Label(shell, SWT.RIGHT);
+    wlEnclosure.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Enclosure.Label"));
+    PropsUi.setLook(wlEnclosure);
+    wlEnclosure.setLayoutData(
+        FormDataBuilder.builder()
+            .left(wForceEnclosure, margin)
+            .top(wSeparator, margin)
+            .width(180)
+            .build());
+    wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wEnclosure);
+    wEnclosure.setLayoutData(
+        FormDataBuilder.builder()
+            .left(wlEnclosure, margin)
+            .top(wSeparator, margin)
+            .right(100, 0)
+            .build());
+
+    // skip null/empty
+    Label skipEmptyLabel = new Label(shell, SWT.RIGHT);
+    skipEmptyLabel.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.SkipEmpty.Label"));
+    PropsUi.setLook(skipEmptyLabel);
+    skipEmptyLabel.setLayoutData(
+        FormDataBuilder.builder().left().top(lastControl, margin).right(middle, -margin).build());
+    skipEmptyBtn = new Button(shell, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(skipEmptyBtn);
+    skipEmptyBtn.setLayoutData(
+        FormDataBuilder.builder()
+            .left(middle, 0)
+            .top(skipEmptyLabel, 0, SWT.CENTER)
+            .right(100, 0)
+            .build());
+    lastControl = skipEmptyLabel;
 
     // Remove concatenated fields from input...
     Label wlRemove = new Label(shell, SWT.RIGHT);
     wlRemove.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Remove.Label"));
     PropsUi.setLook(wlRemove);
-    FormData fdlRemove = new FormData();
-    fdlRemove.left = new FormAttachment(0, 0);
-    fdlRemove.top = new FormAttachment(lastControl, margin);
-    fdlRemove.right = new FormAttachment(middle, -margin);
-    wlRemove.setLayoutData(fdlRemove);
+    wlRemove.setLayoutData(
+        FormDataBuilder.builder().top(lastControl, margin).left().right(middle, -margin).build());
     wRemove = new Button(shell, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wRemove);
-    FormData fdRemove = new FormData();
-    fdRemove.left = new FormAttachment(middle, 0);
-    fdRemove.top = new FormAttachment(wlRemove, 0, SWT.CENTER);
-    fdRemove.right = new FormAttachment(100, 0);
-    wRemove.setLayoutData(fdRemove);
+    wRemove.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlRemove, 0, SWT.CENTER)
+            .left(middle, 0)
+            .right(100, 0)
+            .build());
     lastControl = wlRemove;
 
     // ////////////////////////
@@ -305,7 +322,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     int totalSize = dats.length + nums.length;
     String[] formats = new String[totalSize];
     System.arraycopy(dats, 0, formats, 0, dats.length);
-    System.arraycopy(nums, 0, formats, dats.length + 0, nums.length);
+    System.arraycopy(nums, 0, formats, dats.length, nums.length);
 
     fieldColumns = new ColumnInfo[FieldsCols];
     fieldColumns[0] =
@@ -370,13 +387,8 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
             FieldsRows,
             null,
             props);
-
-    FormData fdFields = new FormData();
-    fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(0, 0);
-    fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wGet, -margin);
-    wFields.setLayoutData(fdFields);
+    wFields.setLayoutData(
+        FormDataBuilder.builder().top().left().right(100, 0).bottom(wGet, -margin).build());
 
     //
     // Search the fields in the background
@@ -399,23 +411,18 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
           }
         };
     new Thread(runnable).start();
-
-    FormData fdFieldsComp = new FormData();
-    fdFieldsComp.left = new FormAttachment(0, 0);
-    fdFieldsComp.top = new FormAttachment(0, 0);
-    fdFieldsComp.right = new FormAttachment(100, 0);
-    fdFieldsComp.bottom = new FormAttachment(100, 0);
-    wFieldsComp.setLayoutData(fdFieldsComp);
+    wFieldsComp.setLayoutData(
+        FormDataBuilder.builder().top().left().right(100, 0).bottom(100, 0).build());
 
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
-
-    FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(lastControl, 2 * margin);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
-    wTabFolder.setLayoutData(fdTabFolder);
+    wTabFolder.setLayoutData(
+        FormDataBuilder.builder()
+            .top(lastControl, 2 * margin)
+            .left()
+            .right(100, 0)
+            .bottom(wOk, -2 * margin)
+            .build());
 
     // Whenever something changes, set the tooltip to the expanded version:
     wTargetFieldName.addModifyListener(
@@ -434,8 +441,8 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
 
     getData();
 
+    activateEnclosure();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
     return transformName;
   }
 
@@ -456,6 +463,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     wEnclosure.setText(Const.NVL(input.getEnclosure(), ""));
     wForceEnclosure.setSelection(input.isForceEnclosure());
     wRemove.setSelection(input.getExtraFields().isRemoveSelectedFields());
+    skipEmptyBtn.setSelection(input.isSkipValueEmpty());
 
     logDebug("getting fields info...");
 
@@ -497,6 +505,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     meta.setSeparator(wSeparator.getText());
     meta.setEnclosure(wEnclosure.getText());
     meta.setForceEnclosure(wForceEnclosure.getSelection());
+    meta.setSkipValueEmpty(skipEmptyBtn.getSelection());
     meta.getExtraFields().setRemoveSelectedFields(wRemove.getSelection());
 
     input.getOutputFields().clear();
@@ -522,12 +531,11 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     if (StringUtil.isEmpty(wTransformName.getText())) {
       return;
     }
-
-    transformName = wTransformName.getText(); // return value
+    // return value
+    transformName = wTransformName.getText();
 
     getInfo(input);
     input.setChanged();
-
     dispose();
   }
 
@@ -596,5 +604,10 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
     }
 
     wFields.optWidth(true);
+  }
+
+  private void activateEnclosure() {
+    wlEnclosure.setEnabled(wForceEnclosure.getSelection());
+    wEnclosure.setEnabled(wForceEnclosure.getSelection());
   }
 }
