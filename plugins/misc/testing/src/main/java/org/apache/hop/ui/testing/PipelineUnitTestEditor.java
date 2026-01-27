@@ -24,7 +24,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.testing.PipelineUnitTest;
@@ -281,7 +280,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
 
     wDbReplacements =
         new TableView(
-            new Variables(),
+            manager.getVariables(),
             parent,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             columns,
@@ -325,7 +324,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
 
     wVariableValues =
         new TableView(
-            new Variables(),
+            manager.getVariables(),
             parent,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             varValColumns,
@@ -383,8 +382,6 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     //
     try {
       if (testPathDir != null && StringUtils.isEmpty(wPipelineFilename.getText())) {
-        /* PipelineUnitTest pipelineUnitTest = this.getMetadata();
-        pipelineUnitTest.setRelativeFilename(manager.getVariables(), testPathDir);*/
         wBasePath.setText(Const.NVL(testPathDir, ""));
       }
     } catch (Exception e) {
