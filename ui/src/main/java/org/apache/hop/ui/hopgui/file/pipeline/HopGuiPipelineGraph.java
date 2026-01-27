@@ -4065,6 +4065,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       image = "ui/images/check.svg",
       separator = true)
   @GuiKeyboardShortcut(key = SWT.F7)
+  @GuiOsxKeyboardShortcut(key = SWT.F7)
   public void checkPipeline() {
 
     // Show the results views
@@ -5267,6 +5268,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut(key = SWT.ESC)
+  @GuiOsxKeyboardShortcut(key = SWT.ESC)
   @Override
   public void unselectAll() {
     clearSettings();
@@ -5296,6 +5298,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut(key = SWT.DEL)
+  @GuiOsxKeyboardShortcut(key = SWT.DEL)
   @Override
   public void deleteSelected() {
     // Only handle delete if a pipeline graph item was the last selected item

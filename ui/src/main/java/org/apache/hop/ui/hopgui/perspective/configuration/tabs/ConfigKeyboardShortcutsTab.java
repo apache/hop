@@ -283,20 +283,39 @@ public class ConfigKeyboardShortcutsTab {
     keysComposite.setLayoutData(fdKeys);
 
     // Add modifier keys and main key
-    // Standard order: Control, Alt, Command, Shift (Command before Shift for better readability)
+    // Standard order for macOS: Command, Shift, Alt, Control (Apple convention)
+    // Standard order for other OS: Control, Alt, Shift
     boolean isMacOS = Const.isOSX();
     Control lastKey = null;
-    if (shortcut.isControl()) {
-      lastKey = createKeyBadge(keysComposite, isMacOS ? "⌃" : "Ctrl", lastKey, margin);
-    }
-    if (shortcut.isAlt()) {
-      lastKey = createKeyBadge(keysComposite, isMacOS ? "⌥" : "Alt", lastKey, margin);
-    }
-    if (shortcut.isCommand()) {
-      lastKey = createKeyBadge(keysComposite, isMacOS ? "⌘" : "Cmd", lastKey, margin);
-    }
-    if (shortcut.isShift()) {
-      lastKey = createKeyBadge(keysComposite, isMacOS ? "⇧" : "Shift", lastKey, margin);
+
+    if (isMacOS) {
+      // macOS order: Command first, then Shift, then Alt/Option, then Control
+      if (shortcut.isCommand()) {
+        lastKey = createKeyBadge(keysComposite, "⌘", lastKey, margin);
+      }
+      if (shortcut.isShift()) {
+        lastKey = createKeyBadge(keysComposite, "⇧", lastKey, margin);
+      }
+      if (shortcut.isAlt()) {
+        lastKey = createKeyBadge(keysComposite, "⌥", lastKey, margin);
+      }
+      if (shortcut.isControl()) {
+        lastKey = createKeyBadge(keysComposite, "⌃", lastKey, margin);
+      }
+    } else {
+      // Windows/Linux order: Control, Alt, Shift, Command
+      if (shortcut.isControl()) {
+        lastKey = createKeyBadge(keysComposite, "Ctrl", lastKey, margin);
+      }
+      if (shortcut.isAlt()) {
+        lastKey = createKeyBadge(keysComposite, "Alt", lastKey, margin);
+      }
+      if (shortcut.isShift()) {
+        lastKey = createKeyBadge(keysComposite, "Shift", lastKey, margin);
+      }
+      if (shortcut.isCommand()) {
+        lastKey = createKeyBadge(keysComposite, "Cmd", lastKey, margin);
+      }
     }
 
     // Add the main key
@@ -346,11 +365,48 @@ public class ConfigKeyboardShortcutsTab {
     }
     fdKey.top = new FormAttachment(0, 0);
     fdKey.bottom = new FormAttachment(100, 0);
-    // Set width based on text length - Unicode symbols need less space than text labels
-    fdKey.width = text.length() <= 1 ? 24 : text.length() * 14 + 12;
+    // Set width based on key category
+    fdKey.width = getBadgeWidth(text);
     key.setLayoutData(fdKey);
 
     return key;
+  }
+
+  /**
+   * Determines the appropriate badge width based on the key text category.
+   *
+   * @param text The key text
+   * @return The badge width in pixels
+   */
+  private int getBadgeWidth(String text) {
+    // Category 1: Modifier and special keys (Ctrl, Alt, Shift, Del, Home, etc.)
+    if (text.equals("Ctrl")
+        || text.equals("Alt")
+        || text.equals("Cmd")
+        || text.equals("Shift")
+        || text.equals("Del")
+        || text.equals("Home")
+        || text.equals("End")
+        || text.equals("PgUp")
+        || text.equals("PgDn")
+        || text.equals("Ins")
+        || text.equals("Esc")
+        || text.equals("Space")) {
+      return 60;
+    }
+
+    // Category 2: Function keys (F1-F20)
+    if (text.startsWith("F") && text.length() >= 2 && text.length() <= 3) {
+      try {
+        Integer.parseInt(text.substring(1));
+        return 45;
+      } catch (NumberFormatException e) {
+        // Not a function key
+      }
+    }
+
+    // Category 3: Single characters, digits, symbols, and Unicode modifier symbols
+    return 32;
   }
 
   /**
@@ -361,6 +417,26 @@ public class ConfigKeyboardShortcutsTab {
    */
   private String getKeyText(int keyCode) {
     boolean isMacOS = Const.isOSX();
+
+    // Keypad key conversions (match the logic in HopGuiKeyHandler)
+    if (keyCode == SWT.KEYPAD_ADD) {
+      return "+";
+    } else if (keyCode == SWT.KEYPAD_SUBTRACT) {
+      return "-";
+    } else if (keyCode == SWT.KEYPAD_MULTIPLY) {
+      return "*";
+    } else if (keyCode == SWT.KEYPAD_DIVIDE) {
+      return "/";
+    } else if (keyCode == SWT.KEYPAD_EQUAL) {
+      return "=";
+    } else if (keyCode == SWT.KEYPAD_DECIMAL) {
+      return ".";
+    } else if (keyCode == SWT.KEYPAD_CR) {
+      return "↵";
+    } else if (keyCode >= SWT.KEYPAD_0 && keyCode <= SWT.KEYPAD_9) {
+      // Keypad 0-9
+      return String.valueOf(keyCode - SWT.KEYPAD_0);
+    }
 
     // Spacebar
     if (keyCode == 32) {
@@ -378,8 +454,8 @@ public class ConfigKeyboardShortcutsTab {
     else if (keyCode == 127) {
       return isMacOS ? "⌫" : "Del";
     }
-    // Digit
-    else if ((keyCode >= 48 && keyCode <= 57) || "+-/*".indexOf(keyCode) >= 0) {
+    // Digit and common symbols
+    else if ((keyCode >= 48 && keyCode <= 57) || "+-/*=".indexOf(keyCode) >= 0) {
       return String.valueOf((char) keyCode);
     }
 

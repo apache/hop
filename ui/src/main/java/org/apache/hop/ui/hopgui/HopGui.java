@@ -1111,7 +1111,8 @@ public class HopGui
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
       image = "ui/images/arrow-left.svg",
       separator = true)
-  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_LEFT)
+  @GuiKeyboardShortcut(control = true, alt = true, key = SWT.ARROW_LEFT)
+  @GuiOsxKeyboardShortcut(command = true, alt = true, key = SWT.ARROW_LEFT)
   public void menuEditNavigatePreviousFile() {
     getActivePerspective().navigateToPreviousFile();
   }
@@ -1122,7 +1123,8 @@ public class HopGui
       label = "i18n::HopGui.Menu.Edit.Navigate.Next",
       parentId = ID_MAIN_MENU_EDIT_PARENT_ID,
       image = "ui/images/arrow-right.svg")
-  @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
+  @GuiKeyboardShortcut(control = true, alt = true, key = SWT.ARROW_RIGHT)
+  @GuiOsxKeyboardShortcut(command = true, alt = true, key = SWT.ARROW_RIGHT)
   public void menuEditNavigateNextFile() {
     getActivePerspective().navigateToNextFile();
   }
@@ -1143,6 +1145,7 @@ public class HopGui
       image = "ui/images/run.svg",
       parentId = ID_MAIN_MENU_RUN_PARENT_ID)
   @GuiKeyboardShortcut(key = SWT.F8)
+  @GuiOsxKeyboardShortcut(key = SWT.F8)
   public void menuRunStart() {
     getActiveFileTypeHandler().start();
   }

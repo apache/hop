@@ -2077,6 +2077,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut(key = SWT.ESC)
+  @GuiOsxKeyboardShortcut(key = SWT.ESC)
   @Override
   public void unselectAll() {
     clearSettings();
@@ -2105,6 +2106,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiKeyboardShortcut(key = SWT.DEL)
+  @GuiOsxKeyboardShortcut(key = SWT.DEL)
   @Override
   public void deleteSelected() {
     // Only handle delete if a workflow graph item was the last selected item
@@ -3317,6 +3319,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/undo.svg",
       separator = true)
   @GuiKeyboardShortcut(control = true, key = 'z')
+  @GuiOsxKeyboardShortcut(command = true, key = 'z')
   @Override
   public void undo() {
     workflowUndoDelegate.undoWorkflowAction(this, workflowMeta);
@@ -3330,6 +3333,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.Redo.Tooltip",
       image = "ui/images/redo.svg")
   @GuiKeyboardShortcut(control = true, shift = true, key = 'z')
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'z')
   @Override
   public void redo() {
     workflowUndoDelegate.redoWorkflowAction(this, workflowMeta);
@@ -3610,6 +3614,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/check.svg",
       separator = true)
   @GuiKeyboardShortcut(key = SWT.F7)
+  @GuiOsxKeyboardShortcut(key = SWT.F7)
   public void checkWorkflow() {
     // Show the results views
     //

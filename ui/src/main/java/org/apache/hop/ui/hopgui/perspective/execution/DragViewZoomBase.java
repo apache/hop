@@ -103,6 +103,7 @@ public abstract class DragViewZoomBase extends Composite {
   }
 
   @GuiKeyboardShortcut(control = true, key = '+')
+  @GuiOsxKeyboardShortcut(command = true, key = '+')
   public void zoomIn() {
     magnification += 0.1f;
     // Minimum 1000%
@@ -152,11 +153,13 @@ public abstract class DragViewZoomBase extends Composite {
 
   // Double keyboard shortcut zoom in '+' or '='
   @GuiKeyboardShortcut(control = true, key = '=')
+  @GuiOsxKeyboardShortcut(command = true, key = '=')
   public void zoomIn2() {
     zoomIn();
   }
 
   @GuiKeyboardShortcut(control = true, key = '-')
+  @GuiOsxKeyboardShortcut(command = true, key = '-')
   public void zoomOut() {
     magnification -= 0.1f;
     // Minimum 10%
@@ -202,6 +205,7 @@ public abstract class DragViewZoomBase extends Composite {
   }
 
   @GuiKeyboardShortcut(control = true, key = '0')
+  @GuiOsxKeyboardShortcut(command = true, key = '0')
   public void zoom100Percent() {
     magnification = 1.0f;
     validateOffset();
@@ -211,11 +215,13 @@ public abstract class DragViewZoomBase extends Composite {
 
   // Double keyboard shortcut zoom 100% '0' or keypad 0
   @GuiKeyboardShortcut(control = true, key = SWT.KEYPAD_0)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.KEYPAD_0)
   public void zoom100Percent2() {
     zoom100Percent();
   }
 
   @GuiKeyboardShortcut(control = true, key = '*')
+  @GuiOsxKeyboardShortcut(command = true, key = '*')
   public void zoomFitToScreen() {
     if (maximum.x <= 0 || maximum.y <= 0) {
       return;
@@ -243,6 +249,7 @@ public abstract class DragViewZoomBase extends Composite {
 
   // Double keyboard shortcut zoom fit to screen '*' or keypad *
   @GuiKeyboardShortcut(control = true, key = SWT.KEYPAD_MULTIPLY)
+  @GuiOsxKeyboardShortcut(command = true, key = SWT.KEYPAD_MULTIPLY)
   public void zoomFitToScreen2() {
     zoomFitToScreen();
   }
