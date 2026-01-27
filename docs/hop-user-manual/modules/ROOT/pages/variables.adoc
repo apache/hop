@@ -205,7 +205,7 @@ CAUTION: even though you _can_ manually change the `hop-config.json` or any of t
 You can also use the hop-config command line tool to define system properties:
 
 [source,bash]
-sh hop-config.sh -s MY_SYSTEM_PROPERTY=SomeValue
+sh hop-conf.sh -s MY_SYSTEM_PROPERTY=SomeValue
 
 
 
@@ -218,7 +218,7 @@ This helps you configure folders and other things which are environment specific
 You can set those in the xref:projects/projects-environments.adoc#_create_an_environment[environment settings dialog] or using the command line:
 
 [source,bash]
-sh hop-config.sh -e MyEnvironment -em -ev VARIABLE1=value1
+sh hop-conf.sh -e MyEnvironment -em -ev VARIABLE1=value1
 
 === Run Configurations
 
