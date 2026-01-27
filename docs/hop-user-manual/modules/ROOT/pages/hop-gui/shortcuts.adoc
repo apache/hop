@@ -16,77 +16,8 @@ under the License.
 ////
 [[Shortcuts]]
 :imagesdir: ../assets/images
-:description: A lot of actions in Hop can be performed significantly faster through keyboard shortcuts. This page provides an overview of all the available keyboard shortcuts in Hop Gui.
+:description: A lot of actions in Hop can be performed significantly faster through keyboard shortcuts.
 
 = Hop Shortcuts
 
-The table below lists the main shortcuts in Hop.
-Using them will save you a lot of time while working with Hop.
-
-NOTE: If you are a Mac user, please be aware that the Mac keys must be used.
-Most of the times you can replace ctrl with cmd.
-
-== General Shortcuts
-
-[width="85%",cols="25%, 75%",options="header"]
-|===
-|Shortcut|Action
-|Ctr + n |Create a new work item
-|Ctrl + o |Open a work item
-|Ctrl + s |Save a work item
-|Ctrl + Shift + F5|Open the Metadata Explorer Menu
-|Ctrl + Space|Opens the variables popup (**NOTE**: only environment variables and variables with the JVM scope are shown here. Variables that are created in pipeline or workflow with a parent, grant parent or root workflow job need to be entered manually))
-|Ctrl + w |Close a work item
-|Ctrl + q |Quit Hop
-|Ctrl + z |Undo last change
-|Ctrl + Shift + z |Redo last change
-|Ctrl + a |Select all items in work item
-|ESC|Unselect all items in work item
-|Ctrl + f |Search the Hop Gui for something
-|Ctrl + c |Copy an object
-|Ctrl + v |Paste an object
-|Ctrl + x |Cut an object
-|DEL|Delete an object
-|Alt + <-|Navigate to the previous file
-|Alt + ->|Navigate to the next file
-|Alt + o|Close the current dialog (similar to pressing the `Ok` button)
-|F8|Execute work item
-|===
-
-== Pipeline and Workflow Shortcuts
-
-[width="85%",cols="30%, 70%",options="header"]
-|===
-|Shortcut|Action
-|Ctrl + HOME|Align all items to the specified grid side
-|Ctrl + <-|Align all items on the canvas with the left-most selected in the selection.
-|Ctrl + ->|Align all items on the canvas with the right-most selected in the selection.
-|Ctrl + &uarr;|Align all items on the canvas with the top-most selected in the selection.
-|Ctrl + &darr;|Align all items on the canvas with the bottom-most selected in the selection.
-|Alt + ->|Distribute the selected items evenly between the left-most and right-most item in your selection.
-|Alt + &uarr;|Distribute the selected items evenly between the up-most and down-most item in your selection.
-|Ctrl + =|Zoom In on your canvas
-|Ctrl + -|Zoom out on your canvas
-|Ctrl + 0|Reset the zoom percentage to 100%
-|Ctrl + Click|On hops to quickly enable/disable
-|Ctrl + Shift + Click|On hops to quickly delete it
-|Ctrl + Shift + Click|Use this shortcut on workflow actions and pipeline transforms that use another workflow or pipeline to open.
-|mouse over + z|Hover over a workflow action or pipeline transform that uses another workflow or pipeline to open (similar to option above)
-|mouse over transform + space|Opens the outgoing fields
-|===
-
-== Perspective Shortcuts
-
-[width="85%",cols="30%, 70%",options="header"]
-|===
-|Shortcut|Action
-|Ctrl + Shift + &uarr; | Switch one perspective up
-|Ctrl + Shift + &darr; |Switch one perspective down
-|Ctrl + Shift + d |Open the Data Orchestration Perspective
-|Ctrl + Shift + i |Open the Execution Information Perspective
-|Ctrl + Shift + m |Open the Metadata Perspective
-|Ctrl + Shift + e |Open the File Explorer Perspective
-|Ctrl + f |Open the Search Perspective
-|none|Open the Plugin Perspective
-|none|Open the Neo4j Perspective
-|===
+Shortcuts can now be found inside the application itself, In the setting perspective there is a tab named Keyboard Shortcuts that will give you an overview of the shortcuts and where to use them.
