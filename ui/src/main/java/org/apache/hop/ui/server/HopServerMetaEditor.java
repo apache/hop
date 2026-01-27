@@ -31,6 +31,7 @@ import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.www.RegisterPipelineServlet;
+import org.apache.hop.www.RemoteHopServer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -428,8 +429,11 @@ public class HopServerMetaEditor extends MetadataEditor<HopServerMeta> {
 
   public void test() {
 
-    HopServerMeta server = getMetadata();
-    getWidgetsContent(server);
+    HopServerMeta serverMeta = getMetadata();
+
+    getWidgetsContent(serverMeta);
+
+    RemoteHopServer server = new RemoteHopServer(serverMeta);
 
     try {
       String xml = "<sample/>";
@@ -438,7 +442,7 @@ public class HopServerMetaEditor extends MetadataEditor<HopServerMeta> {
 
       String message =
           BaseMessages.getString(PKG, "HopServer.Replay.Info1")
-              + server.constructUrl(manager.getVariables(), RegisterPipelineServlet.CONTEXT_PATH)
+              + server.createUrl(manager.getVariables(), RegisterPipelineServlet.CONTEXT_PATH)
               + Const.CR
               + BaseMessages.getString(PKG, "HopServer.Replay.Info2")
               + Const.CR
@@ -460,7 +464,7 @@ public class HopServerMetaEditor extends MetadataEditor<HopServerMeta> {
           getShell(),
           BaseMessages.getString(PKG, "HopServer.ExceptionError"),
           BaseMessages.getString(PKG, "HopServer.ExceptionUnableGetReplay.Error1")
-              + server.getHostname()
+              + getVariables().resolve(serverMeta.getHostname())
               + BaseMessages.getString(PKG, "HopServer.ExceptionUnableGetReplay.Error2"),
           e);
     }
