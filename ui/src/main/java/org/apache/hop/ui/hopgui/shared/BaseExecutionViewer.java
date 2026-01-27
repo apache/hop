@@ -46,6 +46,7 @@ import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.execution.DragViewZoomBase;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
@@ -193,6 +194,15 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
       viewDrag = false;
       viewPortNavigation = false;
       viewPortStart = null;
+
+      // Clear pan mode and feedback data for web environment
+      if (EnvironmentUtils.getInstance().isWeb() && canvas != null) {
+        canvas.setData("mode", "null");
+        canvas.setData("panStartOffset", null);
+        canvas.setData("panCurrentOffset", null);
+        canvas.setData("panOffsetDelta", null);
+        canvas.setData("panBoundaries", null);
+      }
     }
 
     // Default cursor

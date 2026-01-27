@@ -265,6 +265,8 @@ public class HopGuiWorkflowClipboardDelegate {
                 location.y,
                 ConstUi.NOTE_MIN_SIZE,
                 ConstUi.NOTE_MIN_SIZE);
+        // Apply grid snapping to ensure correct initial size
+        PropsUi.setSize(notePadMeta, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE);
         workflowMeta.addNote(notePadMeta);
         hopGui.undoDelegate.addUndoNew(
             workflowMeta,

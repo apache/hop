@@ -57,7 +57,6 @@
             }
             event.preventDefault();
             remoteObject.notify("paste", {"text": text, "widgetId": event.target.value});
-            console.log('paste');
         }, this);
         x.addEventListener("copy", function (event) {
             var obj = rap.getObject(this.getAttribute('remoteObjectid'));
@@ -70,7 +69,6 @@
             event.preventDefault();
             if (rwt.client.Client._browserName != 'explorer') {
                 remoteObject.notify("copy", {"widgetId": event.target.value});
-                console.log('copy');
             }
         }, this);
         x.addEventListener("cut", function (event) {
@@ -83,7 +81,6 @@
             }
             event.preventDefault();
             remoteObject.notify("cut", {"widgetId": event.target.value});
-            console.log('cut');
         }, this);
         document.body.appendChild(x);
     };
@@ -133,7 +130,6 @@
                 if (keyName === 'c') {
                     document.execCommand('copy');
                     remoteObject.notify("copy", {"widgetId": x.value});
-                    console.log('copy');
                 } else if (keyName === 'x') {
                     /*
                      * cut event cannot be invoked programmatically on IE11 for some reason,
@@ -141,7 +137,6 @@
                      */
                     document.execCommand('copy');
                     remoteObject.notify("cut", {"widgetId": x.value});
-                    console.log('cut');
                 }
             }
         }

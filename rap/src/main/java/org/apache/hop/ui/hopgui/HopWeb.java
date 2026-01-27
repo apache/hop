@@ -37,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.svg.SvgCache;
@@ -87,14 +88,14 @@ public class HopWeb implements ApplicationConfiguration {
         addResource(application, plugin.getImageFile(), classLoader);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      LogChannel.UI.logError("General exception", e);
     }
 
     application.addResource(
         "ui/images/logo_icon.png",
         new ResourceLoader() {
           @Override
-          public InputStream getResourceAsStream(String resourceName) throws IOException {
+          public InputStream getResourceAsStream(String resourceName) {
             // Convert svg to png without Display
             PNGTranscoder t = new PNGTranscoder();
             InputStream inputStream =
@@ -105,20 +106,19 @@ public class HopWeb implements ApplicationConfiguration {
             try {
               t.transcode(input, output);
             } catch (TranscoderException e) {
-              e.printStackTrace();
+              LogChannel.UI.logError("Transcoder exception", e);
             }
             return new ByteArrayInputStream(outputStream.toByteArray());
           }
         });
-    Stream.of("org/apache/hop/ui/hopgui/clipboard.js")
+    Stream.of("org/apache/hop/ui/hopgui/clipboard.js", "org/apache/hop/ui/hopgui/canvas-zoom.js")
         .forEach(
             str ->
                 application.addResource(
                     "js/" + FilenameUtils.getName(str),
                     new ResourceLoader() {
                       @Override
-                      public InputStream getResourceAsStream(String resourceName)
-                          throws IOException {
+                      public InputStream getResourceAsStream(String resourceName) {
                         return this.getClass().getClassLoader().getResourceAsStream(str);
                       }
                     }));
@@ -132,26 +132,26 @@ public class HopWeb implements ApplicationConfiguration {
     if ("dark".equalsIgnoreCase(themeId)) {
       themeId = "dark";
       PropsUi.getInstance().setDarkMode(true);
-      System.out.println("Hop web: enabled dark mode rendering");
+      LogChannel.UI.logBasic("Hop web: enabled dark mode rendering");
     } else {
       themeId = CONST_LIGHT;
       PropsUi.getInstance().setDarkMode(false);
     }
-    System.out.println("Hop web: selected theme is: " + themeId);
+    LogChannel.UI.logBasic("Hop web: selected theme is: " + themeId);
 
     Map<String, String> properties = new HashMap<>();
     properties.put(WebClient.PAGE_TITLE, "Apache Hop Web");
     properties.put(WebClient.FAVICON, "ui/images/logo_icon.png");
     properties.put(WebClient.THEME_ID, themeId);
-    properties.put(WebClient.HEAD_HTML, readTextFromResource("head.html", "UTF-8"));
+    properties.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
     application.addEntryPoint("/ui", HopWebEntryPoint.class, properties);
     application.setOperationMode(Application.OperationMode.SWT_COMPATIBILITY);
 
     // Print some important system settings...
     //
-    System.out.println("HOP_CONFIG_FOLDER: " + Const.HOP_CONFIG_FOLDER);
-    System.out.println("HOP_AUDIT_FOLDER: " + Const.HOP_AUDIT_FOLDER);
-    System.out.println("HOP_GUI_ZOOM_FACTOR: " + System.getProperty("HOP_GUI_ZOOM_FACTOR"));
+    LogChannel.UI.logBasic("HOP_CONFIG_FOLDER: " + Const.HOP_CONFIG_FOLDER);
+    LogChannel.UI.logBasic("HOP_AUDIT_FOLDER: " + Const.HOP_AUDIT_FOLDER);
+    LogChannel.UI.logBasic("HOP_GUI_ZOOM_FACTOR: " + System.getProperty("HOP_GUI_ZOOM_FACTOR"));
   }
 
   private void addResource(
@@ -179,16 +179,17 @@ public class HopWeb implements ApplicationConfiguration {
     application.addResource(imageFilename, loader);
   }
 
-  private static String readTextFromResource(String resourceName, String charset) {
+  private static String readTextFromResource(String resourceName) {
     String result;
     try {
       ClassLoader classLoader = HopWeb.class.getClassLoader();
       InputStream inputStream = classLoader.getResourceAsStream(resourceName);
-      if (inputStream == null) {
-        throw new RuntimeException("Resource not found: " + resourceName);
-      }
-      try {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset));
+      try (inputStream) {
+        if (inputStream == null) {
+          throw new RuntimeException("Resource not found: " + resourceName);
+        }
+        BufferedReader reader =
+            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         StringBuilder stringBuilder = new StringBuilder();
         String line = reader.readLine();
         while (line != null) {
@@ -197,8 +198,6 @@ public class HopWeb implements ApplicationConfiguration {
           line = reader.readLine();
         }
         result = stringBuilder.toString();
-      } finally {
-        inputStream.close();
       }
     } catch (IOException e) {
       throw new RuntimeException("Failed to read text from resource: " + resourceName);

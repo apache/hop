@@ -136,6 +136,7 @@ import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
+import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.HelpUtils;
@@ -294,6 +295,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private NotePadMeta currentNotePad = null;
 
+  @Getter private Object canvasZoomHandler; // For web/RAP zoom handling
+
   private SashForm sashForm;
 
   public CTabFolder extraViewTabFolder;
@@ -407,11 +410,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Add a canvas below it, use up all space
     //
     canvas = new Canvas(sashForm, SWT.NO_BACKGROUND | SWT.BORDER);
+    canvas.setData("hop-zoom-canvas", "true"); // Mark this canvas for zoom handling
     Listener listener = CanvasListener.getInstance();
     canvas.addListener(SWT.MouseDown, listener);
     canvas.addListener(SWT.MouseMove, listener);
     canvas.addListener(SWT.MouseUp, listener);
     canvas.addListener(SWT.Paint, listener);
+    canvas.addListener(SWT.MouseWheel, listener);
+    canvas.addListener(SWT.MouseVerticalWheel, listener);
+
+    // For web/RAP, create a zoom handler to sync mouse wheel zoom back to server
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      canvasZoomHandler = CanvasZoomHelper.createZoomHandler(this, canvas, this);
+    }
+
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
@@ -438,6 +450,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Set canvas background to match application background for web
     if (EnvironmentUtils.getInstance().isWeb()) {
       canvas.setBackground(GuiResource.getInstance().getColorBackground());
+
+      // Notify zoom handler that canvas is ready
+      // Tab selection changes are handled by ExplorerPerspective.tabFolder selection listener
+      if (canvasZoomHandler != null) {
+        getDisplay().asyncExec(() -> CanvasZoomHelper.notifyCanvasReady(canvasZoomHandler));
+      }
     }
 
     canvas.addPaintListener(this::paintControl);
@@ -707,20 +725,28 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       noteOffset = new Point(real.x - loc.x, real.y - loc.y);
 
-      canvas.setData("mode", "resize");
       resize = this.getResize(areaOwner.getArea(), real);
 
-      if (resize != null) {
-        // Keep the original area of the resizing note
-        resizeArea =
-            new Rectangle(
-                currentNotePad.getLocation().x,
-                currentNotePad.getLocation().y,
-                currentNotePad.getWidth(),
-                currentNotePad.getHeight());
-      } else {
-        dragSelection = true;
+      // For web environment, set canvas mode for visual feedback
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        if (resize != null) {
+          canvas.setData("mode", "resize");
+          canvas.setData("resizeDirection", resize.name());
+        } else {
+          canvas.setData("mode", "drag");
+          dragSelection = true;
+        }
+        // Force immediate sync of mode and resize direction to client
+        redraw();
       }
+
+      // Keep the original area of the resizing note
+      resizeArea =
+          new Rectangle(
+              currentNotePad.getLocation().x,
+              currentNotePad.getLocation().y,
+              currentNotePad.getWidth(),
+              currentNotePad.getHeight());
 
       updateGui();
       done = true;
@@ -775,6 +801,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseUp(MouseEvent event) {
+    // Track if we just completed a resize operation
+    boolean wasResizing = false;
+
+    // For web environment, perform final resize if in resize mode
+    if (EnvironmentUtils.getInstance().isWeb() && resize != null && selectedNote != null) {
+      wasResizing = true;
+      Point real = screen2real(event.x, event.y);
+      resizeNote(selectedNote, real);
+    }
+
     resize = null;
     dragSelection = false;
     forbiddenAction = null;
@@ -784,8 +820,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if (startHopAction == null && endHopAction == null) {
       canvas.setData("mode", "null");
       canvas.setData(START_HOP_NODE, null);
+      canvas.setData("resizeDirection", null);
     }
-    if (EnvironmentUtils.getInstance().isWeb()) {
+
+    // Don't call mouseMove after a resize - it would trigger unwanted drag logic
+    if (EnvironmentUtils.getInstance().isWeb() && !wasResizing) {
       // RAP does not support certain mouse events.
       mouseMove(event);
     }
@@ -798,6 +837,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       viewDragStart = null;
       viewPortNavigation = false;
       viewPortStart = null;
+
+      // Clear pan mode and feedback data for web environment
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        canvas.setData("mode", "null");
+        canvas.setData("panStartOffset", null);
+        canvas.setData("panCurrentOffset", null);
+        canvas.setData("panOffsetDelta", null);
+        canvas.setData("panBoundaries", null);
+      }
+
       return;
     }
 
@@ -1223,7 +1272,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     lastMove = real;
 
     // Resizing the current note
-    if (resize != null) {
+    // For web, don't resize during mouse move - let client handle preview
+    if (resize != null && !EnvironmentUtils.getInstance().isWeb()) {
       resizeNote(selectedNote, real);
       return;
     }
@@ -2214,6 +2264,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               note.getBorderColorRed(),
               note.getBorderColorGreen(),
               note.getBorderColorBlue());
+      // Apply grid snapping to ensure correct initial size
+      PropsUi.setSize(newNote, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE);
       workflowMeta.addNote(newNote);
       hopGui.undoDelegate.addUndoNew(
           workflowMeta, new NotePadMeta[] {newNote}, new int[] {workflowMeta.indexOfNote(newNote)});
@@ -3725,6 +3777,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public boolean isCloseable() {
     try {
+      // If we're in the middle of a closeAllFiles operation, skip the dialog
+      // (it was already shown in saveGuardAllFiles)
+      if (hopGui.fileDelegate.isClosing()) {
+        return true;
+      }
+
       // Check if the file is saved. If not, ask for it to be stopped before closing
       //
       if (workflow != null && (workflow.isActive())) {

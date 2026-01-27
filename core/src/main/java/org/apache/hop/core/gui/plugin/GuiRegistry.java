@@ -496,6 +496,15 @@ public class GuiRegistry {
     return shortCutsMap.get(parentClassName);
   }
 
+  /**
+   * Get all keyboard shortcuts from all registered classes
+   *
+   * @return Map of all keyboard shortcuts (className -> List of shortcuts)
+   */
+  public Map<String, List<KeyboardShortcut>> getAllKeyboardShortcuts() {
+    return shortCutsMap;
+  }
+
   // Shortcuts are pretty much global so we'll look everywhere...
   //
   public KeyboardShortcut findKeyboardShortcut(

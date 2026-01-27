@@ -83,6 +83,7 @@ import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
+import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
@@ -200,11 +201,20 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     // The canvas at the top
     //
     canvas = new Canvas(sash, SWT.NO_BACKGROUND | SWT.BORDER);
+    canvas.setData("hop-zoom-canvas", "true"); // Mark this canvas for zoom handling
     Listener listener = CanvasListener.getInstance();
     canvas.addListener(SWT.MouseDown, listener);
     canvas.addListener(SWT.MouseMove, listener);
     canvas.addListener(SWT.MouseUp, listener);
     canvas.addListener(SWT.Paint, listener);
+    canvas.addListener(SWT.MouseWheel, listener);
+    canvas.addListener(SWT.MouseVerticalWheel, listener);
+
+    // For web/RAP, create a zoom handler to sync mouse wheel zoom back to server
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      CanvasZoomHelper.createZoomHandler(this, canvas, this);
+    }
+
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment(0, 0);
     fdCanvas.top = new FormAttachment(0, 0);
