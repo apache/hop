@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -41,6 +42,8 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
 
   @Override
   protected void createContents(Composite parent) {
+    // So drill-down and other GUI checks can use Const.getHopPlatformRuntime() from any thread
+    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
     ResourceManager resourceManager = RWT.getResourceManager();
     JavaScriptLoader jsLoader = RWT.getClient().getService(JavaScriptLoader.class);
 

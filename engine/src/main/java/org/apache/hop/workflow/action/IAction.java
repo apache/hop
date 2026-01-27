@@ -436,4 +436,15 @@ public interface IAction extends IVariables, IHasLogChannel, ICheckResultSource,
     throw new UnsupportedOperationException(
         "Attempted access of parent workflow metadata is not supported by the default IAction implementation");
   }
+
+  /**
+   * Returns whether this action supports drill-down functionality to view executing sub-pipelines
+   * or sub-workflows.
+   *
+   * @return true if this action executes pipelines/workflows that can be drilled into, false
+   *     otherwise (default)
+   */
+  default boolean supportsDrillDown() {
+    return false;
+  }
 }

@@ -560,4 +560,9 @@ public class KafkaConsumerInputMeta
   public boolean supportsErrorHandling() {
     return true;
   }
+
+  @Override
+  public boolean supportsDrillDown() {
+    return true;
+  }
 }
