@@ -162,7 +162,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     FormData fdlFieldMapping = new FormData();
     fdlFieldMapping.left = new FormAttachment(0, 0);
     fdlFieldMapping.right = new FormAttachment(60, -margin);
-    fdlFieldMapping.top = new FormAttachment(lastControl, margin * 2);
+    fdlFieldMapping.top = new FormAttachment(lastControl, margin);
     wlFieldMapping.setLayoutData(fdlFieldMapping);
 
     Label wlFieldOrder = new Label(shell, SWT.LEFT);
@@ -172,7 +172,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     FormData fdlFieldOrder = new FormData();
     fdlFieldOrder.left = new FormAttachment(60, margin);
     fdlFieldOrder.right = new FormAttachment(100, 0);
-    fdlFieldOrder.top = new FormAttachment(lastControl, margin * 2);
+    fdlFieldOrder.top = new FormAttachment(lastControl, margin);
     wlFieldOrder.setLayoutData(fdlFieldOrder);
 
     lastControl = wlFieldMapping;
@@ -226,7 +226,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     fdFieldMapping.left = new FormAttachment(0, 0);
     fdFieldMapping.top = new FormAttachment(lastControl, margin);
     fdFieldMapping.right = new FormAttachment(60, -margin);
-    fdFieldMapping.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFieldMapping.bottom = new FormAttachment(wOk, -margin);
     wFieldMappings.setLayoutData(fdFieldMapping);
 
     // the field mapping grid in between on the left
@@ -254,7 +254,7 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     fdFieldOrder.left = new FormAttachment(60, margin);
     fdFieldOrder.top = new FormAttachment(lastControl, margin);
     fdFieldOrder.right = new FormAttachment(100, 0);
-    fdFieldOrder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFieldOrder.bottom = new FormAttachment(wOk, -margin);
     wFieldOrder.setLayoutData(fdFieldOrder);
 
     // Add listeners

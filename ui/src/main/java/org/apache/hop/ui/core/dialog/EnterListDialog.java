@@ -114,7 +114,7 @@ public class EnterListDialog extends Dialog {
     fdTop.left = new FormAttachment(0, 0);
     fdTop.top = new FormAttachment(0, 0);
     fdTop.right = new FormAttachment(100, 0);
-    fdTop.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTop.bottom = new FormAttachment(wOk, -margin);
     top.setLayoutData(fdTop);
     PropsUi.setLook(top);
 

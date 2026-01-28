@@ -329,7 +329,7 @@ public class ContextDialog extends Dialog {
     Display display = shell.getDisplay();
 
     xMargin = 3 * margin;
-    yMargin = 2 * margin;
+    yMargin = margin;
 
     // Let's take a look at the list of actions and see if we've got categories to use...
     //

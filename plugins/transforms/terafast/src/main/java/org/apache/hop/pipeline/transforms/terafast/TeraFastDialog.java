@@ -54,7 +54,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -159,19 +158,8 @@ public class TeraFastDialog extends BaseTransformDialog {
    */
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "TeraFastDialog.Shell.Title"));
     this.changed = this.meta.hasChanged();
-    final Shell parent = getParent();
-
-    this.shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(this.shell);
-    setShellImage(this.shell, this.meta);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    this.shell.setLayout(formLayout);
-    this.shell.setText(BaseMessages.getString(PKG, "TeraFastDialog.Shell.Title"));
 
     buildUi();
     listeners();
@@ -208,6 +196,8 @@ public class TeraFastDialog extends BaseTransformDialog {
     getData();
     this.meta.setChanged(this.changed);
     disableInputs();
+
+    focusTransformName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -249,9 +239,6 @@ public class TeraFastDialog extends BaseTransformDialog {
       this.wConnection.setText(this.meta.getConnectionName().getValue());
     }
     setTableFieldCombo();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   /** Configure listeners. */

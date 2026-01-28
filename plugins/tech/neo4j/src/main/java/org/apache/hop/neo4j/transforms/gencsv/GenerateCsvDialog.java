@@ -35,19 +35,15 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class GenerateCsvDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       GenerateCsvMeta.class; // for i18n purposes, needed by Translator2!!
-
-  private Text wTransformName;
 
   private CCombo wGraphField;
   private TextVar wBaseFolder;
@@ -69,15 +65,9 @@ public class GenerateCsvDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "GenerateCsvMeta.name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout shellLayout = new FormLayout();
-    shell.setLayout(shellLayout);
-    shell.setText(BaseMessages.getString(PKG, "GenerateCsvMeta.name"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
@@ -89,8 +79,8 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     FormData fdSComposite = new FormData();
     fdSComposite.left = new FormAttachment(0, 0);
     fdSComposite.right = new FormAttachment(100, 0);
-    fdSComposite.top = new FormAttachment(0, 0);
-    fdSComposite.bottom = new FormAttachment(100, 0);
+    fdSComposite.top = new FormAttachment(wSpacer, 0);
+    fdSComposite.bottom = new FormAttachment(wOk, -margin);
     wScrolledComposite.setLayoutData(fdSComposite);
 
     Composite wComposite = new Composite(wScrolledComposite, SWT.NONE);
@@ -107,29 +97,6 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(formLayout);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(wComposite, SWT.RIGHT);
-    wlTransformName.setText("Transform name");
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
-
     String[] fieldnames = new String[] {};
     try {
       fieldnames = pipelineMeta.getPrevTransformFields(variables, transformMeta).getFieldNames();
@@ -145,7 +112,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     FormData fdlGraphField = new FormData();
     fdlGraphField.left = new FormAttachment(0, 0);
     fdlGraphField.right = new FormAttachment(middle, -margin);
-    fdlGraphField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlGraphField.top = new FormAttachment(0, margin);
     wlGraphField.setLayoutData(fdlGraphField);
     wGraphField = new CCombo(wComposite, SWT.FLAT | SWT.BORDER);
     wGraphField.setItems(fieldnames);
@@ -155,7 +122,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     fdGraphField.right = new FormAttachment(100, 0);
     fdGraphField.top = new FormAttachment(wlGraphField, 0, SWT.CENTER);
     wGraphField.setLayoutData(fdGraphField);
-    lastControl = wGraphField;
+    Control lastControl = wGraphField;
 
     // The base folder to run the command from
     //
@@ -165,7 +132,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     FormData fdlBaseFolder = new FormData();
     fdlBaseFolder.left = new FormAttachment(0, 0);
     fdlBaseFolder.right = new FormAttachment(middle, -margin);
-    fdlBaseFolder.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBaseFolder.top = new FormAttachment(lastControl, margin);
     wlBaseFolder.setLayoutData(fdlBaseFolder);
     wBaseFolder = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBaseFolder);
@@ -183,7 +150,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     FormData fdlFilesPrefix = new FormData();
     fdlFilesPrefix.left = new FormAttachment(0, 0);
     fdlFilesPrefix.right = new FormAttachment(middle, -margin);
-    fdlFilesPrefix.top = new FormAttachment(lastControl, 2 * margin);
+    fdlFilesPrefix.top = new FormAttachment(lastControl, margin);
     wlFilesPrefix.setLayoutData(fdlFilesPrefix);
     wFilesPrefix = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilesPrefix);
@@ -201,7 +168,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     FormData fdlStrategy = new FormData();
     fdlStrategy.left = new FormAttachment(0, 0);
     fdlStrategy.right = new FormAttachment(middle, -margin);
-    fdlStrategy.top = new FormAttachment(lastControl, 2 * margin);
+    fdlStrategy.top = new FormAttachment(lastControl, margin);
     wlStrategy.setLayoutData(fdlStrategy);
     wStrategy = new CCombo(wComposite, SWT.FLAT | SWT.BORDER);
     wStrategy.setItems(UniquenessStrategy.getNames());
@@ -219,7 +186,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
     fdlFilenameField.right = new FormAttachment(middle, -margin);
-    fdlFilenameField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlFilenameField.top = new FormAttachment(lastControl, margin);
     wlFilenameField.setLayoutData(fdlFilenameField);
     wFilenameField = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilenameField);
@@ -237,7 +204,7 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     FormData fdlFileTypeField = new FormData();
     fdlFileTypeField.left = new FormAttachment(0, 0);
     fdlFileTypeField.right = new FormAttachment(middle, -margin);
-    fdlFileTypeField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlFileTypeField.top = new FormAttachment(lastControl, margin);
     wlFileTypeField.setLayoutData(fdlFileTypeField);
     wFileTypeField = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFileTypeField);
@@ -249,16 +216,6 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     wFileTypeField.setLayoutData(fdFileTypeField);
     lastControl = wFileTypeField;
 
-    // Some buttons
-    wOk = new Button(wComposite, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(wComposite, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    // Position the buttons at the bottom of the dialog.
-    //
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
-
     wComposite.pack();
     Rectangle bounds = wComposite.getBounds();
 
@@ -269,13 +226,8 @@ public class GenerateCsvDialog extends BaseTransformDialog {
     wScrolledComposite.setMinWidth(bounds.width);
     wScrolledComposite.setMinHeight(bounds.height);
 
-    // Add listeners
-    //
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -288,8 +240,6 @@ public class GenerateCsvDialog extends BaseTransformDialog {
   }
 
   public void getData() {
-
-    wTransformName.setText(Const.NVL(transformName, ""));
     wGraphField.setText(Const.NVL(input.getGraphFieldName(), ""));
     wBaseFolder.setText(Const.NVL(input.getBaseFolder(), ""));
     if (input.getUniquenessStrategy() != null) {

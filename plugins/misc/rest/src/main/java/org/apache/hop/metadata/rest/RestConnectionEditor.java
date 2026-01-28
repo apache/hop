@@ -347,7 +347,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdlClientCert = new FormData();
     fdlClientCert.left = new FormAttachment(0, 0);
     fdlClientCert.right = new FormAttachment(100, 0);
-    fdlClientCert.top = new FormAttachment(wIgnoreSsl, margin * 2);
+    fdlClientCert.top = new FormAttachment(wIgnoreSsl, margin);
     wlClientCert.setLayoutData(fdlClientCert);
 
     Label wlClientCertLabel = new Label(gSSLTrustStore, SWT.LEFT);

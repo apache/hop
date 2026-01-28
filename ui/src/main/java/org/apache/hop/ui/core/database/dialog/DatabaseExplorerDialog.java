@@ -252,7 +252,7 @@ public class DatabaseExplorerDialog extends Dialog {
     fdTree.left = new FormAttachment(0, 0); // To the right of the label
     fdTree.top = new FormAttachment(toolBar, margin);
     fdTree.right = new FormAttachment(buttonsComposite, -margin);
-    fdTree.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTree.bottom = new FormAttachment(wOk, -margin);
     wTree.setLayoutData(fdTree);
 
     if (!getData()) {

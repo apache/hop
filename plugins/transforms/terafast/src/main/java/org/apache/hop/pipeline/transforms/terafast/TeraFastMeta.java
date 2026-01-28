@@ -31,10 +31,10 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.AbstractTransformMeta;
 import org.apache.hop.core.util.BooleanPluginProperty;
 import org.apache.hop.core.util.IntegerPluginProperty;
-import org.apache.hop.core.util.PluginMessages;
 import org.apache.hop.core.util.StringListPluginProperty;
 import org.apache.hop.core.util.StringPluginProperty;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -54,7 +54,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
 public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformData> {
 
-  public static final PluginMessages MESSAGES = PluginMessages.getMessages(TeraFastMeta.class);
+  private static final Class<?> PKG = TeraFastMeta.class;
 
   /** Default fast load path. */
   public static final String DEFAULT_FASTLOAD_PATH = "/usr/bin/fastload";
@@ -158,14 +158,14 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
       checkResult =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              MESSAGES.getString("TeraFastMeta.Message.ConnectionEstablished"),
+              BaseMessages.getString(PKG, "TeraFastMeta.Message.ConnectionEstablished"),
               transformMeta);
       remarks.add(checkResult);
 
       checkResult =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              MESSAGES.getString("TeraFastMeta.Message.TableExists"),
+              BaseMessages.getString(PKG, "TeraFastMeta.Message.TableExists"),
               transformMeta);
       remarks.add(checkResult);
 
@@ -176,7 +176,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
           checkResult =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
-                  MESSAGES.getString("TeraFastMeta.Exception.TableFieldNotFound"),
+                  BaseMessages.getString(PKG, "TeraFastMeta.Exception.TableFieldNotFound"),
                   transformMeta);
           remarks.add(checkResult);
         }
@@ -185,7 +185,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
         checkResult =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,
-                MESSAGES.getString("TeraFastMeta.Message.AllTableFieldsFound"),
+                BaseMessages.getString(PKG, "TeraFastMeta.Message.AllTableFieldsFound"),
                 transformMeta);
         remarks.add(checkResult);
       }
@@ -194,7 +194,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
         checkResult =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_OK,
-                MESSAGES.getString("TeraFastMeta.Message.TransformInputDataFound"),
+                BaseMessages.getString(PKG, "TeraFastMeta.Message.TransformInputDataFound"),
                 transformMeta);
         remarks.add(checkResult);
 
@@ -205,7 +205,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
             checkResult =
                 new CheckResult(
                     ICheckResult.TYPE_RESULT_ERROR,
-                    MESSAGES.getString("TeraFastMeta.Exception.StreamFieldNotFound"),
+                    BaseMessages.getString(PKG, "TeraFastMeta.Exception.StreamFieldNotFound"),
                     transformMeta);
             remarks.add(checkResult);
           }
@@ -214,7 +214,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
           checkResult =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
-                  MESSAGES.getString("TeraFastMeta.Message.AllStreamFieldsFound"),
+                  BaseMessages.getString(PKG, "TeraFastMeta.Message.AllStreamFieldsFound"),
                   transformMeta);
           remarks.add(checkResult);
         }
@@ -223,7 +223,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
       checkResult =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
-              MESSAGES.getString("TeraFastMeta.Exception.ConnectionFailed"),
+              BaseMessages.getString(PKG, "TeraFastMeta.Exception.ConnectionFailed"),
               transformMeta);
       remarks.add(checkResult);
     } catch (HopException e) {
@@ -242,7 +242,8 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
       db.connect();
       return db;
     }
-    throw new HopException(MESSAGES.getString("TeraFastMeta.Exception.ConnectionNotDefined"));
+    throw new HopException(
+        BaseMessages.getString(PKG, "TeraFastMeta.Exception.ConnectionNotDefined"));
   }
 
   /**
@@ -288,7 +289,7 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
               StringUtils.EMPTY, variables.resolve(this.targetTable.getValue()));
       database.disconnect();
       if (fields == null) {
-        throw new HopException(MESSAGES.getString("TeraFastMeta.Exception.TableNotFound"));
+        throw new HopException(BaseMessages.getString(PKG, "TeraFastMeta.Exception.TableNotFound"));
       }
       return fields;
     }

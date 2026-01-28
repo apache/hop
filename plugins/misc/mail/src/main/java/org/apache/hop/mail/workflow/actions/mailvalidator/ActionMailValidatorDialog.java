@@ -164,7 +164,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     FormData fdlSMTPCheck = new FormData();
     fdlSMTPCheck.left = new FormAttachment(0, 0);
     fdlSMTPCheck.top = new FormAttachment(wMailAddress, margin);
-    fdlSMTPCheck.right = new FormAttachment(middle, -2 * margin);
+    fdlSMTPCheck.right = new FormAttachment(middle, -margin);
     wlSMTPCheck.setLayoutData(fdlSMTPCheck);
     wSMTPCheck = new Button(wSettingsGroup, SWT.CHECK);
     PropsUi.setLook(wSMTPCheck);
@@ -188,8 +188,8 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
-    fdlTimeOut.right = new FormAttachment(middle, -2 * margin);
-    fdlTimeOut.top = new FormAttachment(wlSMTPCheck, 2 * margin);
+    fdlTimeOut.right = new FormAttachment(middle, -margin);
+    fdlTimeOut.top = new FormAttachment(wlSMTPCheck, margin);
     wlTimeOut.setLayoutData(fdlTimeOut);
     wTimeOut = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTimeOut.setToolTipText(
@@ -198,7 +198,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, -margin);
-    fdTimeOut.top = new FormAttachment(wlSMTPCheck, 2 * margin);
+    fdTimeOut.top = new FormAttachment(wlSMTPCheck, margin);
     fdTimeOut.right = new FormAttachment(100, 0);
     wTimeOut.setLayoutData(fdTimeOut);
 
@@ -209,7 +209,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     PropsUi.setLook(wleMailSender);
     FormData fdleMailSender = new FormData();
     fdleMailSender.left = new FormAttachment(0, 0);
-    fdleMailSender.right = new FormAttachment(middle, -2 * margin);
+    fdleMailSender.right = new FormAttachment(middle, -margin);
     fdleMailSender.top = new FormAttachment(wTimeOut, margin);
     wleMailSender.setLayoutData(fdleMailSender);
 
@@ -231,7 +231,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     PropsUi.setLook(wlDefaultSMTP);
     FormData fdlDefaultSMTP = new FormData();
     fdlDefaultSMTP.left = new FormAttachment(0, 0);
-    fdlDefaultSMTP.right = new FormAttachment(middle, -2 * margin);
+    fdlDefaultSMTP.right = new FormAttachment(middle, -margin);
     fdlDefaultSMTP.top = new FormAttachment(weMailSender, margin);
     wlDefaultSMTP.setLayoutData(fdlDefaultSMTP);
 
@@ -250,7 +250,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdSettingsGroup.left = new FormAttachment(0, margin);
     fdSettingsGroup.top = new FormAttachment(wMailAddress, margin);
     fdSettingsGroup.right = new FormAttachment(100, -margin);
-    fdSettingsGroup.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSettingsGroup.bottom = new FormAttachment(wOk, -margin);
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
     // ///////////////////////////////////////////////////////////

@@ -38,13 +38,10 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class StandardizePhoneNumberDialog extends BaseTransformDialog {
 
@@ -82,64 +79,17 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
     wFields.removeEmptyRows();
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   @Override
   public String open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    shell.setText(BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.Shell.Title"));
-    shell.setMinimumSize(650, 350);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-    shell.setLayout(formLayout);
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // The buttons at the bottom of the dialog
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    wlTransformName.setLayoutData(new FormDataBuilder().right(middle, -margin).result());
-    PropsUi.setLook(wlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    wTransformName.addListener(SWT.Modify, e -> input.setChanged());
-    wTransformName.setLayoutData(
-        new FormDataBuilder()
-            .left(wlTransformName, margin)
-            .top(wlTransformName, 0, SWT.CENTER)
-            .right()
-            .result());
-    PropsUi.setLook(wTransformName);
+    createShell(BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.Shell.Title"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     // Table with fields
     Label lblFields = new Label(shell, SWT.LEFT);
     lblFields.setText(BaseMessages.getString(PKG, "StandardizePhoneNumberDialog.Fields.Label"));
-    lblFields.setLayoutData(new FormDataBuilder().top(wTransformName, margin).fullWidth().result());
+    lblFields.setLayoutData(new FormDataBuilder().top(wSpacer, margin).fullWidth().result());
     PropsUi.setLook(lblFields);
 
     ColumnInfo[] columns =
@@ -286,6 +236,8 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
 
     getData();
     input.setChanged(changed);
+
+    focusTransformName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 

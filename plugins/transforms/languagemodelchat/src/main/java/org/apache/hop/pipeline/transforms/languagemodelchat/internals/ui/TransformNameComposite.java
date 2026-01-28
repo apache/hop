@@ -18,9 +18,7 @@
 package org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui;
 
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.i18nUtil.i18n;
-import static org.apache.hop.ui.core.ConstUi.LARGE_ICON_SIZE;
 import static org.apache.hop.ui.core.PropsUi.setLook;
-import static org.apache.hop.ui.util.SwtSvgImageUtil.getImage;
 import static org.eclipse.swt.SWT.BORDER;
 import static org.eclipse.swt.SWT.CENTER;
 import static org.eclipse.swt.SWT.HORIZONTAL;
@@ -61,35 +59,20 @@ public class TransformNameComposite implements IDialogComposite {
 
     inputField.addModifyListener(e -> meta.setChanged());
 
-    // Image
-    var image =
-        getImage(
-            parameters.shell().getDisplay(),
-            getClass().getClassLoader(),
-            "languagemodelchat.svg",
-            LARGE_ICON_SIZE,
-            LARGE_ICON_SIZE);
-    Label wIcon = new Label(parameters.shell(), RIGHT);
-    wIcon.setImage(image);
-    FormData fdlIcon = new FormData();
-    fdlIcon.top = new FormAttachment(0, 0);
-    fdlIcon.right = new FormAttachment(100, 0);
-    wIcon.setLayoutData(fdlIcon);
-    setLook(wIcon);
-
     FormData fdlTransformName = new FormData();
+    fdlTransformName.left = new FormAttachment(0, 0);
+    fdlTransformName.top = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(parameters.middlePct(), -parameters.margin());
-    fdlTransformName.bottom = new FormAttachment(wIcon, 0, CENTER);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(label, parameters.margin());
     fdTransformName.top = new FormAttachment(label, 0, CENTER);
-    fdTransformName.right = new FormAttachment(wIcon, 0);
+    fdTransformName.right = new FormAttachment(100, 0);
 
     // Draw line separator
     Label separator = new Label(parameters.shell(), HORIZONTAL | SEPARATOR);
     FormData fdSeparator = new FormData();
     fdSeparator.left = new FormAttachment(0, 0);
-    fdSeparator.top = new FormAttachment(wIcon, 0);
+    fdSeparator.top = new FormAttachment(inputField, parameters.margin());
     fdSeparator.right = new FormAttachment(100, 0);
     separator.setLayoutData(fdSeparator);
 

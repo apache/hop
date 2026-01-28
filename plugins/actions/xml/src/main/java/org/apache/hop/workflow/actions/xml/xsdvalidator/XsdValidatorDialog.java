@@ -183,7 +183,7 @@ public class XsdValidatorDialog extends ActionDialog {
     PropsUi.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
-    fdlxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
+    fdlxmlFilename.top = new FormAttachment(wXSDSource, margin);
     fdlxmlFilename.right = new FormAttachment(middle, -margin);
     wlxmlFilename.setLayoutData(fdlxmlFilename);
     Button wbxmlFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -191,14 +191,14 @@ public class XsdValidatorDialog extends ActionDialog {
     wbxmlFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
-    fdbxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
+    fdbxmlFilename.top = new FormAttachment(wXSDSource, margin);
     wbxmlFilename.setLayoutData(fdbxmlFilename);
     wxmlFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wxmlFilename);
     wxmlFilename.addModifyListener(lsMod);
     FormData fdxmlFilename = new FormData();
     fdxmlFilename.left = new FormAttachment(middle, 0);
-    fdxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
+    fdxmlFilename.top = new FormAttachment(wXSDSource, margin);
     fdxmlFilename.right = new FormAttachment(wbxmlFilename, -margin);
     wxmlFilename.setLayoutData(fdxmlFilename);
 

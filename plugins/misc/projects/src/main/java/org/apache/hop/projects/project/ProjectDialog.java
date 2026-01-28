@@ -189,7 +189,7 @@ public class ProjectDialog extends Dialog {
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
-    fdlName.top = new FormAttachment(0, margin * 2);
+    fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wName);
@@ -399,7 +399,7 @@ public class ProjectDialog extends Dialog {
     FormData fdlVariables = new FormData();
     fdlVariables.left = new FormAttachment(1, 0);
     fdlVariables.right = new FormAttachment(99, 0);
-    fdlVariables.top = new FormAttachment(lastControl, 2 * margin);
+    fdlVariables.top = new FormAttachment(lastControl, margin);
     wlVariables.setLayoutData(fdlVariables);
 
     ColumnInfo[] columnInfo =

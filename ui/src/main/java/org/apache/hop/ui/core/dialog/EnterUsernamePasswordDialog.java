@@ -102,7 +102,7 @@ public class EnterUsernamePasswordDialog extends Dialog {
     PropsUi.setLook(wlPassword);
     FormData fdlPassword = new FormData();
     fdlPassword.left = new FormAttachment(0, 0);
-    fdlPassword.top = new FormAttachment(wlUsername, margin * 2);
+    fdlPassword.top = new FormAttachment(wlUsername, margin);
     fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
     wPassword = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
@@ -111,7 +111,7 @@ public class EnterUsernamePasswordDialog extends Dialog {
 
     FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment(wlPassword, 0);
-    fdPassword.top = new FormAttachment(wlUsername, margin * 2);
+    fdPassword.top = new FormAttachment(wlUsername, margin);
     fdPassword.right = new FormAttachment(100, -margin);
     wPassword.setLayoutData(fdPassword);
 

@@ -170,7 +170,7 @@ public class ErrorDialog extends Dialog {
     fdDesc.left = new FormAttachment(0, 0);
     fdDesc.top = new FormAttachment(wlDesc, margin);
     fdDesc.right = new FormAttachment(100, 0);
-    fdDesc.bottom = new FormAttachment(wOk, -2 * margin);
+    fdDesc.bottom = new FormAttachment(wOk, -margin);
     wDesc.setLayoutData(fdDesc);
     wDesc.setEditable(false);
 

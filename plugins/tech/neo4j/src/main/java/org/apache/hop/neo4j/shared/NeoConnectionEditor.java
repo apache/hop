@@ -127,8 +127,8 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.top = new FormAttachment(wName, 2 * margin);
-    fdTabFolder.bottom = new FormAttachment(100, -2 * margin);
+    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.bottom = new FormAttachment(100, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     addBasicTab(props, variables, middle, margin);

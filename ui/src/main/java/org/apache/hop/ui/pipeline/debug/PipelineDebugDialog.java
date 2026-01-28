@@ -187,7 +187,7 @@ public class PipelineDebugDialog extends Dialog {
     fdTransform.left = new FormAttachment(0, 0);
     fdTransform.right = new FormAttachment(middle, -margin);
     fdTransform.top = new FormAttachment(0, margin);
-    fdTransform.bottom = new FormAttachment(wOk, -margin * 2);
+    fdTransform.bottom = new FormAttachment(wOk, -margin);
     wTransforms.setLayoutData(fdTransform);
     wTransforms.table.setHeaderVisible(false);
 
@@ -230,7 +230,7 @@ public class PipelineDebugDialog extends Dialog {
     fdComposite.left = new FormAttachment(middle, 0);
     fdComposite.right = new FormAttachment(100, 0);
     fdComposite.top = new FormAttachment(0, margin);
-    fdComposite.bottom = new FormAttachment(wOk, -margin * 2);
+    fdComposite.bottom = new FormAttachment(wOk, -margin);
     wComposite.setLayoutData(fdComposite);
 
     // Give the composite a layout...

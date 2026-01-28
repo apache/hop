@@ -279,7 +279,7 @@ public class ActionHttpDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
@@ -370,7 +370,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlTargetExt);
     FormData fdlTargetExt = new FormData();
     fdlTargetExt.left = new FormAttachment(0, 0);
-    fdlTargetExt.top = new FormAttachment(wlDateTimeAdded, 2 * margin);
+    fdlTargetExt.top = new FormAttachment(wlDateTimeAdded, margin);
     fdlTargetExt.right = new FormAttachment(middle, -margin);
     wlTargetExt.setLayoutData(fdlTargetExt);
     wTargetExt = new TextVar(variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -391,7 +391,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlDateTimeAdded);
     FormData fdlDateTimeAdded = new FormData();
     fdlDateTimeAdded.left = new FormAttachment(0, 0);
-    fdlDateTimeAdded.top = new FormAttachment(wlAppend, 2 * margin);
+    fdlDateTimeAdded.top = new FormAttachment(wlAppend, margin);
     fdlDateTimeAdded.right = new FormAttachment(middle, -margin);
     wlDateTimeAdded.setLayoutData(fdlDateTimeAdded);
     wDateTimeAdded = new Button(wTargetFileGroup, SWT.CHECK);
@@ -709,7 +709,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlFieldURL);
     FormData fdlFieldURL = new FormData();
     fdlFieldURL.left = new FormAttachment(0, 0);
-    fdlFieldURL.top = new FormAttachment(wRunEveryRow, 2 * margin);
+    fdlFieldURL.top = new FormAttachment(wRunEveryRow, margin);
     fdlFieldURL.right = new FormAttachment(middle, -margin);
     wlFieldURL.setLayoutData(fdlFieldURL);
     wFieldURL = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -718,7 +718,7 @@ public class ActionHttpDialog extends ActionDialog {
     wFieldURL.addModifyListener(lsMod);
     FormData fdFieldURL = new FormData();
     fdFieldURL.left = new FormAttachment(middle, 0);
-    fdFieldURL.top = new FormAttachment(wRunEveryRow, 2 * margin);
+    fdFieldURL.top = new FormAttachment(wRunEveryRow, margin);
     fdFieldURL.right = new FormAttachment(100, 0);
     wFieldURL.setLayoutData(fdFieldURL);
   }
@@ -786,7 +786,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlURL);
     FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment(0, 0);
-    fdlURL.top = new FormAttachment(wName, 2 * margin);
+    fdlURL.top = new FormAttachment(wName, margin);
     fdlURL.right = new FormAttachment(middle, -margin);
     wlURL.setLayoutData(fdlURL);
     wURL =
@@ -799,7 +799,7 @@ public class ActionHttpDialog extends ActionDialog {
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(middle, 0);
-    fdURL.top = new FormAttachment(wName, 2 * margin);
+    fdURL.top = new FormAttachment(wName, margin);
     fdURL.right = new FormAttachment(100, 0);
     wURL.setLayoutData(fdURL);
   }

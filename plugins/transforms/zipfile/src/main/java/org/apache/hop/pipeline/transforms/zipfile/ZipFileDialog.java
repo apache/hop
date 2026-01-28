@@ -30,19 +30,22 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class ZipFileDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ZipFileMeta.class;
@@ -79,14 +82,10 @@ public class ZipFileDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    createShell(BaseMessages.getString(PKG, "ZipFileDialog.Shell.Title"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     SelectionAdapter lsSel =
         new SelectionAdapter() {
           @Override
@@ -94,43 +93,30 @@ public class ZipFileDialog extends BaseTransformDialog {
             input.setChanged();
           }
         };
-
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ZipFileDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ZipFileDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     // ///////////////////////////////
     // START OF Settings GROUP //
     // ///////////////////////////////
 
-    Group wSettingsGroup = new Group(shell, SWT.SHADOW_NONE);
+    Group wSettingsGroup = new Group(wContent, SWT.SHADOW_NONE);
     PropsUi.setLook(wSettingsGroup);
     wSettingsGroup.setText(BaseMessages.getString(PKG, "ZipFileDialog.wSettingsGroup.Label"));
 
@@ -146,7 +132,7 @@ public class ZipFileDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCreateParentFolder);
     FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment(0, 0);
-    fdlCreateParentFolder.top = new FormAttachment(wTransformName, margin);
+    fdlCreateParentFolder.top = new FormAttachment(0, margin);
     fdlCreateParentFolder.right = new FormAttachment(middle, -margin);
     wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
     wCreateParentFolder = new Button(wSettingsGroup, SWT.CHECK);
@@ -198,7 +184,7 @@ public class ZipFileDialog extends BaseTransformDialog {
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment(0, margin);
-    fdSettingsGroup.top = new FormAttachment(wTransformName, margin);
+    fdSettingsGroup.top = new FormAttachment(0, margin);
     fdSettingsGroup.right = new FormAttachment(100, -margin);
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
@@ -207,23 +193,23 @@ public class ZipFileDialog extends BaseTransformDialog {
     // ///////////////////////////////
 
     // SourceFileNameField field
-    Label wlSourceFileNameField = new Label(shell, SWT.RIGHT);
+    Label wlSourceFileNameField = new Label(wContent, SWT.RIGHT);
     wlSourceFileNameField.setText(
         BaseMessages.getString(PKG, "ZipFileDialog.SourceFileNameField.Label"));
     PropsUi.setLook(wlSourceFileNameField);
     FormData fdlSourceFileNameField = new FormData();
     fdlSourceFileNameField.left = new FormAttachment(0, 0);
     fdlSourceFileNameField.right = new FormAttachment(middle, -margin);
-    fdlSourceFileNameField.top = new FormAttachment(wSettingsGroup, 2 * margin);
+    fdlSourceFileNameField.top = new FormAttachment(wSettingsGroup, margin);
     wlSourceFileNameField.setLayoutData(fdlSourceFileNameField);
 
-    wSourceFileNameField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wSourceFileNameField = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
     PropsUi.setLook(wSourceFileNameField);
     wSourceFileNameField.setEditable(true);
     wSourceFileNameField.addModifyListener(lsMod);
     FormData fdSourceFileNameField = new FormData();
     fdSourceFileNameField.left = new FormAttachment(middle, 0);
-    fdSourceFileNameField.top = new FormAttachment(wSettingsGroup, 2 * margin);
+    fdSourceFileNameField.top = new FormAttachment(wSettingsGroup, margin);
     fdSourceFileNameField.right = new FormAttachment(100, -margin);
     wSourceFileNameField.setLayoutData(fdSourceFileNameField);
     wSourceFileNameField.addFocusListener(
@@ -239,7 +225,7 @@ public class ZipFileDialog extends BaseTransformDialog {
           }
         });
     // TargetFileNameField field
-    Label wlTargetFileNameField = new Label(shell, SWT.RIGHT);
+    Label wlTargetFileNameField = new Label(wContent, SWT.RIGHT);
     wlTargetFileNameField.setText(
         BaseMessages.getString(PKG, "ZipFileDialog.TargetFileNameField.Label"));
     PropsUi.setLook(wlTargetFileNameField);
@@ -249,7 +235,7 @@ public class ZipFileDialog extends BaseTransformDialog {
     fdlTargetFileNameField.top = new FormAttachment(wSourceFileNameField, margin);
     wlTargetFileNameField.setLayoutData(fdlTargetFileNameField);
 
-    wTargetFileNameField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wTargetFileNameField = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
     wTargetFileNameField.setEditable(true);
     PropsUi.setLook(wTargetFileNameField);
     wTargetFileNameField.addModifyListener(lsMod);
@@ -271,7 +257,7 @@ public class ZipFileDialog extends BaseTransformDialog {
           }
         });
 
-    Label wlKeepFolders = new Label(shell, SWT.RIGHT);
+    Label wlKeepFolders = new Label(wContent, SWT.RIGHT);
     wlKeepFolders.setText(BaseMessages.getString(PKG, "ZipFileDialog.KeepFolders.Label"));
     PropsUi.setLook(wlKeepFolders);
     FormData fdlKeepFolders = new FormData();
@@ -279,7 +265,7 @@ public class ZipFileDialog extends BaseTransformDialog {
     fdlKeepFolders.top = new FormAttachment(wTargetFileNameField, margin);
     fdlKeepFolders.right = new FormAttachment(middle, -margin);
     wlKeepFolders.setLayoutData(fdlKeepFolders);
-    wKeepFolders = new Button(shell, SWT.CHECK);
+    wKeepFolders = new Button(wContent, SWT.CHECK);
     PropsUi.setLook(wKeepFolders);
     wKeepFolders.setToolTipText(BaseMessages.getString(PKG, "ZipFileDialog.KeepFolders.Tooltip"));
     FormData fdKeepFolders = new FormData();
@@ -297,7 +283,7 @@ public class ZipFileDialog extends BaseTransformDialog {
         });
 
     // BaseFolderField field
-    wlBaseFolderField = new Label(shell, SWT.RIGHT);
+    wlBaseFolderField = new Label(wContent, SWT.RIGHT);
     wlBaseFolderField.setText(BaseMessages.getString(PKG, "ZipFileDialog.BaseFolderField.Label"));
     PropsUi.setLook(wlBaseFolderField);
     FormData fdlBaseFolderField = new FormData();
@@ -306,7 +292,7 @@ public class ZipFileDialog extends BaseTransformDialog {
     fdlBaseFolderField.top = new FormAttachment(wKeepFolders, margin);
     wlBaseFolderField.setLayoutData(fdlBaseFolderField);
 
-    wBaseFolderField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wBaseFolderField = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
     wBaseFolderField.setEditable(true);
     PropsUi.setLook(wBaseFolderField);
     wBaseFolderField.addModifyListener(lsMod);
@@ -329,7 +315,7 @@ public class ZipFileDialog extends BaseTransformDialog {
         });
 
     // Operation
-    Label wlOperation = new Label(shell, SWT.RIGHT);
+    Label wlOperation = new Label(wContent, SWT.RIGHT);
     wlOperation.setText(BaseMessages.getString(PKG, "ZipFileDialog.Operation.Label"));
     PropsUi.setLook(wlOperation);
     FormData fdlOperation = new FormData();
@@ -338,7 +324,7 @@ public class ZipFileDialog extends BaseTransformDialog {
     fdlOperation.top = new FormAttachment(wBaseFolderField, margin);
     wlOperation.setLayoutData(fdlOperation);
 
-    wOperation = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wOperation = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
     PropsUi.setLook(wOperation);
     wOperation.addModifyListener(lsMod);
     FormData fdOperation = new FormData();
@@ -356,7 +342,7 @@ public class ZipFileDialog extends BaseTransformDialog {
         });
 
     // MoveToFolderField field
-    wlMoveToFolderField = new Label(shell, SWT.RIGHT);
+    wlMoveToFolderField = new Label(wContent, SWT.RIGHT);
     wlMoveToFolderField.setText(
         BaseMessages.getString(PKG, "ZipFileDialog.MoveToFolderField.Label"));
     PropsUi.setLook(wlMoveToFolderField);
@@ -366,7 +352,7 @@ public class ZipFileDialog extends BaseTransformDialog {
     fdlMoveToFolderField.top = new FormAttachment(wOperation, margin);
     wlMoveToFolderField.setLayoutData(fdlMoveToFolderField);
 
-    wMoveToFolderField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wMoveToFolderField = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
     wMoveToFolderField.setEditable(true);
     PropsUi.setLook(wMoveToFolderField);
     wMoveToFolderField.addModifyListener(lsMod);
@@ -388,22 +374,20 @@ public class ZipFileDialog extends BaseTransformDialog {
           }
         });
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wMoveToFolderField);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
 
     getData();
     keepFolder();
     updateOperation();
     input.setChanged(changed);
+
+    focusTransformName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -433,9 +417,6 @@ public class ZipFileDialog extends BaseTransformDialog {
     wOverwriteZipEntry.setSelection(input.isOverwriteZipEntry());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
     wKeepFolders.setSelection(input.isKeepSourceFolder());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

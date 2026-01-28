@@ -135,7 +135,7 @@ public class PreviewSelectDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wPreview, -2 * margin);
+    fdFields.bottom = new FormAttachment(wPreview, -margin);
     wFields.setLayoutData(fdFields);
 
     getData();

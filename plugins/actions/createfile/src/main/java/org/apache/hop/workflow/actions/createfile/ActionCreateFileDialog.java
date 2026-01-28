@@ -169,7 +169,7 @@ public class ActionCreateFileDialog extends ActionDialog {
     PropsUi.setLook(wlAddFilenameToResult);
     FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment(0, 0);
-    fdlAddFilenameToResult.top = new FormAttachment(wlAbortExists, 2 * margin);
+    fdlAddFilenameToResult.top = new FormAttachment(wlAbortExists, margin);
     fdlAddFilenameToResult.right = new FormAttachment(middle, -margin);
     wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
     wAddFilenameToResult = new Button(shell, SWT.CHECK);

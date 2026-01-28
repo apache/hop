@@ -56,13 +56,11 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class DorisBulkLoaderDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DorisBulkLoaderMeta.class;
@@ -95,54 +93,12 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // THE BUTTONS: at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "DorisBulkLoaderDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -164,7 +120,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
 
     // ////////////////////////
     // START Settings GROUP
-    Group gConnections = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
+    Group gConnections = new Group(wGeneralComp, SWT.SHADOW_NONE);
     gConnections.setText(
         BaseMessages.getString(PKG, "DorisBulkLoaderDialog.ConnectionsGroup.Label"));
     FormLayout settingsLayout = new FormLayout();
@@ -179,7 +135,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     FormData fdlFeHost = new FormData();
     fdlFeHost.left = new FormAttachment(0, 0);
     fdlFeHost.right = new FormAttachment(middle, -margin);
-    fdlFeHost.top = new FormAttachment(wGeneralComp, margin * 2);
+    fdlFeHost.top = new FormAttachment(wGeneralComp, margin);
     wlFeHost.setLayoutData(fdlFeHost);
     wFeHost = new TextVar(variables, gConnections, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFeHost.setToolTipText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.FeHost.Tooltip"));
@@ -187,7 +143,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     wFeHost.addModifyListener(lsMod);
     FormData fdFeHost = new FormData();
     fdFeHost.left = new FormAttachment(middle, 0);
-    fdFeHost.top = new FormAttachment(wGeneralComp, margin * 2);
+    fdFeHost.top = new FormAttachment(wGeneralComp, margin);
     fdFeHost.right = new FormAttachment(100, 0);
     wFeHost.setLayoutData(fdFeHost);
 
@@ -292,14 +248,14 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     FormData fdConnections = new FormData();
     fdConnections.left = new FormAttachment(0, 0);
     fdConnections.right = new FormAttachment(100, 0);
-    fdConnections.top = new FormAttachment(wTransformName, margin);
+    fdConnections.top = new FormAttachment(wSpacer, margin);
     gConnections.setLayoutData(fdConnections);
     // END Connections GROUP
     // ////////////////////////
 
     // ////////////////////////
     // START Bulk Data GROUP
-    Group gBulkData = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
+    Group gBulkData = new Group(wGeneralComp, SWT.SHADOW_NONE);
     gBulkData.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.BulkDataGroup.Label"));
     FormLayout bulkDataLayout = new FormLayout();
     bulkDataLayout.marginWidth = 3;
@@ -497,7 +453,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(wTransformName, margin);
+    fdGeneralComp.top = new FormAttachment(wSpacer, margin);
     fdGeneralComp.right = new FormAttachment(100, 0);
     fdGeneralComp.bottom = new FormAttachment(100, 0);
     wGeneralComp.setLayoutData(fdGeneralComp);
@@ -526,7 +482,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wTransformName, margin);
+    fdlFields.top = new FormAttachment(wSpacer, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int nrHeaders = input.getHeaders().size();
@@ -564,7 +520,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdAdditionalComp = new FormData();
     fdAdditionalComp.left = new FormAttachment(0, 0);
-    fdAdditionalComp.top = new FormAttachment(wTransformName, margin);
+    fdAdditionalComp.top = new FormAttachment(wSpacer, margin);
     fdAdditionalComp.right = new FormAttachment(100, -margin);
     fdAdditionalComp.bottom = new FormAttachment(100, 0);
     wAdditionalComp.setLayoutData(fdAdditionalComp);
@@ -577,9 +533,9 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
     wTabFolder.setSelection(0);
 
@@ -617,7 +573,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     new Thread(runnable).start();
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -676,10 +632,6 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
 
     wBufferSize.setText(Integer.toString(input.getBufferSize()));
     wBufferCount.setText(Integer.toString(input.getBufferCount()));
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
-
     input.setChanged(changed);
   }
 

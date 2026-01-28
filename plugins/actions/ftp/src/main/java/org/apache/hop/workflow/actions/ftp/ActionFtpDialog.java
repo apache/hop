@@ -322,7 +322,7 @@ public class ActionFtpDialog extends ActionDialog {
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment(0, 0);
-    fdProxyHost.top = new FormAttachment(wPassword, 2 * margin);
+    fdProxyHost.top = new FormAttachment(wPassword, margin);
     fdProxyHost.right = new FormAttachment(100, 0);
     wProxyHost.setLayoutData(fdProxyHost);
 
@@ -475,7 +475,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlControlEncoding);
     FormData fdlControlEncoding = new FormData();
     fdlControlEncoding.left = new FormAttachment(0, 0);
-    fdlControlEncoding.top = new FormAttachment(wlActive, 2 * margin);
+    fdlControlEncoding.top = new FormAttachment(wlActive, margin);
     fdlControlEncoding.right = new FormAttachment(middle, -margin);
     wlControlEncoding.setLayoutData(fdlControlEncoding);
     wControlEncoding = new Combo(wAdvancedSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -706,7 +706,7 @@ public class ActionFtpDialog extends ActionDialog {
 
     FormData fdRemoteSettings = new FormData();
     fdRemoteSettings.left = new FormAttachment(0, margin);
-    fdRemoteSettings.top = new FormAttachment(0, 2 * margin);
+    fdRemoteSettings.top = new FormAttachment(0, margin);
     fdRemoteSettings.right = new FormAttachment(100, -margin);
     wgRemoteSettings.setLayoutData(fdRemoteSettings);
     // ///////////////////////////////////////////////////////////
@@ -792,7 +792,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
-    fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
+    fdlAddTime.top = new FormAttachment(wlAddDate, margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wgLocalSettings, SWT.CHECK);
@@ -817,7 +817,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
-    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, 2 * margin);
+    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wgLocalSettings, SWT.CHECK);
@@ -847,7 +847,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdlDateTimeFormat.right = new FormAttachment(middle, -margin);
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(wgLocalSettings, SWT.BORDER | SWT.READ_ONLY);
@@ -856,7 +856,7 @@ public class ActionFtpDialog extends ActionDialog {
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
-    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdDateTimeFormat.right = new FormAttachment(100, 0);
     wDateTimeFormat.setLayoutData(fdDateTimeFormat);
     for (String dat : dats) {
@@ -923,7 +923,7 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
-    fdlIfFileExists.top = new FormAttachment(wlOnlyNew, 2 * margin);
+    fdlIfFileExists.top = new FormAttachment(wlOnlyNew, margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(wgLocalSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wIfFileExists.add(BaseMessages.getString(PKG, "ActionFtp.Skip.Label"));
@@ -954,7 +954,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlAddFilenameToResult);
     FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment(0, 0);
-    fdlAddFilenameToResult.top = new FormAttachment(wIfFileExists, 2 * margin);
+    fdlAddFilenameToResult.top = new FormAttachment(wIfFileExists, margin);
     fdlAddFilenameToResult.right = new FormAttachment(middle, -margin);
     wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
     wAddFilenameToResult = new Button(wgLocalSettings, SWT.CHECK);
@@ -1221,7 +1221,7 @@ public class ActionFtpDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add listeners

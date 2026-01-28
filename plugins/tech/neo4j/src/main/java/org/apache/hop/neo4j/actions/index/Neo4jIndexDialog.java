@@ -132,18 +132,6 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
       new ErrorDialog(shell, "Error", "Error getting list of connections", e);
     }
 
-    // Add buttons first, then the script field can use dynamic sizing
-    //
-    Button wShowCypher = new Button(shell, SWT.PUSH);
-    wShowCypher.setText(BaseMessages.getString(PKG, "Neo4jIndexDialog.Button.ShowCypher"));
-    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
     Label wlUpdates = new Label(shell, SWT.LEFT);
     wlUpdates.setText(BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Label"));
     PropsUi.setLook(wlUpdates);
@@ -185,18 +173,20 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
     fdCypher.left = new FormAttachment(0, 0);
     fdCypher.right = new FormAttachment(100, 0);
     fdCypher.top = new FormAttachment(wlUpdates, margin);
-    fdCypher.bottom = new FormAttachment(wOk, -margin * 2);
+    fdCypher.bottom = new FormAttachment(100, -50);
     wUpdates.setLayoutData(fdCypher);
 
-    // Put these buttons at the bottom
-    //
+    Button wShowCypher = new Button(shell, SWT.PUSH);
+    wShowCypher.setText(BaseMessages.getString(PKG, "Neo4jIndexDialog.Button.ShowCypher"));
+    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wShowCypher, wOk, wCancel,
-        },
-        margin,
-        null);
+        shell, new Button[] {wShowCypher, wOk, wCancel}, margin, wUpdates);
 
     getData();
 

@@ -35,7 +35,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -50,7 +49,6 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -62,7 +60,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -73,7 +70,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class PipelineExecutorDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PipelineExecutorDialog.class;
@@ -139,9 +135,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
   private boolean gotPreviousFields = false;
 
-  private final int middle = props.getMiddlePct();
-  private final int margin = PropsUi.getMargin();
-
   public PipelineExecutorDialog(
       Shell parent,
       IVariables variables,
@@ -153,73 +146,19 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "PipelineExecutorDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, pipelineExecutorMeta);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     changed = pipelineExecutorMeta.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = 15;
-    formLayout.marginHeight = 15;
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.Shell.Title"));
-
     ModifyListener lsMod = e -> pipelineExecutorMeta.setChanged();
-
-    Label wicon = new Label(shell, SWT.RIGHT);
-    wicon.setImage(getImage());
-    FormData fdlicon = new FormData();
-    fdlicon.top = new FormAttachment(0, 0);
-    fdlicon.right = new FormAttachment(100, 0);
-    wicon.setLayoutData(fdlicon);
-    PropsUi.setLook(wicon);
-
-    // Some buttons
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    positionBottomButtons(shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "PipelineExecutorDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(wicon, 0, SWT.CENTER);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.right = new FormAttachment(wicon, 0);
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    wTransformName.setLayoutData(fdTransformName);
-
-    Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdSpacer = new FormData();
-    fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wicon, 0);
-    fdSpacer.right = new FormAttachment(100, 0);
-    spacer.setLayoutData(fdSpacer);
 
     wlPath = new Label(shell, SWT.RIGHT);
     PropsUi.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "PipelineExecutorDialog.Pipeline.Label"));
     FormData fdlTransformation = new FormData();
     fdlTransformation.left = new FormAttachment(0, 0);
-    fdlTransformation.top = new FormAttachment(spacer, 20);
+    fdlTransformation.top = new FormAttachment(wSpacer, margin);
     fdlTransformation.right = new FormAttachment(middle, -margin);
     wlPath.setLayoutData(fdlTransformation);
 
@@ -322,18 +261,11 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     wTabFolder.setUnselectedCloseVisible(true);
 
-    Label hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdhSpacer = new FormData();
-    fdhSpacer.left = new FormAttachment(0, 0);
-    fdhSpacer.bottom = new FormAttachment(wCancel, -15);
-    fdhSpacer.right = new FormAttachment(100, 0);
-    hSpacer.setLayoutData(fdhSpacer);
-
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(hSpacer, -15);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add the tabs...
@@ -347,7 +279,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     getData();
     pipelineExecutorMeta.setChanged(changed);
     wTabFolder.setSelection(0);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -373,15 +305,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       }
       gotPreviousFields = true;
     }
-  }
-
-  protected Image getImage() {
-    return SwtSvgImageUtil.getImage(
-        shell.getDisplay(),
-        getClass().getClassLoader(),
-        "pipelineexecutor.svg",
-        ConstUi.LARGE_ICON_SIZE,
-        ConstUi.LARGE_ICON_SIZE);
   }
 
   private void selectPipelineFile() {
@@ -577,9 +500,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     }
 
     setFlags();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void addParametersTab() {
@@ -1059,7 +979,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wlResultFileNameField.setText(
         BaseMessages.getString(PKG, "PipelineExecutorDialog.ResultFileNameField.Label"));
     FormData fdlResultFileNameField = new FormData();
-    fdlResultFileNameField.top = new FormAttachment(wResultFilesTarget, margin * 2);
+    fdlResultFileNameField.top = new FormAttachment(wResultFilesTarget, margin);
     fdlResultFileNameField.left = new FormAttachment(0, 0);
     fdlResultFileNameField.right = new FormAttachment(middle, -margin);
     wlResultFileNameField.setLayoutData(fdlResultFileNameField);

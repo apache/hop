@@ -26,11 +26,14 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -39,9 +42,6 @@ import org.eclipse.swt.widgets.Text;
 public class GetServerStatusDialog extends BaseTransformDialog {
   private static final Class<?> PKG = GetServerStatusDialog.class;
   private final GetServerStatusMeta input;
-
-  int middle;
-  int margin;
 
   private boolean getPreviousFields = false;
 
@@ -72,60 +72,45 @@ public class GetServerStatusDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "GetServerStatus.Transform.Name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "GetServerStatus.Transform.Name"));
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
-
-    Label wlServerField = new Label(shell, SWT.RIGHT);
+    Label wlServerField = new Label(wContent, SWT.RIGHT);
     wlServerField.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ServerField"));
     PropsUi.setLook(wlServerField);
     FormData fdlServerField = new FormData();
     fdlServerField.left = new FormAttachment(0, 0);
-    fdlServerField.top = new FormAttachment(lastControl, margin);
+    fdlServerField.top = new FormAttachment(0, margin);
     fdlServerField.right = new FormAttachment(middle, -margin);
     wlServerField.setLayoutData(fdlServerField);
-    wServerField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wServerField = new Combo(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wServerField);
     FormData fdServerField = new FormData();
     fdServerField.left = new FormAttachment(middle, 0);
     fdServerField.top = new FormAttachment(wlServerField, 0, SWT.CENTER);
     fdServerField.right = new FormAttachment(100, 0);
     wServerField.setLayoutData(fdServerField);
-    lastControl = wServerField;
+    Control lastControl = wServerField;
 
-    Label wlErrorMessage = new Label(shell, SWT.RIGHT);
+    Label wlErrorMessage = new Label(wContent, SWT.RIGHT);
     wlErrorMessage.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ErrorMessage"));
     PropsUi.setLook(wlErrorMessage);
     FormData fdlErrorMessage = new FormData();
@@ -133,7 +118,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlErrorMessage.top = new FormAttachment(lastControl, margin);
     fdlErrorMessage.right = new FormAttachment(middle, -margin);
     wlErrorMessage.setLayoutData(fdlErrorMessage);
-    wErrorMessage = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wErrorMessage = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wErrorMessage);
     FormData fdErrorMessage = new FormData();
     fdErrorMessage.left = new FormAttachment(middle, 0);
@@ -142,7 +127,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wErrorMessage.setLayoutData(fdErrorMessage);
     lastControl = wErrorMessage;
 
-    Label wlStatusDescription = new Label(shell, SWT.RIGHT);
+    Label wlStatusDescription = new Label(wContent, SWT.RIGHT);
     wlStatusDescription.setText(
         BaseMessages.getString(PKG, "GetServerStatusDialog.StatusDescription"));
     PropsUi.setLook(wlStatusDescription);
@@ -151,7 +136,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlStatusDescription.top = new FormAttachment(lastControl, margin);
     fdlStatusDescription.right = new FormAttachment(middle, -margin);
     wlStatusDescription.setLayoutData(fdlStatusDescription);
-    wStatusDescription = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wStatusDescription = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wStatusDescription);
     FormData fdStatusDescription = new FormData();
     fdStatusDescription.left = new FormAttachment(middle, 0);
@@ -160,7 +145,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wStatusDescription.setLayoutData(fdStatusDescription);
     lastControl = wStatusDescription;
 
-    Label wlServerLoad = new Label(shell, SWT.RIGHT);
+    Label wlServerLoad = new Label(wContent, SWT.RIGHT);
     wlServerLoad.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ServerLoad"));
     PropsUi.setLook(wlServerLoad);
     FormData fdlServerLoad = new FormData();
@@ -168,7 +153,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlServerLoad.top = new FormAttachment(lastControl, margin);
     fdlServerLoad.right = new FormAttachment(middle, -margin);
     wlServerLoad.setLayoutData(fdlServerLoad);
-    wServerLoad = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wServerLoad = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wServerLoad);
     FormData fdServerLoad = new FormData();
     fdServerLoad.left = new FormAttachment(middle, 0);
@@ -177,7 +162,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wServerLoad.setLayoutData(fdServerLoad);
     lastControl = wServerLoad;
 
-    Label wlMemoryFree = new Label(shell, SWT.RIGHT);
+    Label wlMemoryFree = new Label(wContent, SWT.RIGHT);
     wlMemoryFree.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.MemoryFree"));
     PropsUi.setLook(wlMemoryFree);
     FormData fdlMemoryFree = new FormData();
@@ -185,7 +170,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlMemoryFree.top = new FormAttachment(lastControl, margin);
     fdlMemoryFree.right = new FormAttachment(middle, -margin);
     wlMemoryFree.setLayoutData(fdlMemoryFree);
-    wMemoryFree = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMemoryFree = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wMemoryFree);
     FormData fdMemoryFree = new FormData();
     fdMemoryFree.left = new FormAttachment(middle, 0);
@@ -194,7 +179,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wMemoryFree.setLayoutData(fdMemoryFree);
     lastControl = wMemoryFree;
 
-    Label wlMemoryTotal = new Label(shell, SWT.RIGHT);
+    Label wlMemoryTotal = new Label(wContent, SWT.RIGHT);
     wlMemoryTotal.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.MemoryTotal"));
     PropsUi.setLook(wlMemoryTotal);
     FormData fdlMemoryTotal = new FormData();
@@ -202,7 +187,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlMemoryTotal.top = new FormAttachment(lastControl, margin);
     fdlMemoryTotal.right = new FormAttachment(middle, -margin);
     wlMemoryTotal.setLayoutData(fdlMemoryTotal);
-    wMemoryTotal = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMemoryTotal = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wMemoryTotal);
     FormData fdMemoryTotal = new FormData();
     fdMemoryTotal.left = new FormAttachment(middle, 0);
@@ -211,7 +196,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wMemoryTotal.setLayoutData(fdMemoryTotal);
     lastControl = wMemoryTotal;
 
-    Label wlCpuCores = new Label(shell, SWT.RIGHT);
+    Label wlCpuCores = new Label(wContent, SWT.RIGHT);
     wlCpuCores.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.CpuCores"));
     PropsUi.setLook(wlCpuCores);
     FormData fdlCpuCores = new FormData();
@@ -219,7 +204,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlCpuCores.top = new FormAttachment(lastControl, margin);
     fdlCpuCores.right = new FormAttachment(middle, -margin);
     wlCpuCores.setLayoutData(fdlCpuCores);
-    wCpuCores = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCpuCores = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCpuCores);
     FormData fdCpuCores = new FormData();
     fdCpuCores.left = new FormAttachment(middle, 0);
@@ -228,7 +213,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wCpuCores.setLayoutData(fdCpuCores);
     lastControl = wCpuCores;
 
-    Label wlCpuProcessTime = new Label(shell, SWT.RIGHT);
+    Label wlCpuProcessTime = new Label(wContent, SWT.RIGHT);
     wlCpuProcessTime.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.CpuProcessTime"));
     PropsUi.setLook(wlCpuProcessTime);
     FormData fdlCpuProcessTime = new FormData();
@@ -236,7 +221,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlCpuProcessTime.top = new FormAttachment(lastControl, margin);
     fdlCpuProcessTime.right = new FormAttachment(middle, -margin);
     wlCpuProcessTime.setLayoutData(fdlCpuProcessTime);
-    wCpuProcessTime = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCpuProcessTime = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCpuProcessTime);
     FormData fdCpuProcessTime = new FormData();
     fdCpuProcessTime.left = new FormAttachment(middle, 0);
@@ -245,7 +230,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wCpuProcessTime.setLayoutData(fdCpuProcessTime);
     lastControl = wCpuProcessTime;
 
-    Label wlOsName = new Label(shell, SWT.RIGHT);
+    Label wlOsName = new Label(wContent, SWT.RIGHT);
     wlOsName.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.OsName"));
     PropsUi.setLook(wlOsName);
     FormData fdlOsName = new FormData();
@@ -253,7 +238,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlOsName.top = new FormAttachment(lastControl, margin);
     fdlOsName.right = new FormAttachment(middle, -margin);
     wlOsName.setLayoutData(fdlOsName);
-    wOsName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOsName = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOsName);
     FormData fdOsName = new FormData();
     fdOsName.left = new FormAttachment(middle, 0);
@@ -262,7 +247,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wOsName.setLayoutData(fdOsName);
     lastControl = wOsName;
 
-    Label wlOsVersion = new Label(shell, SWT.RIGHT);
+    Label wlOsVersion = new Label(wContent, SWT.RIGHT);
     wlOsVersion.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.OsVersion"));
     PropsUi.setLook(wlOsVersion);
     FormData fdlOsVersion = new FormData();
@@ -270,7 +255,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlOsVersion.top = new FormAttachment(lastControl, margin);
     fdlOsVersion.right = new FormAttachment(middle, -margin);
     wlOsVersion.setLayoutData(fdlOsVersion);
-    wOsVersion = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOsVersion = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOsVersion);
     FormData fdOsVersion = new FormData();
     fdOsVersion.left = new FormAttachment(middle, 0);
@@ -279,7 +264,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wOsVersion.setLayoutData(fdOsVersion);
     lastControl = wOsVersion;
 
-    Label wlOsArchitecture = new Label(shell, SWT.RIGHT);
+    Label wlOsArchitecture = new Label(wContent, SWT.RIGHT);
     wlOsArchitecture.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.OsArchitecture"));
     PropsUi.setLook(wlOsArchitecture);
     FormData fdlOsArchitecture = new FormData();
@@ -287,7 +272,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlOsArchitecture.top = new FormAttachment(lastControl, margin);
     fdlOsArchitecture.right = new FormAttachment(middle, -margin);
     wlOsArchitecture.setLayoutData(fdlOsArchitecture);
-    wOsArchitecture = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOsArchitecture = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOsArchitecture);
     FormData fdOsArchitecture = new FormData();
     fdOsArchitecture.left = new FormAttachment(middle, 0);
@@ -296,7 +281,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wOsArchitecture.setLayoutData(fdOsArchitecture);
     lastControl = wOsArchitecture;
 
-    Label wlActivePipelines = new Label(shell, SWT.RIGHT);
+    Label wlActivePipelines = new Label(wContent, SWT.RIGHT);
     wlActivePipelines.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ActivePipelines"));
     PropsUi.setLook(wlActivePipelines);
     FormData fdlActivePipelines = new FormData();
@@ -304,7 +289,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlActivePipelines.top = new FormAttachment(lastControl, margin);
     fdlActivePipelines.right = new FormAttachment(middle, -margin);
     wlActivePipelines.setLayoutData(fdlActivePipelines);
-    wActivePipelines = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wActivePipelines = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wActivePipelines);
     FormData fdActivePipelines = new FormData();
     fdActivePipelines.left = new FormAttachment(middle, 0);
@@ -313,7 +298,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wActivePipelines.setLayoutData(fdActivePipelines);
     lastControl = wActivePipelines;
 
-    Label wlActiveWorkflows = new Label(shell, SWT.RIGHT);
+    Label wlActiveWorkflows = new Label(wContent, SWT.RIGHT);
     wlActiveWorkflows.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ActiveWorkflows"));
     PropsUi.setLook(wlActiveWorkflows);
     FormData fdlActiveWorkflows = new FormData();
@@ -321,7 +306,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlActiveWorkflows.top = new FormAttachment(lastControl, margin);
     fdlActiveWorkflows.right = new FormAttachment(middle, -margin);
     wlActiveWorkflows.setLayoutData(fdlActiveWorkflows);
-    wActiveWorkflows = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wActiveWorkflows = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wActiveWorkflows);
     FormData fdActiveWorkflows = new FormData();
     fdActiveWorkflows.left = new FormAttachment(middle, 0);
@@ -330,7 +315,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wActiveWorkflows.setLayoutData(fdActiveWorkflows);
     lastControl = wActiveWorkflows;
 
-    Label wlAvailable = new Label(shell, SWT.RIGHT);
+    Label wlAvailable = new Label(wContent, SWT.RIGHT);
     wlAvailable.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.Available"));
     PropsUi.setLook(wlAvailable);
     FormData fdlAvailable = new FormData();
@@ -338,7 +323,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlAvailable.top = new FormAttachment(lastControl, margin);
     fdlAvailable.right = new FormAttachment(middle, -margin);
     wlAvailable.setLayoutData(fdlAvailable);
-    wAvailable = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAvailable = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wAvailable);
     FormData fdAvailable = new FormData();
     fdAvailable.left = new FormAttachment(middle, 0);
@@ -347,7 +332,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wAvailable.setLayoutData(fdAvailable);
     lastControl = wAvailable;
 
-    Label wlResponseNs = new Label(shell, SWT.RIGHT);
+    Label wlResponseNs = new Label(wContent, SWT.RIGHT);
     wlResponseNs.setText(BaseMessages.getString(PKG, "GetServerStatusDialog.ResponseNs"));
     PropsUi.setLook(wlResponseNs);
     FormData fdlResponseNs = new FormData();
@@ -355,7 +340,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     fdlResponseNs.top = new FormAttachment(lastControl, margin);
     fdlResponseNs.right = new FormAttachment(middle, -margin);
     wlResponseNs.setLayoutData(fdlResponseNs);
-    wResponseNs = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wResponseNs = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wResponseNs);
     FormData fdResponseNs = new FormData();
     fdResponseNs.left = new FormAttachment(middle, 0);
@@ -364,13 +349,13 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wResponseNs.setLayoutData(fdResponseNs);
     lastControl = wResponseNs;
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
 
     // Get field names...
     //
@@ -382,7 +367,7 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     }
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -390,8 +375,6 @@ public class GetServerStatusDialog extends BaseTransformDialog {
 
   /** Populate the widgets. */
   public void getData() {
-    wTransformName.setText(transformName);
-
     wServerField.setText(Const.NVL(input.getServerField(), ""));
     wErrorMessage.setText(Const.NVL(input.getErrorMessageField(), ""));
     wStatusDescription.setText(Const.NVL(input.getStatusDescriptionField(), ""));
@@ -407,9 +390,6 @@ public class GetServerStatusDialog extends BaseTransformDialog {
     wActiveWorkflows.setText(Const.NVL(input.getActiveWorkflowsField(), ""));
     wAvailable.setText(Const.NVL(input.getAvailableField(), ""));
     wResponseNs.setText(Const.NVL(input.getResponseNsField(), ""));
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

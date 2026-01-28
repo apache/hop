@@ -139,14 +139,14 @@ public class ActionColumnsExistDialog extends ActionDialog {
     FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment(0, 0);
     fdlSchemaname.right = new FormAttachment(middle, -margin);
-    fdlSchemaname.top = new FormAttachment(wConnection, 2 * margin);
+    fdlSchemaname.top = new FormAttachment(wConnection, margin);
     wlSchemaname.setLayoutData(fdlSchemaname);
 
     Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addSelectionListener(
@@ -164,7 +164,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     wSchemaname.addModifyListener(lsMod);
     FormData fdSchemaname = new FormData();
     fdSchemaname.left = new FormAttachment(middle, 0);
-    fdSchemaname.top = new FormAttachment(wConnection, 2 * margin);
+    fdSchemaname.top = new FormAttachment(wConnection, margin);
     fdSchemaname.right = new FormAttachment(wbSchema, -margin);
     wSchemaname.setLayoutData(fdSchemaname);
 
@@ -252,7 +252,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wbGetColumns, -margin);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     // Get list of columns name from the table...

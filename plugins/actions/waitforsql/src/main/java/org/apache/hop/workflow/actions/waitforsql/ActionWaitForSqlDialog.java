@@ -252,7 +252,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     PropsUi.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, -margin);
-    fdlSuccessCondition.right = new FormAttachment(middle, -2 * margin);
+    fdlSuccessCondition.right = new FormAttachment(middle, -margin);
     fdlSuccessCondition.top = new FormAttachment(0, margin);
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -280,7 +280,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     FormData fdlRowsCountValue = new FormData();
     fdlRowsCountValue.left = new FormAttachment(0, -margin);
     fdlRowsCountValue.top = new FormAttachment(wSuccessCondition, margin);
-    fdlRowsCountValue.right = new FormAttachment(middle, -2 * margin);
+    fdlRowsCountValue.right = new FormAttachment(middle, -margin);
     wlRowsCountValue.setLayoutData(fdlRowsCountValue);
 
     wRowsCountValue =
@@ -304,7 +304,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     FormData fdlMaximumTimeout = new FormData();
     fdlMaximumTimeout.left = new FormAttachment(0, -margin);
     fdlMaximumTimeout.top = new FormAttachment(wRowsCountValue, margin);
-    fdlMaximumTimeout.right = new FormAttachment(middle, -2 * margin);
+    fdlMaximumTimeout.right = new FormAttachment(middle, -margin);
     wlMaximumTimeout.setLayoutData(fdlMaximumTimeout);
     wMaximumTimeout = new TextVar(variables, wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wMaximumTimeout);
@@ -324,7 +324,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     FormData fdlCheckCycleTime = new FormData();
     fdlCheckCycleTime.left = new FormAttachment(0, -margin);
     fdlCheckCycleTime.top = new FormAttachment(wMaximumTimeout, margin);
-    fdlCheckCycleTime.right = new FormAttachment(middle, -2 * margin);
+    fdlCheckCycleTime.right = new FormAttachment(middle, -margin);
     wlCheckCycleTime.setLayoutData(fdlCheckCycleTime);
     wCheckCycleTime = new TextVar(variables, wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCheckCycleTime);
@@ -345,7 +345,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     FormData fdlSuccessOnTimeout = new FormData();
     fdlSuccessOnTimeout.left = new FormAttachment(0, -margin);
     fdlSuccessOnTimeout.top = new FormAttachment(wCheckCycleTime, margin);
-    fdlSuccessOnTimeout.right = new FormAttachment(middle, -2 * margin);
+    fdlSuccessOnTimeout.right = new FormAttachment(middle, -margin);
     wlSuccessOnTimeout.setLayoutData(fdlSuccessOnTimeout);
     wSuccessOnTimeout = new Button(wSuccessGroup, SWT.CHECK);
     PropsUi.setLook(wSuccessOnTimeout);
@@ -392,7 +392,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     FormData fdlCustomSql = new FormData();
     fdlCustomSql.left = new FormAttachment(0, -margin);
     fdlCustomSql.top = new FormAttachment(wSuccessGroup, margin);
-    fdlCustomSql.right = new FormAttachment(middle, -2 * margin);
+    fdlCustomSql.right = new FormAttachment(middle, -margin);
     wlCustomSql.setLayoutData(fdlCustomSql);
     wCustomSql = new Button(wCustomGroup, SWT.CHECK);
     PropsUi.setLook(wCustomSql);
@@ -417,8 +417,8 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     PropsUi.setLook(wlUseSubs);
     FormData fdlUseSubs = new FormData();
     fdlUseSubs.left = new FormAttachment(0, -margin);
-    fdlUseSubs.top = new FormAttachment(wlCustomSql, 2 * margin);
-    fdlUseSubs.right = new FormAttachment(middle, -2 * margin);
+    fdlUseSubs.top = new FormAttachment(wlCustomSql, margin);
+    fdlUseSubs.right = new FormAttachment(middle, -margin);
     wlUseSubs.setLayoutData(fdlUseSubs);
     wUseSubs = new Button(wCustomGroup, SWT.CHECK);
     PropsUi.setLook(wUseSubs);
@@ -444,8 +444,8 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     PropsUi.setLook(wlClearResultList);
     FormData fdlClearResultList = new FormData();
     fdlClearResultList.left = new FormAttachment(0, -margin);
-    fdlClearResultList.top = new FormAttachment(wlUseSubs, 2 * margin);
-    fdlClearResultList.right = new FormAttachment(middle, -2 * margin);
+    fdlClearResultList.top = new FormAttachment(wlUseSubs, margin);
+    fdlClearResultList.right = new FormAttachment(middle, -margin);
     wlClearResultList.setLayoutData(fdlClearResultList);
     wClearResultList = new Button(wCustomGroup, SWT.CHECK);
     PropsUi.setLook(wClearResultList);
@@ -471,8 +471,8 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     PropsUi.setLook(wlAddRowsToResult);
     FormData fdlAddRowsToResult = new FormData();
     fdlAddRowsToResult.left = new FormAttachment(0, -margin);
-    fdlAddRowsToResult.top = new FormAttachment(wClearResultList, 2 * margin);
-    fdlAddRowsToResult.right = new FormAttachment(middle, -2 * margin);
+    fdlAddRowsToResult.top = new FormAttachment(wClearResultList, margin);
+    fdlAddRowsToResult.right = new FormAttachment(middle, -margin);
     wlAddRowsToResult.setLayoutData(fdlAddRowsToResult);
     wAddRowsToResult = new Button(wCustomGroup, SWT.CHECK);
     PropsUi.setLook(wAddRowsToResult);
@@ -586,7 +586,7 @@ public class ActionWaitForSqlDialog extends ActionDialog {
     fdCustomGroup.left = new FormAttachment(0, margin);
     fdCustomGroup.top = new FormAttachment(wSuccessGroup, margin);
     fdCustomGroup.right = new FormAttachment(100, -margin);
-    fdCustomGroup.bottom = new FormAttachment(wOk, -2 * margin);
+    fdCustomGroup.bottom = new FormAttachment(wOk, -margin);
     wCustomGroup.setLayoutData(fdCustomGroup);
     // ///////////////////////////////////////////////////////////
     // / END OF CustomGroup GROUP

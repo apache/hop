@@ -234,7 +234,7 @@ public class ShowMessageDialog extends Dialog {
     int margin = PropsUi.getMargin();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
-    setFdlDesc(margin * 2, margin, 0, margin);
+    setFdlDesc(margin, margin, 0, margin);
     BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), margin, null);
 
     // Detect [X] or ALT-F4 or something that kills this window...

@@ -283,7 +283,7 @@ public class ConfigGuiOptionsTab {
     FormData fdAppearanceExpandBar = new FormData();
     fdAppearanceExpandBar.left = new FormAttachment(0, 0);
     fdAppearanceExpandBar.right = new FormAttachment(100, 0);
-    fdAppearanceExpandBar.top = new FormAttachment(lastControl, 2 * margin);
+    fdAppearanceExpandBar.top = new FormAttachment(lastControl, margin);
     appearanceExpandBar.setLayoutData(fdAppearanceExpandBar);
 
     // Create expandable item for appearance
@@ -420,7 +420,7 @@ public class ConfigGuiOptionsTab {
     FormData fdFontsExpandBar = new FormData();
     fdFontsExpandBar.left = new FormAttachment(0, 0);
     fdFontsExpandBar.right = new FormAttachment(100, 0);
-    fdFontsExpandBar.top = new FormAttachment(lastControl, 2 * margin);
+    fdFontsExpandBar.top = new FormAttachment(lastControl, margin);
     fontsExpandBar.setLayoutData(fdFontsExpandBar);
 
     // Create expandable item for fonts
@@ -529,7 +529,7 @@ public class ConfigGuiOptionsTab {
     FormData fdCanvasExpandBar = new FormData();
     fdCanvasExpandBar.left = new FormAttachment(0, 0);
     fdCanvasExpandBar.right = new FormAttachment(100, 0);
-    fdCanvasExpandBar.top = new FormAttachment(lastControl, 2 * margin);
+    fdCanvasExpandBar.top = new FormAttachment(lastControl, margin);
     canvasExpandBar.setLayoutData(fdCanvasExpandBar);
 
     // Create expandable item for canvas settings
@@ -672,7 +672,7 @@ public class ConfigGuiOptionsTab {
     FormData fdTablesExpandBar = new FormData();
     fdTablesExpandBar.left = new FormAttachment(0, 0);
     fdTablesExpandBar.right = new FormAttachment(100, 0);
-    fdTablesExpandBar.top = new FormAttachment(lastControl, 2 * margin);
+    fdTablesExpandBar.top = new FormAttachment(lastControl, margin);
     tablesExpandBar.setLayoutData(fdTablesExpandBar);
 
     // Create expandable item for tables & grids

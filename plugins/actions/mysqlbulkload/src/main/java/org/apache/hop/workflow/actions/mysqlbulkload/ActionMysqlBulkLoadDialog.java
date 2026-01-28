@@ -296,7 +296,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     FormData fdlPriorityValue = new FormData();
     fdlPriorityValue.left = new FormAttachment(0, 0);
     fdlPriorityValue.right = new FormAttachment(middle, -margin);
-    fdlPriorityValue.top = new FormAttachment(wlLocalInfile, 2 * margin);
+    fdlPriorityValue.top = new FormAttachment(wlLocalInfile, margin);
     wlPriorityValue.setLayoutData(fdlPriorityValue);
     wPriorityValue = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wPriorityValue.add(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.NorProrityValue.Label"));
@@ -306,7 +306,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wPriorityValue);
     FormData fdPriorityValue = new FormData();
     fdPriorityValue.left = new FormAttachment(middle, 0);
-    fdPriorityValue.top = new FormAttachment(wlLocalInfile, 2 * margin);
+    fdPriorityValue.top = new FormAttachment(wlLocalInfile, margin);
     fdPriorityValue.right = new FormAttachment(100, 0);
     wPriorityValue.setLayoutData(fdPriorityValue);
 
@@ -484,7 +484,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     FormData fdlIgnorelines = new FormData();
     fdlIgnorelines.left = new FormAttachment(0, 0);
     fdlIgnorelines.right = new FormAttachment(middle, -margin);
-    fdlIgnorelines.top = new FormAttachment(wlReplaceData, 2 * margin);
+    fdlIgnorelines.top = new FormAttachment(wlReplaceData, margin);
     wlIgnorelines.setLayoutData(fdlIgnorelines);
 
     wIgnorelines = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -492,7 +492,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     wIgnorelines.addModifyListener(lsMod);
     FormData fdIgnorelines = new FormData();
     fdIgnorelines.left = new FormAttachment(middle, 0);
-    fdIgnorelines.top = new FormAttachment(wlReplaceData, 2 * margin);
+    fdIgnorelines.top = new FormAttachment(wlReplaceData, margin);
     fdIgnorelines.right = new FormAttachment(100, 0);
     wIgnorelines.setLayoutData(fdIgnorelines);
 
@@ -541,7 +541,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     fdFileResult.left = new FormAttachment(0, margin);
     fdFileResult.top = new FormAttachment(wIgnorelines, margin);
     fdFileResult.right = new FormAttachment(100, -margin);
-    fdFileResult.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFileResult.bottom = new FormAttachment(wOk, -margin);
     wFileResult.setLayoutData(fdFileResult);
 
     // ///////////////////////////////////////////////////////////

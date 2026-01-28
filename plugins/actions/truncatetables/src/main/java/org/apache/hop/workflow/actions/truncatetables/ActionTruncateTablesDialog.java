@@ -169,7 +169,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     FormData fdbTable = new FormData();
     fdbTable.left = new FormAttachment(0, margin);
     fdbTable.right = new FormAttachment(100, -margin);
-    fdbTable.top = new FormAttachment(wlPrevious, 2 * margin);
+    fdbTable.top = new FormAttachment(wlPrevious, margin);
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
@@ -185,7 +185,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wbTable, 2 * margin);
+    fdlFields.top = new FormAttachment(wbTable, margin);
     wlFields.setLayoutData(fdlFields);
 
     // Buttons to the right of the screen...
@@ -242,7 +242,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wbdTablename, -margin);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     // Delete files from the list of files...

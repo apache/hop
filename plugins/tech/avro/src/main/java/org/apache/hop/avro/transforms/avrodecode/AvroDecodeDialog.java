@@ -55,14 +55,11 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class AvroDecodeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AvroDecodeMeta.class;
@@ -83,53 +80,9 @@ public class AvroDecodeDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "AvroDecodeDialog.Shell.Title"));
 
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "AvroDecodeDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Some buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
-    wGet.addListener(SWT.Selection, e -> getFields());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "AvroDecodeDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    buildButtonBar().ok(e -> ok()).get(e -> getFields()).cancel(e -> cancel()).build();
 
     Label wlSourceField = new Label(shell, SWT.RIGHT);
     wlSourceField.setText(BaseMessages.getString(PKG, "AvroDecodeDialog.SourceField.Label"));
@@ -137,7 +90,7 @@ public class AvroDecodeDialog extends BaseTransformDialog {
     FormData fdlSourceField = new FormData();
     fdlSourceField.left = new FormAttachment(0, 0);
     fdlSourceField.right = new FormAttachment(middle, -margin);
-    fdlSourceField.top = new FormAttachment(lastControl, margin * 2);
+    fdlSourceField.top = new FormAttachment(wSpacer, margin);
     wlSourceField.setLayoutData(fdlSourceField);
     wSourceField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSourceField.setText(transformName);
@@ -147,7 +100,7 @@ public class AvroDecodeDialog extends BaseTransformDialog {
     fdSourceField.top = new FormAttachment(wlSourceField, 0, SWT.CENTER);
     fdSourceField.right = new FormAttachment(100, 0);
     wSourceField.setLayoutData(fdSourceField);
-    lastControl = wSourceField;
+    Control lastControl = wSourceField;
 
     Label wlFields = new Label(shell, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "AvroDecodeDialog.Fields.Label"));
@@ -213,11 +166,11 @@ public class AvroDecodeDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(100, -50);
     wFields.setLayoutData(fdFields);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -247,9 +200,6 @@ public class AvroDecodeDialog extends BaseTransformDialog {
       item.setText(col++, Const.NVL(targetField.getTargetLength(), ""));
       item.setText(col++, Const.NVL(targetField.getTargetPrecision(), ""));
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

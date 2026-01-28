@@ -212,7 +212,7 @@ public class ConfigKeyboardShortcutsTab {
     Label bottomSpacer = new Label(contentComposite, SWT.NONE);
     FormData fdBottomSpacer = new FormData();
     fdBottomSpacer.left = new FormAttachment(0, 0);
-    fdBottomSpacer.top = new FormAttachment(lastControl, margin * 2);
+    fdBottomSpacer.top = new FormAttachment(lastControl, margin);
     fdBottomSpacer.height = 1;
     bottomSpacer.setLayoutData(fdBottomSpacer);
 
@@ -617,7 +617,7 @@ public class ConfigKeyboardShortcutsTab {
     FormData fdSeparator = new FormData();
     fdSeparator.left = new FormAttachment(0, 0);
     fdSeparator.right = new FormAttachment(100, 0);
-    fdSeparator.top = new FormAttachment(lastControl, margin * 2);
+    fdSeparator.top = new FormAttachment(lastControl, margin);
     separator.setLayoutData(fdSeparator);
 
     // Add title

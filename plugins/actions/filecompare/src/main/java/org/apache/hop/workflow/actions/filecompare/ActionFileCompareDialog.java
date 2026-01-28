@@ -185,7 +185,7 @@ public class ActionFileCompareDialog extends ActionDialog {
     PropsUi.setLook(wlAddFilenameResult);
     FormData fdlAddFilenameResult = new FormData();
     fdlAddFilenameResult.left = new FormAttachment(0, 0);
-    fdlAddFilenameResult.top = new FormAttachment(wbFilename2, 2 * margin);
+    fdlAddFilenameResult.top = new FormAttachment(wbFilename2, margin);
     fdlAddFilenameResult.right = new FormAttachment(middle, -margin);
     wlAddFilenameResult.setLayoutData(fdlAddFilenameResult);
     wAddFilenameResult = new Button(shell, SWT.CHECK);

@@ -373,7 +373,7 @@ public abstract class ConfigurationDialog extends Dialog {
     FormData fdSeparator = new FormData();
     fdSeparator.right = new FormAttachment(100, 0);
     fdSeparator.left = new FormAttachment(0, 0);
-    fdSeparator.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSeparator.bottom = new FormAttachment(wOk, -margin);
     separator.setLayoutData(fdSeparator);
 
     alwaysShowOption = new Button(shell, SWT.CHECK);

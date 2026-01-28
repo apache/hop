@@ -62,8 +62,10 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -168,11 +170,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "DimensionLookupDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).sql(e -> create()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     ModifyListener lsTableMod =
@@ -181,35 +181,25 @@ public class DimensionLookupDialog extends BaseTransformDialog {
           setTableFieldCombo();
         };
 
-    shell.setLayout(props.createFormLayout());
-    shell.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Shell.Title"));
+    ScrolledComposite wScrolledComposite =
+        new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wScrolledComposite);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    wScrolledComposite.setLayoutData(fdSc);
+    wScrolledComposite.setLayout(new FillLayout());
+    wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    Composite mainComposite = shell;
+    Composite mainComposite = new Composite(wScrolledComposite, SWT.NONE);
     PropsUi.setLook(mainComposite);
-
     mainComposite.setLayout(props.createFormLayout());
 
-    // TransformName line
-    wlTransformName = new Label(mainComposite, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "DimensionLookupDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(mainComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Label wContentTop = new Label(mainComposite, SWT.NONE);
+    wContentTop.setLayoutData(new FormData(0, 0));
 
     // Update the dimension?
     Label wlUpdate = new Label(mainComposite, SWT.RIGHT);
@@ -218,7 +208,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     FormData fdlUpdate = new FormData();
     fdlUpdate.left = new FormAttachment(0, 0);
     fdlUpdate.right = new FormAttachment(middle, -margin);
-    fdlUpdate.top = new FormAttachment(wTransformName, margin);
+    fdlUpdate.top = new FormAttachment(wContentTop, margin);
     wlUpdate.setLayoutData(fdlUpdate);
     wUpdate = new Button(mainComposite, SWT.CHECK);
     PropsUi.setLook(wUpdate);
@@ -375,21 +365,6 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdCacheSize.right = new FormAttachment(100, 0);
     wCacheSize.setLayoutData(fdCacheSize);
 
-    // THE BOTTOM BUTTONS
-    wOk = new Button(mainComposite, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wGet = new Button(mainComposite, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.GetFields.Button"));
-    wGet.addListener(SWT.Selection, e -> get());
-    wCreate = new Button(mainComposite, SWT.PUSH);
-    wCreate.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.SQL.Button"));
-    wCreate.addListener(SWT.Selection, e -> create());
-    wCancel = new Button(mainComposite, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wGet, wCreate, wCancel}, margin, null);
-
     wTabFolder = new CTabFolder(mainComposite, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -402,8 +377,12 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.top = new FormAttachment(wCacheSize, margin);
-    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    fdTabFolder.bottom = new FormAttachment(100, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
+
+    wScrolledComposite.setContent(mainComposite);
+    mainComposite.pack();
+    wScrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
     FormData fdComp = new FormData();
     fdComp.left = new FormAttachment(0, 0);
@@ -422,7 +401,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
     getData();
     setTableFieldCombo();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -548,7 +527,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdTkRename.right = new FormAttachment(100, -margin);
     wTkRename.setLayoutData(fdTkRename);
 
-    Group gTechGroup = new Group(wTechnicalKeyComp, SWT.SHADOW_ETCHED_IN);
+    Group gTechGroup = new Group(wTechnicalKeyComp, SWT.SHADOW_NONE);
     gTechGroup.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TechGroup.Label"));
 
     gTechGroup.setLayout(props.createFormLayout());
@@ -621,7 +600,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     PropsUi.setLook(wDisableUnknownUpdate);
     FormData fdDisableUnknownUpdate = new FormData();
     fdDisableUnknownUpdate.left = new FormAttachment(0, 0);
-    fdDisableUnknownUpdate.top = new FormAttachment(gTechGroup, 2 * margin);
+    fdDisableUnknownUpdate.top = new FormAttachment(gTechGroup, margin);
     fdDisableUnknownUpdate.right = new FormAttachment(100, 0);
     wDisableUnknownUpdate.setLayoutData(fdDisableUnknownUpdate);
 
@@ -753,7 +732,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     FormData fdlVersion = new FormData();
     fdlVersion.left = new FormAttachment(0, 0);
     fdlVersion.right = new FormAttachment(middle, 0);
-    fdlVersion.top = new FormAttachment(0, 2 * margin);
+    fdlVersion.top = new FormAttachment(0, margin);
     wlVersion.setLayoutData(fdlVersion);
     wVersion = new Combo(wVersioningComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wVersion);
@@ -900,7 +879,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
         BaseMessages.getString(
             PKG, "DimensionLookupDialog.AlternativeStartDateField.Tooltip", Const.CR));
     FormData fdAltStartDateField = new FormData();
-    fdAltStartDateField.left = new FormAttachment(wAltStartDate, 2 * margin);
+    fdAltStartDateField.left = new FormAttachment(wAltStartDate, margin);
     fdAltStartDateField.right = new FormAttachment(100, 0);
     fdAltStartDateField.top = new FormAttachment(wlUseAltStartDate, 0, SWT.CENTER);
     wAltStartDateField.setLayoutData(fdAltStartDateField);
@@ -1026,7 +1005,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wlTkRename.setEnabled(!update);
     wTkRename.setEnabled(!update);
 
-    wCreate.setEnabled(update);
+    if (wSql != null) {
+      wSql.setEnabled(update);
+    }
 
     // Set the technical creation key fields correct... then disable
     // depending on update or not. Then reset if we're updating. It makes
@@ -1191,9 +1172,6 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wAltStartDateField.setText(Const.NVL(input.getStartDateFieldName(), ""));
 
     setFlags();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

@@ -56,7 +56,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
   private Link link;
   private Button closeButton;
   private final int margin = PropsUi.getFormMargin() * 3; // 15
-  private final int padding = margin * 2; // 30
+  private final int padding = margin; // 30
   private static final int MAX_TEXT_WIDTH_UBUNTU = 418;
   private static final int MAX_TEXT_WIDTH_WINDOWS = 286;
   private static final int MAX_TEXT_WIDTH_MAC = 326;

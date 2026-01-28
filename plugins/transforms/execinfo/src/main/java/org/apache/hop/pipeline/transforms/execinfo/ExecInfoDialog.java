@@ -31,14 +31,16 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class ExecInfoDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExecInfoMeta.class;
@@ -63,47 +65,35 @@ public class ExecInfoDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ExecInfoDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ExecInfoDialog.Shell.Title"));
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ExecInfoDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wContent;
 
     wLocation =
         new MetaSelectionLine<>(
             variables,
             metadataProvider,
             ExecutionInfoLocation.class,
-            shell,
+            wContent,
             SWT.NONE,
             BaseMessages.getString(PKG, "ExecInfoDialog.Location.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.Location.Tooltip"));
@@ -115,7 +105,7 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wLocation.setLayoutData(fdLocation);
     lastControl = wLocation;
 
-    Label wlOperationType = new Label(shell, SWT.RIGHT);
+    Label wlOperationType = new Label(wContent, SWT.RIGHT);
     wlOperationType.setText(BaseMessages.getString(PKG, "ExecInfoDialog.OperationType.Label"));
     wlOperationType.setToolTipText(
         BaseMessages.getString(PKG, "ExecInfoDialog.OperationType.Tooltip"));
@@ -125,7 +115,7 @@ public class ExecInfoDialog extends BaseTransformDialog {
     fdlOperationType.top = new FormAttachment(lastControl, margin);
     fdlOperationType.right = new FormAttachment(middle, -margin);
     wlOperationType.setLayoutData(fdlOperationType);
-    wOperationType = new CCombo(shell, SWT.LEFT | SWT.BORDER);
+    wOperationType = new CCombo(wContent, SWT.LEFT | SWT.BORDER);
     wOperationType.setToolTipText(
         BaseMessages.getString(PKG, "ExecInfoDialog.OperationType.Tooltip"));
     PropsUi.setLook(wOperationType);
@@ -140,7 +130,7 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wFieldId =
         new LabelComboVar(
             variables,
-            shell,
+            wContent,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldId.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldId.Tooltip"));
     PropsUi.setLook(wFieldId);
@@ -154,7 +144,7 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wFieldParentId =
         new LabelComboVar(
             variables,
-            shell,
+            wContent,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldParentId.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldParentId.Tooltip"));
     PropsUi.setLook(wFieldParentId);
@@ -168,7 +158,7 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wFieldName =
         new LabelComboVar(
             variables,
-            shell,
+            wContent,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldName.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldName.Tooltip"));
     PropsUi.setLook(wFieldName);
@@ -182,7 +172,7 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wFieldType =
         new LabelComboVar(
             variables,
-            shell,
+            wContent,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldType.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldType.Tooltip"));
     PropsUi.setLook(wFieldType);
@@ -196,7 +186,7 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wFieldChildren =
         new LabelComboVar(
             variables,
-            shell,
+            wContent,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldChildren.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldChildren.Tooltip"));
     PropsUi.setLook(wFieldChildren);
@@ -210,7 +200,7 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wFieldLimit =
         new LabelComboVar(
             variables,
-            shell,
+            wContent,
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldLimit.Label"),
             BaseMessages.getString(PKG, "ExecInfoDialog.FieldLimit.Tooltip"));
     PropsUi.setLook(wFieldLimit);
@@ -221,19 +211,18 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wFieldLimit.setLayoutData(fdFieldLimit);
     lastControl = wFieldLimit;
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
 
     getData();
     enableFields();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -279,8 +268,6 @@ public class ExecInfoDialog extends BaseTransformDialog {
     wFieldLimit.setText(Const.NVL(input.getLimitFieldName(), ""));
 
     enableFields();
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void enableFields() {

@@ -158,7 +158,7 @@ public class SqlEditor {
     fdScript.left = new FormAttachment(0, 0);
     fdScript.top = new FormAttachment(wlScript, margin);
     fdScript.right = new FormAttachment(100, -10);
-    fdScript.bottom = new FormAttachment(wExec, -2 * margin);
+    fdScript.bottom = new FormAttachment(wExec, -margin);
     wScript.setLayoutData(fdScript);
     wScript.addModifyListener(event -> setPosition());
     wScript.addKeyListener(

@@ -366,7 +366,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment(0, 0);
-    fdProxyHost.top = new FormAttachment(wlUseProxy, 2 * margin);
+    fdProxyHost.top = new FormAttachment(wlUseProxy, margin);
     fdProxyHost.right = new FormAttachment(100, 0);
     wProxyHost.setLayoutData(fdProxyHost);
 
@@ -457,7 +457,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     PropsUi.setLook(wlKeyFilename);
     FormData fdlKeyFilename = new FormData();
     fdlKeyFilename.left = new FormAttachment(0, 0);
-    fdlKeyFilename.top = new FormAttachment(wlUsePublicKey, 2 * margin);
+    fdlKeyFilename.top = new FormAttachment(wlUsePublicKey, margin);
     fdlKeyFilename.right = new FormAttachment(middle, -margin);
     wlKeyFilename.setLayoutData(fdlKeyFilename);
 
@@ -661,7 +661,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     PropsUi.setLook(wlFtpDirectory);
     FormData fdlFtpDirectory = new FormData();
     fdlFtpDirectory.left = new FormAttachment(0, 0);
-    fdlFtpDirectory.top = new FormAttachment(wlGetPrevious, 2 * margin);
+    fdlFtpDirectory.top = new FormAttachment(wlGetPrevious, margin);
     fdlFtpDirectory.right = new FormAttachment(middle, -margin);
     wlFtpDirectory.setLayoutData(fdlFtpDirectory);
 
@@ -933,7 +933,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();

@@ -84,7 +84,7 @@ public class ShowHelpDialog extends Dialog {
   }
 
   protected Shell createShell(Shell parent) {
-    return new Shell(parent, SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.DIALOG_TRIM);
+    return new Shell(parent, BaseDialog.getDefaultDialogStyle());
   }
 
   public void open() {

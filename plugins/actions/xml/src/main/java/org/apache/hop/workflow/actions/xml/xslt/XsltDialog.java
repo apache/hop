@@ -229,7 +229,7 @@ public class XsltDialog extends ActionDialog {
     wbxmlFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
-    fdbxmlFilename.top = new FormAttachment(wlPrevious, 2 * margin);
+    fdbxmlFilename.top = new FormAttachment(wlPrevious, margin);
     wbxmlFilename.setLayoutData(fdbxmlFilename);
     wxmlFilename = new TextVar(variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wxmlFilename);
@@ -515,7 +515,7 @@ public class XsltDialog extends ActionDialog {
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wOutputProperties, 2 * margin);
+    fdlFields.top = new FormAttachment(wOutputProperties, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsRows = action.getParameterField().length;
@@ -569,7 +569,7 @@ public class XsltDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();

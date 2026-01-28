@@ -49,7 +49,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
@@ -139,53 +138,17 @@ public class ValidatorDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
-    Display display = parent.getDisplay();
+    createShell(BaseMessages.getString(PKG, "ValidatorDialog.Transform.Name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    shell.setLayout(props.createFormLayout());
-    shell.setText(BaseMessages.getString(PKG, "ValidatorDialog.Transform.Name"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    //
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ValidatorDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    // Add some buttons at the bottom of the dialog
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wNew = new Button(shell, SWT.PUSH);
-    wNew.setText(BaseMessages.getString(PKG, "ValidatorDialog.NewButton.Label"));
-    wNew.addListener(SWT.Selection, e -> newValidation());
-    Button wClear = new Button(shell, SWT.PUSH);
-    wClear.setText(BaseMessages.getString(PKG, "ValidatorDialog.ClearButton.Label"));
-    wClear.addListener(SWT.Selection, e -> clearValidation());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wNew, wClear, wCancel}, margin, null);
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "ValidatorDialog.NewButton.Label"), e -> newValidation())
+        .custom(
+            BaseMessages.getString(PKG, "ValidatorDialog.ClearButton.Label"),
+            e -> clearValidation())
+        .cancel(e -> cancel())
+        .build();
 
     // List of fields to the left...
     //
@@ -195,7 +158,7 @@ public class ValidatorDialog extends BaseTransformDialog {
     FormData fdlFieldList = new FormData();
     fdlFieldList.left = new FormAttachment(0, 0);
     fdlFieldList.right = new FormAttachment(middle, -margin);
-    fdlFieldList.top = new FormAttachment(wTransformName, margin);
+    fdlFieldList.top = new FormAttachment(wSpacer, margin);
     wlFieldList.setLayoutData(fdlFieldList);
     wValidationsList =
         new List(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -208,7 +171,7 @@ public class ValidatorDialog extends BaseTransformDialog {
     fdFieldList.left = new FormAttachment(0, 0);
     fdFieldList.top = new FormAttachment(wlFieldList, margin);
     fdFieldList.right = new FormAttachment(middle / 2, -margin);
-    fdFieldList.bottom = new FormAttachment(wOk, -margin * 2);
+    fdFieldList.bottom = new FormAttachment(100, 0);
     wValidationsList.setLayoutData(fdFieldList);
 
     // General: an option to allow ALL the options to be checked.
@@ -219,7 +182,7 @@ public class ValidatorDialog extends BaseTransformDialog {
     FormData fdValidateAll = new FormData();
     fdValidateAll.left = new FormAttachment(middle, 0);
     fdValidateAll.right = new FormAttachment(100, 0);
-    fdValidateAll.top = new FormAttachment(wTransformName, margin);
+    fdValidateAll.top = new FormAttachment(wSpacer, margin);
     wValidateAll.setLayoutData(fdValidateAll);
     wValidateAll.addListener(SWT.Selection, e -> setFlags());
 
@@ -253,7 +216,7 @@ public class ValidatorDialog extends BaseTransformDialog {
     fdComp.left = new FormAttachment(middle / 2, 0);
     fdComp.top = new FormAttachment(wConcatSeparator, margin);
     fdComp.right = new FormAttachment(100, 0);
-    fdComp.bottom = new FormAttachment(wOk, -margin * 2);
+    fdComp.bottom = new FormAttachment(100, 0);
     wSComp.setLayoutData(fdComp);
 
     Composite wComp = new Composite(wSComp, SWT.BORDER);
@@ -384,7 +347,7 @@ public class ValidatorDialog extends BaseTransformDialog {
     FormData fdType = new FormData();
     fdType.left = new FormAttachment(0, 0);
     fdType.right = new FormAttachment(100, 0);
-    fdType.top = new FormAttachment(wErrorDescription, margin * 2);
+    fdType.top = new FormAttachment(wErrorDescription, margin);
     wgType.setLayoutData(fdType);
 
     // Check for data type correctness?
@@ -859,7 +822,7 @@ public class ValidatorDialog extends BaseTransformDialog {
 
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -1091,9 +1054,6 @@ public class ValidatorDialog extends BaseTransformDialog {
     }
 
     setFlags();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void refreshValidationsList() {

@@ -90,6 +90,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -164,7 +165,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   private CTabItem fieldsTab;
 
-  private int margin;
   private TableView wInfoTransforms;
   private TableView wTargetTransforms;
   private TableView wParameters;
@@ -212,57 +212,19 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TestClass.Button"), e -> test())
+        .cancel(e -> cancel())
+        .build();
 
     lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wTest = new Button(shell, SWT.PUSH);
-    wTest.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TestClass.Button"));
-    wTest.addListener(SWT.Selection, e -> test());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wTest, wCancel}, margin, null);
-
-    // Filename line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     SashForm wSash = new SashForm(shell, SWT.VERTICAL);
 
@@ -357,7 +319,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // The Fields tab...
@@ -382,9 +344,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
     FormData fdSash = new FormData();
     fdSash.left = new FormAttachment(0, 0);
-    fdSash.top = new FormAttachment(wTransformName, 0);
+    fdSash.top = new FormAttachment(lastControl, 0);
     fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSash.bottom = new FormAttachment(wOk, -margin);
     wSash.setLayoutData(fdSash);
 
     wSash.setWeights(new int[] {75, 25});
@@ -527,7 +489,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
             event.data = wTree.getSelection()[0].getData();
           }
         });
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), this::cancel);
 
     return transformName;
@@ -1153,9 +1115,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
     wParameters.setRowNums();
     wParameters.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void refresh() {

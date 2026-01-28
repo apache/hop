@@ -131,18 +131,18 @@ public class WelcomeDialog {
       FormData fdTopics = new FormData();
       fdTopics.left = new FormAttachment(0, 0);
       fdTopics.right = new FormAttachment(logoLabel, 0, SWT.RIGHT);
-      fdTopics.top = new FormAttachment(logoLabel, 2 * margin);
-      fdTopics.bottom = new FormAttachment(doNotShow, -2 * margin);
+      fdTopics.top = new FormAttachment(logoLabel, margin);
+      fdTopics.bottom = new FormAttachment(doNotShow, -margin);
       wTopics.setLayoutData(fdTopics);
 
       wPluginsComp = new Composite(shell, SWT.NONE);
       PropsUi.setLook(wPluginsComp);
       wPluginsComp.setLayout(new FormLayout());
       FormData fdPluginsComp = new FormData();
-      fdPluginsComp.left = new FormAttachment(logoLabel, 2 * margin, SWT.RIGHT);
+      fdPluginsComp.left = new FormAttachment(logoLabel, margin, SWT.RIGHT);
       fdPluginsComp.right = new FormAttachment(100, 0);
-      fdPluginsComp.top = new FormAttachment(logoLabel, 2 * margin, SWT.BOTTOM);
-      fdPluginsComp.bottom = new FormAttachment(doNotShow, -2 * margin);
+      fdPluginsComp.top = new FormAttachment(logoLabel, margin, SWT.BOTTOM);
+      fdPluginsComp.bottom = new FormAttachment(doNotShow, -margin);
       wPluginsComp.setLayoutData(fdPluginsComp);
 
       // What is the list?  Look in the GUI plugin registry and look for widgets with the parent.

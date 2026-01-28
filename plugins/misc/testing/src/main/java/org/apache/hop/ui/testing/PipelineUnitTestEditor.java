@@ -246,7 +246,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     PropsUi.setLook(wlDbReplacements);
     FormData fdlDbReplacements = new FormData();
     fdlDbReplacements.left = new FormAttachment(0, 0);
-    fdlDbReplacements.top = new FormAttachment(lastControl, 2 * margin);
+    fdlDbReplacements.top = new FormAttachment(lastControl, margin);
     wlDbReplacements.setLayoutData(fdlDbReplacements);
     lastControl = wlDbReplacements;
 
@@ -302,7 +302,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     PropsUi.setLook(wlVariableValues);
     FormData fdlVariableValues = new FormData();
     fdlVariableValues.left = new FormAttachment(0, 0);
-    fdlVariableValues.top = new FormAttachment(lastControl, 2 * margin);
+    fdlVariableValues.top = new FormAttachment(lastControl, margin);
     wlVariableValues.setLayoutData(fdlVariableValues);
     lastControl = wlVariableValues;
 
@@ -336,7 +336,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdVariableValues.left = new FormAttachment(0, 0);
     fdVariableValues.top = new FormAttachment(lastControl, margin);
     fdVariableValues.right = new FormAttachment(100, 0);
-    fdVariableValues.bottom = new FormAttachment(100, -2 * margin);
+    fdVariableValues.bottom = new FormAttachment(100, -margin);
     wVariableValues.setLayoutData(fdVariableValues);
     lastControl = wVariableValues;
 

@@ -140,7 +140,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     wFile.setEditable(false);
     PropsUi.setLook(wFile);
     FormData fdFile = new FormData();
-    fdFile.left = new FormAttachment(wlFile, 2 * margin);
+    fdFile.left = new FormAttachment(wlFile, margin);
     fdFile.top = new FormAttachment(wlFile, 0, SWT.CENTER);
     fdFile.right = new FormAttachment(100, 0);
     wFile.setLayoutData(fdFile);
@@ -159,7 +159,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     PropsUi.setLook(wStatus);
     wStatus.setEditable(false);
     FormData fdStatus = new FormData();
-    fdStatus.left = new FormAttachment(wlFile, 2 * margin);
+    fdStatus.left = new FormAttachment(wlFile, margin);
     fdStatus.top = new FormAttachment(wlStatus, 0, SWT.CENTER);
     fdStatus.right = new FormAttachment(100, 0);
     wStatus.setLayoutData(fdStatus);
@@ -178,7 +178,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     PropsUi.setLook(wBranch);
     wBranch.setEditable(false);
     FormData fdBranch = new FormData();
-    fdBranch.left = new FormAttachment(wlFile, 2 * margin);
+    fdBranch.left = new FormAttachment(wlFile, margin);
     fdBranch.top = new FormAttachment(wlBranch, 0, SWT.CENTER);
     fdBranch.right = new FormAttachment(100, 0);
     wBranch.setLayoutData(fdBranch);

@@ -27,13 +27,17 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -69,55 +73,40 @@ public class BlockingTransformDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "BlockingTransformDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
+
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "BlockingTransformDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     // Update the dimension?
-    Label wlPassAllRows = new Label(shell, SWT.RIGHT);
+    Label wlPassAllRows = new Label(wContent, SWT.RIGHT);
     wlPassAllRows.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.PassAllRows.Label"));
     PropsUi.setLook(wlPassAllRows);
     FormData fdlUpdate = new FormData();
     fdlUpdate.left = new FormAttachment(0, 0);
     fdlUpdate.right = new FormAttachment(middle, -margin);
-    fdlUpdate.top = new FormAttachment(wTransformName, margin);
+    fdlUpdate.top = new FormAttachment(0, margin);
     wlPassAllRows.setLayoutData(fdlUpdate);
-    wPassAllRows = new Button(shell, SWT.CHECK);
+    wPassAllRows = new Button(wContent, SWT.CHECK);
     PropsUi.setLook(wPassAllRows);
     FormData fdUpdate = new FormData();
     fdUpdate.left = new FormAttachment(middle, 0);
@@ -136,7 +125,7 @@ public class BlockingTransformDialog extends BaseTransformDialog {
         });
 
     // Temp directory for sorting
-    wlSpoolDir = new Label(shell, SWT.RIGHT);
+    wlSpoolDir = new Label(wContent, SWT.RIGHT);
     wlSpoolDir.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.SpoolDir.Label"));
     PropsUi.setLook(wlSpoolDir);
     FormData fdlSpoolDir = new FormData();
@@ -145,7 +134,7 @@ public class BlockingTransformDialog extends BaseTransformDialog {
     fdlSpoolDir.top = new FormAttachment(wPassAllRows, margin);
     wlSpoolDir.setLayoutData(fdlSpoolDir);
 
-    wbSpoolDir = new Button(shell, SWT.PUSH | SWT.CENTER);
+    wbSpoolDir = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSpoolDir);
     wbSpoolDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSpoolDir = new FormData();
@@ -153,7 +142,7 @@ public class BlockingTransformDialog extends BaseTransformDialog {
     fdbSpoolDir.top = new FormAttachment(wPassAllRows, margin);
     wbSpoolDir.setLayoutData(fdbSpoolDir);
 
-    wSpoolDir = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSpoolDir = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSpoolDir);
     wSpoolDir.addModifyListener(lsMod);
     FormData fdSpoolDir = new FormData();
@@ -170,51 +159,51 @@ public class BlockingTransformDialog extends BaseTransformDialog {
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wSpoolDir, variables));
 
     // Prefix of temporary file
-    wlPrefix = new Label(shell, SWT.RIGHT);
+    wlPrefix = new Label(wContent, SWT.RIGHT);
     wlPrefix.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.Prefix.Label"));
     PropsUi.setLook(wlPrefix);
     FormData fdlPrefix = new FormData();
     fdlPrefix.left = new FormAttachment(0, 0);
     fdlPrefix.right = new FormAttachment(middle, -margin);
-    fdlPrefix.top = new FormAttachment(wbSpoolDir, margin * 2);
+    fdlPrefix.top = new FormAttachment(wbSpoolDir, margin);
     wlPrefix.setLayoutData(fdlPrefix);
-    wPrefix = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPrefix = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPrefix);
     wPrefix.addModifyListener(lsMod);
     FormData fdPrefix = new FormData();
     fdPrefix.left = new FormAttachment(middle, 0);
-    fdPrefix.top = new FormAttachment(wbSpoolDir, margin * 2);
+    fdPrefix.top = new FormAttachment(wbSpoolDir, margin);
     fdPrefix.right = new FormAttachment(100, 0);
     wPrefix.setLayoutData(fdPrefix);
 
     // Maximum number of lines to keep in memory before using temporary files
-    wlCacheSize = new Label(shell, SWT.RIGHT);
+    wlCacheSize = new Label(wContent, SWT.RIGHT);
     wlCacheSize.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.CacheSize.Label"));
     PropsUi.setLook(wlCacheSize);
     FormData fdlCacheSize = new FormData();
     fdlCacheSize.left = new FormAttachment(0, 0);
     fdlCacheSize.right = new FormAttachment(middle, -margin);
-    fdlCacheSize.top = new FormAttachment(wPrefix, margin * 2);
+    fdlCacheSize.top = new FormAttachment(wPrefix, margin);
     wlCacheSize.setLayoutData(fdlCacheSize);
-    wCacheSize = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCacheSize = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCacheSize);
     wCacheSize.addModifyListener(lsMod);
     FormData fdCacheSize = new FormData();
     fdCacheSize.left = new FormAttachment(middle, 0);
-    fdCacheSize.top = new FormAttachment(wPrefix, margin * 2);
+    fdCacheSize.top = new FormAttachment(wPrefix, margin);
     fdCacheSize.right = new FormAttachment(100, 0);
     wCacheSize.setLayoutData(fdCacheSize);
 
     // Using compression for temporary files?
-    wlCompress = new Label(shell, SWT.RIGHT);
+    wlCompress = new Label(wContent, SWT.RIGHT);
     wlCompress.setText(BaseMessages.getString(PKG, "BlockingTransformDialog.Compress.Label"));
     PropsUi.setLook(wlCompress);
     FormData fdlCompress = new FormData();
     fdlCompress.left = new FormAttachment(0, 0);
     fdlCompress.right = new FormAttachment(middle, -margin);
-    fdlCompress.top = new FormAttachment(wCacheSize, margin * 2);
+    fdlCompress.top = new FormAttachment(wCacheSize, margin);
     wlCompress.setLayoutData(fdlCompress);
-    wCompress = new Button(shell, SWT.CHECK);
+    wCompress = new Button(wContent, SWT.CHECK);
     PropsUi.setLook(wCompress);
     FormData fdCompress = new FormData();
     fdCompress.left = new FormAttachment(middle, 0);
@@ -229,23 +218,19 @@ public class BlockingTransformDialog extends BaseTransformDialog {
           }
         });
 
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wCompress);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     getData();
 
     // Set the enablement of the dialog widgets
     setEnableDialog();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -262,9 +247,6 @@ public class BlockingTransformDialog extends BaseTransformDialog {
     }
     wCacheSize.setText("" + input.getCacheSize());
     wCompress.setSelection(input.isCompressFiles());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

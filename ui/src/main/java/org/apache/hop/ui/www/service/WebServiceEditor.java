@@ -142,7 +142,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, -margin);
-    fdlFilename.top = new FormAttachment(lastControl, 2 * margin);
+    fdlFilename.top = new FormAttachment(lastControl, margin);
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
@@ -205,7 +205,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     FormData fdlTransform = new FormData();
     fdlTransform.left = new FormAttachment(0, 0);
     fdlTransform.right = new FormAttachment(middle, -margin);
-    fdlTransform.top = new FormAttachment(lastControl, 2 * margin);
+    fdlTransform.top = new FormAttachment(lastControl, margin);
     wlTransform.setLayoutData(fdlTransform);
     wTransform = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wTransform);
@@ -224,7 +224,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     FormData fdlField = new FormData();
     fdlField.left = new FormAttachment(0, 0);
     fdlField.right = new FormAttachment(middle, -margin);
-    fdlField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlField.top = new FormAttachment(lastControl, margin);
     wlField.setLayoutData(fdlField);
     wField = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wField);
@@ -243,7 +243,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     FormData fdlStatusCode = new FormData();
     fdlStatusCode.left = new FormAttachment(0, 0);
     fdlStatusCode.right = new FormAttachment(middle, -margin);
-    fdlStatusCode.top = new FormAttachment(lastControl, 2 * margin);
+    fdlStatusCode.top = new FormAttachment(lastControl, margin);
     wlStatuscode.setLayoutData(fdlStatusCode);
     wStatusCode = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wStatusCode);
@@ -262,7 +262,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     FormData fdlContentType = new FormData();
     fdlContentType.left = new FormAttachment(0, 0);
     fdlContentType.right = new FormAttachment(middle, -margin);
-    fdlContentType.top = new FormAttachment(lastControl, 2 * margin);
+    fdlContentType.top = new FormAttachment(lastControl, margin);
     wlContentType.setLayoutData(fdlContentType);
     wContentType = new ComboVar(manager.getVariables(), parent, SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wContentType);
@@ -307,7 +307,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     FormData fdlBodyContentVariable = new FormData();
     fdlBodyContentVariable.left = new FormAttachment(0, 0);
     fdlBodyContentVariable.right = new FormAttachment(middle, -margin);
-    fdlBodyContentVariable.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBodyContentVariable.top = new FormAttachment(lastControl, margin);
     wlBodyContentVariable.setLayoutData(fdlBodyContentVariable);
     wBodyContentVariable =
         new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -332,7 +332,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
     FormData fdlHeaderContentVariable = new FormData();
     fdlHeaderContentVariable.left = new FormAttachment(0, 0);
     fdlHeaderContentVariable.right = new FormAttachment(middle, -margin);
-    fdlHeaderContentVariable.top = new FormAttachment(lastControl, 2 * margin);
+    fdlHeaderContentVariable.top = new FormAttachment(lastControl, margin);
     wlHeaderContentVariable.setLayoutData(fdlHeaderContentVariable);
     wHeaderContentVariable =
         new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);

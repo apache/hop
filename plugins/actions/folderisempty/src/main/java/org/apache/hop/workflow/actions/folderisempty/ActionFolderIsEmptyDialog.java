@@ -170,7 +170,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog {
     PropsUi.setLook(wlSpecifyWildcard);
     FormData fdlSpecifyWildcard = new FormData();
     fdlSpecifyWildcard.left = new FormAttachment(0, 0);
-    fdlSpecifyWildcard.top = new FormAttachment(wlIncludeSubFolders, 2 * margin);
+    fdlSpecifyWildcard.top = new FormAttachment(wlIncludeSubFolders, margin);
     fdlSpecifyWildcard.right = new FormAttachment(middle, -margin);
     wlSpecifyWildcard.setLayoutData(fdlSpecifyWildcard);
     wSpecifyWildcard = new Button(shell, SWT.CHECK);

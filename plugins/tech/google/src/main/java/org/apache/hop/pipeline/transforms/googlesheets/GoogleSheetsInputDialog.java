@@ -57,7 +57,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class GoogleSheetsInputDialog extends BaseTransformDialog {
 
@@ -90,52 +89,11 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "GoogleSheetsInput.transform.Name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, meta);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     changed = meta.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "GoogleSheetsInput.transform.Name"));
-
-    int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
-
-    // OK and cancel buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // transformName  - Label
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "GoogleSheetsInput.transform.Name"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-
-    // transformName  - Text
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder tabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
@@ -150,8 +108,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
     PropsUi.setLook(serviceAccountComposite);
 
     FormLayout serviceAccountLayout = new FormLayout();
-    serviceAccountLayout.marginWidth = 3;
-    serviceAccountLayout.marginHeight = 3;
+    serviceAccountLayout.marginWidth = PropsUi.getFormMargin();
+    serviceAccountLayout.marginHeight = PropsUi.getFormMargin();
     serviceAccountComposite.setLayout(serviceAccountLayout);
 
     // privateKey json - Label
@@ -286,8 +244,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
     PropsUi.setLook(spreadsheetComposite);
 
     FormLayout spreadsheetLayout = new FormLayout();
-    spreadsheetLayout.marginWidth = 3;
-    spreadsheetLayout.marginHeight = 3;
+    spreadsheetLayout.marginWidth = PropsUi.getFormMargin();
+    spreadsheetLayout.marginHeight = PropsUi.getFormMargin();
     spreadsheetComposite.setLayout(spreadsheetLayout);
 
     // spreadsheetKey - Label
@@ -373,8 +331,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
     PropsUi.setLook(proxyComposite);
 
     FormLayout proxyLayout = new FormLayout();
-    proxyLayout.marginWidth = 3;
-    proxyLayout.marginHeight = 3;
+    proxyLayout.marginWidth = PropsUi.getFormMargin();
+    proxyLayout.marginHeight = PropsUi.getFormMargin();
     proxyComposite.setLayout(proxyLayout);
 
     Label wlProxyHost = new Label(proxyComposite, SWT.RIGHT);
@@ -429,8 +387,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
     PropsUi.setLook(fieldsComposite);
 
     FormLayout fieldsLayout = new FormLayout();
-    fieldsLayout.marginWidth = 3;
-    fieldsLayout.marginHeight = 3;
+    fieldsLayout.marginWidth = PropsUi.getFormMargin();
+    fieldsLayout.marginHeight = PropsUi.getFormMargin();
     fieldsComposite.setLayout(fieldsLayout);
 
     Label wlSampleFieldsLabel = new Label(fieldsComposite, SWT.RIGHT);
@@ -509,7 +467,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
 
     FormData fdFields = new FormData();
     fdFields.top = new FormAttachment(wSampleFields, margin);
-    fdFields.bottom = new FormAttachment(wGet, -margin * 2);
+    fdFields.bottom = new FormAttachment(wGet, -margin);
     fdFields.left = new FormAttachment(0, 0);
     fdFields.right = new FormAttachment(100, 0);
     wFields.setLayoutData(fdFields);
@@ -531,15 +489,16 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     tabFolder.setLayoutData(fdTabFolder);
 
     tabFolder.setSelection(0);
+
     getData(meta);
     meta.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -717,8 +676,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
   }
 
   private void getData(GoogleSheetsInputMeta meta) {
-    this.wTransformName.selectAll();
-
     if (!StringUtils.isEmpty(meta.getSpreadsheetKey())) {
       this.wSpreadSheetKey.setText(meta.getSpreadsheetKey());
     }

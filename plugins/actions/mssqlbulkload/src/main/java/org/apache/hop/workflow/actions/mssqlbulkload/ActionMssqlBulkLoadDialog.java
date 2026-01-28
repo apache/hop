@@ -623,7 +623,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlCheckConstraints);
     FormData fdlCheckConstraints = new FormData();
     fdlCheckConstraints.left = new FormAttachment(0, 0);
-    fdlCheckConstraints.top = new FormAttachment(wlFireTriggers, 2 * margin);
+    fdlCheckConstraints.top = new FormAttachment(wlFireTriggers, margin);
     fdlCheckConstraints.right = new FormAttachment(middle, -margin);
     wlCheckConstraints.setLayoutData(fdlCheckConstraints);
     wCheckConstraints = new Button(wAdvancedComp, SWT.CHECK);
@@ -650,7 +650,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlKeepNulls);
     FormData fdlKeepNulls = new FormData();
     fdlKeepNulls.left = new FormAttachment(0, 0);
-    fdlKeepNulls.top = new FormAttachment(wlCheckConstraints, 2 * margin);
+    fdlKeepNulls.top = new FormAttachment(wlCheckConstraints, margin);
     fdlKeepNulls.right = new FormAttachment(middle, -margin);
     wlKeepNulls.setLayoutData(fdlKeepNulls);
     wKeepNulls = new Button(wAdvancedComp, SWT.CHECK);
@@ -676,7 +676,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlKeepIdentity);
     FormData fdlKeepIdentity = new FormData();
     fdlKeepIdentity.left = new FormAttachment(0, 0);
-    fdlKeepIdentity.top = new FormAttachment(wlKeepNulls, 2 * margin);
+    fdlKeepIdentity.top = new FormAttachment(wlKeepNulls, margin);
     fdlKeepIdentity.right = new FormAttachment(middle, -margin);
     wlKeepIdentity.setLayoutData(fdlKeepIdentity);
     wKeepIdentity = new Button(wAdvancedComp, SWT.CHECK);
@@ -703,7 +703,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wlTablock);
     FormData fdlTablock = new FormData();
     fdlTablock.left = new FormAttachment(0, 0);
-    fdlTablock.top = new FormAttachment(wlKeepIdentity, 2 * margin);
+    fdlTablock.top = new FormAttachment(wlKeepIdentity, margin);
     fdlTablock.right = new FormAttachment(middle, -margin);
     wlTablock.setLayoutData(fdlTablock);
     wTablock = new Button(wAdvancedComp, SWT.CHECK);
@@ -730,7 +730,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     FormData fdlStartFile = new FormData();
     fdlStartFile.left = new FormAttachment(0, 0);
     fdlStartFile.right = new FormAttachment(middle, 0);
-    fdlStartFile.top = new FormAttachment(wlTablock, 2 * margin);
+    fdlStartFile.top = new FormAttachment(wlTablock, margin);
     wlStartFile.setLayoutData(fdlStartFile);
 
     wStartFile = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -739,7 +739,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     wStartFile.addModifyListener(lsMod);
     FormData fdStartFile = new FormData();
     fdStartFile.left = new FormAttachment(middle, 0);
-    fdStartFile.top = new FormAttachment(wlTablock, 2 * margin);
+    fdStartFile.top = new FormAttachment(wlTablock, margin);
     fdStartFile.right = new FormAttachment(100, 0);
     wStartFile.setLayoutData(fdStartFile);
 
@@ -894,7 +894,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     FormData fdlMaxErrors = new FormData();
     fdlMaxErrors.left = new FormAttachment(0, 0);
     fdlMaxErrors.right = new FormAttachment(middle, -margin);
-    fdlMaxErrors.top = new FormAttachment(wlAddDateTime, 2 * margin);
+    fdlMaxErrors.top = new FormAttachment(wlAddDateTime, margin);
     wlMaxErrors.setLayoutData(fdlMaxErrors);
 
     wMaxErrors = new TextVar(variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -904,7 +904,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     wMaxErrors.addModifyListener(lsMod);
     FormData fdMaxErrors = new FormData();
     fdMaxErrors.left = new FormAttachment(middle, 0);
-    fdMaxErrors.top = new FormAttachment(wlAddDateTime, 2 * margin);
+    fdMaxErrors.top = new FormAttachment(wlAddDateTime, margin);
     fdMaxErrors.right = new FormAttachment(100, 0);
     wMaxErrors.setLayoutData(fdMaxErrors);
 
@@ -1021,7 +1021,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();

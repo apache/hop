@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class ExecProcessDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExecProcessMeta.class;
@@ -79,48 +78,9 @@ public class ExecProcessDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ExecProcessDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ExecProcessDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ExecProcessDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     // The Tab Folders
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
@@ -149,7 +109,7 @@ public class ExecProcessDialog extends BaseTransformDialog {
     FormData fdlProcess = new FormData();
     fdlProcess.left = new FormAttachment(0, 0);
     fdlProcess.right = new FormAttachment(middle, -margin);
-    fdlProcess.top = new FormAttachment(wTransformName, margin);
+    fdlProcess.top = new FormAttachment(wSpacer, margin);
     wlProcess.setLayoutData(fdlProcess);
 
     wProcess = new CCombo(wGeneralComp, SWT.BORDER | SWT.READ_ONLY);
@@ -157,7 +117,7 @@ public class ExecProcessDialog extends BaseTransformDialog {
     PropsUi.setLook(wProcess);
     FormData fdProcess = new FormData();
     fdProcess.left = new FormAttachment(middle, 0);
-    fdProcess.top = new FormAttachment(wTransformName, margin);
+    fdProcess.top = new FormAttachment(wSpacer, margin);
     fdProcess.right = new FormAttachment(100, -margin);
     wProcess.setLayoutData(fdProcess);
     wProcess.addListener(
@@ -346,9 +306,9 @@ public class ExecProcessDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     wTabFolder.setSelection(0);
@@ -370,7 +330,7 @@ public class ExecProcessDialog extends BaseTransformDialog {
     getData();
     enableFields();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -396,9 +356,6 @@ public class ExecProcessDialog extends BaseTransformDialog {
       item.setText(1, Const.NVL(field.getName(), ""));
     }
     wArgumentFields.optimizeTableView();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void enableFields() {

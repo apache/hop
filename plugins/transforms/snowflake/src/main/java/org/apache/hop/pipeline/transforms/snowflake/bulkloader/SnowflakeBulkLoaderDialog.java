@@ -64,8 +64,6 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -78,7 +76,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
@@ -258,14 +255,11 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
    * @return The transform name
    */
   public String open() {
+    createShell(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.Title"));
+    buildButtonBar().ok(e -> ok()).sql(e -> create()).cancel(e -> cancel()).build();
+
     Shell parent = getParent();
     display = parent.getDisplay();
-
-    int margin = PropsUi.getMargin();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
 
     /* ************************************************
      * Modify Listeners
@@ -295,35 +289,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.Title"));
-
-    int middle = props.getMiddlePct();
-
-    // Transform name line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -345,7 +310,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     wLoaderComp.setLayout(loaderLayout);
 
     // Connection line
-    wConnection = addConnectionLine(wLoaderComp, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(wLoaderComp, wSpacer, input.getConnection(), lsMod);
     if (input.getConnection() == null && pipelineMeta.nrDatabases() == 1) {
       wConnection.select(0);
     }
@@ -359,7 +324,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
-    fdlSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdlSchema.top = new FormAttachment(wConnection, margin);
     fdlSchema.right = new FormAttachment(middle, -margin);
     wlSchema.setLayoutData(fdlSchema);
 
@@ -367,7 +332,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
 
@@ -376,7 +341,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     wSchema.addModifyListener(lsMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.top = new FormAttachment(wConnection, margin);
     fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
     wSchema.addFocusListener(
@@ -431,7 +396,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlLocationType);
     FormData fdlLocationType = new FormData();
     fdlLocationType.left = new FormAttachment(0, 0);
-    fdlLocationType.top = new FormAttachment(wTable, margin * 2);
+    fdlLocationType.top = new FormAttachment(wTable, margin);
     fdlLocationType.right = new FormAttachment(middle, -margin);
     wlLocationType.setLayoutData(fdlLocationType);
 
@@ -442,7 +407,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     wLocationType.addSelectionListener(lsFlags);
     FormData fdLocationType = new FormData();
     fdLocationType.left = new FormAttachment(middle, 0);
-    fdLocationType.top = new FormAttachment(wTable, margin * 2);
+    fdLocationType.top = new FormAttachment(wTable, margin);
     fdLocationType.right = new FormAttachment(100, 0);
     wLocationType.setLayoutData(fdLocationType);
     for (String locationType : LOCATION_TYPE_COMBO) {
@@ -456,7 +421,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlStageName);
     FormData fdlStageName = new FormData();
     fdlStageName.left = new FormAttachment(0, 0);
-    fdlStageName.top = new FormAttachment(wLocationType, margin * 2);
+    fdlStageName.top = new FormAttachment(wLocationType, margin);
     fdlStageName.right = new FormAttachment(middle, -margin);
     wlStageName.setLayoutData(fdlStageName);
 
@@ -466,7 +431,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     wStageName.addSelectionListener(lsFlags);
     FormData fdStageName = new FormData();
     fdStageName.left = new FormAttachment(middle, 0);
-    fdStageName.top = new FormAttachment(wLocationType, margin * 2);
+    fdStageName.top = new FormAttachment(wLocationType, margin);
     fdStageName.right = new FormAttachment(100, 0);
     wStageName.setLayoutData(fdStageName);
     wStageName.setEnabled(false);
@@ -567,7 +532,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlOnError);
     FormData fdlOnError = new FormData();
     fdlOnError.left = new FormAttachment(0, 0);
-    fdlOnError.top = new FormAttachment(wWorkDirectory, margin * 2);
+    fdlOnError.top = new FormAttachment(wWorkDirectory, margin);
     fdlOnError.right = new FormAttachment(middle, -margin);
     wlOnError.setLayoutData(fdlOnError);
 
@@ -578,7 +543,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     wOnError.addSelectionListener(lsFlags);
     FormData fdOnError = new FormData();
     fdOnError.left = new FormAttachment(middle, 0);
-    fdOnError.top = new FormAttachment(wWorkDirectory, margin * 2);
+    fdOnError.top = new FormAttachment(wWorkDirectory, margin);
     fdOnError.right = new FormAttachment(100, 0);
     wOnError.setLayoutData(fdOnError);
     for (String onError : ON_ERROR_COMBO) {
@@ -710,7 +675,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     /////////////////////
     // Start CSV Group
     /////////////////////
-    gCsvGroup = new Group(wDataTypeComp, SWT.SHADOW_ETCHED_IN);
+    gCsvGroup = new Group(wDataTypeComp, SWT.SHADOW_NONE);
     gCsvGroup.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.CSVGroup.Label"));
     FormLayout csvLayout = new FormLayout();
     csvLayout.marginWidth = 3;
@@ -721,8 +686,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     FormData fdgCsvGroup = new FormData();
     fdgCsvGroup.left = new FormAttachment(0, 0);
     fdgCsvGroup.right = new FormAttachment(100, 0);
-    fdgCsvGroup.top = new FormAttachment(wDataType, margin * 2);
-    fdgCsvGroup.bottom = new FormAttachment(100, -margin * 2);
+    fdgCsvGroup.top = new FormAttachment(wDataType, margin);
+    fdgCsvGroup.bottom = new FormAttachment(100, -margin);
     gCsvGroup.setLayoutData(fdgCsvGroup);
 
     // Trim Whitespace line
@@ -797,7 +762,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     ///////////////////////////
     // Start JSON Group
     ///////////////////////////
-    gJsonGroup = new Group(wDataTypeComp, SWT.SHADOW_ETCHED_IN);
+    gJsonGroup = new Group(wDataTypeComp, SWT.SHADOW_NONE);
     gJsonGroup.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.JsonGroup.Label"));
     FormLayout jsonLayout = new FormLayout();
     jsonLayout.marginWidth = 3;
@@ -808,8 +773,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     FormData fdgJsonGroup = new FormData();
     fdgJsonGroup.left = new FormAttachment(0, 0);
     fdgJsonGroup.right = new FormAttachment(100, 0);
-    fdgJsonGroup.top = new FormAttachment(wDataType, margin * 2);
-    fdgJsonGroup.bottom = new FormAttachment(100, -margin * 2);
+    fdgJsonGroup.top = new FormAttachment(wDataType, margin);
+    fdgJsonGroup.bottom = new FormAttachment(100, -margin);
     gJsonGroup.setLayoutData(fdgJsonGroup);
 
     // Strip Null line
@@ -1088,20 +1053,11 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wSql = new Button(shell, SWT.PUSH);
-    wSql.setText(BaseMessages.getString(PKG, "SnowflakeBulkLoader.SQL.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wSql, wCancel}, margin, null);
-
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wCancel, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     wbTable.addListener(SWT.Selection, e -> getTableName());
@@ -1110,17 +1066,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     // Whenever something changes, set the tooltip to the expanded version:
     wSchema.addModifyListener(e -> wSchema.setToolTipText(variables.resolve(wSchema.getText())));
 
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-    wSql.addListener(SWT.Selection, e -> create());
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
     wGet.addListener(SWT.Selection, e -> get());
     wDoMapping.addListener(SWT.Selection, e -> generateMappings());
 
@@ -1145,12 +1090,10 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
     input.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    focusTransformName();
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
     return transformName;
   }
 
@@ -1242,9 +1185,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
     }
 
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   /**

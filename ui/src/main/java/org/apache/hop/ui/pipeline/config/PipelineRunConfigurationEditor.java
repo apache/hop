@@ -411,7 +411,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(100, -margin * 2);
+    fdTabFolder.bottom = new FormAttachment(100, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     setWidgetsContent();

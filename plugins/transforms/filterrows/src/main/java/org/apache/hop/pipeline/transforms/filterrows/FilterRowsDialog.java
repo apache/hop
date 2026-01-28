@@ -40,11 +40,9 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class FilterRowsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FilterRowsMeta.class;
@@ -69,44 +67,15 @@ public class FilterRowsDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "FilterRowsDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
     backupCondition = new Condition(condition);
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "FilterRowsDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "FilterRowsDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     // Send 'True' data to...
     Label wlTrueTo = new Label(shell, SWT.RIGHT);
@@ -115,7 +84,7 @@ public class FilterRowsDialog extends BaseTransformDialog {
     FormData fdlTrueTo = new FormData();
     fdlTrueTo.left = new FormAttachment(0, 0);
     fdlTrueTo.right = new FormAttachment(middle, -margin);
-    fdlTrueTo.top = new FormAttachment(wTransformName, margin);
+    fdlTrueTo.top = new FormAttachment(lastControl, margin);
     wlTrueTo.setLayoutData(fdlTrueTo);
     wTrueTo = new CCombo(shell, SWT.BORDER);
     PropsUi.setLook(wTrueTo);
@@ -131,7 +100,7 @@ public class FilterRowsDialog extends BaseTransformDialog {
     wTrueTo.addModifyListener(lsMod);
     FormData fdTrueTo = new FormData();
     fdTrueTo.left = new FormAttachment(middle, 0);
-    fdTrueTo.top = new FormAttachment(wTransformName, margin);
+    fdTrueTo.top = new FormAttachment(lastControl, margin);
     fdTrueTo.right = new FormAttachment(100, 0);
     wTrueTo.setLayoutData(fdTrueTo);
 
@@ -182,31 +151,19 @@ public class FilterRowsDialog extends BaseTransformDialog {
           ke);
     }
 
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     wCondition = new ConditionEditor(shell, SWT.BORDER, condition, inputfields);
 
     FormData fdCondition = new FormData();
     fdCondition.left = new FormAttachment(0, 0);
     fdCondition.top = new FormAttachment(wlCondition, margin);
     fdCondition.right = new FormAttachment(100, 0);
-    fdCondition.bottom = new FormAttachment(wOk, -2 * margin);
+    fdCondition.bottom = new FormAttachment(100, -50);
     wCondition.setLayoutData(fdCondition);
     wCondition.addModifyListener(lsMod);
 
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     getData();
     input.setChanged(backupChanged);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -218,9 +175,6 @@ public class FilterRowsDialog extends BaseTransformDialog {
 
     wTrueTo.setText(Const.NVL(targetStreams.get(0).getTransformName(), ""));
     wFalseTo.setText(Const.NVL(targetStreams.get(1).getTransformName(), ""));
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {
