@@ -28,12 +28,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.util.FtpClientUtil;
@@ -57,8 +54,6 @@ import org.eclipse.swt.widgets.Shell;
 /** This dialog allows you to edit the FTP Get action settings. */
 public class ActionFtpDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFtp.class;
-
-  private LabelText wName;
 
   private LabelTextVar wServerName;
 
@@ -157,10 +152,8 @@ public class ActionFtpDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionFtp.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod =
         e -> {
@@ -169,41 +162,6 @@ public class ActionFtpDialog extends ActionDialog {
         };
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionFtp.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Action name line
-    wName =
-        new LabelText(
-            shell,
-            BaseMessages.getString(PKG, "ActionFtp.Name.Label"),
-            BaseMessages.getString(PKG, "ActionFtp.Name.Tooltip"));
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.top = new FormAttachment(0, 0);
-    fdName.left = new FormAttachment(0, 0);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-
-    // The buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // The tab folder between the name and the buttons
-    //
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -250,7 +208,7 @@ public class ActionFtpDialog extends ActionDialog {
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment(0, 0);
-    fdServerName.top = new FormAttachment(wName, margin);
+    fdServerName.top = new FormAttachment(0, margin);
     fdServerName.right = new FormAttachment(100, 0);
     wServerName.setLayoutData(fdServerName);
 
@@ -322,7 +280,7 @@ public class ActionFtpDialog extends ActionDialog {
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment(0, 0);
-    fdProxyHost.top = new FormAttachment(wPassword, 2 * margin);
+    fdProxyHost.top = new FormAttachment(wPassword, margin);
     fdProxyHost.right = new FormAttachment(100, 0);
     wProxyHost.setLayoutData(fdProxyHost);
 
@@ -392,7 +350,7 @@ public class ActionFtpDialog extends ActionDialog {
 
     FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment(0, margin);
-    fdServerSettings.top = new FormAttachment(wName, margin);
+    fdServerSettings.top = new FormAttachment(0, margin);
     fdServerSettings.right = new FormAttachment(100, -margin);
     wgServerSettings.setLayoutData(fdServerSettings);
     // ///////////////////////////////////////////////////////////
@@ -475,7 +433,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlControlEncoding);
     FormData fdlControlEncoding = new FormData();
     fdlControlEncoding.left = new FormAttachment(0, 0);
-    fdlControlEncoding.top = new FormAttachment(wlActive, 2 * margin);
+    fdlControlEncoding.top = new FormAttachment(wlActive, margin);
     fdlControlEncoding.right = new FormAttachment(middle, -margin);
     wlControlEncoding.setLayoutData(fdlControlEncoding);
     wControlEncoding = new Combo(wAdvancedSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -706,7 +664,7 @@ public class ActionFtpDialog extends ActionDialog {
 
     FormData fdRemoteSettings = new FormData();
     fdRemoteSettings.left = new FormAttachment(0, margin);
-    fdRemoteSettings.top = new FormAttachment(0, 2 * margin);
+    fdRemoteSettings.top = new FormAttachment(0, margin);
     fdRemoteSettings.right = new FormAttachment(100, -margin);
     wgRemoteSettings.setLayoutData(fdRemoteSettings);
     // ///////////////////////////////////////////////////////////
@@ -792,7 +750,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
-    fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
+    fdlAddTime.top = new FormAttachment(wlAddDate, margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wgLocalSettings, SWT.CHECK);
@@ -817,7 +775,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
-    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, 2 * margin);
+    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wgLocalSettings, SWT.CHECK);
@@ -847,7 +805,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdlDateTimeFormat.right = new FormAttachment(middle, -margin);
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(wgLocalSettings, SWT.BORDER | SWT.READ_ONLY);
@@ -856,7 +814,7 @@ public class ActionFtpDialog extends ActionDialog {
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
-    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdDateTimeFormat.right = new FormAttachment(100, 0);
     wDateTimeFormat.setLayoutData(fdDateTimeFormat);
     for (String dat : dats) {
@@ -923,7 +881,7 @@ public class ActionFtpDialog extends ActionDialog {
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
-    fdlIfFileExists.top = new FormAttachment(wlOnlyNew, 2 * margin);
+    fdlIfFileExists.top = new FormAttachment(wlOnlyNew, margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(wgLocalSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wIfFileExists.add(BaseMessages.getString(PKG, "ActionFtp.Skip.Label"));
@@ -954,7 +912,7 @@ public class ActionFtpDialog extends ActionDialog {
     PropsUi.setLook(wlAddFilenameToResult);
     FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment(0, 0);
-    fdlAddFilenameToResult.top = new FormAttachment(wIfFileExists, 2 * margin);
+    fdlAddFilenameToResult.top = new FormAttachment(wIfFileExists, margin);
     fdlAddFilenameToResult.right = new FormAttachment(middle, -margin);
     wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
     wAddFilenameToResult = new Button(wgLocalSettings, SWT.CHECK);
@@ -1141,7 +1099,7 @@ public class ActionFtpDialog extends ActionDialog {
     wSocksProxyHost.addModifyListener(lsMod);
     FormData fdSocksProxyHost = new FormData();
     fdSocksProxyHost.left = new FormAttachment(0, 0);
-    fdSocksProxyHost.top = new FormAttachment(wName, margin);
+    fdSocksProxyHost.top = new FormAttachment(0, margin);
     fdSocksProxyHost.right = new FormAttachment(100, margin);
     wSocksProxyHost.setLayoutData(fdSocksProxyHost);
 
@@ -1219,9 +1177,9 @@ public class ActionFtpDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add listeners
@@ -1239,7 +1197,7 @@ public class ActionFtpDialog extends ActionDialog {
     activeIfExists();
 
     wTabFolder.setSelection(0);
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -1364,7 +1322,7 @@ public class ActionFtpDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wName.setText(Const.nullToEmpty(action.getName()));
+    wName.setText(Const.NVL(action.getName(), ""));
     wServerName.setText(Const.NVL(action.getServerName(), ""));
     wPort.setText(Const.NVL(action.getServerPort(), "21"));
     wUserName.setText(Const.NVL(action.getUserName(), ""));
@@ -1418,9 +1376,12 @@ public class ActionFtpDialog extends ActionDialog {
     } else {
       wSuccessCondition.select(0);
     }
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    ftpclient = null;
+    action.setChanged();
   }
 
   private void cancel() {

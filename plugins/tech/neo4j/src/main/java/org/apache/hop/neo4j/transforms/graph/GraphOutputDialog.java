@@ -65,15 +65,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class GraphOutputDialog extends BaseTransformDialog {
 
   public static final String CONST_ERROR = "Error";
   private static final Class<?> PKG =
       GraphOutputMeta.class; // for i18n purposes, needed by Translator2!!
-
-  private Text wTransformName;
 
   private MetaSelectionLine<NeoConnection> wConnection;
   private MetaSelectionLine<GraphModel> wModel;
@@ -108,42 +105,19 @@ public class GraphOutputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "GraphOutput.Name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "GraphOutputDialog.Button.ShowCypher"),
+            e -> showCypherPreview())
+        .cancel(e -> cancel())
+        .build();
 
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "GraphOutput.Name"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText("Transform name");
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wSpacer;
 
     wConnection =
         new MetaSelectionLine<>(
@@ -195,7 +169,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
-    fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchSize);
@@ -214,7 +188,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     FormData fdlCreateIndexes = new FormData();
     fdlCreateIndexes.left = new FormAttachment(0, 0);
     fdlCreateIndexes.right = new FormAttachment(middle, -margin);
-    fdlCreateIndexes.top = new FormAttachment(lastControl, 2 * margin);
+    fdlCreateIndexes.top = new FormAttachment(lastControl, margin);
     wlCreateIndexes.setLayoutData(fdlCreateIndexes);
     wCreateIndexes = new Button(shell, SWT.CHECK | SWT.BORDER);
     wCreateIndexes.setToolTipText(
@@ -236,7 +210,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     FormData fdlReturnGraph = new FormData();
     fdlReturnGraph.left = new FormAttachment(0, 0);
     fdlReturnGraph.right = new FormAttachment(middle, -margin);
-    fdlReturnGraph.top = new FormAttachment(lastControl, 2 * margin);
+    fdlReturnGraph.top = new FormAttachment(lastControl, margin);
     wlReturnGraph.setLayoutData(fdlReturnGraph);
     wReturnGraph = new Button(shell, SWT.CHECK | SWT.BORDER);
     wReturnGraph.setToolTipText(returnGraphTooltipText);
@@ -255,7 +229,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     FormData fdlReturnGraphField = new FormData();
     fdlReturnGraphField.left = new FormAttachment(0, 0);
     fdlReturnGraphField.right = new FormAttachment(middle, -margin);
-    fdlReturnGraphField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlReturnGraphField.top = new FormAttachment(lastControl, margin);
     wlReturnGraphField.setLayoutData(fdlReturnGraphField);
     wReturnGraphField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wReturnGraphField);
@@ -274,7 +248,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     FormData fdlValidateAgainstModel = new FormData();
     fdlValidateAgainstModel.left = new FormAttachment(0, 0);
     fdlValidateAgainstModel.right = new FormAttachment(middle, -margin);
-    fdlValidateAgainstModel.top = new FormAttachment(lastControl, 2 * margin);
+    fdlValidateAgainstModel.top = new FormAttachment(lastControl, margin);
     wlValidateAgainstModel.setLayoutData(fdlValidateAgainstModel);
     wValidateAgainstModel = new Button(shell, SWT.CHECK | SWT.BORDER);
     wValidateAgainstModel.setToolTipText(returnGraphTooltipText);
@@ -295,7 +269,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     FormData fdlOutOfOrderAllowed = new FormData();
     fdlOutOfOrderAllowed.left = new FormAttachment(0, 0);
     fdlOutOfOrderAllowed.right = new FormAttachment(middle, -margin);
-    fdlOutOfOrderAllowed.top = new FormAttachment(lastControl, 2 * margin);
+    fdlOutOfOrderAllowed.top = new FormAttachment(lastControl, margin);
     wlOutOfOrderAllowed.setLayoutData(fdlOutOfOrderAllowed);
     wOutOfOrderAllowed = new Button(shell, SWT.CHECK | SWT.BORDER);
     wOutOfOrderAllowed.setToolTipText(returnGraphTooltipText);
@@ -307,22 +281,6 @@ public class GraphOutputDialog extends BaseTransformDialog {
     wOutOfOrderAllowed.setLayoutData(fdOutOfOrderAllowed);
     lastControl = wlOutOfOrderAllowed;
 
-    // Some buttons at the bottom...
-    //
-    Button wShowCypher = new Button(shell, SWT.PUSH);
-    wShowCypher.setText(BaseMessages.getString(PKG, "GraphOutputDialog.Button.ShowCypher"));
-    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    // Position the buttons at the bottom of the dialog.
-    //
-    setButtonPositions(new Button[] {wShowCypher, wOk, wCancel}, margin, null);
-
     // The tab folder goes between the last control and the OK button:
     //
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
@@ -332,7 +290,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(lastControl, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     String[] fieldNames = getInputRowMeta().getFieldNames();
@@ -346,7 +304,7 @@ public class GraphOutputDialog extends BaseTransformDialog {
     wTabFolder.setSelection(0);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -713,8 +671,6 @@ public class GraphOutputDialog extends BaseTransformDialog {
   }
 
   public void getData() {
-
-    wTransformName.setText(Const.NVL(transformName, ""));
     wConnection.setText(Const.NVL(input.getConnectionName(), ""));
     try {
       wConnection.fillItems();

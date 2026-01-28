@@ -53,7 +53,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -103,11 +102,9 @@ public class UpdateDialog extends BaseTransformDialog {
   }
 
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "UpdateDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).sql(e -> create()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     ModifyListener lsTableMod =
@@ -125,37 +122,8 @@ public class UpdateDialog extends BaseTransformDialog {
         };
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "UpdateDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "UpdateDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
@@ -165,14 +133,14 @@ public class UpdateDialog extends BaseTransformDialog {
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
     Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
 
@@ -181,7 +149,7 @@ public class UpdateDialog extends BaseTransformDialog {
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.top = new FormAttachment(wConnection, margin);
     fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
 
@@ -396,16 +364,6 @@ public class UpdateDialog extends BaseTransformDialog {
     fdKey.bottom = new FormAttachment(wlKey, 190);
     wKey.setLayoutData(fdKey);
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wSql = new Button(shell, SWT.PUSH);
-    wSql.setText(BaseMessages.getString(PKG, "UpdateDialog.SQL.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wSql, wCancel}, margin, null);
-
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(shell, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "UpdateDialog.Return.Label"));
@@ -456,7 +414,7 @@ public class UpdateDialog extends BaseTransformDialog {
     fdReturn.left = new FormAttachment(0, 0);
     fdReturn.top = new FormAttachment(wlReturn, margin);
     fdReturn.right = new FormAttachment(wGetLU, -margin);
-    fdReturn.bottom = new FormAttachment(wOk, -2 * margin);
+    fdReturn.bottom = new FormAttachment(100, -50);
     wReturn.setLayoutData(fdReturn);
 
     //
@@ -484,11 +442,8 @@ public class UpdateDialog extends BaseTransformDialog {
     new Thread(runnable).start();
 
     // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
     wGet.addListener(SWT.Selection, e -> get());
     wGetLU.addListener(SWT.Selection, e -> getUpdate());
-    wSql.addListener(SWT.Selection, e -> create());
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     wbSchema.addSelectionListener(
         new SelectionAdapter() {
@@ -509,7 +464,7 @@ public class UpdateDialog extends BaseTransformDialog {
     setActiveIgnoreLookup();
     setTableFieldCombo();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -676,9 +631,6 @@ public class UpdateDialog extends BaseTransformDialog {
     wReturn.optWidth(true);
 
     setFlags();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

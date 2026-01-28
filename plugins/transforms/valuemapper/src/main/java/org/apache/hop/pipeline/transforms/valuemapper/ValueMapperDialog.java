@@ -35,12 +35,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -48,8 +45,6 @@ import org.eclipse.swt.widgets.Text;
 
 public class ValueMapperDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ValueMapperMeta.class;
-
-  private Text wTransformName;
 
   private CCombo wFieldName;
 
@@ -76,51 +71,11 @@ public class ValueMapperDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ValueMapperDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ValueMapperDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ValueMapperDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    FormData fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    FormData fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // Fieldname line
     Label wlFieldname = new Label(shell, SWT.RIGHT);
@@ -129,15 +84,14 @@ public class ValueMapperDialog extends BaseTransformDialog {
     FormData fdlFieldname = new FormData();
     fdlFieldname.left = new FormAttachment(0, 0);
     fdlFieldname.right = new FormAttachment(middle, -margin);
-    fdlFieldname.top = new FormAttachment(wTransformName, margin);
+    fdlFieldname.top = new FormAttachment(wSpacer, margin);
     wlFieldname.setLayoutData(fdlFieldname);
 
     wFieldName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
     PropsUi.setLook(wFieldName);
-    wFieldName.addModifyListener(lsMod);
     FormData fdFieldname = new FormData();
     fdFieldname.left = new FormAttachment(middle, 0);
-    fdFieldname.top = new FormAttachment(wTransformName, margin);
+    fdFieldname.top = new FormAttachment(wSpacer, margin);
     fdFieldname.right = new FormAttachment(100, 0);
     wFieldName.setLayoutData(fdFieldname);
     wFieldName.addFocusListener(
@@ -168,7 +122,6 @@ public class ValueMapperDialog extends BaseTransformDialog {
     wlTargetFieldname.setLayoutData(fdlTargetFieldname);
     wTargetFieldName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTargetFieldName);
-    wTargetFieldName.addModifyListener(lsMod);
     FormData fdTargetFieldname = new FormData();
     fdTargetFieldname.left = new FormAttachment(middle, 0);
     fdTargetFieldname.top = new FormAttachment(wFieldName, margin);
@@ -187,7 +140,6 @@ public class ValueMapperDialog extends BaseTransformDialog {
     wlNonMatchDefault.setLayoutData(fdlNonMatchDefault);
     wNonMatchDefault = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wNonMatchDefault);
-    wNonMatchDefault.addModifyListener(lsMod);
     FormData fdNonMatchDefault = new FormData();
     fdNonMatchDefault.left = new FormAttachment(middle, 0);
     fdNonMatchDefault.top = new FormAttachment(wTargetFieldName, margin);
@@ -245,19 +197,19 @@ public class ValueMapperDialog extends BaseTransformDialog {
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
-            lsMod,
+            null,
             props);
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -289,8 +241,6 @@ public class ValueMapperDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wTransformName.setText(transformName);
-
     if (input.getFieldToUse() != null) {
       wFieldName.setText(input.getFieldToUse());
     }
@@ -320,9 +270,6 @@ public class ValueMapperDialog extends BaseTransformDialog {
 
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

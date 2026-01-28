@@ -26,9 +26,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -44,16 +42,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class ActionMailValidatorDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionMailValidator.class;
 
-  private Text wName;
-
   private ActionMailValidator action;
-
-  private Shell shell;
 
   private boolean changed;
 
@@ -82,54 +75,15 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
+    createShell(BaseMessages.getString(PKG, "ActionMailValidatorDialog.Title"), action);
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    int middle = this.middle;
+    int margin = this.margin;
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionMailValidatorDialog.Title"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionMailValidatorDialog.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-
-    // eMail address
     wMailAddress =
         new LabelTextVar(
             variables,
@@ -139,7 +93,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wMailAddress.addModifyListener(lsMod);
     FormData fdMailAddress = new FormData();
     fdMailAddress.left = new FormAttachment(0, 0);
-    fdMailAddress.top = new FormAttachment(wName, margin);
+    fdMailAddress.top = new FormAttachment(wSpacer, margin);
     fdMailAddress.right = new FormAttachment(100, 0);
     wMailAddress.setLayoutData(fdMailAddress);
 
@@ -164,7 +118,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     FormData fdlSMTPCheck = new FormData();
     fdlSMTPCheck.left = new FormAttachment(0, 0);
     fdlSMTPCheck.top = new FormAttachment(wMailAddress, margin);
-    fdlSMTPCheck.right = new FormAttachment(middle, -2 * margin);
+    fdlSMTPCheck.right = new FormAttachment(middle, -margin);
     wlSMTPCheck.setLayoutData(fdlSMTPCheck);
     wSMTPCheck = new Button(wSettingsGroup, SWT.CHECK);
     PropsUi.setLook(wSMTPCheck);
@@ -188,8 +142,8 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
-    fdlTimeOut.right = new FormAttachment(middle, -2 * margin);
-    fdlTimeOut.top = new FormAttachment(wlSMTPCheck, 2 * margin);
+    fdlTimeOut.right = new FormAttachment(middle, -margin);
+    fdlTimeOut.top = new FormAttachment(wlSMTPCheck, margin);
     wlTimeOut.setLayoutData(fdlTimeOut);
     wTimeOut = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTimeOut.setToolTipText(
@@ -198,7 +152,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, -margin);
-    fdTimeOut.top = new FormAttachment(wlSMTPCheck, 2 * margin);
+    fdTimeOut.top = new FormAttachment(wlSMTPCheck, margin);
     fdTimeOut.right = new FormAttachment(100, 0);
     wTimeOut.setLayoutData(fdTimeOut);
 
@@ -209,7 +163,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     PropsUi.setLook(wleMailSender);
     FormData fdleMailSender = new FormData();
     fdleMailSender.left = new FormAttachment(0, 0);
-    fdleMailSender.right = new FormAttachment(middle, -2 * margin);
+    fdleMailSender.right = new FormAttachment(middle, -margin);
     fdleMailSender.top = new FormAttachment(wTimeOut, margin);
     wleMailSender.setLayoutData(fdleMailSender);
 
@@ -231,7 +185,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     PropsUi.setLook(wlDefaultSMTP);
     FormData fdlDefaultSMTP = new FormData();
     fdlDefaultSMTP.left = new FormAttachment(0, 0);
-    fdlDefaultSMTP.right = new FormAttachment(middle, -2 * margin);
+    fdlDefaultSMTP.right = new FormAttachment(middle, -margin);
     fdlDefaultSMTP.top = new FormAttachment(weMailSender, margin);
     wlDefaultSMTP.setLayoutData(fdlDefaultSMTP);
 
@@ -250,7 +204,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdSettingsGroup.left = new FormAttachment(0, margin);
     fdSettingsGroup.top = new FormAttachment(wMailAddress, margin);
     fdSettingsGroup.right = new FormAttachment(100, -margin);
-    fdSettingsGroup.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSettingsGroup.bottom = new FormAttachment(wCancel, -margin);
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
     // ///////////////////////////////////////////////////////////
@@ -259,7 +213,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
 
     getData();
     activeSMTPCheck();
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -289,9 +243,11 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wSMTPCheck.setSelection(action.isSmtpCheck());
     wDefaultSMTP.setText(Const.NVL(action.getDefaultSMTP(), ""));
     weMailSender.setText(Const.NVL(action.getEmailSender(), ""));
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

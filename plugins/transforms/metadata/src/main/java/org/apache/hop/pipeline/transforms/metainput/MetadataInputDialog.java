@@ -36,11 +36,8 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -49,8 +46,6 @@ import org.eclipse.swt.widgets.Text;
 
 public class MetadataInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MetadataInputMeta.class;
-
-  private Text wTransformName;
 
   private Text wProvider;
   private Text wTypeKey;
@@ -74,49 +69,17 @@ public class MetadataInputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "MetadataInput.Transform.Name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
-    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "MetadataInput.Transform.Name"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
 
     // See if the transform receives input.
     //
     boolean isReceivingInput = !pipelineMeta.findPreviousTransforms(transformMeta).isEmpty();
 
-    // TransformName line
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    FormData fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    FormData fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wSpacer;
 
     // Provider
     //
@@ -130,7 +93,6 @@ public class MetadataInputDialog extends BaseTransformDialog {
     wlProvider.setLayoutData(fdlProvider);
     wProvider = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wProvider);
-    wProvider.addModifyListener(lsMod);
     FormData fdProvider = new FormData();
     fdProvider.left = new FormAttachment(middle, 0);
     fdProvider.top = new FormAttachment(lastControl, margin);
@@ -150,7 +112,6 @@ public class MetadataInputDialog extends BaseTransformDialog {
     wlTypeKey.setLayoutData(fdlTypeKey);
     wTypeKey = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTypeKey);
-    wTypeKey.addModifyListener(lsMod);
     FormData fdTypeKey = new FormData();
     fdTypeKey.left = new FormAttachment(middle, 0);
     fdTypeKey.top = new FormAttachment(lastControl, margin);
@@ -170,7 +131,6 @@ public class MetadataInputDialog extends BaseTransformDialog {
     wlTypeName.setLayoutData(fdlTypeName);
     wTypeName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTypeName);
-    wTypeName.addModifyListener(lsMod);
     FormData fdTypeName = new FormData();
     fdTypeName.left = new FormAttachment(middle, 0);
     fdTypeName.top = new FormAttachment(lastControl, margin);
@@ -191,7 +151,6 @@ public class MetadataInputDialog extends BaseTransformDialog {
     wlTypeDescription.setLayoutData(fdlTypeDescription);
     wTypeDescription = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTypeDescription);
-    wTypeDescription.addModifyListener(lsMod);
     FormData fdTypeDescription = new FormData();
     fdTypeDescription.left = new FormAttachment(middle, 0);
     fdTypeDescription.top = new FormAttachment(lastControl, margin);
@@ -211,7 +170,6 @@ public class MetadataInputDialog extends BaseTransformDialog {
     wlTypeClass.setLayoutData(fdlTypeClass);
     wTypeClass = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTypeClass);
-    wTypeClass.addModifyListener(lsMod);
     FormData fdTypeClass = new FormData();
     fdTypeClass.left = new FormAttachment(middle, 0);
     fdTypeClass.top = new FormAttachment(lastControl, margin);
@@ -231,7 +189,6 @@ public class MetadataInputDialog extends BaseTransformDialog {
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(lastControl, margin);
@@ -251,27 +208,12 @@ public class MetadataInputDialog extends BaseTransformDialog {
     wlJson.setLayoutData(fdlJson);
     wJson = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wJson);
-    wJson.addModifyListener(lsMod);
     FormData fdJson = new FormData();
     fdJson.left = new FormAttachment(middle, 0);
     fdJson.top = new FormAttachment(lastControl, margin);
     fdJson.right = new FormAttachment(100, 0);
     wJson.setLayoutData(fdJson);
     lastControl = wJson;
-
-    // Some buttons at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(this.shell, 8);
-    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
-    wPreview.setEnabled(!isReceivingInput);
-    wPreview.addListener(13, e -> preview());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
 
     Label wlTypeFilters = new Label(shell, SWT.NONE);
     wlTypeFilters.setText(BaseMessages.getString(PKG, "MetadataInputDialog.TypeFilters.Label"));
@@ -301,19 +243,19 @@ public class MetadataInputDialog extends BaseTransformDialog {
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             fieldsRows,
-            lsMod,
+            null,
             props);
 
     FormData fdTypeFilters = new FormData();
     fdTypeFilters.left = new FormAttachment(0, 0);
     fdTypeFilters.top = new FormAttachment(wlTypeFilters, margin);
     fdTypeFilters.right = new FormAttachment(100, 0);
-    fdTypeFilters.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTypeFilters.bottom = new FormAttachment(wOk, -margin);
     wTypeFilters.setLayoutData(fdTypeFilters);
 
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -321,8 +263,6 @@ public class MetadataInputDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wTransformName.setText(transformName);
-
     wProvider.setText(Const.NVL(input.getProviderFieldName(), ""));
     wTypeKey.setText(Const.NVL(input.getTypeKeyFieldName(), ""));
     wTypeName.setText(Const.NVL(input.getTypeNameFieldName(), ""));
@@ -340,9 +280,6 @@ public class MetadataInputDialog extends BaseTransformDialog {
 
     wTypeFilters.setRowNums();
     wTypeFilters.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

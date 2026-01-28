@@ -24,9 +24,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -35,17 +33,13 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Create Folder action settings. */
 public class ActionDeleteResultFilenamesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDeleteResultFilenames.class;
-
-  private Text wName;
 
   private Button wSpecifyWildcard;
 
@@ -74,44 +68,11 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    shell.setMinimumSize(400, 220);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionDeleteResultFilenames.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionDeleteResultFilenames.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Folder name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
-    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     // Specify wildcard?
     Label wlSpecifyWildcard = new Label(shell, SWT.RIGHT);
@@ -120,7 +81,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlSpecifyWildcard);
     FormData fdlSpecifyWildcard = new FormData();
     fdlSpecifyWildcard.left = new FormAttachment(0, 0);
-    fdlSpecifyWildcard.top = new FormAttachment(wName, margin);
+    fdlSpecifyWildcard.top = new FormAttachment(wSpacer, margin);
     fdlSpecifyWildcard.right = new FormAttachment(middle, -margin);
     wlSpecifyWildcard.setLayoutData(fdlSpecifyWildcard);
     wSpecifyWildcard = new Button(shell, SWT.CHECK);
@@ -147,7 +108,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
-    fdlWildcard.top = new FormAttachment(wlSpecifyWildcard, 2 * margin);
+    fdlWildcard.top = new FormAttachment(wlSpecifyWildcard, margin);
     fdlWildcard.right = new FormAttachment(middle, -margin);
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -157,7 +118,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
-    fdWildcard.top = new FormAttachment(wlSpecifyWildcard, 2 * margin);
+    fdWildcard.top = new FormAttachment(wlSpecifyWildcard, margin);
     fdWildcard.right = new FormAttachment(100, -margin);
     wWildcard.setLayoutData(fdWildcard);
 
@@ -189,18 +150,9 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     wWildcardExclude.addModifyListener(
         e -> wWildcardExclude.setToolTipText(variables.resolve(wWildcardExclude.getText())));
 
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
     getData();
     CheckLimit();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -226,9 +178,11 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     if (action.getWildcardExclude() != null) {
       wWildcardExclude.setText(action.getWildcardExclude());
     }
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

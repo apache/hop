@@ -46,6 +46,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -76,8 +77,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -153,6 +154,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
   private static final int ADD_BLANK = 1;
   private static final int ADD_DEFAULT = 0;
 
+  public static final String WARNING_CLOSE_UNSAVED_PARAMETER = "ScriptValuesCloseWarning";
+
   private String strActiveScript;
   private String strActiveStartScript;
   private String strActiveEndScript;
@@ -208,60 +211,22 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "ScriptValuesDialogMod.GetVariables.Button"),
+            e -> test(true, true))
+        .custom(
+            BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestScript.Button"), e -> newTest())
+        .cancel(e -> cancel())
+        .build();
 
     lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wVars = new Button(shell, SWT.PUSH);
-    wVars.addListener(SWT.Selection, e -> test(true, true));
-    wVars.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.GetVariables.Button"));
-    Button wTest = new Button(shell, SWT.PUSH);
-    wTest.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.TestScript.Button"));
-    wTest.addListener(SWT.Selection, e -> newTest());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wVars, wTest, wCancel}, margin, null);
-
-    // Filename line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "ScriptValuesDialogMod.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     SashForm wSash = new SashForm(shell, SWT.VERTICAL);
 
@@ -314,7 +279,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "ScriptValuesDialogMod.OptimizationLevel.Label"));
     PropsUi.setLook(wlOptimizationLevel);
     FormData fdlOptimizationLevel = new FormData();
-    fdlOptimizationLevel.left = new FormAttachment(wTree, margin * 2);
+    fdlOptimizationLevel.left = new FormAttachment(wTree, margin);
     fdlOptimizationLevel.bottom = new FormAttachment(100, -margin);
     wlOptimizationLevel.setLayoutData(fdlOptimizationLevel);
 
@@ -335,7 +300,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     wlPosition.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Position.Label", 1, 1));
     PropsUi.setLook(wlPosition);
     FormData fdlPosition = new FormData();
-    fdlPosition.left = new FormAttachment(wTree, 2 * margin);
+    fdlPosition.left = new FormAttachment(wTree, margin);
     fdlPosition.right = new FormAttachment(100, 0);
     fdlPosition.bottom = new FormAttachment(wOptimizationLevel, -margin);
     wlPosition.setLayoutData(fdlPosition);
@@ -349,6 +314,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     fdScript.top = new FormAttachment(wlScript, margin);
     fdScript.right = new FormAttachment(100, -5);
     fdScript.bottom = new FormAttachment(wlPosition, -margin);
+    fdScript.width = 500;
+    fdScript.height = 400;
     folder.setLayoutData(fdScript);
 
     FormData fdTop = new FormData();
@@ -433,16 +400,20 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     fdBottom.top = new FormAttachment(0, 0);
     fdBottom.right = new FormAttachment(100, 0);
     fdBottom.bottom = new FormAttachment(100, 0);
+    fdBottom.width = 500;
+    fdBottom.height = 400;
     wBottom.setLayoutData(fdBottom);
 
     FormData fdSash = new FormData();
     fdSash.left = new FormAttachment(0, 0);
-    fdSash.top = new FormAttachment(wTransformName, 0);
+    fdSash.top = new FormAttachment(lastControl, 0);
     fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSash.bottom = new FormAttachment(wOk, -margin);
+    fdSash.width = 500;
+    fdSash.height = 400;
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(new int[] {75, 25});
+    wSash.setWeights(70, 30);
 
     // Add listeners
     wTree.addListener(SWT.MouseDoubleClick, this::treeDblClick);
@@ -575,8 +546,8 @@ public class ScriptValuesDialog extends BaseTransformDialog {
             event.data = wTree.getSelection()[0].getText();
           }
         });
-
-    BaseDialog.defaultShellHandling(shell, c -> ok(), this::cancel);
+    focusTransformName();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
   }
@@ -833,9 +804,6 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   // Setting default active Script
@@ -867,15 +835,28 @@ public class ScriptValuesDialog extends BaseTransformDialog {
 
   private boolean cancel() {
     if (input.hasChanged()) {
-      MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.APPLICATION_MODAL | SWT.SHEET);
-      box.setText(BaseMessages.getString(PKG, "ScriptValuesModDialog.WarningDialogChanged.Title"));
-      box.setMessage(
-          BaseMessages.getString(
-              PKG, "ScriptValuesModDialog.WarningDialogChanged.Message", Const.CR));
-      int answer = box.open();
-
-      if (answer == SWT.NO) {
-        return false;
+      if ("Y".equalsIgnoreCase(props.getCustomParameter(WARNING_CLOSE_UNSAVED_PARAMETER, "Y"))) {
+        MessageDialogWithToggle md =
+            new MessageDialogWithToggle(
+                shell,
+                BaseMessages.getString(PKG, "ScriptValuesModDialog.WarningDialogChanged.Title"),
+                BaseMessages.getString(
+                    PKG, "ScriptValuesModDialog.WarningDialogChanged.Message", Const.CR),
+                SWT.ICON_WARNING,
+                new String[] {
+                  BaseMessages.getString(PKG, "ScriptValuesModDialog.WarningDialogChanged.Yes"),
+                  BaseMessages.getString(PKG, "ScriptValuesModDialog.WarningDialogChanged.No")
+                },
+                BaseMessages.getString(
+                    PKG, "ScriptValuesModDialog.WarningDialogChanged.DoNotShowAgain"),
+                "N"
+                    .equalsIgnoreCase(
+                        props.getCustomParameter(WARNING_CLOSE_UNSAVED_PARAMETER, "Y")));
+        int answer = md.open();
+        props.setCustomParameter(WARNING_CLOSE_UNSAVED_PARAMETER, md.getToggleState() ? "N" : "Y");
+        if (answer == 1) {
+          return false;
+        }
       }
     }
     transformName = null;

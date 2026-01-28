@@ -192,7 +192,7 @@ public class TransformErrorMetaDialog extends Dialog {
     wlNrErrors.setText(
         BaseMessages.getString(PKG, "BaseTransformDialog.ErrorHandling.NrErrField.Label"));
     FormData fdlNrErrors = new FormData();
-    fdlNrErrors.top = new FormAttachment(wEnabled, margin * 2);
+    fdlNrErrors.top = new FormAttachment(wEnabled, margin);
     fdlNrErrors.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlNrErrors.right = new FormAttachment(middle, -margin);
     wlNrErrors.setLayoutData(fdlNrErrors);
@@ -201,7 +201,7 @@ public class TransformErrorMetaDialog extends Dialog {
     PropsUi.setLook(wNrErrors);
     wNrErrors.addModifyListener(lsMod);
     FormData fdNrErrors = new FormData();
-    fdNrErrors.top = new FormAttachment(wEnabled, margin * 2);
+    fdNrErrors.top = new FormAttachment(wEnabled, margin);
     fdNrErrors.left = new FormAttachment(middle, 0); // To the right of the label
     fdNrErrors.right = new FormAttachment(95, 0);
     wNrErrors.setLayoutData(fdNrErrors);

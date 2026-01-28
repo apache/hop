@@ -59,7 +59,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class RegexEvalDialog extends BaseTransformDialog {
   private static final Class<?> PKG = RegexEvalMeta.class;
@@ -95,11 +94,9 @@ public class RegexEvalDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "RegexEvalDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSel =
@@ -110,45 +107,6 @@ public class RegexEvalDialog extends BaseTransformDialog {
           }
         };
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "RegexEvalDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "RegexEvalDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     SashForm wSash = new SashForm(shell, SWT.VERTICAL);
 
@@ -192,7 +150,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
     PropsUi.setLook(wlfieldevaluate);
     FormData fdlfieldevaluate = new FormData();
     fdlfieldevaluate.left = new FormAttachment(0, 0);
-    fdlfieldevaluate.top = new FormAttachment(wTransformName, margin);
+    fdlfieldevaluate.top = new FormAttachment(wSpacer, margin);
     fdlfieldevaluate.right = new FormAttachment(middle, -margin);
     wlfieldevaluate.setLayoutData(fdlfieldevaluate);
     wFieldEvaluate = new CCombo(wTransformSettings, SWT.BORDER | SWT.READ_ONLY);
@@ -201,7 +159,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
     wFieldEvaluate.addModifyListener(lsMod);
     FormData fdfieldevaluate = new FormData();
     fdfieldevaluate.left = new FormAttachment(middle, 0);
-    fdfieldevaluate.top = new FormAttachment(wTransformName, margin);
+    fdfieldevaluate.top = new FormAttachment(wSpacer, margin);
     fdfieldevaluate.right = new FormAttachment(100, -margin);
     wFieldEvaluate.setLayoutData(fdfieldevaluate);
     wFieldEvaluate.addSelectionListener(lsSel);
@@ -298,7 +256,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
     // settings layout
     FormData fdTransformSettings = new FormData();
     fdTransformSettings.left = new FormAttachment(0, margin);
-    fdTransformSettings.top = new FormAttachment(wTransformName, margin);
+    fdTransformSettings.top = new FormAttachment(wSpacer, margin);
     fdTransformSettings.right = new FormAttachment(100, -margin);
     wTransformSettings.setLayoutData(fdTransformSettings);
 
@@ -355,7 +313,8 @@ public class RegexEvalDialog extends BaseTransformDialog {
     fdScript.left = new FormAttachment(0, 0);
     fdScript.top = new FormAttachment(wbTestRegExScript, margin);
     fdScript.right = new FormAttachment(100, -10);
-    fdScript.bottom = new FormAttachment(wUseVar, -2 * margin);
+    fdScript.bottom = new FormAttachment(wUseVar, -margin);
+    fdScript.height = 200;
     wScript.setLayoutData(fdScript);
 
     FormLayout bottomLayout = new FormLayout();
@@ -655,7 +614,7 @@ public class RegexEvalDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(100, 0);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -669,23 +628,21 @@ public class RegexEvalDialog extends BaseTransformDialog {
 
     FormData fdSash = new FormData();
     fdSash.left = new FormAttachment(0, 0);
-    fdSash.top = new FormAttachment(wTransformName, 0);
+    fdSash.top = new FormAttachment(wSpacer, 0);
     fdSash.right = new FormAttachment(100, 0);
     fdSash.bottom = new FormAttachment(wOk, -margin);
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(new int[] {60, 40});
+    wSash.setWeights(60, 40);
 
     // Add listeners
 
     wTabFolder.setSelection(0);
 
     getData();
-
     setFieldsEnabledStatus();
-
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -772,9 +729,6 @@ public class RegexEvalDialog extends BaseTransformDialog {
     }
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

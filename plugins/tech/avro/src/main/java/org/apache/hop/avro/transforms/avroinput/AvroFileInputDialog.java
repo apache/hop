@@ -31,8 +31,6 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -60,41 +58,9 @@ public class AvroFileInputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "AvroFileInputDialog.Shell.Title"));
 
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "AvroFileInputDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "AvroFileInputDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     Label wlFilenameField = new Label(shell, SWT.RIGHT);
     wlFilenameField.setText(BaseMessages.getString(PKG, "AvroFileInputDialog.FilenameField.Label"));
@@ -102,7 +68,7 @@ public class AvroFileInputDialog extends BaseTransformDialog {
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
     fdlFilenameField.right = new FormAttachment(middle, -margin);
-    fdlFilenameField.top = new FormAttachment(lastControl, margin);
+    fdlFilenameField.top = new FormAttachment(wSpacer, margin);
     wlFilenameField.setLayoutData(fdlFilenameField);
     wFilenameField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFilenameField.setText(transformName);
@@ -112,7 +78,7 @@ public class AvroFileInputDialog extends BaseTransformDialog {
     fdFilenameField.top = new FormAttachment(wlFilenameField, 0, SWT.CENTER);
     fdFilenameField.right = new FormAttachment(100, 0);
     wFilenameField.setLayoutData(fdFilenameField);
-    lastControl = wFilenameField;
+    Control lastControl = wFilenameField;
 
     Label wlOutputField = new Label(shell, SWT.RIGHT);
     wlOutputField.setText(BaseMessages.getString(PKG, "AvroFileInputDialog.OutputField.Label"));
@@ -150,17 +116,8 @@ public class AvroFileInputDialog extends BaseTransformDialog {
     wRowsLimit.setLayoutData(fdRowsLimit);
     lastControl = wRowsLimit;
 
-    // Some buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
-
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -178,9 +135,6 @@ public class AvroFileInputDialog extends BaseTransformDialog {
     wFilenameField.setText(Const.NVL(input.getDataFilenameField(), ""));
     wOutputField.setText(Const.NVL(input.getOutputFieldName(), ""));
     wRowsLimit.setText(Const.NVL(input.getRowsLimit(), ""));
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

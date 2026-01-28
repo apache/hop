@@ -30,11 +30,15 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -65,68 +69,53 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ClosureGeneratorDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    //
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.TransformName"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     // Parent ...
     //
-    Label wlParent = new Label(shell, SWT.RIGHT);
+    Label wlParent = new Label(wContent, SWT.RIGHT);
     wlParent.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.ParentField.Label"));
     PropsUi.setLook(wlParent);
     FormData fdlParent = new FormData();
     fdlParent.left = new FormAttachment(0, 0);
     fdlParent.right = new FormAttachment(middle, -margin);
-    fdlParent.top = new FormAttachment(wTransformName, margin);
+    fdlParent.top = new FormAttachment(0, margin);
     wlParent.setLayoutData(fdlParent);
 
-    wParent = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wParent = new CCombo(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wParent);
     wParent.addModifyListener(lsMod);
     FormData fdParent = new FormData();
     fdParent.left = new FormAttachment(middle, 0);
     fdParent.right = new FormAttachment(100, 0);
-    fdParent.top = new FormAttachment(wTransformName, margin);
+    fdParent.top = new FormAttachment(0, margin);
     wParent.setLayoutData(fdParent);
 
     // Child ...
     //
-    Label wlChild = new Label(shell, SWT.RIGHT);
+    Label wlChild = new Label(wContent, SWT.RIGHT);
     wlChild.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.ChildField.Label"));
     PropsUi.setLook(wlChild);
     FormData fdlChild = new FormData();
@@ -135,7 +124,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
     fdlChild.top = new FormAttachment(wParent, margin);
     wlChild.setLayoutData(fdlChild);
 
-    wChild = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wChild = new CCombo(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wChild);
     wChild.addModifyListener(lsMod);
     FormData fdChild = new FormData();
@@ -146,7 +135,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
 
     // Distance ...
     //
-    Label wlDistance = new Label(shell, SWT.RIGHT);
+    Label wlDistance = new Label(wContent, SWT.RIGHT);
     wlDistance.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.DistanceField.Label"));
     PropsUi.setLook(wlDistance);
     FormData fdlDistance = new FormData();
@@ -155,7 +144,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
     fdlDistance.top = new FormAttachment(wChild, margin);
     wlDistance.setLayoutData(fdlDistance);
 
-    wDistance = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDistance = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDistance);
     wDistance.addModifyListener(lsMod);
     FormData fdDistance = new FormData();
@@ -166,7 +155,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
 
     // Root is zero(Integer)?
     //
-    Label wlRootZero = new Label(shell, SWT.RIGHT);
+    Label wlRootZero = new Label(wContent, SWT.RIGHT);
     wlRootZero.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.RootZero.Label"));
     PropsUi.setLook(wlRootZero);
     FormData fdlRootZero = new FormData();
@@ -175,7 +164,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
     fdlRootZero.top = new FormAttachment(wDistance, margin);
     wlRootZero.setLayoutData(fdlRootZero);
 
-    wRootZero = new Button(shell, SWT.CHECK);
+    wRootZero = new Button(wContent, SWT.CHECK);
     PropsUi.setLook(wRootZero);
     FormData fdRootZero = new FormData();
     fdRootZero.left = new FormAttachment(middle, 0);
@@ -183,6 +172,14 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
     fdRootZero.top = new FormAttachment(wlRootZero, 0, SWT.CENTER);
     wRootZero.setLayoutData(fdRootZero);
     wRootZero.addSelectionListener(new ComponentSelectionListener(input));
+
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
 
     // Search the fields in the background
     //
@@ -200,24 +197,8 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    setButtonPositions(
-        new Button[] {
-          wOk, wCancel,
-        },
-        2 * margin,
-        wRootZero);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -248,9 +229,6 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
       wDistance.setText(input.getDistanceFieldName());
     }
     wRootZero.setSelection(input.isRootIdZero());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

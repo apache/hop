@@ -165,54 +165,12 @@ public class TokenReplacementDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "TokenReplacementDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Transform name line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -267,7 +225,7 @@ public class TokenReplacementDialog extends BaseTransformDialog {
 
     /////////////////////
     // Input text group
-    gInputText = new Group(wInputComp, SWT.SHADOW_ETCHED_IN);
+    gInputText = new Group(wInputComp, SWT.SHADOW_NONE);
     gInputText.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.InputTextGroup.Label"));
     FormLayout inputTextLayout = new FormLayout();
     inputTextLayout.marginWidth = 3;
@@ -300,13 +258,13 @@ public class TokenReplacementDialog extends BaseTransformDialog {
     FormData fdgInputText = new FormData();
     fdgInputText.left = new FormAttachment(0, 0);
     fdgInputText.right = new FormAttachment(100, 0);
-    fdgInputText.top = new FormAttachment(wInputType, margin * 2);
-    fdgInputText.bottom = new FormAttachment(100, -margin * 2);
+    fdgInputText.top = new FormAttachment(wInputType, margin);
+    fdgInputText.bottom = new FormAttachment(100, -margin);
     gInputText.setLayoutData(fdgInputText);
 
     /////////////////////
     // Input field group
-    gInputField = new Group(wInputComp, SWT.SHADOW_ETCHED_IN);
+    gInputField = new Group(wInputComp, SWT.SHADOW_NONE);
     gInputField.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.InputFieldGroup.Label"));
     FormLayout inputFieldLayout = new FormLayout();
@@ -354,12 +312,12 @@ public class TokenReplacementDialog extends BaseTransformDialog {
     FormData fdgInputField = new FormData();
     fdgInputField.left = new FormAttachment(0, 0);
     fdgInputField.right = new FormAttachment(100, 0);
-    fdgInputField.top = new FormAttachment(wInputType, margin * 2);
+    fdgInputField.top = new FormAttachment(wInputType, margin);
     gInputField.setLayoutData(fdgInputField);
 
     /////////////////////
     // Input file group
-    gInputFile = new Group(wInputComp, SWT.SHADOW_ETCHED_IN);
+    gInputFile = new Group(wInputComp, SWT.SHADOW_NONE);
     gInputFile.setText(BaseMessages.getString(PKG, "TokenReplacementDialog.InputFileGroup.Label"));
     FormLayout inputFileLayout = new FormLayout();
     inputFileLayout.marginWidth = 3;
@@ -491,7 +449,7 @@ public class TokenReplacementDialog extends BaseTransformDialog {
     FormData fdgInputFile = new FormData();
     fdgInputFile.left = new FormAttachment(0, 0);
     fdgInputFile.right = new FormAttachment(100, 0);
-    fdgInputFile.top = new FormAttachment(wInputType, margin * 2);
+    fdgInputFile.top = new FormAttachment(wInputType, margin);
     gInputFile.setLayoutData(fdgInputFile);
 
     FormData fdInputComp = new FormData();
@@ -554,7 +512,7 @@ public class TokenReplacementDialog extends BaseTransformDialog {
 
     /////////////////////
     // Output field group
-    gOutputField = new Group(wOutputComp, SWT.SHADOW_ETCHED_IN);
+    gOutputField = new Group(wOutputComp, SWT.SHADOW_NONE);
     gOutputField.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.OutputFieldGroup.Label"));
     FormLayout outputFieldLayout = new FormLayout();
@@ -588,12 +546,12 @@ public class TokenReplacementDialog extends BaseTransformDialog {
     FormData fdgOutputField = new FormData();
     fdgOutputField.left = new FormAttachment(0, 0);
     fdgOutputField.right = new FormAttachment(100, 0);
-    fdgOutputField.top = new FormAttachment(wOutputType, margin * 2);
+    fdgOutputField.top = new FormAttachment(wOutputType, margin);
     gOutputField.setLayoutData(fdgOutputField);
 
     /////////////////////
     // Output file group
-    gOutputFile = new Group(wOutputComp, SWT.SHADOW_ETCHED_IN);
+    gOutputFile = new Group(wOutputComp, SWT.SHADOW_NONE);
     gOutputFile.setText(
         BaseMessages.getString(PKG, "TokenReplacementDialog.OutputFileGroup.Label"));
     FormLayout outputFileLayout = new FormLayout();
@@ -1026,7 +984,7 @@ public class TokenReplacementDialog extends BaseTransformDialog {
     FormData fdgOutputFile = new FormData();
     fdgOutputFile.left = new FormAttachment(0, 0);
     fdgOutputFile.right = new FormAttachment(100, 0);
-    fdgOutputFile.top = new FormAttachment(wOutputType, margin * 2);
+    fdgOutputFile.top = new FormAttachment(wOutputType, margin);
     gOutputFile.setLayoutData(fdgOutputFile);
 
     FormData fdOutputComp = new FormData();
@@ -1134,7 +1092,7 @@ public class TokenReplacementDialog extends BaseTransformDialog {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(wTokenEndString, margin * 2);
+    fdFields.top = new FormAttachment(wTokenEndString, margin);
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(wGet, -margin);
     wFields.setLayoutData(fdFields);
@@ -1173,9 +1131,9 @@ public class TokenReplacementDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add listeners
@@ -1226,7 +1184,7 @@ public class TokenReplacementDialog extends BaseTransformDialog {
     input.setChanged(changed);
     updateInputType();
     updateOutputType();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -1449,9 +1407,6 @@ public class TokenReplacementDialog extends BaseTransformDialog {
     }
 
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

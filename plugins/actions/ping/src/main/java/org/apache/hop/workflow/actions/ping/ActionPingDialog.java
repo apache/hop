@@ -25,9 +25,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -37,17 +35,12 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the ping action settings. */
 public class ActionPingDialog extends ActionDialog {
   private static final Class<?> PKG = ActionPing.class;
-
-  private Text wName;
 
   private TextVar wHostname;
 
@@ -74,43 +67,12 @@ public class ActionPingDialog extends ActionDialog {
 
   @Override
   public IAction open() {
+    createShell(BaseMessages.getString(PKG, "ActionPing.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    shell.setMinimumSize(400, 250);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
-    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionPing.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Filename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
-    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
+    ModifyListener lsMod = e -> action.setChanged();
 
     // hostname line
     Label wlHostname = new Label(shell, SWT.RIGHT);
@@ -118,7 +80,7 @@ public class ActionPingDialog extends ActionDialog {
     PropsUi.setLook(wlHostname);
     FormData fdlHostname = new FormData();
     fdlHostname.left = new FormAttachment(0, 0);
-    fdlHostname.top = new FormAttachment(wName, margin);
+    fdlHostname.top = new FormAttachment(wSpacer, margin);
     fdlHostname.right = new FormAttachment(middle, -margin);
     wlHostname.setLayoutData(fdlHostname);
 
@@ -127,7 +89,7 @@ public class ActionPingDialog extends ActionDialog {
     wHostname.addModifyListener(lsMod);
     FormData fdHostname = new FormData();
     fdHostname.left = new FormAttachment(middle, 0);
-    fdHostname.top = new FormAttachment(wName, margin);
+    fdHostname.top = new FormAttachment(wlHostname, 0, SWT.CENTER);
     fdHostname.right = new FormAttachment(100, 0);
     wHostname.setLayoutData(fdHostname);
 
@@ -202,18 +164,9 @@ public class ActionPingDialog extends ActionDialog {
     fdNbrPackets.right = new FormAttachment(100, 0);
     wNbrPackets.setLayoutData(fdNbrPackets);
 
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
     getData();
     setPingType();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -254,9 +207,11 @@ public class ActionPingDialog extends ActionDialog {
     }
 
     wPingType.select(action.ipingtype);
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

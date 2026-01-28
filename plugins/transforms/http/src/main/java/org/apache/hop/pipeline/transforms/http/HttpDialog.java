@@ -60,7 +60,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class HttpDialog extends BaseTransformDialog {
   private static final Class<?> PKG = HttpMeta.class;
@@ -120,28 +119,12 @@ public class HttpDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "HTTPDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "HTTPDialog.Shell.Title"));
-
-    int margin = PropsUi.getMargin();
-
-    setupButtons();
-
-    Control lastControl = setupTransformNameField(lsMod);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -165,7 +148,7 @@ public class HttpDialog extends BaseTransformDialog {
     // START Settings GROUP
 
     Group gSettings = setupSettingGroup(wGeneralComp);
-    lastControl = setupUrlLine(lsMod, lastControl, gSettings);
+    Control lastControl = setupUrlLine(lsMod, null, gSettings);
     lastControl = setupUrlInFieldLine(lastControl, gSettings);
     lastControl = setupIgnoreSslLine(lastControl, gSettings);
     lastControl = setupUrlFieldNameLine(lsMod, lastControl, gSettings);
@@ -177,7 +160,7 @@ public class HttpDialog extends BaseTransformDialog {
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, 0);
     fdSettings.right = new FormAttachment(100, 0);
-    fdSettings.top = new FormAttachment(lastControl, margin);
+    fdSettings.top = new FormAttachment(0, margin);
     gSettings.setLayoutData(fdSettings);
 
     // END Output Settings GROUP
@@ -234,7 +217,7 @@ public class HttpDialog extends BaseTransformDialog {
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(wTransformName, margin);
+    fdGeneralComp.top = new FormAttachment(0, margin);
     fdGeneralComp.right = new FormAttachment(100, 0);
     fdGeneralComp.bottom = new FormAttachment(100, 0);
     wGeneralComp.setLayoutData(fdGeneralComp);
@@ -286,7 +269,7 @@ public class HttpDialog extends BaseTransformDialog {
 
     FormData fdAdditionalComp = new FormData();
     fdAdditionalComp.left = new FormAttachment(0, 0);
-    fdAdditionalComp.top = new FormAttachment(wTransformName, margin);
+    fdAdditionalComp.top = new FormAttachment(0, margin);
     fdAdditionalComp.right = new FormAttachment(100, 0);
     fdAdditionalComp.bottom = new FormAttachment(100, 0);
     wAdditionalComp.setLayoutData(fdAdditionalComp);
@@ -297,9 +280,9 @@ public class HttpDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     lsResize =
@@ -315,7 +298,7 @@ public class HttpDialog extends BaseTransformDialog {
     wTabFolder.setSelection(0);
     activeUrlInfield();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -380,7 +363,7 @@ public class HttpDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(lastControl, margin);
+    fdlFields.top = new FormAttachment(0, margin);
     wlFields.setLayoutData(fdlFields);
 
     Button wGet = new Button(wAdditionalComp, SWT.PUSH);
@@ -426,8 +409,6 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupProxyPort(ModifyListener lsMod, Control lastControl, Group gProxy) {
     // Proxy port
-    int margin = PropsUi.getMargin();
-    int middle = props.getMiddlePct();
     Label wlProxyPort = new Label(gProxy, SWT.RIGHT);
     wlProxyPort.setText(BaseMessages.getString(PKG, "HTTPDialog.ProxyPort.Label"));
     PropsUi.setLook(wlProxyPort);
@@ -477,7 +458,7 @@ public class HttpDialog extends BaseTransformDialog {
   }
 
   private Group setupProxyGroup(Composite wGeneralComp) {
-    Group gProxy = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
+    Group gProxy = new Group(wGeneralComp, SWT.SHADOW_NONE);
     gProxy.setText(BaseMessages.getString(PKG, "HTTPDialog.ProxyGroup.Label"));
     FormLayout proxyLayout = new FormLayout();
     proxyLayout.marginWidth = 3;
@@ -534,7 +515,7 @@ public class HttpDialog extends BaseTransformDialog {
   }
 
   private Group setupHttpAuthGroup(Composite wGeneralComp) {
-    Group gHttpAuth = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
+    Group gHttpAuth = new Group(wGeneralComp, SWT.SHADOW_NONE);
     gHttpAuth.setText(BaseMessages.getString(PKG, "HTTPDialog.HttpAuthGroup.Label"));
     FormLayout httpAuthLayout = new FormLayout();
     httpAuthLayout.marginWidth = 3;
@@ -634,7 +615,7 @@ public class HttpDialog extends BaseTransformDialog {
   }
 
   private Group setupOutputFieldGroup(Composite wGeneralComp) {
-    Group gOutputFields = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
+    Group gOutputFields = new Group(wGeneralComp, SWT.SHADOW_NONE);
     gOutputFields.setText(BaseMessages.getString(PKG, "HTTPDialog.OutputFieldsGroup.Label"));
     FormLayout outputFieldsLayout = new FormLayout();
     outputFieldsLayout.marginWidth = 3;
@@ -864,8 +845,7 @@ public class HttpDialog extends BaseTransformDialog {
     return lastControl;
   }
 
-  private Control setupUrlLine(
-      ModifyListener lsMod, Control transformNameControl, Group gSettings) {
+  private Control setupUrlLine(ModifyListener lsMod, Control previousControl, Group gSettings) {
     // The URL to use
     //
     int margin = PropsUi.getMargin();
@@ -876,7 +856,7 @@ public class HttpDialog extends BaseTransformDialog {
     FormData fdlUrl = new FormData();
     fdlUrl.left = new FormAttachment(0, 0);
     fdlUrl.right = new FormAttachment(middle, -margin);
-    fdlUrl.top = new FormAttachment(transformNameControl, margin);
+    fdlUrl.top = new FormAttachment(0, margin);
     wlUrl.setLayoutData(fdlUrl);
 
     wUrl = new TextVar(variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -884,15 +864,14 @@ public class HttpDialog extends BaseTransformDialog {
     wUrl.addModifyListener(lsMod);
     FormData fdUrl = new FormData();
     fdUrl.left = new FormAttachment(middle, 0);
-    fdUrl.top = new FormAttachment(transformNameControl, margin);
+    fdUrl.top = new FormAttachment(0, margin);
     fdUrl.right = new FormAttachment(100, 0);
     wUrl.setLayoutData(fdUrl);
-    transformNameControl = wUrl;
-    return transformNameControl;
+    return wUrl;
   }
 
   private Group setupSettingGroup(Composite wGeneralComp) {
-    Group gSettings = new Group(wGeneralComp, SWT.SHADOW_ETCHED_IN);
+    Group gSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
     gSettings.setText(BaseMessages.getString(PKG, "HTTPDialog.SettingsGroup.Label"));
     FormLayout settingsLayout = new FormLayout();
     settingsLayout.marginWidth = 3;
@@ -900,42 +879,6 @@ public class HttpDialog extends BaseTransformDialog {
     gSettings.setLayout(settingsLayout);
     PropsUi.setLook(gSettings);
     return gSettings;
-  }
-
-  private Control setupTransformNameField(ModifyListener lsMod) {
-    // TransformName line
-    //
-    int margin = PropsUi.getMargin();
-    int middle = props.getMiddlePct();
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "HTTPDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    return wTransformName;
-  }
-
-  private void setupButtons() {
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
   }
 
   private void setEncodings() {
@@ -1035,9 +978,6 @@ public class HttpDialog extends BaseTransformDialog {
     wFields.optWidth(true);
     wHeaders.setRowNums();
     wHeaders.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

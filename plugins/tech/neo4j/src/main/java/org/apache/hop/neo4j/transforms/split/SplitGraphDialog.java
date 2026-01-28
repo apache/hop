@@ -35,19 +35,15 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class SplitGraphDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       SplitGraphMeta.class; // for i18n purposes, needed by Translator2!!
-
-  private Text wTransformName;
 
   private CCombo wGraphField;
   private TextVar wTypeField;
@@ -64,15 +60,9 @@ public class SplitGraphDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "SplitGraphMeta.name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout shellLayout = new FormLayout();
-    shell.setLayout(shellLayout);
-    shell.setText(BaseMessages.getString(PKG, "SplitGraphMeta.name"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
@@ -84,8 +74,8 @@ public class SplitGraphDialog extends BaseTransformDialog {
     FormData fdSComposite = new FormData();
     fdSComposite.left = new FormAttachment(0, 0);
     fdSComposite.right = new FormAttachment(100, 0);
-    fdSComposite.top = new FormAttachment(0, 0);
-    fdSComposite.bottom = new FormAttachment(100, 0);
+    fdSComposite.top = new FormAttachment(wSpacer, 0);
+    fdSComposite.bottom = new FormAttachment(wOk, -margin);
     wScrolledComposite.setLayoutData(fdSComposite);
 
     Composite wComposite = new Composite(wScrolledComposite, SWT.NONE);
@@ -102,28 +92,7 @@ public class SplitGraphDialog extends BaseTransformDialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(formLayout);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(wComposite, SWT.RIGHT);
-    wlTransformName.setText("Transform name");
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wSpacer;
 
     String[] fieldnames = new String[] {};
     try {
@@ -140,7 +109,7 @@ public class SplitGraphDialog extends BaseTransformDialog {
     FormData fdlGraphField = new FormData();
     fdlGraphField.left = new FormAttachment(0, 0);
     fdlGraphField.right = new FormAttachment(middle, -margin);
-    fdlGraphField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlGraphField.top = new FormAttachment(0, margin);
     wlGraphField.setLayoutData(fdlGraphField);
     wGraphField = new CCombo(wComposite, SWT.CHECK | SWT.BORDER);
     wGraphField.setItems(fieldnames);
@@ -160,7 +129,7 @@ public class SplitGraphDialog extends BaseTransformDialog {
     FormData fdlTypeField = new FormData();
     fdlTypeField.left = new FormAttachment(0, 0);
     fdlTypeField.right = new FormAttachment(middle, -margin);
-    fdlTypeField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlTypeField.top = new FormAttachment(lastControl, margin);
     wlTypeField.setLayoutData(fdlTypeField);
     wTypeField = new TextVar(variables, wComposite, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wTypeField);
@@ -179,7 +148,7 @@ public class SplitGraphDialog extends BaseTransformDialog {
     FormData fdlIdField = new FormData();
     fdlIdField.left = new FormAttachment(0, 0);
     fdlIdField.right = new FormAttachment(middle, -margin);
-    fdlIdField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlIdField.top = new FormAttachment(lastControl, margin);
     wlIdField.setLayoutData(fdlIdField);
     wIdField = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wIdField);
@@ -199,7 +168,7 @@ public class SplitGraphDialog extends BaseTransformDialog {
     FormData fdlPropertySetField = new FormData();
     fdlPropertySetField.left = new FormAttachment(0, 0);
     fdlPropertySetField.right = new FormAttachment(middle, -margin);
-    fdlPropertySetField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlPropertySetField.top = new FormAttachment(lastControl, margin);
     wlPropertySetField.setLayoutData(fdlPropertySetField);
     wPropertySetField = new TextVar(variables, wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPropertySetField);
@@ -211,16 +180,6 @@ public class SplitGraphDialog extends BaseTransformDialog {
     wPropertySetField.setLayoutData(fdPropertySetField);
     lastControl = wPropertySetField;
 
-    // Some buttons
-    wOk = new Button(wComposite, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(wComposite, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    // Position the buttons at the bottom of the dialog.
-    //
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
-
     wComposite.pack();
     Rectangle bounds = wComposite.getBounds();
 
@@ -231,13 +190,8 @@ public class SplitGraphDialog extends BaseTransformDialog {
     wScrolledComposite.setMinWidth(bounds.width);
     wScrolledComposite.setMinHeight(bounds.height);
 
-    // Add listeners
-    //
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -250,8 +204,6 @@ public class SplitGraphDialog extends BaseTransformDialog {
   }
 
   public void getData() {
-
-    wTransformName.setText(Const.NVL(transformName, ""));
     wGraphField.setText(Const.NVL(input.getGraphField(), ""));
     wTypeField.setText(Const.NVL(input.getTypeField(), ""));
     wIdField.setText(Const.NVL(input.getIdField(), ""));

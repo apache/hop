@@ -33,9 +33,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -53,7 +51,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * This dialog allows you to edit the SQL action settings. (select the connection and the sql script
@@ -64,8 +61,6 @@ public class ActionHttpDialog extends ActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionHTTP.Filetype.All")};
-
-  private Text wName;
 
   private Label wlURL;
 
@@ -140,26 +135,14 @@ public class ActionHttpDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionHTTP.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionHTTP.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    Button wOk = setupButtons(margin);
-    setupActionName(lsMod, middle, margin);
+    int middle = this.middle;
+    int margin = this.margin;
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -243,7 +226,7 @@ public class ActionHttpDialog extends ActionDialog {
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(wName, 0);
+    fdGeneralComp.top = new FormAttachment(0, margin);
     fdGeneralComp.right = new FormAttachment(100, 0);
     fdGeneralComp.bottom = new FormAttachment(100, 0);
     wGeneralComp.setLayoutData(fdGeneralComp);
@@ -276,15 +259,15 @@ public class ActionHttpDialog extends ActionDialog {
     // ///////////////////////////////////////////////////////////
 
     FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.left = new FormAttachment(0, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
+    fdTabFolder.right = new FormAttachment(100, -margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
     wTabFolder.setSelection(0);
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -324,7 +307,7 @@ public class ActionHttpDialog extends ActionDialog {
 
     FormData fdHeaders = new FormData();
     fdHeaders.left = new FormAttachment(0, margin);
-    fdHeaders.top = new FormAttachment(wName, margin);
+    fdHeaders.top = new FormAttachment(0, margin);
     fdHeaders.right = new FormAttachment(100, -margin);
     fdHeaders.bottom = new FormAttachment(100, -margin);
     wHeaders.setLayoutData(fdHeaders);
@@ -370,7 +353,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlTargetExt);
     FormData fdlTargetExt = new FormData();
     fdlTargetExt.left = new FormAttachment(0, 0);
-    fdlTargetExt.top = new FormAttachment(wlDateTimeAdded, 2 * margin);
+    fdlTargetExt.top = new FormAttachment(wlDateTimeAdded, margin);
     fdlTargetExt.right = new FormAttachment(middle, -margin);
     wlTargetExt.setLayoutData(fdlTargetExt);
     wTargetExt = new TextVar(variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -391,7 +374,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlDateTimeAdded);
     FormData fdlDateTimeAdded = new FormData();
     fdlDateTimeAdded.left = new FormAttachment(0, 0);
-    fdlDateTimeAdded.top = new FormAttachment(wlAppend, 2 * margin);
+    fdlDateTimeAdded.top = new FormAttachment(wlAppend, margin);
     fdlDateTimeAdded.right = new FormAttachment(middle, -margin);
     wlDateTimeAdded.setLayoutData(fdlDateTimeAdded);
     wDateTimeAdded = new Button(wTargetFileGroup, SWT.CHECK);
@@ -709,7 +692,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlFieldURL);
     FormData fdlFieldURL = new FormData();
     fdlFieldURL.left = new FormAttachment(0, 0);
-    fdlFieldURL.top = new FormAttachment(wRunEveryRow, 2 * margin);
+    fdlFieldURL.top = new FormAttachment(wRunEveryRow, margin);
     fdlFieldURL.right = new FormAttachment(middle, -margin);
     wlFieldURL.setLayoutData(fdlFieldURL);
     wFieldURL = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -718,7 +701,7 @@ public class ActionHttpDialog extends ActionDialog {
     wFieldURL.addModifyListener(lsMod);
     FormData fdFieldURL = new FormData();
     fdFieldURL.left = new FormAttachment(middle, 0);
-    fdFieldURL.top = new FormAttachment(wRunEveryRow, 2 * margin);
+    fdFieldURL.top = new FormAttachment(wRunEveryRow, margin);
     fdFieldURL.right = new FormAttachment(100, 0);
     wFieldURL.setLayoutData(fdFieldURL);
   }
@@ -786,7 +769,7 @@ public class ActionHttpDialog extends ActionDialog {
     PropsUi.setLook(wlURL);
     FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment(0, 0);
-    fdlURL.top = new FormAttachment(wName, 2 * margin);
+    fdlURL.top = new FormAttachment(0, margin);
     fdlURL.right = new FormAttachment(middle, -margin);
     wlURL.setLayoutData(fdlURL);
     wURL =
@@ -799,42 +782,14 @@ public class ActionHttpDialog extends ActionDialog {
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(middle, 0);
-    fdURL.top = new FormAttachment(wName, 2 * margin);
+    fdURL.top = new FormAttachment(0, margin);
     fdURL.right = new FormAttachment(100, 0);
     wURL.setLayoutData(fdURL);
   }
 
-  private void setupActionName(ModifyListener lsMod, int middle, int margin) {
-    // Action name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionHTTP.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-  }
-
-  private Button setupButtons(int margin) {
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-    return wOk;
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void setFlags() {
@@ -913,9 +868,6 @@ public class ActionHttpDialog extends ActionDialog {
 
     wAddFilenameToResult.setSelection(action.isAddFilenameToResult());
     setFlags();
-
-    wName.selectAll();
-    wName.setFocus();
   }
 
   private void cancel() {

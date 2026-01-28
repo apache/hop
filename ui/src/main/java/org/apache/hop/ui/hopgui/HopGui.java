@@ -554,7 +554,13 @@ public class HopGui
   }
 
   private void closeEvent(Event event) {
-    event.doit = fileDelegate.fileExit();
+    boolean shouldExit = fileDelegate.fileExit();
+    event.doit = shouldExit;
+
+    if (shouldExit) {
+      // Save the shell size and position before closing
+      props.setScreen(new WindowProperty(shell));
+    }
   }
 
   private void loadPerspectives() {

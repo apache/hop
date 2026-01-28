@@ -67,7 +67,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -155,58 +154,17 @@ public class ScriptDialog extends BaseTransformDialog {
   }
 
   public String open() {
+    createShell(BaseMessages.getString(PKG, "ScriptDialog.Shell.Title"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
     Shell parent = getParent();
     Display display = parent.getDisplay();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
 
     lsMod =
         e -> {
           input.setChanged();
         };
     changed = input.hasChanged();
-
-    shell.setLayout(props.createFormLayout());
-    shell.setText(BaseMessages.getString(PKG, "ScriptDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(
-        new Button[] {
-          wOk, wCancel,
-        },
-        margin,
-        null);
-
-    // Filename line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ScriptDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // Script engines line
     Label wlEngines = new Label(shell, SWT.RIGHT);
@@ -215,7 +173,7 @@ public class ScriptDialog extends BaseTransformDialog {
     FormData fdlEngines = new FormData();
     fdlEngines.left = new FormAttachment(0, 0);
     fdlEngines.right = new FormAttachment(middle, -margin);
-    fdlEngines.top = new FormAttachment(wTransformName, margin);
+    fdlEngines.top = new FormAttachment(wSpacer, margin);
     wlEngines.setLayoutData(fdlEngines);
     wEngines = new CCombo(shell, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER);
     List<String> scriptEngineNames = ScriptUtils.getInstance().getScriptLanguageNames();
@@ -232,18 +190,18 @@ public class ScriptDialog extends BaseTransformDialog {
     wEngines.addModifyListener(lsMod);
     FormData fdEngines = new FormData();
     fdEngines.left = new FormAttachment(middle, 0);
-    fdEngines.top = new FormAttachment(wTransformName, margin);
+    fdEngines.top = new FormAttachment(wSpacer, margin);
     fdEngines.right = new FormAttachment(100, 0);
     wEngines.setLayoutData(fdEngines);
 
     SashForm wSash = new SashForm(shell, SWT.VERTICAL);
     wSash.setLayout(new FormLayout());
-    FormData fdSashForm = new FormData();
-    fdSashForm.left = new FormAttachment(0, 0);
-    fdSashForm.top = new FormAttachment(wEngines, 0);
-    fdSashForm.right = new FormAttachment(100, 0);
-    fdSashForm.bottom = new FormAttachment(100, 0);
-    wSash.setLayoutData(fdSashForm);
+    FormData fdSash = new FormData();
+    fdSash.left = new FormAttachment(0, margin);
+    fdSash.top = new FormAttachment(wEngines, margin);
+    fdSash.right = new FormAttachment(100, -margin);
+    fdSash.bottom = new FormAttachment(wOk, -margin);
+    wSash.setLayoutData(fdSash);
 
     // Top sash form
     //
@@ -291,6 +249,7 @@ public class ScriptDialog extends BaseTransformDialog {
     fdScript.top = new FormAttachment(wlScript, margin);
     fdScript.right = new FormAttachment(100, -5);
     fdScript.bottom = new FormAttachment(100, -50);
+    fdScript.height = 200;
     folder.setLayoutData(fdScript);
 
     wlPosition = new Label(wTop, SWT.NONE);
@@ -402,14 +361,7 @@ public class ScriptDialog extends BaseTransformDialog {
     fdBottom.bottom = new FormAttachment(100, 0);
     wBottom.setLayoutData(fdBottom);
 
-    FormData fdSash = new FormData();
-    fdSash.left = new FormAttachment(0, 0);
-    fdSash.top = new FormAttachment(wEngines, 0);
-    fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(wOk, -2 * margin);
-    wSash.setLayoutData(fdSash);
-
-    wSash.setWeights(new int[] {75, 25});
+    wSash.setWeights(new int[] {50, 50});
 
     // Add listeners
     folder.addCTabFolder2Listener(
@@ -534,6 +486,7 @@ public class ScriptDialog extends BaseTransformDialog {
         display.sleep();
       }
     }
+
     return transformName;
   }
 
@@ -821,9 +774,6 @@ public class ScriptDialog extends BaseTransformDialog {
 
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   // Setting default active Script

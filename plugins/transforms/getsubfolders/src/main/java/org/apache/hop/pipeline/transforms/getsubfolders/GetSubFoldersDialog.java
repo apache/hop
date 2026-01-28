@@ -104,56 +104,12 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "GetSubFoldersDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "GetSubFoldersDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "GetSubFoldersDialog.Preview.Button"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -193,7 +149,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     FormData fdlFileField = new FormData();
     fdlFileField.left = new FormAttachment(0, -margin);
     fdlFileField.top = new FormAttachment(0, margin);
-    fdlFileField.right = new FormAttachment(middle, -2 * margin);
+    fdlFileField.right = new FormAttachment(middle, -margin);
     wlFileField.setLayoutData(fdlFileField);
 
     wFolderField = new Button(wOriginFolders, SWT.CHECK);
@@ -222,7 +178,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     FormData fdlFolderNameField = new FormData();
     fdlFolderNameField.left = new FormAttachment(0, -margin);
     fdlFolderNameField.top = new FormAttachment(wFolderField, margin);
-    fdlFolderNameField.right = new FormAttachment(middle, -2 * margin);
+    fdlFolderNameField.right = new FormAttachment(middle, -margin);
     wlFilenameField.setLayoutData(fdlFolderNameField);
 
     wFolderNameField = new ComboVar(variables, wOriginFolders, SWT.BORDER | SWT.READ_ONLY);
@@ -302,7 +258,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFolderNameList);
     FormData fdlFolderNameList = new FormData();
     fdlFolderNameList.left = new FormAttachment(0, 0);
-    fdlFolderNameList.top = new FormAttachment(wFolderName, 2 * margin);
+    fdlFolderNameList.top = new FormAttachment(wFolderName, margin);
     fdlFolderNameList.right = new FormAttachment(middle, -margin);
     wlFolderNameList.setLayoutData(fdlFolderNameList);
 
@@ -377,9 +333,9 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // ////////////////////////
@@ -416,7 +372,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     PropsUi.setLook(wlInclRowNumber);
     FormData fdlInclRowNumber = new FormData();
     fdlInclRowNumber.left = new FormAttachment(0, 0);
-    fdlInclRowNumber.top = new FormAttachment(0, 2 * margin);
+    fdlInclRowNumber.top = new FormAttachment(0, margin);
     fdlInclRowNumber.right = new FormAttachment(middle, -margin);
     wlInclRowNumber.setLayoutData(fdlInclRowNumber);
     wInclRowNumber = new Button(wAdditionalGroup, SWT.CHECK);
@@ -443,7 +399,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     PropsUi.setLook(wlInclRowNumberField);
     FormData fdlInclRowNumberField = new FormData();
     fdlInclRowNumberField.left = new FormAttachment(wInclRowNumber, margin);
-    fdlInclRowNumberField.top = new FormAttachment(0, 2 * margin);
+    fdlInclRowNumberField.top = new FormAttachment(0, margin);
     wlInclRowNumberField.setLayoutData(fdlInclRowNumberField);
     wInclRowNumberField =
         new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -451,7 +407,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     wInclRowNumberField.addModifyListener(lsMod);
     FormData fdInclRowNumberField = new FormData();
     fdInclRowNumberField.left = new FormAttachment(wlInclRowNumberField, margin);
-    fdInclRowNumberField.top = new FormAttachment(0, 2 * margin);
+    fdInclRowNumberField.top = new FormAttachment(0, margin);
     fdInclRowNumberField.right = new FormAttachment(100, 0);
     wInclRowNumberField.setLayoutData(fdInclRowNumberField);
 
@@ -470,7 +426,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
-    fdlLimit.top = new FormAttachment(wAdditionalGroup, 2 * margin);
+    fdlLimit.top = new FormAttachment(wAdditionalGroup, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wSettingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -478,7 +434,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
-    fdLimit.top = new FormAttachment(wAdditionalGroup, 2 * margin);
+    fdLimit.top = new FormAttachment(wAdditionalGroup, margin);
     fdLimit.right = new FormAttachment(100, 0);
     wLimit.setLayoutData(fdLimit);
 
@@ -541,7 +497,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
     getData(input);
     activateFileField();
     activateIncludeRowNum();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -597,9 +553,6 @@ public class GetSubFoldersDialog extends BaseTransformDialog {
       wFolderNameField.setText(meta.getDynamicFolderNameField());
     }
     wLimit.setText("" + meta.getRowLimit());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

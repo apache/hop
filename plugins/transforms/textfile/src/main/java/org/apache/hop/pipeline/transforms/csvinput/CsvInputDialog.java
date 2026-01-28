@@ -85,7 +85,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -136,11 +135,14 @@ public class CsvInputDialog extends BaseTransformDialog
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "CsvInputDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, inputMeta);
+    buildButtonBar()
+        .ok(e -> ok())
+        .get(e -> getFields())
+        .preview(e -> preview())
+        .cancel(e -> cancel())
+        .build();
 
     ModifyListener lsMod = e -> inputMeta.setChanged();
     changed = inputMeta.hasChanged();
@@ -158,35 +160,7 @@ public class CsvInputDialog extends BaseTransformDialog
           }
         };
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "CsvInputDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Transform name line
-    //
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "CsvInputDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wSpacer;
 
     // See if the transform receives input. If so, we don't ask for the filename, but
     // for the filename field.
@@ -562,20 +536,8 @@ public class CsvInputDialog extends BaseTransformDialog
     wIgnoreFields.setLayoutData(fdIgnoreFields);
     lastControl = wIgnoreFields;
 
-    // Some buttons first, so that the dialog scales nicely...
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
-    wPreview.setEnabled(!isReceivingInput);
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
     wGet.setEnabled(!isReceivingInput);
-
-    setButtonPositions(new Button[] {wOk, wGet, wPreview, wCancel}, margin, null);
+    wPreview.setEnabled(!isReceivingInput);
 
     // Fields
     ColumnInfo[] colinf =
@@ -623,17 +585,12 @@ public class CsvInputDialog extends BaseTransformDialog
         new TableView(variables, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props);
 
     FormData fdFields = new FormData();
-    fdFields.top = new FormAttachment(lastControl, margin * 2);
-    fdFields.bottom = new FormAttachment(wOk, -margin * 2);
+    fdFields.top = new FormAttachment(lastControl, margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     fdFields.left = new FormAttachment(0, 0);
     fdFields.right = new FormAttachment(100, 0);
     wFields.setLayoutData(fdFields);
     wFields.setContentListener(lsContent);
-
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wGet.addListener(SWT.Selection, e -> getFields());
 
     // Allow the insertion of tabs as separator...
     wbDelimiter.addSelectionListener(
@@ -724,7 +681,7 @@ public class CsvInputDialog extends BaseTransformDialog
                     STRING_USAGE_INFO_PARAMETER, md.getToggleState() ? "N" : "Y");
               }
             });
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -856,9 +813,7 @@ public class CsvInputDialog extends BaseTransformDialog
       final boolean copyTransformName,
       final boolean reloadAllFields,
       final List<String> newFieldNames) {
-    if (copyTransformName) {
-      wTransformName.setText(transformName);
-    }
+    if (copyTransformName) {}
     if (isReceivingInput) {
       wFilenameField.setText(Const.NVL(inputMeta.getFilenameField(), ""));
       wIncludeFilename.setSelection(inputMeta.isIncludingFilename());
@@ -903,9 +858,6 @@ public class CsvInputDialog extends BaseTransformDialog
     wFields.optWidth(true);
 
     setFlags();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

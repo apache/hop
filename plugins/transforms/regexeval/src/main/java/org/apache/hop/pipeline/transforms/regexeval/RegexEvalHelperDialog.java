@@ -104,7 +104,7 @@ public class RegexEvalHelperDialog extends Dialog {
   public String open() {
     Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.NONE);
+    shell = new Shell(parent, BaseDialog.getDefaultDialogStyle());
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
@@ -135,7 +135,7 @@ public class RegexEvalHelperDialog extends Dialog {
     FormData fdlRegExScript = new FormData();
     fdlRegExScript.left = new FormAttachment(0, 0);
     fdlRegExScript.right = new FormAttachment(100, 0);
-    fdlRegExScript.top = new FormAttachment(0, 2 * margin);
+    fdlRegExScript.top = new FormAttachment(0, margin);
     wlRegExScript.setLayoutData(fdlRegExScript);
 
     wRegExScript =
@@ -144,9 +144,9 @@ public class RegexEvalHelperDialog extends Dialog {
     PropsUi.setLook(wRegExScript);
     FormData fdRegExScript = new FormData();
     fdRegExScript.left = new FormAttachment(0, 0);
-    fdRegExScript.top = new FormAttachment(wlRegExScript, 2 * margin);
+    fdRegExScript.top = new FormAttachment(wlRegExScript, margin);
     fdRegExScript.right = new FormAttachment(100, -margin);
-    fdRegExScript.bottom = new FormAttachment(40, -2 * margin);
+    fdRegExScript.bottom = new FormAttachment(40, -margin);
     wRegExScript.setLayoutData(fdRegExScript);
     wRegExScript.setFont(GuiResource.getInstance().getFontFixed());
 
@@ -312,7 +312,7 @@ public class RegexEvalHelperDialog extends Dialog {
     FormData fdGroups = new FormData();
     fdGroups.left = new FormAttachment(middle, margin);
     fdGroups.top = new FormAttachment(wValueGroup, margin);
-    fdGroups.right = new FormAttachment(100, -2 * margin - ConstUi.SMALL_ICON_SIZE);
+    fdGroups.right = new FormAttachment(100, -margin - ConstUi.SMALL_ICON_SIZE);
     fdGroups.bottom = new FormAttachment(100, -margin);
     wGroups.setLayoutData(fdGroups);
 
@@ -320,7 +320,7 @@ public class RegexEvalHelperDialog extends Dialog {
     fdCaptureGroups.left = new FormAttachment(0, 0);
     fdCaptureGroups.top = new FormAttachment(wValuesGroup, margin);
     fdCaptureGroups.right = new FormAttachment(100, 0);
-    fdCaptureGroups.bottom = new FormAttachment(wOk, -2 * margin);
+    fdCaptureGroups.bottom = new FormAttachment(wOk, -margin);
     wCaptureGroups.setLayoutData(fdCaptureGroups);
 
     // ///////////////////////////////////////////////////////////

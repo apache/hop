@@ -30,16 +30,18 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class WebServiceAvailableDialog extends BaseTransformDialog {
   private static final Class<?> PKG = WebServiceAvailableMeta.class;
@@ -67,63 +69,47 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "WebServiceAvailableDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "WebServiceAvailableDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "WebServiceAvailableDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     // filename field
-    Label wlURL = new Label(shell, SWT.RIGHT);
+    Label wlURL = new Label(wContent, SWT.RIGHT);
     wlURL.setText(BaseMessages.getString(PKG, "WebServiceAvailableDialog.URL.Label"));
     PropsUi.setLook(wlURL);
     FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment(0, 0);
     fdlURL.right = new FormAttachment(middle, -margin);
-    fdlURL.top = new FormAttachment(wTransformName, margin);
+    fdlURL.top = new FormAttachment(0, margin);
     wlURL.setLayoutData(fdlURL);
 
-    wURL = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wURL = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
     wURL.setEditable(true);
     PropsUi.setLook(wURL);
     wURL.addModifyListener(lsMod);
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment(middle, 0);
-    fdURL.top = new FormAttachment(wTransformName, margin);
+    fdURL.top = new FormAttachment(0, margin);
     fdURL.right = new FormAttachment(100, -margin);
     wURL.setLayoutData(fdURL);
     wURL.addFocusListener(
@@ -140,7 +126,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
         });
 
     // connect timeout line
-    Label wlConnectTimeOut = new Label(shell, SWT.RIGHT);
+    Label wlConnectTimeOut = new Label(wContent, SWT.RIGHT);
     wlConnectTimeOut.setText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ConnectTimeOut.Label"));
     PropsUi.setLook(wlConnectTimeOut);
@@ -150,7 +136,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
     fdlConnectTimeOut.right = new FormAttachment(middle, -margin);
     wlConnectTimeOut.setLayoutData(fdlConnectTimeOut);
 
-    wConnectTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConnectTimeOut = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wConnectTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ConnectTimeOut.Tooltip"));
     PropsUi.setLook(wConnectTimeOut);
@@ -166,7 +152,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
         e -> wConnectTimeOut.setToolTipText(variables.resolve(wConnectTimeOut.getText())));
 
     // Read timeout line
-    Label wlReadTimeOut = new Label(shell, SWT.RIGHT);
+    Label wlReadTimeOut = new Label(wContent, SWT.RIGHT);
     wlReadTimeOut.setText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ReadTimeOut.Label"));
     PropsUi.setLook(wlReadTimeOut);
@@ -176,7 +162,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
     fdlReadTimeOut.right = new FormAttachment(middle, -margin);
     wlReadTimeOut.setLayoutData(fdlReadTimeOut);
 
-    wReadTimeOut = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wReadTimeOut = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wReadTimeOut.setToolTipText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ReadTimeOut.Tooltip"));
     PropsUi.setLook(wReadTimeOut);
@@ -192,41 +178,37 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
         e -> wReadTimeOut.setToolTipText(variables.resolve(wReadTimeOut.getText())));
 
     // Result fieldname ...
-    Label wlResult = new Label(shell, SWT.RIGHT);
+    Label wlResult = new Label(wContent, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "WebServiceAvailableDialog.ResultField.Label"));
     PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
-    fdlResult.top = new FormAttachment(wReadTimeOut, margin * 2);
+    fdlResult.top = new FormAttachment(wReadTimeOut, margin);
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wResult = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResult.setToolTipText(
         BaseMessages.getString(PKG, "WebServiceAvailableDialog.ResultField.Tooltip"));
     PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
-    fdResult.top = new FormAttachment(wReadTimeOut, margin * 2);
+    fdResult.top = new FormAttachment(wReadTimeOut, margin);
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wResult);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
 
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -250,9 +232,6 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
     if (input.getResultFieldName() != null) {
       wResult.setText(input.getResultFieldName());
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

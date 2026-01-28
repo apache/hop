@@ -45,7 +45,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -85,44 +84,12 @@ public class SortRowsDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "SortRowsDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "SortRowsDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // Temp directory for sorting
     Label wlSortDir = new Label(shell, SWT.RIGHT);
@@ -131,7 +98,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     FormData fdlSortDir = new FormData();
     fdlSortDir.left = new FormAttachment(0, 0);
     fdlSortDir.right = new FormAttachment(middle, -margin);
-    fdlSortDir.top = new FormAttachment(wTransformName, margin);
+    fdlSortDir.top = new FormAttachment(wSpacer, margin);
     wlSortDir.setLayoutData(fdlSortDir);
 
     Button wbSortDir = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -139,7 +106,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     wbSortDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSortDir = new FormData();
     fdbSortDir.right = new FormAttachment(100, 0);
-    fdbSortDir.top = new FormAttachment(wTransformName, margin);
+    fdbSortDir.top = new FormAttachment(wSpacer, margin);
     wbSortDir.setLayoutData(fdbSortDir);
 
     wSortDir = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -147,7 +114,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     wSortDir.addModifyListener(lsMod);
     FormData fdSortDir = new FormData();
     fdSortDir.left = new FormAttachment(middle, 0);
-    fdSortDir.top = new FormAttachment(wTransformName, margin);
+    fdSortDir.top = new FormAttachment(wSpacer, margin);
     fdSortDir.right = new FormAttachment(wbSortDir, -margin);
     wSortDir.setLayoutData(fdSortDir);
 
@@ -164,14 +131,14 @@ public class SortRowsDialog extends BaseTransformDialog {
     FormData fdlPrefix = new FormData();
     fdlPrefix.left = new FormAttachment(0, 0);
     fdlPrefix.right = new FormAttachment(middle, -margin);
-    fdlPrefix.top = new FormAttachment(wbSortDir, margin * 2);
+    fdlPrefix.top = new FormAttachment(wbSortDir, margin);
     wlPrefix.setLayoutData(fdlPrefix);
     wPrefix = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPrefix);
     wPrefix.addModifyListener(lsMod);
     FormData fdPrefix = new FormData();
     fdPrefix.left = new FormAttachment(middle, 0);
-    fdPrefix.top = new FormAttachment(wbSortDir, margin * 2);
+    fdPrefix.top = new FormAttachment(wbSortDir, margin);
     fdPrefix.right = new FormAttachment(100, 0);
     wPrefix.setLayoutData(fdPrefix);
     wPrefix.setText("srt");
@@ -183,14 +150,14 @@ public class SortRowsDialog extends BaseTransformDialog {
     FormData fdlSortSize = new FormData();
     fdlSortSize.left = new FormAttachment(0, 0);
     fdlSortSize.right = new FormAttachment(middle, -margin);
-    fdlSortSize.top = new FormAttachment(wPrefix, margin * 2);
+    fdlSortSize.top = new FormAttachment(wPrefix, margin);
     wlSortSize.setLayoutData(fdlSortSize);
     wSortSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSortSize);
     wSortSize.addModifyListener(lsMod);
     FormData fdSortSize = new FormData();
     fdSortSize.left = new FormAttachment(middle, 0);
-    fdSortSize.top = new FormAttachment(wPrefix, margin * 2);
+    fdSortSize.top = new FormAttachment(wPrefix, margin);
     fdSortSize.right = new FormAttachment(100, 0);
     wSortSize.setLayoutData(fdSortSize);
 
@@ -202,7 +169,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     FormData fdlFreeMemory = new FormData();
     fdlFreeMemory.left = new FormAttachment(0, 0);
     fdlFreeMemory.right = new FormAttachment(middle, -margin);
-    fdlFreeMemory.top = new FormAttachment(wSortSize, margin * 2);
+    fdlFreeMemory.top = new FormAttachment(wSortSize, margin);
     wlFreeMemory.setLayoutData(fdlFreeMemory);
     wFreeMemory = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFreeMemory.setToolTipText(BaseMessages.getString(PKG, "SortRowsDialog.FreeMemory.ToolTip"));
@@ -210,7 +177,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     wFreeMemory.addModifyListener(lsMod);
     FormData fdFreeMemory = new FormData();
     fdFreeMemory.left = new FormAttachment(middle, 0);
-    fdFreeMemory.top = new FormAttachment(wSortSize, margin * 2);
+    fdFreeMemory.top = new FormAttachment(wSortSize, margin);
     fdFreeMemory.right = new FormAttachment(100, 0);
     wFreeMemory.setLayoutData(fdFreeMemory);
 
@@ -221,7 +188,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     FormData fdlCompress = new FormData();
     fdlCompress.left = new FormAttachment(0, 0);
     fdlCompress.right = new FormAttachment(middle, -margin);
-    fdlCompress.top = new FormAttachment(wFreeMemory, margin * 2);
+    fdlCompress.top = new FormAttachment(wFreeMemory, margin);
     wlCompress.setLayoutData(fdlCompress);
     wCompress = new CheckBoxVar(variables, shell, SWT.CHECK, "");
     PropsUi.setLook(wCompress);
@@ -258,17 +225,6 @@ public class SortRowsDialog extends BaseTransformDialog {
     fdUniqueRows.right = new FormAttachment(100, 0);
     wUniqueRows.setLayoutData(fdUniqueRows);
     wUniqueRows.addSelectionListener(new ComponentSelectionListener(input));
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
-    wGet.addListener(SWT.Selection, e -> get());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
 
     // Table with fields to sort and sort direction
     Label wlFields = new Label(shell, SWT.NONE);
@@ -342,7 +298,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(100, -50);
     wFields.setLayoutData(fdFields);
 
     //
@@ -378,7 +334,7 @@ public class SortRowsDialog extends BaseTransformDialog {
 
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -443,9 +399,6 @@ public class SortRowsDialog extends BaseTransformDialog {
 
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

@@ -53,7 +53,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class RulesExecutorDialog extends BaseTransformDialog {
 
@@ -79,46 +78,9 @@ public class RulesExecutorDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "RulesExecutor.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "RulesExecutor.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "RulesDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -126,7 +88,7 @@ public class RulesExecutorDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, 20);
+    fdTabFolder.top = new FormAttachment(wSpacer, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -136,11 +98,7 @@ public class RulesExecutorDialog extends BaseTransformDialog {
 
     FormData fdAgg = new FormData();
     fdAgg.left = new FormAttachment(0, 0);
-    fdAgg.bottom = new FormAttachment(wOk, -margin);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
+    fdAgg.bottom = new FormAttachment(100, -50);
 
     wTabFolder.setSelection(0);
 
@@ -148,7 +106,7 @@ public class RulesExecutorDialog extends BaseTransformDialog {
 
     activeRuleFilenameField();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -218,7 +176,7 @@ public class RulesExecutorDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "RulesDialog.RuleDefinition.EnableScriptEditor.Label"));
     FormData fdPipelineNameInField = new FormData();
     fdPipelineNameInField.left = new FormAttachment(0, 0);
-    fdPipelineNameInField.top = new FormAttachment(wRuleFilePath, 2 * margin);
+    fdPipelineNameInField.top = new FormAttachment(wRuleFilePath, margin);
     wbRulesInEditor.setLayoutData(fdPipelineNameInField);
     wbRulesInEditor.addSelectionListener(
         new SelectionAdapter() {
@@ -426,8 +384,5 @@ public class RulesExecutorDialog extends BaseTransformDialog {
     }
 
     wResultColumnsFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 }

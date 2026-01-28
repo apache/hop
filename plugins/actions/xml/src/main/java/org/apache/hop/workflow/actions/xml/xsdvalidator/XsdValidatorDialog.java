@@ -25,9 +25,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -37,11 +35,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XSD Validator job entry settings. */
 public class XsdValidatorDialog extends ActionDialog {
@@ -58,8 +54,6 @@ public class XsdValidatorDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.Xsd"),
         BaseMessages.getString(PKG, "ActionXSDValidator.Filetype.All")
       };
-
-  private Text wName;
 
   private Button wAllowExternalEntities;
 
@@ -88,41 +82,11 @@ public class XsdValidatorDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionXSDValidator.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionXSDValidator.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionXSDValidator.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     // Enable/Disable external entity for XSD validation.
     Label wlAllowExternalEntities = new Label(shell, SWT.RIGHT);
@@ -132,7 +96,7 @@ public class XsdValidatorDialog extends ActionDialog {
     FormData fdlAllowExternalEntities = new FormData();
     fdlAllowExternalEntities.left = new FormAttachment(0, 0);
     fdlAllowExternalEntities.right = new FormAttachment(middle, -margin);
-    fdlAllowExternalEntities.top = new FormAttachment(wName, margin);
+    fdlAllowExternalEntities.top = new FormAttachment(wSpacer, margin);
     wlAllowExternalEntities.setLayoutData(fdlAllowExternalEntities);
     wAllowExternalEntities = new Button(shell, SWT.CHECK);
     PropsUi.setLook(wAllowExternalEntities);
@@ -183,7 +147,7 @@ public class XsdValidatorDialog extends ActionDialog {
     PropsUi.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
-    fdlxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
+    fdlxmlFilename.top = new FormAttachment(wXSDSource, margin);
     fdlxmlFilename.right = new FormAttachment(middle, -margin);
     wlxmlFilename.setLayoutData(fdlxmlFilename);
     Button wbxmlFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -191,14 +155,14 @@ public class XsdValidatorDialog extends ActionDialog {
     wbxmlFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
-    fdbxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
+    fdbxmlFilename.top = new FormAttachment(wXSDSource, margin);
     wbxmlFilename.setLayoutData(fdbxmlFilename);
     wxmlFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wxmlFilename);
     wxmlFilename.addModifyListener(lsMod);
     FormData fdxmlFilename = new FormData();
     fdxmlFilename.left = new FormAttachment(middle, 0);
-    fdxmlFilename.top = new FormAttachment(wXSDSource, 2 * margin);
+    fdxmlFilename.top = new FormAttachment(wXSDSource, margin);
     fdxmlFilename.right = new FormAttachment(wbxmlFilename, -margin);
     wxmlFilename.setLayoutData(fdxmlFilename);
 
@@ -230,7 +194,7 @@ public class XsdValidatorDialog extends ActionDialog {
     wbxsdFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxsdFilename = new FormData();
     fdbxsdFilename.right = new FormAttachment(100, 0);
-    fdbxsdFilename.top = new FormAttachment(wxmlFilename, 0);
+    fdbxsdFilename.top = new FormAttachment(wxmlFilename, margin);
     wbxsdFilename.setLayoutData(fdbxsdFilename);
     wxsdFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wxsdFilename);
@@ -255,19 +219,9 @@ public class XsdValidatorDialog extends ActionDialog {
                 FILETYPES_XSD,
                 false));
 
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wxsdFilename);
-
     getData();
     setXSDSource();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -289,9 +243,11 @@ public class XsdValidatorDialog extends ActionDialog {
 
     wxmlFilename.setText(Const.nullToEmpty(action.getXmlFilename()));
     wxsdFilename.setText(Const.nullToEmpty(action.getXsdFilename()));
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

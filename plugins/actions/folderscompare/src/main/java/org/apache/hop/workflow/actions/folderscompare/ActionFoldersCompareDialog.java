@@ -24,24 +24,24 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Folders compare action settings. */
 public class ActionFoldersCompareDialog extends ActionDialog {
@@ -49,8 +49,6 @@ public class ActionFoldersCompareDialog extends ActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionFoldersCompare.Filetype.All")};
-
-  private Text wName;
 
   private TextVar wFilename1;
 
@@ -84,48 +82,32 @@ public class ActionFoldersCompareDialog extends ActionDialog {
 
   @Override
   public IAction open() {
+    createShell(BaseMessages.getString(PKG, "ActionFoldersCompare.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, margin);
+    fdSc.top = new FormAttachment(wSpacer, margin);
+    fdSc.right = new FormAttachment(100, -margin);
+    fdSc.bottom = new FormAttachment(wCancel, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-
-    // SETTINGS grouping?
-    // ////////////////////////
-    // START OF SETTINGS GROUP
-    //
-
-    Group wSettings = new Group(shell, SWT.SHADOW_NONE);
+    Group wSettings = new Group(wContent, SWT.SHADOW_NONE);
     PropsUi.setLook(wSettings);
     wSettings.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.Settings.Label"));
 
@@ -167,7 +149,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     FormData fdlCompareOnly = new FormData();
     fdlCompareOnly.left = new FormAttachment(0, 0);
     fdlCompareOnly.right = new FormAttachment(middle, -margin);
-    fdlCompareOnly.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
+    fdlCompareOnly.top = new FormAttachment(wlIncludeSubfolders, margin);
     wlCompareOnly.setLayoutData(fdlCompareOnly);
     wCompareOnly = new CCombo(wSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wCompareOnly.add(BaseMessages.getString(PKG, "ActionFoldersCompare.All_CompareOnly.Label"));
@@ -244,7 +226,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     PropsUi.setLook(wlCompareFileContent);
     FormData fdlCompareFileContent = new FormData();
     fdlCompareFileContent.left = new FormAttachment(0, 0);
-    fdlCompareFileContent.top = new FormAttachment(wlCompareFileSize, 2 * margin);
+    fdlCompareFileContent.top = new FormAttachment(wlCompareFileSize, margin);
     fdlCompareFileContent.right = new FormAttachment(middle, -margin);
     wlCompareFileContent.setLayoutData(fdlCompareFileContent);
     wCompareFileContent = new Button(wSettings, SWT.CHECK);
@@ -266,7 +248,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
-    fdSettings.top = new FormAttachment(wName, margin);
+    fdSettings.top = new FormAttachment(0, margin);
     fdSettings.right = new FormAttachment(100, -margin);
     wSettings.setLayoutData(fdSettings);
 
@@ -275,22 +257,22 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     // ///////////////////////////////////////////////////////////
 
     // Filename 1 line
-    Label wlFilename1 = new Label(shell, SWT.RIGHT);
+    Label wlFilename1 = new Label(wContent, SWT.RIGHT);
     wlFilename1.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.Filename1.Label"));
     PropsUi.setLook(wlFilename1);
     FormData fdlFilename1 = new FormData();
     fdlFilename1.left = new FormAttachment(0, 0);
-    fdlFilename1.top = new FormAttachment(wSettings, 2 * margin);
+    fdlFilename1.top = new FormAttachment(wSettings, margin);
     fdlFilename1.right = new FormAttachment(middle, -margin);
     wlFilename1.setLayoutData(fdlFilename1);
 
     // Browse folders button ...
-    Button wbDirectory1 = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbDirectory1 = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbDirectory1);
     wbDirectory1.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.FolderBrowse.Label"));
     FormData fdbDirectory1 = new FormData();
     fdbDirectory1.right = new FormAttachment(100, -margin);
-    fdbDirectory1.top = new FormAttachment(wSettings, 2 * margin);
+    fdbDirectory1.top = new FormAttachment(wSettings, margin);
     wbDirectory1.setLayoutData(fdbDirectory1);
 
     wbDirectory1.addSelectionListener(
@@ -302,20 +284,20 @@ public class ActionFoldersCompareDialog extends ActionDialog {
         });
 
     // Browse files ..
-    Button wbFilename1 = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbFilename1 = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFilename1);
     wbFilename1.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.FileBrowse.Label"));
     FormData fdbFilename1 = new FormData();
     fdbFilename1.right = new FormAttachment(wbDirectory1, -margin);
-    fdbFilename1.top = new FormAttachment(wSettings, 2 * margin);
+    fdbFilename1.top = new FormAttachment(wSettings, margin);
     wbFilename1.setLayoutData(fdbFilename1);
 
-    wFilename1 = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename1 = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename1);
     wFilename1.addModifyListener(lsMod);
     FormData fdFilename1 = new FormData();
     fdFilename1.left = new FormAttachment(middle, 0);
-    fdFilename1.top = new FormAttachment(wSettings, 2 * margin);
+    fdFilename1.top = new FormAttachment(wSettings, margin);
     fdFilename1.right = new FormAttachment(wbFilename1, -margin);
     wFilename1.setLayoutData(fdFilename1);
 
@@ -330,7 +312,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
                 shell, wFilename1, variables, new String[] {"*"}, FILETYPES, false));
 
     // Filename 2 line
-    Label wlFilename2 = new Label(shell, SWT.RIGHT);
+    Label wlFilename2 = new Label(wContent, SWT.RIGHT);
     wlFilename2.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.Filename2.Label"));
     PropsUi.setLook(wlFilename2);
     FormData fdlFilename2 = new FormData();
@@ -340,7 +322,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     wlFilename2.setLayoutData(fdlFilename2);
 
     // Browse folders button ...
-    Button wbDirectory2 = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbDirectory2 = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbDirectory2);
     wbDirectory2.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.FolderBrowse.Label"));
     FormData fdbDirectory2 = new FormData();
@@ -351,8 +333,12 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     wbDirectory2.addListener(
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wFilename2, variables));
 
+    sc.setContent(wContent);
+    wContent.pack();
+    sc.setMinSize(wContent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
     // Browse files...
-    Button wbFilename2 = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbFilename2 = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFilename2);
     wbFilename2.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.FileBrowse.Label"));
     FormData fdbFilename2 = new FormData();
@@ -360,7 +346,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     fdbFilename2.top = new FormAttachment(wFilename1, margin);
     wbFilename2.setLayoutData(fdbFilename2);
 
-    wFilename2 = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename2 = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename2);
     wFilename2.addModifyListener(lsMod);
     FormData fdFilename2 = new FormData();
@@ -379,19 +365,9 @@ public class ActionFoldersCompareDialog extends ActionDialog {
             BaseDialog.presentFileDialog(
                 shell, wFilename2, variables, new String[] {"*"}, FILETYPES, false));
 
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wFilename2);
-
     getData();
     specifyCompareOnlyActivate();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -438,9 +414,11 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     wIncludeSubfolders.setSelection(action.isIncludeSubfolders());
     wCompareFileContent.setSelection(action.isCompareFileContent());
     wCompareFileSize.setSelection(action.isCompareFileSize());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

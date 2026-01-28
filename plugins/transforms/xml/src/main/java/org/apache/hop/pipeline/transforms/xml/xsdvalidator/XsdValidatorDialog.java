@@ -48,7 +48,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class XsdValidatorDialog extends BaseTransformDialog {
   private static final Class<?> PKG = XsdValidatorMeta.class;
@@ -88,53 +87,12 @@ public class XsdValidatorDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "XsdValidatorDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "XsdValidatorDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "XsdValidatorDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -174,7 +132,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     PropsUi.setLook(wlXMLSourceFile);
     FormData fdlXMLSourceFile = new FormData();
     fdlXMLSourceFile.left = new FormAttachment(0, 0);
-    fdlXMLSourceFile.top = new FormAttachment(wTransformName, 2 * margin);
+    fdlXMLSourceFile.top = new FormAttachment(wSpacer, margin);
     fdlXMLSourceFile.right = new FormAttachment(middle, -margin);
     wlXMLSourceFile.setLayoutData(fdlXMLSourceFile);
     wXMLSourceFile = new Button(wXML, SWT.CHECK);
@@ -224,7 +182,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
 
     FormData fdXML = new FormData();
     fdXML.left = new FormAttachment(0, margin);
-    fdXML.top = new FormAttachment(wTransformName, margin);
+    fdXML.top = new FormAttachment(wSpacer, margin);
     fdXML.right = new FormAttachment(100, -margin);
     wXML.setLayoutData(fdXML);
 
@@ -267,7 +225,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     PropsUi.setLook(wlOutputStringField);
     FormData fdlOutputStringField = new FormData();
     fdlOutputStringField.left = new FormAttachment(0, 0);
-    fdlOutputStringField.top = new FormAttachment(wResultField, 2 * margin);
+    fdlOutputStringField.top = new FormAttachment(wResultField, margin);
     fdlOutputStringField.right = new FormAttachment(middle, -margin);
     wlOutputStringField.setLayoutData(fdlOutputStringField);
     wOutputStringField = new Button(wOutputFields, SWT.CHECK);
@@ -324,7 +282,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddValidationMsg);
     FormData fdlAddValidationMsg = new FormData();
     fdlAddValidationMsg.left = new FormAttachment(0, 0);
-    fdlAddValidationMsg.top = new FormAttachment(wIfXMLUnValid, 2 * margin);
+    fdlAddValidationMsg.top = new FormAttachment(wIfXMLUnValid, margin);
     fdlAddValidationMsg.right = new FormAttachment(middle, -margin);
     wlAddValidationMsg.setLayoutData(fdlAddValidationMsg);
     wAddValidationMsg = new Button(wOutputFields, SWT.CHECK);
@@ -390,7 +348,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     FormData fdlAllowExternalEntities = new FormData();
     fdlAllowExternalEntities.left = new FormAttachment(0, 0);
     fdlAllowExternalEntities.right = new FormAttachment(middle, -margin);
-    fdlAllowExternalEntities.top = new FormAttachment(wTransformName, margin);
+    fdlAllowExternalEntities.top = new FormAttachment(wSpacer, margin);
     wlAllowExternalEntities.setLayoutData(fdlAllowExternalEntities);
     wAllowExternalEntities = new Button(wXSD, SWT.CHECK);
     PropsUi.setLook(wAllowExternalEntities);
@@ -472,7 +430,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     PropsUi.setLook(wlXSDDefinedColumn);
     FormData fdlXSDDefinedColumn = new FormData();
     fdlXSDDefinedColumn.left = new FormAttachment(0, 0);
-    fdlXSDDefinedColumn.top = new FormAttachment(wFilename, 2 * margin);
+    fdlXSDDefinedColumn.top = new FormAttachment(wFilename, margin);
     fdlXSDDefinedColumn.right = new FormAttachment(middle, -margin);
     wlXSDDefinedColumn.setLayoutData(fdlXSDDefinedColumn);
     wXSDDefinedColumn = new CCombo(wXSD, SWT.BORDER | SWT.READ_ONLY);
@@ -481,7 +439,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     wXSDDefinedColumn.addModifyListener(lsMod);
     FormData fdXSDDefinedColumn = new FormData();
     fdXSDDefinedColumn.left = new FormAttachment(middle, 0);
-    fdXSDDefinedColumn.top = new FormAttachment(wFilename, 2 * margin);
+    fdXSDDefinedColumn.top = new FormAttachment(wFilename, margin);
     fdXSDDefinedColumn.right = new FormAttachment(100, -margin);
     wXSDDefinedColumn.setLayoutData(fdXSDDefinedColumn);
     wXSDDefinedColumn.addFocusListener(
@@ -532,9 +490,9 @@ public class XsdValidatorDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Whenever something changes, set the tooltip to the expanded version
@@ -565,7 +523,7 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     activateOutputStringField();
     setXSDSource();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -681,9 +639,6 @@ public class XsdValidatorDialog extends BaseTransformDialog {
     } else {
       wXSDSource.select(0);
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void activateValidationMsg() {

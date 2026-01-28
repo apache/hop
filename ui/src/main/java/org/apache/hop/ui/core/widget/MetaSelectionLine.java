@@ -196,7 +196,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     PropsUi.setLook(wToolBar, Props.WIDGET_STYLE_DEFAULT);
     FormData fdToolBar = new FormData();
     fdToolBar.right = new FormAttachment(100, 0);
-    fdToolBar.top = new FormAttachment(0, 0);
+    fdToolBar.top = new FormAttachment(wLabel, 0, SWT.CENTER);
     wToolBar.setLayoutData(fdToolBar);
 
     // Add more toolbar items from plugins.

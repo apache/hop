@@ -100,53 +100,12 @@ public class XmlOutputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "XMLOutputDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "XMLOutputDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -181,7 +140,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
     wbFilename.setText(BaseMessages.getString(PKG, "XMLOutputDialog.Browse.Button"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
-    fdbFilename.top = new FormAttachment(0, 0);
+    fdbFilename.top = new FormAttachment(0, margin);
     wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -226,7 +185,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlExtension);
     FormData fdlExtension = new FormData();
     fdlExtension.left = new FormAttachment(0, 0);
-    fdlExtension.top = new FormAttachment(wlDoNotOpenNewFileInit, 2 * margin);
+    fdlExtension.top = new FormAttachment(wlDoNotOpenNewFileInit, margin);
     fdlExtension.right = new FormAttachment(middle, -margin);
     wlExtension.setLayoutData(fdlExtension);
     wExtension = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -235,7 +194,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
     wExtension.addModifyListener(lsMod);
     FormData fdExtension = new FormData();
     fdExtension.left = new FormAttachment(middle, 0);
-    fdExtension.top = new FormAttachment(wlDoNotOpenNewFileInit, 2 * margin);
+    fdExtension.top = new FormAttachment(wlDoNotOpenNewFileInit, margin);
     fdExtension.right = new FormAttachment(100, 0);
     wExtension.setLayoutData(fdExtension);
 
@@ -367,7 +326,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
     wbShowFiles.setText(BaseMessages.getString(PKG, "XMLOutputDialog.ShowFiles.Button"));
     FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment(middle, 0);
-    fdbShowFiles.top = new FormAttachment(wDateTimeFormat, margin * 2);
+    fdbShowFiles.top = new FormAttachment(wDateTimeFormat, margin);
     wbShowFiles.setLayoutData(fdbShowFiles);
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
@@ -401,7 +360,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
     fdlAddToResult.left = new FormAttachment(0, 0);
-    fdlAddToResult.top = new FormAttachment(wbShowFiles, 2 * margin);
+    fdlAddToResult.top = new FormAttachment(wbShowFiles, margin);
     fdlAddToResult.right = new FormAttachment(middle, -margin);
     wlAddToResult.setLayoutData(fdlAddToResult);
     wAddToResult = new Button(wFileComp, SWT.CHECK);
@@ -744,9 +703,9 @@ public class XmlOutputDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add listeners
@@ -786,7 +745,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
     getData();
     setDateTimeFormat();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -928,9 +887,6 @@ public class XmlOutputDialog extends BaseTransformDialog {
     }
 
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

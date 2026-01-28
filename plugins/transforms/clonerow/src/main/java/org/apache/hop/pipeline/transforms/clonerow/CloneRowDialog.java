@@ -43,7 +43,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class CloneRowDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CloneRowDialog.class;
@@ -73,52 +72,12 @@ public class CloneRowDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "CloneRowDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "CloneRowDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "CloneRowDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // Number of clones line
     wlnrClone = new Label(shell, SWT.RIGHT);
@@ -127,7 +86,7 @@ public class CloneRowDialog extends BaseTransformDialog {
     FormData fdlnrClone = new FormData();
     fdlnrClone.left = new FormAttachment(0, 0);
     fdlnrClone.right = new FormAttachment(middle, -margin);
-    fdlnrClone.top = new FormAttachment(wTransformName, margin * 2);
+    fdlnrClone.top = new FormAttachment(wSpacer, margin);
     wlnrClone.setLayoutData(fdlnrClone);
 
     wnrClone = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -224,7 +183,7 @@ public class CloneRowDialog extends BaseTransformDialog {
     PropsUi.setLook(wladdCloneFlag);
     FormData fdladdCloneFlag = new FormData();
     fdladdCloneFlag.left = new FormAttachment(0, 0);
-    fdladdCloneFlag.top = new FormAttachment(wNrCloneField, 2 * margin);
+    fdladdCloneFlag.top = new FormAttachment(wNrCloneField, margin);
     fdladdCloneFlag.right = new FormAttachment(middle, -margin);
     wladdCloneFlag.setLayoutData(fdladdCloneFlag);
     waddCloneFlag = new Button(wOutpuFields, SWT.CHECK);
@@ -253,7 +212,7 @@ public class CloneRowDialog extends BaseTransformDialog {
     FormData fdlcloneFlagField = new FormData();
     fdlcloneFlagField.left = new FormAttachment(0, 0);
     fdlcloneFlagField.right = new FormAttachment(middle, -margin);
-    fdlcloneFlagField.top = new FormAttachment(waddCloneFlag, margin * 2);
+    fdlcloneFlagField.top = new FormAttachment(waddCloneFlag, margin);
     wlcloneFlagField.setLayoutData(fdlcloneFlagField);
 
     wcloneFlagField = new TextVar(variables, wOutpuFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -263,7 +222,7 @@ public class CloneRowDialog extends BaseTransformDialog {
     wcloneFlagField.addModifyListener(lsMod);
     FormData fdcloneFlagField = new FormData();
     fdcloneFlagField.left = new FormAttachment(middle, 0);
-    fdcloneFlagField.top = new FormAttachment(waddCloneFlag, margin * 2);
+    fdcloneFlagField.top = new FormAttachment(waddCloneFlag, margin);
     fdcloneFlagField.right = new FormAttachment(100, 0);
     wcloneFlagField.setLayoutData(fdcloneFlagField);
 
@@ -316,9 +275,9 @@ public class CloneRowDialog extends BaseTransformDialog {
 
     FormData fdOutpuFields = new FormData();
     fdOutpuFields.left = new FormAttachment(0, margin);
-    fdOutpuFields.top = new FormAttachment(wNrCloneField, 2 * margin);
+    fdOutpuFields.top = new FormAttachment(wNrCloneField, margin);
     fdOutpuFields.right = new FormAttachment(100, -margin);
-    fdOutpuFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdOutpuFields.bottom = new FormAttachment(wOk, -margin);
     wOutpuFields.setLayoutData(fdOutpuFields);
 
     // ///////////////////////////////////////////////////////////
@@ -330,7 +289,7 @@ public class CloneRowDialog extends BaseTransformDialog {
     activeAddCloneFlag();
     activeIsNrCloneInField();
     activeAddCloneNum();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -393,9 +352,6 @@ public class CloneRowDialog extends BaseTransformDialog {
     if (input.getCloneNumField() != null) {
       wCloneNumField.setText(input.getCloneNumField());
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

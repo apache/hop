@@ -133,6 +133,46 @@ public abstract class ActionBaseDialog extends ActionDialog {
     log = new LogChannel(workflowMeta);
   }
 
+  /**
+   * Creates and initializes the shell for an action dialog with standard settings. This method
+   * handles the common boilerplate for shell creation:
+   *
+   * <ul>
+   *   <li>Creates the shell with appropriate style flags (web-safe in Hop Web)
+   *   <li>Applies PropsUi look and feel
+   *   <li>Sets the shell image from the action
+   * </ul>
+   *
+   * <p>After calling this method, you would typically call {@link #createElements()} to build the
+   * dialog content.
+   *
+   * <p>Example usage in an action dialog:
+   *
+   * <pre>
+   * public IAction open() {
+   *   Shell parent = getParent();
+   *   display = parent.getDisplay();
+   *
+   *   createShell(action);
+   *   createElements();
+   *
+   *   getData();
+   *   setActive();
+   *
+   *   BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+   *   return action;
+   * }
+   * </pre>
+   *
+   * @param action The action whose image should be used for the shell
+   */
+  protected void createShell(IAction action) {
+    Shell parent = getParent();
+    shell = new Shell(parent, BaseDialog.getDefaultDialogStyle());
+    PropsUi.setLook(shell);
+    setShellImage(action);
+  }
+
   protected void createElements() {
 
     ModifyListener lsMod = e -> getAction().setChanged();

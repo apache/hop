@@ -24,9 +24,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -35,11 +33,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the DTD Validator job entry settings. */
 public class DtdValidatorDialog extends ActionDialog {
@@ -56,8 +52,6 @@ public class DtdValidatorDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.Dtd"),
         BaseMessages.getString(PKG, "ActionDTDValidator.Filetype.All")
       };
-
-  private Text wName;
 
   private TextVar wxmlFilename;
 
@@ -82,41 +76,11 @@ public class DtdValidatorDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionDTDValidator.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionDTDValidator.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionDTDValidator.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     // XML Filename
     Label wlxmlFilename = new Label(shell, SWT.RIGHT);
@@ -124,7 +88,7 @@ public class DtdValidatorDialog extends ActionDialog {
     PropsUi.setLook(wlxmlFilename);
     FormData fdlxmlFilename = new FormData();
     fdlxmlFilename.left = new FormAttachment(0, 0);
-    fdlxmlFilename.top = new FormAttachment(wName, margin);
+    fdlxmlFilename.top = new FormAttachment(wSpacer, margin);
     fdlxmlFilename.right = new FormAttachment(middle, -margin);
     wlxmlFilename.setLayoutData(fdlxmlFilename);
     Button wbxmlFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -132,14 +96,14 @@ public class DtdValidatorDialog extends ActionDialog {
     wbxmlFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
-    fdbxmlFilename.top = new FormAttachment(wName, 0);
+    fdbxmlFilename.top = new FormAttachment(wlxmlFilename, 0, SWT.CENTER);
     wbxmlFilename.setLayoutData(fdbxmlFilename);
     wxmlFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wxmlFilename);
     wxmlFilename.addModifyListener(lsMod);
     FormData fdxmlFilename = new FormData();
     fdxmlFilename.left = new FormAttachment(middle, 0);
-    fdxmlFilename.top = new FormAttachment(wName, margin);
+    fdxmlFilename.top = new FormAttachment(wlxmlFilename, 0, SWT.CENTER);
     fdxmlFilename.right = new FormAttachment(wbxmlFilename, -margin);
     wxmlFilename.setLayoutData(fdxmlFilename);
 
@@ -190,7 +154,7 @@ public class DtdValidatorDialog extends ActionDialog {
     PropsUi.setLook(wldtdFilename);
     FormData fdldtdFilename = new FormData();
     fdldtdFilename.left = new FormAttachment(0, 0);
-    fdldtdFilename.top = new FormAttachment(wlDTDIntern, 2 * margin);
+    fdldtdFilename.top = new FormAttachment(wlDTDIntern, margin);
     fdldtdFilename.right = new FormAttachment(middle, -margin);
     wldtdFilename.setLayoutData(fdldtdFilename);
     wbdtdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -223,19 +187,9 @@ public class DtdValidatorDialog extends ActionDialog {
                 FILETYPES_DTD,
                 false));
 
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, 2 * margin, wdtdFilename);
-
     getData();
     activeDTDFilename();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -260,9 +214,11 @@ public class DtdValidatorDialog extends ActionDialog {
       wdtdFilename.setText(action.getDtdFilename());
     }
     wDTDIntern.setSelection("Y".equals(action.getDtdIntern()));
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

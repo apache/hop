@@ -32,15 +32,17 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class ExecuteTestsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExecuteTestsDialog.class;
@@ -69,22 +71,9 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "ExecuteTestsDialog.Shell.Title"));
 
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ExecuteTestsDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     String[] inputFieldNames = new String[] {};
     hasPreviousTransforms = false;
@@ -104,43 +93,42 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
               + e.getMessage());
     }
 
-    // Transform name...
-    //
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ExecuteTestsDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
+
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
+
+    Control lastControl = null;
 
     // Optional test name input field
     //
-    Label wlTestNameInputField = new Label(shell, SWT.RIGHT);
+    Label wlTestNameInputField = new Label(wContent, SWT.RIGHT);
     wlTestNameInputField.setText(
         BaseMessages.getString(PKG, "ExecuteTestsDialog.TestNameInputField.Label"));
     PropsUi.setLook(wlTestNameInputField);
     FormData fdlTestNameInputField = new FormData();
     fdlTestNameInputField.left = new FormAttachment(0, 0);
     fdlTestNameInputField.right = new FormAttachment(middle, -margin);
-    fdlTestNameInputField.top = new FormAttachment(lastControl, margin);
+    fdlTestNameInputField.top = new FormAttachment(0, margin);
     wlTestNameInputField.setLayoutData(fdlTestNameInputField);
-    wTestNameInputField = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTestNameInputField = new Combo(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTestNameInputField.setItems(inputFieldNames);
     PropsUi.setLook(wTestNameInputField);
     FormData fdTestNameInputField = new FormData();
     fdTestNameInputField.left = new FormAttachment(middle, 0);
-    fdTestNameInputField.top = new FormAttachment(lastControl, margin);
+    fdTestNameInputField.top = new FormAttachment(0, margin);
     fdTestNameInputField.right = new FormAttachment(100, 0);
     wTestNameInputField.setLayoutData(fdTestNameInputField);
     wTestNameInputField.addModifyListener(e -> enableFields());
@@ -148,7 +136,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
     // Type to execute
     //
-    Label wlTypeToExecute = new Label(shell, SWT.RIGHT);
+    Label wlTypeToExecute = new Label(wContent, SWT.RIGHT);
     wlTypeToExecute.setText(BaseMessages.getString(PKG, "ExecuteTestsDialog.TypeToExecute.Label"));
     PropsUi.setLook(wlTypeToExecute);
     FormData fdlTypeToExecute = new FormData();
@@ -156,7 +144,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     fdlTypeToExecute.right = new FormAttachment(middle, -margin);
     fdlTypeToExecute.top = new FormAttachment(lastControl, margin);
     wlTypeToExecute.setLayoutData(fdlTypeToExecute);
-    wTypeToExecute = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTypeToExecute = new Combo(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTypeToExecute.setItems(DataSetConst.getTestTypeDescriptions());
     PropsUi.setLook(wTypeToExecute);
     FormData fdTypeToExecute = new FormData();
@@ -168,7 +156,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
     // Transformation name field
     //
-    Label wlPipelineNameField = new Label(shell, SWT.RIGHT);
+    Label wlPipelineNameField = new Label(wContent, SWT.RIGHT);
     wlPipelineNameField.setText(
         BaseMessages.getString(PKG, "ExecuteTestsDialog.PipelineNameField.Label"));
     PropsUi.setLook(wlPipelineNameField);
@@ -177,7 +165,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     fdlPipelineNameField.right = new FormAttachment(middle, -margin);
     fdlPipelineNameField.top = new FormAttachment(lastControl, margin);
     wlPipelineNameField.setLayoutData(fdlPipelineNameField);
-    wPipelineNameField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPipelineNameField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPipelineNameField);
     FormData fdPipelineNameField = new FormData();
     fdPipelineNameField.left = new FormAttachment(middle, 0);
@@ -188,7 +176,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
     // Unit test name field
     //
-    Label wlUnitTestNameField = new Label(shell, SWT.RIGHT);
+    Label wlUnitTestNameField = new Label(wContent, SWT.RIGHT);
     wlUnitTestNameField.setText(
         BaseMessages.getString(PKG, "ExecuteTestsDialog.UnitTestNameField.Label"));
     PropsUi.setLook(wlUnitTestNameField);
@@ -197,7 +185,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     fdlUnitTestNameField.right = new FormAttachment(middle, -margin);
     fdlUnitTestNameField.top = new FormAttachment(lastControl, margin);
     wlUnitTestNameField.setLayoutData(fdlUnitTestNameField);
-    wUnitTestNameField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wUnitTestNameField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wUnitTestNameField);
     FormData fdUnitTestNameField = new FormData();
     fdUnitTestNameField.left = new FormAttachment(middle, 0);
@@ -208,7 +196,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
     // Data Set Name field
     //
-    Label wlDataSetNameField = new Label(shell, SWT.RIGHT);
+    Label wlDataSetNameField = new Label(wContent, SWT.RIGHT);
     wlDataSetNameField.setText(
         BaseMessages.getString(PKG, "ExecuteTestsDialog.DataSetNameField.Label"));
     PropsUi.setLook(wlDataSetNameField);
@@ -217,7 +205,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     fdlDataSetNameField.right = new FormAttachment(middle, -margin);
     fdlDataSetNameField.top = new FormAttachment(lastControl, margin);
     wlDataSetNameField.setLayoutData(fdlDataSetNameField);
-    wDataSetNameField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDataSetNameField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDataSetNameField);
     FormData fdDataSetNameField = new FormData();
     fdDataSetNameField.left = new FormAttachment(middle, 0);
@@ -228,7 +216,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
     // Transform Name field
     //
-    Label wlTransformNameField = new Label(shell, SWT.RIGHT);
+    Label wlTransformNameField = new Label(wContent, SWT.RIGHT);
     wlTransformNameField.setText(
         BaseMessages.getString(PKG, "ExecuteTestsDialog.TransformNameField.Label"));
     PropsUi.setLook(wlTransformNameField);
@@ -237,7 +225,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     fdlTransformNameField.right = new FormAttachment(middle, -margin);
     fdlTransformNameField.top = new FormAttachment(lastControl, margin);
     wlTransformNameField.setLayoutData(fdlTransformNameField);
-    wTransformNameField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformNameField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTransformNameField);
     FormData fdTransformNameField = new FormData();
     fdTransformNameField.left = new FormAttachment(middle, 0);
@@ -248,7 +236,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
     // Error field
     //
-    Label wlErrorField = new Label(shell, SWT.RIGHT);
+    Label wlErrorField = new Label(wContent, SWT.RIGHT);
     wlErrorField.setText(BaseMessages.getString(PKG, "ExecuteTestsDialog.ErrorField.Label"));
     PropsUi.setLook(wlErrorField);
     FormData fdlErrorField = new FormData();
@@ -256,7 +244,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     fdlErrorField.right = new FormAttachment(middle, -margin);
     fdlErrorField.top = new FormAttachment(lastControl, margin);
     wlErrorField.setLayoutData(fdlErrorField);
-    wErrorField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wErrorField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wErrorField);
     FormData fdErrorField = new FormData();
     fdErrorField.left = new FormAttachment(middle, 0);
@@ -267,7 +255,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
 
     // Comment field
     //
-    Label wlCommentField = new Label(shell, SWT.RIGHT);
+    Label wlCommentField = new Label(wContent, SWT.RIGHT);
     wlCommentField.setText(BaseMessages.getString(PKG, "ExecuteTestsDialog.CommentField.Label"));
     PropsUi.setLook(wlCommentField);
     FormData fdlCommentField = new FormData();
@@ -275,7 +263,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     fdlCommentField.right = new FormAttachment(middle, -margin);
     fdlCommentField.top = new FormAttachment(lastControl, margin);
     wlCommentField.setLayoutData(fdlCommentField);
-    wCommentField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCommentField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCommentField);
     FormData fdCommentField = new FormData();
     fdCommentField.left = new FormAttachment(middle, 0);
@@ -284,19 +272,16 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     wCommentField.setLayoutData(fdCommentField);
     lastControl = wCommentField;
 
-    // Buttons go at the very bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, lastControl);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -321,9 +306,6 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
     wCommentField.setText(Const.NVL(input.getCommentField(), ""));
 
     enableFields();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

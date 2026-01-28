@@ -19,6 +19,8 @@ package org.apache.hop.ui.pipeline.transform;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -45,6 +47,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.DialogBoxWithButtons;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -52,6 +55,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -66,6 +70,7 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -86,8 +91,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("Transform dialog", LoggingObjectType.TRANSFORM_DIALOG, null);
 
-  /** The variable bindings for this dialog. */
-  protected IVariables variables;
+  @Getter protected IVariables variables;
 
   /** The transform name. */
   protected String transformName;
@@ -97,6 +101,9 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
 
   /** The Transform name UI component. */
   protected Text wTransformName;
+
+  /** Horizontal spacer below the transform name line; use for top attachment of dialog content. */
+  protected Label wSpacer;
 
   /** The FormData for the transform name and its label. */
   protected FormData fdlTransformName;
@@ -109,17 +116,12 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   protected Button wGet;
   protected Button wPreview;
   protected Button wSql;
-  protected Button wCreate;
   protected Button wCancel;
 
   /** FormData for the common dialog buttons. */
   protected FormData fdOk;
 
   protected FormData fdGet;
-  protected FormData fdPreview;
-  protected FormData fdSql;
-  protected FormData fdCreate;
-  protected FormData fdCancel;
 
   /** The metadata for the associated pipeline. */
   protected PipelineMeta pipelineMeta;
@@ -141,8 +143,26 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   /** The UI properties. */
   protected PropsUi props;
 
+  /**
+   * The middle percentage for form layouts. Initialized by {@link #createShell(String)} to {@code
+   * props.getMiddlePct()}.
+   */
+  protected int middle;
+
+  /**
+   * The margin size for form layouts. Initialized by {@link #createShell(String)} to {@code
+   * PropsUi.getMargin()}.
+   */
+  protected int margin;
+
+  /**
+   * Standard modify listener that marks the transform as changed. Initialized by {@link
+   * #createShell(String)} to call {@code baseTransformMeta.setChanged()}.
+   */
+  protected ModifyListener lsMod;
+
   /** The MetaStore to use */
-  protected IHopMetadataProvider metadataProvider;
+  @Getter @Setter protected IHopMetadataProvider metadataProvider;
 
   /** The transform meta for this dialog. */
   protected TransformMeta transformMeta;
@@ -190,6 +210,112 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     this.backupChanged = baseTransformMeta.hasChanged();
     this.props = PropsUi.getInstance();
     this.metadataProvider = HopGui.getInstance().getMetadataProvider();
+  }
+
+  /**
+   * Creates and initializes the shell for a transform dialog with standard settings and adds the
+   * transform name field. This method handles all the common boilerplate:
+   *
+   * <ul>
+   *   <li>Creates the shell with appropriate style flags (web-safe in Hop Web)
+   *   <li>Applies PropsUi look and feel
+   *   <li>Sets the shell image from the transform metadata
+   *   <li>Applies a FormLayout with standard margins
+   *   <li>Sets the shell title
+   *   <li>Initializes {@link #middle} and {@link #margin} fields for layout calculations
+   *   <li>Initializes {@link #lsMod} modify listener for change tracking
+   *   <li>Creates the transform name label and text field ({@link #wlTransformName} and {@link
+   *       #wTransformName})
+   * </ul>
+   *
+   * <p>After calling this method, the {@code shell} is ready to have more controls added to it. The
+   * transform name field is already created and can be used as the first control for layout
+   * chaining via the returned Control.
+   *
+   * <p>Example usage in a transform dialog:
+   *
+   * <pre>
+   * public String open() {
+   *   Control lastControl = createShell(BaseMessages.getString(PKG, "MyTransformDialog.DialogTitle"));
+   *
+   *   // Transform name field is already created! Now add your custom fields:
+   *   // middle, margin, and lsMod are available
+   *   wlMyField = new Label(shell, SWT.RIGHT);
+   *   wlMyField.setText("My Field:");
+   *   PropsUi.setLook(wlMyField);
+   *   fdlMyField = new FormData();
+   *   fdlMyField.left = new FormAttachment(0, 0);
+   *   fdlMyField.right = new FormAttachment(middle, -margin);
+   *   fdlMyField.top = new FormAttachment(lastControl, margin);
+   *   wlMyField.setLayoutData(fdlMyField);
+   *
+   *   // ... rest of your dialog construction
+   *   getData();
+   *   focusTransformName();
+   *   BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+   *   return transformName;
+   * }
+   * </pre>
+   *
+   * @param title The title for the dialog window (typically obtained via BaseMessages.getString())
+   * @return The spacer below the transform name line (wSpacer) to use as the first control for
+   *     layout chaining (lastControl)
+   */
+  protected Control createShell(String title) {
+    Shell parent = getParent();
+    if (OsHelper.isMac()) {
+      // On macOS, create independent shell to support multi-monitor
+      shell = new Shell(parent.getDisplay(), BaseDialog.getDefaultDialogStyle());
+    } else {
+      // On other platforms, use parent for proper modal behavior
+      shell = new Shell(parent, BaseDialog.getDefaultDialogStyle());
+    }
+    PropsUi.setLook(shell);
+    setShellImage(shell, baseTransformMeta);
+
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
+
+    shell.setLayout(formLayout);
+    shell.setText(title);
+
+    // Initialize commonly used layout values
+    middle = props.getMiddlePct();
+    margin = PropsUi.getMargin();
+
+    // Initialize standard modify listener
+    lsMod = e -> baseTransformMeta.setChanged();
+
+    // TransformName line
+    wlTransformName = new Label(shell, SWT.RIGHT);
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
+    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
+    PropsUi.setLook(wlTransformName);
+    fdlTransformName = new FormData();
+    fdlTransformName.left = new FormAttachment(0, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
+    fdlTransformName.top = new FormAttachment(0, margin);
+    wlTransformName.setLayoutData(fdlTransformName);
+
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
+    fdTransformName = new FormData();
+    fdTransformName.left = new FormAttachment(middle, 0);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
+    fdTransformName.right = new FormAttachment(100, 0);
+    wTransformName.setLayoutData(fdTransformName);
+
+    wSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
+    FormData fdSpacer = new FormData();
+    fdSpacer.left = new FormAttachment(0, 0);
+    fdSpacer.top = new FormAttachment(wTransformName, margin);
+    fdSpacer.right = new FormAttachment(100, 0);
+    wSpacer.setLayoutData(fdSpacer);
+
+    return wSpacer;
   }
 
   /**
@@ -279,7 +405,16 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
 
   /** Dispose this dialog. */
   public void dispose() {
-    props.setScreen(new WindowProperty(shell));
+    WindowProperty winprop = new WindowProperty(shell);
+
+    // Always save to session storage for immediate reopening during current session
+    props.setSessionScreen(winprop);
+
+    // If user wants to persist dialog positions across restarts, also save to persistent storage
+    if (!props.getResetDialogPositionsOnRestart()) {
+      props.setScreen(winprop);
+    }
+
     shell.dispose();
   }
 
@@ -295,6 +430,22 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
    */
   public void setSize() {
     setSize(shell);
+  }
+
+  /**
+   * Sets the transform name field from {@link #transformName}, selects its text and gives it focus.
+   * Call this just before {@link BaseDialog#defaultShellHandling(Shell,
+   * java.util.function.Consumer, java.util.function.Consumer)} so that when the dialog is shown the
+   * transform name has focus. Safe to call if the control is disposed; no-op in that case.
+   */
+  protected void focusTransformName() {
+    if (wTransformName != null && !wTransformName.isDisposed()) {
+      if (transformName != null) {
+        wTransformName.setText(transformName);
+      }
+      wTransformName.selectAll();
+      wTransformName.setFocus();
+    }
   }
 
   /**
@@ -674,6 +825,17 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   }
 
   /**
+   * Checks if a window name represents the main Hop GUI window.
+   *
+   * @param windowName the window title to check
+   * @return true if this is the main window, false otherwise
+   */
+  private static boolean isMainWindow(String windowName) {
+    // The main window is identified by the "Hop" title or the localized application name
+    return windowName != null && (windowName.equals("Hop") || windowName.contains("Hop"));
+  }
+
+  /**
    * Sets the size of this dialog with respect to the given parameters.
    *
    * @param shell the shell
@@ -684,7 +846,18 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
   public static void setSize(Shell shell, int minWidth, int minHeight, boolean packIt) {
     PropsUi props = PropsUi.getInstance();
 
-    WindowProperty winprop = props.getScreen(shell.getText());
+    // Check session-only storage first (for dialogs during current session)
+    WindowProperty winprop = props.getSessionScreen(shell.getText());
+
+    // If not in session storage, check persistent storage if user wants to persist positions
+    // (or if it's the main window - main window should always restore from persistent storage)
+    if (winprop == null) {
+      // Only check persistent storage if reset setting is disabled, OR for main window
+      if (!props.getResetDialogPositionsOnRestart() || isMainWindow(shell.getText())) {
+        winprop = props.getScreen(shell.getText());
+      }
+    }
+
     if (winprop != null) {
       winprop.setShell(shell, minWidth, minHeight);
     } else {
@@ -701,16 +874,44 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
       winprop = new WindowProperty(shell);
       winprop.setShell(shell, minWidth, minHeight);
 
-      // Now, as this is the first time it gets opened, try to put it in the middle of the screen...
+      // Now, as this is the first time it gets opened, try to center it on the main window...
       Rectangle shellBounds = shell.getBounds();
-      Monitor monitor = shell.getDisplay().getPrimaryMonitor();
-      if (shell.getParent() != null) {
-        monitor = shell.getParent().getMonitor();
-      }
-      Rectangle monitorClientArea = monitor.getClientArea();
 
-      int middleX = monitorClientArea.x + (monitorClientArea.width - shellBounds.width) / 2;
-      int middleY = monitorClientArea.y + (monitorClientArea.height - shellBounds.height) / 2;
+      // Find the main window to center on - prefer parent shell, then active shell, then any shell
+      Shell mainWindow = null;
+      if (shell.getParent() != null && shell.getParent() instanceof Shell) {
+        // Dialog has a parent shell (non-macOS case)
+        mainWindow = (Shell) shell.getParent();
+      } else {
+        // Dialog has no parent (macOS multi-monitor case) - find the active shell
+        Shell activeShell = shell.getDisplay().getActiveShell();
+        if (activeShell != null && !activeShell.equals(shell)) {
+          mainWindow = activeShell;
+        } else {
+          // If no active shell, try to find any open shell (likely the main window)
+          Shell[] shells = shell.getDisplay().getShells();
+          for (Shell s : shells) {
+            if (s != null && !s.equals(shell) && !s.isDisposed()) {
+              mainWindow = s;
+              break;
+            }
+          }
+        }
+      }
+
+      int middleX, middleY;
+      if (mainWindow != null) {
+        // Center on the main window
+        Rectangle mainBounds = mainWindow.getBounds();
+        middleX = mainBounds.x + (mainBounds.width - shellBounds.width) / 2;
+        middleY = mainBounds.y + (mainBounds.height - shellBounds.height) / 2;
+      } else {
+        // Fallback: center on the primary monitor if we couldn't find the main window
+        Monitor monitor = shell.getDisplay().getPrimaryMonitor();
+        Rectangle monitorClientArea = monitor.getClientArea();
+        middleX = monitorClientArea.x + (monitorClientArea.width - shellBounds.width) / 2;
+        middleY = monitorClientArea.y + (monitorClientArea.height - shellBounds.height) / 2;
+      }
 
       shell.setLocation(middleX, middleY);
     }
@@ -1216,21 +1417,15 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
               .getPlugin(TransformPluginType.class, transformMeta.getTransform());
       HelpUtils.createHelpButton(shell, plugin);
       String id = plugin.getIds()[0];
-      if (id != null) {
-        shell.setImage(
-            GuiResource.getInstance()
-                .getSwtImageTransform(id)
-                .getAsBitmapForSize(shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE));
+      if (!OsHelper.isMac()) {
+        if (id != null) {
+          shell.setImage(
+              GuiResource.getInstance()
+                  .getSwtImageTransform(id)
+                  .getAsBitmapForSize(shell.getDisplay(), ConstUi.ICON_SIZE, ConstUi.ICON_SIZE));
+        }
       }
     }
-  }
-
-  public IHopMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
   }
 
   /**
@@ -1270,15 +1465,6 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     DialogBoxWithButtons provide(Shell shell, int existingFields, int newFields);
   }
 
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
   protected void replaceNameWithBaseFilename(String filename) {
     // Ask to set the name to the base filename...
     //
@@ -1296,5 +1482,162 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
             shell, "Error", "Error extracting name from filename '" + filename + "'", e);
       }
     }
+  }
+
+  /**
+   * Builder class for creating standard dialog buttons with consistent styling and behavior. This
+   * builder eliminates the repetitive boilerplate of creating OK, Cancel, Preview, Get Fields, and
+   * other common buttons found in transform dialogs.
+   *
+   * <p>The first button added to the builder will automatically become the shell's default button,
+   * which is activated when the user presses Enter. This is typically the OK button.
+   *
+   * <p>Example usage:
+   *
+   * <pre>
+   * // Simple OK + Cancel (OK will be the default button)
+   * buildButtonBar(lastControl)
+   *   .ok(e -> ok())
+   *   .cancel(e -> cancel())
+   *   .build();
+   *
+   * // With Preview (OK is still the default button)
+   * buildButtonBar(null)
+   *   .ok(e -> ok())
+   *   .preview(e -> preview())
+   *   .cancel(e -> cancel())
+   *   .build();
+   *
+   * // Complex with multiple buttons (OK is the default button)
+   * buildButtonBar(null)
+   *   .ok(e -> ok())
+   *   .get(e -> getFields())
+   *   .create(e -> createTable())
+   *   .cancel(e -> cancel())
+   *   .build();
+   * </pre>
+   */
+  public static class ButtonBarBuilder {
+    private final BaseTransformDialog dialog;
+    private final List<Button> buttons = new ArrayList<>();
+
+    ButtonBarBuilder(BaseTransformDialog dialog) {
+      this.dialog = dialog;
+    }
+
+    /**
+     * Adds an OK button with the specified listener.
+     *
+     * @param listener the listener to invoke when the button is clicked
+     * @return this builder for method chaining
+     */
+    public ButtonBarBuilder ok(Listener listener) {
+      dialog.wOk = createButton(BaseMessages.getString(PKG, "System.Button.OK"), listener);
+      buttons.add(dialog.wOk);
+      return this;
+    }
+
+    /**
+     * Adds a Preview button with the specified listener.
+     *
+     * @param listener the listener to invoke when the button is clicked
+     * @return this builder for method chaining
+     */
+    public ButtonBarBuilder preview(Listener listener) {
+      dialog.wPreview =
+          createButton(BaseMessages.getString(PKG, "System.Button.Preview"), listener);
+      buttons.add(dialog.wPreview);
+      return this;
+    }
+
+    /**
+     * Adds a Get Fields button with the specified listener.
+     *
+     * @param listener the listener to invoke when the button is clicked
+     * @return this builder for method chaining
+     */
+    public ButtonBarBuilder get(Listener listener) {
+      dialog.wGet = createButton(BaseMessages.getString(PKG, "System.Button.GetFields"), listener);
+      buttons.add(dialog.wGet);
+      return this;
+    }
+
+    /**
+     * Adds a Show SQL button with the specified listener.
+     *
+     * @param listener the listener to invoke when the button is clicked
+     * @return this builder for method chaining
+     */
+    public ButtonBarBuilder sql(Listener listener) {
+      dialog.wSql = createButton(BaseMessages.getString(PKG, "System.Button.SQL"), listener);
+      buttons.add(dialog.wSql);
+      return this;
+    }
+
+    /**
+     * Adds a Cancel button with the specified listener.
+     *
+     * @param listener the listener to invoke when the button is clicked
+     * @return this builder for method chaining
+     */
+    public ButtonBarBuilder cancel(Listener listener) {
+      dialog.wCancel = createButton(BaseMessages.getString(PKG, "System.Button.Cancel"), listener);
+      buttons.add(dialog.wCancel);
+      return this;
+    }
+
+    /**
+     * Adds a custom button with the specified name and listener.
+     *
+     * @param buttonName the name the button should get
+     * @param listener the listener to invoke when the button is clicked
+     * @return the created button
+     */
+    public ButtonBarBuilder custom(String buttonName, Listener listener) {
+      Button button = createButton(buttonName, listener);
+      buttons.add(button);
+      return this;
+    }
+
+    /**
+     * Creates a button with the specified name and listener.
+     *
+     * @param buttonName the name the button should get
+     * @param listener the listener to invoke when the button is clicked
+     * @return the created button
+     */
+    private Button createButton(String buttonName, Listener listener) {
+      Button button = new Button(dialog.shell, SWT.PUSH);
+      button.setText(buttonName);
+      if (listener != null) {
+        button.addListener(SWT.Selection, listener);
+      }
+      return button;
+    }
+
+    /**
+     * Builds and positions the button bar at the bottom of the dialog. This method must be called
+     * to finalize the button creation and positioning. The first button added to the builder will
+     * automatically be set as the shell's default button (activated by pressing Enter).
+     */
+    public void build() {
+      dialog.setButtonPositions(buttons.toArray(new Button[0]), dialog.margin, null);
+
+      // Set the first button as the default button for the shell
+      if (!buttons.isEmpty() && dialog.shell != null) {
+        dialog.shell.setDefaultButton(buttons.get(0));
+      }
+    }
+  }
+
+  /**
+   * Creates a new button bar builder for adding standard buttons to the dialog. The builder
+   * provides a fluent API for creating OK, Cancel, Preview, Get Fields, SQL, and other common
+   * buttons with consistent styling and behavior.
+   *
+   * @return a new ButtonBarBuilder instance
+   */
+  protected ButtonBarBuilder buildButtonBar() {
+    return new ButtonBarBuilder(this);
   }
 }

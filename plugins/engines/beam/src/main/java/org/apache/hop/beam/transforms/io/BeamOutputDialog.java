@@ -29,21 +29,21 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class BeamOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BeamOutput.class;
   private final BeamOutputMeta input;
-
-  int middle;
-  int margin;
 
   private boolean getpreviousFields = false;
 
@@ -61,53 +61,37 @@ public class BeamOutputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "BeamOutputDialog.DialogTitle"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
 
-    changed = input.hasChanged();
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    Control lastControl = null;
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "BeamOutputDialog.DialogTitle"));
-
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // Transform name line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
-
-    Label wlOutputLocation = new Label(shell, SWT.RIGHT);
+    Label wlOutputLocation = new Label(wContent, SWT.RIGHT);
     wlOutputLocation.setText(BaseMessages.getString(PKG, "BeamOutputDialog.OutputLocation"));
     PropsUi.setLook(wlOutputLocation);
     FormData fdlOutputLocation = new FormData();
     fdlOutputLocation.left = new FormAttachment(0, 0);
-    fdlOutputLocation.top = new FormAttachment(lastControl, margin);
+    fdlOutputLocation.top = new FormAttachment(0, margin);
     fdlOutputLocation.right = new FormAttachment(middle, -margin);
     wlOutputLocation.setLayoutData(fdlOutputLocation);
-    wOutputLocation = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOutputLocation = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOutputLocation);
     FormData fdOutputLocation = new FormData();
     fdOutputLocation.left = new FormAttachment(middle, 0);
@@ -116,7 +100,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
     wOutputLocation.setLayoutData(fdOutputLocation);
     lastControl = wOutputLocation;
 
-    Label wlFilePrefix = new Label(shell, SWT.RIGHT);
+    Label wlFilePrefix = new Label(wContent, SWT.RIGHT);
     wlFilePrefix.setText(BaseMessages.getString(PKG, "BeamOutputDialog.FilePrefix"));
     PropsUi.setLook(wlFilePrefix);
     FormData fdlFilePrefix = new FormData();
@@ -124,7 +108,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
     fdlFilePrefix.top = new FormAttachment(lastControl, margin);
     fdlFilePrefix.right = new FormAttachment(middle, -margin);
     wlFilePrefix.setLayoutData(fdlFilePrefix);
-    wFilePrefix = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilePrefix = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilePrefix);
     FormData fdFilePrefix = new FormData();
     fdFilePrefix.left = new FormAttachment(middle, 0);
@@ -133,7 +117,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
     wFilePrefix.setLayoutData(fdFilePrefix);
     lastControl = wFilePrefix;
 
-    Label wlFileSuffix = new Label(shell, SWT.RIGHT);
+    Label wlFileSuffix = new Label(wContent, SWT.RIGHT);
     wlFileSuffix.setText(BaseMessages.getString(PKG, "BeamOutputDialog.FileSuffix"));
     PropsUi.setLook(wlFileSuffix);
     FormData fdlFileSuffix = new FormData();
@@ -141,7 +125,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
     fdlFileSuffix.top = new FormAttachment(lastControl, margin);
     fdlFileSuffix.right = new FormAttachment(middle, -margin);
     wlFileSuffix.setLayoutData(fdlFileSuffix);
-    wFileSuffix = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFileSuffix = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFileSuffix);
     FormData fdFileSuffix = new FormData();
     fdFileSuffix.left = new FormAttachment(middle, 0);
@@ -150,7 +134,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
     wFileSuffix.setLayoutData(fdFileSuffix);
     lastControl = wFileSuffix;
 
-    Label wlWindowed = new Label(shell, SWT.RIGHT);
+    Label wlWindowed = new Label(wContent, SWT.RIGHT);
     wlWindowed.setText(BaseMessages.getString(PKG, "BeamOutputDialog.Windowed"));
     PropsUi.setLook(wlWindowed);
     FormData fdlWindowed = new FormData();
@@ -158,7 +142,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
     fdlWindowed.top = new FormAttachment(lastControl, margin);
     fdlWindowed.right = new FormAttachment(middle, -margin);
     wlWindowed.setLayoutData(fdlWindowed);
-    wWindowed = new Button(shell, SWT.CHECK);
+    wWindowed = new Button(wContent, SWT.CHECK);
     PropsUi.setLook(wWindowed);
     FormData fdWindowed = new FormData();
     fdWindowed.left = new FormAttachment(middle, 0);
@@ -172,7 +156,7 @@ public class BeamOutputDialog extends BaseTransformDialog {
             variables,
             metadataProvider,
             FileDefinition.class,
-            shell,
+            wContent,
             SWT.NONE,
             BaseMessages.getString(PKG, "BeamOutputDialog.FileDefinition"),
             BaseMessages.getString(PKG, "BeamOutputDialog.FileDefinition"));
@@ -182,7 +166,14 @@ public class BeamOutputDialog extends BaseTransformDialog {
     fdFileDefinition.top = new FormAttachment(lastControl, margin);
     fdFileDefinition.right = new FormAttachment(100, 0);
     wFileDefinition.setLayoutData(fdFileDefinition);
-    lastControl = wFileDefinition;
+
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     try {
       wFileDefinition.fillItems();
@@ -190,19 +181,8 @@ public class BeamOutputDialog extends BaseTransformDialog {
       log.logError("Error getting file definition items", e);
     }
 
-    // Buttons go at the very bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, lastControl);
-
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -210,15 +190,11 @@ public class BeamOutputDialog extends BaseTransformDialog {
 
   /** Populate the widgets. */
   public void getData() {
-    wTransformName.setText(transformName);
     wFileDefinition.setText(Const.NVL(input.getFileDefinitionName(), ""));
     wOutputLocation.setText(Const.NVL(input.getOutputLocation(), ""));
     wFilePrefix.setText(Const.NVL(input.getFilePrefix(), ""));
     wFileSuffix.setText(Const.NVL(input.getFileSuffix(), ""));
     wWindowed.setSelection(input.isWindowed());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

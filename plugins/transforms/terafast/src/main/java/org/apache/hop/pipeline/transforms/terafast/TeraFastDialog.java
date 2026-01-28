@@ -54,7 +54,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -159,19 +158,8 @@ public class TeraFastDialog extends BaseTransformDialog {
    */
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "TeraFastDialog.Shell.Title"));
     this.changed = this.meta.hasChanged();
-    final Shell parent = getParent();
-
-    this.shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(this.shell);
-    setShellImage(this.shell, this.meta);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    this.shell.setLayout(formLayout);
-    this.shell.setText(BaseMessages.getString(PKG, "TeraFastDialog.Shell.Title"));
 
     buildUi();
     listeners();
@@ -209,6 +197,8 @@ public class TeraFastDialog extends BaseTransformDialog {
     this.meta.setChanged(this.changed);
     disableInputs();
 
+    focusTransformName();
+
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return this.transformName;
@@ -226,16 +216,42 @@ public class TeraFastDialog extends BaseTransformDialog {
   /** Set data values in dialog. */
   public void getData() {
     setTextIfPropertyValue(this.meta.getFastloadPath(), this.wFastLoadPath);
+    if (this.wFastLoadPath.getText().isEmpty()) {
+      this.wFastLoadPath.setText(TeraFastMeta.DEFAULT_FASTLOAD_PATH);
+    }
     setTextIfPropertyValue(this.meta.getControlFile(), this.wControlFile);
     setTextIfPropertyValue(this.meta.getDataFile(), this.wDataFile);
+    if (this.wDataFile.getText().isEmpty()) {
+      this.wDataFile.setText(TeraFastMeta.DEFAULT_DATA_FILE);
+    }
     setTextIfPropertyValue(this.meta.getLogFile(), this.wLogFile);
     setTextIfPropertyValue(this.meta.getTargetTable(), this.wTable);
-    setTextIfPropertyValue(this.meta.getErrorLimit(), this.wErrLimit);
-    setTextIfPropertyValue(this.meta.getSessions(), this.wSessions);
+    if (this.wTable.getText().isEmpty()) {
+      this.wTable.setText(TeraFastMeta.DEFAULT_TARGET_TABLE);
+    }
+    // Integer fields: always set from meta or default (evaluate() is false when value is 0)
+    Integer errLimit = this.meta.getErrorLimit().getValue();
+    this.wErrLimit.setText(
+        errLimit != null
+            ? String.valueOf(errLimit)
+            : String.valueOf(TeraFastMeta.DEFAULT_ERROR_LIMIT));
+    Integer sessions = this.meta.getSessions().getValue();
+    this.wSessions.setText(
+        sessions != null
+            ? String.valueOf(sessions)
+            : String.valueOf(TeraFastMeta.DEFAULT_SESSIONS));
     setTextIfPropertyValue(this.meta.getConnectionName(), this.wConnection.getComboWidget());
-    this.wbTruncateTable.setSelection(this.meta.getTruncateTable().getValue());
-    this.wUseControlFile.setSelection(this.meta.getUseControlFile().getValue());
-    this.wVariableSubstitution.setSelection(this.meta.getVariableSubstitution().getValue());
+    this.wbTruncateTable.setSelection(
+        Boolean.TRUE.equals(this.meta.getTruncateTable().getValue())
+            || (this.meta.getTruncateTable().getValue() == null
+                && TeraFastMeta.DEFAULT_TRUNCATETABLE));
+    this.wUseControlFile.setSelection(
+        Boolean.TRUE.equals(this.meta.getUseControlFile().getValue())
+            || (this.meta.getUseControlFile().getValue() == null));
+    this.wVariableSubstitution.setSelection(
+        Boolean.TRUE.equals(this.meta.getVariableSubstitution().getValue())
+            || (this.meta.getVariableSubstitution().getValue() == null
+                && TeraFastMeta.DEFAULT_VARIABLE_SUBSTITUTION));
 
     if (this.meta.getTableFieldList().getValue().size()
         == this.meta.getStreamFieldList().getValue().size()) {
@@ -249,9 +265,6 @@ public class TeraFastDialog extends BaseTransformDialog {
       this.wConnection.setText(this.meta.getConnectionName().getValue());
     }
     setTableFieldCombo();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   /** Configure listeners. */
@@ -454,7 +467,7 @@ public class TeraFastDialog extends BaseTransformDialog {
           }
         };
 
-    this.buildTransformNameLine(factory);
+    // Transform name line is already created by createShell() in BaseTransformDialog
     this.buildUseControlFileLine(factory);
     this.buildControlFileLine(factory);
     this.buildVariableSubstitutionLine(factory);
@@ -540,7 +553,7 @@ public class TeraFastDialog extends BaseTransformDialog {
    * @param factory factory to use.
    */
   protected void buildUseControlFileLine(final PluginWidgetFactory factory) {
-    final Control topControl = this.wTransformName;
+    final Control topControl = this.wSpacer;
 
     Label wlUseControlFile =
         factory.createRightLabel(
@@ -602,24 +615,6 @@ public class TeraFastDialog extends BaseTransformDialog {
     formData = factory.createControlLayoutData(topControl);
     formData.right = new FormAttachment(this.wbLogFile, -factory.getMargin());
     this.wLogFile.setLayoutData(formData);
-  }
-
-  /**
-   * Build transform name line.
-   *
-   * @param factory factory to use.
-   */
-  protected void buildTransformNameLine(final PluginWidgetFactory factory) {
-    this.wlTransformName =
-        factory.createRightLabel(BaseMessages.getString(PKG, "TeraFastDialog.TransformName.Label"));
-    PropsUi.setLook(this.wlTransformName);
-    this.fdlTransformName = factory.createLabelLayoutData(null);
-    this.wlTransformName.setLayoutData(this.fdlTransformName);
-
-    this.wTransformName = factory.createSingleTextLeft(this.transformName);
-    PropsUi.setLook(this.wTransformName);
-    this.fdTransformName = factory.createControlLayoutData(null);
-    this.wTransformName.setLayoutData(this.fdTransformName);
   }
 
   /**

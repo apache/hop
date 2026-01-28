@@ -56,7 +56,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -111,11 +110,9 @@ public class ExecSqlDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ExecSqlDialog.Shell.Label"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod =
         e -> {
@@ -133,35 +130,6 @@ public class ExecSqlDialog extends BaseTransformDialog {
 
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ExecSqlDialog.Shell.Label"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "ExecSqlDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     SelectionListener lsSelection =
         new SelectionAdapter() {
           @Override
@@ -171,7 +139,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
         };
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
     wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
@@ -181,7 +149,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wConnection, margin * 2);
+    fdlSql.top = new FormAttachment(wConnection, margin);
     wlSql.setLayoutData(fdlSql);
 
     wSql =
@@ -239,19 +207,6 @@ public class ExecSqlDialog extends BaseTransformDialog {
             setPosition();
           }
         });
-
-    // Some buttons
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "ExecSqlDialog.GetFields.Button"));
-    wGet.addListener(SWT.Selection, e -> get());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
 
     // Build it up from the bottom up...
     // Read field
@@ -402,7 +357,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
     FormData fdlQuoteString = new FormData();
     fdlQuoteString.left = new FormAttachment(0, margin);
     fdlQuoteString.right = new FormAttachment(0, width);
-    fdlQuoteString.bottom = new FormAttachment(wlFields, -2 * margin);
+    fdlQuoteString.bottom = new FormAttachment(wlFields, -margin);
     wlQuoteString.setLayoutData(fdlQuoteString);
     wQuoteString = new Button(shell, SWT.CHECK);
     PropsUi.setLook(wQuoteString);
@@ -500,7 +455,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.right = new FormAttachment(100, 0);
     fdlPosition.bottom =
-        new FormAttachment(wEachRow, -2 * margin); // 2 times since we deal with bottom instead of
+        new FormAttachment(wEachRow, -margin); // 2 times since we deal with bottom instead of
     // top
     wlPosition.setLayoutData(fdlPosition);
 
@@ -509,8 +464,9 @@ public class ExecSqlDialog extends BaseTransformDialog {
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wlSql, margin);
-    fdSql.right = new FormAttachment(100, -2 * margin);
+    fdSql.right = new FormAttachment(100, -margin);
     fdSql.bottom = new FormAttachment(wlPosition, -margin);
+    fdSql.height = 200;
     wSql.setLayoutData(fdSql);
 
     // Search the fields in the background
@@ -550,7 +506,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
     setExecutedSetParams();
     changedInDialog = false; // for prompting if dialog is simply closed
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -643,9 +599,6 @@ public class ExecSqlDialog extends BaseTransformDialog {
       }
     }
     wSetParams.setSelection(input.isParams());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {
