@@ -33,6 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -41,6 +42,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -76,8 +78,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
   private Label wlCacheLoadAll;
   private Button wCacheLoadAll;
 
-  private Label wlCachesize;
-  private Text wCachesize;
+  private Label wlCacheSize;
+  private Text wCacheSize;
 
   private TableView wKey;
 
@@ -128,17 +130,19 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     PropsUi.setLook(keysComp);
 
     FormLayout keysLayout = new FormLayout();
-    keysLayout.marginWidth = 3;
-    keysLayout.marginHeight = 0; // Set marginHeight to 0 for flush top
+    keysLayout.marginWidth = PropsUi.getFormMargin();
+    keysLayout.marginHeight = PropsUi.getFormMargin();
     keysComp.setLayout(keysLayout);
+
+    Button wGet = new Button(keysComp, SWT.PUSH);
+    wGet.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.GetLookupFields.Button"));
+    setButtonPositions(new Button[] {wGet}, margin, null);
+    PropsUi.setLook(wGet);
 
     Label wlKey = new Label(keysComp, SWT.NONE);
     wlKey.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.Keys.Label"));
+    wlKey.setLayoutData(new FormDataBuilder().top().left().build());
     PropsUi.setLook(wlKey);
-    FormData fdlKey = new FormData();
-    fdlKey.left = new FormAttachment(0, 0);
-    fdlKey.top = new FormAttachment(0, margin); // Attach to very top, no margin
-    wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
     int nrKeyRows =
@@ -182,38 +186,13 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
             nrKeyRows,
             lsMod,
             props);
-
-    Button wGet = new Button(keysComp, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.GetLookupFields.Button"));
-    FormData fdGet = new FormData();
-    fdGet.right = new FormAttachment(100, -margin); // Attach to right edge
-    fdGet.width = 120;
-    // Vertically center after TableView is packed
-    wGet.setLayoutData(fdGet);
-
-    FormData fdKey = new FormData();
-    fdKey.left = new FormAttachment(0, 0);
-    fdKey.top = new FormAttachment(wlKey, margin); // No margin above TableView
-    fdKey.right = new FormAttachment(wGet, -margin); // No margin to the right
-    fdKey.bottom = new FormAttachment(100, -margin); // No margin below TableView
-    wKey.setLayoutData(fdKey);
+    wKey.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 30, 10, 30, 30));
+    wKey.setLayoutData(
+        new FormDataBuilder().top(wlKey, margin).bottom(wGet, -margin).fullWidth().build());
 
     // After packing, center button vertically to TableView
     keysComp.pack();
-    Rectangle keyBounds = wKey.getBounds();
-    Rectangle btnBounds = wGet.getBounds();
-    int tableMidY = keyBounds.y + keyBounds.height / 2;
-    int btnMidY = btnBounds.height / 2;
-    int btnTop = Math.max(tableMidY - btnMidY, margin);
-    fdGet.top = new FormAttachment(0, btnTop);
-    wGet.setLayoutData(fdGet);
-
-    FormData fdKeysComp = new FormData();
-    fdKeysComp.left = new FormAttachment(0, 0);
-    fdKeysComp.top = new FormAttachment(0, 0);
-    fdKeysComp.right = new FormAttachment(100, 0);
-    fdKeysComp.bottom = new FormAttachment(100, 0);
-    keysComp.setLayoutData(fdKeysComp);
+    keysComp.setLayoutData(new FormDataBuilder().fullWidth().build());
 
     wKeySComp.setContent(keysComp);
     wKeySComp.setExpandHorizontal(true);
@@ -254,8 +233,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     PropsUi.setLook(fieldGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
-    generalLayout.marginWidth = 3;
-    generalLayout.marginHeight = 3;
+    generalLayout.marginWidth = PropsUi.getFormMargin();
+    generalLayout.marginHeight = PropsUi.getFormMargin();
     fieldGeneralComp.setLayout(generalLayout);
 
     // Connection line
@@ -316,7 +295,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     fdTable.right = new FormAttachment(wbTable, -margin);
     wTable.setLayoutData(fdTable);
 
-    // ICache?
+    // Enabled cache
     Label wlCache = new Label(fieldGeneralComp, SWT.RIGHT);
     wlCache.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.Cache.Label"));
     PropsUi.setLook(wlCache);
@@ -340,34 +319,34 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
           }
         });
 
-    // ICache size line
-    wlCachesize = new Label(fieldGeneralComp, SWT.RIGHT);
-    wlCachesize.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.Cachesize.Label"));
-    PropsUi.setLook(wlCachesize);
-    wlCachesize.setEnabled(input.isCached());
+    // Cache size line
+    wlCacheSize = new Label(fieldGeneralComp, SWT.RIGHT);
+    wlCacheSize.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.Cachesize.Label"));
+    PropsUi.setLook(wlCacheSize);
+    wlCacheSize.setEnabled(input.isCached());
     FormData fdlCachesize = new FormData();
     fdlCachesize.left = new FormAttachment(0, 0);
     fdlCachesize.right = new FormAttachment(middle, -margin);
     fdlCachesize.top = new FormAttachment(wCache, margin);
-    wlCachesize.setLayoutData(fdlCachesize);
-    wCachesize = new Text(fieldGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wCachesize);
-    wCachesize.setEnabled(input.isCached());
-    wCachesize.addModifyListener(lsMod);
+    wlCacheSize.setLayoutData(fdlCachesize);
+    wCacheSize = new Text(fieldGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCacheSize);
+    wCacheSize.setEnabled(input.isCached());
+    wCacheSize.addModifyListener(lsMod);
     FormData fdCachesize = new FormData();
     fdCachesize.left = new FormAttachment(middle, 0);
     fdCachesize.right = new FormAttachment(100, 0);
     fdCachesize.top = new FormAttachment(wCache, margin);
-    wCachesize.setLayoutData(fdCachesize);
+    wCacheSize.setLayoutData(fdCachesize);
 
-    // ICache : Load all?
+    // Cache load all
     wlCacheLoadAll = new Label(fieldGeneralComp, SWT.RIGHT);
     wlCacheLoadAll.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.CacheLoadAll.Label"));
     PropsUi.setLook(wlCacheLoadAll);
     FormData fdlCacheLoadAll = new FormData();
     fdlCacheLoadAll.left = new FormAttachment(0, 0);
     fdlCacheLoadAll.right = new FormAttachment(middle, -margin);
-    fdlCacheLoadAll.top = new FormAttachment(wCachesize, margin);
+    fdlCacheLoadAll.top = new FormAttachment(wCacheSize, margin);
     wlCacheLoadAll.setLayoutData(fdlCacheLoadAll);
     wCacheLoadAll = new Button(fieldGeneralComp, SWT.CHECK);
     PropsUi.setLook(wCacheLoadAll);
@@ -384,12 +363,55 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
           }
         });
 
-    FormData fdGeneralComp = new FormData();
-    fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(0, 0);
-    fdGeneralComp.right = new FormAttachment(100, 0);
-    fdGeneralComp.bottom = new FormAttachment(100, 0);
-    fieldGeneralComp.setLayoutData(fdGeneralComp);
+    // EatRows?
+    Label wlEatRows = new Label(fieldGeneralComp, SWT.RIGHT);
+    wlEatRows.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.EatRows.Label"));
+    PropsUi.setLook(wlEatRows);
+    FormData fdlEatRows = new FormData();
+    fdlEatRows.left = new FormAttachment(0, 0);
+    fdlEatRows.top = new FormAttachment(wCacheLoadAll, margin);
+    fdlEatRows.right = new FormAttachment(middle, -margin);
+    wlEatRows.setLayoutData(fdlEatRows);
+    wEatRows = new Button(fieldGeneralComp, SWT.CHECK);
+    PropsUi.setLook(wEatRows);
+    FormData fdEatRows = new FormData();
+    fdEatRows.left = new FormAttachment(middle, 0);
+    fdEatRows.top = new FormAttachment(wlEatRows, 0, SWT.CENTER);
+    wEatRows.setLayoutData(fdEatRows);
+    wEatRows.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            enableFields();
+          }
+        });
+
+    // FailMultiple?
+    wlFailMultiple = new Label(fieldGeneralComp, SWT.RIGHT);
+    wlFailMultiple.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.FailMultiple.Label"));
+    PropsUi.setLook(wlFailMultiple);
+    FormData fdlFailMultiple = new FormData();
+    fdlFailMultiple.left = new FormAttachment(0, 0);
+    fdlFailMultiple.top = new FormAttachment(wEatRows, margin);
+    fdlFailMultiple.right = new FormAttachment(middle, -margin);
+    wlFailMultiple.setLayoutData(fdlFailMultiple);
+    wFailMultiple = new Button(fieldGeneralComp, SWT.CHECK);
+    PropsUi.setLook(wFailMultiple);
+    FormData fdFailMultiple = new FormData();
+    fdFailMultiple.left = new FormAttachment(middle, 0);
+    fdFailMultiple.top = new FormAttachment(wlFailMultiple, 0, SWT.CENTER);
+    wFailMultiple.setLayoutData(fdFailMultiple);
+    wFailMultiple.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            enableFields();
+          }
+        });
+
+    fieldGeneralComp.setLayoutData(new FormDataBuilder().fullWidth().build());
 
     fieldGeneralComp.pack();
     Rectangle bounds = fieldGeneralComp.getBounds();
@@ -419,21 +441,32 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     PropsUi.setLook(fieldFieldsComp);
 
     FormLayout fieldsLayout = new FormLayout();
-    fieldsLayout.marginWidth = 3;
-    fieldsLayout.marginHeight = 3;
+    fieldsLayout.marginWidth = PropsUi.getFormMargin();
+    fieldsLayout.marginHeight = PropsUi.getFormMargin();
     fieldFieldsComp.setLayout(fieldsLayout);
 
-    // THE UPDATE/INSERT TABLE
+    // Return fields
     Label wlReturn = new Label(fieldFieldsComp, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.Return.Label"));
+    wlReturn.setLayoutData(new FormDataBuilder().top().left().build());
     PropsUi.setLook(wlReturn);
-    FormData fdlReturn = new FormData();
-    fdlReturn.left = new FormAttachment(0, 0);
-    fdlReturn.top = new FormAttachment(0, margin);
-    wlReturn.setLayoutData(fdlReturn);
 
     Button wGetLU = new Button(fieldFieldsComp, SWT.PUSH);
     wGetLU.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.GetFields.Button"));
+    wGetLU.addListener(SWT.Selection, e -> getlookup());
+    PropsUi.setLook(wGetLU);
+    setButtonPositions(new Button[] {wGetLU}, margin, null);
+
+    // OrderBy line
+    wOrderBy = new Text(fieldFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOrderBy.setLayoutData(new FormDataBuilder().bottom(wGetLU, -margin).fullWidth().build());
+    wOrderBy.addModifyListener(lsMod);
+    PropsUi.setLook(wOrderBy);
+
+    wlOrderBy = new Label(fieldFieldsComp, SWT.LEFT);
+    wlOrderBy.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.Orderby.Label"));
+    wlOrderBy.setLayoutData(new FormDataBuilder().bottom(wOrderBy, -margin).fullWidth().build());
+    PropsUi.setLook(wlOrderBy);
 
     int upInsCols = 5;
     int upInsRows =
@@ -486,95 +519,15 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
             upInsRows,
             lsMod,
             props);
+    wReturn.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 30, 30, 15, 15, 10));
+    wReturn.setLayoutData(
+        new FormDataBuilder()
+            .top(wlReturn, margin)
+            .bottom(wlOrderBy, -margin * 2)
+            .fullWidth()
+            .build());
 
-    // Layout: TableView and Button side by side
-    FormData fdReturn = new FormData();
-    fdReturn.left = new FormAttachment(0, 0);
-    fdReturn.top = new FormAttachment(wlReturn, margin);
-    fdReturn.right = new FormAttachment(80, -margin); // TableView takes 80% width
-    fdReturn.bottom = new FormAttachment(wlReturn, (int) (200 * props.getZoomFactor()));
-    wReturn.setLayoutData(fdReturn);
-
-    FormData fdGetLU = new FormData();
-    fdGetLU.left = new FormAttachment(wReturn, margin); // Button to the right of TableView
-    fdGetLU.top =
-        new FormAttachment(wReturn, 0, SWT.CENTER); // Center vertically with respect to TableView
-    fdGetLU.right = new FormAttachment(100, 0);
-    fdGetLU.width = 120; // Fixed width for button
-    wGetLU.setLayoutData(fdGetLU);
-
-    // EatRows?
-    Label wlEatRows = new Label(fieldFieldsComp, SWT.RIGHT);
-    wlEatRows.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.EatRows.Label"));
-    PropsUi.setLook(wlEatRows);
-    FormData fdlEatRows = new FormData();
-    fdlEatRows.left = new FormAttachment(0, 0);
-    fdlEatRows.top = new FormAttachment(wReturn, margin);
-    fdlEatRows.right = new FormAttachment(middle, -margin);
-    wlEatRows.setLayoutData(fdlEatRows);
-    wEatRows = new Button(fieldFieldsComp, SWT.CHECK);
-    PropsUi.setLook(wEatRows);
-    FormData fdEatRows = new FormData();
-    fdEatRows.left = new FormAttachment(middle, 0);
-    fdEatRows.top = new FormAttachment(wlEatRows, 0, SWT.CENTER);
-    wEatRows.setLayoutData(fdEatRows);
-    wEatRows.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            enableFields();
-          }
-        });
-
-    // FailMultiple?
-    wlFailMultiple = new Label(fieldFieldsComp, SWT.RIGHT);
-    wlFailMultiple.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.FailMultiple.Label"));
-    PropsUi.setLook(wlFailMultiple);
-    FormData fdlFailMultiple = new FormData();
-    fdlFailMultiple.left = new FormAttachment(0, 0);
-    fdlFailMultiple.top = new FormAttachment(wEatRows, margin);
-    fdlFailMultiple.right = new FormAttachment(middle, -margin);
-    wlFailMultiple.setLayoutData(fdlFailMultiple);
-    wFailMultiple = new Button(fieldFieldsComp, SWT.CHECK);
-    PropsUi.setLook(wFailMultiple);
-    FormData fdFailMultiple = new FormData();
-    fdFailMultiple.left = new FormAttachment(middle, 0);
-    fdFailMultiple.top = new FormAttachment(wlFailMultiple, 0, SWT.CENTER);
-    wFailMultiple.setLayoutData(fdFailMultiple);
-    wFailMultiple.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            enableFields();
-          }
-        });
-
-    // OrderBy line - right align to TableView
-    wlOrderBy = new Label(fieldFieldsComp, SWT.RIGHT);
-    wlOrderBy.setText(BaseMessages.getString(PKG, "DatabaseLookupDialog.Orderby.Label"));
-    PropsUi.setLook(wlOrderBy);
-    FormData fdlOrderBy = new FormData();
-    fdlOrderBy.left = new FormAttachment(0, 0);
-    fdlOrderBy.top = new FormAttachment(wFailMultiple, margin);
-    fdlOrderBy.right = new FormAttachment(middle, -margin);
-    wlOrderBy.setLayoutData(fdlOrderBy);
-    wOrderBy = new Text(fieldFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wOrderBy);
-    FormData fdOrderBy = new FormData();
-    fdOrderBy.left = new FormAttachment(middle, 0);
-    fdOrderBy.top = new FormAttachment(wFailMultiple, margin);
-    fdOrderBy.right = new FormAttachment(80, -margin); // Right align to TableView
-    wOrderBy.setLayoutData(fdOrderBy);
-    wOrderBy.addModifyListener(lsMod);
-
-    FormData fdFieldsComp = new FormData();
-    fdFieldsComp.left = new FormAttachment(0, 0);
-    fdFieldsComp.top = new FormAttachment(0, 0);
-    fdFieldsComp.right = new FormAttachment(100, 0);
-    fdFieldsComp.bottom = new FormAttachment(100, 0);
-    fieldFieldsComp.setLayoutData(fdFieldsComp);
+    fieldFieldsComp.setLayoutData(new FormDataBuilder().fullWidth().build());
 
     fieldFieldsComp.pack();
     Rectangle bounds = fieldFieldsComp.getBounds();
@@ -584,8 +537,6 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     wFieldsSComp.setExpandVertical(true);
     wFieldsSComp.setMinWidth(bounds.width);
     wFieldsSComp.setMinHeight(bounds.height);
-
-    wGetLU.addListener(SWT.Selection, e -> getlookup());
 
     wFieldsTab.setControl(wFieldsSComp);
   }
@@ -615,8 +566,11 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     // Buttons at the very bottom
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    PropsUi.setLook(wOk);
+
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    PropsUi.setLook(wCancel);
 
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
@@ -739,8 +693,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     wlOrderBy.setEnabled(!wFailMultiple.getSelection());
     wOrderBy.setEnabled(!wFailMultiple.getSelection());
 
-    wCachesize.setEnabled(wCache.getSelection() && !wCacheLoadAll.getSelection());
-    wlCachesize.setEnabled(wCache.getSelection() && !wCacheLoadAll.getSelection());
+    wCacheSize.setEnabled(wCache.getSelection() && !wCacheLoadAll.getSelection());
+    wlCacheSize.setEnabled(wCache.getSelection() && !wCacheLoadAll.getSelection());
     wCacheLoadAll.setEnabled(wCache.getSelection());
     wlCacheLoadAll.setEnabled(wCache.getSelection());
     wFailMultiple.setEnabled(!wCache.getSelection());
@@ -752,7 +706,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     logDebug(BaseMessages.getString(PKG, "DatabaseLookupDialog.Log.GettingKeyInfo"));
 
     wCache.setSelection(input.isCached());
-    wCachesize.setText("" + input.getCacheSize());
+    wCacheSize.setText("" + input.getCacheSize());
     wCacheLoadAll.setSelection(input.isLoadingAllDataInCache());
 
     Lookup lookup = input.getLookup();
@@ -815,7 +769,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
     lookup.getReturnValues().clear();
 
     input.setCached(wCache.getSelection());
-    input.setCacheSize(Const.toInt(wCachesize.getText(), 0));
+    input.setCacheSize(Const.toInt(wCacheSize.getText(), 0));
     input.setLoadingAllDataInCache(wCacheLoadAll.getSelection());
 
     for (TableItem item : wKey.getNonEmptyItems()) {
