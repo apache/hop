@@ -234,30 +234,19 @@ public class SftpClient {
     }
   }
 
-  public void put(FileObject fileObject, String remoteFile) throws HopWorkflowException {
-    int mode = ChannelSftp.OVERWRITE;
+  public void put(FileObject fileObject, String remoteFile, boolean preserveTimestamp)
+      throws HopWorkflowException {
+
     InputStream inputStream = null;
+    int mode = ChannelSftp.OVERWRITE;
+
     try {
       inputStream = HopVfs.getInputStream(fileObject);
       c.put(inputStream, remoteFile, null, mode);
-    } catch (Exception e) {
-      throw new HopWorkflowException(e);
-    } finally {
-      if (inputStream != null) {
-        try {
-          inputStream.close();
-        } catch (IOException e) {
-          throw new HopWorkflowException(e);
-        }
+      if (preserveTimestamp) {
+        long localLastMod = fileObject.getContent().getLastModifiedTime();
+        c.setMtime(remoteFile, (int) (localLastMod / 1000L));
       }
-    }
-  }
-
-  public void put(InputStream inputStream, String remoteFile) throws HopWorkflowException {
-    int mode = ChannelSftp.OVERWRITE;
-
-    try {
-      c.put(inputStream, remoteFile, null, mode);
     } catch (Exception e) {
       throw new HopWorkflowException(e);
     } finally {
