@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-valuetypes</artifactId>
-        <version>2.17.0-SNAPSHOT</version>
+        <version>2.17.0</version>
     </parent>
 
     <artifactId>hop-valuetypes-uuid</artifactId>
