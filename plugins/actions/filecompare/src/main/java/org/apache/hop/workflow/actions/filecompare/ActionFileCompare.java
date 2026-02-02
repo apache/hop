@@ -18,8 +18,8 @@
 package org.apache.hop.workflow.actions.filecompare;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
@@ -109,51 +109,33 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
    * @throws org.apache.hop.core.exception.HopFileException upon IO problems
    */
   protected boolean equalFileContents(FileObject file1, FileObject file2) throws HopFileException {
-    // Really read the contents and do comparisons
-    DataInputStream in1 = null;
-    DataInputStream in2 = null;
-    try {
-      in1 =
-          new DataInputStream(
-              new BufferedInputStream(
-                  HopVfs.getInputStream(HopVfs.getFilename(file1), getVariables())));
-      in2 =
-          new DataInputStream(
-              new BufferedInputStream(
-                  HopVfs.getInputStream(HopVfs.getFilename(file2), getVariables())));
+    // Really read the contents and do comparisons.
+    try (InputStream in1 =
+            new BufferedInputStream(
+                HopVfs.getInputStream(HopVfs.getFilename(file1), getVariables()));
+        InputStream in2 =
+            new BufferedInputStream(
+                HopVfs.getInputStream(HopVfs.getFilename(file2), getVariables()))) {
 
-      char ch1;
-      char ch2;
-      while (in1.available() != 0 && in2.available() != 0) {
-        ch1 = (char) in1.readByte();
-        ch2 = (char) in2.readByte();
-        if (ch1 != ch2) {
+      int b1;
+      int b2;
+      while (true) {
+        b1 = in1.read();
+        b2 = in2.read();
+        if (b1 == -1 || b2 == -1) {
+          break;
+        }
+        if (b1 != b2) {
           return false;
         }
       }
-      if (in1.available() != in2.available()) {
-        return false;
-      } else {
-        return true;
-      }
+      // Both streams must be at EOF for files to be equal
+      return b1 == -1 && b2 == -1;
     } catch (IOException e) {
       throw new HopFileException(e);
-    } finally {
-      if (in1 != null) {
-        try {
-          in1.close();
-        } catch (IOException ignored) {
-          // Nothing to do here
-        }
-      }
-      if (in2 != null) {
-        try {
-          in2.close();
-        } catch (IOException ignored) {
-          // Nothing to see here...
-        }
-      }
     }
+    // Nothing to do here
+    // Nothing to see here...
   }
 
   @Override
@@ -173,11 +155,7 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
         file2 = HopVfs.getFileObject(realFilename2, getVariables());
 
         if (file1.exists() && file2.exists()) {
-          if (equalFileContents(file1, file2)) {
-            result.setResult(true);
-          } else {
-            result.setResult(false);
-          }
+          result.setResult(equalFileContents(file1, file2));
 
           // add filename to result filenames
           if (addFilenameToResult

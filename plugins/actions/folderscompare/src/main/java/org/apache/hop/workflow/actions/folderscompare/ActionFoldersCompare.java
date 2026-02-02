@@ -18,8 +18,8 @@
 package org.apache.hop.workflow.actions.folderscompare;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -198,49 +198,33 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
    * @throws org.apache.hop.core.exception.HopFileException upon IO problems
    */
   protected boolean equalFileContents(FileObject file1, FileObject file2) throws HopFileException {
-    // Really read the contents and do comparisons
-    DataInputStream in1 = null;
-    DataInputStream in2 = null;
-    try {
-      // Really read the contents and do comparisons
+    // Really read the contents and do comparisons.
+    try (InputStream in1 =
+            new BufferedInputStream(
+                HopVfs.getInputStream(HopVfs.getFilename(file1), getVariables()));
+        InputStream in2 =
+            new BufferedInputStream(
+                HopVfs.getInputStream(HopVfs.getFilename(file2), getVariables()))) {
 
-      in1 =
-          new DataInputStream(
-              new BufferedInputStream(
-                  HopVfs.getInputStream(HopVfs.getFilename(file1), getVariables())));
-      in2 =
-          new DataInputStream(
-              new BufferedInputStream(
-                  HopVfs.getInputStream(HopVfs.getFilename(file2), getVariables())));
-
-      char ch1;
-      char ch2;
-      while (in1.available() != 0 && in2.available() != 0) {
-        ch1 = (char) in1.readByte();
-        ch2 = (char) in2.readByte();
-        if (ch1 != ch2) {
+      int b1;
+      int b2;
+      while (true) {
+        b1 = in1.read();
+        b2 = in2.read();
+        if (b1 == -1 || b2 == -1) {
+          break;
+        }
+        if (b1 != b2) {
           return false;
         }
       }
-      return in1.available() == in2.available();
+      // Both streams must be at EOF for files to be equal
+      return b1 == -1 && b2 == -1;
     } catch (IOException e) {
       throw new HopFileException(e);
-    } finally {
-      if (in1 != null) {
-        try {
-          in1.close();
-        } catch (IOException ignored) {
-          // Nothing to see here...
-        }
-      }
-      if (in2 != null) {
-        try {
-          in2.close();
-        } catch (Exception ignored) {
-          // We can't do anything else here...
-        }
-      }
     }
+    // Nothing to see here...
+    // We can't do anything else here...
   }
 
   @Override
@@ -542,14 +526,15 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
             }
           } else {
             // Not in the Base Folder...Only if include sub folders
-            if (includesubfolders) {
-              if ((info.getFile().getType() == FileType.FILE && compareonly.equals("only_files"))
-                  || (info.getFile().getType() == FileType.FOLDER
-                      && compareonly.equals("only_folders"))
-                  || (getFileWildcard(shortFilename) && compareonly.equals("specify"))
-                  || (compareonly.equals("all"))) {
-                returncode = true;
-              }
+
+            if ((includesubfolders
+                    && (info.getFile().getType() == FileType.FILE
+                        && compareonly.equals("only_files"))
+                || (info.getFile().getType() == FileType.FOLDER
+                    && compareonly.equals("only_folders"))
+                || (getFileWildcard(shortFilename) && compareonly.equals("specify"))
+                || (compareonly.equals("all")))) {
+              returncode = true;
             }
           }
         }
