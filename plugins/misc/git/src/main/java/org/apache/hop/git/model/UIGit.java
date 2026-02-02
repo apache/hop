@@ -46,6 +46,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.jgit.api.CleanCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
@@ -868,6 +869,28 @@ public class UIGit extends VCS {
   }
 
   /**
+   * Clean untracked files and directories under the given path (e.g. a folder).
+   *
+   * @param path The path to clean (relative to repo root)
+   * @throws HopException when the clean operation fails
+   */
+  public void cleanPath(String path) throws HopException {
+    try {
+      String normalizedPath = normalizePathForJGit(path);
+      if (normalizedPath == null || ".".equals(normalizedPath)) {
+        normalizedPath = "";
+      }
+      CleanCommand cleanCommand = git.clean();
+      if (!normalizedPath.isEmpty()) {
+        cleanCommand.setPaths(Collections.singleton(normalizedPath));
+      }
+      cleanCommand.setCleanDirectories(true).setForce(true).call();
+    } catch (Exception e) {
+      throw new HopException("Git: error cleaning path '" + path + "'", e);
+    }
+  }
+
+  /**
    * Get the list of files which will be reverted.
    *
    * @param path The path to revert
@@ -894,6 +917,31 @@ public class UIGit extends VCS {
       return new ArrayList<>(files);
     } catch (Exception e) {
       throw new HopException("Git: error reverting path files for '" + path + "'", e);
+    }
+  }
+
+  /**
+   * Get the subset of revert-path files that will be deleted by revert (untracked or added). For
+   * these files revert removes the file; for others (changed, missing, uncommitted) the file stays
+   * and only content is reset.
+   *
+   * @param path The path to revert (same as for getRevertPathFiles)
+   * @return Paths that will be deleted (untracked + added)
+   */
+  public Set<String> getRevertPathFilesThatWillBeDeleted(String path) throws HopException {
+    try {
+      Set<String> files = new HashSet<>();
+      String normalizedPath = normalizePathForJGit(path);
+      StatusCommand statusCommand = git.status();
+      if (normalizedPath != null && !".".equals(normalizedPath)) {
+        statusCommand = statusCommand.addPath(normalizedPath);
+      }
+      Status status = statusCommand.call();
+      files.addAll(status.getUntracked());
+      files.addAll(status.getAdded());
+      return files;
+    } catch (Exception e) {
+      throw new HopException("Git: error getting revert path files for '" + path + "'", e);
     }
   }
 

@@ -21,6 +21,7 @@ package org.apache.hop.git;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -467,9 +468,74 @@ public class GitGuiPlugin
         String selection = selectionDialog.open();
         if (selection != null) {
           int[] selectedNrs = selectionDialog.getSelectionIndeces();
+
+          // Only close tabs for files that will be deleted (untracked/added); reload the rest
+          Set<String> pathsThatWillBeDeleted =
+              git.getRevertPathFilesThatWillBeDeleted(relativePath);
+          List<String> filenamesToClose = new ArrayList<>();
+          List<String> filenamesToReload = new ArrayList<>();
+          for (int selectedNr : selectedNrs) {
+            String filePath = files[selectedNr];
+            String fullFilename;
+            try {
+              FileObject fileObj =
+                  HopVfs.getFileObject(new File(git.getDirectory(), filePath).getAbsolutePath());
+              fullFilename =
+                  fileObj.exists()
+                      ? HopVfs.getFilename(fileObj)
+                      : new File(git.getDirectory(), filePath).getAbsolutePath();
+            } catch (Exception ignored) {
+              fullFilename = new File(git.getDirectory(), filePath).getAbsolutePath();
+            }
+            if (pathsThatWillBeDeleted.contains(filePath)) {
+              filenamesToClose.add(fullFilename);
+            } else {
+              filenamesToReload.add(fullFilename);
+            }
+          }
+
           for (int selectedNr : selectedNrs) {
             String file = files[selectedNr];
             git.revertPath(file);
+          }
+
+          // Close tabs for reverted files that were deleted (untracked/added)
+          ExplorerPerspective.getInstance().closeTabsForFilenames(filenamesToClose);
+          // Reload tabs for reverted files that still exist (changed/missing/uncommitted)
+          ExplorerPerspective.getInstance().reloadTabsForFilenames(filenamesToReload);
+
+          // When a folder was selected, ask if user wants to run git clean (yes/no)
+          boolean isFolder = false;
+          try {
+            isFolder = HopVfs.getFileObject(explorerFile.getFilename()).isFolder();
+          } catch (Exception ignored) {
+            // not a folder
+          }
+          if (isFolder) {
+            MessageBox cleanBox =
+                new MessageBox(
+                    HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+            cleanBox.setText(
+                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CleanConfirm.Header"));
+            cleanBox.setMessage(
+                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CleanConfirm.Message"));
+            if ((cleanBox.open() & SWT.YES) != 0) {
+              Set<String> foldersToClean = new HashSet<>();
+              foldersToClean.add(relativePath);
+              for (int selectedNr : selectedNrs) {
+                String filePath = files[selectedNr];
+                int lastSlash = Math.max(filePath.lastIndexOf('/'), filePath.lastIndexOf('\\'));
+                String parentFolder = (lastSlash <= 0) ? "" : filePath.substring(0, lastSlash);
+                foldersToClean.add(parentFolder);
+              }
+              for (String folder : foldersToClean) {
+                try {
+                  git.cleanPath(folder);
+                } catch (Exception cleanEx) {
+                  LogChannel.UI.logError("Git clean failed for " + folder, cleanEx);
+                }
+              }
+            }
           }
 
           // Show confirmation message once after all files have been reverted

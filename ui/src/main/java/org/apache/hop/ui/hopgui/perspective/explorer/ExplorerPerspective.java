@@ -1132,6 +1132,47 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   }
 
   /**
+   * Close tabs for the given filenames (e.g. after files are deleted by revert or external delete).
+   * Only tabs whose handler filename exactly matches one of the given filenames are closed.
+   *
+   * @param filenames filenames as stored in the tab handlers (e.g. from HopVfs.getFilename)
+   */
+  public void closeTabsForFilenames(java.util.Collection<String> filenames) {
+    if (filenames == null) {
+      return;
+    }
+    for (String filename : filenames) {
+      TabItemHandler handler = findTabItemHandler(filename);
+      if (handler != null) {
+        removeTabItem(handler);
+      }
+    }
+  }
+
+  /**
+   * Reload content from disk for tabs matching the given filenames (e.g. after revert that did not
+   * delete the file). Only tabs whose handler filename exactly matches one of the given filenames
+   * are reloaded; handlers that support {@link IHopFileTypeHandler#reload()} will refresh content.
+   *
+   * @param filenames filenames as stored in the tab handlers (e.g. from HopVfs.getFilename)
+   */
+  public void reloadTabsForFilenames(java.util.Collection<String> filenames) {
+    if (filenames == null) {
+      return;
+    }
+    for (String filename : filenames) {
+      TabItemHandler handler = findTabItemHandler(filename);
+      if (handler != null) {
+        try {
+          handler.getTypeHandler().reload();
+        } catch (Exception e) {
+          hopGui.getLog().logError("Error reloading file '" + filename + "'", e);
+        }
+      }
+    }
+  }
+
+  /**
    * Get an existing tab item handler, can be used when the IHopeFileTypeHandler has no file name.
    */
   protected TabItemHandler getTabItemHandler(IHopFileTypeHandler fileTypeHandler) {
