@@ -27,6 +27,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -99,7 +100,8 @@ public class ActionSftpPutDialog extends ActionDialog {
   private Label wlDestinationFolder;
   private TextVar wDestinationFolder;
   private Button wbMovetoDirectory;
-  private SftpClient sftpclient = null;
+  private SftpClient sftpClient = null;
+  private CheckBoxVar wPreserveTimestamp;
 
   public ActionSftpPutDialog(
       Shell parent, ActionSftpPut action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -119,7 +121,7 @@ public class ActionSftpPutDialog extends ActionDialog {
 
     ModifyListener lsMod =
         e -> {
-          sftpclient = null;
+          sftpClient = null;
           action.setChanged();
         };
     changed = action.hasChanged();
@@ -854,6 +856,33 @@ public class ActionSftpPutDialog extends ActionDialog {
           }
         });
 
+    // Preserve timestamp
+    Label wlPreserveTimestamp = new Label(wTargetFiles, SWT.RIGHT);
+    wlPreserveTimestamp.setText(
+        BaseMessages.getString(PKG, "ActionSftpPut.PreserveTimestamp.Label"));
+    PropsUi.setLook(wlPreserveTimestamp);
+    FormData fdlPreserveTimestamp = new FormData();
+    fdlPreserveTimestamp.left = new FormAttachment(0, 0);
+    fdlPreserveTimestamp.right = new FormAttachment(middle, -margin);
+    fdlPreserveTimestamp.top = new FormAttachment(wCreateRemoteFolder, margin * 2);
+    wlPreserveTimestamp.setLayoutData(fdlPreserveTimestamp);
+    wPreserveTimestamp = new CheckBoxVar(variables, wTargetFiles, SWT.CHECK, "");
+    wPreserveTimestamp.setToolTipText(
+        BaseMessages.getString(PKG, "ActionSftpPut.PreserveTimestamp.Tooltip"));
+    PropsUi.setLook(wPreserveTimestamp);
+    FormData fdCompress = new FormData();
+    fdCompress.left = new FormAttachment(middle, 0);
+    fdCompress.top = new FormAttachment(wlPreserveTimestamp, 0, SWT.CENTER);
+    fdCompress.right = new FormAttachment(100, 0);
+    wPreserveTimestamp.setLayoutData(fdCompress);
+    wPreserveTimestamp.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            action.setChanged();
+          }
+        });
+
     FormData fdTargetFiles = new FormData();
     fdTargetFiles.left = new FormAttachment(0, margin);
     fdTargetFiles.top = new FormAttachment(wgSourceFiles, margin);
@@ -921,9 +950,9 @@ public class ActionSftpPutDialog extends ActionDialog {
   }
 
   private void quitSftp() {
-    if (sftpclient != null) {
+    if (sftpClient != null) {
       try {
-        sftpclient.disconnect();
+        sftpClient.disconnect();
       } catch (Exception e) {
         // Ignore
       }
@@ -932,10 +961,10 @@ public class ActionSftpPutDialog extends ActionDialog {
 
   private void closeFtpConnections() {
     // Close SecureFTP connection if necessary
-    if (sftpclient != null) {
+    if (sftpClient != null) {
       try {
-        sftpclient.disconnect();
-        sftpclient = null;
+        sftpClient.disconnect();
+        sftpClient = null;
       } catch (Exception e) {
         // Ignore errors
       }
@@ -946,9 +975,9 @@ public class ActionSftpPutDialog extends ActionDialog {
     boolean retval = false;
     try {
 
-      if (sftpclient == null) {
+      if (sftpClient == null) {
         // Create sftp client to host ...
-        sftpclient =
+        sftpClient =
             new SftpClient(
                 InetAddress.getByName(variables.resolve(wServerName.getText())),
                 Const.toInt(variables.resolve(wServerPort.getText()), 22),
@@ -959,7 +988,7 @@ public class ActionSftpPutDialog extends ActionDialog {
         String realProxyHost = variables.resolve(wProxyHost.getText());
         if (!Utils.isEmpty(realProxyHost)) {
           // Set proxy
-          sftpclient.setProxy(
+          sftpClient.setProxy(
               realProxyHost,
               variables.resolve(wProxyPort.getText()),
               variables.resolve(wProxyUsername.getText()),
@@ -967,23 +996,23 @@ public class ActionSftpPutDialog extends ActionDialog {
               wProxyType.getText());
         }
         // login to ftp host ...
-        sftpclient.login(Utils.resolvePassword(variables, wPassword.getText()));
+        sftpClient.login(Utils.resolvePassword(variables, wPassword.getText()));
 
         retval = true;
       }
       if (checkFolder) {
-        retval = sftpclient.folderExists(remotefoldername);
+        retval = sftpClient.folderExists(remotefoldername);
       }
 
     } catch (Exception e) {
-      if (sftpclient != null) {
+      if (sftpClient != null) {
         try {
-          sftpclient.disconnect();
+          sftpClient.disconnect();
         } catch (Exception ignored) {
           // We've tried quitting the SFTP Client exception
           // nothing else to be done if the SFTP Client was already disconnected
         }
-        sftpclient = null;
+        sftpClient = null;
       }
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
@@ -1021,15 +1050,15 @@ public class ActionSftpPutDialog extends ActionDialog {
     wServerPort.setText(action.getServerPort());
     wUserName.setText(Const.NVL(action.getUserName(), ""));
     wPassword.setText(Const.NVL(action.getPassword(), ""));
-    wScpDirectory.setText(Const.NVL(action.getScpDirectory(), ""));
+    wScpDirectory.setText(Const.NVL(action.getRemoteDirectory(), ""));
     wLocalDirectory.setText(Const.NVL(action.getLocalDirectory(), ""));
     wWildcard.setText(Const.NVL(action.getWildcard(), ""));
     wGetPrevious.setSelection(action.isCopyPrevious());
-    wGetPreviousFiles.setSelection(action.isCopyPreviousFiles());
+    wGetPreviousFiles.setSelection(action.isCopyingPreviousFiles());
     wAddFilenameToResult.setSelection(action.isAddFilenameResut());
-    wUsePublicKey.setSelection(action.isUseKeyFile());
+    wUsePublicKey.setSelection(action.isUseKeyFilename());
     wKeyFilename.setText(Const.NVL(action.getKeyFilename(), ""));
-    wKeyFilePass.setText(Const.NVL(action.getKeyPassPhrase(), ""));
+    wKeyFilePass.setText(Const.NVL(action.getKeyFilePassword(), ""));
     wCompression.setText(Const.NVL(action.getCompression(), "none"));
 
     wProxyType.setText(Const.NVL(action.getProxyType(), ""));
@@ -1042,6 +1071,7 @@ public class ActionSftpPutDialog extends ActionDialog {
     wAfterFtpPut.setText(ActionSftpPut.getAfterSftpPutDesc(action.getAfterFtps()));
     wDestinationFolder.setText(Const.NVL(action.getDestinationFolder(), ""));
     wCreateDestinationFolder.setSelection(action.isCreateDestinationFolder());
+    wPreserveTimestamp.setSelection(action.isPreserveTargetFileTimestamp());
     wSuccessWhenNoFile.setSelection(action.isSuccessWhenNoFile());
 
     wName.selectAll();
@@ -1067,15 +1097,15 @@ public class ActionSftpPutDialog extends ActionDialog {
     action.setServerPort(wServerPort.getText());
     action.setUserName(wUserName.getText());
     action.setPassword(wPassword.getText());
-    action.setScpDirectory(wScpDirectory.getText());
+    action.setRemoteDirectory(wScpDirectory.getText());
     action.setLocalDirectory(wLocalDirectory.getText());
     action.setWildcard(wWildcard.getText());
-    action.setCopyPrevious(wGetPrevious.getSelection());
-    action.setCopyPreviousFiles(wGetPreviousFiles.getSelection());
+    action.setCopyingPrevious(wGetPrevious.getSelection());
+    action.setCopyingPreviousFiles(wGetPreviousFiles.getSelection());
     action.setAddFilenameResut(wAddFilenameToResult.getSelection());
-    action.setUseKeyFile(wUsePublicKey.getSelection());
+    action.setUseKeyFilename(wUsePublicKey.getSelection());
     action.setKeyFilename(wKeyFilename.getText());
-    action.setKeyPassPhrase(wKeyFilePass.getText());
+    action.setKeyFilePassword(wKeyFilePass.getText());
     action.setCompression(wCompression.getText());
 
     action.setProxyType(wProxyType.getText());
@@ -1084,6 +1114,7 @@ public class ActionSftpPutDialog extends ActionDialog {
     action.setProxyUsername(wProxyUsername.getText());
     action.setProxyPassword(wProxyPassword.getText());
     action.setCreateRemoteFolder(wCreateRemoteFolder.getSelection());
+    action.setPreserveTargetFileTimestamp(wPreserveTimestamp.getSelection());
     action.setAfterFtps(ActionSftpPut.getAfterSftpPutByDesc(wAfterFtpPut.getText()));
     action.setCreateDestinationFolder(wCreateDestinationFolder.getSelection());
     action.setDestinationFolder(wDestinationFolder.getText());

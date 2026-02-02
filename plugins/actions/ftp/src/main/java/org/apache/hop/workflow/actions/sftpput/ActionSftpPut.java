@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -65,7 +67,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_PASSWORD = "password";
 
-  private int afterFtps;
+  @Getter @Setter private int afterFtps;
 
   public static final String[] afterFtpsDesc =
       new String[] {
@@ -79,32 +81,32 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
   public static final int AFTER_FTPSPUT_DELETE = 1;
   public static final int AFTER_FTPSPUT_MOVE = 2;
 
-  private String serverName;
-  private String serverPort;
-  private String userName;
-  private String password;
-  private String remoteDirectory;
-  private String localDirectory;
-  private String wildcard;
-  private boolean copyingPrevious;
-  private boolean copyingPreviousFiles;
-  private boolean addFilenameResut;
-  private boolean useKeyFilename;
-  private String keyFilename;
-  private String keyFilePassword;
-  private String compression;
-  private boolean createRemoteFolder;
+  @Getter @Setter private String serverName;
+  @Getter @Setter private String serverPort;
+  @Getter @Setter private String userName;
+  @Getter @Setter private String password;
+  @Getter @Setter private String remoteDirectory;
+  @Getter @Setter private String localDirectory;
+  @Getter @Setter private String wildcard;
+  @Getter @Setter private boolean copyingPrevious;
+  @Getter @Setter private boolean copyingPreviousFiles;
+  @Getter @Setter private boolean addFilenameResut;
+  @Getter @Setter private boolean useKeyFilename;
+  @Getter @Setter private String keyFilename;
+  @Getter @Setter private String keyFilePassword;
+  @Getter @Setter private String compression;
+  @Getter @Setter private boolean createRemoteFolder;
+  @Getter @Setter private boolean preserveTargetFileTimestamp;
   // proxy
-  private String proxyType;
-  private String proxyHost;
-  private String proxyPort;
-  private String proxyUsername;
-  private String proxyPassword;
+  @Getter @Setter private String proxyType;
+  @Getter @Setter private String proxyHost;
+  @Getter @Setter private String proxyPort;
+  @Getter @Setter private String proxyUsername;
+  @Getter @Setter private String proxyPassword;
 
-  private String destinationFolder;
-  private boolean createDestinationFolder;
-
-  private boolean successWhenNoFile;
+  @Getter @Setter private String destinationFolder;
+  @Getter @Setter private boolean createDestinationFolder;
+  @Getter @Setter private boolean successWhenNoFile;
 
   public ActionSftpPut(String n) {
     super(n, "");
@@ -126,6 +128,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     afterFtps = AFTER_FTPSPUT_NOTHING;
     destinationFolder = null;
     createDestinationFolder = false;
+    preserveTargetFileTimestamp = true;
     successWhenNoFile = false;
   }
 
@@ -200,6 +203,9 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     retval
         .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("createdestinationfolder", createDestinationFolder));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("preserveTargetFileTimestamp", preserveTargetFileTimestamp));
 
     retval
         .append(CONST_SPACE_SHORT)
@@ -250,6 +256,9 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
 
       createRemoteFolder =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createRemoteFolder"));
+
+      preserveTargetFileTimestamp =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "preserveTargetFileTimestamp"));
 
       boolean remove = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "remove"));
       setAfterFtps(
@@ -303,256 +312,8 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     return getAfterSftpPutByCode(tt);
   }
 
-  /**
-   * @param createDestinationFolder The create destination folder flag to set.
-   */
-  public void setCreateDestinationFolder(boolean createDestinationFolder) {
-    this.createDestinationFolder = createDestinationFolder;
-  }
-
-  /**
-   * @return Returns the create destination folder flag
-   */
-  public boolean isCreateDestinationFolder() {
-    return createDestinationFolder;
-  }
-
-  /**
-   * @param successWhenNoFile The successWhenNoFile flag to set.
-   */
-  public void setSuccessWhenNoFile(boolean successWhenNoFile) {
-    this.successWhenNoFile = successWhenNoFile;
-  }
-
-  /**
-   * @return Returns the create successWhenNoFile folder flag
-   */
-  public boolean isSuccessWhenNoFile() {
-    return successWhenNoFile;
-  }
-
-  public void setDestinationFolder(String destinationfolderin) {
-    this.destinationFolder = destinationfolderin;
-  }
-
-  public String getDestinationFolder() {
-    return destinationFolder;
-  }
-
-  /**
-   * @return Returns the afterFTPS.
-   */
-  public int getAfterFtps() {
-    return afterFtps;
-  }
-
-  /**
-   * @param value The afterFTPS to set.
-   */
-  public void setAfterFtps(int value) {
-    this.afterFtps = value;
-  }
-
-  /**
-   * @return Returns the directory.
-   */
-  public String getScpDirectory() {
-    return remoteDirectory;
-  }
-
-  /**
-   * @param directory The directory to set.
-   */
-  public void setScpDirectory(String directory) {
-    this.remoteDirectory = directory;
-  }
-
-  /**
-   * @return Returns the password.
-   */
-  public String getPassword() {
-    return password;
-  }
-
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /**
-   * @return Returns the serverName.
-   */
-  public String getServerName() {
-    return serverName;
-  }
-
-  /**
-   * @param serverName The serverName to set.
-   */
-  public void setServerName(String serverName) {
-    this.serverName = serverName;
-  }
-
-  /**
-   * @return Returns the userName.
-   */
-  public String getUserName() {
-    return userName;
-  }
-
-  /**
-   * @param userName The userName to set.
-   */
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-
-  /**
-   * @return Returns the wildcard.
-   */
-  public String getWildcard() {
-    return wildcard;
-  }
-
-  /**
-   * @param wildcard The wildcard to set.
-   */
-  public void setWildcard(String wildcard) {
-    this.wildcard = wildcard;
-  }
-
-  /**
-   * @return Returns the localdirectory.
-   */
-  public String getLocalDirectory() {
-    return localDirectory;
-  }
-
-  /**
-   * @param localDirectory The localDirectory to set.
-   */
-  public void setLocalDirectory(String localDirectory) {
-    this.localDirectory = localDirectory;
-  }
-
   public boolean isCopyPrevious() {
     return copyingPrevious;
-  }
-
-  public void setCopyPrevious(boolean copyprevious) {
-    this.copyingPrevious = copyprevious;
-  }
-
-  public boolean isCopyPreviousFiles() {
-    return copyingPreviousFiles;
-  }
-
-  public void setCopyPreviousFiles(boolean copypreviousfiles) {
-    this.copyingPreviousFiles = copypreviousfiles;
-  }
-
-  public boolean isAddFilenameResut() {
-    return addFilenameResut;
-  }
-
-  public boolean isUseKeyFile() {
-    return useKeyFilename;
-  }
-
-  public void setUseKeyFile(boolean value) {
-    this.useKeyFilename = value;
-  }
-
-  public String getKeyFilename() {
-    return keyFilename;
-  }
-
-  public void setKeyFilename(String value) {
-    this.keyFilename = value;
-  }
-
-  public String getKeyPassPhrase() {
-    return keyFilePassword;
-  }
-
-  public void setKeyPassPhrase(String value) {
-    this.keyFilePassword = value;
-  }
-
-  public void setAddFilenameResut(boolean addFilenameResut) {
-    this.addFilenameResut = addFilenameResut;
-  }
-
-  /**
-   * @return Returns the compression.
-   */
-  public String getCompression() {
-    return compression;
-  }
-
-  /**
-   * @param compression The compression to set.
-   */
-  public void setCompression(String compression) {
-    this.compression = compression;
-  }
-
-  public String getServerPort() {
-    return serverPort;
-  }
-
-  public void setServerPort(String serverPort) {
-    this.serverPort = serverPort;
-  }
-
-  public String getProxyType() {
-    return proxyType;
-  }
-
-  public void setProxyType(String value) {
-    this.proxyType = value;
-  }
-
-  public String getProxyHost() {
-    return proxyHost;
-  }
-
-  public void setProxyHost(String value) {
-    this.proxyHost = value;
-  }
-
-  public String getProxyPort() {
-    return proxyPort;
-  }
-
-  public void setProxyPort(String value) {
-    this.proxyPort = value;
-  }
-
-  public String getProxyUsername() {
-    return proxyUsername;
-  }
-
-  public void setProxyUsername(String value) {
-    this.proxyUsername = value;
-  }
-
-  public String getProxyPassword() {
-    return proxyPassword;
-  }
-
-  public void setProxyPassword(String value) {
-    this.proxyPassword = value;
-  }
-
-  public boolean isCreateRemoteFolder() {
-    return this.createRemoteFolder;
-  }
-
-  public void setCreateRemoteFolder(boolean value) {
-    this.createRemoteFolder = value;
   }
 
   @Override
@@ -702,7 +463,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
         }
       }
 
-      if (isUseKeyFile()) {
+      if (isUseKeyFilename()) {
         // We must have here a private keyfilename
         realKeyFilename = resolve(getKeyFilename());
         if (Utils.isEmpty(realKeyFilename)) {
@@ -717,7 +478,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
           result.setNrErrors(1);
           return result;
         }
-        realPassPhrase = resolve(getKeyPassPhrase());
+        realPassPhrase = resolve(getKeyFilePassword());
       }
 
       // Create sftp client to host ...
@@ -843,7 +604,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                       PKG, "ActionSftpPut.Log.PuttingFile", localFilename, realSftpDirString));
             }
 
-            sftpclient.put(myFile, destinationFilename);
+            sftpclient.put(myFile, destinationFilename, preserveTargetFileTimestamp);
             nrFilesSent++;
 
             if (isDetailed()) {

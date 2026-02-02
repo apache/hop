@@ -1,0 +1,24 @@
+{
+  "variables" : [
+    {
+      "name" : "SFTP_HOSTNAME",
+      "value" : "sftp-server",
+      "description" : ""
+    },
+    {
+      "name" : "SFTP_USER",
+      "value" : "foo",
+      "description" : ""
+    },
+    {
+      "name" : "SFTP_PASSWORD",
+      "value" : "pass",
+      "description" : ""
+    },
+    {
+      "name" : "SFTP_PORT",
+      "value" : "22",
+      "description" : ""
+    }
+  ]
+}

@@ -97,7 +97,8 @@ The destination on the source file for the move is specified here.
 Use to browse button to browse to destination folder.
 |Create destination folder|Enabled if `After SFTP Put` is set to `Move file to`.
 If the `Destination folder` does not exists check this option to create it.
-|Add filename to to result|Enabled if `After SFTP Put` is seet to `Do nothing`.
+|Preserve timestamp|If checked the last modified timestamp of the source file is preserved in the uploaded file. If not checked, the uploaded file will have the last modified timestamp updated to the instant when the file's upload happens.
+|Add filename to result|Enabled if `After SFTP Put` is set to `Do nothing`.
 If checked the name of the file is added to the result stream.
 2+|*Target (remote) folder*
 |Remote directory|The remote directory on the SFTP server in which the files will be uploaded.

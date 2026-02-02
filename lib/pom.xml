@@ -99,7 +99,7 @@
         <jetty.version>12.1.2</jetty.version>
         <jna.version>5.13.0</jna.version>
         <joda-time.version>2.12.1</joda-time.version>
-        <jsch.version>0.2.18</jsch.version>
+        <jsch.version>2.27.7</jsch.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-simple.version>1.1.1</json-simple.version>
         <json-smart.version>2.5.2</json-smart.version>
