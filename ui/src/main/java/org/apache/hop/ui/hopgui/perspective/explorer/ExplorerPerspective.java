@@ -98,6 +98,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandl
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
 import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
+import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.eclipse.swt.SWT;
@@ -1071,7 +1072,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
   protected void createTabFolder(Composite parent) {
     tabFolder = new CTabFolder(parent, SWT.MULTI | SWT.BORDER);
-    tabFolder.addListener(SWT.Selection, e -> updateGui());
+    tabFolder.addListener(
+        SWT.Selection,
+        e -> {
+          updateGui();
+          // Notify zoom handler when tab is switched (for web/RAP)
+          if (org.apache.hop.ui.util.EnvironmentUtils.getInstance().isWeb()) {
+            notifyZoomHandlerForActiveTab();
+          }
+        });
     tabFolder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
           @Override
@@ -2402,6 +2411,27 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
     activeHandler.updateGui();
+  }
+
+  /** Notify the zoom handler when tab is switched (for web/RAP) */
+  private void notifyZoomHandlerForActiveTab() {
+    final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
+    if (activeHandler == null) {
+      return;
+    }
+
+    // Check if it's a pipeline or workflow graph and notify its zoom handler
+    if (activeHandler instanceof HopGuiPipelineGraph pipelineGraph) {
+      Object zoomHandler = pipelineGraph.getCanvasZoomHandler();
+      if (zoomHandler != null) {
+        CanvasZoomHelper.notifyCanvasReady(zoomHandler);
+      }
+    } else if (activeHandler instanceof HopGuiWorkflowGraph workflowGraph) {
+      Object zoomHandler = workflowGraph.getCanvasZoomHandler();
+      if (zoomHandler != null) {
+        CanvasZoomHelper.notifyCanvasReady(zoomHandler);
+      }
+    }
   }
 
   /**

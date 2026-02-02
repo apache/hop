@@ -23,6 +23,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Canvas;
@@ -273,6 +274,34 @@ public abstract class DragViewZoomBase extends Composite {
       viewDragBaseOffset = new DPoint(offset);
       // Change cursor when dragging view
       setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
+
+      // For web environment, enable pan mode for client-side visual feedback during drag
+      if (EnvironmentUtils.getInstance().isWeb() && canvas != null) {
+        canvas.setData("mode", "pan");
+        canvas.setData("panStartOffset", new Point((int) offset.x, (int) offset.y));
+        canvas.setData("panCurrentOffset", new Point((int) offset.x, (int) offset.y));
+
+        // Pass boundary information to client for constraint validation
+        double zoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
+        Point area = getArea();
+        double viewWidth = area.x / zoomFactor;
+        double viewHeight = area.y / zoomFactor;
+
+        // Calculate min/max offset boundaries (same as validateOffset())
+        double minX = -maximum.x + viewWidth;
+        double minY = -maximum.y + viewHeight;
+        double maxX = 0;
+        double maxY = 0;
+
+        canvas.setData(
+            "panBoundaries",
+            new org.apache.hop.core.gui.Rectangle((int) minX, (int) minY, (int) maxX, (int) maxY));
+
+        // Force immediate redraw to sync pan data to client BEFORE mouse move events
+        // This ensures the client has the pan data when the first MouseMove arrives
+        redraw();
+      }
+
       return true;
     }
     return false;
@@ -381,6 +410,17 @@ public abstract class DragViewZoomBase extends Composite {
     offset.y = viewDragBaseOffset.y - deltaY;
 
     validateOffset();
+
+    // For web environment, update canvas data for client-side visual feedback during drag
+    if (EnvironmentUtils.getInstance().isWeb() && canvas != null) {
+      Point startOffset = (Point) canvas.getData("panStartOffset");
+      if (startOffset != null) {
+        int offsetDeltaX = (int) (offset.x - startOffset.x);
+        int offsetDeltaY = (int) (offset.y - startOffset.y);
+        canvas.setData("panOffsetDelta", new Point(offsetDeltaX, offsetDeltaY));
+        canvas.setData("panCurrentOffset", new Point((int) offset.x, (int) offset.y));
+      }
+    }
 
     redraw();
   }

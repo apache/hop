@@ -243,7 +243,9 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
         if (width < noteMeta.getMinimumWidth()) {
           width = noteMeta.getMinimumWidth();
         }
-        PropsUi.setSize(noteMeta, width, resizeArea.height);
+        // Use note's current height, not resizeArea.height, to avoid changing height
+        int height = noteMeta.getHeight();
+        PropsUi.setSize(noteMeta, width, height);
       }
       case NORTH -> {
         int y = real.y;
@@ -254,10 +256,10 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
           y = resizeArea.y + resizeArea.height - noteMeta.getMinimumHeight();
         }
         PropsUi.setLocation(noteMeta, resizeArea.x, y);
+        // Use note's current width to avoid changing it
+        int width = noteMeta.getWidth();
         PropsUi.setSize(
-            noteMeta,
-            resizeArea.width,
-            resizeArea.y + resizeArea.height - noteMeta.getLocation().y);
+            noteMeta, width, resizeArea.y + resizeArea.height - noteMeta.getLocation().y);
       }
       case NORTH_EAST -> {
         int x = real.x;
@@ -305,7 +307,8 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
         if (height < noteMeta.getMinimumHeight()) {
           height = noteMeta.getMinimumHeight();
         }
-        PropsUi.setSize(noteMeta, resizeArea.width, height);
+        // Use note's current width, not resizeArea.width, to avoid changing width during resize
+        PropsUi.setSize(noteMeta, noteMeta.getWidth(), height);
       }
       case SOUTH_EAST -> {
         int width = real.x - resizeArea.x;
@@ -343,10 +346,10 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
           x = resizeArea.x + resizeArea.width - noteMeta.getMinimumWidth();
         }
         PropsUi.setLocation(noteMeta, x, resizeArea.y);
+        // Use note's current height to avoid changing it
+        int height = noteMeta.getHeight();
         PropsUi.setSize(
-            noteMeta,
-            resizeArea.x + resizeArea.width - noteMeta.getLocation().x,
-            resizeArea.height);
+            noteMeta, resizeArea.x + resizeArea.width - noteMeta.getLocation().x, height);
       }
     }
 

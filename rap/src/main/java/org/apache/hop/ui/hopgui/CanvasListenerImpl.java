@@ -19,7 +19,9 @@ package org.apache.hop.ui.hopgui;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.logging.LogChannel;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.rap.rwt.scripting.ClientListener;
 
@@ -39,9 +41,10 @@ public class CanvasListenerImpl extends ClientListener implements ISingletonProv
     try {
       canvasScript =
           IOUtils.toString(
-              CanvasListenerImpl.class.getResourceAsStream("canvas.js"), StandardCharsets.UTF_8);
-    } catch (IOException e1) {
-      e1.printStackTrace();
+              Objects.requireNonNull(CanvasListenerImpl.class.getResourceAsStream("canvas.js")),
+              StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      LogChannel.UI.logError("Error loading canvas.js", e);
     }
     return canvasScript;
   }

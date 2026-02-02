@@ -19,6 +19,8 @@ package org.apache.hop.ui.hopgui;
 
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.gui.DPoint;
+import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -51,6 +53,25 @@ public class CanvasFacadeImpl extends CanvasFacade {
     jsonProps.add("magnification", (float) (magnification * PropsUi.getNativeZoomFactor()));
     jsonProps.add("offsetX", offset.x);
     jsonProps.add("offsetY", offset.y);
+
+    // Add pan data if available
+    Point panStartOffset = (Point) canvas.getData("panStartOffset");
+    Rectangle panBoundaries = (Rectangle) canvas.getData("panBoundaries");
+    if (panStartOffset != null) {
+      JsonObject jsonPanStartOffset = new JsonObject();
+      jsonPanStartOffset.add("x", panStartOffset.x);
+      jsonPanStartOffset.add("y", panStartOffset.y);
+      jsonProps.add("panStartOffset", jsonPanStartOffset);
+    }
+    if (panBoundaries != null) {
+      JsonObject jsonPanBoundaries = new JsonObject();
+      jsonPanBoundaries.add("x", panBoundaries.x);
+      jsonPanBoundaries.add("y", panBoundaries.y);
+      jsonPanBoundaries.add("width", panBoundaries.width);
+      jsonPanBoundaries.add("height", panBoundaries.height);
+      jsonProps.add("panBoundaries", jsonPanBoundaries);
+    }
+
     canvas.setData("props", jsonProps);
 
     JsonArray jsonNotes = new JsonArray();
