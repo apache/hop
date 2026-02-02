@@ -33,6 +33,7 @@ import org.apache.hop.databases.cassandra.util.CassandraUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -229,19 +230,14 @@ public class CassandraOutputDialog extends BaseTransformDialog {
     Label wlTable = new Label(wWriteComp, SWT.RIGHT);
     PropsUi.setLook(wlTable);
     wlTable.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.Table.Label"));
-    FormData fdlTable = new FormData();
-    fdlTable.left = new FormAttachment(0, 0);
-    fdlTable.top = new FormAttachment(0, 0);
-    fdlTable.right = new FormAttachment(middle, -margin);
-    wlTable.setLayoutData(fdlTable);
+    wlTable.setLayoutData(
+        FormDataBuilder.builder().left().top(0, margin).right(middle, -margin).build());
 
     Button wbGetTables = new Button(wWriteComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbGetTables);
     wbGetTables.setText(BaseMessages.getString(PKG, "CassandraOutputDialog.GetTable.Button"));
-    FormData fdbTable = new FormData();
-    fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wlTable, 0, SWT.CENTER);
-    wbGetTables.setLayoutData(fdbTable);
+    wbGetTables.setLayoutData(
+        FormDataBuilder.builder().top(wlTable, margin, SWT.CENTER).right(100, 0).build());
     wbGetTables.addListener(SWT.Selection, e -> setupTablesCombo());
 
     wTable = new CCombo(wWriteComp, SWT.BORDER);
