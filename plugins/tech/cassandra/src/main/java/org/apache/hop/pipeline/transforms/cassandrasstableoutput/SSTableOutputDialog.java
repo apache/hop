@@ -24,6 +24,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -241,11 +242,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     wbGetFields = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.GetFields.Button"));
-
-    fd = new FormData();
-    fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(wTable, 0);
-    wbGetFields.setLayoutData(fd);
+    wbGetFields.setLayoutData(FormDataBuilder.builder().top(wTable, margin).right(100, 0).build());
 
     wbGetFields.addSelectionListener(
         new SelectionAdapter() {
