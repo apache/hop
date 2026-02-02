@@ -65,11 +65,10 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
    * Executes a workflow from the specified file path.
    *
    * <p>Example Request:<br>
-   * GET /hop/execWorkflow/?workflow=/path/to/workflow.hwf&level=INFO
-   *
-   * <h3>Parameters</h3>
+   * GET /hop/execWorkflow/?workflow=/path/to/workflow.hwf&#38;level=INFO
    *
    * <table>
+   * <caption>Parameters</caption>
    * <tr><th>name</th><th>description</th><th>type</th></tr>
    * <tr><td>workflow</td><td>File path to workflow (.hwf file)</td><td>query (required)</td></tr>
    * <tr><td>level</td><td>Logging level (i.e. Debug, Basic, Detailed)</td><td>query (optional)</td></tr>
@@ -77,7 +76,7 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
    * <tr><td>*any name*</td><td>All other parameters will be set as variables/parameters in the workflow</td><td>query</td></tr>
    * </table>
    *
-   * <h3>Response</h3>
+   * <h4>Response</h4>
    *
    * Returns XML with webresult containing OK or ERROR status and message.
    */

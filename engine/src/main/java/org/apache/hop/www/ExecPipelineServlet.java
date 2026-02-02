@@ -65,11 +65,10 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
    * Executes a pipeline from the specified file path.
    *
    * <p>Example Request:<br>
-   * GET /hop/execPipeline/?pipeline=/path/to/pipeline.hpl&level=INFO
-   *
-   * <h3>Parameters</h3>
+   * GET /hop/execPipeline/?pipeline=/path/to/pipeline.hpl&#38;level=INFO
    *
    * <table>
+   * <caption>Parameters</caption>
    * <tr><th>name</th><th>description</th><th>type</th></tr>
    * <tr><td>pipeline</td><td>File path to pipeline (.hpl file)</td><td>query (required)</td></tr>
    * <tr><td>level</td><td>Logging level (i.e. Debug, Basic, Detailed)</td><td>query (optional)</td></tr>
@@ -77,7 +76,7 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
    * <tr><td>*any name*</td><td>All other parameters will be set as variables/parameters in the pipeline</td><td>query</td></tr>
    * </table>
    *
-   * <h3>Response</h3>
+   * <h4>Response</h4>
    *
    * Returns XML with webresult containing OK or ERROR status and message.
    */
