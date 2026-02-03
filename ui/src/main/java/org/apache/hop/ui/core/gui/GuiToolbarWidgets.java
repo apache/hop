@@ -364,6 +364,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     // This prevents ID collisions when multiple tabs have the same toolbar items
     String uniqueId = instanceId + "-" + toolbarItem.getId();
     SvgLabelFacade.setData(uniqueId, imageLabel, imageFilename, size);
+    // Store so setToolbarItemImage() can update the icon when toggling state (e.g. show/hide
+    // selected)
+    composite.setData("iconSize", size);
+    composite.setData("uniqueId", uniqueId);
 
     GridData imageData = new GridData(SWT.LEFT, SWT.CENTER, false, false);
     imageData.widthHint = size;
@@ -452,6 +456,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           String uniqueId = instanceId + "-" + id;
           SvgLabelFacade.enable(toolItem, uniqueId, imageLabel, enabled);
         }
+        // So that disabled buttons do not receive clicks in RWT (ToolItem.setEnabled does not
+        // always prevent the control from receiving events)
+        composite.setEnabled(enabled);
       }
       // Also update the ToolItem state for consistency
       if (enabled != toolItem.isEnabled()) {
@@ -508,6 +515,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
             String uniqueId = instanceId + "-" + id;
             SvgLabelFacade.enable(null, uniqueId, imageLabel, enable);
           }
+          // So that disabled buttons do not receive clicks in RWT
+          composite.setEnabled(enable);
         }
         // Update ToolItem state so future checks work correctly
         item.setEnabled(enable);
@@ -520,6 +529,42 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
   public ToolItem findToolItem(String id) {
     return toolItemMap.get(id);
+  }
+
+  /**
+   * Set the image of a toolbar item by path. Use this when toggling between two icons (e.g. show
+   * only selected / show all). In desktop SWT this sets the ToolItem's image; in web RWT this
+   * updates the SVG in the label so the icon change is visible.
+   *
+   * @param id the toolbar item id (from @GuiToolbarElement)
+   * @param imagePath the image path (e.g. "ui/images/show-selected.svg")
+   */
+  public void setToolbarItemImage(String id, String imagePath) {
+    if (StringUtils.isEmpty(imagePath)) {
+      return;
+    }
+    ToolItem toolItem = toolItemMap.get(id);
+    if (toolItem == null || toolItem.isDisposed()) {
+      return;
+    }
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      Control control = widgetsMap.get(id);
+      if (control instanceof Composite composite && !composite.isDisposed()) {
+        Control[] children = composite.getChildren();
+        if (children.length > 0 && children[0] instanceof Label imageLabel) {
+          String uniqueId = (String) composite.getData("uniqueId");
+          if (uniqueId != null) {
+            // Update img src via JavaScript so the icon updates in RWT (setText may not re-render)
+            SvgLabelFacade.updateImageSource(uniqueId, imageLabel, imagePath);
+          }
+        }
+      }
+    } else {
+      Image image = GuiResource.getInstance().getImage(imagePath);
+      if (image != null) {
+        toolItem.setImage(image);
+      }
+    }
   }
 
   /**
