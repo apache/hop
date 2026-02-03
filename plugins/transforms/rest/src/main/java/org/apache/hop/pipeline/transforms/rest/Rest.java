@@ -56,6 +56,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.rest.common.RestConst;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -397,8 +398,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
   }
 
   private Response executeWithRetry(Supplier<Response> requestSupplier) throws HopException {
-    int maxRetries = meta.getRetryTimes();
-    long baseDelay = meta.getRetryDelayMs();
+    int maxRetries =
+        meta.getRetryTimes() != null ? meta.getRetryTimes() : RestConst.DEFAULT_RETRY_TIMES;
+    long baseDelay =
+        meta.getRetryDelayMs() != null ? meta.getRetryDelayMs() : RestConst.DEFAULT_RETRY_DELAY_MS;
     List<String> retryMethods = meta.getRetryMethods();
     Exception lastException = null;
 
