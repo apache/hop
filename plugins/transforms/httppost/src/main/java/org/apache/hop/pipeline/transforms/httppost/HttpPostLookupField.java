@@ -19,8 +19,12 @@ package org.apache.hop.pipeline.transforms.httppost;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Setter
+@Getter
 public class HttpPostLookupField {
 
   @HopMetadataProperty(
@@ -32,22 +36,6 @@ public class HttpPostLookupField {
       key = "arg",
       injectionGroupDescription = "HTTPPOST.Injection.LookupArgumentField")
   private List<HttpPostArgumentField> argumentField = new ArrayList<>();
-
-  public List<HttpPostQuery> getQueryField() {
-    return queryField;
-  }
-
-  public void setQueryField(List<HttpPostQuery> queryField) {
-    this.queryField = queryField;
-  }
-
-  public List<HttpPostArgumentField> getArgumentField() {
-    return argumentField;
-  }
-
-  public void setArgumentField(List<HttpPostArgumentField> argumentField) {
-    this.argumentField = argumentField;
-  }
 
   public HttpPostLookupField(
       List<HttpPostQuery> postQuery, List<HttpPostArgumentField> argumentField) {
