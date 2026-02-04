@@ -20,6 +20,8 @@ package org.apache.hop.ui.core.dialog;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -48,6 +50,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 /** Allows the user to make a selection from a list of values. */
+@Getter
+@Setter
 public class EnterSelectionDialog extends Dialog {
   private static final Class<?> PKG = EnterSelectionDialog.class;
 
@@ -60,10 +64,6 @@ public class EnterSelectionDialog extends Dialog {
 
   private Button wOk;
   private Shell shell;
-
-  public Shell getShell() {
-    return shell;
-  }
 
   private String[] choices;
   private String selection;
@@ -132,10 +132,6 @@ public class EnterSelectionDialog extends Dialog {
 
   public void setAvoidQuickSearch() {
     quickSearch = false;
-  }
-
-  public void setCurrentValue(String currentValue) {
-    this.currentValue = currentValue;
   }
 
   public void clearModal() {
@@ -470,41 +466,8 @@ public class EnterSelectionDialog extends Dialog {
     return -1;
   }
 
-  public int getSelectionNr() {
-    return selectionNr;
-  }
-
-  public boolean isMulti() {
-    return multi;
-  }
-
-  public void setMulti(boolean multi) {
-    this.multi = multi;
-  }
-
   public int[] getSelectionIndeces() {
     return indices;
-  }
-
-  /**
-   * @return the fixed
-   */
-  public boolean isFixed() {
-    return fixed;
-  }
-
-  /**
-   * @param fixed the fixed to set
-   */
-  public void setFixed(boolean fixed) {
-    this.fixed = fixed;
-  }
-
-  /**
-   * @return the selectedNrs
-   */
-  public int[] getSelectedNrs() {
-    return selectedNrs;
   }
 
   /**
@@ -569,37 +532,5 @@ public class EnterSelectionDialog extends Dialog {
       }
     }
     wSelection.redraw();
-  }
-
-  /**
-   * Gets addNoneOption
-   *
-   * @return value of addNoneOption
-   */
-  public boolean isAddNoneOption() {
-    return addNoneOption;
-  }
-
-  /**
-   * @param addNoneOption The addNoneOption to set
-   */
-  public void setAddNoneOption(boolean addNoneOption) {
-    this.addNoneOption = addNoneOption;
-  }
-
-  /**
-   * Gets noneClicked
-   *
-   * @return value of noneClicked
-   */
-  public boolean isNoneClicked() {
-    return noneClicked;
-  }
-
-  /**
-   * @param noneClicked The noneClicked to set
-   */
-  public void setNoneClicked(boolean noneClicked) {
-    this.noneClicked = noneClicked;
   }
 }
