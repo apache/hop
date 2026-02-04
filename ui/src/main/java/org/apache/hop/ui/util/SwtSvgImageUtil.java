@@ -224,8 +224,14 @@ public class SwtSvgImageUtil {
     return loadFromClassLoader(cl, location);
   }
 
-  /** Internal image loading from Hop's user.dir VFS. */
+  /**
+   * Internal image loading from Hop's user.dir VFS. Returns null if base is null or on any
+   * exception (e.g. VFS files-cache not set), so callers can fall back to other loaders.
+   */
   private static SwtUniversalImage loadFromBasedVFS(Display display, String location) {
+    if (base == null) {
+      return null;
+    }
     try {
       FileObject imageFileObject = HopVfs.getFileSystemManager().resolveFile(base, location);
       InputStream s = HopVfs.getInputStream(imageFileObject);
@@ -238,6 +244,11 @@ public class SwtSvgImageUtil {
         IOUtils.closeQuietly(s);
       }
     } catch (FileSystemException ex) {
+      return null;
+    } catch (RuntimeException ex) {
+      // e.g. NPE when VFS files-cache is not set (AbstractFileSystem.getFilesCache())
+      log.logDebug(
+          "VFS-based image load failed for [" + location + "], will try other loaders", ex);
       return null;
     }
   }

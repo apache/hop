@@ -55,4 +55,21 @@ public abstract class SvgLabelFacade {
   }
 
   public abstract void shadeSvgInternal(Label label, String id, boolean shaded);
+
+  /**
+   * Update only the image source of an existing img element (e.g. when toggling toolbar icon). In
+   * RWT this uses JavaScript to set the img src so the icon updates without replacing the whole
+   * label markup. No-op on desktop.
+   *
+   * @param id the DOM element id of the img (same uniqueId used in setData)
+   * @param label the label widget (unused in RWT but required for API)
+   * @param imagePath the new image path (e.g. "ui/images/show-selected.svg")
+   */
+  public static void updateImageSource(String id, Label label, String imagePath) {
+    synchronized (object) {
+      IMPL.updateImageSourceInternal(id, label, imagePath);
+    }
+  }
+
+  public abstract void updateImageSourceInternal(String id, Label label, String imagePath);
 }

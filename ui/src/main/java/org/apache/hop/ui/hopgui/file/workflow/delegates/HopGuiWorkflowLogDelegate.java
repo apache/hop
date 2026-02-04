@@ -48,7 +48,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 
 @GuiPlugin(description = "Workflow Graph Log Delegate")
 public class HopGuiWorkflowLogDelegate {
@@ -297,13 +296,12 @@ public class HopGuiWorkflowLogDelegate {
       image = "ui/images/pause.svg",
       separator = true)
   public void pauseLog() {
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ICON_LOG_PAUSE_RESUME);
     if (logBrowser.isPaused()) {
       logBrowser.setPaused(false);
-      item.setImage(GuiResource.getInstance().getImageRun());
+      toolBarWidgets.setToolbarItemImage(TOOLBAR_ICON_LOG_PAUSE_RESUME, "ui/images/pause.svg");
     } else {
       logBrowser.setPaused(true);
-      item.setImage(GuiResource.getInstance().getImagePause());
+      toolBarWidgets.setToolbarItemImage(TOOLBAR_ICON_LOG_PAUSE_RESUME, "ui/images/run.svg");
     }
   }
 

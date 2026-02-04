@@ -76,6 +76,19 @@ public class HopWeb implements ApplicationConfiguration {
         }
       }
 
+      // Register alternate images for toolbar toggles (e.g. show/hide, show-all/show-selected)
+      // so setToolbarItemImage() can switch icons in RWT without "Resource does not exist"
+      ClassLoader uiClassLoader = HopWeb.class.getClassLoader();
+      for (String path :
+          new String[] {
+            "ui/images/show.svg",
+            "ui/images/hide.svg",
+            "ui/images/show-all.svg",
+            "ui/images/show-selected.svg"
+          }) {
+        addResource(application, path, uiClassLoader);
+      }
+
       // Find metadata, perspective plugins
       //
       List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins(MetadataPluginType.class);

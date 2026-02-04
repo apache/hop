@@ -316,15 +316,21 @@ public class HopGuiPipelineLogDelegate {
       image = "ui/images/pause.svg",
       separator = true)
   public void pauseLog() {
-    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ICON_LOG_PAUSE_RESUME);
     if (logBrowser.isPaused()) {
       logBrowser.setPaused(false);
-      item.setImage(GuiResource.getInstance().getImagePause());
-      item.setToolTipText(BaseMessages.getString(PKG, "PipelineLog.Dialog.Pause.Tooltip"));
+      toolBarWidgets.setToolbarItemImage(TOOLBAR_ICON_LOG_PAUSE_RESUME, "ui/images/pause.svg");
+      setPauseResumeTooltip("PipelineLog.Dialog.Pause.Tooltip");
     } else {
       logBrowser.setPaused(true);
-      item.setImage(GuiResource.getInstance().getImageRun());
-      item.setToolTipText(BaseMessages.getString(PKG, "PipelineLog.Dialog.Resume.Tooltip"));
+      toolBarWidgets.setToolbarItemImage(TOOLBAR_ICON_LOG_PAUSE_RESUME, "ui/images/run.svg");
+      setPauseResumeTooltip("PipelineLog.Dialog.Resume.Tooltip");
+    }
+  }
+
+  private void setPauseResumeTooltip(String messageKey) {
+    ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ICON_LOG_PAUSE_RESUME);
+    if (item != null && !item.isDisposed()) {
+      item.setToolTipText(BaseMessages.getString(PKG, messageKey));
     }
   }
 

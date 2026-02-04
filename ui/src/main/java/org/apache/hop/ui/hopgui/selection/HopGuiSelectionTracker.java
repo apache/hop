@@ -17,10 +17,18 @@
 
 package org.apache.hop.ui.hopgui.selection;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Tracks the last selected item type to help route keyboard shortcuts correctly. This is needed
  * when multiple components (like file explorer and pipeline graph) share the same keyboard
  * shortcuts but need to act on different types of items.
+ *
+ * <p>Listeners can register to be notified when a given selection type is set (e.g. pipeline graph
+ * selection changed).
  */
 public class HopGuiSelectionTracker {
 
@@ -40,8 +48,13 @@ public class HopGuiSelectionTracker {
 
   private SelectionType lastSelectionType = SelectionType.NONE;
 
+  private final Map<SelectionType, List<Runnable>> selectionListeners =
+      new EnumMap<>(SelectionType.class);
+
   private HopGuiSelectionTracker() {
-    // Singleton
+    for (SelectionType t : SelectionType.values()) {
+      selectionListeners.put(t, new ArrayList<>());
+    }
   }
 
   public static HopGuiSelectionTracker getInstance() {
@@ -52,12 +65,25 @@ public class HopGuiSelectionTracker {
   }
 
   /**
-   * Set the last selected item type
+   * Add a listener that runs when the given selection type is set.
+   *
+   * @param selectionType the type to listen for
+   * @param listener runnable to execute when setLastSelectionType(selectionType) is called
+   */
+  public void addSelectionListener(SelectionType selectionType, Runnable listener) {
+    selectionListeners.get(selectionType).add(listener);
+  }
+
+  /**
+   * Set the last selected item type and notify any listeners for this type.
    *
    * @param selectionType The type of item that was selected
    */
   public void setLastSelectionType(SelectionType selectionType) {
     this.lastSelectionType = selectionType;
+    for (Runnable listener : selectionListeners.get(selectionType)) {
+      listener.run();
+    }
   }
 
   /**

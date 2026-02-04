@@ -96,6 +96,28 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
         "; }");
   }
 
+  @Override
+  public void updateImageSourceInternal(String id, Label label, String imagePath) {
+    try {
+      String src = RWT.getResourceManager().getLocation(imagePath);
+      if (src == null) {
+        return;
+      }
+      // Update the img src via JavaScript so the icon updates without replacing label markup
+      // (setText with new markup may not re-render in RWT)
+      String escaped = src.replace("\\", "\\\\").replace("'", "\\'");
+      exec("var el = document.getElementById('", id, "'); if (el) { el.src='", escaped, "'; }");
+    } catch (Exception e) {
+      System.err.println(
+          "Error updating image source for tool-item "
+              + id
+              + " for filename: "
+              + imagePath
+              + " - "
+              + Const.getSimpleStackTrace(e));
+    }
+  }
+
   private static void exec(String... strings) {
     StringBuilder builder = new StringBuilder();
     builder.append("try {");
