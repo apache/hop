@@ -35,8 +35,10 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -53,7 +55,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.ToolBar;
 
 /**
  * The goal of this composite is to add a line on a dialog which contains: - A label (for example:
@@ -79,7 +80,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private PropsUi props;
   private final Label wLabel;
   private ComboVar wCombo = null;
-  private final ToolBar wToolBar;
+  private final Control wToolBar;
 
   public MetaSelectionLine(
       IVariables variables,
@@ -189,7 +190,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     // Toolbar for default actions
     //
-    wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);
+    IToolbarContainer toolBarContainer =
+        ToolbarFacade.createToolbarContainer(this, SWT.FLAT | SWT.HORIZONTAL);
+    wToolBar = toolBarContainer.getControl();
     PropsUi.setLook(wToolBar, Props.WIDGET_STYLE_DEFAULT);
     FormData fdToolBar = new FormData();
     fdToolBar.right = new FormAttachment(100, 0);
@@ -200,8 +203,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     //
     GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
     toolbarWidgets.registerGuiPluginObject(this);
-    // Removed for Windows dark mode
-    toolbarWidgets.createToolbarWidgets(wToolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    toolbarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
 
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     if (flags != SWT.NONE) {
@@ -527,11 +529,11 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   }
 
   /**
-   * Gets wToolBar
+   * Gets wToolBar (the toolbar control; on desktop a ToolBar, on web a Composite with RowLayout).
    *
    * @return value of wToolBar
    */
-  public ToolBar getwToolBar() {
+  public Control getwToolBar() {
     return wToolBar;
   }
 }

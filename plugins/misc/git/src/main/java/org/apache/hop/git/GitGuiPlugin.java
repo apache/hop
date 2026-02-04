@@ -67,10 +67,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -334,10 +334,11 @@ public class GitGuiPlugin
       toolTip = "i18n::GitGuiPlugin.Toolbar.Branch.Tooltip",
       separator = true)
   public void showGitContextMenu() {
-    ToolItem item = getGitToolItem();
-    if (item != null) {
-      Rectangle rect = item.getBounds();
-      Point pt = item.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
+    GuiToolbarWidgets statusWidgets = HopGui.getInstance().getStatusToolbarWidgets();
+    Control control = statusWidgets.getWidgetsMap().get(ID_TOOLBAR_ITEM_GIT);
+    if (control != null && !control.isDisposed()) {
+      Rectangle rect = control.getBounds();
+      Point pt = control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
       Menu menu = createGitContextMenu();
       menu.setLocation(pt);
       menu.setVisible(true);
@@ -534,7 +535,8 @@ public class GitGuiPlugin
       label = "i18n::GitGuiPlugin.Menu.Branch.Rename.Text",
       image = "ui/images/rename.svg")
   public void gitRenameBranch() {
-    String oldName = getGitToolItem().getText();
+    String oldName =
+        HopGui.getInstance().getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_GIT);
     EnterStringDialog enterStringDialog =
         new EnterStringDialog(
             HopGui.getInstance().getShell(),
@@ -782,7 +784,7 @@ public class GitGuiPlugin
     menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_COMMIT, isSelected);
     menuWidgets.enableMenuItem(CONTEXT_MENU_GIT_REVERT, isSelected);
 
-    getGitToolItem().setEnabled(isGit);
+    HopGui.getInstance().getStatusToolbarWidgets().enableToolbarItem(ID_TOOLBAR_ITEM_GIT, isGit);
   }
 
   /**
@@ -865,17 +867,10 @@ public class GitGuiPlugin
     return git;
   }
 
-  private static ToolItem getGitToolItem() {
-    return HopGui.getInstance().getStatusToolbarWidgets().findToolItem(ID_TOOLBAR_ITEM_GIT);
-  }
-
   private void setBranchLabel(String branch) {
-    // Set the branch name using the new method that handles both SWT and RWT
-    ToolItem item = getGitToolItem();
-    if (item != null && !item.isDisposed()) {
-      HopGui.getInstance()
-          .getStatusToolbarWidgets()
-          .setToolbarItemText(ID_TOOLBAR_ITEM_GIT, Const.NVL(branch, ""));
-    }
+    // Set the branch name using the new method that handles both SWT and RWT (and flow toolbar)
+    HopGui.getInstance()
+        .getStatusToolbarWidgets()
+        .setToolbarItemText(ID_TOOLBAR_ITEM_GIT, Const.NVL(branch, ""));
   }
 }

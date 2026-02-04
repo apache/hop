@@ -92,6 +92,7 @@ import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.OsHelper;
@@ -260,10 +261,10 @@ public class HopGui
   private GuiMenuWidgets mainMenuWidgets;
   private Composite mainHopGuiComposite;
 
-  private ToolBar mainToolbar;
+  private Control mainToolbar;
   private GuiToolbarWidgets mainToolbarWidgets;
 
-  private ToolBar statusToolbar;
+  private Control statusToolbar;
   private GuiToolbarWidgets statusToolbarWidgets;
 
   private Composite perspectivesSidebar;
@@ -1243,7 +1244,9 @@ public class HopGui
   }
 
   protected void addMainToolbar() {
-    mainToolbar = new ToolBar(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    IToolbarContainer mainToolbarContainer =
+        ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    mainToolbar = mainToolbarContainer.getControl();
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
@@ -1253,12 +1256,14 @@ public class HopGui
 
     mainToolbarWidgets = new GuiToolbarWidgets();
     mainToolbarWidgets.registerGuiPluginObject(this);
-    mainToolbarWidgets.createToolbarWidgets(mainToolbar, ID_MAIN_TOOLBAR);
+    mainToolbarWidgets.createToolbarWidgets(mainToolbarContainer, ID_MAIN_TOOLBAR);
     mainToolbar.pack();
   }
 
   protected void addStatusToolbar() {
-    statusToolbar = new ToolBar(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    IToolbarContainer statusToolbarContainer =
+        ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
+    statusToolbar = statusToolbarContainer.getControl();
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 10);
     fdToolBar.right = new FormAttachment(100, 0);
@@ -1268,7 +1273,7 @@ public class HopGui
 
     statusToolbarWidgets = new GuiToolbarWidgets();
     statusToolbarWidgets.registerGuiPluginObject(this);
-    statusToolbarWidgets.createToolbarWidgets(statusToolbar, ID_STATUS_TOOLBAR);
+    statusToolbarWidgets.createToolbarWidgets(statusToolbarContainer, ID_STATUS_TOOLBAR);
     statusToolbar.pack();
   }
 

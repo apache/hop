@@ -72,10 +72,12 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
+import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -194,7 +196,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @Getter private Tree tree;
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
-  private ToolBar toolBar;
+  private Control toolBar;
   @Getter private GuiMenuWidgets menuWidgets;
   private final List<TabItemHandler> items;
   private boolean showingHiddenFiles;
@@ -458,10 +460,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     // Create toolbar
     //
-    toolBar = new ToolBar(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    IToolbarContainer toolBarContainer =
+        ToolbarFacade.createToolbarContainer(composite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolBar = toolBarContainer.getControl();
     toolBarWidgets = new GuiToolbarWidgets();
     toolBarWidgets.registerGuiPluginObject(this);
-    toolBarWidgets.createToolbarWidgets(toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    toolBarWidgets.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
     FormData toolBarFormData = new FormData();
     toolBarFormData.left = new FormAttachment(0, 0);
     toolBarFormData.top = new FormAttachment(0, 0);
