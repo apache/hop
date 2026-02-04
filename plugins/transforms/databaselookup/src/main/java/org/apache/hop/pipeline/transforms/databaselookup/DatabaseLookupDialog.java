@@ -186,7 +186,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
             nrKeyRows,
             lsMod,
             props);
-    wKey.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 30, 10, 30, 30));
+    wKey.getTable().addListener(SWT.Resize, new ColumnsResizer(5, 30, 10, 30, 30));
     wKey.setLayoutData(
         new FormDataBuilder().top(wlKey, margin).bottom(wGet, -margin).fullWidth().build());
 
@@ -519,7 +519,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
             upInsRows,
             lsMod,
             props);
-    wReturn.getTable().addListener(SWT.Resize, new ColumnsResizer(0, 30, 30, 15, 15, 10));
+    wReturn.getTable().addListener(SWT.Resize, new ColumnsResizer(5, 30, 30, 15, 15, 10));
     wReturn.setLayoutData(
         new FormDataBuilder()
             .top(wlReturn, margin)
