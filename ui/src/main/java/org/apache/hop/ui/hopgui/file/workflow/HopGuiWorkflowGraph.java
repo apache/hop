@@ -1389,6 +1389,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       }
 
       moveSelected(dx, dy);
+      applyEdgeScrollWhileDragging(event.x, event.y);
 
       doRedraw = true;
     } else if ((startHopAction != null && endHopAction == null)
@@ -1458,6 +1459,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       int dy = note.y - selectedNote.getLocation().y;
 
       moveSelected(dx, dy);
+      applyEdgeScrollWhileDragging(event.x, event.y);
 
       doRedraw = true;
     }

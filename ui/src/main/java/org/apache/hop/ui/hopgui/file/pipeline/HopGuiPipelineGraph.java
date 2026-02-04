@@ -1669,6 +1669,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
 
       moveSelected(dx, dy);
+      applyEdgeScrollWhileDragging(event.x, event.y);
 
       doRedraw = true;
     } else if ((startHopTransform != null && endHopTransform == null)
@@ -1747,6 +1748,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       int dy = note.y - selectedNote.getLocation().y;
 
       moveSelected(dx, dy);
+      applyEdgeScrollWhileDragging(event.x, event.y);
 
       doRedraw = true;
     }
