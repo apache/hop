@@ -43,11 +43,11 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class HopServerSingleton {
 
-  private static final Class<?> PKG = org.apache.hop.www.HopServer.class;
+  private static final Class<?> PKG = HopServer.class;
 
   private static HopServerConfig hopServerConfig;
   private static HopServerSingleton hopServerSingleton;
-  private static org.apache.hop.www.HopServer hopServer;
+  private static HopServer hopServer;
 
   private ILogChannel log;
 
@@ -66,16 +66,16 @@ public class HopServerSingleton {
 
     installPurgeTimer(config, log, pipelineMap, workflowMap);
 
-    HopServerMeta hopServer = config.getHopServer();
-    if (hopServer != null) {
-      int port = WebServer.CONST_PORT;
-      if (!Utils.isEmpty(hopServer.getPort())) {
+    HopServerMeta hopServerMeta = config.getHopServer();
+    if (hopServerMeta != null) {
+      int port = WebServer.DEFAULT_PORT;
+      if (!Utils.isEmpty(hopServerMeta.getPort())) {
         try {
-          port = Integer.parseInt(hopServer.getPort());
+          port = Integer.parseInt(hopServerMeta.getPort());
         } catch (Exception e) {
           log.logError(
               BaseMessages.getString(
-                  PKG, "HopServer.Error.CanNotPartPort", hopServer.getHostname(), "" + port),
+                  PKG, "HopServer.Error.CanNotPartPort", hopServerMeta.getHostname(), "" + port),
               e);
         }
       }
@@ -106,7 +106,8 @@ public class HopServerSingleton {
     //
     if (objectTimeout > 0) {
 
-      log.logBasic("Installing timer to purge stale objects after " + objectTimeout + " minutes.");
+      log.logDetailed(
+          "Installing timer to purge stale objects after " + objectTimeout + " minutes.");
 
       Timer timer = new Timer(true);
 
@@ -217,8 +218,8 @@ public class HopServerSingleton {
       if (hopServerSingleton == null) {
         if (hopServerConfig == null) {
           hopServerConfig = new HopServerConfig();
-          HopServerMeta hopServer = new HopServerMeta();
-          hopServerConfig.setHopServer(hopServer);
+          HopServerMeta hopServerMeta = new HopServerMeta();
+          hopServerConfig.setHopServer(hopServerMeta);
         }
 
         hopServerSingleton = new HopServerSingleton(hopServerConfig);
@@ -262,11 +263,11 @@ public class HopServerSingleton {
     HopServerSingleton.hopServerConfig = hopServerConfig;
   }
 
-  public static void setHopServer(org.apache.hop.www.HopServer hopServer) {
+  public static void setHopServer(HopServer hopServer) {
     HopServerSingleton.hopServer = hopServer;
   }
 
-  public static org.apache.hop.www.HopServer getHopServer() {
+  public static HopServer getHopServer() {
     return HopServerSingleton.hopServer;
   }
 
