@@ -49,9 +49,11 @@ import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
@@ -60,7 +62,9 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -95,7 +99,7 @@ public class HopGuiPipelineGridDelegate {
 
   private TableView pipelineGridView;
 
-  private ToolBar toolbar;
+  private Control toolbar;
   private GuiToolbarWidgets toolbarWidget;
 
   private Composite pipelineGridComposite;
@@ -364,8 +368,10 @@ public class HopGuiPipelineGridDelegate {
   }
 
   private void addToolBar() {
-
-    toolbar = new ToolBar(pipelineGridComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    IToolbarContainer toolBarContainer =
+        ToolbarFacade.createToolbarContainer(
+            pipelineGridComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    toolbar = toolBarContainer.getControl();
     FormData fdToolBar = new FormData();
     fdToolBar.left = new FormAttachment(0, 0);
     fdToolBar.top = new FormAttachment(0, 0);
@@ -375,14 +381,40 @@ public class HopGuiPipelineGridDelegate {
 
     toolbarWidget = new GuiToolbarWidgets();
     toolbarWidget.registerGuiPluginObject(this);
-    toolbarWidget.createToolbarWidgets(toolbar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
+    toolbarWidget.createToolbarWidgets(toolBarContainer, GUI_PLUGIN_TOOLBAR_PARENT_ID);
 
-    // Search bar: filter table by transform name (smart search, min 2 chars, case-insensitive)
-    ToolItem searchSeparator = new ToolItem(toolbar, SWT.SEPARATOR);
-    searchText = new Text(toolbar, SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER);
+    addSearchBarToToolbar(toolbar);
+
+    toolbar.pack();
+  }
+
+  /**
+   * Add the transform-name search bar to the toolbar. Layout differs for ToolBar (desktop) vs
+   * Composite (web flow).
+   */
+  private void addSearchBarToToolbar(Control toolbarControl) {
+    final int searchWidth = 260;
+    final int textStyle = SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL | SWT.BORDER;
+
+    if (toolbarControl instanceof ToolBar tb) {
+      ToolItem searchSeparator = new ToolItem(tb, SWT.SEPARATOR);
+      searchText = new Text(tb, textStyle);
+      configureSearchTextListener();
+      searchSeparator.setControl(searchText);
+      searchSeparator.setWidth(searchWidth);
+    } else {
+      searchText = new Text((Composite) toolbarControl, textStyle);
+      configureSearchTextListener();
+      searchText.pack();
+      searchText.setLayoutData(new RowData(searchWidth, SWT.DEFAULT));
+    }
+
     searchText.setMessage(
         BaseMessages.getString(PKG, "PipelineLog.Search.TransformName.Placeholder"));
     PropsUi.setLook(searchText, Props.WIDGET_STYLE_TOOLBAR);
+  }
+
+  private void configureSearchTextListener() {
     searchText.addListener(
         SWT.Modify,
         e -> {
@@ -393,10 +425,6 @@ public class HopGuiPipelineGridDelegate {
           transformNameSearchText = raw != null ? raw.trim() : "";
           refreshView();
         });
-    searchSeparator.setControl(searchText);
-    searchSeparator.setWidth(260);
-
-    toolbar.pack();
   }
 
   /** Opens the transform configuration for the selected metrics row (same as double-click). */

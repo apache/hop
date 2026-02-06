@@ -81,6 +81,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.FileTree;
@@ -94,11 +95,11 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolItem;
 
 @GuiPlugin
 public class ProjectsGuiPlugin {
@@ -273,66 +274,48 @@ public class ProjectsGuiPlugin {
     }
   }
 
-  private static ToolItem getProjectToolItem() {
-    return HopGui.getInstance().getStatusToolbarWidgets().findToolItem(ID_TOOLBAR_ITEM_PROJECT);
-  }
-
-  private static ToolItem getEnvironmentToolItem() {
-    return HopGui.getInstance().getStatusToolbarWidgets().findToolItem(ID_TOOLBAR_ITEM_ENVIRONMENT);
-  }
-
   private static void updateProjectToolItem(String projectName) {
-    ToolItem item = getProjectToolItem();
-    if (item != null && !item.isDisposed()) {
-      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-      ProjectConfig projectConfig = config.findProjectConfig(projectName);
-      if (projectConfig != null) {
-        String projectHome = projectConfig.getProjectHome();
-        if (StringUtils.isNotEmpty(projectHome)) {
-          // Use the new method that handles both SWT and RWT
-          HopGui.getInstance()
-              .getStatusToolbarWidgets()
-              .setToolbarItemText(ID_TOOLBAR_ITEM_PROJECT, projectName);
-          item.setToolTipText(
-              BaseMessages.getString(
-                  PKG,
-                  "HopGui.Toolbar.Project.Tooltip",
-                  projectName,
-                  projectHome,
-                  projectConfig.getConfigFilename()));
-        }
+    GuiToolbarWidgets statusWidgets = HopGui.getInstance().getStatusToolbarWidgets();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig != null) {
+      String projectHome = projectConfig.getProjectHome();
+      if (StringUtils.isNotEmpty(projectHome)) {
+        statusWidgets.setToolbarItemText(ID_TOOLBAR_ITEM_PROJECT, projectName);
+        statusWidgets.setToolbarItemToolTip(
+            ID_TOOLBAR_ITEM_PROJECT,
+            BaseMessages.getString(
+                PKG,
+                "HopGui.Toolbar.Project.Tooltip",
+                projectName,
+                projectHome,
+                projectConfig.getConfigFilename()));
       }
     }
   }
 
   private static void updateEnvironmentToolItem(String environmentName) {
-    ToolItem item = getEnvironmentToolItem();
-    if (item != null && !item.isDisposed()) {
-      if (Utils.isEmpty(environmentName)) {
-        // Use the new method that handles both SWT and RWT
-        HopGui.getInstance()
-            .getStatusToolbarWidgets()
-            .setToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT, "");
-        item.setToolTipText(
-            BaseMessages.getString(PKG, "HopGui.Toolbar.Environment.Select.Tooltip"));
-        return;
-      }
+    GuiToolbarWidgets statusWidgets = HopGui.getInstance().getStatusToolbarWidgets();
+    if (Utils.isEmpty(environmentName)) {
+      statusWidgets.setToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT, "");
+      statusWidgets.setToolbarItemToolTip(
+          ID_TOOLBAR_ITEM_ENVIRONMENT,
+          BaseMessages.getString(PKG, "HopGui.Toolbar.Environment.Select.Tooltip"));
+      return;
+    }
 
-      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-      LifecycleEnvironment environment = config.findEnvironment(environmentName);
-      if (environment != null) {
-        // Use the new method that handles both SWT and RWT
-        HopGui.getInstance()
-            .getStatusToolbarWidgets()
-            .setToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT, environmentName);
-        item.setToolTipText(
-            BaseMessages.getString(
-                PKG,
-                "HopGui.Toolbar.Environment.Tooltip",
-                environmentName,
-                environment.getProjectName(),
-                environment.getPurpose()));
-      }
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    LifecycleEnvironment environment = config.findEnvironment(environmentName);
+    if (environment != null) {
+      statusWidgets.setToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT, environmentName);
+      statusWidgets.setToolbarItemToolTip(
+          ID_TOOLBAR_ITEM_ENVIRONMENT,
+          BaseMessages.getString(
+              PKG,
+              "HopGui.Toolbar.Environment.Tooltip",
+              environmentName,
+              environment.getProjectName(),
+              environment.getPurpose()));
     }
   }
 
@@ -459,11 +442,14 @@ public class ProjectsGuiPlugin {
           if (askAboutProjectRefresh(hopGui)) {
             // Try to stick to the same environment if we have one selected...
             //
-            LifecycleEnvironment environment = null;
-            ToolItem environmentItem = getEnvironmentToolItem();
-            if (environmentItem != null) {
-              environment = config.findEnvironment(environmentItem.getText());
-            }
+            String environmentName =
+                HopGui.getInstance()
+                    .getStatusToolbarWidgets()
+                    .getToolbarItemText(ID_TOOLBAR_ITEM_ENVIRONMENT);
+            LifecycleEnvironment environment =
+                StringUtils.isNotEmpty(environmentName)
+                    ? config.findEnvironment(environmentName)
+                    : null;
             enableHopGuiProject(projectConfig.getProjectName(), project, environment);
           }
 
@@ -497,10 +483,11 @@ public class ProjectsGuiPlugin {
       image = "project.svg",
       toolTip = "i18n::HopGui.Toolbar.Project.Tooltip")
   public void showProjectContextMenu() {
-    ToolItem item = getProjectToolItem();
-    if (item != null) {
-      Rectangle rect = item.getBounds();
-      Point location = item.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
+    Control control =
+        HopGui.getInstance().getStatusToolbarWidgets().getControlForMenu(ID_TOOLBAR_ITEM_PROJECT);
+    if (control != null && !control.isDisposed()) {
+      Rectangle rect = control.getBounds();
+      Point location = control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
       Menu menu = createProjectContextMenu();
       menu.setLocation(location);
       menu.setVisible(true);
@@ -622,10 +609,13 @@ public class ProjectsGuiPlugin {
       image = "environment.svg",
       toolTip = "i18n::HopGui.Toolbar.Environment.Tooltip")
   public void showEnvironmentContextMenu() {
-    ToolItem item = getEnvironmentToolItem();
-    if (item != null) {
-      Rectangle rect = item.getBounds();
-      Point location = item.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
+    Control control =
+        HopGui.getInstance()
+            .getStatusToolbarWidgets()
+            .getControlForMenu(ID_TOOLBAR_ITEM_ENVIRONMENT);
+    if (control != null && !control.isDisposed()) {
+      Rectangle rect = control.getBounds();
+      Point location = control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
       Menu menu = createEnvironmentContextMenu();
       menu.setLocation(location);
       menu.setVisible(true);
@@ -1287,11 +1277,8 @@ public class ProjectsGuiPlugin {
     if (zipFilename == null) {
       return;
     }
-    ToolItem projectItem = getProjectToolItem();
-    if (projectItem == null) {
-      return;
-    }
-    String projectName = projectItem.getText();
+    String projectName =
+        HopGui.getInstance().getStatusToolbarWidgets().getToolbarItemText(ID_TOOLBAR_ITEM_PROJECT);
     if (StringUtils.isEmpty(projectName)) {
       return;
     }
