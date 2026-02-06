@@ -456,7 +456,7 @@ public class HttpPostDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wGetBodyParam, -margin);
-    fdFields.bottom = new FormAttachment(wlFields, 200);
+    fdFields.bottom = new FormAttachment(wlFields, 300);
     wFields.setLayoutData(fdFields);
     return wGetBodyParam;
   }
