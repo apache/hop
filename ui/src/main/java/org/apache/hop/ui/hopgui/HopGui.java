@@ -295,6 +295,7 @@ public class HopGui
   }
 
   private HopGui(Display display) {
+    System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
     this.display = display;
     this.id = UUID.randomUUID().toString();
 

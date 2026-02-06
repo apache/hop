@@ -955,4 +955,9 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   public void setSetAppendLogfile(boolean setAppendLogfile) {
     this.setAppendLogfile = setAppendLogfile;
   }
+
+  @Override
+  public boolean supportsDrillDown() {
+    return true;
+  }
 }

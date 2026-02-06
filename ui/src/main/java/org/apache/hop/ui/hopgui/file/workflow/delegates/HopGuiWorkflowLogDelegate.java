@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
 import java.util.ArrayList;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -79,7 +80,7 @@ public class HopGuiWorkflowLogDelegate {
   private Control toolbar;
   private GuiToolbarWidgets toolBarWidgets;
 
-  private HopGuiLogBrowser logBrowser;
+  @Getter private HopGuiLogBrowser logBrowser;
 
   /**
    * @param hopGui

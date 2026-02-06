@@ -744,4 +744,9 @@ public class WorkflowExecutorMeta
     }
     return hasChanged;
   }
+
+  @Override
+  public boolean supportsDrillDown() {
+    return true;
+  }
 }

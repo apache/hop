@@ -119,6 +119,7 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
@@ -3792,9 +3793,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         return true;
       }
 
-      // Check if the file is saved. If not, ask for it to be stopped before closing
+      // Check if the file is saved. If not, ask for it to be stopped before closing.
+      // Only show for top-level runs; sub-workflows are managed by their parent.
       //
-      if (workflow != null && (workflow.isActive())) {
+      if (workflow != null
+          && workflow.isActive()
+          && workflow.getParentPipeline() == null
+          && workflow.getParentWorkflow() == null) {
         MessageBox messageDialog =
             new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
         messageDialog.setText(
@@ -3898,6 +3903,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // store & registry
           //
           if (workflow != null) {
+            DrillDownGuiPlugin.cleanupOnRunStart();
             HopLogStore.discardLines(workflow.getLogChannelId(), true);
           }
 
@@ -4512,6 +4518,56 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return actionResult != null;
     }
     return true;
+  }
+
+  /**
+   * Attach to an already-running workflow engine to display its execution state. This sets up all
+   * the necessary GUI components and listeners to monitor the workflow.
+   *
+   * @param runningWorkflow The workflow engine instance that is already executing
+   */
+  public void attachToRunningWorkflow(IWorkflowEngine<WorkflowMeta> runningWorkflow) {
+    if (runningWorkflow == null) {
+      return;
+    }
+
+    // Set the workflow instance
+    this.setWorkflow(runningWorkflow);
+
+    // Add all the execution result tabs (logging, metrics, etc.)
+    addAllTabs();
+
+    // Force refresh of the log browser to use the new workflow's log channel
+    // This ensures logs are filtered correctly for this specific workflow
+    if (workflowLogDelegate != null && workflowLogDelegate.getLogBrowser() != null) {
+      workflowLogDelegate.getLogBrowser().resetLogChannels();
+    }
+
+    // Set the workflow tracker for the metrics/grid tab
+    if (workflowGridDelegate != null && workflow != null && workflow.getWorkflowTracker() != null) {
+      workflowGridDelegate.setWorkflowTracker(workflow.getWorkflowTracker());
+    }
+
+    // Check if workflow is still running or already finished
+    boolean isRunning = runningWorkflow.isActive() || runningWorkflow.isInitialized();
+    boolean isFinished = runningWorkflow.isFinished();
+
+    if (isRunning) {
+      // Add listeners for when the workflow finishes (only if still running)
+      workflow.addExecutionFinishedListener(e -> HopGuiWorkflowGraph.this.workflowFinished());
+
+      workflow.addExecutionStoppedListener(e -> HopGuiWorkflowGraph.this.workflowStopped());
+
+      // Start the redraw timer to continuously update the GUI
+      startRedrawTimer();
+    } else if (isFinished) {
+      // Workflow already finished, just show final state
+      workflowFinished();
+    }
+
+    // Trigger an immediate update
+    updateGui();
+    redraw();
   }
 
   private void startRedrawTimer() {

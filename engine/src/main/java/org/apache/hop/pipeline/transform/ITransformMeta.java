@@ -533,4 +533,15 @@ public interface ITransformMeta {
       return PluginRegistry.getInstance().getPluginId(TransformPluginType.class, object);
     }
   }
+
+  /**
+   * Returns whether this transform supports drill-down functionality to view executing
+   * sub-pipelines or sub-workflows.
+   *
+   * @return true if this transform executes pipelines/workflows that can be drilled into, false
+   *     otherwise (default)
+   */
+  default boolean supportsDrillDown() {
+    return false;
+  }
 }

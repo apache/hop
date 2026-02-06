@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,8 +50,6 @@ import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -121,7 +118,6 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration.Sampl
 import org.apache.hop.pipeline.transform.IRowDistribution;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -176,8 +172,10 @@ import org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelineUndoDelega
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.PipelineRenamedExtension;
+import org.apache.hop.ui.hopgui.file.shared.DrillDownGuiPlugin;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiAbstractGraph;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
+import org.apache.hop.ui.hopgui.file.shared.PipelineRowSamplerHelper;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
@@ -4011,9 +4009,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         return true;
       }
 
-      // Check if the file is saved. If not, ask for it to be stopped before closing
+      // Check if the file is saved. If not, ask for it to be stopped before closing.
+      // Only show for top-level runs; sub-pipelines are managed by their parent.
       //
-      if (pipeline != null && (pipeline.isRunning() || pipeline.isPaused())) {
+      if (pipeline != null
+          && (pipeline.isRunning() || pipeline.isPaused())
+          && pipeline.getParentPipeline() == null
+          && pipeline.getParentWorkflow() == null) {
         MessageBox messageDialog =
             new MessageBox(hopShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
         messageDialog.setText(
@@ -4310,6 +4312,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           // Also make sure to clear the log entries in the central log store & registry
           //
           if (pipeline != null) {
+            DrillDownGuiPlugin.cleanupOnRunStart();
             HopLogStore.discardLines(pipeline.getLogChannelId(), true);
           }
 
@@ -4437,109 +4440,25 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   private void addRowsSamplerToPipeline(IPipelineEngine<PipelineMeta> pipeline) {
-
-    if (!(pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
-        instanceof LocalPipelineRunConfiguration)) {
-      return;
-    }
-    LocalPipelineRunConfiguration lprConfig =
-        (LocalPipelineRunConfiguration)
-            pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
-
-    if (StringUtils.isEmpty(lprConfig.getSampleTypeInGui())) {
-      return;
-    }
-
     try {
-      SampleType sampleType = SampleType.valueOf(lprConfig.getSampleTypeInGui());
-      if (sampleType == SampleType.None) {
-        return;
-      }
-
-      final int sampleSize = Const.toInt(pipeline.resolve(lprConfig.getSampleSize()), 100);
-      if (sampleSize <= 0) {
-        return;
-      }
-
       outputRowsMap = new HashMap<>();
-      final Random random = new Random();
-
-      for (final String transformName : pipelineMeta.getTransformNames()) {
-        IEngineComponent component = pipeline.findComponent(transformName, 0);
-        if (component != null) {
-          component.addRowListener(
-              new RowAdapter() {
-                int nrRows = 0;
-
-                @Override
-                public void rowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                    throws HopTransformException {
-                  RowBuffer rowBuffer = outputRowsMap.get(transformName);
-                  if (rowBuffer == null) {
-                    rowBuffer = new RowBuffer(rowMeta);
-                    outputRowsMap.put(transformName, rowBuffer);
-
-                    // Linked list for faster adding and removing at the front and end of the list
-                    //
-                    if (sampleType == SampleType.Last) {
-                      rowBuffer.setBuffer(Collections.synchronizedList(new LinkedList<>()));
-                    } else {
-                      rowBuffer.setBuffer(Collections.synchronizedList(new ArrayList<>()));
-                    }
-                  }
-
-                  // Clone the row to make sure we capture the correct values
-                  //
-                  if (sampleType != SampleType.None) {
-                    try {
-                      row = rowMeta.cloneRow(row);
-                    } catch (HopValueException e) {
-                      throw new HopTransformException("Error copying row for preview purposes", e);
-                    }
-                  }
-
-                  switch (sampleType) {
-                    case First:
-                      {
-                        if (rowBuffer.size() < sampleSize) {
-                          rowBuffer.addRow(row);
-                        }
-                      }
-                      break;
-                    case Last:
-                      {
-                        rowBuffer.addRow(0, row);
-                        if (rowBuffer.size() > sampleSize) {
-                          rowBuffer.removeRow(rowBuffer.size() - 1);
-                        }
-                      }
-                      break;
-                    case Random:
-                      {
-                        // Reservoir sampling
-                        //
-                        nrRows++;
-                        if (rowBuffer.size() < sampleSize) {
-                          rowBuffer.addRow(row);
-                        } else {
-                          int randomIndex = random.nextInt(nrRows);
-                          if (randomIndex < sampleSize) {
-                            rowBuffer.setRow(randomIndex, row);
-                          }
-                        }
-                      }
-                      break;
-                    default:
-                      break;
-                  }
-                }
-              });
-        }
-      }
-
+      PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, outputRowsMap);
     } catch (Exception e) {
-      // Ignore : simply not recognized or empty
+      // Ignore: run config not local or sample type not set
     }
+  }
+
+  /**
+   * Attach data sniffers when we attach to a running pipeline but no central buffers exist (e.g.
+   * run config had sample type None at start). Uses the shared helper with the pipeline's run
+   * configuration.
+   */
+  private void addRowsSamplerToAttachedPipeline() {
+    if (pipeline == null) {
+      return;
+    }
+    outputRowsMap = new HashMap<>();
+    PipelineRowSamplerHelper.addRowSamplersToPipeline(pipeline, outputRowsMap);
   }
 
   public void showSaveFileMessage() {
@@ -4586,6 +4505,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // Do we have a previous execution to clean up in the logging registry?
         //
         if (pipeline != null) {
+          DrillDownGuiPlugin.cleanupOnRunStart();
           HopLogStore.discardLines(pipeline.getLogChannelId(), false);
           LoggingRegistry.getInstance().removeIncludingChildren(pipeline.getLogChannelId());
         }
@@ -4840,6 +4760,67 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       checkErrorVisuals();
       stopRedrawTimer();
     }
+  }
+
+  /**
+   * Attach to a pipeline engine (running or finished) to display its execution state. This sets up
+   * all the necessary GUI components and listeners to monitor the pipeline or view its final state.
+   *
+   * @param runningPipeline The pipeline engine instance (running, finished, or stopped)
+   */
+  public void attachToRunningPipeline(IPipelineEngine<PipelineMeta> runningPipeline) {
+    if (runningPipeline == null) {
+      return;
+    }
+
+    // Set the pipeline instance
+    this.pipeline = runningPipeline;
+
+    // Add all the execution result tabs (logging, metrics, etc.)
+    addAllTabs();
+
+    // Use central sniffer buffers if we attached at pipeline start (so we see data even if tab
+    // wasn't open)
+    Map<String, RowBuffer> existingBuffers =
+        DrillDownGuiPlugin.getDataSnifferBuffersForPipeline(runningPipeline.getLogChannelId());
+    if (existingBuffers != null) {
+      outputRowsMap = existingBuffers;
+    } else {
+      addRowsSamplerToAttachedPipeline();
+    }
+
+    // Force refresh of the log browser to use the new pipeline's log channel
+    // This ensures logs are filtered correctly for this specific pipeline
+    if (pipelineLogDelegate != null && pipelineLogDelegate.getLogBrowser() != null) {
+      pipelineLogDelegate.getLogBrowser().resetLogChannels();
+    }
+
+    // Check if pipeline is still running or already finished
+    boolean isRunning = runningPipeline.isRunning() || runningPipeline.isPreparing();
+    boolean isFinished = runningPipeline.isFinished();
+
+    if (isRunning) {
+      // Add listeners for when the pipeline finishes (only if still running)
+      pipeline.addExecutionFinishedListener(
+          p -> {
+            checkPipelineEnded();
+            checkErrorVisuals();
+            stopRedrawTimer();
+          });
+
+      pipeline.addExecutionStoppedListener(e -> pipelineStopped());
+
+      // Start the redraw timer to continuously update the GUI
+      startRedrawTimer();
+    } else if (isFinished) {
+      // Pipeline already finished, just show final state
+      checkPipelineEnded();
+      checkErrorVisuals();
+    }
+
+    // Trigger an immediate update
+    updateGui();
+    redraw();
   }
 
   private void startRedrawTimer() {

@@ -384,4 +384,9 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
   public void setIoMappings(IOMappings ioMappings) {
     this.ioMappings = ioMappings;
   }
+
+  @Override
+  public boolean supportsDrillDown() {
+    return true;
+  }
 }

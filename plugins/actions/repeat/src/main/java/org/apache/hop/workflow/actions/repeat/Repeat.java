@@ -609,4 +609,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   public String getFilename() {
     return filename;
   }
+
+  @Override
+  public boolean supportsDrillDown() {
+    return true;
+  }
 }

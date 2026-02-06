@@ -971,4 +971,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   public void setClearResultFiles(boolean clearResultFiles) {
     this.clearResultFiles = clearResultFiles;
   }
+
+  @Override
+  public boolean supportsDrillDown() {
+    return true;
+  }
 }
