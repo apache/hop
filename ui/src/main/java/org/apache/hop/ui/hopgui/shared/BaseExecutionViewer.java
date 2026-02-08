@@ -55,9 +55,9 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
 
 public abstract class BaseExecutionViewer extends DragViewZoomBase
     implements MouseListener, MouseMoveListener {
@@ -74,7 +74,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
   protected final Execution execution;
   protected ExecutionState executionState;
 
-  protected ToolBar toolBar;
+  protected Control toolBar;
   protected GuiToolbarWidgets toolBarWidgets;
   protected SashForm sash;
   protected CTabFolder tabFolder;
@@ -355,7 +355,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
    *
    * @return value of toolBar
    */
-  public ToolBar getToolBar() {
+  public Control getToolBar() {
     return toolBar;
   }
 
@@ -364,7 +364,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
    *
    * @param toolBar value of toolBar
    */
-  public void setToolBar(ToolBar toolBar) {
+  public void setToolBar(Control toolBar) {
     this.toolBar = toolBar;
   }
 

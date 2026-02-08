@@ -56,7 +56,9 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
+import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -98,7 +100,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
 
 /** Widget to display or modify data, displayed in a Table format. */
 @GuiPlugin
@@ -159,7 +160,7 @@ public class TableView extends Composite {
   private final TableColumn[] tableColumn;
   private final PropsUi props;
   @Getter private final boolean toolbarEnabled;
-  @Getter @Setter private ToolBar toolbar;
+  @Getter @Setter private Control toolbar;
   @Getter @Setter private GuiToolbarWidgets toolbarWidgets;
   private Control text;
   private Combo combo;
@@ -1440,7 +1441,9 @@ public class TableView extends Composite {
     toolbarWidgets.registerGuiPluginObject(this);
 
     if (toolbarEnabled && props.isShowTableViewToolbar()) {
-      toolbar = new ToolBar(this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+      IToolbarContainer toolBarContainer =
+          ToolbarFacade.createToolbarContainer(this, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+      toolbar = toolBarContainer.getControl();
       FormData fdToolBar = new FormData();
       fdToolBar.left = new FormAttachment(0, 0);
       fdToolBar.top = new FormAttachment(0, 0);
@@ -1448,7 +1451,7 @@ public class TableView extends Composite {
       toolbar.setLayoutData(fdToolBar);
       PropsUi.setLook(toolbar, Props.WIDGET_STYLE_TOOLBAR);
 
-      toolbarWidgets.createToolbarWidgets(toolbar, ID_TOOLBAR, removeToolItems);
+      toolbarWidgets.createToolbarWidgets(toolBarContainer, ID_TOOLBAR, removeToolItems);
       toolbar.pack();
     }
   }

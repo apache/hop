@@ -59,10 +59,12 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -92,13 +94,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -321,13 +323,16 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     navigateComposite.setLayoutData(fdNavigationForm);
 
     // A toolbar above the browser, below the filename
-    ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
+    IToolbarContainer navigateToolBarContainer =
+        ToolbarFacade.createToolbarContainer(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
+    Control navigateToolBar = navigateToolBarContainer.getControl();
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
     PropsUi.setLook(navigateToolBar, Props.WIDGET_STYLE_TOOLBAR);
 
     navigateToolbarWidgets = new GuiToolbarWidgets();
     navigateToolbarWidgets.registerGuiPluginObject(this);
-    navigateToolbarWidgets.createToolbarWidgets(navigateToolBar, NAVIGATE_TOOLBAR_PARENT_ID);
+    navigateToolbarWidgets.createToolbarWidgets(
+        navigateToolBarContainer, NAVIGATE_TOOLBAR_PARENT_ID);
     navigateToolBar.pack();
 
     wFilename = new TextVar(variables, navigateComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -362,8 +367,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     bookmarksComposite.setLayout(new FormLayout());
 
     // Above the bookmarks a toolbar with add, delete
-    ToolBar bookmarksToolBar =
-        new ToolBar(bookmarksComposite, SWT.WRAP | SWT.SHADOW_IN | SWT.LEFT | SWT.HORIZONTAL);
+    IToolbarContainer bookmarksToolBarContainer =
+        ToolbarFacade.createToolbarContainer(
+            bookmarksComposite, SWT.WRAP | SWT.SHADOW_IN | SWT.LEFT | SWT.HORIZONTAL);
+    Control bookmarksToolBar = bookmarksToolBarContainer.getControl();
     FormData fdBookmarksToolBar = new FormData();
     fdBookmarksToolBar.left = new FormAttachment(0, 0);
     fdBookmarksToolBar.top = new FormAttachment(0, 0);
@@ -373,7 +380,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     bookmarksToolbarWidgets = new GuiToolbarWidgets();
     bookmarksToolbarWidgets.registerGuiPluginObject(this);
-    bookmarksToolbarWidgets.createToolbarWidgets(bookmarksToolBar, BOOKMARKS_TOOLBAR_PARENT_ID);
+    bookmarksToolbarWidgets.createToolbarWidgets(
+        bookmarksToolBarContainer, BOOKMARKS_TOOLBAR_PARENT_ID);
     bookmarksToolBar.pack();
 
     // Below that we have a list with all the bookmarks in them
@@ -473,7 +481,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     browserComposite.setLayoutData(fdTreeComposite);
 
     // A toolbar above the browser, below the filename
-    ToolBar browserToolBar = new ToolBar(browserComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    IToolbarContainer browserToolBarContainer =
+        ToolbarFacade.createToolbarContainer(
+            browserComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL);
+    Control browserToolBar = browserToolBarContainer.getControl();
     FormData fdBrowserToolBar = new FormData();
     fdBrowserToolBar.left = new FormAttachment(0, 0);
     fdBrowserToolBar.top = new FormAttachment(0, 0);
@@ -483,7 +494,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     browserToolbarWidgets = new GuiToolbarWidgets();
     browserToolbarWidgets.registerGuiPluginObject(this);
-    browserToolbarWidgets.createToolbarWidgets(browserToolBar, BROWSER_TOOLBAR_PARENT_ID);
+    browserToolbarWidgets.createToolbarWidgets(browserToolBarContainer, BROWSER_TOOLBAR_PARENT_ID);
     browserToolBar.pack();
 
     SashForm browseSash = new SashForm(browserComposite, SWT.VERTICAL);

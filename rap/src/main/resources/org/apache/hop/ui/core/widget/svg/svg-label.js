@@ -16,33 +16,88 @@
  *
  */
 
+function findImg(widget, id) {
+    var img = document.getElementById(id);
+    if (img === null && widget.$el && widget.$el[0]) {
+        img = widget.$el[0].querySelector('img');
+    }
+    return img;
+}
+
+/** Apply transparent background (and optionally opacity) so toolbar has no white box. */
+function applyShowStylesToImg(img, opacity) {
+    if (!img) return;
+    img.style.background = 'transparent';
+    if (opacity != null) {
+        img.style.opacity = opacity;
+    }
+    if (img.parentElement) {
+        img.parentElement.style.background = 'transparent';
+    }
+    if (img.parentElement && img.parentElement.parentElement) {
+        img.parentElement.parentElement.style.background = 'transparent';
+    }
+}
+
+/** Only set transparent background; do not touch opacity (preserves enabled/disabled state). */
+function applyTransparentBackgroundOnly(img) {
+    if (!img) return;
+    img.style.background = 'transparent';
+    if (img.parentElement) {
+        img.parentElement.style.background = 'transparent';
+    }
+    if (img.parentElement && img.parentElement.parentElement) {
+        img.parentElement.parentElement.style.background = 'transparent';
+    }
+}
+
+/**
+ * Find the toolbar container and set transparent background on every img so the last item
+ * is never missed. We do not set opacity here so we don't overwrite setEnabled (opacity 0.3).
+ */
+function styleAllToolbarImgsFrom(img) {
+    if (!img) return;
+    var node = img.parentElement;
+    var toolbar = null;
+    while (node) {
+        if (node.children && node.children.length > 2) {
+            toolbar = node;
+            break;
+        }
+        node = node.parentElement;
+    }
+    if (!toolbar) return;
+    for (var i = 0; i < toolbar.children.length; i++) {
+        var child = toolbar.children[i];
+        var im = child.querySelector ? child.querySelector('img') : null;
+        if (im) {
+            applyTransparentBackgroundOnly(im);
+        }
+    }
+}
+
 const handleEvent = function (event) {
     const widget = event.widget;
 
     const props = widget.getData('props');
+    if (!props || props.id == null) {
+        return;
+    }
     const id = props.id;
 
-    let img = document.getElementById(id);
-
-    if (img===null) {
+    const img = findImg(widget, id);
+    if (img === null) {
         return;
     }
 
     switch (event.type) {
         case SWT.MouseDown:
-            // Handled by regular SWT listener
             break;
         case SWT.Hide:
-            // The widget is hidden so changing anything doesn't matter.
             break;
         case SWT.Show:
-            // We always get one call here, so we can set the background transparent and adjust the style in general.
-            // Respect the initial enabled state from props
-            //
-            img.style.background = 'transparent';
-            img.style.opacity = props.enabled ? '1.0' : '0.3';
-            img.parentElement.style.background = 'transparent';
-            img.parentElement.parentElement.style.background = 'transparent';
+            applyShowStylesToImg(img, props.enabled ? '1.0' : '0.3');
+            styleAllToolbarImgsFrom(img);
             break;
         case SWT.MouseEnter:
             // Try to make the background a bit gray

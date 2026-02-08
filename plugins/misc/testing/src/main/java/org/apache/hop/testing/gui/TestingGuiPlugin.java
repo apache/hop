@@ -889,8 +889,7 @@ public class TestingGuiPlugin {
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = ID_TOOLBAR_ITEM_UNIT_TEST_EDIT,
       toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Edit.Tooltip",
-      image = "Test_tube_icon_edit.svg",
-      separator = true)
+      image = "Test_tube_icon_edit.svg")
   public void editUnitTest() {
     HopGui hopGui = HopGui.getInstance();
     PipelineMeta pipelineMeta = getActivePipelineMeta();
@@ -954,8 +953,7 @@ public class TestingGuiPlugin {
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = ID_TOOLBAR_ITEM_UNIT_TESTS_CREATE,
       toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Create.Tooltip",
-      image = "Test_tube_icon_create.svg",
-      separator = true)
+      image = "Test_tube_icon_create.svg")
   public void createUnitTest() {
     HopGui hopGui = HopGui.getInstance();
     PipelineMeta pipelineMeta = getActivePipelineMeta();
@@ -990,8 +988,7 @@ public class TestingGuiPlugin {
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = ID_TOOLBAR_ITEM_UNIT_TESTS_DELETE,
       toolTip = "i18n::TestingGuiPlugin.ToolbarElement.UnitTest.Delete.Tooltip",
-      image = "Test_tube_icon_delete.svg",
-      separator = true)
+      image = "Test_tube_icon_delete.svg")
   public void deleteUnitTest() {
     HopGui hopGui = HopGui.getInstance();
     PipelineMeta pipelineMeta = getActivePipelineMeta();

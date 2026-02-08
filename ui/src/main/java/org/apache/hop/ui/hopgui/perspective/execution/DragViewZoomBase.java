@@ -394,6 +394,59 @@ public abstract class DragViewZoomBase extends Composite {
     return new Point(rect.width, rect.height);
   }
 
+  /** Pixel distance from canvas edge within which edge-scrolling starts. */
+  private static final int EDGE_SCROLL_MARGIN = 72;
+
+  /**
+   * Maximum scroll speed in graph coordinates per mouse move. Kept low so the view stays easy to
+   * follow when approaching the edge.
+   */
+  private static final double EDGE_SCROLL_MAX_SPEED = 6.0;
+
+  /**
+   * When dragging a transform or action near the canvas border, scroll the view so the user can
+   * keep dragging. Speed increases naturally as the pointer approaches the edge but is capped so
+   * the flow remains easy to follow.
+   *
+   * @param screenX mouse x in canvas coordinates
+   * @param screenY mouse y in canvas coordinates
+   */
+  protected void applyEdgeScrollWhileDragging(int screenX, int screenY) {
+    if (canvas == null || canvas.isDisposed() || maximum == null) {
+      return;
+    }
+    Point area = getArea();
+    if (area.x <= 0 || area.y <= 0) {
+      return;
+    }
+    int margin = EDGE_SCROLL_MARGIN;
+    if (area.x < 2 * margin || area.y < 2 * margin) {
+      return;
+    }
+    double dx = 0;
+    double dy = 0;
+    if (screenX < margin) {
+      double t = (margin - screenX) / (double) margin;
+      dx = t * EDGE_SCROLL_MAX_SPEED;
+    } else if (screenX > area.x - margin) {
+      double t = (screenX - (area.x - margin)) / (double) margin;
+      dx = -t * EDGE_SCROLL_MAX_SPEED;
+    }
+    if (screenY < margin) {
+      double t = (margin - screenY) / (double) margin;
+      dy = t * EDGE_SCROLL_MAX_SPEED;
+    } else if (screenY > area.y - margin) {
+      double t = (screenY - (area.y - margin)) / (double) margin;
+      dy = -t * EDGE_SCROLL_MAX_SPEED;
+    }
+    if (dx != 0 || dy != 0) {
+      offset.x += dx;
+      offset.y += dy;
+      validateOffset();
+      redraw();
+    }
+  }
+
   /**
    * Calculate the differences for the scrollbars. We take the system zoom factor and current
    * magnification into account
