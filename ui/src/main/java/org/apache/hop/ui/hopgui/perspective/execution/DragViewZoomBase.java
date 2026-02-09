@@ -49,12 +49,16 @@ public abstract class DragViewZoomBase extends Composite {
   @Override
   public abstract void redraw();
 
+  /**
+   * Convert canvas/screen coordinates to graph coordinates. Must match the drawing transform:
+   * canvas = magnification * (graph + offset), so graph = canvas / magnification - offset.
+   */
   public Point screen2real(int x, int y) {
     float correctedMagnification = calculateCorrectedMagnification();
     DPoint real =
         new DPoint(
-            ((double) x - offset.x) / correctedMagnification - offset.x,
-            ((double) y - offset.y) / correctedMagnification - offset.y);
+            (double) x / correctedMagnification - offset.x,
+            (double) y / correctedMagnification - offset.y);
     return real.toPoint();
   }
 
@@ -197,8 +201,10 @@ public abstract class DragViewZoomBase extends Composite {
 
     offset.x = offset.x + ((double) mouseEvent.x / area.x) * (viewWidth - oldViewWidth);
     offset.y = offset.y + ((double) mouseEvent.y / area.y) * (viewHeight - oldViewHeight);
-    offset.x = offset.x > 0 ? 0 : offset.x;
-    offset.y = offset.y > 0 ? 0 : offset.y;
+    if (!PropsUi.getInstance().isInfiniteCanvasMoveEnabled()) {
+      offset.x = offset.x > 0 ? 0 : offset.x;
+      offset.y = offset.y > 0 ? 0 : offset.y;
+    }
 
     validateOffset();
     setZoomLabel();
@@ -281,21 +287,20 @@ public abstract class DragViewZoomBase extends Composite {
         canvas.setData("panStartOffset", new Point((int) offset.x, (int) offset.y));
         canvas.setData("panCurrentOffset", new Point((int) offset.x, (int) offset.y));
 
-        // Pass boundary information to client for constraint validation
+        // Pass boundary information to client; when infinite move is off, do not allow panning past
+        // origin (0,0)
         double zoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
         Point area = getArea();
         double viewWidth = area.x / zoomFactor;
         double viewHeight = area.y / zoomFactor;
-
-        // Calculate min/max offset boundaries (same as validateOffset())
-        double minX = -maximum.x + viewWidth;
-        double minY = -maximum.y + viewHeight;
-        double maxX = 0;
-        double maxY = 0;
-
+        Point effective = getEffectiveMaximum();
+        double minX = -effective.x + viewWidth;
+        double minY = -effective.y + viewHeight;
+        int maxX = PropsUi.getInstance().isInfiniteCanvasMoveEnabled() ? Integer.MAX_VALUE : 0;
+        int maxY = PropsUi.getInstance().isInfiniteCanvasMoveEnabled() ? Integer.MAX_VALUE : 0;
         canvas.setData(
             "panBoundaries",
-            new org.apache.hop.core.gui.Rectangle((int) minX, (int) minY, (int) maxX, (int) maxY));
+            new org.apache.hop.core.gui.Rectangle((int) minX, (int) minY, maxX, maxY));
 
         // Force immediate redraw to sync pan data to client BEFORE mouse move events
         // This ensures the client has the pan data when the first MouseMove arrives
@@ -324,47 +329,45 @@ public abstract class DragViewZoomBase extends Composite {
   }
 
   protected void dragViewPort(Point clickLocation) {
-    // The delta is calculated
-    //
     double deltaX = clickLocation.x - viewPortStart.x;
     double deltaY = clickLocation.y - viewPortStart.y;
 
-    // What's the wiggle room for the little rectangle in the bigger one?
+    // Convert pixel delta (in minimap/canvas space) to graph coordinates using the same
+    // scale as the minimap: overlay size in pixels = visible size in graph * scale.
     //
-    int wiggleX = viewPort.width;
-    int wiggleY = viewPort.height;
+    double mag = Math.max(0.01, magnification);
+    Point area = getArea();
+    double visibleWidthGraph = area.x / mag;
+    double visibleHeightGraph = area.y / mag;
+    if (viewPort.width <= 0 || viewPort.height <= 0) {
+      return;
+    }
+    double scaleX = (double) viewPort.width / visibleWidthGraph;
+    double scaleY = (double) viewPort.height / visibleHeightGraph;
+    double deltaGraphX = deltaX / scaleX;
+    double deltaGraphY = deltaY / scaleY;
 
-    // What's that in percentages?  We draw the little rectangle at 25% size.
-    //
-    double deltaXPct = wiggleX == 0 ? 0 : deltaX / (wiggleX / 0.25);
-    double deltaYPct = wiggleY == 0 ? 0 : deltaY / (wiggleY / 0.25);
+    offset = new DPoint(viewDragBaseOffset.x - deltaGraphX, viewDragBaseOffset.y - deltaGraphY);
 
-    // The offset is then a matter of setting a percentage of the graph size
-    //
-    double deltaOffSetX = deltaXPct * maximum.x;
-    double deltaOffSetY = deltaYPct * maximum.y;
-
-    offset = new DPoint(viewDragBaseOffset.x - deltaOffSetX, viewDragBaseOffset.y - deltaOffSetY);
-
-    // Make sure we don't catapult the view somewhere we can't find the graph anymore.
-    //
     validateOffset();
     redraw();
   }
 
   public void validateOffset() {
+    if (maximum == null) {
+      return;
+    }
     double zoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
 
-    // What's the size of the graph when painted on screen?
-    //
-    double graphWidth = maximum.x;
-    double graphHeight = maximum.y;
-
-    // We need to know the size of the screen.
-    //
     Point area = getArea();
     double viewWidth = area.x / zoomFactor;
     double viewHeight = area.y / zoomFactor;
+
+    // Use effective graph size: when panning right/down we allow the canvas to expand
+    // so the user can drag into empty space (same as transforming against the side).
+    //
+    double graphWidth = getEffectiveMaximum().x;
+    double graphHeight = getEffectiveMaximum().y;
 
     // Let's not move the graph off the screen to the top/left
     //
@@ -377,16 +380,35 @@ public abstract class DragViewZoomBase extends Composite {
       offset.y = minY;
     }
 
-    // Are we moving the graph too far down/right?
+    // Do not allow panning past the origin (0,0) unless "infinite move" is enabled.
+    // Panning right/down (negative offset) can extend the visible view past the content.
     //
-    double maxX = 0;
-    if (offset.x > maxX) {
-      offset.x = maxX;
+    if (!PropsUi.getInstance().isInfiniteCanvasMoveEnabled()) {
+      if (offset.x > 0) {
+        offset.x = 0;
+      }
+      if (offset.y > 0) {
+        offset.y = 0;
+      }
     }
-    double maxY = 0;
-    if (offset.y > maxY) {
-      offset.y = maxY;
+  }
+
+  /**
+   * Returns the effective canvas size used for pan validation and painting. When the user pans
+   * right or down, the effective size grows so that empty space can be revealed (similar to
+   * resizing a note against the edge).
+   */
+  public Point getEffectiveMaximum() {
+    if (maximum == null) {
+      return new Point(0, 0);
     }
+    double zoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
+    Point area = getArea();
+    double viewWidth = area.x / zoomFactor;
+    double viewHeight = area.y / zoomFactor;
+    double effectiveX = Math.max(maximum.x, viewWidth - offset.x);
+    double effectiveY = Math.max(maximum.y, viewHeight - offset.y);
+    return new Point((int) Math.ceil(effectiveX), (int) Math.ceil(effectiveY));
   }
 
   protected Point getArea() {

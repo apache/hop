@@ -1425,9 +1425,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       String message = null;
       switch (fSingleClickType) {
         case Pipeline:
-          message =
-              BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Pipeline.Header");
-          contextHandler = new HopGuiPipelineContext(pipelineMeta, this, real);
+          // Do not show context menu in negative coordinate space (transforms cannot be created
+          // there)
+          if (real.x >= 0 && real.y >= 0) {
+            message =
+                BaseMessages.getString(PKG, "PipelineGraph.ContextualActionDialog.Pipeline.Header");
+            contextHandler = new HopGuiPipelineContext(pipelineMeta, this, real);
+          }
           break;
         case Transform:
           message =
@@ -3586,6 +3590,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       pipelinePainter.setShowingNavigationView(true);
       pipelinePainter.setScreenMagnification(magnification);
       pipelinePainter.setShowingNavigationView(!PropsUi.getInstance().isHideViewportEnabled());
+      pipelinePainter.setShowOriginBoundary(PropsUi.getInstance().isInfiniteCanvasMoveEnabled());
 
       try {
         pipelinePainter.drawPipelineImage();
@@ -3601,11 +3606,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                   BasePropertyHandler.getProperty("PipelineCanvas_image"),
                   getClass().getClassLoader());
           gc.setTransform(0.0f, 0.0f, (float) (magnification * PropsUi.getNativeZoomFactor()));
-          gc.drawImage(svgFile, 150, 150, 32, 40, gc.getMagnification(), 0);
+          int iconX = 150 + (int) Math.round(offset.x);
+          int iconY = 150 + (int) Math.round(offset.y);
+          gc.drawImage(svgFile, iconX, iconY, 32, 40, gc.getMagnification(), 0);
           gc.drawText(
               BaseMessages.getString(PKG, "PipelineGraph.NewPipelineBackgroundMessage"),
-              155,
-              125,
+              155 + (int) Math.round(offset.x),
+              125 + (int) Math.round(offset.y),
               true);
         }
 

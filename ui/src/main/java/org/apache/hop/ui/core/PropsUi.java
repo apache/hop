@@ -83,6 +83,7 @@ public class PropsUi extends Props {
   private static final String GRAPH_EXTRA_VIEW_VERTICAL_ORIENTATION =
       "GraphExtraViewVerticalOrientation";
   private static final String DISABLE_ZOOM_SCROLLING = "DisableZoomScrolling";
+  private static final String ENABLE_INFINITE_CANVAS_MOVE = "EnableInfiniteCanvasMove";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
@@ -1172,5 +1173,13 @@ public class PropsUi extends Props {
 
   public void setZoomScrollingDisabled(boolean disabled) {
     setProperty(DISABLE_ZOOM_SCROLLING, disabled ? YES : NO);
+  }
+
+  public boolean isInfiniteCanvasMoveEnabled() {
+    return YES.equalsIgnoreCase(getProperty(ENABLE_INFINITE_CANVAS_MOVE, NO));
+  }
+
+  public void setInfiniteCanvasMoveEnabled(boolean enabled) {
+    setProperty(ENABLE_INFINITE_CANVAS_MOVE, enabled ? YES : NO);
   }
 }

@@ -111,10 +111,54 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     gc.dispose();
   }
 
+  @Override
+  protected void drawNavigationViewContent(
+      double graphX, double graphY, double scaleX, double scaleY) {
+    if (workflowMeta == null || maximum == null) {
+      return;
+    }
+    // Minimum size in viewport pixels so actions remain visible
+    int minSize = 2;
+    // Draw hops as lines first (behind actions)
+    gc.setForeground(EColor.DARKGRAY);
+    gc.setLineWidth(1);
+    for (WorkflowHopMeta hop : workflowMeta.getWorkflowHops()) {
+      if (hop.getFromAction() == null || hop.getToAction() == null) {
+        continue;
+      }
+      Point fromLoc = hop.getFromAction().getLocation();
+      Point toLoc = hop.getToAction().getLocation();
+      if (fromLoc == null || toLoc == null) {
+        continue;
+      }
+      int fromCenterX = (int) (graphX + (fromLoc.x + iconSize / 2) * scaleX);
+      int fromCenterY = (int) (graphY + (fromLoc.y + iconSize / 2) * scaleY);
+      int toCenterX = (int) (graphX + (toLoc.x + iconSize / 2) * scaleX);
+      int toCenterY = (int) (graphY + (toLoc.y + iconSize / 2) * scaleY);
+      gc.drawLine(fromCenterX, fromCenterY, toCenterX, toCenterY);
+    }
+    // Draw actions as small rectangles
+    gc.setForeground(EColor.BLACK);
+    gc.setBackground(EColor.WHITE);
+    for (ActionMeta action : workflowMeta.getActions()) {
+      Point loc = action.getLocation();
+      if (loc == null) {
+        continue;
+      }
+      int w = Math.max(minSize, (int) Math.ceil(iconSize * scaleX));
+      int h = Math.max(minSize, (int) Math.ceil(iconSize * scaleY));
+      int x = (int) (graphX + loc.x * scaleX);
+      int y = (int) (graphY + loc.y * scaleY);
+      gc.fillRectangle(x, y, w, h);
+      gc.drawRectangle(x, y, w, h);
+    }
+  }
+
   private void drawActions() throws HopException {
     if (gridSize > 1) {
       drawGrid();
     }
+    drawOriginBoundary();
 
     try {
       ExtensionPointHandler.callExtensionPoint(

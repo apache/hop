@@ -389,7 +389,6 @@ public class SwtGc implements IGc {
       transform.dispose();
     }
     transform = new Transform(gc.getDevice());
-    transform.translate(translationX, translationY);
     transform.scale(magnification, magnification);
     gc.setTransform(transform);
     currentMagnification = magnification;

@@ -18,6 +18,8 @@
 package org.apache.hop.core.gui;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
@@ -25,27 +27,24 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.IGc.EColor;
+import org.apache.hop.core.gui.IGc.EFont;
 import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.gui.IGc.ELineStyle;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
+@Getter
+@Setter
 public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBaseMeta> {
+
+  private static final Class<?> PKG = BasePainter.class;
 
   public final double theta = Math.toRadians(11); // arrowhead sharpness
 
   public static final int MINI_ICON_MARGIN = 5;
-  public static final int MINI_ICON_TRIANGLE_BASE = 20;
-  public static final int MINI_ICON_DISTANCE = 4;
-  public static final int MINI_ICON_SKEW = 0;
-
-  public static final int CONTENT_MENU_INDENT = 4;
-
   public static final int CORNER_RADIUS_5 = 10;
-  public static final int CORNER_RADIUS_4 = 8;
-  public static final int CORNER_RADIUS_3 = 6;
-  public static final int CORNER_RADIUS_2 = 4;
 
   protected boolean drawingBorderAroundName;
 
@@ -80,6 +79,12 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected Rectangle graphPort;
   protected Rectangle viewPort;
   protected String mouseOverName;
+
+  /**
+   * When true, draw the origin boundary (dashed lines, hatching, and label). Should be set from the
+   * UI based on "Enable infinite move" (only show when infinite move is enabled).
+   */
+  protected boolean showOriginBoundary;
 
   public BasePainter(
       IGc gc,
@@ -152,7 +157,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     }
     gc.setFont(
         Const.NVL(note.getFontName(), noteFontName),
-        (int) ((double) fontHeight / zoomFactor),
+        (int) (fontHeight / zoomFactor),
         note.isFontBold(),
         note.isFontItalic());
 
@@ -241,7 +246,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     }
     gc.setLineStyle(ELineStyle.DASHDOT);
     gc.setLineWidth(lineWidth);
-    gc.setForeground(EColor.GRAY);
+    gc.setForeground(EColor.BLACK);
     // SWT on Windows doesn't cater for negative rect.width/height so handle here.
     Point s = real2screen(rect.x, rect.y);
     if (rect.width < 0) {
@@ -254,11 +259,176 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     gc.setLineStyle(ELineStyle.SOLID);
   }
 
+  /**
+   * Maximum grid points to draw; avoids severe slowdown on large/zoomed-out canvases (e.g.
+   * Windows).
+   */
+  private static final int MAX_GRID_POINTS = 50_000;
+
   protected void drawGrid() {
-    Point bounds = gc.getDeviceBounds();
-    for (int x = 0; x < bounds.x; x += gridSize) {
-      for (int y = 0; y < bounds.y; y += gridSize) {
-        gc.drawPoint((int) (x + (offset.x % gridSize)), (int) (y + (offset.y % gridSize)));
+    if (area == null || area.x <= 0 || area.y <= 0) {
+      return;
+    }
+    // Grid is drawn in the same coordinate system as drawOriginBoundary: the origin (0,0) of the
+    // pipeline is at (offset.x, offset.y) here. The hatched "outside workable" area is x < offset.x
+    // or y < offset.y. So we only draw grid where x >= offset.x and y >= offset.y.
+    float mag = Math.max(0.1f, magnification);
+    int originX = (int) Math.round(offset.x);
+    int originY = (int) Math.round(offset.y);
+    int workableMinX = Math.max(0, originX);
+    int workableMinY = Math.max(0, originY);
+    // Visible extent in this coordinate system is (0,0) to (area.x/mag, area.y/mag); workable part
+    // is from (originX, originY) to that right/bottom edge.
+    int workableMaxX = (int) Math.ceil(area.x / mag);
+    int workableMaxY = (int) Math.ceil(area.y / mag);
+    if (workableMaxX <= workableMinX || workableMaxY <= workableMinY) {
+      return;
+    }
+
+    int baseStep = (mag < 1.0f) ? Math.max(gridSize, (int) (gridSize / mag)) : gridSize;
+    int rangeX = workableMaxX - workableMinX;
+    int rangeY = workableMaxY - workableMinY;
+    long totalPoints = (long) (rangeX / baseStep + 1) * (rangeY / baseStep + 1);
+    int step = baseStep;
+    if (totalPoints > MAX_GRID_POINTS) {
+      int minStep =
+          Math.max(
+              gridSize,
+              (int) Math.ceil(Math.sqrt((double) rangeX * rangeY / (double) MAX_GRID_POINTS)));
+      step = Math.max(baseStep, minStep);
+    }
+    int offsetX = (int) (offset.x % step);
+    int offsetY = (int) (offset.y % step);
+    if (offsetX < 0) {
+      offsetX += step;
+    }
+    if (offsetY < 0) {
+      offsetY += step;
+    }
+    // First grid position at or after workable visible origin (never in hatched area)
+    int startX =
+        Math.max(
+            workableMinX,
+            offsetX + step * (int) Math.ceil((double) (workableMinX - offsetX) / step));
+    int startY =
+        Math.max(
+            workableMinY,
+            offsetY + step * (int) Math.ceil((double) (workableMinY - offsetY) / step));
+    for (int x = startX; x < workableMaxX; x += step) {
+      for (int y = startY; y < workableMaxY; y += step) {
+        if (x >= 0 && y >= 0) {
+          gc.drawPoint(x, y);
+        }
+      }
+    }
+  }
+
+  /**
+   * Draws a subtle boundary at the origin (0,0) and hatches the negative coordinate space to
+   * indicate that transforms/actions cannot be created there. Only drawn when showOriginBoundary is
+   * true (e.g. when "Enable infinite move" is on). Same coordinate system as drawGrid (real = graph
+   * + offset).
+   */
+  protected void drawOriginBoundary() {
+    if (!showOriginBoundary) {
+      return;
+    }
+    double visW = area.x / Math.max(0.01, magnification);
+    double visH = area.y / Math.max(0.01, magnification);
+    int ox = (int) Math.round(offset.x);
+    int oy = (int) Math.round(offset.y);
+
+    int alpha = gc.getAlpha();
+    gc.setAlpha(160);
+
+    // Hatch the negative region as an L-shape so the corner is not double-hatched:
+    // 1) Full strip left of origin: [0, ox] x [0, visH]
+    // 2) Top strip above origin only to the right of the left strip: [ox, visW] x [0, oy]
+    if (ox > 0 && oy > 0) {
+      drawHatching(0, 0, ox, (int) visH); // left strip (full height)
+      int topW = (int) visW - ox;
+      if (topW > 0 && oy > 0) {
+        drawHatching(ox, 0, topW, oy); // top strip (no overlap)
+      }
+    } else if (ox > 0 && ox < visW) {
+      drawHatching(0, 0, ox, (int) visH);
+    } else if (oy > 0 && oy < visH) {
+      drawHatching(0, 0, (int) visW, oy);
+    }
+
+    gc.setAlpha(alpha);
+
+    // Dashed border on top of the hatching: only the positive side of the axes (actionable area),
+    // so the line does not extend into the negative/hatched region
+    gc.setForeground(EColor.BLACK);
+    gc.setLineWidth(1);
+    gc.setLineStyle(ELineStyle.DASH);
+
+    if (ox >= 0 && ox <= visW && oy <= visH) {
+      gc.drawLine(ox, oy, ox, (int) visH); // vertical segment from origin downward
+    }
+    if (oy >= 0 && oy <= visH && ox <= visW) {
+      gc.drawLine(ox, oy, (int) visW, oy); // horizontal segment from origin rightward
+    }
+
+    gc.setLineStyle(ELineStyle.SOLID);
+
+    // "Outside workable area" label on the x-axis and y-axis (both normal/horizontal)
+    String originBoundaryLabel = BaseMessages.getString(PKG, "BasePainter.OutsideWorkableArea");
+    if (originBoundaryLabel != null && !originBoundaryLabel.isEmpty()) {
+      gc.setForeground(EColor.DARKGRAY);
+      gc.setFont(EFont.SMALL);
+      Point textSize = gc.textExtent(originBoundaryLabel);
+      int tw = textSize.x;
+      int th = textSize.y;
+      if (ox > tw && ox < visW && (int) visH > th) {
+        int tx = Math.max(4, (ox - tw) / 2);
+        int ty = ((int) visH - th) / 2;
+        gc.drawText(originBoundaryLabel, tx, ty);
+      }
+      if (oy > th && oy < visH && (int) visW - ox > tw) {
+        int topW = (int) visW - ox;
+        int tx = ox + (topW - tw) / 2;
+        int ty = Math.max(4, (oy - th) / 2);
+        gc.drawText(originBoundaryLabel, tx, ty);
+      }
+    }
+  }
+
+  /**
+   * Base spacing between hatching lines at 100% zoom; scaled by zoom so we draw fewer when zoomed
+   * out.
+   */
+  private static final int HATCH_STEP_BASE = 24;
+
+  /**
+   * Draws subtle diagonal hatching in the given rectangle. Uses a global diagonal grid (lines x+y =
+   * base + n*step) so that when multiple regions are hatched (e.g. left and top of origin), the
+   * lines align seamlessly across the boundary.
+   */
+  private void drawHatching(int x, int y, int w, int h) {
+    if (w <= 0 || h <= 0) {
+      return;
+    }
+    gc.setForeground(EColor.DARKGRAY);
+    gc.setLineWidth(1);
+    gc.setLineStyle(ELineStyle.SOLID);
+    float mag = Math.max(0.1f, magnification);
+    int step = Math.max(HATCH_STEP_BASE, (int) (HATCH_STEP_BASE / mag));
+    // Global base so all hatched regions share the same grid (aligns at boundaries).
+    int base = (int) (((offset.x + offset.y) % step + step) % step);
+    // Diagonals are lines where x+y = K; they intersect the rect when K is in [x+y, x+w+y+h].
+    int kMin = x + y;
+    int kMax = x + w + y + h;
+    int nStart = (int) Math.ceil((double) (kMin - base) / step);
+    int nEnd = (int) Math.floor((double) (kMax - base) / step);
+    for (int n = nStart; n <= nEnd; n++) {
+      int k = base + n * step;
+      // Clip line x+y=k to rect [x,x+w] x [y,y+h]: x in [max(x, k-(y+h)), min(x+w, k-y)].
+      int x1 = Math.max(x, k - (y + h));
+      int x2 = Math.min(x + w, k - y);
+      if (x1 <= x2) {
+        gc.drawLine(x1, k - x1, x2, k - x2);
       }
     }
   }
@@ -269,120 +439,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected int calcArrowLength() {
     return 19 + (lineWidth - 1) * 5; // arrowhead length
-  }
-
-  /**
-   * @return the magnification
-   */
-  public float getMagnification() {
-    return magnification;
-  }
-
-  /**
-   * @param magnification the magnification to set
-   */
-  public void setMagnification(float magnification) {
-    this.magnification = magnification;
-  }
-
-  public Point getArea() {
-    return area;
-  }
-
-  public void setArea(Point area) {
-    this.area = area;
-  }
-
-  public List<AreaOwner> getAreaOwners() {
-    return areaOwners;
-  }
-
-  public void setAreaOwners(List<AreaOwner> areaOwners) {
-    this.areaOwners = areaOwners;
-  }
-
-  public DPoint getOffset() {
-    return offset;
-  }
-
-  public void setOffset(DPoint offset) {
-    this.offset = offset;
-  }
-
-  public int getIconSize() {
-    return iconSize;
-  }
-
-  public void setIconSize(int iconSize) {
-    this.iconSize = iconSize;
-  }
-
-  public int getGridSize() {
-    return gridSize;
-  }
-
-  public void setGridSize(int gridSize) {
-    this.gridSize = gridSize;
-  }
-
-  public Rectangle getSelectionRectangle() {
-    return selectionRectangle;
-  }
-
-  public void setSelectionRectangle(Rectangle selectionRectangle) {
-    this.selectionRectangle = selectionRectangle;
-  }
-
-  public int getLineWidth() {
-    return lineWidth;
-  }
-
-  public void setLineWidth(int lineWidth) {
-    this.lineWidth = lineWidth;
-  }
-
-  public Object getSubject() {
-    return subject;
-  }
-
-  public void setSubject(Object subject) {
-    this.subject = subject;
-  }
-
-  public IGc getGc() {
-    return gc;
-  }
-
-  public void setGc(IGc gc) {
-    this.gc = gc;
-  }
-
-  public String getNoteFontName() {
-    return noteFontName;
-  }
-
-  public void setNoteFontName(String noteFontName) {
-    this.noteFontName = noteFontName;
-  }
-
-  public int getNoteFontHeight() {
-    return noteFontHeight;
-  }
-
-  public void setNoteFontHeight(int noteFontHeight) {
-    this.noteFontHeight = noteFontHeight;
-  }
-
-  public double getTheta() {
-    return theta;
-  }
-
-  public Hop getCandidate() {
-    return candidate;
-  }
-
-  public void setCandidate(Hop candidate) {
-    this.candidate = candidate;
   }
 
   protected int[] getLine(Part fs, Part ts) {
@@ -435,252 +491,108 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       Object endObject)
       throws HopException;
 
+  /** Fixed width of the navigation viewport (minimap) in pixels. */
+  private static final int VIEWPORT_WIDTH = 200;
+
+  /** Maximum height of the minimap; height follows content aspect ratio up to this cap. */
+  private static final int VIEWPORT_HEIGHT_MAX = 200;
+
   /**
    * Draw a small rectangle at the bottom right of the screen which depicts the viewport as a part
-   * of the total size of the metadata graph. If the graph fits completely on the screen, the
-   * navigation view is not shown.
+   * of the total size of the metadata graph. Width is fixed; height follows content aspect ratio
+   * (capped) so the minimap represents the graph without spurious empty space. Content is top-left
+   * aligned so "at the top" of the canvas matches the top of the minimap.
    */
   protected void drawNavigationView() {
     if (!showingNavigationView || maximum == null) {
-      // Disabled or no maximum size available
       return;
     }
+    double contentMaxX = Math.max(1, maximum.x);
+    double contentMaxY = Math.max(1, maximum.y);
 
-    // Compensate the screen size for the current magnification
+    // 1) Visible rectangle in graph coordinates (unclamped so we can show panned-outside view).
     //
-    int areaWidth = (int) (area.x / magnification);
-    int areaHeight = (int) (area.y / magnification);
+    double mag = Math.max(0.01, magnification);
+    double visibleLeft = -offset.x;
+    double visibleTop = -offset.y;
+    double visibleWidthGraph = area.x / mag;
+    double visibleHeightGraph = area.y / mag;
+    double visibleRightGraph = visibleLeft + visibleWidthGraph;
+    double visibleBottomGraph = visibleTop + visibleHeightGraph;
 
-    // We want to show a rectangle depicting the total area of the pipeline/workflow graph.
-    // This area must be adjusted to a maximum of 200 if it is too large.
+    // 2) Minimap bounds = union of content and visible view so the overlay always fits inside.
     //
-    double graphWidth = maximum.x;
-    double graphHeight = maximum.y;
-    if (graphWidth > 200 || graphHeight > 200) {
-      double coefficient = 200 / Math.max(graphWidth, graphHeight);
-      graphWidth *= coefficient;
-      graphHeight *= coefficient;
-    }
+    double minGraphX = Math.min(0, visibleLeft);
+    double minGraphY = Math.min(0, visibleTop);
+    double maxGraphX = Math.max(contentMaxX, visibleRightGraph);
+    double maxGraphY = Math.max(contentMaxY, visibleBottomGraph);
+    double graphRangeX = Math.max(1, maxGraphX - minGraphX);
+    double graphRangeY = Math.max(1, maxGraphY - minGraphY);
 
-    // Position it in the bottom right corner of the screen
+    // 3) Fixed width; height follows content aspect ratio (capped) so the minimap fits the graph.
     //
-    double graphX = area.x - graphWidth - 10.0;
-    double graphY = area.y - graphHeight - 10.0;
+    int viewportHeight =
+        Math.min(
+            VIEWPORT_HEIGHT_MAX,
+            Math.max(20, (int) Math.round(VIEWPORT_WIDTH * graphRangeY / graphRangeX)));
+    double scale = Math.min(VIEWPORT_WIDTH / graphRangeX, viewportHeight / graphRangeY);
+    double contentWidth = graphRangeX * scale;
+    double contentHeight = graphRangeY * scale;
+    double contentLeft = area.x - VIEWPORT_WIDTH - 10.0;
+    double contentTop = area.y - viewportHeight - 10.0;
+    // Top-left align so "at the top" of the canvas matches the top of the minimap
 
     int alpha = gc.getAlpha();
     gc.setAlpha(75);
 
     gc.setForeground(EColor.DARKGRAY);
     gc.setBackground(EColor.LIGHTBLUE);
-    gc.drawRectangle((int) graphX, (int) graphY, (int) graphWidth, (int) graphHeight);
-    gc.fillRectangle((int) graphX, (int) graphY, (int) graphWidth, (int) graphHeight);
+    gc.drawRectangle((int) contentLeft, (int) contentTop, VIEWPORT_WIDTH, viewportHeight);
+    gc.fillRectangle((int) contentLeft, (int) contentTop, VIEWPORT_WIDTH, viewportHeight);
 
-    // Now draw a darker area inside showing the size of the view-screen in relation to the graph
-    // surface. The view size is a fraction of the total graph area outlined above.
+    // 3) Origin for graph (0,0) in minimap pixels; content and overlay use same scale.
     //
-    double viewWidth = (graphWidth * areaWidth) / Math.max(areaWidth, maximum.x);
-    double viewHeight = (graphHeight * areaHeight) / Math.max(areaHeight, maximum.y);
+    double graphOriginX = contentLeft - minGraphX * scale;
+    double graphOriginY = contentTop - minGraphY * scale;
+    drawNavigationViewContent(graphOriginX, graphOriginY, scale, scale);
 
-    // The offset is a part of the screen size.  The maximum offset is the graph size minus the area
-    // size.
-    // The offset horizontally is [0, -maximum.x+areaWidth]
-    // The idea is that if the right side of the pipeline or workflow is shown you don't need to
-    // scroll further.
-    // The offset fractions calculated below are in the range 0-1 (there about)
-    //
-    double offsetXFraction = (double) (-offset.x) / ((double) maximum.x);
-    double offsetYFraction = (double) (-offset.y) / ((double) maximum.y);
+    double viewX = graphOriginX + visibleLeft * scale;
+    double viewY = graphOriginY + visibleTop * scale;
+    double viewWidth = visibleWidthGraph * scale;
+    double viewHeight = visibleHeightGraph * scale;
 
-    // We shift the view rectangle to the right or down based on the offset fraction and the wiggle
-    // room of the inner rectangle.
-    //
-    double viewX = graphX + (graphWidth) * offsetXFraction;
-    double viewY = graphY + (graphHeight) * offsetYFraction;
+    // Clamp overlay to the drawn content area (avoid drawing outside the light blue)
+    viewX = Math.max(contentLeft, Math.min(contentLeft + contentWidth - 1, viewX));
+    viewY = Math.max(contentTop, Math.min(contentTop + contentHeight - 1, viewY));
+    viewWidth = Math.min(viewWidth, contentLeft + contentWidth - viewX);
+    viewHeight = Math.min(viewHeight, contentTop + contentHeight - viewY);
+    viewWidth = Math.max(0, viewWidth);
+    viewHeight = Math.max(0, viewHeight);
 
     gc.setForeground(EColor.BLACK);
     gc.setBackground(EColor.BLUE);
     gc.drawRectangle((int) viewX, (int) viewY, (int) viewWidth, (int) viewHeight);
     gc.fillRectangle((int) viewX, (int) viewY, (int) viewWidth, (int) viewHeight);
 
-    // We remember the rectangles so that we can navigate in it when the user drags it around.
-    //
-    graphPort = new Rectangle((int) graphX, (int) graphY, (int) graphWidth, (int) graphHeight);
+    graphPort = new Rectangle((int) contentLeft, (int) contentTop, VIEWPORT_WIDTH, viewportHeight);
     viewPort = new Rectangle((int) viewX, (int) viewY, (int) viewWidth, (int) viewHeight);
 
     gc.setAlpha(alpha);
   }
 
   /**
-   * Gets zoomFactor
+   * Override to draw rectangles and lines inside the navigation viewport representing the graph
+   * elements (e.g. transforms/actions and hops). Coordinates are in graph space; convert to
+   * viewport pixels with: screenX = graphX + graphCoordX * scaleX, screenY = graphY + graphCoordY *
+   * scaleY.
    *
-   * @return value of zoomFactor
+   * @param graphX left of the viewport rectangle in screen pixels
+   * @param graphY top of the viewport rectangle in screen pixels
+   * @param scaleX scale from graph X to viewport width
+   * @param scaleY scale from graph Y to viewport height
    */
-  public double getZoomFactor() {
-    return zoomFactor;
-  }
-
-  /**
-   * @param zoomFactor The zoomFactor to set
-   */
-  public void setZoomFactor(double zoomFactor) {
-    this.zoomFactor = zoomFactor;
-  }
-
-  /**
-   * Gets drawingEditIcons
-   *
-   * @return value of drawingBorderAroundName
-   */
-  public boolean isDrawingBorderAroundName() {
-    return drawingBorderAroundName;
-  }
-
-  /**
-   * @param drawingBorderAroundName The option to set
-   */
-  public void setDrawingBorderAroundName(boolean drawingBorderAroundName) {
-    this.drawingBorderAroundName = drawingBorderAroundName;
-  }
-
-  /**
-   * Gets miniIconSize
-   *
-   * @return value of miniIconSize
-   */
-  public int getMiniIconSize() {
-    return miniIconSize;
-  }
-
-  /**
-   * @param miniIconSize The miniIconSize to set
-   */
-  public void setMiniIconSize(int miniIconSize) {
-    this.miniIconSize = miniIconSize;
-  }
-
-  /**
-   * Gets showingNavigationView
-   *
-   * @return value of showingNavigationView
-   */
-  public boolean isShowingNavigationView() {
-    return showingNavigationView;
-  }
-
-  /**
-   * Sets showingNavigationView
-   *
-   * @param showingNavigationView value of showingNavigationView
-   */
-  public void setShowingNavigationView(boolean showingNavigationView) {
-    this.showingNavigationView = showingNavigationView;
-  }
-
-  /**
-   * Gets maximum
-   *
-   * @return value of maximum
-   */
-  public Point getMaximum() {
-    return maximum;
-  }
-
-  /**
-   * Sets maximum
-   *
-   * @param maximum value of maximum
-   */
-  public void setMaximum(Point maximum) {
-    this.maximum = maximum;
-  }
-
-  /**
-   * Gets variables
-   *
-   * @return value of variables
-   */
-  public IVariables getVariables() {
-    return variables;
-  }
-
-  /**
-   * Sets variables
-   *
-   * @param variables value of variables
-   */
-  public void setVariables(IVariables variables) {
-    this.variables = variables;
-  }
-
-  /**
-   * Gets screenMagnification
-   *
-   * @return value of screenMagnification
-   */
-  public float getScreenMagnification() {
-    return screenMagnification;
-  }
-
-  /**
-   * Sets screenMagnification
-   *
-   * @param screenMagnification value of screenMagnification
-   */
-  public void setScreenMagnification(float screenMagnification) {
-    this.screenMagnification = screenMagnification;
-  }
-
-  /**
-   * Gets graphPort
-   *
-   * @return value of graphPort
-   */
-  public Rectangle getGraphPort() {
-    return graphPort;
-  }
-
-  /**
-   * Sets graphPort
-   *
-   * @param graphPort value of graphPort
-   */
-  public void setGraphPort(Rectangle graphPort) {
-    this.graphPort = graphPort;
-  }
-
-  /**
-   * Gets viewPort
-   *
-   * @return value of viewPort
-   */
-  public Rectangle getViewPort() {
-    return viewPort;
-  }
-
-  /**
-   * Sets viewPort
-   *
-   * @param viewPort value of viewPort
-   */
-  public void setViewPort(Rectangle viewPort) {
-    this.viewPort = viewPort;
-  }
-
-  /**
-   * Gets mouseOverName
-   *
-   * @return value of mouseOverName
-   */
-  public String getMouseOverName() {
-    return mouseOverName;
-  }
-
-  /**
-   * Sets mouseOverName
-   *
-   * @param mouseOverName value of mouseOverName
-   */
-  public void setMouseOverName(String mouseOverName) {
-    this.mouseOverName = mouseOverName;
+  protected void drawNavigationViewContent(
+      double graphX, double graphY, double scaleX, double scaleY) {
+    // Default: nothing. PipelinePainter and WorkflowPainter draw transforms/actions and hops.
   }
 }
