@@ -1054,6 +1054,13 @@ public class PropsUi extends Props {
     contrastingColors.put(new RGB(100, 100, 100), new RGB(215, 215, 215));
     contrastingColors.put(new RGB(50, 50, 50), new RGB(235, 235, 235));
 
+    // Muted color variants for explorer (non-openable items); dark mode = lighter on dark bg
+    contrastingColors.put(new RGB(85, 115, 85), new RGB(120, 155, 120)); // DarkGreenMuted
+    contrastingColors.put(new RGB(75, 95, 165), new RGB(130, 150, 215)); // LightBlueMuted
+    contrastingColors.put(new RGB(130, 85, 85), new RGB(175, 120, 120)); // RedMuted
+    contrastingColors.put(new RGB(105, 105, 105), new RGB(145, 145, 145)); // DarkGrayMuted
+    contrastingColors.put(new RGB(90, 90, 90), new RGB(135, 135, 135)); // BlackMuted
+
     // Add all the inverse color mappings as well
     //
     Map<RGB, RGB> inverse = new HashMap<>();

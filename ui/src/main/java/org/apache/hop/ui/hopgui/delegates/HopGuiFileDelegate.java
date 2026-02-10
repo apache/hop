@@ -121,10 +121,12 @@ public class HopGuiFileDelegate {
 
     IHopFileTypeHandler fileTypeHandler = hopFile.openFile(hopGui, filename, hopGui.getVariables());
     if (fileTypeHandler != null) {
-      hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
+      hopGui.handleFileCapabilities(
+          hopFile, fileTypeHandler, fileTypeHandler.hasChanged(), false, false);
       if (EnvironmentUtils.getInstance().isWeb()) {
         // Do it again to test
-        hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
+        hopGui.handleFileCapabilities(
+            hopFile, fileTypeHandler, fileTypeHandler.hasChanged(), false, false);
       }
 
       // Also save the state of Hop GUI

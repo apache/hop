@@ -21,23 +21,20 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
-import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.raw.RawExplorerFileType;
 
 @GuiPlugin
 public class HtmlOpenAsTextPlugin {
 
   @GuiMenuElement(
       root = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
-      id = "ExplorerPerspective-Html-OpenAsText",
+      id = ExplorerPerspective.CONTEXT_MENU_OPEN_AS_TEXT,
       label =
           "i18n:org.apache.hop.ui.hopgui.perspective.explorer:ExplorerPerspective.ToolbarElement.OpenAsText.Label",
       image = "textfile.svg",
-      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
-      separator = true)
+      parentId = ExplorerPerspective.GUI_PLUGIN_CONTEXT_MENU_PARENT_ID)
   public void openAsText() {
     ExplorerPerspective perspective = ExplorerPerspective.getInstance();
     ExplorerFile explorerFile = perspective.getSelectedFile();
@@ -47,38 +44,23 @@ public class HtmlOpenAsTextPlugin {
     }
 
     String filename = explorerFile.getFilename();
-    if (filename == null || !filename.toLowerCase().endsWith(".html")) {
+    if (filename == null) {
+      return;
+    }
+
+    try {
+      if (HopVfs.getFileObject(filename).isFolder()) {
+        return;
+      }
+    } catch (Exception e) {
+      HopGui.getInstance().getLog().logError("Error resolving selected item", e);
       return;
     }
 
     try {
       HopGui hopGui = HopGui.getInstance();
-
-      // Find the text file type handler (by using a dummy .txt filename)
-      IHopFileType hopFileType = HopFileTypeRegistry.getInstance().findHopFileType("dummy.txt");
-
-      if (hopFileType instanceof IExplorerFileType) {
-        IExplorerFileType textFileType = (IExplorerFileType) hopFileType;
-
-        // Create a new ExplorerFile structure but force it to be the Text file type
-        ExplorerFile textExplorerFile = new ExplorerFile();
-        // Use the file URI to ensure a unique string key for the tab, but pointing to
-        // the same physical file
-        // This avoids the "Duplicate Tab" check in ExplorerPerspective while using a
-        // valid file path that won't crash Hop
-        String uniqueName = HopVfs.getFileObject(filename).getName().getURI();
-        textExplorerFile.setFilename(uniqueName);
-        textExplorerFile.setName(explorerFile.getName() + " (Text)");
-        textExplorerFile.setFileType(textFileType);
-
-        // Create the handler directly - BaseTextExplorerFileTypeHandler handles VFS
-        // URIs correctly
-        TextExplorerFileTypeHandler handler =
-            new TextExplorerFileTypeHandler(hopGui, perspective, textExplorerFile);
-
-        // Add to perspective (this will open a new tab due to unique URI string)
-        perspective.addFile(handler);
-      }
+      RawExplorerFileType rawFileType = new RawExplorerFileType();
+      rawFileType.openFile(hopGui, filename, hopGui.getVariables());
     } catch (Exception e) {
       HopGui.getInstance().getLog().logError("Error opening file as text", e);
     }

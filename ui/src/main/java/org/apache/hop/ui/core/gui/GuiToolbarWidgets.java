@@ -42,6 +42,7 @@ import org.apache.hop.ui.core.widget.svg.SvgLabelListener;
 import org.apache.hop.ui.hopgui.TextSizeUtilFacade;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -702,7 +703,12 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
    * @return The toolbar item or null if nothing is found
    */
   public ToolItem enableToolbarItem(IHopFileType fileType, String id, String permission) {
-    return enableToolbarItem(fileType, id, permission, true);
+    return enableToolbarItem(fileType, null, id, permission, true);
+  }
+
+  public ToolItem enableToolbarItem(
+      IHopFileType fileType, IHopFileTypeHandler handler, String id, String permission) {
+    return enableToolbarItem(fileType, handler, id, permission, true);
   }
 
   /**
@@ -717,8 +723,23 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
    */
   public ToolItem enableToolbarItem(
       IHopFileType fileType, String id, String permission, boolean active) {
+    return enableToolbarItem(fileType, null, id, permission, active);
+  }
+
+  /**
+   * Enable or disable toolbar item based on capability. When handler is non-null, uses handler's
+   * hasCapability (so handlers can disable e.g. Save for binary raw view); otherwise uses file
+   * type.
+   */
+  public ToolItem enableToolbarItem(
+      IHopFileType fileType,
+      IHopFileTypeHandler handler,
+      String id,
+      String permission,
+      boolean active) {
     ToolItem item = findToolItem(id);
-    boolean hasCapability = fileType.hasCapability(permission);
+    boolean hasCapability =
+        handler != null ? handler.hasCapability(permission) : fileType.hasCapability(permission);
     boolean enable = hasCapability && active;
 
     if (item == null) {

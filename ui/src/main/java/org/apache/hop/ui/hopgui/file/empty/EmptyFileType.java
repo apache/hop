@@ -90,4 +90,9 @@ public class EmptyFileType implements IHopFileType {
   public String getFileTypeImage() {
     return "ui/images/file.svg";
   }
+
+  @Override
+  public boolean supportsOpening() {
+    return false;
+  }
 }

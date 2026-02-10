@@ -125,4 +125,9 @@ public class ParquetFileType implements IHopFileType {
   public String getFileTypeImage() {
     return getClass().getAnnotation(HopFileTypePlugin.class).image();
   }
+
+  @Override
+  public boolean supportsOpening() {
+    return false;
+  }
 }

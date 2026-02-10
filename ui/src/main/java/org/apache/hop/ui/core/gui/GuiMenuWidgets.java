@@ -31,6 +31,7 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
@@ -320,7 +321,12 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
    * @return The menu item or null if nothing is found
    */
   public MenuItem enableMenuItem(IHopFileType fileType, String id, String permission) {
-    return enableMenuItem(fileType, id, permission, true);
+    return enableMenuItem(fileType, null, id, permission, true);
+  }
+
+  public MenuItem enableMenuItem(
+      IHopFileType fileType, IHopFileTypeHandler handler, String id, String permission) {
+    return enableMenuItem(fileType, handler, id, permission, true);
   }
 
   /**
@@ -335,9 +341,23 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
    */
   public MenuItem enableMenuItem(
       IHopFileType fileType, String id, String permission, boolean active) {
-    MenuItem menuItem = menuItemMap.get(id);
+    return enableMenuItem(fileType, null, id, permission, active);
+  }
 
-    boolean hasCapability = fileType.hasCapability(permission);
+  /**
+   * Enable or disable menu item based on capability. When handler is non-null, uses handler's
+   * hasCapability (so handlers can disable e.g. Save for binary raw view); otherwise uses file
+   * type.
+   */
+  public MenuItem enableMenuItem(
+      IHopFileType fileType,
+      IHopFileTypeHandler handler,
+      String id,
+      String permission,
+      boolean active) {
+    MenuItem menuItem = menuItemMap.get(id);
+    boolean hasCapability =
+        handler != null ? handler.hasCapability(permission) : fileType.hasCapability(permission);
     boolean enable = hasCapability && active;
     if (menuItem != null && enable != menuItem.isEnabled()) {
       menuItem.setEnabled(enable);
