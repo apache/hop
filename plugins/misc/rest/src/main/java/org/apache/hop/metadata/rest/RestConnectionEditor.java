@@ -92,6 +92,9 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private IVariables variables;
   Control lastControl;
 
+  private Group gAuth;
+  private ScrolledComposite wsAuthComp;
+
   public RestConnectionEditor(
       HopGui hopGui, MetadataManager<RestConnection> manager, RestConnection restConnection) {
     super(hopGui, manager, restConnection);
@@ -125,7 +128,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     lastControl = wName;
 
     // start authentication group (now directly below name)
-    Group gAuth = new Group(composite, SWT.SHADOW_ETCHED_IN);
+    gAuth = new Group(composite, SWT.SHADOW_ETCHED_IN);
     gAuth.setText(BaseMessages.getString(PKG, "RestConnectionEditor.AuthGroup.Label"));
     FormLayout gAuthLayout = new FormLayout();
     gAuthLayout.marginWidth = 3;
@@ -166,7 +169,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
           }
         });
 
-    ScrolledComposite wsAuthComp = new ScrolledComposite(gAuth, SWT.V_SCROLL | SWT.H_SCROLL);
+    wsAuthComp = new ScrolledComposite(gAuth, SWT.V_SCROLL | SWT.H_SCROLL);
     props.setLook(wsAuthComp);
     FormData fdAuthSComp = new FormData();
     fdAuthSComp.top = new FormAttachment(wAuthType, margin);
@@ -526,8 +529,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
   private void addNoAuthFields() {
     clearAuthComp();
-    wAuthComp.pack();
-    wAuthComp.redraw();
+
+    refreshAuthLayout();
   }
 
   private void addBasicAuthFields() {
@@ -567,11 +570,9 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdPassword.right = new FormAttachment(95, 0);
     wPassword.setLayoutData(fdPassword);
 
-    wAuthComp.pack();
-    wAuthComp.redraw();
-
     Control[] controls = {wUsername, wPassword};
     enableControls(controls);
+    refreshAuthLayout();
   }
 
   private void addBearerFields() {
@@ -594,10 +595,11 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdBearer.right = new FormAttachment(95, 0);
     wBearerValue.setLayoutData(fdBearer);
 
-    wAuthComp.pack();
+    // wAuthComp.pack();
 
     Control[] controls = {wBearerValue};
     enableControls(controls);
+    refreshAuthLayout();
   }
 
   private void addApiKeyFields() {
@@ -659,10 +661,11 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdAuthorizationValue.right = new FormAttachment(95, 0);
     wAuthorizationValue.setLayoutData(fdAuthorizationValue);
 
-    wAuthComp.pack();
+    // wAuthComp.pack();
 
     Control[] controls = {wAuthorizationName, wAuthorizationPrefix, wAuthorizationValue};
     enableControls(controls);
+    refreshAuthLayout();
   }
 
   private void addCertificateFields() {
@@ -677,8 +680,9 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlInfo.right = new FormAttachment(100, 0);
     wlInfo.setLayoutData(fdlInfo);
 
-    wAuthComp.pack();
-    wAuthComp.redraw();
+    // wAuthComp.pack();
+    // wAuthComp.redraw();
+    refreshAuthLayout();
   }
 
   @Override
@@ -700,7 +704,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       restConnection.setTestUrl(wTestUrl.getText());
     }
     restConnection.setBaseUrl(wBaseUrl.getText());
-    restConnection.setTestUrl(wTestUrl.getText());
 
     // SSL/TLS configuration
     restConnection.setTrustStoreFile(wTrustStoreFile.getText());
@@ -882,5 +885,18 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
     wbTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
     wTrustStorePassword.setEnabled(!wIgnoreSsl.getSelection());
+  }
+
+  private void refreshAuthLayout() {
+    wAuthComp.layout(true, true);
+    wAuthComp.pack(true);
+    wAuthComp.redraw();
+
+    wsAuthComp.setContent(wAuthComp);
+    wsAuthComp.setMinSize(wAuthComp.computeSize(SWT.DEFAULT, SWT.DEFAULT, true));
+    wsAuthComp.layout(true, true);
+
+    gAuth.layout(true, true);
+    gAuth.getParent().layout(true, true);
   }
 }
