@@ -1197,10 +1197,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       String message = null;
       switch (fSingleClickType) {
         case Workflow:
-          message =
-              BaseMessages.getString(
-                  PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
-          contextHandler = new HopGuiWorkflowContext(workflowMeta, this, real);
+          // Do not show context menu in negative coordinate space (actions cannot be created there)
+          if (real.x >= 0 && real.y >= 0) {
+            message =
+                BaseMessages.getString(
+                    PKG, "HopGuiWorkflowGraph.ContextualActionDialog.Workflow.Header");
+            contextHandler = new HopGuiWorkflowContext(workflowMeta, this, real);
+          }
           break;
         case Action:
           message =
@@ -3142,6 +3145,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       workflowPainter.setShowingNavigationView(true);
       workflowPainter.setScreenMagnification(magnification);
       workflowPainter.setShowingNavigationView(!PropsUi.getInstance().isHideViewportEnabled());
+      workflowPainter.setShowOriginBoundary(PropsUi.getInstance().isInfiniteCanvasMoveEnabled());
 
       try {
         workflowPainter.drawWorkflow();
@@ -3160,11 +3164,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   BasePropertyHandler.getProperty("WorkflowCanvas_image"),
                   getClass().getClassLoader());
           gc.setTransform(0.0f, 0.0f, (float) (magnification * PropsUi.getNativeZoomFactor()));
-          gc.drawImage(svgFile, 150, 150, 32, 40, gc.getMagnification(), 0);
+          int iconX = 150 + (int) Math.round(offset.x);
+          int iconY = 150 + (int) Math.round(offset.y);
+          gc.drawImage(svgFile, iconX, iconY, 32, 40, gc.getMagnification(), 0);
           gc.drawText(
               BaseMessages.getString(PKG, "HopGuiWorkflowGraph.NewWorkflowBackgroundMessage"),
-              155,
-              125,
+              155 + (int) Math.round(offset.x),
+              125 + (int) Math.round(offset.y),
               true);
         }
       } catch (Exception e) {

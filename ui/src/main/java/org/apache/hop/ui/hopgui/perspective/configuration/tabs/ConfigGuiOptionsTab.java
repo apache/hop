@@ -90,6 +90,7 @@ public class ConfigGuiOptionsTab {
   private Button wHideViewport;
   private Button wUseDoubleClick;
   private Button wDrawBorderAroundCanvasNames;
+  private Button wEnableInfiniteMove;
   private Button wDisableZoomScrolling;
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
@@ -160,6 +161,7 @@ public class ConfigGuiOptionsTab {
       wHideViewport.setSelection(!props.isHideViewportEnabled()); // Inverted logic
       wUseDoubleClick.setSelection(props.useDoubleClick());
       wDrawBorderAroundCanvasNames.setSelection(props.isBorderDrawnAroundCanvasNames());
+      wEnableInfiniteMove.setSelection(props.isInfiniteCanvasMoveEnabled());
       wHideMenuBar.setSelection(props.isHidingMenuBar());
       wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
       wDarkMode.setSelection(props.isDarkMode());
@@ -598,6 +600,17 @@ public class ConfigGuiOptionsTab {
             margin);
     lastCanvasControl = wDrawBorderAroundCanvasNames;
 
+    // Enable infinite move
+    wEnableInfiniteMove =
+        createCheckbox(
+            canvasContent,
+            "EnterOptionsDialog.EnableInfiniteMove.Label",
+            "EnterOptionsDialog.EnableInfiniteMove.ToolTip",
+            props.isInfiniteCanvasMoveEnabled(),
+            lastCanvasControl,
+            margin);
+    lastCanvasControl = wEnableInfiniteMove;
+
     // Disable zoom scrolling
     wDisableZoomScrolling =
         createCheckbox(
@@ -919,6 +932,7 @@ public class ConfigGuiOptionsTab {
         !wHideViewport.getSelection()); // Inverted: checkbox is "show", property is "hide"
     props.setUseDoubleClickOnCanvas(wUseDoubleClick.getSelection());
     props.setDrawBorderAroundCanvasNames(wDrawBorderAroundCanvasNames.getSelection());
+    props.setInfiniteCanvasMoveEnabled(wEnableInfiniteMove.getSelection());
     props.setZoomScrollingDisabled(wDisableZoomScrolling.getSelection());
     props.setDarkMode(wDarkMode.getSelection());
     props.setHidingMenuBar(wHideMenuBar.getSelection());

@@ -211,10 +211,54 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     gc.dispose();
   }
 
+  @Override
+  protected void drawNavigationViewContent(
+      double graphX, double graphY, double scaleX, double scaleY) {
+    if (pipelineMeta == null || maximum == null) {
+      return;
+    }
+    // Minimum size in viewport pixels so transforms remain visible
+    int minSize = 2;
+    // Draw hops as lines first (behind transforms)
+    gc.setForeground(EColor.DARKGRAY);
+    gc.setLineWidth(1);
+    for (PipelineHopMeta hop : pipelineMeta.getPipelineHops()) {
+      if (hop.getFromTransform() == null || hop.getToTransform() == null) {
+        continue;
+      }
+      Point fromLoc = hop.getFromTransform().getLocation();
+      Point toLoc = hop.getToTransform().getLocation();
+      if (fromLoc == null || toLoc == null) {
+        continue;
+      }
+      int fromCenterX = (int) (graphX + (fromLoc.x + iconSize / 2) * scaleX);
+      int fromCenterY = (int) (graphY + (fromLoc.y + iconSize / 2) * scaleY);
+      int toCenterX = (int) (graphX + (toLoc.x + iconSize / 2) * scaleX);
+      int toCenterY = (int) (graphY + (toLoc.y + iconSize / 2) * scaleY);
+      gc.drawLine(fromCenterX, fromCenterY, toCenterX, toCenterY);
+    }
+    // Draw transforms as small rectangles
+    gc.setForeground(EColor.BLACK);
+    gc.setBackground(EColor.WHITE);
+    for (TransformMeta transform : pipelineMeta.getTransforms()) {
+      Point loc = transform.getLocation();
+      if (loc == null) {
+        continue;
+      }
+      int w = Math.max(minSize, (int) Math.ceil(iconSize * scaleX));
+      int h = Math.max(minSize, (int) Math.ceil(iconSize * scaleY));
+      int x = (int) (graphX + loc.x * scaleX);
+      int y = (int) (graphY + loc.y * scaleY);
+      gc.fillRectangle(x, y, w, h);
+      gc.drawRectangle(x, y, w, h);
+    }
+  }
+
   private void drawPipeline() throws HopException {
     if (gridSize > 1) {
       drawGrid();
     }
+    drawOriginBoundary();
 
     try {
       ExtensionPointHandler.callExtensionPoint(
