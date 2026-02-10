@@ -18,8 +18,12 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Setter
+@Getter
 public class HttpPostResultField {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.ResultFieldCode")
@@ -37,38 +41,6 @@ public class HttpPostResultField {
       key = "response_header",
       injectionKeyDescription = "HTTPPOST.Injection.ResultFieldResponseHeader")
   private String responseHeaderFieldName;
-
-  public String getCode() {
-    return code;
-  }
-
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getResponseTimeFieldName() {
-    return responseTimeFieldName;
-  }
-
-  public void setResponseTimeFieldName(String responseTimeFieldName) {
-    this.responseTimeFieldName = responseTimeFieldName;
-  }
-
-  public String getResponseHeaderFieldName() {
-    return responseHeaderFieldName;
-  }
-
-  public void setResponseHeaderFieldName(String responseHeaderFieldName) {
-    this.responseHeaderFieldName = responseHeaderFieldName;
-  }
 
   public HttpPostResultField(
       String code, String name, String responseTimeFieldName, String responseHeaderFieldName) {
@@ -91,8 +63,12 @@ public class HttpPostResultField {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     HttpPostResultField that = (HttpPostResultField) o;
     return Objects.equals(code, that.code)
         && Objects.equals(name, that.name)

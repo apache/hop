@@ -18,8 +18,12 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class HttpPostArgumentField {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.ArgumentFieldName")
@@ -30,30 +34,6 @@ public class HttpPostArgumentField {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.ArgumentFieldHeader")
   private boolean header;
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getParameter() {
-    return parameter;
-  }
-
-  public void setParameter(String parameter) {
-    this.parameter = parameter;
-  }
-
-  public boolean isHeader() {
-    return header;
-  }
-
-  public void setHeader(boolean header) {
-    this.header = header;
-  }
 
   public HttpPostArgumentField(String name, String parameter, boolean header) {
     this.name = name;
@@ -71,8 +51,12 @@ public class HttpPostArgumentField {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     HttpPostArgumentField that = (HttpPostArgumentField) o;
     return header == that.header
         && Objects.equals(name, that.name)

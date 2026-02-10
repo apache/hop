@@ -18,8 +18,12 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Setter
+@Getter
 public class HttpPostQuery {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.QueryFieldName")
@@ -27,22 +31,6 @@ public class HttpPostQuery {
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.QueryFieldParameter")
   private String parameter;
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getParameter() {
-    return parameter;
-  }
-
-  public void setParameter(String parameter) {
-    this.parameter = parameter;
-  }
 
   public HttpPostQuery(String name, String parameter) {
     this.name = name;
@@ -58,8 +46,12 @@ public class HttpPostQuery {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     HttpPostQuery that = (HttpPostQuery) o;
     return Objects.equals(name, that.name) && Objects.equals(parameter, that.parameter);
   }
