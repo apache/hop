@@ -163,4 +163,15 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
 
   /** mark the file as deleted */
   public default void markDeleted() {}
+
+  /**
+   * Whether this handler supports the given capability (e.g. Save). Defaults to the file type's
+   * capability; handlers can override to disable per-instance (e.g. raw view of a binary file).
+   *
+   * @param capability the capability constant from {@link IHopFileType}
+   * @return true if the capability is supported
+   */
+  default boolean hasCapability(String capability) {
+    return getFileType() != null && getFileType().hasCapability(capability);
+  }
 }

@@ -15,44 +15,54 @@
  * limitations under the License.
  */
 
-package org.apache.hop.ui.hopgui.perspective.explorer.file.types.text;
+package org.apache.hop.ui.hopgui.perspective.explorer.file.types.raw;
 
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.BinaryDetectionUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
+import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-/** This handles a text file in the file explorer perspective: open, save, ... */
-public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
+/**
+ * Handler for viewing any file as raw text. When content looks like text (no null byte in first
+ * 8KB), the file is editable and save/save-as are enabled; when binary, view is read-only and save
+ * buttons are disabled.
+ */
+public class RawExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler {
 
   private Text wText;
-  protected boolean reloadListener = false;
 
-  public BaseTextExplorerFileTypeHandler(
+  /** True if file was detected as binary (null byte in sample); save is disabled. */
+  private boolean binary;
+
+  public RawExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
     super(hopGui, perspective, explorerFile);
   }
 
   @Override
   public void renderFile(Composite composite) {
-    // Render the file by simply showing the file content as a text widget...
-    //
-    wText = new Text(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+    binary = detectBinary();
+    int style = SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL;
+    if (binary) {
+      style |= SWT.READ_ONLY;
+    }
+    wText = new Text(composite, style);
     PropsUi.setLook(wText, Props.WIDGET_STYLE_FIXED);
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(0, 0);
@@ -61,48 +71,63 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     fdText.bottom = new FormAttachment(100, 0);
     wText.setLayoutData(fdText);
 
-    // TODO: add bottom section to show status, size, changed dates, cursor position...
-    // TODO: options for validation, pretty print, ...
-    // TODO: options for reading the file with a various transform plugins
-    // TODO: option to discard changes (reload from disk)
-    // TODO: find in file feature, hook it up to the project find function
-    //
+    if (!binary) {
+      wText.addModifyListener(
+          e -> {
+            if (reloadListener) {
+              this.setChanged();
+              perspective.updateGui();
+            }
+          });
+    }
 
+    reloadListener = false;
     reload();
-    // If the widget changes after this it's been changed by the user
-    //
-    wText.addModifyListener(
-        e -> {
-          if (reloadListener) {
-            this.setChanged();
-            perspective.updateGui();
-          }
-        });
+    reloadListener = !binary;
+  }
+
+  private boolean detectBinary() {
+    try {
+      FileObject file = HopVfs.getFileObject(getFilename(), getVariables());
+      if (!file.exists() || !file.isFile()) {
+        return false;
+      }
+      try (InputStream in = HopVfs.getInputStream(file)) {
+        return !BinaryDetectionUtil.looksLikeText(in);
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logBasic(
+          getClass().getSimpleName(),
+          "Error sampling file for binary detection, treating as text",
+          e);
+      return false;
+    }
+  }
+
+  @Override
+  public boolean hasCapability(String capability) {
+    if (binary
+        && (IHopFileType.CAPABILITY_SAVE.equals(capability)
+            || IHopFileType.CAPABILITY_SAVE_AS.equals(capability))) {
+      return false;
+    }
+    return super.hasCapability(capability);
   }
 
   @Override
   public void save() throws HopException {
-
+    if (binary) {
+      throw new HopException("Binary file cannot be saved as text.");
+    }
     try {
-      // Save the current explorer file ....
-      //
       String filename = explorerFile.getFilename();
-
       boolean fileExist = HopVfs.fileExists(filename);
-
-      // Save the file...
-      //
-      try (OutputStream outputStream = HopVfs.getOutputStream(filename, false)) {
+      try (java.io.OutputStream outputStream = HopVfs.getOutputStream(filename, false)) {
         outputStream.write(wText.getText().getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       }
-
       this.clearChanged();
-
-      // Update menu options, tab and tree item
       updateGui();
-
-      // If we create a new file, refresh the explorer perspective tree
       if (!fileExist) {
         perspective.refresh();
       }
@@ -113,50 +138,31 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
   @Override
   public void saveAs(String filename) throws HopException {
-    try {
-
-      // Enforce file extension
-      if (!filename.toLowerCase().endsWith(this.getFileType().getDefaultFileExtension())) {
-        filename = filename + this.getFileType().getDefaultFileExtension();
-      }
-
-      // Normalize file name
-      filename = HopVfs.normalize(filename);
-
-      FileObject fileObject = HopVfs.getFileObject(filename);
-      if (fileObject.exists()) {
-        MessageBox box =
-            new MessageBox(hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText("Overwrite?");
-        box.setMessage("Are you sure you want to overwrite file '" + filename + "'?");
-        int answer = box.open();
-        if ((answer & SWT.YES) == 0) {
-          return;
-        }
-      }
-
-      setFilename(filename);
-
-      save();
-      hopGui.fileRefreshDelegate.register(filename, this);
-    } catch (Exception e) {
-      throw new HopException("Error validating file existence for '" + filename + "'", e);
+    if (binary) {
+      throw new HopException("Binary file cannot be saved as text.");
     }
+    filename = HopVfs.normalize(filename);
+    setFilename(filename);
+    save();
+    hopGui.fileRefreshDelegate.register(filename, this);
+  }
+
+  @Override
+  public boolean hasChanged() {
+    return !binary && super.hasChanged();
   }
 
   @Override
   public void reload() {
     try {
-      // Disable the Modifylistener temporary
       reloadListener = false;
       String contents = readTextFileContent("UTF-8");
       wText.setText(Const.NVL(contents, ""));
-
-      // enable the Modifylistener temporary
-      reloadListener = true;
     } catch (Exception e) {
-      LogChannel.UI.logError(
+      LogChannel.UI.logBasic(
           "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
+    } finally {
+      reloadListener = !binary;
     }
   }
 

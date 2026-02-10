@@ -124,6 +124,14 @@ public class GitGuiPlugin
   private final Color colorStagedModify;
   private final Color colorUnstaged;
 
+  /** Muted variants when the explorer has already grayed the item (non-openable file). */
+  private final Color colorStagedAddGray;
+
+  private final Color colorStagedModifyGray;
+  private final Color colorUnstagedGray;
+  private final Color colorIgnoredGray;
+  private final Color colorStagedUnchangedGray;
+
   public static GitGuiPlugin getInstance() {
     if (instance == null) {
       instance = new GitGuiPlugin();
@@ -145,6 +153,12 @@ public class GitGuiPlugin
     }
     colorStagedUnchanged = GuiResource.getInstance().getColorBlack();
     colorStagedAdd = GuiResource.getInstance().getColorDarkGreen();
+
+    colorStagedAddGray = GuiResource.getInstance().getColorDarkGreenMuted();
+    colorStagedModifyGray = GuiResource.getInstance().getColorLightBlueMuted();
+    colorUnstagedGray = GuiResource.getInstance().getColorRedMuted();
+    colorIgnoredGray = GuiResource.getInstance().getColorDarkGrayMuted();
+    colorStagedUnchangedGray = GuiResource.getInstance().getColorBlackMuted();
 
     refreshChangedFiles();
   }
@@ -866,6 +880,11 @@ public class GitGuiPlugin
     // Normalize path
     String absolutePath = getAbsoluteFilename(path);
 
+    // Use gray variants when the explorer has already grayed this item (non-openable file)
+    Color systemDarkGray = tree.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
+    Color currentFg = treeItem.getForeground();
+    boolean useGrayVariants = currentFg != null && currentFg.equals(systemDarkGray);
+
     // Changed git file colored blue
     UIFile file = changedFiles.get(absolutePath);
     if (file != null) {
@@ -873,18 +892,24 @@ public class GitGuiPlugin
         case ADD:
         case COPY:
         case RENAME:
-          treeItem.setForeground(file.isStaged() ? colorStagedAdd : colorUnstaged);
+          treeItem.setForeground(
+              file.isStaged()
+                  ? (useGrayVariants ? colorStagedAddGray : colorStagedAdd)
+                  : (useGrayVariants ? colorUnstagedGray : colorUnstaged));
           break;
         case MODIFY:
-          treeItem.setForeground(file.isStaged() ? colorStagedModify : colorUnstaged);
+          treeItem.setForeground(
+              file.isStaged()
+                  ? (useGrayVariants ? colorStagedModifyGray : colorStagedModify)
+                  : (useGrayVariants ? colorUnstagedGray : colorUnstaged));
           break;
         case DELETE:
-          treeItem.setForeground(colorStagedUnchanged);
+          treeItem.setForeground(useGrayVariants ? colorStagedUnchangedGray : colorStagedUnchanged);
       }
     }
 
     if (ignoredFiles.containsKey(absolutePath)) {
-      treeItem.setForeground(colorIgnored);
+      treeItem.setForeground(useGrayVariants ? colorIgnoredGray : colorIgnored);
     }
   }
 

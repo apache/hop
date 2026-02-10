@@ -136,4 +136,14 @@ public interface IHopFileType {
    * @return The path to the SVG file, a logo for this file type
    */
   String getFileTypeImage();
+
+  /**
+   * Whether this file type supports opening (shows content in an editor). When false, the Open
+   * action is disabled for files of this type. Folders are not affected.
+   *
+   * @return true if opening a file of this type shows an editor, false if it would do nothing
+   */
+  default boolean supportsOpening() {
+    return true;
+  }
 }

@@ -128,6 +128,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -177,6 +178,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public static final String CONTEXT_MENU_COLLAPSE_ALL =
       "ExplorerPerspective-ContextMenu-10070-CollapseAll";
   public static final String CONTEXT_MENU_OPEN = "ExplorerPerspective-ContextMenu-10100-Open";
+  public static final String CONTEXT_MENU_OPEN_AS_TEXT =
+      "ExplorerPerspective-ContextMenu-10101-OpenAsText";
   public static final String CONTEXT_MENU_RENAME = "ExplorerPerspective-ContextMenu-10300-Rename";
   public static final String CONTEXT_MENU_COPY_NAME =
       "ExplorerPerspective-ContextMenu-10400-CopyName";
@@ -511,7 +514,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           }
 
           TreeItem[] selection = tree.getSelection();
-          menuWidgets.findMenuItem(CONTEXT_MENU_OPEN).setEnabled(selection.length == 1);
+          TreeItemFolder tif =
+              selection.length == 1 ? (TreeItemFolder) selection[0].getData() : null;
+          boolean openSupported = tif != null && (tif.folder || tif.fileType.supportsOpening());
+          MenuItem openItem = menuWidgets.findMenuItem(CONTEXT_MENU_OPEN);
+          if (openItem != null) {
+            openItem.setEnabled(openSupported);
+          }
+          MenuItem openAsTextItem = menuWidgets.findMenuItem(CONTEXT_MENU_OPEN_AS_TEXT);
+          if (openAsTextItem != null) {
+            openAsTextItem.setEnabled(selection.length == 1 && tif != null && !tif.folder);
+          }
           menuWidgets.findMenuItem(CONTEXT_MENU_RENAME).setEnabled(selection.length == 1);
 
           // Show the menu
@@ -1559,7 +1572,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
         HopGui.getInstance()
             .handleFileCapabilities(
-                fileTypeHandler.getFileType(), fileTypeHandler.hasChanged(), false, false);
+                fileTypeHandler.getFileType(),
+                fileTypeHandler,
+                fileTypeHandler.hasChanged(),
+                false,
+                false);
       }
     }
   }
@@ -1955,6 +1972,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           TreeItem childItem = new TreeItem(item, SWT.NONE);
           childItem.setText(childName);
           setItemImage(childItem, fileType);
+
+          // Apply gray for non-openable files before paint listeners so listeners (e.g. git) can
+          // use gray variants when they see this styling
+          if (!folder && !fileType.supportsOpening()) {
+            childItem.setForeground(hopGui.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+          } else {
+            childItem.setForeground(null);
+          }
+
           callPaintListeners(tree, childItem, childPath, childName);
           setTreeItemData(childItem, childPath, childName, fileType, depth, folder, true);
 
@@ -2355,14 +2381,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     }
 
     boolean isFolderSelected = tif != null && tif.fileType instanceof FolderFileType;
+    boolean openSupported = tif != null && (tif.folder || tif.fileType.supportsOpening());
 
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_CREATE_FOLDER, isFolderSelected);
-    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_OPEN, tif != null);
+    toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_OPEN, openSupported);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_DELETE, tif != null);
     toolBarWidgets.enableToolbarItem(TOOLBAR_ITEM_RENAME, tif != null);
 
     menuWidgets.enableMenuItem(CONTEXT_MENU_CREATE_FOLDER, isFolderSelected);
-    menuWidgets.enableMenuItem(CONTEXT_MENU_OPEN, tif != null);
+    menuWidgets.enableMenuItem(CONTEXT_MENU_OPEN, openSupported);
     menuWidgets.enableMenuItem(CONTEXT_MENU_DELETE, tif != null);
     menuWidgets.enableMenuItem(CONTEXT_MENU_RENAME, tif != null);
     menuWidgets.enableMenuItem(CONTEXT_MENU_COPY_NAME, tif != null);

@@ -1376,57 +1376,80 @@ public class HopGui
    */
   public void handleFileCapabilities(
       IHopFileType fileType, boolean changed, boolean running, boolean paused) {
+    handleFileCapabilities(fileType, null, changed, running, paused);
+  }
+
+  /**
+   * Same as {@link #handleFileCapabilities(IHopFileType, boolean, boolean, boolean)} but when
+   * handler is non-null, Save/SaveAs use the handler's capability (e.g. disabled for binary raw
+   * view).
+   */
+  public void handleFileCapabilities(
+      IHopFileType fileType,
+      IHopFileTypeHandler handler,
+      boolean changed,
+      boolean running,
+      boolean paused) {
 
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
+        fileType, handler, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
+        fileType, handler, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_FILE_EXPORT_TO_SVG, IHopFileType.CAPABILITY_EXPORT_TO_SVG);
+        fileType, handler, ID_MAIN_MENU_FILE_EXPORT_TO_SVG, IHopFileType.CAPABILITY_EXPORT_TO_SVG);
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_FILE_CLOSE, IHopFileType.CAPABILITY_CLOSE);
+        fileType, handler, ID_MAIN_MENU_FILE_CLOSE, IHopFileType.CAPABILITY_CLOSE);
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_FILE_CLOSE_ALL, IHopFileType.CAPABILITY_CLOSE);
+        fileType, handler, ID_MAIN_MENU_FILE_CLOSE_ALL, IHopFileType.CAPABILITY_CLOSE);
 
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_EDIT_SELECT_ALL, IHopFileType.CAPABILITY_SELECT);
+        fileType, handler, ID_MAIN_MENU_EDIT_SELECT_ALL, IHopFileType.CAPABILITY_SELECT);
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_EDIT_UNSELECT_ALL, IHopFileType.CAPABILITY_SELECT);
-
-    mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_EDIT_COPY, IHopFileType.CAPABILITY_COPY);
-    mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_EDIT_PASTE, IHopFileType.CAPABILITY_PASTE);
-    mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_EDIT_CUT, IHopFileType.CAPABILITY_CUT);
-    mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_EDIT_DELETE, IHopFileType.CAPABILITY_DELETE);
+        fileType, handler, ID_MAIN_MENU_EDIT_UNSELECT_ALL, IHopFileType.CAPABILITY_SELECT);
 
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_RUN_START, IHopFileType.CAPABILITY_START, !running);
+        fileType, handler, ID_MAIN_MENU_EDIT_COPY, IHopFileType.CAPABILITY_COPY);
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_RUN_STOP, IHopFileType.CAPABILITY_STOP, running);
+        fileType, handler, ID_MAIN_MENU_EDIT_PASTE, IHopFileType.CAPABILITY_PASTE);
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_RUN_PAUSE, IHopFileType.CAPABILITY_PAUSE, running && !paused);
+        fileType, handler, ID_MAIN_MENU_EDIT_CUT, IHopFileType.CAPABILITY_CUT);
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_RUN_RESUME, IHopFileType.CAPABILITY_PAUSE, paused);
+        fileType, handler, ID_MAIN_MENU_EDIT_DELETE, IHopFileType.CAPABILITY_DELETE);
+
     mainMenuWidgets.enableMenuItem(
-        fileType, ID_MAIN_MENU_RUN_PREVIEW, IHopFileType.CAPABILITY_PREVIEW);
-    mainMenuWidgets.enableMenuItem(fileType, ID_MAIN_MENU_RUN_DEBUG, IHopFileType.CAPABILITY_DEBUG);
+        fileType, handler, ID_MAIN_MENU_RUN_START, IHopFileType.CAPABILITY_START, !running);
+    mainMenuWidgets.enableMenuItem(
+        fileType, handler, ID_MAIN_MENU_RUN_STOP, IHopFileType.CAPABILITY_STOP, running);
+    mainMenuWidgets.enableMenuItem(
+        fileType,
+        handler,
+        ID_MAIN_MENU_RUN_PAUSE,
+        IHopFileType.CAPABILITY_PAUSE,
+        running && !paused);
+    mainMenuWidgets.enableMenuItem(
+        fileType, handler, ID_MAIN_MENU_RUN_RESUME, IHopFileType.CAPABILITY_PAUSE, paused);
+    mainMenuWidgets.enableMenuItem(
+        fileType, handler, ID_MAIN_MENU_RUN_PREVIEW, IHopFileType.CAPABILITY_PREVIEW);
+    mainMenuWidgets.enableMenuItem(
+        fileType, handler, ID_MAIN_MENU_RUN_DEBUG, IHopFileType.CAPABILITY_DEBUG);
 
     mainMenuWidgets.enableMenuItem(
         fileType,
+        handler,
         ID_MAIN_MENU_EDIT_NAV_PREV,
         IHopFileType.CAPABILITY_FILE_HISTORY,
         getActivePerspective().hasNavigationPreviousFile());
     mainMenuWidgets.enableMenuItem(
         fileType,
+        handler,
         ID_MAIN_MENU_EDIT_NAV_NEXT,
         IHopFileType.CAPABILITY_FILE_HISTORY,
         getActivePerspective().hasNavigationNextFile());
 
     mainToolbarWidgets.enableToolbarItem(
-        fileType, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
+        fileType, handler, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE, changed);
     mainToolbarWidgets.enableToolbarItem(
-        fileType, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
+        fileType, handler, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS);
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {

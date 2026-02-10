@@ -107,6 +107,14 @@ public class GuiResource {
   @Getter private Color colorHopTrue;
   @Getter private Color colorDeprecated;
 
+  /** Muted variants for use on grayed (non-openable) explorer items; light and dark mode aware. */
+  @Getter private Color colorDarkGreenMuted;
+
+  @Getter private Color colorLightBlueMuted;
+  @Getter private Color colorRedMuted;
+  @Getter private Color colorDarkGrayMuted;
+  @Getter private Color colorBlackMuted;
+
   // Fonts
   //
   private ManagedFont fontDefault;
@@ -383,6 +391,13 @@ public class GuiResource {
     colorHopDefault = new Color(display, props.contrastColor(61, 99, 128));
     colorHopTrue = new Color(display, props.contrastColor(12, 178, 15));
     colorDeprecated = new Color(display, props.contrastColor(246, 196, 56));
+
+    // Muted variants for grayed (non-openable) explorer items; dark mode variants in PropsUi
+    colorDarkGreenMuted = new Color(display, props.contrastColor(new RGB(85, 115, 85)));
+    colorLightBlueMuted = new Color(display, props.contrastColor(new RGB(75, 95, 165)));
+    colorRedMuted = new Color(display, props.contrastColor(new RGB(130, 85, 85)));
+    colorDarkGrayMuted = new Color(display, props.contrastColor(new RGB(105, 105, 105)));
+    colorBlackMuted = new Color(display, props.contrastColor(new RGB(90, 90, 90)));
 
     // Load all images from files...
     loadFonts();
