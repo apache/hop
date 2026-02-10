@@ -276,4 +276,13 @@ public class HopGuiLogBrowser {
   public void setPaused(boolean paused) {
     this.paused.set(paused);
   }
+
+  /**
+   * Reset cached log channel state so the next refresh will use the current log channel provider
+   * (e.g. after attaching to a different running pipeline or workflow).
+   */
+  public void resetLogChannels() {
+    childIds = new ArrayList<>();
+    lastLogRegistryChange = null;
+  }
 }

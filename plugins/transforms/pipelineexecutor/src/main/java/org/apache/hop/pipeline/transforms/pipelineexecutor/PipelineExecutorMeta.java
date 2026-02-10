@@ -632,4 +632,9 @@ public class PipelineExecutorMeta
     }
     return hasChanged;
   }
+
+  @Override
+  public boolean supportsDrillDown() {
+    return true;
+  }
 }
