@@ -164,7 +164,13 @@ public class ConfigGuiOptionsTab {
       wEnableInfiniteMove.setSelection(props.isInfiniteCanvasMoveEnabled());
       wHideMenuBar.setSelection(props.isHidingMenuBar());
       wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
-      wDarkMode.setSelection(props.isDarkMode());
+      // On macOS (and other non-Windows), dark mode follows system; sync from system so UI and
+      // props match
+      boolean darkMode = Const.isWindows() ? props.isDarkMode() : Display.isSystemDarkTheme();
+      if (!Const.isWindows()) {
+        props.setDarkMode(darkMode);
+      }
+      wDarkMode.setSelection(darkMode);
 
       // Reload global zoom
       String globalZoomFactor = Integer.toString((int) (props.getGlobalZoomFactor() * 100)) + '%';
@@ -934,7 +940,10 @@ public class ConfigGuiOptionsTab {
     props.setDrawBorderAroundCanvasNames(wDrawBorderAroundCanvasNames.getSelection());
     props.setInfiniteCanvasMoveEnabled(wEnableInfiniteMove.getSelection());
     props.setZoomScrollingDisabled(wDisableZoomScrolling.getSelection());
-    props.setDarkMode(wDarkMode.getSelection());
+    // On macOS (and other non-Windows), dark mode follows system; persist system theme, not
+    // checkbox
+    boolean darkMode = Const.isWindows() ? wDarkMode.getSelection() : Display.isSystemDarkTheme();
+    props.setDarkMode(darkMode);
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
 
