@@ -2518,15 +2518,46 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     copies(transformMeta);
   }
 
+  /**
+   * Validates that the number of copies is either a positive integer or a variable (${VARIABLE}).
+   *
+   * @param value the string to validate
+   * @return true if valid (number or ${...} variable pattern)
+   */
+  private boolean isValidCopiesString(String value) {
+    if (Utils.isEmpty(value)) {
+      return false;
+    }
+    String trimmed = value.trim();
+    // Positive integer: one or more digits
+    if (trimmed.matches("\\d+")) {
+      return true;
+    }
+    // Variable pattern: ${VARIABLE}
+    return trimmed.matches("\\$\\{[^}]+\\}");
+  }
+
   public void copies(TransformMeta transformMeta) {
     final boolean multipleOK = checkNumberOfCopies(pipelineMeta, transformMeta);
     selectedTransforms = null;
-    String tt = BaseMessages.getString(PKG, "PipelineGraph.Dialog.NrOfCopiesOfTransform.Title");
-    String mt = BaseMessages.getString(PKG, "PipelineGraph.Dialog.NrOfCopiesOfTransform.Message");
     EnterStringDialog nd =
-        new EnterStringDialog(hopShell(), transformMeta.getCopiesString(), tt, mt, true, variables);
+        new EnterStringDialog(
+            hopShell(),
+            transformMeta.getCopiesString(),
+            BaseMessages.getString(PKG, "PipelineGraph.Dialog.NrOfCopiesOfTransform.Title"),
+            BaseMessages.getString(PKG, "PipelineGraph.Dialog.NrOfCopiesOfTransform.Message"),
+            true,
+            variables);
     String cop = nd.open();
     if (!Utils.isEmpty(cop)) {
+      cop = cop.trim();
+      if (!isValidCopiesString(cop)) {
+        modalMessageDialog(
+            BaseMessages.getString(PKG, "PipelineGraph.Dialog.InvalidNrOfCopies.Title"),
+            BaseMessages.getString(PKG, "PipelineGraph.Dialog.InvalidNrOfCopies.Message"),
+            SWT.OK | SWT.ICON_ERROR);
+        return;
+      }
 
       int copies = Const.toInt(hopGui.getVariables().resolve(cop), -1);
       if (copies > 1 && !multipleOK) {
@@ -4893,12 +4924,19 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private void checkErrorVisuals() {
     if (pipeline.getErrors() > 0) {
       // Get the logging text and filter it out. Store it in the transformLogMap...
+      // Use non-empty placeholder when log is null/empty so the transform is still marked red
+      // (e.g. invalid copies transform never ran init so has no log output).
       //
       transformLogMap = new HashMap<>();
       for (IEngineComponent component : pipeline.getComponents()) {
         if (component.getErrors() > 0) {
           String logText = component.getLogText();
-          transformLogMap.put(component.getName(), logText);
+          transformLogMap.put(
+              component.getName(),
+              Utils.isEmpty(logText)
+                  ? BaseMessages.getString(
+                      PKG, "PipelineGraph.Dialog.TransformHadErrors.SeePipelineLog")
+                  : logText);
         }
       }
 

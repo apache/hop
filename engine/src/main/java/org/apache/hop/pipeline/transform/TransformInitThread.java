@@ -60,6 +60,14 @@ public class TransformInitThread implements Runnable {
       return;
     }
 
+    // Already marked as failed (e.g. invalid number of copies) - skip init, same outcome as init
+    // failure
+    if (combi.data.getStatus() == ComponentExecutionStatus.STATUS_STOPPED) {
+      finished = true;
+      ok = false;
+      return;
+    }
+
     try {
       combi.transform.getLogChannel().snap(Metrics.METRIC_TRANSFORM_INIT_START);
 
