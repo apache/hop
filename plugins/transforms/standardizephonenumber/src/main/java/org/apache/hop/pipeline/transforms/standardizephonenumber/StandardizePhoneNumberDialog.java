@@ -117,10 +117,6 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
 
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
-    Label hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    hSpacer.setLayoutData(
-        new FormDataBuilder().left().right().bottom(wOk, -margin).height(2).result());
-
     // Transform name line
     //
     Label wlTransformName = new Label(shell, SWT.RIGHT);
@@ -229,7 +225,7 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
             .left()
             .fullWidth()
             .top(lblFields, margin)
-            .bottom(hSpacer, -margin)
+            .bottom(wOk, -margin)
             .result());
     wFields.getTable().addListener(SWT.Resize, new ColumnsResizer(2, 20, 20, 10, 12, 12, 12, 8));
 
