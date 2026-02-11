@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.xp;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
@@ -34,7 +35,9 @@ import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.swt.SWT;
 
 @ExtensionPoint(
     id = "HopGuiStartProjectLoad",
@@ -57,47 +60,47 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
       if (ProjectsConfigSingleton.getConfig().isEnabled()) {
         logChannelInterface.logBasic("Projects enabled");
 
-        // What is the last used project?
+        // Build list of candidate projects to try: last used first, then default.
+        // Defensive: try multiple recent projects so one failing does not block startup.
         //
-        String lastProjectName = null;
-
-        // Let's see in the audit logs what the last opened project is.
-        //
+        List<String> candidateNames = new ArrayList<>();
         List<AuditEvent> auditEvents =
             AuditManager.findEvents(
                 ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
                 ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
                 "open",
-                1,
+                15,
                 true);
-        if (auditEvents.isEmpty()) {
-          lastProjectName = config.getDefaultProject();
-        } else {
-          logChannelInterface.logDetailed(
-              "Audit events found for hop-gui/project : " + auditEvents.size());
-
-          AuditEvent lastEvent = auditEvents.get(0);
-          long eventTime = lastEvent.getDate().getTime();
-
-          lastProjectName = lastEvent.getName();
-          if (config.findProjectConfig(lastProjectName) == null) {
-            // The last existing project to open was not found.
-            //
-            lastProjectName = null;
+        for (AuditEvent event : auditEvents) {
+          String name = event.getName();
+          if (StringUtils.isNotEmpty(name)
+              && config.findProjectConfig(name) != null
+              && !candidateNames.contains(name)) {
+            candidateNames.add(name);
+          }
+        }
+        if (candidateNames.isEmpty() && config.getDefaultProject() != null) {
+          if (config.findProjectConfig(config.getDefaultProject()) != null) {
+            candidateNames.add(config.getDefaultProject());
           }
         }
 
-        if (StringUtils.isNotEmpty(lastProjectName)) {
-          ProjectConfig projectConfig = config.findProjectConfig(lastProjectName);
-          if (projectConfig != null) {
+        Exception firstFailure = null;
+        String firstFailedProjectName = null;
+        boolean enabled = false;
+
+        for (String lastProjectName : candidateNames) {
+          try {
+            ProjectConfig projectConfig = config.findProjectConfig(lastProjectName);
+            if (projectConfig == null) {
+              continue;
+            }
             Project project = projectConfig.loadProject(variables);
 
             logChannelInterface.logBasic("Enabling project : '" + lastProjectName + "'");
 
             LifecycleEnvironment lastEnvironment = null;
 
-            // What was the last environment for this project?
-            //
             List<AuditEvent> envEvents =
                 AuditManager.findEvents(
                     ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
@@ -106,8 +109,6 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
                     100,
                     true);
 
-            // Find the last selected environment for this project.
-            //
             for (AuditEvent envEvent : envEvents) {
               LifecycleEnvironment environment = config.findEnvironment(envEvent.getName());
               if (environment != null && lastProjectName.equals(environment.getProjectName())) {
@@ -116,14 +117,49 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
               }
             }
 
-            // Set system variables for HOP_HOME, HOP_METADATA_FOLDER, ...
-            // Sets the namespace in HopGui to the name of the project.
-            //
             ProjectsGuiPlugin.enableHopGuiProject(lastProjectName, project, lastEnvironment);
-
-            // Don't open the files again in the HopGui startup code.
-            //
             hopGui.setOpeningLastFiles(false);
+            enabled = true;
+            break;
+          } catch (Exception e) {
+            if (firstFailure == null) {
+              firstFailure = e;
+              firstFailedProjectName = lastProjectName;
+            }
+            ProjectsGuiPlugin.MissingProjectInfo missing =
+                ProjectsGuiPlugin.extractMissingProjectInfo(e);
+            if (missing != null) {
+              logChannelInterface.logBasic(
+                  "Skipping project '"
+                      + lastProjectName
+                      + "': project folder no longer exists at "
+                      + missing.path);
+            }
+            // Continue to next candidate project.
+          }
+        }
+
+        if (!enabled && firstFailure != null) {
+          ProjectsGuiPlugin.MissingProjectInfo missing =
+              ProjectsGuiPlugin.extractMissingProjectInfo(firstFailure);
+          if (missing != null) {
+            String displayName =
+                missing.projectName != null ? missing.projectName : firstFailedProjectName;
+            MessageBox box = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_WARNING);
+            box.setMessage(
+                "Project '"
+                    + displayName
+                    + "' could not be loaded because "
+                    + missing.path
+                    + " no longer exists.\n\nYou can update the path in the Project configuration.");
+            box.setText("Project not available");
+            box.open();
+          } else {
+            new ErrorDialog(
+                hopGui.getActiveShell(),
+                "Error",
+                "Error initializing the Projects system",
+                firstFailure);
           }
         }
       } else {

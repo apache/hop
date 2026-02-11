@@ -32,6 +32,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.lang.StringUtils;
@@ -270,12 +272,82 @@ public class ProjectsGuiPlugin {
       // Reset VFS filesystem to load additional configurations
       HopVfs.reset();
     } catch (Exception e) {
+      MissingProjectInfo missing = extractMissingProjectInfo(e);
+      if (missing != null) {
+        String displayName = missing.projectName != null ? missing.projectName : projectName;
+        MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_WARNING);
+        box.setMessage(
+            "Project '"
+                + displayName
+                + "' could not be loaded because "
+                + missing.path
+                + " no longer exists.\n\nYou can update the path in the Project configuration.");
+        box.setText("Project not available");
+        box.open();
+        selectProjectInUiOnly(projectName);
+        return;
+      }
       throw new HopException("Error enabling project '" + projectName + "' in HopGui", e);
     }
   }
 
+  /** Result when the failure is due to a project home folder that does not exist. */
+  public static class MissingProjectInfo {
+    public final String projectName;
+    public final String path;
+
+    public MissingProjectInfo(String projectName, String path) {
+      this.projectName = projectName;
+      this.path = path;
+    }
+  }
+
+  /**
+   * Extracts the project name and path from an exception when the failure is due to "folder does
+   * not exist". Returns null if this is not a missing-folder error.
+   */
+  public static MissingProjectInfo extractMissingProjectInfo(Throwable t) {
+    Pattern withName =
+        Pattern.compile(
+            "Project '([^']+)' home folder '([^']+)' does not exist", Pattern.CASE_INSENSITIVE);
+    Pattern legacy =
+        Pattern.compile("Project home folder '([^']+)' does not exist", Pattern.CASE_INSENSITIVE);
+    while (t != null) {
+      String msg = t.getMessage();
+      if (msg != null) {
+        Matcher matcher = withName.matcher(msg);
+        if (matcher.find()) {
+          return new MissingProjectInfo(matcher.group(1), matcher.group(2));
+        }
+        matcher = legacy.matcher(msg);
+        if (matcher.find()) {
+          return new MissingProjectInfo(null, matcher.group(1));
+        }
+      }
+      t = t.getCause();
+    }
+    return null;
+  }
+
+  /**
+   * Extracts the project home path from an exception when the failure is due to "folder does not
+   * exist". Returns the path for use in a message, or null if this is not a missing-folder error.
+   */
+  public static String extractMissingProjectPath(Throwable t) {
+    MissingProjectInfo info = extractMissingProjectInfo(t);
+    return info != null ? info.path : null;
+  }
+
   private static void updateProjectToolItem(String projectName) {
     GuiToolbarWidgets statusWidgets = HopGui.getInstance().getStatusToolbarWidgets();
+    if (projectName == null || StringUtils.isEmpty(projectName)) {
+      statusWidgets.setToolbarItemText(ID_TOOLBAR_ITEM_PROJECT, "");
+      statusWidgets.setToolbarItemToolTip(
+          ID_TOOLBAR_ITEM_PROJECT,
+          BaseMessages.getString(PKG, "HopGui.Toolbar.Project.Select.Tooltip"));
+      HopNamespace.setNamespace(HopGui.DEFAULT_HOP_GUI_NAMESPACE);
+      return;
+    }
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
     if (projectConfig != null) {
@@ -290,8 +362,29 @@ public class ProjectsGuiPlugin {
                 projectName,
                 projectHome,
                 projectConfig.getConfigFilename()));
+      } else {
+        statusWidgets.setToolbarItemText(ID_TOOLBAR_ITEM_PROJECT, projectName);
+        statusWidgets.setToolbarItemToolTip(
+            ID_TOOLBAR_ITEM_PROJECT, projectName + " (path not set - use Edit to configure)");
       }
     }
+  }
+
+  /**
+   * Selects a project in the UI only (toolbar + namespace) without loading it. Use when the project
+   * failed to load so the user can still Edit or Delete it.
+   */
+  private static void selectProjectInUiOnly(String projectName) {
+    if (StringUtils.isEmpty(projectName)) {
+      return;
+    }
+    GuiToolbarWidgets statusWidgets = HopGui.getInstance().getStatusToolbarWidgets();
+    statusWidgets.setToolbarItemText(ID_TOOLBAR_ITEM_PROJECT, projectName);
+    statusWidgets.setToolbarItemToolTip(
+        ID_TOOLBAR_ITEM_PROJECT,
+        projectName + " (could not be loaded - use Edit to fix the path, or Delete to remove)");
+    HopNamespace.setNamespace(projectName);
+    updateEnvironmentToolItem("");
   }
 
   private static void updateEnvironmentToolItem(String environmentName) {
@@ -320,23 +413,32 @@ public class ProjectsGuiPlugin {
   }
 
   public static List<String> getLastUsedProjects() {
-    // Initialize the list of last used projects
+    // Initialize the list of last used projects (defensive: one failing entry does not break the
+    // list)
     if (lastUsedProjects == null) {
       List<String> allProjectNames = ProjectsConfigSingleton.getConfig().listProjectConfigNames();
       lastUsedProjects = new LinkedList<>();
+      if (allProjectNames == null) {
+        allProjectNames = new ArrayList<>();
+      }
       try {
         AuditList auditList =
             AuditManager.getActive()
                 .retrieveList(HopGui.DEFAULT_HOP_GUI_NAMESPACE, LAST_USED_PROJECTS_AUDIT_TYPE);
 
-        for (String name : auditList.getNames()) {
-          if (allProjectNames.contains(name)) {
-            lastUsedProjects.add(name);
+        if (auditList != null && auditList.getNames() != null) {
+          for (String name : auditList.getNames()) {
+            if (StringUtils.isNotEmpty(name) && allProjectNames.contains(name)) {
+              lastUsedProjects.add(name);
+            }
           }
         }
       } catch (Exception e) {
         LogChannel.GENERAL.logError("Error loading last used projects", e);
-        lastUsedProjects.addAll(allProjectNames.subList(0, LAST_USED_PROJECTS_MAX_ENTRIES));
+        int end = Math.min(LAST_USED_PROJECTS_MAX_ENTRIES, allProjectNames.size());
+        if (end > 0) {
+          lastUsedProjects.addAll(allProjectNames.subList(0, end));
+        }
       }
     }
 
@@ -388,9 +490,27 @@ public class ProjectsGuiPlugin {
     if (projectConfig == null) {
       throw new HopException("The project with name '" + projectName + "' could not be found");
     }
-    Project project = projectConfig.loadProject(variables);
-
-    enableHopGuiProject(projectName, project, null);
+    try {
+      Project project = projectConfig.loadProject(variables);
+      enableHopGuiProject(projectName, project, null);
+    } catch (Exception e) {
+      MissingProjectInfo missing = extractMissingProjectInfo(e);
+      if (missing != null) {
+        String displayName = missing.projectName != null ? missing.projectName : projectName;
+        MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_WARNING);
+        box.setMessage(
+            "Project '"
+                + displayName
+                + "' could not be loaded because "
+                + missing.path
+                + " no longer exists.\n\nYou can update the path in the Project configuration.");
+        box.setText("Project not available");
+        box.open();
+        selectProjectInUiOnly(projectName);
+        return;
+      }
+      throw new HopException("Error enabling project '" + projectName + "'", e);
+    }
   }
 
   @GuiMenuElement(
@@ -413,7 +533,20 @@ public class ProjectsGuiPlugin {
     }
 
     try {
-      Project project = projectConfig.loadProject(hopGui.getVariables());
+      Project project;
+      try {
+        project = projectConfig.loadProject(hopGui.getVariables());
+      } catch (Exception loadEx) {
+        MissingProjectInfo missing = extractMissingProjectInfo(loadEx);
+        if (missing != null) {
+          // Don't show error again - it was already shown when switching to this project.
+          // Open dialog with empty project so user can fix the path.
+          project = new Project();
+        } else {
+          throw loadEx;
+        }
+      }
+
       String projectFolder = projectConfig.getProjectHome();
 
       ProjectDialog projectDialog =
@@ -663,6 +796,9 @@ public class ProjectsGuiPlugin {
     }
 
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    if (projectConfig == null) {
+      return;
+    }
 
     // What is the last used environment?
     //
@@ -720,6 +856,21 @@ public class ProjectsGuiPlugin {
         hopGui.getLog().logError("Unable to find project '" + projectName + "'");
       }
     } catch (Exception e) {
+      MissingProjectInfo missing = extractMissingProjectInfo(e);
+      if (missing != null) {
+        String displayName = missing.projectName != null ? missing.projectName : projectName;
+        MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_WARNING);
+        box.setMessage(
+            "Project '"
+                + displayName
+                + "' could not be loaded because "
+                + missing.path
+                + " no longer exists.\n\nYou can update the path in the Project configuration.");
+        box.setText("Project not available");
+        box.open();
+        selectProjectInUiOnly(projectName);
+        return;
+      }
       new ErrorDialog(
           hopGui.getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.ChangeProject.Error.Dialog.Header"),

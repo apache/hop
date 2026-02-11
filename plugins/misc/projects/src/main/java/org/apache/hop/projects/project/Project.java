@@ -286,9 +286,19 @@ public class Project extends ConfigFile implements IConfigFile {
       projectsList.add(realParentProjectName);
       ProjectConfig projectConfig = config.findProjectConfig(realParentProjectName);
       if (projectConfig != null) {
-        Project parentProject = projectConfig.loadProject(variables);
+        Project parentProject;
+        try {
+          parentProject = projectConfig.loadProject(variables);
+        } catch (Exception e) {
+          LogChannel.GENERAL.logError(
+              "Could not load parent project '"
+                  + realParentProjectName
+                  + "'; continuing without it. Fix the project path in Project configuration.",
+              e);
+          parentProject = null;
+        }
         if (parentProject == null) {
-          // Can't be loaded, break out of the loop
+          // Can't be loaded, break out of the loop and continue with active project
           realParentProjectName = null;
         } else {
           // See if this project has a parent...

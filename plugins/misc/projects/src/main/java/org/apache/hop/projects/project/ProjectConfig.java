@@ -71,7 +71,12 @@ public class ProjectConfig {
       String actualHomeFolder = variables.resolve(getProjectHome());
       FileObject actualHome = HopVfs.getFileObject(actualHomeFolder);
       if (!actualHome.exists()) {
-        throw new HopException("Project home folder '" + actualHomeFolder + "' does not exist");
+        throw new HopException(
+            "Project '"
+                + getProjectName()
+                + "' home folder '"
+                + actualHomeFolder
+                + "' does not exist");
       }
       String actualConfigFilename = variables.resolve(getConfigFilename());
       String fullFilename = FilenameUtils.concat(actualHome.toString(), actualConfigFilename);

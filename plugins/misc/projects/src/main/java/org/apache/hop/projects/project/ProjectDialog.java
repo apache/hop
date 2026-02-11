@@ -35,6 +35,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.gui.ProjectsGuiPlugin;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -116,11 +117,16 @@ public class ProjectDialog extends Dialog {
     try {
       project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
     } catch (Exception e) {
-      new ErrorDialog(
-          parent,
-          BaseMessages.getString(PKG, "ProjectDialog.ProjectDefinitionError.Error.Dialog.Header"),
-          BaseMessages.getString(PKG, "ProjectDialog.ProjectDefinitionError.Error.Dialog.Message"),
-          e);
+      if (ProjectsGuiPlugin.extractMissingProjectPath(e) == null) {
+        new ErrorDialog(
+            parent,
+            BaseMessages.getString(PKG, "ProjectDialog.ProjectDefinitionError.Error.Dialog.Header"),
+            BaseMessages.getString(
+                PKG, "ProjectDialog.ProjectDefinitionError.Error.Dialog.Message"),
+            e);
+      }
+      // When the project folder does not exist, allow the dialog to open so the user can
+      // update the path in the configuration.
     }
   }
 
@@ -755,15 +761,29 @@ public class ProjectDialog extends Dialog {
       project.getDescribedVariables().add(variable);
     }
 
-    // Update the project to the right absolute configuration file
+    // Update the project to the right absolute configuration file (skip when folder missing so user
+    // can fix path)
     //
     if (StringUtils.isNotEmpty(projectConfig.getProjectHome())
         && StringUtils.isNotEmpty(projectConfig.configFilename)) {
-      project.setConfigFilename(projectConfig.getActualProjectConfigFilename(variables));
+      try {
+        project.setConfigFilename(projectConfig.getActualProjectConfigFilename(variables));
+      } catch (Exception e) {
+        if (ProjectsGuiPlugin.extractMissingProjectPath(e) == null) {
+          throw new HopException(e);
+        }
+        // Project folder does not exist yet; leave config filename unset so user can edit path
+      }
     }
 
-    // Check for infinite loops
+    // Check for infinite loops (skip when parent chain has missing folder so user can fix)
     //
-    project.verifyProjectsChain(projectConfig.getProjectName(), variables);
+    try {
+      project.verifyProjectsChain(projectConfig.getProjectName(), variables);
+    } catch (Exception e) {
+      if (ProjectsGuiPlugin.extractMissingProjectPath(e) == null) {
+        throw new HopException(e);
+      }
+    }
   }
 }
