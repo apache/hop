@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -165,9 +166,12 @@ public class ConfigGuiOptionsTab {
       wHideMenuBar.setSelection(props.isHidingMenuBar());
       wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
       // On macOS (and other non-Windows), dark mode follows system; sync from system so UI and
-      // props match
-      boolean darkMode = Const.isWindows() ? props.isDarkMode() : Display.isSystemDarkTheme();
-      if (!Const.isWindows()) {
+      // props match. In Web environment, isSystemDarkTheme() is not available.
+      boolean darkMode;
+      if (EnvironmentUtils.getInstance().isWeb() || Const.isWindows()) {
+        darkMode = props.isDarkMode();
+      } else {
+        darkMode = Display.isSystemDarkTheme();
         props.setDarkMode(darkMode);
       }
       wDarkMode.setSelection(darkMode);
@@ -941,8 +945,13 @@ public class ConfigGuiOptionsTab {
     props.setInfiniteCanvasMoveEnabled(wEnableInfiniteMove.getSelection());
     props.setZoomScrollingDisabled(wDisableZoomScrolling.getSelection());
     // On macOS (and other non-Windows), dark mode follows system; persist system theme, not
-    // checkbox
-    boolean darkMode = Const.isWindows() ? wDarkMode.getSelection() : Display.isSystemDarkTheme();
+    // checkbox. In Web environment, isSystemDarkTheme() is not available.
+    boolean darkMode;
+    if (EnvironmentUtils.getInstance().isWeb() || Const.isWindows()) {
+      darkMode = wDarkMode.getSelection();
+    } else {
+      darkMode = Display.isSystemDarkTheme();
+    }
     props.setDarkMode(darkMode);
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
