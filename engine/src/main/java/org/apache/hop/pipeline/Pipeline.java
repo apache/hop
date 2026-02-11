@@ -1342,6 +1342,7 @@ public abstract class Pipeline
    * @deprecated Make attempt to fire all registered finished listeners if possible.
    * @throws HopException if any errors occur during notification
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionFinishedListeners() throws HopException {
@@ -1393,6 +1394,7 @@ public abstract class Pipeline
    * @deprecated Fires the start-event listeners (if any are registered).
    * @throws HopException if any errors occur during notification
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStartedListeners() throws HopException {
@@ -1684,6 +1686,7 @@ public abstract class Pipeline
   /**
    * @deprecated
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStoppedListeners() {
