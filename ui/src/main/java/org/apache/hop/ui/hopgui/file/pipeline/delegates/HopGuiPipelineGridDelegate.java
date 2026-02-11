@@ -39,6 +39,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -59,6 +60,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -514,7 +516,8 @@ public class HopGuiPipelineGridDelegate {
 
       sortComponentStringsByColumn(componentStringsList, gridSortColumn, gridSortDescending);
 
-      fillTableRows(componentStringsList);
+      int errorCol = indexOfMetric(usedMetrics, Pipeline.METRIC_ERROR);
+      fillTableRows(componentStringsList, errorCol);
 
       setSortIndicator();
 
@@ -707,10 +710,13 @@ public class HopGuiPipelineGridDelegate {
     pipelineGridComposite.layout(true, true);
   }
 
-  private void fillTableRows(List<List<String>> componentStringsList) {
+  private void fillTableRows(List<List<String>> componentStringsList, int errorColumnIndex) {
     while (pipelineGridView.table.getItemCount() > componentStringsList.size()) {
       pipelineGridView.table.remove(pipelineGridView.table.getItemCount() - 1);
     }
+    int errorsCol = 3 + errorColumnIndex; // row has #, name, copy, then metrics
+    Color errorBg = GuiResource.getInstance().getColorLightRed();
+    Color white = GuiResource.getInstance().getColorWhite();
     for (int row = 0; row < componentStringsList.size(); row++) {
       List<String> componentStrings = componentStringsList.get(row);
       TableItem item;
@@ -722,7 +728,20 @@ public class HopGuiPipelineGridDelegate {
       for (int col = 0; col < componentStrings.size(); col++) {
         item.setText(col, componentStrings.get(col));
       }
+      if (errorColumnIndex >= 0 && errorsCol < componentStrings.size()) {
+        long err = parseFormattedLong(componentStrings.get(errorsCol));
+        item.setBackground(err > 0 ? errorBg : white);
+      }
     }
+  }
+
+  private static int indexOfMetric(List<IEngineMetric> usedMetrics, IEngineMetric metric) {
+    for (int i = 0; i < usedMetrics.size(); i++) {
+      if (usedMetrics.get(i).getHeader().equals(metric.getHeader())) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   /**
@@ -947,9 +966,8 @@ public class HopGuiPipelineGridDelegate {
 
     updateCellsIfChanged(fields, row);
 
-    // Error lines should appear in red:
     if (baseTransform.getErrors() > 0) {
-      row.setBackground(GuiResource.getInstance().getColorRed());
+      row.setBackground(GuiResource.getInstance().getColorLightRed());
     } else {
       row.setBackground(GuiResource.getInstance().getColorWhite());
     }

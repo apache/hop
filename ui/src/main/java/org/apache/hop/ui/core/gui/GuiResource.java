@@ -80,6 +80,7 @@ public class GuiResource {
   @Getter private Color colorTab;
   @Getter private Color colorRed;
   @Getter private Color colorDarkRed;
+  @Getter private Color colorLightRed;
   @Getter private Color colorSuccessGreen;
   @Getter private Color colorBlueCustomGrid;
   @Getter private Color colorGreen;
@@ -366,6 +367,7 @@ public class GuiResource {
     colorSuccessGreen = new Color(display, props.contrastColor(0, 139, 0));
     colorRed = new Color(display, props.contrastColor(255, 0, 0));
     colorDarkRed = new Color(display, props.contrastColor(192, 57, 43));
+    colorLightRed = new Color(display, props.contrastColor(255, 200, 200));
     colorGreen = new Color(display, props.contrastColor(0, 255, 0));
     colorDarkGreen = new Color(display, props.contrastColor(16, 172, 132));
     colorBlue = new Color(display, props.contrastColor(0, 0, 255));
