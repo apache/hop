@@ -1054,7 +1054,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
         try {
           String path =
               wFilenameList.getActiveTableItem().getText(wFilenameList.getActiveTableColumn());
-          FileObject fileObject = HopVfs.getFileObject(path);
+          FileObject fileObject = HopVfs.getFileObject(variables.resolve(path));
 
           SpreadSheetType type =
               SpreadSheetType.getSpreadSheetTypeByDescription(wSpreadSheetType.getText());
