@@ -27,6 +27,9 @@ under the License.
 
 The CSV File Input transform reads data from a delimited file. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
 
+The `ignore manual fields` ignores any fields manually defined in the transform's field layout, and only uses the layout specified in the xref:metadata-types/static-schema-definition.adoc[Schema Definition].
+
+
 The CSV label for this transform is a misnomer because you can define whatever separator you want to use, such as pipes, tabs, and semicolons; you are not constrained to using commas.
 Internal processing allows this transform to process data quickly.
 Options for this transform are a subset of the Text File Input transform.
