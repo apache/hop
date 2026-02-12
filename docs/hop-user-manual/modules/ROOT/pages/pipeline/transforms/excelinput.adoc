@@ -110,7 +110,9 @@ The name of that file is <errorline dir>/filename.<date_time>.<errorline extensi
 
 The fields tab is for specifying the fields that must be read from the Excel files. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
 
-Use _Get fields from header_ row to fill in the available fields if the sheets have a header row automatically.
+The `ignore manual fields` ignores any fields manually defined in the transform's field layout, and only uses the layout specified in the xref:metadata-types/static-schema-definition.adoc[Schema Definition].
+
+Use `Get fields from header` row to fill in the available fields if the sheets have a header row automatically.
 
 The Type column performs type conversions for a given field.
 For example, if you want to read a date and you have a String value in the Excel file, specify the conversion mask.

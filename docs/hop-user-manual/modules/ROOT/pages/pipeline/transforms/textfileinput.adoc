@@ -206,6 +206,9 @@ Specifying a negative value here searches the entire line for the filter string.
 
 The fields tab allows you to specify the information about the name and format of the fields being read from the text file. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
 
+The `ignore manual fields` ignores any fields manually defined in the transform's field layout, and only uses the layout specified in the xref:metadata-types/static-schema-definition.adoc[Schema Definition].
+
+
 Available options include:
 
 [options="header"]

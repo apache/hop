@@ -33,6 +33,8 @@ It is also possible to generate fixed width files by setting lengths on the fiel
 
 You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually. If you decide to define the fields layout by using a xref:metadata-types/static-schema-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema Mapping] transform to adjust the incoming stream according to the chosen xref:metadata-types/static-schema-definition.adoc[Schema Definition]
 
+The `ignore manual fields` ignores any fields manually defined in the transform's field layout, and only uses the layout specified in the xref:metadata-types/static-schema-definition.adoc[Schema Definition].
+
 
 |
 == Supported Engines
