@@ -96,11 +96,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private CTabFolder wTabFolder;
 
-  private Text wTransformName;
-
-  private int middle;
-  private int margin;
-
   // The options tab
   //
   private MetaSelectionLine<NeoConnection> wConnection;
@@ -137,48 +132,9 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "CypherBuilder.Transform.Name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    shell.setLayout(createFormLayout());
-    shell.setText(BaseMessages.getString(PKG, "CypherBuilder.Transform.Name"));
-
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // Buttons go at the bottom...
-    //
-    // Some buttons
-    // Position the buttons at the bottom of the dialog.
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText("Transform name");
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, 0);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -191,9 +147,9 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     wTabFolder.setLayoutData(
         new FormDataBuilder()
             .left()
-            .top(new FormAttachment(wTransformName, margin))
+            .top(new FormAttachment(wSpacer, margin))
             .right()
-            .bottom(new FormAttachment(wOk, -2 * margin))
+            .bottom(new FormAttachment(100, -50))
             .result());
 
     getData();
@@ -202,7 +158,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     shell.addListener(SWT.Activate, e -> showExperimentalWarning());
 
     wTabFolder.setSelection(0);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -246,7 +202,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
-    fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchSize);
@@ -266,7 +222,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     FormData fdlUnwindAlias = new FormData();
     fdlUnwindAlias.left = new FormAttachment(0, 0);
     fdlUnwindAlias.right = new FormAttachment(middle, -margin);
-    fdlUnwindAlias.top = new FormAttachment(lastControl, 2 * margin);
+    fdlUnwindAlias.top = new FormAttachment(lastControl, margin);
     wlUnwindAlias.setLayoutData(fdlUnwindAlias);
     wUnwindAlias = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wUnwindAlias);
@@ -286,7 +242,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     FormData fdlRetries = new FormData();
     fdlRetries.left = new FormAttachment(0, 0);
     fdlRetries.right = new FormAttachment(middle, -margin);
-    fdlRetries.top = new FormAttachment(lastControl, 2 * margin);
+    fdlRetries.top = new FormAttachment(lastControl, margin);
     wlRetries.setLayoutData(fdlRetries);
     wRetries = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wRetries);
@@ -1383,8 +1339,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
   }
 
   public void getData() {
-
-    wTransformName.setText(Const.NVL(transformName, ""));
     wConnection.setText(Const.NVL(copy.getConnectionName(), ""));
     wBatchSize.setText(Const.NVL(copy.getBatchSize(), ""));
     wUnwindAlias.setText(Const.NVL(copy.getUnwindAlias(), ""));

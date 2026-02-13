@@ -119,7 +119,7 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlTestNames);
     FormData fdlTestNames = new FormData();
     fdlTestNames.left = new FormAttachment(0, 0);
-    fdlTestNames.top = new FormAttachment(lastControl, 2 * margin);
+    fdlTestNames.top = new FormAttachment(lastControl, margin);
     fdlTestNames.right = new FormAttachment(100, 0);
     wlTestNames.setLayoutData(fdlTestNames);
     lastControl = wlTestNames;
@@ -167,7 +167,7 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     fdTestNames.left = new FormAttachment(0, 0);
     fdTestNames.right = new FormAttachment(100, 0);
     fdTestNames.top = new FormAttachment(lastControl, margin);
-    fdTestNames.bottom = new FormAttachment(wOk, -margin * 2);
+    fdTestNames.bottom = new FormAttachment(wOk, -margin);
     wTestNames.setLayoutData(fdTestNames);
 
     setTableCombo();

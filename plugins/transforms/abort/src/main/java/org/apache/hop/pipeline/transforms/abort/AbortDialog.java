@@ -21,18 +21,18 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -42,7 +42,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class AbortDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AbortDialog.class;
@@ -62,9 +61,6 @@ public class AbortDialog extends BaseTransformDialog {
   private Group wOptionsGroup;
   private Label hSpacer;
 
-  private final int middle = props.getMiddlePct();
-  private final int margin = PropsUi.getMargin();
-
   public AbortDialog(
       Shell parent, IVariables variables, AbortMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
@@ -73,12 +69,26 @@ public class AbortDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "AbortDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    shell.setMinimumSize(400, 520);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
+
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     lsMod = e -> input.setChanged();
     lsSelMod =
@@ -90,77 +100,33 @@ public class AbortDialog extends BaseTransformDialog {
         };
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = 15;
-    formLayout.marginHeight = 15;
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "AbortDialog.Shell.Title"));
-
-    // Some buttons at the bottom
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    positionBottomButtons(shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
-
-    Label wicon = new Label(shell, SWT.RIGHT);
-    wicon.setImage(getImage());
-    FormData fdlicon = new FormData();
-    fdlicon.top = new FormAttachment(0, 0);
-    fdlicon.right = new FormAttachment(100, 0);
-    wicon.setLayoutData(fdlicon);
-    PropsUi.setLook(wicon);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "AbortDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(wicon, 0, SWT.CENTER);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(wlTransformName, margin);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(wicon, -margin);
-    wTransformName.setLayoutData(fdTransformName);
-
-    Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
+    Label spacer = new Label(wContent, SWT.HORIZONTAL | SWT.SEPARATOR);
     FormData fdSpacer = new FormData();
     fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wicon, 0);
+    fdSpacer.top = new FormAttachment(0, 0);
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
-    hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdhSpacer = new FormData();
-    fdhSpacer.height = 2;
-    fdhSpacer.left = new FormAttachment(0, 0);
-    fdhSpacer.bottom = new FormAttachment(wCancel, -15);
-    fdhSpacer.right = new FormAttachment(100, 0);
-    hSpacer.setLayoutData(fdhSpacer);
+    buildOptions(wContent, spacer);
+    buildLogging(wContent, wOptionsGroup);
 
-    buildOptions(spacer);
-    buildLogging(wOptionsGroup);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
   }
 
-  private void buildOptions(Control widgetAbove) {
-    wOptionsGroup = new Group(shell, SWT.SHADOW_ETCHED_IN);
+  private void buildOptions(Composite parent, Control widgetAbove) {
+    wOptionsGroup = new Group(parent, SWT.SHADOW_NONE);
     PropsUi.setLook(wOptionsGroup);
     wOptionsGroup.setText(BaseMessages.getString(PKG, "AbortDialog.Options.Group.Label"));
     FormLayout flOptionsGroup = new FormLayout();
@@ -224,8 +190,8 @@ public class AbortDialog extends BaseTransformDialog {
     wRowThreshold.setLayoutData(fdRowThreshold);
   }
 
-  private void buildLogging(Composite widgetAbove) {
-    Group wLoggingGroup = new Group(shell, SWT.SHADOW_ETCHED_IN);
+  private void buildLogging(Composite parent, Composite widgetAbove) {
+    Group wLoggingGroup = new Group(parent, SWT.SHADOW_NONE);
     PropsUi.setLook(wLoggingGroup);
     wLoggingGroup.setText(BaseMessages.getString(PKG, "AbortDialog.Logging.Group"));
     FormLayout flLoggingGroup = new FormLayout();
@@ -234,12 +200,7 @@ public class AbortDialog extends BaseTransformDialog {
     wLoggingGroup.setLayout(flLoggingGroup);
 
     wLoggingGroup.setLayoutData(
-        FormDataBuilder.builder()
-            .left()
-            .top(widgetAbove, 15)
-            .right(100, 0)
-            .bottom(hSpacer, -15)
-            .build());
+        FormDataBuilder.builder().left().top(widgetAbove, 15).right(100, 0).bottom(100, 0).build());
 
     Label wlMessage = new Label(wLoggingGroup, SWT.RIGHT);
     wlMessage.setText(BaseMessages.getString(PKG, "AbortDialog.Logging.AbortMessage.Label"));
@@ -274,15 +235,6 @@ public class AbortDialog extends BaseTransformDialog {
     wAlwaysLogRows.addSelectionListener(lsSelMod);
   }
 
-  private Image getImage() {
-    return SwtSvgImageUtil.getImage(
-        shell.getDisplay(),
-        getClass().getClassLoader(),
-        "abort.svg",
-        ConstUi.LARGE_ICON_SIZE,
-        ConstUi.LARGE_ICON_SIZE);
-  }
-
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     if (input.getRowThreshold() != null) {
@@ -296,9 +248,6 @@ public class AbortDialog extends BaseTransformDialog {
     wAbortButton.setSelection(input.isAbort());
     wAbortWithErrorButton.setSelection(input.isAbortWithError());
     wSafeStopButton.setSelection(input.isSafeStop());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void getInfo() {

@@ -289,7 +289,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlServerName);
     FormData fdlServerName = new FormData();
     fdlServerName.left = new FormAttachment(0, 0);
-    fdlServerName.top = new FormAttachment(wSelectionLine, 2 * margin);
+    fdlServerName.top = new FormAttachment(wSelectionLine, margin);
     fdlServerName.right = new FormAttachment(middle, -margin);
     wlServerName.setLayoutData(fdlServerName);
     wServerName = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -361,7 +361,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlPort);
     FormData fdlPort = new FormData();
     fdlPort.left = new FormAttachment(0, 0);
-    fdlPort.top = new FormAttachment(wlUseXOAUTH2, 2 * margin);
+    fdlPort.top = new FormAttachment(wlUseXOAUTH2, margin);
     fdlPort.right = new FormAttachment(middle, -margin);
     wlPort.setLayoutData(fdlPort);
     wPort = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -417,7 +417,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlUseProxy);
     FormData fdlUseProxy = new FormData();
     fdlUseProxy.left = new FormAttachment(0, 0);
-    fdlUseProxy.top = new FormAttachment(wPassword, 2 * margin);
+    fdlUseProxy.top = new FormAttachment(wPassword, margin);
     fdlUseProxy.right = new FormAttachment(middle, -margin);
     wlUseProxy.setLayoutData(fdlUseProxy);
     wUseProxy = new Button(wServerSettings, SWT.CHECK);
@@ -444,7 +444,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlProxyUsername);
     FormData fdlProxyUsername = new FormData();
     fdlProxyUsername.left = new FormAttachment(0, 0);
-    fdlProxyUsername.top = new FormAttachment(wlUseProxy, 2 * margin);
+    fdlProxyUsername.top = new FormAttachment(wlUseProxy, margin);
     fdlProxyUsername.right = new FormAttachment(middle, -margin);
     wlProxyUsername.setLayoutData(fdlProxyUsername);
     wProxyUsername = new TextVar(variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -574,7 +574,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlFilenamePattern);
     FormData fdlFilenamePattern = new FormData();
     fdlFilenamePattern.left = new FormAttachment(0, 0);
-    fdlFilenamePattern.top = new FormAttachment(wlCreateLocalFolder, 2 * margin);
+    fdlFilenamePattern.top = new FormAttachment(wlCreateLocalFolder, margin);
     fdlFilenamePattern.right = new FormAttachment(middle, -margin);
     wlFilenamePattern.setLayoutData(fdlFilenamePattern);
     wFilenamePattern = new TextVar(variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -584,7 +584,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     wFilenamePattern.addModifyListener(lsMod);
     FormData fdFilenamePattern = new FormData();
     fdFilenamePattern.left = new FormAttachment(middle, 0);
-    fdFilenamePattern.top = new FormAttachment(wlCreateLocalFolder, 2 * margin);
+    fdFilenamePattern.top = new FormAttachment(wlCreateLocalFolder, margin);
     fdFilenamePattern.right = new FormAttachment(100, 0);
     wFilenamePattern.setLayoutData(fdFilenamePattern);
 
@@ -626,7 +626,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlGetAttachment);
     FormData fdlGetAttachment = new FormData();
     fdlGetAttachment.left = new FormAttachment(0, 0);
-    fdlGetAttachment.top = new FormAttachment(wlGetMessage, 2 * margin);
+    fdlGetAttachment.top = new FormAttachment(wlGetMessage, margin);
     fdlGetAttachment.right = new FormAttachment(middle, -margin);
     wlGetAttachment.setLayoutData(fdlGetAttachment);
     wGetAttachment = new Button(wTargetFolder, SWT.CHECK);
@@ -654,7 +654,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlDifferentFolderForAttachment);
     FormData fdlDifferentFolderForAttachment = new FormData();
     fdlDifferentFolderForAttachment.left = new FormAttachment(0, 0);
-    fdlDifferentFolderForAttachment.top = new FormAttachment(wlGetAttachment, 2 * margin);
+    fdlDifferentFolderForAttachment.top = new FormAttachment(wlGetAttachment, margin);
     fdlDifferentFolderForAttachment.right = new FormAttachment(middle, -margin);
     wlDifferentFolderForAttachment.setLayoutData(fdlDifferentFolderForAttachment);
     wDifferentFolderForAttachment = new Button(wTargetFolder, SWT.CHECK);
@@ -682,7 +682,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlAttachmentFolder);
     FormData fdlAttachmentFolder = new FormData();
     fdlAttachmentFolder.left = new FormAttachment(0, 0);
-    fdlAttachmentFolder.top = new FormAttachment(wlDifferentFolderForAttachment, 2 * margin);
+    fdlAttachmentFolder.top = new FormAttachment(wlDifferentFolderForAttachment, margin);
     fdlAttachmentFolder.right = new FormAttachment(middle, -margin);
     wlAttachmentFolder.setLayoutData(fdlAttachmentFolder);
 
@@ -829,7 +829,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     FormData fdlListmails = new FormData();
     fdlListmails.left = new FormAttachment(0, 0);
     fdlListmails.right = new FormAttachment(middle, 0);
-    fdlListmails.top = new FormAttachment(wlPOP3Message, 2 * margin);
+    fdlListmails.top = new FormAttachment(wlPOP3Message, margin);
     wlListmails.setLayoutData(fdlListmails);
     wListmails = new CCombo(wPOP3Settings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wListmails.add(BaseMessages.getString(PKG, "ActionGetPOP.RetrieveAllMails.Label"));
@@ -839,7 +839,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wListmails);
     FormData fdListmails = new FormData();
     fdListmails.left = new FormAttachment(middle, 0);
-    fdListmails.top = new FormAttachment(wlPOP3Message, 2 * margin);
+    fdListmails.top = new FormAttachment(wlPOP3Message, margin);
     fdListmails.right = new FormAttachment(100, 0);
     wListmails.setLayoutData(fdListmails);
 
@@ -891,7 +891,7 @@ public class ActionGetPOPDialog extends ActionDialog {
 
     FormData fdPOP3Settings = new FormData();
     fdPOP3Settings.left = new FormAttachment(0, margin);
-    fdPOP3Settings.top = new FormAttachment(wlPOP3Message, 2 * margin);
+    fdPOP3Settings.top = new FormAttachment(wlPOP3Message, margin);
     fdPOP3Settings.right = new FormAttachment(100, -margin);
     wPOP3Settings.setLayoutData(fdPOP3Settings);
     // ///////////////////////////////////////////////////////////
@@ -983,7 +983,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     FormData fdlIMAPListmails = new FormData();
     fdlIMAPListmails.left = new FormAttachment(0, 0);
     fdlIMAPListmails.right = new FormAttachment(middle, -margin);
-    fdlIMAPListmails.top = new FormAttachment(wlIncludeSubFolders, 2 * margin);
+    fdlIMAPListmails.top = new FormAttachment(wlIncludeSubFolders, margin);
     wlIMAPListmails.setLayoutData(fdlIMAPListmails);
     wIMAPListmails = new CCombo(wIMAPSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wIMAPListmails.setItems(MailConnectionMeta.valueIMAPListDesc);
@@ -991,7 +991,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wIMAPListmails);
     FormData fdIMAPListmails = new FormData();
     fdIMAPListmails.left = new FormAttachment(middle, 0);
-    fdIMAPListmails.top = new FormAttachment(wlIncludeSubFolders, 2 * margin);
+    fdIMAPListmails.top = new FormAttachment(wlIncludeSubFolders, margin);
     fdIMAPListmails.right = new FormAttachment(100, 0);
     wIMAPListmails.setLayoutData(fdIMAPListmails);
 
@@ -1030,7 +1030,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     FormData fdlAfterGetIMAP = new FormData();
     fdlAfterGetIMAP.left = new FormAttachment(0, 0);
     fdlAfterGetIMAP.right = new FormAttachment(middle, -margin);
-    fdlAfterGetIMAP.top = new FormAttachment(wIMAPFirstmails, 2 * margin);
+    fdlAfterGetIMAP.top = new FormAttachment(wIMAPFirstmails, margin);
     wlAfterGetIMAP.setLayoutData(fdlAfterGetIMAP);
     wAfterGetIMAP = new CCombo(wIMAPSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wAfterGetIMAP.setItems(MailConnectionMeta.afterGetIMAPDesc);
@@ -1039,7 +1039,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wAfterGetIMAP);
     FormData fdAfterGetIMAP = new FormData();
     fdAfterGetIMAP.left = new FormAttachment(middle, 0);
-    fdAfterGetIMAP.top = new FormAttachment(wIMAPFirstmails, 2 * margin);
+    fdAfterGetIMAP.top = new FormAttachment(wIMAPFirstmails, margin);
     fdAfterGetIMAP.right = new FormAttachment(100, 0);
     wAfterGetIMAP.setLayoutData(fdAfterGetIMAP);
 
@@ -1121,7 +1121,7 @@ public class ActionGetPOPDialog extends ActionDialog {
 
     FormData fdIMAPSettings = new FormData();
     fdIMAPSettings.left = new FormAttachment(0, margin);
-    fdIMAPSettings.top = new FormAttachment(wPOP3Settings, 2 * margin);
+    fdIMAPSettings.top = new FormAttachment(wPOP3Settings, margin);
     fdIMAPSettings.right = new FormAttachment(100, -margin);
     wIMAPSettings.setLayoutData(fdIMAPSettings);
     // ///////////////////////////////////////////////////////////
@@ -1204,7 +1204,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlRecipient);
     FormData fdlRecipient = new FormData();
     fdlRecipient.left = new FormAttachment(0, 0);
-    fdlRecipient.top = new FormAttachment(wSender, 2 * margin);
+    fdlRecipient.top = new FormAttachment(wSender, margin);
     fdlRecipient.right = new FormAttachment(middle, -margin);
     wlRecipient.setLayoutData(fdlRecipient);
 
@@ -1233,7 +1233,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlSubject);
     FormData fdlSubject = new FormData();
     fdlSubject.left = new FormAttachment(0, 0);
-    fdlSubject.top = new FormAttachment(wRecipient, 2 * margin);
+    fdlSubject.top = new FormAttachment(wRecipient, margin);
     fdlSubject.right = new FormAttachment(middle, -margin);
     wlSubject.setLayoutData(fdlSubject);
 
@@ -1257,7 +1257,7 @@ public class ActionGetPOPDialog extends ActionDialog {
 
     FormData fdHeader = new FormData();
     fdHeader.left = new FormAttachment(0, margin);
-    fdHeader.top = new FormAttachment(wRecipient, 2 * margin);
+    fdHeader.top = new FormAttachment(wRecipient, margin);
     fdHeader.right = new FormAttachment(100, -margin);
     wHeader.setLayoutData(fdHeader);
     // ///////////////////////////////////////////////////////////
@@ -1435,7 +1435,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     opento.setImage(GuiResource.getInstance().getImageCalendar());
     opento.setToolTipText(BaseMessages.getString(PKG, "ActionGetPOP.OpenCalendar"));
     FormData fdlButtonto = new FormData();
-    fdlButtonto.top = new FormAttachment(wReadFrom, 2 * margin);
+    fdlButtonto.top = new FormAttachment(wReadFrom, margin);
     fdlButtonto.right = new FormAttachment(100, 0);
     opento.setLayoutData(fdlButtonto);
     opento.addSelectionListener(
@@ -1483,7 +1483,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     PropsUi.setLook(wlReadTo);
     FormData fdlReadTo = new FormData();
     fdlReadTo.left = new FormAttachment(0, 0);
-    fdlReadTo.top = new FormAttachment(wReadFrom, 2 * margin);
+    fdlReadTo.top = new FormAttachment(wReadFrom, margin);
     fdlReadTo.right = new FormAttachment(middle, -margin);
     wlReadTo.setLayoutData(fdlReadTo);
     wReadTo = new TextVar(variables, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -1492,7 +1492,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     wReadTo.addModifyListener(lsMod);
     FormData fdReadTo = new FormData();
     fdReadTo.left = new FormAttachment(middle, 0);
-    fdReadTo.top = new FormAttachment(wReadFrom, 2 * margin);
+    fdReadTo.top = new FormAttachment(wReadFrom, margin);
     fdReadTo.right = new FormAttachment(opento, -margin);
     wReadTo.setLayoutData(fdReadTo);
 
@@ -1524,7 +1524,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();

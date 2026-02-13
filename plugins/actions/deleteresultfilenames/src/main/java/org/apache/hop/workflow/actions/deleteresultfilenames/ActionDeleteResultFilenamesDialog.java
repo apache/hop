@@ -147,7 +147,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
-    fdlWildcard.top = new FormAttachment(wlSpecifyWildcard, 2 * margin);
+    fdlWildcard.top = new FormAttachment(wlSpecifyWildcard, margin);
     fdlWildcard.right = new FormAttachment(middle, -margin);
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -157,7 +157,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog {
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
-    fdWildcard.top = new FormAttachment(wlSpecifyWildcard, 2 * margin);
+    fdWildcard.top = new FormAttachment(wlSpecifyWildcard, margin);
     fdWildcard.right = new FormAttachment(100, -margin);
     wWildcard.setLayoutData(fdWildcard);
 

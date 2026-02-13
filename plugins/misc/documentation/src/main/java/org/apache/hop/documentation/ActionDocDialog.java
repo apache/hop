@@ -94,7 +94,7 @@ public class ActionDocDialog extends ActionDialog {
     fdWidgets.left = new FormAttachment(0, 0);
     fdWidgets.right = new FormAttachment(100, 0);
     fdWidgets.top = new FormAttachment(wName, margin);
-    fdWidgets.bottom = new FormAttachment(wOk, -2 * margin);
+    fdWidgets.bottom = new FormAttachment(wOk, -margin);
     wWidgets.setLayoutData(fdWidgets);
 
     // The name of the action

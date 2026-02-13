@@ -191,7 +191,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.left = new FormAttachment(0, 0); // First one in the left top corner
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -margin * 2);
+    fdFields.bottom = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
 
     setWidgetsContent();

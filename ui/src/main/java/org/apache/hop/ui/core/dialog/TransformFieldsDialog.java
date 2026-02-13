@@ -219,7 +219,7 @@ public class TransformFieldsDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(buttons[0], -margin * 2);
+    fdFields.bottom = new FormAttachment(buttons[0], -margin);
     wFields.setLayoutData(fdFields);
     wFields.getTable().addListener(SWT.MouseDoubleClick, e -> edit());
 

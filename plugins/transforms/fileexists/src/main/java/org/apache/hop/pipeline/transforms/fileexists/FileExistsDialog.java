@@ -41,10 +41,10 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class FileExistsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FileExistsMeta.class;
@@ -70,53 +70,14 @@ public class FileExistsDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "FileExistsDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "FileExistsDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "FileExistsDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     // filename field
     Label wlFileName = new Label(shell, SWT.RIGHT);
@@ -125,7 +86,7 @@ public class FileExistsDialog extends BaseTransformDialog {
     FormData fdlFileName = new FormData();
     fdlFileName.left = new FormAttachment(0, 0);
     fdlFileName.right = new FormAttachment(middle, -margin);
-    fdlFileName.top = new FormAttachment(wTransformName, margin);
+    fdlFileName.top = new FormAttachment(lastControl, margin);
     wlFileName.setLayoutData(fdlFileName);
 
     wFileName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
@@ -133,7 +94,7 @@ public class FileExistsDialog extends BaseTransformDialog {
     wFileName.addModifyListener(lsMod);
     FormData fdFileName = new FormData();
     fdFileName.left = new FormAttachment(middle, 0);
-    fdFileName.top = new FormAttachment(wTransformName, margin);
+    fdFileName.top = new FormAttachment(lastControl, margin);
     fdFileName.right = new FormAttachment(100, -margin);
     wFileName.setLayoutData(fdFileName);
     wFileName.addFocusListener(
@@ -160,7 +121,7 @@ public class FileExistsDialog extends BaseTransformDialog {
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
-    fdlResult.top = new FormAttachment(wFileName, margin * 2);
+    fdlResult.top = new FormAttachment(wFileName, margin);
     wlResult.setLayoutData(fdlResult);
 
     wResult = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -169,7 +130,7 @@ public class FileExistsDialog extends BaseTransformDialog {
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
-    fdResult.top = new FormAttachment(wFileName, margin * 2);
+    fdResult.top = new FormAttachment(wFileName, margin);
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
 
@@ -238,7 +199,7 @@ public class FileExistsDialog extends BaseTransformDialog {
     wlFileType.setText(BaseMessages.getString(PKG, "FileExistsDialog.FileTypeField.Label"));
     PropsUi.setLook(wlFileType);
     FormData fdlFileType = new FormData();
-    fdlFileType.left = new FormAttachment(wInclFileType, 2 * margin);
+    fdlFileType.left = new FormAttachment(wInclFileType, margin);
     fdlFileType.top = new FormAttachment(wResult, margin);
     wlFileType.setLayoutData(fdlFileType);
 
@@ -256,7 +217,7 @@ public class FileExistsDialog extends BaseTransformDialog {
     fdAdditionalFields.left = new FormAttachment(0, margin);
     fdAdditionalFields.top = new FormAttachment(wAddResult, margin);
     fdAdditionalFields.right = new FormAttachment(100, -margin);
-    fdAdditionalFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdAdditionalFields.bottom = new FormAttachment(wOk, -margin);
     wAdditionalFields.setLayoutData(fdAdditionalFields);
 
     // ///////////////////////////////
@@ -266,7 +227,7 @@ public class FileExistsDialog extends BaseTransformDialog {
     getData();
     activeFileType();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -290,9 +251,6 @@ public class FileExistsDialog extends BaseTransformDialog {
       wFileType.setText(input.getFiletypefieldname());
     }
     wAddResult.setSelection(input.isAddresultfilenames());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

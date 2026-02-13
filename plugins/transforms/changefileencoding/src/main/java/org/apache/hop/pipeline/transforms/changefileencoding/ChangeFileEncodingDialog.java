@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class ChangeFileEncodingDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ChangeFileEncodingDialog.class;
@@ -78,54 +77,12 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ChangeFileEncodingDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ChangeFileEncodingDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the very bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "ChangeFileEncodingDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // /////////////////////////////////
     // START OF SourceFile GROUP
@@ -148,7 +105,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
     FormData fdlFileName = new FormData();
     fdlFileName.left = new FormAttachment(0, 0);
     fdlFileName.right = new FormAttachment(middle, -margin);
-    fdlFileName.top = new FormAttachment(wTransformName, margin);
+    fdlFileName.top = new FormAttachment(wSpacer, margin);
     wlFileName.setLayoutData(fdlFileName);
 
     wFileName = new CCombo(wSourceFileGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -157,7 +114,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
     wFileName.addModifyListener(lsMod);
     FormData fdfileName = new FormData();
     fdfileName.left = new FormAttachment(middle, 0);
-    fdfileName.top = new FormAttachment(wTransformName, margin);
+    fdfileName.top = new FormAttachment(wSpacer, margin);
     fdfileName.right = new FormAttachment(100, -margin);
     wFileName.setLayoutData(fdfileName);
     wFileName.addListener(SWT.FocusIn, e -> get());
@@ -204,7 +161,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
 
     FormData fdSourceFileGroup = new FormData();
     fdSourceFileGroup.left = new FormAttachment(0, margin);
-    fdSourceFileGroup.top = new FormAttachment(wTransformName, margin);
+    fdSourceFileGroup.top = new FormAttachment(wSpacer, margin);
     fdSourceFileGroup.right = new FormAttachment(100, -margin);
     wSourceFileGroup.setLayoutData(fdSourceFileGroup);
 
@@ -323,7 +280,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
     fdTargetFileGroup.left = new FormAttachment(0, margin);
     fdTargetFileGroup.top = new FormAttachment(wSourceFileGroup, margin);
     fdTargetFileGroup.right = new FormAttachment(100, -margin);
-    fdTargetFileGroup.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTargetFileGroup.bottom = new FormAttachment(wOk, -margin);
     wTargetFileGroup.setLayoutData(fdTargetFileGroup);
 
     // ///////////////////////////////////////////////////////////
@@ -331,7 +288,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
     // ///////////////////////////////////////////////////////////
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -359,9 +316,6 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
     wSourceAddResult.setSelection(input.isAddSourceResultFilenames());
     wTargetAddResult.setSelection(input.isAddTargetResultFilenames());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

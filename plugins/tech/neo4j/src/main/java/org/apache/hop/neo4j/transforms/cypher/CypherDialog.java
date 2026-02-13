@@ -85,11 +85,6 @@ public class CypherDialog extends BaseTransformDialog {
 
   private CTabFolder wTabFolder;
 
-  private Text wTransformName;
-
-  private int middle;
-  private int margin;
-
   private MetaSelectionLine<NeoConnection> wConnection;
   private TextVar wBatchSize;
   private Button wReadOnly;
@@ -122,51 +117,9 @@ public class CypherDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "Cypher.Transform.Name"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    shell.setLayout(createFormLayout());
-    shell.setText(BaseMessages.getString(PKG, "Cypher.Transform.Name"));
-
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // Buttons go at the bottom...
-    //
-    // Some buttons
-    // Position the buttons at the bottom of the dialog.
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText("Transform name");
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, 0);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -179,15 +132,15 @@ public class CypherDialog extends BaseTransformDialog {
     wTabFolder.setLayoutData(
         new FormDataBuilder()
             .left()
-            .top(new FormAttachment(wTransformName, margin))
+            .top(new FormAttachment(wSpacer, margin))
             .right()
-            .bottom(new FormAttachment(wOk, -2 * margin))
+            .bottom(new FormAttachment(wOk, -margin))
             .result());
 
     getData();
 
     wTabFolder.setSelection(0);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -230,7 +183,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
-    fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchSize);
@@ -247,7 +200,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlReadOnly = new FormData();
     fdlReadOnly.left = new FormAttachment(0, 0);
     fdlReadOnly.right = new FormAttachment(middle, -margin);
-    fdlReadOnly.top = new FormAttachment(lastControl, 2 * margin);
+    fdlReadOnly.top = new FormAttachment(lastControl, margin);
     wlReadOnly.setLayoutData(fdlReadOnly);
     wReadOnly = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wReadOnly);
@@ -264,7 +217,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlRetry = new FormData();
     fdlRetry.left = new FormAttachment(0, 0);
     fdlRetry.right = new FormAttachment(middle, -margin);
-    fdlRetry.top = new FormAttachment(lastControl, 2 * margin);
+    fdlRetry.top = new FormAttachment(lastControl, margin);
     wlRetry.setLayoutData(fdlRetry);
     wRetryOnDisconnect = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wRetryOnDisconnect);
@@ -281,7 +234,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlNrRetriesOnError = new FormData();
     fdlNrRetriesOnError.left = new FormAttachment(0, 0);
     fdlNrRetriesOnError.right = new FormAttachment(middle, -margin);
-    fdlNrRetriesOnError.top = new FormAttachment(lastControl, 2 * margin);
+    fdlNrRetriesOnError.top = new FormAttachment(lastControl, margin);
     wlNrRetriesOnError.setLayoutData(fdlNrRetriesOnError);
     wNrRetriesOnError = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wNrRetriesOnError);
@@ -298,7 +251,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlCypherFromField = new FormData();
     fdlCypherFromField.left = new FormAttachment(0, 0);
     fdlCypherFromField.right = new FormAttachment(middle, -margin);
-    fdlCypherFromField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlCypherFromField.top = new FormAttachment(lastControl, margin);
     wlCypherFromField.setLayoutData(fdlCypherFromField);
     wCypherFromField = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wCypherFromField);
@@ -323,7 +276,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlCypherField = new FormData();
     fdlCypherField.left = new FormAttachment(0, 0);
     fdlCypherField.right = new FormAttachment(middle, -margin);
-    fdlCypherField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlCypherField.top = new FormAttachment(lastControl, margin);
     wlCypherField.setLayoutData(fdlCypherField);
     wCypherField = new CCombo(wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCypherField);
@@ -342,7 +295,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlUnwind = new FormData();
     fdlUnwind.left = new FormAttachment(0, 0);
     fdlUnwind.right = new FormAttachment(middle, -margin);
-    fdlUnwind.top = new FormAttachment(lastControl, 2 * margin);
+    fdlUnwind.top = new FormAttachment(lastControl, margin);
     wlUnwind.setLayoutData(fdlUnwind);
     wUnwind = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wUnwind);
@@ -368,7 +321,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlUnwindMap = new FormData();
     fdlUnwindMap.left = new FormAttachment(0, 0);
     fdlUnwindMap.right = new FormAttachment(middle, -margin);
-    fdlUnwindMap.top = new FormAttachment(lastControl, 2 * margin);
+    fdlUnwindMap.top = new FormAttachment(lastControl, margin);
     wlUnwindMap.setLayoutData(fdlUnwindMap);
     wUnwindMap = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wUnwindMap);
@@ -387,7 +340,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlReturnGraph = new FormData();
     fdlReturnGraph.left = new FormAttachment(0, 0);
     fdlReturnGraph.right = new FormAttachment(middle, -margin);
-    fdlReturnGraph.top = new FormAttachment(lastControl, 2 * margin);
+    fdlReturnGraph.top = new FormAttachment(lastControl, margin);
     wlReturnGraph.setLayoutData(fdlReturnGraph);
     wReturnGraph = new Button(wOptionsComp, SWT.CHECK | SWT.BORDER);
     wReturnGraph.setToolTipText(returnGraphTooltipText);
@@ -412,7 +365,7 @@ public class CypherDialog extends BaseTransformDialog {
     FormData fdlReturnGraphField = new FormData();
     fdlReturnGraphField.left = new FormAttachment(0, 0);
     fdlReturnGraphField.right = new FormAttachment(middle, -margin);
-    fdlReturnGraphField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlReturnGraphField.top = new FormAttachment(lastControl, margin);
     wlReturnGraphField.setLayoutData(fdlReturnGraphField);
     wReturnGraphField = new TextVar(variables, wOptionsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wReturnGraphField);
@@ -642,8 +595,6 @@ public class CypherDialog extends BaseTransformDialog {
   }
 
   public void getData() {
-
-    wTransformName.setText(Const.NVL(transformName, ""));
     wConnection.setText(Const.NVL(input.getConnectionName(), ""));
 
     wReadOnly.setSelection(input.isReadOnly());

@@ -167,7 +167,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     FormData fdlCompareOnly = new FormData();
     fdlCompareOnly.left = new FormAttachment(0, 0);
     fdlCompareOnly.right = new FormAttachment(middle, -margin);
-    fdlCompareOnly.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
+    fdlCompareOnly.top = new FormAttachment(wlIncludeSubfolders, margin);
     wlCompareOnly.setLayoutData(fdlCompareOnly);
     wCompareOnly = new CCombo(wSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wCompareOnly.add(BaseMessages.getString(PKG, "ActionFoldersCompare.All_CompareOnly.Label"));
@@ -244,7 +244,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     PropsUi.setLook(wlCompareFileContent);
     FormData fdlCompareFileContent = new FormData();
     fdlCompareFileContent.left = new FormAttachment(0, 0);
-    fdlCompareFileContent.top = new FormAttachment(wlCompareFileSize, 2 * margin);
+    fdlCompareFileContent.top = new FormAttachment(wlCompareFileSize, margin);
     fdlCompareFileContent.right = new FormAttachment(middle, -margin);
     wlCompareFileContent.setLayoutData(fdlCompareFileContent);
     wCompareFileContent = new Button(wSettings, SWT.CHECK);
@@ -280,7 +280,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     PropsUi.setLook(wlFilename1);
     FormData fdlFilename1 = new FormData();
     fdlFilename1.left = new FormAttachment(0, 0);
-    fdlFilename1.top = new FormAttachment(wSettings, 2 * margin);
+    fdlFilename1.top = new FormAttachment(wSettings, margin);
     fdlFilename1.right = new FormAttachment(middle, -margin);
     wlFilename1.setLayoutData(fdlFilename1);
 
@@ -290,7 +290,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     wbDirectory1.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.FolderBrowse.Label"));
     FormData fdbDirectory1 = new FormData();
     fdbDirectory1.right = new FormAttachment(100, -margin);
-    fdbDirectory1.top = new FormAttachment(wSettings, 2 * margin);
+    fdbDirectory1.top = new FormAttachment(wSettings, margin);
     wbDirectory1.setLayoutData(fdbDirectory1);
 
     wbDirectory1.addSelectionListener(
@@ -307,7 +307,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     wbFilename1.setText(BaseMessages.getString(PKG, "ActionFoldersCompare.FileBrowse.Label"));
     FormData fdbFilename1 = new FormData();
     fdbFilename1.right = new FormAttachment(wbDirectory1, -margin);
-    fdbFilename1.top = new FormAttachment(wSettings, 2 * margin);
+    fdbFilename1.top = new FormAttachment(wSettings, margin);
     wbFilename1.setLayoutData(fdbFilename1);
 
     wFilename1 = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -315,7 +315,7 @@ public class ActionFoldersCompareDialog extends ActionDialog {
     wFilename1.addModifyListener(lsMod);
     FormData fdFilename1 = new FormData();
     fdFilename1.left = new FormAttachment(middle, 0);
-    fdFilename1.top = new FormAttachment(wSettings, 2 * margin);
+    fdFilename1.top = new FormAttachment(wSettings, margin);
     fdFilename1.right = new FormAttachment(wbFilename1, -margin);
     wFilename1.setLayoutData(fdFilename1);
 

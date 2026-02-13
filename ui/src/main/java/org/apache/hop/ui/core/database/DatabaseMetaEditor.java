@@ -310,7 +310,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     PropsUi.setLook(wlDriverInfo);
     wlDriverInfo.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.InstalledDriver"));
     FormData fdlDriverInfo = new FormData();
-    fdlDriverInfo.top = new FormAttachment(lastControl, margin * 2);
+    fdlDriverInfo.top = new FormAttachment(lastControl, margin);
     fdlDriverInfo.left = new FormAttachment(0, 0);
     fdlDriverInfo.right = new FormAttachment(middle, -margin);
     wlDriverInfo.setLayoutData(fdlDriverInfo);
@@ -332,7 +332,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       PropsUi.setLook(wlUsername);
       wlUsername.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Username"));
       FormData fdlUsername = new FormData();
-      fdlUsername.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
+      fdlUsername.top = new FormAttachment(lastControl, margin); // At the bottom of this tab
       fdlUsername.left = new FormAttachment(0, 0); // First one in the left top corner
       fdlUsername.right = new FormAttachment(middle, -margin);
       wlUsername.setLayoutData(fdlUsername);
@@ -354,7 +354,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       PropsUi.setLook(wlPassword);
       wlPassword.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.Password"));
       FormData fdlPassword = new FormData();
-      fdlPassword.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
+      fdlPassword.top = new FormAttachment(lastControl, margin); // At the bottom of this tab
       fdlPassword.left = new FormAttachment(0, 0); // First one in the left top corner
       fdlPassword.right = new FormAttachment(middle, -margin);
       wlPassword.setLayoutData(fdlPassword);
@@ -414,7 +414,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       PropsUi.setLook(wlManualUrl);
       wlManualUrl.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.ManualUrl"));
       FormData fdlManualUrl = new FormData();
-      fdlManualUrl.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
+      fdlManualUrl.top = new FormAttachment(lastControl, margin); // At the bottom of this tab
       fdlManualUrl.left = new FormAttachment(0, 0); // First one in the left top corner
       fdlManualUrl.right = new FormAttachment(middle, -margin);
       wlManualUrl.setLayoutData(fdlManualUrl);
@@ -769,7 +769,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
             props);
     PropsUi.setLook(wOptions);
     FormData fdOptions = new FormData();
-    fdOptions.top = new FormAttachment(wlOptions, margin * 2);
+    fdOptions.top = new FormAttachment(wlOptions, margin);
     fdOptions.bottom = new FormAttachment(100, 0);
     fdOptions.left = new FormAttachment(0, 0); // To the right of the label
     fdOptions.right = new FormAttachment(100, 0);

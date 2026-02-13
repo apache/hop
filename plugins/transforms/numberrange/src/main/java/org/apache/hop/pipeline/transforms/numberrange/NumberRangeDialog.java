@@ -38,8 +38,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -67,38 +65,17 @@ public class NumberRangeDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "NumberRangeDialog.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "NumberRangeDialog.Title"));
-
-    // Some buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
-
     // Create controls
-    wTransformName =
-        createLine(lsMod, BaseMessages.getString(PKG, "NumberRangeDialog.TransformName"), null);
     inputFieldControl =
         createLineCombo(
-            lsMod, BaseMessages.getString(PKG, "NumberRangeDialog.InputField"), wTransformName);
+            lsMod, BaseMessages.getString(PKG, "NumberRangeDialog.InputField"), wSpacer);
     outputFieldControl =
         createLine(
             lsMod, BaseMessages.getString(PKG, "NumberRangeDialog.OutputField"), inputFieldControl);
@@ -129,7 +106,7 @@ public class NumberRangeDialog extends BaseTransformDialog {
 
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -252,9 +229,6 @@ public class NumberRangeDialog extends BaseTransformDialog {
   // Read data from input (TextFileInputInfo)
   public void getData() {
     // Get fields
-
-    wTransformName.setText(transformName);
-
     String inputField = input.getInputField();
     if (inputField != null) {
       inputFieldControl.setText(inputField);

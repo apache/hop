@@ -228,7 +228,7 @@ public class ActionPGPVerifyDialog extends ActionDialog {
     PropsUi.setLook(wlDetachedFilename);
     FormData fdlDetachedFilename = new FormData();
     fdlDetachedFilename.left = new FormAttachment(0, 0);
-    fdlDetachedFilename.top = new FormAttachment(wlUseDetachedSignature, 2 * margin);
+    fdlDetachedFilename.top = new FormAttachment(wlUseDetachedSignature, margin);
     fdlDetachedFilename.right = new FormAttachment(middle, -margin);
     wlDetachedFilename.setLayoutData(fdlDetachedFilename);
 
@@ -281,7 +281,7 @@ public class ActionPGPVerifyDialog extends ActionDialog {
     fdSettings.left = new FormAttachment(0, margin);
     fdSettings.top = new FormAttachment(wName, margin);
     fdSettings.right = new FormAttachment(100, -margin);
-    fdSettings.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSettings.bottom = new FormAttachment(wOk, -margin);
     wSettings.setLayoutData(fdSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF Advanced SETTINGS GROUP

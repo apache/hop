@@ -73,7 +73,7 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     PropsUi.setLook(wlName);
     wlName.setText("MongoDB Connection name");
     FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, margin * 2);
+    fdlName.top = new FormAttachment(0, margin);
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);

@@ -168,7 +168,7 @@ public class ActionSftpDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
@@ -212,7 +212,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wlGetPrevious);
     FormData fdlGetPrevious = new FormData();
     fdlGetPrevious.left = new FormAttachment(0, 0);
-    fdlGetPrevious.top = new FormAttachment(wSourceFiles, 2 * margin);
+    fdlGetPrevious.top = new FormAttachment(wSourceFiles, margin);
     fdlGetPrevious.right = new FormAttachment(middle, -margin);
     wlGetPrevious.setLayoutData(fdlGetPrevious);
     wGetPrevious = new Button(wSourceFiles, SWT.CHECK);
@@ -238,7 +238,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wlScpDirectory);
     FormData fdlScpDirectory = new FormData();
     fdlScpDirectory.left = new FormAttachment(0, 0);
-    fdlScpDirectory.top = new FormAttachment(wlGetPrevious, 2 * margin);
+    fdlScpDirectory.top = new FormAttachment(wlGetPrevious, margin);
     fdlScpDirectory.right = new FormAttachment(middle, -margin);
     wlScpDirectory.setLayoutData(fdlScpDirectory);
 
@@ -249,7 +249,7 @@ public class ActionSftpDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionSftp.TestFolderExists.Label"));
     FormData fdbTestChangeFolderExists = new FormData();
     fdbTestChangeFolderExists.right = new FormAttachment(100, 0);
-    fdbTestChangeFolderExists.top = new FormAttachment(wGetPrevious, 2 * margin);
+    fdbTestChangeFolderExists.top = new FormAttachment(wGetPrevious, margin);
     wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
     wbTestChangeFolderExists.addListener(SWT.Selection, e -> checkRemoteFolder());
 
@@ -263,7 +263,7 @@ public class ActionSftpDialog extends ActionDialog {
     wSftpDirectory.addModifyListener(lsMod);
     FormData fdScpDirectory = new FormData();
     fdScpDirectory.left = new FormAttachment(middle, 0);
-    fdScpDirectory.top = new FormAttachment(wGetPrevious, 2 * margin);
+    fdScpDirectory.top = new FormAttachment(wGetPrevious, margin);
     fdScpDirectory.right = new FormAttachment(wbTestChangeFolderExists, -margin);
     wSftpDirectory.setLayoutData(fdScpDirectory);
 
@@ -310,7 +310,7 @@ public class ActionSftpDialog extends ActionDialog {
 
     FormData fdSourceFiles = new FormData();
     fdSourceFiles.left = new FormAttachment(0, margin);
-    fdSourceFiles.top = new FormAttachment(0, 2 * margin);
+    fdSourceFiles.top = new FormAttachment(0, margin);
     fdSourceFiles.right = new FormAttachment(100, -margin);
     wSourceFiles.setLayoutData(fdSourceFiles);
     // ///////////////////////////////////////////////////////////
@@ -390,7 +390,7 @@ public class ActionSftpDialog extends ActionDialog {
     FormData fdlPreserveTimestamp = new FormData();
     fdlPreserveTimestamp.left = new FormAttachment(0, 0);
     fdlPreserveTimestamp.right = new FormAttachment(middle, -margin);
-    fdlPreserveTimestamp.top = new FormAttachment(wCreateTargetFolder, margin * 2);
+    fdlPreserveTimestamp.top = new FormAttachment(wCreateTargetFolder, margin);
     wlPreserveTimestamp.setLayoutData(fdlPreserveTimestamp);
     wPreserveTimestamp = new CheckBoxVar(variables, wTargetFiles, SWT.CHECK, "");
     wPreserveTimestamp.setToolTipText(
@@ -580,7 +580,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wlKeyFilename);
     FormData fdlKeyFilename = new FormData();
     fdlKeyFilename.left = new FormAttachment(0, 0);
-    fdlKeyFilename.top = new FormAttachment(wlUsePublicKey, 2 * margin);
+    fdlKeyFilename.top = new FormAttachment(wlUsePublicKey, margin);
     fdlKeyFilename.right = new FormAttachment(middle, -margin);
     wlKeyFilename.setLayoutData(fdlKeyFilename);
 
@@ -632,7 +632,7 @@ public class ActionSftpDialog extends ActionDialog {
     FormData fdlProxyType = new FormData();
     fdlProxyType.left = new FormAttachment(0, 0);
     fdlProxyType.right = new FormAttachment(middle, -margin);
-    fdlProxyType.top = new FormAttachment(wKeyfilePass, 2 * margin);
+    fdlProxyType.top = new FormAttachment(wKeyfilePass, margin);
     wlProxyType.setLayoutData(fdlProxyType);
 
     wProxyType = new CCombo(wServerSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -642,7 +642,7 @@ public class ActionSftpDialog extends ActionDialog {
     PropsUi.setLook(wProxyType);
     FormData fdProxyType = new FormData();
     fdProxyType.left = new FormAttachment(middle, 0);
-    fdProxyType.top = new FormAttachment(wKeyfilePass, 2 * margin);
+    fdProxyType.top = new FormAttachment(wKeyfilePass, margin);
     fdProxyType.right = new FormAttachment(100, 0);
     wProxyType.setLayoutData(fdProxyType);
     wProxyType.addSelectionListener(

@@ -149,7 +149,7 @@ public class ActionSqlDialog extends ActionDialog {
     PropsUi.setLook(wlSqlFromFile);
     FormData fdlSqlFromFile = new FormData();
     fdlSqlFromFile.left = new FormAttachment(0, 0);
-    fdlSqlFromFile.top = new FormAttachment(wConnection, 2 * margin);
+    fdlSqlFromFile.top = new FormAttachment(wConnection, margin);
     fdlSqlFromFile.right = new FormAttachment(middle, -margin);
     wlSqlFromFile.setLayoutData(fdlSqlFromFile);
     wSqlFromFile = new Button(shell, SWT.CHECK);
@@ -173,7 +173,7 @@ public class ActionSqlDialog extends ActionDialog {
     PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wlSqlFromFile, 2 * margin);
+    fdlFilename.top = new FormAttachment(wlSqlFromFile, margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
@@ -235,7 +235,7 @@ public class ActionSqlDialog extends ActionDialog {
     PropsUi.setLook(wlUseSubs);
     FormData fdlUseSubs = new FormData();
     fdlUseSubs.left = new FormAttachment(0, 0);
-    fdlUseSubs.top = new FormAttachment(wlUseOneStatement, 2 * margin);
+    fdlUseSubs.top = new FormAttachment(wlUseOneStatement, margin);
     fdlUseSubs.right = new FormAttachment(middle, -margin);
     wlUseSubs.setLayoutData(fdlUseSubs);
     wUseSubs = new Button(shell, SWT.CHECK);

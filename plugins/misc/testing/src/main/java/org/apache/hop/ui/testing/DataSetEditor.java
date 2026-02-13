@@ -168,7 +168,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     PropsUi.setLook(wlFieldMapping);
     FormData fdlUpIns = new FormData();
     fdlUpIns.left = new FormAttachment(0, 0);
-    fdlUpIns.top = new FormAttachment(wBaseFilename, margin * 2);
+    fdlUpIns.top = new FormAttachment(wBaseFilename, margin);
     wlFieldMapping.setLayoutData(fdlUpIns);
 
     // the field mapping grid in between
@@ -220,7 +220,7 @@ public class DataSetEditor extends MetadataEditor<DataSet> {
     fdFieldMapping.left = new FormAttachment(0, 0);
     fdFieldMapping.top = new FormAttachment(wlFieldMapping, margin);
     fdFieldMapping.right = new FormAttachment(100, 0);
-    fdFieldMapping.bottom = new FormAttachment(100, -2 * margin);
+    fdFieldMapping.bottom = new FormAttachment(100, -margin);
     wFieldMapping.setLayoutData(fdFieldMapping);
 
     this.setWidgetsContent();

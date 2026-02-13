@@ -81,43 +81,12 @@ public class UniqueRowsDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "UniqueRowsDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // ///////////////////////////////
     // START OF Settings GROUP //
@@ -137,7 +106,7 @@ public class UniqueRowsDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCount);
     FormData fdlCount = new FormData();
     fdlCount.left = new FormAttachment(0, 0);
-    fdlCount.top = new FormAttachment(wTransformName, margin);
+    fdlCount.top = new FormAttachment(0, margin);
     fdlCount.right = new FormAttachment(middle, -margin);
     wlCount.setLayoutData(fdlCount);
     wCount = new Button(wSettings, SWT.CHECK);
@@ -159,14 +128,14 @@ public class UniqueRowsDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCountField);
     FormData fdlCountField = new FormData();
     fdlCountField.left = new FormAttachment(wCount, margin);
-    fdlCountField.top = new FormAttachment(wTransformName, margin);
+    fdlCountField.top = new FormAttachment(0, margin);
     wlCountField.setLayoutData(fdlCountField);
     wCountField = new Text(wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCountField);
     wCountField.addModifyListener(lsMod);
     FormData fdCountField = new FormData();
     fdCountField.left = new FormAttachment(wlCountField, margin);
-    fdCountField.top = new FormAttachment(wTransformName, margin);
+    fdCountField.top = new FormAttachment(0, margin);
     fdCountField.right = new FormAttachment(100, 0);
     wCountField.setLayoutData(fdCountField);
 
@@ -212,22 +181,13 @@ public class UniqueRowsDialog extends BaseTransformDialog {
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
-    fdSettings.top = new FormAttachment(wTransformName, margin);
+    fdSettings.top = new FormAttachment(wSpacer, margin);
     fdSettings.right = new FormAttachment(100, -margin);
     wSettings.setLayoutData(fdSettings);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
     // ///////////////////////////////////////////////////////////
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Get.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Fields.Label"));
@@ -267,7 +227,7 @@ public class UniqueRowsDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(100, -50);
     wFields.setLayoutData(fdFields);
 
     //
@@ -292,14 +252,9 @@ public class UniqueRowsDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wGet.addListener(SWT.Selection, e -> get());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -344,9 +299,6 @@ public class UniqueRowsDialog extends BaseTransformDialog {
     }
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

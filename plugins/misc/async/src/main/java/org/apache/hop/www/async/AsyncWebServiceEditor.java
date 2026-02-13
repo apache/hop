@@ -130,7 +130,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, -margin);
-    fdlFilename.top = new FormAttachment(lastControl, 2 * margin);
+    fdlFilename.top = new FormAttachment(lastControl, margin);
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
@@ -193,7 +193,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     FormData fdlStatusVars = new FormData();
     fdlStatusVars.left = new FormAttachment(0, 0);
     fdlStatusVars.right = new FormAttachment(middle, -margin);
-    fdlStatusVars.top = new FormAttachment(lastControl, 2 * margin);
+    fdlStatusVars.top = new FormAttachment(lastControl, margin);
     wlStatusVars.setLayoutData(fdlStatusVars);
     wStatusVars = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wStatusVars);
@@ -211,7 +211,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     FormData fdlContentVar = new FormData();
     fdlContentVar.left = new FormAttachment(0, 0);
     fdlContentVar.right = new FormAttachment(middle, -margin);
-    fdlContentVar.top = new FormAttachment(lastControl, 2 * margin);
+    fdlContentVar.top = new FormAttachment(lastControl, margin);
     wlContentVar.setLayoutData(fdlContentVar);
     wContentVar = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wContentVar);
@@ -233,7 +233,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     FormData fdlHeaderContentVariable = new FormData();
     fdlHeaderContentVariable.left = new FormAttachment(0, 0);
     fdlHeaderContentVariable.right = new FormAttachment(middle, -margin);
-    fdlHeaderContentVariable.top = new FormAttachment(lastControl, 2 * margin);
+    fdlHeaderContentVariable.top = new FormAttachment(lastControl, margin);
     wlHeaderContentVariable.setLayoutData(fdlHeaderContentVariable);
     wHeaderContentVariable =
         new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);

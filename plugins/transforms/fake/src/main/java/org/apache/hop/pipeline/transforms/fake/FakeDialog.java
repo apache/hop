@@ -38,12 +38,10 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class FakeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FakeDialog.class;
@@ -62,44 +60,14 @@ public class FakeDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "FakeDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "FakeDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     // Locale line
     Label wlLocale = new Label(shell, SWT.RIGHT);
@@ -108,7 +76,7 @@ public class FakeDialog extends BaseTransformDialog {
     FormData fdlLocale = new FormData();
     fdlLocale.left = new FormAttachment(0, 0);
     fdlLocale.right = new FormAttachment(middle, -margin);
-    fdlLocale.top = new FormAttachment(wTransformName, margin);
+    fdlLocale.top = new FormAttachment(lastControl, margin);
     wlLocale.setLayoutData(fdlLocale);
     wLocale = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLocale.setItems(FakeMeta.getFakerLocales());
@@ -120,15 +88,6 @@ public class FakeDialog extends BaseTransformDialog {
     fdLocale.top = new FormAttachment(wlLocale, 0, SWT.CENTER);
     fdLocale.right = new FormAttachment(100, 0);
     wLocale.setLayoutData(fdLocale);
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     ColumnInfo[] columns =
         new ColumnInfo[] {
@@ -159,9 +118,9 @@ public class FakeDialog extends BaseTransformDialog {
             props);
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(wLocale, 2 * margin);
+    fdFields.top = new FormAttachment(wLocale, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     lsResize =
@@ -176,7 +135,7 @@ public class FakeDialog extends BaseTransformDialog {
     getData();
 
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -234,9 +193,6 @@ public class FakeDialog extends BaseTransformDialog {
     wFields.removeEmptyRows();
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

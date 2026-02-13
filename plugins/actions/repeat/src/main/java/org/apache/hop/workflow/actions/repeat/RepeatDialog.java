@@ -401,7 +401,7 @@ public class RepeatDialog extends ActionDialog {
     FormData fdLogFileGroup = new FormData();
     fdLogFileGroup.left = new FormAttachment(0, 0);
     fdLogFileGroup.right = new FormAttachment(100, 0);
-    fdLogFileGroup.top = new FormAttachment(lastControl, 2 * margin);
+    fdLogFileGroup.top = new FormAttachment(lastControl, margin);
     wLogFileGroup.setLayoutData(fdLogFileGroup);
     wLogFileGroup.pack();
     lastControl = wLogFileGroup;
@@ -413,7 +413,7 @@ public class RepeatDialog extends ActionDialog {
     PropsUi.setLook(wlParameters);
     FormData fdlParameters = new FormData();
     fdlParameters.left = new FormAttachment(0, 0);
-    fdlParameters.top = new FormAttachment(lastControl, 2 * margin);
+    fdlParameters.top = new FormAttachment(lastControl, margin);
     fdlParameters.right = new FormAttachment(100, 0);
     wlParameters.setLayoutData(fdlParameters);
     lastControl = wlParameters;
@@ -460,7 +460,7 @@ public class RepeatDialog extends ActionDialog {
     fdParameters.left = new FormAttachment(0, 0);
     fdParameters.right = new FormAttachment(100, 0);
     fdParameters.top = new FormAttachment(lastControl, margin);
-    fdParameters.bottom = new FormAttachment(wOK, -margin * 2);
+    fdParameters.bottom = new FormAttachment(wOK, -margin);
     wParameters.setLayoutData(fdParameters);
 
     getData();

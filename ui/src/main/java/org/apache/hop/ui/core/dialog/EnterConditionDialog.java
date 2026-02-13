@@ -89,7 +89,7 @@ public class EnterConditionDialog extends Dialog {
     fdCond.left = new FormAttachment(0, 0); // To the right of the label
     fdCond.top = new FormAttachment(0, 0);
     fdCond.right = new FormAttachment(100, 0);
-    fdCond.bottom = new FormAttachment(wOk, -2 * margin);
+    fdCond.bottom = new FormAttachment(wOk, -margin);
     wCond.setLayoutData(fdCond);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> dispose());

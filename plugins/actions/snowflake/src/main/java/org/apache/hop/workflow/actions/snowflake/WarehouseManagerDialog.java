@@ -27,6 +27,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -44,8 +45,6 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -221,7 +220,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlWarehouseName);
     FormData fdlWarehouseName = new FormData();
     fdlWarehouseName.left = new FormAttachment(0, 0);
-    fdlWarehouseName.top = new FormAttachment(wConnection, margin * 2);
+    fdlWarehouseName.top = new FormAttachment(wConnection, margin);
     fdlWarehouseName.right = new FormAttachment(middle, -margin);
     wlWarehouseName.setLayoutData(fdlWarehouseName);
 
@@ -229,7 +228,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wWarehouseName);
     FormData fdWarehouseName = new FormData();
     fdWarehouseName.left = new FormAttachment(middle, 0);
-    fdWarehouseName.top = new FormAttachment(wConnection, margin * 2);
+    fdWarehouseName.top = new FormAttachment(wConnection, margin);
     fdWarehouseName.right = new FormAttachment(100, 0);
     wWarehouseName.setLayoutData(fdWarehouseName);
     wWarehouseName.addFocusListener(
@@ -323,7 +322,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdgCreateGroup = new FormData();
     fdgCreateGroup.left = new FormAttachment(0, 0);
     fdgCreateGroup.right = new FormAttachment(100, 0);
-    fdgCreateGroup.top = new FormAttachment(wAction, margin * 2);
+    fdgCreateGroup.top = new FormAttachment(wAction, margin);
     wCreateGroup.setLayoutData(fdgCreateGroup);
 
     // //////////////////////
@@ -337,7 +336,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateReplace);
     FormData fdlCreateReplace = new FormData();
     fdlCreateReplace.left = new FormAttachment(0, 0);
-    fdlCreateReplace.top = new FormAttachment(0, margin * 2);
+    fdlCreateReplace.top = new FormAttachment(0, margin);
     fdlCreateReplace.right = new FormAttachment(middle, -margin);
     wlCreateReplace.setLayoutData(fdlCreateReplace);
 
@@ -345,7 +344,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wCreateReplace);
     FormData fdCreateReplace = new FormData();
     fdCreateReplace.left = new FormAttachment(middle, 0);
-    fdCreateReplace.top = new FormAttachment(0, margin * 2);
+    fdCreateReplace.top = new FormAttachment(0, margin);
     fdCreateReplace.right = new FormAttachment(100, 0);
     wCreateReplace.setLayoutData(fdCreateReplace);
     wCreateReplace.addListener(SWT.Selection, e -> warehouseManager.setChanged());
@@ -360,7 +359,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateFailIfExists);
     FormData fdlCreateFailIfExists = new FormData();
     fdlCreateFailIfExists.left = new FormAttachment(0, 0);
-    fdlCreateFailIfExists.top = new FormAttachment(wCreateReplace, margin * 2);
+    fdlCreateFailIfExists.top = new FormAttachment(wCreateReplace, margin);
     fdlCreateFailIfExists.right = new FormAttachment(middle, -margin);
     wlCreateFailIfExists.setLayoutData(fdlCreateFailIfExists);
 
@@ -368,7 +367,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wCreateFailIfExists);
     FormData fdCreateFailIfExists = new FormData();
     fdCreateFailIfExists.left = new FormAttachment(middle, 0);
-    fdCreateFailIfExists.top = new FormAttachment(wCreateReplace, margin * 2);
+    fdCreateFailIfExists.top = new FormAttachment(wCreateReplace, margin);
     fdCreateFailIfExists.right = new FormAttachment(100, 0);
     wCreateFailIfExists.setLayoutData(fdCreateFailIfExists);
     wCreateFailIfExists.addListener(SWT.Selection, e -> warehouseManager.setChanged());
@@ -381,7 +380,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateWarehouseSize);
     FormData fdlCreateWarehouseSize = new FormData();
     fdlCreateWarehouseSize.left = new FormAttachment(0, 0);
-    fdlCreateWarehouseSize.top = new FormAttachment(wCreateFailIfExists, margin * 2);
+    fdlCreateWarehouseSize.top = new FormAttachment(wCreateFailIfExists, margin);
     fdlCreateWarehouseSize.right = new FormAttachment(middle, -margin);
     wlCreateWarehouseSize.setLayoutData(fdlCreateWarehouseSize);
 
@@ -391,7 +390,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wCreateWarehouseSize.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateWarehouseSize = new FormData();
     fdCreateWarehouseSize.left = new FormAttachment(middle, 0);
-    fdCreateWarehouseSize.top = new FormAttachment(wCreateFailIfExists, margin * 2);
+    fdCreateWarehouseSize.top = new FormAttachment(wCreateFailIfExists, margin);
     fdCreateWarehouseSize.right = new FormAttachment(100, 0);
     wCreateWarehouseSize.setLayoutData(fdCreateWarehouseSize);
     wCreateWarehouseSize.setItems(WAREHOUSE_SIZE_DESCS);
@@ -404,7 +403,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateWarehouseType);
     FormData fdlCreateWarehouseType = new FormData();
     fdlCreateWarehouseType.left = new FormAttachment(0, 0);
-    fdlCreateWarehouseType.top = new FormAttachment(wCreateWarehouseSize, margin * 2);
+    fdlCreateWarehouseType.top = new FormAttachment(wCreateWarehouseSize, margin);
     fdlCreateWarehouseType.right = new FormAttachment(middle, -margin);
     wlCreateWarehouseType.setLayoutData(fdlCreateWarehouseType);
 
@@ -414,7 +413,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wCreateWarehouseType.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateWarehouseType = new FormData();
     fdCreateWarehouseType.left = new FormAttachment(middle, 0);
-    fdCreateWarehouseType.top = new FormAttachment(wCreateWarehouseSize, margin * 2);
+    fdCreateWarehouseType.top = new FormAttachment(wCreateWarehouseSize, margin);
     fdCreateWarehouseType.right = new FormAttachment(100, 0);
     wCreateWarehouseType.setLayoutData(fdCreateWarehouseType);
     wCreateWarehouseType.setItems(WAREHOUSE_TYPE_DESCS);
@@ -429,7 +428,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateMaxClusterSize);
     FormData fdlCreateMaxClusterSize = new FormData();
     fdlCreateMaxClusterSize.left = new FormAttachment(0, 0);
-    fdlCreateMaxClusterSize.top = new FormAttachment(wCreateWarehouseType, margin * 2);
+    fdlCreateMaxClusterSize.top = new FormAttachment(wCreateWarehouseType, margin);
     fdlCreateMaxClusterSize.right = new FormAttachment(middle, -margin);
     wlCreateMaxClusterSize.setLayoutData(fdlCreateMaxClusterSize);
 
@@ -440,7 +439,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdCreateMaxClusterSize = new FormData();
     fdCreateMaxClusterSize.left = new FormAttachment(middle, 0);
     fdCreateMaxClusterSize.right = new FormAttachment(100, 0);
-    fdCreateMaxClusterSize.top = new FormAttachment(wCreateWarehouseType, margin * 2);
+    fdCreateMaxClusterSize.top = new FormAttachment(wCreateWarehouseType, margin);
     wCreateMaxClusterSize.setLayoutData(fdCreateMaxClusterSize);
 
     // /////////////////////
@@ -453,7 +452,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateMinClusterSize);
     FormData fdlCreateMinClusterSize = new FormData();
     fdlCreateMinClusterSize.left = new FormAttachment(0, 0);
-    fdlCreateMinClusterSize.top = new FormAttachment(wCreateMaxClusterSize, margin * 2);
+    fdlCreateMinClusterSize.top = new FormAttachment(wCreateMaxClusterSize, margin);
     fdlCreateMinClusterSize.right = new FormAttachment(middle, -margin);
     wlCreateMinClusterSize.setLayoutData(fdlCreateMinClusterSize);
 
@@ -464,7 +463,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdCreateMinClusterSize = new FormData();
     fdCreateMinClusterSize.left = new FormAttachment(middle, 0);
     fdCreateMinClusterSize.right = new FormAttachment(100, 0);
-    fdCreateMinClusterSize.top = new FormAttachment(wCreateMaxClusterSize, margin * 2);
+    fdCreateMinClusterSize.top = new FormAttachment(wCreateMaxClusterSize, margin);
     wCreateMinClusterSize.setLayoutData(fdCreateMinClusterSize);
 
     // /////////////////////
@@ -478,7 +477,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateAutoSuspend);
     FormData fdlCreateAutoSuspend = new FormData();
     fdlCreateAutoSuspend.left = new FormAttachment(0, 0);
-    fdlCreateAutoSuspend.top = new FormAttachment(wCreateMinClusterSize, margin * 2);
+    fdlCreateAutoSuspend.top = new FormAttachment(wCreateMinClusterSize, margin);
     fdlCreateAutoSuspend.right = new FormAttachment(middle, -margin);
     wlCreateAutoSuspend.setLayoutData(fdlCreateAutoSuspend);
 
@@ -488,7 +487,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdCreateAutoSuspend = new FormData();
     fdCreateAutoSuspend.left = new FormAttachment(middle, 0);
     fdCreateAutoSuspend.right = new FormAttachment(100, 0);
-    fdCreateAutoSuspend.top = new FormAttachment(wCreateMinClusterSize, margin * 2);
+    fdCreateAutoSuspend.top = new FormAttachment(wCreateMinClusterSize, margin);
     wCreateAutoSuspend.setLayoutData(fdCreateAutoSuspend);
 
     // /////////////////////
@@ -500,7 +499,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateAutoResume);
     FormData fdlCreateAutoResume = new FormData();
     fdlCreateAutoResume.left = new FormAttachment(0, 0);
-    fdlCreateAutoResume.top = new FormAttachment(wCreateAutoSuspend, margin * 2);
+    fdlCreateAutoResume.top = new FormAttachment(wCreateAutoSuspend, margin);
     fdlCreateAutoResume.right = new FormAttachment(middle, -margin);
     wlCreateAutoResume.setLayoutData(fdlCreateAutoResume);
 
@@ -508,7 +507,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wCreateAutoResume);
     FormData fdCreateAutoResume = new FormData();
     fdCreateAutoResume.left = new FormAttachment(middle, 0);
-    fdCreateAutoResume.top = new FormAttachment(wCreateAutoSuspend, margin * 2);
+    fdCreateAutoResume.top = new FormAttachment(wCreateAutoSuspend, margin);
     fdCreateAutoResume.right = new FormAttachment(100, 0);
     wCreateAutoResume.setLayoutData(fdCreateAutoResume);
     wCreateAutoResume.addListener(SWT.Selection, e -> warehouseManager.setChanged());
@@ -526,7 +525,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateInitialSuspend);
     FormData fdlCreateInitialSuspend = new FormData();
     fdlCreateInitialSuspend.left = new FormAttachment(0, 0);
-    fdlCreateInitialSuspend.top = new FormAttachment(wCreateAutoResume, margin * 2);
+    fdlCreateInitialSuspend.top = new FormAttachment(wCreateAutoResume, margin);
     fdlCreateInitialSuspend.right = new FormAttachment(middle, -margin);
     wlCreateInitialSuspend.setLayoutData(fdlCreateInitialSuspend);
 
@@ -534,7 +533,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wCreateInitialSuspend);
     FormData fdCreateInitialSuspend = new FormData();
     fdCreateInitialSuspend.left = new FormAttachment(middle, 0);
-    fdCreateInitialSuspend.top = new FormAttachment(wCreateAutoResume, margin * 2);
+    fdCreateInitialSuspend.top = new FormAttachment(wCreateAutoResume, margin);
     fdCreateInitialSuspend.right = new FormAttachment(100, 0);
     wCreateInitialSuspend.setLayoutData(fdCreateInitialSuspend);
     wCreateInitialSuspend.addListener(SWT.Selection, e -> warehouseManager.setChanged());
@@ -547,7 +546,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateResourceMonitor);
     FormData fdlCreateResourceMonitor = new FormData();
     fdlCreateResourceMonitor.left = new FormAttachment(0, 0);
-    fdlCreateResourceMonitor.top = new FormAttachment(wCreateInitialSuspend, margin * 2);
+    fdlCreateResourceMonitor.top = new FormAttachment(wCreateInitialSuspend, margin);
     fdlCreateResourceMonitor.right = new FormAttachment(middle, -margin);
     wlCreateResourceMonitor.setLayoutData(fdlCreateResourceMonitor);
 
@@ -557,7 +556,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wCreateResourceMonitor.addListener(SWT.Modify, e -> warehouseManager.setChanged());
     FormData fdCreateResourceMonitor = new FormData();
     fdCreateResourceMonitor.left = new FormAttachment(middle, 0);
-    fdCreateResourceMonitor.top = new FormAttachment(wCreateInitialSuspend, margin * 2);
+    fdCreateResourceMonitor.top = new FormAttachment(wCreateInitialSuspend, margin);
     fdCreateResourceMonitor.right = new FormAttachment(100, 0);
     wCreateResourceMonitor.setLayoutData(fdCreateResourceMonitor);
     wCreateResourceMonitor.addFocusListener(
@@ -582,7 +581,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     PropsUi.setLook(wlCreateComment);
     FormData fdlCreateComment = new FormData();
     fdlCreateComment.left = new FormAttachment(0, 0);
-    fdlCreateComment.top = new FormAttachment(wCreateResourceMonitor, margin * 2);
+    fdlCreateComment.top = new FormAttachment(wCreateResourceMonitor, margin);
     fdlCreateComment.right = new FormAttachment(middle, -margin);
     wlCreateComment.setLayoutData(fdlCreateComment);
 
@@ -592,7 +591,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdCreateComment = new FormData();
     fdCreateComment.left = new FormAttachment(middle, 0);
     fdCreateComment.right = new FormAttachment(100, 0);
-    fdCreateComment.top = new FormAttachment(wCreateResourceMonitor, margin * 2);
+    fdCreateComment.top = new FormAttachment(wCreateResourceMonitor, margin);
     wCreateComment.setLayoutData(fdCreateComment);
 
     /////////////////////
@@ -610,7 +609,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdgDropGroup = new FormData();
     fdgDropGroup.left = new FormAttachment(0, 0);
     fdgDropGroup.right = new FormAttachment(100, 0);
-    fdgDropGroup.top = new FormAttachment(wAction, margin * 2);
+    fdgDropGroup.top = new FormAttachment(wAction, margin);
     wDropGroup.setLayoutData(fdgDropGroup);
 
     // //////////////////////
@@ -651,7 +650,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdgResumeGroup = new FormData();
     fdgResumeGroup.left = new FormAttachment(0, 0);
     fdgResumeGroup.right = new FormAttachment(100, 0);
-    fdgResumeGroup.top = new FormAttachment(wAction, margin * 2);
+    fdgResumeGroup.top = new FormAttachment(wAction, margin);
     wResumeGroup.setLayoutData(fdgResumeGroup);
 
     // //////////////////////
@@ -693,7 +692,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdgSuspendGroup = new FormData();
     fdgSuspendGroup.left = new FormAttachment(0, 0);
     fdgSuspendGroup.right = new FormAttachment(100, 0);
-    fdgSuspendGroup.top = new FormAttachment(wAction, margin * 2);
+    fdgSuspendGroup.top = new FormAttachment(wAction, margin);
     wSuspendGroup.setLayoutData(fdgSuspendGroup);
 
     // //////////////////////
@@ -734,7 +733,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     FormData fdgAlterGroup = new FormData();
     fdgAlterGroup.left = new FormAttachment(0, 0);
     fdgAlterGroup.right = new FormAttachment(100, 0);
-    fdgAlterGroup.top = new FormAttachment(wAction, margin * 2);
+    fdgAlterGroup.top = new FormAttachment(wAction, margin);
     wAlterGroup.setLayoutData(fdgAlterGroup);
 
     // //////////////////////
@@ -967,27 +966,11 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wCancel.addListener(SWT.Selection, lsCancel);
     wName.addListener(SWT.Modify, e -> warehouseManager.setChanged());
 
-    // Detect [X] or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     getData();
     setFlags();
     BaseTransformDialog.setSize(shell);
 
-    shell.open();
-    props.setDialogSize(shell, "WarehouseManagerSize");
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
-
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return warehouseManager;
   }
 

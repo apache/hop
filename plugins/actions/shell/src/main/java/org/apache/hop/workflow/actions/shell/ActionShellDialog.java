@@ -240,7 +240,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wInsertScript, 2 * margin);
+    fdlFilename.top = new FormAttachment(wInsertScript, margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
@@ -279,7 +279,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlWorkDirectory);
     FormData fdlWorkDirectory = new FormData();
     fdlWorkDirectory.left = new FormAttachment(0, 0);
-    fdlWorkDirectory.top = new FormAttachment(wFilename, 2 * margin);
+    fdlWorkDirectory.top = new FormAttachment(wFilename, margin);
     fdlWorkDirectory.right = new FormAttachment(middle, -margin);
     wlWorkDirectory.setLayoutData(fdlWorkDirectory);
 
@@ -336,7 +336,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlAppendLogfile);
     FormData fdlAppendLogfile = new FormData();
     fdlAppendLogfile.left = new FormAttachment(0, 0);
-    fdlAppendLogfile.top = new FormAttachment(wSetLogfile, 2 * margin);
+    fdlAppendLogfile.top = new FormAttachment(wSetLogfile, margin);
     fdlAppendLogfile.right = new FormAttachment(middle, -margin);
     wlAppendLogfile.setLayoutData(fdlAppendLogfile);
     wAppendLogfile = new Button(wLogging, SWT.CHECK);
@@ -362,7 +362,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlLogfile);
     FormData fdlLogfile = new FormData();
     fdlLogfile.left = new FormAttachment(0, 0);
-    fdlLogfile.top = new FormAttachment(wAppendLogfile, 2 * margin);
+    fdlLogfile.top = new FormAttachment(wAppendLogfile, margin);
     fdlLogfile.right = new FormAttachment(middle, -margin);
     wlLogfile.setLayoutData(fdlLogfile);
     wLogfile = new TextVar(variables, wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -380,7 +380,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlLogExt);
     FormData fdlLogExt = new FormData();
     fdlLogExt.left = new FormAttachment(0, 0);
-    fdlLogExt.top = new FormAttachment(wLogfile, 2 * margin);
+    fdlLogExt.top = new FormAttachment(wLogfile, margin);
     fdlLogExt.right = new FormAttachment(middle, -margin);
     wlLogExt.setLayoutData(fdlLogExt);
     wLogExt = new TextVar(variables, wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -398,7 +398,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
-    fdlAddDate.top = new FormAttachment(wLogExt, 2 * margin);
+    fdlAddDate.top = new FormAttachment(wLogExt, margin);
     fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wLogging, SWT.CHECK);
@@ -423,7 +423,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
-    fdlAddTime.top = new FormAttachment(wAddDate, 2 * margin);
+    fdlAddTime.top = new FormAttachment(wAddDate, margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wLogging, SWT.CHECK);
@@ -448,7 +448,7 @@ public class ActionShellDialog extends ActionDialog {
     FormData fdlLoglevel = new FormData();
     fdlLoglevel.left = new FormAttachment(0, 0);
     fdlLoglevel.right = new FormAttachment(middle, -margin);
-    fdlLoglevel.top = new FormAttachment(wAddTime, 2 * margin);
+    fdlLoglevel.top = new FormAttachment(wAddTime, margin);
     wlLoglevel.setLayoutData(fdlLoglevel);
     wLoglevel = new CCombo(wLogging, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wLoglevel.setItems(LogLevel.getLogLevelDescriptions());
@@ -502,7 +502,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlEveryRow);
     FormData fdlEveryRow = new FormData();
     fdlEveryRow.left = new FormAttachment(0, 0);
-    fdlEveryRow.top = new FormAttachment(wPrevious, 2 * margin);
+    fdlEveryRow.top = new FormAttachment(wPrevious, margin);
     fdlEveryRow.right = new FormAttachment(middle, -margin);
     wlEveryRow.setLayoutData(fdlEveryRow);
     wEveryRow = new Button(wGeneralComp, SWT.CHECK);
@@ -529,7 +529,7 @@ public class ActionShellDialog extends ActionDialog {
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wlEveryRow, 2 * margin);
+    fdlFields.top = new FormAttachment(wlEveryRow, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int nrFieldsCols = 1;
@@ -626,7 +626,7 @@ public class ActionShellDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();

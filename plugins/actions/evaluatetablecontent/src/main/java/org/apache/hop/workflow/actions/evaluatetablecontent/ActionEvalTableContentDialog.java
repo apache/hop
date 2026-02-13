@@ -249,7 +249,7 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     PropsUi.setLook(wlSuccessCondition);
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, -margin);
-    fdlSuccessCondition.right = new FormAttachment(middle, -2 * margin);
+    fdlSuccessCondition.right = new FormAttachment(middle, -margin);
     fdlSuccessCondition.top = new FormAttachment(0, margin);
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -277,7 +277,7 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, -margin);
     fdlLimit.top = new FormAttachment(wSuccessCondition, margin);
-    fdlLimit.right = new FormAttachment(middle, -2 * margin);
+    fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
 
     wLimit =
@@ -323,7 +323,7 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     FormData fdlCustomSql = new FormData();
     fdlCustomSql.left = new FormAttachment(0, -margin);
     fdlCustomSql.top = new FormAttachment(0, margin);
-    fdlCustomSql.right = new FormAttachment(middle, -2 * margin);
+    fdlCustomSql.right = new FormAttachment(middle, -margin);
     wlCustomSql.setLayoutData(fdlCustomSql);
     wCustomSql = new Button(wCustomGroup, SWT.CHECK);
     PropsUi.setLook(wCustomSql);
@@ -349,8 +349,8 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     PropsUi.setLook(wlUseSubs);
     FormData fdlUseSubs = new FormData();
     fdlUseSubs.left = new FormAttachment(0, -margin);
-    fdlUseSubs.top = new FormAttachment(wlCustomSql, 2 * margin);
-    fdlUseSubs.right = new FormAttachment(middle, -2 * margin);
+    fdlUseSubs.top = new FormAttachment(wlCustomSql, margin);
+    fdlUseSubs.right = new FormAttachment(middle, -margin);
     wlUseSubs.setLayoutData(fdlUseSubs);
     wUseSubs = new Button(wCustomGroup, SWT.CHECK);
     PropsUi.setLook(wUseSubs);
@@ -376,8 +376,8 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     PropsUi.setLook(wlClearResultList);
     FormData fdlClearResultList = new FormData();
     fdlClearResultList.left = new FormAttachment(0, -margin);
-    fdlClearResultList.top = new FormAttachment(wlUseSubs, 2 * margin);
-    fdlClearResultList.right = new FormAttachment(middle, -2 * margin);
+    fdlClearResultList.top = new FormAttachment(wlUseSubs, margin);
+    fdlClearResultList.right = new FormAttachment(middle, -margin);
     wlClearResultList.setLayoutData(fdlClearResultList);
     wClearResultList = new Button(wCustomGroup, SWT.CHECK);
     PropsUi.setLook(wClearResultList);
@@ -403,8 +403,8 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     PropsUi.setLook(wlAddRowsToResult);
     FormData fdlAddRowsToResult = new FormData();
     fdlAddRowsToResult.left = new FormAttachment(0, -margin);
-    fdlAddRowsToResult.top = new FormAttachment(wlClearResultList, 2 * margin);
-    fdlAddRowsToResult.right = new FormAttachment(middle, -2 * margin);
+    fdlAddRowsToResult.top = new FormAttachment(wlClearResultList, margin);
+    fdlAddRowsToResult.right = new FormAttachment(middle, -margin);
     wlAddRowsToResult.setLayoutData(fdlAddRowsToResult);
     wAddRowsToResult = new Button(wCustomGroup, SWT.CHECK);
     PropsUi.setLook(wAddRowsToResult);
@@ -437,7 +437,7 @@ public class ActionEvalTableContentDialog extends ActionDialog {
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wlAddRowsToResult, 2 * margin);
+    fdlSql.top = new FormAttachment(wlAddRowsToResult, margin);
     wlSql.setLayoutData(fdlSql);
 
     wbSqlTable = new Button(wCustomGroup, SWT.PUSH | SWT.CENTER);

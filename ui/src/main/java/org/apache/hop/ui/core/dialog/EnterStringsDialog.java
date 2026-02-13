@@ -137,7 +137,7 @@ public class EnterStringsDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, 30);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     getData();

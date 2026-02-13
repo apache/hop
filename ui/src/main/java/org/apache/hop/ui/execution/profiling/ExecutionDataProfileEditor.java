@@ -100,7 +100,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "ExecutionDataProfileEditor.label.name"));
     FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, margin * 2);
+    fdlName.top = new FormAttachment(0, margin);
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
@@ -118,7 +118,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     wlDescription.setText(
         BaseMessages.getString(PKG, "ExecutionDataProfileEditor.label.description"));
     FormData fdlDescription = new FormData();
-    fdlDescription.top = new FormAttachment(lastControl, margin * 2);
+    fdlDescription.top = new FormAttachment(lastControl, margin);
     fdlDescription.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlDescription.right = new FormAttachment(middle, 0);
     wlDescription.setLayoutData(fdlDescription);
@@ -135,7 +135,7 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     PropsUi.setLook(wlSamplers);
     wlSamplers.setText(BaseMessages.getString(PKG, "ExecutionDataProfileEditor.label.Samplers"));
     FormData fdlSamplers = new FormData();
-    fdlSamplers.top = new FormAttachment(lastControl, margin * 2);
+    fdlSamplers.top = new FormAttachment(lastControl, margin);
     fdlSamplers.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlSamplers.right = new FormAttachment(middle, 0);
     wlSamplers.setLayoutData(fdlSamplers);

@@ -90,23 +90,6 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
 
-    // Add buttons first, then the list of connections dynamically sizing
-    // Put these buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wOk, wCancel,
-        },
-        margin,
-        null);
-
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText("Action name");
     PropsUi.setLook(wlName);
@@ -167,8 +150,17 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     fdConnections.left = new FormAttachment(0, 0);
     fdConnections.top = new FormAttachment(wlConnections, margin);
     fdConnections.right = new FormAttachment(100, 0);
-    fdConnections.bottom = new FormAttachment(wOk, -margin * 2);
+    fdConnections.bottom = new FormAttachment(100, -50);
     wConnections.setLayoutData(fdConnections);
+
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wCancel}, margin, wConnections);
 
     getData();
 

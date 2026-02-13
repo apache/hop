@@ -168,7 +168,7 @@ public class HopServerMetaEditor extends MetadataEditor<HopServerMeta> {
     PropsUi.setLook(wlHostname);
     wlHostname.setText(BaseMessages.getString(PKG, "HopServerDialog.HostIP.Label"));
     FormData fdlHostname = new FormData();
-    fdlHostname.top = new FormAttachment(0, margin * 2);
+    fdlHostname.top = new FormAttachment(0, margin);
     fdlHostname.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlHostname.right = new FormAttachment(middle, -margin);
     wlHostname.setLayoutData(fdlHostname);
@@ -178,7 +178,7 @@ public class HopServerMetaEditor extends MetadataEditor<HopServerMeta> {
 
     PropsUi.setLook(wHostname);
     FormData fdHostname = new FormData();
-    fdHostname.top = new FormAttachment(wName, margin * 2);
+    fdHostname.top = new FormAttachment(wName, margin);
     fdHostname.left = new FormAttachment(middle, 0); // To the right of the label
     fdHostname.right = new FormAttachment(95, 0);
     wHostname.setLayoutData(fdHostname);

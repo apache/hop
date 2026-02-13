@@ -113,9 +113,6 @@ public class TikaDialog extends BaseTransformDialog {
   private TextVar wExtensionFieldName;
   private TextVar wMetadataFieldName;
 
-  private int middle;
-  private int margin;
-
   public TikaDialog(
       final Shell parent,
       IVariables variables,
@@ -126,7 +123,9 @@ public class TikaDialog extends BaseTransformDialog {
   }
 
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "TikaDialog.DialogTitle"));
+
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
     ClassLoader loader = input.getClass().getClassLoader();
     TikaOutput tikaOutput;
@@ -136,52 +135,6 @@ public class TikaDialog extends BaseTransformDialog {
       new ErrorDialog(shell, "Tika error", "Tika error", e);
       return null;
     }
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "TikaDialog.DialogTitle"));
-
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // Buttons at the bottom:
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "TikaDialog.Button.PreviewRows"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -221,7 +174,7 @@ public class TikaDialog extends BaseTransformDialog {
     FormData fdlFilenameInField = new FormData();
     fdlFilenameInField.left = new FormAttachment(0, -margin);
     fdlFilenameInField.top = new FormAttachment(0, margin);
-    fdlFilenameInField.right = new FormAttachment(middle, -2 * margin);
+    fdlFilenameInField.right = new FormAttachment(middle, -margin);
     wlFilenameInField.setLayoutData(fdlFilenameInField);
 
     wFilenameInField = new Button(wOutputField, SWT.CHECK);
@@ -245,8 +198,8 @@ public class TikaDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, margin);
-    fdlFilenameField.top = new FormAttachment(wlFilenameInField, 2 * margin);
-    fdlFilenameField.right = new FormAttachment(middle, -2 * margin);
+    fdlFilenameField.top = new FormAttachment(wlFilenameInField, margin);
+    fdlFilenameField.right = new FormAttachment(middle, -margin);
     wlFilenameField.setLayoutData(fdlFilenameField);
 
     wFilenameField = new CCombo(wOutputField, SWT.BORDER | SWT.READ_ONLY);
@@ -323,14 +276,14 @@ public class TikaDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFilemask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
-    fdlFilemask.top = new FormAttachment(wFilename, 2 * margin);
+    fdlFilemask.top = new FormAttachment(wFilename, margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
     wlFilemask.setLayoutData(fdlFilemask);
     wFilemask = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilemask);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
-    fdFilemask.top = new FormAttachment(wFilename, 2 * margin);
+    fdFilemask.top = new FormAttachment(wFilename, margin);
     fdFilemask.right = new FormAttachment(100, 0);
     wFilemask.setLayoutData(fdFilemask);
 
@@ -534,7 +487,7 @@ public class TikaDialog extends BaseTransformDialog {
     PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
-    fdlLimit.top = new FormAttachment(wlIgnoreEmptyFile, 2 * margin);
+    fdlLimit.top = new FormAttachment(wlIgnoreEmptyFile, margin);
     fdlLimit.right = new FormAttachment(middle, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wFileConf, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -627,9 +580,9 @@ public class TikaDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add the file to the list of files...
@@ -745,7 +698,7 @@ public class TikaDialog extends BaseTransformDialog {
     getData(input);
     enableFields();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return this.transformName;
@@ -863,9 +816,6 @@ public class TikaDialog extends BaseTransformDialog {
     wUriName.setText(Const.NVL(meta.getUriFieldName(), ""));
     wRootUriName.setText(Const.NVL(meta.getRootUriNameFieldName(), ""));
     wExtensionFieldName.setText(Const.NVL(meta.getExtensionFieldName(), ""));
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {
@@ -1274,7 +1224,7 @@ public class TikaDialog extends BaseTransformDialog {
 
     FormData fdOutputFieldsComp = new FormData();
     fdOutputFieldsComp.left = new FormAttachment(0, 0);
-    fdOutputFieldsComp.top = new FormAttachment(wTransformName, margin);
+    fdOutputFieldsComp.top = new FormAttachment(wSpacer, margin);
     fdOutputFieldsComp.right = new FormAttachment(100, 0);
     fdOutputFieldsComp.bottom = new FormAttachment(100, 0);
     wOutputFieldsComp.setLayoutData(fdOutputFieldsComp);

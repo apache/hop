@@ -271,7 +271,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment(0, 0);
-    fdProxyHost.top = new FormAttachment(wPassword, 2 * margin);
+    fdProxyHost.top = new FormAttachment(wPassword, margin);
     fdProxyHost.right = new FormAttachment(100, 0);
     wProxyHost.setLayoutData(fdProxyHost);
 
@@ -385,7 +385,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     PropsUi.setLook(wlTimeout);
     FormData fdlTimeout = new FormData();
     fdlTimeout.left = new FormAttachment(0, 0);
-    fdlTimeout.top = new FormAttachment(wlBinaryMode, 2 * margin);
+    fdlTimeout.top = new FormAttachment(wlBinaryMode, margin);
     fdlTimeout.right = new FormAttachment(middle, -margin);
     wlTimeout.setLayoutData(fdlTimeout);
     wTimeout =
@@ -430,7 +430,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     PropsUi.setLook(wlControlEncoding);
     FormData fdlControlEncoding = new FormData();
     fdlControlEncoding.left = new FormAttachment(0, 0);
-    fdlControlEncoding.top = new FormAttachment(wlActive, 2 * margin);
+    fdlControlEncoding.top = new FormAttachment(wlActive, margin);
     fdlControlEncoding.right = new FormAttachment(middle, -margin);
     wlControlEncoding.setLayoutData(fdlControlEncoding);
     wControlEncoding = new Combo(wAdvancedSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -559,7 +559,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     PropsUi.setLook(wlRemove);
     FormData fdlRemove = new FormData();
     fdlRemove.left = new FormAttachment(0, 0);
-    fdlRemove.top = new FormAttachment(wWildcard, 2 * margin);
+    fdlRemove.top = new FormAttachment(wWildcard, margin);
     fdlRemove.right = new FormAttachment(middle, -margin);
     wlRemove.setLayoutData(fdlRemove);
     wRemove = new Button(wSourceSettings, SWT.CHECK);
@@ -577,7 +577,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     PropsUi.setLook(wlOnlyNew);
     FormData fdlOnlyNew = new FormData();
     fdlOnlyNew.left = new FormAttachment(0, 0);
-    fdlOnlyNew.top = new FormAttachment(wlRemove, 2 * margin);
+    fdlOnlyNew.top = new FormAttachment(wlRemove, margin);
     fdlOnlyNew.right = new FormAttachment(middle, -margin);
     wlOnlyNew.setLayoutData(fdlOnlyNew);
     wOnlyNew = new Button(wSourceSettings, SWT.CHECK);
@@ -591,7 +591,7 @@ public class ActionFtpPutDialog extends ActionDialog {
 
     FormData fdSourceSettings = new FormData();
     fdSourceSettings.left = new FormAttachment(0, margin);
-    fdSourceSettings.top = new FormAttachment(0, 2 * margin);
+    fdSourceSettings.top = new FormAttachment(0, margin);
     fdSourceSettings.right = new FormAttachment(100, -margin);
     wSourceSettings.setLayoutData(fdSourceSettings);
     // ///////////////////////////////////////////////////////////
@@ -790,7 +790,7 @@ public class ActionFtpPutDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();

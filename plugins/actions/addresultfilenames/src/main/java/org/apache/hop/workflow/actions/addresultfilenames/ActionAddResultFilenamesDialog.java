@@ -161,7 +161,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
-    fdlIncludeSubfolders.top = new FormAttachment(0, 2 * margin);
+    fdlIncludeSubfolders.top = new FormAttachment(0, margin);
     fdlIncludeSubfolders.right = new FormAttachment(middle, -margin);
     wlIncludeSubfolders.setLayoutData(fdlIncludeSubfolders);
     wIncludeSubfolders = new Button(wgSettings, SWT.CHECK);
@@ -186,7 +186,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
+    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wgSettings, SWT.CHECK);
@@ -215,7 +215,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlDeleteAllBefore);
     FormData fdlDeleteAllBefore = new FormData();
     fdlDeleteAllBefore.left = new FormAttachment(0, 0);
-    fdlDeleteAllBefore.top = new FormAttachment(wlPrevious, 2 * margin);
+    fdlDeleteAllBefore.top = new FormAttachment(wlPrevious, margin);
     fdlDeleteAllBefore.right = new FormAttachment(middle, -margin);
     wlDeleteAllBefore.setLayoutData(fdlDeleteAllBefore);
     wDeleteAllBefore = new Button(wgSettings, SWT.CHECK);
@@ -251,7 +251,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wgSettings, 2 * margin);
+    fdlFilename.top = new FormAttachment(wgSettings, margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
@@ -290,8 +290,8 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.top = new FormAttachment(wgSettings, 2 * margin);
-    fdFilename.right = new FormAttachment(wbaFilename, -2 * margin);
+    fdFilename.top = new FormAttachment(wgSettings, margin);
+    fdFilename.right = new FormAttachment(wbaFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
@@ -324,7 +324,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, margin);
-    fdFilemask.right = new FormAttachment(wbaFilename, -2 * margin);
+    fdFilemask.right = new FormAttachment(wbaFilename, -margin);
     wFilemask.setLayoutData(fdFilemask);
 
     wlFields = new Label(shell, SWT.NONE);
@@ -390,8 +390,8 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(wbdFilename, -2 * margin);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.right = new FormAttachment(wbdFilename, -margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     wlFields.setEnabled(!action.isArgFromPrevious());

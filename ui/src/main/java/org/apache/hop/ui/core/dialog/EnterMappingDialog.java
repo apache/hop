@@ -176,7 +176,7 @@ public class EnterMappingDialog extends Dialog {
     FormData fdSourceHide = new FormData();
     fdSourceHide.left = new FormAttachment(0, 0);
     fdSourceHide.right = new FormAttachment(25, 0);
-    fdSourceHide.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSourceHide.bottom = new FormAttachment(wOk, -margin);
     wSourceHide.setLayoutData(fdSourceHide);
     wSourceHide.addListener(SWT.Selection, e -> refreshMappings());
 
@@ -186,9 +186,9 @@ public class EnterMappingDialog extends Dialog {
     wTargetHide.setSelection(true);
     PropsUi.setLook(wTargetHide);
     FormData fdTargetHide = new FormData();
-    fdTargetHide.left = new FormAttachment(25, margin * 2);
+    fdTargetHide.left = new FormAttachment(25, margin);
     fdTargetHide.right = new FormAttachment(50, 0);
-    fdTargetHide.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTargetHide.bottom = new FormAttachment(wOk, -margin);
     wTargetHide.setLayoutData(fdTargetHide);
     wTargetHide.addListener(SWT.Selection, e -> refreshMappings());
 
@@ -211,7 +211,7 @@ public class EnterMappingDialog extends Dialog {
     wTargetAuto.setSelection(false);
     PropsUi.setLook(wTargetAuto);
     FormData fdTargetAuto = new FormData();
-    fdTargetAuto.left = new FormAttachment(25, margin * 2);
+    fdTargetAuto.left = new FormAttachment(25, margin);
     fdTargetAuto.right = new FormAttachment(50, 0);
     fdTargetAuto.bottom = new FormAttachment(wTargetHide, -margin);
     wTargetAuto.setLayoutData(fdTargetAuto);
@@ -242,7 +242,7 @@ public class EnterMappingDialog extends Dialog {
     wlTarget.setText(BaseMessages.getString(PKG, "EnterMappingDialog.TargetFields.Label"));
     PropsUi.setLook(wlTarget);
     FormData fdlTarget = new FormData();
-    fdlTarget.left = new FormAttachment(wSource, margin * 2);
+    fdlTarget.left = new FormAttachment(wSource, margin);
     fdlTarget.top = new FormAttachment(0, margin);
     wlTarget.setLayoutData(fdlTarget);
     wTarget = new List(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -251,7 +251,7 @@ public class EnterMappingDialog extends Dialog {
     }
     PropsUi.setLook(wTarget);
     FormData fdTarget = new FormData();
-    fdTarget.left = new FormAttachment(wSource, margin * 2);
+    fdTarget.left = new FormAttachment(wSource, margin);
     fdTarget.right = new FormAttachment(50, 0);
     fdTarget.top = new FormAttachment(wlTarget, margin);
     fdTarget.bottom = new FormAttachment(wTargetAuto, -margin);
@@ -261,7 +261,7 @@ public class EnterMappingDialog extends Dialog {
     Button wDelete = new Button(shell, SWT.PUSH);
     FormData fdDelete = new FormData();
     wDelete.setText(BaseMessages.getString(PKG, "EnterMappingDialog.Button.Delete"));
-    fdDelete.left = new FormAttachment(wTarget, margin * 2);
+    fdDelete.left = new FormAttachment(wTarget, margin);
     fdDelete.top = new FormAttachment(wTarget, 0, SWT.CENTER);
     wDelete.setLayoutData(fdDelete);
     wDelete.addListener(SWT.Selection, e -> delete());
@@ -270,9 +270,9 @@ public class EnterMappingDialog extends Dialog {
     Button wAdd = new Button(shell, SWT.PUSH);
     FormData fdAdd = new FormData();
     wAdd.setText(BaseMessages.getString(PKG, "EnterMappingDialog.Button.Add"));
-    fdAdd.left = new FormAttachment(wTarget, margin * 2);
+    fdAdd.left = new FormAttachment(wTarget, margin);
     fdAdd.right = new FormAttachment(wDelete, 0, SWT.RIGHT);
-    fdAdd.bottom = new FormAttachment(wDelete, -2 * margin);
+    fdAdd.bottom = new FormAttachment(wDelete, -margin);
     wAdd.setLayoutData(fdAdd);
     wAdd.addListener(SWT.Selection, e -> add());
 
@@ -281,7 +281,7 @@ public class EnterMappingDialog extends Dialog {
     wlResult.setText(BaseMessages.getString(PKG, "EnterMappingDialog.ResultMappings.Label"));
     PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
-    fdlResult.left = new FormAttachment(wDelete, margin * 2);
+    fdlResult.left = new FormAttachment(wDelete, margin);
     fdlResult.top = new FormAttachment(0, margin);
     wlResult.setLayoutData(fdlResult);
     wResult = new List(shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -290,7 +290,7 @@ public class EnterMappingDialog extends Dialog {
     }
     PropsUi.setLook(wResult);
     FormData fdResult = new FormData();
-    fdResult.left = new FormAttachment(wDelete, margin * 2);
+    fdResult.left = new FormAttachment(wDelete, margin);
     fdResult.right = new FormAttachment(100, 0);
     fdResult.top = new FormAttachment(wlResult, margin);
     fdResult.bottom = new FormAttachment(wSource, 0, SWT.BOTTOM);

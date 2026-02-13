@@ -33,15 +33,18 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the SSTableOutput transform. */
 public class SSTableOutputDialog extends BaseTransformDialog {
@@ -82,62 +85,44 @@ public class SSTableOutputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "SSTableOutputDialog.Shell.Title"));
 
-    Shell parent = getParent();
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
 
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // transformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.transformName.Label"));
-    PropsUi.setLook(wlTransformName);
-
-    FormData fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.right = new FormAttachment(middle, -margin);
-    fd.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fd);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-
-    // format the text field
-    fd = new FormData();
-    fd.left = new FormAttachment(middle, 0);
-    fd.top = new FormAttachment(0, margin);
-    fd.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fd);
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     // yaml file line
     /** various UI bits and pieces for the dialog */
-    Label wlYaml = new Label(shell, SWT.RIGHT);
+    Label wlYaml = new Label(wContent, SWT.RIGHT);
     PropsUi.setLook(wlYaml);
     wlYaml.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.YAML.Label"));
-    fd = new FormData();
+    FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
-    fd.top = new FormAttachment(wTransformName, margin);
+    fd.top = new FormAttachment(0, margin);
     fd.right = new FormAttachment(middle, -margin);
     wlYaml.setLayoutData(fd);
 
-    Button wbYaml = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbYaml = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbYaml);
     wbYaml.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.YAML.Button"));
     fd = new FormData();
     fd.right = new FormAttachment(100, 0);
-    fd.top = new FormAttachment(wTransformName, margin);
+    fd.top = new FormAttachment(0, margin);
     wbYaml.setLayoutData(fd);
 
     wbYaml.addListener(
@@ -151,17 +136,17 @@ public class SSTableOutputDialog extends BaseTransformDialog {
           BaseDialog.presentFileDialog(shell, wYaml, variables, extensions, filterNames, true);
         });
 
-    wYaml = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wYaml = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wYaml);
     wYaml.addModifyListener(e -> wYaml.setToolTipText(variables.resolve(wYaml.getText())));
     fd = new FormData();
     fd.right = new FormAttachment(wbYaml, 0);
-    fd.top = new FormAttachment(wTransformName, margin);
+    fd.top = new FormAttachment(0, margin);
     fd.left = new FormAttachment(middle, 0);
     wYaml.setLayoutData(fd);
 
     // directory line
-    Label wlDirectory = new Label(shell, SWT.RIGHT);
+    Label wlDirectory = new Label(wContent, SWT.RIGHT);
     PropsUi.setLook(wlDirectory);
     wlDirectory.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Directory.Label"));
     fd = new FormData();
@@ -170,7 +155,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     fd.right = new FormAttachment(middle, -margin);
     wlDirectory.setLayoutData(fd);
 
-    Button wbDirectory = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbDirectory = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbDirectory);
     wbDirectory.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Directory.Button"));
     fd = new FormData();
@@ -180,7 +165,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     wbDirectory.addListener(
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wDirectory, variables));
 
-    wDirectory = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDirectory = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDirectory);
     wDirectory.addModifyListener(
         e -> wDirectory.setToolTipText(variables.resolve(wDirectory.getText())));
@@ -191,7 +176,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     wDirectory.setLayoutData(fd);
 
     // keyspace line
-    Label wlKeyspace = new Label(shell, SWT.RIGHT);
+    Label wlKeyspace = new Label(wContent, SWT.RIGHT);
     PropsUi.setLook(wlKeyspace);
     wlKeyspace.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Keyspace.Label"));
     fd = new FormData();
@@ -200,7 +185,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     fd.right = new FormAttachment(middle, -margin);
     wlKeyspace.setLayoutData(fd);
 
-    wKeyspace = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wKeyspace = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wKeyspace);
     wKeyspace.addModifyListener(
         e -> wKeyspace.setToolTipText(variables.resolve(wKeyspace.getText())));
@@ -211,7 +196,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     wKeyspace.setLayoutData(fd);
 
     // table line
-    Label wlTable = new Label(shell, SWT.RIGHT);
+    Label wlTable = new Label(wContent, SWT.RIGHT);
     PropsUi.setLook(wlTable);
     wlTable.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.Table.Label"));
     fd = new FormData();
@@ -220,7 +205,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     fd.right = new FormAttachment(middle, -margin);
     wlTable.setLayoutData(fd);
 
-    wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(e -> wTable.setToolTipText(variables.resolve(wTable.getText())));
     fd = new FormData();
@@ -230,7 +215,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     wTable.setLayoutData(fd);
 
     // key field line
-    wlKeyField = new Label(shell, SWT.RIGHT);
+    wlKeyField = new Label(wContent, SWT.RIGHT);
     PropsUi.setLook(wlKeyField);
     wlKeyField.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.KeyField.Label"));
     fd = new FormData();
@@ -239,7 +224,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     fd.right = new FormAttachment(middle, -margin);
     wlKeyField.setLayoutData(fd);
 
-    wbGetFields = new Button(shell, SWT.PUSH | SWT.CENTER);
+    wbGetFields = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.GetFields.Button"));
     wbGetFields.setLayoutData(FormDataBuilder.builder().top(wTable, margin).right(100, 0).build());
@@ -252,7 +237,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
           }
         });
 
-    wKeyField = new CCombo(shell, SWT.BORDER);
+    wKeyField = new CCombo(wContent, SWT.BORDER);
     wKeyField.addModifyListener(
         e -> wKeyField.setToolTipText(variables.resolve(wKeyField.getText())));
     fd = new FormData();
@@ -262,7 +247,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     wKeyField.setLayoutData(fd);
 
     // buffer size
-    Label wlBufferSize = new Label(shell, SWT.RIGHT);
+    Label wlBufferSize = new Label(wContent, SWT.RIGHT);
     PropsUi.setLook(wlBufferSize);
     wlBufferSize.setText(BaseMessages.getString(PKG, "SSTableOutputDialog.BufferSize.Label"));
     fd = new FormData();
@@ -271,7 +256,7 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     fd.right = new FormAttachment(middle, -margin);
     wlBufferSize.setLayoutData(fd);
 
-    wBufferSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBufferSize = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBufferSize);
     wBufferSize.addModifyListener(
         e -> wBufferSize.setToolTipText(variables.resolve(wBufferSize.getText())));
@@ -281,17 +266,15 @@ public class SSTableOutputDialog extends BaseTransformDialog {
     fd.left = new FormAttachment(middle, 0);
     wBufferSize.setLayoutData(fd);
 
-    // Buttons inherited from BaseTransformDialog
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wBufferSize);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     getData();
-
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;

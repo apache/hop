@@ -159,7 +159,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     FormData fdlAction = new FormData();
     fdlAction.left = new FormAttachment(0, 0);
     fdlAction.right = new FormAttachment(middle, -margin);
-    fdlAction.top = new FormAttachment(wName, 2 * margin);
+    fdlAction.top = new FormAttachment(wName, margin);
     wlAction.setLayoutData(fdlAction);
     wAction = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wAction.add(BaseMessages.getString(PKG, "ActionCopyMoveResultFilenames.Copy.Label"));
@@ -170,7 +170,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wAction);
     FormData fdAction = new FormData();
     fdAction.left = new FormAttachment(middle, 0);
-    fdAction.top = new FormAttachment(wName, 2 * margin);
+    fdAction.top = new FormAttachment(wName, margin);
     fdAction.right = new FormAttachment(100, 0);
     wAction.setLayoutData(fdAction);
     wAction.addSelectionListener(
@@ -252,7 +252,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlOverwriteFile);
     FormData fdlOverwriteFile = new FormData();
     fdlOverwriteFile.left = new FormAttachment(0, 0);
-    fdlOverwriteFile.top = new FormAttachment(wlCreateDestinationFolder, 2 * margin);
+    fdlOverwriteFile.top = new FormAttachment(wlCreateDestinationFolder, margin);
     fdlOverwriteFile.right = new FormAttachment(middle, -margin);
     wlOverwriteFile.setLayoutData(fdlOverwriteFile);
     wOverwriteFile = new Button(shell, SWT.CHECK);
@@ -279,7 +279,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlRemovedSourceFilename);
     FormData fdlRemovedSourceFilename = new FormData();
     fdlRemovedSourceFilename.left = new FormAttachment(0, 0);
-    fdlRemovedSourceFilename.top = new FormAttachment(wlOverwriteFile, 2 * margin);
+    fdlRemovedSourceFilename.top = new FormAttachment(wlOverwriteFile, margin);
     fdlRemovedSourceFilename.right = new FormAttachment(middle, -margin);
     wlRemovedSourceFilename.setLayoutData(fdlRemovedSourceFilename);
     wRemovedSourceFilename = new Button(shell, SWT.CHECK);
@@ -306,7 +306,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlAddDestinationFilename);
     FormData fdlAddDestinationFilename = new FormData();
     fdlAddDestinationFilename.left = new FormAttachment(0, 0);
-    fdlAddDestinationFilename.top = new FormAttachment(wlRemovedSourceFilename, 2 * margin);
+    fdlAddDestinationFilename.top = new FormAttachment(wlRemovedSourceFilename, margin);
     fdlAddDestinationFilename.right = new FormAttachment(middle, -margin);
     wlAddDestinationFilename.setLayoutData(fdlAddDestinationFilename);
     wAddDestinationFilename = new Button(shell, SWT.CHECK);
@@ -333,7 +333,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
-    fdlAddDate.top = new FormAttachment(wlAddDestinationFilename, 2 * margin);
+    fdlAddDate.top = new FormAttachment(wlAddDestinationFilename, margin);
     fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(shell, SWT.CHECK);
@@ -359,7 +359,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
-    fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
+    fdlAddTime.top = new FormAttachment(wlAddDate, margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(shell, SWT.CHECK);
@@ -387,7 +387,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
-    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, 2 * margin);
+    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(shell, SWT.CHECK);
@@ -419,7 +419,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdlDateTimeFormat.right = new FormAttachment(middle, -margin);
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
@@ -428,7 +428,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
-    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdDateTimeFormat.right = new FormAttachment(100, 0);
     wDateTimeFormat.setLayoutData(fdDateTimeFormat);
     for (String dat : dats) {
@@ -513,7 +513,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
-    fdlWildcard.top = new FormAttachment(wlSpecifyWildcard, 2 * margin);
+    fdlWildcard.top = new FormAttachment(wlSpecifyWildcard, margin);
     fdlWildcard.right = new FormAttachment(middle, -margin);
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard = new TextVar(variables, wLimitTo, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -523,7 +523,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
-    fdWildcard.top = new FormAttachment(wlSpecifyWildcard, 2 * margin);
+    fdWildcard.top = new FormAttachment(wlSpecifyWildcard, margin);
     fdWildcard.right = new FormAttachment(100, -margin);
     wWildcard.setLayoutData(fdWildcard);
 
@@ -589,7 +589,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment(0, 0);
     fdlSuccessCondition.right = new FormAttachment(middle, 0);
-    fdlSuccessCondition.top = new FormAttachment(wLimitTo, 2 * margin);
+    fdlSuccessCondition.top = new FormAttachment(wLimitTo, margin);
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wSuccessCondition.add(
@@ -604,7 +604,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wSuccessCondition);
     FormData fdSuccessCondition = new FormData();
     fdSuccessCondition.left = new FormAttachment(middle, 0);
-    fdSuccessCondition.top = new FormAttachment(wLimitTo, 2 * margin);
+    fdSuccessCondition.top = new FormAttachment(wLimitTo, margin);
     fdSuccessCondition.right = new FormAttachment(100, 0);
     wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener(

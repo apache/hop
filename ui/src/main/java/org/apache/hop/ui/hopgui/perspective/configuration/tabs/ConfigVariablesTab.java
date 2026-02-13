@@ -120,7 +120,7 @@ public class ConfigVariablesTab {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(0, 0);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wbSave, -2 * margin);
+    fdFields.bottom = new FormAttachment(wbSave, -margin);
     wFields.setLayoutData(fdFields);
 
     // Get the described variables from hop-config.json

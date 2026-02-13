@@ -129,15 +129,6 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
       new ErrorDialog(shell, "Error", "Error getting list of connections", e);
     }
 
-    // Add buttons first, then the script field can use dynamic sizing
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
     Label wlReplaceVariables = new Label(shell, SWT.LEFT);
     wlReplaceVariables.setText(
         BaseMessages.getString(PKG, "CypherScriptDialog.ReplaceVariables.Label"));
@@ -145,7 +136,7 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
     FormData fdlReplaceVariables = new FormData();
     fdlReplaceVariables.left = new FormAttachment(0, 0);
     fdlReplaceVariables.right = new FormAttachment(middle, -margin);
-    fdlReplaceVariables.bottom = new FormAttachment(wOk, -margin * 2);
+    fdlReplaceVariables.bottom = new FormAttachment(100, -50);
     wlReplaceVariables.setLayoutData(fdlReplaceVariables);
     wReplaceVariables = new Button(shell, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wReplaceVariables);
@@ -173,18 +164,17 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
     fdCypher.left = new FormAttachment(0, 0);
     fdCypher.right = new FormAttachment(100, 0);
     fdCypher.top = new FormAttachment(wlScript, margin);
-    fdCypher.bottom = new FormAttachment(wReplaceVariables, -margin * 2);
+    fdCypher.bottom = new FormAttachment(wReplaceVariables, -margin);
     wScript.setLayoutData(fdCypher);
 
-    // Put these buttons at the bottom
-    //
+    Button wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wOk, wCancel,
-        },
-        margin,
-        null);
+        shell, new Button[] {wOk, wCancel}, margin, wReplaceVariables);
 
     getData();
 

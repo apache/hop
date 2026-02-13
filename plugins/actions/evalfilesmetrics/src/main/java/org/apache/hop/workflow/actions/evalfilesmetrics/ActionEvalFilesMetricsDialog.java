@@ -373,7 +373,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     PropsUi.setLook(wlSourceFileFolder);
     FormData fdlSourceFileFolder = new FormData();
     fdlSourceFileFolder.left = new FormAttachment(0, 0);
-    fdlSourceFileFolder.top = new FormAttachment(wSettings, 2 * margin);
+    fdlSourceFileFolder.top = new FormAttachment(wSettings, margin);
     fdlSourceFileFolder.right = new FormAttachment(middle, -margin);
     wlSourceFileFolder.setLayoutData(fdlSourceFileFolder);
 
@@ -418,7 +418,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     wSourceFileFolder.addModifyListener(lsMod);
     FormData fdSourceFileFolder = new FormData();
     fdSourceFileFolder.left = new FormAttachment(middle, 0);
-    fdSourceFileFolder.top = new FormAttachment(wSettings, 2 * margin);
+    fdSourceFileFolder.top = new FormAttachment(wSettings, margin);
     fdSourceFileFolder.right = new FormAttachment(wbaSourceFileFolder, -margin);
     wSourceFileFolder.setLayoutData(fdSourceFileFolder);
 
@@ -779,7 +779,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wName, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();

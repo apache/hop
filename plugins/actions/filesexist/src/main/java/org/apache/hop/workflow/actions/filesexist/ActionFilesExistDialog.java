@@ -160,7 +160,7 @@ public class ActionFilesExistDialog extends ActionDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
     wFields.getTable().addListener(SWT.Resize, new ColumnsResizer(8, 92));
 

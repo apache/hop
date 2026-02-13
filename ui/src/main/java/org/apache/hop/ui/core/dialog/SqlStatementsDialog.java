@@ -157,7 +157,7 @@ public class SqlStatementsDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(0, 0);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wExec, -2 * margin);
+    fdFields.bottom = new FormAttachment(wExec, -margin);
     wFields.setLayoutData(fdFields);
 
     // Add listeners

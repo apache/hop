@@ -249,7 +249,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     PropsUi.setLook(wlAmount);
     wlAmount.setText(BaseMessages.getString(PKG, "Neo4jPerspectiveDialog.ShowLast.Label"));
     FormData fdlAmount = new FormData();
-    fdlAmount.left = new FormAttachment(wExecutions, 2 * margin);
+    fdlAmount.left = new FormAttachment(wExecutions, margin);
     fdlAmount.top = new FormAttachment(lastControl, margin);
     wlAmount.setLayoutData(fdlAmount);
 

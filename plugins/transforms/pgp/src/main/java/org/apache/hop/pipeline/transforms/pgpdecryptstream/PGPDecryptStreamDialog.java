@@ -31,20 +31,23 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class PGPDecryptStreamDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PGPDecryptStreamMeta.class;
@@ -80,51 +83,35 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
+
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "PGPDecryptStreamDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // ///////////////////////////////
     // START OF GPG Fields GROUP //
     // ///////////////////////////////
 
-    Group wGPGGroup = new Group(shell, SWT.SHADOW_NONE);
+    Group wGPGGroup = new Group(wContent, SWT.SHADOW_NONE);
     PropsUi.setLook(wGPGGroup);
     wGPGGroup.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.GPGGroup.Label"));
 
@@ -141,7 +128,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     FormData fdlGPGLocation = new FormData();
     fdlGPGLocation.left = new FormAttachment(0, 0);
     fdlGPGLocation.right = new FormAttachment(middle, -margin);
-    fdlGPGLocation.top = new FormAttachment(wTransformName, margin * 2);
+    fdlGPGLocation.top = new FormAttachment(0, margin);
     wlGPGLocation.setLayoutData(fdlGPGLocation);
 
     // Browse Source files button ...
@@ -150,7 +137,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     wbbGpgExe.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.BrowseFiles.Label"));
     FormData fdbbGpgExe = new FormData();
     fdbbGpgExe.right = new FormAttachment(100, -margin);
-    fdbbGpgExe.top = new FormAttachment(wTransformName, margin);
+    fdbbGpgExe.top = new FormAttachment(0, margin);
     wbbGpgExe.setLayoutData(fdbbGpgExe);
 
     if (wbbGpgExe != null) {
@@ -175,7 +162,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     wGPGLocation.addModifyListener(lsMod);
     FormData fdGPGLocation = new FormData();
     fdGPGLocation.left = new FormAttachment(middle, 0);
-    fdGPGLocation.top = new FormAttachment(wTransformName, margin * 2);
+    fdGPGLocation.top = new FormAttachment(0, margin);
     fdGPGLocation.right = new FormAttachment(wbbGpgExe, -margin);
     wGPGLocation.setLayoutData(fdGPGLocation);
 
@@ -265,7 +252,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
 
     FormData fdGPGGroup = new FormData();
     fdGPGGroup.left = new FormAttachment(0, margin);
-    fdGPGGroup.top = new FormAttachment(wTransformName, margin);
+    fdGPGGroup.top = new FormAttachment(0, margin);
     fdGPGGroup.right = new FormAttachment(100, -margin);
     wGPGGroup.setLayoutData(fdGPGGroup);
 
@@ -274,22 +261,22 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     // ///////////////////////////////
 
     // Stream field
-    Label wlStreamFieldName = new Label(shell, SWT.RIGHT);
+    Label wlStreamFieldName = new Label(wContent, SWT.RIGHT);
     wlStreamFieldName.setText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.StreamFieldName.Label"));
     PropsUi.setLook(wlStreamFieldName);
     FormData fdlStreamFieldName = new FormData();
     fdlStreamFieldName.left = new FormAttachment(0, 0);
     fdlStreamFieldName.right = new FormAttachment(middle, -margin);
-    fdlStreamFieldName.top = new FormAttachment(wGPGGroup, 2 * margin);
+    fdlStreamFieldName.top = new FormAttachment(wGPGGroup, margin);
     wlStreamFieldName.setLayoutData(fdlStreamFieldName);
 
-    wStreamFieldName = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wStreamFieldName = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
     PropsUi.setLook(wStreamFieldName);
     wStreamFieldName.addModifyListener(lsMod);
     FormData fdStreamFieldName = new FormData();
     fdStreamFieldName.left = new FormAttachment(middle, 0);
-    fdStreamFieldName.top = new FormAttachment(wGPGGroup, 2 * margin);
+    fdStreamFieldName.top = new FormAttachment(wGPGGroup, margin);
     fdStreamFieldName.right = new FormAttachment(100, -margin);
     wStreamFieldName.setLayoutData(fdStreamFieldName);
     wStreamFieldName.addFocusListener(
@@ -310,39 +297,38 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
         });
 
     // Result fieldname ...
-    Label wlResult = new Label(shell, SWT.RIGHT);
+    Label wlResult = new Label(wContent, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.ResultField.Label"));
     PropsUi.setLook(wlResult);
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
-    fdlResult.top = new FormAttachment(wStreamFieldName, margin * 2);
+    fdlResult.top = new FormAttachment(wStreamFieldName, margin);
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wResult = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wResult.setToolTipText(
         BaseMessages.getString(PKG, "PGPDecryptStreamDialog.ResultField.Tooltip"));
     PropsUi.setLook(wResult);
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
-    fdResult.top = new FormAttachment(wStreamFieldName, margin * 2);
+    fdResult.top = new FormAttachment(wStreamFieldName, margin);
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
 
-    // THE BUTTONS at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wResult);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     getData();
     passphraseFromField();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -366,9 +352,6 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     if (input.getPassphraseFieldName() != null) {
       wPassphraseFieldName.setText(input.getPassphraseFieldName());
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

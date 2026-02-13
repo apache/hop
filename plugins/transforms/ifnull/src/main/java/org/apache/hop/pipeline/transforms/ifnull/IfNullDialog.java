@@ -50,7 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class IfNullDialog extends BaseTransformDialog {
   private static final Class<?> PKG = IfNullMeta.class;
@@ -61,7 +60,6 @@ public class IfNullDialog extends BaseTransformDialog {
 
   private int fieldsRows = 0;
   private ModifyListener oldlsMod;
-  private int margin;
 
   /** all fields from the previous transforms */
   private IRowMeta prevFields = null;
@@ -94,58 +92,14 @@ public class IfNullDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "IfNullDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
     oldlsMod = lsMod;
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    int middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
     fieldsRows = input.getFields().size();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "IfNullDialog.Shell.Title"));
-
-    // Buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
-    wGet.addListener(SWT.Selection, e -> get());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "IfNullDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // ///////////////////////////////
     // START OF All Fields GROUP //
@@ -167,7 +121,7 @@ public class IfNullDialog extends BaseTransformDialog {
     FormData fdlReplaceByValue = new FormData();
     fdlReplaceByValue.left = new FormAttachment(0, 0);
     fdlReplaceByValue.right = new FormAttachment(middle, -margin);
-    fdlReplaceByValue.top = new FormAttachment(wTransformName, margin * 2);
+    fdlReplaceByValue.top = new FormAttachment(0, margin);
     wlReplaceByValue.setLayoutData(fdlReplaceByValue);
 
     wReplaceByValue = new TextVar(variables, wAllFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -176,7 +130,7 @@ public class IfNullDialog extends BaseTransformDialog {
     PropsUi.setLook(wReplaceByValue);
     FormData fdReplaceByValue = new FormData();
     fdReplaceByValue.left = new FormAttachment(middle, 0);
-    fdReplaceByValue.top = new FormAttachment(wTransformName, 2 * margin);
+    fdReplaceByValue.top = new FormAttachment(0, margin);
     fdReplaceByValue.right = new FormAttachment(100, 0);
     wReplaceByValue.setLayoutData(fdReplaceByValue);
 
@@ -230,7 +184,7 @@ public class IfNullDialog extends BaseTransformDialog {
 
     FormData fdAllFields = new FormData();
     fdAllFields.left = new FormAttachment(0, margin);
-    fdAllFields.top = new FormAttachment(wTransformName, margin);
+    fdAllFields.top = new FormAttachment(wSpacer, margin);
     fdAllFields.right = new FormAttachment(100, -margin);
     wAllFields.setLayoutData(fdAllFields);
 
@@ -351,7 +305,7 @@ public class IfNullDialog extends BaseTransformDialog {
 
     activeSelectValuesType();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -410,7 +364,7 @@ public class IfNullDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(100, -50);
 
     wFields.setLayoutData(fdFields);
 
@@ -567,9 +521,6 @@ public class IfNullDialog extends BaseTransformDialog {
     wFields.setRowNums();
     wValueTypes.removeEmptyRows();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

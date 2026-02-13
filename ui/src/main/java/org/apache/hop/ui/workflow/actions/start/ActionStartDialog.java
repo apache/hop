@@ -144,7 +144,7 @@ public class ActionStartDialog extends ActionDialog {
     fdgRepeat.left = new FormAttachment(0, 0);
     fdgRepeat.right = new FormAttachment(100, 0);
     fdgRepeat.top = new FormAttachment(wRepeat, 0);
-    fdgRepeat.bottom = new FormAttachment(wOk, -2 * margin);
+    fdgRepeat.bottom = new FormAttachment(wOk, -margin);
     gRepeat.setLayoutData(fdgRepeat);
 
     FormLayout groupLayout = new FormLayout();
@@ -270,7 +270,7 @@ public class ActionStartDialog extends ActionDialog {
   private void placeControl(Composite composite, String text, Control control, Control under) {
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
-    int extraVerticalMargin = (under instanceof Button) ? 2 * margin : 0;
+    int extraVerticalMargin = (under instanceof Button) ? margin : 0;
 
     Label label = new Label(composite, SWT.RIGHT);
     label.setText(text);

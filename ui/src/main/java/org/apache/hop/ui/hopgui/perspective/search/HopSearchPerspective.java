@@ -234,7 +234,7 @@ public class HopSearchPerspective implements IHopPerspective {
     wCaseSensitive.setText(
         BaseMessages.getString(PKG, "HopSearchPerspective.SearchStringOptions.Option1.Label"));
     FormData fdCaseSensitive = new FormData();
-    fdCaseSensitive.left = new FormAttachment(wlSearchString, margin * 2);
+    fdCaseSensitive.left = new FormAttachment(wlSearchString, margin);
     fdCaseSensitive.top = new FormAttachment(lastControl, margin);
     wCaseSensitive.setLayoutData(fdCaseSensitive);
 
@@ -243,7 +243,7 @@ public class HopSearchPerspective implements IHopPerspective {
     wRegEx.setText(
         BaseMessages.getString(PKG, "HopSearchPerspective.SearchStringOptions.Option2.Label"));
     FormData fdRegEx = new FormData();
-    fdRegEx.left = new FormAttachment(wCaseSensitive, margin * 2);
+    fdRegEx.left = new FormAttachment(wCaseSensitive, margin);
     fdRegEx.top = new FormAttachment(lastControl, margin);
     wRegEx.setLayoutData(fdRegEx);
     lastControl = wCaseSensitive;
@@ -338,7 +338,7 @@ public class HopSearchPerspective implements IHopPerspective {
     fdResults.left = new FormAttachment(0, 0);
     fdResults.right = new FormAttachment(100, 0);
     fdResults.top = new FormAttachment(lastControl, margin);
-    fdResults.bottom = new FormAttachment(wbOpen, -2 * margin);
+    fdResults.bottom = new FormAttachment(wbOpen, -margin);
     wResults.setLayoutData(fdResults);
     wResults.table.addListener(
         SWT.Selection, e -> wbOpen.setEnabled(wResults.getSelectionIndices().length == 1));

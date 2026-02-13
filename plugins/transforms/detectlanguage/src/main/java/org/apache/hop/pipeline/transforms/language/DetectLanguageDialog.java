@@ -22,20 +22,13 @@ import static org.apache.hop.i18n.BaseMessages.getString;
 import static org.eclipse.swt.SWT.BORDER;
 import static org.eclipse.swt.SWT.CHECK;
 import static org.eclipse.swt.SWT.CURSOR_WAIT;
-import static org.eclipse.swt.SWT.DIALOG_TRIM;
-import static org.eclipse.swt.SWT.LEFT;
-import static org.eclipse.swt.SWT.MAX;
-import static org.eclipse.swt.SWT.MIN;
-import static org.eclipse.swt.SWT.PUSH;
 import static org.eclipse.swt.SWT.READ_ONLY;
-import static org.eclipse.swt.SWT.RESIZE;
 import static org.eclipse.swt.SWT.RIGHT;
-import static org.eclipse.swt.SWT.SINGLE;
-import static org.eclipse.swt.SWT.Selection;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
@@ -49,12 +42,10 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class DetectLanguageDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DetectLanguageDialog.class;
@@ -76,44 +67,12 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "DetectLanguageDialog.Shell.Title"));
 
-    shell = new Shell(parent, DIALOG_TRIM | RESIZE | MAX | MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     Listener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(getString(PKG, "DetectLanguageDialog.Shell.Title"));
-
-    int middle = PropsUi.getInstance().getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, RIGHT);
-    wlTransformName.setText(getString(PKG, "DetectLanguageDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SINGLE | LEFT | BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addListener(SWT.Modify, lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // CorpusFieldName field
     Label wlCorpusFieldName = new Label(shell, RIGHT);
@@ -122,7 +81,7 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     FormData fdlCorpusFieldName = new FormData();
     fdlCorpusFieldName.left = new FormAttachment(0, 0);
     fdlCorpusFieldName.right = new FormAttachment(middle, -margin);
-    fdlCorpusFieldName.top = new FormAttachment(wTransformName, margin);
+    fdlCorpusFieldName.top = new FormAttachment(wSpacer, margin);
     wlCorpusFieldName.setLayoutData(fdlCorpusFieldName);
 
     wCorpusFieldName = new CCombo(shell, BORDER | READ_ONLY);
@@ -130,7 +89,7 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     wCorpusFieldName.addListener(SWT.Modify, lsMod);
     FormData fdCorpusFieldName = new FormData();
     fdCorpusFieldName.left = new FormAttachment(middle, 0);
-    fdCorpusFieldName.top = new FormAttachment(wTransformName, margin);
+    fdCorpusFieldName.top = new FormAttachment(wSpacer, margin);
     fdCorpusFieldName.right = new FormAttachment(100, 0);
     wCorpusFieldName.setLayoutData(fdCorpusFieldName);
     wCorpusFieldName.addFocusListener(
@@ -155,7 +114,7 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     FormData fdlParallelism = new FormData();
     fdlParallelism.left = new FormAttachment(0, 0);
     fdlParallelism.top = new FormAttachment(wCorpusFieldName, margin);
-    fdlParallelism.right = new FormAttachment(middle, -2 * margin);
+    fdlParallelism.right = new FormAttachment(middle, -margin);
     wlParallelism.setLayoutData(fdlParallelism);
 
     wParallelism = new Button(shell, CHECK);
@@ -164,26 +123,14 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     wParallelism.setToolTipText(getString(PKG, "DetectLanguageDialog.Parallelism.Tooltip"));
     FormData fdParallelism = new FormData();
     fdParallelism.left = new FormAttachment(middle, -margin);
-    fdParallelism.top = new FormAttachment(wCorpusFieldName, margin * 2);
+    fdParallelism.top = new FormAttachment(wCorpusFieldName, margin);
     fdParallelism.right = new FormAttachment(100, 0);
     wParallelism.setLayoutData(fdParallelism);
     wParallelism.addListener(SWT.Selection, lsMod);
 
-    // THE BUTTONS
-    wOk = new Button(shell, PUSH);
-    wOk.setText(getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, PUSH);
-    wCancel.setText(getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Add listeners
-    wOk.addListener(Selection, e -> ok());
-    wCancel.addListener(Selection, e -> cancel());
-
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -197,9 +144,6 @@ public class DetectLanguageDialog extends BaseTransformDialog implements ITransf
     }
 
     wParallelism.setSelection(input.isParallelism());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

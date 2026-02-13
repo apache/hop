@@ -20,7 +20,6 @@ package org.apache.hop.ui.core.gui;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
@@ -160,37 +159,36 @@ public class WindowProperty {
       shell.setSize(bounds.width, bounds.height);
     }
 
-    // Just to double check: what is the preferred size of this dialog?
-    // This computed is a minimum. If the minimum is smaller than the
-    // size of the current shell, we make it larger.
-    //
-    Point computedSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+    // Use the saved size as-is, don't try to adjust it based on computed size
     Rectangle shellSize = shell.getBounds();
-    if (shellSize.width < computedSize.x) {
-      shellSize.width = computedSize.x;
-    }
-    if (shellSize.height < computedSize.y) {
-      shellSize.height = computedSize.y;
-    }
-    shell.setBounds(shellSize);
 
     Rectangle entireClientArea = shell.getDisplay().getClientArea();
     Rectangle resizedRect =
         new Rectangle(shellSize.x, shellSize.y, shellSize.width, shellSize.height);
     constrainRectangleToContainer(resizedRect, entireClientArea);
 
+    boolean needsRepositioning = !resizedRect.equals(shellSize);
+    boolean isClipped = isClippedByUnalignedMonitors(resizedRect, shell.getDisplay());
+
     // If the persisted size/location doesn't perfectly fit
     // into the entire client area, the persisted settings
     // likely were not meant for this configuration of monitors.
-    // Relocate the shell into either the parent monitor or if
-    // there is no parent, the primary monitor then center it.
+    // Try to find which monitor the saved position belongs to, then
+    // relocate the shell to either that monitor, the parent monitor,
+    // or the primary monitor as a last resort.
     //
-    if (!resizedRect.equals(shellSize)
-        || isClippedByUnalignedMonitors(resizedRect, shell.getDisplay())) {
-      Monitor monitor = shell.getDisplay().getPrimaryMonitor();
-      if (shell.getParent() != null) {
-        monitor = shell.getParent().getMonitor();
+    if (needsRepositioning || isClipped) {
+      // First, try to find the monitor that contains the saved position
+      Monitor monitor = getMonitorForPosition(shell.getDisplay(), x, y);
+
+      // If no monitor contains the saved position, fall back to parent or primary
+      if (monitor == null) {
+        monitor = shell.getDisplay().getPrimaryMonitor();
+        if (shell.getParent() != null) {
+          monitor = shell.getParent().getMonitor();
+        }
       }
+
       Rectangle monitorClientArea = monitor.getClientArea();
       constrainRectangleToContainer(resizedRect, monitorClientArea);
 
@@ -255,6 +253,32 @@ public class WindowProperty {
     }
 
     return isClipped;
+  }
+
+  /**
+   * Finds the monitor that contains the specified position. This is used to restore windows on the
+   * correct monitor in multi-monitor setups, especially on macOS where saved window positions
+   * should be restored to the same monitor they were on when closed.
+   *
+   * @param display the display containing multiple monitors
+   * @param x the x coordinate to check
+   * @param y the y coordinate to check
+   * @return the Monitor containing the position, or null if no monitor contains it
+   */
+  private Monitor getMonitorForPosition(Display display, int x, int y) {
+    Monitor[] monitors = display.getMonitors();
+
+    for (Monitor monitor : monitors) {
+      Rectangle bounds = monitor.getBounds();
+
+      // Check both the exact position and a point slightly inside (100px)
+      // to handle positions saved at the very edge of a monitor
+      if (bounds.contains(x, y) || bounds.contains(x + 100, y + 100)) {
+        return monitor;
+      }
+    }
+
+    return null;
   }
 
   /**

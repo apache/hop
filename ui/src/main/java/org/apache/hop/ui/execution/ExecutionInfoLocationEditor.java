@@ -147,7 +147,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.name"));
     FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, margin * 2);
+    fdlName.top = new FormAttachment(0, margin);
     fdlName.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlName.right = new FormAttachment(middle, 0);
     wlName.setLayoutData(fdlName);
@@ -165,7 +165,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wlDescription.setText(
         BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.description"));
     FormData fdlDescription = new FormData();
-    fdlDescription.top = new FormAttachment(lastControl, margin * 2);
+    fdlDescription.top = new FormAttachment(lastControl, margin);
     fdlDescription.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlDescription.right = new FormAttachment(middle, 0);
     wlDescription.setLayoutData(fdlDescription);
@@ -183,7 +183,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wlDataLoggingDelay.setText(
         BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.DataLoggingDelay"));
     FormData fdlDataLoggingDelay = new FormData();
-    fdlDataLoggingDelay.top = new FormAttachment(lastControl, margin * 2);
+    fdlDataLoggingDelay.top = new FormAttachment(lastControl, margin);
     fdlDataLoggingDelay.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlDataLoggingDelay.right = new FormAttachment(middle, 0);
     wlDataLoggingDelay.setLayoutData(fdlDataLoggingDelay);
@@ -201,7 +201,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wlDataLoggingInterval.setText(
         BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.DataLoggingInterval"));
     FormData fdlDataLoggingInterval = new FormData();
-    fdlDataLoggingInterval.top = new FormAttachment(lastControl, margin * 2);
+    fdlDataLoggingInterval.top = new FormAttachment(lastControl, margin);
     fdlDataLoggingInterval.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlDataLoggingInterval.right = new FormAttachment(middle, 0);
     wlDataLoggingInterval.setLayoutData(fdlDataLoggingInterval);
@@ -221,7 +221,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     wlPluginType.setText(
         BaseMessages.getString(PKG, "ExecutionInfoLocationEditor.label.locationType"));
     FormData fdlPluginType = new FormData();
-    fdlPluginType.top = new FormAttachment(lastControl, margin * 2);
+    fdlPluginType.top = new FormAttachment(lastControl, margin);
     fdlPluginType.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlPluginType.right = new FormAttachment(middle, 0);
     wlPluginType.setLayoutData(fdlPluginType);

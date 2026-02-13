@@ -226,7 +226,7 @@ public class ActionWaitForFileDialog extends ActionDialog {
     PropsUi.setLook(wlFileSizeCheck);
     FormData fdlFileSizeCheck = new FormData();
     fdlFileSizeCheck.left = new FormAttachment(0, 0);
-    fdlFileSizeCheck.top = new FormAttachment(wlSuccessOnTimeout, 2 * margin);
+    fdlFileSizeCheck.top = new FormAttachment(wlSuccessOnTimeout, margin);
     fdlFileSizeCheck.right = new FormAttachment(middle, -margin);
     wlFileSizeCheck.setLayoutData(fdlFileSizeCheck);
     wFileSizeCheck = new Button(shell, SWT.CHECK);
@@ -253,7 +253,7 @@ public class ActionWaitForFileDialog extends ActionDialog {
     PropsUi.setLook(wlAddFilenameResult);
     FormData fdlAddFilenameResult = new FormData();
     fdlAddFilenameResult.left = new FormAttachment(0, 0);
-    fdlAddFilenameResult.top = new FormAttachment(wlFileSizeCheck, 2 * margin);
+    fdlAddFilenameResult.top = new FormAttachment(wlFileSizeCheck, margin);
     fdlAddFilenameResult.right = new FormAttachment(middle, -margin);
     wlAddFilenameResult.setLayoutData(fdlAddFilenameResult);
     wAddFilenameResult = new Button(shell, SWT.CHECK);
@@ -281,7 +281,7 @@ public class ActionWaitForFileDialog extends ActionDialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, 2 * margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     getData();
 

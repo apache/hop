@@ -110,6 +110,14 @@ public class TableView extends Composite {
   private static final int EXTRA_COLUMN_WIDTH_MARGIN =
       Const.toInt(HopConfig.readStringVariable(Const.HOP_TABLE_VIEW_EXTRA_COLUMN_MARGIN, ""), 0);
 
+  /** Default minimum height hint in pixels for all TableView instances. */
+  public static final int HEIGHT_HINT_PX = 200;
+
+  /**
+   * Default minimum width hint in pixels for all TableView instances (matches typical shell width).
+   */
+  public static final int WIDTH_HINT_PX = 400;
+
   @Override
   public void setEnabled(boolean enabled) {
     super.setEnabled(enabled);
@@ -496,6 +504,7 @@ public class TableView extends Composite {
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
     fdTable.right = new FormAttachment(100, 0);
+    fdTable.width = WIDTH_HINT_PX;
     if (props.isShowTableViewToolbar()) {
       fdTable.top = new FormAttachment(toolbar, 0);
     } else {
@@ -626,6 +635,15 @@ public class TableView extends Composite {
 
     layout();
     pack();
+  }
+
+  @Override
+  public Point computeSize(int wHint, int hHint, boolean changed) {
+    Point size = super.computeSize(wHint, hHint, changed);
+    if (hHint == SWT.DEFAULT && size.y < HEIGHT_HINT_PX) {
+      size.y = HEIGHT_HINT_PX;
+    }
+    return size;
   }
 
   private void enableToolbarButtons() {

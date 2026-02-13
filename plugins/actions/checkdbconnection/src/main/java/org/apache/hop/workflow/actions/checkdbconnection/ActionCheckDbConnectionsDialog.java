@@ -124,7 +124,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wName, 2 * margin);
+    fdlFields.top = new FormAttachment(wName, margin);
     wlFields.setLayoutData(fdlFields);
 
     // Buttons to the right of the screen...
@@ -190,7 +190,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wbGetConnections, -margin);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     // Delete files from the list of files...

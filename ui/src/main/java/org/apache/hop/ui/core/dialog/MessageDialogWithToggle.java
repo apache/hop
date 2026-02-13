@@ -124,7 +124,7 @@ public class MessageDialogWithToggle {
     FormData fdToggle = new FormData();
     fdToggle.left = new FormAttachment(0, 0);
     fdToggle.right = new FormAttachment(100, 0);
-    fdToggle.top = new FormAttachment(wlMessage, 2 * margin);
+    fdToggle.top = new FormAttachment(wlMessage, margin);
     wToggle.setLayoutData(fdToggle);
     // Keep the state sync'ed up...
     wToggle.addListener(SWT.Selection, e -> toggleState = wToggle.getSelection());

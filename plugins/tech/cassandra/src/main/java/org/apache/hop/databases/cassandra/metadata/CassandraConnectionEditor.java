@@ -71,7 +71,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     PropsUi.setLook(wlName);
     wlName.setText("Cassandra connection name");
     FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment(0, margin * 2);
+    fdlName.top = new FormAttachment(0, margin);
     fdlName.left = new FormAttachment(0, 0);
     fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);

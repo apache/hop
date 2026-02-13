@@ -61,10 +61,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -631,8 +633,6 @@ public class WebServiceDialog extends BaseTransformDialog {
 
   /** Here we populate the dialog using the incoming web services meta data */
   private void getData() {
-    wTransformName.setText(transformName);
-
     wURL.setText(meta.getUrl() == null ? "" : meta.getUrl());
     wProxyHost.setText(meta.getProxyHost() == null ? "" : meta.getProxyHost());
     wProxyPort.setText(meta.getProxyPort() == null ? "" : meta.getProxyPort());
@@ -765,70 +765,51 @@ public class WebServiceDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "WebServiceDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, meta);
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "WebServiceDialog.Label.AddInputButton"),
+            e -> {
+              addTabFieldIn();
+              wTabFolder.setSelection(tabItemFieldIn);
+            })
+        .custom(
+            BaseMessages.getString(PKG, "WebServiceDialog.Label.AddOutputButton"),
+            e -> {
+              addTabFieldOut();
+              wTabFolder.setSelection(tabItemFieldOut);
+            })
+        .cancel(e -> cancel())
+        .build();
 
     changed = meta.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite wScrolledComposite =
+        new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wScrolledComposite);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    wScrolledComposite.setLayoutData(fdSc);
+    wScrolledComposite.setLayout(new FillLayout());
+    wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "WebServiceDialog.DialogTitle"));
+    Composite wContent = new Composite(wScrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
+    Label wContentTop = new Label(wContent, SWT.NONE);
+    wContentTop.setLayoutData(new FormData(0, 0));
 
-    // Buttons OK / Cancel / ... at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wAddInput = new Button(shell, SWT.PUSH);
-    wAddInput.setText(BaseMessages.getString(PKG, "WebServiceDialog.Label.AddInputButton"));
-    wAddInput.addListener(
-        SWT.Selection,
-        e -> {
-          addTabFieldIn();
-          wTabFolder.setSelection(tabItemFieldIn);
-        });
-    Button wAddOutput = new Button(shell, SWT.PUSH);
-    wAddOutput.setText(BaseMessages.getString(PKG, "WebServiceDialog.Label.AddOutputButton"));
-    wAddOutput.addListener(
-        SWT.Selection,
-        e -> {
-          addTabFieldOut();
-          wTabFolder.setSelection(tabItemFieldOut);
-        });
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wAddInput, wAddOutput, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    wTabFolder = new CTabFolder(wContent, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // Add a tab which contains information on the web service(s)
@@ -1037,7 +1018,7 @@ public class WebServiceDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCompatible);
     FormData fdlCompatible = new FormData();
     fdlCompatible.left = new FormAttachment(0, 0);
-    fdlCompatible.top = new FormAttachment(wlPassInputData, 2 * margin);
+    fdlCompatible.top = new FormAttachment(wlPassInputData, margin);
     fdlCompatible.right = new FormAttachment(middle, -margin);
     wlCompatible.setLayoutData(fdlCompatible);
     wCompatible = new Button(compositeTabWebService, SWT.CHECK);
@@ -1055,7 +1036,7 @@ public class WebServiceDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "WebServiceDialog.RepeatingElement.Label"));
     PropsUi.setLook(wlRepeatingElement);
     FormData fdlRepeatingElement = new FormData();
-    fdlRepeatingElement.top = new FormAttachment(wlCompatible, 2 * margin);
+    fdlRepeatingElement.top = new FormAttachment(wlCompatible, margin);
     fdlRepeatingElement.left = new FormAttachment(0, 0);
     fdlRepeatingElement.right = new FormAttachment(middle, -margin);
     wlRepeatingElement.setLayoutData(fdlRepeatingElement);
@@ -1094,7 +1075,7 @@ public class WebServiceDialog extends BaseTransformDialog {
     // ////////////////////////
     // START HTTP AUTH GROUP
 
-    Group gHttpAuth = new Group(compositeTabWebService, SWT.SHADOW_ETCHED_IN);
+    Group gHttpAuth = new Group(compositeTabWebService, SWT.SHADOW_NONE);
     gHttpAuth.setText(BaseMessages.getString(PKG, "WebServicesDialog.HttpAuthGroup.Label"));
     FormLayout httpAuthLayout = new FormLayout();
     httpAuthLayout.marginWidth = 3;
@@ -1153,7 +1134,7 @@ public class WebServiceDialog extends BaseTransformDialog {
     // ////////////////////////
     // START PROXY GROUP
 
-    Group gProxy = new Group(compositeTabWebService, SWT.SHADOW_ETCHED_IN);
+    Group gProxy = new Group(compositeTabWebService, SWT.SHADOW_NONE);
     gProxy.setText(BaseMessages.getString(PKG, "WebServicesDialog.ProxyGroup.Label"));
     FormLayout proxyLayout = new FormLayout();
     proxyLayout.marginWidth = 3;
@@ -1238,14 +1219,18 @@ public class WebServiceDialog extends BaseTransformDialog {
     wTabFolder.setSelection(tabItemWebService);
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wContentTop, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(100, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
+
+    wScrolledComposite.setContent(wContent);
+    wContent.pack();
+    wScrolledComposite.setMinSize(wContent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
     getData();
     setComboValues();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;

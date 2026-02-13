@@ -41,12 +41,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class MemoryGroupByDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MemoryGroupByMeta.class;
@@ -75,11 +74,9 @@ public class MemoryGroupByDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "MemoryGroupByDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSel =
@@ -91,34 +88,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog {
         };
     backupChanged = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "MemoryGroupByDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "MemoryGroupByDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     // Always pass a result rows as output
     //
@@ -130,7 +100,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAlwaysAddResult);
     FormData fdlAlwaysAddResult = new FormData();
     fdlAlwaysAddResult.left = new FormAttachment(0, 0);
-    fdlAlwaysAddResult.top = new FormAttachment(wTransformName, margin);
+    fdlAlwaysAddResult.top = new FormAttachment(lastControl, margin);
     fdlAlwaysAddResult.right = new FormAttachment(middle, -margin);
     wlAlwaysAddResult.setLayoutData(fdlAlwaysAddResult);
     wAlwaysAddResult = new Button(shell, SWT.CHECK);
@@ -149,7 +119,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog {
     PropsUi.setLook(wlGroup);
     FormData fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment(0, 0);
-    fdlGroup.top = new FormAttachment(wlAlwaysAddResult, 2 * margin);
+    fdlGroup.top = new FormAttachment(wlAlwaysAddResult, margin);
     wlGroup.setLayoutData(fdlGroup);
 
     int groupCols = 1;
@@ -264,14 +234,6 @@ public class MemoryGroupByDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     FormData fdAgg = new FormData();
     fdAgg.left = new FormAttachment(0, 0);
     fdAgg.top = new FormAttachment(wlAgg, margin);
@@ -280,14 +242,12 @@ public class MemoryGroupByDialog extends BaseTransformDialog {
     wAgg.setLayoutData(fdAgg);
 
     // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
     wGet.addListener(SWT.Selection, e -> get());
     wGetAgg.addListener(SWT.Selection, e -> getAgg());
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
     input.setChanged(backupChanged);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -325,9 +285,6 @@ public class MemoryGroupByDialog extends BaseTransformDialog {
     wGroup.optWidth(true);
     wAgg.setRowNums();
     wAgg.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

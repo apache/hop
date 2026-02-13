@@ -29,14 +29,17 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class BeamKinesisConsumeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BeamKinesisConsume.class;
@@ -82,53 +85,41 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
+
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    Control lastControl = null;
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
-
-    Label wlAccessKey = new Label(shell, SWT.RIGHT);
+    Label wlAccessKey = new Label(wContent, SWT.RIGHT);
     wlAccessKey.setText(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.AccessKey"));
     PropsUi.setLook(wlAccessKey);
     FormData fdlAccessKey = new FormData();
     fdlAccessKey.left = new FormAttachment(0, 0);
-    fdlAccessKey.top = new FormAttachment(lastControl, margin);
+    fdlAccessKey.top = new FormAttachment(0, margin);
     fdlAccessKey.right = new FormAttachment(middle, -margin);
     wlAccessKey.setLayoutData(fdlAccessKey);
-    wAccessKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    wAccessKey =
+        new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wAccessKey);
     FormData fdAccessKey = new FormData();
     fdAccessKey.left = new FormAttachment(middle, 0);
@@ -137,7 +128,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wAccessKey.setLayoutData(fdAccessKey);
     lastControl = wAccessKey;
 
-    Label wlSecretKey = new Label(shell, SWT.RIGHT);
+    Label wlSecretKey = new Label(wContent, SWT.RIGHT);
     wlSecretKey.setText(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.SecretKey"));
     PropsUi.setLook(wlSecretKey);
     FormData fdlSecretKey = new FormData();
@@ -145,7 +136,8 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlSecretKey.top = new FormAttachment(lastControl, margin);
     fdlSecretKey.right = new FormAttachment(middle, -margin);
     wlSecretKey.setLayoutData(fdlSecretKey);
-    wSecretKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    wSecretKey =
+        new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wSecretKey);
     FormData fdSecretKey = new FormData();
     fdSecretKey.left = new FormAttachment(middle, 0);
@@ -154,7 +146,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wSecretKey.setLayoutData(fdSecretKey);
     lastControl = wSecretKey;
 
-    Label wlStreamName = new Label(shell, SWT.RIGHT);
+    Label wlStreamName = new Label(wContent, SWT.RIGHT);
     wlStreamName.setText(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.StreamName"));
     PropsUi.setLook(wlStreamName);
     FormData fdlStreamName = new FormData();
@@ -162,7 +154,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlStreamName.top = new FormAttachment(lastControl, margin);
     fdlStreamName.right = new FormAttachment(middle, -margin);
     wlStreamName.setLayoutData(fdlStreamName);
-    wStreamName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wStreamName = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wStreamName);
     FormData fdStreamName = new FormData();
     fdStreamName.left = new FormAttachment(middle, 0);
@@ -171,7 +163,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wStreamName.setLayoutData(fdStreamName);
     lastControl = wStreamName;
 
-    Label wlUniqueIdField = new Label(shell, SWT.RIGHT);
+    Label wlUniqueIdField = new Label(wContent, SWT.RIGHT);
     wlUniqueIdField.setText(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.UniqueIdField"));
     PropsUi.setLook(wlUniqueIdField);
     FormData fdlUniqueIdField = new FormData();
@@ -179,7 +171,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlUniqueIdField.top = new FormAttachment(lastControl, margin);
     fdlUniqueIdField.right = new FormAttachment(middle, -margin);
     wlUniqueIdField.setLayoutData(fdlUniqueIdField);
-    wUniqueIdField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wUniqueIdField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wUniqueIdField);
     FormData fdUniqueIdField = new FormData();
     fdUniqueIdField.left = new FormAttachment(middle, 0);
@@ -188,7 +180,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wUniqueIdField.setLayoutData(fdUniqueIdField);
     lastControl = wUniqueIdField;
 
-    Label wlDataField = new Label(shell, SWT.RIGHT);
+    Label wlDataField = new Label(wContent, SWT.RIGHT);
     wlDataField.setText(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.DataField"));
     PropsUi.setLook(wlDataField);
     FormData fdlDataField = new FormData();
@@ -196,7 +188,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlDataField.top = new FormAttachment(lastControl, margin);
     fdlDataField.right = new FormAttachment(middle, -margin);
     wlDataField.setLayoutData(fdlDataField);
-    wDataField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDataField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDataField);
     FormData fdDataField = new FormData();
     fdDataField.left = new FormAttachment(middle, 0);
@@ -205,7 +197,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wDataField.setLayoutData(fdDataField);
     lastControl = wDataField;
 
-    Label wlDataType = new Label(shell, SWT.RIGHT);
+    Label wlDataType = new Label(wContent, SWT.RIGHT);
     wlDataType.setText(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.DataType"));
     PropsUi.setLook(wlDataType);
     FormData fdlDataType = new FormData();
@@ -213,7 +205,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlDataType.top = new FormAttachment(lastControl, margin);
     fdlDataType.right = new FormAttachment(middle, -margin);
     wlDataType.setLayoutData(fdlDataType);
-    wDataType = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDataType = new ComboVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wDataType.setItems(
         new String[] {
           "String",
@@ -226,7 +218,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wDataType.setLayoutData(fdDataType);
     lastControl = wDataType;
 
-    Label wlPartitionKeyField = new Label(shell, SWT.RIGHT);
+    Label wlPartitionKeyField = new Label(wContent, SWT.RIGHT);
     wlPartitionKeyField.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.PartitionKeyField"));
     PropsUi.setLook(wlPartitionKeyField);
@@ -235,7 +227,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlPartitionKeyField.top = new FormAttachment(lastControl, margin);
     fdlPartitionKeyField.right = new FormAttachment(middle, -margin);
     wlPartitionKeyField.setLayoutData(fdlPartitionKeyField);
-    wPartitionKeyField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPartitionKeyField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPartitionKeyField);
     FormData fdPartitionKeyField = new FormData();
     fdPartitionKeyField.left = new FormAttachment(middle, 0);
@@ -244,7 +236,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wPartitionKeyField.setLayoutData(fdPartitionKeyField);
     lastControl = wPartitionKeyField;
 
-    Label wlSequenceNumberField = new Label(shell, SWT.RIGHT);
+    Label wlSequenceNumberField = new Label(wContent, SWT.RIGHT);
     wlSequenceNumberField.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.SequenceNumberField"));
     PropsUi.setLook(wlSequenceNumberField);
@@ -253,7 +245,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlSequenceNumberField.top = new FormAttachment(lastControl, margin);
     fdlSequenceNumberField.right = new FormAttachment(middle, -margin);
     wlSequenceNumberField.setLayoutData(fdlSequenceNumberField);
-    wSequenceNumberField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSequenceNumberField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSequenceNumberField);
     FormData fdSequenceNumberField = new FormData();
     fdSequenceNumberField.left = new FormAttachment(middle, 0);
@@ -262,7 +254,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wSequenceNumberField.setLayoutData(fdSequenceNumberField);
     lastControl = wSequenceNumberField;
 
-    Label wlSubSequenceNumberField = new Label(shell, SWT.RIGHT);
+    Label wlSubSequenceNumberField = new Label(wContent, SWT.RIGHT);
     wlSubSequenceNumberField.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.SubSequenceNumberField"));
     PropsUi.setLook(wlSubSequenceNumberField);
@@ -271,7 +263,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlSubSequenceNumberField.top = new FormAttachment(lastControl, margin);
     fdlSubSequenceNumberField.right = new FormAttachment(middle, -margin);
     wlSubSequenceNumberField.setLayoutData(fdlSubSequenceNumberField);
-    wSubSequenceNumberField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSubSequenceNumberField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSubSequenceNumberField);
     FormData fdSubSequenceNumberField = new FormData();
     fdSubSequenceNumberField.left = new FormAttachment(middle, 0);
@@ -280,7 +272,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wSubSequenceNumberField.setLayoutData(fdSubSequenceNumberField);
     lastControl = wSubSequenceNumberField;
 
-    Label wlShardIdField = new Label(shell, SWT.RIGHT);
+    Label wlShardIdField = new Label(wContent, SWT.RIGHT);
     wlShardIdField.setText(BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.ShardIdField"));
     PropsUi.setLook(wlShardIdField);
     FormData fdlShardIdField = new FormData();
@@ -288,7 +280,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlShardIdField.top = new FormAttachment(lastControl, margin);
     fdlShardIdField.right = new FormAttachment(middle, -margin);
     wlShardIdField.setLayoutData(fdlShardIdField);
-    wShardIdField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wShardIdField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wShardIdField);
     FormData fdShardIdField = new FormData();
     fdShardIdField.left = new FormAttachment(middle, 0);
@@ -297,7 +289,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wShardIdField.setLayoutData(fdShardIdField);
     lastControl = wShardIdField;
 
-    Label wlStreamNameField = new Label(shell, SWT.RIGHT);
+    Label wlStreamNameField = new Label(wContent, SWT.RIGHT);
     wlStreamNameField.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.StreamNameField"));
     PropsUi.setLook(wlStreamNameField);
@@ -306,7 +298,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlStreamNameField.top = new FormAttachment(lastControl, margin);
     fdlStreamNameField.right = new FormAttachment(middle, -margin);
     wlStreamNameField.setLayoutData(fdlStreamNameField);
-    wStreamNameField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wStreamNameField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wStreamNameField);
     FormData fdStreamNameField = new FormData();
     fdStreamNameField.left = new FormAttachment(middle, 0);
@@ -315,7 +307,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wStreamNameField.setLayoutData(fdStreamNameField);
     lastControl = wStreamNameField;
 
-    Label wlMaxNumRecords = new Label(shell, SWT.RIGHT);
+    Label wlMaxNumRecords = new Label(wContent, SWT.RIGHT);
     wlMaxNumRecords.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.MaxNumRecords.Label"));
     wlMaxNumRecords.setToolTipText(
@@ -326,7 +318,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlMaxNumRecords.top = new FormAttachment(lastControl, margin);
     fdlMaxNumRecords.right = new FormAttachment(middle, -margin);
     wlMaxNumRecords.setLayoutData(fdlMaxNumRecords);
-    wMaxNumRecords = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMaxNumRecords = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wMaxNumRecords.setToolTipText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.MaxNumRecords.Tooltip"));
     PropsUi.setLook(wMaxNumRecords);
@@ -337,7 +329,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wMaxNumRecords.setLayoutData(fdMaxNumRecords);
     lastControl = wMaxNumRecords;
 
-    Label wlMaxReadTimeMs = new Label(shell, SWT.RIGHT);
+    Label wlMaxReadTimeMs = new Label(wContent, SWT.RIGHT);
     wlMaxReadTimeMs.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.MaxReadTimeMs.Label"));
     wlMaxReadTimeMs.setToolTipText(
@@ -348,7 +340,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlMaxReadTimeMs.top = new FormAttachment(lastControl, margin);
     fdlMaxReadTimeMs.right = new FormAttachment(middle, -margin);
     wlMaxReadTimeMs.setLayoutData(fdlMaxReadTimeMs);
-    wMaxReadTimeMs = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMaxReadTimeMs = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wMaxReadTimeMs.setToolTipText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.MaxReadTimeMs.Tooltip"));
     PropsUi.setLook(wMaxReadTimeMs);
@@ -359,7 +351,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wMaxReadTimeMs.setLayoutData(fdMaxReadTimeMs);
     lastControl = wMaxReadTimeMs;
 
-    Label wlUpToDateThresholdMs = new Label(shell, SWT.RIGHT);
+    Label wlUpToDateThresholdMs = new Label(wContent, SWT.RIGHT);
     wlUpToDateThresholdMs.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.UpToDateThresholdMs.Label"));
     wlUpToDateThresholdMs.setToolTipText(
@@ -370,7 +362,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlUpToDateThresholdMs.top = new FormAttachment(lastControl, margin);
     fdlUpToDateThresholdMs.right = new FormAttachment(middle, -margin);
     wlUpToDateThresholdMs.setLayoutData(fdlUpToDateThresholdMs);
-    wUpToDateThresholdMs = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wUpToDateThresholdMs = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wUpToDateThresholdMs.setToolTipText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.UpToDateThresholdMs.Tooltip"));
     PropsUi.setLook(wUpToDateThresholdMs);
@@ -381,7 +373,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wUpToDateThresholdMs.setLayoutData(fdUpToDateThresholdMs);
     lastControl = wUpToDateThresholdMs;
 
-    Label wlRequestRecordsLimit = new Label(shell, SWT.RIGHT);
+    Label wlRequestRecordsLimit = new Label(wContent, SWT.RIGHT);
     wlRequestRecordsLimit.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.RequestRecordsLimit.Label"));
     wlRequestRecordsLimit.setToolTipText(
@@ -392,7 +384,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlRequestRecordsLimit.top = new FormAttachment(lastControl, margin);
     fdlRequestRecordsLimit.right = new FormAttachment(middle, -margin);
     wlRequestRecordsLimit.setLayoutData(fdlRequestRecordsLimit);
-    wRequestRecordsLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wRequestRecordsLimit = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wRequestRecordsLimit.setToolTipText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.RequestRecordsLimit.Tooltip"));
     PropsUi.setLook(wRequestRecordsLimit);
@@ -403,7 +395,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wRequestRecordsLimit.setLayoutData(fdRequestRecordsLimit);
     lastControl = wRequestRecordsLimit;
 
-    Label wlArrivalTimeWatermarkPolicy = new Label(shell, SWT.RIGHT);
+    Label wlArrivalTimeWatermarkPolicy = new Label(wContent, SWT.RIGHT);
     wlArrivalTimeWatermarkPolicy.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.ArrivalTimeWatermarkPolicy.Label"));
     wlArrivalTimeWatermarkPolicy.setToolTipText(
@@ -414,7 +406,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlArrivalTimeWatermarkPolicy.top = new FormAttachment(lastControl, margin);
     fdlArrivalTimeWatermarkPolicy.right = new FormAttachment(middle, -margin);
     wlArrivalTimeWatermarkPolicy.setLayoutData(fdlArrivalTimeWatermarkPolicy);
-    wArrivalTimeWatermarkPolicy = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wArrivalTimeWatermarkPolicy = new Button(wContent, SWT.CHECK | SWT.LEFT);
     wArrivalTimeWatermarkPolicy.setToolTipText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.ArrivalTimeWatermarkPolicy.Tooltip"));
     PropsUi.setLook(wArrivalTimeWatermarkPolicy);
@@ -426,7 +418,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wArrivalTimeWatermarkPolicy.setLayoutData(fdArrivalTimeWatermarkPolicy);
     lastControl = wArrivalTimeWatermarkPolicy;
 
-    Label wlArrivalTimeWatermarkPolicyMs = new Label(shell, SWT.RIGHT);
+    Label wlArrivalTimeWatermarkPolicyMs = new Label(wContent, SWT.RIGHT);
     wlArrivalTimeWatermarkPolicyMs.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.ArrivalTimeWatermarkPolicyMs.Label"));
     wlArrivalTimeWatermarkPolicyMs.setToolTipText(
@@ -435,11 +427,11 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     PropsUi.setLook(wlArrivalTimeWatermarkPolicyMs);
     FormData fdlArrivalTimeWatermarkPolicyMs = new FormData();
     fdlArrivalTimeWatermarkPolicyMs.left = new FormAttachment(0, 0);
-    fdlArrivalTimeWatermarkPolicyMs.top = new FormAttachment(lastControl, 2 * margin);
+    fdlArrivalTimeWatermarkPolicyMs.top = new FormAttachment(lastControl, margin);
     fdlArrivalTimeWatermarkPolicyMs.right = new FormAttachment(middle, -margin);
     wlArrivalTimeWatermarkPolicyMs.setLayoutData(fdlArrivalTimeWatermarkPolicyMs);
     wArrivalTimeWatermarkPolicyMs =
-        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wArrivalTimeWatermarkPolicyMs.setToolTipText(
         BaseMessages.getString(
             PKG, "BeamKinesisConsumeDialog.ArrivalTimeWatermarkPolicyMs.Tooltip"));
@@ -452,7 +444,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wArrivalTimeWatermarkPolicyMs.setLayoutData(fdArrivalTimeWatermarkPolicyMs);
     lastControl = wArrivalTimeWatermarkPolicyMs;
 
-    Label wlProcessingTimeWatermarkPolicy = new Label(shell, SWT.RIGHT);
+    Label wlProcessingTimeWatermarkPolicy = new Label(wContent, SWT.RIGHT);
     wlProcessingTimeWatermarkPolicy.setText(
         BaseMessages.getString(
             PKG, "BeamKinesisConsumeDialog.ProcessingTimeWatermarkPolicy.Label"));
@@ -465,7 +457,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlProcessingTimeWatermarkPolicy.top = new FormAttachment(lastControl, margin);
     fdlProcessingTimeWatermarkPolicy.right = new FormAttachment(middle, -margin);
     wlProcessingTimeWatermarkPolicy.setLayoutData(fdlProcessingTimeWatermarkPolicy);
-    wProcessingTimeWatermarkPolicy = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wProcessingTimeWatermarkPolicy = new Button(wContent, SWT.CHECK | SWT.LEFT);
     wProcessingTimeWatermarkPolicy.setToolTipText(
         BaseMessages.getString(
             PKG, "BeamKinesisConsumeDialog.ProcessingTimeWatermarkPolicy.Tooltip"));
@@ -478,7 +470,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wProcessingTimeWatermarkPolicy.setLayoutData(fdProcessingTimeWatermarkPolicy);
     lastControl = wProcessingTimeWatermarkPolicy;
 
-    Label wlFixedDelayRatePolicy = new Label(shell, SWT.RIGHT);
+    Label wlFixedDelayRatePolicy = new Label(wContent, SWT.RIGHT);
     wlFixedDelayRatePolicy.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.FixedDelayRatePolicy.Label"));
     wlFixedDelayRatePolicy.setToolTipText(
@@ -486,10 +478,10 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFixedDelayRatePolicy);
     FormData fdlFixedDelayRatePolicy = new FormData();
     fdlFixedDelayRatePolicy.left = new FormAttachment(0, 0);
-    fdlFixedDelayRatePolicy.top = new FormAttachment(lastControl, 2 * margin);
+    fdlFixedDelayRatePolicy.top = new FormAttachment(lastControl, margin);
     fdlFixedDelayRatePolicy.right = new FormAttachment(middle, -margin);
     wlFixedDelayRatePolicy.setLayoutData(fdlFixedDelayRatePolicy);
-    wFixedDelayRatePolicy = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wFixedDelayRatePolicy = new Button(wContent, SWT.CHECK | SWT.LEFT);
     wFixedDelayRatePolicy.setToolTipText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.FixedDelayRatePolicy.Tooltip"));
     PropsUi.setLook(wFixedDelayRatePolicy);
@@ -500,7 +492,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wFixedDelayRatePolicy.setLayoutData(fdFixedDelayRatePolicy);
     lastControl = wFixedDelayRatePolicy;
 
-    Label wlFixedDelayRatePolicyMs = new Label(shell, SWT.RIGHT);
+    Label wlFixedDelayRatePolicyMs = new Label(wContent, SWT.RIGHT);
     wlFixedDelayRatePolicyMs.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.FixedDelayRatePolicyMs.Label"));
     wlFixedDelayRatePolicyMs.setToolTipText(
@@ -508,10 +500,10 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFixedDelayRatePolicyMs);
     FormData fdlFixedDelayRatePolicyMs = new FormData();
     fdlFixedDelayRatePolicyMs.left = new FormAttachment(0, 0);
-    fdlFixedDelayRatePolicyMs.top = new FormAttachment(lastControl, 2 * margin);
+    fdlFixedDelayRatePolicyMs.top = new FormAttachment(lastControl, margin);
     fdlFixedDelayRatePolicyMs.right = new FormAttachment(middle, -margin);
     wlFixedDelayRatePolicyMs.setLayoutData(fdlFixedDelayRatePolicyMs);
-    wFixedDelayRatePolicyMs = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFixedDelayRatePolicyMs = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wFixedDelayRatePolicyMs.setToolTipText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.FixedDelayRatePolicyMs.Tooltip"));
     PropsUi.setLook(wFixedDelayRatePolicyMs);
@@ -522,7 +514,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wFixedDelayRatePolicyMs.setLayoutData(fdFixedDelayRatePolicyMs);
     lastControl = wFixedDelayRatePolicyMs;
 
-    Label wlMaxCapacityPerShard = new Label(shell, SWT.RIGHT);
+    Label wlMaxCapacityPerShard = new Label(wContent, SWT.RIGHT);
     wlMaxCapacityPerShard.setText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.MaxCapacityPerShard.Label"));
     wlMaxCapacityPerShard.setToolTipText(
@@ -533,7 +525,7 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     fdlMaxCapacityPerShard.top = new FormAttachment(lastControl, margin);
     fdlMaxCapacityPerShard.right = new FormAttachment(middle, -margin);
     wlMaxCapacityPerShard.setLayoutData(fdlMaxCapacityPerShard);
-    wMaxCapacityPerShard = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMaxCapacityPerShard = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wMaxCapacityPerShard.setToolTipText(
         BaseMessages.getString(PKG, "BeamKinesisConsumeDialog.MaxCapacityPerShard.Tooltip"));
     PropsUi.setLook(wMaxCapacityPerShard);
@@ -544,23 +536,20 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wMaxCapacityPerShard.setLayoutData(fdMaxCapacityPerShard);
     lastControl = wMaxCapacityPerShard;
 
-    // Buttons go at the very bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, lastControl);
-
     wArrivalTimeWatermarkPolicy.addListener(SWT.Selection, e -> enableFields());
     wProcessingTimeWatermarkPolicy.addListener(SWT.Selection, e -> enableFields());
     wFixedDelayRatePolicy.addListener(SWT.Selection, e -> enableFields());
 
-    getData();
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
+    getData();
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -576,8 +565,6 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
 
   /** Populate the widgets. */
   public void getData() {
-    wTransformName.setText(transformName);
-
     wSecretKey.setText(Const.NVL(input.getSecretKey(), ""));
     wAccessKey.setText(Const.NVL(input.getAccessKey(), ""));
     wStreamName.setText(Const.NVL(input.getStreamName(), ""));
@@ -600,9 +587,6 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog {
     wFixedDelayRatePolicy.setSelection(input.isFixedDelayRatePolicy());
     wFixedDelayRatePolicyMs.setText(Const.NVL(input.getFixedDelayRatePolicyMs(), ""));
     wMaxCapacityPerShard.setText(Const.NVL(input.getMaxCapacityPerShard(), ""));
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

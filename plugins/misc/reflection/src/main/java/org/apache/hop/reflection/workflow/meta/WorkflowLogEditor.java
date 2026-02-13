@@ -143,7 +143,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     FormData fdlLoggingParentsOnly = new FormData();
     fdlLoggingParentsOnly.left = new FormAttachment(0, 0);
     fdlLoggingParentsOnly.right = new FormAttachment(middle, 0);
-    fdlLoggingParentsOnly.top = new FormAttachment(lastControl, 2 * margin);
+    fdlLoggingParentsOnly.top = new FormAttachment(lastControl, margin);
     wlLoggingParentsOnly.setLayoutData(fdlLoggingParentsOnly);
     wLoggingParentsOnly = new Button(parent, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wLoggingParentsOnly);
@@ -162,7 +162,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, 0);
-    fdlFilename.top = new FormAttachment(lastControl, 2 * margin);
+    fdlFilename.top = new FormAttachment(lastControl, margin);
     wlFilename.setLayoutData(fdlFilename);
 
     Button wbbFilename = new Button(parent, SWT.PUSH);
@@ -228,7 +228,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     FormData fdlAtEnd = new FormData();
     fdlAtEnd.left = new FormAttachment(0, 0);
     fdlAtEnd.right = new FormAttachment(middle, 0);
-    fdlAtEnd.top = new FormAttachment(lastControl, 2 * margin);
+    fdlAtEnd.top = new FormAttachment(lastControl, margin);
     wlAtEnd.setLayoutData(fdlAtEnd);
     wAtEnd = new Button(parent, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wAtEnd);
@@ -247,7 +247,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     FormData fdlPeriodic = new FormData();
     fdlPeriodic.left = new FormAttachment(0, 0);
     fdlPeriodic.right = new FormAttachment(middle, 0);
-    fdlPeriodic.top = new FormAttachment(lastControl, 2 * margin);
+    fdlPeriodic.top = new FormAttachment(lastControl, margin);
     wlPeriodic.setLayoutData(fdlPeriodic);
     wPeriodic = new Button(parent, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wPeriodic);
@@ -266,7 +266,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     FormData fdlInterval = new FormData();
     fdlInterval.left = new FormAttachment(0, 0);
     fdlInterval.right = new FormAttachment(middle, 0);
-    fdlInterval.top = new FormAttachment(lastControl, 2 * margin);
+    fdlInterval.top = new FormAttachment(lastControl, margin);
     wlInterval.setLayoutData(fdlInterval);
     wInterval = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wInterval);
@@ -286,7 +286,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     FormData fdlSources = new FormData();
     fdlSources.left = new FormAttachment(0, 0);
     fdlSources.right = new FormAttachment(100, 0);
-    fdlSources.top = new FormAttachment(lastControl, 2 * margin);
+    fdlSources.top = new FormAttachment(lastControl, margin);
     wlSources.setLayoutData(fdlSources);
     lastControl = wlSources;
     ColumnInfo[] columns = {

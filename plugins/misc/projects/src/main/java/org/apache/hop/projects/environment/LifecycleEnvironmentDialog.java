@@ -220,9 +220,9 @@ public class LifecycleEnvironmentDialog extends Dialog {
     PropsUi.setLook(wConfigFiles);
     FormData fdConfigFiles = new FormData();
     fdConfigFiles.left = new FormAttachment(0, 0);
-    fdConfigFiles.right = new FormAttachment(wbSelect, -2 * margin);
+    fdConfigFiles.right = new FormAttachment(wbSelect, -margin);
     fdConfigFiles.top = new FormAttachment(wlConfigFiles, margin);
-    fdConfigFiles.bottom = new FormAttachment(wOK, -margin * 2);
+    fdConfigFiles.bottom = new FormAttachment(wOK, -margin);
     wConfigFiles.setLayoutData(fdConfigFiles);
     wConfigFiles.table.addListener(SWT.Selection, this::setButtonStates);
 
@@ -230,7 +230,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     PropsUi.setLook(wbNew);
     wbNew.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.New"));
     FormData fdNew = new FormData();
-    fdNew.left = new FormAttachment(wConfigFiles, 2 * margin);
+    fdNew.left = new FormAttachment(wConfigFiles, margin);
     fdNew.right = new FormAttachment(100, 0);
     fdNew.top = new FormAttachment(wbSelect, margin);
     wbNew.setLayoutData(fdNew);
@@ -240,7 +240,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     PropsUi.setLook(wbEdit);
     wbEdit.setText(BaseMessages.getString(PKG, "LifecycleEnvironmentDialog.Button.Edit"));
     FormData fdEdit = new FormData();
-    fdEdit.left = new FormAttachment(wConfigFiles, 2 * margin);
+    fdEdit.left = new FormAttachment(wConfigFiles, margin);
     fdEdit.right = new FormAttachment(100, 0);
     fdEdit.top = new FormAttachment(wbNew, margin);
     wbEdit.setLayoutData(fdEdit);

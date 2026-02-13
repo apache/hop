@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.formula.editor.FormulaEditor;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -39,17 +40,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class FormulaDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FormulaDialog.class;
@@ -76,54 +73,24 @@ public class FormulaDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "FormulaDialog.Shell.Title"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
     FormData fdFields;
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, currentMeta);
-
     ModifyListener lsMod = e -> currentMeta.setChanged();
-
     changed = currentMeta.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "FormulaDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    //
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "FormulaDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "FormulaDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wTransformName, margin);
+    fdlFields.top = new FormAttachment(lastControl, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsRows = currentMeta.getFormulas() != null ? currentMeta.getFormulas().size() : 1;
@@ -174,7 +141,7 @@ public class FormulaDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(100, -50);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     new Thread(
@@ -235,31 +202,11 @@ public class FormulaDialog extends BaseTransformDialog {
             // Now set the combo's
             shell.getDisplay().asyncExec(this::setComboBoxes));
 
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     wTransformName.addSelectionListener(
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
             ok();
-          }
-        });
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
           }
         });
 
@@ -269,12 +216,9 @@ public class FormulaDialog extends BaseTransformDialog {
     getData();
     currentMeta.setChanged(changed);
 
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) {
-        display.sleep();
-      }
-    }
+    focusTransformName();
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
   }
 
@@ -320,9 +264,6 @@ public class FormulaDialog extends BaseTransformDialog {
 
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

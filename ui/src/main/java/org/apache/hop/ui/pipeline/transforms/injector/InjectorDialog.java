@@ -85,7 +85,6 @@ public class InjectorDialog extends BaseTransformDialog {
     fdlTransformName.top = new FormAttachment(0, margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
@@ -99,7 +98,7 @@ public class InjectorDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wTransformName, margin);
+    fdlFields.top = new FormAttachment(wSpacer, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int nrFieldsRows = input.getInjectorFields().size();
@@ -146,7 +145,7 @@ public class InjectorDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -margin * 2);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     // Add listeners
@@ -155,6 +154,8 @@ public class InjectorDialog extends BaseTransformDialog {
 
     getData();
     input.setChanged(changed);
+
+    focusTransformName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -172,9 +173,6 @@ public class InjectorDialog extends BaseTransformDialog {
       item.setText(3, Const.NVL(field.getLength(), ""));
       item.setText(4, Const.NVL(field.getPrecision(), ""));
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

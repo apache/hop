@@ -57,10 +57,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -71,7 +74,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the Oracle bulk loader transformation. */
 public class OraBulkLoaderDialog extends BaseTransformDialog {
@@ -141,13 +143,10 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
   }
 
   public String open() {
-    CTabFolder wTabFolder;
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Shell.Title"));
+    buildButtonBar().ok(e -> ok()).sql(e -> create()).cancel(e -> cancel()).build();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    shell.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Shell.Title"));
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    CTabFolder wTabFolder;
 
     ModifyListener lsMod = e -> input.setChanged();
     ModifyListener lsTableMod =
@@ -158,57 +157,32 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
 
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Transform name line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    FormData fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    FormData fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    // The buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wSql = new Button(shell, SWT.PUSH);
-    wSql.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.SQL.Button"));
-    wSql.addListener(SWT.Selection, e -> create());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel, wSql}, margin, null);
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     // Tab folder
-    wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    wTabFolder = new CTabFolder(wContent, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(0, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(100, 0);
     wTabFolder.setLayoutData(fdTabFolder);
 
     CTabItem wBulkLoaderTab = new CTabItem(wTabFolder, SWT.NONE);
@@ -238,8 +212,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
         };
 
     // Connection line
-    wConnection =
-        addConnectionLine(wBulkLoaderComposite, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(wBulkLoaderComposite, null, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
@@ -249,7 +222,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
     Button wbSchema = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
@@ -257,7 +230,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
     FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
 
@@ -266,7 +239,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.top = new FormAttachment(wConnection, margin);
     fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
 
@@ -756,6 +729,10 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
           }
         });
 
+    fdComp.bottom = new FormAttachment(wParallel, margin);
+    wBulkLoaderComposite.pack();
+    wBulkLoaderComposite.setLayoutData(fdComp);
+
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Fields.Label"));
 
@@ -838,6 +815,15 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wBulkLoaderTab.setControl(wBulkLoaderComposite);
     wFieldsTab.setControl(wFieldsComposite);
 
+    wTabFolder.layout(true, true);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
+
     //
     // Search the fields in the background
     //
@@ -896,7 +882,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     wTabFolder.setSelection(0);
     setTableFieldCombo();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -1075,9 +1061,6 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
 
     wReturn.setRowNums();
     wReturn.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

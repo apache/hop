@@ -60,7 +60,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class MailDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MailMeta.class;
@@ -216,52 +215,14 @@ public class MailDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "MailDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "MailDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "MailDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -301,7 +262,7 @@ public class MailDialog extends BaseTransformDialog {
     PropsUi.setLook(wlDestination);
     FormData fdlDestination = new FormData();
     fdlDestination.left = new FormAttachment(0, -margin);
-    fdlDestination.top = new FormAttachment(wTransformName, margin);
+    fdlDestination.top = new FormAttachment(wSpacer, margin);
     fdlDestination.right = new FormAttachment(middle, -margin);
     wlDestination.setLayoutData(fdlDestination);
 
@@ -311,7 +272,7 @@ public class MailDialog extends BaseTransformDialog {
     wDestination.addModifyListener(lsMod);
     FormData fdDestination = new FormData();
     fdDestination.left = new FormAttachment(middle, 0);
-    fdDestination.top = new FormAttachment(wTransformName, margin);
+    fdDestination.top = new FormAttachment(wSpacer, margin);
     fdDestination.right = new FormAttachment(100, -margin);
     wDestination.setLayoutData(fdDestination);
     wDestination.addFocusListener(
@@ -512,7 +473,7 @@ public class MailDialog extends BaseTransformDialog {
     PropsUi.setLook(wlReplyToAddresses);
     FormData fdlReplyToAddresses = new FormData();
     fdlReplyToAddresses.left = new FormAttachment(0, -margin);
-    fdlReplyToAddresses.top = new FormAttachment(wReplyGroup, 2 * margin);
+    fdlReplyToAddresses.top = new FormAttachment(wReplyGroup, margin);
     fdlReplyToAddresses.right = new FormAttachment(middle, -margin);
     wlReplyToAddresses.setLayoutData(fdlReplyToAddresses);
 
@@ -522,7 +483,7 @@ public class MailDialog extends BaseTransformDialog {
     wReplyToAddresses.addModifyListener(lsMod);
     FormData fdReplyToAddresses = new FormData();
     fdReplyToAddresses.left = new FormAttachment(middle, 0);
-    fdReplyToAddresses.top = new FormAttachment(wReplyGroup, 2 * margin);
+    fdReplyToAddresses.top = new FormAttachment(wReplyGroup, margin);
     fdReplyToAddresses.right = new FormAttachment(100, -margin);
     wReplyToAddresses.setLayoutData(fdReplyToAddresses);
     wReplyToAddresses.addFocusListener(
@@ -548,7 +509,7 @@ public class MailDialog extends BaseTransformDialog {
     PropsUi.setLook(wlPerson);
     FormData fdlPerson = new FormData();
     fdlPerson.left = new FormAttachment(0, -margin);
-    fdlPerson.top = new FormAttachment(wReplyToAddresses, 2 * margin);
+    fdlPerson.top = new FormAttachment(wReplyToAddresses, margin);
     fdlPerson.right = new FormAttachment(middle, -margin);
     wlPerson.setLayoutData(fdlPerson);
 
@@ -558,7 +519,7 @@ public class MailDialog extends BaseTransformDialog {
     wPerson.addModifyListener(lsMod);
     FormData fdPerson = new FormData();
     fdPerson.left = new FormAttachment(middle, 0);
-    fdPerson.top = new FormAttachment(wReplyToAddresses, 2 * margin);
+    fdPerson.top = new FormAttachment(wReplyToAddresses, margin);
     fdPerson.right = new FormAttachment(100, -margin);
     wPerson.setLayoutData(fdPerson);
     wPerson.addFocusListener(
@@ -971,7 +932,7 @@ public class MailDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCheckServerIdentity);
     FormData fdlCheckServerIdentity = new FormData();
     fdlCheckServerIdentity.left = new FormAttachment(0, 0);
-    fdlCheckServerIdentity.top = new FormAttachment(wSecureConnectionType, 2 * margin);
+    fdlCheckServerIdentity.top = new FormAttachment(wSecureConnectionType, margin);
     fdlCheckServerIdentity.right = new FormAttachment(middle, -margin);
     wlCheckServerIdentity.setLayoutData(fdlCheckServerIdentity);
     wCheckServerIdentity = new Button(wAuthentificationGroup, SWT.CHECK);
@@ -1000,7 +961,7 @@ public class MailDialog extends BaseTransformDialog {
     wTrustedHosts.addModifyListener(lsMod);
     FormData fdTrustedHosts = new FormData();
     fdTrustedHosts.left = new FormAttachment(0, 0);
-    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, 2 * margin);
+    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, margin);
     fdTrustedHosts.right = new FormAttachment(100, 0);
     wTrustedHosts.setLayoutData(fdTrustedHosts);
 
@@ -1696,7 +1657,7 @@ public class MailDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSourceFileFoldername);
     FormData fdlSourceFileFoldername = new FormData();
     fdlSourceFileFoldername.left = new FormAttachment(0, 0);
-    fdlSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, 2 * margin);
+    fdlSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, margin);
     fdlSourceFileFoldername.right = new FormAttachment(middle, -margin);
     wlSourceFileFoldername.setLayoutData(fdlSourceFileFoldername);
 
@@ -1706,7 +1667,7 @@ public class MailDialog extends BaseTransformDialog {
     wbSourceFolder.setText(BaseMessages.getString(PKG, "MailDialog.BrowseFolders.Label"));
     FormData fdbSourceFolder = new FormData();
     fdbSourceFolder.right = new FormAttachment(100, 0);
-    fdbSourceFolder.top = new FormAttachment(wDynamicWildcardField, 2 * margin);
+    fdbSourceFolder.top = new FormAttachment(wDynamicWildcardField, margin);
     wbSourceFolder.setLayoutData(fdbSourceFolder);
     wbSourceFolder.addListener(
         SWT.Selection,
@@ -1720,7 +1681,7 @@ public class MailDialog extends BaseTransformDialog {
     wbFileFoldername.setText(BaseMessages.getString(PKG, "MailDialog.BrowseFiles.Label"));
     FormData fdbSourceFileFoldername = new FormData();
     fdbSourceFileFoldername.right = new FormAttachment(wbSourceFolder, -margin);
-    fdbSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, 2 * margin);
+    fdbSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, margin);
     wbFileFoldername.setLayoutData(fdbSourceFileFoldername);
 
     wSourceFileFoldername =
@@ -1729,7 +1690,7 @@ public class MailDialog extends BaseTransformDialog {
     wSourceFileFoldername.addModifyListener(lsMod);
     FormData fdSourceFileFoldername = new FormData();
     fdSourceFileFoldername.left = new FormAttachment(middle, 0);
-    fdSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, 2 * margin);
+    fdSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, margin);
     fdSourceFileFoldername.right = new FormAttachment(wbFileFoldername, -margin);
     wSourceFileFoldername.setLayoutData(fdSourceFileFoldername);
 
@@ -1795,7 +1756,7 @@ public class MailDialog extends BaseTransformDialog {
         e -> wWildcard.setToolTipText(variables.resolve(wWildcard.getText())));
     FormData fdOriginFiles = new FormData();
     fdOriginFiles.left = new FormAttachment(0, margin);
-    fdOriginFiles.top = new FormAttachment(wAttachedContent, 2 * margin);
+    fdOriginFiles.top = new FormAttachment(wAttachedContent, margin);
     fdOriginFiles.right = new FormAttachment(100, -margin);
     wOriginFiles.setLayoutData(fdOriginFiles);
 
@@ -1977,7 +1938,7 @@ public class MailDialog extends BaseTransformDialog {
     PropsUi.setLook(wlImageFilename);
     FormData fdlImageFilename = new FormData();
     fdlImageFilename.left = new FormAttachment(0, 0);
-    fdlImageFilename.top = new FormAttachment(wTransformName, margin);
+    fdlImageFilename.top = new FormAttachment(wSpacer, margin);
     fdlImageFilename.right = new FormAttachment(middle, -margin);
     wlImageFilename.setLayoutData(fdlImageFilename);
 
@@ -1987,7 +1948,7 @@ public class MailDialog extends BaseTransformDialog {
     wbImageFilename.setToolTipText(BaseMessages.getString(PKG, "MailDialog.BrowseFiles.Tooltip"));
     FormData fdbImageFilename = new FormData();
     fdbImageFilename.right = new FormAttachment(100, 0);
-    fdbImageFilename.top = new FormAttachment(wTransformName, margin);
+    fdbImageFilename.top = new FormAttachment(wSpacer, margin);
     fdbImageFilename.right = new FormAttachment(100, -margin);
     wbImageFilename.setLayoutData(fdbImageFilename);
 
@@ -1998,7 +1959,7 @@ public class MailDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "MailDialog.ImageFilenameAdd.Tooltip"));
     FormData fdbaImageFilename = new FormData();
     fdbaImageFilename.right = new FormAttachment(wbImageFilename, -margin);
-    fdbaImageFilename.top = new FormAttachment(wTransformName, margin);
+    fdbaImageFilename.top = new FormAttachment(wSpacer, margin);
     wbaImageFilename.setLayoutData(fdbaImageFilename);
 
     wImageFilename = new TextVar(variables, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -2006,7 +1967,7 @@ public class MailDialog extends BaseTransformDialog {
     wImageFilename.addModifyListener(lsMod);
     FormData fdImageFilename = new FormData();
     fdImageFilename.left = new FormAttachment(middle, 0);
-    fdImageFilename.top = new FormAttachment(wTransformName, margin);
+    fdImageFilename.top = new FormAttachment(wSpacer, margin);
     fdImageFilename.right = new FormAttachment(wbaImageFilename, -margin);
     wImageFilename.setLayoutData(fdImageFilename);
 
@@ -2180,9 +2141,9 @@ public class MailDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
@@ -2197,7 +2158,7 @@ public class MailDialog extends BaseTransformDialog {
     setOutputMessage();
     input.setChanged(changed);
     wTabFolder.setSelection(0);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -2677,9 +2638,6 @@ public class MailDialog extends BaseTransformDialog {
       wFields.setRowNums();
       wFields.optWidth(true);
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

@@ -273,8 +273,6 @@ public class TextFileInputDialog extends BaseTransformDialog
   // Wizard info...
   private Vector<ITextFileInputField> fields;
 
-  private int middle;
-  private int margin;
   private ModifyListener lsMod;
 
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
@@ -311,57 +309,12 @@ public class TextFileInputDialog extends BaseTransformDialog
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "TextFileInputDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
     lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "TextFileInputDialog.DialogTitle"));
-
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    // Buttons at the bottom first
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Preview.Button"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -375,9 +328,9 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     wFirst.addListener(SWT.Selection, e -> first(false));
@@ -518,7 +471,7 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     // Set the shell size, based upon previous time...
     getData(input);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -716,7 +669,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wFirst);
     wFirst.setText(BaseMessages.getString(PKG, "TextFileInputDialog.First.Button"));
     FormData fdFirst = new FormData();
-    fdFirst.left = new FormAttachment(wbShowFiles, margin * 2);
+    fdFirst.left = new FormAttachment(wbShowFiles, margin);
     fdFirst.bottom = new FormAttachment(100, 0);
     wFirst.setLayoutData(fdFirst);
 
@@ -724,14 +677,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wFirstHeader);
     wFirstHeader.setText(BaseMessages.getString(PKG, "TextFileInputDialog.FirstHeader.Button"));
     FormData fdFirstHeader = new FormData();
-    fdFirstHeader.left = new FormAttachment(wFirst, margin * 2);
+    fdFirstHeader.left = new FormAttachment(wFirst, margin);
     fdFirstHeader.bottom = new FormAttachment(100, 0);
     wFirstHeader.setLayoutData(fdFirstHeader);
 
     // Accepting filenames group
     //
 
-    Group gAccepting = new Group(wFileComp, SWT.SHADOW_ETCHED_IN);
+    Group gAccepting = new Group(wFileComp, SWT.SHADOW_NONE);
     gAccepting.setText(BaseMessages.getString(PKG, "TextFileInputDialog.AcceptingGroup.Label"));
     FormLayout acceptingLayout = new FormLayout();
     acceptingLayout.marginWidth = 3;
@@ -831,7 +784,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     FormData fdAccepting = new FormData();
     fdAccepting.left = new FormAttachment(0, 0);
     fdAccepting.right = new FormAttachment(100, 0);
-    fdAccepting.bottom = new FormAttachment(wFirstHeader, -margin * 2);
+    fdAccepting.bottom = new FormAttachment(wFirstHeader, -margin);
     gAccepting.setLayoutData(fdAccepting);
 
     ColumnInfo[] colinfo =
@@ -1333,7 +1286,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wlFormat);
     FormData fdlFormat = new FormData();
     fdlFormat.left = new FormAttachment(0, 0);
-    fdlFormat.top = new FormAttachment(wRownumByFile, margin * 2);
+    fdlFormat.top = new FormAttachment(wRownumByFile, margin);
     fdlFormat.right = new FormAttachment(middle, -margin);
     wlFormat.setLayoutData(fdlFormat);
     wFormat = new CCombo(wContentComp, SWT.BORDER | SWT.READ_ONLY);
@@ -1346,7 +1299,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFormat.addModifyListener(lsMod);
     FormData fdFormat = new FormData();
     fdFormat.left = new FormAttachment(middle, 0);
-    fdFormat.top = new FormAttachment(wRownumByFile, margin * 2);
+    fdFormat.top = new FormAttachment(wRownumByFile, margin);
     fdFormat.right = new FormAttachment(100, 0);
     wFormat.setLayoutData(fdFormat);
 
@@ -2135,7 +2088,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wIgnoreFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wGet, -margin * 2);
+    fdFields.bottom = new FormAttachment(wGet, -margin);
     wFields.setLayoutData(fdFields);
 
     FormData fdFieldsComp = new FormData();
@@ -2321,9 +2274,7 @@ public class TextFileInputDialog extends BaseTransformDialog
       final boolean copyTransformName,
       final boolean reloadAllFields,
       final List<String> newFieldNames) {
-    if (copyTransformName) {
-      wTransformName.setText(transformName);
-    }
+    if (copyTransformName) {}
 
     wAccFilenames.setSelection(meta.inputFiles.acceptingFilenames);
     wPassThruFields.setSelection(meta.inputFiles.passingThruFields);
@@ -2520,9 +2471,6 @@ public class TextFileInputDialog extends BaseTransformDialog
     }
 
     setFlags();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void getFieldsData(

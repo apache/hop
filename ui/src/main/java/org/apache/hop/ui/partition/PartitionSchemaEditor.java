@@ -183,7 +183,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     fdPartitions.left = new FormAttachment(0, 0);
     fdPartitions.right = new FormAttachment(100, 0);
     fdPartitions.top = new FormAttachment(wlPartitions, margin);
-    fdPartitions.bottom = new FormAttachment(100, -margin * 2);
+    fdPartitions.bottom = new FormAttachment(100, -margin);
     wPartitions.setLayoutData(fdPartitions);
 
     setWidgetsContent();

@@ -442,7 +442,7 @@ public abstract class DragViewZoomBase extends Composite {
       return;
     }
     int margin = EDGE_SCROLL_MARGIN;
-    if (area.x < 2 * margin || area.y < 2 * margin) {
+    if (area.x < margin || area.y < margin) {
       return;
     }
     double dx = 0;

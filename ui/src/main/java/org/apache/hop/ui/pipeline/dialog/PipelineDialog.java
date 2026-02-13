@@ -207,7 +207,7 @@ public class PipelineDialog extends Dialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     if (currentTab != null) {
@@ -353,7 +353,7 @@ public class PipelineDialog extends Dialog {
     FormData fdlPipelineStatus = new FormData();
     fdlPipelineStatus.left = new FormAttachment(0, 0);
     fdlPipelineStatus.right = new FormAttachment(middle, -margin);
-    fdlPipelineStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
+    fdlPipelineStatus.top = new FormAttachment(wExtendedDescription, margin);
     wlPipelineStatus.setLayoutData(fdlPipelineStatus);
     wPipelineStatus = new Combo(wPipelineComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wPipelineStatus.add(BaseMessages.getString(PKG, "PipelineDialog.Draft_PipelineStatus.Label"));
@@ -366,7 +366,7 @@ public class PipelineDialog extends Dialog {
 
     FormData fdPipelineStatus = new FormData();
     fdPipelineStatus.left = new FormAttachment(middle, 0);
-    fdPipelineStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
+    fdPipelineStatus.top = new FormAttachment(wExtendedDescription, margin);
     fdPipelineStatus.right = new FormAttachment(100, 0);
     wPipelineStatus.setLayoutData(fdPipelineStatus);
 

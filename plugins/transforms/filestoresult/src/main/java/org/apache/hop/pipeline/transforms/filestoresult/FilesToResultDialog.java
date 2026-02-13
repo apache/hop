@@ -32,13 +32,10 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class FilesToResultDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FilesToResultMeta.class;
@@ -60,45 +57,14 @@ public class FilesToResultDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "FilesToResultDialog.Shell.Title"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "FilesToResultDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "FilesToResultDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // The rest...
 
@@ -108,7 +74,7 @@ public class FilesToResultDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFilenameField);
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment(0, 0);
-    fdlFilenameField.top = new FormAttachment(wTransformName, margin);
+    fdlFilenameField.top = new FormAttachment(wSpacer, margin);
     fdlFilenameField.right = new FormAttachment(middle, -margin);
     wlFilenameField.setLayoutData(fdlFilenameField);
 
@@ -119,7 +85,7 @@ public class FilesToResultDialog extends BaseTransformDialog {
     wFilenameField.addModifyListener(lsMod);
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment(middle, 0);
-    fdFilenameField.top = new FormAttachment(wTransformName, margin);
+    fdFilenameField.top = new FormAttachment(wSpacer, margin);
     fdFilenameField.right = new FormAttachment(100, 0);
     wFilenameField.setLayoutData(fdFilenameField);
 
@@ -145,14 +111,6 @@ public class FilesToResultDialog extends BaseTransformDialog {
         };
     display.asyncExec(runnable);
 
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     // Include Files?
     Label wlTypes = new Label(shell, SWT.RIGHT);
     wlTypes.setText(BaseMessages.getString(PKG, "FilesToResultDialog.TypeOfFile.Label"));
@@ -175,13 +133,9 @@ public class FilesToResultDialog extends BaseTransformDialog {
       wTypes.add(ResultFile.getAllTypeDesc()[i]);
     }
 
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -195,9 +149,6 @@ public class FilesToResultDialog extends BaseTransformDialog {
     if (input.getFilenameField() != null) {
       wFilenameField.setText(input.getFilenameField());
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

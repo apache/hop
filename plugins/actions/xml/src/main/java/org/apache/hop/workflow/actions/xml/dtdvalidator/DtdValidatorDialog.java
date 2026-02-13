@@ -190,7 +190,7 @@ public class DtdValidatorDialog extends ActionDialog {
     PropsUi.setLook(wldtdFilename);
     FormData fdldtdFilename = new FormData();
     fdldtdFilename.left = new FormAttachment(0, 0);
-    fdldtdFilename.top = new FormAttachment(wlDTDIntern, 2 * margin);
+    fdldtdFilename.top = new FormAttachment(wlDTDIntern, margin);
     fdldtdFilename.right = new FormAttachment(middle, -margin);
     wldtdFilename.setLayoutData(fdldtdFilename);
     wbdtdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -232,7 +232,7 @@ public class DtdValidatorDialog extends ActionDialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, 2 * margin, wdtdFilename);
+        shell, new Button[] {wOk, wCancel}, margin, wdtdFilename);
 
     getData();
     activeDTDFilename();

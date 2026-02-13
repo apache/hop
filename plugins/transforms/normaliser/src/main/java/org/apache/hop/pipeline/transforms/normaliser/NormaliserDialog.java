@@ -37,8 +37,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -71,55 +69,12 @@ public class NormaliserDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "NormaliserDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "NormaliserDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "NormaliserDialog.GetFields.Button"));
-    wGet.addListener(SWT.Selection, e -> get());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "NormaliserDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // Typefield line
     Label wlTypefield = new Label(shell, SWT.RIGHT);
@@ -128,7 +83,7 @@ public class NormaliserDialog extends BaseTransformDialog {
     FormData fdlTypefield = new FormData();
     fdlTypefield.left = new FormAttachment(0, 0);
     fdlTypefield.right = new FormAttachment(middle, -margin);
-    fdlTypefield.top = new FormAttachment(wTransformName, margin);
+    fdlTypefield.top = new FormAttachment(wSpacer, margin);
     wlTypefield.setLayoutData(fdlTypefield);
     wTypefield = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTypefield.setText("");
@@ -136,7 +91,7 @@ public class NormaliserDialog extends BaseTransformDialog {
     wTypefield.addModifyListener(lsMod);
     FormData fdTypefield = new FormData();
     fdTypefield.left = new FormAttachment(middle, 0);
-    fdTypefield.top = new FormAttachment(wTransformName, margin);
+    fdTypefield.top = new FormAttachment(wSpacer, margin);
     fdTypefield.right = new FormAttachment(100, 0);
     wTypefield.setLayoutData(fdTypefield);
 
@@ -182,7 +137,7 @@ public class NormaliserDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     //
@@ -208,7 +163,7 @@ public class NormaliserDialog extends BaseTransformDialog {
     new Thread(runnable).start();
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -242,9 +197,6 @@ public class NormaliserDialog extends BaseTransformDialog {
 
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

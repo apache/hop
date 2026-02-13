@@ -111,7 +111,7 @@ public class NotePadDialog extends Dialog {
   public NotePadMeta open() {
     Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.NONE);
+    shell = new Shell(parent, BaseDialog.getDefaultDialogStyle());
     PropsUi.setLook(shell);
     shell.setImage(guiresource.getImageNote());
 
@@ -306,7 +306,7 @@ public class NotePadDialog extends Dialog {
     PropsUi.setLook(wlFontColor);
     FormData fdlFontColor = new FormData();
     fdlFontColor.left = new FormAttachment(margin, margin);
-    fdlFontColor.top = new FormAttachment(wFontItalic, 2 * margin);
+    fdlFontColor.top = new FormAttachment(wFontItalic, margin);
     fdlFontColor.right = new FormAttachment(middle, -margin);
     wlFontColor.setLayoutData(fdlFontColor);
 
@@ -317,7 +317,7 @@ public class NotePadDialog extends Dialog {
         BaseMessages.getString(PKG, "NotePadDialog.Font.Color.Change.Tooltip"));
     PropsUi.setLook(wbFontColorChange);
     FormData fdFontColorChange = new FormData();
-    fdFontColorChange.top = new FormAttachment(wlFontItalic, 2 * margin);
+    fdFontColorChange.top = new FormAttachment(wlFontItalic, margin);
     fdFontColorChange.right = new FormAttachment(100, -margin);
     wbFontColorChange.setLayoutData(fdFontColorChange);
     wbFontColorChange.addSelectionListener(
@@ -345,7 +345,7 @@ public class NotePadDialog extends Dialog {
     wFontColor.setEnabled(false);
     FormData fdFontColor = new FormData();
     fdFontColor.left = new FormAttachment(wlFontColor, margin);
-    fdFontColor.top = new FormAttachment(wFontItalic, 2 * margin);
+    fdFontColor.top = new FormAttachment(wFontItalic, margin);
     fdFontColor.right = new FormAttachment(wbFontColorChange, -margin);
     wFontColor.setLayoutData(fdFontColor);
 
@@ -356,7 +356,7 @@ public class NotePadDialog extends Dialog {
     PropsUi.setLook(wlBackGroundColor);
     FormData fdlBackGroundColor = new FormData();
     fdlBackGroundColor.left = new FormAttachment(margin, margin);
-    fdlBackGroundColor.top = new FormAttachment(wFontColor, 2 * margin);
+    fdlBackGroundColor.top = new FormAttachment(wFontColor, margin);
     fdlBackGroundColor.right = new FormAttachment(middle, -margin);
     wlBackGroundColor.setLayoutData(fdlBackGroundColor);
 
@@ -367,7 +367,7 @@ public class NotePadDialog extends Dialog {
         BaseMessages.getString(PKG, "NotePadDialog.Font.BackGroundColor.Change.Tooltip"));
     PropsUi.setLook(wbBackGroundColorChange);
     FormData fdBackGroundColorChange = new FormData();
-    fdBackGroundColorChange.top = new FormAttachment(wFontColor, 2 * margin);
+    fdBackGroundColorChange.top = new FormAttachment(wFontColor, margin);
     fdBackGroundColorChange.right = new FormAttachment(100, -margin);
     fdBackGroundColorChange.right = new FormAttachment(100, -margin);
     wbBackGroundColorChange.setLayoutData(fdBackGroundColorChange);
@@ -397,7 +397,7 @@ public class NotePadDialog extends Dialog {
     wBackGroundColor.setEnabled(false);
     FormData fdBackGroundColor = new FormData();
     fdBackGroundColor.left = new FormAttachment(wlBackGroundColor, margin);
-    fdBackGroundColor.top = new FormAttachment(wFontColor, 2 * margin);
+    fdBackGroundColor.top = new FormAttachment(wFontColor, margin);
     fdBackGroundColor.right = new FormAttachment(wbBackGroundColorChange, -margin);
     wBackGroundColor.setLayoutData(fdBackGroundColor);
 
@@ -407,7 +407,7 @@ public class NotePadDialog extends Dialog {
     PropsUi.setLook(wlBorderColor);
     FormData fdlBorderColor = new FormData();
     fdlBorderColor.left = new FormAttachment(margin, margin);
-    fdlBorderColor.top = new FormAttachment(wBackGroundColor, 2 * margin);
+    fdlBorderColor.top = new FormAttachment(wBackGroundColor, margin);
     fdlBorderColor.right = new FormAttachment(middle, -margin);
     wlBorderColor.setLayoutData(fdlBorderColor);
 
@@ -418,7 +418,7 @@ public class NotePadDialog extends Dialog {
         BaseMessages.getString(PKG, "NotePadDialog.Font.BorderColor.Change.Tooltip"));
     PropsUi.setLook(wbBorderColorChange);
     FormData fdBorderColorChange = new FormData();
-    fdBorderColorChange.top = new FormAttachment(wBackGroundColor, 2 * margin);
+    fdBorderColorChange.top = new FormAttachment(wBackGroundColor, margin);
     fdBorderColorChange.right = new FormAttachment(100, -margin);
     wbBorderColorChange.setLayoutData(fdBorderColorChange);
     wbBorderColorChange.addSelectionListener(
@@ -446,7 +446,7 @@ public class NotePadDialog extends Dialog {
     wBorderColor.setEnabled(false);
     FormData fdBorderColor = new FormData();
     fdBorderColor.left = new FormAttachment(wlBorderColor, margin);
-    fdBorderColor.top = new FormAttachment(wBackGroundColor, 2 * margin);
+    fdBorderColor.top = new FormAttachment(wBackGroundColor, margin);
     fdBorderColor.right = new FormAttachment(wbBorderColorChange, -margin);
     wBorderColor.setLayoutData(fdBorderColor);
 
@@ -467,7 +467,7 @@ public class NotePadDialog extends Dialog {
     fdNoteFolder.left = new FormAttachment(0, 0);
     fdNoteFolder.top = new FormAttachment(0, margin);
     fdNoteFolder.right = new FormAttachment(100, 0);
-    fdNoteFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdNoteFolder.bottom = new FormAttachment(wOk, -margin);
     wNoteFolder.setLayoutData(fdNoteFolder);
 
     getData();

@@ -29,22 +29,23 @@ import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class AzureWriterDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       AzureWriterMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private Text wTransformName;
   private TextVar wNamespace;
   private TextVar wEventHub;
   private TextVar wSasKeyName;
@@ -65,56 +66,43 @@ public class AzureWriterDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "AzureWriterDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText("Azure Event Hubs Writer");
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText("Transform name");
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wContent;
 
     // Namespace
     //
-    Label wlNamespace = new Label(shell, SWT.RIGHT);
+    Label wlNamespace = new Label(wContent, SWT.RIGHT);
     wlNamespace.setText("Event Hubs namespace");
     PropsUi.setLook(wlNamespace);
     FormData fdlNamespace = new FormData();
     fdlNamespace.left = new FormAttachment(0, 0);
     fdlNamespace.right = new FormAttachment(middle, -margin);
-    fdlNamespace.top = new FormAttachment(lastControl, 2 * margin);
+    fdlNamespace.top = new FormAttachment(lastControl, margin);
     wlNamespace.setLayoutData(fdlNamespace);
-    wNamespace = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNamespace = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wNamespace);
     wNamespace.addModifyListener(lsMod);
     FormData fdNamespace = new FormData();
@@ -124,15 +112,15 @@ public class AzureWriterDialog extends BaseTransformDialog {
     wNamespace.setLayoutData(fdNamespace);
     lastControl = wNamespace;
 
-    Label wlEventHub = new Label(shell, SWT.RIGHT);
+    Label wlEventHub = new Label(wContent, SWT.RIGHT);
     wlEventHub.setText("Event Hubs instance name");
     PropsUi.setLook(wlEventHub);
     FormData fdlEventHub = new FormData();
     fdlEventHub.left = new FormAttachment(0, 0);
     fdlEventHub.right = new FormAttachment(middle, -margin);
-    fdlEventHub.top = new FormAttachment(lastControl, 2 * margin);
+    fdlEventHub.top = new FormAttachment(lastControl, margin);
     wlEventHub.setLayoutData(fdlEventHub);
-    wEventHub = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wEventHub = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wEventHub);
     wEventHub.addModifyListener(lsMod);
     FormData fdEventHub = new FormData();
@@ -142,15 +130,15 @@ public class AzureWriterDialog extends BaseTransformDialog {
     wEventHub.setLayoutData(fdEventHub);
     lastControl = wEventHub;
 
-    Label wlSasKeyName = new Label(shell, SWT.RIGHT);
+    Label wlSasKeyName = new Label(wContent, SWT.RIGHT);
     wlSasKeyName.setText("SAS Policy key name");
     PropsUi.setLook(wlSasKeyName);
     FormData fdlSasKeyName = new FormData();
     fdlSasKeyName.left = new FormAttachment(0, 0);
     fdlSasKeyName.right = new FormAttachment(middle, -margin);
-    fdlSasKeyName.top = new FormAttachment(lastControl, 2 * margin);
+    fdlSasKeyName.top = new FormAttachment(lastControl, margin);
     wlSasKeyName.setLayoutData(fdlSasKeyName);
-    wSasKeyName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSasKeyName = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSasKeyName);
     wSasKeyName.addModifyListener(lsMod);
     FormData fdSasKeyName = new FormData();
@@ -160,15 +148,15 @@ public class AzureWriterDialog extends BaseTransformDialog {
     wSasKeyName.setLayoutData(fdSasKeyName);
     lastControl = wSasKeyName;
 
-    Label wlSasKey = new Label(shell, SWT.RIGHT);
+    Label wlSasKey = new Label(wContent, SWT.RIGHT);
     wlSasKey.setText("SAS Key connection string");
     PropsUi.setLook(wlSasKey);
     FormData fdlSasKey = new FormData();
     fdlSasKey.left = new FormAttachment(0, 0);
     fdlSasKey.right = new FormAttachment(middle, -margin);
-    fdlSasKey.top = new FormAttachment(lastControl, 2 * margin);
+    fdlSasKey.top = new FormAttachment(lastControl, margin);
     wlSasKey.setLayoutData(fdlSasKey);
-    wSasKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    wSasKey = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wSasKey);
     wSasKey.addModifyListener(lsMod);
     FormData fdSasKey = new FormData();
@@ -178,15 +166,15 @@ public class AzureWriterDialog extends BaseTransformDialog {
     wSasKey.setLayoutData(fdSasKey);
     lastControl = wSasKey;
 
-    Label wlBatchSize = new Label(shell, SWT.RIGHT);
+    Label wlBatchSize = new Label(wContent, SWT.RIGHT);
     wlBatchSize.setText("Batch size");
     PropsUi.setLook(wlBatchSize);
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
-    fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
-    wBatchSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchSize = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();
@@ -196,15 +184,15 @@ public class AzureWriterDialog extends BaseTransformDialog {
     wBatchSize.setLayoutData(fdBatchSize);
     lastControl = wBatchSize;
 
-    Label wlMessageField = new Label(shell, SWT.RIGHT);
+    Label wlMessageField = new Label(wContent, SWT.RIGHT);
     wlMessageField.setText("Message field");
     PropsUi.setLook(wlMessageField);
     FormData fdlMessageField = new FormData();
     fdlMessageField.left = new FormAttachment(0, 0);
     fdlMessageField.right = new FormAttachment(middle, -margin);
-    fdlMessageField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlMessageField.top = new FormAttachment(lastControl, margin);
     wlMessageField.setLayoutData(fdlMessageField);
-    wMessageField = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMessageField = new ComboVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wMessageField);
     wMessageField.addModifyListener(lsMod);
     FormData fdMessageField = new FormData();
@@ -214,18 +202,16 @@ public class AzureWriterDialog extends BaseTransformDialog {
     wMessageField.setLayoutData(fdMessageField);
     lastControl = wMessageField;
 
-    // Position the buttons at the bottom of the dialog.
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> ok());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -238,8 +224,6 @@ public class AzureWriterDialog extends BaseTransformDialog {
   }
 
   public void getData() {
-
-    wTransformName.setText(Const.NVL(transformName, ""));
     wNamespace.setText(Const.NVL(input.getNamespace(), ""));
     wEventHub.setText(Const.NVL(input.getEventHubName(), ""));
     wSasKeyName.setText(Const.NVL(input.getSasKeyName(), ""));

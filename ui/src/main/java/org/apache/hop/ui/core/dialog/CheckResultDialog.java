@@ -120,7 +120,7 @@ public class CheckResultDialog extends Dialog {
     PropsUi.setLook(wNoOK);
     FormData fd = new FormData();
     fd.left = new FormAttachment(0, 0);
-    fd.bottom = new FormAttachment(wClose, -2 * margin);
+    fd.bottom = new FormAttachment(wClose, -margin);
     wNoOK.setLayoutData(fd);
     wNoOK.addListener(SWT.Selection, e -> noOK());
 
@@ -171,7 +171,7 @@ public class CheckResultDialog extends Dialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wNoOK, -2 * margin);
+    fdFields.bottom = new FormAttachment(wNoOK, -margin);
     wFields.setLayoutData(fdFields);
 
     // Detect X or ALT-F4 or something that kills this window...

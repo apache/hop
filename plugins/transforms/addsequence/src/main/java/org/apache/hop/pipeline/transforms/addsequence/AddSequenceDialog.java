@@ -33,13 +33,17 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -91,64 +95,50 @@ public class AddSequenceDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "AddSequenceDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "AddSequenceDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "AddSequenceDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     // Valuename line
-    Label wlValuename = new Label(shell, SWT.RIGHT);
+    Label wlValuename = new Label(wContent, SWT.RIGHT);
     wlValuename.setText(BaseMessages.getString(PKG, "AddSequenceDialog.Valuename.Label"));
     PropsUi.setLook(wlValuename);
     FormData fdlValuename = new FormData();
     fdlValuename.left = new FormAttachment(0, 0);
-    fdlValuename.top = new FormAttachment(wTransformName, margin);
+    fdlValuename.top = new FormAttachment(0, margin);
     fdlValuename.right = new FormAttachment(middle, -margin);
     wlValuename.setLayoutData(fdlValuename);
-    wValuename = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wValuename = new Text(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wValuename.setText("");
     PropsUi.setLook(wValuename);
     wValuename.addModifyListener(lsMod);
     FormData fdValuename = new FormData();
     fdValuename.left = new FormAttachment(middle, 0);
-    fdValuename.top = new FormAttachment(wTransformName, margin);
+    fdValuename.top = new FormAttachment(0, margin);
     fdValuename.right = new FormAttachment(100, 0);
     wValuename.setLayoutData(fdValuename);
 
-    Group gDatabase = new Group(shell, SWT.NONE);
+    Group gDatabase = new Group(wContent, SWT.NONE);
     gDatabase.setText(BaseMessages.getString(PKG, "AddSequenceDialog.UseDatabaseGroup.Label"));
     FormLayout databaseLayout = new FormLayout();
     databaseLayout.marginHeight = margin;
@@ -158,7 +148,7 @@ public class AddSequenceDialog extends BaseTransformDialog {
     FormData fdDatabase = new FormData();
     fdDatabase.left = new FormAttachment(0, 0);
     fdDatabase.right = new FormAttachment(100, 0);
-    fdDatabase.top = new FormAttachment(wValuename, 2 * margin);
+    fdDatabase.top = new FormAttachment(wValuename, margin);
     gDatabase.setLayoutData(fdDatabase);
 
     Label wlUseDatabase = new Label(gDatabase, SWT.RIGHT);
@@ -197,14 +187,14 @@ public class AddSequenceDialog extends BaseTransformDialog {
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
     wbSchema = new Button(gDatabase, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "AddSequenceDialog.GetSchemas.Label"));
     FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
@@ -214,7 +204,7 @@ public class AddSequenceDialog extends BaseTransformDialog {
     wSchema.addModifyListener(lsMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdSchema.top = new FormAttachment(wConnection, margin);
     fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
 
@@ -247,7 +237,7 @@ public class AddSequenceDialog extends BaseTransformDialog {
     fdSeqname.right = new FormAttachment(wbSequence, -margin);
     wSeqname.setLayoutData(fdSeqname);
 
-    Group gCounter = new Group(shell, SWT.NONE);
+    Group gCounter = new Group(wContent, SWT.NONE);
     gCounter.setText(BaseMessages.getString(PKG, "AddSequenceDialog.UseCounterGroup.Label"));
     FormLayout counterLayout = new FormLayout();
     counterLayout.marginHeight = margin;
@@ -257,7 +247,7 @@ public class AddSequenceDialog extends BaseTransformDialog {
     FormData fdCounter = new FormData();
     fdCounter.left = new FormAttachment(0, 0);
     fdCounter.right = new FormAttachment(100, 0);
-    fdCounter.top = new FormAttachment(gDatabase, 2 * margin);
+    fdCounter.top = new FormAttachment(gDatabase, margin);
     gCounter.setLayoutData(fdCounter);
 
     Label wlUseCounter = new Label(gCounter, SWT.RIGHT);
@@ -361,20 +351,16 @@ public class AddSequenceDialog extends BaseTransformDialog {
     fdMaxVal.right = new FormAttachment(100, 0);
     wMaxVal.setLayoutData(fdMaxVal);
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, gCounter);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -430,9 +416,6 @@ public class AddSequenceDialog extends BaseTransformDialog {
     wMaxVal.setText(input.getMaxValue());
 
     enableFields();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

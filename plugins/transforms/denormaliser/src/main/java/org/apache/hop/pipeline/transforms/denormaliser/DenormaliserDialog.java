@@ -37,12 +37,10 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class DenormaliserDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DenormaliserMeta.class;
@@ -68,43 +66,12 @@ public class DenormaliserDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "DenormaliserDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "DenormaliserDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "DenormaliserDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // Key field...
     Label wlKeyField = new Label(shell, SWT.RIGHT);
@@ -113,7 +80,7 @@ public class DenormaliserDialog extends BaseTransformDialog {
     FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment(0, 0);
     fdlKeyField.right = new FormAttachment(middle, -margin);
-    fdlKeyField.top = new FormAttachment(wTransformName, margin);
+    fdlKeyField.top = new FormAttachment(wSpacer, margin);
     wlKeyField.setLayoutData(fdlKeyField);
 
     wKeyField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
@@ -121,7 +88,7 @@ public class DenormaliserDialog extends BaseTransformDialog {
     wKeyField.addModifyListener(lsMod);
     FormData fdKeyField = new FormData();
     fdKeyField.left = new FormAttachment(middle, 0);
-    fdKeyField.top = new FormAttachment(wTransformName, margin);
+    fdKeyField.top = new FormAttachment(wSpacer, margin);
     fdKeyField.right = new FormAttachment(100, 0);
     wKeyField.setLayoutData(fdKeyField);
 
@@ -256,14 +223,6 @@ public class DenormaliserDialog extends BaseTransformDialog {
     fdGetAgg.right = new FormAttachment(100, 0);
     wGetAgg.setLayoutData(fdGetAgg);
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     FormData fdTarget = new FormData();
     fdTarget.left = new FormAttachment(0, 0);
     fdTarget.top = new FormAttachment(wlTarget, margin);
@@ -272,10 +231,8 @@ public class DenormaliserDialog extends BaseTransformDialog {
     wTarget.setLayoutData(fdTarget);
 
     // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
     wGet.addListener(SWT.Selection, e -> get());
     wGetAgg.addListener(SWT.Selection, e -> getAgg());
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
 
@@ -305,7 +262,7 @@ public class DenormaliserDialog extends BaseTransformDialog {
                 }
               }
             });
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -378,9 +335,6 @@ public class DenormaliserDialog extends BaseTransformDialog {
     wGroup.optWidth(true);
     wTarget.setRowNums();
     wTarget.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

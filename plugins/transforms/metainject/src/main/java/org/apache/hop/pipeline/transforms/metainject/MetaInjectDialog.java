@@ -61,7 +61,6 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -169,79 +168,25 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "MetaInjectDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, metaInjectMeta);
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "MetaInjectDialog.Button.EnterMapping"),
+            e -> enterMapping())
+        .cancel(e -> cancel())
+        .build();
 
     lsMod = e -> metaInjectMeta.setChanged();
     changed = metaInjectMeta.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = 15;
-    formLayout.marginHeight = 15;
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Shell.Title"));
-
-    Label wicon = new Label(shell, SWT.RIGHT);
-    wicon.setImage(getImage());
-    FormData fdlicon = new FormData();
-    fdlicon.top = new FormAttachment(0, 0);
-    fdlicon.right = new FormAttachment(100, 0);
-    wicon.setLayoutData(fdlicon);
-    PropsUi.setLook(wicon);
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Button.EnterMapping"));
-    wGet.addListener(SWT.Selection, e -> enterMapping());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    positionBottomButtons(
-        shell,
-        new Button[] {
-          wOk, wGet, wCancel,
-        },
-        PropsUi.getMargin(),
-        null);
-
-    // Transform Name line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "MetaInjectDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, 0);
-    wlTransformName.setLayoutData(fdlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.right = new FormAttachment(90, 0);
-    fdTransformName.left = new FormAttachment(0, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 5);
-    wTransformName.setLayoutData(fdTransformName);
-
-    Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdSpacer = new FormData();
-    fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wTransformName, 15);
-    fdSpacer.right = new FormAttachment(100, 0);
-    spacer.setLayoutData(fdSpacer);
 
     Label wlPath = new Label(shell, SWT.LEFT);
     PropsUi.setLook(wlPath);
     wlPath.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Pipeline.Label"));
     FormData fdlTransformation = new FormData();
     fdlTransformation.left = new FormAttachment(0, 0);
-    fdlTransformation.top = new FormAttachment(spacer, 20);
+    fdlTransformation.top = new FormAttachment(wSpacer, margin);
     fdlTransformation.right = new FormAttachment(100, 0);
     wlPath.setLayoutData(fdlTransformation);
 
@@ -299,18 +244,11 @@ public class MetaInjectDialog extends BaseTransformDialog {
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
-    Label hSpacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdhSpacer = new FormData();
-    fdhSpacer.left = new FormAttachment(0, 0);
-    fdhSpacer.bottom = new FormAttachment(wCancel, -15);
-    fdhSpacer.right = new FormAttachment(100, 0);
-    hSpacer.setLayoutData(fdhSpacer);
-
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(hSpacer, -15);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     addInjectTab();
@@ -320,19 +258,10 @@ public class MetaInjectDialog extends BaseTransformDialog {
     metaInjectMeta.setChanged(changed);
 
     checkInvalidMapping();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
-  }
-
-  private Image getImage() {
-    return SwtSvgImageUtil.getImage(
-        shell.getDisplay(),
-        getClass().getClassLoader(),
-        "GenericTransform.svg",
-        ConstUi.LARGE_ICON_SIZE,
-        ConstUi.LARGE_ICON_SIZE);
   }
 
   private void checkInvalidMapping() {
@@ -940,9 +869,6 @@ public class MetaInjectDialog extends BaseTransformDialog {
     refreshTree();
 
     wTabFolder.setSelection(0);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   protected String buildTransformFieldKey(String transformName, String field) {

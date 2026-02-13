@@ -168,7 +168,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog {
     PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
+    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
@@ -237,7 +237,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     wlFields.setEnabled(!action.isArgFromPrevious());
