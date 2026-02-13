@@ -682,4 +682,9 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   public String getFilename() {
     return null;
   }
+
+  @Override
+  public boolean supportsDrillDown() {
+    return true;
+  }
 }
