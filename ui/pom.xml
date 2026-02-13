@@ -76,20 +76,17 @@
             <artifactId>jediterm-ui</artifactId>
             <version>${jediterm.version}</version>
             <exclusions>
-                <!-- Already have pty4j as direct dependency -->
                 <exclusion>
                     <groupId>org.jetbrains.pty4j</groupId>
                     <artifactId>pty4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- PTY (Pseudo-Terminal) support for integrated terminal -->
         <dependency>
             <groupId>org.jetbrains.pty4j</groupId>
             <artifactId>pty4j</artifactId>
             <version>${pty4j.version}</version>
             <exclusions>
-                <!-- Exclude purejavacomm - not needed for our use case -->
                 <exclusion>
                     <groupId>org.jetbrains.pty4j</groupId>
                     <artifactId>purejavacomm</artifactId>
