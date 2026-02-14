@@ -4187,15 +4187,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     this.pipelineCheckDelegate.checkPipeline();
   }
 
-  /** TODO: re-introduce public void analyseImpact() { hopGui.analyseImpact(); } */
-
-  /** TODO: re-introduce public void getSql() { hopGui.getSql(); } */
-
-  /* TODO: re-introduce
-  public void exploreDatabase() {
-    hopGui.exploreDatabase();
-  }
-   */
   public boolean isExecutionResultsPaneVisible() {
     return extraViewTabFolder != null && !extraViewTabFolder.isDisposed();
   }
