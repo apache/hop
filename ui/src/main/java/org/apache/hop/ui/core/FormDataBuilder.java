@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Control;
@@ -126,6 +127,23 @@ public class FormDataBuilder implements Cloneable {
 
   public FormDataBuilder bottom(Control control, int margin) {
     return bottom(new FormAttachment(control, margin));
+  }
+
+  /**
+   * Sets the bottom attachment of this {@code FormDataBuilder} relative to the specified control.
+   *
+   * <p>The bottom edge will be attached to the given {@link Control} with the specified margin and
+   * alignment.
+   *
+   * @param control the reference control to which the bottom edge will be attached; must not be
+   *     {@code null}
+   * @param margin the offset in pixels from the specified control
+   * @param alignment the alignment relative to the control (for example, {@link SWT#TOP}, {@link
+   *     SWT#BOTTOM}, or {@link SWT#CENTER})
+   * @return this {@code FormDataBuilder} instance for method chaining
+   */
+  public FormDataBuilder bottom(Control control, int margin, int alignment) {
+    return bottom(new FormAttachment(control, margin, alignment));
   }
 
   public FormDataBuilder right(Control control, int margin) {
