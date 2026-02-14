@@ -929,19 +929,22 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     }
 
     int choice = 0;
+    boolean isOpenDialog = false;
 
     if (!keys.isEmpty()) {
       // Ask what we should do with the existing data in the transform.
-      //
       DialogBoxWithButtons getFieldsChoiceDialog =
           getFieldsChoiceDialogProvider.provide(tableView.getShell(), keys.size(), row.size());
 
       int idx = getFieldsChoiceDialog.open();
       choice = idx & 0xFF;
+      // Mark that the dialog was actually opened.
+      isOpenDialog = true;
     }
 
-    if (choice == 3 || choice == 255) {
-      return; // Cancel clicked
+    // Cancel clicked, Close x
+    if ((choice == 0 && isOpenDialog) || choice == 3 || choice == 255) {
+      return;
     }
 
     if (choice == 2) {
@@ -951,13 +954,8 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     for (int i = 0; i < row.size(); i++) {
       IValueMeta v = row.getValueMeta(i);
 
-      boolean add = true;
-
-      if (choice == 0
-          && keys.indexOf(v.getName()) >= 0) { // hang on, see if it's not yet in the table view
-        add = false;
-      }
-
+      // hang on, see if it's not yet in the table view
+      boolean add = choice != 0 || !keys.contains(v.getName());
       if (add) {
         TableItem tableItem = new TableItem(table, SWT.NONE);
 
