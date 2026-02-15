@@ -249,6 +249,7 @@ public class GuiResource {
   @Getter private Image imageStop;
   @Getter private Image imageSynonym;
   @Getter private Image imageTable;
+  @Getter private Image imageTerminal;
   @Getter private Image imageUndo;
   @Getter private Image imageUnselectAll;
   @Getter private Image imageUp;
@@ -777,6 +778,7 @@ public class GuiResource {
         loadAsResource(display, "ui/images/show-selected.svg", ConstUi.SMALL_ICON_SIZE);
     imageSynonym = loadAsResource(display, "ui/images/view.svg", ConstUi.SMALL_ICON_SIZE);
     imageTable = loadAsResource(display, "ui/images/table.svg", ConstUi.SMALL_ICON_SIZE);
+    imageTerminal = loadAsResource(display, "ui/images/terminal.svg", ConstUi.SMALL_ICON_SIZE);
     imageUser = loadAsResource(display, "ui/images/user.svg", ConstUi.SMALL_ICON_SIZE);
     imageClose = loadAsResource(display, "ui/images/close.svg", ConstUi.SMALL_ICON_SIZE);
     imageDelete = loadAsResource(display, "ui/images/delete.svg", ConstUi.SMALL_ICON_SIZE);

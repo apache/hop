@@ -84,6 +84,7 @@ public class PropsUi extends Props {
       "GraphExtraViewVerticalOrientation";
   private static final String DISABLE_ZOOM_SCROLLING = "DisableZoomScrolling";
   private static final String ENABLE_INFINITE_CANVAS_MOVE = "EnableInfiniteCanvasMove";
+  private static final String USE_ADVANCED_TERMINAL = "UseAdvancedTerminal";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;

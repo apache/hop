@@ -1,0 +1,451 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.hop.ui.hopgui.terminal;
+
+import com.jediterm.terminal.TerminalColor;
+import com.jediterm.terminal.TextStyle;
+import com.jediterm.terminal.TtyConnector;
+import com.jediterm.terminal.ui.JediTermWidget;
+import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
+import com.pty4j.PtyProcess;
+import com.pty4j.PtyProcessBuilder;
+import com.pty4j.WinSize;
+import java.awt.Frame;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.ui.core.PropsUi;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+
+/** JediTerm-based terminal widget using SWT-AWT bridge for embedding AWT components in SWT. */
+public class JediTerminalWidget implements ITerminalWidget {
+
+  private static final LogChannel log = new LogChannel("JediTerminal");
+
+  private final String shellPath;
+  private final String workingDirectory;
+
+  private Composite bridgeComposite;
+  private Frame awtFrame;
+  private JediTermWidget jediTermWidget;
+  private PtyProcess ptyProcess;
+  private Pty4JTtyConnector ttyConnector;
+
+  public JediTerminalWidget(Composite parent, String shellPath, String workingDirectory) {
+    this.shellPath = shellPath;
+    this.workingDirectory = workingDirectory;
+
+    createWidget(parent, parent.getDisplay());
+
+    // Defer shell process start to avoid blocking UI
+    parent
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              if (!bridgeComposite.isDisposed()) {
+                startShellProcess();
+              }
+            });
+  }
+
+  public void createWidget(Composite parent, Display display) {
+    // Create SWT_AWT bridge composite
+    bridgeComposite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
+    PropsUi.setLook(bridgeComposite);
+
+    // Layout the bridge composite to fill parent
+    FormData fd = new FormData();
+    fd.left = new FormAttachment(0, 0);
+    fd.right = new FormAttachment(100, 0);
+    fd.top = new FormAttachment(0, 0);
+    fd.bottom = new FormAttachment(100, 0);
+    bridgeComposite.setLayoutData(fd);
+
+    // Create AWT Frame for JediTerm
+    awtFrame = SWT_AWT.new_Frame(bridgeComposite);
+
+    // Resize AWT frame when composite resizes
+    bridgeComposite.addListener(
+        SWT.Resize,
+        event -> {
+          if (bridgeComposite.isDisposed() || awtFrame == null) {
+            return;
+          }
+          try {
+            Rectangle rect = bridgeComposite.getClientArea();
+            java.awt.EventQueue.invokeLater(
+                () -> {
+                  if (awtFrame != null) {
+                    try {
+                      awtFrame.setSize(rect.width, rect.height);
+                      awtFrame.validate();
+                    } catch (Exception e) {
+                      log.logDebug("Error resizing AWT frame: " + e.getMessage());
+                    }
+                  }
+                });
+          } catch (Exception e) {
+            log.logDebug("Error in resize handler: " + e.getMessage());
+          }
+        });
+
+    // Create JediTerm widget with Hop dark mode support
+    boolean isDarkMode = PropsUi.getInstance().isDarkMode();
+    DefaultSettingsProvider settings = createHopSettingsProvider(isDarkMode, display);
+    jediTermWidget = new JediTermWidget(settings);
+    awtFrame.add(jediTermWidget);
+
+    awtFrame.setVisible(true);
+
+    // Defer focus until after terminal initialization
+    bridgeComposite.addListener(
+        org.eclipse.swt.SWT.FocusIn,
+        event -> {
+          display.asyncExec(
+              () -> {
+                if (bridgeComposite.isDisposed() || jediTermWidget == null) {
+                  return;
+                }
+                new Thread(
+                        () -> {
+                          try {
+                            java.awt.EventQueue.invokeLater(
+                                () -> {
+                                  if (jediTermWidget != null) {
+                                    try {
+                                      jediTermWidget.requestFocusInWindow();
+                                    } catch (Exception e) {
+                                      log.logDebug("Could not request focus: " + e.getMessage());
+                                    }
+                                  }
+                                });
+                          } catch (Exception e) {
+                            log.logDebug("Error requesting AWT focus: " + e.getMessage());
+                          }
+                        })
+                    .start();
+              });
+        });
+  }
+
+  /** Create SettingsProvider with Hop theme and font scaling */
+  private DefaultSettingsProvider createHopSettingsProvider(
+      final boolean isDarkMode, final Display display) {
+    // Get the SWT system font size as base
+    FontData systemFontData = display.getSystemFont().getFontData()[0];
+    int swtFontSize = systemFontData.getHeight();
+
+    // Get font scale from system property, default 1.0
+    float fontScale = 1.0f;
+    String manualScale = System.getProperty("JediTerm.fontScale");
+    if (manualScale != null && !manualScale.isEmpty()) {
+      try {
+        fontScale = Float.parseFloat(manualScale);
+        log.logBasic("JediTerm: Using font scale from system property: " + fontScale);
+      } catch (NumberFormatException e) {
+        log.logError("JediTerm: Invalid JediTerm.fontScale value: " + manualScale, e);
+      }
+    }
+
+    final int targetFontSize = Math.round(swtFontSize * fontScale);
+
+    return new DefaultSettingsProvider() {
+      @Override
+      public TerminalColor getDefaultBackground() {
+        if (Const.isWindows() && !isDarkMode) {
+          // Windows light mode: PowerShell blue background
+          return new TerminalColor(1, 36, 86);
+        } else if (Const.isWindows() && isDarkMode) {
+          // Windows dark mode: dark gray background
+          return new TerminalColor(43, 43, 43);
+        } else if (isDarkMode) {
+          // Mac/Linux dark mode: dark gray background
+          return new TerminalColor(43, 43, 43);
+        } else {
+          // Mac/Linux light mode: white background
+          return new TerminalColor(255, 255, 255);
+        }
+      }
+
+      @Override
+      public TerminalColor getDefaultForeground() {
+        if (Const.isWindows() && !isDarkMode) {
+          // Windows light mode: PowerShell gray foreground
+          return new TerminalColor(204, 204, 204);
+        } else if (Const.isWindows() && isDarkMode) {
+          // Windows dark mode: light gray foreground
+          return new TerminalColor(187, 187, 187);
+        } else if (isDarkMode) {
+          // Mac/Linux dark mode: light gray foreground
+          return new TerminalColor(187, 187, 187);
+        } else {
+          // Mac/Linux light mode: black foreground
+          return new TerminalColor(0, 0, 0);
+        }
+      }
+
+      @Override
+      public TextStyle getFoundPatternColor() {
+        TerminalColor bg = new TerminalColor(255, 255, 0);
+        TerminalColor fg = new TerminalColor(0, 0, 0);
+        return new TextStyle(fg, bg);
+      }
+
+      @Override
+      public TextStyle getHyperlinkColor() {
+        TerminalColor linkColor =
+            isDarkMode ? new TerminalColor(96, 161, 255) : new TerminalColor(0, 0, 238);
+        return new TextStyle(linkColor, null);
+      }
+
+      @Override
+      public java.awt.Font getTerminalFont() {
+        return new java.awt.Font("Monospaced", java.awt.Font.PLAIN, targetFontSize);
+      }
+
+      @Override
+      public float getTerminalFontSize() {
+        return (float) targetFontSize;
+      }
+    };
+  }
+
+  public void startShellProcess() {
+    try {
+      // Build PTY process
+      String[] command = getShellCommand();
+      Map<String, String> env = new HashMap<>(System.getenv());
+      env.put("TERM", "xterm-256color");
+
+      PtyProcessBuilder builder =
+          new PtyProcessBuilder()
+              .setCommand(command)
+              .setDirectory(workingDirectory)
+              .setEnvironment(env)
+              .setInitialColumns(80)
+              .setInitialRows(24);
+
+      ptyProcess = builder.start();
+
+      // Create connector to bridge Pty4J and JediTerm
+      ttyConnector = new Pty4JTtyConnector(ptyProcess);
+
+      // Start the terminal session
+      jediTermWidget.setTtyConnector(ttyConnector);
+      jediTermWidget.start();
+
+      // Request focus after terminal initialization
+      new Thread(
+              () -> {
+                try {
+                  Thread.sleep(100);
+                  java.awt.EventQueue.invokeLater(
+                      () -> {
+                        if (jediTermWidget != null) {
+                          try {
+                            jediTermWidget.requestFocusInWindow();
+                          } catch (Exception e) {
+                            log.logDebug("Could not request initial focus: " + e.getMessage());
+                          }
+                        }
+                      });
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                  log.logDebug("Error requesting initial AWT focus: " + e.getMessage());
+                }
+              })
+          .start();
+
+    } catch (Exception e) {
+      log.logError("Error starting JediTerm shell process", e);
+    }
+  }
+
+  private String[] getShellCommand() {
+    String shell = shellPath != null ? shellPath : TerminalShellDetector.detectDefaultShell();
+
+    if (Const.isWindows()) {
+      if (shell.toLowerCase().contains("powershell")) {
+        return new String[] {shell, "-NoLogo"};
+      } else {
+        return new String[] {shell};
+      }
+    } else {
+      return new String[] {shell, "-i", "-l"};
+    }
+  }
+
+  public void sendRawInput(String input) {
+    // JediTerm handles input directly
+  }
+
+  @Override
+  public void dispose() {
+    try {
+      if (bridgeComposite != null && !bridgeComposite.isDisposed()) {
+        bridgeComposite.dispose();
+      }
+
+      // Clean up PTY in background thread
+      final JediTermWidget termWidget = jediTermWidget;
+      final Pty4JTtyConnector connector = ttyConnector;
+      final PtyProcess process = ptyProcess;
+
+      new Thread(
+              () -> {
+                try {
+                  if (termWidget != null) {
+                    termWidget.stop();
+                  }
+                  if (connector != null) {
+                    connector.close();
+                  }
+                  if (process != null && process.isAlive()) {
+                    process.destroy();
+                  }
+                } catch (Exception e) {
+                  log.logError("Error cleaning up JediTerm PTY", e);
+                }
+              })
+          .start();
+
+    } catch (Exception e) {
+      log.logError("Error disposing JediTerm", e);
+    }
+  }
+
+  @Override
+  public Composite getTerminalComposite() {
+    return bridgeComposite;
+  }
+
+  @Override
+  public StyledText getOutputText() {
+    // JediTerm uses AWT, not StyledText
+    return null;
+  }
+
+  @Override
+  public String getTerminalType() {
+    return "JediTerm (POC)";
+  }
+
+  @Override
+  public boolean isConnected() {
+    return ptyProcess != null && ptyProcess.isAlive();
+  }
+
+  @Override
+  public String getShellPath() {
+    return shellPath;
+  }
+
+  @Override
+  public String getWorkingDirectory() {
+    return workingDirectory;
+  }
+
+  /** Adapter connecting Pty4J to JediTerm's TtyConnector */
+  private static class Pty4JTtyConnector implements TtyConnector {
+
+    private final PtyProcess ptyProcess;
+    private final InputStream inputStream;
+    private final OutputStream outputStream;
+
+    public Pty4JTtyConnector(PtyProcess ptyProcess) {
+      this.ptyProcess = ptyProcess;
+      this.inputStream = ptyProcess.getInputStream();
+      this.outputStream = ptyProcess.getOutputStream();
+    }
+
+    public boolean init() {
+      return true;
+    }
+
+    public void close() {
+      try {
+        if (ptyProcess != null && ptyProcess.isAlive()) {
+          ptyProcess.destroy();
+        }
+      } catch (Exception e) {
+        log.logError("Error closing Pty4J connector", e);
+      }
+    }
+
+    public String getName() {
+      return "Pty4J Connector";
+    }
+
+    public int read(char[] buf, int offset, int length) throws IOException {
+      byte[] bytes = new byte[length];
+      int bytesRead = inputStream.read(bytes, 0, length);
+      if (bytesRead > 0) {
+        String str = new String(bytes, 0, bytesRead, StandardCharsets.UTF_8);
+        char[] chars = str.toCharArray();
+        System.arraycopy(chars, 0, buf, offset, Math.min(chars.length, length));
+        return chars.length;
+      }
+      return bytesRead;
+    }
+
+    public void write(byte[] bytes) throws IOException {
+      outputStream.write(bytes);
+      outputStream.flush();
+    }
+
+    public boolean isConnected() {
+      return ptyProcess != null && ptyProcess.isAlive();
+    }
+
+    public void write(String string) throws IOException {
+      write(string.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public int waitFor() throws InterruptedException {
+      return ptyProcess.waitFor();
+    }
+
+    public boolean ready() throws IOException {
+      return inputStream.available() > 0;
+    }
+
+    public void resize(int cols, int rows) {
+      if (ptyProcess != null && ptyProcess.isAlive()) {
+        try {
+          ptyProcess.setWinSize(new WinSize(cols, rows));
+        } catch (Exception e) {
+          log.logError("Error resizing PTY", e);
+        }
+      }
+    }
+  }
+}

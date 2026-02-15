@@ -205,6 +205,8 @@ public class ConfigGuiOptionsTab {
     Shell shell = wTabFolder.getShell();
     PropsUi props = PropsUi.getInstance();
     int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+    int h = (int) (40 * props.getZoomFactor());
 
     CTabItem wLookTab = new CTabItem(wTabFolder, SWT.NONE);
     wLookTab.setFont(GuiResource.getInstance().getFontDefault());
