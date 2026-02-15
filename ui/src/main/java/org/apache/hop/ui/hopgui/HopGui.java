@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -235,6 +236,16 @@ public class HopGui
 
   public static final String GUI_PLUGIN_PERSPECTIVES_PARENT_ID = "HopGui-Perspectives";
 
+  /** Perspective id for the file explorer / data orchestration perspective. */
+  public static final String PERSPECTIVE_ID_EXPLORER = "explorer-perspective";
+
+  /** Id for the execution results toggle button in the sidebar bottom toolbar. */
+  public static final String SIDEBAR_TOOLBAR_ITEM_EXECUTION_RESULTS =
+      "HopGui-SidebarToolbar-ExecutionResults";
+
+  /** Id for the terminal toggle button in the sidebar bottom toolbar. */
+  public static final String SIDEBAR_TOOLBAR_ITEM_TERMINAL = "HopGui-SidebarToolbar-Terminal";
+
   public static final String DEFAULT_HOP_GUI_NAMESPACE = "hop-gui";
 
   public boolean firstShowing = true;
@@ -272,6 +283,9 @@ public class HopGui
   private GuiToolbarWidgets statusToolbarWidgets;
 
   private Composite perspectivesSidebar;
+  private ToolBar bottomToolbar;
+  private final java.util.List<SidebarToolbarItemDescriptor> sidebarToolbarDescriptors =
+      new java.util.ArrayList<>();
   private java.util.List<SidebarButton> sidebarButtons = new java.util.ArrayList<>();
   private Composite mainPerspectivesComposite;
   private HopPerspectiveManager perspectiveManager;
@@ -1604,7 +1618,7 @@ public class HopGui
     fdPerspectivesContainer.right = new FormAttachment(100, 0);
     perspectivesContainer.setLayoutData(fdPerspectivesContainer);
 
-    ToolBar bottomToolbar = new ToolBar(perspectivesSidebar, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
+    bottomToolbar = new ToolBar(perspectivesSidebar, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
     PropsUi.setLook(bottomToolbar, Props.WIDGET_STYLE_TOOLBAR);
     FormData fdBottomToolbar = new FormData();
     fdBottomToolbar.left = new FormAttachment(0, 0);
@@ -1613,38 +1627,36 @@ public class HopGui
     fdBottomToolbar.bottom = new FormAttachment(100, -4);
     bottomToolbar.setLayoutData(fdBottomToolbar);
 
-    // Execution results toggle button (show/hide logging/metrics/problems)
-    // Use same icon size as perspective buttons (21px) for consistency
+    // Register built-in sidebar toolbar items (visibility depends on active perspective).
+    // File explorer: both terminal and execution. Other perspectives: terminal only.
+    // List order: terminal then execution; refresh draws in reverse so execution appears above.
     int sidebarIconSize = 21;
-    ToolItem executionResultsButton = new ToolItem(bottomToolbar, SWT.PUSH);
-    Image executionResultsImage =
-        GuiResource.getInstance()
-            .getImage("ui/images/show-results.svg", sidebarIconSize, sidebarIconSize);
-    executionResultsButton.setImage(executionResultsImage);
-    executionResultsButton.setToolTipText("Toggle Execution Results (Logging/Metrics/Problems)");
-    executionResultsButton.addListener(
-        SWT.Selection,
-        event -> {
-          toggleExecutionResults();
-        });
+    sidebarToolbarDescriptors.add(
+        SidebarToolbarItemDescriptor.builder()
+            .id(SIDEBAR_TOOLBAR_ITEM_TERMINAL)
+            .imagePath("ui/images/terminal.svg")
+            .imageSize(sidebarIconSize)
+            .tooltip("Toggle Terminal Panel")
+            .onSelect(
+                () -> {
+                  if (terminalPanel != null) {
+                    terminalPanel.toggleTerminal();
+                  }
+                })
+            .available(!EnvironmentUtils.getInstance().isWeb())
+            .build());
+    sidebarToolbarDescriptors.add(
+        SidebarToolbarItemDescriptor.builder()
+            .id(SIDEBAR_TOOLBAR_ITEM_EXECUTION_RESULTS)
+            .visibleForPerspectiveIds(Set.of(PERSPECTIVE_ID_EXPLORER))
+            .imagePath("ui/images/show-results.svg")
+            .imageSize(sidebarIconSize)
+            .tooltip("Toggle Execution Results (Logging/Metrics/Problems)")
+            .onSelect(this::toggleExecutionResults)
+            .available(true)
+            .build());
 
-    if (!EnvironmentUtils.getInstance().isWeb()) {
-      ToolItem terminalButton = new ToolItem(bottomToolbar, SWT.PUSH);
-      Image terminalImage =
-          GuiResource.getInstance()
-              .getImage("ui/images/terminal.svg", sidebarIconSize, sidebarIconSize);
-      terminalButton.setImage(terminalImage);
-      terminalButton.setToolTipText("Toggle Terminal Panel");
-      terminalButton.addListener(
-          SWT.Selection,
-          event -> {
-            if (terminalPanel != null) {
-              terminalPanel.toggleTerminal();
-            }
-          });
-    }
-
-    bottomToolbar.pack();
+    refreshBottomToolbarItems();
 
     // Anchor perspectives container above bottom toolbar
     fdPerspectivesContainer.bottom = new FormAttachment(bottomToolbar, 0);
@@ -1910,6 +1922,82 @@ public class HopGui
     perspective.perspectiveActivated();
 
     perspectiveManager.notifyPerspectiveActivated(perspective);
+
+    refreshBottomToolbarItems();
+  }
+
+  /**
+   * Register an item for the bottom-left sidebar toolbar. Visibility is determined by the active
+   * perspective (see {@link SidebarToolbarItemDescriptor}). If the toolbar already exists, it is
+   * refreshed immediately.
+   */
+  public void addSidebarToolbarItem(SidebarToolbarItemDescriptor descriptor) {
+    if (descriptor != null && !sidebarToolbarDescriptors.contains(descriptor)) {
+      sidebarToolbarDescriptors.add(descriptor);
+      if (bottomToolbar != null && !bottomToolbar.isDisposed()) {
+        refreshBottomToolbarItems();
+      }
+    }
+  }
+
+  /**
+   * Refresh the bottom sidebar toolbar so only items visible for the current perspective are shown.
+   * Items are added in reverse descriptor order so that the second, third, etc. buttons appear
+   * above the first (SWT vertical toolbar lays out first-added at top). This avoids overlapping and
+   * keeps perspective-specific buttons (e.g. execution) above the always-visible ones (e.g.
+   * terminal).
+   */
+  public void refreshBottomToolbarItems() {
+    if (bottomToolbar == null || bottomToolbar.isDisposed()) {
+      return;
+    }
+    String activePerspectiveId = activePerspective != null ? activePerspective.getId() : "";
+
+    // Collect visible descriptors, then add in reverse order so extra buttons go on top
+    List<SidebarToolbarItemDescriptor> visible = new ArrayList<>();
+    for (SidebarToolbarItemDescriptor d : sidebarToolbarDescriptors) {
+      if (!d.isAvailable()) {
+        continue;
+      }
+      boolean show;
+      if (!d.getVisibleForPerspectiveIds().isEmpty()) {
+        show = d.getVisibleForPerspectiveIds().contains(activePerspectiveId);
+      } else if (d.getHiddenForPerspectiveIds().isEmpty()) {
+        show = true;
+      } else {
+        show = !d.getHiddenForPerspectiveIds().contains(activePerspectiveId);
+      }
+      if (show) {
+        visible.add(d);
+      }
+    }
+
+    // Dispose existing items
+    for (ToolItem item : bottomToolbar.getItems()) {
+      item.dispose();
+    }
+
+    // Add in reverse order: last in list becomes first (top) in toolbar so we don't overlap
+    for (int i = visible.size() - 1; i >= 0; i--) {
+      SidebarToolbarItemDescriptor d = visible.get(i);
+      ToolItem item = new ToolItem(bottomToolbar, SWT.PUSH);
+      Image img =
+          GuiResource.getInstance().getImage(d.getImagePath(), d.getImageSize(), d.getImageSize());
+      item.setImage(img);
+      item.setToolTipText(d.getTooltip());
+      item.setData("descriptor", d);
+      item.addListener(
+          SWT.Selection,
+          event -> {
+            SidebarToolbarItemDescriptor desc =
+                (SidebarToolbarItemDescriptor) item.getData("descriptor");
+            if (desc != null && desc.getOnSelect() != null) {
+              desc.getOnSelect().run();
+            }
+          });
+    }
+    bottomToolbar.pack();
+    bottomToolbar.getParent().layout(true, true);
   }
 
   public boolean isActivePerspective(IHopPerspective perspective) {
