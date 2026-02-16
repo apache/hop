@@ -1,0 +1,3 @@
+dn,objectClass,cn,sn,uid,mail,telephoneNumber
+"uid=jdoe,ou=People,dc=hop,dc=apache,dc=org",inetOrgPerson,John Doe,Doe,jdoe,jdoe@example.com,
+"uid=asmith,ou=People,dc=hop,dc=apache,dc=org",inetOrgPerson,Alice Smith,Smith,asmith,asmith@example.com,+1-555-0102

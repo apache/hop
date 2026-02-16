@@ -111,6 +111,32 @@
       <attributes_hac/>
     </action>
     <action>
+      <name>read-ou-after-insert</name>
+      <description>Read OU inserted by insert-ou pipeline (with unit test)</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/input/read-ou-after-insert.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
       <name>insert-user</name>
       <description>Insert user entry</description>
       <type>PIPELINE</type>
@@ -132,7 +158,33 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>480</xloc>
+      <xloc>608</xloc>
+      <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>read-users-after-insert</name>
+      <description>Read users inserted by insert-user pipeline (with unit test)</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/input/read-users-after-insert.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
       <yloc>224</yloc>
       <attributes_hac/>
     </action>
@@ -158,8 +210,34 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>680</xloc>
-      <yloc>224</yloc>
+      <xloc>288</xloc>
+      <yloc>352</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>read-users-after-update</name>
+      <description>Read users after update-user pipeline (with unit test)</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/input/read-users-after-update.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>448</xloc>
+      <yloc>352</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -184,8 +262,34 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>876</xloc>
-      <yloc>224</yloc>
+      <xloc>608</xloc>
+      <yloc>352</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>read-users-after-upsert</name>
+      <description>Read users after upsert-user pipeline (with unit test)</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/input/read-users-after-upsert.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>352</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -210,8 +314,34 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1072</xloc>
-      <yloc>224</yloc>
+      <xloc>288</xloc>
+      <yloc>480</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>read-users-after-add-attribute</name>
+      <description>Read users after add-attribute pipeline (with unit test)</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/input/read-users-after-add-attribute.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>480</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -236,8 +366,34 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1268</xloc>
-      <yloc>224</yloc>
+      <xloc>288</xloc>
+      <yloc>608</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>read-users-after-remove-attribute-specific-value</name>
+      <description>Read users after remove-attribute-specific-value pipeline (with unit test)</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/input/read-users-after-remove-attribute-specific-value.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>608</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -262,13 +418,13 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1464</xloc>
-      <yloc>224</yloc>
+      <xloc>288</xloc>
+      <yloc>736</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>verify-remove-attribute-entire</name>
-      <description>Verify telephoneNumber attribute was removed from jdoe</description>
+      <name>read-users-after-remove-attribute-entire</name>
+      <description>Read users after remove-attribute-entire pipeline (with unit test)</description>
       <type>PIPELINE</type>
       <attributes/>
       <add_date>N</add_date>
@@ -277,7 +433,7 @@
       <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/output/verify-remove-attribute-entire.hpl</filename>
+      <filename>${PROJECT_HOME}/input/read-users-after-remove-attribute-entire.hpl</filename>
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -288,8 +444,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1664</xloc>
-      <yloc>224</yloc>
+      <xloc>608</xloc>
+      <yloc>736</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -314,8 +470,34 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1856</xloc>
-      <yloc>224</yloc>
+      <xloc>288</xloc>
+      <yloc>864</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>read-users-after-rename-dn</name>
+      <description>Read users after rename-dn pipeline (with unit test)</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/input/read-users-after-rename-dn.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>864</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -341,7 +523,7 @@
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
       <xloc>288</xloc>
-      <yloc>384</yloc>
+      <yloc>992</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -366,8 +548,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>480</xloc>
-      <yloc>384</yloc>
+      <xloc>608</xloc>
+      <yloc>992</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -392,8 +574,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>680</xloc>
-      <yloc>384</yloc>
+      <xloc>288</xloc>
+      <yloc>1120</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -418,8 +600,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>876</xloc>
-      <yloc>384</yloc>
+      <xloc>608</xloc>
+      <yloc>1120</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -444,8 +626,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1072</xloc>
-      <yloc>384</yloc>
+      <xloc>288</xloc>
+      <yloc>1248</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -470,8 +652,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1268</xloc>
-      <yloc>384</yloc>
+      <xloc>608</xloc>
+      <yloc>1248</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -496,8 +678,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1464</xloc>
-      <yloc>384</yloc>
+      <xloc>288</xloc>
+      <yloc>1376</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -522,8 +704,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1660</xloc>
-      <yloc>384</yloc>
+      <xloc>608</xloc>
+      <yloc>1376</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -548,8 +730,8 @@
       <set_logfile>N</set_logfile>
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1856</xloc>
-      <yloc>384</yloc>
+      <xloc>288</xloc>
+      <yloc>1504</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -575,7 +757,33 @@
       <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
       <xloc>288</xloc>
-      <yloc>544</yloc>
+      <yloc>1632</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>read-users-after-delete-entry</name>
+      <description>Read users after delete-entry pipeline (with unit test)</description>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/input/read-users-after-delete-entry.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>608</xloc>
+      <yloc>1632</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -603,6 +811,13 @@
     </hop>
     <hop>
       <from>insert-ou</from>
+      <to>read-ou-after-insert</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>read-ou-after-insert</from>
       <to>insert-user</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -610,6 +825,13 @@
     </hop>
     <hop>
       <from>insert-user</from>
+      <to>read-users-after-insert</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>read-users-after-insert</from>
       <to>update-user</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -617,6 +839,13 @@
     </hop>
     <hop>
       <from>update-user</from>
+      <to>read-users-after-update</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>read-users-after-update</from>
       <to>upsert-user</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -624,6 +853,13 @@
     </hop>
     <hop>
       <from>upsert-user</from>
+      <to>read-users-after-upsert</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>read-users-after-upsert</from>
       <to>add-attribute</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -631,6 +867,13 @@
     </hop>
     <hop>
       <from>add-attribute</from>
+      <to>read-users-after-add-attribute</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>read-users-after-add-attribute</from>
       <to>remove-attribute-specific-value</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -638,6 +881,13 @@
     </hop>
     <hop>
       <from>remove-attribute-specific-value</from>
+      <to>read-users-after-remove-attribute-specific-value</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>read-users-after-remove-attribute-specific-value</from>
       <to>remove-attribute-entire</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -645,13 +895,13 @@
     </hop>
     <hop>
       <from>remove-attribute-entire</from>
-      <to>verify-remove-attribute-entire</to>
+      <to>read-users-after-remove-attribute-entire</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>verify-remove-attribute-entire</from>
+      <from>read-users-after-remove-attribute-entire</from>
       <to>rename-dn</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -659,6 +909,13 @@
     </hop>
     <hop>
       <from>rename-dn</from>
+      <to>read-users-after-rename-dn</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>read-users-after-rename-dn</from>
       <to>read-ous</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -723,6 +980,13 @@
     <hop>
       <from>read-users-object-scope</from>
       <to>delete-entry</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>delete-entry</from>
+      <to>read-users-after-delete-entry</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>

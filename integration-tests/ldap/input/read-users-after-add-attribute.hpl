@@ -19,9 +19,9 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>verify-remove-attribute-entire</name>
+    <name>read-users-after-add-attribute</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Verify telephoneNumber attribute was removed from jdoe</description>
+    <description>LDAP Input: Read users after add-attribute pipeline</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
@@ -39,33 +39,13 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>LDAP Read jdoe</from>
-      <to>Verify Entry Exists</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Verify Entry Exists</from>
-      <to>Check Phone Removed</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Check Phone Removed</from>
-      <to>Attribute Removed OK</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Check Phone Removed</from>
-      <to>Attribute Still Present</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Verify Entry Exists</from>
-      <to>Entry Not Found</to>
+      <from>LDAP Read Users</from>
+      <to>Verify Output</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>LDAP Read jdoe</name>
+    <name>LDAP Read Users</name>
     <type>LDAPInput</type>
     <description/>
     <distribute>Y</distribute>
@@ -84,12 +64,27 @@ limitations under the License.
     <username>${LDAP_USERNAME}</username>
     <password>${LDAP_PASSWORD}</password>
     <port>${LDAP_PORT}</port>
-    <filterstring>(&amp;(objectClass=inetOrgPerson)(uid=jdoe))</filterstring>
+    <filterstring>objectClass=inetOrgPerson</filterstring>
     <searchbase>ou=People,dc=hop,dc=apache,dc=org</searchbase>
     <fields>
       <field>
         <name>dn</name>
         <attribute>dn</attribute>
+        <attribute_fetch_as>String</attribute_fetch_as>
+        <sorted_key>N</sorted_key>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>objectClass</name>
+        <attribute>objectClass</attribute>
         <attribute_fetch_as>String</attribute_fetch_as>
         <sorted_key>N</sorted_key>
         <type>String</type>
@@ -118,8 +113,68 @@ limitations under the License.
         <repeat>N</repeat>
       </field>
       <field>
+        <name>sn</name>
+        <attribute>sn</attribute>
+        <attribute_fetch_as>String</attribute_fetch_as>
+        <sorted_key>N</sorted_key>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>uid</name>
+        <attribute>uid</attribute>
+        <attribute_fetch_as>String</attribute_fetch_as>
+        <sorted_key>N</sorted_key>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>mail</name>
+        <attribute>mail</attribute>
+        <attribute_fetch_as>String</attribute_fetch_as>
+        <sorted_key>N</sorted_key>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
         <name>telephoneNumber</name>
         <attribute>telephoneNumber</attribute>
+        <attribute_fetch_as>String</attribute_fetch_as>
+        <sorted_key>N</sorted_key>
+        <type>String</type>
+        <format/>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <decimal/>
+        <group/>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>description</name>
+        <attribute>description</attribute>
         <attribute_fetch_as>String</attribute_fetch_as>
         <sorted_key>N</sorted_key>
         <type>String</type>
@@ -153,9 +208,9 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>Verify Entry Exists</name>
-    <type>FilterRows</type>
-    <description>Verify the jdoe entry exists (cn is not null)</description>
+    <name>Verify Output</name>
+    <type>Dummy</type>
+    <description>Golden data set target for unit testing</description>
     <distribute>Y</distribute>
     <custom_distribution/>
     <copies>1</copies>
@@ -163,102 +218,10 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to>Check Phone Removed</send_true_to>
-    <send_false_to>Entry Not Found</send_false_to>
-    <conditions>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>cn</leftvalue>
-        <function>IS NOT NULL</function>
-        <rightvalue/>
-        <leftexact>N</leftexact>
-        <rightexact>N</rightexact>
-      </condition>
-    </conditions>
     <attributes/>
     <GUI>
       <xloc>336</xloc>
       <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Check Phone Removed</name>
-    <type>FilterRows</type>
-    <description>Check if telephoneNumber is NULL (removed) or has a value (still present)</description>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <send_true_to>Attribute Removed OK</send_true_to>
-    <send_false_to>Attribute Still Present</send_false_to>
-    <conditions>
-      <condition>
-        <negated>N</negated>
-        <leftvalue>telephoneNumber</leftvalue>
-        <function>IS NULL</function>
-        <rightvalue/>
-        <leftexact>N</leftexact>
-        <rightexact>N</rightexact>
-      </condition>
-    </conditions>
-    <attributes/>
-    <GUI>
-      <xloc>560</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Attribute Removed OK</name>
-    <type>Dummy</type>
-    <description>SUCCESS: telephoneNumber attribute was successfully removed (is NULL)</description>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>784</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Attribute Still Present</name>
-    <type>Dummy</type>
-    <description>FAILURE: telephoneNumber attribute is still present - removal failed!</description>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>784</xloc>
-      <yloc>160</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Entry Not Found</name>
-    <type>Dummy</type>
-    <description>ERROR: jdoe entry not found - cannot verify attribute removal</description>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>560</xloc>
-      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

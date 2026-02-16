@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-read-ous.csv",
+  "name": "golden-read-ous",
+  "description": "Golden data set for read-ous pipeline unit test",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "dn",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "objectClass",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "ou",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

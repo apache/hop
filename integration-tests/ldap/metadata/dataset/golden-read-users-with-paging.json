@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-read-users-with-paging.csv",
+  "name": "golden-read-users-with-paging",
+  "description": "Golden data set for read-users-with-paging pipeline unit test",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "dn",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "cn",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "uid",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

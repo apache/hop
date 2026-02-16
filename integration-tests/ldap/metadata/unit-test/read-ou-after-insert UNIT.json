@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Unit test for reading OU inserted by insert-ou pipeline",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "dn",
+          "data_set_field": "dn"
+        },
+        {
+          "transform_field": "objectClass",
+          "data_set_field": "objectClass"
+        },
+        {
+          "transform_field": "ou",
+          "data_set_field": "ou"
+        }
+      ],
+      "field_order": [
+        "dn",
+        "objectClass",
+        "ou"
+      ],
+      "data_set_name": "golden-read-ou-after-insert",
+      "transform_name": "Verify Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "read-ou-after-insert UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./input/read-ou-after-insert.hpl"
+}
