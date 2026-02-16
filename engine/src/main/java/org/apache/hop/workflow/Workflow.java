@@ -680,16 +680,6 @@ public abstract class Workflow extends Variables
       return res;
     }
 
-    // If previous is not null then that action has finished
-    if (previous != null && log.isBasic()) {
-      log.logBasic(
-          BaseMessages.getString(
-              PKG,
-              "Workflow.Log.FinishedAction",
-              previous.getName(),
-              previousResult.isResult() + ""));
-    }
-
     // Start this action!
     if (log.isBasic()) {
       log.logBasic(
@@ -769,11 +759,23 @@ public abstract class Workflow extends Variables
 
       // Action execution duration
       newResult.setElapsedTimeMillis(System.currentTimeMillis() - start);
+      newResult.setEntryNr(nr);
 
       activeActions.remove(actionMeta);
 
       for (IActionListener actionListener : actionListeners) {
         actionListener.afterExecution(this, actionMeta, cloneAction, newResult);
+      }
+
+      // Log action as finished as soon as its body has completed (action can no longer fail after
+      // this point)
+      if (log.isBasic()) {
+        log.logBasic(
+            BaseMessages.getString(
+                PKG,
+                "Workflow.Log.FinishedAction",
+                actionMeta.getName(),
+                newResult.isResult() + ""));
       }
 
       Thread.currentThread().setContextClassLoader(cl);
@@ -950,10 +952,10 @@ public abstract class Workflow extends Variables
       }
     }
 
-    // Perhaps we don't have next transforms??
-    // In this case, return the previous result.
+    // Perhaps we don't have next actions??
+    // In this case, return the result of the action we just ran.
     if (res == null) {
-      res = prevResult;
+      res = newResult;
     }
 
     // See if there were any errors in the parallel execution
@@ -983,12 +985,6 @@ public abstract class Workflow extends Variables
     //
     if (res.getNrErrors() > 0) {
       res.setResult(false);
-    }
-    // Log the final action that has finished
-    if (res.getEntryNr() == nr && log.isBasic()) {
-      log.logBasic(
-          BaseMessages.getString(
-              PKG, "Workflow.Log.FinishedAction", actionMeta.getName(), res.isResult() + ""));
     }
 
     return res;
