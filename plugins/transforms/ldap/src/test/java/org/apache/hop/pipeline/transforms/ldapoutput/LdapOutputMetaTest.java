@@ -120,7 +120,7 @@ class LdapOutputMetaTest {
     attrValidatorMap.put("update", booleanArrayLoadSaveValidator);
     attrValidatorMap.put("updateLookup", stringArrayLoadSaveValidator);
     attrValidatorMap.put("updateStream", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("operationType", new IntLoadSaveValidator(5));
+    attrValidatorMap.put("operationType", new IntLoadSaveValidator(7));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 

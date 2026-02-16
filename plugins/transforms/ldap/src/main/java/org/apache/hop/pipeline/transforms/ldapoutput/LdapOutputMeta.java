@@ -98,14 +98,15 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Update"),
     BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Add"),
     BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Delete"),
-    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Rename")
+    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.Rename"),
+    BaseMessages.getString(PKG, "LdapOutputMeta.operationType.RemoveAttribute")
   };
 
   public static final String CONST_UPDATE = "update";
 
   /** The operations type codes */
   static final String[] operationTypeCode = {
-    "insert", "upsert", CONST_UPDATE, "add", "delete", "rename"
+    "insert", "upsert", CONST_UPDATE, "add", "delete", "rename", "remove_attribute"
   };
 
   public static final int OPERATION_TYPE_INSERT = 0;
@@ -119,6 +120,8 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   public static final int OPERATION_TYPE_DELETE = 4;
 
   public static final int OPERATION_TYPE_RENAME = 5;
+
+  public static final int OPERATION_TYPE_REMOVE_ATTRIBUTE = 6;
 
   private int referralType;
 

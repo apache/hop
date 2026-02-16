@@ -250,6 +250,20 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
             incrementLinesSkipped();
           }
           break;
+        case LdapOutputMeta.OPERATION_TYPE_REMOVE_ATTRIBUTE:
+          status =
+              data.connection.removeAttribute(
+                  dn,
+                  data.fieldsAttribute,
+                  data.attributes,
+                  data.separator,
+                  meta.isFailIfNotExist());
+          if (status == LdapConnection.STATUS_REMOVED) {
+            incrementLinesUpdated();
+          } else {
+            incrementLinesSkipped();
+          }
+          break;
         case LdapOutputMeta.OPERATION_TYPE_RENAME:
           String oldDn = getInputRowMeta().getString(outputRowData, data.indexOfOldDNField);
           String newDn = getInputRowMeta().getString(outputRowData, data.indexOfNewDNField);

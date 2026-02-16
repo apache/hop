@@ -1,0 +1,24 @@
+{
+  "variables" : [
+    {
+      "name" : "LDAP_HOST",
+      "value" : "localhost",
+      "description" : ""
+    },
+    {
+      "name" : "LDAP_PORT",
+      "value" : "389",
+      "description" : ""
+    },
+    {
+      "name" : "LDAP_USERNAME",
+      "value" : "cn=admin,dc=hop,dc=apache,dc=org",
+      "description" : ""
+    },
+    {
+      "name" : "LDAP_PASSWORD",
+      "value" : "admin",
+      "description" : ""
+    }
+  ]
+}
