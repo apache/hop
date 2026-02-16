@@ -134,7 +134,8 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
       PipelineMeta pipelineMeta = parentTransformMeta.getParentPipelineMeta();
       if (pipelineMeta != null) {
         String[] prev = pipelineMeta.getPrevTransformNames(parentTransformMeta);
-        // Only auto-fill when both are empty (initial connect). Do not re-fill when user cleared one.
+        // Only auto-fill when both are empty (initial connect). Do not re-fill when user cleared
+        // one.
         if (prev != null && prev.length == 2) {
           if (Utils.isEmpty(leftTransformName) && Utils.isEmpty(rightTransformName)) {
             if (stream0.getTransformMeta() != null && stream1.getTransformMeta() != null) {

@@ -91,7 +91,8 @@ public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
       PipelineMeta pipelineMeta = parentTransformMeta.getParentPipelineMeta();
       if (pipelineMeta != null) {
         String[] prev = pipelineMeta.getPrevTransformNames(parentTransformMeta);
-        // Only auto-fill when both are empty (initial connect). Do not re-fill when user cleared one.
+        // Only auto-fill when both are empty (initial connect). Do not re-fill when user cleared
+        // one.
         if (prev != null && prev.length == 2) {
           if (Utils.isEmpty(headTransformName) && Utils.isEmpty(tailTransformName)) {
             if (headStream.getTransformMeta() != null && tailStream.getTransformMeta() != null) {
