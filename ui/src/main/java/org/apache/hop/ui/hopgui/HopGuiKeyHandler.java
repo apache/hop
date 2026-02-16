@@ -68,15 +68,22 @@ public class HopGuiKeyHandler extends KeyAdapter {
     // TODO: allow for keyboard shortcut priorities for certain objects.
     //
 
-    // Ignore shortcuts inside Text or Combo widgets
+    // If the event has already been handled by another listener (e.g. terminal), skip it
+    if (!event.doit) {
+      return;
+    }
+
+    // Ignore shortcuts inside Text, Combo, or StyledText widgets (including terminal)
     if (event.widget instanceof Text
         || event.widget instanceof Combo
-        || event.widget instanceof CCombo) {
-      // Ignore Copy/Cut/Paste/Select all
-      String keys = new String(new char[] {'a', 'c', 'v', 'x'});
-      if ((event.stateMask & (SWT.CONTROL + SWT.COMMAND)) != 0
-          && keys.indexOf(event.keyCode) >= 0) {
-        return;
+        || event.widget instanceof CCombo
+        || event.widget instanceof org.eclipse.swt.custom.StyledText) {
+      // Ignore Copy/Cut/Paste/Select all - check both keyCode and character
+      if ((event.stateMask & (SWT.CONTROL + SWT.COMMAND)) != 0) {
+        char key = Character.toLowerCase((char) event.keyCode);
+        if (key == 'a' || key == 'c' || key == 'v' || key == 'x') {
+          return;
+        }
       }
       // Ignore DEL and Backspace
       if (event.keyCode == SWT.DEL || event.character == SWT.BS) {
@@ -106,6 +113,11 @@ public class HopGuiKeyHandler extends KeyAdapter {
     if (parentObject instanceof Control control) {
       try {
         if (!control.isVisible()) {
+          return false;
+        }
+        // Also skip if the event widget (focused widget) is NOT within this control's hierarchy
+        // This prevents pipeline/workflow shortcuts from firing when focus is in the terminal
+        if (!isWidgetInControlHierarchy(event.widget, control)) {
           return false;
         }
       } catch (SWTException e) {
@@ -162,6 +174,32 @@ public class HopGuiKeyHandler extends KeyAdapter {
         LogChannel.UI.logError(
             "Error calling keyboard shortcut method on parent object " + parentObject.toString(),
             ex);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check if a widget is within the hierarchy of a control
+   *
+   * @param widget The widget to check (typically the focused widget)
+   * @param control The parent control to check against
+   * @return true if widget is within control's hierarchy, false otherwise
+   */
+  private boolean isWidgetInControlHierarchy(Object widget, Control control) {
+    if (!(widget instanceof Control)) {
+      return false;
+    }
+
+    Control current = (Control) widget;
+    while (current != null) {
+      if (current == control) {
+        return true;
+      }
+      try {
+        current = current.getParent();
+      } catch (Exception e) {
+        return false;
       }
     }
     return false;

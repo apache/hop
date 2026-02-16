@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Terminal window frame - bright color for dark mode visibility -->
+  <rect x="2" y="3" width="20" height="18" rx="2" fill="none" stroke="#53c3c4" stroke-width="1.5"/>
+  
+  <!-- Terminal prompt symbol (>) -->
+  <polyline points="6,9 9,12 6,15" fill="none" stroke="#53c3c4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Command line cursor -->
+  <line x1="11" y1="11" x2="15" y2="11" stroke="#53c3c4" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Top bar dots (like macOS terminal) -->
+  <circle cx="5" cy="6" r="0.8" fill="#53c3c4"/>
+  <circle cx="7.5" cy="6" r="0.8" fill="#53c3c4"/>
+  <circle cx="10" cy="6" r="0.8" fill="#53c3c4"/>
+</svg>
+
