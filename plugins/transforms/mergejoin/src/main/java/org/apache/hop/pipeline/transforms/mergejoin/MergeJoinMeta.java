@@ -121,22 +121,118 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    if (infoStreams.size() < 2) {
+      return;
+    }
+    IStream stream0 = infoStreams.get(0);
+    IStream stream1 = infoStreams.get(1);
+    // Respect user choice: only re-fill from stream/prev when they had set a value (e.g. rename).
+    boolean hadLeftFilledIn = !Utils.isEmpty(leftTransformName);
+    boolean hadRightFilledIn = !Utils.isEmpty(rightTransformName);
+
     if (parentTransformMeta != null) {
-      String[] prev =
-          parentTransformMeta.getParentPipelineMeta().getPrevTransformNames(parentTransformMeta);
-      if (leftTransformName != null && !ArrayUtils.contains(prev, leftTransformName)) {
-        leftTransformName = null;
-        setChanged();
+      PipelineMeta pipelineMeta = parentTransformMeta.getParentPipelineMeta();
+      if (pipelineMeta != null) {
+        String[] prev = pipelineMeta.getPrevTransformNames(parentTransformMeta);
+        // Only auto-fill when both are empty (initial connect). Do not re-fill when user cleared one.
+        if (prev != null && prev.length == 2) {
+          if (Utils.isEmpty(leftTransformName) && Utils.isEmpty(rightTransformName)) {
+            if (stream0.getTransformMeta() != null && stream1.getTransformMeta() != null) {
+              leftTransformName = stream0.getTransformName();
+              rightTransformName = stream1.getTransformName();
+            } else {
+              leftTransformName = prev[0];
+              rightTransformName = prev[1];
+              setChanged();
+            }
+          }
+        }
+        // Clear names that no longer exist in prev (e.g. transform was removed / detached)
+        if (leftTransformName != null && !ArrayUtils.contains(prev, leftTransformName)) {
+          leftTransformName = null;
+          setChanged();
+        }
+        if (rightTransformName != null && !ArrayUtils.contains(prev, rightTransformName)) {
+          rightTransformName = null;
+          setChanged();
+        }
       }
-      if (rightTransformName != null && !ArrayUtils.contains(prev, rightTransformName)) {
-        rightTransformName = null;
+    }
+
+    // Resolve by name. Prefer stream only when the stored name is "stale": empty (auto-fill),
+    // not in prev (insert-in-the-middle), or transform not found (rename). Do not prefer when
+    // the user has set a valid name (e.g. swapped order) so we don't overwrite their choice.
+    String[] prev = null;
+    if (parentTransformMeta != null && parentTransformMeta.getParentPipelineMeta() != null) {
+      prev = parentTransformMeta.getParentPipelineMeta().getPrevTransformNames(parentTransformMeta);
+    }
+    TransformMeta tm0 = null;
+    boolean name0Stale =
+        Utils.isEmpty(leftTransformName)
+            || (prev != null && !ArrayUtils.contains(prev, leftTransformName))
+            || TransformMeta.findTransform(transforms, leftTransformName) == null;
+    boolean preferStream0 =
+        stream0.getTransformMeta() != null
+            && prev != null
+            && ArrayUtils.contains(prev, stream0.getTransformName())
+            && name0Stale
+            && hadLeftFilledIn;
+    if (preferStream0) {
+      leftTransformName = stream0.getTransformName();
+      tm0 = stream0.getTransformMeta();
+      setChanged();
+    }
+    if (tm0 == null) {
+      tm0 = TransformMeta.findTransform(transforms, leftTransformName);
+      // Only use stream as fallback when stream's transform is still in prev (e.g. rename). Do not
+      // re-apply stream when it points to a detached/removed transform.
+      if (tm0 == null
+          && stream0.getTransformMeta() != null
+          && prev != null
+          && ArrayUtils.contains(prev, stream0.getTransformName())
+          && hadLeftFilledIn) {
+        leftTransformName = stream0.getTransformName();
+        tm0 = TransformMeta.findTransform(transforms, leftTransformName);
         setChanged();
       }
     }
-    infoStreams.get(0).setTransformMeta(TransformMeta.findTransform(transforms, leftTransformName));
-    infoStreams
-        .get(1)
-        .setTransformMeta(TransformMeta.findTransform(transforms, rightTransformName));
+    stream0.setTransformMeta(tm0);
+    if (tm0 != null) {
+      stream0.setSubject(tm0.getName());
+    }
+
+    TransformMeta tm1 = null;
+    boolean name1Stale =
+        Utils.isEmpty(rightTransformName)
+            || (prev != null && !ArrayUtils.contains(prev, rightTransformName))
+            || TransformMeta.findTransform(transforms, rightTransformName) == null;
+    boolean preferStream1 =
+        stream1.getTransformMeta() != null
+            && prev != null
+            && ArrayUtils.contains(prev, stream1.getTransformName())
+            && name1Stale
+            && hadRightFilledIn;
+    if (preferStream1) {
+      rightTransformName = stream1.getTransformName();
+      tm1 = stream1.getTransformMeta();
+      setChanged();
+    }
+    if (tm1 == null) {
+      tm1 = TransformMeta.findTransform(transforms, rightTransformName);
+      if (tm1 == null
+          && stream1.getTransformMeta() != null
+          && prev != null
+          && ArrayUtils.contains(prev, stream1.getTransformName())
+          && hadRightFilledIn) {
+        rightTransformName = stream1.getTransformName();
+        tm1 = TransformMeta.findTransform(transforms, rightTransformName);
+        setChanged();
+      }
+    }
+    stream1.setTransformMeta(tm1);
+    if (tm1 != null) {
+      stream1.setSubject(tm1.getName());
+    }
   }
 
   @Override

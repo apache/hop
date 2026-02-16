@@ -412,6 +412,20 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
+    // If no inputs configured and at least 2 transforms are attached, auto-fill from prev
+    if (joinMeta.getInputTransforms() == null || joinMeta.getInputTransforms().isEmpty()) {
+      String[] prev = pipelineMeta.getPrevTransformNames(transformName);
+      if (prev != null && prev.length >= 2) {
+        List<String> list = new ArrayList<>();
+        for (String p : prev) {
+          list.add(p);
+        }
+        joinMeta.setInputTransforms(list);
+      }
+    }
+    // Sync from hops (rename, insert-in-the-middle) and resolve streams
+    joinMeta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+
     List<String> inputTransformNames = joinMeta.getInputTransforms();
     if (inputTransformNames != null) {
       String inputTransformName;

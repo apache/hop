@@ -297,6 +297,18 @@ public class MergeJoinDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
+    // If both fields are empty and exactly 2 transforms are attached, auto-fill first and second
+    if (Utils.isEmpty(input.getLeftTransformName())
+        && Utils.isEmpty(input.getRightTransformName())) {
+      String[] prev = pipelineMeta.getPrevTransformNames(transformName);
+      if (prev != null && prev.length == 2) {
+        input.setLeftTransformName(prev[0]);
+        input.setRightTransformName(prev[1]);
+      }
+    }
+    // Sync from hops (rename, insert-in-the-middle) and resolve streams
+    input.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+
     List<IStream> infoStreams = input.getTransformIOMeta().getInfoStreams();
 
     wTransform1.setText(Const.NVL(infoStreams.get(0).getTransformName(), ""));
