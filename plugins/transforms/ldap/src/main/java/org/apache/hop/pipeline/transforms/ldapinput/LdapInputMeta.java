@@ -19,11 +19,12 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -36,8 +37,9 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+@Getter
+@Setter
 @Transform(
     id = "LDAPInput",
     name = "i18n::LdapInput.Name",
@@ -52,51 +54,129 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   public static final String CONST_SPACES = "        ";
   public static final String CONST_FIELD = "field";
 
-  /** Flag indicating that we use authentication for connection */
+  /**
+   * Flag indicating that we use authentication for connection -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the input useAuthentication.
+   * @param useAuthentication The useAuthentication to set.
+   */
   @HopMetadataProperty(key = "useauthentication")
   private boolean useAuthentication;
 
-  /** Flag indicating that we use paging */
+  /**
+   * Flag indicating that we use paging -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the input usePaging.
+   * @param usePaging The usePaging to set.
+   */
   @HopMetadataProperty(key = "usepaging")
   private boolean usePaging;
 
-  /** page size */
+  /**
+   * page size -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param pagesize The pagesize.
+   * @return Returns the pagesize.
+   */
   @HopMetadataProperty(key = "pagesize")
   private String pageSize;
 
-  /** Flag indicating that a row number field should be included in the output */
+  /**
+   * Flag indicating that a row number field should be included in the output -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the includeRowNumber.
+   * @param includeRowNumber The includeRowNumber to set.
+   */
   @HopMetadataProperty(key = "rownum")
   private boolean includeRowNumber;
 
-  /** The name of the field in the output containing the row number */
+  /**
+   * The name of the field in the output containing the row number -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the rowNumberField.
+   * @param rowNumberField The rowNumberField to set.
+   */
   @HopMetadataProperty(key = "rownum_field")
   private String rowNumberField;
 
-  /** The maximum number or lines to read */
+  /**
+   * The maximum number or lines to read -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the rowLimit.
+   * @param rowLimit The rowLimit to set.
+   */
   @HopMetadataProperty(key = "limit")
   private int rowLimit;
 
-  /** The Host name */
+  /**
+   * The Host name -- SETTER --
+   *
+   * @param host The host to set.
+   */
   @HopMetadataProperty(key = "host")
   private String host;
 
-  /** The User name */
+  /**
+   * The User name -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the user name.
+   * @param userName The username to set.
+   */
   @HopMetadataProperty(key = "username")
   private String userName;
 
-  /** The Password to use in LDAP authentication */
+  /**
+   * The Password to use in LDAP authentication -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param password The password to set.
+   * @return Returns the password.
+   */
   @HopMetadataProperty(key = "password", password = true)
   private String password;
 
-  /** The Port */
+  /**
+   * The Port -- SETTER --
+   *
+   * @param port The port to set.
+   */
   @HopMetadataProperty(key = "port")
   private String port;
 
-  /** The Filter string */
+  /**
+   * The Filter string -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the filter string.
+   * @param filterString The filter string to set.
+   */
   @HopMetadataProperty(key = "filterstring")
   private String filterString;
 
-  /** The Search Base */
+  /**
+   * The Search Base -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the search string.
+   * @param searchBase The filter Search Base to set.
+   */
   @HopMetadataProperty(key = "searchbase")
   private String searchBase;
 
@@ -104,25 +184,64 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<LdapInputField> inputFields;
 
-  /** The Time limit */
+  /**
+   * The Time limit -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param timeLimit The timeout time limit to set.
+   * @return Returns the time limit.
+   */
   @HopMetadataProperty(key = "timelimit")
   private int timeLimit;
 
-  /** Multi valued separator */
+  /**
+   * Multi valued separator -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param multiValuedSeparator The multi-valued separator filed.
+   * @return Returns the multi valued separator.
+   */
   @HopMetadataProperty(key = "multivaluedseparator")
   private String multiValuedSeparator;
 
   private static final String YES = "Y";
 
+  /**
+   * -- GETTER --
+   *
+   * @return Returns the input dynamicSearch.
+   */
   @HopMetadataProperty(key = "dynamicsearch")
   private boolean dynamicSearch;
 
+  /**
+   * -- GETTER --
+   *
+   * @return Returns the input dynamicSeachFieldName.
+   */
   @HopMetadataProperty(key = "dynamicseachfieldname")
   private String dynamicSearchFieldName;
 
+  /**
+   * -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the input dynamicFilter.
+   * @param dynamicFilter the dynamicFilter to set.
+   */
   @HopMetadataProperty(key = "dynamicfilter")
   private boolean dynamicFilter;
 
+  /**
+   * -- GETTER --
+   *
+   * <p>-- SETTER -- param dynamicFilterFieldName the dynamicFilterFieldName to set.
+   *
+   * @return Returns the input dynamicFilterFieldName.
+   */
   @HopMetadataProperty(key = "dynamicfilterfieldname")
   private String dynamicFilterFieldName;
 
@@ -140,7 +259,11 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   /** The search scope codes */
   public static final String[] searchScopeCode = {"object", "onelevel", "subtree"};
 
-  /** Protocol */
+  /**
+   * Protocol -- SETTER --
+   *
+   * @param value the protocol to set.
+   */
   @HopMetadataProperty(key = "protocol")
   private String protocol;
 
@@ -148,9 +271,19 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   @HopMetadataProperty(key = "useCertificate")
   private boolean useCertificate;
 
+  /**
+   * -- SETTER --
+   *
+   * @param value the trustStorePath to set.
+   */
   @HopMetadataProperty(key = "trustStorePath")
   private String trustStorePath;
 
+  /**
+   * -- SETTER --
+   *
+   * @param value the trustStorePassword to set.
+   */
   @HopMetadataProperty(key = "trustStorePassword", password = true)
   private String trustStorePassword;
 
@@ -170,20 +303,12 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     return useCertificate;
   }
 
-  public void setUseCertificate(boolean value) {
-    this.useCertificate = value;
-  }
-
   /**
    * @return Returns the input trustAllCertificates.
    */
   @Override
   public boolean isTrustAllCertificates() {
     return trustAllCertificates;
-  }
-
-  public void setTrustAllCertificates(boolean value) {
-    this.trustAllCertificates = value;
   }
 
   /**
@@ -195,13 +320,6 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   }
 
   /**
-   * @param value the trustStorePassword to set.
-   */
-  public void setTrustStorePassword(String value) {
-    this.trustStorePassword = value;
-  }
-
-  /**
    * @return Returns the trustStorePath.
    */
   @Override
@@ -210,101 +328,11 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   }
 
   /**
-   * @param value the trustStorePath to set.
-   */
-  public void setTrustStorePath(String value) {
-    this.trustStorePath = value;
-  }
-
-  /**
    * @return Returns the protocol.
    */
   @Override
   public String getProtocol() {
     return protocol;
-  }
-
-  /**
-   * @param value the protocol to set.
-   */
-  public void setProtocol(String value) {
-    this.protocol = value;
-  }
-
-  /**
-   * @return Returns the input dynamicSearch.
-   */
-  public boolean isDynamicSearch() {
-    return dynamicSearch;
-  }
-
-  public void setDynamicSearch(boolean dynamicSearch) {
-    this.dynamicSearch = dynamicSearch;
-  }
-
-  /**
-   * @return Returns the input dynamicSeachFieldName.
-   */
-  public String getDynamicSearchFieldName() {
-    return dynamicSearchFieldName;
-  }
-
-  public void setDynamicSearchFieldName(String dynamicSeachFieldName) {
-    this.dynamicSearchFieldName = dynamicSeachFieldName;
-  }
-
-  /**
-   * @return Returns the input dynamicFilter.
-   */
-  public boolean isDynamicFilter() {
-    return dynamicFilter;
-  }
-
-  /**
-   * @param dynamicFilter the dynamicFilter to set.
-   */
-  public void setDynamicFilter(boolean dynamicFilter) {
-    this.dynamicFilter = dynamicFilter;
-  }
-
-  /**
-   * @return Returns the input dynamicFilterFieldName.
-   */
-  public String getDynamicFilterFieldName() {
-    return dynamicFilterFieldName;
-  }
-
-  /** param dynamicFilterFieldName the dynamicFilterFieldName to set. */
-  public void setDynamicFilterFieldName(String dynamicFilterFieldName) {
-    this.dynamicFilterFieldName = dynamicFilterFieldName;
-  }
-
-  /**
-   * @return Returns the input useAuthentication.
-   */
-  public boolean isUseAuthentication() {
-    return useAuthentication;
-  }
-
-  /**
-   * @param useAuthentication The useAuthentication to set.
-   */
-  public void setUseAuthentication(boolean useAuthentication) {
-    this.useAuthentication = useAuthentication;
-  }
-
-  /**
-   * @return Returns the input usePaging.
-   */
-  public boolean isUsePaging() {
-    return usePaging;
-  }
-
-  /**
-   * @param usePaging The usePaging to set.
-   */
-  public void setUsePaging(boolean usePaging) {
-    this.usePaging = usePaging;
   }
 
   /**
@@ -340,20 +368,6 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   }
 
   /**
-   * @return Returns the includeRowNumber.
-   */
-  public boolean isIncludeRowNumber() {
-    return includeRowNumber;
-  }
-
-  /**
-   * @param includeRowNumber The includeRowNumber to set.
-   */
-  public void setIncludeRowNumber(boolean includeRowNumber) {
-    this.includeRowNumber = includeRowNumber;
-  }
-
-  /**
    * @return Returns the host name.
    */
   @Override
@@ -362,157 +376,11 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   }
 
   /**
-   * @param host The host to set.
-   */
-  public void setHost(String host) {
-    this.host = host;
-  }
-
-  /**
-   * @return Returns the user name.
-   */
-  public String getUserName() {
-    return userName;
-  }
-
-  /**
-   * @param userName The username to set.
-   */
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /**
-   * @return Returns the password.
-   */
-  public String getPassword() {
-    return password;
-  }
-
-  /**
    * @return Returns the Port.
    */
   @Override
   public String getPort() {
     return port;
-  }
-
-  /**
-   * @param port The port to set.
-   */
-  public void setPort(String port) {
-    this.port = port;
-  }
-
-  /**
-   * @return Returns the filter string.
-   */
-  public String getFilterString() {
-    return filterString;
-  }
-
-  /**
-   * @param filterString The filter string to set.
-   */
-  public void setFilterString(String filterString) {
-    this.filterString = filterString;
-  }
-
-  /**
-   * @return Returns the search string.
-   */
-  public String getSearchBase() {
-    return searchBase;
-  }
-
-  /**
-   * @param searchBase The filter Search Base to set.
-   */
-  public void setSearchBase(String searchBase) {
-    this.searchBase = searchBase;
-  }
-
-  /**
-   * @return Returns the rowLimit.
-   */
-  public int getRowLimit() {
-    return rowLimit;
-  }
-
-  /**
-   * @param timeLimit The timeout time limit to set.
-   */
-  public void setTimeLimit(int timeLimit) {
-    this.timeLimit = timeLimit;
-  }
-
-  /**
-   * @return Returns the time limit.
-   */
-  public int getTimeLimit() {
-    return timeLimit;
-  }
-
-  /**
-   * @param multiValuedSeparator The multi-valued separator filed.
-   */
-  public void setMultiValuedSeparator(String multiValuedSeparator) {
-    this.multiValuedSeparator = multiValuedSeparator;
-  }
-
-  /**
-   * @return Returns the multi valued separator.
-   */
-  public String getMultiValuedSeparator() {
-    return multiValuedSeparator;
-  }
-
-  /**
-   * @param pagesize The pagesize.
-   */
-  public void setPageSize(String pagesize) {
-    this.pageSize = pagesize;
-  }
-
-  /**
-   * @return Returns the pagesize.
-   */
-  public String getPageSize() {
-    return pageSize;
-  }
-
-  /**
-   * @param rowLimit The rowLimit to set.
-   */
-  public void setRowLimit(int rowLimit) {
-    this.rowLimit = rowLimit;
-  }
-
-  /**
-   * @return Returns the rowNumberField.
-   */
-  public String getRowNumberField() {
-    return rowNumberField;
-  }
-
-  /**
-   * @param rowNumberField The rowNumberField to set.
-   */
-  public void setRowNumberField(String rowNumberField) {
-    this.rowNumberField = rowNumberField;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
   }
 
   @Override
@@ -638,14 +506,6 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     }
     // If this fails, try to match using the code.
     return getSearchScopeByCode(tt);
-  }
-
-  public void setSearchScope(int value) {
-    this.searchScope = value;
-  }
-
-  public int getSearchScope() {
-    return searchScope;
   }
 
   @Override

@@ -67,6 +67,7 @@ class LdapInputTest {
     fields[sortedField].setSortedKey(true);
     meta.setInputFields(fields);
     when(meta.getInputFields()).thenReturn(Arrays.asList(fields));
+    when(meta.getInputFieldsArray()).thenReturn(fields);
 
     // Mock LDAP Connection
     when(meta.getProtocol()).thenReturn(LdapMockProtocol.getName());

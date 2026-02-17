@@ -2,7 +2,7 @@
   "variables" : [
     {
       "name" : "LDAP_HOST",
-      "value" : "localhost",
+      "value" : "openldap",
       "description" : ""
     },
     {

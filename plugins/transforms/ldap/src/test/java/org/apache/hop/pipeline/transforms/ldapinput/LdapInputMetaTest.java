@@ -27,9 +27,9 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -72,11 +72,13 @@ class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
             "inputFields");
 
     Map<String, String> getterMap = new HashMap<>();
+    getterMap.put("paging", "isUsePaging");
     Map<String, String> setterMap = new HashMap<>();
+    setterMap.put("paging", "setUsePaging");
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
-        "inputFields", new ArrayLoadSaveValidator<>(new LDAPInputFieldLoadSaveValidator(), 5));
+        "inputFields", new ListLoadSaveValidator<>(new LDAPInputFieldLoadSaveValidator(), 5));
     attrValidatorMap.put(
         "searchScope", new IntLoadSaveValidator(LdapInputMeta.searchScopeCode.length));
 

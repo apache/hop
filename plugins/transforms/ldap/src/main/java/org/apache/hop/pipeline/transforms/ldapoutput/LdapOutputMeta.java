@@ -18,10 +18,11 @@ package org.apache.hop.pipeline.transforms.ldapoutput;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -33,8 +34,9 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.ILdapMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
-import org.w3c.dom.Node;
 
+@Getter
+@Setter
 @Transform(
     id = "LDAPOutput",
     name = "i18n::LdapOutput.Name",
@@ -49,23 +51,52 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   public static final String CONST_SPACES = "        ";
   public static final String CONST_FIELD = "field";
 
-  /** Flag indicating that we use authentication for connection */
+  /**
+   * Flag indicating that we use authentication for connection -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the input useAuthentication.
+   * @param useAuthentication The useAuthentication to set.
+   */
   @HopMetadataProperty(key = "useauthentication")
   private boolean useAuthentication;
 
-  /** The Host name */
+  /**
+   * The Host name -- SETTER --
+   *
+   * @param host The host to set.
+   */
   @HopMetadataProperty(key = "host")
   private String host;
 
-  /** The User name */
+  /**
+   * The User name -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the user name.
+   * @param userName The username to set.
+   */
   @HopMetadataProperty(key = "username")
   private String userName;
 
-  /** The Password to use in LDAP authentication */
+  /**
+   * The Password to use in LDAP authentication -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param password The password to set.
+   * @return Returns the password.
+   */
   @HopMetadataProperty(key = "password", password = true)
   private String password;
 
-  /** The Port */
+  /**
+   * The Port -- SETTER --
+   *
+   * @param port The port to set.
+   */
   @HopMetadataProperty(key = "port")
   private String port;
 
@@ -73,6 +104,14 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   @HopMetadataProperty(key = "dnFieldName")
   private String dnFieldName;
 
+  /**
+   * -- GETTER --
+   *
+   * <p>-- SETTER --
+   *
+   * @return Returns the failIfNotExist.
+   * @param failIfNotExist The failIfNotExist to set.
+   */
   @HopMetadataProperty(key = "failIfNotExist")
   private boolean failIfNotExist;
 
@@ -90,11 +129,25 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     this.fields = fields != null ? new ArrayList<>(fields) : new ArrayList<>();
   }
 
-  /** Operations type */
+  /**
+   * Operations type -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param searchBase The searchBase filed.
+   * @return Returns the searchBase.
+   */
   @HopMetadataProperty(key = "searchBase")
   private String searchBase;
 
-  /** Multi valued separator */
+  /**
+   * Multi valued separator -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param multiValuedSeparator The multi-valued separator filed.
+   * @return Returns the multi valued separator.
+   */
   @HopMetadataProperty(key = "multivaluedseparator")
   private String multiValuedSeparator;
 
@@ -103,12 +156,36 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
       intCodeConverter = LdapOutputOperationTypeConverter.class)
   private int operationType;
 
+  /**
+   * -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param value The oldDnFieldName filed.
+   * @return Returns the oldDnFieldName.
+   */
   @HopMetadataProperty(key = "oldDnFieldName")
   private String oldDnFieldName;
 
+  /**
+   * -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param value The newDnFieldName filed.
+   * @return Returns the newDnFieldName.
+   */
   @HopMetadataProperty(key = "newDnFieldName")
   private String newDnFieldName;
 
+  /**
+   * -- SETTER --
+   *
+   * <p>-- GETTER --
+   *
+   * @param value The deleteRDN filed.
+   * @return Returns the deleteRDN.
+   */
   @HopMetadataProperty(key = "deleteRDN")
   private boolean deleteRDN;
 
@@ -186,7 +263,11 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
 
   public static final int DEREFALIASES_TYPE_FINDING = 3;
 
-  /** Protocol */
+  /**
+   * Protocol -- SETTER --
+   *
+   * @param value the protocol to set.
+   */
   @HopMetadataProperty(key = "protocol")
   private String protocol;
 
@@ -194,9 +275,19 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   @HopMetadataProperty(key = "useCertificate")
   private boolean useCertificate;
 
+  /**
+   * -- SETTER --
+   *
+   * @param value the trustStorePath to set.
+   */
   @HopMetadataProperty(key = "trustStorePath")
   private String trustStorePath;
 
+  /**
+   * -- SETTER --
+   *
+   * @param value the trustStorePassword to set.
+   */
   @HopMetadataProperty(key = "trustStorePassword", password = true)
   private String trustStorePassword;
 
@@ -216,20 +307,12 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return useCertificate;
   }
 
-  public void setUseCertificate(boolean value) {
-    this.useCertificate = value;
-  }
-
   /**
    * @return Returns the input trustAllCertificates.
    */
   @Override
   public boolean isTrustAllCertificates() {
     return trustAllCertificates;
-  }
-
-  public void setTrustAllCertificates(boolean value) {
-    this.trustAllCertificates = value;
   }
 
   /**
@@ -241,13 +324,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   }
 
   /**
-   * @param value the trustStorePassword to set.
-   */
-  public void setTrustStorePassword(String value) {
-    this.trustStorePassword = value;
-  }
-
-  /**
    * @return Returns the trustStorePath.
    */
   @Override
@@ -256,25 +332,11 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   }
 
   /**
-   * @param value the trustStorePath to set.
-   */
-  public void setTrustStorePath(String value) {
-    this.trustStorePath = value;
-  }
-
-  /**
    * @return Returns the protocol.
    */
   @Override
   public String getProtocol() {
     return protocol;
-  }
-
-  /**
-   * @param value the protocol to set.
-   */
-  public void setProtocol(String value) {
-    this.protocol = value;
   }
 
   public Boolean[] getUpdate() {
@@ -293,18 +355,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
         fields.add(new LdapOutputField(null, null, update[i]));
       }
     }
-  }
-
-  public int getOperationType() {
-    return operationType;
-  }
-
-  public int getReferralType() {
-    return referralType;
-  }
-
-  public int getDerefAliasesType() {
-    return derefAliasesType;
   }
 
   public static int getOperationTypeByDesc(String tt) {
@@ -388,18 +438,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return 0;
   }
 
-  public void setOperationType(int operationType) {
-    this.operationType = operationType;
-  }
-
-  public void setReferralType(int value) {
-    this.referralType = value;
-  }
-
-  public void setDerefAliasesType(int value) {
-    this.derefAliasesType = value;
-  }
-
   public static String getOperationTypeDesc(int i) {
     if (i < 0 || i >= operationTypeDesc.length) {
       return operationTypeDesc[0];
@@ -476,60 +514,11 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
   }
 
   /**
-   * @return Returns the input useAuthentication.
-   */
-  public boolean isUseAuthentication() {
-    return useAuthentication;
-  }
-
-  /**
-   * @param useAuthentication The useAuthentication to set.
-   */
-  public void setUseAuthentication(boolean useAuthentication) {
-    this.useAuthentication = useAuthentication;
-  }
-
-  /**
    * @return Returns the host name.
    */
   @Override
   public String getHost() {
     return host;
-  }
-
-  /**
-   * @param host The host to set.
-   */
-  public void setHost(String host) {
-    this.host = host;
-  }
-
-  /**
-   * @return Returns the user name.
-   */
-  public String getUserName() {
-    return userName;
-  }
-
-  /**
-   * @param userName The username to set.
-   */
-  public void setUserName(String userName) {
-    this.userName = userName;
-  }
-
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  /**
-   * @return Returns the password.
-   */
-  public String getPassword() {
-    return password;
   }
 
   public void setDnField(String value) {
@@ -566,33 +555,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return port;
   }
 
-  /**
-   * @param port The port to set.
-   */
-  public void setPort(String port) {
-    this.port = port;
-  }
-
-  /**
-   * @return Returns the failIfNotExist.
-   */
-  public boolean isFailIfNotExist() {
-    return failIfNotExist;
-  }
-
-  /**
-   * @param failIfNotExist The failIfNotExist to set.
-   */
-  public void setFailIfNotExist(boolean failIfNotExist) {
-    this.failIfNotExist = failIfNotExist;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-  }
-
   @Override
   public Object clone() {
     LdapOutputMeta retval = (LdapOutputMeta) super.clone();
@@ -607,76 +569,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
       retval.fields = new ArrayList<>();
     }
     return retval;
-  }
-
-  /**
-   * @param value The deleteRDN filed.
-   */
-  public void setDeleteRDN(boolean value) {
-    this.deleteRDN = value;
-  }
-
-  /**
-   * @return Returns the deleteRDN.
-   */
-  public boolean isDeleteRDN() {
-    return deleteRDN;
-  }
-
-  /**
-   * @param value The newDnFieldName filed.
-   */
-  public void setNewDnFieldName(String value) {
-    this.newDnFieldName = value;
-  }
-
-  /**
-   * @return Returns the newDnFieldName.
-   */
-  public String getNewDnFieldName() {
-    return newDnFieldName;
-  }
-
-  /**
-   * @param value The oldDnFieldName filed.
-   */
-  public void setOldDnFieldName(String value) {
-    this.oldDnFieldName = value;
-  }
-
-  /**
-   * @return Returns the oldDnFieldName.
-   */
-  public String getOldDnFieldName() {
-    return oldDnFieldName;
-  }
-
-  /**
-   * @param searchBase The searchBase filed.
-   */
-  public void setSearchBase(String searchBase) {
-    this.searchBase = searchBase;
-  }
-
-  /**
-   * @return Returns the searchBase.
-   */
-  public String getSearchBase() {
-    return searchBase;
-  }
-
-  /**
-   * @param multiValuedSeparator The multi-valued separator filed.
-   */
-  public void setMultiValuedSeparator(String multiValuedSeparator) {
-    this.multiValuedSeparator = multiValuedSeparator;
-  }
-
-  /**
-   * @return Returns the multi valued separator.
-   */
-  public String getMultiValuedSeparator() {
-    return multiValuedSeparator;
   }
 
   public void allocate(int nrvalues) {
