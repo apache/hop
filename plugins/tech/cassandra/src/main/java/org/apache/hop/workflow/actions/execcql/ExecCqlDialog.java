@@ -30,30 +30,22 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class ExecCqlDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ExecCqlDialog.class;
 
-  private Shell shell;
-
   private ExecCql execCql;
 
-  private Text wName;
   private MetaSelectionLine<CassandraConnection> wConnection;
   private TextVar wScript;
   private Button wReplaceVariables;
@@ -70,39 +62,8 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
 
   @Override
   public IAction open() {
-
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, execCql);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ExecCqlDialog.Dialog.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ExecCqlDialog.ActionName.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-    Control lastControl = wName;
+    createShell(BaseMessages.getString(PKG, "ExecCqlDialog.Dialog.Title"), execCql);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     wConnection =
         new MetaSelectionLine<>(
@@ -115,9 +76,9 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
             BaseMessages.getString(PKG, "ExecCqlDialog.NeoConnection.Tooltip"));
     PropsUi.setLook(wConnection);
     FormData fdConnection = new FormData();
-    fdConnection.left = new FormAttachment(0, 0);
-    fdConnection.right = new FormAttachment(100, 0);
-    fdConnection.top = new FormAttachment(lastControl, margin);
+    fdConnection.left = new FormAttachment(0, margin);
+    fdConnection.right = new FormAttachment(100, -margin);
+    fdConnection.top = new FormAttachment(wSpacer, margin);
     wConnection.setLayoutData(fdConnection);
     try {
       wConnection.fillItems();
@@ -125,66 +86,55 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
       new ErrorDialog(shell, "Error", "Error getting list of connections", e);
     }
 
-    // Add buttons first, then the script field can use dynamic sizing
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    Label wlReplaceVariables = new Label(shell, SWT.LEFT);
-    wlReplaceVariables.setText(BaseMessages.getString(PKG, "ExecCqlDialog.ReplaceVariables.Label"));
-    PropsUi.setLook(wlReplaceVariables);
-    FormData fdlReplaceVariables = new FormData();
-    fdlReplaceVariables.left = new FormAttachment(0, 0);
-    fdlReplaceVariables.right = new FormAttachment(middle, -margin);
-    fdlReplaceVariables.bottom = new FormAttachment(wOk, -margin * 2);
-    wlReplaceVariables.setLayoutData(fdlReplaceVariables);
-    wReplaceVariables = new Button(shell, SWT.CHECK);
-    PropsUi.setLook(wReplaceVariables);
-    FormData fdReplaceVariables = new FormData();
-    fdReplaceVariables.left = new FormAttachment(middle, 0);
-    fdReplaceVariables.right = new FormAttachment(100, 0);
-    fdReplaceVariables.top = new FormAttachment(wlReplaceVariables, 0, SWT.CENTER);
-    wReplaceVariables.setLayoutData(fdReplaceVariables);
-
     Label wlScript = new Label(shell, SWT.LEFT);
     wlScript.setText(BaseMessages.getString(PKG, "ExecCqlDialog.CypherScript.Label"));
     PropsUi.setLook(wlScript);
     FormData fdlCypher = new FormData();
-    fdlCypher.left = new FormAttachment(0, 0);
-    fdlCypher.right = new FormAttachment(100, 0);
+    fdlCypher.left = new FormAttachment(0, margin);
+    fdlCypher.right = new FormAttachment(100, -margin);
     fdlCypher.top = new FormAttachment(wConnection, margin);
     wlScript.setLayoutData(fdlCypher);
+
     wScript =
         new TextVar(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wScript.getTextWidget().setFont(GuiResource.getInstance().getFontFixed());
     PropsUi.setLook(wScript);
+
+    Label wlReplaceVariables = new Label(shell, SWT.LEFT);
+    wlReplaceVariables.setText(BaseMessages.getString(PKG, "ExecCqlDialog.ReplaceVariables.Label"));
+    PropsUi.setLook(wlReplaceVariables);
+    FormData fdlReplaceVariables = new FormData();
+    fdlReplaceVariables.left = new FormAttachment(0, margin);
+    fdlReplaceVariables.right = new FormAttachment(middle, -margin);
+    fdlReplaceVariables.bottom = new FormAttachment(wOk, -margin);
+    wlReplaceVariables.setLayoutData(fdlReplaceVariables);
+    wReplaceVariables = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wReplaceVariables);
+    FormData fdReplaceVariables = new FormData();
+    fdReplaceVariables.left = new FormAttachment(middle, 0);
+    fdReplaceVariables.right = new FormAttachment(100, -margin);
+    fdReplaceVariables.bottom = new FormAttachment(wOk, -margin);
+    wReplaceVariables.setLayoutData(fdReplaceVariables);
+
     FormData fdCypher = new FormData();
-    fdCypher.left = new FormAttachment(0, 0);
-    fdCypher.right = new FormAttachment(100, 0);
+    fdCypher.left = new FormAttachment(0, margin);
+    fdCypher.right = new FormAttachment(100, -margin);
     fdCypher.top = new FormAttachment(wlScript, margin);
-    fdCypher.bottom = new FormAttachment(wReplaceVariables, -margin * 2);
+    fdCypher.bottom = new FormAttachment(wReplaceVariables, -margin);
+    fdCypher.height = 200;
     wScript.setLayoutData(fdCypher);
 
-    // Put these buttons at the bottom
-    //
-    BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wOk, wCancel,
-        },
-        margin,
-        null);
-
     getData();
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return execCql;
+  }
+
+  @Override
+  protected void onActionNameModified() {
+    execCql.setChanged();
   }
 
   private void cancel() {

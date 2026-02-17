@@ -56,7 +56,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -102,46 +101,15 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "DatabaseJoinDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
     wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
     // ICache?
@@ -194,7 +162,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wCacheSize, margin * 2);
+    fdlSql.top = new FormAttachment(wCacheSize, margin);
     wlSql.setLayoutData(fdlSql);
 
     wSql =
@@ -209,7 +177,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment(0, 0);
     fdSql.top = new FormAttachment(wlSql, margin);
-    fdSql.right = new FormAttachment(100, -2 * margin);
+    fdSql.right = new FormAttachment(100, -margin);
     fdSql.bottom = new FormAttachment(60, 0);
     wSql.setLayoutData(fdSql);
 
@@ -334,15 +302,6 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
         });
 
     // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    Button wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.GetFields.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
-
     // The parameters
     Label wlParam = new Label(shell, SWT.NONE);
     wlParam.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Param.Label"));
@@ -382,7 +341,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     fdParam.left = new FormAttachment(0, 0);
     fdParam.top = new FormAttachment(wlParam, margin);
     fdParam.right = new FormAttachment(100, 0);
-    fdParam.bottom = new FormAttachment(wOk, -2 * margin);
+    fdParam.bottom = new FormAttachment(wOk, -margin);
     wParam.setLayoutData(fdParam);
 
     //
@@ -407,13 +366,8 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet.addListener(SWT.Selection, e -> get());
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -482,9 +436,6 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
     wParam.optWidth(true);
 
     enableFields();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

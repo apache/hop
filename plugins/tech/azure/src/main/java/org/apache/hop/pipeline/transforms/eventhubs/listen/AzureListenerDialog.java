@@ -32,22 +32,24 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class AzureListenerDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       AzureListenerMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private Text wTransformName;
   private TextVar wNamespace;
   private TextVar wEventHub;
   private TextVar wSasKeyName;
@@ -83,56 +85,43 @@ public class AzureListenerDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "AzureListenerDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText("Azure Event Hubs Listener");
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText("Transform name");
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wContent;
 
     // Namespace
     //
-    Label wlNamespace = new Label(shell, SWT.RIGHT);
+    Label wlNamespace = new Label(wContent, SWT.RIGHT);
     wlNamespace.setText("Event Hubs namespace");
     PropsUi.setLook(wlNamespace);
     FormData fdlNamespace = new FormData();
     fdlNamespace.left = new FormAttachment(0, 0);
     fdlNamespace.right = new FormAttachment(middle, -margin);
-    fdlNamespace.top = new FormAttachment(lastControl, 2 * margin);
+    fdlNamespace.top = new FormAttachment(lastControl, margin);
     wlNamespace.setLayoutData(fdlNamespace);
-    wNamespace = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wNamespace = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wNamespace);
     wNamespace.addModifyListener(lsMod);
     FormData fdNamespace = new FormData();
@@ -142,15 +131,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wNamespace.setLayoutData(fdNamespace);
     lastControl = wNamespace;
 
-    Label wlEventHub = new Label(shell, SWT.RIGHT);
+    Label wlEventHub = new Label(wContent, SWT.RIGHT);
     wlEventHub.setText("Event Hubs Instance name");
     PropsUi.setLook(wlEventHub);
     FormData fdlEventHub = new FormData();
     fdlEventHub.left = new FormAttachment(0, 0);
     fdlEventHub.right = new FormAttachment(middle, -margin);
-    fdlEventHub.top = new FormAttachment(lastControl, 2 * margin);
+    fdlEventHub.top = new FormAttachment(lastControl, margin);
     wlEventHub.setLayoutData(fdlEventHub);
-    wEventHub = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wEventHub = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wEventHub);
     wEventHub.addModifyListener(lsMod);
     FormData fdEventHub = new FormData();
@@ -160,15 +149,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wEventHub.setLayoutData(fdEventHub);
     lastControl = wEventHub;
 
-    Label wlSasKeyName = new Label(shell, SWT.RIGHT);
+    Label wlSasKeyName = new Label(wContent, SWT.RIGHT);
     wlSasKeyName.setText("SAS Policy key name");
     PropsUi.setLook(wlSasKeyName);
     FormData fdlSasKeyName = new FormData();
     fdlSasKeyName.left = new FormAttachment(0, 0);
     fdlSasKeyName.right = new FormAttachment(middle, -margin);
-    fdlSasKeyName.top = new FormAttachment(lastControl, 2 * margin);
+    fdlSasKeyName.top = new FormAttachment(lastControl, margin);
     wlSasKeyName.setLayoutData(fdlSasKeyName);
-    wSasKeyName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSasKeyName = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSasKeyName);
     wSasKeyName.addModifyListener(lsMod);
     FormData fdSasKeyName = new FormData();
@@ -178,15 +167,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wSasKeyName.setLayoutData(fdSasKeyName);
     lastControl = wSasKeyName;
 
-    Label wlSasKey = new Label(shell, SWT.RIGHT);
+    Label wlSasKey = new Label(wContent, SWT.RIGHT);
     wlSasKey.setText("SAS Key value");
     PropsUi.setLook(wlSasKey);
     FormData fdlSasKey = new FormData();
     fdlSasKey.left = new FormAttachment(0, 0);
     fdlSasKey.right = new FormAttachment(middle, -margin);
-    fdlSasKey.top = new FormAttachment(lastControl, 2 * margin);
+    fdlSasKey.top = new FormAttachment(lastControl, margin);
     wlSasKey.setLayoutData(fdlSasKey);
-    wSasKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    wSasKey = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wSasKey);
     wSasKey.addModifyListener(lsMod);
     FormData fdSasKey = new FormData();
@@ -196,15 +185,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wSasKey.setLayoutData(fdSasKey);
     lastControl = wSasKey;
 
-    Label wlConsumerGroup = new Label(shell, SWT.RIGHT);
+    Label wlConsumerGroup = new Label(wContent, SWT.RIGHT);
     wlConsumerGroup.setText("Consumer Group Name");
     PropsUi.setLook(wlConsumerGroup);
     FormData fdlConsumerGroup = new FormData();
     fdlConsumerGroup.left = new FormAttachment(0, 0);
     fdlConsumerGroup.right = new FormAttachment(middle, -margin);
-    fdlConsumerGroup.top = new FormAttachment(lastControl, 2 * margin);
+    fdlConsumerGroup.top = new FormAttachment(lastControl, margin);
     wlConsumerGroup.setLayoutData(fdlConsumerGroup);
-    wConsumerGroup = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConsumerGroup = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wConsumerGroup);
     wConsumerGroup.addModifyListener(lsMod);
     FormData fdConsumerGroup = new FormData();
@@ -214,15 +203,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wConsumerGroup.setLayoutData(fdConsumerGroup);
     lastControl = wConsumerGroup;
 
-    Label wlStorageContainerName = new Label(shell, SWT.RIGHT);
+    Label wlStorageContainerName = new Label(wContent, SWT.RIGHT);
     wlStorageContainerName.setText("Storage Container name");
     PropsUi.setLook(wlStorageContainerName);
     FormData fdlStorageContainerName = new FormData();
     fdlStorageContainerName.left = new FormAttachment(0, 0);
     fdlStorageContainerName.right = new FormAttachment(middle, -margin);
-    fdlStorageContainerName.top = new FormAttachment(lastControl, 2 * margin);
+    fdlStorageContainerName.top = new FormAttachment(lastControl, margin);
     wlStorageContainerName.setLayoutData(fdlStorageContainerName);
-    wStorageContainerName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wStorageContainerName = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wStorageContainerName);
     wStorageContainerName.addModifyListener(lsMod);
     FormData fdStorageContainerName = new FormData();
@@ -232,16 +221,16 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wStorageContainerName.setLayoutData(fdStorageContainerName);
     lastControl = wStorageContainerName;
 
-    Label wlStorageConnectionString = new Label(shell, SWT.RIGHT);
+    Label wlStorageConnectionString = new Label(wContent, SWT.RIGHT);
     wlStorageConnectionString.setText("Storage Connection String");
     PropsUi.setLook(wlStorageConnectionString);
     FormData fdlStorageConnectionString = new FormData();
     fdlStorageConnectionString.left = new FormAttachment(0, 0);
     fdlStorageConnectionString.right = new FormAttachment(middle, -margin);
-    fdlStorageConnectionString.top = new FormAttachment(lastControl, 2 * margin);
+    fdlStorageConnectionString.top = new FormAttachment(lastControl, margin);
     wlStorageConnectionString.setLayoutData(fdlStorageConnectionString);
     wStorageConnectionString =
-        new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+        new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wStorageConnectionString);
     wStorageConnectionString.addModifyListener(lsMod);
     FormData fdStorageConnectionString = new FormData();
@@ -251,15 +240,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wStorageConnectionString.setLayoutData(fdStorageConnectionString);
     lastControl = wStorageConnectionString;
 
-    Label wlBatchSize = new Label(shell, SWT.RIGHT);
+    Label wlBatchSize = new Label(wContent, SWT.RIGHT);
     wlBatchSize.setText("Batch size");
     PropsUi.setLook(wlBatchSize);
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
-    fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
-    wBatchSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchSize = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchSize);
     wBatchSize.addModifyListener(lsMod);
     FormData fdBatchSize = new FormData();
@@ -269,15 +258,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wBatchSize.setLayoutData(fdBatchSize);
     lastControl = wBatchSize;
 
-    Label wlPrefetchSize = new Label(shell, SWT.RIGHT);
+    Label wlPrefetchSize = new Label(wContent, SWT.RIGHT);
     wlPrefetchSize.setText("Prefetch size");
     PropsUi.setLook(wlPrefetchSize);
     FormData fdlPrefetchSize = new FormData();
     fdlPrefetchSize.left = new FormAttachment(0, 0);
     fdlPrefetchSize.right = new FormAttachment(middle, -margin);
-    fdlPrefetchSize.top = new FormAttachment(lastControl, 2 * margin);
+    fdlPrefetchSize.top = new FormAttachment(lastControl, margin);
     wlPrefetchSize.setLayoutData(fdlPrefetchSize);
-    wPrefetchSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPrefetchSize = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPrefetchSize);
     wPrefetchSize.addModifyListener(lsMod);
     FormData fdPrefetchSize = new FormData();
@@ -287,15 +276,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wPrefetchSize.setLayoutData(fdPrefetchSize);
     lastControl = wPrefetchSize;
 
-    Label wlOutputField = new Label(shell, SWT.RIGHT);
+    Label wlOutputField = new Label(wContent, SWT.RIGHT);
     wlOutputField.setText("Message (data) output field name");
     PropsUi.setLook(wlOutputField);
     FormData fdlOutputField = new FormData();
     fdlOutputField.left = new FormAttachment(0, 0);
     fdlOutputField.right = new FormAttachment(middle, -margin);
-    fdlOutputField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlOutputField.top = new FormAttachment(lastControl, margin);
     wlOutputField.setLayoutData(fdlOutputField);
-    wOutputField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOutputField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOutputField);
     wOutputField.addModifyListener(lsMod);
     FormData fdOutputField = new FormData();
@@ -305,15 +294,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wOutputField.setLayoutData(fdOutputField);
     lastControl = wOutputField;
 
-    Label wlPartitionIdField = new Label(shell, SWT.RIGHT);
+    Label wlPartitionIdField = new Label(wContent, SWT.RIGHT);
     wlPartitionIdField.setText("Partition ID field name");
     PropsUi.setLook(wlPartitionIdField);
     FormData fdlPartitionIdField = new FormData();
     fdlPartitionIdField.left = new FormAttachment(0, 0);
     fdlPartitionIdField.right = new FormAttachment(middle, -margin);
-    fdlPartitionIdField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlPartitionIdField.top = new FormAttachment(lastControl, margin);
     wlPartitionIdField.setLayoutData(fdlPartitionIdField);
-    wPartitionIdField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wPartitionIdField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPartitionIdField);
     wPartitionIdField.addModifyListener(lsMod);
     FormData fdPartitionIdField = new FormData();
@@ -323,15 +312,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wPartitionIdField.setLayoutData(fdPartitionIdField);
     lastControl = wPartitionIdField;
 
-    Label wlOffsetField = new Label(shell, SWT.RIGHT);
+    Label wlOffsetField = new Label(wContent, SWT.RIGHT);
     wlOffsetField.setText("Offset field name");
     PropsUi.setLook(wlOffsetField);
     FormData fdlOffsetField = new FormData();
     fdlOffsetField.left = new FormAttachment(0, 0);
     fdlOffsetField.right = new FormAttachment(middle, -margin);
-    fdlOffsetField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlOffsetField.top = new FormAttachment(lastControl, margin);
     wlOffsetField.setLayoutData(fdlOffsetField);
-    wOffsetField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wOffsetField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wOffsetField);
     wOffsetField.addModifyListener(lsMod);
     FormData fdOffsetField = new FormData();
@@ -341,15 +330,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wOffsetField.setLayoutData(fdOffsetField);
     lastControl = wOffsetField;
 
-    Label wlSequenceNumberField = new Label(shell, SWT.RIGHT);
+    Label wlSequenceNumberField = new Label(wContent, SWT.RIGHT);
     wlSequenceNumberField.setText("Sequence number field name");
     PropsUi.setLook(wlSequenceNumberField);
     FormData fdlSequenceNumberField = new FormData();
     fdlSequenceNumberField.left = new FormAttachment(0, 0);
     fdlSequenceNumberField.right = new FormAttachment(middle, -margin);
-    fdlSequenceNumberField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlSequenceNumberField.top = new FormAttachment(lastControl, margin);
     wlSequenceNumberField.setLayoutData(fdlSequenceNumberField);
-    wSequenceNumberField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSequenceNumberField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSequenceNumberField);
     wSequenceNumberField.addModifyListener(lsMod);
     FormData fdSequenceNumberField = new FormData();
@@ -359,15 +348,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wSequenceNumberField.setLayoutData(fdSequenceNumberField);
     lastControl = wSequenceNumberField;
 
-    Label wlHostField = new Label(shell, SWT.RIGHT);
+    Label wlHostField = new Label(wContent, SWT.RIGHT);
     wlHostField.setText("Host (owner) field name");
     PropsUi.setLook(wlHostField);
     FormData fdlHostField = new FormData();
     fdlHostField.left = new FormAttachment(0, 0);
     fdlHostField.right = new FormAttachment(middle, -margin);
-    fdlHostField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlHostField.top = new FormAttachment(lastControl, margin);
     wlHostField.setLayoutData(fdlHostField);
-    wHostField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wHostField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wHostField);
     wHostField.addModifyListener(lsMod);
     FormData fdHostField = new FormData();
@@ -377,15 +366,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wHostField.setLayoutData(fdHostField);
     lastControl = wHostField;
 
-    Label wlEnqueuedTimeField = new Label(shell, SWT.RIGHT);
+    Label wlEnqueuedTimeField = new Label(wContent, SWT.RIGHT);
     wlEnqueuedTimeField.setText("Enqueued time field name");
     PropsUi.setLook(wlEnqueuedTimeField);
     FormData fdlEnqueuedTimeField = new FormData();
     fdlEnqueuedTimeField.left = new FormAttachment(0, 0);
     fdlEnqueuedTimeField.right = new FormAttachment(middle, -margin);
-    fdlEnqueuedTimeField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlEnqueuedTimeField.top = new FormAttachment(lastControl, margin);
     wlEnqueuedTimeField.setLayoutData(fdlEnqueuedTimeField);
-    wEnqueuedTimeField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wEnqueuedTimeField = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wEnqueuedTimeField);
     wEnqueuedTimeField.addModifyListener(lsMod);
     FormData fdEnqueuedTimeField = new FormData();
@@ -395,7 +384,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wEnqueuedTimeField.setLayoutData(fdEnqueuedTimeField);
     lastControl = wEnqueuedTimeField;
 
-    Label wlSeparator1 = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
+    Label wlSeparator1 = new Label(wContent, SWT.SEPARATOR | SWT.HORIZONTAL);
     PropsUi.setLook(wlSeparator1);
     FormData fdlSeparator1 = new FormData();
     fdlSeparator1.left = new FormAttachment(0, margin);
@@ -404,7 +393,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wlSeparator1.setLayoutData(fdlSeparator1);
     lastControl = wlSeparator1;
 
-    Label wlBatchPipeline = new Label(shell, SWT.RIGHT);
+    Label wlBatchPipeline = new Label(wContent, SWT.RIGHT);
     wlBatchPipeline.setText("Batch pipeline");
     PropsUi.setLook(wlBatchPipeline);
     FormData fdlBatchPipeline = new FormData();
@@ -413,7 +402,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdlBatchPipeline.top = new FormAttachment(lastControl, 4 * margin);
     wlBatchPipeline.setLayoutData(fdlBatchPipeline);
 
-    Button wbBatchPipeline = new Button(shell, SWT.PUSH);
+    Button wbBatchPipeline = new Button(wContent, SWT.PUSH);
     PropsUi.setLook(wbBatchPipeline);
     wbBatchPipeline.setText(BaseMessages.getString("System.Button.Browse"));
     wbBatchPipeline.addListener(SWT.Selection, e -> browseForPipeline());
@@ -421,7 +410,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdbBatchPipeline.right = new FormAttachment(100, -margin);
     fdbBatchPipeline.top = new FormAttachment(wlBatchPipeline, 0, SWT.CENTER);
     wbBatchPipeline.setLayoutData(fdbBatchPipeline);
-    wBatchPipeline = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchPipeline = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchPipeline);
     wBatchPipeline.addModifyListener(lsMod);
     FormData fdBatchPipeline = new FormData();
@@ -431,15 +420,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wBatchPipeline.setLayoutData(fdBatchPipeline);
     lastControl = wBatchPipeline;
 
-    Label wlBatchInput = new Label(shell, SWT.RIGHT);
+    Label wlBatchInput = new Label(wContent, SWT.RIGHT);
     wlBatchInput.setText("Pipeline input transform");
     PropsUi.setLook(wlBatchInput);
     FormData fdlBatchInput = new FormData();
     fdlBatchInput.left = new FormAttachment(0, 0);
     fdlBatchInput.right = new FormAttachment(middle, -margin);
-    fdlBatchInput.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBatchInput.top = new FormAttachment(lastControl, margin);
     wlBatchInput.setLayoutData(fdlBatchInput);
-    Button wbBatchInput = new Button(shell, SWT.PUSH);
+    Button wbBatchInput = new Button(wContent, SWT.PUSH);
     PropsUi.setLook(wbBatchInput);
     wbBatchInput.setText("Select...");
     wbBatchInput.addListener(SWT.Selection, e -> selectInputTransform());
@@ -447,7 +436,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdbBatchInput.right = new FormAttachment(100, -margin);
     fdbBatchInput.top = new FormAttachment(wlBatchInput, 0, SWT.CENTER);
     wbBatchInput.setLayoutData(fdbBatchInput);
-    wBatchInput = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchInput = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchInput);
     wBatchInput.addModifyListener(lsMod);
     FormData fdBatchInput = new FormData();
@@ -457,15 +446,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wBatchInput.setLayoutData(fdBatchInput);
     lastControl = wBatchInput;
 
-    Label wlBatchOutput = new Label(shell, SWT.RIGHT);
+    Label wlBatchOutput = new Label(wContent, SWT.RIGHT);
     wlBatchOutput.setText("Pipeline output transform");
     PropsUi.setLook(wlBatchOutput);
     FormData fdlBatchOutput = new FormData();
     fdlBatchOutput.left = new FormAttachment(0, 0);
     fdlBatchOutput.right = new FormAttachment(middle, -margin);
-    fdlBatchOutput.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBatchOutput.top = new FormAttachment(lastControl, margin);
     wlBatchOutput.setLayoutData(fdlBatchOutput);
-    Button wbBatchOutput = new Button(shell, SWT.PUSH);
+    Button wbBatchOutput = new Button(wContent, SWT.PUSH);
     PropsUi.setLook(wbBatchOutput);
     wbBatchOutput.setText("Select...");
     wbBatchOutput.addListener(SWT.Selection, e -> selectOutputTransform());
@@ -473,7 +462,7 @@ public class AzureListenerDialog extends BaseTransformDialog {
     fdbBatchOutput.right = new FormAttachment(100, -margin);
     fdbBatchOutput.top = new FormAttachment(wlBatchOutput, 0, SWT.CENTER);
     wbBatchOutput.setLayoutData(fdbBatchOutput);
-    wBatchOutput = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBatchOutput = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchOutput);
     wBatchOutput.addModifyListener(lsMod);
     FormData fdBatchOutput = new FormData();
@@ -483,15 +472,15 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wBatchOutput.setLayoutData(fdBatchOutput);
     lastControl = wBatchOutput;
 
-    Label wlMaxWaitTime = new Label(shell, SWT.RIGHT);
+    Label wlMaxWaitTime = new Label(wContent, SWT.RIGHT);
     wlMaxWaitTime.setText("Maximum wait time (ms)");
     PropsUi.setLook(wlMaxWaitTime);
     FormData fdlMaxWaitTime = new FormData();
     fdlMaxWaitTime.left = new FormAttachment(0, 0);
     fdlMaxWaitTime.right = new FormAttachment(middle, -margin);
-    fdlMaxWaitTime.top = new FormAttachment(lastControl, 2 * margin);
+    fdlMaxWaitTime.top = new FormAttachment(lastControl, margin);
     wlMaxWaitTime.setLayoutData(fdlMaxWaitTime);
-    wMaxWaitTime = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMaxWaitTime = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wMaxWaitTime);
     wMaxWaitTime.addModifyListener(lsMod);
     FormData fdMaxWaitTime = new FormData();
@@ -501,18 +490,16 @@ public class AzureListenerDialog extends BaseTransformDialog {
     wMaxWaitTime.setLayoutData(fdMaxWaitTime);
     lastControl = wMaxWaitTime;
 
-    // Position the buttons at the bottom of the dialog.
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, lastControl);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    sc.setContent(wContent);
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
+    sc.setMinWidth(bounds.width);
+    sc.setMinHeight(bounds.height);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -564,7 +551,6 @@ public class AzureListenerDialog extends BaseTransformDialog {
   }
 
   public void getData() {
-    wTransformName.setText(Const.NVL(transformName, ""));
     wNamespace.setText(Const.NVL(input.getNamespace(), ""));
     wEventHub.setText(Const.NVL(input.getEventHubName(), ""));
     wSasKeyName.setText(Const.NVL(input.getSasKeyName(), ""));

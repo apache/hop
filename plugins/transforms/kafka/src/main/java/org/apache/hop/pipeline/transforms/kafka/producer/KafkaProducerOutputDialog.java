@@ -50,13 +50,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class KafkaProducerOutputDialog extends BaseTransformDialog {
 
@@ -83,8 +82,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
   private CTabFolder wTabFolder;
 
   private TextVar wBootstrapServers;
-  private final int middle = props.getMiddlePct();
-  private final int margin = PropsUi.getMargin();
 
   public KafkaProducerOutputDialog(
       Shell parent,
@@ -97,76 +94,24 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
-    changed = meta.hasChanged();
+    createShell(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.Shell.Title"));
 
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
+    changed = meta.hasChanged();
     lsMod = e -> meta.setChanged();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    setShellImage(shell, meta);
-    shell.setMinimumSize(SHELL_MIN_WIDTH, SHELL_MIN_HEIGHT);
-    shell.setText(BaseMessages.getString(PKG, "KafkaProducerOutputDialog.Shell.Title"));
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = 15;
-    formLayout.marginHeight = 15;
-    shell.setLayout(formLayout);
-
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "KafkaProducerOutputDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(wlTransformName, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    wTransformName.setLayoutData(fdTransformName);
-
-    Label topSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdSpacer = new FormData();
-    fdSpacer.height = 2;
-    fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wTransformName, 15);
-    fdSpacer.right = new FormAttachment(100, 0);
-    topSeparator.setLayoutData(fdSpacer);
+    Control lastControl = wSpacer;
 
     // Start of tabbed display
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     wTabFolder.setUnselectedCloseVisible(true);
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    positionBottomButtons(shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
-
-    Label bottomSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    PropsUi.setLook(bottomSeparator);
-    FormData fdBottomSeparator = new FormData();
-    fdBottomSeparator.height = 2;
-    fdBottomSeparator.left = new FormAttachment(0, 0);
-    fdBottomSeparator.bottom = new FormAttachment(wCancel, -15);
-    fdBottomSeparator.right = new FormAttachment(100, 0);
-    bottomSeparator.setLayoutData(fdBottomSeparator);
-
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(topSeparator, 15);
-    fdTabFolder.bottom = new FormAttachment(bottomSeparator, -15);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     fdTabFolder.right = new FormAttachment(100, 0);
     wTabFolder.setLayoutData(fdTabFolder);
 
@@ -178,7 +123,6 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     meta.setChanged(changed);
 
     wTabFolder.setSelection(0);
-
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;

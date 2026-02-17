@@ -26,14 +26,17 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class CubeOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CubeOutputMeta.class;
@@ -53,86 +56,71 @@ public class CubeOutputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "CubeOutputDialog.Shell.Text"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    shell.setMinimumSize(400, 200);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "CubeOutputDialog.Shell.Text"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "CubeOutputDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     // Filename line
-    Label wlFilename = new Label(shell, SWT.RIGHT);
+    Label wlFilename = new Label(wContent, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "CubeOutputDialog.Filename.Label"));
     PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wTransformName, margin + 5);
+    fdlFilename.top = new FormAttachment(0, margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
-    Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbFilename = new Button(wContent, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFilename);
     wbFilename.setText(BaseMessages.getString(PKG, "CubeOutputDialog.Browse.Button"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
-    fdbFilename.top = new FormAttachment(wTransformName, margin + 5);
+    fdbFilename.top = new FormAttachment(0, margin);
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.top = new FormAttachment(wTransformName, margin + 5);
+    fdFilename.top = new FormAttachment(0, margin);
     fdFilename.right = new FormAttachment(wbFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
     // Creating parent folders
     //
-    Label wlCreatingParentFolders = new Label(shell, SWT.RIGHT);
+    Label wlCreatingParentFolders = new Label(wContent, SWT.RIGHT);
     wlCreatingParentFolders.setText(
         BaseMessages.getString(PKG, "CubeOutputDialog.CreatingParentFolders.Label"));
     PropsUi.setLook(wlCreatingParentFolders);
     FormData fdlCreatingParentFolders = new FormData();
     fdlCreatingParentFolders.left = new FormAttachment(0, 0);
-    fdlCreatingParentFolders.top = new FormAttachment(wFilename, 2 * margin);
+    fdlCreatingParentFolders.top = new FormAttachment(wFilename, margin);
     fdlCreatingParentFolders.right = new FormAttachment(middle, -margin);
     wlCreatingParentFolders.setLayoutData(fdlCreatingParentFolders);
-    wCreatingParentFolders = new Button(shell, SWT.CHECK);
+    wCreatingParentFolders = new Button(wContent, SWT.CHECK);
     wCreatingParentFolders.setToolTipText(
         BaseMessages.getString(PKG, "CubeOutputDialog.CreatingParentFolders.Tooltip"));
-    PropsUi.setLook(wDoNotOpenNewFileInit);
+    PropsUi.setLook(wCreatingParentFolders);
     FormData fdCreatingParentFolders = new FormData();
     fdCreatingParentFolders.left = new FormAttachment(middle, 0);
     fdCreatingParentFolders.top = new FormAttachment(wlCreatingParentFolders, 0, SWT.CENTER);
@@ -142,7 +130,7 @@ public class CubeOutputDialog extends BaseTransformDialog {
 
     // Open new File at Init
     //
-    Label wlDoNotOpenNewFileInit = new Label(shell, SWT.RIGHT);
+    Label wlDoNotOpenNewFileInit = new Label(wContent, SWT.RIGHT);
     wlDoNotOpenNewFileInit.setText(
         BaseMessages.getString(PKG, "CubeOutputDialog.DoNotOpenNewFileInit.Label"));
     PropsUi.setLook(wlDoNotOpenNewFileInit);
@@ -151,7 +139,7 @@ public class CubeOutputDialog extends BaseTransformDialog {
     fdlDoNotOpenNewFileInit.top = new FormAttachment(wCreatingParentFolders, margin);
     fdlDoNotOpenNewFileInit.right = new FormAttachment(middle, -margin);
     wlDoNotOpenNewFileInit.setLayoutData(fdlDoNotOpenNewFileInit);
-    wDoNotOpenNewFileInit = new Button(shell, SWT.CHECK);
+    wDoNotOpenNewFileInit = new Button(wContent, SWT.CHECK);
     wDoNotOpenNewFileInit.setToolTipText(
         BaseMessages.getString(PKG, "CubeOutputDialog.DoNotOpenNewFileInit.Tooltip"));
     PropsUi.setLook(wDoNotOpenNewFileInit);
@@ -164,7 +152,7 @@ public class CubeOutputDialog extends BaseTransformDialog {
 
     // Add File to the result files name
     //
-    Label wlAddToResult = new Label(shell, SWT.RIGHT);
+    Label wlAddToResult = new Label(wContent, SWT.RIGHT);
     wlAddToResult.setText(BaseMessages.getString(PKG, "CubeOutputDialog.AddFileToResult.Label"));
     PropsUi.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
@@ -172,7 +160,7 @@ public class CubeOutputDialog extends BaseTransformDialog {
     fdlAddToResult.top = new FormAttachment(wDoNotOpenNewFileInit, margin);
     fdlAddToResult.right = new FormAttachment(middle, -margin);
     wlAddToResult.setLayoutData(fdlAddToResult);
-    wAddToResult = new Button(shell, SWT.CHECK);
+    wAddToResult = new Button(wContent, SWT.CHECK);
     wAddToResult.setToolTipText(
         BaseMessages.getString(PKG, "CubeOutputDialog.AddFileToResult.Tooltip"));
     PropsUi.setLook(wAddToResult);
@@ -183,17 +171,15 @@ public class CubeOutputDialog extends BaseTransformDialog {
     wAddToResult.setLayoutData(fdAddToResult);
     wAddToResult.addListener(SWT.Selection, e -> input.setChanged());
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
     wbFilename.addListener(
         SWT.Selection,
         e ->
@@ -210,7 +196,7 @@ public class CubeOutputDialog extends BaseTransformDialog {
                 true));
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -224,9 +210,6 @@ public class CubeOutputDialog extends BaseTransformDialog {
     wCreatingParentFolders.setSelection(input.isFilenameCreatingParentFolders());
     wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
     wAddToResult.setSelection(input.isAddToResultFilenames());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

@@ -27,9 +27,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -47,7 +45,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Unzip action settings. */
 public class ActionUnZipDialog extends ActionDialog {
@@ -61,8 +58,6 @@ public class ActionUnZipDialog extends ActionDialog {
       };
   public static final String CONST_ACTION_UN_ZIP_BROWSE_FOLDERS_LABEL =
       "ActionUnZip.BrowseFolders.Label";
-
-  private Text wName;
 
   private Label wlZipFilename;
   private Button wbZipFilename;
@@ -134,51 +129,11 @@ public class ActionUnZipDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionUnZip.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionUnZip.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // ZipFilename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionUnZip.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -246,7 +201,7 @@ public class ActionUnZipDialog extends ActionDialog {
     PropsUi.setLook(wlZipFilename);
     FormData fdlZipFilename = new FormData();
     fdlZipFilename.left = new FormAttachment(0, 0);
-    fdlZipFilename.top = new FormAttachment(wlArgsPrevious, 2 * margin);
+    fdlZipFilename.top = new FormAttachment(wlArgsPrevious, margin);
     fdlZipFilename.right = new FormAttachment(middle, -margin);
     wlZipFilename.setLayoutData(fdlZipFilename);
 
@@ -257,7 +212,7 @@ public class ActionUnZipDialog extends ActionDialog {
         BaseMessages.getString(PKG, CONST_ACTION_UN_ZIP_BROWSE_FOLDERS_LABEL));
     FormData fdbSourceDirectory = new FormData();
     fdbSourceDirectory.right = new FormAttachment(100, 0);
-    fdbSourceDirectory.top = new FormAttachment(wlArgsPrevious, 2 * margin);
+    fdbSourceDirectory.top = new FormAttachment(wlArgsPrevious, margin);
     wbSourceDirectory.setLayoutData(fdbSourceDirectory);
 
     wbSourceDirectory.addListener(
@@ -269,7 +224,7 @@ public class ActionUnZipDialog extends ActionDialog {
     wbZipFilename.setText(BaseMessages.getString(PKG, "ActionUnZip.BrowseFiles.Label"));
     FormData fdbZipFilename = new FormData();
     fdbZipFilename.right = new FormAttachment(wbSourceDirectory, -margin);
-    fdbZipFilename.top = new FormAttachment(wlArgsPrevious, 2 * margin);
+    fdbZipFilename.top = new FormAttachment(wlArgsPrevious, margin);
     wbZipFilename.setLayoutData(fdbZipFilename);
 
     wZipFilename = new TextVar(variables, wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -277,7 +232,7 @@ public class ActionUnZipDialog extends ActionDialog {
     wZipFilename.addModifyListener(lsMod);
     FormData fdZipFilename = new FormData();
     fdZipFilename.left = new FormAttachment(middle, 0);
-    fdZipFilename.top = new FormAttachment(wlArgsPrevious, 2 * margin);
+    fdZipFilename.top = new FormAttachment(wlArgsPrevious, margin);
 
     fdZipFilename.right = new FormAttachment(wbZipFilename, -margin);
     wZipFilename.setLayoutData(fdZipFilename);
@@ -374,7 +329,7 @@ public class ActionUnZipDialog extends ActionDialog {
     PropsUi.setLook(wlTargetDirectory);
     FormData fdlTargetDirectory = new FormData();
     fdlTargetDirectory.left = new FormAttachment(0, 0);
-    fdlTargetDirectory.top = new FormAttachment(wlRootZip, 2 * margin);
+    fdlTargetDirectory.top = new FormAttachment(wlRootZip, margin);
     fdlTargetDirectory.right = new FormAttachment(middle, -margin);
     wlTargetDirectory.setLayoutData(fdlTargetDirectory);
 
@@ -385,7 +340,7 @@ public class ActionUnZipDialog extends ActionDialog {
         BaseMessages.getString(PKG, CONST_ACTION_UN_ZIP_BROWSE_FOLDERS_LABEL));
     FormData fdbTargetDirectory = new FormData();
     fdbTargetDirectory.right = new FormAttachment(100, 0);
-    fdbTargetDirectory.top = new FormAttachment(wlRootZip, 2 * margin);
+    fdbTargetDirectory.top = new FormAttachment(wlRootZip, margin);
     wbTargetDirectory.setLayoutData(fdbTargetDirectory);
     wbTargetDirectory.addListener(
         SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wTargetDirectory, variables));
@@ -400,7 +355,7 @@ public class ActionUnZipDialog extends ActionDialog {
     wTargetDirectory.addModifyListener(lsMod);
     FormData fdTargetDirectory = new FormData();
     fdTargetDirectory.left = new FormAttachment(middle, 0);
-    fdTargetDirectory.top = new FormAttachment(wlRootZip, 2 * margin);
+    fdTargetDirectory.top = new FormAttachment(wlRootZip, margin);
     fdTargetDirectory.right = new FormAttachment(wbTargetDirectory, -margin);
     wTargetDirectory.setLayoutData(fdTargetDirectory);
 
@@ -435,7 +390,7 @@ public class ActionUnZipDialog extends ActionDialog {
     PropsUi.setLook(wlWildcard);
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment(0, 0);
-    fdlWildcard.top = new FormAttachment(wlCreateFolder, 2 * margin);
+    fdlWildcard.top = new FormAttachment(wlCreateFolder, margin);
     fdlWildcard.right = new FormAttachment(middle, -margin);
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard =
@@ -448,7 +403,7 @@ public class ActionUnZipDialog extends ActionDialog {
     wWildcard.addModifyListener(lsMod);
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment(middle, 0);
-    fdWildcard.top = new FormAttachment(wlCreateFolder, 2 * margin);
+    fdWildcard.top = new FormAttachment(wlCreateFolder, margin);
     fdWildcard.right = new FormAttachment(100, 0);
     wWildcard.setLayoutData(fdWildcard);
 
@@ -506,7 +461,7 @@ public class ActionUnZipDialog extends ActionDialog {
     PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
-    fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
+    fdlAddTime.top = new FormAttachment(wlAddDate, margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wUnzippedFiles, SWT.CHECK);
@@ -532,7 +487,7 @@ public class ActionUnZipDialog extends ActionDialog {
     PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
-    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, 2 * margin);
+    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wUnzippedFiles, SWT.CHECK);
@@ -561,7 +516,7 @@ public class ActionUnZipDialog extends ActionDialog {
     PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdlDateTimeFormat.right = new FormAttachment(middle, -margin);
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(wUnzippedFiles, SWT.BORDER | SWT.READ_ONLY);
@@ -570,7 +525,7 @@ public class ActionUnZipDialog extends ActionDialog {
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
-    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdDateTimeFormat.right = new FormAttachment(100, 0);
     wDateTimeFormat.setLayoutData(fdDateTimeFormat);
     for (String dat : dats) {
@@ -610,7 +565,7 @@ public class ActionUnZipDialog extends ActionDialog {
     PropsUi.setLook(wlSetModificationDateToOriginal);
     FormData fdlSetModificationDateToOriginal = new FormData();
     fdlSetModificationDateToOriginal.left = new FormAttachment(0, 0);
-    fdlSetModificationDateToOriginal.top = new FormAttachment(wlAddOriginalTimestamp, 2 * margin);
+    fdlSetModificationDateToOriginal.top = new FormAttachment(wlAddOriginalTimestamp, margin);
     fdlSetModificationDateToOriginal.right = new FormAttachment(middle, -margin);
     wlSetModificationDateToOriginal.setLayoutData(fdlSetModificationDateToOriginal);
     wSetModificationDateToOriginal = new Button(wUnzippedFiles, SWT.CHECK);
@@ -637,7 +592,7 @@ public class ActionUnZipDialog extends ActionDialog {
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
-    fdlIfFileExists.top = new FormAttachment(wlSetModificationDateToOriginal, 2 * margin);
+    fdlIfFileExists.top = new FormAttachment(wlSetModificationDateToOriginal, margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(wUnzippedFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wIfFileExists.setItems(ActionUnZip.typeIfFileExistsDesc);
@@ -936,12 +891,13 @@ public class ActionUnZipDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
+    focusActionName();
     setArgdPrevious();
     afterUnZipActivate();
     setDateTimeFormat();
@@ -1053,9 +1009,11 @@ public class ActionUnZipDialog extends ActionDialog {
     wSetModificationDateToOriginal.setSelection(action.isSetOriginalModificationDate());
     wIfFileExists.select(action.getIfFileExist().getOrignalCode());
     wCreateMoveToDirectory.setSelection(action.isCreateMoveToDirectory());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

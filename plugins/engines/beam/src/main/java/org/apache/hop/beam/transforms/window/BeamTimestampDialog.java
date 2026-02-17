@@ -27,22 +27,22 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class BeamTimestampDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BeamTimestampDialog.class;
   private final BeamTimestampMeta input;
-
-  int middle;
-  int margin;
 
   private Combo wFieldName;
   private Button wReading;
@@ -58,23 +58,29 @@ public class BeamTimestampDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "BeamTimestampDialog.DialogTitle"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
+
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "BeamTimestampDialog.DialogTitle"));
-
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
+    Control lastControl = null;
 
     String[] fieldNames;
     try {
@@ -84,35 +90,15 @@ public class BeamTimestampDialog extends BaseTransformDialog {
       fieldNames = new String[] {};
     }
 
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
-
-    Label wlFieldName = new Label(shell, SWT.RIGHT);
+    Label wlFieldName = new Label(wContent, SWT.RIGHT);
     wlFieldName.setText(BaseMessages.getString(PKG, "BeamTimestampDialog.FieldName"));
     PropsUi.setLook(wlFieldName);
     FormData fdlFieldName = new FormData();
     fdlFieldName.left = new FormAttachment(0, 0);
-    fdlFieldName.top = new FormAttachment(lastControl, margin);
+    fdlFieldName.top = new FormAttachment(0, margin);
     fdlFieldName.right = new FormAttachment(middle, -margin);
     wlFieldName.setLayoutData(fdlFieldName);
-    wFieldName = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFieldName = new Combo(wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFieldName);
     wFieldName.setItems(fieldNames);
     FormData fdFieldName = new FormData();
@@ -122,7 +108,7 @@ public class BeamTimestampDialog extends BaseTransformDialog {
     wFieldName.setLayoutData(fdFieldName);
     lastControl = wFieldName;
 
-    Label wlReading = new Label(shell, SWT.RIGHT);
+    Label wlReading = new Label(wContent, SWT.RIGHT);
     wlReading.setText(BaseMessages.getString(PKG, "BeamTimestampDialog.Reading"));
     PropsUi.setLook(wlReading);
     FormData fdlReading = new FormData();
@@ -130,28 +116,24 @@ public class BeamTimestampDialog extends BaseTransformDialog {
     fdlReading.top = new FormAttachment(lastControl, margin);
     fdlReading.right = new FormAttachment(middle, -margin);
     wlReading.setLayoutData(fdlReading);
-    wReading = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wReading = new Button(wContent, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wReading);
     FormData fdReading = new FormData();
     fdReading.left = new FormAttachment(middle, 0);
     fdReading.top = new FormAttachment(wlReading, 0, SWT.CENTER);
     fdReading.right = new FormAttachment(100, 0);
     wReading.setLayoutData(fdReading);
-    lastControl = wReading;
 
-    // Buttons go at the very bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, lastControl);
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -159,12 +141,8 @@ public class BeamTimestampDialog extends BaseTransformDialog {
 
   /** Populate the widgets. */
   public void getData() {
-    wTransformName.setText(transformName);
     wFieldName.setText(Const.NVL(input.getFieldName(), ""));
     wReading.setSelection(input.isReadingTimestamp());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

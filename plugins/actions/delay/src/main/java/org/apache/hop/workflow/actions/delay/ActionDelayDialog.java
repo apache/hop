@@ -24,27 +24,18 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the delay action settings. */
 public class ActionDelayDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDelay.class;
-
-  private Text wName;
 
   private CCombo wScaleTime;
 
@@ -65,44 +56,10 @@ public class ActionDelayDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ActionDelay.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    shell.setMinimumSize(400, 190);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
-    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionDelay.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
-    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     // MaximumTimeout line
     wMaximumTimeout =
@@ -112,10 +69,10 @@ public class ActionDelayDialog extends ActionDialog {
             BaseMessages.getString(PKG, "ActionDelay.MaximumTimeout.Label"),
             BaseMessages.getString(PKG, "ActionDelay.MaximumTimeout.Tooltip"));
     PropsUi.setLook(wMaximumTimeout);
-    wMaximumTimeout.addModifyListener(lsMod);
+    wMaximumTimeout.addModifyListener(e -> action.setChanged());
     FormData fdMaximumTimeout = new FormData();
     fdMaximumTimeout.left = new FormAttachment(0, 0);
-    fdMaximumTimeout.top = new FormAttachment(wName, margin);
+    fdMaximumTimeout.top = new FormAttachment(wSpacer, margin);
     fdMaximumTimeout.right = new FormAttachment(100, 0);
     wMaximumTimeout.setLayoutData(fdMaximumTimeout);
 
@@ -124,7 +81,6 @@ public class ActionDelayDialog extends ActionDialog {
         e -> wMaximumTimeout.setToolTipText(variables.resolve(wMaximumTimeout.getText())));
 
     // Scale time
-
     wScaleTime = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wScaleTime.add(BaseMessages.getString(PKG, "ActionDelay.SScaleTime.Label"));
     wScaleTime.add(BaseMessages.getString(PKG, "ActionDelay.MnScaleTime.Label"));
@@ -138,20 +94,17 @@ public class ActionDelayDialog extends ActionDialog {
     fdScaleTime.right = new FormAttachment(100, 0);
     wScaleTime.setLayoutData(fdScaleTime);
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
     getData();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
+  }
+
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -164,9 +117,6 @@ public class ActionDelayDialog extends ActionDialog {
     }
 
     wScaleTime.select(action.scaleTime);
-
-    wName.selectAll();
-    wName.setFocus();
   }
 
   private void cancel() {

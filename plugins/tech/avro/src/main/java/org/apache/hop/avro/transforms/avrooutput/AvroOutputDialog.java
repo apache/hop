@@ -59,7 +59,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class AvroOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
@@ -122,52 +121,9 @@ public class AvroOutputDialog extends BaseTransformDialog {
   }
 
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "AvroOutputDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "AvroOutputDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Add the buttons at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -304,7 +260,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlWriteSchemaFile);
     FormData fdlWriteSchemaFile = new FormData();
     fdlWriteSchemaFile.left = new FormAttachment(0, 0);
-    fdlWriteSchemaFile.top = new FormAttachment(wlCreateSchemaFile, 2 * margin);
+    fdlWriteSchemaFile.top = new FormAttachment(wlCreateSchemaFile, margin);
     fdlWriteSchemaFile.right = new FormAttachment(middle, -margin);
     wlWriteSchemaFile.setLayoutData(fdlWriteSchemaFile);
     wWriteSchemaFile = new Button(wFileComp, SWT.CHECK);
@@ -332,7 +288,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlNamespace);
     FormData fdlNamespace = new FormData();
     fdlNamespace.left = new FormAttachment(0, 0);
-    fdlNamespace.top = new FormAttachment(wlWriteSchemaFile, 2 * margin);
+    fdlNamespace.top = new FormAttachment(wlWriteSchemaFile, margin);
     fdlNamespace.right = new FormAttachment(middle, -margin);
     wlNamespace.setLayoutData(fdlNamespace);
     wNamespace = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -418,7 +374,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
     fdbSchema.right = new FormAttachment(100, 0);
-    fdbSchema.top = new FormAttachment(wDoc, 0);
+    fdbSchema.top = new FormAttachment(wDoc, margin);
     wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar(variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -481,7 +437,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCompression);
     FormData fdlCompression = new FormData();
     fdlCompression.left = new FormAttachment(0, 0);
-    fdlCompression.top = new FormAttachment(wlCreateParentFolder, 2 * margin);
+    fdlCompression.top = new FormAttachment(wlCreateParentFolder, margin);
     fdlCompression.right = new FormAttachment(middle, -margin);
     wlCompression.setLayoutData(fdlCompression);
     wCompression = new CCombo(wFileComp, SWT.BORDER | SWT.READ_ONLY);
@@ -529,7 +485,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddPartNr);
     FormData fdlAddPartNr = new FormData();
     fdlAddPartNr.left = new FormAttachment(0, 0);
-    fdlAddPartNr.top = new FormAttachment(wlAddTransformNr, 2 * margin);
+    fdlAddPartNr.top = new FormAttachment(wlAddTransformNr, margin);
     fdlAddPartNr.right = new FormAttachment(middle, -margin);
     wlAddPartNr.setLayoutData(fdlAddPartNr);
     wAddPartNr = new Button(wFileComp, SWT.CHECK);
@@ -554,7 +510,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
-    fdlAddDate.top = new FormAttachment(wlAddPartNr, 2 * margin);
+    fdlAddDate.top = new FormAttachment(wlAddPartNr, margin);
     fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wFileComp, SWT.CHECK);
@@ -579,7 +535,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
-    fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
+    fdlAddTime.top = new FormAttachment(wlAddDate, margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wFileComp, SWT.CHECK);
@@ -604,7 +560,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
-    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, 2 * margin);
+    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wFileComp, SWT.CHECK);
@@ -625,7 +581,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdlDateTimeFormat.right = new FormAttachment(middle, -margin);
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(wFileComp, SWT.BORDER | SWT.READ_ONLY);
@@ -648,7 +604,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
     fdlAddToResult.left = new FormAttachment(0, 0);
-    fdlAddToResult.top = new FormAttachment(wDateTimeFormat, 2 * margin);
+    fdlAddToResult.top = new FormAttachment(wDateTimeFormat, margin);
     fdlAddToResult.right = new FormAttachment(middle, -margin);
     wlAddToResult.setLayoutData(fdlAddToResult);
     wAddToResult = new Button(wFileComp, SWT.CHECK);
@@ -712,7 +668,7 @@ public class AvroOutputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "AvroOutputDialog.Tooltip.UpdateTypes"));
     wUpdateTypes.addListener(SWT.Selection, e -> updateTypes());
     FormData fdUpdateTypes = new FormData();
-    fdUpdateTypes.left = new FormAttachment(wGet, margin * 2);
+    fdUpdateTypes.left = new FormAttachment(wGet, margin);
     fdUpdateTypes.bottom = new FormAttachment(100, 0);
     wUpdateTypes.setLayoutData(fdUpdateTypes);
 
@@ -817,15 +773,15 @@ public class AvroOutputDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
     input.setChanged(changed);
     wTabFolder.setSelection(0);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
   }
@@ -1070,8 +1026,6 @@ public class AvroOutputDialog extends BaseTransformDialog {
     wFields.optWidth(true);
 
     enableFields();
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

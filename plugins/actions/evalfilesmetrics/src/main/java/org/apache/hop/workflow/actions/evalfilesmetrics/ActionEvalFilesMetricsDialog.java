@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.evalfilesmetrics;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -28,9 +29,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -49,7 +48,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the eval files metrics action settings. */
 public class ActionEvalFilesMetricsDialog extends ActionDialog {
@@ -57,8 +55,6 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Filetype.All")};
-
-  private Text wName;
 
   private Label wlSourceFileFolder;
   private Button wbSourceFileFolder;
@@ -125,51 +121,11 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -212,7 +168,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     FormData fdlSourceFiles = new FormData();
     fdlSourceFiles.left = new FormAttachment(0, 0);
     fdlSourceFiles.right = new FormAttachment(middle, -margin);
-    fdlSourceFiles.top = new FormAttachment(wName, margin);
+    fdlSourceFiles.top = new FormAttachment(0, margin);
     wlSourceFiles.setLayoutData(fdlSourceFiles);
 
     wSourceFiles = new CCombo(wSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -222,7 +178,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     PropsUi.setLook(wSourceFiles);
     FormData fdSourceFiles = new FormData();
     fdSourceFiles.left = new FormAttachment(middle, 0);
-    fdSourceFiles.top = new FormAttachment(wName, margin);
+    fdSourceFiles.top = new FormAttachment(0, margin);
     fdSourceFiles.right = new FormAttachment(100, 0);
     wSourceFiles.setLayoutData(fdSourceFiles);
     wSourceFiles.addSelectionListener(
@@ -358,7 +314,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
-    fdSettings.top = new FormAttachment(wName, margin);
+    fdSettings.top = new FormAttachment(0, margin);
     fdSettings.right = new FormAttachment(100, -margin);
     wSettings.setLayoutData(fdSettings);
 
@@ -373,7 +329,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     PropsUi.setLook(wlSourceFileFolder);
     FormData fdlSourceFileFolder = new FormData();
     fdlSourceFileFolder.left = new FormAttachment(0, 0);
-    fdlSourceFileFolder.top = new FormAttachment(wSettings, 2 * margin);
+    fdlSourceFileFolder.top = new FormAttachment(wSettings, margin);
     fdlSourceFileFolder.right = new FormAttachment(middle, -margin);
     wlSourceFileFolder.setLayoutData(fdlSourceFileFolder);
 
@@ -418,7 +374,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     wSourceFileFolder.addModifyListener(lsMod);
     FormData fdSourceFileFolder = new FormData();
     fdSourceFileFolder.left = new FormAttachment(middle, 0);
-    fdSourceFileFolder.top = new FormAttachment(wSettings, 2 * margin);
+    fdSourceFileFolder.top = new FormAttachment(wSettings, margin);
     fdSourceFileFolder.right = new FormAttachment(wbaSourceFileFolder, -margin);
     wSourceFileFolder.setLayoutData(fdSourceFileFolder);
 
@@ -777,9 +733,9 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
@@ -787,7 +743,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     refreshSize();
     refreshSourceFiles();
     wTabFolder.setSelection(0);
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -837,9 +793,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (action.getName() != null) {
-      wName.setText(action.getName());
-    }
+    wName.setText(Const.NVL(action.getName(), ""));
 
     if (action.getSourceFileFolder() != null) {
       for (int i = 0; i < action.getSourceFileFolder().length; i++) {
@@ -888,9 +842,11 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog {
     if (action.getMaxValue() != null) {
       wMaxValue.setText(action.getMaxValue());
     }
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

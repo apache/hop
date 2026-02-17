@@ -29,12 +29,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.sftp.SftpClient;
@@ -59,8 +56,6 @@ import org.eclipse.swt.widgets.Shell;
 /** This dialog allows you to edit the FTP Delete action settings. */
 public class ActionFtpDeleteDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFtpDelete.class;
-
-  private LabelText wName;
 
   private LabelTextVar wServerName;
 
@@ -143,10 +138,8 @@ public class ActionFtpDeleteDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionFtpDelete.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod =
         e -> {
@@ -157,42 +150,6 @@ public class ActionFtpDeleteDialog extends ActionDialog {
         };
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionFtpDelete.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Action name line
-    wName =
-        new LabelText(
-            shell,
-            BaseMessages.getString(PKG, "ActionFtpDelete.Name.Label"),
-            BaseMessages.getString(PKG, "ActionFtpDelete.Name.Tooltip"));
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.top = new FormAttachment(0, 0);
-    fdName.left = new FormAttachment(0, 0);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-    PropsUi.setLook(wName);
-
-    // The buttons at the bottom...
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // The tab folder between the name and the buttons
-    //
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -232,7 +189,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     PropsUi.setLook(wlProtocol);
     FormData fdlProtocol = new FormData();
     fdlProtocol.left = new FormAttachment(0, 0);
-    fdlProtocol.top = new FormAttachment(wName, margin);
+    fdlProtocol.top = new FormAttachment(0, margin);
     fdlProtocol.right = new FormAttachment(middle, -margin);
     wlProtocol.setLayoutData(fdlProtocol);
     wProtocol = new Combo(wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -242,7 +199,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     PropsUi.setLook(wProtocol);
     FormData fdProtocol = new FormData();
     fdProtocol.left = new FormAttachment(middle, 0);
-    fdProtocol.top = new FormAttachment(wName, margin);
+    fdProtocol.top = new FormAttachment(0, margin);
     fdProtocol.right = new FormAttachment(100, 0);
     wProtocol.setLayoutData(fdProtocol);
     wProtocol.addSelectionListener(
@@ -366,7 +323,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment(0, 0);
-    fdProxyHost.top = new FormAttachment(wlUseProxy, 2 * margin);
+    fdProxyHost.top = new FormAttachment(wlUseProxy, margin);
     fdProxyHost.right = new FormAttachment(100, 0);
     wProxyHost.setLayoutData(fdProxyHost);
 
@@ -457,7 +414,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     PropsUi.setLook(wlKeyFilename);
     FormData fdlKeyFilename = new FormData();
     fdlKeyFilename.left = new FormAttachment(0, 0);
-    fdlKeyFilename.top = new FormAttachment(wlUsePublicKey, 2 * margin);
+    fdlKeyFilename.top = new FormAttachment(wlUsePublicKey, margin);
     fdlKeyFilename.right = new FormAttachment(middle, -margin);
     wlKeyFilename.setLayoutData(fdlKeyFilename);
 
@@ -518,7 +475,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
 
     FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment(0, margin);
-    fdServerSettings.top = new FormAttachment(wName, margin);
+    fdServerSettings.top = new FormAttachment(0, margin);
     fdServerSettings.right = new FormAttachment(100, -margin);
     wServerSettings.setLayoutData(fdServerSettings);
     // ///////////////////////////////////////////////////////////
@@ -661,7 +618,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     PropsUi.setLook(wlFtpDirectory);
     FormData fdlFtpDirectory = new FormData();
     fdlFtpDirectory.left = new FormAttachment(0, 0);
-    fdlFtpDirectory.top = new FormAttachment(wlGetPrevious, 2 * margin);
+    fdlFtpDirectory.top = new FormAttachment(wlGetPrevious, margin);
     fdlFtpDirectory.right = new FormAttachment(middle, -margin);
     wlFtpDirectory.setLayoutData(fdlFtpDirectory);
 
@@ -853,7 +810,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     wSocksProxyHost.addModifyListener(lsMod);
     FormData fdSocksProxyHost = new FormData();
     fdSocksProxyHost.left = new FormAttachment(0, 0);
-    fdSocksProxyHost.top = new FormAttachment(wName, margin);
+    fdSocksProxyHost.top = new FormAttachment(0, margin);
     fdSocksProxyHost.right = new FormAttachment(100, margin);
     wSocksProxyHost.setLayoutData(fdSocksProxyHost);
 
@@ -931,9 +888,9 @@ public class ActionFtpDeleteDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
@@ -944,7 +901,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     activeCopyFromPrevious();
 
     wTabFolder.setSelection(0);
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -1129,7 +1086,7 @@ public class ActionFtpDeleteDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wName.setText(Const.nullToEmpty(action.getName()));
+    wName.setText(Const.NVL(action.getName(), ""));
 
     wProtocol.setText(Const.NVL(action.getProtocol(), "FTP"));
     wPort.setText(Const.NVL(action.getServerPort(), ""));
@@ -1172,9 +1129,14 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     wKeyFilePass.setText(Const.nullToEmpty(action.getKeyFilePass()));
 
     wGetPrevious.setSelection(action.isCopyPrevious());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    pwdFolder = null;
+    ftpclient = null;
+    sftpclient = null;
+    action.setChanged();
   }
 
   private void cancel() {

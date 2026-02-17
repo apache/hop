@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.copyfiles;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -30,9 +31,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ITextVarButtonRenderCallback;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -50,7 +49,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Copy Files action settings. */
 public class ActionCopyFilesDialog extends ActionDialog {
@@ -61,8 +59,6 @@ public class ActionCopyFilesDialog extends ActionDialog {
 
   public static final String LOCAL_ENVIRONMENT = "Local";
   public static final String STATIC_ENVIRONMENT = "<Static>";
-
-  protected Text wName;
 
   protected Button wPrevious;
   protected Button wCopyEmptyFolders;
@@ -76,6 +72,8 @@ public class ActionCopyFilesDialog extends ActionDialog {
   protected ActionCopyFiles action;
 
   protected boolean changed;
+
+  protected CTabFolder wTabFolder;
 
   private Label wlFields;
 
@@ -92,59 +90,23 @@ public class ActionCopyFilesDialog extends ActionDialog {
   }
 
   protected void initUi() {
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionCopyFiles.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    int middle = this.middle;
+    int margin = this.margin;
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionCopyFiles.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(wlName, margin);
-    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-
-    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin * 3);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // ///////////////////////////////////////////////////////////
@@ -362,15 +324,14 @@ public class ActionCopyFilesDialog extends ActionDialog {
     wFields.setLayoutData(fdFields);
 
     refreshArgFromPrevious();
-
-    getData();
-    wTabFolder.setSelection(0);
   }
 
   @Override
   public IAction open() {
     initUi();
-
+    getData();
+    wTabFolder.setSelection(0);
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -414,9 +375,7 @@ public class ActionCopyFilesDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (action.getName() != null) {
-      wName.setText(action.getName());
-    }
+    wName.setText(Const.NVL(action.getName(), ""));
     wCopyEmptyFolders.setSelection(action.copyEmptyFolders);
 
     if (action.sourceFileFolder != null) {
@@ -488,9 +447,11 @@ public class ActionCopyFilesDialog extends ActionDialog {
     wCreateDestinationFolder.setSelection(action.createDestinationFolder);
 
     wAddFileToResult.setSelection(action.addResultFilenames);
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

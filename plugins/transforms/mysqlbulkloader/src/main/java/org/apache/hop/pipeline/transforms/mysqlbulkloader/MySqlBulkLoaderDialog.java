@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -45,6 +46,7 @@ import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -52,16 +54,22 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -105,11 +113,26 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).sql(e -> create()).cancel(e -> cancel()).build();
+
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
+
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     ModifyListener lsMod = e -> input.setChanged();
     FocusListener lsFocusLost =
@@ -121,64 +144,50 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
         };
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    FormData fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    FormData fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    // Connection line - first control in scroll area (top = 0, margin)
+    wConnection = addConnectionLine(wContent, null, input.getConnection(), lsMod);
     if (input.getConnection() == null) {
       wConnection.select(0);
     }
     wConnection.addModifyListener(lsMod);
 
+    CTabFolder wTabFolder = new CTabFolder(wContent, SWT.BORDER);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+
+    // Tab 1: Connection & settings
+    CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSettingsTab.setFont(GuiResource.getInstance().getFontDefault());
+    wSettingsTab.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Tab.Settings.Label"));
+
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wGeneralComp);
+    FormLayout tabLayout = new FormLayout();
+    tabLayout.marginWidth = PropsUi.getFormMargin();
+    tabLayout.marginHeight = PropsUi.getFormMargin();
+    wGeneralComp.setLayout(tabLayout);
+
     // Schema line...
-    Label wlSchema = new Label(shell, SWT.RIGHT);
+    Label wlSchema = new Label(wGeneralComp, SWT.RIGHT);
     wlSchema.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.TargetSchema.Label"));
     PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdlSchema.top = new FormAttachment(0, margin);
     wlSchema.setLayoutData(fdlSchema);
 
-    wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSchema = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
     wSchema.addFocusListener(lsFocusLost);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.top = new FormAttachment(wlSchema, 0, SWT.CENTER);
     fdSchema.right = new FormAttachment(100, 0);
     wSchema.setLayoutData(fdSchema);
 
     // Table line...
-    Label wlTable = new Label(shell, SWT.RIGHT);
+    Label wlTable = new Label(wGeneralComp, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.TargetTable.Label"));
     PropsUi.setLook(wlTable);
     FormData fdlTable = new FormData();
@@ -187,25 +196,25 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlTable.top = new FormAttachment(wSchema, margin);
     wlTable.setLayoutData(fdlTable);
 
-    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbTable = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Browse.Button"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wSchema, margin);
+    fdbTable.top = new FormAttachment(wlTable, 0, SWT.CENTER);
     wbTable.setLayoutData(fdbTable);
-    wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTable = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(middle, 0);
-    fdTable.top = new FormAttachment(wSchema, margin);
+    fdTable.top = new FormAttachment(wlTable, 0, SWT.CENTER);
     fdTable.right = new FormAttachment(wbTable, -margin);
     wTable.setLayoutData(fdTable);
 
     // FifoFile line...
-    Label wlFifoFile = new Label(shell, SWT.RIGHT);
+    Label wlFifoFile = new Label(wGeneralComp, SWT.RIGHT);
     wlFifoFile.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.FifoFile.Label"));
     PropsUi.setLook(wlFifoFile);
     FormData fdlFifoFile = new FormData();
@@ -213,7 +222,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlFifoFile.right = new FormAttachment(middle, -margin);
     fdlFifoFile.top = new FormAttachment(wTable, margin);
     wlFifoFile.setLayoutData(fdlFifoFile);
-    wFifoFile = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFifoFile = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFifoFile);
     wFifoFile.addModifyListener(lsMod);
     FormData fdFifoFile = new FormData();
@@ -223,7 +232,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     wFifoFile.setLayoutData(fdFifoFile);
 
     // Delimiter line...
-    Label wlDelimiter = new Label(shell, SWT.RIGHT);
+    Label wlDelimiter = new Label(wGeneralComp, SWT.RIGHT);
     wlDelimiter.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Delimiter.Label"));
     PropsUi.setLook(wlDelimiter);
     FormData fdlDelimiter = new FormData();
@@ -231,14 +240,14 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlDelimiter.right = new FormAttachment(middle, -margin);
     fdlDelimiter.top = new FormAttachment(wFifoFile, margin);
     wlDelimiter.setLayoutData(fdlDelimiter);
-    Button wbDelimiter = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbDelimiter = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbDelimiter);
     wbDelimiter.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Delimiter.Button"));
     FormData fdbDelimiter = new FormData();
     fdbDelimiter.top = new FormAttachment(wFifoFile, margin);
     fdbDelimiter.right = new FormAttachment(100, 0);
     wbDelimiter.setLayoutData(fdbDelimiter);
-    wDelimiter = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDelimiter = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDelimiter);
     wDelimiter.addModifyListener(lsMod);
     FormData fdDelimiter = new FormData();
@@ -259,7 +268,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
         });
 
     // Enclosure line...
-    Label wlEnclosure = new Label(shell, SWT.RIGHT);
+    Label wlEnclosure = new Label(wGeneralComp, SWT.RIGHT);
     wlEnclosure.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Enclosure.Label"));
     PropsUi.setLook(wlEnclosure);
     FormData fdlEnclosure = new FormData();
@@ -267,7 +276,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlEnclosure.right = new FormAttachment(middle, -margin);
     fdlEnclosure.top = new FormAttachment(wDelimiter, margin);
     wlEnclosure.setLayoutData(fdlEnclosure);
-    wEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wEnclosure = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wEnclosure);
     wEnclosure.addModifyListener(lsMod);
     FormData fdEnclosure = new FormData();
@@ -277,7 +286,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     wEnclosure.setLayoutData(fdEnclosure);
 
     // EscapeChar line...
-    Label wlEscapeChar = new Label(shell, SWT.RIGHT);
+    Label wlEscapeChar = new Label(wGeneralComp, SWT.RIGHT);
     wlEscapeChar.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.EscapeChar.Label"));
     PropsUi.setLook(wlEscapeChar);
     FormData fdlEscapeChar = new FormData();
@@ -285,7 +294,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlEscapeChar.right = new FormAttachment(middle, -margin);
     fdlEscapeChar.top = new FormAttachment(wEnclosure, margin);
     wlEscapeChar.setLayoutData(fdlEscapeChar);
-    wEscapeChar = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wEscapeChar = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wEscapeChar);
     wEscapeChar.addModifyListener(lsMod);
     FormData fdEscapeChar = new FormData();
@@ -295,7 +304,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     wEscapeChar.setLayoutData(fdEscapeChar);
 
     // Load Charset line...
-    Label wlLoadCharSet = new Label(shell, SWT.RIGHT);
+    Label wlLoadCharSet = new Label(wGeneralComp, SWT.RIGHT);
     wlLoadCharSet.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.LoadCharSet.Label"));
     PropsUi.setLook(wlLoadCharSet);
     FormData fdlLoadCharSet = new FormData();
@@ -304,7 +313,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlLoadCharSet.top = new FormAttachment(wEscapeChar, margin);
     wlLoadCharSet.setLayoutData(fdlLoadCharSet);
 
-    wLoadCharSet = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wLoadCharSet = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLoadCharSet);
     wLoadCharSet.addModifyListener(lsMod);
     FormData fdLoadCharSet = new FormData();
@@ -314,7 +323,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     wLoadCharSet.setLayoutData(fdLoadCharSet);
 
     // CharSet line...
-    Label wlCharSet = new Label(shell, SWT.RIGHT);
+    Label wlCharSet = new Label(wGeneralComp, SWT.RIGHT);
     wlCharSet.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.CharSet.Label"));
     PropsUi.setLook(wlCharSet);
     FormData fdlCharSet = new FormData();
@@ -323,7 +332,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlCharSet.top = new FormAttachment(wLoadCharSet, margin);
     wlCharSet.setLayoutData(fdlCharSet);
 
-    wCharSet = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCharSet = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCharSet);
     wCharSet.addModifyListener(lsMod);
     FormData fdCharSet = new FormData();
@@ -333,7 +342,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     wCharSet.setLayoutData(fdCharSet);
 
     // BulkSize line...
-    Label wlBulkSize = new Label(shell, SWT.RIGHT);
+    Label wlBulkSize = new Label(wGeneralComp, SWT.RIGHT);
     wlBulkSize.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.BulkSize.Label"));
     PropsUi.setLook(wlBulkSize);
     FormData fdlBulkSize = new FormData();
@@ -341,7 +350,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     fdlBulkSize.right = new FormAttachment(middle, -margin);
     fdlBulkSize.top = new FormAttachment(wCharSet, margin);
     wlBulkSize.setLayoutData(fdlBulkSize);
-    wBulkSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wBulkSize = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBulkSize);
     wBulkSize.addModifyListener(lsMod);
     FormData fdBulkSize = new FormData();
@@ -351,20 +360,20 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     wBulkSize.setLayoutData(fdBulkSize);
 
     // Replace line...
-    Label wlReplace = new Label(shell, SWT.RIGHT);
+    Label wlReplace = new Label(wGeneralComp, SWT.RIGHT);
     wlReplace.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Replace.Label"));
     PropsUi.setLook(wlReplace);
     FormData fdlReplace = new FormData();
     fdlReplace.left = new FormAttachment(0, 0);
     fdlReplace.right = new FormAttachment(middle, -margin);
-    fdlReplace.top = new FormAttachment(wBulkSize, margin * 2);
+    fdlReplace.top = new FormAttachment(wBulkSize, margin);
     wlReplace.setLayoutData(fdlReplace);
 
-    wReplace = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wReplace = new Button(wGeneralComp, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wReplace);
     FormData fdReplace = new FormData();
     fdReplace.left = new FormAttachment(middle, 0);
-    fdReplace.top = new FormAttachment(wBulkSize, margin * 2);
+    fdReplace.top = new FormAttachment(wBulkSize, margin);
     fdReplace.right = new FormAttachment(100, 0);
     wReplace.setLayoutData(fdReplace);
     wReplace.addSelectionListener(
@@ -379,20 +388,20 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
         });
 
     // Ignore line...
-    Label wlIgnore = new Label(shell, SWT.RIGHT);
+    Label wlIgnore = new Label(wGeneralComp, SWT.RIGHT);
     wlIgnore.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Ignore.Label"));
     PropsUi.setLook(wlIgnore);
     FormData fdlIgnore = new FormData();
     fdlIgnore.left = new FormAttachment(0, 0);
     fdlIgnore.right = new FormAttachment(middle, -margin);
-    fdlIgnore.top = new FormAttachment(wReplace, margin * 2);
+    fdlIgnore.top = new FormAttachment(wReplace, margin);
     wlIgnore.setLayoutData(fdlIgnore);
 
-    wIgnore = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wIgnore = new Button(wGeneralComp, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wIgnore);
     FormData fdIgnore = new FormData();
     fdIgnore.left = new FormAttachment(middle, 0);
-    fdIgnore.top = new FormAttachment(wReplace, margin * 2);
+    fdIgnore.top = new FormAttachment(wReplace, margin);
     fdIgnore.right = new FormAttachment(100, 0);
     wIgnore.setLayoutData(fdIgnore);
     wIgnore.addSelectionListener(
@@ -407,20 +416,20 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
         });
 
     // Local line...
-    Label wlLocal = new Label(shell, SWT.RIGHT);
+    Label wlLocal = new Label(wGeneralComp, SWT.RIGHT);
     wlLocal.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Local.Label"));
     PropsUi.setLook(wlLocal);
     FormData fdlLocal = new FormData();
     fdlLocal.left = new FormAttachment(0, 0);
     fdlLocal.right = new FormAttachment(middle, -margin);
-    fdlLocal.top = new FormAttachment(wIgnore, margin * 2);
+    fdlLocal.top = new FormAttachment(wIgnore, margin);
     wlLocal.setLayoutData(fdlLocal);
 
-    wLocal = new Button(shell, SWT.CHECK | SWT.LEFT);
+    wLocal = new Button(wGeneralComp, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wLocal);
     FormData fdLocal = new FormData();
     fdLocal.left = new FormAttachment(middle, 0);
-    fdLocal.top = new FormAttachment(wIgnore, margin * 2);
+    fdLocal.top = new FormAttachment(wIgnore, margin);
     fdLocal.right = new FormAttachment(100, 0);
     wLocal.setLayoutData(fdLocal);
     wLocal.addSelectionListener(
@@ -431,24 +440,41 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
           }
         });
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wSql = new Button(shell, SWT.PUSH);
-    wSql.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.SQL.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wSettingsTab.setControl(wGeneralComp);
 
-    setButtonPositions(new Button[] {wOk, wCancel, wSql}, margin, null);
+    // Tab 2: Fields to load
+    CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
+    wFieldsTab.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Tab.Fields.Label"));
 
-    // The field Table
-    Label wlReturn = new Label(shell, SWT.NONE);
+    Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wFieldsComp);
+    wFieldsComp.setLayout(tabLayout);
+
+    Label wlReturn = new Label(wFieldsComp, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.Fields.Label"));
     PropsUi.setLook(wlReturn);
     FormData fdlReturn = new FormData();
-    fdlReturn.left = new FormAttachment(0, 0);
-    fdlReturn.top = new FormAttachment(wLocal, margin);
+    fdlReturn.left = new FormAttachment(0, margin);
+    fdlReturn.top = new FormAttachment(0, 5 * margin);
     wlReturn.setLayoutData(fdlReturn);
+
+    Button wGetLU = new Button(wFieldsComp, SWT.PUSH);
+    wGetLU.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.GetFields.Label"));
+
+    Button wDoMapping = new Button(wFieldsComp, SWT.PUSH);
+    wDoMapping.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.EditMapping.Label"));
+    wDoMapping.addListener(SWT.Selection, arg0 -> generateMappings());
+
+    FormData fdDoMapping = new FormData();
+    fdDoMapping.top = new FormAttachment(0, margin);
+    fdDoMapping.right = new FormAttachment(100, -margin);
+    wDoMapping.setLayoutData(fdDoMapping);
+
+    FormData fdGetLU = new FormData();
+    fdGetLU.top = new FormAttachment(0, margin);
+    fdGetLU.right = new FormAttachment(wDoMapping, -margin);
+    wGetLU.setLayoutData(fdGetLU);
 
     int upInsCols = 3;
     int upInsRows = (input.getFields() != null ? input.getFields().size() : 1);
@@ -477,35 +503,37 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     wReturn =
         new TableView(
             variables,
-            shell,
+            wFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
             upInsRows,
             lsMod,
             props);
 
-    Button wGetLU = new Button(shell, SWT.PUSH);
-    wGetLU.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.GetFields.Label"));
-    FormData fdGetLU = new FormData();
-    fdGetLU.top = new FormAttachment(wlReturn, margin);
-    fdGetLU.right = new FormAttachment(100, 0);
-    wGetLU.setLayoutData(fdGetLU);
-
-    Button wDoMapping = new Button(shell, SWT.PUSH);
-    wDoMapping.setText(BaseMessages.getString(PKG, "MySqlBulkLoaderDialog.EditMapping.Label"));
-    FormData fdDoMapping = new FormData();
-    fdDoMapping.top = new FormAttachment(wGetLU, margin);
-    fdDoMapping.right = new FormAttachment(100, 0);
-    wDoMapping.setLayoutData(fdDoMapping);
-
-    wDoMapping.addListener(SWT.Selection, arg0 -> generateMappings());
-
     FormData fdReturn = new FormData();
-    fdReturn.left = new FormAttachment(0, 0);
-    fdReturn.top = new FormAttachment(wlReturn, margin);
-    fdReturn.right = new FormAttachment(wDoMapping, -margin);
-    fdReturn.bottom = new FormAttachment(wOk, -2 * margin);
+    fdReturn.top = new FormAttachment(wGetLU, 3 * margin);
+    fdReturn.left = new FormAttachment(0, margin);
+    fdReturn.right = new FormAttachment(100, -margin);
+    fdReturn.bottom = new FormAttachment(100, 0);
     wReturn.setLayoutData(fdReturn);
+
+    wFieldsTab.setControl(wFieldsComp);
+
+    wTabFolder.setSelection(0);
+    wTabFolder.addListener(
+        SWT.Selection,
+        e -> {
+          if (wTabFolder != null && !wTabFolder.isDisposed()) {
+            wTabFolder.layout(true, true);
+          }
+        });
+
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(wConnection, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(100, 0);
+    wTabFolder.setLayoutData(fdTabFolder);
 
     //
     // Search the fields in the background
@@ -531,10 +559,15 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    wOk.addListener(SWT.Selection, e -> ok());
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
+
     wGetLU.addListener(SWT.Selection, e -> getUpdate());
-    wSql.addListener(SWT.Selection, e -> create());
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     wbTable.addSelectionListener(
         new SelectionAdapter() {
@@ -550,7 +583,7 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
     getData();
     setTableFieldCombo();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -756,9 +789,6 @@ public class MySqlBulkLoaderDialog extends BaseTransformDialog {
 
     wReturn.setRowNums();
     wReturn.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   protected void setComboBoxes() {

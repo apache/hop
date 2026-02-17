@@ -32,9 +32,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -42,11 +40,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class CheckConnectionsDialog extends ActionDialog implements IActionDialog {
 
@@ -56,7 +51,6 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
 
   private boolean changed;
 
-  private Text wName;
   private TableView wConnections;
 
   public CheckConnectionsDialog(
@@ -71,58 +65,12 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
+    createShell("Check Neo4j Connections", action);
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText("Check Neo4j Connections");
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Add buttons first, then the list of connections dynamically sizing
-    // Put these buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wOk, wCancel,
-        },
-        margin,
-        null);
-
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText("Action name");
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
+    int middle = this.middle;
+    int margin = this.margin;
 
     Label wlConnections = new Label(shell, SWT.LEFT);
     wlConnections.setText(BaseMessages.getString(PKG, "CheckConnectionsDialog.Connections.Label"));
@@ -130,7 +78,7 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     FormData fdlConnections = new FormData();
     fdlConnections.left = new FormAttachment(0, 0);
     fdlConnections.right = new FormAttachment(middle, -margin);
-    fdlConnections.top = new FormAttachment(wName, margin);
+    fdlConnections.top = new FormAttachment(wSpacer, margin);
     wlConnections.setLayoutData(fdlConnections);
 
     String[] availableConnectionNames;
@@ -167,14 +115,20 @@ public class CheckConnectionsDialog extends ActionDialog implements IActionDialo
     fdConnections.left = new FormAttachment(0, 0);
     fdConnections.top = new FormAttachment(wlConnections, margin);
     fdConnections.right = new FormAttachment(100, 0);
-    fdConnections.bottom = new FormAttachment(wOk, -margin * 2);
     wConnections.setLayoutData(fdConnections);
 
-    getData();
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build(wConnections);
 
+    getData();
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
+  }
+
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

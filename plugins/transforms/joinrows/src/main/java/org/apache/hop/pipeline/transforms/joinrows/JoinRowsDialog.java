@@ -39,8 +39,8 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -72,44 +72,15 @@ public class JoinRowsDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "JoinRowsDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
     backupCondition = condition.clone();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "JoinRowsDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     // Connection line
     Label wlSortDir = new Label(shell, SWT.RIGHT);
@@ -118,7 +89,7 @@ public class JoinRowsDialog extends BaseTransformDialog {
     FormData fdlSortDir = new FormData();
     fdlSortDir.left = new FormAttachment(0, 0);
     fdlSortDir.right = new FormAttachment(middle, -margin);
-    fdlSortDir.top = new FormAttachment(wTransformName, margin);
+    fdlSortDir.top = new FormAttachment(lastControl, margin);
     wlSortDir.setLayoutData(fdlSortDir);
 
     Button wbSortDir = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -126,7 +97,7 @@ public class JoinRowsDialog extends BaseTransformDialog {
     wbSortDir.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Browse.Button"));
     FormData fdbSortDir = new FormData();
     fdbSortDir.right = new FormAttachment(100, 0);
-    fdbSortDir.top = new FormAttachment(wTransformName, margin);
+    fdbSortDir.top = new FormAttachment(wSpacer, margin);
     wbSortDir.setLayoutData(fdbSortDir);
 
     wSortDir = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -135,7 +106,7 @@ public class JoinRowsDialog extends BaseTransformDialog {
     wSortDir.addModifyListener(lsMod);
     FormData fdSortDir = new FormData();
     fdSortDir.left = new FormAttachment(middle, 0);
-    fdSortDir.top = new FormAttachment(wTransformName, margin);
+    fdSortDir.top = new FormAttachment(wSpacer, margin);
     fdSortDir.right = new FormAttachment(wbSortDir, -margin);
     wSortDir.setLayoutData(fdSortDir);
 
@@ -152,14 +123,14 @@ public class JoinRowsDialog extends BaseTransformDialog {
     FormData fdlPrefix = new FormData();
     fdlPrefix.left = new FormAttachment(0, 0);
     fdlPrefix.right = new FormAttachment(middle, -margin);
-    fdlPrefix.top = new FormAttachment(wbSortDir, margin * 2);
+    fdlPrefix.top = new FormAttachment(wbSortDir, margin);
     wlPrefix.setLayoutData(fdlPrefix);
     wPrefix = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wPrefix);
     wPrefix.addModifyListener(lsMod);
     FormData fdPrefix = new FormData();
     fdPrefix.left = new FormAttachment(middle, 0);
-    fdPrefix.top = new FormAttachment(wbSortDir, margin * 2);
+    fdPrefix.top = new FormAttachment(wbSortDir, margin);
     fdPrefix.right = new FormAttachment(100, 0);
     wPrefix.setLayoutData(fdPrefix);
     wPrefix.setText(BaseMessages.getString(PKG, "JoinRowsDialog.Prefix.Label"));
@@ -171,14 +142,14 @@ public class JoinRowsDialog extends BaseTransformDialog {
     FormData fdlCache = new FormData();
     fdlCache.left = new FormAttachment(0, 0);
     fdlCache.right = new FormAttachment(middle, -margin);
-    fdlCache.top = new FormAttachment(wPrefix, margin * 2);
+    fdlCache.top = new FormAttachment(wPrefix, margin);
     wlCache.setLayoutData(fdlCache);
     wCache = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCache);
     wCache.addModifyListener(lsMod);
     FormData fdCache = new FormData();
     fdCache.left = new FormAttachment(middle, 0);
-    fdCache.top = new FormAttachment(wPrefix, margin * 2);
+    fdCache.top = new FormAttachment(wPrefix, margin);
     fdCache.right = new FormAttachment(100, 0);
     wCache.setLayoutData(fdCache);
 
@@ -228,30 +199,20 @@ public class JoinRowsDialog extends BaseTransformDialog {
           ke);
     }
 
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     wCondition = new ConditionEditor(shell, SWT.BORDER, condition, inputfields);
 
     FormData fdCondition = new FormData();
     fdCondition.left = new FormAttachment(0, 0);
     fdCondition.top = new FormAttachment(wlCondition, margin);
     fdCondition.right = new FormAttachment(100, 0);
-    fdCondition.bottom = new FormAttachment(wOk, -2 * margin);
+    fdCondition.bottom = new FormAttachment(wOk, -margin);
+    fdCondition.height = 200;
     wCondition.setLayoutData(fdCondition);
     wCondition.addModifyListener(lsMod);
 
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -272,9 +233,6 @@ public class JoinRowsDialog extends BaseTransformDialog {
     if (input.getMainTransform() != null) {
       wMainTransform.setText(input.getLookupTransformName());
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

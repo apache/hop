@@ -63,7 +63,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class SelectValuesDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SelectValuesMeta.class;
@@ -120,11 +119,9 @@ public class SelectValuesDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "SelectValuesDialog.Shell.Label"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     SelectionListener lsSel =
         new SelectionAdapter() {
@@ -133,49 +130,8 @@ public class SelectValuesDialog extends BaseTransformDialog {
             input.setChanged();
           }
         };
-
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Shell.Label"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "SelectValuesDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    // Buttons go at the bottom.  The tabs in between
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null); // null means bottom of dialog
 
     // The folders!
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
@@ -232,6 +188,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
           }
         });
 
+    Button wGetSelect = new Button(wSelectComp, SWT.PUSH);
+    wGetSelect.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetSelect.Button"));
+    wGetSelect.addListener(SWT.Selection, e -> get());
+    setButtonPositions(new Button[] {wGetSelect}, margin, null);
+
     Label wlFields = new Label(wSelectComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
@@ -281,21 +242,17 @@ public class SelectValuesDialog extends BaseTransformDialog {
             lsMod,
             props);
 
-    Button wGetSelect = new Button(wSelectComp, SWT.PUSH);
-    wGetSelect.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetSelect.Button"));
-    wGetSelect.addListener(SWT.Selection, e -> get());
-    FormData fdGetSelect = new FormData();
-    fdGetSelect.right = new FormAttachment(100, 0);
-    // vertically center the button relative to the table (wFields)
-    fdGetSelect.top = new FormAttachment(wFields, 0, SWT.CENTER);
-    wGetSelect.setLayoutData(fdGetSelect);
-
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(wGetSelect, -margin);
-    fdFields.bottom = new FormAttachment(wlUnspecified, -2 * margin);
+    fdFields.right = new FormAttachment(100, 0);
+    fdFields.bottom = new FormAttachment(wlUnspecified, -margin);
     wFields.setLayoutData(fdFields);
+
+    fdlUnspecified.bottom = new FormAttachment(wGetSelect, -margin);
+    wlUnspecified.setLayoutData(fdlUnspecified);
+    fdUnspecified.bottom = new FormAttachment(wGetSelect, -margin);
+    wUnspecified.setLayoutData(fdUnspecified);
 
     FormData fdSelectComp = new FormData();
     fdSelectComp.left = new FormAttachment(0, 0);
@@ -325,6 +282,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
     Composite wRemoveComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wRemoveComp);
     wRemoveComp.setLayout(contentLayout);
+
+    Button wGetRemove = new Button(wRemoveComp, SWT.PUSH);
+    wGetRemove.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetRemove.Button"));
+    wGetRemove.addListener(SWT.Selection, e -> get());
+    setButtonPositions(new Button[] {wGetRemove}, margin, null);
 
     Label wlRemove = new Label(wRemoveComp, SWT.NONE);
     wlRemove.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Remove.Label"));
@@ -358,19 +320,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
             lsMod,
             props);
 
-    Button wGetRemove = new Button(wRemoveComp, SWT.PUSH);
-    wGetRemove.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetRemove.Button"));
-    wGetRemove.addListener(SWT.Selection, e -> get());
-    FormData fdGetRemove = new FormData();
-    fdGetRemove.right = new FormAttachment(100, 0);
-    fdGetRemove.top = new FormAttachment(50, 0);
-    wGetRemove.setLayoutData(fdGetRemove);
-
     FormData fdRemove = new FormData();
     fdRemove.left = new FormAttachment(0, 0);
     fdRemove.top = new FormAttachment(wlRemove, margin);
-    fdRemove.right = new FormAttachment(wGetRemove, -margin);
-    fdRemove.bottom = new FormAttachment(100, 0);
+    fdRemove.right = new FormAttachment(100, 0);
+    fdRemove.bottom = new FormAttachment(wGetRemove, -margin);
     wRemove.setLayoutData(fdRemove);
 
     FormData fdRemoveComp = new FormData();
@@ -402,6 +356,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
     metaLayout.marginWidth = margin;
     metaLayout.marginHeight = margin;
     wMetaComp.setLayout(metaLayout);
+
+    Button wGetMeta = new Button(wMetaComp, SWT.PUSH);
+    wGetMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetMeta.Button"));
+    wGetMeta.addListener(SWT.Selection, e -> get());
+    setButtonPositions(new Button[] {wGetMeta}, margin, null);
 
     Label wlMeta = new Label(wMetaComp, SWT.NONE);
     wlMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Meta.Label"));
@@ -502,19 +461,11 @@ public class SelectValuesDialog extends BaseTransformDialog {
             lsMod,
             props);
 
-    Button wGetMeta = new Button(wMetaComp, SWT.PUSH);
-    wGetMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetMeta.Button"));
-    wGetMeta.addListener(SWT.Selection, e -> get());
-    FormData fdGetMeta = new FormData();
-    fdGetMeta.right = new FormAttachment(100, 0);
-    fdGetMeta.top = new FormAttachment(50, 0);
-    wGetMeta.setLayoutData(fdGetMeta);
-
     FormData fdMeta = new FormData();
     fdMeta.left = new FormAttachment(0, 0);
     fdMeta.top = new FormAttachment(wlMeta, margin);
-    fdMeta.right = new FormAttachment(wGetMeta, -margin);
-    fdMeta.bottom = new FormAttachment(100, 0);
+    fdMeta.right = new FormAttachment(100, 0);
+    fdMeta.bottom = new FormAttachment(wGetMeta, -margin);
     wMeta.setLayoutData(fdMeta);
 
     FormData fdMetaComp = new FormData();
@@ -533,9 +484,9 @@ public class SelectValuesDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add a listener to update combo boxes when switching tabs
@@ -608,7 +559,7 @@ public class SelectValuesDialog extends BaseTransformDialog {
                 setComboBoxes();
               }
             });
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -736,9 +687,6 @@ public class SelectValuesDialog extends BaseTransformDialog {
       wMeta.optWidth(true);
       wTabFolder.setSelection(2);
     }
-
-    wTransformName.setFocus();
-    wTransformName.selectAll();
   }
 
   private String[] getCharsets() {

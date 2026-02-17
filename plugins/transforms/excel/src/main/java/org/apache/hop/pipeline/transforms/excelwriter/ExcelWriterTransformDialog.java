@@ -189,11 +189,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "ExcelWriterDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     SelectionAdapter lsSel =
         new SelectionAdapter() {
@@ -204,46 +202,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
         };
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     ScrolledComposite sc = new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL);
 
@@ -373,7 +331,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     PropsUi.setLook(wlDoNotOpenNewFileInit);
     FormData fdlDoNotOpenNewFileInit = new FormData();
     fdlDoNotOpenNewFileInit.left = new FormAttachment(0, 0);
-    fdlDoNotOpenNewFileInit.top = new FormAttachment(wCreateParentFolder, 2 * margin, margin);
+    fdlDoNotOpenNewFileInit.top = new FormAttachment(wCreateParentFolder, margin, margin);
     fdlDoNotOpenNewFileInit.right = new FormAttachment(middle, -margin);
     wlDoNotOpenNewFileInit.setLayoutData(fdlDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit = new Button(fileGroup, SWT.CHECK);
@@ -575,7 +533,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlDateTimeFormat.top = new FormAttachment(wSpecifyFormat, 2 * margin);
+    fdlDateTimeFormat.top = new FormAttachment(wSpecifyFormat, margin);
     fdlDateTimeFormat.right = new FormAttachment(middle, -margin);
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(fileGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -584,7 +542,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
-    fdDateTimeFormat.top = new FormAttachment(wSpecifyFormat, 2 * margin);
+    fdDateTimeFormat.top = new FormAttachment(wSpecifyFormat, margin);
     fdDateTimeFormat.right = new FormAttachment(100, 0);
     wDateTimeFormat.setLayoutData(fdDateTimeFormat);
     for (String dat : dats) {
@@ -632,7 +590,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     PropsUi.setLook(wlIfFileExists);
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
-    fdlIfFileExists.top = new FormAttachment(wbShowFiles, 2 * margin, margin);
+    fdlIfFileExists.top = new FormAttachment(wbShowFiles, margin, margin);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
     wIfFileExists = new CCombo(fileGroup, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY);
@@ -651,7 +609,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
     FormData fdIfFileExists = new FormData();
     fdIfFileExists.left = new FormAttachment(middle, 0);
-    fdIfFileExists.top = new FormAttachment(wbShowFiles, 2 * margin, margin);
+    fdIfFileExists.top = new FormAttachment(wbShowFiles, margin, margin);
     fdIfFileExists.right = new FormAttachment(100, 0);
     wIfFileExists.setLayoutData(fdIfFileExists);
 
@@ -661,7 +619,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddToResult);
     FormData fdlAddToResult = new FormData();
     fdlAddToResult.left = new FormAttachment(0, 0);
-    fdlAddToResult.top = new FormAttachment(wIfFileExists, 2 * margin, margin);
+    fdlAddToResult.top = new FormAttachment(wIfFileExists, margin, margin);
     fdlAddToResult.right = new FormAttachment(middle, -margin);
     wlAddToResult.setLayoutData(fdlAddToResult);
     wAddToResult = new Button(fileGroup, SWT.CHECK);
@@ -1489,7 +1447,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wIgnoreFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wGet, -margin * 2);
+    fdFields.bottom = new FormAttachment(wGet, -margin);
     wFields.setLayoutData(fdFields);
     wFields.addModifyListener(lsMod);
 
@@ -1535,9 +1493,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
     FormData fdSc = new FormData();
     fdSc.left = new FormAttachment(0, 0);
-    fdSc.top = new FormAttachment(wTransformName, margin);
+    fdSc.top = new FormAttachment(wSpacer, 0);
     fdSc.right = new FormAttachment(100, 0);
-    fdSc.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
     sc.setLayoutData(fdSc);
 
     sc.setContent(wTabFolder);
@@ -1644,7 +1602,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
 
     // restore optimal column widths
     wFields.optWidth(true);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -1913,9 +1871,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
     }
 
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void getFields() {

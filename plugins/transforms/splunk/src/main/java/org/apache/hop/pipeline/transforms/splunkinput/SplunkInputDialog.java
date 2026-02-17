@@ -52,7 +52,6 @@ import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -69,8 +68,6 @@ public class SplunkInputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       SplunkInputMeta.class; // for i18n purposes, needed by Translator2!!
-
-  private Text wTransformName;
 
   private MetaSelectionLine<SplunkConnection> wConnection;
 
@@ -91,17 +88,10 @@ public class SplunkInputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "SplunkInputDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
-    FormLayout shellLayout = new FormLayout();
-    shell.setLayout(shellLayout);
-    shell.setText("Splunk Input");
-
-    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     ScrolledComposite wScrolledComposite =
@@ -111,8 +101,8 @@ public class SplunkInputDialog extends BaseTransformDialog {
     FormData fdSComposite = new FormData();
     fdSComposite.left = new FormAttachment(0, 0);
     fdSComposite.right = new FormAttachment(100, 0);
-    fdSComposite.top = new FormAttachment(0, 0);
-    fdSComposite.bottom = new FormAttachment(100, 0);
+    fdSComposite.top = new FormAttachment(wSpacer, 0);
+    fdSComposite.bottom = new FormAttachment(wOk, -margin);
     wScrolledComposite.setLayoutData(fdSComposite);
 
     Composite wComposite = new Composite(wScrolledComposite, SWT.NONE);
@@ -129,40 +119,7 @@ public class SplunkInputDialog extends BaseTransformDialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
     wComposite.setLayout(formLayout);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Some buttons at the bottom
-    wOk = new Button(wComposite, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(wComposite, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wCancel = new Button(wComposite, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(wComposite, SWT.RIGHT);
-    wlTransformName.setText("Transform name");
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(wComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wSpacer;
 
     wConnection =
         new MetaSelectionLine<>(
@@ -174,7 +131,6 @@ public class SplunkInputDialog extends BaseTransformDialog {
             "Splunk Connection",
             "Select, create or edit a Splunk Connection");
     PropsUi.setLook(wConnection);
-    wConnection.addModifyListener(lsMod);
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
     fdConnection.right = new FormAttachment(100, 0);
@@ -193,12 +149,12 @@ public class SplunkInputDialog extends BaseTransformDialog {
     wQuery = new Text(wComposite, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     wQuery.setFont(GuiResource.getInstance().getFontFixed());
     PropsUi.setLook(wQuery);
-    wQuery.addModifyListener(lsMod);
     FormData fdQuery = new FormData();
     fdQuery.left = new FormAttachment(0, 0);
     fdQuery.right = new FormAttachment(100, 0);
     fdQuery.top = new FormAttachment(wlQuery, margin);
     fdQuery.bottom = new FormAttachment(60, 0);
+    fdQuery.height = 200;
     wQuery.setLayoutData(fdQuery);
     lastControl = wQuery;
 
@@ -242,15 +198,14 @@ public class SplunkInputDialog extends BaseTransformDialog {
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             returnColumns,
             input.getReturnValues().size(),
-            lsMod,
+            null,
             props);
     PropsUi.setLook(wReturns);
-    wReturns.addModifyListener(lsMod);
     FormData fdReturns = new FormData();
     fdReturns.left = new FormAttachment(0, 0);
     fdReturns.right = new FormAttachment(100, 0);
     fdReturns.top = new FormAttachment(lastControl, margin);
-    fdReturns.bottom = new FormAttachment(wOk, -2 * margin);
+    fdReturns.bottom = new FormAttachment(100, -margin);
     wReturns.setLayoutData(fdReturns);
 
     wComposite.pack();
@@ -265,7 +220,7 @@ public class SplunkInputDialog extends BaseTransformDialog {
 
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -278,8 +233,6 @@ public class SplunkInputDialog extends BaseTransformDialog {
   }
 
   public void getData() {
-
-    wTransformName.setText(Const.NVL(transformName, ""));
     wConnection.setText(Const.NVL(input.getConnectionName(), ""));
 
     // List of connections...

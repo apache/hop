@@ -28,9 +28,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -45,7 +43,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Delete Files action settings. */
 public class ActionAddResultFilenamesDialog extends ActionDialog {
@@ -53,8 +50,6 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionAddResultFilenames.Filetype.All")};
-
-  private Text wName;
 
   private Label wlFilename;
   private Button wbFilename;
@@ -96,50 +91,11 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionAddResultFilenames.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionAddResultFilenames.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     // SETTINGS grouping?
     // ////////////////////////
@@ -161,7 +117,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
-    fdlIncludeSubfolders.top = new FormAttachment(0, 2 * margin);
+    fdlIncludeSubfolders.top = new FormAttachment(0, margin);
     fdlIncludeSubfolders.right = new FormAttachment(middle, -margin);
     wlIncludeSubfolders.setLayoutData(fdlIncludeSubfolders);
     wIncludeSubfolders = new Button(wgSettings, SWT.CHECK);
@@ -186,7 +142,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
+    fdlPrevious.top = new FormAttachment(wlIncludeSubfolders, margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wgSettings, SWT.CHECK);
@@ -215,7 +171,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlDeleteAllBefore);
     FormData fdlDeleteAllBefore = new FormData();
     fdlDeleteAllBefore.left = new FormAttachment(0, 0);
-    fdlDeleteAllBefore.top = new FormAttachment(wlPrevious, 2 * margin);
+    fdlDeleteAllBefore.top = new FormAttachment(wlPrevious, margin);
     fdlDeleteAllBefore.right = new FormAttachment(middle, -margin);
     wlDeleteAllBefore.setLayoutData(fdlDeleteAllBefore);
     wDeleteAllBefore = new Button(wgSettings, SWT.CHECK);
@@ -237,7 +193,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
-    fdSettings.top = new FormAttachment(wName, margin);
+    fdSettings.top = new FormAttachment(wSpacer, margin);
     fdSettings.right = new FormAttachment(100, -margin);
     wgSettings.setLayoutData(fdSettings);
 
@@ -251,7 +207,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wgSettings, 2 * margin);
+    fdlFilename.top = new FormAttachment(wgSettings, margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
 
@@ -290,8 +246,8 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.top = new FormAttachment(wgSettings, 2 * margin);
-    fdFilename.right = new FormAttachment(wbaFilename, -2 * margin);
+    fdFilename.top = new FormAttachment(wgSettings, margin);
+    fdFilename.right = new FormAttachment(wbaFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
@@ -324,7 +280,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, margin);
-    fdFilemask.right = new FormAttachment(wbaFilename, -2 * margin);
+    fdFilemask.right = new FormAttachment(wbaFilename, -margin);
     wFilemask.setLayoutData(fdFilemask);
 
     wlFields = new Label(shell, SWT.NONE);
@@ -390,8 +346,8 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(wbdFilename, -2 * margin);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.right = new FormAttachment(wbdFilename, -margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     wlFields.setEnabled(!action.isArgFromPrevious());
@@ -444,6 +400,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
 
     getData();
     setPrevious();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -485,9 +442,11 @@ public class ActionAddResultFilenamesDialog extends ActionDialog {
     wPrevious.setSelection(action.isArgFromPrevious());
     wIncludeSubfolders.setSelection(action.isIncludeSubFolders());
     wDeleteAllBefore.setSelection(action.isDeleteAllBefore());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

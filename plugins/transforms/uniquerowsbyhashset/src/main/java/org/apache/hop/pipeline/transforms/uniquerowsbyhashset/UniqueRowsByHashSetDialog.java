@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
   private static final Class<?> PKG = UniqueRowsByHashSetMeta.class;
@@ -78,44 +77,12 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "UniqueRowsByHashSetDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "UniqueRowsByHashSetDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "UniqueRowsByHashSetDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // ///////////////////////////////
     // START OF Settings GROUP //
@@ -136,7 +103,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
     PropsUi.setLook(wlStoreValues);
     FormData fdlStoreValues = new FormData();
     fdlStoreValues.left = new FormAttachment(0, 0);
-    fdlStoreValues.top = new FormAttachment(wTransformName, margin);
+    fdlStoreValues.top = new FormAttachment(wSpacer, margin);
     fdlStoreValues.right = new FormAttachment(middle, -margin);
     wlStoreValues.setLayoutData(fdlStoreValues);
     wStoreValues = new Button(wSettings, SWT.CHECK);
@@ -201,22 +168,13 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
-    fdSettings.top = new FormAttachment(wTransformName, margin);
+    fdSettings.top = new FormAttachment(wSpacer, margin);
     fdSettings.right = new FormAttachment(100, -margin);
     wSettings.setLayoutData(fdSettings);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
     // ///////////////////////////////////////////////////////////
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "UniqueRowsByHashSetDialog.Get.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "UniqueRowsByHashSetDialog.Fields.Label"));
@@ -251,7 +209,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     //
@@ -276,15 +234,10 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wGet.addListener(SWT.Selection, e -> get());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     getData();
     setErrorDesc();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -317,9 +270,6 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
     }
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

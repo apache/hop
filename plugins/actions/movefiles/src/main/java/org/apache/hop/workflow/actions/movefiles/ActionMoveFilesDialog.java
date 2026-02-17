@@ -33,9 +33,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -54,7 +52,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Move Files action settings. */
 public class ActionMoveFilesDialog extends ActionDialog {
@@ -64,8 +61,6 @@ public class ActionMoveFilesDialog extends ActionDialog {
       new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")};
   public static final String CONST_OVERWRITE_FILE = "overwrite_file";
   public static final String CONST_UNIQUE_NAME = "unique_name";
-
-  private Text wName;
 
   private Label wlMoveEmptyFolders;
   private Button wMoveEmptyFolders;
@@ -152,51 +147,11 @@ public class ActionMoveFilesDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionMoveFiles.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, event -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, event -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionMoveFiles.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -237,7 +192,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment(0, 0);
-    fdlIncludeSubfolders.top = new FormAttachment(wName, margin);
+    fdlIncludeSubfolders.top = new FormAttachment(0, margin);
     fdlIncludeSubfolders.right = new FormAttachment(middle, -margin);
     wlIncludeSubfolders.setLayoutData(fdlIncludeSubfolders);
     wIncludeSubfolders = new Button(wSettings, SWT.CHECK);
@@ -265,7 +220,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlMoveEmptyFolders);
     FormData fdlMoveEmptyFolders = new FormData();
     fdlMoveEmptyFolders.left = new FormAttachment(0, 0);
-    fdlMoveEmptyFolders.top = new FormAttachment(wlIncludeSubfolders, 2 * margin);
+    fdlMoveEmptyFolders.top = new FormAttachment(wlIncludeSubfolders, margin);
     fdlMoveEmptyFolders.right = new FormAttachment(middle, -margin);
     wlMoveEmptyFolders.setLayoutData(fdlMoveEmptyFolders);
     wMoveEmptyFolders = new Button(wSettings, SWT.CHECK);
@@ -285,7 +240,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlSimulate);
     FormData fdlSimulate = new FormData();
     fdlSimulate.left = new FormAttachment(0, 0);
-    fdlSimulate.top = new FormAttachment(wlMoveEmptyFolders, 2 * margin);
+    fdlSimulate.top = new FormAttachment(wlMoveEmptyFolders, margin);
     fdlSimulate.right = new FormAttachment(middle, -margin);
     wlSimulate.setLayoutData(fdlSimulate);
     wSimulate = new Button(wSettings, SWT.CHECK);
@@ -304,7 +259,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment(0, 0);
-    fdlPrevious.top = new FormAttachment(wlSimulate, 2 * margin);
+    fdlPrevious.top = new FormAttachment(wlSimulate, margin);
     fdlPrevious.right = new FormAttachment(middle, -margin);
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
@@ -319,7 +274,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     wPrevious.addListener(SWT.Selection, event -> refreshArgFromPrevious());
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
-    fdSettings.top = new FormAttachment(wName, margin);
+    fdSettings.top = new FormAttachment(0, margin);
     fdSettings.right = new FormAttachment(100, -margin);
     wSettings.setLayoutData(fdSettings);
 
@@ -462,7 +417,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlDestinationIsAFile);
     FormData fdlDestinationIsAFile = new FormData();
     fdlDestinationIsAFile.left = new FormAttachment(0, 0);
-    fdlDestinationIsAFile.top = new FormAttachment(wlCreateDestinationFolder, 2 * margin);
+    fdlDestinationIsAFile.top = new FormAttachment(wlCreateDestinationFolder, margin);
     fdlDestinationIsAFile.right = new FormAttachment(middle, -margin);
     wlDestinationIsAFile.setLayoutData(fdlDestinationIsAFile);
     wDestinationIsAFile = new Button(wDestinationFile, SWT.CHECK);
@@ -483,7 +438,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlDoNotKeepFolderStructure);
     FormData fdlDoNotKeepFolderStructure = new FormData();
     fdlDoNotKeepFolderStructure.left = new FormAttachment(0, 0);
-    fdlDoNotKeepFolderStructure.top = new FormAttachment(wlDestinationIsAFile, 2 * margin);
+    fdlDoNotKeepFolderStructure.top = new FormAttachment(wlDestinationIsAFile, margin);
     fdlDoNotKeepFolderStructure.right = new FormAttachment(middle, -margin);
     wlDoNotKeepFolderStructure.setLayoutData(fdlDoNotKeepFolderStructure);
     wDoNotKeepFolderStructure = new Button(wDestinationFile, SWT.CHECK);
@@ -503,7 +458,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlAddDate);
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment(0, 0);
-    fdlAddDate.top = new FormAttachment(wlDoNotKeepFolderStructure, 2 * margin);
+    fdlAddDate.top = new FormAttachment(wlDoNotKeepFolderStructure, margin);
     fdlAddDate.right = new FormAttachment(middle, -margin);
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button(wDestinationFile, SWT.CHECK);
@@ -528,7 +483,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlAddTime);
     FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment(0, 0);
-    fdlAddTime.top = new FormAttachment(wlAddDate, 2 * margin);
+    fdlAddTime.top = new FormAttachment(wlAddDate, margin);
     fdlAddTime.right = new FormAttachment(middle, -margin);
     wlAddTime.setLayoutData(fdlAddTime);
     wAddTime = new Button(wDestinationFile, SWT.CHECK);
@@ -554,7 +509,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlSpecifyFormat);
     FormData fdlSpecifyFormat = new FormData();
     fdlSpecifyFormat.left = new FormAttachment(0, 0);
-    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, 2 * margin);
+    fdlSpecifyFormat.top = new FormAttachment(wlAddTime, margin);
     fdlSpecifyFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyFormat.setLayoutData(fdlSpecifyFormat);
     wSpecifyFormat = new Button(wDestinationFile, SWT.CHECK);
@@ -582,7 +537,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlDateTimeFormat);
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdlDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdlDateTimeFormat.right = new FormAttachment(middle, -margin);
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo(wDestinationFile, SWT.BORDER | SWT.READ_ONLY);
@@ -591,7 +546,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     wDateTimeFormat.addModifyListener(lsMod);
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment(middle, 0);
-    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, 2 * margin);
+    fdDateTimeFormat.top = new FormAttachment(wlSpecifyFormat, margin);
     fdDateTimeFormat.right = new FormAttachment(100, 0);
     wDateTimeFormat.setLayoutData(fdDateTimeFormat);
     // Prepare a list of possible DateTimeFormats...
@@ -628,7 +583,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     FormData fdlIfFileExists = new FormData();
     fdlIfFileExists.left = new FormAttachment(0, 0);
     fdlIfFileExists.right = new FormAttachment(middle, -margin);
-    fdlIfFileExists.top = new FormAttachment(wlAddDateBeforeExtension, 2 * margin);
+    fdlIfFileExists.top = new FormAttachment(wlAddDateBeforeExtension, margin);
     wlIfFileExists.setLayoutData(fdlIfFileExists);
 
     wIfFileExists = new CCombo(wDestinationFile, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -646,7 +601,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wIfFileExists);
     FormData fdIfFileExists = new FormData();
     fdIfFileExists.left = new FormAttachment(middle, 0);
-    fdIfFileExists.top = new FormAttachment(wlAddDateBeforeExtension, 2 * margin);
+    fdIfFileExists.top = new FormAttachment(wlAddDateBeforeExtension, margin);
     fdIfFileExists.right = new FormAttachment(100, 0);
     wIfFileExists.setLayoutData(fdIfFileExists);
     wIfFileExists.addSelectionListener(
@@ -662,7 +617,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
 
     FormData fdDestinationFile = new FormData();
     fdDestinationFile.left = new FormAttachment(0, margin);
-    fdDestinationFile.top = new FormAttachment(wName, margin);
+    fdDestinationFile.top = new FormAttachment(0, margin);
     fdDestinationFile.right = new FormAttachment(100, -margin);
     wDestinationFile.setLayoutData(fdDestinationFile);
 
@@ -746,7 +701,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlAddMovedDate);
     FormData fdlAddMovedDate = new FormData();
     fdlAddMovedDate.left = new FormAttachment(0, 0);
-    fdlAddMovedDate.top = new FormAttachment(wlCreateMoveToFolder, 2 * margin);
+    fdlAddMovedDate.top = new FormAttachment(wlCreateMoveToFolder, margin);
     fdlAddMovedDate.right = new FormAttachment(middle, -margin);
     wlAddMovedDate.setLayoutData(fdlAddMovedDate);
     wAddMovedDate = new Button(wMoveToGroup, SWT.CHECK);
@@ -772,7 +727,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlAddMovedTime);
     FormData fdlAddMovedTime = new FormData();
     fdlAddMovedTime.left = new FormAttachment(0, 0);
-    fdlAddMovedTime.top = new FormAttachment(wlAddMovedDate, 2 * margin);
+    fdlAddMovedTime.top = new FormAttachment(wlAddMovedDate, margin);
     fdlAddMovedTime.right = new FormAttachment(middle, -margin);
     wlAddMovedTime.setLayoutData(fdlAddMovedTime);
     wAddMovedTime = new Button(wMoveToGroup, SWT.CHECK);
@@ -800,7 +755,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlSpecifyMoveFormat);
     FormData fdlSpecifyMoveFormat = new FormData();
     fdlSpecifyMoveFormat.left = new FormAttachment(0, 0);
-    fdlSpecifyMoveFormat.top = new FormAttachment(wlAddMovedTime, 2 * margin);
+    fdlSpecifyMoveFormat.top = new FormAttachment(wlAddMovedTime, margin);
     fdlSpecifyMoveFormat.right = new FormAttachment(middle, -margin);
     wlSpecifyMoveFormat.setLayoutData(fdlSpecifyMoveFormat);
     wSpecifyMoveFormat = new Button(wMoveToGroup, SWT.CHECK);
@@ -829,7 +784,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wlMovedDateTimeFormat);
     FormData fdlMovedDateTimeFormat = new FormData();
     fdlMovedDateTimeFormat.left = new FormAttachment(0, 0);
-    fdlMovedDateTimeFormat.top = new FormAttachment(wlSpecifyMoveFormat, 2 * margin);
+    fdlMovedDateTimeFormat.top = new FormAttachment(wlSpecifyMoveFormat, margin);
     fdlMovedDateTimeFormat.right = new FormAttachment(middle, -margin);
     wlMovedDateTimeFormat.setLayoutData(fdlMovedDateTimeFormat);
     wMovedDateTimeFormat = new CCombo(wMoveToGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -838,7 +793,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     wMovedDateTimeFormat.addModifyListener(lsMod);
     FormData fdMovedDateTimeFormat = new FormData();
     fdMovedDateTimeFormat.left = new FormAttachment(middle, 0);
-    fdMovedDateTimeFormat.top = new FormAttachment(wlSpecifyMoveFormat, 2 * margin);
+    fdMovedDateTimeFormat.top = new FormAttachment(wlSpecifyMoveFormat, margin);
     fdMovedDateTimeFormat.right = new FormAttachment(100, 0);
     wMovedDateTimeFormat.setLayoutData(fdMovedDateTimeFormat);
 
@@ -876,7 +831,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     FormData fdlIfMovedFileExists = new FormData();
     fdlIfMovedFileExists.left = new FormAttachment(0, 0);
     fdlIfMovedFileExists.right = new FormAttachment(middle, -margin);
-    fdlIfMovedFileExists.top = new FormAttachment(wlAddMovedDateBeforeExtension, 2 * margin);
+    fdlIfMovedFileExists.top = new FormAttachment(wlAddMovedDateBeforeExtension, margin);
     wlIfMovedFileExists.setLayoutData(fdlIfMovedFileExists);
     wIfMovedFileExists = new CCombo(wMoveToGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wIfMovedFileExists.add(
@@ -891,7 +846,7 @@ public class ActionMoveFilesDialog extends ActionDialog {
     PropsUi.setLook(wIfMovedFileExists);
     FormData fdIfMovedFileExists = new FormData();
     fdIfMovedFileExists.left = new FormAttachment(middle, 0);
-    fdIfMovedFileExists.top = new FormAttachment(wlAddMovedDateBeforeExtension, 2 * margin);
+    fdIfMovedFileExists.top = new FormAttachment(wlAddMovedDateBeforeExtension, margin);
     fdIfMovedFileExists.right = new FormAttachment(100, 0);
     wIfMovedFileExists.setLayoutData(fdIfMovedFileExists);
 
@@ -1075,12 +1030,13 @@ public class ActionMoveFilesDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
+    focusActionName();
     checkIncludeSubFolders();
     activeSuccessCondition();
     setDateTimeFormat();
@@ -1306,9 +1262,11 @@ public class ActionMoveFilesDialog extends ActionDialog {
       wMovedDateTimeFormat.setText(action.getMovedDateTimeFormat());
     }
     wAddMovedDateBeforeExtension.setSelection(action.isAddMovedDateBeforeExtension());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

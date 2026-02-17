@@ -85,7 +85,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class SalesforceInputDialog extends SalesforceTransformDialog {
 
@@ -152,9 +151,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
   // Connection group
   private Group wConnectionGroup;
 
-  // Layout margin
-  private int margin;
-
   private Label wlCondition;
   private StyledTextComp wCondition;
   private Label wlQuery;
@@ -197,12 +193,10 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
   @Override
   public String open() {
-    Group wSettingsGroup;
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "SalesforceInputDialog.DialogTitle"));
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    Group wSettingsGroup;
 
     ModifyListener lsMod = e -> input.setChanged();
 
@@ -216,58 +210,15 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    this.margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    // THE BUTTONS at the bottom...
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_OK));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.Button.PreviewRows"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
-
     // The tabfolder in between the name and the buttons...
     //
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // ////////////////////////
@@ -409,7 +360,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     PropsUi.setLook(wlSpecifyQuery);
     FormData fdlSpecifyQuery = new FormData();
     fdlSpecifyQuery.left = new FormAttachment(0, 0);
-    fdlSpecifyQuery.top = new FormAttachment(wConnectionGroup, 2 * margin);
+    fdlSpecifyQuery.top = new FormAttachment(wConnectionGroup, margin);
     fdlSpecifyQuery.right = new FormAttachment(middle, -margin);
     wlSpecifyQuery.setLayoutData(fdlSpecifyQuery);
     wSpecifyQuery = new Button(wSettingsGroup, SWT.CHECK);
@@ -435,7 +386,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     PropsUi.setLook(wlModule);
     FormData fdlModule = new FormData();
     fdlModule.left = new FormAttachment(0, 0);
-    fdlModule.top = new FormAttachment(wlSpecifyQuery, 2 * margin);
+    fdlModule.top = new FormAttachment(wlSpecifyQuery, margin);
     fdlModule.right = new FormAttachment(middle, -margin);
     wlModule.setLayoutData(fdlModule);
     wModule = new ComboVar(variables, wSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -555,7 +506,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     PropsUi.setLook(wlQuery);
     FormData fdlQuery = new FormData();
     fdlQuery.left = new FormAttachment(0, -margin);
-    fdlQuery.top = new FormAttachment(wlSpecifyQuery, 2 * margin);
+    fdlQuery.top = new FormAttachment(wlSpecifyQuery, margin);
     fdlQuery.right = new FormAttachment(middle, -margin);
     wlQuery.setLayoutData(fdlQuery);
 
@@ -568,7 +519,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wQuery.addModifyListener(lsMod);
     FormData fdQuery = new FormData();
     fdQuery.left = new FormAttachment(middle, 0);
-    fdQuery.top = new FormAttachment(wlSpecifyQuery, 2 * margin);
+    fdQuery.top = new FormAttachment(wlSpecifyQuery, margin);
     fdQuery.right = new FormAttachment(100, -margin);
     fdQuery.bottom = new FormAttachment(wlPosition, -margin);
     wQuery.setLayoutData(fdQuery);
@@ -677,7 +628,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     FormData fdlRecordsFilter = new FormData();
     fdlRecordsFilter.left = new FormAttachment(0, 0);
     fdlRecordsFilter.right = new FormAttachment(middle, -margin);
-    fdlRecordsFilter.top = new FormAttachment(0, 2 * margin);
+    fdlRecordsFilter.top = new FormAttachment(0, margin);
     wlRecordsFilter.setLayoutData(fdlRecordsFilter);
 
     wRecordsFilter = new CCombo(wAdvancedGroup, SWT.BORDER | SWT.READ_ONLY);
@@ -685,7 +636,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wRecordsFilter.addModifyListener(lsMod);
     FormData fdRecordsFilter = new FormData();
     fdRecordsFilter.left = new FormAttachment(middle, 0);
-    fdRecordsFilter.top = new FormAttachment(0, 2 * margin);
+    fdRecordsFilter.top = new FormAttachment(0, margin);
     fdRecordsFilter.right = new FormAttachment(100, -margin);
     wRecordsFilter.setLayoutData(fdRecordsFilter);
     wRecordsFilter.setItems(SalesforceConnectionUtils.recordsFilterDesc);
@@ -792,7 +743,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     opento.setImage(GuiResource.getInstance().getImageCalendar());
     opento.setToolTipText(BaseMessages.getString(PKG, "SalesforceInputDialog.OpenCalendar"));
     FormData fdlButtonto = new FormData();
-    fdlButtonto.top = new FormAttachment(wReadFrom, 2 * margin);
+    fdlButtonto.top = new FormAttachment(wReadFrom, margin);
     fdlButtonto.right = new FormAttachment(100, 0);
     opento.setLayoutData(fdlButtonto);
     opento.addSelectionListener(
@@ -849,7 +800,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     PropsUi.setLook(wlReadTo);
     FormData fdlReadTo = new FormData();
     fdlReadTo.left = new FormAttachment(0, 0);
-    fdlReadTo.top = new FormAttachment(wReadFrom, 2 * margin);
+    fdlReadTo.top = new FormAttachment(wReadFrom, margin);
     fdlReadTo.right = new FormAttachment(middle, -margin);
     wlReadTo.setLayoutData(fdlReadTo);
     wReadTo = new TextVar(variables, wAdvancedGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -858,13 +809,13 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wReadTo.addModifyListener(lsMod);
     FormData fdReadTo = new FormData();
     fdReadTo.left = new FormAttachment(middle, 0);
-    fdReadTo.top = new FormAttachment(wReadFrom, 2 * margin);
+    fdReadTo.top = new FormAttachment(wReadFrom, margin);
     fdReadTo.right = new FormAttachment(opento, -margin);
     wReadTo.setLayoutData(fdReadTo);
 
     FormData fdAdvancedGroup = new FormData();
     fdAdvancedGroup.left = new FormAttachment(0, margin);
-    fdAdvancedGroup.top = new FormAttachment(0, 2 * margin);
+    fdAdvancedGroup.top = new FormAttachment(0, margin);
     fdAdvancedGroup.right = new FormAttachment(100, -margin);
     wAdvancedGroup.setLayoutData(fdAdvancedGroup);
 
@@ -1171,7 +1122,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     PropsUi.setLook(wlTimeOut);
     FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment(0, 0);
-    fdlTimeOut.top = new FormAttachment(wAdditionalFields, 2 * margin);
+    fdlTimeOut.top = new FormAttachment(wAdditionalFields, margin);
     fdlTimeOut.right = new FormAttachment(middle, -margin);
     wlTimeOut.setLayoutData(fdlTimeOut);
     wTimeOut = new TextVar(variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -1179,7 +1130,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wTimeOut.addModifyListener(lsMod);
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment(middle, 0);
-    fdTimeOut.top = new FormAttachment(wAdditionalFields, 2 * margin);
+    fdTimeOut.top = new FormAttachment(wAdditionalFields, margin);
     fdTimeOut.right = new FormAttachment(100, 0);
     wTimeOut.setLayoutData(fdTimeOut);
 
@@ -1397,7 +1348,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     setEnableQuery();
 
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -1834,9 +1785,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wFields.removeEmptyRows();
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
 
     // Initialize connection UI state based on whether a connection is selected
     updateConnectionUI();

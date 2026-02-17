@@ -32,20 +32,22 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class XmlJoinDialog extends BaseTransformDialog {
   private static final Class<?> PKG = XmlJoinMeta.class;
@@ -84,56 +86,35 @@ public class XmlJoinDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "XmlJoin.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite wScrolledComposite =
+        new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wScrolledComposite);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    wScrolledComposite.setLayoutData(fdSc);
+    wScrolledComposite.setLayout(new FillLayout());
+    wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "XmlJoin.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Transform name line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Composite wContent = new Composite(wScrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
     // Target Group
-    Group gTarget = new Group(shell, SWT.NONE);
+    Group gTarget = new Group(wContent, SWT.NONE);
     gTarget.setText(BaseMessages.getString(PKG, "XmlJoin.TargetGroup.Label"));
     FormLayout targetLayout = new FormLayout();
     targetLayout.marginHeight = margin;
@@ -143,7 +124,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     FormData fdTarget = new FormData();
     fdTarget.left = new FormAttachment(0, 0);
     fdTarget.right = new FormAttachment(100, 0);
-    fdTarget.top = new FormAttachment(wTransformName, 2 * margin);
+    fdTarget.top = new FormAttachment(wSpacer, margin);
     gTarget.setLayoutData(fdTarget);
     // Target XML transform line
     Label wlTargetXMLtransform = new Label(gTarget, SWT.RIGHT);
@@ -151,7 +132,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     PropsUi.setLook(wlTargetXMLtransform);
     FormData fdlTargetXMLtransform = new FormData();
     fdlTargetXMLtransform.left = new FormAttachment(0, 0);
-    fdlTargetXMLtransform.top = new FormAttachment(wTransformName, margin);
+    fdlTargetXMLtransform.top = new FormAttachment(wSpacer, margin);
     fdlTargetXMLtransform.right = new FormAttachment(middle, -margin);
     wlTargetXMLtransform.setLayoutData(fdlTargetXMLtransform);
     wTargetXmlTransform = new CCombo(gTarget, SWT.BORDER | SWT.READ_ONLY);
@@ -160,7 +141,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     wTargetXmlTransform.addModifyListener(lsMod);
     FormData fdTargetXMLtransform = new FormData();
     fdTargetXMLtransform.left = new FormAttachment(middle, 0);
-    fdTargetXMLtransform.top = new FormAttachment(wTransformName, margin);
+    fdTargetXMLtransform.top = new FormAttachment(wSpacer, margin);
     fdTargetXMLtransform.right = new FormAttachment(100, 0);
     wTargetXmlTransform.setLayoutData(fdTargetXMLtransform);
 
@@ -184,7 +165,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     wTargetXmlField.setLayoutData(fdTargetXMLfield);
 
     // Source Group
-    Group gSource = new Group(shell, SWT.NONE);
+    Group gSource = new Group(wContent, SWT.NONE);
     gSource.setText(BaseMessages.getString(PKG, "XmlJoin.SourceGroup.Label"));
     FormLayout sourceLayout = new FormLayout();
     sourceLayout.marginHeight = margin;
@@ -194,7 +175,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     FormData fdSource = new FormData();
     fdSource.left = new FormAttachment(0, 0);
     fdSource.right = new FormAttachment(100, 0);
-    fdSource.top = new FormAttachment(gTarget, 2 * margin);
+    fdSource.top = new FormAttachment(gTarget, margin);
     gSource.setLayoutData(fdSource);
     // Source XML transform line
     Label wlSourceXMLtransform = new Label(gSource, SWT.RIGHT);
@@ -235,7 +216,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     wSourceXmlField.setLayoutData(fdSourceXMLfield);
 
     // Join Group
-    Group gJoin = new Group(shell, SWT.NONE);
+    Group gJoin = new Group(wContent, SWT.NONE);
     gJoin.setText(BaseMessages.getString(PKG, "XmlJoin.JoinGroup.Label"));
     FormLayout joinLayout = new FormLayout();
     joinLayout.marginHeight = margin;
@@ -245,7 +226,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     FormData fdJoin = new FormData();
     fdJoin.left = new FormAttachment(0, 0);
     fdJoin.right = new FormAttachment(100, 0);
-    fdJoin.top = new FormAttachment(gSource, 2 * margin);
+    fdJoin.top = new FormAttachment(gSource, margin);
     gJoin.setLayoutData(fdJoin);
 
     // Target XPath line
@@ -318,7 +299,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
     wJoinCompareField.setEnabled(false);
 
     // Result Group
-    Group gResult = new Group(shell, SWT.NONE);
+    Group gResult = new Group(wContent, SWT.NONE);
     gResult.setText(BaseMessages.getString(PKG, "XmlJoin.ResultGroup.Label"));
     FormLayout resultLayout = new FormLayout();
     resultLayout.marginHeight = margin;
@@ -328,8 +309,8 @@ public class XmlJoinDialog extends BaseTransformDialog {
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(0, 0);
     fdResult.right = new FormAttachment(100, 0);
-    fdResult.top = new FormAttachment(gJoin, 2 * margin);
-    fdResult.bottom = new FormAttachment(wOk, -2 * margin);
+    fdResult.top = new FormAttachment(gJoin, margin);
+    fdResult.bottom = new FormAttachment(100, -50);
     gResult.setLayoutData(fdResult);
 
     // Value XML Field line
@@ -434,6 +415,10 @@ public class XmlJoinDialog extends BaseTransformDialog {
 
     shell.layout();
 
+    wScrolledComposite.setContent(wContent);
+    wContent.pack();
+    wScrolledComposite.setMinSize(wContent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
     getData();
     input.setChanged(changed);
 
@@ -443,7 +428,7 @@ public class XmlJoinDialog extends BaseTransformDialog {
       wTargetXmlTransform.add(transformMeta.getName());
       wSourceXmlTransform.add(transformMeta.getName());
     }
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -471,9 +456,6 @@ public class XmlJoinDialog extends BaseTransformDialog {
     wOmitNullValues.setSelection(input.isOmitNullValues());
 
     wJoinCompareField.setEnabled(input.isComplexJoin());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

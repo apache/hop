@@ -29,6 +29,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
+import org.apache.hop.history.AuditStateMap;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.OsHelper;
@@ -85,10 +86,18 @@ public class PropsUi extends Props {
   private static final String DISABLE_ZOOM_SCROLLING = "DisableZoomScrolling";
   private static final String ENABLE_INFINITE_CANVAS_MOVE = "EnableInfiniteCanvasMove";
   private static final String USE_ADVANCED_TERMINAL = "UseAdvancedTerminal";
+  private static final String RESET_DIALOG_POSITIONS_ON_RESTART = "ResetDialogPositionsOnRestart";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
   private static PropsUi instance;
+
+  /**
+   * Session-only window position storage for dialogs. This map is kept in memory only and is
+   * cleared when the application restarts. Used for modal dialogs that should remember their
+   * position during a session but start fresh on each application launch.
+   */
+  private final Map<String, WindowProperty> sessionWindowProperties = new HashMap<>();
 
   public static PropsUi getInstance() {
     if (instance == null) {
@@ -311,7 +320,7 @@ public class PropsUi extends Props {
    */
   /** The margin between the different dialog components &amp; widgets */
   public static int getMargin() {
-    return (int) Math.round(4 * getNativeZoomFactor());
+    return (int) Math.round(8 * getNativeZoomFactor());
   }
 
   public void setLineWidth(int width) {
@@ -397,6 +406,93 @@ public class PropsUi extends Props {
       return null;
     }
     return new WindowProperty(windowName, auditState.getStateMap());
+  }
+
+  /**
+   * Stores a window's position and size for the current session only (in-memory storage). This is
+   * useful for modal dialogs that should remember their position during a work session but start
+   * fresh on application restart. The position is not persisted to disk.
+   *
+   * @param windowProperty the window property containing position/size information
+   */
+  public void setSessionScreen(WindowProperty windowProperty) {
+    if (windowProperty != null && windowProperty.getName() != null) {
+      sessionWindowProperties.put(windowProperty.getName(), windowProperty);
+    }
+  }
+
+  /**
+   * Retrieves a window's position and size from session-only storage (in-memory). Returns null if
+   * no position has been stored for this window during the current session.
+   *
+   * @param windowName the name/title of the window
+   * @return the stored WindowProperty, or null if not found in session storage
+   */
+  public WindowProperty getSessionScreen(String windowName) {
+    if (windowName == null) {
+      return null;
+    }
+    return sessionWindowProperties.get(windowName);
+  }
+
+  /**
+   * Clears all session-only window positions. This is useful for resetting dialog positions during
+   * the current session without restarting the application.
+   */
+  public void clearSessionScreens() {
+    sessionWindowProperties.clear();
+  }
+
+  /**
+   * Clears all persisted window positions from storage (except the main window). This removes saved
+   * dialog positions from the audit state, forcing dialogs to center on their next opening.
+   */
+  public void clearPersistedDialogScreens() {
+    try {
+      // Load all stored shell states
+      AuditStateMap shellStates =
+          AuditManager.getActive().loadAuditStateMap(HopGui.DEFAULT_HOP_GUI_NAMESPACE, "shells");
+
+      if (shellStates != null && shellStates.getNameStateMap() != null) {
+        // Create a new map with only the main window state
+        AuditStateMap filteredStates = new AuditStateMap();
+        Map<String, AuditState> stateMap = shellStates.getNameStateMap();
+
+        for (Map.Entry<String, AuditState> entry : stateMap.entrySet()) {
+          String windowName = entry.getKey();
+          // Keep the main window position (identified by "Hop" in the name)
+          if (windowName != null && (windowName.equals("Hop") || windowName.contains("Hop"))) {
+            filteredStates.getNameStateMap().put(windowName, entry.getValue());
+          }
+        }
+
+        // Save the filtered map (only main window)
+        AuditManager.getActive()
+            .saveAuditStateMap(HopGui.DEFAULT_HOP_GUI_NAMESPACE, "shells", filteredStates);
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error clearing persisted dialog positions", e);
+    }
+  }
+
+  /**
+   * Gets whether dialog positions should be reset on application restart. When true, dialogs will
+   * only remember their position during the current session. When false, dialog positions will be
+   * persisted across application restarts.
+   *
+   * @return true if dialog positions should reset on restart, false otherwise
+   */
+  public boolean getResetDialogPositionsOnRestart() {
+    return YES.equalsIgnoreCase(getProperty(RESET_DIALOG_POSITIONS_ON_RESTART, YES));
+  }
+
+  /**
+   * Sets whether dialog positions should be reset on application restart.
+   *
+   * @param reset true to reset dialog positions on restart, false to persist them
+   */
+  public void setResetDialogPositionsOnRestart(boolean reset) {
+    setProperty(RESET_DIALOG_POSITIONS_ON_RESTART, reset ? YES : NO);
   }
 
   public void setOpenLastFile(boolean open) {
@@ -680,22 +776,6 @@ public class PropsUi extends Props {
 
     switch (style) {
       case WIDGET_STYLE_DEFAULT:
-        // Use system widget background for default composites
-        // Don't set foreground - let macOS handle text colors
-        break;
-      case WIDGET_STYLE_OSX_GROUP:
-        font = gui.getFontDefault();
-        Group group = ((Group) widget);
-        // Use system background color for macOS groups
-        final Color groupBg = display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
-        group.addPaintListener(
-            paintEvent -> {
-              // Use system colors in paint listener
-              paintEvent.gc.setForeground(display.getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
-              paintEvent.gc.setBackground(groupBg);
-              paintEvent.gc.fillRectangle(
-                  2, 0, group.getBounds().width - 8, group.getBounds().height - 20);
-            });
         break;
       case WIDGET_STYLE_FIXED:
         font = gui.getFontFixed();

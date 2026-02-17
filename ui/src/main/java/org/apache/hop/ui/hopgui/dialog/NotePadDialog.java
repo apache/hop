@@ -111,7 +111,7 @@ public class NotePadDialog extends Dialog {
   public NotePadMeta open() {
     Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.NONE);
+    shell = new Shell(parent, BaseDialog.getDefaultDialogStyle());
     PropsUi.setLook(shell);
     shell.setImage(guiresource.getImageNote());
 
@@ -467,7 +467,7 @@ public class NotePadDialog extends Dialog {
     fdNoteFolder.left = new FormAttachment(0, 0);
     fdNoteFolder.top = new FormAttachment(0, margin);
     fdNoteFolder.right = new FormAttachment(100, 0);
-    fdNoteFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdNoteFolder.bottom = new FormAttachment(wOk, -margin);
     wNoteFolder.setLayoutData(fdNoteFolder);
 
     getData();

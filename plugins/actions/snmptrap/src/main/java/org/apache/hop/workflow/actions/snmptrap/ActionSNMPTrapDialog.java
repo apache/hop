@@ -27,12 +27,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -56,8 +53,6 @@ import org.snmp4j.smi.UdpAddress;
 /** This dialog allows you to edit the SNMPTrap action settings. */
 public class ActionSNMPTrapDialog extends ActionDialog {
   private static final Class<?> PKG = ActionSNMPTrap.class;
-
-  private LabelText wName;
 
   private LabelTextVar wServerName;
 
@@ -96,46 +91,11 @@ public class ActionSNMPTrapDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionSNMPTrap.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionSNMPTrap.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Action name line
-    wName =
-        new LabelText(
-            shell,
-            BaseMessages.getString(PKG, "ActionSNMPTrap.Name.Label"),
-            BaseMessages.getString(PKG, "ActionSNMPTrap.Name.Tooltip"));
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.top = new FormAttachment(0, 0);
-    fdName.left = new FormAttachment(0, 0);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -181,7 +141,7 @@ public class ActionSNMPTrapDialog extends ActionDialog {
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment(0, 0);
-    fdServerName.top = new FormAttachment(wName, margin);
+    fdServerName.top = new FormAttachment(0, margin);
     fdServerName.right = new FormAttachment(100, 0);
     wServerName.setLayoutData(fdServerName);
 
@@ -228,7 +188,7 @@ public class ActionSNMPTrapDialog extends ActionDialog {
 
     FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment(0, margin);
-    fdServerSettings.top = new FormAttachment(wName, margin);
+    fdServerSettings.top = new FormAttachment(0, margin);
     fdServerSettings.right = new FormAttachment(100, -margin);
     wServerSettings.setLayoutData(fdServerSettings);
     // ///////////////////////////////////////////////////////////
@@ -433,12 +393,13 @@ public class ActionSNMPTrapDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
+    focusActionName();
     checkUseUserTarget();
     wTabFolder.setSelection(0);
 
@@ -494,7 +455,7 @@ public class ActionSNMPTrapDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wName.setText(Const.nullToEmpty(action.getName()));
+    wName.setText(Const.NVL(action.getName(), ""));
     wServerName.setText(Const.NVL(action.getServerName(), ""));
     wPort.setText(action.getPort());
     wOID.setText(Const.NVL(action.getOid(), ""));
@@ -506,9 +467,11 @@ public class ActionSNMPTrapDialog extends ActionDialog {
     wUser.setText(Const.NVL(action.getUser(), ""));
     wPassphrase.setText(Const.NVL(action.getPassphrase(), ""));
     wEngineID.setText(Const.NVL(action.getEngineid(), ""));
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

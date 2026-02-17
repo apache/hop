@@ -32,9 +32,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -42,13 +40,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = Neo4jIndexDialog.class;
@@ -57,7 +51,6 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
 
   private boolean changed;
 
-  private Text wName;
   private MetaSelectionLine<NeoConnection> wConnection;
   private TableView wUpdates;
 
@@ -73,42 +66,12 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, meta);
-
+    createShell(BaseMessages.getString(PKG, "Neo4jIndexDialog.Dialog.Title"), meta);
     ModifyListener lsMod = e -> meta.setChanged();
     changed = meta.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "Neo4jIndexDialog.Dialog.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "Neo4jIndexDialog.ActionName.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-    Control lastControl = wName;
+    int middle = this.middle;
+    int margin = this.margin;
 
     wConnection =
         new MetaSelectionLine<>(
@@ -124,25 +87,13 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
     FormData fdConnection = new FormData();
     fdConnection.left = new FormAttachment(0, 0);
     fdConnection.right = new FormAttachment(100, 0);
-    fdConnection.top = new FormAttachment(lastControl, margin);
+    fdConnection.top = new FormAttachment(wSpacer, margin);
     wConnection.setLayoutData(fdConnection);
     try {
       wConnection.fillItems();
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error getting list of connections", e);
     }
-
-    // Add buttons first, then the script field can use dynamic sizing
-    //
-    Button wShowCypher = new Button(shell, SWT.PUSH);
-    wShowCypher.setText(BaseMessages.getString(PKG, "Neo4jIndexDialog.Button.ShowCypher"));
-    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     Label wlUpdates = new Label(shell, SWT.LEFT);
     wlUpdates.setText(BaseMessages.getString(PKG, "Neo4jIndexDialog.IndexUpdates.Label"));
@@ -185,21 +136,18 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
     fdCypher.left = new FormAttachment(0, 0);
     fdCypher.right = new FormAttachment(100, 0);
     fdCypher.top = new FormAttachment(wlUpdates, margin);
-    fdCypher.bottom = new FormAttachment(wOk, -margin * 2);
     wUpdates.setLayoutData(fdCypher);
 
-    // Put these buttons at the bottom
-    //
-    BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wShowCypher, wOk, wCancel,
-        },
-        margin,
-        null);
+    buildButtonBar()
+        .custom(
+            BaseMessages.getString(PKG, "Neo4jIndexDialog.Button.ShowCypher"),
+            e -> showCypherPreview())
+        .ok(e -> ok())
+        .cancel(e -> cancel())
+        .build(wUpdates);
 
     getData();
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return meta;
@@ -265,6 +213,11 @@ public class Neo4jIndexDialog extends ActionDialog implements IActionDialog {
             true);
     dialog.setReadOnly();
     dialog.open();
+  }
+
+  @Override
+  protected void onActionNameModified() {
+    meta.setChanged();
   }
 
   private void cancel() {

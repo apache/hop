@@ -105,38 +105,6 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     input = transformMeta;
   }
 
-  private void createTransformName(Shell shell, int margin, int middle, ModifyListener lsMod) {
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    wlTransformName.setLayoutData(
-        new FormDataBuilder().left(0, margin).top(0, margin).right(middle, -2 * margin).result());
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    wTransformName.setLayoutData(
-        new FormDataBuilder().left(middle, -margin).top(0, margin).right(100, -margin).result());
-  }
-
-  private void createDialogButtons(Shell shell, int margin) {
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.Preview.Button"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
-  }
-
   private Group createGroupOpMode(Composite parent, int margin, int middle) {
     Group group = new Group(parent, SWT.SHADOW_NONE);
     PropsUi.setLook(group);
@@ -147,11 +115,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     label.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.FileField.Label"));
     PropsUi.setLook(label);
     label.setLayoutData(
-        new FormDataBuilder()
-            .left(0, -margin)
-            .top(group, margin)
-            .right(middle, -2 * margin)
-            .result());
+        new FormDataBuilder().left(0, -margin).top(group, margin).right(middle, -margin).result());
 
     wFileField = new Button(group, SWT.CHECK);
     PropsUi.setLook(wFileField);
@@ -196,7 +160,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, -margin)
             .top(wFileField, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     wFilenameField = new CCombo(group, SWT.BORDER | SWT.READ_ONLY);
@@ -218,7 +182,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, -margin)
             .top(wFilenameField, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     wWildcardField = new CCombo(group, SWT.BORDER | SWT.READ_ONLY);
@@ -241,7 +205,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, -margin)
             .top(wWildcardField, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     wExcludeWildcardField = new CCombo(group, SWT.BORDER | SWT.READ_ONLY);
@@ -264,7 +228,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, -margin)
             .top(wExcludeWildcardField, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     wIncludeSubFolder = new Button(group, SWT.CHECK);
@@ -312,7 +276,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, -margin)
             .top(wFileField, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     // Button: Browse...
@@ -391,7 +355,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, margin)
             .top(wFilename, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     wFilemask = new TextVar(variables, group, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -412,8 +376,8 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wlExcludeFilemask.setLayoutData(
         new FormDataBuilder()
             .left(0, margin)
-            .top(wlFilemask, margin)
-            .right(middle, -2 * margin)
+            .top(wFilemask, margin)
+            .right(middle, -margin)
             .result());
 
     wExcludeFilemask = new TextVar(variables, group, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -434,7 +398,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, margin)
             .top(wExcludeFilemask, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     // Button: Delete
@@ -444,7 +408,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wbdFilename.setToolTipText(
         BaseMessages.getString(PKG, "GetFileNamesDialog.FilenameDelete.Tooltip"));
     wbdFilename.setLayoutData(
-        new FormDataBuilder().top(wExcludeFilemask, margin).right(100, 0).result());
+        new FormDataBuilder().top(wlFilenameList, 0, SWT.TOP).right(100, 0).result());
     wbdFilename.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -491,7 +455,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wbShowFiles = new Button(group, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbShowFiles);
     wbShowFiles.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.ShowFiles.Button"));
-    wbShowFiles.setLayoutData(new FormDataBuilder().left(middle, 0).bottom(100, 0).result());
+    wbShowFiles.setLayoutData(new FormDataBuilder().left(middle, 0).bottom(100, -margin).result());
     wbShowFiles.addSelectionListener(
         new SelectionAdapter() {
           @Override
@@ -564,7 +528,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wFilenameList.setLayoutData(
         new FormDataBuilder()
             .left(middle, 0)
-            .top(wExcludeFilemask, margin)
+            .top(wlFilenameList, margin)
             .right(wbdFilename, -margin)
             .bottom(wbShowFiles, -margin)
             .result());
@@ -581,7 +545,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     composite.setLayoutData(
         new FormDataBuilder().left(0, 0).top(0, 0).right(100, 0).bottom(100, 0));
     PropsUi.setLook(composite);
-    WidgetUtils.setFormLayout(composite, 3);
+    WidgetUtils.setFormLayout(composite, PropsUi.getFormMargin());
 
     Group opModeGroup = createGroupOpMode(composite, margin, middle);
     opModeGroup.setLayoutData(
@@ -659,7 +623,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, margin)
             .top(wFilterFileType, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     wInclRownum = new Button(wAdditionalGroup, SWT.CHECK);
@@ -689,7 +653,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, margin)
             .top(wlInclRownum, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     wInclRownumField = new TextVar(variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -725,7 +689,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, margin)
             .top(wAdditionalGroup, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
     wDoNotFailIfNoFile = new Button(wNoFilesFolderGroup, SWT.CHECK);
     PropsUi.setLook(wDoNotFailIfNoFile);
@@ -746,7 +710,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
         new FormDataBuilder()
             .left(0, margin)
             .top(wlDoNotFailIfNoFile, margin)
-            .right(middle, -2 * margin)
+            .right(middle, -margin)
             .result());
 
     wRaiseAnExceptionIfNoFile = new Button(wNoFilesFolderGroup, SWT.CHECK);
@@ -837,22 +801,16 @@ public class GetFileNamesDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parentShell = getParent();
+    createShell(BaseMessages.getString(PKG, "GetFileNamesDialog.DialogTitle"));
 
-    shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    shell.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.DialogTitle"));
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
+
     WidgetUtils.setFormLayout(shell, PropsUi.getFormMargin());
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    createTransformName(shell, margin, middle, lsMod);
-    createDialogButtons(shell, margin);
+    Control lastControl = wSpacer;
 
     CTabFolder tabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
@@ -860,9 +818,9 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     tabFolder.setLayoutData(
         new FormDataBuilder()
             .left(0, 0)
-            .top(wTransformName, margin)
+            .top(lastControl, margin)
             .right(100, 0)
-            .bottom(wOk, -2 * margin)
+            .bottom(wOk, -margin)
             .result());
 
     createTabFile(tabFolder, margin, middle, lsMod);
@@ -874,7 +832,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     activateFileField();
     setErrorsMgmtCheckboxesStatus();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -1015,9 +973,6 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     }
     wLimit.setText("" + in.getRowLimit());
     wIncludeSubFolder.setSelection(in.isDynamicIncludeSubFolders());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

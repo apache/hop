@@ -19,7 +19,6 @@ package org.apache.hop.workflow.actions.truncatetables;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -34,9 +33,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -46,12 +43,10 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * This dialog allows you to edit the Truncate Tables action settings. (select the connection and
@@ -61,8 +56,6 @@ public class ActionTruncateTablesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionTruncateTables.class;
 
   private Button wbTable;
-
-  private Text wName;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -87,55 +80,15 @@ public class ActionTruncateTablesDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionTruncateTables.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = (ModifyEvent e) -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-
     // Connection line
     DatabaseMeta dbMeta = workflowMeta.findDatabase(action.getConnection(), variables);
-    wConnection = addConnectionLine(shell, wName, dbMeta, lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, dbMeta, lsMod);
 
     Label wlPrevious = new Label(shell, SWT.RIGHT);
     wlPrevious.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Previous.Label"));
@@ -169,7 +122,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     FormData fdbTable = new FormData();
     fdbTable.left = new FormAttachment(0, margin);
     fdbTable.right = new FormAttachment(100, -margin);
-    fdbTable.top = new FormAttachment(wlPrevious, 2 * margin);
+    fdbTable.top = new FormAttachment(wlPrevious, margin);
     wbTable.setLayoutData(fdbTable);
     wbTable.addSelectionListener(
         new SelectionAdapter() {
@@ -185,7 +138,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wbTable, 2 * margin);
+    fdlFields.top = new FormAttachment(wbTable, margin);
     wlFields.setLayoutData(fdlFields);
 
     // Buttons to the right of the screen...
@@ -242,7 +195,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wbdTablename, -margin);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wCancel, -margin);
     wFields.setLayoutData(fdFields);
 
     // Delete files from the list of files...
@@ -259,6 +212,7 @@ public class ActionTruncateTablesDialog extends ActionDialog {
 
     getData();
     setPrevious();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -274,8 +228,9 @@ public class ActionTruncateTablesDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wName.setText(Const.nullToEmpty(action.getName()));
-
+    if (action.getName() != null) {
+      wName.setText(action.getName());
+    }
     if (action.getConnection() != null) {
       wConnection.setText(action.getConnection());
     }
@@ -299,9 +254,11 @@ public class ActionTruncateTablesDialog extends ActionDialog {
     }
 
     wPrevious.setSelection(action.isArgFromPrevious());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {
