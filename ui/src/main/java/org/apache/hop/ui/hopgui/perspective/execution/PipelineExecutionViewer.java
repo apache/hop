@@ -83,6 +83,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.PipelineMetricDisplayUtil;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
@@ -516,8 +517,13 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       Set<String> metricNames,
       IEngineMetric metric) {
     if (metricNames.contains(metric.getHeader())) {
-      columns.add(new ColumnInfo(metric.getHeader(), ColumnInfo.COLUMN_TYPE_TEXT, true, true));
-      // Index +1 because of the left-hand row number
+      columns.add(
+          new ColumnInfo(
+              PipelineMetricDisplayUtil.getDisplayHeaderWithUnit(metric),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              true,
+              true));
+      // Index +1 because of the left-hand row number; use raw header for lookup
       indexMap.put(metric.getHeader(), columns.size());
     }
   }

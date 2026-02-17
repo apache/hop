@@ -18,6 +18,8 @@
 package org.apache.hop.ui.core.widget;
 
 import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -35,35 +37,39 @@ public class ColumnInfo {
   public static final int COLUMN_TYPE_FORMAT = 5;
   public static final int COLUMN_TYPE_TEXT_BUTTON = 6;
 
-  private int type;
-  private String name;
+  @Getter private final int type;
 
-  private String[] comboValues;
-  private Supplier<String[]> comboValueSupplier = () -> comboValues;
-  private boolean numeric;
-  private String tooltip;
-  private Image image;
-  private int alignment;
+  @Getter private final String name;
+
+  @Setter private String[] comboValues;
+  @Setter @Getter private Supplier<String[]> comboValueSupplier = () -> comboValues;
+  @Getter @Setter private boolean numeric;
+  @Getter @Setter private String tooltip;
+  @Getter @Setter private Image image;
+  @Setter @Getter private int alignment;
   private boolean readonly;
-  private String buttonText;
+  @Setter @Getter private String buttonText;
   private boolean hidingNegativeValues;
-  private int width = -1;
-  private boolean autoResize = true;
+  @Getter @Setter private int width = -1;
 
-  private IValueMeta valueMeta;
+  @Getter @Setter private boolean autoResize = true;
+
+  @Getter @Setter private IValueMeta valueMeta;
 
   private SelectionListener selButton;
-  private SelectionListener textVarButtonSelectionListener;
 
-  private ITextVarButtonRenderCallback renderTextVarButtonCallback;
+  @Getter @Setter private SelectionListener textVarButtonSelectionListener;
 
-  private IFieldDisabledListener disabledListener;
+  @Getter @Setter private ITextVarButtonRenderCallback renderTextVarButtonCallback;
 
-  private boolean usingVariables;
-  private boolean passwordField;
+  @Getter @Setter private IFieldDisabledListener disabledListener;
 
-  private IComboValuesSelectionListener comboValuesSelectionListener;
-  private int fieldTypeColumn;
+  @Getter @Setter private boolean usingVariables;
+
+  @Getter @Setter private boolean passwordField;
+
+  @Getter @Setter private IComboValuesSelectionListener comboValuesSelectionListener;
+  @Getter @Setter private int fieldTypeColumn;
 
   /**
    * Creates a column info class for use with the TableView class.
@@ -197,75 +203,16 @@ public class ColumnInfo {
     readonly = ro;
   }
 
-  public void setAlignment(int allign) {
-    alignment = allign;
-  }
-
-  public void setComboValues(String[] cv) {
-    comboValues = cv;
-  }
-
-  public void setComboValueSupplier(Supplier<String[]> comboValueSupplier) {
-    this.comboValueSupplier = comboValueSupplier;
-  }
-
-  public void setButtonText(String bt) {
-    buttonText = bt;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public int getType() {
-    return type;
-  }
-
   public String[] getComboValues() {
     return comboValueSupplier.get();
-  }
-
-  /**
-   * @return the numeric
-   */
-  public boolean isNumeric() {
-    return numeric;
-  }
-
-  /**
-   * @param numeric the numeric to set
-   */
-  public void setNumeric(boolean numeric) {
-    this.numeric = numeric;
   }
 
   public String getToolTip() {
     return tooltip;
   }
 
-  public Image getImage() {
-    return image;
-  }
-
-  /**
-   * Sets the column's image to be displayed.
-   *
-   * @param image the image to display on the receiver (may be null)
-   */
-  public void setImage(Image image) {
-    this.image = image;
-  }
-
-  public int getAlignment() {
-    return alignment;
-  }
-
   public boolean isReadOnly() {
     return readonly;
-  }
-
-  public String getButtonText() {
-    return buttonText;
   }
 
   public void setSelectionAdapter(SelectionListener sb) {
@@ -288,115 +235,8 @@ public class ColumnInfo {
     return hidingNegativeValues;
   }
 
-  /**
-   * @return the valueMeta
-   */
-  public IValueMeta getValueMeta() {
-    return valueMeta;
-  }
-
-  /**
-   * @param valueMeta the valueMeta to set
-   */
-  public void setValueMeta(IValueMeta valueMeta) {
-    this.valueMeta = valueMeta;
-  }
-
-  /**
-   * @return the usingVariables
-   */
-  public boolean isUsingVariables() {
-    return usingVariables;
-  }
-
-  /**
-   * @param usingVariables the usingVariables to set
-   */
-  public void setUsingVariables(boolean usingVariables) {
-    this.usingVariables = usingVariables;
-  }
-
-  /**
-   * @return the password
-   */
-  public boolean isPasswordField() {
-    return passwordField;
-  }
-
-  /**
-   * @param password the password to set
-   */
-  public void setPasswordField(boolean password) {
-    this.passwordField = password;
-  }
-
-  public int getFieldTypeColumn() {
-    return fieldTypeColumn;
-  }
-
-  public void setFieldTypeColumn(int fieldTypeColumn) {
-    this.fieldTypeColumn = fieldTypeColumn;
-  }
-
-  /**
-   * @return the comboValuesSelectionListener
-   */
-  public IComboValuesSelectionListener getComboValuesSelectionListener() {
-    return comboValuesSelectionListener;
-  }
-
-  /**
-   * @param comboValuesSelectionListener the comboValuesSelectionListener to set
-   */
-  public void setComboValuesSelectionListener(
-      IComboValuesSelectionListener comboValuesSelectionListener) {
-    this.comboValuesSelectionListener = comboValuesSelectionListener;
-  }
-
-  /**
-   * @return the disabledListener
-   */
-  public IFieldDisabledListener getDisabledListener() {
-    return disabledListener;
-  }
-
-  /**
-   * @param disabledListener the disabledListener to set
-   */
-  public void setDisabledListener(IFieldDisabledListener disabledListener) {
-    this.disabledListener = disabledListener;
-  }
-
-  public SelectionListener getTextVarButtonSelectionListener() {
-    return textVarButtonSelectionListener;
-  }
-
-  public void setTextVarButtonSelectionListener(SelectionListener textVarButtonSelectionListener) {
-    this.textVarButtonSelectionListener = textVarButtonSelectionListener;
-  }
-
-  public void setRenderTextVarButtonCallback(ITextVarButtonRenderCallback callback) {
-    this.renderTextVarButtonCallback = callback;
-  }
-
   public boolean shouldRenderTextVarButton() {
     return this.renderTextVarButtonCallback == null
         || this.renderTextVarButtonCallback.shouldRenderButton();
-  }
-
-  public int getWidth() {
-    return this.width;
-  }
-
-  /**
-   * @return if should be resized to accommodate contents
-   */
-  public boolean isAutoResize() {
-    return autoResize;
-  }
-
-  /** If should be resized to accommodate contents. Default is <code>true</code>. */
-  public void setAutoResize(boolean resize) {
-    this.autoResize = resize;
   }
 }

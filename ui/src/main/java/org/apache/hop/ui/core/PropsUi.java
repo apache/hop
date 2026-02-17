@@ -88,6 +88,15 @@ public class PropsUi extends Props {
   private static final String USE_ADVANCED_TERMINAL = "UseAdvancedTerminal";
   private static final String RESET_DIALOG_POSITIONS_ON_RESTART = "ResetDialogPositionsOnRestart";
 
+  // Metrics panel (pipeline execution grid) – "Show" options
+  private static final String METRICS_PANEL_SHOW_UNITS = "MetricsPanel.ShowUnits";
+  private static final String METRICS_PANEL_SHOW_INPUT = "MetricsPanel.ShowInput";
+  private static final String METRICS_PANEL_SHOW_READ = "MetricsPanel.ShowRead";
+  private static final String METRICS_PANEL_SHOW_OUTPUT = "MetricsPanel.ShowOutput";
+  private static final String METRICS_PANEL_SHOW_UPDATED = "MetricsPanel.ShowUpdated";
+  private static final String METRICS_PANEL_SHOW_REJECTED = "MetricsPanel.ShowRejected";
+  private static final String METRICS_PANEL_SHOW_BUFFERS_INPUT = "MetricsPanel.ShowBuffersInput";
+
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
   private static PropsUi instance;
@@ -584,6 +593,63 @@ public class PropsUi extends Props {
 
   public void setShowTableViewToolbar(boolean show) {
     setProperty(STRING_SHOW_TABLE_VIEW_TOOLBAR, show ? YES : NO);
+  }
+
+  /** Show units in grid cells (default false). */
+  public boolean isMetricsPanelShowUnits() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_UNITS, NO));
+  }
+
+  public void setMetricsPanelShowUnits(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_UNITS, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowInput() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_INPUT, YES));
+  }
+
+  public void setMetricsPanelShowInput(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_INPUT, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowRead() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_READ, YES));
+  }
+
+  public void setMetricsPanelShowRead(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_READ, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowOutput() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_OUTPUT, YES));
+  }
+
+  public void setMetricsPanelShowOutput(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_OUTPUT, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowUpdated() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_UPDATED, YES));
+  }
+
+  public void setMetricsPanelShowUpdated(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_UPDATED, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowRejected() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_REJECTED, YES));
+  }
+
+  public void setMetricsPanelShowRejected(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_REJECTED, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowBuffersInput() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_BUFFERS_INPUT, YES));
+  }
+
+  public void setMetricsPanelShowBuffersInput(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_BUFFERS_INPUT, show ? YES : NO);
   }
 
   public static void setLook(Widget widget) {
