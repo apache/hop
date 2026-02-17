@@ -17,11 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.append;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -160,9 +162,21 @@ public class AppendDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
+    // If both fields are empty and exactly 2 transforms are attached, auto-fill head and tail
+    if (Utils.isEmpty(input.getHeadTransformName())
+        && Utils.isEmpty(input.getTailTransformName())) {
+      String[] prev = pipelineMeta.getPrevTransformNames(transformName);
+      if (prev != null && prev.length == 2) {
+        input.setHeadTransformName(prev[0]);
+        input.setTailTransformName(prev[1]);
+      }
+    }
+    // Sync from hops (rename, insert-in-the-middle) and resolve streams
+    input.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
-    wHeadHop.setText(Const.NVL(input.getHeadTransformName(), ""));
-    wTailHop.setText(Const.NVL(input.getTailTransformName(), ""));
+    List<IStream> infoStreams = input.getTransformIOMeta().getInfoStreams();
+    wHeadHop.setText(Const.NVL(infoStreams.get(0).getTransformName(), ""));
+    wTailHop.setText(Const.NVL(infoStreams.get(1).getTransformName(), ""));
 
     wTransformName.selectAll();
     wTransformName.setFocus();

@@ -2351,12 +2351,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     PipelineHopMeta fromHop = pipelineMeta.findPipelineHopTo(transformMeta);
     PipelineHopMeta toHop = pipelineMeta.findPipelineHopFrom(transformMeta);
 
+    List<PipelineHopMeta> removedHops = new ArrayList<>();
     for (int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i--) {
       PipelineHopMeta hop = pipelineMeta.getPipelineHop(i);
       if (transformMeta.equals(hop.getFromTransform())
           || transformMeta.equals(hop.getToTransform())) {
-        // Transform is connected with a hop, remove this hop.
-        //
+        removedHops.add(hop);
         hopGui.undoDelegate.addUndoNew(pipelineMeta, new PipelineHopMeta[] {hop}, new int[] {i});
         pipelineMeta.removePipelineHop(i);
       }
@@ -2364,9 +2364,41 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // If the transform was part of a chain, re-connect it.
     //
+    TransformMeta newUpstream = null;
     if (fromHop != null && toHop != null) {
+      newUpstream = fromHop.getFromTransform();
       pipelineHopDelegate.newHop(
-          pipelineMeta, new PipelineHopMeta(fromHop.getFromTransform(), toHop.getToTransform()));
+          pipelineMeta, new PipelineHopMeta(newUpstream, toHop.getToTransform()));
+
+      // Same as split hop (insertTransform) but in reverse: point the target's info streams that
+      // were reading from the detached transform to the new upstream so
+      // searchInfoAndTargetTransforms
+      // can resolve correctly.
+      TransformMeta targetTransform = toHop.getToTransform();
+      if (targetTransform != null
+          && targetTransform.getTransform() != null
+          && newUpstream != null) {
+        ITransformIOMeta toIo = targetTransform.getTransform().getTransformIOMeta();
+        if (toIo != null) {
+          for (IStream stream : toIo.getInfoStreams()) {
+            if (stream.getTransformMeta() != null
+                && stream.getTransformMeta().equals(transformMeta)) {
+              stream.setTransformMeta(newUpstream);
+              stream.setSubject(newUpstream.getName());
+              targetTransform.getTransform().handleStreamSelection(stream);
+            }
+          }
+        }
+      }
+    }
+
+    // Same as split hop (insertTransform): after topology change, trigger IO meta update on
+    // targets of removed hops so linked transform names are updated.
+    for (PipelineHopMeta hop : removedHops) {
+      TransformMeta toTransform = hop.getToTransform();
+      if (toTransform != null && toTransform.getTransform() != null) {
+        toTransform.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+      }
     }
 
     updateGui();

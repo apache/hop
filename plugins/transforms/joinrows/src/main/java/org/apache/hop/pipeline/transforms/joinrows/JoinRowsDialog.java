@@ -259,6 +259,9 @@ public class JoinRowsDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
+    // Sync from hops (rename, insert-in-the-middle) so main transform is up to date
+    input.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+
     if (input.getPrefix() != null) {
       wPrefix.setText(input.getPrefix());
     }
