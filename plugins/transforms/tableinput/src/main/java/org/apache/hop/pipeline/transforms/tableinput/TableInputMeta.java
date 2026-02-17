@@ -27,6 +27,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -35,6 +36,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -87,6 +89,12 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
   private String connection;
 
   @HopMetadataProperty private String lookup;
+
+  /**
+   * When set, SQL is loaded from this file (VFS path, supports variables). SQL editor is read-only.
+   */
+  @HopMetadataProperty(key = "sql_from_file", injectionKey = "SQL_FROM_FILE")
+  private String sqlFromFile;
 
   public TableInputMeta() {
     super();
@@ -150,6 +158,32 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     this.lookup = lookup;
   }
 
+  public String getSqlFromFile() {
+    return sqlFromFile;
+  }
+
+  public void setSqlFromFile(String sqlFromFile) {
+    this.sqlFromFile = sqlFromFile;
+  }
+
+  /**
+   * Returns the SQL to execute: either from the inline editor or loaded from the file specified by
+   * sqlFromFile (using VFS). Variables are resolved in the file path.
+   */
+  public String getEffectiveSql(IVariables variables) throws HopException {
+    if (!Utils.isEmpty(sqlFromFile)) {
+      String path = variables.resolve(sqlFromFile);
+      try {
+        return HopVfs.getTextFileContent(path, Const.XML_ENCODING);
+      } catch (HopFileException e) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "TableInputMeta.Exception.CouldNotLoadSqlFromFile", path),
+            e);
+      }
+    }
+    return sql;
+  }
+
   @Override
   public Object clone() {
     TableInputMeta retval = (TableInputMeta) super.clone();
@@ -189,9 +223,15 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     super.databases = new Database[] {db}; // keep track of it for canceling purposes...
 
     // First try without connecting to the database... (can be S L O W)
-    String sNewSql = sql;
+    String effectiveSql;
+    try {
+      effectiveSql = getEffectiveSql(variables);
+    } catch (HopException e) {
+      throw new HopTransformException(e.getMessage(), e);
+    }
+    String sNewSql = effectiveSql;
     if (isVariableReplacementActive()) {
-      sNewSql = db.resolve(sql);
+      sNewSql = db.resolve(effectiveSql);
       if (variables != null) {
         sNewSql = variables.resolve(sNewSql);
       }
@@ -277,6 +317,18 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
+    String effectiveSql = null;
+    try {
+      effectiveSql = getEffectiveSql(variables);
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              "Could not get SQL: " + e.getMessage(),
+              transformMeta);
+      remarks.add(cr);
+    }
+
     DatabaseMeta databaseMeta = null;
 
     try {
@@ -308,16 +360,18 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
                 ICheckResult.TYPE_RESULT_OK, "Connection to database OK", transformMeta);
         remarks.add(cr);
 
-        if (!Utils.isEmpty(sql)) {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_OK, "SQL statement is entered", transformMeta);
-          remarks.add(cr);
-        } else {
-          cr =
-              new CheckResult(
-                  ICheckResult.TYPE_RESULT_ERROR, "SQL statement is missing.", transformMeta);
-          remarks.add(cr);
+        if (effectiveSql != null) {
+          if (!Utils.isEmpty(effectiveSql)) {
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_OK, "SQL statement is entered", transformMeta);
+            remarks.add(cr);
+          } else {
+            cr =
+                new CheckResult(
+                    ICheckResult.TYPE_RESULT_ERROR, "SQL statement is missing.", transformMeta);
+            remarks.add(cr);
+          }
         }
       } catch (HopException e) {
         cr =
@@ -369,12 +423,13 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
 
       // Count the number of ? in the SQL string:
       int count = 0;
-      for (int i = 0; i < sql.length(); i++) {
-        char c = sql.charAt(i);
+      String sqlForParams = (effectiveSql != null) ? effectiveSql : "";
+      for (int i = 0; i < sqlForParams.length(); i++) {
+        char c = sqlForParams.charAt(i);
         if (c == '\'') { // skip to next quote!
           do {
             i++;
-            c = sql.charAt(i);
+            c = sqlForParams.charAt(i);
           } while (c != '\'');
         }
         if (c == '?') {
@@ -458,6 +513,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     try {
       DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+      String effectiveSql = getEffectiveSql(variables);
 
       // Find the lookupfields...
       IRowMeta out = new RowMeta();
@@ -478,7 +534,7 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
                   outvalue.getName(),
                   outvalue.getName(),
                   transformMeta.getName(),
-                  sql,
+                  effectiveSql,
                   "read from one or more database tables via SQL statement");
           impact.add(ii);
         }

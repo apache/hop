@@ -217,11 +217,17 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
     boolean success = true;
 
     // Open the query with the optional parameters received from the source transforms.
-    String sql = null;
+    String sql;
+    try {
+      sql = meta.getEffectiveSql(variables);
+    } catch (HopException e) {
+      logError("Could not get SQL: " + e.getMessage());
+      setErrors(1);
+      stopAll();
+      return false;
+    }
     if (meta.isVariableReplacementActive()) {
-      sql = resolve(meta.getSql());
-    } else {
-      sql = meta.getSql();
+      sql = resolve(sql);
     }
 
     if (isDetailed()) {
@@ -304,7 +310,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {
       // Verify some basic things first...
       //
       boolean passed = true;
-      if (Utils.isEmpty(meta.getSql())) {
+      if (Utils.isEmpty(meta.getSql()) && Utils.isEmpty(meta.getSqlFromFile())) {
         logError(BaseMessages.getString(PKG, "TableInput.Exception.SQLIsNeeded"));
         passed = false;
       }
