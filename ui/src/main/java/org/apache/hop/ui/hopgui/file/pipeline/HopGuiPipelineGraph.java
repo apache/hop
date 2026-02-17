@@ -1052,13 +1052,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           if (startHopTransform == null
               && selectionRegion == null
               && selectedTransforms == null
-              && selectedNotes == null) {
-            // This is available only in single click mode...
+              && selectedNotes == null
+              && !mouseMovedSinceClick) {
+            // Single click on transform name: edit (do not treat as drag end when release is here)
             //
             TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
             editTransform(transformMeta);
+            return;
           }
-          return;
+          // Release after a drag may land on another transform's name; fall through to complete
+          // drag
+          break;
         default:
           break;
       }
@@ -1148,6 +1152,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedNote = null;
       startHopTransform = null;
       endHopLocation = null;
+      dragSelection = false;
 
       updateGui();
     } else {
