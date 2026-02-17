@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
 <pipeline>
   <info>
     <name>cleanup-entries</name>
@@ -114,28 +132,28 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <useauthentication>Y</useauthentication>
-    <host>${LDAP_HOST}</host>
-    <username>${LDAP_USERNAME}</username>
-    <password>${LDAP_PASSWORD}</password>
-    <port>${LDAP_PORT}</port>
+    <deleteRDN>Y</deleteRDN>
+    <derefAliasesType>always</derefAliasesType>
     <dnFieldName>dn</dnFieldName>
     <failIfNotExist>N</failIfNotExist>
-    <operationType>delete</operationType>
-    <multivaluedseparator>;</multivaluedseparator>
-    <searchBase/>
-    <referralType>follow</referralType>
-    <derefAliasesType>always</derefAliasesType>
-    <oldDnFieldName/>
-    <newDnFieldName/>
-    <deleteRDN>Y</deleteRDN>
     <fields>
-      </fields>
+</fields>
+    <host>${LDAP_HOST}</host>
+    <multivaluedseparator>;</multivaluedseparator>
+    <newDnFieldName/>
+    <oldDnFieldName/>
+    <operationType>delete</operationType>
+    <password>${LDAP_PASSWORD}</password>
+    <port>${LDAP_PORT}</port>
     <protocol>LDAP</protocol>
-    <trustStorePath/>
-    <trustStorePassword>Encrypted </trustStorePassword>
+    <referralType>follow</referralType>
+    <searchBase/>
     <trustAllCertificates>N</trustAllCertificates>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <trustStorePath/>
     <useCertificate>N</useCertificate>
+    <useauthentication>Y</useauthentication>
+    <username>${LDAP_USERNAME}</username>
     <attributes/>
     <GUI>
       <xloc>1008</xloc>
@@ -153,47 +171,47 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <usepaging>N</usepaging>
-    <pagesize>1000</pagesize>
-    <useauthentication>Y</useauthentication>
-    <rownum>N</rownum>
-    <rownum_field/>
-    <host>${LDAP_HOST}</host>
-    <username>${LDAP_USERNAME}</username>
-    <password>${LDAP_PASSWORD}</password>
-    <port>${LDAP_PORT}</port>
-    <filterstring>objectClass=*</filterstring>
-    <searchbase>ou=People,dc=hop,dc=apache,dc=org</searchbase>
-    <fields>
-      <field>
-        <name>dn</name>
-        <attribute>dn</attribute>
-        <attribute_fetch_as>string</attribute_fetch_as>
-        <sorted_key>N</sorted_key>
-        <type>String</type>
-        <format/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <currency/>
-        <decimal/>
-        <group/>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-      </field>
-    </fields>
-    <limit>0</limit>
-    <timelimit>0</timelimit>
-    <multivaluedseparator>;</multivaluedseparator>
-    <dynamicsearch>N</dynamicsearch>
-    <dynamicseachfieldname/>
     <dynamicfilter>N</dynamicfilter>
     <dynamicfilterfieldname/>
-    <searchScope>subtree</searchScope>
+    <dynamicseachfieldname/>
+    <dynamicsearch>N</dynamicsearch>
+    <fields>
+      <field>
+        <attribute>dn</attribute>
+        <attribute_fetch_as>string</attribute_fetch_as>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>dn</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <sorted_key>N</sorted_key>
+        <trim_type>none</trim_type>
+        <type>String</type>
+      </field>
+    </fields>
+    <filterstring>objectClass=*</filterstring>
+    <host>${LDAP_HOST}</host>
+    <limit>0</limit>
+    <multivaluedseparator>;</multivaluedseparator>
+    <pagesize>1000</pagesize>
+    <password>${LDAP_PASSWORD}</password>
+    <port>${LDAP_PORT}</port>
     <protocol>LDAP</protocol>
-    <trustStorePath/>
-    <trustStorePassword>Encrypted </trustStorePassword>
+    <rownum>N</rownum>
+    <rownum_field/>
+    <searchScope>subtree</searchScope>
+    <searchbase>ou=People,dc=hop,dc=apache,dc=org</searchbase>
+    <timelimit>0</timelimit>
     <trustAllCertificates>N</trustAllCertificates>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <trustStorePath/>
     <useCertificate>N</useCertificate>
+    <useauthentication>Y</useauthentication>
+    <usepaging>N</usepaging>
+    <username>${LDAP_USERNAME}</username>
     <attributes/>
     <GUI>
       <xloc>112</xloc>

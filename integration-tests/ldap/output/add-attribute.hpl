@@ -94,33 +94,33 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <useauthentication>Y</useauthentication>
-    <host>${LDAP_HOST}</host>
-    <username>${LDAP_USERNAME}</username>
-    <password>${LDAP_PASSWORD}</password>
-    <port>${LDAP_PORT}</port>
+    <deleteRDN>Y</deleteRDN>
+    <derefAliasesType>always</derefAliasesType>
     <dnFieldName>dn</dnFieldName>
     <failIfNotExist>Y</failIfNotExist>
-    <operationType>add</operationType>
-    <multivaluedseparator>;</multivaluedseparator>
-    <searchBase/>
-    <referralType>follow</referralType>
-    <derefAliasesType>always</derefAliasesType>
-    <oldDnFieldName/>
-    <newDnFieldName/>
-    <deleteRDN>Y</deleteRDN>
     <fields>
       <field>
-        <name>description</name>
         <field>description_value</field>
+        <name>description</name>
         <update>Y</update>
       </field>
     </fields>
+    <host>${LDAP_HOST}</host>
+    <multivaluedseparator>;</multivaluedseparator>
+    <newDnFieldName/>
+    <oldDnFieldName/>
+    <operationType>add</operationType>
+    <password>${LDAP_PASSWORD}</password>
+    <port>${LDAP_PORT}</port>
     <protocol>LDAP</protocol>
-    <trustStorePath/>
-    <trustStorePassword/>
+    <referralType>follow</referralType>
+    <searchBase/>
     <trustAllCertificates>N</trustAllCertificates>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <trustStorePath/>
     <useCertificate>N</useCertificate>
+    <useauthentication>Y</useauthentication>
+    <username>${LDAP_USERNAME}</username>
     <attributes/>
     <GUI>
       <xloc>336</xloc>

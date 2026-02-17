@@ -45,6 +45,50 @@ limitations under the License.
     </hop>
   </order>
   <transform>
+    <name>LDAP Remove Attribute</name>
+    <type>LDAPOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <deleteRDN>Y</deleteRDN>
+    <derefAliasesType>always</derefAliasesType>
+    <dnFieldName>dn</dnFieldName>
+    <failIfNotExist>Y</failIfNotExist>
+    <fields>
+      <field>
+        <field>phone_value</field>
+        <name>telephoneNumber</name>
+        <update>Y</update>
+      </field>
+    </fields>
+    <host>${LDAP_HOST}</host>
+    <multivaluedseparator>;</multivaluedseparator>
+    <newDnFieldName/>
+    <oldDnFieldName/>
+    <operationType>remove_attribute</operationType>
+    <password>${LDAP_PASSWORD}</password>
+    <port>${LDAP_PORT}</port>
+    <protocol>LDAP</protocol>
+    <referralType>follow</referralType>
+    <searchBase/>
+    <trustAllCertificates>N</trustAllCertificates>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <trustStorePath/>
+    <useCertificate>N</useCertificate>
+    <useauthentication>Y</useauthentication>
+    <username>${LDAP_USERNAME}</username>
+    <attributes/>
+    <GUI>
+      <xloc>336</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>Remove Phone Value</name>
     <type>DataGrid</type>
     <description/>
@@ -80,50 +124,6 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>112</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>LDAP Remove Attribute</name>
-    <type>LDAPOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <useauthentication>Y</useauthentication>
-    <host>${LDAP_HOST}</host>
-    <username>${LDAP_USERNAME}</username>
-    <password>${LDAP_PASSWORD}</password>
-    <port>${LDAP_PORT}</port>
-    <dnFieldName>dn</dnFieldName>
-    <failIfNotExist>Y</failIfNotExist>
-    <operationType>remove_attribute</operationType>
-    <multivaluedseparator>;</multivaluedseparator>
-    <searchBase/>
-    <referralType>follow</referralType>
-    <derefAliasesType>always</derefAliasesType>
-    <oldDnFieldName/>
-    <newDnFieldName/>
-    <deleteRDN>Y</deleteRDN>
-    <fields>
-      <field>
-        <name>telephoneNumber</name>
-        <field>phone_value</field>
-        <update>Y</update>
-      </field>
-    </fields>
-    <protocol>LDAP</protocol>
-    <trustStorePath/>
-    <trustStorePassword/>
-    <trustAllCertificates>N</trustAllCertificates>
-    <useCertificate>N</useCertificate>
-    <attributes/>
-    <GUI>
-      <xloc>336</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>

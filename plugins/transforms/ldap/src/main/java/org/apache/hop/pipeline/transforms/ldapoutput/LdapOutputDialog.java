@@ -1113,8 +1113,8 @@ public class LdapOutputDialog extends BaseTransformDialog {
     if (in.getMultiValuedSeparator() != null) {
       wMultiValuedSeparator.setText(in.getMultiValuedSeparator());
     }
-    if (in.getSearchBaseDN() != null) {
-      wBaseDN.setText(in.getSearchBaseDN());
+    if (in.getSearchBase() != null) {
+      wBaseDN.setText(in.getSearchBase());
     }
 
     wReferral.setText(LdapOutputMeta.getReferralTypeDesc(input.getReferralType()));
@@ -1191,7 +1191,7 @@ public class LdapOutputDialog extends BaseTransformDialog {
     in.setFailIfNotExist(wFailIfNotExist.getSelection());
     in.setOperationType(LdapOutputMeta.getOperationTypeByDesc(wOperation.getText()));
     in.setMultiValuedSeparator(wMultiValuedSeparator.getText());
-    in.setSearchBaseDN(wBaseDN.getText());
+    in.setSearchBase(wBaseDN.getText());
     in.setReferralType(LdapOutputMeta.getReferralTypeByDesc(wReferral.getText()));
     in.setDerefAliasesType(LdapOutputMeta.getDerefAliasesTypeByDesc(wDerefAliases.getText()));
 
@@ -1201,14 +1201,20 @@ public class LdapOutputDialog extends BaseTransformDialog {
 
     int nrFields = wReturn.nrNonEmpty();
 
-    in.allocate(nrFields);
+    String[] updateLookup = new String[nrFields];
+    String[] updateStream = new String[nrFields];
+    Boolean[] update = new Boolean[nrFields];
 
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
-      in.getUpdateLookup()[i] = item.getText(1);
-      in.getUpdateStream()[i] = item.getText(2);
-      in.getUpdate()[i] = "Y".equals(item.getText(3));
+      updateLookup[i] = item.getText(1);
+      updateStream[i] = item.getText(2);
+      update[i] = "Y".equals(item.getText(3));
     }
+
+    in.setUpdateLookup(updateLookup);
+    in.setUpdateStream(updateStream);
+    in.setUpdate(update);
   }
 
   private void useAuthentication() {

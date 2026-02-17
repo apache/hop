@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterAll;
@@ -65,7 +66,7 @@ class LdapInputTest {
     int sortedField = 1;
     fields[sortedField].setSortedKey(true);
     meta.setInputFields(fields);
-    when(meta.getInputFields()).thenReturn(fields);
+    when(meta.getInputFields()).thenReturn(Arrays.asList(fields));
 
     // Mock LDAP Connection
     when(meta.getProtocol()).thenReturn(LdapMockProtocol.getName());

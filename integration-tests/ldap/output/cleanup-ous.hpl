@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
 <pipeline>
   <info>
     <name>cleanup-ous</name>
@@ -49,12 +67,8 @@
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>dn</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>String</type>
       </field>
     </fields>
@@ -75,28 +89,28 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <useauthentication>Y</useauthentication>
-    <host>${LDAP_HOST}</host>
-    <username>${LDAP_USERNAME}</username>
-    <password>${LDAP_PASSWORD}</password>
-    <port>${LDAP_PORT}</port>
+    <deleteRDN>Y</deleteRDN>
+    <derefAliasesType>always</derefAliasesType>
     <dnFieldName>dn</dnFieldName>
     <failIfNotExist>N</failIfNotExist>
-    <operationType>delete</operationType>
-    <multivaluedseparator>;</multivaluedseparator>
-    <searchBase/>
-    <referralType>follow</referralType>
-    <derefAliasesType>always</derefAliasesType>
-    <oldDnFieldName/>
-    <newDnFieldName/>
-    <deleteRDN>Y</deleteRDN>
     <fields>
-      </fields>
+</fields>
+    <host>${LDAP_HOST}</host>
+    <multivaluedseparator>;</multivaluedseparator>
+    <newDnFieldName/>
+    <oldDnFieldName/>
+    <operationType>delete</operationType>
+    <password>${LDAP_PASSWORD}</password>
+    <port>${LDAP_PORT}</port>
     <protocol>LDAP</protocol>
-    <trustStorePath/>
-    <trustStorePassword>Encrypted </trustStorePassword>
+    <referralType>follow</referralType>
+    <searchBase/>
     <trustAllCertificates>N</trustAllCertificates>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <trustStorePath/>
     <useCertificate>N</useCertificate>
+    <useauthentication>Y</useauthentication>
+    <username>${LDAP_USERNAME}</username>
     <attributes/>
     <GUI>
       <xloc>336</xloc>
@@ -106,7 +120,7 @@
   <transform_error_handling>
     <error>
       <source_transform>LDAP Delete OUs</source_transform>
-      <target_transform>Ignore Errors</target_transform>
+      <target_transform/>
       <is_enabled>Y</is_enabled>
       <nr_valuename/>
       <descriptions_valuename/>

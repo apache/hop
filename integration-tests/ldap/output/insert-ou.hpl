@@ -45,6 +45,55 @@ limitations under the License.
     </hop>
   </order>
   <transform>
+    <name>LDAP Insert OU</name>
+    <type>LDAPOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <deleteRDN>Y</deleteRDN>
+    <derefAliasesType>always</derefAliasesType>
+    <dnFieldName>dn</dnFieldName>
+    <failIfNotExist>N</failIfNotExist>
+    <fields>
+      <field>
+        <field>objectClass</field>
+        <name>objectClass</name>
+        <update>Y</update>
+      </field>
+      <field>
+        <field>ou</field>
+        <name>ou</name>
+        <update>Y</update>
+      </field>
+    </fields>
+    <host>${LDAP_HOST}</host>
+    <multivaluedseparator>;</multivaluedseparator>
+    <newDnFieldName/>
+    <oldDnFieldName/>
+    <operationType>insert</operationType>
+    <password>${LDAP_PASSWORD}</password>
+    <port>${LDAP_PORT}</port>
+    <protocol>LDAP</protocol>
+    <referralType>follow</referralType>
+    <searchBase/>
+    <trustAllCertificates>N</trustAllCertificates>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <trustStorePath/>
+    <useCertificate>N</useCertificate>
+    <useauthentication>Y</useauthentication>
+    <username>${LDAP_USERNAME}</username>
+    <attributes/>
+    <GUI>
+      <xloc>336</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
     <name>OUs</name>
     <type>DataGrid</type>
     <description/>
@@ -88,55 +137,6 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>112</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>LDAP Insert OU</name>
-    <type>LDAPOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <useauthentication>Y</useauthentication>
-    <host>${LDAP_HOST}</host>
-    <username>${LDAP_USERNAME}</username>
-    <password>${LDAP_PASSWORD}</password>
-    <port>${LDAP_PORT}</port>
-    <dnFieldName>dn</dnFieldName>
-    <failIfNotExist>N</failIfNotExist>
-    <operationType>insert</operationType>
-    <multivaluedseparator>;</multivaluedseparator>
-    <searchBase/>
-    <referralType>follow</referralType>
-    <derefAliasesType>always</derefAliasesType>
-    <oldDnFieldName/>
-    <newDnFieldName/>
-    <deleteRDN>Y</deleteRDN>
-    <fields>
-      <field>
-        <name>objectClass</name>
-        <field>objectClass</field>
-        <update>Y</update>
-      </field>
-      <field>
-        <name>ou</name>
-        <field>ou</field>
-        <update>Y</update>
-      </field>
-    </fields>
-    <protocol>LDAP</protocol>
-    <trustStorePath/>
-    <trustStorePassword/>
-    <trustAllCertificates>N</trustAllCertificates>
-    <useCertificate>N</useCertificate>
-    <attributes/>
-    <GUI>
-      <xloc>336</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>

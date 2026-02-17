@@ -119,7 +119,7 @@ class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
       rtn.setName(UUID.randomUUID().toString());
       rtn.setTrimType(rand.nextInt(4));
       rtn.setPrecision(rand.nextInt(9));
-      rtn.setRepeated(rand.nextBoolean());
+      rtn.setRepeat(rand.nextBoolean());
       rtn.setLength(rand.nextInt(50));
       rtn.setType(rand.nextInt(7));
       rtn.setSortedKey(rand.nextBoolean());
@@ -146,7 +146,7 @@ class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
           .append(testObject.getCurrencySymbol(), another.getCurrencySymbol())
           .append(testObject.getDecimalSymbol(), another.getDecimalSymbol())
           .append(testObject.getGroupSymbol(), another.getGroupSymbol())
-          .append(testObject.isRepeated(), another.isRepeated())
+          .append(testObject.isRepeat(), another.isRepeat())
           .append(testObject.isSortedKey(), another.isSortedKey())
           .isEquals();
     }

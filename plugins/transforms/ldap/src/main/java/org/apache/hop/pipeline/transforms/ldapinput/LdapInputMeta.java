@@ -16,23 +16,22 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -54,59 +53,81 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   public static final String CONST_FIELD = "field";
 
   /** Flag indicating that we use authentication for connection */
+  @HopMetadataProperty(key = "useauthentication")
   private boolean useAuthentication;
 
   /** Flag indicating that we use paging */
+  @HopMetadataProperty(key = "usepaging")
   private boolean usePaging;
 
   /** page size */
-  private String pagesize;
+  @HopMetadataProperty(key = "pagesize")
+  private String pageSize;
 
   /** Flag indicating that a row number field should be included in the output */
+  @HopMetadataProperty(key = "rownum")
   private boolean includeRowNumber;
 
   /** The name of the field in the output containing the row number */
+  @HopMetadataProperty(key = "rownum_field")
   private String rowNumberField;
 
   /** The maximum number or lines to read */
+  @HopMetadataProperty(key = "limit")
   private int rowLimit;
 
   /** The Host name */
+  @HopMetadataProperty(key = "host")
   private String host;
 
   /** The User name */
+  @HopMetadataProperty(key = "username")
   private String userName;
 
   /** The Password to use in LDAP authentication */
+  @HopMetadataProperty(key = "password", password = true)
   private String password;
 
   /** The Port */
+  @HopMetadataProperty(key = "port")
   private String port;
 
   /** The Filter string */
+  @HopMetadataProperty(key = "filterstring")
   private String filterString;
 
   /** The Search Base */
+  @HopMetadataProperty(key = "searchbase")
   private String searchBase;
 
   /** The fields to import... */
-  private LdapInputField[] inputFields;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<LdapInputField> inputFields;
 
   /** The Time limit */
+  @HopMetadataProperty(key = "timelimit")
   private int timeLimit;
 
   /** Multi valued separator */
+  @HopMetadataProperty(key = "multivaluedseparator")
   private String multiValuedSeparator;
 
   private static final String YES = "Y";
 
+  @HopMetadataProperty(key = "dynamicsearch")
   private boolean dynamicSearch;
-  private String dynamicSeachFieldName;
 
+  @HopMetadataProperty(key = "dynamicseachfieldname")
+  private String dynamicSearchFieldName;
+
+  @HopMetadataProperty(key = "dynamicfilter")
   private boolean dynamicFilter;
+
+  @HopMetadataProperty(key = "dynamicfilterfieldname")
   private String dynamicFilterFieldName;
 
   /** Search scope */
+  @HopMetadataProperty(key = "searchScope", intCodeConverter = LdapInputSearchScopeConverter.class)
   private int searchScope;
 
   /** The search scopes description */
@@ -120,17 +141,25 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   public static final String[] searchScopeCode = {"object", "onelevel", "subtree"};
 
   /** Protocol */
+  @HopMetadataProperty(key = "protocol")
   private String protocol;
 
   /** Trust store */
+  @HopMetadataProperty(key = "useCertificate")
   private boolean useCertificate;
 
+  @HopMetadataProperty(key = "trustStorePath")
   private String trustStorePath;
+
+  @HopMetadataProperty(key = "trustStorePassword", password = true)
   private String trustStorePassword;
+
+  @HopMetadataProperty(key = "trustAllCertificates")
   private boolean trustAllCertificates;
 
   public LdapInputMeta() {
     super(); // allocate BaseTransformMeta
+    this.inputFields = new ArrayList<>();
   }
 
   /**
@@ -217,11 +246,11 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
    * @return Returns the input dynamicSeachFieldName.
    */
   public String getDynamicSearchFieldName() {
-    return dynamicSeachFieldName;
+    return dynamicSearchFieldName;
   }
 
   public void setDynamicSearchFieldName(String dynamicSeachFieldName) {
-    this.dynamicSeachFieldName = dynamicSeachFieldName;
+    this.dynamicSearchFieldName = dynamicSeachFieldName;
   }
 
   /**
@@ -267,29 +296,47 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   /**
    * @return Returns the input usePaging.
    */
-  public boolean isPaging() {
+  public boolean isUsePaging() {
     return usePaging;
   }
 
   /**
    * @param usePaging The usePaging to set.
    */
-  public void setPaging(boolean usePaging) {
+  public void setUsePaging(boolean usePaging) {
     this.usePaging = usePaging;
   }
 
   /**
-   * @return Returns the input fields.
+   * @return Returns the input fields as a List (for reflection-based serialization).
    */
-  public LdapInputField[] getInputFields() {
+  public List<LdapInputField> getInputFields() {
+    if (inputFields == null) {
+      inputFields = new ArrayList<>();
+    }
     return inputFields;
   }
 
   /**
-   * @param inputFields The input fields to set.
+   * @param inputFields The input fields to set (for reflection-based serialization).
+   */
+  public void setInputFields(List<LdapInputField> inputFields) {
+    this.inputFields = inputFields != null ? new ArrayList<>(inputFields) : new ArrayList<>();
+  }
+
+  /**
+   * @return Returns the input fields as an array (for backward compatibility).
+   */
+  public LdapInputField[] getInputFieldsArray() {
+    if (inputFields == null) return new LdapInputField[0];
+    return inputFields.toArray(new LdapInputField[0]);
+  }
+
+  /**
+   * @param inputFields The input fields to set (for backward compatibility).
    */
   public void setInputFields(LdapInputField[] inputFields) {
-    this.inputFields = inputFields;
+    this.inputFields = inputFields != null ? Arrays.asList(inputFields) : new ArrayList<>();
   }
 
   /**
@@ -431,14 +478,14 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
    * @param pagesize The pagesize.
    */
   public void setPageSize(String pagesize) {
-    this.pagesize = pagesize;
+    this.pageSize = pagesize;
   }
 
   /**
    * @return Returns the pagesize.
    */
   public String getPageSize() {
-    return pagesize;
+    return pageSize;
   }
 
   /**
@@ -465,215 +512,26 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
-    readData(transformNode);
+    super.loadXml(transformNode, metadataProvider);
   }
 
   @Override
   public Object clone() {
     LdapInputMeta retval = (LdapInputMeta) super.clone();
-
-    int nrFields = inputFields.length;
-
-    retval.allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      if (inputFields[i] != null) {
-        retval.inputFields[i] = (LdapInputField) inputFields[i].clone();
+    if (inputFields != null) {
+      retval.inputFields = new ArrayList<>();
+      for (LdapInputField field : inputFields) {
+        if (field != null) {
+          retval.inputFields.add((LdapInputField) field.clone());
+        }
       }
+    } else {
+      retval.inputFields = new ArrayList<>();
     }
-
     return retval;
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval.append("    ").append(XmlHandler.addTagValue("usepaging", usePaging));
-    retval.append("    ").append(XmlHandler.addTagValue("pagesize", pagesize));
-    retval.append("    ").append(XmlHandler.addTagValue("useauthentication", useAuthentication));
-    retval.append("    ").append(XmlHandler.addTagValue("rownum", includeRowNumber));
-    retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
-    retval.append("    ").append(XmlHandler.addTagValue("host", host));
-    retval.append("    ").append(XmlHandler.addTagValue("username", userName));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
-
-    retval.append("    ").append(XmlHandler.addTagValue("port", port));
-    retval.append("    ").append(XmlHandler.addTagValue("filterstring", filterString));
-    retval.append("    ").append(XmlHandler.addTagValue("searchbase", searchBase));
-
-    /*
-     * Describe the fields to read
-     */
-    retval.append("    <fields>").append(Const.CR);
-    for (LdapInputField inputField : inputFields) {
-      retval.append("      <field>").append(Const.CR);
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", inputField.getName()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("attribute", inputField.getAttribute()));
-      retval
-          .append(CONST_SPACES)
-          .append(
-              XmlHandler.addTagValue("attribute_fetch_as", inputField.getFetchAttributeAsCode()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("sorted_key", inputField.isSortedKey()));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("type", inputField.getTypeDesc()));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("format", inputField.getFormat()));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", inputField.getLength()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("precision", inputField.getPrecision()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("currency", inputField.getCurrencySymbol()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("decimal", inputField.getDecimalSymbol()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("group", inputField.getGroupSymbol()));
-      retval
-          .append(CONST_SPACES)
-          .append(XmlHandler.addTagValue("trim_type", inputField.getTrimTypeCode()));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("repeat", inputField.isRepeated()));
-
-      retval.append("      </field>").append(Const.CR);
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    retval.append("    ").append(XmlHandler.addTagValue("limit", rowLimit));
-    retval.append("    ").append(XmlHandler.addTagValue("timelimit", timeLimit));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("multivaluedseparator", multiValuedSeparator));
-    retval.append("    ").append(XmlHandler.addTagValue("dynamicsearch", dynamicSearch));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("dynamicseachfieldname", dynamicSeachFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("dynamicfilter", dynamicFilter));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("dynamicfilterfieldname", dynamicFilterFieldName));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("searchScope", getSearchScopeCode(searchScope)));
-
-    retval.append("    ").append(XmlHandler.addTagValue("protocol", protocol));
-    retval.append("    ").append(XmlHandler.addTagValue("trustStorePath", trustStorePath));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables(trustStorePassword)));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("trustAllCertificates", trustAllCertificates));
-    retval.append("    ").append(XmlHandler.addTagValue("useCertificate", useCertificate));
-
-    return retval.toString();
-  }
-
-  private static String getSearchScopeCode(int i) {
-    if (i < 0 || i >= searchScopeCode.length) {
-      return searchScopeCode[0];
-    }
-    return searchScopeCode[i];
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-
-      usePaging = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usepaging"));
-      pagesize = XmlHandler.getTagValue(transformNode, "pagesize");
-      useAuthentication =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "useauthentication"));
-      includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
-      rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      host = XmlHandler.getTagValue(transformNode, "host");
-      userName = XmlHandler.getTagValue(transformNode, "username");
-      setPassword(
-          Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(transformNode, "password")));
-
-      port = XmlHandler.getTagValue(transformNode, "port");
-      filterString = XmlHandler.getTagValue(transformNode, "filterstring");
-      searchBase = XmlHandler.getTagValue(transformNode, "searchbase");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-        inputFields[i] = new LdapInputField();
-
-        inputFields[i].setName(XmlHandler.getTagValue(fnode, "name"));
-        inputFields[i].setAttribute(XmlHandler.getTagValue(fnode, "attribute"));
-        inputFields[i].setFetchAttributeAs(
-            LdapInputField.getFetchAttributeAsByCode(
-                XmlHandler.getTagValue(fnode, "attribute_fetch_as")));
-        String sortedkey = XmlHandler.getTagValue(fnode, "sorted_key");
-        if (sortedkey != null) {
-          inputFields[i].setSortedKey(YES.equalsIgnoreCase(sortedkey));
-        } else {
-          inputFields[i].setSortedKey(false);
-        }
-        inputFields[i].setType(
-            ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-        inputFields[i].setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-        inputFields[i].setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-        String srepeat = XmlHandler.getTagValue(fnode, "repeat");
-        if (srepeat != null) {
-          inputFields[i].setRepeated(YES.equalsIgnoreCase(srepeat));
-        } else {
-          inputFields[i].setRepeated(false);
-        }
-        inputFields[i].setTrimType(
-            ValueMetaBase.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
-
-        inputFields[i].setFormat(XmlHandler.getTagValue(fnode, "format"));
-        inputFields[i].setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
-        inputFields[i].setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
-        inputFields[i].setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
-      }
-
-      // Is there a limit on the number of rows we process?
-      rowLimit = Const.toInt(XmlHandler.getTagValue(transformNode, "limit"), 0);
-      timeLimit = Const.toInt(XmlHandler.getTagValue(transformNode, "timelimit"), 0);
-      multiValuedSeparator = XmlHandler.getTagValue(transformNode, "multivaluedseparator");
-      dynamicSearch = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "dynamicsearch"));
-      dynamicSeachFieldName = XmlHandler.getTagValue(transformNode, "dynamicseachfieldname");
-      dynamicFilter = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "dynamicfilter"));
-      dynamicFilterFieldName = XmlHandler.getTagValue(transformNode, "dynamicfilterfieldname");
-      searchScope =
-          getSearchScopeByCode(
-              Const.NVL(
-                  XmlHandler.getTagValue(transformNode, "searchScope"),
-                  getSearchScopeCode(LdapConnection.SEARCH_SCOPE_SUBTREE_SCOPE)));
-
-      protocol = XmlHandler.getTagValue(transformNode, "protocol");
-      trustStorePath = XmlHandler.getTagValue(transformNode, "trustStorePath");
-      trustStorePassword =
-          Encr.decryptPasswordOptionallyEncrypted(
-              XmlHandler.getTagValue(transformNode, "trustStorePassword"));
-      trustAllCertificates =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "trustAllCertificates"));
-      useCertificate =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "useCertificate"));
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "LdapInputMeta.UnableToLoadFromXML"), e);
-    }
-  }
-
-  private static int getSearchScopeByCode(String tt) {
+  public static int getSearchScopeByCode(String tt) {
     if (tt == null) {
       return 0;
     }
@@ -687,14 +545,16 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
   }
 
   public void allocate(int nrFields) {
-
-    inputFields = new LdapInputField[nrFields];
+    inputFields = new ArrayList<>(nrFields);
+    for (int i = 0; i < nrFields; i++) {
+      inputFields.add(new LdapInputField());
+    }
   }
 
   @Override
   public void setDefault() {
     this.usePaging = false;
-    this.pagesize = "1000";
+    this.pageSize = "1000";
     this.useAuthentication = false;
     this.includeRowNumber = false;
     this.rowNumberField = "";
@@ -706,17 +566,10 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     this.searchBase = "";
     this.multiValuedSeparator = ";";
     this.dynamicSearch = false;
-    this.dynamicSeachFieldName = null;
+    this.dynamicSearchFieldName = null;
     this.dynamicFilter = false;
     this.dynamicFilterFieldName = null;
-    int nrFields = 0;
-
-    allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      this.inputFields[i] = new LdapInputField(CONST_FIELD + (i + 1));
-    }
-
+    this.inputFields = new ArrayList<>();
     this.rowLimit = 0;
     this.timeLimit = 0;
     this.searchScope = LdapConnection.SEARCH_SCOPE_SUBTREE_SCOPE;
@@ -738,8 +591,11 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
       throws HopTransformException {
 
     int i;
-    for (i = 0; i < inputFields.length; i++) {
-      LdapInputField field = inputFields[i];
+    if (inputFields == null) {
+      return;
+    }
+    for (i = 0; i < inputFields.size(); i++) {
+      LdapInputField field = inputFields.get(i);
 
       int type = field.getType();
       if (type == IValueMeta.TYPE_NONE) {
@@ -807,7 +663,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     CheckResult cr;
 
     // Check output fields
-    if (inputFields.length == 0) {
+    if (inputFields == null || inputFields.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -855,7 +711,7 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
     remarks.add(cr);
 
     if (isDynamicSearch()) {
-      if (Utils.isEmpty(dynamicSeachFieldName)) {
+      if (Utils.isEmpty(dynamicSearchFieldName)) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,

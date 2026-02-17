@@ -231,9 +231,9 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
     try {
 
       // Execute for each Input field...
-      for (int i = 0; i < meta.getInputFields().length; i++) {
+      for (int i = 0; i < meta.getInputFieldsArray().length; i++) {
 
-        LdapInputField field = meta.getInputFields()[i];
+        LdapInputField field = meta.getInputFieldsArray()[i];
         // Get attribute value
         int index = data.nrIncomingFields + i;
         Attribute attr = data.attributes.get(field.getRealAttribute());
@@ -243,7 +243,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
         }
 
         // Do we need to repeat this field if it is null?
-        if (field.isRepeated() && data.previousRow != null && outputRowData[index] == null) {
+        if (field.isRepeat() && data.previousRow != null && outputRowData[index] == null) {
           outputRowData[index] = data.previousRow[index];
         }
       } // End of loop over fields...
@@ -328,12 +328,12 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
 
   private void connectServerLdap() throws HopException {
     // Limit returned attributes to user selection
-    data.attrReturned = new String[meta.getInputFields().length];
+    data.attrReturned = new String[meta.getInputFieldsArray().length];
 
     data.attributesBinary = new HashSet<>();
     // Get user selection attributes
-    for (int i = 0; i < meta.getInputFields().length; i++) {
-      LdapInputField field = meta.getInputFields()[i];
+    for (int i = 0; i < meta.getInputFieldsArray().length; i++) {
+      LdapInputField field = meta.getInputFieldsArray()[i];
       // get real attribute name
       String name = resolve(field.getAttribute());
       field.setRealAttribute(name);
@@ -350,7 +350,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
     data.connection = new LdapConnection(getLogChannel(), this, meta, data.attributesBinary);
 
     for (int i = 0; i < data.attrReturned.length; i++) {
-      LdapInputField field = meta.getInputFields()[i];
+      LdapInputField field = meta.getInputFieldsArray()[i];
       // Do we need to sort based on some attributes?
       if (field.isSortedKey()) {
         data.connection.addSortingAttributes(data.attrReturned[i]);
@@ -370,7 +370,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
       data.connection.setTimeLimit(meta.getTimeLimit() * 1000);
     }
     // Set the page size?
-    if (meta.isPaging()) {
+    if (meta.isUsePaging()) {
       data.connection.setPagingSize(Const.toInt(resolve(meta.getPageSize()), -1));
     }
   }
@@ -398,7 +398,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {
       data.rownr = 1L;
       // Get multi valued field separator
       data.multiValuedFieldSeparator = resolve(meta.getMultiValuedSeparator());
-      data.nrFields = meta.getInputFields().length;
+      data.nrFields = meta.getInputFieldsArray().length;
       // Set the filter string
       data.staticFilter = resolve(meta.getFilterString());
       // Set the search base
