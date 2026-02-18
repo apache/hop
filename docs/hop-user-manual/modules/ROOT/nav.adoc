@@ -115,6 +115,7 @@ under the License.
 *** xref:pipeline/transforms/databasejoin.adoc[Database Join]
 *** xref:pipeline/transforms/databaselookup.adoc[Database Lookup]
 *** xref:pipeline/transforms/datagrid.adoc[Data Grid]
+*** xref:pipeline/transforms/datasetinput.adoc[Data Set Input]
 *** xref:pipeline/transforms/validator.adoc[Data Validator]
 *** xref:pipeline/transforms/delay.adoc[Delay row]
 *** xref:pipeline/transforms/delete.adoc[Delete]
