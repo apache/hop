@@ -25,10 +25,12 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -85,6 +87,10 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private Label wlPosition;
 
+  private Label wlSqlFromFile;
+  private TextVar wSqlFromFile;
+  private Button wbSqlFromFile;
+
   public TableInputDialog(
       Shell parent, IVariables variables, TableInputMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
@@ -100,6 +106,56 @@ public class TableInputDialog extends BaseTransformDialog {
 
     wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
     wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
+
+    // Load SQL from file
+    wlSqlFromFile = new Label(shell, SWT.RIGHT);
+    wlSqlFromFile.setText(BaseMessages.getString(PKG, "TableInputDialog.LoadSqlFromFile"));
+    PropsUi.setLook(wlSqlFromFile);
+    FormData fdlSqlFromFile = new FormData();
+    fdlSqlFromFile.left = new FormAttachment(0, 0);
+    fdlSqlFromFile.right = new FormAttachment(middle, -margin);
+    fdlSqlFromFile.top = new FormAttachment(wConnection, margin);
+    wlSqlFromFile.setLayoutData(fdlSqlFromFile);
+    wbSqlFromFile = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wbSqlFromFile);
+    wbSqlFromFile.setText(BaseMessages.getString(PKG, "TableInputDialog.Browse"));
+    FormData fdbSqlFromFile = new FormData();
+    fdbSqlFromFile.right = new FormAttachment(100, 0);
+    fdbSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
+    wbSqlFromFile.setLayoutData(fdbSqlFromFile);
+
+    wSqlFromFile = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSqlFromFile);
+    wSqlFromFile.addModifyListener(lsMod);
+    FormData fdSqlFromFile = new FormData();
+    fdSqlFromFile.left = new FormAttachment(middle, 0);
+    fdSqlFromFile.right = new FormAttachment(wbSqlFromFile, -margin);
+    fdSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
+    wSqlFromFile.setLayoutData(fdSqlFromFile);
+    wbSqlFromFile.addListener(
+        SWT.Selection,
+        e -> {
+          String path =
+              BaseDialog.presentFileDialog(
+                  shell,
+                  wSqlFromFile,
+                  variables,
+                  new String[] {"*.sql", "*"},
+                  new String[] {
+                    BaseMessages.getString(PKG, "TableInputDialog.SqlFiles"),
+                    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  },
+                  false);
+          if (path != null) {
+            loadSqlFromFileAndSetReadOnly();
+          }
+        });
+    wSqlFromFile.addModifyListener(
+        e -> {
+          if (Utils.isEmpty(wSqlFromFile.getText())) {
+            wSql.setEditable(true);
+          }
+        });
 
     // Limit input ...
     Label wlLimit = new Label(shell, SWT.RIGHT);
@@ -209,7 +265,7 @@ public class TableInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wConnection, margin);
+    fdlSql.top = new FormAttachment(wbSqlFromFile, margin);
     wlSql.setLayoutData(fdlSql);
 
     Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -217,7 +273,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wbTable.setText(BaseMessages.getString(PKG, "TableInputDialog.GetSQLAndSelectStatement"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wConnection, margin);
+    fdbTable.top = new FormAttachment(wbSqlFromFile, margin);
     wbTable.setLayoutData(fdbTable);
 
     if (EnvironmentUtils.getInstance().isWeb()) {
@@ -330,6 +386,28 @@ public class TableInputDialog extends BaseTransformDialog {
             PKG, "TableInputDialog.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
+  private void loadSqlFromFileAndSetReadOnly() {
+    String path = variables.resolve(wSqlFromFile.getText());
+    if (Utils.isEmpty(path)) {
+      wSql.setEditable(true);
+      return;
+    }
+    try {
+      String content = HopVfs.getTextFileContent(path, Const.XML_ENCODING);
+      wSql.setText(content);
+      wSql.setEditable(false);
+    } catch (HopFileException e) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+      mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));
+      mb.setMessage(
+          BaseMessages.getString(PKG, "TableInputDialog.CouldNotLoadSqlFromFile", path)
+              + Const.CR
+              + e.getMessage());
+      mb.open();
+      wSql.setEditable(true);
+    }
+  }
+
   protected void setSqlToolTip() {
     if (wVariables.getSelection()) {
       wSql.setToolTipText(variables.resolve(wSql.getText()));
@@ -344,6 +422,13 @@ public class TableInputDialog extends BaseTransformDialog {
     }
     if (input.getConnection() != null) {
       wConnection.setText(input.getConnection());
+    }
+
+    wSqlFromFile.setText(Const.NVL(input.getSqlFromFile(), ""));
+    if (!Utils.isEmpty(wSqlFromFile.getText())) {
+      loadSqlFromFileAndSetReadOnly();
+    } else {
+      wSql.setEditable(true);
     }
 
     wLimit.setText(Const.NVL(input.getRowLimit(), ""));
@@ -369,6 +454,7 @@ public class TableInputDialog extends BaseTransformDialog {
         preview && !Utils.isEmpty(wSql.getSelectionText())
             ? wSql.getSelectionText()
             : wSql.getText());
+    meta.setSqlFromFile(wSqlFromFile.getText());
 
     meta.setRowLimit(wLimit.getText());
     meta.setExecuteEachInputRow(wEachRow.getSelection());
