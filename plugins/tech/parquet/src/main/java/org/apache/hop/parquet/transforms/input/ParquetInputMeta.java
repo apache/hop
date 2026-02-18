@@ -173,7 +173,7 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
           hopType =
               switch (primitiveType.getPrimitiveTypeName()) {
                 case INT32, INT64 -> IValueMeta.TYPE_INTEGER;
-                case INT96 -> IValueMeta.TYPE_BINARY;
+                case INT96 -> IValueMeta.TYPE_TIMESTAMP;
                 case FLOAT, DOUBLE -> IValueMeta.TYPE_NUMBER;
                 case BOOLEAN -> IValueMeta.TYPE_BOOLEAN;
                 case BINARY -> IValueMeta.TYPE_BINARY;
