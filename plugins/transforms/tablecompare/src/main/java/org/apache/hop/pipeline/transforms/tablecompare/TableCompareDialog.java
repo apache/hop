@@ -26,9 +26,11 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.LabelCombo;
@@ -591,30 +593,36 @@ public class TableCompareDialog extends BaseTransformDialog {
     input.setValueReferenceField(wReferenceValue.getText());
     input.setValueCompareField(wCompareValue.getText());
 
-    DatabaseMeta refDatabaseMeta =
-        pipelineMeta.findDatabase(input.getReferenceConnection(), variables);
-    if (refDatabaseMeta == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG, "TableCompareDialog.InvalidConnection.ReferenceConnection.DialogMessage"));
-      mb.setText(
-          BaseMessages.getString(
-              PKG, "TableCompareDialog.InvalidConnection.ReferenceConnection.DialogTitle"));
-      mb.open();
-    }
+    try {
+      IHopMetadataSerializer<DatabaseMeta> serializer =
+          metadataProvider.getSerializer(DatabaseMeta.class);
+      String realRefName = variables.resolve(input.getReferenceConnection());
+      DatabaseMeta refDatabaseMeta = serializer.load(realRefName);
+      if (refDatabaseMeta == null) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(
+            BaseMessages.getString(
+                PKG, "TableCompareDialog.InvalidConnection.ReferenceConnection.DialogMessage"));
+        mb.setText(
+            BaseMessages.getString(
+                PKG, "TableCompareDialog.InvalidConnection.ReferenceConnection.DialogTitle"));
+        mb.open();
+      }
 
-    DatabaseMeta compDatabaseMeta =
-        pipelineMeta.findDatabase(input.getCompareConnection(), variables);
-    if (compDatabaseMeta == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG, "TableCompareDialog.InvalidConnection.ComparisonConnection.DialogMessage"));
-      mb.setText(
-          BaseMessages.getString(
-              PKG, "TableCompareDialog.InvalidConnection.ComparisonConnection.DialogTitle"));
-      mb.open();
+      String realCmpName = variables.resolve(input.getCompareConnection());
+      DatabaseMeta compDatabaseMeta = serializer.load(realCmpName);
+      if (compDatabaseMeta == null) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(
+            BaseMessages.getString(
+                PKG, "TableCompareDialog.InvalidConnection.ComparisonConnection.DialogMessage"));
+        mb.setText(
+            BaseMessages.getString(
+                PKG, "TableCompareDialog.InvalidConnection.ComparisonConnection.DialogTitle"));
+        mb.open();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error validating database connection", e);
     }
 
     dispose();
