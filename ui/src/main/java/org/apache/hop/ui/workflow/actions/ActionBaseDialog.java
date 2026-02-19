@@ -174,8 +174,14 @@ public abstract class ActionBaseDialog extends ActionDialog {
   }
 
   protected void createElements() {
+    loading = true;
 
-    ModifyListener lsMod = e -> getAction().setChanged();
+    ModifyListener lsMod =
+        e -> {
+          if (!loading) {
+            getAction().setChanged();
+          }
+        };
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 15;
