@@ -24,15 +24,19 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.ShortcutDisplayUtil;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -101,7 +105,7 @@ public class ConfigKeyboardShortcutsTab {
       monoFont = new Font(display, monoFontData);
     }
 
-    // Get all keyboard shortcuts from the registry
+    // Get all keyboard shortcuts from the registry (sorted by method name, then OS)
     GuiRegistry guiRegistry = GuiRegistry.getInstance();
     Map<String, List<KeyboardShortcut>> shortcutsMap = guiRegistry.getShortCutsMap();
 
@@ -114,7 +118,7 @@ public class ConfigKeyboardShortcutsTab {
     Collections.sort(classNames);
 
     for (String className : classNames) {
-      List<KeyboardShortcut> allShortcuts = shortcutsMap.get(className);
+      List<KeyboardShortcut> allShortcuts = guiRegistry.getKeyboardShortcuts(className);
       if (allShortcuts == null || allShortcuts.isEmpty()) {
         continue;
       }
@@ -282,44 +286,12 @@ public class ConfigKeyboardShortcutsTab {
     fdKeys.width = 200; // Fixed width for shortcut column
     keysComposite.setLayoutData(fdKeys);
 
-    // Add modifier keys and main key
-    // Standard order for macOS: Command, Shift, Alt, Control (Apple convention)
-    // Standard order for other OS: Control, Alt, Shift
-    boolean isMacOS = Const.isOSX();
+    // Add modifier keys and main key (same order and symbols as menus/toolbars)
     Control lastKey = null;
-
-    if (isMacOS) {
-      // macOS order: Command first, then Shift, then Alt/Option, then Control
-      if (shortcut.isCommand()) {
-        lastKey = createKeyBadge(keysComposite, "⌘", lastKey, margin);
-      }
-      if (shortcut.isShift()) {
-        lastKey = createKeyBadge(keysComposite, "⇧", lastKey, margin);
-      }
-      if (shortcut.isAlt()) {
-        lastKey = createKeyBadge(keysComposite, "⌥", lastKey, margin);
-      }
-      if (shortcut.isControl()) {
-        lastKey = createKeyBadge(keysComposite, "⌃", lastKey, margin);
-      }
-    } else {
-      // Windows/Linux order: Control, Alt, Shift, Command
-      if (shortcut.isControl()) {
-        lastKey = createKeyBadge(keysComposite, "Ctrl", lastKey, margin);
-      }
-      if (shortcut.isAlt()) {
-        lastKey = createKeyBadge(keysComposite, "Alt", lastKey, margin);
-      }
-      if (shortcut.isShift()) {
-        lastKey = createKeyBadge(keysComposite, "Shift", lastKey, margin);
-      }
-      if (shortcut.isCommand()) {
-        lastKey = createKeyBadge(keysComposite, "Cmd", lastKey, margin);
-      }
+    for (String modifier : ShortcutDisplayUtil.getModifierDisplayStrings(shortcut)) {
+      lastKey = createKeyBadge(keysComposite, modifier, lastKey, margin);
     }
-
-    // Add the main key
-    String keyText = getKeyText(shortcut.getKeyCode());
+    String keyText = ShortcutDisplayUtil.getKeyDisplayText(shortcut.getKeyCode());
     if (!Utils.isEmpty(keyText)) {
       lastKey = createKeyBadge(keysComposite, keyText, lastKey, margin);
     }
@@ -410,130 +382,6 @@ public class ConfigKeyboardShortcutsTab {
   }
 
   /**
-   * Converts a key code to a readable string.
-   *
-   * @param keyCode The SWT key code
-   * @return A readable key string
-   */
-  private String getKeyText(int keyCode) {
-    boolean isMacOS = Const.isOSX();
-
-    // Keypad key conversions (match the logic in HopGuiKeyHandler)
-    if (keyCode == SWT.KEYPAD_ADD) {
-      return "+";
-    } else if (keyCode == SWT.KEYPAD_SUBTRACT) {
-      return "-";
-    } else if (keyCode == SWT.KEYPAD_MULTIPLY) {
-      return "*";
-    } else if (keyCode == SWT.KEYPAD_DIVIDE) {
-      return "/";
-    } else if (keyCode == SWT.KEYPAD_EQUAL) {
-      return "=";
-    } else if (keyCode == SWT.KEYPAD_DECIMAL) {
-      return ".";
-    } else if (keyCode == SWT.KEYPAD_CR) {
-      return "↵";
-    } else if (keyCode >= SWT.KEYPAD_0 && keyCode <= SWT.KEYPAD_9) {
-      // Keypad 0-9
-      return String.valueOf(keyCode - SWT.KEYPAD_0);
-    }
-
-    // Spacebar
-    if (keyCode == 32) {
-      return "Space";
-    }
-    // Character upper
-    else if (keyCode >= 65 && keyCode <= 90) {
-      return String.valueOf((char) keyCode);
-    }
-    // Character lower
-    else if (keyCode >= 97 && keyCode <= 122) {
-      return String.valueOf(Character.toUpperCase((char) keyCode));
-    }
-    // Delete key
-    else if (keyCode == 127) {
-      return isMacOS ? "⌫" : "Del";
-    }
-    // Digit and common symbols
-    else if ((keyCode >= 48 && keyCode <= 57) || "+-/*=".indexOf(keyCode) >= 0) {
-      return String.valueOf((char) keyCode);
-    }
-
-    // Special keys (SWT constants)
-    if ((keyCode & (1 << 24)) != 0) {
-      switch (keyCode & (0xFFFF)) {
-        case 1:
-          return "↑";
-        case 2:
-          return "↓";
-        case 3:
-          return "←";
-        case 4:
-          return "→";
-        case 5:
-          return "PgUp";
-        case 6:
-          return "PgDn";
-        case 7:
-          return "Home";
-        case 8:
-          return "End";
-        case 9:
-          return "Ins";
-        case 10:
-          return "F1";
-        case 11:
-          return "F2";
-        case 12:
-          return "F3";
-        case 13:
-          return "F4";
-        case 14:
-          return "F5";
-        case 15:
-          return "F6";
-        case 16:
-          return "F7";
-        case 17:
-          return "F8";
-        case 18:
-          return "F9";
-        case 19:
-          return "F10";
-        case 20:
-          return "F11";
-        case 21:
-          return "F12";
-        case 22:
-          return "F13";
-        case 23:
-          return "F14";
-        case 24:
-          return "F15";
-        case 25:
-          return "F16";
-        case 26:
-          return "F17";
-        case 27:
-          return "F18";
-        case 28:
-          return "F19";
-        case 29:
-          return "F20";
-        default:
-          break;
-      }
-    }
-
-    // ESC key
-    if (keyCode == SWT.ESC) {
-      return isMacOS ? "⎋" : "Esc";
-    }
-
-    return "";
-  }
-
-  /**
    * Formats a method name to be more readable.
    *
    * @param methodName The method name
@@ -560,25 +408,31 @@ public class ConfigKeyboardShortcutsTab {
     return formatted.toString();
   }
 
-  /**
-   * Gets a friendly plugin name from a fully qualified class name. Checks GuiPlugin annotation for
-   * name or id, otherwise falls back to the simple class name.
-   *
-   * @param className The fully qualified class name
-   * @return The plugin name, id, or simple class name
-   */
+  /** Plugin name from class name: registry first, then @GuiPlugin, then simple name. */
   private String getPluginName(String className) {
     if (Utils.isEmpty(className)) {
       return "";
     }
 
     try {
-      // Try to load the class and get its GuiPlugin annotation
+      String pluginName =
+          PluginRegistry.getInstance().getPlugins(GuiPluginType.class).stream()
+              .filter(p -> p.getClassMap().values().contains(className))
+              .findFirst()
+              .map(IPlugin::getName)
+              .orElse(null);
+      if (!Utils.isEmpty(pluginName)) {
+        return pluginName;
+      }
+    } catch (Exception e) {
+      // Fall through
+    }
+
+    try {
       Class<?> clazz = Class.forName(className);
       GuiPlugin annotation = clazz.getAnnotation(GuiPlugin.class);
 
       if (annotation != null) {
-        // First try to get the name
         if (!Utils.isEmpty(annotation.name())) {
           String name = TranslateUtil.translate(annotation.name(), clazz);
           if (!Utils.isEmpty(name)) {
@@ -586,16 +440,14 @@ public class ConfigKeyboardShortcutsTab {
           }
         }
 
-        // Fall back to id if name is empty
         if (!Utils.isEmpty(annotation.id())) {
           return annotation.id();
         }
       }
     } catch (Exception e) {
-      // Fall through to simple class name
+      // ignore
     }
 
-    // Fallback to simple class name
     int lastDot = className.lastIndexOf('.');
     if (lastDot >= 0 && lastDot < className.length() - 1) {
       return className.substring(lastDot + 1);

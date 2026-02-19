@@ -141,8 +141,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     return "execution-perspective";
   }
 
-  @GuiKeyboardShortcut(control = true, shift = true, key = 'i')
-  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'i')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'i', global = true)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'i', global = true)
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);

@@ -25,10 +25,13 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -50,6 +53,31 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     this.menuItemMap = new HashMap<>();
     this.shortcutMap = new HashMap<>();
     this.menuEnabledMap = new HashMap<>();
+  }
+
+  /** Pre-create shortcut plugin instances so their shortcuts work before menu is used. */
+  public void ensureShortcutPluginInstancesRegistered() {
+    GuiRegistry guiRegistry = GuiRegistry.getInstance();
+    PluginRegistry pluginRegistry = PluginRegistry.getInstance();
+    for (String className : guiRegistry.getShortCutsMap().keySet()) {
+      try {
+        IPlugin plugin =
+            pluginRegistry.getPlugins(GuiPluginType.class).stream()
+                .filter(p -> p.getClassMap().values().contains(className))
+                .findFirst()
+                .orElse(null);
+        if (plugin == null) {
+          continue;
+        }
+        findGuiPluginInstance(pluginRegistry.getClassLoader(plugin), className, instanceId);
+      } catch (Exception e) {
+        LogChannel.UI.logDebug(
+            "Could not pre-register shortcut plugin instance for "
+                + className
+                + ": "
+                + e.getMessage());
+      }
+    }
   }
 
   public void createMenuWidgets(String root, Shell shell, Menu parent) {
@@ -183,7 +211,8 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
                 guiMenuItem.getListenerClassName(), guiMenuItem.getListenerMethod(), Const.isOSX());
     if (shortcut != null) {
       appendShortCut(menuItem, shortcut);
-      menuItem.setAccelerator(getAccelerator(shortcut));
+      // Do not set menu accelerators; keyboard shortcuts are handled only by HopGuiKeyHandler
+      // so the correct context (focus) is used. Menu still shows shortcut text for discoverability.
       shortcutMap.put(guiMenuItem.getId(), shortcut);
     }
   }
@@ -211,74 +240,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
   }
 
   public static String getShortcutString(KeyboardShortcut shortcut) {
-    String s = shortcut.toString();
-    if (StringUtils.isEmpty(s) || s.endsWith("+")) {
-      // Unknown characters from the SWT library
-      // We'll handle the special cases here.
-      //
-      int keyCode = shortcut.getKeyCode();
-      if (keyCode == SWT.BS) {
-        return s + "Backspace";
-      }
-      if (keyCode == SWT.ESC) {
-        return s + "Esc";
-      }
-      if (keyCode == SWT.DEL) {
-        return s + "Delete";
-      }
-      if (keyCode == SWT.ARROW_LEFT) {
-        return s + "Left";
-      }
-      if (keyCode == SWT.ARROW_RIGHT) {
-        return s + "Right";
-      }
-      if (keyCode == SWT.ARROW_UP) {
-        return s + "Up";
-      }
-      if (keyCode == SWT.ARROW_DOWN) {
-        return s + "Down";
-      }
-      if (keyCode == SWT.HOME) {
-        return s + "Home";
-      }
-      if (keyCode == SWT.F1) {
-        return s + "F1";
-      }
-      if (keyCode == SWT.F2) {
-        return s + "F2";
-      }
-      if (keyCode == SWT.F3) {
-        return s + "F3";
-      }
-      if (keyCode == SWT.F4) {
-        return s + "F4";
-      }
-      if (keyCode == SWT.F5) {
-        return s + "F5";
-      }
-      if (keyCode == SWT.F6) {
-        return s + "F6";
-      }
-      if (keyCode == SWT.F7) {
-        return s + "F7";
-      }
-      if (keyCode == SWT.F8) {
-        return s + "F8";
-      }
-      if (keyCode == SWT.F9) {
-        return s + "F9";
-      }
-      if (keyCode == SWT.F10) {
-        return s + "F10";
-      }
-      if (keyCode == SWT.F11) {
-        return s + "F11";
-      }
-      if (keyCode == SWT.F12) {
-        return s + "F12";
-      }
-    }
-    return s;
+    return ShortcutDisplayUtil.getShortcutDisplayString(shortcut);
   }
 
   /**

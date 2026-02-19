@@ -99,7 +99,6 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
-import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -248,8 +247,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     return "explorer-perspective";
   }
 
-  @GuiKeyboardShortcut(control = true, shift = true, key = 'd')
-  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'd')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'd', global = true)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'd', global = true)
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -1746,12 +1745,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @GuiKeyboardShortcut(key = SWT.DEL)
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
-    // Only handle delete if a file was the last selected item
-    HopGuiSelectionTracker selectionTracker = HopGuiSelectionTracker.getInstance();
-    if (!selectionTracker.isLastSelection(HopGuiSelectionTracker.SelectionType.FILE_EXPLORER)) {
-      return;
-    }
-
+    // Shortcut only fires when focus is in file explorer
     TreeItem[] selection = tree.getSelection();
     if (selection == null || selection.length == 0) {
       return;
@@ -2375,9 +2369,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       if (tif == null) {
         return;
       }
-      // Track that a file was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.FILE_EXPLORER);
     }
 
     boolean isFolderSelected = tif != null && tif.fileType instanceof FolderFileType;

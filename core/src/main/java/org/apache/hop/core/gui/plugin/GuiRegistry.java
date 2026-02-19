@@ -492,8 +492,27 @@ public class GuiRegistry {
     shortcuts.add(new KeyboardShortcut(shortcut, parentMethod));
   }
 
+  /**
+   * Returns keyboard shortcuts for the given class in a stable order: by method name, then by
+   * isOsx() (non-OSX before OSX). Callers (menus, config panel, key handler) then see a consistent
+   * modifier/key order and display order.
+   */
   public List<KeyboardShortcut> getKeyboardShortcuts(String parentClassName) {
-    return shortCutsMap.get(parentClassName);
+    List<KeyboardShortcut> list = shortCutsMap.get(parentClassName);
+    if (list == null) {
+      return null;
+    }
+    if (list.isEmpty()) {
+      return list;
+    }
+    List<KeyboardShortcut> sorted = new ArrayList<>(list);
+    sorted.sort(
+        (a, b) -> {
+          int c = a.getParentMethodName().compareTo(b.getParentMethodName());
+          if (c != 0) return c;
+          return Boolean.compare(a.isOsx(), b.isOsx());
+        });
+    return sorted;
   }
 
   /**
