@@ -70,6 +70,9 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
   @HopMetadataProperty(key = "metadata_filename")
   private String metadataFilename;
 
+  @HopMetadataProperty(key = "nulls_when_empty")
+  private boolean sendingNullsRowWhenEmpty;
+
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<ParquetField> fields;
 
