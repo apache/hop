@@ -97,8 +97,8 @@ public class HopSearchPerspective implements IHopPerspective {
   }
 
   @Override
-  @GuiKeyboardShortcut(control = true, key = 'f')
-  @GuiOsxKeyboardShortcut(command = true, key = 'f')
+  @GuiKeyboardShortcut(control = true, key = 'f', global = true)
+  @GuiOsxKeyboardShortcut(command = true, key = 'f', global = true)
   public void activate() {
     // Someone clicked on the search icon of used CTRL-F
     //

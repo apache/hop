@@ -17,7 +17,12 @@
 
 package org.apache.hop.ui.hopgui.terminal;
 
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
@@ -27,8 +32,10 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -50,19 +57,22 @@ import org.eclipse.swt.widgets.ToolItem;
  * section and the terminal panel in the bottom section. The terminal panel persists across
  * perspective switches.
  */
+@GuiPlugin(name = "Terminal panel", description = "Terminal panel")
 public class HopGuiTerminalPanel extends Composite implements TabClosable {
+
+  public static final String ID_MAIN_MENU_TOOLS_TERMINAL = "40010-menu-tools-terminal";
+  public static final String ID_MAIN_MENU_TOOLS_NEW_TERMINAL = "40020-menu-tools-new-terminal";
 
   private final HopGui hopGui;
 
   private SashForm verticalSash;
-  private Composite perspectiveComposite;
+  @Getter private Composite perspectiveComposite;
   private Composite bottomPanelComposite;
   private Composite terminalComposite;
-  private CTabFolder terminalTabs;
+  @Getter private CTabFolder terminalTabs;
   private CTabItem newTerminalTab;
-
-  private boolean terminalVisible = false;
-  private int terminalHeightPercent = 35;
+  @Getter private boolean terminalVisible = false;
+  @Getter private int terminalHeightPercent = 35;
   private boolean isClearing = false;
   private int terminalCounter = 1;
 
@@ -106,6 +116,11 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     createBottomPanel();
 
     verticalSash.setMaximizedControl(perspectiveComposite);
+
+    // Register with key handler so Ctrl+J / Cmd+J and Ctrl+Shift+J / Cmd+Shift+J work in this panel
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this);
+    hopGui.replaceKeyboardShortcutListeners(this, keyHandler);
   }
 
   /** Create the bottom panel with terminal */
@@ -311,7 +326,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     if (!terminalVisible) {
       verticalSash.setMaximizedControl(null);
       int perspectivePercent = 100 - terminalHeightPercent;
-      verticalSash.setWeights(new int[] {perspectivePercent, terminalHeightPercent});
+      verticalSash.setWeights(perspectivePercent, terminalHeightPercent);
       terminalVisible = true;
 
       if (terminalTabs.getItemCount() <= 1) {
@@ -320,11 +335,6 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
       layout(true, true);
     }
-  }
-
-  /** Check if terminal panel is currently visible */
-  public boolean isTerminalVisible() {
-    return terminalVisible;
   }
 
   /** Hide the terminal panel */
@@ -337,12 +347,37 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   }
 
   /** Toggle terminal panel visibility */
+  @GuiMenuElement(
+      root = HopGui.ID_MAIN_MENU,
+      id = ID_MAIN_MENU_TOOLS_TERMINAL,
+      label = "i18n::HopGuiTerminalPanel.Menu.Terminal",
+      parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID)
+  @GuiKeyboardShortcut(control = true, key = 'j', global = true)
+  @GuiOsxKeyboardShortcut(command = true, key = 'j', global = true)
   public void toggleTerminal() {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
     if (terminalVisible) {
       hideTerminal();
     } else {
       showTerminal();
     }
+  }
+
+  /** Open a new terminal tab */
+  @GuiMenuElement(
+      root = HopGui.ID_MAIN_MENU,
+      id = ID_MAIN_MENU_TOOLS_NEW_TERMINAL,
+      label = "i18n::HopGuiTerminalPanel.Menu.NewTerminal",
+      parentId = HopGui.ID_MAIN_MENU_TOOLS_PARENT_ID)
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'j', global = true)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'j', global = true)
+  public void newTerminal() {
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      return;
+    }
+    createNewTerminal(null, null);
   }
 
   /** Close a terminal tab (implements TabClosable interface) */
@@ -443,7 +478,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           } else {
             // Restore normal split
             verticalSash.setMaximizedControl(null);
-            verticalSash.setWeights(new int[] {100 - terminalHeightPercent, terminalHeightPercent});
+            verticalSash.setWeights(100 - terminalHeightPercent, terminalHeightPercent);
             maximizeItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
             maximizeItem.setToolTipText("Maximize terminal panel");
           }
@@ -670,29 +705,14 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     }
   }
 
-  /** Get the perspective composite */
-  public Composite getPerspectiveComposite() {
-    return perspectiveComposite;
-  }
-
-  /** Get the terminal tabs folder */
-  public CTabFolder getTerminalTabs() {
-    return terminalTabs;
-  }
-
   /** Set terminal height percentage */
   public void setTerminalHeightPercent(int percent) {
     if (percent > 0 && percent < 100) {
       this.terminalHeightPercent = percent;
       if (terminalVisible) {
         int perspectivePercent = 100 - terminalHeightPercent;
-        verticalSash.setWeights(new int[] {perspectivePercent, terminalHeightPercent});
+        verticalSash.setWeights(perspectivePercent, terminalHeightPercent);
       }
     }
-  }
-
-  /** Get current terminal height percentage */
-  public int getTerminalHeightPercent() {
-    return terminalHeightPercent;
   }
 }

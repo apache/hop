@@ -32,8 +32,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.callback.GuiCallback;
-import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
-import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
@@ -318,8 +316,6 @@ public class GitGuiPlugin
       id = TOOLBAR_ITEM_PULL,
       toolTip = "i18n::GitGuiPlugin.Toolbar.Pull.Tooltip",
       image = "pull.svg")
-  @GuiKeyboardShortcut(control = true, key = 'T')
-  @GuiOsxKeyboardShortcut(control = true, key = 'T')
   public void gitPull() {
     try {
       if (git.pull()) {

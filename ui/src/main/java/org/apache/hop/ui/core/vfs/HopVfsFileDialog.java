@@ -64,6 +64,7 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.core.widget.TreeUtil;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
@@ -106,7 +107,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
-@GuiPlugin(description = "Allows you to browse to local or VFS locations")
+@GuiPlugin(name = "File Browser", description = "Allows you to browse to local or VFS locations")
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private static final Class<?> PKG = HopVfsFileDialog.class;
@@ -579,6 +580,11 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     // Set the focus on the filename
     //
     wFilename.setFocus();
+
+    // So Delete etc. work and we're tried before the active perspective
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this, shell);
+    HopGui.getInstance().replaceKeyboardShortcutListeners(shell, keyHandler);
 
     shell.open();
 
@@ -1146,6 +1152,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     bookmarksToolbarWidgets.dispose();
     browserToolbarWidgets.dispose();
 
+    HopGuiKeyHandler.getInstance().removeParentObjectToHandle(this);
     shell.dispose();
   }
 
@@ -1401,7 +1408,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       id = BROWSER_ITEM_ID_DELETE,
       toolTip = "i18n::HopVfsFileDialog.DeleteFile.Tooltip.Message",
       image = "ui/images/delete.svg")
-  // FIXME: Keyboard don't work
   @GuiKeyboardShortcut(key = SWT.DEL)
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   public void deleteFile() {
