@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -282,6 +283,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
    */
   public String getTextFileContent(String vfsFilename, String encoding) throws HopException {
     InputStream inputStream = null;
+    CountingInputStream countingStream = null;
     String retval = null;
     try {
       // HACK: Check for local files, use a FileInputStream in that case
@@ -292,6 +294,8 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
       } else {
         inputStream = HopVfs.getInputStream(vfsFilename, variables);
       }
+      countingStream = new CountingInputStream(inputStream);
+      inputStream = countingStream;
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       data.tikaOutput.parse(inputStream, meta.getOutputFormat(), baos);
       retval = baos.toString();
@@ -299,12 +303,16 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
       throw new HopException(
           BaseMessages.getString(PKG, "Tika.Error.GettingFileContent", vfsFilename, e.toString()),
           e);
-    }
-    if (inputStream != null) {
-      try {
-        inputStream.close();
-      } catch (Exception e) {
-        logError("Error closing reader", e);
+    } finally {
+      if (countingStream != null) {
+        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingStream.getCount();
+      }
+      if (inputStream != null) {
+        try {
+          inputStream.close();
+        } catch (Exception e) {
+          logError("Error closing reader", e);
+        }
       }
     }
     return retval;

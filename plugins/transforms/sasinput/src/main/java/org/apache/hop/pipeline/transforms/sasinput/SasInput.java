@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -109,7 +110,8 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
     // Read the SAS File
     //
     try (InputStream inputStream = HopVfs.getInputStream(filename, variables)) {
-      SasFileReaderImpl sasFileReader = new SasFileReaderImpl(inputStream);
+      CountingInputStream counting = new CountingInputStream(inputStream);
+      SasFileReaderImpl sasFileReader = new SasFileReaderImpl(counting);
       SasFileProperties sasFileProperties = sasFileReader.getSasFileProperties();
 
       logBasic(BaseMessages.getString(PKG, "SASInput.Log.OpenedSASFile") + " : [" + filename + "]");
@@ -201,6 +203,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
           break;
         }
       }
+      dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + counting.getCount();
     } catch (Exception e) {
       throw new HopException("Error reading from file " + filename, e);
     }

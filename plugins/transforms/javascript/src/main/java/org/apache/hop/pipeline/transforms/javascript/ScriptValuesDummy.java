@@ -94,6 +94,21 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
+  public Long getDataVolume() {
+    return null;
+  }
+
+  @Override
+  public Long getDataVolumeIn() {
+    return null;
+  }
+
+  @Override
+  public Long getDataVolumeOut() {
+    return null;
+  }
+
+  @Override
   public long getLinesUpdated() {
     return 0;
   }

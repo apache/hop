@@ -38,6 +38,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.io.CountingInputStream;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.vfs.HopVfs;
@@ -133,11 +135,12 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
 
       data.files.add(fileObject); // Remember the files!
       OutputStream outputStream = HopVfs.getOutputStream(fileObject, false);
+      CountingOutputStream counting = new CountingOutputStream(outputStream);
       if (data.compressFiles) {
-        gzos = new GZIPOutputStream(new BufferedOutputStream(outputStream));
+        gzos = new GZIPOutputStream(new BufferedOutputStream(counting));
         dos = new DataOutputStream(gzos);
       } else {
-        dos = new DataOutputStream(new BufferedOutputStream(outputStream, 500000));
+        dos = new DataOutputStream(new BufferedOutputStream(counting, 500000));
         gzos = null;
       }
 
@@ -200,7 +203,8 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       if (gzos != null) {
         gzos.close(); // close gzip stream
       }
-      outputStream.close(); // close file stream
+      counting.close(); // close counting (and underlying file stream)
+      dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + counting.getCount();
 
       // How much memory do we have left?
       //
@@ -244,12 +248,19 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
             logDetailed(BaseMessages.getString(PKG, "SortRows.Detailed.OpeningTempFile", filename));
           }
           InputStream fi = HopVfs.getInputStream(fileObject);
+          CountingInputStream countingFi = new CountingInputStream(fi);
+          data.countingInputStreams.add(countingFi);
+          data.fis.add(countingFi);
           DataInputStream di;
-          data.fis.add(fi);
           if (data.compressFiles) {
-            di = getDataInputStream(new GZIPInputStream(new BufferedInputStream(fi)));
+            di =
+                getDataInputStream(
+                    new GZIPInputStream(
+                        new BufferedInputStream(data.fis.get(data.fis.size() - 1))));
           } else {
-            di = new DataInputStream(new BufferedInputStream(fi, 50000));
+            di =
+                new DataInputStream(
+                    new BufferedInputStream(data.fis.get(data.fis.size() - 1), 50000));
           }
           data.dis.add(di);
 
@@ -325,6 +336,11 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         } catch (HopFileException fe) { // empty file or EOF mostly
           GZIPInputStream gzfi = (data.compressFiles) ? data.gzis.get(smallest) : null;
           try {
+            if (smallest < data.countingInputStreams.size()) {
+              dataVolumeIn =
+                  (dataVolumeIn != null ? dataVolumeIn : 0L)
+                      + data.countingInputStreams.get(smallest).getCount();
+            }
             di.close();
             fi.close();
             if (gzfi != null) {
@@ -343,6 +359,9 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
           data.files.remove(smallest);
           data.dis.remove(smallest);
           data.fis.remove(smallest);
+          if (smallest < data.countingInputStreams.size()) {
+            data.countingInputStreams.remove(smallest);
+          }
 
           if (gzfi != null) {
             data.gzis.remove(smallest);

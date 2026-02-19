@@ -30,6 +30,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -253,7 +254,8 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       }
 
       data.outputStream = HopVfs.getOutputStream(data.filename, false, variables);
-      data.outputFile = new ParquetOutputFile(data.outputStream);
+      data.countingStream = new CountingOutputStream(data.outputStream);
+      data.outputFile = new ParquetOutputFile(data.countingStream);
 
       data.writer =
           new ParquetWriterBuilder(
@@ -305,6 +307,10 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   private void closeFile() throws HopException {
     try {
       data.writer.close();
+      if (data.countingStream != null) {
+        dataVolumeOut =
+            (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+      }
     } catch (Exception e) {
       throw new HopException("Error closing file " + data.filename, e);
     }

@@ -154,6 +154,15 @@ public class PipelineLogging extends BaseTransform<PipelineLoggingMeta, Pipeline
         // Lines rejected
         transformRow[index++] = component.getLinesRejected();
 
+        // Data volume (bytes from getRow); null when HOP_METRIC_DATA_VOLUME was not enabled
+        transformRow[index++] = component.getDataVolume();
+
+        // Data volume in (bytes from InputStream; input transforms only)
+        transformRow[index++] = component.getDataVolumeIn();
+
+        // Data volume out (bytes from OutputStream; output transforms only)
+        transformRow[index++] = component.getDataVolumeOut();
+
         // Errors
         transformRow[index++] = component.getErrors();
 

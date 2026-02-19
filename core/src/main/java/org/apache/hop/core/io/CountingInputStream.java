@@ -14,19 +14,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.pipeline.transforms.ldapoutput;
 
-import org.apache.hop.metadata.api.IIntCodeConverter;
+package org.apache.hop.core.io;
 
-/** Converter for LDAP Output referral type (int {@literal <->} code string) */
-public class LdapOutputReferralTypeConverter implements IIntCodeConverter {
-  @Override
-  public String getCode(int type) {
-    return LdapOutputMeta.getReferralTypeCode(type);
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+/**
+ * InputStream that counts the total number of bytes read. Use for data volume metrics (e.g. bytes
+ * read from a file).
+ */
+public class CountingInputStream extends FilterInputStream {
+
+  private long count;
+
+  public CountingInputStream(InputStream in) {
+    super(in);
   }
 
   @Override
-  public int getType(String code) {
-    return LdapOutputMeta.getReferralTypeByCode(code);
+  public int read() throws IOException {
+    int n = in.read();
+    if (n != -1) {
+      count++;
+    }
+    return n;
+  }
+
+  @Override
+  public int read(byte[] b, int off, int len) throws IOException {
+    int n = in.read(b, off, len);
+    if (n > 0) {
+      count += n;
+    }
+    return n;
+  }
+
+  /**
+   * @return total bytes read so far
+   */
+  public long getCount() {
+    return count;
   }
 }

@@ -813,6 +813,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         }
 
         if (!simulate) {
+          trackBytesMoved(sourceFileFolder, result);
           destinationFilename.createFile();
           sourceFileFolder.moveTo(destinationFilename);
         }
@@ -844,6 +845,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         switch (ifFileExists) {
           case "overwrite_file" -> {
             if (!simulate) {
+              trackBytesMoved(sourceFileFolder, result);
               sourceFileFolder.moveTo(destinationFilename);
             }
             if (isDetailed()) {
@@ -888,6 +890,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             destinationFile = HopVfs.getFileObject(movetofilenamefull, getVariables());
 
             if (!simulate) {
+              trackBytesMoved(sourceFileFolder, result);
               sourceFileFolder.moveTo(destinationFile);
             }
             if (isDetailed()) {
@@ -943,6 +946,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
             destinationFile = HopVfs.getFileObject(moveToFilenameFull, getVariables());
             if (!destinationFile.exists()) {
               if (!simulate) {
+                trackBytesMoved(sourceFileFolder, result);
                 sourceFileFolder.moveTo(destinationFile);
               }
               if (isDetailed()) {
@@ -963,6 +967,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               switch (ifMovedFileExists) {
                 case "overwrite_file" -> {
                   if (!simulate) {
+                    trackBytesMoved(sourceFileFolder, result);
                     sourceFileFolder.moveTo(destinationFile);
                   }
                   if (isDetailed()) {
@@ -995,6 +1000,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                   destinationFile = HopVfs.getFileObject(destinationFilenameFull, getVariables());
 
                   if (!simulate) {
+                    trackBytesMoved(sourceFileFolder, result);
                     sourceFileFolder.moveTo(destinationFile);
                   }
                   if (isDetailed()) {
@@ -1216,6 +1222,18 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       logError(
           BaseMessages.getString(PKG, "ActionMoveFiles.Error.AddingToFilenameResult"),
           fileaddentry + "" + e.getMessage());
+    }
+  }
+
+  private void trackBytesMoved(FileObject sourceFile, Result result) {
+    try {
+      if (sourceFile.getType().hasContent()) {
+        long size = sourceFile.getContent().getSize();
+        result.setBytesReadThisAction(result.getBytesReadThisAction() + size);
+        result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + size);
+      }
+    } catch (Exception e) {
+      logDebug("Could not get size of source file: " + sourceFile);
     }
   }
 

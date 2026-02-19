@@ -193,6 +193,17 @@ public interface IRowMeta extends Cloneable {
   byte[] getBinary(Object[] dataRow, int index) throws HopValueException;
 
   /**
+   * Returns a fast estimate of the row size in bytes without serializing. Uses only the Java
+   * runtime types of the values in the row (e.g. {@code instanceof String}, {@code byte[]}); no
+   * IValueMeta or metadata is used. No allocation; suitable for high-throughput metrics. The result
+   * is an approximation.
+   *
+   * @param dataRow the data row
+   * @return estimated size in bytes, or null if dataRow is null (no data)
+   */
+  Long getRowSizeEstimate(Object[] dataRow);
+
+  /**
    * Clone row.
    *
    * @param objects objects to clone

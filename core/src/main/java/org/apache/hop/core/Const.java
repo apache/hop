@@ -570,6 +570,16 @@ public class Const {
   public static final String HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT =
       "HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT";
 
+  /**
+   * When set to Y or true, pipeline transforms track estimated data volume (bytes in) on the input
+   * side. The metric is exposed in pipeline metrics and can have a performance impact.
+   */
+  @Variable(
+      value = "N",
+      description =
+          "Enable pipeline metric for data volume (bytes in) per transform. When Y or true, each transform tracks estimated bytes read on input.")
+  public static final String HOP_METRIC_DATA_VOLUME = "HOP_METRIC_DATA_VOLUME";
+
   /** A variable to configure the maximum number of workflow trackers kept in memory. */
   @Variable(
       value = "5000",

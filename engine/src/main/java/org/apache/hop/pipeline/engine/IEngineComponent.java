@@ -93,6 +93,30 @@ public interface IEngineComponent {
 
   long getLinesUpdated();
 
+  /**
+   * Data volume: estimated bytes from rows on getRow (when HOP_METRIC_DATA_VOLUME is enabled).
+   * Row-based estimate of data between transforms. Null when not tracked.
+   *
+   * @return estimated data volume in bytes, or null if not tracked
+   */
+  Long getDataVolume();
+
+  /**
+   * Data volume in: bytes read from an actual InputStream. Only available for input transforms that
+   * read from external sources (file, network, etc.). Null for other transforms.
+   *
+   * @return bytes read from InputStream, or null if not applicable
+   */
+  Long getDataVolumeIn();
+
+  /**
+   * Data volume out: bytes written to an actual OutputStream. Only available for output transforms
+   * that write to external destinations (file, network, etc.). Null for other transforms.
+   *
+   * @return bytes written to OutputStream, or null if not applicable
+   */
+  Long getDataVolumeOut();
+
   String getStatusDescription();
 
   long getExecutionDuration();

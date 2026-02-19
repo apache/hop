@@ -27,6 +27,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -198,9 +199,10 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       if (isDetailed()) {
         logDetailed("Opening output stream in nocompress mode");
       }
-      OutputStream fos =
-          HopVfs.getOutputStream(filename, meta.getFile().isFileAppended(), variables);
-      outputStream = fos;
+      data.fos =
+          new CountingOutputStream(
+              HopVfs.getOutputStream(filename, meta.getFile().isFileAppended(), variables));
+      outputStream = data.fos;
 
       if (isDetailed()) {
         logDetailed("Opening output stream in default encoding");
@@ -254,6 +256,9 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       if (data.fos != null) {
         if (isDebug()) {
           logDebug("Closing normal file ..");
+        }
+        if (data.fos instanceof CountingOutputStream cos) {
+          dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + cos.getCount();
         }
         data.fos.close();
         data.fos = null;

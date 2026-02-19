@@ -20,8 +20,8 @@ package org.apache.hop.pipeline.transforms.joinrows;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 @SuppressWarnings("java:S1104")
 public class JoinRowsData extends BaseTransformData implements ITransformData {
   public File[] file;
-  public FileInputStream[] fileInputStream;
+  public InputStream[] fileInputStream;
   public DataInputStream[] dataInputStream;
   public IRowMeta[] fileRowMeta;
 
@@ -43,7 +43,7 @@ public class JoinRowsData extends BaseTransformData implements ITransformData {
 
   public boolean caching;
 
-  public FileOutputStream[] fileOutputStream;
+  public OutputStream[] fileOutputStream;
   public DataOutputStream[] dataOutputStream;
 
   public Object[][] joinrow;

@@ -25,6 +25,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -191,7 +192,8 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
       }
 
       data.fos = HopVfs.getOutputStream(filename, false, variables);
-      data.zip = new GZIPOutputStream(data.fos);
+      data.countingOutputStream = new CountingOutputStream(data.fos);
+      data.zip = new GZIPOutputStream(data.countingOutputStream);
       data.dos = new DataOutputStream(data.zip);
     } catch (Exception e) {
       throw new HopFileException(e);
@@ -237,6 +239,11 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
         if (data.dos != null) {
           data.dos.close();
           data.dos = null;
+        }
+        if (data.countingOutputStream != null) {
+          dataVolumeOut =
+              (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingOutputStream.getCount();
+          data.countingOutputStream = null;
         }
         if (data.zip != null) {
           data.zip.close();

@@ -131,6 +131,15 @@ public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, Pipe
       // Number of lines rejected
       inputRowMeta.addValueMeta(new ValueMetaInteger("transformLinesRejected", 12, 0));
 
+      // Data volume (row-based estimate from getRow, when HOP_METRIC_DATA_VOLUME is enabled)
+      inputRowMeta.addValueMeta(new ValueMetaInteger("transformDataVolume", 18, 0));
+
+      // Data volume in (bytes from InputStream; input transforms only)
+      inputRowMeta.addValueMeta(new ValueMetaInteger("transformDataVolumeIn", 18, 0));
+
+      // Data volume out (bytes from OutputStream; output transforms only)
+      inputRowMeta.addValueMeta(new ValueMetaInteger("transformDataVolumeOut", 18, 0));
+
       // Number of errors
       inputRowMeta.addValueMeta(new ValueMetaInteger("transformErrors", 3, 0));
 

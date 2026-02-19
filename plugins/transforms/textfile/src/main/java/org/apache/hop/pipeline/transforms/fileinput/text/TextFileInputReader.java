@@ -26,6 +26,7 @@ import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.file.EncodingType;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -46,6 +47,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
   private final CompressionInputStream in;
 
+  private final CountingInputStream countingInputStream;
+
   private final InputStreamReader isr;
 
   protected long lineInFile;
@@ -53,6 +56,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
   private boolean first;
 
   protected long lineNumberInFile;
+
+  private long lastReportedVolumeIn;
 
   public TextFileInputReader(
       IBaseFileInputTransformControl transform,
@@ -75,7 +80,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
           "This is a compressed file being handled by the " + provider.getName() + " provider");
     }
 
-    in = provider.createInputStream(HopVfs.getInputStream(file));
+    countingInputStream = new CountingInputStream(HopVfs.getInputStream(file));
+    in = provider.createInputStream(countingInputStream);
 
     in.nextEntry();
 
@@ -412,7 +418,18 @@ public class TextFileInputReader implements IBaseFileInputReader {
       log.logBasic("linenr " + transform.getLinesInput());
     }
 
+    reportDataVolumeIn();
+
     return retval;
+  }
+
+  private void reportDataVolumeIn() {
+    long currentCount = countingInputStream.getCount();
+    long delta = currentCount - lastReportedVolumeIn;
+    if (delta > 0) {
+      transform.addDataVolumeIn(delta);
+      lastReportedVolumeIn = currentCount;
+    }
   }
 
   @Override
@@ -427,6 +444,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
         // This allows us to give a state of progress in the run time metrics
         transform.incrementLinesUpdated();
         if (in != null) {
+          reportDataVolumeIn();
           BaseTransform.closeQuietly(in);
         }
         isr.close();

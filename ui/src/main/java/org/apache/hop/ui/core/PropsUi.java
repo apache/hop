@@ -97,6 +97,9 @@ public class PropsUi extends Props {
   private static final String METRICS_PANEL_SHOW_UPDATED = "MetricsPanel.ShowUpdated";
   private static final String METRICS_PANEL_SHOW_REJECTED = "MetricsPanel.ShowRejected";
   private static final String METRICS_PANEL_SHOW_BUFFERS_INPUT = "MetricsPanel.ShowBuffersInput";
+  private static final String METRICS_PANEL_SHOW_DATA_VOLUME = "MetricsPanel.ShowDataVolume";
+  private static final String METRICS_PANEL_SHOW_DATA_VOLUME_IN = "MetricsPanel.ShowDataVolumeIn";
+  private static final String METRICS_PANEL_SHOW_DATA_VOLUME_OUT = "MetricsPanel.ShowDataVolumeOut";
 
   public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
   private Map<RGB, RGB> contrastingColors;
@@ -651,6 +654,30 @@ public class PropsUi extends Props {
 
   public void setMetricsPanelShowBuffersInput(boolean show) {
     setProperty(METRICS_PANEL_SHOW_BUFFERS_INPUT, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowDataVolume() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_DATA_VOLUME, YES));
+  }
+
+  public void setMetricsPanelShowDataVolume(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_DATA_VOLUME, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowDataVolumeIn() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_DATA_VOLUME_IN, YES));
+  }
+
+  public void setMetricsPanelShowDataVolumeIn(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_DATA_VOLUME_IN, show ? YES : NO);
+  }
+
+  public boolean isMetricsPanelShowDataVolumeOut() {
+    return YES.equalsIgnoreCase(getProperty(METRICS_PANEL_SHOW_DATA_VOLUME_OUT, YES));
+  }
+
+  public void setMetricsPanelShowDataVolumeOut(boolean show) {
+    setProperty(METRICS_PANEL_SHOW_DATA_VOLUME_OUT, show ? YES : NO);
   }
 
   public static void setLook(Widget widget) {

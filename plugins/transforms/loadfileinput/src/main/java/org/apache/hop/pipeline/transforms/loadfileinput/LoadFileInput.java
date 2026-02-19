@@ -267,6 +267,9 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
   void getFileContent() throws HopException {
     try {
       data.filecontent = getFileBinaryContent(data.file.toString(), variables);
+      if (data.filecontent != null) {
+        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + data.filecontent.length;
+      }
     } catch (OutOfMemoryError o) {
       logError(
           "There is no enaugh memory to load the content of the file ["

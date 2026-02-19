@@ -54,6 +54,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -176,6 +177,23 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   /** Number of lines rejected to an error handling transform */
   private long linesRejected;
+
+  /**
+   * Data volume: estimated bytes from rows on getRow. Only updated when {@link
+   * Const#HOP_METRIC_DATA_VOLUME} is enabled. Null when not tracked.
+   */
+  private volatile Long dataVolume;
+
+  /**
+   * Data volume in: bytes read from actual InputStream. Set by input transforms. Null for others.
+   */
+  protected volatile Long dataVolumeIn;
+
+  /**
+   * Data volume out: bytes written to actual OutputStream. Set by output transforms. Null for
+   * others.
+   */
+  protected volatile Long dataVolumeOut;
 
   private boolean distributed;
 
@@ -392,6 +410,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       linesInput = 0L;
       linesOutput = 0L;
     }
+    dataVolume = null;
 
     inputRowSets = new ArrayList<>();
     outputRowSets = new ArrayList<>();
@@ -858,6 +877,81 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     synchronized (statusCountersLock) {
       return linesRejected;
     }
+  }
+
+  /**
+   * Data volume: estimated bytes from rows on getRow. Non-null only when {@link
+   * Const#HOP_METRIC_DATA_VOLUME} is set to Y or true.
+   *
+   * @return estimated data volume in bytes, or null if not tracked
+   */
+  @Override
+  public Long getDataVolume() {
+    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+      return null;
+    }
+    return dataVolume;
+  }
+
+  /**
+   * When HOP_METRIC_DATA_VOLUME is enabled, adds the estimated size of the given input row to
+   * dataVolume. Size is estimated from the raw row objects only (no row meta needed). Defensive:
+   * never throws; skips calculation on any error so byte counting cannot break transforms.
+   *
+   * @param row The row to count (may be null)
+   */
+  private void addDataVolumeInIfEnabled(Object[] row) {
+    try {
+      if (row == null) {
+        return;
+      }
+      if (getPipeline() == null) {
+        return;
+      }
+      if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+        return;
+      }
+      Long size = RowMeta.getRowSizeEstimateFromRow(row);
+      long add = (size != null ? size : 0L);
+      dataVolume = (dataVolume != null ? dataVolume : 0L) + add;
+    } catch (Exception e) {
+      // Skip calculation only; never throw so byte counting cannot break transforms
+      if (log != null) {
+        try {
+          log.logDebug(getLogChannelId(), "Data volume estimate skipped: " + e.getMessage());
+        } catch (Exception ignored) {
+          // ignore
+        }
+      }
+    }
+  }
+
+  /**
+   * Data volume in: bytes read from actual InputStream. Gated by {@link
+   * Const#HOP_METRIC_DATA_VOLUME}; returns null when that variable is disabled.
+   *
+   * @return bytes read from InputStream, or null if not tracked / not applicable
+   */
+  @Override
+  public Long getDataVolumeIn() {
+    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+      return null;
+    }
+    return dataVolumeIn;
+  }
+
+  /**
+   * Data volume out: bytes written to actual OutputStream. Gated by {@link
+   * Const#HOP_METRIC_DATA_VOLUME}; returns null when that variable is disabled.
+   *
+   * @return bytes written to OutputStream, or null if not tracked / not applicable
+   */
+  @Override
+  public Long getDataVolumeOut() {
+    if (!Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+      return null;
+    }
+    return dataVolumeOut;
   }
 
   /**
@@ -1595,6 +1689,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         if (row != null) {
           obtainInputRowMeta(row, inputRowSet);
           incrementLinesRead();
+          addDataVolumeInIfEnabled(row);
         }
       } else {
         // What's the current input stream?
@@ -1644,6 +1739,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         if (row != null) {
           obtainInputRowMeta(row, inputRowSet);
           incrementLinesRead();
+          addDataVolumeInIfEnabled(row);
           blockPointer++;
           waitingTime.reset();
         } else {
@@ -1679,6 +1775,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
             } else {
               obtainInputRowMeta(row, inputRowSet);
               incrementLinesRead();
+              addDataVolumeInIfEnabled(row);
             }
           } else {
             timeout = true;
@@ -2037,6 +2134,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
     }
     incrementLinesRead();
+    addDataVolumeInIfEnabled(rowData);
 
     // call all rowlisteners...
     //

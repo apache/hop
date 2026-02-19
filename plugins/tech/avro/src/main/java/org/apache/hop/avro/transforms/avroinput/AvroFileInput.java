@@ -17,13 +17,13 @@
 
 package org.apache.hop.avro.transforms.avroinput;
 
-import java.io.InputStream;
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.Pipeline;
@@ -92,9 +92,10 @@ public class AvroFileInput extends BaseTransform<AvroFileInputMeta, AvroFileInpu
     // Read Avro rows of data from the file...
     //
     try {
-      try (InputStream inputStream = HopVfs.getInputStream(filename, variables)) {
-        GenericDatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
-        DataFileStream<GenericRecord> fileStream = new DataFileStream<>(inputStream, datumReader);
+      try (CountingInputStream countingStream =
+              new CountingInputStream(HopVfs.getInputStream(filename, variables));
+          DataFileStream<GenericRecord> fileStream =
+              new DataFileStream<>(countingStream, new GenericDatumReader<>())) {
         while (fileStream.hasNext() && !isStopped()) {
           GenericRecord genericRecord = fileStream.next();
           incrementLinesInput();
@@ -112,6 +113,7 @@ public class AvroFileInput extends BaseTransform<AvroFileInputMeta, AvroFileInpu
             break;
           }
         }
+        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingStream.getCount();
       }
     } catch (Exception e) {
       throw new HopException("Error reading from file '" + filename + "'", e);

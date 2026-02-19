@@ -18,6 +18,7 @@
 package org.apache.hop.core.row;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,6 +27,7 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,9 +36,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nullable;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
@@ -450,6 +454,62 @@ public class RowMeta implements IRowMeta {
     }
     IValueMeta meta = getValueMeta(index);
     return meta.getBinary(dataRow[index]);
+  }
+
+  /**
+   * Estimates the size in bytes of a row from the Java types of its values only. No metadata
+   * (IRowMeta / IValueMeta) is used. Strings use getBytes().length; other types use fixed
+   * estimates. Use this when you have only the raw row (e.g. from getRowFrom) and no row meta.
+   *
+   * @param dataRow the row (may be null)
+   * @return estimated size in bytes, or null if row is null (no data)
+   */
+  public static Long getRowSizeEstimateFromRow(Object[] dataRow) {
+    if (dataRow == null) {
+      return null;
+    }
+    long total = 0L;
+    for (Object v : dataRow) {
+      if (v == null) {
+        continue;
+      }
+      if (v instanceof String s) {
+        total += s.getBytes().length;
+      } else if (v instanceof byte[] b) {
+        total += b.length;
+      } else if (v instanceof BigDecimal) {
+        total += 32;
+      } else if (v instanceof Number) {
+        total += 8;
+      } else if (v instanceof Date) {
+        total += 8;
+      } else if (v instanceof Boolean) {
+        total += 1;
+      } else if (v instanceof UUID) {
+        total += 36;
+      } else if (v instanceof JsonNode jn) {
+        total += jn.toString().length() * 2L;
+      } else if (v instanceof GenericRecord gr) {
+        total += gr.toString().length() * 2L;
+      } else if (v instanceof InetAddress ia) {
+        total += ia.getHostAddress().length() * 2L;
+      } else {
+        total += 64; // Serializable or other unknown types
+      }
+    }
+    return Long.valueOf(total);
+  }
+
+  /**
+   * Estimates the size in bytes of a row from the Java types of its values only. No metadata
+   * (IRowMeta / IValueMeta) is used. Strings use length*2 as a byte estimate (no allocation).
+   *
+   * @param dataRow the row (may be null)
+   * @return estimated size in bytes, or null if row is null (no data)
+   */
+  @Override
+  public Long getRowSizeEstimate(Object[] dataRow) {
+    return getRowSizeEstimateFromRow(dataRow);
   }
 
   /**

@@ -30,6 +30,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -70,6 +71,9 @@ public class YamlReader {
 
   private Yaml yaml;
 
+  /** Bytes read from the last loaded file (for data volume tracking). */
+  private long bytesReadFromFile;
+
   public YamlReader() {
     this.filename = null;
     this.string = null;
@@ -87,12 +91,14 @@ public class YamlReader {
     InputStream is = null;
     try {
       is = HopVfs.getInputStream(getFile());
+      CountingInputStream countingStream = new CountingInputStream(is);
+      is = countingStream;
 
       for (Object data : getYaml().loadAll(is)) {
         documents.add(data);
         this.useMap = (data instanceof Map);
       }
-
+      bytesReadFromFile = countingStream.getCount();
       this.documenti = documents.iterator();
 
     } finally {
@@ -100,6 +106,11 @@ public class YamlReader {
         is.close();
       }
     }
+  }
+
+  /** Returns bytes read from the last file loaded via {@link #loadFile(FileObject)}. */
+  public long getBytesReadFromFile() {
+    return bytesReadFromFile;
   }
 
   public void loadFile(String filename, IVariables variables) throws Exception {
@@ -115,6 +126,7 @@ public class YamlReader {
 
   public void loadString(String string) {
     this.string = string;
+    bytesReadFromFile = 0;
     for (Object data : getYaml().loadAll(getStringValue())) {
       documents.add(data);
       this.useMap = (data instanceof Map);

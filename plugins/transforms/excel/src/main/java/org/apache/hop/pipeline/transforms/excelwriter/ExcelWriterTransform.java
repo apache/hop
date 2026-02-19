@@ -29,6 +29,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -330,8 +331,10 @@ public class ExcelWriterTransform
 
   private void closeOutputFile(ExcelWriterWorkbookDefinition file) throws HopException {
     OutputStream out = null;
+    CountingOutputStream countingOut = null;
     try {
-      out = new BufferedOutputStream(HopVfs.getOutputStream(file.getFile(), false));
+      countingOut = new CountingOutputStream(HopVfs.getOutputStream(file.getFile(), false));
+      out = new BufferedOutputStream(countingOut);
       // may have to write a footer here
       if (meta.isFooterEnabled()) {
         writeHeader(file, file.getSheet(), file.getPosX(), file.getPosY());
@@ -374,6 +377,9 @@ public class ExcelWriterTransform
       if (out != null) {
         try {
           out.flush();
+          if (countingOut != null) {
+            dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + countingOut.getCount();
+          }
           out.close();
         } catch (Exception e) {
           throw new HopException("Error closing excel file " + file.getFile(), e);
