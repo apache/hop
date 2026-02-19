@@ -37,11 +37,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -64,6 +66,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::DimensionLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/dimensionlookup.html",
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.LOOKUP})
+@Getter
+@Setter
 public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData> {
   private static final Class<?> PKG = DimensionLookupMeta.class;
   public static final String CONST_DIMENSION_LOOKUP_META_CHECK_RESULT_KEY_HAS_PROBLEM =
@@ -110,6 +114,13 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       injectionKey = "TECHNICAL_KEY_SEQUENCE",
       injectionKeyDescription = "DimensionLookup.Injection.TECHNICAL_KEY_SEQUENCE")
   private String sequenceName;
+
+  /** Sequence name to get the sequence from */
+  @HopMetadataProperty(
+      key = "tkSourceField",
+      injectionKey = "TECHNICAL_KEY_SOURCE_FIELD",
+      injectionKeyDescription = "DimensionLookup.Injection.TECHNICAL_KEY_SOURCE_FIELD")
+  private String tkSourceField;
 
   /** The number of rows between commits */
   @HopMetadataProperty(
@@ -202,6 +213,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     this.update = m.update;
     this.fields = new DLFields(m.fields);
     this.sequenceName = m.sequenceName;
+    this.tkSourceField = m.tkSourceField;
     this.commitSize = m.commitSize;
     this.useBatchUpdate = m.useBatchUpdate;
     this.minYear = m.minYear;
@@ -242,9 +254,9 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
   @Override
   public void getFields(
-      IRowMeta row,
+      IRowMeta inputRowMeta,
       String name,
-      IRowMeta[] info,
+      IRowMeta[] infoRowMeta,
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider)
@@ -263,7 +275,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     // Change all the fields to normal storage, this is the fastest way to handle lazy conversion.
     // It doesn't make sense to use it in the SCD context but people try it anyway
     //
-    for (IValueMeta valueMeta : row.getValueMetaList()) {
+    for (IValueMeta valueMeta : inputRowMeta.getValueMetaList()) {
       valueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
 
       // Also change the trim type to "None" as this can cause trouble
@@ -282,15 +294,13 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       throw new HopTransformException(message);
     }
 
-    IValueMeta v = new ValueMetaInteger(fields.returns.keyField);
-    if (StringUtils.isNotEmpty(fields.returns.keyRename)) {
-      v.setName(fields.returns.keyRename);
-    }
+    IValueMeta tkValueMeta = buildTkValueMeta(inputRowMeta, name, variables);
 
-    v.setLength(9);
-    v.setPrecision(0);
-    v.setOrigin(name);
-    row.addValueMeta(v);
+    if (StringUtils.isNotEmpty(fields.returns.keyRename)) {
+      tkValueMeta.setName(fields.returns.keyRename);
+    }
+    tkValueMeta.setOrigin(name);
+    inputRowMeta.addValueMeta(tkValueMeta);
 
     // retrieve extra fields on lookup?
     // Don't bother if there are no return values specified.
@@ -303,8 +313,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       IRowMeta extraFields = getTableFields(variables);
 
       for (DLField field : fields.fields) {
-        v = extraFields.searchValueMeta(field.getLookup());
-        if (v == null) {
+        IValueMeta lookupValueMeta = extraFields.searchValueMeta(field.getLookup());
+        if (lookupValueMeta == null) {
           String message =
               BaseMessages.getString(
                   PKG, "DimensionLookupMeta.Exception.UnableToFindReturnField", field.getLookup());
@@ -314,10 +324,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
         // If the field needs to be renamed, rename
         if (StringUtils.isNotEmpty(field.getName())) {
-          v.setName(field.getName());
+          lookupValueMeta.setName(field.getName());
         }
-        v.setOrigin(name);
-        row.addValueMeta(v);
+        lookupValueMeta.setOrigin(name);
+        inputRowMeta.addValueMeta(lookupValueMeta);
       }
     } catch (Exception e) {
       String message =
@@ -328,30 +338,66 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     }
   }
 
-  public Date getMinDate() {
-    Calendar mincal = Calendar.getInstance();
-    mincal.set(Calendar.YEAR, minYear);
-    mincal.set(Calendar.MONTH, 0);
-    mincal.set(Calendar.DAY_OF_MONTH, 1);
-    mincal.set(Calendar.HOUR_OF_DAY, 0);
-    mincal.set(Calendar.MINUTE, 0);
-    mincal.set(Calendar.SECOND, 0);
-    mincal.set(Calendar.MILLISECOND, 0);
+  public IValueMeta buildTkValueMeta(IRowMeta row, String name, IVariables variables)
+      throws HopTransformException {
+    IValueMeta tkValueMeta;
+    switch (fields.returns.creationMethod) {
+      case SEQUENCE:
+      case TABLE_MAXIMUM:
+      case AUTO_INCREMENT:
+        tkValueMeta = new ValueMetaInteger(name, 9, 0);
+        break;
+      case UUID:
+        tkValueMeta = new ValueMetaString(name, 36, 0);
+        break;
+      case FIELD:
+        String sourceName = variables.resolve(tkSourceField);
+        if (StringUtils.isEmpty(sourceName)) {
+          throw new HopTransformException(
+              "Please specify the name of the field to select as a technical key");
+        }
+        IValueMeta sourceMeta = row.searchValueMeta(sourceName);
+        if (sourceMeta == null) {
+          throw new HopTransformException(
+              "The specified name of the field to select as a technical key '"
+                  + sourceName
+                  + "' could not be found in the input row.");
+        }
+        tkValueMeta = sourceMeta.clone();
+        tkValueMeta.setName(name);
+        break;
+      default:
+        throw new HopTransformException(
+            "The specified technical key generation type is not supported: "
+                + fields.returns.creationMethod);
+    }
+    return tkValueMeta;
+  }
 
-    return mincal.getTime();
+  public Date getMinDate() {
+    Calendar minCalendar = Calendar.getInstance();
+    minCalendar.set(Calendar.YEAR, minYear);
+    minCalendar.set(Calendar.MONTH, 0);
+    minCalendar.set(Calendar.DAY_OF_MONTH, 1);
+    minCalendar.set(Calendar.HOUR_OF_DAY, 0);
+    minCalendar.set(Calendar.MINUTE, 0);
+    minCalendar.set(Calendar.SECOND, 0);
+    minCalendar.set(Calendar.MILLISECOND, 0);
+
+    return minCalendar.getTime();
   }
 
   public Date getMaxDate() {
-    Calendar mincal = Calendar.getInstance();
-    mincal.set(Calendar.YEAR, maxYear);
-    mincal.set(Calendar.MONTH, 11);
-    mincal.set(Calendar.DAY_OF_MONTH, 31);
-    mincal.set(Calendar.HOUR_OF_DAY, 23);
-    mincal.set(Calendar.MINUTE, 59);
-    mincal.set(Calendar.SECOND, 59);
-    mincal.set(Calendar.MILLISECOND, 999);
+    Calendar maxCalendar = Calendar.getInstance();
+    maxCalendar.set(Calendar.YEAR, maxYear);
+    maxCalendar.set(Calendar.MONTH, 11);
+    maxCalendar.set(Calendar.DAY_OF_MONTH, 31);
+    maxCalendar.set(Calendar.HOUR_OF_DAY, 23);
+    maxCalendar.set(Calendar.MINUTE, 59);
+    maxCalendar.set(Calendar.SECOND, 59);
+    maxCalendar.set(Calendar.MILLISECOND, 999);
 
-    return mincal.getTime();
+    return maxCalendar.getTime();
   }
 
   @Override
@@ -876,7 +922,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     try (Database db = new Database(loggingObject, variables, databaseMeta)) {
       db.connect();
 
-      IRowMeta tableRowMeta = buildTableFields(previousRowMeta, statement);
+      IRowMeta tableRowMeta = buildTableFields(previousRowMeta, variables, statement);
       String sql =
           db.getDDL(
               schemaTable,
@@ -885,6 +931,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
               fields.returns.creationMethod == TechnicalKeyCreationMethod.AUTO_INCREMENT,
               null,
               true);
+      sql += Const.CR + Const.CR;
 
       // Key lookup dimensions...
       //
@@ -898,6 +945,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         sql +=
             db.getCreateIndexStatement(
                 schemaTable, indexname, idxFields, false, false, false, true);
+        sql += Const.CR;
       }
 
       // (Bitmap) index on technical key
@@ -913,6 +961,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
                 false,
                 true,
                 true);
+        sql += Const.CR;
       }
 
       // The optional Oracle sequence
@@ -965,18 +1014,20 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     }
   }
 
-  private IRowMeta buildTableFields(IRowMeta prev, SqlStatement statement) {
+  private IRowMeta buildTableFields(IRowMeta prev, IVariables variables, SqlStatement statement)
+      throws HopTransformException {
     // How does the table look like?
     //
     // Technical key, version, from and to dates.
     //
-    IRowMeta tableRowMeta =
+    IRowMeta tableRowMeta = new RowMeta();
+    tableRowMeta.addValueMeta(buildTkValueMeta(prev, fields.returns.keyField, variables));
+    tableRowMeta.addRowMeta(
         new RowMetaBuilder()
-            .addInteger(fields.returns.keyField, 10)
             .addInteger(fields.returns.versionField, 5)
             .addDate(fields.date.from)
             .addDate(fields.date.to)
-            .build();
+            .build());
 
     List<String> errorFields = new ArrayList<>();
 
@@ -1044,7 +1095,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       IRowMeta prev,
       String[] input,
       String[] output,
-      IRowMeta info,
+      IRowMeta rowMeta,
       IHopMetadataProvider metadataProvider) {
     if (prev == null) {
       return;
@@ -1163,27 +1214,23 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     return new Database(loggingObject, variables, databaseMeta);
   }
 
+  @Getter
   public enum TechnicalKeyCreationMethod implements IEnumHasCode {
     AUTO_INCREMENT("autoinc"),
     SEQUENCE("sequence"),
-    TABLE_MAXIMUM("tablemax");
+    TABLE_MAXIMUM("tablemax"),
+    UUID("uuid"),
+    FIELD("field"),
+    ;
 
     private final String code;
 
     TechnicalKeyCreationMethod(String code) {
       this.code = code;
     }
-
-    /**
-     * Gets code
-     *
-     * @return value of code
-     */
-    public String getCode() {
-      return code;
-    }
   }
 
+  @Getter
   public enum DimensionUpdateType implements IEnumHasCodeAndDescription {
     INSERT("Insert", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.Insert"), true),
     UPDATE("Update", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.Update"), true),
@@ -1209,12 +1256,12 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         false);
     private final String code;
     private final String description;
-    private final boolean isWithArgument;
+    private final boolean withArgument;
 
-    DimensionUpdateType(String code, String description, boolean isWithArgument) {
+    DimensionUpdateType(String code, String description, boolean withArgument) {
       this.code = code;
       this.description = description;
-      this.isWithArgument = isWithArgument;
+      this.withArgument = withArgument;
     }
 
     public static String[] getDescriptions() {
@@ -1225,36 +1272,13 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       return descriptions;
     }
 
-    /**
-     * Gets code
-     *
-     * @return value of code
-     */
-    @Override
-    public String getCode() {
-      return code;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return value of description
-     */
-    @Override
-    public String getDescription() {
-      return description;
-    }
-
-    public boolean isWithArgument() {
-      return isWithArgument;
-    }
-
     public static DimensionUpdateType lookupDescription(String description) {
       return IEnumHasCodeAndDescription.lookupDescription(
           DimensionUpdateType.class, description, null);
     }
   }
 
+  @Getter
   public enum StartDateAlternative implements IEnumHasCodeAndDescription {
     NONE(
         "none", BaseMessages.getString(PKG, "DimensionLookupMeta.StartDateAlternative.None.Label")),
@@ -1294,26 +1318,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       }
       return null;
     }
-
-    /**
-     * Gets code
-     *
-     * @return value of code
-     */
-    public String getCode() {
-      return code;
-    }
-
-    /**
-     * Gets description
-     *
-     * @return value of description
-     */
-    public String getDescription() {
-      return description;
-    }
   }
 
+  @Getter
+  @Setter
   public static class DLFields {
     @HopMetadataProperty(key = "key")
     private List<DLKey> keys;
@@ -1345,80 +1353,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       }
       this.returns = new DLReturn(f.returns);
     }
-
-    /**
-     * Gets keys
-     *
-     * @return value of keys
-     */
-    public List<DLKey> getKeys() {
-      return keys;
-    }
-
-    /**
-     * Sets keys
-     *
-     * @param keys value of keys
-     */
-    public void setKeys(List<DLKey> keys) {
-      this.keys = keys;
-    }
-
-    /**
-     * Gets date
-     *
-     * @return value of date
-     */
-    public DLDate getDate() {
-      return date;
-    }
-
-    /**
-     * Sets date
-     *
-     * @param date value of date
-     */
-    public void setDate(DLDate date) {
-      this.date = date;
-    }
-
-    /**
-     * Gets fields
-     *
-     * @return value of fields
-     */
-    public List<DLField> getFields() {
-      return fields;
-    }
-
-    /**
-     * Sets fields
-     *
-     * @param fields value of fields
-     */
-    public void setFields(List<DLField> fields) {
-      this.fields = fields;
-    }
-
-    /**
-     * Gets returns
-     *
-     * @return value of returns
-     */
-    public DLReturn getReturns() {
-      return returns;
-    }
-
-    /**
-     * Sets returns
-     *
-     * @param returns value of returns
-     */
-    public void setReturns(DLReturn returns) {
-      this.returns = returns;
-    }
   }
 
+  @Getter
+  @Setter
   public static class DLReturn {
     @HopMetadataProperty(
         key = "name",
@@ -1454,80 +1392,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       this.creationMethod = r.creationMethod;
       this.versionField = r.versionField;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getKeyField() {
-      return keyField;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param keyField value of name
-     */
-    public void setKeyField(String keyField) {
-      this.keyField = keyField;
-    }
-
-    /**
-     * Gets rename
-     *
-     * @return value of rename
-     */
-    public String getKeyRename() {
-      return keyRename;
-    }
-
-    /**
-     * Sets rename
-     *
-     * @param keyRename value of rename
-     */
-    public void setKeyRename(String keyRename) {
-      this.keyRename = keyRename;
-    }
-
-    /**
-     * Gets creationMethod
-     *
-     * @return value of creationMethod
-     */
-    public TechnicalKeyCreationMethod getCreationMethod() {
-      return creationMethod;
-    }
-
-    /**
-     * Sets creationMethod
-     *
-     * @param creationMethod value of creationMethod
-     */
-    public void setCreationMethod(TechnicalKeyCreationMethod creationMethod) {
-      this.creationMethod = creationMethod;
-    }
-
-    /**
-     * Gets version
-     *
-     * @return value of version
-     */
-    public String getVersionField() {
-      return versionField;
-    }
-
-    /**
-     * Sets version
-     *
-     * @param versionField value of version
-     */
-    public void setVersionField(String versionField) {
-      this.versionField = versionField;
-    }
   }
 
+  @Getter
+  @Setter
   public static class DLField {
     /** Fields containing the values in the input stream to update the dimension with */
     @HopMetadataProperty(
@@ -1585,81 +1453,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       }
       return null;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets lookup
-     *
-     * @return value of lookup
-     */
-    public String getLookup() {
-      return lookup;
-    }
-
-    /**
-     * Sets lookup
-     *
-     * @param lookup value of lookup
-     */
-    public void setLookup(String lookup) {
-      this.lookup = lookup;
-    }
-
-    /**
-     * Gets update type code
-     *
-     * @return value of update
-     */
-    public String getUpdate() {
-      return update;
-    }
-
-    /**
-     * Sets update type code
-     *
-     * @param update value of update
-     */
-    public void setUpdate(String update) {
-      this.update = update;
-      this.updateType = null;
-    }
-
-    /**
-     * Gets return type for read only lookup
-     *
-     * @return type of
-     */
-    public String getReturnType() {
-      return returnType;
-    }
-
-    /**
-     * Sets return type for read only lookup
-     *
-     * @param type the return type
-     */
-    public void setReturnType(String type) {
-      this.returnType = type;
-    }
   }
 
+  @Getter
+  @Setter
   public static class DLKey {
     /** Fields used to look up a value in the dimension */
     @HopMetadataProperty(
@@ -1679,44 +1476,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       this.name = k.name;
       this.lookup = k.lookup;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets lookup
-     *
-     * @return value of lookup
-     */
-    public String getLookup() {
-      return lookup;
-    }
-
-    /**
-     * Sets lookup
-     *
-     * @param lookup value of lookup
-     */
-    public void setLookup(String lookup) {
-      this.lookup = lookup;
-    }
   }
 
+  @Getter
+  @Setter
   public static class DLDate {
     /** The field to use for date range lookup in the dimension */
     @HopMetadataProperty(
@@ -1743,329 +1506,5 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       this.from = d.from;
       this.to = d.to;
     }
-
-    /**
-     * Gets name
-     *
-     * @return value of name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * Sets name
-     *
-     * @param name value of name
-     */
-    public void setName(String name) {
-      this.name = name;
-    }
-
-    /**
-     * Gets from
-     *
-     * @return value of from
-     */
-    public String getFrom() {
-      return from;
-    }
-
-    /**
-     * Sets from
-     *
-     * @param from value of from
-     */
-    public void setFrom(String from) {
-      this.from = from;
-    }
-
-    /**
-     * Gets to
-     *
-     * @return value of to
-     */
-    public String getTo() {
-      return to;
-    }
-
-    /**
-     * Sets to
-     *
-     * @param to value of to
-     */
-    public void setTo(String to) {
-      this.to = to;
-    }
-  }
-
-  /**
-   * Gets schema name
-   *
-   * @return value of schemaName
-   */
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  /**
-   * Sets schemaName
-   *
-   * @param schemaName value of schemaName
-   */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
-  /**
-   * Gets table name
-   *
-   * @return value of tableName
-   */
-  public String getTableName() {
-    return tableName;
-  }
-
-  /**
-   * Sets table name
-   *
-   * @param tableName value of tableName
-   */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /**
-   * Get connection name
-   *
-   * @return
-   */
-  public String getConnection() {
-    return connection;
-  }
-
-  /**
-   * Set connection name
-   *
-   * @param connection
-   */
-  public void setConnection(String connection) {
-    this.connection = connection;
-  }
-
-  /**
-   * Gets update
-   *
-   * @return value of update
-   */
-  public boolean isUpdate() {
-    return update;
-  }
-
-  /**
-   * Sets update
-   *
-   * @param update value of update
-   */
-  public void setUpdate(boolean update) {
-    this.update = update;
-  }
-
-  /**
-   * Gets fields
-   *
-   * @return value of fields
-   */
-  public DLFields getFields() {
-    return fields;
-  }
-
-  /**
-   * Sets fields
-   *
-   * @param fields value of fields
-   */
-  public void setFields(DLFields fields) {
-    this.fields = fields;
-  }
-
-  /**
-   * Gets sequenceName
-   *
-   * @return value of sequenceName
-   */
-  public String getSequenceName() {
-    return sequenceName;
-  }
-
-  /**
-   * Sets sequenceName
-   *
-   * @param sequenceName value of sequenceName
-   */
-  public void setSequenceName(String sequenceName) {
-    this.sequenceName = sequenceName;
-  }
-
-  /**
-   * Gets commitSize
-   *
-   * @return value of commitSize
-   */
-  public int getCommitSize() {
-    return commitSize;
-  }
-
-  /**
-   * Sets commitSize
-   *
-   * @param commitSize value of commitSize
-   */
-  public void setCommitSize(int commitSize) {
-    this.commitSize = commitSize;
-  }
-
-  /**
-   * Gets useBatchUpdate
-   *
-   * @return value of useBatchUpdate
-   */
-  public boolean isUseBatchUpdate() {
-    return useBatchUpdate;
-  }
-
-  /**
-   * Sets useBatchUpdate
-   *
-   * @param useBatchUpdate value of useBatchUpdate
-   */
-  public void setUseBatchUpdate(boolean useBatchUpdate) {
-    this.useBatchUpdate = useBatchUpdate;
-  }
-
-  /**
-   * Gets minYear
-   *
-   * @return value of minYear
-   */
-  public int getMinYear() {
-    return minYear;
-  }
-
-  /**
-   * Sets minYear
-   *
-   * @param minYear value of minYear
-   */
-  public void setMinYear(int minYear) {
-    this.minYear = minYear;
-  }
-
-  /**
-   * Gets maxYear
-   *
-   * @return value of maxYear
-   */
-  public int getMaxYear() {
-    return maxYear;
-  }
-
-  /**
-   * Sets maxYear
-   *
-   * @param maxYear value of maxYear
-   */
-  public void setMaxYear(int maxYear) {
-    this.maxYear = maxYear;
-  }
-
-  /**
-   * Gets cacheSize
-   *
-   * @return value of cacheSize
-   */
-  public int getCacheSize() {
-    return cacheSize;
-  }
-
-  /**
-   * Sets cacheSize
-   *
-   * @param cacheSize value of cacheSize
-   */
-  public void setCacheSize(int cacheSize) {
-    this.cacheSize = cacheSize;
-  }
-
-  /**
-   * Gets usingStartDateAlternative
-   *
-   * @return value of usingStartDateAlternative
-   */
-  public boolean isUsingStartDateAlternative() {
-    return usingStartDateAlternative;
-  }
-
-  /**
-   * Sets usingStartDateAlternative
-   *
-   * @param usingStartDateAlternative value of usingStartDateAlternative
-   */
-  public void setUsingStartDateAlternative(boolean usingStartDateAlternative) {
-    this.usingStartDateAlternative = usingStartDateAlternative;
-  }
-
-  /**
-   * Gets startDateAlternative
-   *
-   * @return value of startDateAlternative
-   */
-  public StartDateAlternative getStartDateAlternative() {
-    return startDateAlternative;
-  }
-
-  /**
-   * Sets startDateAlternative
-   *
-   * @param startDateAlternative value of startDateAlternative
-   */
-  public void setStartDateAlternative(StartDateAlternative startDateAlternative) {
-    this.startDateAlternative = startDateAlternative;
-  }
-
-  /**
-   * Gets startDateFieldName
-   *
-   * @return value of startDateFieldName
-   */
-  public String getStartDateFieldName() {
-    return startDateFieldName;
-  }
-
-  /**
-   * Sets startDateFieldName
-   *
-   * @param startDateFieldName value of startDateFieldName
-   */
-  public void setStartDateFieldName(String startDateFieldName) {
-    this.startDateFieldName = startDateFieldName;
-  }
-
-  /**
-   * Gets preloadingCache
-   *
-   * @return value of preloadingCache
-   */
-  public boolean isPreloadingCache() {
-    return preloadingCache;
-  }
-
-  /**
-   * Sets preloadingCache
-   *
-   * @param preloadingCache value of preloadingCache
-   */
-  public void setPreloadingCache(boolean preloadingCache) {
-    this.preloadingCache = preloadingCache;
   }
 }
