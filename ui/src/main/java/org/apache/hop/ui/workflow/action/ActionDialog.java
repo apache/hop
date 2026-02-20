@@ -114,6 +114,9 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
    */
   protected int margin;
 
+  /** True while the dialog is loading */
+  protected boolean loading;
+
   /**
    * The middle percentage for form layouts. Initialized by {@link #createShell(String)} to {@code
    * props.getMiddlePct()}.
@@ -134,6 +137,7 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
   }
 
   public void setActive() {
+    loading = false;
     if (shell != null && !shell.isDisposed()) {
       shell.setActive();
     }
@@ -274,7 +278,12 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
 
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wName);
-    wName.addModifyListener(e -> onActionNameModified());
+    wName.addModifyListener(
+        e -> {
+          if (!loading) {
+            onActionNameModified();
+          }
+        });
     FormData fdName = new FormData();
     fdName.left = new FormAttachment(middle, 0);
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
@@ -288,6 +297,7 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
     fdSpacer.right = new FormAttachment(100, 0);
     wSpacer.setLayoutData(fdSpacer);
 
+    loading = true;
     return wSpacer;
   }
 
@@ -346,6 +356,7 @@ public abstract class ActionDialog extends Dialog implements IActionDialog {
       wName.selectAll();
       wName.setFocus();
     }
+    loading = false;
   }
 
   /**

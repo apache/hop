@@ -37,7 +37,6 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -59,7 +58,7 @@ public class CheckSumDialog extends BaseTransformDialog {
 
   private Text wResult;
 
-  private ColumnInfo[] colinf;
+  private ColumnInfo[] columnInfo;
 
   private final List<String> inputFields = new ArrayList<>();
 
@@ -77,9 +76,6 @@ public class CheckSumDialog extends BaseTransformDialog {
     createShell(BaseMessages.getString(PKG, "CheckSumDialog.Shell.Title"));
 
     buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
-
-    ModifyListener lsMod = e -> input.setChanged();
-    changed = input.hasChanged();
 
     // Type
     Label wlType = new Label(shell, SWT.RIGHT);
@@ -146,7 +142,6 @@ public class CheckSumDialog extends BaseTransformDialog {
     wlResult.setLayoutData(fdlResult);
     wResult = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wResult);
-    wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
     fdResult.top = new FormAttachment(wResultType, margin);
@@ -165,8 +160,8 @@ public class CheckSumDialog extends BaseTransformDialog {
     final int nrCols = 1;
     final int nrFields = input.getFields().size();
 
-    colinf = new ColumnInfo[nrCols];
-    colinf[0] =
+    columnInfo = new ColumnInfo[nrCols];
+    columnInfo[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "CheckSumDialog.Fieldname.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
@@ -177,9 +172,9 @@ public class CheckSumDialog extends BaseTransformDialog {
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
+            columnInfo,
             nrFields,
-            lsMod,
+            null,
             props);
 
     FormData fdFields = new FormData();
@@ -236,7 +231,7 @@ public class CheckSumDialog extends BaseTransformDialog {
     // Something was changed in the row.
     //
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
-    colinf[0].setComboValues(fieldNames);
+    columnInfo[0].setComboValues(fieldNames);
   }
 
   private void get() {
@@ -283,7 +278,6 @@ public class CheckSumDialog extends BaseTransformDialog {
 
   private void cancel() {
     transformName = null;
-    input.setChanged(changed);
     dispose();
   }
 
@@ -301,6 +295,7 @@ public class CheckSumDialog extends BaseTransformDialog {
     for (TableItem item : wFields.getNonEmptyItems()) {
       input.getFields().add(new Field(item.getText(1)));
     }
+    input.setChanged();
     dispose();
   }
 }

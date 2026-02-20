@@ -27,6 +27,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
 
@@ -98,6 +99,7 @@ public class BaseGuiWidgets {
         GuiRegistry.getInstance()
             .registerGuiPluginObject(hopGuiId, listenerClassName, instanceId, guiPluginObject);
       }
+      HopGuiKeyHandler.getInstance().addParentObjectToHandle(guiPluginObject);
       return guiPluginObject;
     } catch (Exception e) {
       throw new HopException(

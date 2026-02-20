@@ -179,7 +179,6 @@ import org.apache.hop.ui.hopgui.file.shared.PipelineRowSamplerHelper;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
@@ -771,9 +770,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             selectedTransforms = pipelineMeta.getSelectedTransforms();
             selectedTransform = currentTransform;
 
-            // Track that a transform was selected
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+            pipelineGridDelegate.onPipelineSelectionChanged();
 
             for (ITransformSelectionListener listener : currentTransformListeners) {
               listener.onUpdateSelection(currentTransform);
@@ -843,8 +840,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedNotes = pipelineMeta.getSelectedNotes();
       selectedNote = currentNotePad;
       // Track that a note was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+      pipelineGridDelegate.onPipelineSelectionChanged();
       Point loc = currentNotePad.getLocation();
 
       previousNoteLocations = pipelineMeta.getSelectedNoteLocations();
@@ -1022,8 +1018,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // Track that transforms were selected via region selection
         if (!pipelineMeta.getSelectedTransforms().isEmpty()
             || !pipelineMeta.getSelectedNotes().isEmpty()) {
-          HopGuiSelectionTracker.getInstance()
-              .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+          pipelineGridDelegate.onPipelineSelectionChanged();
         }
         updateGui();
         return;
@@ -1079,8 +1074,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             selectedTransform.flipSelected();
             // Track that a transform selection changed (if it's now selected)
             if (selectedTransform.isSelected()) {
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+              pipelineGridDelegate.onPipelineSelectionChanged();
             }
           } else {
             singleClick = true;
@@ -1094,8 +1088,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               selectedTransform.setSelected(true);
             }
             // Track that a transform was selected
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+            pipelineGridDelegate.onPipelineSelectionChanged();
           }
         } else {
           // Find out which Transforms & Notes are selected
@@ -1103,8 +1096,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           selectedNotes = pipelineMeta.getSelectedNotes();
           // Track that transforms were selected
           if (!selectedTransforms.isEmpty() || !selectedNotes.isEmpty()) {
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+            pipelineGridDelegate.onPipelineSelectionChanged();
           }
 
           // We moved around some items: store undo info...
@@ -1167,8 +1159,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               selectedNote.flipSelected();
               // Track that a note selection changed (if it's now selected)
               if (selectedNote.isSelected()) {
-                HopGuiSelectionTracker.getInstance()
-                    .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+                pipelineGridDelegate.onPipelineSelectionChanged();
               }
             } else {
               // single click on a note: ask what needs to happen...
@@ -1184,8 +1175,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 selectedNote.setSelected(true);
               }
               // Track that a note was selected
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+              pipelineGridDelegate.onPipelineSelectionChanged();
             }
           } else {
             // Find out which Transforms & Notes are selected
@@ -1193,8 +1183,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             selectedNotes = pipelineMeta.getSelectedNotes();
             // Track that notes were selected
             if (!selectedTransforms.isEmpty() || !selectedNotes.isEmpty()) {
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+              pipelineGridDelegate.onPipelineSelectionChanged();
             }
 
             // We moved around some items: store undo info...
@@ -1620,8 +1609,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedTransforms.add(selectedTransform);
       previousTransformLocations = new Point[] {selectedTransform.getLocation()};
       // Track that a transform was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+      pipelineGridDelegate.onPipelineSelectionChanged();
       doRedraw = true;
     } else if (selectedNote != null && !selectedNote.isSelected()) {
       pipelineMeta.unselectAll();
@@ -1630,8 +1618,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedNotes.add(selectedNote);
       previousNoteLocations = new Point[] {selectedNote.getLocation()};
       // Track that a note was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+      pipelineGridDelegate.onPipelineSelectionChanged();
       doRedraw = true;
     } else if (selectionRegion != null && startHopTransform == null) {
       // Did we select a region...?
@@ -5440,19 +5427,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   @Override
   public void deleteSelected() {
-    // Only handle delete if a pipeline graph item was the last selected item
-    // OR if there are actually selected transforms/notes in the pipeline
-    HopGuiSelectionTracker selectionTracker = HopGuiSelectionTracker.getInstance();
+    // Shortcut only fires when focus is in this graph; delete if we have selection
     boolean hasPipelineSelection =
         !pipelineMeta.getSelectedTransforms().isEmpty()
             || !pipelineMeta.getSelectedNotes().isEmpty();
-    boolean isLastPipelineSelection =
-        selectionTracker.isLastSelection(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
-
-    if (!isLastPipelineSelection || !hasPipelineSelection) {
+    if (!hasPipelineSelection) {
       return;
     }
-
     delSelected(null);
     updateGui();
   }

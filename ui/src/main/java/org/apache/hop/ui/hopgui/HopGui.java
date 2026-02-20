@@ -160,7 +160,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-@GuiPlugin(description = "The main hop graphical user interface")
+@GuiPlugin(name = "Hop Gui", description = "The main hop graphical user interface")
 @SuppressWarnings("java:S1104")
 @Getter
 @Setter
@@ -954,6 +954,7 @@ public class HopGui
 
     mainMenu = new Menu(shell, SWT.BAR);
     mainMenuWidgets.createMenuWidgets(ID_MAIN_MENU, shell, mainMenu);
+    mainMenuWidgets.ensureShortcutPluginInstancesRegistered();
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       mainMenuWidgets.enableMenuItem(HopGui.ID_MAIN_MENU_FILE_EXIT, false);
@@ -1413,38 +1414,6 @@ public class HopGui
     // Nothing is done here.
   }
 
-  @GuiMenuElement(
-      root = ID_MAIN_MENU,
-      id = ID_MAIN_MENU_VIEW_TERMINAL,
-      label = "i18n::HopGui.Menu.View.Terminal",
-      parentId = ID_MAIN_MENU_VIEW_PARENT_ID)
-  @GuiKeyboardShortcut(control = true, key = '`')
-  @GuiOsxKeyboardShortcut(control = true, key = '`')
-  public void menuViewTerminal() {
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      return;
-    }
-    if (terminalPanel != null) {
-      terminalPanel.toggleTerminal();
-    }
-  }
-
-  @GuiMenuElement(
-      root = ID_MAIN_MENU,
-      id = ID_MAIN_MENU_VIEW_NEW_TERMINAL,
-      label = "i18n::HopGui.Menu.View.NewTerminal",
-      parentId = ID_MAIN_MENU_VIEW_PARENT_ID)
-  @GuiKeyboardShortcut(control = true, shift = true, key = '`')
-  @GuiOsxKeyboardShortcut(control = true, shift = true, key = '`')
-  public void menuViewNewTerminal() {
-    if (EnvironmentUtils.getInstance().isWeb()) {
-      return;
-    }
-    if (terminalPanel != null) {
-      terminalPanel.createNewTerminal(null, null);
-    }
-  }
-
   // ======================== Run Menu ========================
 
   @GuiMenuElement(
@@ -1705,6 +1674,22 @@ public class HopGui
       fdTerminalPanel.right = new FormAttachment(100, 0);
       terminalPanel.setLayoutData(fdTerminalPanel);
 
+      // Register so Tools > Terminal menu items can invoke panel methods
+      String menuInstanceId = mainMenuWidgets.getInstanceId();
+      org.apache.hop.core.gui.plugin.GuiRegistry.getInstance()
+          .registerGuiPluginObject(
+              getId(),
+              org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel.class.getName(),
+              menuInstanceId,
+              terminalPanel);
+      terminalPanel.addDisposeListener(
+          e ->
+              org.apache.hop.core.gui.plugin.GuiRegistry.getInstance()
+                  .removeGuiPluginObject(
+                      getId(),
+                      org.apache.hop.ui.hopgui.terminal.HopGuiTerminalPanel.class.getName(),
+                      menuInstanceId));
+
       mainPerspectivesComposite = terminalPanel.getPerspectiveComposite();
       mainPerspectivesComposite.setLayout(new StackLayout());
     }
@@ -1842,11 +1827,7 @@ public class HopGui
     return getActivePerspective().getActiveFileTypeHandler();
   }
 
-  /**
-   * Replace the listeners based on the @{@link GuiKeyboardShortcut} annotations
-   *
-   * @param parentObject The parent object containing the annotations and methods
-   */
+  /** Register parent and attach key handler to shell + children. */
   public void replaceKeyboardShortcutListeners(Object parentObject) {
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(parentObject);

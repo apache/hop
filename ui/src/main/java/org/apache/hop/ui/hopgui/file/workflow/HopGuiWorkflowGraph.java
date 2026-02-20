@@ -138,7 +138,6 @@ import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExten
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -721,8 +720,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       selectedNotes = workflowMeta.getSelectedNotes();
       selectedNote = currentNotePad;
       // Track that a note was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
       Point loc = currentNotePad.getLocation();
 
       previousNoteLocations = workflowMeta.getSelectedNoteLocations();
@@ -897,12 +894,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         workflowMeta.unselectAll();
         selectInRect(workflowMeta, selectionRegion);
         selectionRegion = null;
-        // Track that actions/notes were selected via region selection
-        if (!workflowMeta.getSelectedActions().isEmpty()
-            || !workflowMeta.getSelectedNotes().isEmpty()) {
-          HopGuiSelectionTracker.getInstance()
-              .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
-        }
         updateGui();
         return;
       }
@@ -956,19 +947,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               selectedAction.setSelected(true);
             }
             // Track that an action was selected
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
           }
         } else {
           // Find out which Transforms & Notes are selected
           selectedActions = workflowMeta.getSelectedActions();
           selectedNotes = workflowMeta.getSelectedNotes();
-          // Track that actions/notes were selected
-          if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
-          }
-
           // We moved around some items: store undo info...
           //
           boolean also = false;
@@ -1061,18 +1044,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 selectedNote.setSelected(true);
               }
               // Track that a note was selected
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
             }
           } else {
             // Find out which Transforms & Notes are selected
             selectedActions = workflowMeta.getSelectedActions();
             selectedNotes = workflowMeta.getSelectedNotes();
             // Track that actions/notes were selected
-            if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
-            }
+            if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {}
 
             // We moved around some items: store undo info...
             boolean also = false;
@@ -2170,12 +2148,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   @Override
   public void deleteSelected() {
-    // Only handle delete if a workflow graph item was the last selected item
-    HopGuiSelectionTracker selectionTracker = HopGuiSelectionTracker.getInstance();
-    if (!selectionTracker.isLastSelection(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH)) {
-      return;
-    }
-
+    // Shortcut only fires when focus is in this graph
     deleteSelected(null);
   }
 

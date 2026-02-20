@@ -342,7 +342,11 @@ public class SingleStoreDatabaseMeta extends BaseDatabaseMeta implements IDataba
         }
         break;
       case IValueMeta.TYPE_BINARY:
-        fieldClause += "VARBINARY";
+        if (length > 0) {
+          fieldClause += "BINARY(" + length + ")";
+        } else {
+          fieldClause += "VARBINARY";
+        }
         break;
       default:
         fieldClause += " UNKNOWN";

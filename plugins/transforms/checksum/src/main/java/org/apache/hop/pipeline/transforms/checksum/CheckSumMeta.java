@@ -227,6 +227,9 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
               default -> new ValueMetaString(variables.resolve(resultFieldName));
             };
       }
+      if (resultType == ResultType.BINARY && checkSumType == CheckSumType.MD5) {
+        v.setLength(16);
+      }
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }

@@ -62,7 +62,6 @@ import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.PipelineMetricDisplayUtil;
-import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Color;
@@ -334,18 +333,6 @@ public class HopGuiPipelineGridDelegate {
 
     startRefreshMetricsTimer();
     pipelineGridTab.addDisposeListener(disposeEvent -> stopRefreshMetricsTimer());
-    HopGuiSelectionTracker.getInstance()
-        .addSelectionListener(
-            HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH,
-            () -> {
-              if (!showSelectedTransforms) {
-                return;
-              }
-              if (pipelineGridView == null || pipelineGridView.isDisposed()) {
-                return;
-              }
-              hopGui.getDisplay().asyncExec(this::refreshView);
-            });
 
     pipelineGridTab.setControl(pipelineGridComposite);
   }
@@ -383,6 +370,20 @@ public class HopGuiPipelineGridDelegate {
     hopGui.getDisplay().asyncExec(this::refreshView);
     ExecutorUtil.cleanup(refreshMetricsTimer);
     refreshMetricsTimer = null;
+  }
+
+  /**
+   * Called by the pipeline graph when selection changes (e.g. user selects transforms). Refreshes
+   * the grid view when "show selected" is on.
+   */
+  public void onPipelineSelectionChanged() {
+    if (!showSelectedTransforms) {
+      return;
+    }
+    if (pipelineGridView == null || pipelineGridView.isDisposed()) {
+      return;
+    }
+    hopGui.getDisplay().asyncExec(this::refreshView);
   }
 
   /**

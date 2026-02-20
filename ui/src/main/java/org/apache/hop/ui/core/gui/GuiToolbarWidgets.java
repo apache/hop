@@ -414,7 +414,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
                 Const.isOSX());
     if (shortcut != null) {
       String tip = Const.NVL(guiToolbarItem.getToolTip(), "");
-      composite.setToolTipText(tip + " (" + shortcut + ')');
+      String shortcutText = ShortcutDisplayUtil.getShortcutDisplayString(shortcut);
+      if (!shortcutText.isEmpty()) {
+        composite.setToolTipText(tip + " (" + shortcutText + ')');
+      }
     }
   }
 
@@ -621,7 +624,10 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
                 guiToolbarItem.getListenerMethod(),
                 Const.isOSX());
     if (shortcut != null) {
-      toolItem.setToolTipText(toolItem.getToolTipText() + " (" + shortcut + ')');
+      String shortcutText = ShortcutDisplayUtil.getShortcutDisplayString(shortcut);
+      if (!shortcutText.isEmpty()) {
+        toolItem.setToolTipText(toolItem.getToolTipText() + " (" + shortcutText + ')');
+      }
     }
   }
 

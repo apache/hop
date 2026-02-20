@@ -26,7 +26,7 @@ import org.apache.hop.imports.kettle.KettleImportDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 
-@GuiPlugin
+@GuiPlugin(name = "Import", description = "Import Kettle projects")
 public class HopImportGuiPlugin {
 
   public static final String ID_MAIN_MENU_FILE_IMPORT = "10060-menu-tools-import";
@@ -47,8 +47,8 @@ public class HopImportGuiPlugin {
       image = "kettle-logo.svg",
       parentId = HopGui.ID_MAIN_MENU_FILE,
       separator = true)
-  @GuiKeyboardShortcut(control = true, key = 'i')
-  @GuiOsxKeyboardShortcut(command = true, key = 'i')
+  @GuiKeyboardShortcut(control = true, key = 'i', global = true)
+  @GuiOsxKeyboardShortcut(command = true, key = 'i', global = true)
   public void menuToolsImport() {
     HopGui hopGui = HopGui.getInstance();
     try {

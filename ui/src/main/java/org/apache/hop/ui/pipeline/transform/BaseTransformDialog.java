@@ -137,6 +137,9 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
 
   protected boolean backupChanged;
 
+  /** True while the dialog is loading */
+  protected boolean loading;
+
   /** The base transform meta. */
   protected ITransformMeta baseTransformMeta;
 
@@ -223,7 +226,8 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
    *   <li>Applies a FormLayout with standard margins
    *   <li>Sets the shell title
    *   <li>Initializes {@link #middle} and {@link #margin} fields for layout calculations
-   *   <li>Initializes {@link #lsMod} modify listener for change tracking
+   *   <li>Initializes {@link #lsMod} modify listener for change tracking (skipped while {@link
+   *       #loading} is true so opening the dialog does not mark the pipeline as changed)
    *   <li>Creates the transform name label and text field ({@link #wlTransformName} and {@link
    *       #wTransformName})
    * </ul>
@@ -284,8 +288,13 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     middle = props.getMiddlePct();
     margin = PropsUi.getMargin();
 
-    // Initialize standard modify listener
-    lsMod = e -> baseTransformMeta.setChanged();
+    // Initialize standard modify listener (no-op while loading so open does not mark as changed)
+    lsMod =
+        e -> {
+          if (!loading) {
+            baseTransformMeta.setChanged();
+          }
+        };
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -315,6 +324,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     fdSpacer.right = new FormAttachment(100, 0);
     wSpacer.setLayoutData(fdSpacer);
 
+    loading = true;
     return wSpacer;
   }
 
@@ -445,6 +455,7 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
       }
       wTransformName.selectAll();
       wTransformName.setFocus();
+      loading = false;
     }
   }
 
