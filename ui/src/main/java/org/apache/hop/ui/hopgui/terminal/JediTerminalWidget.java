@@ -38,6 +38,10 @@ import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
@@ -154,6 +158,45 @@ public class JediTerminalWidget implements ITerminalWidget {
                     .start();
               });
         });
+
+    // Override tab listener and send it to jediTerm
+    if (Const.isLinux()) {
+      TraverseListener tabTraverse =
+          new TraverseListener() {
+            @Override
+            public void keyTraversed(TraverseEvent e) {
+              if (e.detail == SWT.TRAVERSE_TAB_NEXT || e.detail == SWT.TRAVERSE_TAB_PREVIOUS) {
+                e.doit = false;
+              }
+            }
+          };
+      KeyAdapter tabKey =
+          new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+              if (e.keyCode == SWT.TAB) {
+                sendTabToShell();
+              }
+            }
+          };
+      bridgeComposite.addTraverseListener(tabTraverse);
+      bridgeComposite.addKeyListener(tabKey);
+      parent.addTraverseListener(tabTraverse);
+      parent.addKeyListener(tabKey);
+    }
+  }
+
+  /** Send Tab character directly to the shell PTY so completion works (used on Linux). */
+  private void sendTabToShell() {
+    final Pty4JTtyConnector connector = ttyConnector;
+    if (connector == null || !connector.isConnected()) {
+      return;
+    }
+    try {
+      connector.write("\t");
+    } catch (IOException e) {
+      log.logDebug("Could not send Tab to terminal: " + e.getMessage());
+    }
   }
 
   /** Create SettingsProvider with Hop theme and font scaling */
