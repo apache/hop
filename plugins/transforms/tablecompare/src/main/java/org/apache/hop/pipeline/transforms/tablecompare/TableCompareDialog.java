@@ -62,10 +62,12 @@ public class TableCompareDialog extends BaseTransformDialog {
   private MetaSelectionLine<DatabaseMeta> wReferenceDB;
   private LabelCombo wReferenceSchema;
   private LabelCombo wReferenceTable;
+  private LabelCombo wReferenceCte;
 
   private MetaSelectionLine<DatabaseMeta> wCompareDB;
   private LabelCombo wCompareSchema;
   private LabelCombo wCompareTable;
+  private LabelCombo wCompareCte;
 
   private LabelCombo wKeyFields;
   private LabelCombo wExcludeFields;
@@ -166,6 +168,19 @@ public class TableCompareDialog extends BaseTransformDialog {
     fdReferenceTable.top = new FormAttachment(lastControl, margin);
     fdReferenceTable.right = new FormAttachment(100, 0);
     wReferenceTable.setLayoutData(fdReferenceTable);
+    lastControl = wReferenceTable;
+
+    wReferenceCte =
+        new LabelCombo(
+            wReferenceComp,
+            BaseMessages.getString(PKG, "TableCompareDialog.ReferenceCteField.Label"),
+            BaseMessages.getString(PKG, "TableCompareDialog.ReferenceCteField.Tooltip"));
+    PropsUi.setLook(wReferenceCte);
+    FormData fdReferenceCte = new FormData();
+    fdReferenceCte.left = new FormAttachment(0, 0);
+    fdReferenceCte.top = new FormAttachment(lastControl, margin);
+    fdReferenceCte.right = new FormAttachment(100, 0);
+    wReferenceCte.setLayoutData(fdReferenceCte);
 
     FormData fdReferenceComp = new FormData();
     fdReferenceComp.left = new FormAttachment(0, 0);
@@ -236,6 +251,19 @@ public class TableCompareDialog extends BaseTransformDialog {
     fdCompareTable.top = new FormAttachment(lastControl, margin);
     fdCompareTable.right = new FormAttachment(100, 0);
     wCompareTable.setLayoutData(fdCompareTable);
+    lastControl = wCompareTable;
+
+    wCompareCte =
+        new LabelCombo(
+            wComparisonComp,
+            BaseMessages.getString(PKG, "TableCompareDialog.CompareCteField.Label"),
+            BaseMessages.getString(PKG, "TableCompareDialog.CompareCteField.Tooltip"));
+    PropsUi.setLook(wCompareCte);
+    FormData fdCompareCte = new FormData();
+    fdCompareCte.left = new FormAttachment(0, 0);
+    fdCompareCte.top = new FormAttachment(lastControl, margin);
+    fdCompareCte.right = new FormAttachment(100, 0);
+    wCompareCte.setLayoutData(fdCompareCte);
 
     FormData fdComparisonComp = new FormData();
     fdComparisonComp.left = new FormAttachment(0, 0);
@@ -521,8 +549,10 @@ public class TableCompareDialog extends BaseTransformDialog {
 
               wReferenceSchema.setItems(prevTransformFieldNames);
               wReferenceTable.setItems(prevTransformFieldNames);
+              wReferenceCte.setItems(prevTransformFieldNames);
               wCompareSchema.setItems(prevTransformFieldNames);
               wCompareTable.setItems(prevTransformFieldNames);
+              wCompareCte.setItems(prevTransformFieldNames);
               wKeyFields.setItems(prevTransformFieldNames);
               wExcludeFields.setItems(prevTransformFieldNames);
               wKeyDesc.setItems(prevTransformFieldNames);
@@ -541,9 +571,11 @@ public class TableCompareDialog extends BaseTransformDialog {
         input.getReferenceConnection() != null ? input.getReferenceConnection() : "");
     wReferenceSchema.setText(Const.NVL(input.getReferenceSchemaField(), ""));
     wReferenceTable.setText(Const.NVL(input.getReferenceTableField(), ""));
+    wReferenceCte.setText(Const.NVL(input.getReferenceCteField(), ""));
     wCompareDB.setText(input.getCompareConnection() != null ? input.getCompareConnection() : "");
     wCompareSchema.setText(Const.NVL(input.getCompareSchemaField(), ""));
     wCompareTable.setText(Const.NVL(input.getCompareTableField(), ""));
+    wCompareCte.setText(Const.NVL(input.getCompareCteField(), ""));
     wKeyFields.setText(Const.NVL(input.getKeyFieldsField(), ""));
     wExcludeFields.setText(Const.NVL(input.getExcludeFieldsField(), ""));
 
@@ -576,9 +608,11 @@ public class TableCompareDialog extends BaseTransformDialog {
     input.setReferenceConnection(wReferenceDB.getText());
     input.setReferenceSchemaField(wReferenceSchema.getText());
     input.setReferenceTableField(wReferenceTable.getText());
+    input.setReferenceCteField(wReferenceCte.getText());
     input.setCompareConnection(wCompareDB.getText());
     input.setCompareSchemaField(wCompareSchema.getText());
     input.setCompareTableField(wCompareTable.getText());
+    input.setCompareCteField(wCompareCte.getText());
     input.setKeyFieldsField(wKeyFields.getText());
     input.setExcludeFieldsField(wExcludeFields.getText());
 
