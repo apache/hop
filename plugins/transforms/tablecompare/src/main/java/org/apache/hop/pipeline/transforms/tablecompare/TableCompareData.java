@@ -30,8 +30,10 @@ public class TableCompareData extends BaseTransformData implements ITransformDat
 
   public int refSchemaIndex;
   public int refTableIndex;
+  public int refCteIndex;
   public int cmpSchemaIndex;
   public int cmpTableIndex;
+  public int cmpCteIndex;
   public int keyFieldsIndex;
   public int excludeFieldsIndex;
 
