@@ -175,7 +175,8 @@ public class JediTerminalWidget implements ITerminalWidget {
       }
     }
 
-    final int targetFontSize = Math.round(swtFontSize * fontScale);
+    float nativeZoomFactor = (float) PropsUi.getNativeZoomFactor();
+    final int targetFontSize = Math.round(swtFontSize * fontScale * nativeZoomFactor);
 
     return new DefaultSettingsProvider() {
       @Override
