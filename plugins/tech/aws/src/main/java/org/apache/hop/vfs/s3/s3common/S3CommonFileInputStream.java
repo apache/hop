@@ -16,23 +16,26 @@
  */
 package org.apache.hop.vfs.s3.s3common;
 
-import com.amazonaws.services.s3.model.S3Object;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.vfs2.util.MonitorInputStream;
 
+/** Wraps S3 getObject stream and closes the response when the stream is closed. */
 public class S3CommonFileInputStream extends MonitorInputStream {
 
-  private final S3Object s3Object;
+  private final Closeable toClose;
 
-  public S3CommonFileInputStream(InputStream in, S3Object s3Object) {
+  public S3CommonFileInputStream(InputStream in, Closeable toClose) {
     super(in);
-    this.s3Object = s3Object;
+    this.toClose = toClose;
   }
 
   @Override
   protected void onClose() throws IOException {
     super.onClose();
-    this.s3Object.close();
+    if (toClose != null) {
+      toClose.close();
+    }
   }
 }

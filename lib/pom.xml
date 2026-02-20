@@ -39,7 +39,8 @@
         <apache-spark.version>3.4.3</apache-spark.version>
         <asm.version>9.7</asm.version>
         <avro.version>1.12.0</avro.version>
-        <aws-java-sdk.version>1.12.651</aws-java-sdk.version>
+        <!-- AWS: SDK v2 only (software.amazon.awssdk). Aligned with Apache Beam 2.71.0. -->
+        <aws-java-sdk.version>2.20.162</aws-java-sdk.version>
         <bahir.version>2.1.1</bahir.version>
         <bcprov-jdk18on.version>1.81</bcprov-jdk18on.version>
         <blueprints-core.version>2.6.0</blueprints-core.version>
@@ -181,9 +182,20 @@
                 <artifactId>kafka-schema-registry-client</artifactId>
                 <version>${kafka-schema-registry-client.version}</version>
             </dependency>
+            <!-- AWS SDK v2 (single version for all AWS usage in Hop) -->
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-core</artifactId>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>sns</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>sqs</artifactId>
                 <version>${aws-java-sdk.version}</version>
             </dependency>
             <dependency>
@@ -195,26 +207,6 @@
                 <groupId>com.squareup.okio</groupId>
                 <artifactId>okio-jvm</artifactId>
                 <version>${okio.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-emr</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-iam</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-kms</artifactId>
-                <version>${aws-java-sdk.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.azure</groupId>
@@ -231,16 +223,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
                 <version>${commons-text.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-pricing</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-redshift</artifactId>
-                <version>${aws-java-sdk.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.databricks</groupId>

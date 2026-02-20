@@ -17,11 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.aws.sqs;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.services.sqs.AmazonSQS;
-import java.util.List;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -591,26 +586,37 @@ public class SqsReaderDialog extends BaseTransformDialog {
   }
 
   /**
-   * This method fills the CombarVar with all available AWS Regions
+   * This method fills the ComboVar with common AWS region IDs (SQS-supported).
    *
-   * @param ComboVar tAWSRegion2
+   * @param tAWSRegion2 ComboVar to populate
    */
   private void populateAWSRegion(ComboVar tAWSRegion2) {
-
     tAWSRegion2.removeAll();
-
-    try {
-
-      List<Region> snsRegions = RegionUtils.getRegionsForService(AmazonSQS.ENDPOINT_PREFIX);
-
-      for (Region region : snsRegions) {
-        tAWSRegion2.add(region.getName());
-      }
-
-    } catch (AmazonClientException e) {
-      logError(BaseMessages.getString(PKG, e.getMessage()));
+    for (String regionId : AWS_REGION_IDS) {
+      tAWSRegion2.add(regionId);
     }
   }
+
+  private static final String[] AWS_REGION_IDS =
+      new String[] {
+        "us-east-1",
+        "us-east-2",
+        "us-west-1",
+        "us-west-2",
+        "eu-west-1",
+        "eu-west-2",
+        "eu-central-1",
+        "eu-north-1",
+        "ap-southeast-1",
+        "ap-southeast-2",
+        "ap-northeast-1",
+        "ap-northeast-2",
+        "ap-south-1",
+        "ca-central-1",
+        "sa-east-1",
+        "af-south-1",
+        "me-south-1"
+      };
 
   /**
    * This helper method puts the transform configuration stored in the meta object and puts it into

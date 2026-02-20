@@ -19,29 +19,9 @@ package org.apache.hop.vfs.s3.amazon.s3;
 
 public final class S3Util {
 
-  /** System property name for the AWS Endpoint (This is for Minio) */
-  public static final String ENDPOINT_SYSTEM_PROPERTY = "aws.endpoint";
-
-  /** System property name for the AWS Signature version (This is for Minio) */
-  public static final String SIGNATURE_VERSION_SYSTEM_PROPERTY = "aws.endpoint";
-
-  /** System property name for the AWS access key ID */
   public static final String ACCESS_KEY_SYSTEM_PROPERTY = "aws.accessKeyId";
-
-  /** System property name for the AWS secret key */
   public static final String SECRET_KEY_SYSTEM_PROPERTY = "aws.secretKey";
-
-  /** Environment variable for the AWS region */
   public static final String AWS_REGION = "AWS_REGION";
-
-  /** Environment variable for the specific location of the AWS config file */
-  public static final String AWS_CONFIG_FILE = "AWS_CONFIG_FILE";
-
-  /** AWS configuration folder */
-  public static final String AWS_FOLDER = ".aws";
-
-  /** Configuration file name */
-  public static final String CONFIG_FILE = "config";
 
   public static boolean hasChanged(String previousValue, String currentValue) {
     if (!isEmpty(previousValue) && isEmpty(currentValue)) {

@@ -17,11 +17,16 @@
 
 package org.apache.hop.vfs.s3;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.vfs.s3.metadata.S3Meta;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileProvider;
 
 @VfsPlugin(type = "s3", typeDescription = "S3 VFS plugin", classLoaderGroup = "vfs-s3")
@@ -38,6 +43,17 @@ public class S3VfsPlugin implements IVfs {
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
-    return null;
+    Map<String, FileProvider> providers = new HashMap<>();
+    try {
+      IHopMetadataProvider metadataProvider =
+          HopMetadataUtil.getStandardHopMetadataProvider(variables);
+      List<S3Meta> s3MetaList = metadataProvider.getSerializer(S3Meta.class).loadAll();
+      for (S3Meta s3Meta : s3MetaList) {
+        providers.put(s3Meta.getName(), new S3FileProvider(variables, s3Meta));
+      }
+    } catch (Exception e) {
+      // Ignore errors (e.g. metadata not initialized)
+    }
+    return providers;
   }
 }

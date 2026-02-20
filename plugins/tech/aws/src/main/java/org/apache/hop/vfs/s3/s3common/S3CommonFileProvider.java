@@ -36,6 +36,12 @@ public abstract class S3CommonFileProvider extends AbstractOriginatingFileProvid
         UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
       };
 
+  private static final FileSystemOptions defaultOptions = new FileSystemOptions();
+
+  public static FileSystemOptions getDefaultFileSystemOptions() {
+    return defaultOptions;
+  }
+
   /** The provider's capabilities. */
   protected static final Collection<Capability> capabilities =
       Collections.unmodifiableCollection(

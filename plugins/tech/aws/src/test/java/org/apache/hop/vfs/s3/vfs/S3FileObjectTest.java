@@ -16,36 +16,21 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
-import static java.util.AbstractMap.SimpleEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CopyObjectRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PartETag;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.UploadPartResult;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -70,6 +55,22 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CommonPrefix;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadResponse;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.UploadPartResponse;
 
 class S3FileObjectTest {
 
@@ -85,16 +86,15 @@ class S3FileObjectTest {
   private S3FileObject s3FileObjectBucketSpy;
   private S3FileObject s3FileObjectFileSpy;
   private S3FileObject s3FileObjectSpyRoot;
-  private AmazonS3 s3ServiceMock;
-  private ObjectListing childObjectListing;
-  private S3Object s3ObjectMock;
-  private S3ObjectInputStream s3ObjectInputStream;
-  private ObjectMetadata s3ObjectMetadata;
+  private S3Client s3ClientMock;
+  private ListObjectsV2Response listResponsePage1;
+  private ListObjectsV2Response listResponsePage2;
   private final List<String> childObjectNameComp = new ArrayList<>();
   private final List<String> childBucketNameListComp = new ArrayList<>();
   private final long contentLength = 42;
   private final String origKey = "some/key";
   private final Date testDate = new Date();
+  private final Instant testInstant = testDate.toInstant();
 
   @BeforeAll
   static void initHop() throws Exception {
@@ -104,10 +104,7 @@ class S3FileObjectTest {
   @BeforeEach
   void setUp() throws Exception {
 
-    s3ServiceMock = mock(AmazonS3.class);
-    S3Object s3Object = new S3Object();
-    s3Object.setKey(OBJECT_NAME);
-    s3Object.setBucketName(BUCKET_NAME);
+    s3ClientMock = mock(S3Client.class);
 
     filename = new S3FileName(SCHEME, BUCKET_NAME, BUCKET_NAME, FileType.FOLDER);
     S3FileName rootFileName = new S3FileName(SCHEME, "", "", FileType.FOLDER);
@@ -138,63 +135,71 @@ class S3FileObjectTest {
     S3FileObject s3FileObjectRoot = new S3FileObject(rootFileName, fileSystemSpy);
     s3FileObjectSpyRoot = spy(s3FileObjectRoot);
 
-    // specify the behaviour of S3 Service
-    when(s3ServiceMock.getObject(BUCKET_NAME, OBJECT_NAME)).thenReturn(s3Object);
-    when(s3ServiceMock.getObject(BUCKET_NAME, OBJECT_NAME)).thenReturn(s3Object);
-    when(s3ServiceMock.listBuckets()).thenReturn(createBuckets());
+    when(fileSystemSpy.getS3Client()).thenReturn(s3ClientMock);
 
-    when(s3ServiceMock.doesBucketExistV2(BUCKET_NAME)).thenReturn(true);
+    // listBuckets for root
+    when(s3ClientMock.listBuckets())
+        .thenReturn(ListBucketsResponse.builder().buckets(createBuckets()).build());
 
-    childObjectListing = mock(ObjectListing.class);
-    when(childObjectListing.getObjectSummaries())
-        .thenReturn(createObjectSummaries(0))
-        .thenReturn(new ArrayList<>());
-    when(childObjectListing.getCommonPrefixes())
-        .thenReturn(new ArrayList<>())
-        .thenReturn(createCommonPrefixes(3));
-    when(childObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
+    // listObjectsV2 for folder listing (two pages: contents then commonPrefixes)
+    listResponsePage1 =
+        ListObjectsV2Response.builder()
+            .contents(createContents(0))
+            .commonPrefixes(new ArrayList<>())
+            .nextContinuationToken("token1")
+            .build();
+    listResponsePage2 =
+        ListObjectsV2Response.builder()
+            .contents(new ArrayList<>())
+            .commonPrefixes(createCommonPrefixes(3))
+            .nextContinuationToken(null)
+            .build();
+    when(s3ClientMock.listObjectsV2(any(ListObjectsV2Request.class)))
+        .thenReturn(listResponsePage1)
+        .thenReturn(listResponsePage2);
 
-    when(s3ServiceMock.listObjects(any(ListObjectsRequest.class))).thenReturn(childObjectListing);
-    when(s3ServiceMock.listObjects(anyString(), anyString())).thenReturn(childObjectListing);
-    when(s3ServiceMock.listNextBatchOfObjects(any(ObjectListing.class)))
-        .thenReturn(childObjectListing);
+    // getObject / headObject for file metadata and stream
+    ResponseInputStream<GetObjectResponse> mockStream = mock(ResponseInputStream.class);
+    GetObjectResponse getResponse =
+        GetObjectResponse.builder().contentLength(contentLength).lastModified(testInstant).build();
+    lenient().when(mockStream.response()).thenReturn(getResponse);
+    lenient().when(s3ClientMock.getObject(any(GetObjectRequest.class))).thenReturn(mockStream);
 
-    s3ObjectMock = mock(S3Object.class);
-    s3ObjectInputStream = mock(S3ObjectInputStream.class);
-    s3ObjectMetadata = mock(ObjectMetadata.class);
-    when(s3ObjectMock.getObjectContent()).thenReturn(s3ObjectInputStream);
-    when(s3ServiceMock.getObjectMetadata(anyString(), anyString())).thenReturn(s3ObjectMetadata);
-    when(s3ObjectMetadata.getContentLength()).thenReturn(contentLength);
-    when(s3ObjectMetadata.getLastModified()).thenReturn(testDate);
-    when(s3ServiceMock.getObject(anyString(), anyString())).thenReturn(s3ObjectMock);
-
-    when(fileSystemSpy.getS3Client()).thenReturn(s3ServiceMock);
+    software.amazon.awssdk.services.s3.model.HeadObjectResponse headResponse =
+        software.amazon.awssdk.services.s3.model.HeadObjectResponse.builder()
+            .contentLength(contentLength)
+            .lastModified(testInstant)
+            .build();
+    lenient()
+        .when(
+            s3ClientMock.headObject(
+                any(software.amazon.awssdk.services.s3.model.HeadObjectRequest.class)))
+        .thenReturn(headResponse);
   }
 
   @Test
-  void testGetS3Object() throws Exception {
-    when(s3ServiceMock.getObject(anyString(), anyString())).thenReturn(new S3Object());
-    S3FileObject s3FileObject = new S3FileObject(filename, fileSystemSpy);
-    S3Object s3Object = s3FileObject.getS3Object();
-    assertNotNull(s3Object);
+  void testGetInputStream() throws Exception {
+    assertNotNull(s3FileObjectBucketSpy.getInputStream());
   }
 
   @Test
   void testGetS3BucketName() {
     filename = new S3FileName(SCHEME, BUCKET_NAME, "", FileType.FOLDER);
     when(s3FileObjectBucketSpy.getName()).thenReturn(filename);
-    s3FileObjectBucketSpy.getS3BucketName();
+    s3FileObjectBucketSpy.getBucketName();
   }
 
   @Test
   void testDoGetOutputStream() throws Exception {
-    InitiateMultipartUploadResult initResponse = mock(InitiateMultipartUploadResult.class);
-    when(initResponse.getUploadId()).thenReturn("foo");
-    when(s3ServiceMock.initiateMultipartUpload(any())).thenReturn(initResponse);
-    UploadPartResult uploadPartResult = mock(UploadPartResult.class);
-    PartETag tag = mock(PartETag.class);
-    when(s3ServiceMock.uploadPart(any())).thenReturn(uploadPartResult);
-    when(uploadPartResult.getPartETag()).thenReturn(tag);
+    CreateMultipartUploadResponse createResponse =
+        CreateMultipartUploadResponse.builder().uploadId("foo").build();
+    when(s3ClientMock.createMultipartUpload(any(CreateMultipartUploadRequest.class)))
+        .thenReturn(createResponse);
+    UploadPartResponse uploadPartResponse = UploadPartResponse.builder().eTag("etag").build();
+    when(s3ClientMock.uploadPart(
+            any(software.amazon.awssdk.services.s3.model.UploadPartRequest.class),
+            any(software.amazon.awssdk.core.sync.RequestBody.class)))
+        .thenReturn(uploadPartResponse);
 
     assertNotNull(s3FileObjectBucketSpy.doGetOutputStream(false));
     OutputStream out = s3FileObjectBucketSpy.doGetOutputStream(true);
@@ -202,9 +207,13 @@ class S3FileObjectTest {
     out.write(new byte[1024 * 1024 * 6]); // 6MB
     out.close();
 
-    // check that property 's3.vfs.partSize' is less than [5MB, 6MB)
-    verify(s3ServiceMock, times(2)).uploadPart(any());
-    verify(s3ServiceMock, atMost(1)).completeMultipartUpload(any());
+    verify(s3ClientMock, times(2))
+        .uploadPart(
+            any(software.amazon.awssdk.services.s3.model.UploadPartRequest.class),
+            any(software.amazon.awssdk.core.sync.RequestBody.class));
+    verify(s3ClientMock, atMost(1))
+        .completeMultipartUpload(
+            any(software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest.class));
   }
 
   @Test
@@ -234,11 +243,11 @@ class S3FileObjectTest {
                     SCHEME, BUCKET_NAME, BUCKET_NAME + "/" + origKey, FileType.IMAGINARY),
                 fileSystemSpy));
     notRootBucket.createFolder();
-    ArgumentCaptor<PutObjectRequest> putObjectRequestArgumentCaptor =
-        ArgumentCaptor.forClass(PutObjectRequest.class);
-    verify(s3ServiceMock).putObject(putObjectRequestArgumentCaptor.capture());
-    assertEquals(BUCKET_NAME, putObjectRequestArgumentCaptor.getValue().getBucketName());
-    assertEquals("some/key/", putObjectRequestArgumentCaptor.getValue().getKey());
+    ArgumentCaptor<PutObjectRequest> putCaptor = ArgumentCaptor.forClass(PutObjectRequest.class);
+    verify(s3ClientMock)
+        .putObject(putCaptor.capture(), any(software.amazon.awssdk.core.sync.RequestBody.class));
+    assertEquals(BUCKET_NAME, putCaptor.getValue().bucket());
+    assertEquals("some/key/", putCaptor.getValue().key());
   }
 
   @Test
@@ -251,18 +260,21 @@ class S3FileObjectTest {
 
   @Test
   void testCanRenameToNullFile() {
-    // This is a bug / weakness in VFS itself
     assertThrows(NullPointerException.class, () -> s3FileObjectBucketSpy.canRenameTo(null));
   }
 
   @Test
   void testDoDelete() throws Exception {
+    when(s3ClientMock.listObjectsV2(any(ListObjectsV2Request.class)))
+        .thenReturn(
+            ListObjectsV2Response.builder()
+                .contents(createContents(0))
+                .nextContinuationToken(null)
+                .build());
     fileSystemSpy.init();
     s3FileObjectBucketSpy.doDelete();
-    verify(s3ServiceMock).deleteObject("bucket3", "key0");
-    verify(s3ServiceMock).deleteObject("bucket3", "key1");
-    verify(s3ServiceMock).deleteObject("bucket3", "key2");
-    verify(s3ServiceMock).deleteObject("bucket3", "");
+    verify(s3ClientMock, times(4))
+        .deleteObject(any(software.amazon.awssdk.services.s3.model.DeleteObjectRequest.class));
   }
 
   @Test
@@ -273,18 +285,15 @@ class S3FileObjectTest {
         new S3FileName(
             SCHEME, someNewBucketName, someNewBucketName + "/" + someNewKey, FileType.FILE);
     S3FileObject newFile = new S3FileObject(newFileName, fileSystemSpy);
-    ArgumentCaptor<CopyObjectRequest> copyObjectRequestArgumentCaptor =
-        ArgumentCaptor.forClass(CopyObjectRequest.class);
-    when(s3ServiceMock.doesBucketExistV2(someNewBucketName)).thenReturn(true);
+    ArgumentCaptor<CopyObjectRequest> copyCaptor = ArgumentCaptor.forClass(CopyObjectRequest.class);
     s3FileObjectFileSpy.doAttach();
     s3FileObjectFileSpy.moveTo(newFile);
 
-    verify(s3ServiceMock).copyObject(copyObjectRequestArgumentCaptor.capture());
-    assertEquals(
-        someNewBucketName, copyObjectRequestArgumentCaptor.getValue().getDestinationBucketName());
-    assertEquals(someNewKey, copyObjectRequestArgumentCaptor.getValue().getDestinationKey());
-    assertEquals(BUCKET_NAME, copyObjectRequestArgumentCaptor.getValue().getSourceBucketName());
-    assertEquals(origKey, copyObjectRequestArgumentCaptor.getValue().getSourceKey());
+    verify(s3ClientMock).copyObject(copyCaptor.capture());
+    assertEquals(someNewBucketName, copyCaptor.getValue().destinationBucket());
+    assertEquals(someNewKey, copyCaptor.getValue().destinationKey());
+    assertEquals(BUCKET_NAME, copyCaptor.getValue().sourceBucket());
+    assertEquals(origKey, copyCaptor.getValue().sourceKey());
   }
 
   @Test
@@ -299,7 +308,7 @@ class S3FileObjectTest {
     FileObject[] children = s3FileObjectBucketSpy.getChildren();
     assertEquals(6, children.length);
     List<String> childNameArray =
-        Arrays.asList(children).stream()
+        Arrays.stream(children)
             .map(child -> child.getName().getPath())
             .collect(Collectors.toList());
     assertEquals(childObjectNameComp, childNameArray);
@@ -311,95 +320,116 @@ class S3FileObjectTest {
     FileObject[] children = s3FileObjectSpyRoot.getChildren();
     assertEquals(4, children.length);
     List<String> childNameArray =
-        Arrays.asList(children).stream()
+        Arrays.stream(children)
             .map(child -> child.getName().getPath())
             .collect(Collectors.toList());
     assertEquals(childBucketNameListComp, childNameArray);
   }
 
   @Test
-  void testFixFilePathToFile() {
-    String bucketName = "s3:/";
-    String key = "bucketName/some/key/path";
-    SimpleEntry<String, String> newPath = s3FileObjectBucketSpy.fixFilePath(key, bucketName);
-    assertEquals("bucketName", newPath.getValue());
-    assertEquals("some/key/path", newPath.getKey());
-  }
-
-  @Test
-  void testFixFilePathToFolder() {
-    String bucketName = "s3:/";
-    String key = "bucketName";
-    SimpleEntry<String, String> newPath = s3FileObjectBucketSpy.fixFilePath(key, bucketName);
-    assertEquals("bucketName", newPath.getValue());
-    assertEquals("", newPath.getKey());
-  }
-
-  @Test
-  void testHandleAttachException() throws FileSystemException {
-    String testKey = BUCKET_NAME + "/" + origKey;
-    String testBucket = "badBucketName";
-    AmazonS3Exception exception = new AmazonS3Exception("NoSuchKey");
-
-    // test the case where the folder exists and contains things; no exception should be thrown
-    when(s3ServiceMock.getObject(BUCKET_NAME, origKey + "/")).thenThrow(exception);
-    try {
-      s3FileObjectFileSpy.handleAttachException(testKey, testBucket);
-    } catch (FileSystemException e) {
-      fail("Caught exception " + e.getMessage());
-    }
+  void testHandleAttachException() throws Exception {
+    when(s3ClientMock.headObject(
+            any(software.amazon.awssdk.services.s3.model.HeadObjectRequest.class)))
+        .thenThrow(
+            (S3Exception)
+                S3Exception.builder()
+                    .message("NoSuchKey")
+                    .awsErrorDetails(AwsErrorDetails.builder().errorCode("NoSuchKey").build())
+                    .build());
+    when(s3ClientMock.getObject(any(GetObjectRequest.class)))
+        .thenThrow(
+            (S3Exception)
+                S3Exception.builder()
+                    .message("NoSuchKey")
+                    .awsErrorDetails(AwsErrorDetails.builder().errorCode("NoSuchKey").build())
+                    .build());
+    when(s3ClientMock.listObjectsV2(any(ListObjectsV2Request.class)))
+        .thenReturn(
+            ListObjectsV2Response.builder()
+                .contents(new ArrayList<>())
+                .commonPrefixes(createCommonPrefixes(1))
+                .build());
+    s3FileObjectFileSpy.doAttach();
     assertEquals(FileType.FOLDER, s3FileObjectFileSpy.getType());
   }
 
   @Test
-  void testHandleAttachExceptionEmptyFolder() throws FileSystemException {
-    String testKey = BUCKET_NAME + "/" + origKey;
-    String testBucket = "badBucketName";
-    AmazonS3Exception exception = new AmazonS3Exception("NoSuchKey");
-    exception.setErrorCode("NoSuchKey");
+  void testDoAttachCacheHit() throws Exception {
+    java.util.Map<String, org.apache.hop.vfs.s3.s3common.S3ListCache.ChildInfo> entries =
+        new java.util.LinkedHashMap<>();
+    entries.put(
+        origKey,
+        new org.apache.hop.vfs.s3.s3common.S3ListCache.ChildInfo(
+            FileType.FILE, 999, Instant.now()));
+    fileSystemSpy.putListCache(BUCKET_NAME, "some/", entries);
 
-    // test the case where the folder exists and contains things; no exception should be thrown
-    when(s3ServiceMock.getObject(BUCKET_NAME, origKey + "/")).thenThrow(exception);
-    childObjectListing = mock(ObjectListing.class);
-    when(childObjectListing.getObjectSummaries()).thenReturn(new ArrayList<>());
-    when(childObjectListing.getCommonPrefixes()).thenReturn(new ArrayList<>());
-    when(s3ServiceMock.listObjects(any(ListObjectsRequest.class))).thenReturn(childObjectListing);
-    try {
-      s3FileObjectFileSpy.handleAttachException(testKey, testBucket);
-    } catch (FileSystemException e) {
-      fail("Caught exception " + e.getMessage());
-    }
+    s3FileObjectFileSpy.doAttach();
+    assertEquals(FileType.FILE, s3FileObjectFileSpy.getType());
+  }
+
+  @Test
+  void testDoAttachCacheHitFolder() throws Exception {
+    java.util.Map<String, org.apache.hop.vfs.s3.s3common.S3ListCache.ChildInfo> entries =
+        new java.util.LinkedHashMap<>();
+    entries.put(
+        origKey + "/",
+        new org.apache.hop.vfs.s3.s3common.S3ListCache.ChildInfo(
+            FileType.FOLDER, 0, Instant.EPOCH));
+    fileSystemSpy.putListCache(BUCKET_NAME, "some/", entries);
+
+    s3FileObjectFileSpy.doAttach();
+    assertEquals(FileType.FOLDER, s3FileObjectFileSpy.getType());
+  }
+
+  @Test
+  void testHandleAttachExceptionEmptyFolder() throws Exception {
+    S3Exception exception =
+        (S3Exception)
+            S3Exception.builder()
+                .message("NoSuchKey")
+                .awsErrorDetails(AwsErrorDetails.builder().errorCode("NoSuchKey").build())
+                .build();
+    when(s3ClientMock.headObject(
+            any(software.amazon.awssdk.services.s3.model.HeadObjectRequest.class)))
+        .thenThrow(exception);
+    when(s3ClientMock.getObject(any(GetObjectRequest.class))).thenThrow(exception);
+    when(s3ClientMock.listObjectsV2(any(ListObjectsV2Request.class)))
+        .thenReturn(
+            ListObjectsV2Response.builder()
+                .contents(new ArrayList<>())
+                .commonPrefixes(new ArrayList<>())
+                .build());
+    s3FileObjectFileSpy.doAttach();
     assertEquals(FileType.IMAGINARY, s3FileObjectFileSpy.getType());
   }
 
   private List<Bucket> createBuckets() {
     List<Bucket> buckets = new ArrayList<>();
-    buckets.add(new Bucket("bucket1"));
-    buckets.add(new Bucket("bucket2"));
-    buckets.add(new Bucket("bucket3"));
-    buckets.add(new Bucket("bucket4"));
+    buckets.add(Bucket.builder().name("bucket1").build());
+    buckets.add(Bucket.builder().name("bucket2").build());
+    buckets.add(Bucket.builder().name("bucket3").build());
+    buckets.add(Bucket.builder().name("bucket4").build());
     childBucketNameListComp.addAll(
-        buckets.stream().map(bucket -> "/" + bucket.getName()).collect(Collectors.toList()));
+        buckets.stream().map(b -> "/" + b.name()).collect(Collectors.toList()));
     return buckets;
   }
 
-  private List<S3ObjectSummary> createObjectSummaries(int startnum) {
-    List<S3ObjectSummary> summaries = new ArrayList<>();
-    for (int i = startnum; i < startnum + 3; i++) {
-      S3ObjectSummary summary = new S3ObjectSummary();
-      summary.setBucketName(BUCKET_NAME);
-      summary.setKey("key" + i);
-      summaries.add(summary);
-      childObjectNameComp.add(BUCKET_NAME + "/" + "key" + i);
+  private List<software.amazon.awssdk.services.s3.model.S3Object> createContents(int startNum) {
+    List<software.amazon.awssdk.services.s3.model.S3Object> list = new ArrayList<>();
+    for (int i = startNum; i < startNum + 3; i++) {
+      String k = "key" + i;
+      list.add(software.amazon.awssdk.services.s3.model.S3Object.builder().key(k).size(0L).build());
+      childObjectNameComp.add(BUCKET_NAME + "/" + k);
     }
-    return summaries;
+    return list;
   }
 
-  private List<String> createCommonPrefixes(int startnum) {
-    List<String> prefixes = new ArrayList<>();
-    for (int i = startnum; i < startnum + 3; i++) {
-      prefixes.add("key" + i);
-      childObjectNameComp.add(BUCKET_NAME + "/" + "key" + i);
+  private List<CommonPrefix> createCommonPrefixes(int count) {
+    List<CommonPrefix> prefixes = new ArrayList<>();
+    for (int i = 0; i < count; i++) {
+      String p = "key" + i;
+      prefixes.add(CommonPrefix.builder().prefix(p).build());
+      childObjectNameComp.add(BUCKET_NAME + "/" + p);
     }
     return prefixes;
   }

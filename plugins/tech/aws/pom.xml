@@ -29,7 +29,8 @@
     <name>Hop Plugins Technology AWS</name>
 
     <properties>
-        <aws-java-sdk.version>1.12.651</aws-java-sdk.version>
+        <!-- AWS SDK v2: aligned with Apache Beam 2.71.0 (see lib/pom.xml) -->
+        <aws-java-sdk.version>2.20.162</aws-java-sdk.version>
     </properties>
 
     <dependencyManagement>
@@ -52,51 +53,24 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- AWS SDK v2: S3, SNS, SQS (aligned with Beam 2.71.0) -->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-core</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
             <version>${aws-java-sdk.version}</version>
             <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-codec</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sns</artifactId>
             <version>${aws-java-sdk.version}</version>
             <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-sns</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sqs</artifactId>
             <version>${aws-java-sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-sqs</artifactId>
-            <version>${aws-java-sdk.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.amazon.redshift</groupId>

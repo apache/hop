@@ -131,7 +131,7 @@ public class NonAccessibleFileObject implements FileObject {
 
   @Override
   public String getPublicURIString() {
-    throw new NotImplementedException();
+    return fullyQualifiedName;
   }
 
   @Override

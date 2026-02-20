@@ -99,4 +99,5 @@ public enum HopMetadataPropertyType {
   VFS_GCP_CONNECTION,
   VFS_AZURE_CONNECTION,
   VFS_MINIO_CONNECTION,
+  VFS_S3_CONNECTION,
 }

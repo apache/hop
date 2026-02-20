@@ -17,38 +17,48 @@
 
 package org.apache.hop.vfs.s3.s3common;
 
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.CopyObjectRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.google.common.annotations.VisibleForTesting;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import lombok.Getter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
 import org.apache.hop.core.logging.LogChannel;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CommonPrefix;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 public abstract class S3CommonFileObject extends AbstractFileObject {
 
   public static final String DELIMITER = "/";
 
   protected S3CommonFileSystem fileSystem;
-  protected String bucketName;
-  protected String key;
-  protected S3Object s3Object;
-  protected ObjectMetadata s3ObjectMetadata;
+  @Getter protected String bucketName;
+  @Getter protected String key;
+
+  protected ResponseInputStream<GetObjectResponse> currentObjectStream;
+  protected Long contentLength;
+  protected Instant lastModified;
 
   protected S3CommonFileObject(final AbstractFileName name, final S3CommonFileSystem fileSystem) {
     super(name, fileSystem);
@@ -59,15 +69,15 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   @Override
   protected long doGetContentSize() {
-    return s3ObjectMetadata.getContentLength();
+    return contentLength != null ? contentLength : 0;
   }
 
   @Override
   protected InputStream doGetInputStream() throws Exception {
     LogChannel.GENERAL.logDebug("Accessing content {0}", getQualifiedName());
     closeS3Object();
-    S3Object streamS3Object = getS3Object();
-    return new S3CommonFileInputStream(streamS3Object.getObjectContent(), streamS3Object);
+    ResponseInputStream<GetObjectResponse> stream = getObjectStream(bucketName, key);
+    return new S3CommonFileInputStream(stream, stream);
   }
 
   @Override
@@ -78,45 +88,40 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
   @Override
   protected String[] doListChildren() throws Exception {
     List<String> childrenList = new ArrayList<>();
-
-    // only listing folders or the root bucket
     if (getType() == FileType.FOLDER || isRootBucket()) {
       childrenList = getS3ObjectsFromVirtualFolder(key, bucketName);
     }
-    String[] childrenArr = new String[childrenList.size()];
-
-    return childrenList.toArray(childrenArr);
+    return childrenList.toArray(new String[0]);
   }
 
   protected String getS3BucketName() {
-    String bucket = getName().getPath();
-    if (bucket.indexOf(DELIMITER, 1) > 1) {
-      // this file is a file, to get the bucket, remove the name from the path
-      bucket = bucket.substring(1, bucket.indexOf(DELIMITER, 1));
-    } else {
-      // this file is a bucket
-      bucket = bucket.replace(DELIMITER, "");
+    String path = getName().getPath();
+    if (path == null) {
+      return "";
     }
-    if (bucket.startsWith("/")) {
-      bucket = bucket.substring(1);
+    if (path.startsWith(DELIMITER)) {
+      path = path.substring(1);
     }
-    return bucket;
+    if (path.isEmpty()) {
+      return "";
+    }
+    int slash = path.indexOf(DELIMITER);
+    return slash >= 0 ? path.substring(0, slash) : path;
   }
 
   protected List<String> getS3ObjectsFromVirtualFolder(String key, String bucketName) {
     List<String> childrenList = new ArrayList<>();
-
-    // fix cases where the path doesn't include the final delimiter
     String realKey = key;
     if (!realKey.endsWith(DELIMITER)) {
       realKey += DELIMITER;
     }
 
     if ("".equals(key) && "".equals(bucketName)) {
-      // Getting buckets in root folder
-      List<Bucket> bucketList = fileSystem.getS3Client().listBuckets();
-      for (Bucket bucket : bucketList) {
-        childrenList.add(bucket.getName() + DELIMITER);
+      List<Bucket> buckets = fileSystem.getS3Client().listBuckets().buckets();
+      if (buckets != null) {
+        for (Bucket b : buckets) {
+          childrenList.add(b.name() + DELIMITER);
+        }
       }
     } else {
       getObjectsFromNonRootFolder(key, bucketName, childrenList, realKey);
@@ -126,64 +131,82 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   private void getObjectsFromNonRootFolder(
       String key, String bucketName, List<String> childrenList, String realKey) {
-    // Getting files/folders in a folder/bucket
     String prefix = key.isEmpty() || key.endsWith(DELIMITER) ? key : key + DELIMITER;
-    ListObjectsRequest listObjectsRequest =
-        new ListObjectsRequest()
-            .withBucketName(bucketName)
-            .withPrefix(prefix)
-            .withDelimiter(DELIMITER);
-
-    ObjectListing ol = fileSystem.getS3Client().listObjects(listObjectsRequest);
-
-    ArrayList<S3ObjectSummary> allSummaries = new ArrayList<>(ol.getObjectSummaries());
-    ArrayList<String> allCommonPrefixes = new ArrayList<>(ol.getCommonPrefixes());
-
-    // get full list
-    while (ol.isTruncated()) {
-      ol = fileSystem.getS3Client().listNextBatchOfObjects(ol);
-      allSummaries.addAll(ol.getObjectSummaries());
-      allCommonPrefixes.addAll(ol.getCommonPrefixes());
-    }
-
-    for (S3ObjectSummary s3os : allSummaries) {
-      if (!s3os.getKey().equals(realKey)) {
-        childrenList.add(s3os.getKey().substring(prefix.length()));
+    Map<String, S3ListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
+    String continuationToken = null;
+    do {
+      ListObjectsV2Request.Builder req =
+          ListObjectsV2Request.builder().bucket(bucketName).prefix(prefix).delimiter(DELIMITER);
+      if (continuationToken != null) {
+        req.continuationToken(continuationToken);
       }
-    }
+      ListObjectsV2Response response = fileSystem.getS3Client().listObjectsV2(req.build());
 
-    for (String commonPrefix : allCommonPrefixes) {
-      if (!commonPrefix.equals(realKey)) {
-        childrenList.add(commonPrefix.substring(prefix.length()));
+      if (response.contents() != null) {
+        for (S3Object s3o : response.contents()) {
+          if (!s3o.key().equals(realKey)) {
+            String childName = s3o.key().substring(prefix.length());
+            childrenList.add(childName);
+            cacheEntries.put(
+                s3o.key(),
+                new S3ListCache.ChildInfo(
+                    FileType.FILE,
+                    s3o.size() != null ? s3o.size() : 0,
+                    s3o.lastModified() != null ? s3o.lastModified() : Instant.EPOCH));
+          }
+        }
       }
+      if (response.commonPrefixes() != null) {
+        for (CommonPrefix cp : response.commonPrefixes()) {
+          String p = cp.prefix();
+          if (!p.equals(realKey)) {
+            childrenList.add(p.substring(prefix.length()));
+            cacheEntries.put(p, new S3ListCache.ChildInfo(FileType.FOLDER, 0, Instant.EPOCH));
+          }
+        }
+      }
+      continuationToken = response.nextContinuationToken();
+    } while (continuationToken != null);
+
+    if (!cacheEntries.isEmpty()) {
+      fileSystem.putListCache(bucketName, prefix, cacheEntries);
     }
   }
 
   protected String getBucketRelativeS3Path() {
-    if (getName().getPath().indexOf(DELIMITER, 1) >= 0) {
-      return getName().getPath().substring(getName().getPath().indexOf(DELIMITER, 1) + 1);
-    } else {
+    String path = getName().getPath();
+    if (path == null) {
       return "";
     }
-  }
-
-  @VisibleForTesting
-  public S3Object getS3Object() {
-    return getS3Object(this.key, this.bucketName);
-  }
-
-  protected S3Object getS3Object(String key, String bucket) {
-    if (s3Object != null && s3Object.getObjectContent() != null) {
-      LogChannel.GENERAL.logDebug("Returning existing object {0}", getQualifiedName());
-      return s3Object;
-    } else {
-      LogChannel.GENERAL.logDebug("Getting object {0}", getQualifiedName());
-      return fileSystem.getS3Client().getObject(bucket, key);
+    if (path.startsWith(DELIMITER)) {
+      path = path.substring(1);
     }
+    if (path.isEmpty()) {
+      return "";
+    }
+    int slash = path.indexOf(DELIMITER);
+    return slash >= 0 ? path.substring(slash + 1) : "";
+  }
+
+  protected ResponseInputStream<GetObjectResponse> getObjectStream(String bucket, String key) {
+    if (currentObjectStream != null) {
+      LogChannel.GENERAL.logDebug("Returning existing object {0}", getQualifiedName());
+      return currentObjectStream;
+    }
+    return fileSystem
+        .getS3Client()
+        .getObject(GetObjectRequest.builder().bucket(bucket).key(key).build());
   }
 
   protected boolean isRootBucket() {
     return key.equals("");
+  }
+
+  private static String errorCode(S3Exception e) {
+    if (e.awsErrorDetails() != null && e.awsErrorDetails().errorCode() != null) {
+      return e.awsErrorDetails().errorCode();
+    }
+    return e.getMessage();
   }
 
   @Override
@@ -192,82 +215,143 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
     injectType(FileType.IMAGINARY);
 
     if (isRootBucket()) {
-      // cannot attach to root bucket
       injectType(FileType.FOLDER);
       return;
     }
+
+    // Use list cache when possible to avoid headObject or extra list calls
+    String parentPrefix = S3ListCache.parentPrefix(key);
+    S3ListCache.ChildInfo cached = fileSystem.getFromListCache(bucketName, parentPrefix, key);
+    if (cached == null && !key.endsWith(DELIMITER)) {
+      cached = fileSystem.getFromListCache(bucketName, parentPrefix, key + DELIMITER);
+    }
+    if (cached != null) {
+      contentLength = cached.size;
+      lastModified = cached.lastModified != null ? cached.lastModified : null;
+      injectType(cached.type);
+      if (cached.type == FileType.FOLDER) {
+        this.key = key.endsWith(DELIMITER) ? key : key + DELIMITER;
+      }
+      return;
+    }
+
     try {
-      // 1. Is it an existing file?
-      s3ObjectMetadata = fileSystem.getS3Client().getObjectMetadata(bucketName, key);
-      injectType(
-          getName().getType()); // if this worked then the automatically detected type is right
-    } catch (AmazonS3Exception e) { // S3 object doesn't exist
-      // 2. Is it in reality a folder?
-      handleAttachException(key, bucketName);
+      HeadObjectResponse head =
+          fileSystem
+              .getS3Client()
+              .headObject(HeadObjectRequest.builder().bucket(bucketName).key(key).build());
+      contentLength = head.contentLength();
+      lastModified = head.lastModified();
+      injectType(getName().getType());
+    } catch (S3Exception e) {
+      handleAttachException(key, bucketName, e);
     } finally {
       closeS3Object();
     }
   }
 
-  protected void handleAttachException(String key, String bucket) throws IOException {
+  protected void handleAttachException(String key, String bucket, S3Exception e)
+      throws IOException {
     String keyWithDelimiter = key + DELIMITER;
+    String err = errorCode(e);
+    boolean isNotFound = "404".equals(err) || "NotFound".equals(err) || "NoSuchKey".equals(err);
+
+    if (isNotFound) {
+      handleNotFoundAttach(bucket, keyWithDelimiter);
+    } else {
+      resolveTypeViaList(key, bucket, keyWithDelimiter);
+    }
+  }
+
+  private void handleNotFoundAttach(String bucket, String keyWithDelimiter) throws IOException {
     try {
-      s3ObjectMetadata = fileSystem.getS3Client().getObjectMetadata(bucketName, key);
-      injectType(FileType.FOLDER);
-      this.key = keyWithDelimiter;
-    } catch (AmazonS3Exception e1) {
-      String errorCode = e1.getErrorCode();
+      ResponseInputStream<GetObjectResponse> stream =
+          fileSystem
+              .getS3Client()
+              .getObject(GetObjectRequest.builder().bucket(bucket).key(keyWithDelimiter).build());
       try {
-        // S3 Object does not exist (could be the process of creating a new file. Lets fallback to
-        // old the old behavior. (getting the s3 object)
-        if (errorCode.equals("404 Not Found")) {
-          s3Object = getS3Object(keyWithDelimiter, bucket);
-          s3ObjectMetadata = s3Object.getObjectMetadata();
-          injectType(FileType.FOLDER);
-          this.key = keyWithDelimiter;
-        } else {
-          // The exception was not related with not finding the file
-          handleAttachExceptionFallback(bucket, keyWithDelimiter, e1);
-        }
-      } catch (AmazonS3Exception e2) {
-        // something went wrong getting the s3 object
-        handleAttachExceptionFallback(bucket, keyWithDelimiter, e2);
+        GetObjectResponse r = stream.response();
+        contentLength = r.contentLength();
+        lastModified = r.lastModified();
+        injectType(FileType.FOLDER);
+        this.key = keyWithDelimiter;
+      } finally {
+        stream.close();
       }
+    } catch (S3Exception e2) {
+      checkFolderViaList(bucket, keyWithDelimiter);
     } finally {
       closeS3Object();
     }
   }
 
-  private void handleAttachExceptionFallback(
-      String bucket, String keyWithDelimiter, AmazonS3Exception exception)
+  /**
+   * headObject failed with a non-404 error (e.g. 400 from cross-region). Use listObjectsV2 (which
+   * handles cross-region) to determine if the path is a file, folder, or imaginary.
+   */
+  private void resolveTypeViaList(String key, String bucket, String keyWithDelimiter)
       throws FileSystemException {
-    ListObjectsRequest listObjectsRequest =
-        new ListObjectsRequest()
-            .withBucketName(bucket)
-            .withPrefix(keyWithDelimiter)
-            .withDelimiter(DELIMITER);
-    ObjectListing ol = fileSystem.getS3Client().listObjects(listObjectsRequest);
+    try {
+      ListObjectsV2Response response =
+          fileSystem
+              .getS3Client()
+              .listObjectsV2(
+                  ListObjectsV2Request.builder()
+                      .bucket(bucket)
+                      .prefix(key)
+                      .delimiter(DELIMITER)
+                      .maxKeys(2)
+                      .build());
 
-    if (!(ol.getCommonPrefixes().isEmpty() && ol.getObjectSummaries().isEmpty())) {
-      injectType(FileType.FOLDER);
-    } else {
-      // Folders don't really exist - they will generate a "NoSuchKey" exception
-      // confirms key doesn't exist but connection okay
-      String errorCode = exception.getErrorCode();
-      if (!errorCode.equals("NoSuchKey")) {
-        // bubbling up other connection errors
-        LogChannel.GENERAL.logError(
-            "Could not get information on " + getQualifiedName(),
-            exception); // make sure this gets printed for the user
-        throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), exception);
+      if (response.contents() != null) {
+        for (S3Object obj : response.contents()) {
+          if (obj.key().equals(key)) {
+            contentLength = obj.size();
+            lastModified = obj.lastModified();
+            injectType(getName().getType());
+            return;
+          }
+        }
       }
+      if (response.commonPrefixes() != null) {
+        for (CommonPrefix cp : response.commonPrefixes()) {
+          if (cp.prefix().equals(keyWithDelimiter)) {
+            injectType(FileType.FOLDER);
+            this.key = keyWithDelimiter;
+            return;
+          }
+        }
+      }
+    } catch (S3Exception listError) {
+      LogChannel.GENERAL.logError("Could not get information on " + getQualifiedName(), listError);
+      throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), listError);
+    }
+  }
+
+  private void checkFolderViaList(String bucket, String keyWithDelimiter)
+      throws FileSystemException {
+    ListObjectsV2Response response =
+        fileSystem
+            .getS3Client()
+            .listObjectsV2(
+                ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix(keyWithDelimiter)
+                    .delimiter(DELIMITER)
+                    .maxKeys(1)
+                    .build());
+    boolean hasContent =
+        (response.contents() != null && !response.contents().isEmpty())
+            || (response.commonPrefixes() != null && !response.commonPrefixes().isEmpty());
+    if (hasContent) {
+      injectType(FileType.FOLDER);
     }
   }
 
   private void closeS3Object() throws IOException {
-    if (s3Object != null) {
-      s3Object.close();
-      s3Object = null;
+    if (currentObjectStream != null) {
+      currentObjectStream.close();
+      currentObjectStream = null;
     }
   }
 
@@ -283,25 +367,31 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
   }
 
   protected void doDelete(String key, String bucketName) throws FileSystemException {
-    // can only delete folder if empty
     if (getType() == FileType.FOLDER) {
-
-      // list all children inside the folder
-      ObjectListing ol = fileSystem.getS3Client().listObjects(bucketName, key);
-      ArrayList<S3ObjectSummary> allSummaries = new ArrayList<>(ol.getObjectSummaries());
-
-      // get full list
-      while (ol.isTruncated()) {
-        ol = fileSystem.getS3Client().listNextBatchOfObjects(ol);
-        allSummaries.addAll(ol.getObjectSummaries());
-      }
-
-      for (S3ObjectSummary s3os : allSummaries) {
-        fileSystem.getS3Client().deleteObject(bucketName, s3os.getKey());
-      }
+      String prefix = key.isEmpty() || key.endsWith(DELIMITER) ? key : key + DELIMITER;
+      String continuationToken = null;
+      do {
+        ListObjectsV2Request.Builder req =
+            ListObjectsV2Request.builder().bucket(bucketName).prefix(prefix);
+        if (continuationToken != null) {
+          req.continuationToken(continuationToken);
+        }
+        ListObjectsV2Response response = fileSystem.getS3Client().listObjectsV2(req.build());
+        if (response.contents() != null) {
+          for (S3Object s3o : response.contents()) {
+            fileSystem
+                .getS3Client()
+                .deleteObject(
+                    DeleteObjectRequest.builder().bucket(bucketName).key(s3o.key()).build());
+          }
+        }
+        continuationToken = response.nextContinuationToken();
+      } while (continuationToken != null);
     }
-
-    fileSystem.getS3Client().deleteObject(bucketName, key);
+    fileSystem
+        .getS3Client()
+        .deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(key).build());
+    fileSystem.invalidateListCacheForParentOf(bucketName, key);
   }
 
   @Override
@@ -311,31 +401,25 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   @Override
   public long doGetLastModifiedTime() {
-    if (s3ObjectMetadata == null) {
-      return 0;
-    }
-    return s3ObjectMetadata.getLastModified().getTime();
+    return lastModified != null ? lastModified.toEpochMilli() : 0;
   }
 
   @Override
   protected void doCreateFolder() throws Exception {
     if (!isRootBucket()) {
-      // create meta-data for your folder and set content-length to 0
-      ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentLength(0);
-      metadata.setContentType("binary/octet-stream");
-
-      // create empty content
-      InputStream emptyContent = new ByteArrayInputStream(new byte[0]);
-
-      // create a PutObjectRequest passing the folder name suffixed by /
-      PutObjectRequest putObjectRequest =
-          createPutObjectRequest(bucketName, key + DELIMITER, emptyContent, metadata);
-
-      // send request to S3 to create folder
       try {
-        fileSystem.getS3Client().putObject(putObjectRequest);
-      } catch (AmazonS3Exception e) {
+        fileSystem
+            .getS3Client()
+            .putObject(
+                PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key + DELIMITER)
+                    .contentLength(0L)
+                    .contentType("binary/octet-stream")
+                    .build(),
+                RequestBody.fromBytes(new byte[0]));
+        fileSystem.invalidateListCacheForParentOf(bucketName, key);
+      } catch (S3Exception e) {
         throw new FileSystemException("vfs.provider.local/create-folder.error", this, e);
       }
     } else {
@@ -343,46 +427,34 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
     }
   }
 
-  protected PutObjectRequest createPutObjectRequest(
-      String bucketName, String key, InputStream inputStream, ObjectMetadata objectMetadata) {
-    return new PutObjectRequest(bucketName, key, inputStream, objectMetadata);
-  }
-
   @Override
   protected void doRename(FileObject newFile) throws Exception {
-    // no folder renames on S3
     if (getType().equals(FileType.FOLDER)) {
       throw new FileSystemException("vfs.provider/rename-not-supported.error");
     }
-
-    s3ObjectMetadata = fileSystem.getS3Client().getObjectMetadata(bucketName, key);
-
-    if (s3ObjectMetadata == null) {
-      // object doesn't exist
+    HeadObjectResponse head =
+        fileSystem
+            .getS3Client()
+            .headObject(HeadObjectRequest.builder().bucket(bucketName).key(key).build());
+    if (head == null) {
       throw new FileSystemException("vfs.provider/rename.error", this, newFile);
     }
-
     S3CommonFileObject dest = (S3CommonFileObject) newFile;
-
-    // 1. copy the file
-    CopyObjectRequest copyObjRequest =
-        createCopyObjectRequest(bucketName, key, dest.bucketName, dest.key);
-    fileSystem.getS3Client().copyObject(copyObjRequest);
-
-    // 2. delete self
+    fileSystem
+        .getS3Client()
+        .copyObject(
+            CopyObjectRequest.builder()
+                .sourceBucket(bucketName)
+                .sourceKey(key)
+                .destinationBucket(dest.bucketName)
+                .destinationKey(dest.key)
+                .build());
+    fileSystem.invalidateListCacheForParentOf(bucketName, key);
+    fileSystem.invalidateListCacheForParentOf(dest.bucketName, dest.key);
     delete();
   }
 
-  protected CopyObjectRequest createCopyObjectRequest(
-      String sourceBucket, String sourceKey, String destBucket, String destKey) {
-    return new CopyObjectRequest(sourceBucket, sourceKey, destBucket, destKey);
-  }
-
   protected String getQualifiedName() {
-    return getQualifiedName(this);
-  }
-
-  protected String getQualifiedName(S3CommonFileObject s3nFileObject) {
-    return s3nFileObject.bucketName + "/" + s3nFileObject.key;
+    return bucketName + "/" + key;
   }
 }

@@ -70,7 +70,7 @@ class GetFileNamesMetaAdditionalTest {
     assertEquals("", meta.getDynamicWildcardField());
     assertFalse(meta.isDynamicIncludeSubFolders());
     assertEquals("", meta.getDynamicExcludeWildcardField());
-    assertFalse(meta.isRaiseAnExceptionIfNoFile());
+    assertTrue(meta.isRaiseAnExceptionIfNoFile());
     assertEquals(0, meta.getRowLimit());
 
     // Check that default filter item is added

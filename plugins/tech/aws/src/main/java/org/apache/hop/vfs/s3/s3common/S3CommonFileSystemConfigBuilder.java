@@ -17,10 +17,12 @@
 
 package org.apache.hop.vfs.s3.s3common;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemConfigBuilder;
 import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.hop.vfs.s3.s3n.vfs.S3NFileSystem;
+import org.apache.hop.vfs.s3.s3.vfs.S3FileSystem;
 
 /** Configuration Builder for S3 File System */
 public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
@@ -32,20 +34,12 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
   private static final String CREDENTIALS_FILE = "credentialsFile";
   private static final String PROFILE_NAME = "profileName";
   private static final String ENDPOINT = "endpoint";
-  private static final String SIGNATURE_VERSION = "signature_version";
   private static final String PATH_STYLE_ACCESS = "pathSyleAccess";
+  private static final String CACHE_TTL_SECONDS = "cacheTtlSeconds";
 
-  private FileSystemOptions fileSystemOptions;
+  @Getter @Setter private FileSystemOptions fileSystemOptions;
 
   public S3CommonFileSystemConfigBuilder(FileSystemOptions fileSystemOptions) {
-    this.fileSystemOptions = fileSystemOptions;
-  }
-
-  public FileSystemOptions getFileSystemOptions() {
-    return fileSystemOptions;
-  }
-
-  public void setFileSystemOptions(FileSystemOptions fileSystemOptions) {
     this.fileSystemOptions = fileSystemOptions;
   }
 
@@ -105,14 +99,6 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
     return (String) this.getParam(getFileSystemOptions(), ENDPOINT);
   }
 
-  public void setSignatureVersion(String signatureVersion) {
-    this.setParam(getFileSystemOptions(), SIGNATURE_VERSION, signatureVersion);
-  }
-
-  public String getSignatureVersion() {
-    return (String) this.getParam(getFileSystemOptions(), SIGNATURE_VERSION);
-  }
-
   public void setPathStyleAccess(String pathStyleAccess) {
     this.setParam(getFileSystemOptions(), PATH_STYLE_ACCESS, pathStyleAccess);
   }
@@ -121,8 +107,16 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
     return (String) this.getParam(getFileSystemOptions(), PATH_STYLE_ACCESS);
   }
 
+  public void setCacheTtlSeconds(String cacheTtlSeconds) {
+    this.setParam(getFileSystemOptions(), CACHE_TTL_SECONDS, cacheTtlSeconds);
+  }
+
+  public String getCacheTtlSeconds() {
+    return (String) this.getParam(getFileSystemOptions(), CACHE_TTL_SECONDS);
+  }
+
   @Override
   protected Class<? extends FileSystem> getConfigClass() {
-    return S3NFileSystem.class;
+    return S3FileSystem.class;
   }
 }

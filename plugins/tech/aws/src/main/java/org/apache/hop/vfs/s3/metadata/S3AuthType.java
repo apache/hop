@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,22 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.hop.vfs.s3.s3n.vfs;
+package org.apache.hop.vfs.s3.metadata;
 
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.provider.AbstractFileName;
-import org.apache.hop.vfs.s3.s3common.S3CommonFileSystem;
-
-public class S3NFileSystem extends S3CommonFileSystem {
-
-  public S3NFileSystem(final FileName rootName, final FileSystemOptions fileSystemOptions) {
-    super(rootName, fileSystemOptions);
-  }
-
-  @Override
-  public FileObject createFile(AbstractFileName name) throws Exception {
-    return new S3NFileObject(name, this);
-  }
+/** S3 authentication method. */
+public enum S3AuthType {
+  /** Default credential chain (environment, instance profile, etc.) */
+  DEFAULT,
+  /** Explicit access key and secret (and optional session token) */
+  ACCESS_KEYS,
+  /** AWS credentials file with optional profile name */
+  CREDENTIALS_FILE
 }
