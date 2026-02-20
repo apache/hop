@@ -56,8 +56,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -265,11 +263,6 @@ public class SelectValuesDialog extends BaseTransformDialog {
     PropsUi.setLook(wRemoveComp);
     wRemoveComp.setLayout(contentLayout);
 
-    Button wGetRemove = new Button(wRemoveComp, SWT.PUSH);
-    wGetRemove.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetRemove.Button"));
-    wGetRemove.addListener(SWT.Selection, e -> get());
-    setButtonPositions(new Button[] {wGetRemove}, margin, null);
-
     Label wlRemove = new Label(wRemoveComp, SWT.NONE);
     wlRemove.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Remove.Label"));
     PropsUi.setLook(wlRemove);
@@ -329,11 +322,6 @@ public class SelectValuesDialog extends BaseTransformDialog {
     metaLayout.marginWidth = margin;
     metaLayout.marginHeight = margin;
     wMetaComp.setLayout(metaLayout);
-
-    Button wGetMeta = new Button(wMetaComp, SWT.PUSH);
-    wGetMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetMeta.Button"));
-    wGetMeta.addListener(SWT.Selection, e -> get());
-    setButtonPositions(new Button[] {wGetMeta}, margin, null);
 
     Label wlMeta = new Label(wMetaComp, SWT.NONE);
     wlMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Meta.Label"));
