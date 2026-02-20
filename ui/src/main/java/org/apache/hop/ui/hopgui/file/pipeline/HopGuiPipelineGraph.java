@@ -1846,6 +1846,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return; // Don't add
     }
 
+    // For middle-button drag, mouseUp doesn't update currentTransform (no second mouseDown).
+    // Ensure it points to the transform the user released on so the stream checks below match.
+    currentTransform = forward ? toTransform : fromTransform;
+
     // See what the options are.
     // - Does the source transform has multiple stream options?
     // - Does the target transform have multiple input stream options?
