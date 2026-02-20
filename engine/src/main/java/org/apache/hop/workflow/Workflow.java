@@ -536,6 +536,7 @@ public abstract class Workflow extends Variables
    * @deprecated
    * @param listener workflow started listener
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void addWorkflowStartedListener(
@@ -563,6 +564,7 @@ public abstract class Workflow extends Variables
    * @deprecated
    * @throws HopException
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void fireWorkflowStartedListeners() throws HopException {
@@ -583,6 +585,7 @@ public abstract class Workflow extends Variables
    * @deprecated
    * @param listener
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void addWorkflowFinishedListener(
@@ -610,6 +613,7 @@ public abstract class Workflow extends Variables
    * @deprecated
    * @throws HopException
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void fireWorkflowFinishListeners() throws HopException {
@@ -1492,6 +1496,7 @@ public abstract class Workflow extends Variables
    *
    * @return the interactive
    */
+  @SuppressWarnings("removal")
   @Override
   public boolean isInteractive() {
     return true;
@@ -1502,6 +1507,7 @@ public abstract class Workflow extends Variables
    *
    * @param interactive the interactive to set
    */
+  @SuppressWarnings("removal")
   @Override
   public void setInteractive(boolean interactive) {}
 
@@ -1720,6 +1726,7 @@ public abstract class Workflow extends Variables
    * @deprecated Gets workflowFinishedListeners
    * @return value of workflowFinishedListeners
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>>
@@ -1741,6 +1748,7 @@ public abstract class Workflow extends Variables
    * @deprecated Gets workflowStartedListeners
    * @return value of workflowStartedListeners
    */
+  @SuppressWarnings("removal")
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>>

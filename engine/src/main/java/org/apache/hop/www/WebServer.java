@@ -19,11 +19,6 @@ package org.apache.hop.www;
 
 import jakarta.servlet.Servlet;
 import java.awt.GraphicsEnvironment;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -73,33 +68,34 @@ import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+@Getter
+@Setter
 public class WebServer {
-
-  public static final int CONST_PORT = 80;
-  public static final int SHUTDOWN_PORT = 8079;
-  private static final int DEFAULT_DETECTION_TIMER = 20000;
   private static final Class<?> PKG = WebServer.class;
+
+  public static final int DEFAULT_PORT = 80;
+  public static final int DEFAULT_SHUTDOWN_PORT = 8079;
+  private static final int DEFAULT_DETECTION_TIMER = 20000;
+
   public static final String CONST_WEB_SERVER_LOG_CONFIG_OPTIONS = "WebServer.Log.ConfigOptions";
-  @Getter @Setter private ILogChannel log;
+  private ILogChannel log;
 
   /** value of variables */
-  @Setter @Getter private IVariables variables;
+  private IVariables variables;
 
-  @Getter @Setter private Server server;
-  @Getter @Setter private PipelineMap pipelineMap;
-  @Setter @Getter private WorkflowMap workflowMap;
+  private Server server;
+  private PipelineMap pipelineMap;
+  private WorkflowMap workflowMap;
 
   /** the hostname */
-  @Setter @Getter private String hostname;
+  private String hostname;
 
-  @Setter @Getter private int port;
+  private int port;
   private final int shutdownPort;
-
   private String passwordFile;
   private final WebServerShutdownHook webServerShutdownHook;
 
   /** Can be used to override the default shutdown behavior of performing a System.exit */
-  @Setter
   private IWebServerShutdownHandler webServerShutdownHandler =
       new DefaultWebServerShutdownHandler();
 
@@ -162,17 +158,6 @@ public class WebServer {
     if (join) {
       server.join();
     }
-  }
-
-  public WebServer(
-      ILogChannel log,
-      PipelineMap pipelineMap,
-      WorkflowMap workflowMap,
-      String hostname,
-      int port,
-      int shutdownPort)
-      throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, true);
   }
 
   public WebServer(
@@ -263,6 +248,8 @@ public class WebServer {
   }
 
   private ContextHandlerCollection createContexts() throws HopPluginException {
+    // Configure the Servlet Context, to add all the server plugins
+    //
     ContextHandlerCollection contexts = new ContextHandlerCollection();
 
     // Root
@@ -273,6 +260,7 @@ public class WebServer {
     rootServlet.setJettyMode(true);
 
     boolean graphicsEnvironment = supportGraphicEnvironment();
+
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
     List<IPlugin> plugins = pluginRegistry.getPlugins(HopServerPluginType.class);
     for (IPlugin plugin : plugins) {
@@ -401,7 +389,7 @@ public class WebServer {
   /**
    * Set up jetty options to the connector
    *
-   * @param connector
+   * @param connector The Jetty connector to set up
    */
   protected void setupJettyOptions(ServerConnector connector) {
     LowResourceMonitor lowResourceMonitor = new LowResourceMonitor(server);
@@ -460,14 +448,6 @@ public class WebServer {
     return isValid;
   }
 
-  public String getPasswordFile() {
-    return passwordFile;
-  }
-
-  public void setPasswordFile(String passwordFile) {
-    this.passwordFile = passwordFile;
-  }
-
   public int defaultDetectionTimer() {
     String sDetectionTimer = System.getProperty(Const.HOP_SERVER_DETECTION_TIMER);
 
@@ -484,37 +464,5 @@ public class WebServer {
     } catch (Error ignored) {
     }
     return false;
-  }
-
-  private static class MonitorThread extends Thread {
-
-    private final ServerSocket socket;
-    private final Server server;
-
-    public MonitorThread(Server server, String hostname, int shutdownPort) {
-      this.server = server;
-      setDaemon(true);
-      setName("StopMonitor");
-      try {
-        socket = new ServerSocket(shutdownPort, 1, InetAddress.getByName(hostname));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    @Override
-    public void run() {
-      Socket accept;
-      try {
-        accept = socket.accept();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(accept.getInputStream()));
-        reader.readLine();
-        server.stop();
-        accept.close();
-        socket.close();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
   }
 }
