@@ -18,7 +18,7 @@ under the License.
 :language: en_US
 :description: The Data Set Input transform allows reading from a data set in a pipeline
 
-= image:transforms/icons/dataset.svg[Data Set Input transform Icon, role="image-doc-icon"] Data Set Input
+= image:transforms/icons/datasetinput.svg[Data Set Input transform Icon, role="image-doc-icon"] Data Set Input
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
