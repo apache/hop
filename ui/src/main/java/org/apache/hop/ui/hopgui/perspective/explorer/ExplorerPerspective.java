@@ -1147,6 +1147,18 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     return null;
   }
 
+  protected TabItemHandler findTabItemHandler(String filename, IHopFileType fileType) {
+    if (filename != null) {
+      for (TabItemHandler item : items) {
+        if (filename.equals(item.getTypeHandler().getFilename())
+            && fileType.equals(item.getTypeHandler().getFileType())) {
+          return item;
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Close tabs for the given filenames (e.g. after files are deleted by revert or external delete).
    * Only tabs whose handler filename exactly matches one of the given filenames are closed.
@@ -1249,7 +1261,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     // Select and show tab item
     //
-    TabItemHandler handler = this.findTabItemHandler(fileTypeHandler.getFilename());
+    TabItemHandler handler =
+        this.findTabItemHandler(fileTypeHandler.getFilename(), fileTypeHandler.getFileType());
     if (handler != null) {
       tabFolder.setSelection(handler.getTabItem());
       tabFolder.showItem(handler.getTabItem());
