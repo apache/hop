@@ -202,7 +202,7 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
           BaseMessages.getString(
               PKG,
               "ActionFileCompare.ERROR_0007_Comparing_Files",
-              realFilename2,
+              realFilename1,
               realFilename2,
               e.getMessage()));
     } finally {

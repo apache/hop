@@ -423,7 +423,19 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-abort</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-addsequence</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-append</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -436,6 +448,12 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-calculator</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-concatfields</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -471,6 +489,24 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-joinrows</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-mergejoin</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-multimerge</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-pipelineexecutor</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
@@ -501,7 +537,25 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-streamlookup</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-tableinput</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-textfile</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-validator</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

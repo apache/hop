@@ -46,6 +46,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -100,55 +101,15 @@ public class GetTableNamesDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "GetTableNamesDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "GetTableNamesDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "GetTableNamesDialog.Preview.Button"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "GetTableNamesDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     // Connection line
     wConnection =
-        addConnectionLine(shell, wTransformName, input.getConnection(), e -> input.setChanged());
+        addConnectionLine(shell, lastControl, input.getConnection(), e -> input.setChanged());
 
     // schemaname fieldname ...
     wlSchemaName = new Label(shell, SWT.RIGHT);
@@ -157,7 +118,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdlschemaname = new FormData();
     fdlschemaname.left = new FormAttachment(0, 0);
     fdlschemaname.right = new FormAttachment(middle, -margin);
-    fdlschemaname.top = new FormAttachment(wConnection, 2 * margin);
+    fdlschemaname.top = new FormAttachment(wConnection, margin);
     wlSchemaName.setLayoutData(fdlschemaname);
     wSchemaName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSchemaName.setToolTipText(
@@ -165,7 +126,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     PropsUi.setLook(wSchemaName);
     FormData fdschemaname = new FormData();
     fdschemaname.left = new FormAttachment(middle, 0);
-    fdschemaname.top = new FormAttachment(wConnection, 2 * margin);
+    fdschemaname.top = new FormAttachment(wConnection, margin);
     fdschemaname.right = new FormAttachment(100, 0);
     wSchemaName.setLayoutData(fdschemaname);
     ModifyListener lsModSchema = e -> refreshIncludeCatalog();
@@ -236,7 +197,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdlIncludeCatalog = new FormData();
     fdlIncludeCatalog.left = new FormAttachment(0, -margin);
     fdlIncludeCatalog.top = new FormAttachment(wSchemaField, margin);
-    fdlIncludeCatalog.right = new FormAttachment(middle, -2 * margin);
+    fdlIncludeCatalog.right = new FormAttachment(middle, -margin);
     wlIncludeCatalog.setLayoutData(fdlIncludeCatalog);
     wIncludeCatalog = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wIncludeCatalog);
@@ -254,7 +215,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdlincludeSchema = new FormData();
     fdlincludeSchema.left = new FormAttachment(0, -margin);
     fdlincludeSchema.top = new FormAttachment(wIncludeCatalog, margin);
-    fdlincludeSchema.right = new FormAttachment(middle, -2 * margin);
+    fdlincludeSchema.right = new FormAttachment(middle, -margin);
     wlIncludeSchema.setLayoutData(fdlincludeSchema);
     wIncludeSchema = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wIncludeSchema);
@@ -280,7 +241,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdlincludeTable = new FormData();
     fdlincludeTable.left = new FormAttachment(0, -margin);
     fdlincludeTable.top = new FormAttachment(wIncludeSchema, margin);
-    fdlincludeTable.right = new FormAttachment(middle, -2 * margin);
+    fdlincludeTable.right = new FormAttachment(middle, -margin);
     wlIncludeTable.setLayoutData(fdlincludeTable);
     wIncludeTable = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wIncludeTable);
@@ -306,7 +267,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdlincludeView = new FormData();
     fdlincludeView.left = new FormAttachment(0, -margin);
     fdlincludeView.top = new FormAttachment(wIncludeTable, margin);
-    fdlincludeView.right = new FormAttachment(middle, -2 * margin);
+    fdlincludeView.right = new FormAttachment(middle, -margin);
     wlIncludeView.setLayoutData(fdlincludeView);
     wIncludeView = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wIncludeView);
@@ -333,7 +294,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdlincludeProcedure = new FormData();
     fdlincludeProcedure.left = new FormAttachment(0, -margin);
     fdlincludeProcedure.top = new FormAttachment(wIncludeView, margin);
-    fdlincludeProcedure.right = new FormAttachment(middle, -2 * margin);
+    fdlincludeProcedure.right = new FormAttachment(middle, -margin);
     wlIncludeProcedure.setLayoutData(fdlincludeProcedure);
     wIncludeProcedure = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wIncludeProcedure);
@@ -360,7 +321,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdlincludeSynonym = new FormData();
     fdlincludeSynonym.left = new FormAttachment(0, -margin);
     fdlincludeSynonym.top = new FormAttachment(wIncludeProcedure, margin);
-    fdlincludeSynonym.right = new FormAttachment(middle, -2 * margin);
+    fdlincludeSynonym.right = new FormAttachment(middle, -margin);
     wlIncludeSynonym.setLayoutData(fdlincludeSynonym);
     wIncludeSynonym = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wIncludeSynonym);
@@ -386,8 +347,8 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddSchemaInOutput);
     FormData fdladdSchemaInOutput = new FormData();
     fdladdSchemaInOutput.left = new FormAttachment(0, -margin);
-    fdladdSchemaInOutput.top = new FormAttachment(wIncludeSynonym, 2 * margin);
-    fdladdSchemaInOutput.right = new FormAttachment(middle, -2 * margin);
+    fdladdSchemaInOutput.top = new FormAttachment(wIncludeSynonym, margin);
+    fdladdSchemaInOutput.right = new FormAttachment(middle, -margin);
     wlAddSchemaInOutput.setLayoutData(fdladdSchemaInOutput);
     wAddSchemaInOutput = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wAddSchemaInOutput);
@@ -408,7 +369,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
-    fdSettings.top = new FormAttachment(wSchemaField, 2 * margin);
+    fdSettings.top = new FormAttachment(wSchemaField, margin);
     fdSettings.right = new FormAttachment(100, -margin);
     wSettings.setLayoutData(fdSettings);
 
@@ -437,7 +398,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     FormData fdlTableNameField = new FormData();
     fdlTableNameField.left = new FormAttachment(0, 0);
     fdlTableNameField.right = new FormAttachment(middle, -margin);
-    fdlTableNameField.top = new FormAttachment(wSettings, margin * 2);
+    fdlTableNameField.top = new FormAttachment(wSettings, margin);
     wlTableNameField.setLayoutData(fdlTableNameField);
     wTableNameField = new Text(wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTableNameField.setToolTipText(
@@ -445,7 +406,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     PropsUi.setLook(wTableNameField);
     FormData fdTableNameField = new FormData();
     fdTableNameField.left = new FormAttachment(middle, 0);
-    fdTableNameField.top = new FormAttachment(wSettings, margin * 2);
+    fdTableNameField.top = new FormAttachment(wSettings, margin);
     fdTableNameField.right = new FormAttachment(100, 0);
     wTableNameField.setLayoutData(fdTableNameField);
 
@@ -511,9 +472,9 @@ public class GetTableNamesDialog extends BaseTransformDialog {
 
     FormData fdOutputFields = new FormData();
     fdOutputFields.left = new FormAttachment(0, margin);
-    fdOutputFields.top = new FormAttachment(wSettings, 2 * margin);
+    fdOutputFields.top = new FormAttachment(wSettings, margin);
     fdOutputFields.right = new FormAttachment(100, -margin);
-    fdOutputFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdOutputFields.bottom = new FormAttachment(100, -50);
     wOutputFields.setLayoutData(fdOutputFields);
 
     // ///////////////////////////////////////////////////////////
@@ -524,7 +485,7 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     activateDynamicSchema();
     refreshIncludeCatalog();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -590,9 +551,6 @@ public class GetTableNamesDialog extends BaseTransformDialog {
     if (input.getSchemaNameField() != null) {
       wSchemaField.setText(input.getSchemaNameField());
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

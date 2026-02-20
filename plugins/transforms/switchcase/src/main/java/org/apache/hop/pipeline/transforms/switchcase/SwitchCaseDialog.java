@@ -38,7 +38,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -74,11 +73,9 @@ public class SwitchCaseDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "SwitchCaseDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     SelectionAdapter lsSel =
@@ -90,35 +87,6 @@ public class SwitchCaseDialog extends BaseTransformDialog {
         };
     backupChanged = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "SwitchCaseDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "SwitchCaseDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, margin);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     // The name of the field to validate
     //
     Label wlFieldName = new Label(shell, SWT.RIGHT);
@@ -127,14 +95,14 @@ public class SwitchCaseDialog extends BaseTransformDialog {
     FormData fdlFieldName = new FormData();
     fdlFieldName.left = new FormAttachment(0, 0);
     fdlFieldName.right = new FormAttachment(middle, 0);
-    fdlFieldName.top = new FormAttachment(wTransformName, margin);
+    fdlFieldName.top = new FormAttachment(wSpacer, margin);
     wlFieldName.setLayoutData(fdlFieldName);
     wFieldName = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFieldName);
     FormData fdFieldName = new FormData();
     fdFieldName.left = new FormAttachment(middle, margin);
     fdFieldName.right = new FormAttachment(100, 0);
-    fdFieldName.top = new FormAttachment(wTransformName, margin);
+    fdFieldName.top = new FormAttachment(wSpacer, margin);
     wFieldName.setLayoutData(fdFieldName);
     wFieldName.addModifyListener(lsMod);
 
@@ -159,7 +127,7 @@ public class SwitchCaseDialog extends BaseTransformDialog {
     FormData fdlContains = new FormData();
     fdlContains.left = new FormAttachment(0, 0);
     fdlContains.right = new FormAttachment(middle, 0);
-    fdlContains.top = new FormAttachment(wFieldName, margin * 2);
+    fdlContains.top = new FormAttachment(wFieldName, margin);
     wlContains.setLayoutData(fdlContains);
     wContains = new Button(shell, SWT.CHECK);
     wContains.setToolTipText(BaseMessages.getString(PKG, "SwitchCaseDialog.Contains.Tooltip"));
@@ -284,14 +252,6 @@ public class SwitchCaseDialog extends BaseTransformDialog {
             lsMod,
             props);
 
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     // The name of the field to validate
     //
     Label wlDefaultTarget = new Label(shell, SWT.RIGHT);
@@ -300,14 +260,14 @@ public class SwitchCaseDialog extends BaseTransformDialog {
     FormData fdlDefaultTarget = new FormData();
     fdlDefaultTarget.left = new FormAttachment(0, 0);
     fdlDefaultTarget.right = new FormAttachment(middle, 0);
-    fdlDefaultTarget.bottom = new FormAttachment(wOk, -margin * 2);
+    fdlDefaultTarget.bottom = new FormAttachment(wOk, -margin);
     wlDefaultTarget.setLayoutData(fdlDefaultTarget);
     wDefaultTarget = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDefaultTarget);
     FormData fdDefaultTarget = new FormData();
     fdDefaultTarget.left = new FormAttachment(middle, margin);
     fdDefaultTarget.right = new FormAttachment(100, 0);
-    fdDefaultTarget.bottom = new FormAttachment(wOk, -margin * 2);
+    fdDefaultTarget.bottom = new FormAttachment(wOk, -margin);
     wDefaultTarget.setLayoutData(fdDefaultTarget);
     wDefaultTarget.setItems(nextTransformNames);
     wDefaultTarget.addModifyListener(lsMod);
@@ -319,13 +279,9 @@ public class SwitchCaseDialog extends BaseTransformDialog {
     fdValues.bottom = new FormAttachment(wDefaultTarget, -margin);
     wValues.setLayoutData(fdValues);
 
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     getData();
     input.setChanged(backupChanged);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -353,9 +309,6 @@ public class SwitchCaseDialog extends BaseTransformDialog {
     wValues.optWidth(true);
 
     wDefaultTarget.setText(Const.NVL(input.getDefaultTargetTransformName(), ""));
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

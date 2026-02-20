@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.ICheckResult;
@@ -28,6 +29,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -35,7 +37,13 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IStringObjectConverter;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
+import org.apache.hop.pipeline.transform.stream.Stream;
+import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
 @Transform(
     id = "JoinRows",
@@ -217,11 +225,94 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
   }
 
   /**
+   * Returns the I/O meta with one INFO stream when "Main transform to read from" is set (like
+   * Stream Lookup).
+   */
+  @Override
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
+    if (ioMeta == null) {
+      ioMeta = new TransformIOMeta(true, true, false, false, false, false);
+      IStream stream =
+          new Stream(
+              StreamType.INFO,
+              null,
+              BaseMessages.getString(PKG, "JoinRowsMeta.InfoStream.Description"),
+              StreamIcon.INFO,
+              mainTransformName);
+      ioMeta.addStream(stream);
+      setTransformIOMeta(ioMeta);
+    }
+    return ioMeta;
+  }
+
+  @Override
+  public void resetTransformIoMeta() {
+    // Don't reset
+  }
+
+  /**
    * @param transforms optionally search the info transform in a list of transforms
    */
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
-    mainTransform = TransformMeta.findTransform(transforms, mainTransformName);
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    if (infoStreams.isEmpty()) {
+      mainTransform = TransformMeta.findTransform(transforms, mainTransformName);
+      return;
+    }
+    IStream stream = infoStreams.get(0);
+
+    String[] prev = null;
+    if (parentTransformMeta != null && parentTransformMeta.getParentPipelineMeta() != null) {
+      prev = parentTransformMeta.getParentPipelineMeta().getPrevTransformNames(parentTransformMeta);
+    }
+
+    // Clear name when no longer in prev (transform removed)
+    if (prev != null
+        && mainTransformName != null
+        && !ArrayUtils.contains(prev, mainTransformName)
+        && (stream.getTransformMeta() == null
+            || !ArrayUtils.contains(prev, stream.getTransformName()))) {
+      mainTransformName = null;
+      setChanged();
+    }
+
+    // Resolve: prefer stream when name is stale (rename / insert-in-the-middle / detach).
+    // Do not re-fill from stream when mainTransformName is empty (user chose to clear / no main).
+    boolean nameStale =
+        Utils.isEmpty(mainTransformName)
+            || (prev != null && !ArrayUtils.contains(prev, mainTransformName))
+            || TransformMeta.findTransform(transforms, mainTransformName) == null;
+    boolean preferStream =
+        stream.getTransformMeta() != null
+            && prev != null
+            && ArrayUtils.contains(prev, stream.getTransformName())
+            && nameStale
+            && !Utils.isEmpty(mainTransformName);
+
+    TransformMeta tm = null;
+    if (preferStream) {
+      mainTransformName = stream.getTransformName();
+      mainTransform = stream.getTransformMeta();
+      tm = mainTransform;
+      setChanged();
+    }
+    if (tm == null) {
+      tm = TransformMeta.findTransform(transforms, mainTransformName);
+      if (tm == null && !Utils.isEmpty(mainTransformName) && stream.getTransformMeta() != null) {
+        mainTransformName = stream.getTransformName();
+        tm = TransformMeta.findTransform(transforms, mainTransformName);
+        setChanged();
+      }
+      mainTransform = tm;
+    }
+    stream.setTransformMeta(tm);
+    if (tm != null) {
+      stream.setSubject(tm.getName());
+    } else {
+      stream.setSubject(null);
+    }
   }
 
   @Override

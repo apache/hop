@@ -41,7 +41,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -73,38 +72,17 @@ public class MergeRowsDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "MergeRowsDialog.Shell.Label"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Shell.Label"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Some buttons at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     Button wbKeys = new Button(shell, SWT.PUSH);
     wbKeys.setText(BaseMessages.getString(PKG, "MergeRowsDialog.KeyFields.Button"));
     FormData fdbKeys = new FormData();
-    fdbKeys.bottom = new FormAttachment(wOk, -2 * margin);
+    fdbKeys.bottom = new FormAttachment(wOk, -margin);
     fdbKeys.left = new FormAttachment(0, 0);
     fdbKeys.right = new FormAttachment(50, -margin);
     wbKeys.setLayoutData(fdbKeys);
@@ -120,7 +98,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     Button wbValues = new Button(shell, SWT.PUSH);
     wbValues.setText(BaseMessages.getString(PKG, "MergeRowsDialog.ValueFields.Button"));
     FormData fdbValues = new FormData();
-    fdbValues.bottom = new FormAttachment(wOk, -2 * margin);
+    fdbValues.bottom = new FormAttachment(wOk, -margin);
     fdbValues.left = new FormAttachment(50, 0);
     fdbValues.right = new FormAttachment(100, 0);
     wbValues.setLayoutData(fdbValues);
@@ -133,25 +111,6 @@ public class MergeRowsDialog extends BaseTransformDialog {
           }
         });
 
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "MergeRowsDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     // Get the previous transforms...
     String[] previousTransforms = pipelineMeta.getPrevTransformNames(transformName);
 
@@ -162,7 +121,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     FormData fdlReference = new FormData();
     fdlReference.left = new FormAttachment(0, 0);
     fdlReference.right = new FormAttachment(middle, -margin);
-    fdlReference.top = new FormAttachment(wTransformName, margin);
+    fdlReference.top = new FormAttachment(wSpacer, margin);
     wlReference.setLayoutData(fdlReference);
     wReference = new CCombo(shell, SWT.BORDER);
     PropsUi.setLook(wReference);
@@ -174,7 +133,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wReference.addModifyListener(lsMod);
     FormData fdReference = new FormData();
     fdReference.left = new FormAttachment(middle, 0);
-    fdReference.top = new FormAttachment(wTransformName, margin);
+    fdReference.top = new FormAttachment(wSpacer, margin);
     fdReference.right = new FormAttachment(100, 0);
     wReference.setLayoutData(fdReference);
 
@@ -311,7 +270,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
 
     getData();
     input.setChanged(backupChanged);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -334,9 +293,6 @@ public class MergeRowsDialog extends BaseTransformDialog {
       TableItem item = wValues.table.getItem(i);
       item.setText(1, Const.NVL(input.getValueFields().get(i), ""));
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

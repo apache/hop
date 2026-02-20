@@ -24,11 +24,14 @@ import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookup
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative;
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod;
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.AUTO_INCREMENT;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.FIELD;
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.SEQUENCE;
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.TABLE_MAXIMUM;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.UUID;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -51,6 +54,7 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -62,14 +66,16 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -106,14 +112,19 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   private Label wlTkRename;
   private Text wTkRename;
 
-  private Button wAutoIncrement;
+  private Button wTkAutoIncrement;
+  private Button wTkUuid;
 
-  private Button wTableMax;
+  private Button wTkTableMax;
 
-  private Button wSeqButton;
+  private Button wTkSeqButton;
   private Text wSeq;
 
+  private Button wTkFieldButton;
+  private Text wTkField;
+
   private Button wDisableUnknownUpdate;
+  private Button wShowUnknownTk;
 
   private Label wlVersion;
   private Combo wVersion;
@@ -168,231 +179,34 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "DimensionLookupDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).sql(e -> create()).cancel(e -> cancel()).build();
 
-    ModifyListener lsMod = e -> input.setChanged();
-    ModifyListener lsTableMod =
-        arg0 -> {
-          input.setChanged();
-          setTableFieldCombo();
-        };
+    ScrolledComposite wScrolledComposite =
+        new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wScrolledComposite);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    wScrolledComposite.setLayoutData(fdSc);
+    wScrolledComposite.setLayout(new FillLayout());
+    wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
-    shell.setLayout(props.createFormLayout());
-    shell.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    Composite mainComposite = shell;
+    Composite mainComposite = new Composite(wScrolledComposite, SWT.NONE);
     PropsUi.setLook(mainComposite);
-
     mainComposite.setLayout(props.createFormLayout());
 
-    // TransformName line
-    wlTransformName = new Label(mainComposite, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "DimensionLookupDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(mainComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    // Update the dimension?
-    Label wlUpdate = new Label(mainComposite, SWT.RIGHT);
-    wlUpdate.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Update.Label"));
-    PropsUi.setLook(wlUpdate);
-    FormData fdlUpdate = new FormData();
-    fdlUpdate.left = new FormAttachment(0, 0);
-    fdlUpdate.right = new FormAttachment(middle, -margin);
-    fdlUpdate.top = new FormAttachment(wTransformName, margin);
-    wlUpdate.setLayoutData(fdlUpdate);
-    wUpdate = new Button(mainComposite, SWT.CHECK);
-    PropsUi.setLook(wUpdate);
-    FormData fdUpdate = new FormData();
-    fdUpdate.left = new FormAttachment(middle, 0);
-    fdUpdate.top = new FormAttachment(wlUpdate, 0, SWT.CENTER);
-    fdUpdate.right = new FormAttachment(100, 0);
-    wUpdate.setLayoutData(fdUpdate);
-
-    // Clicking on update changes the options in the update combo boxes!
-    wUpdate.addListener(
-        SWT.Selection,
-        e -> {
-          input.setUpdate(!input.isUpdate());
-          setFlags();
-        });
-
-    // Connection line
-
-    wConnection = addConnectionLine(mainComposite, wUpdate, input.getConnection(), lsMod);
-    wConnection.addListener(SWT.FocusOut, e -> setTableFieldCombo());
-    wConnection.addListener(
-        SWT.Modify,
-        e -> {
-          // We have new content: change ci connection:
-          databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
-          ;
-          setFlags();
-        });
-
-    // Schema line...
-    Label wlSchema = new Label(mainComposite, SWT.RIGHT);
-    wlSchema.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TargetSchema.Label"));
-    PropsUi.setLook(wlSchema);
-    FormData fdlSchema = new FormData();
-    fdlSchema.left = new FormAttachment(0, 0);
-    fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, margin);
-    wlSchema.setLayoutData(fdlSchema);
-
-    Button wbSchema = new Button(mainComposite, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbSchema);
-    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
-    FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment(wConnection, margin);
-    fdbSchema.right = new FormAttachment(100, 0);
-    wbSchema.setLayoutData(fdbSchema);
-    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
-
-    wSchema = new TextVar(variables, mainComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wSchema);
-    FormData fdSchema = new FormData();
-    fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin);
-    fdSchema.right = new FormAttachment(wbSchema, -margin);
-    wSchema.setLayoutData(fdSchema);
-    wSchema.addModifyListener(lsTableMod);
-
-    // Table line...
-    Label wlTable = new Label(mainComposite, SWT.RIGHT);
-    wlTable.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TargetTable.Label"));
-    PropsUi.setLook(wlTable);
-    FormData fdlTable = new FormData();
-    fdlTable.left = new FormAttachment(0, 0);
-    fdlTable.right = new FormAttachment(middle, -margin);
-    fdlTable.top = new FormAttachment(wbSchema, margin);
-    wlTable.setLayoutData(fdlTable);
-
-    Button wbTable = new Button(mainComposite, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbTable);
-    wbTable.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Browse.Button"));
-    FormData fdbTable = new FormData();
-    fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wbSchema, margin);
-    wbTable.setLayoutData(fdbTable);
-    wbTable.addListener(SWT.Selection, e -> getTableName());
-
-    wTable = new TextVar(variables, mainComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wTable);
-    FormData fdTable = new FormData();
-    fdTable.left = new FormAttachment(middle, 0);
-    fdTable.top = new FormAttachment(wbSchema, margin);
-    fdTable.right = new FormAttachment(wbTable, -margin);
-    wTable.setLayoutData(fdTable);
-    wTable.addModifyListener(lsTableMod);
-
-    // Commit size ...
-    wlCommit = new Label(mainComposite, SWT.RIGHT);
-    wlCommit.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Commit.Label"));
-    PropsUi.setLook(wlCommit);
-    FormData fdlCommit = new FormData();
-    fdlCommit.left = new FormAttachment(0, 0);
-    fdlCommit.right = new FormAttachment(middle, -margin);
-    fdlCommit.top = new FormAttachment(wTable, margin);
-    wlCommit.setLayoutData(fdlCommit);
-    wCommit = new Text(mainComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wCommit);
-    FormData fdCommit = new FormData();
-    fdCommit.left = new FormAttachment(middle, 0);
-    fdCommit.top = new FormAttachment(wTable, margin);
-    fdCommit.right = new FormAttachment(100, 0);
-    wCommit.setLayoutData(fdCommit);
-
-    // Use Cache?
-    Label wlUseCache = new Label(mainComposite, SWT.RIGHT);
-    wlUseCache.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.UseCache.Label"));
-    PropsUi.setLook(wlUseCache);
-    FormData fdlUseCache = new FormData();
-    fdlUseCache.left = new FormAttachment(0, 0);
-    fdlUseCache.right = new FormAttachment(middle, -margin);
-    fdlUseCache.top = new FormAttachment(wCommit, margin);
-    wlUseCache.setLayoutData(fdlUseCache);
-    wUseCache = new Button(mainComposite, SWT.CHECK);
-    PropsUi.setLook(wUseCache);
-    wUseCache.addListener(SWT.Selection, e -> setFlags());
-    FormData fdUseCache = new FormData();
-    fdUseCache.left = new FormAttachment(middle, 0);
-    fdUseCache.top = new FormAttachment(wlUseCache, 0, SWT.CENTER);
-    fdUseCache.right = new FormAttachment(100, 0);
-    wUseCache.setLayoutData(fdUseCache);
-
-    // Preload cache?
-    wlPreloadCache = new Label(mainComposite, SWT.RIGHT);
-    wlPreloadCache.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.PreloadCache.Label"));
-    PropsUi.setLook(wlPreloadCache);
-    FormData fdlPreloadCache = new FormData();
-    fdlPreloadCache.left = new FormAttachment(0, 0);
-    fdlPreloadCache.right = new FormAttachment(middle, -margin);
-    fdlPreloadCache.top = new FormAttachment(wUseCache, margin);
-    wlPreloadCache.setLayoutData(fdlPreloadCache);
-    wPreloadCache = new Button(mainComposite, SWT.CHECK);
-    PropsUi.setLook(wPreloadCache);
-    wPreloadCache.addListener(SWT.Selection, e -> setFlags());
-    FormData fdPreloadCache = new FormData();
-    fdPreloadCache.left = new FormAttachment(middle, 0);
-    fdPreloadCache.top = new FormAttachment(wlPreloadCache, 0, SWT.CENTER);
-    fdPreloadCache.right = new FormAttachment(100, 0);
-    wPreloadCache.setLayoutData(fdPreloadCache);
-
-    // Cache size ...
-    wlCacheSize = new Label(mainComposite, SWT.RIGHT);
-    wlCacheSize.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.CacheSize.Label"));
-    PropsUi.setLook(wlCacheSize);
-    FormData fdlCacheSize = new FormData();
-    fdlCacheSize.left = new FormAttachment(0, 0);
-    fdlCacheSize.right = new FormAttachment(middle, -margin);
-    fdlCacheSize.top = new FormAttachment(wPreloadCache, margin);
-    wlCacheSize.setLayoutData(fdlCacheSize);
-    wCacheSize = new Text(mainComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wCacheSize);
-    FormData fdCacheSize = new FormData();
-    fdCacheSize.left = new FormAttachment(middle, 0);
-    fdCacheSize.top = new FormAttachment(wPreloadCache, margin);
-    fdCacheSize.right = new FormAttachment(100, 0);
-    wCacheSize.setLayoutData(fdCacheSize);
-
-    // THE BOTTOM BUTTONS
-    wOk = new Button(mainComposite, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wGet = new Button(mainComposite, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.GetFields.Button"));
-    wGet.addListener(SWT.Selection, e -> get());
-    wCreate = new Button(mainComposite, SWT.PUSH);
-    wCreate.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.SQL.Button"));
-    wCreate.addListener(SWT.Selection, e -> create());
-    wCancel = new Button(mainComposite, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wGet, wCreate, wCancel}, margin, null);
+    Label wContentTop = new Label(mainComposite, SWT.NONE);
+    wContentTop.setLayoutData(new FormData(0, 0));
 
     wTabFolder = new CTabFolder(mainComposite, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
+    addPhysicalTab(margin);
     addKeyTab(margin);
     addFieldsTab(margin);
     addTechnicalKeyTab(margin, middle);
@@ -402,8 +216,12 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.top = new FormAttachment(wCacheSize, margin);
-    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    fdTabFolder.bottom = new FormAttachment(100, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
+
+    wScrolledComposite.setContent(mainComposite);
+    mainComposite.pack();
+    wScrolledComposite.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
     FormData fdComp = new FormData();
     fdComp.left = new FormAttachment(0, 0);
@@ -422,10 +240,191 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
     getData();
     setTableFieldCombo();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  public void addPhysicalTab(int margin) {
+    CTabItem wPhysicalTab = new CTabItem(wTabFolder, SWT.NONE);
+    wPhysicalTab.setFont(GuiResource.getInstance().getFontDefault());
+    wPhysicalTab.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.PhysicalTab.CTabItem"));
+
+    Composite wPhysicalComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wPhysicalComp);
+    wPhysicalComp.setLayout(props.createFormLayout());
+
+    // Update the dimension?
+    Label wlUpdate = new Label(wPhysicalComp, SWT.RIGHT);
+    wlUpdate.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Update.Label"));
+    PropsUi.setLook(wlUpdate);
+    FormData fdlUpdate = new FormData();
+    fdlUpdate.left = new FormAttachment(0, 0);
+    fdlUpdate.right = new FormAttachment(middle, -margin);
+    fdlUpdate.top = new FormAttachment(0, 0);
+    wlUpdate.setLayoutData(fdlUpdate);
+    wUpdate = new Button(wPhysicalComp, SWT.CHECK);
+    PropsUi.setLook(wUpdate);
+    FormData fdUpdate = new FormData();
+    fdUpdate.left = new FormAttachment(middle, 0);
+    fdUpdate.top = new FormAttachment(wlUpdate, 0, SWT.CENTER);
+    fdUpdate.right = new FormAttachment(100, 0);
+    wUpdate.setLayoutData(fdUpdate);
+
+    // Clicking on update changes the options in the update combo boxes!
+    wUpdate.addListener(
+        SWT.Selection,
+        e -> {
+          input.setUpdate(!input.isUpdate());
+          setFlags();
+        });
+
+    // Connection line
+
+    wConnection = addConnectionLine(wPhysicalComp, wUpdate, input.getConnection(), null);
+    wConnection.addListener(SWT.FocusOut, e -> setTableFieldCombo());
+    wConnection.addListener(
+        SWT.Modify,
+        e -> {
+          // We have new content: change database connection:
+          databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+          setFlags();
+        });
+
+    // Schema line...
+    Label wlSchema = new Label(wPhysicalComp, SWT.RIGHT);
+    wlSchema.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TargetSchema.Label"));
+    PropsUi.setLook(wlSchema);
+    FormData fdlSchema = new FormData();
+    fdlSchema.left = new FormAttachment(0, 0);
+    fdlSchema.right = new FormAttachment(middle, -margin);
+    fdlSchema.top = new FormAttachment(wConnection, margin);
+    wlSchema.setLayoutData(fdlSchema);
+
+    Button wbSchema = new Button(wPhysicalComp, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchema);
+    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    FormData fdbSchema = new FormData();
+    fdbSchema.top = new FormAttachment(wConnection, margin);
+    fdbSchema.right = new FormAttachment(100, 0);
+    wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
+
+    wSchema = new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSchema);
+    FormData fdSchema = new FormData();
+    fdSchema.left = new FormAttachment(middle, 0);
+    fdSchema.top = new FormAttachment(wConnection, margin);
+    fdSchema.right = new FormAttachment(wbSchema, -margin);
+    wSchema.setLayoutData(fdSchema);
+
+    // Table line...
+    Label wlTable = new Label(wPhysicalComp, SWT.RIGHT);
+    wlTable.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TargetTable.Label"));
+    PropsUi.setLook(wlTable);
+    FormData fdlTable = new FormData();
+    fdlTable.left = new FormAttachment(0, 0);
+    fdlTable.right = new FormAttachment(middle, -margin);
+    fdlTable.top = new FormAttachment(wbSchema, margin);
+    wlTable.setLayoutData(fdlTable);
+
+    Button wbTable = new Button(wPhysicalComp, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbTable);
+    wbTable.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Browse.Button"));
+    FormData fdbTable = new FormData();
+    fdbTable.right = new FormAttachment(100, 0);
+    fdbTable.top = new FormAttachment(wbSchema, margin);
+    wbTable.setLayoutData(fdbTable);
+    wbTable.addListener(SWT.Selection, e -> getTableName());
+
+    wTable = new TextVar(variables, wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTable);
+    FormData fdTable = new FormData();
+    fdTable.left = new FormAttachment(middle, 0);
+    fdTable.top = new FormAttachment(wbSchema, margin);
+    fdTable.right = new FormAttachment(wbTable, -margin);
+    wTable.setLayoutData(fdTable);
+
+    // Commit size ...
+    wlCommit = new Label(wPhysicalComp, SWT.RIGHT);
+    wlCommit.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Commit.Label"));
+    PropsUi.setLook(wlCommit);
+    FormData fdlCommit = new FormData();
+    fdlCommit.left = new FormAttachment(0, 0);
+    fdlCommit.right = new FormAttachment(middle, -margin);
+    fdlCommit.top = new FormAttachment(wTable, margin);
+    wlCommit.setLayoutData(fdlCommit);
+    wCommit = new Text(wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCommit);
+    FormData fdCommit = new FormData();
+    fdCommit.left = new FormAttachment(middle, 0);
+    fdCommit.top = new FormAttachment(wTable, margin);
+    fdCommit.right = new FormAttachment(100, 0);
+    wCommit.setLayoutData(fdCommit);
+
+    // Use Cache?
+    Label wlUseCache = new Label(wPhysicalComp, SWT.RIGHT);
+    wlUseCache.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.UseCache.Label"));
+    PropsUi.setLook(wlUseCache);
+    FormData fdlUseCache = new FormData();
+    fdlUseCache.left = new FormAttachment(0, 0);
+    fdlUseCache.right = new FormAttachment(middle, -margin);
+    fdlUseCache.top = new FormAttachment(wCommit, margin);
+    wlUseCache.setLayoutData(fdlUseCache);
+    wUseCache = new Button(wPhysicalComp, SWT.CHECK);
+    PropsUi.setLook(wUseCache);
+    wUseCache.addListener(SWT.Selection, e -> setFlags());
+    FormData fdUseCache = new FormData();
+    fdUseCache.left = new FormAttachment(middle, 0);
+    fdUseCache.top = new FormAttachment(wlUseCache, 0, SWT.CENTER);
+    fdUseCache.right = new FormAttachment(100, 0);
+    wUseCache.setLayoutData(fdUseCache);
+
+    // Preload cache?
+    wlPreloadCache = new Label(wPhysicalComp, SWT.RIGHT);
+    wlPreloadCache.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.PreloadCache.Label"));
+    PropsUi.setLook(wlPreloadCache);
+    FormData fdlPreloadCache = new FormData();
+    fdlPreloadCache.left = new FormAttachment(0, 0);
+    fdlPreloadCache.right = new FormAttachment(middle, -margin);
+    fdlPreloadCache.top = new FormAttachment(wUseCache, margin);
+    wlPreloadCache.setLayoutData(fdlPreloadCache);
+    wPreloadCache = new Button(wPhysicalComp, SWT.CHECK);
+    PropsUi.setLook(wPreloadCache);
+    wPreloadCache.addListener(SWT.Selection, e -> setFlags());
+    FormData fdPreloadCache = new FormData();
+    fdPreloadCache.left = new FormAttachment(middle, 0);
+    fdPreloadCache.top = new FormAttachment(wlPreloadCache, 0, SWT.CENTER);
+    fdPreloadCache.right = new FormAttachment(100, 0);
+    wPreloadCache.setLayoutData(fdPreloadCache);
+
+    // Cache size ...
+    wlCacheSize = new Label(wPhysicalComp, SWT.RIGHT);
+    wlCacheSize.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.CacheSize.Label"));
+    PropsUi.setLook(wlCacheSize);
+    FormData fdlCacheSize = new FormData();
+    fdlCacheSize.left = new FormAttachment(0, 0);
+    fdlCacheSize.right = new FormAttachment(middle, -margin);
+    fdlCacheSize.top = new FormAttachment(wPreloadCache, margin);
+    wlCacheSize.setLayoutData(fdlCacheSize);
+    wCacheSize = new Text(wPhysicalComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCacheSize);
+    FormData fdCacheSize = new FormData();
+    fdCacheSize.left = new FormAttachment(middle, 0);
+    fdCacheSize.top = new FormAttachment(wPreloadCache, margin);
+    fdCacheSize.right = new FormAttachment(100, 0);
+    wCacheSize.setLayoutData(fdCacheSize);
+
+    FormData fdPhysicalComp = new FormData();
+    fdPhysicalComp.left = new FormAttachment(0, 0);
+    fdPhysicalComp.top = new FormAttachment(0, 0);
+    fdPhysicalComp.right = new FormAttachment(100, 0);
+    fdPhysicalComp.bottom = new FormAttachment(100, 0);
+    wPhysicalComp.setLayoutData(fdPhysicalComp);
+
+    wPhysicalComp.layout();
+    wPhysicalTab.setControl(wPhysicalComp);
   }
 
   public void addKeyTab(int margin) {
@@ -548,7 +547,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     fdTkRename.right = new FormAttachment(100, -margin);
     wTkRename.setLayoutData(fdTkRename);
 
-    Group gTechGroup = new Group(wTechnicalKeyComp, SWT.SHADOW_ETCHED_IN);
+    Group gTechGroup = new Group(wTechnicalKeyComp, SWT.SHADOW_NONE);
     gTechGroup.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TechGroup.Label"));
 
     gTechGroup.setLayout(props.createFormLayout());
@@ -561,57 +560,88 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     gTechGroup.setLayoutData(fdTechGroup);
 
     // Use maximum of table + 1
-    wTableMax = new Button(gTechGroup, SWT.RADIO);
-    PropsUi.setLook(wTableMax);
-    wTableMax.setSelection(false);
+    wTkTableMax = new Button(gTechGroup, SWT.RADIO);
+    PropsUi.setLook(wTkTableMax);
+    wTkTableMax.setSelection(false);
     FormData fdTableMax = new FormData();
     fdTableMax.left = new FormAttachment(0, 0);
     fdTableMax.top = new FormAttachment(wTkRename, margin);
-    wTableMax.setLayoutData(fdTableMax);
-    wTableMax.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TableMaximum.Label"));
-    wTableMax.setToolTipText(
+    wTkTableMax.setLayoutData(fdTableMax);
+    wTkTableMax.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TableMaximum.Label"));
+    wTkTableMax.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.TableMaximum.Tooltip", Const.CR));
+    wTkTableMax.addListener(SWT.Selection, e -> setTkType(TABLE_MAXIMUM));
 
     // Sequence Check Button
-    wSeqButton = new Button(gTechGroup, SWT.RADIO);
-    PropsUi.setLook(wSeqButton);
-    wSeqButton.setSelection(false);
+    wTkSeqButton = new Button(gTechGroup, SWT.RADIO);
+    PropsUi.setLook(wTkSeqButton);
+    wTkSeqButton.setSelection(false);
     FormData fdSeqButton = new FormData();
     fdSeqButton.left = new FormAttachment(0, 0);
-    fdSeqButton.top = new FormAttachment(wTableMax, margin);
-    wSeqButton.setLayoutData(fdSeqButton);
-    wSeqButton.setToolTipText(
+    fdSeqButton.top = new FormAttachment(wTkTableMax, margin);
+    wTkSeqButton.setLayoutData(fdSeqButton);
+    wTkSeqButton.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Tooltip", Const.CR));
-    wSeqButton.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Label"));
+    wTkSeqButton.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Sequence.Label"));
+    wTkSeqButton.addListener(SWT.Selection, e -> setTkType(SEQUENCE));
 
     wSeq = new Text(gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSeq);
     FormData fdSeq = new FormData();
-    fdSeq.left = new FormAttachment(wSeqButton, margin);
-    fdSeq.top = new FormAttachment(wSeqButton, 0, SWT.CENTER);
+    fdSeq.left = new FormAttachment(wTkSeqButton, margin);
+    fdSeq.top = new FormAttachment(wTkSeqButton, 0, SWT.CENTER);
     fdSeq.right = new FormAttachment(100, 0);
     wSeq.setLayoutData(fdSeq);
-    wSeq.addListener(
-        SWT.FocusIn,
-        e -> {
-          input.getFields().getReturns().setCreationMethod(SEQUENCE);
-          wSeqButton.setSelection(true);
-          wAutoIncrement.setSelection(false);
-          wTableMax.setSelection(false);
-        });
+    wSeq.addListener(SWT.FocusIn, e -> setTkType(SEQUENCE));
 
     // Use an autoincrement field?
-    wAutoIncrement = new Button(gTechGroup, SWT.RADIO);
-    PropsUi.setLook(wAutoIncrement);
-    wAutoIncrement.setSelection(false);
+    wTkAutoIncrement = new Button(gTechGroup, SWT.RADIO);
+    PropsUi.setLook(wTkAutoIncrement);
+    wTkAutoIncrement.setSelection(false);
     FormData fdAutoIncrement = new FormData();
     fdAutoIncrement.left = new FormAttachment(0, 0);
     fdAutoIncrement.top = new FormAttachment(wSeq, margin);
-    wAutoIncrement.setLayoutData(fdAutoIncrement);
-    wAutoIncrement.setToolTipText(
+    wTkAutoIncrement.setLayoutData(fdAutoIncrement);
+    wTkAutoIncrement.setToolTipText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.AutoIncrementButton.Tooltip", Const.CR));
-    wAutoIncrement.setText(
+    wTkAutoIncrement.setText(
         BaseMessages.getString(PKG, "DimensionLookupDialog.AutoIncrement.Label"));
+    wTkAutoIncrement.addListener(SWT.Selection, e -> setTkType(AUTO_INCREMENT));
+
+    // Use a UUID?
+    wTkUuid = new Button(gTechGroup, SWT.RADIO);
+    PropsUi.setLook(wTkUuid);
+    wTkUuid.setSelection(false);
+    FormData fdUuid = new FormData();
+    fdUuid.left = new FormAttachment(0, 0);
+    fdUuid.top = new FormAttachment(wTkAutoIncrement, margin);
+    wTkUuid.setLayoutData(fdUuid);
+    wTkUuid.setToolTipText(
+        BaseMessages.getString(PKG, "DimensionLookupDialog.UuidButton.Tooltip", Const.CR));
+    wTkUuid.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Uuid.Label"));
+    wTkUuid.addListener(SWT.Selection, e -> setTkType(UUID));
+
+    // Sequence Check Button
+    wTkFieldButton = new Button(gTechGroup, SWT.RADIO);
+    PropsUi.setLook(wTkFieldButton);
+    wTkFieldButton.setSelection(false);
+    FormData fdTkFieldButton = new FormData();
+    fdTkFieldButton.left = new FormAttachment(0, 0);
+    fdTkFieldButton.top = new FormAttachment(wTkUuid, margin);
+    wTkFieldButton.setLayoutData(fdTkFieldButton);
+    wTkFieldButton.setToolTipText(
+        BaseMessages.getString(PKG, "DimensionLookupDialog.TkField.Tooltip", Const.CR));
+    wTkFieldButton.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TkField.Label"));
+    wTkFieldButton.addListener(SWT.Selection, e -> setTkType(FIELD));
+
+    wTkField = new Text(gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTkField);
+    FormData fdTkField = new FormData();
+    fdTkField.left = new FormAttachment(wTkFieldButton, margin);
+    fdTkField.top = new FormAttachment(wTkFieldButton, 0, SWT.CENTER);
+    fdTkField.right = new FormAttachment(100, 0);
+    wTkField.setLayoutData(fdTkField);
+    wTkField.addListener(SWT.FocusIn, e -> setTkType(FIELD));
 
     // Disable the unknown row check when updating a dimension?
     //
@@ -621,9 +651,21 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     PropsUi.setLook(wDisableUnknownUpdate);
     FormData fdDisableUnknownUpdate = new FormData();
     fdDisableUnknownUpdate.left = new FormAttachment(0, 0);
-    fdDisableUnknownUpdate.top = new FormAttachment(gTechGroup, 2 * margin);
+    fdDisableUnknownUpdate.top = new FormAttachment(gTechGroup, margin);
     fdDisableUnknownUpdate.right = new FormAttachment(100, 0);
     wDisableUnknownUpdate.setLayoutData(fdDisableUnknownUpdate);
+
+    // Disable the unknown row check when updating a dimension?
+    //
+    wShowUnknownTk = new Button(wTechnicalKeyComp, SWT.PUSH);
+    wShowUnknownTk.setText(
+        BaseMessages.getString(PKG, "DimensionLookupDialog.ShowUnknownTk.Label"));
+    PropsUi.setLook(wShowUnknownTk);
+    FormData fdShowUnknownTk = new FormData();
+    fdShowUnknownTk.left = new FormAttachment(0, 0);
+    fdShowUnknownTk.top = new FormAttachment(wDisableUnknownUpdate, margin);
+    wShowUnknownTk.setLayoutData(fdShowUnknownTk);
+    wShowUnknownTk.addListener(SWT.Selection, this::showUnknownTk);
 
     FormData fdTechnicalKeyComp = new FormData();
     fdTechnicalKeyComp.left = new FormAttachment(0, 0);
@@ -634,6 +676,75 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
     wTechnicalKeyComp.layout();
     wTechnicalKeyTab.setControl(wTechnicalKeyComp);
+  }
+
+  private void showUnknownTk(Event event) {
+    try {
+      DimensionLookupMeta meta = new DimensionLookupMeta();
+      getInfo(meta);
+
+      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+      IValueMeta tkValueMeta =
+          meta.buildTkValueMeta(
+              inputRowMeta, meta.getFields().getReturns().getKeyField(), variables);
+
+      String databaseName = variables.resolve(meta.getConnection());
+      DatabaseMeta dbMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(databaseName);
+
+      Object tkValueData =
+          DimensionLookup.determineNotFoundTk(
+              tkValueMeta, meta.getFields().getReturns().getCreationMethod(), dbMeta);
+
+      // Now that we have all the information we can display a summary.
+      //
+      String summary = "";
+      summary +=
+          "Database supports auto increment? "
+              + databaseMeta.getIDatabase().isSupportsAutoInc()
+              + Const.CR;
+      summary +=
+          "TK creation method: "
+              + meta.getFields().getReturns().getCreationMethod().name()
+              + Const.CR;
+      summary += "TK Hop data type: " + tkValueMeta.toStringMeta() + Const.CR;
+
+      String unknownTk;
+      if (tkValueMeta.isBinary()) {
+        byte[] bytes = tkValueMeta.getBinary(tkValueData);
+        unknownTk = "0x" + Hex.encodeHexString(bytes);
+      } else {
+        unknownTk = tkValueMeta.getString(tkValueData);
+      }
+
+      summary += "TK unknown value: " + unknownTk + Const.CR;
+
+      EnterTextDialog dialog =
+          new EnterTextDialog(shell, "Unknown value", "Unknown value details", summary, true);
+      dialog.setReadOnly();
+      dialog.open();
+    } catch (Exception e) {
+      new ErrorDialog(
+          shell, "Error", "Error getting information about the unknown technical key value", e);
+    }
+  }
+
+  private void setTkType(TechnicalKeyCreationMethod method) {
+    input.getFields().getReturns().setCreationMethod(method);
+
+    wTkSeqButton.setSelection(false);
+    wTkAutoIncrement.setSelection(false);
+    wTkTableMax.setSelection(false);
+    wTkUuid.setSelection(false);
+    wTkFieldButton.setSelection(false);
+
+    switch (method) {
+      case SEQUENCE -> wTkSeqButton.setSelection(true);
+      case AUTO_INCREMENT -> wTkAutoIncrement.setSelection(true);
+      case TABLE_MAXIMUM -> wTkTableMax.setSelection(true);
+      case UUID -> wTkUuid.setSelection(true);
+      case FIELD -> wTkFieldButton.setSelection(true);
+    }
   }
 
   public void addFieldsTab(int margin) {
@@ -753,7 +864,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     FormData fdlVersion = new FormData();
     fdlVersion.left = new FormAttachment(0, 0);
     fdlVersion.right = new FormAttachment(middle, 0);
-    fdlVersion.top = new FormAttachment(0, 2 * margin);
+    fdlVersion.top = new FormAttachment(0, margin);
     wlVersion.setLayoutData(fdlVersion);
     wVersion = new Combo(wVersioningComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wVersion);
@@ -900,7 +1011,7 @@ public class DimensionLookupDialog extends BaseTransformDialog {
         BaseMessages.getString(
             PKG, "DimensionLookupDialog.AlternativeStartDateField.Tooltip", Const.CR));
     FormData fdAltStartDateField = new FormData();
-    fdAltStartDateField.left = new FormAttachment(wAltStartDate, 2 * margin);
+    fdAltStartDateField.left = new FormAttachment(wAltStartDate, margin);
     fdAltStartDateField.right = new FormAttachment(100, 0);
     fdAltStartDateField.top = new FormAttachment(wlUseAltStartDate, 0, SWT.CENTER);
     wAltStartDateField.setLayoutData(fdAltStartDateField);
@@ -971,14 +1082,14 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   }
 
   public void setFlags() {
-    ColumnInfo colinf =
+    ColumnInfo columnInfo =
         new ColumnInfo(
             BaseMessages.getString(PKG, "DimensionLookupDialog.ColumnInfo.Type"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             input.isUpdate()
                 ? DimensionUpdateType.getDescriptions()
                 : ValueMetaFactory.getValueMetaNames());
-    wUpIns.setColumnInfo(2, colinf);
+    wUpIns.setColumnInfo(2, columnInfo);
 
     if (input.isUpdate()) {
       wUpIns.setColumnText(
@@ -1026,7 +1137,9 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wlTkRename.setEnabled(!update);
     wTkRename.setEnabled(!update);
 
-    wCreate.setEnabled(update);
+    if (wSql != null) {
+      wSql.setEnabled(update);
+    }
 
     // Set the technical creation key fields correct... then disable
     // depending on update or not. Then reset if we're updating. It makes
@@ -1082,26 +1195,26 @@ public class DimensionLookupDialog extends BaseTransformDialog {
         (databaseMeta == null)
             || (databaseMeta.supportsAutoinc() && databaseMeta.supportsAutoGeneratedKeys());
 
-    wAutoIncrement.setEnabled(enable);
-    if (!enable && wAutoIncrement.getSelection()) {
-      wAutoIncrement.setSelection(false);
-      wSeqButton.setSelection(false);
-      wTableMax.setSelection(true);
+    wTkAutoIncrement.setEnabled(enable);
+    if (!enable && wTkAutoIncrement.getSelection()) {
+      wTkAutoIncrement.setSelection(false);
+      wTkSeqButton.setSelection(false);
+      wTkTableMax.setSelection(true);
     }
   }
 
   public void setTableMax() {
-    wTableMax.setEnabled(true);
+    wTkTableMax.setEnabled(true);
   }
 
   public void setSequence() {
     boolean seq = (databaseMeta == null) || databaseMeta.supportsSequences();
     wSeq.setEnabled(seq);
-    wSeqButton.setEnabled(seq);
-    if (!seq && wSeqButton.getSelection()) {
-      wAutoIncrement.setSelection(false);
-      wSeqButton.setSelection(false);
-      wTableMax.setSelection(true);
+    wTkSeqButton.setEnabled(seq);
+    if (!seq && wTkSeqButton.getSelection()) {
+      wTkAutoIncrement.setSelection(false);
+      wTkSeqButton.setSelection(false);
+      wTkTableMax.setSelection(true);
     }
   }
 
@@ -1139,7 +1252,6 @@ public class DimensionLookupDialog extends BaseTransformDialog {
 
     wVersion.setText(Const.NVL(f.getReturns().getVersionField(), ""));
 
-    wSeq.setText(Const.NVL(input.getSequenceName(), ""));
     if (input.getConnection() != null) {
       wConnection.setText(input.getConnection());
     }
@@ -1149,21 +1261,11 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wToDate.setText(Const.NVL(f.getDate().getTo(), ""));
 
     TechnicalKeyCreationMethod creationMethod = f.getReturns().getCreationMethod();
-    if (creationMethod == AUTO_INCREMENT) {
-      wAutoIncrement.setSelection(true);
-      wSeqButton.setSelection(false);
-      wTableMax.setSelection(false);
-    } else if (creationMethod == SEQUENCE) {
-      wSeqButton.setSelection(true);
-      wAutoIncrement.setSelection(false);
-      wTableMax.setSelection(false);
-    } else { // the rest
-      wTableMax.setSelection(true);
-      wAutoIncrement.setSelection(false);
-      wSeqButton.setSelection(false);
-      f.getReturns().setCreationMethod(TABLE_MAXIMUM);
+    if (creationMethod != null) {
+      setTkType(creationMethod);
     }
     wSeq.setText(Const.NVL(input.getSequenceName(), ""));
+    wTkField.setText(Const.NVL(input.getTkSourceField(), ""));
 
     wCommit.setText("" + input.getCommitSize());
 
@@ -1191,9 +1293,6 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     wAltStartDateField.setText(Const.NVL(input.getStartDateFieldName(), ""));
 
     setFlags();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {
@@ -1265,14 +1364,19 @@ public class DimensionLookupDialog extends BaseTransformDialog {
     in.setSchemaName(wSchema.getText());
     in.setTableName(wTable.getText());
     in.setSequenceName(wSeq.getText());
+    in.setTkSourceField(wTkField.getText());
     f.getReturns().setKeyField(wTk.getText());
     f.getReturns().setKeyRename(wTkRename.getText());
-    if (wAutoIncrement.getSelection()) {
+    if (wTkAutoIncrement.getSelection()) {
       f.getReturns().setCreationMethod(AUTO_INCREMENT);
-    } else if (wSeqButton.getSelection()) {
+    } else if (wTkSeqButton.getSelection()) {
       f.getReturns().setCreationMethod(SEQUENCE);
-    } else { // all the rest
+    } else if (wTkTableMax.getSelection()) { // all the rest
       f.getReturns().setCreationMethod(TABLE_MAXIMUM);
+    } else if (wTkUuid.getSelection()) { // all the rest
+      f.getReturns().setCreationMethod(UUID);
+    } else if (wTkFieldButton.getSelection()) { // all the rest
+      f.getReturns().setCreationMethod(FIELD);
     }
     in.setUnknownRowCheckDisabled(wDisableUnknownUpdate.getSelection());
 
@@ -1604,28 +1708,31 @@ public class DimensionLookupDialog extends BaseTransformDialog {
   // For Sybase ASE: don't keep everything in lowercase!
   private void create() {
     try {
-      DimensionLookupMeta info = new DimensionLookupMeta();
-      getInfo(info);
+      DimensionLookupMeta dimensionLookupMeta = new DimensionLookupMeta();
+      getInfo(dimensionLookupMeta);
 
       String name = transformName; // new name might not yet be linked to other
       // transforms!
-      TransformMeta transforminfo =
+      TransformMeta transformMeta =
           new TransformMeta(
-              BaseMessages.getString(PKG, "DimensionLookupDialog.Transform.Title"), name, info);
+              BaseMessages.getString(PKG, "DimensionLookupDialog.Transform.Title"),
+              name,
+              dimensionLookupMeta);
       IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
 
       String message = null;
-      if (StringUtils.isEmpty(info.getFields().getReturns().getKeyField())) {
+      if (StringUtils.isEmpty(dimensionLookupMeta.getFields().getReturns().getKeyField())) {
         message =
             BaseMessages.getString(PKG, "DimensionLookupDialog.Error.NoTechnicalKeySpecified");
       }
-      if (Utils.isEmpty(info.getTableName())) {
+      if (Utils.isEmpty(dimensionLookupMeta.getTableName())) {
         message = BaseMessages.getString(PKG, "DimensionLookupDialog.Error.NoTableNameSpecified");
       }
 
       if (message == null) {
         SqlStatement sql =
-            info.getSqlStatements(variables, pipelineMeta, transforminfo, prev, metadataProvider);
+            dimensionLookupMeta.getSqlStatements(
+                variables, pipelineMeta, transformMeta, prev, metadataProvider);
         if (!sql.hasError()) {
           if (sql.hasSql()) {
             DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);

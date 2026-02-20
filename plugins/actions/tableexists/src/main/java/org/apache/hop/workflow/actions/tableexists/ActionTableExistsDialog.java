@@ -32,20 +32,16 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * This dialog allows you to edit the Table Exists action settings. (select the connection and the
@@ -53,8 +49,6 @@ import org.eclipse.swt.widgets.Text;
  */
 public class ActionTableExistsDialog extends ActionDialog {
   private static final Class<?> PKG = ActionTableExists.class;
-
-  private Text wName;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -77,45 +71,15 @@ public class ActionTableExistsDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionTableExists.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionTableExists.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Action name
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionTableExists.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-
     // Connection line
     DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
-    wConnection = addConnectionLine(shell, wName, databaseMeta, lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, databaseMeta, lsMod);
 
     // Schema name line
     Label wlSchemaName = new Label(shell, SWT.RIGHT);
@@ -124,14 +88,14 @@ public class ActionTableExistsDialog extends ActionDialog {
     FormData fdlSchemaName = new FormData();
     fdlSchemaName.left = new FormAttachment(0, 0);
     fdlSchemaName.right = new FormAttachment(middle, -margin);
-    fdlSchemaName.top = new FormAttachment(wConnection, 2 * margin);
+    fdlSchemaName.top = new FormAttachment(wConnection, margin);
     wlSchemaName.setLayoutData(fdlSchemaName);
 
     Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
     wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
     wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
@@ -141,7 +105,7 @@ public class ActionTableExistsDialog extends ActionDialog {
     wSchemaname.addModifyListener(lsMod);
     FormData fdSchemaname = new FormData();
     fdSchemaname.left = new FormAttachment(middle, 0);
-    fdSchemaname.top = new FormAttachment(wConnection, 2 * margin);
+    fdSchemaname.top = new FormAttachment(wConnection, margin);
     fdSchemaname.right = new FormAttachment(wbSchema, -margin);
     wSchemaname.setLayoutData(fdSchemaname);
 
@@ -173,18 +137,8 @@ public class ActionTableExistsDialog extends ActionDialog {
     fdTablename.right = new FormAttachment(wbTable, -margin);
     wTablename.setLayoutData(fdTablename);
 
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wTablename);
-
     getData();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -199,9 +153,11 @@ public class ActionTableExistsDialog extends ActionDialog {
     if (action.getConnection() != null) {
       wConnection.setText(action.getConnection());
     }
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

@@ -25,10 +25,12 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -55,18 +57,15 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class TableInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TableInputMeta.class;
@@ -88,6 +87,10 @@ public class TableInputDialog extends BaseTransformDialog {
 
   private Label wlPosition;
 
+  private Label wlSqlFromFile;
+  private TextVar wSqlFromFile;
+  private Button wbSqlFromFile;
+
   public TableInputDialog(
       Shell parent, IVariables variables, TableInputMeta transformMeta, PipelineMeta pipelineMeta) {
     super(parent, variables, transformMeta, pipelineMeta);
@@ -96,56 +99,63 @@ public class TableInputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    ModifyListener lsMod = e -> input.setChanged();
+    createShell(BaseMessages.getString(PKG, "TableInput.Name"));
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "TableInputDialog.TableInput"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "TableInputDialog.TransformName"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
     wConnection.addListener(SWT.Selection, e -> getSqlReservedWords());
 
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "System.Button.Preview"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    // Load SQL from file
+    wlSqlFromFile = new Label(shell, SWT.RIGHT);
+    wlSqlFromFile.setText(BaseMessages.getString(PKG, "TableInputDialog.LoadSqlFromFile"));
+    PropsUi.setLook(wlSqlFromFile);
+    FormData fdlSqlFromFile = new FormData();
+    fdlSqlFromFile.left = new FormAttachment(0, 0);
+    fdlSqlFromFile.right = new FormAttachment(middle, -margin);
+    fdlSqlFromFile.top = new FormAttachment(wConnection, margin);
+    wlSqlFromFile.setLayoutData(fdlSqlFromFile);
+    wbSqlFromFile = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wbSqlFromFile);
+    wbSqlFromFile.setText(BaseMessages.getString(PKG, "TableInputDialog.Browse"));
+    FormData fdbSqlFromFile = new FormData();
+    fdbSqlFromFile.right = new FormAttachment(100, 0);
+    fdbSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
+    wbSqlFromFile.setLayoutData(fdbSqlFromFile);
 
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
+    wSqlFromFile = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSqlFromFile);
+    wSqlFromFile.addModifyListener(lsMod);
+    FormData fdSqlFromFile = new FormData();
+    fdSqlFromFile.left = new FormAttachment(middle, 0);
+    fdSqlFromFile.right = new FormAttachment(wbSqlFromFile, -margin);
+    fdSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
+    wSqlFromFile.setLayoutData(fdSqlFromFile);
+    wbSqlFromFile.addListener(
+        SWT.Selection,
+        e -> {
+          String path =
+              BaseDialog.presentFileDialog(
+                  shell,
+                  wSqlFromFile,
+                  variables,
+                  new String[] {"*.sql", "*"},
+                  new String[] {
+                    BaseMessages.getString(PKG, "TableInputDialog.SqlFiles"),
+                    BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                  },
+                  false);
+          if (path != null) {
+            loadSqlFromFileAndSetReadOnly();
+          }
+        });
+    wSqlFromFile.addModifyListener(
+        e -> {
+          if (Utils.isEmpty(wSqlFromFile.getText())) {
+            wSql.setEditable(true);
+          }
+        });
 
     // Limit input ...
     Label wlLimit = new Label(shell, SWT.RIGHT);
@@ -154,7 +164,7 @@ public class TableInputDialog extends BaseTransformDialog {
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.right = new FormAttachment(middle, -margin);
-    fdlLimit.bottom = new FormAttachment(wOk, -2 * margin);
+    fdlLimit.bottom = new FormAttachment(wOk, -margin);
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLimit);
@@ -246,7 +256,7 @@ public class TableInputDialog extends BaseTransformDialog {
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment(0, 0);
     fdlPosition.right = new FormAttachment(100, 0);
-    fdlPosition.bottom = new FormAttachment(wlVariables, -2 * margin);
+    fdlPosition.bottom = new FormAttachment(wlVariables, -margin);
     wlPosition.setLayoutData(fdlPosition);
 
     // Table line...
@@ -255,7 +265,7 @@ public class TableInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wConnection, margin * 2);
+    fdlSql.top = new FormAttachment(wbSqlFromFile, margin);
     wlSql.setLayoutData(fdlSql);
 
     Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -263,7 +273,7 @@ public class TableInputDialog extends BaseTransformDialog {
     wbTable.setText(BaseMessages.getString(PKG, "TableInputDialog.GetSQLAndSelectStatement"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wConnection, margin * 2);
+    fdbTable.top = new FormAttachment(wbSqlFromFile, margin);
     wbTable.setLayoutData(fdbTable);
 
     if (EnvironmentUtils.getInstance().isWeb()) {
@@ -282,6 +292,7 @@ public class TableInputDialog extends BaseTransformDialog {
     fdSql.top = new FormAttachment(wbTable, margin);
     fdSql.right = new FormAttachment(100, -margin);
     fdSql.bottom = new FormAttachment(wlPosition, -margin);
+    fdSql.height = 200;
     wSql.setLayoutData(fdSql);
     wSql.addModifyListener(
         arg0 -> {
@@ -332,9 +343,6 @@ public class TableInputDialog extends BaseTransformDialog {
         });
 
     // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wOk.addListener(SWT.Selection, e -> ok());
     wbTable.addListener(SWT.Selection, e -> getSql());
     wDataFrom.addListener(SWT.Selection, e -> setFlags());
     wDataFrom.addListener(SWT.FocusOut, e -> setFlags());
@@ -345,6 +353,7 @@ public class TableInputDialog extends BaseTransformDialog {
     getData();
     input.setChanged(changed);
 
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -377,6 +386,28 @@ public class TableInputDialog extends BaseTransformDialog {
             PKG, "TableInputDialog.Position.Label", "" + lineNumber, "" + columnNumber));
   }
 
+  private void loadSqlFromFileAndSetReadOnly() {
+    String path = variables.resolve(wSqlFromFile.getText());
+    if (Utils.isEmpty(path)) {
+      wSql.setEditable(true);
+      return;
+    }
+    try {
+      String content = HopVfs.getTextFileContent(path, Const.XML_ENCODING);
+      wSql.setText(content);
+      wSql.setEditable(false);
+    } catch (HopFileException e) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+      mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));
+      mb.setMessage(
+          BaseMessages.getString(PKG, "TableInputDialog.CouldNotLoadSqlFromFile", path)
+              + Const.CR
+              + e.getMessage());
+      mb.open();
+      wSql.setEditable(true);
+    }
+  }
+
   protected void setSqlToolTip() {
     if (wVariables.getSelection()) {
       wSql.setToolTipText(variables.resolve(wSql.getText()));
@@ -393,6 +424,13 @@ public class TableInputDialog extends BaseTransformDialog {
       wConnection.setText(input.getConnection());
     }
 
+    wSqlFromFile.setText(Const.NVL(input.getSqlFromFile(), ""));
+    if (!Utils.isEmpty(wSqlFromFile.getText())) {
+      loadSqlFromFileAndSetReadOnly();
+    } else {
+      wSql.setEditable(true);
+    }
+
     wLimit.setText(Const.NVL(input.getRowLimit(), ""));
     wDataFrom.setText(Const.NVL(input.getLookup(), ""));
     wEachRow.setSelection(input.isExecuteEachInputRow());
@@ -400,9 +438,6 @@ public class TableInputDialog extends BaseTransformDialog {
 
     setSqlToolTip();
     setFlags();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {
@@ -419,6 +454,7 @@ public class TableInputDialog extends BaseTransformDialog {
         preview && !Utils.isEmpty(wSql.getSelectionText())
             ? wSql.getSelectionText()
             : wSql.getText());
+    meta.setSqlFromFile(wSqlFromFile.getText());
 
     meta.setRowLimit(wLimit.getText());
     meta.setExecuteEachInputRow(wEachRow.getSelection());

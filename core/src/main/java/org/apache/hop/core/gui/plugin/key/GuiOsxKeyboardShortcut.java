@@ -39,4 +39,7 @@ public @interface GuiOsxKeyboardShortcut {
   boolean command() default false;
 
   int key() default -1;
+
+  /** If true, shortcut works from anywhere (e.g. perspective activate, toggle terminal). */
+  boolean global() default false;
 }

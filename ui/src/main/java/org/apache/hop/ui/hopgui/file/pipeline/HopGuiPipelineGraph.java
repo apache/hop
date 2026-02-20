@@ -179,7 +179,6 @@ import org.apache.hop.ui.hopgui.file.shared.PipelineRowSamplerHelper;
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.pipeline.dialog.PipelineDialog;
@@ -771,9 +770,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             selectedTransforms = pipelineMeta.getSelectedTransforms();
             selectedTransform = currentTransform;
 
-            // Track that a transform was selected
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+            pipelineGridDelegate.onPipelineSelectionChanged();
 
             for (ITransformSelectionListener listener : currentTransformListeners) {
               listener.onUpdateSelection(currentTransform);
@@ -843,8 +840,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedNotes = pipelineMeta.getSelectedNotes();
       selectedNote = currentNotePad;
       // Track that a note was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+      pipelineGridDelegate.onPipelineSelectionChanged();
       Point loc = currentNotePad.getLocation();
 
       previousNoteLocations = pipelineMeta.getSelectedNoteLocations();
@@ -1022,8 +1018,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // Track that transforms were selected via region selection
         if (!pipelineMeta.getSelectedTransforms().isEmpty()
             || !pipelineMeta.getSelectedNotes().isEmpty()) {
-          HopGuiSelectionTracker.getInstance()
-              .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+          pipelineGridDelegate.onPipelineSelectionChanged();
         }
         updateGui();
         return;
@@ -1052,13 +1047,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           if (startHopTransform == null
               && selectionRegion == null
               && selectedTransforms == null
-              && selectedNotes == null) {
-            // This is available only in single click mode...
+              && selectedNotes == null
+              && !mouseMovedSinceClick) {
+            // Single click on transform name: edit (do not treat as drag end when release is here)
             //
             TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
             editTransform(transformMeta);
+            return;
           }
-          return;
+          // Release after a drag may land on another transform's name; fall through to complete
+          // drag
+          break;
         default:
           break;
       }
@@ -1075,8 +1074,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             selectedTransform.flipSelected();
             // Track that a transform selection changed (if it's now selected)
             if (selectedTransform.isSelected()) {
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+              pipelineGridDelegate.onPipelineSelectionChanged();
             }
           } else {
             singleClick = true;
@@ -1090,8 +1088,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               selectedTransform.setSelected(true);
             }
             // Track that a transform was selected
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+            pipelineGridDelegate.onPipelineSelectionChanged();
           }
         } else {
           // Find out which Transforms & Notes are selected
@@ -1099,8 +1096,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           selectedNotes = pipelineMeta.getSelectedNotes();
           // Track that transforms were selected
           if (!selectedTransforms.isEmpty() || !selectedNotes.isEmpty()) {
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+            pipelineGridDelegate.onPipelineSelectionChanged();
           }
 
           // We moved around some items: store undo info...
@@ -1148,6 +1144,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedNote = null;
       startHopTransform = null;
       endHopLocation = null;
+      dragSelection = false;
 
       updateGui();
     } else {
@@ -1162,8 +1159,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               selectedNote.flipSelected();
               // Track that a note selection changed (if it's now selected)
               if (selectedNote.isSelected()) {
-                HopGuiSelectionTracker.getInstance()
-                    .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+                pipelineGridDelegate.onPipelineSelectionChanged();
               }
             } else {
               // single click on a note: ask what needs to happen...
@@ -1179,8 +1175,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 selectedNote.setSelected(true);
               }
               // Track that a note was selected
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+              pipelineGridDelegate.onPipelineSelectionChanged();
             }
           } else {
             // Find out which Transforms & Notes are selected
@@ -1188,8 +1183,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             selectedNotes = pipelineMeta.getSelectedNotes();
             // Track that notes were selected
             if (!selectedTransforms.isEmpty() || !selectedNotes.isEmpty()) {
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+              pipelineGridDelegate.onPipelineSelectionChanged();
             }
 
             // We moved around some items: store undo info...
@@ -1615,8 +1609,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedTransforms.add(selectedTransform);
       previousTransformLocations = new Point[] {selectedTransform.getLocation()};
       // Track that a transform was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+      pipelineGridDelegate.onPipelineSelectionChanged();
       doRedraw = true;
     } else if (selectedNote != null && !selectedNote.isSelected()) {
       pipelineMeta.unselectAll();
@@ -1625,8 +1618,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedNotes.add(selectedNote);
       previousNoteLocations = new Point[] {selectedNote.getLocation()};
       // Track that a note was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
+      pipelineGridDelegate.onPipelineSelectionChanged();
       doRedraw = true;
     } else if (selectionRegion != null && startHopTransform == null) {
       // Did we select a region...?
@@ -2351,12 +2343,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     PipelineHopMeta fromHop = pipelineMeta.findPipelineHopTo(transformMeta);
     PipelineHopMeta toHop = pipelineMeta.findPipelineHopFrom(transformMeta);
 
+    List<PipelineHopMeta> removedHops = new ArrayList<>();
     for (int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i--) {
       PipelineHopMeta hop = pipelineMeta.getPipelineHop(i);
       if (transformMeta.equals(hop.getFromTransform())
           || transformMeta.equals(hop.getToTransform())) {
-        // Transform is connected with a hop, remove this hop.
-        //
+        removedHops.add(hop);
         hopGui.undoDelegate.addUndoNew(pipelineMeta, new PipelineHopMeta[] {hop}, new int[] {i});
         pipelineMeta.removePipelineHop(i);
       }
@@ -2364,9 +2356,41 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     // If the transform was part of a chain, re-connect it.
     //
+    TransformMeta newUpstream = null;
     if (fromHop != null && toHop != null) {
+      newUpstream = fromHop.getFromTransform();
       pipelineHopDelegate.newHop(
-          pipelineMeta, new PipelineHopMeta(fromHop.getFromTransform(), toHop.getToTransform()));
+          pipelineMeta, new PipelineHopMeta(newUpstream, toHop.getToTransform()));
+
+      // Same as split hop (insertTransform) but in reverse: point the target's info streams that
+      // were reading from the detached transform to the new upstream so
+      // searchInfoAndTargetTransforms
+      // can resolve correctly.
+      TransformMeta targetTransform = toHop.getToTransform();
+      if (targetTransform != null
+          && targetTransform.getTransform() != null
+          && newUpstream != null) {
+        ITransformIOMeta toIo = targetTransform.getTransform().getTransformIOMeta();
+        if (toIo != null) {
+          for (IStream stream : toIo.getInfoStreams()) {
+            if (stream.getTransformMeta() != null
+                && stream.getTransformMeta().equals(transformMeta)) {
+              stream.setTransformMeta(newUpstream);
+              stream.setSubject(newUpstream.getName());
+              targetTransform.getTransform().handleStreamSelection(stream);
+            }
+          }
+        }
+      }
+    }
+
+    // Same as split hop (insertTransform): after topology change, trigger IO meta update on
+    // targets of removed hops so linked transform names are updated.
+    for (PipelineHopMeta hop : removedHops) {
+      TransformMeta toTransform = hop.getToTransform();
+      if (toTransform != null && toTransform.getTransform() != null) {
+        toTransform.getTransform().searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+      }
     }
 
     updateGui();
@@ -3575,6 +3599,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void drawPipelineImage(GC swtGc, int width, int height) {
 
+    if (EnvironmentUtils.getInstance().isWeb()) {}
+
     IGc gc = new SwtGc(swtGc, width, height, iconSize);
     try {
       PropsUi propsUi = PropsUi.getInstance();
@@ -4206,7 +4232,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   /** If the extra tab view at the bottom is empty, we close it. */
   public void checkEmptyExtraView() {
-    if (extraViewTabFolder.getItemCount() == 0) {
+    if (extraViewTabFolder != null && extraViewTabFolder.getItemCount() == 0) {
       disposeExtraView();
     }
   }
@@ -4217,6 +4243,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     extraViewTabFolder.dispose();
+    extraViewTabFolder = null;
+
     sashForm.layout();
     sashForm.setWeights(100);
 
@@ -4232,15 +4260,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     boolean maximized = sashForm.getMaximizedControl() != null;
     if (maximized) {
-      // Minimize
-      //
+      // Restore
       sashForm.setMaximizedControl(null);
       minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
       minMaxItem.setToolTipText(
           BaseMessages.getString(PKG, "PipelineGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     } else {
       // Maximize
-      //
       sashForm.setMaximizedControl(extraViewTabFolder);
       minMaxItem.setImage(GuiResource.getInstance().getImageMinimizePanel());
       minMaxItem.setToolTipText(
@@ -4268,10 +4294,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
 
-    // Add a tab folder ...
-    //
+    // Always use standalone mode - execution results render in pipeline's own sashForm
+    // Add a tab folder in the pipeline's sashForm
     extraViewTabFolder = new CTabFolder(sashForm, SWT.MULTI);
     PropsUi.setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
+
+    // Layout the tab folder to fill its parent
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.top = new FormAttachment(0, 0);
+    fdTabFolder.bottom = new FormAttachment(100, 0);
+    extraViewTabFolder.setLayoutData(fdTabFolder);
 
     extraViewTabFolder.addMouseListener(
         new MouseAdapter() {
@@ -4285,13 +4319,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             }
           }
         });
-
-    FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.top = new FormAttachment(0, 0);
-    fdTabFolder.bottom = new FormAttachment(100, 0);
-    extraViewTabFolder.setLayoutData(fdTabFolder);
 
     // Create toolbar for close and min/max to the upper right corner...
     //
@@ -4323,6 +4350,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
 
+    // Refresh layout for standalone mode
+    sashForm.layout(true, true);
     sashForm.setWeights(60, 40);
   }
 
@@ -5398,19 +5427,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   @Override
   public void deleteSelected() {
-    // Only handle delete if a pipeline graph item was the last selected item
-    // OR if there are actually selected transforms/notes in the pipeline
-    HopGuiSelectionTracker selectionTracker = HopGuiSelectionTracker.getInstance();
+    // Shortcut only fires when focus is in this graph; delete if we have selection
     boolean hasPipelineSelection =
         !pipelineMeta.getSelectedTransforms().isEmpty()
             || !pipelineMeta.getSelectedNotes().isEmpty();
-    boolean isLastPipelineSelection =
-        selectionTracker.isLastSelection(HopGuiSelectionTracker.SelectionType.PIPELINE_GRAPH);
-
-    if (!isLastPipelineSelection || !hasPipelineSelection) {
+    if (!hasPipelineSelection) {
       return;
     }
-
     delSelected(null);
     updateGui();
   }

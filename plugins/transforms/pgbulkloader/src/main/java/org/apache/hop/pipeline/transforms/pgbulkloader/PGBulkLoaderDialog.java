@@ -60,12 +60,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class PGBulkLoaderDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PGBulkLoaderMeta.class;
@@ -114,11 +112,9 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).sql(e -> create()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSelection =
@@ -139,37 +135,8 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
         };
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
@@ -179,7 +146,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
     wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -188,7 +155,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
     wSchema.addFocusListener(lsFocusLost);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.top = new FormAttachment(wConnection, margin);
     fdSchema.right = new FormAttachment(100, 0);
     wSchema.setLayoutData(fdSchema);
 
@@ -328,15 +295,6 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
           }
         });
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wSql = new Button(shell, SWT.PUSH);
-    wSql.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.SQL.Button"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    setButtonPositions(new Button[] {wOk, wSql, wCancel}, margin, null);
-
     // The field Table
     Label wlReturn = new Label(shell, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Fields.Label"));
@@ -404,7 +362,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
     fdReturn.left = new FormAttachment(0, 0);
     fdReturn.top = new FormAttachment(wlReturn, margin);
     fdReturn.right = new FormAttachment(wDoMapping, -margin); // fix margin error
-    fdReturn.bottom = new FormAttachment(wOk, -2 * margin);
+    fdReturn.bottom = new FormAttachment(wOk, -margin);
     wReturn.setLayoutData(fdReturn);
 
     //
@@ -432,10 +390,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
     new Thread(runnable).start();
 
     // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
     wGetLU.addListener(SWT.Selection, e -> getUpdate());
-    wSql.addListener(SWT.Selection, e -> create());
-    wCancel.addListener(SWT.Selection, e -> cancel());
 
     wbTable.addSelectionListener(
         new SelectionAdapter() {
@@ -448,7 +403,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
     getData();
     setTableFieldCombo();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -517,9 +472,6 @@ public class PGBulkLoaderDialog extends BaseTransformDialog {
 
     wReturn.setRowNums();
     wReturn.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   protected void setComboBoxes() {

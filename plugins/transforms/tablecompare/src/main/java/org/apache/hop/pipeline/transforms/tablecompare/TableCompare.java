@@ -28,6 +28,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -705,12 +706,12 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
   @Override
   public boolean init() {
-
     if (super.init()) {
-
       try {
-        DatabaseMeta refConnectionDatabaseMeta =
-            getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
+        IHopMetadataSerializer<DatabaseMeta> serializer =
+            metadataProvider.getSerializer(DatabaseMeta.class);
+        String refDatabaseName = resolve(meta.getReferenceConnection());
+        DatabaseMeta refConnectionDatabaseMeta = serializer.load(refDatabaseName);
         if (refConnectionDatabaseMeta == null) {
           logError(
               BaseMessages.getString(
@@ -720,7 +721,6 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
         data.referenceDb = new Database(this, this, refConnectionDatabaseMeta);
         data.referenceDb.connect();
-
       } catch (Exception e) {
         logError(
             BaseMessages.getString(
@@ -732,8 +732,10 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       }
 
       try {
-        DatabaseMeta compConnectionDatabaseMeta =
-            getPipelineMeta().findDatabase(meta.getCompareConnection(), variables);
+        IHopMetadataSerializer<DatabaseMeta> serializer =
+            metadataProvider.getSerializer(DatabaseMeta.class);
+        String compDatabaseName = resolve(meta.getCompareConnection());
+        DatabaseMeta compConnectionDatabaseMeta = serializer.load(compDatabaseName);
         if (compConnectionDatabaseMeta == null) {
           logError(
               BaseMessages.getString(
@@ -743,7 +745,6 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
         data.compareDb = new Database(this, this, compConnectionDatabaseMeta);
         data.compareDb.connect();
-
       } catch (Exception e) {
         logError(
             BaseMessages.getString(
@@ -760,7 +761,6 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
   @Override
   public void dispose() {
-
     if (data.referenceDb != null) {
       data.referenceDb.disconnect();
     }

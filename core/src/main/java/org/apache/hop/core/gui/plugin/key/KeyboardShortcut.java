@@ -28,6 +28,12 @@ public class KeyboardShortcut {
   private boolean command;
   private int keyCode;
 
+  /** If true, shortcut works from anywhere (e.g. activate perspective, toggle terminal). */
+  private boolean global;
+
+  /** Class that declares the shortcut (where it should be triggered). */
+  private String parentClassName;
+
   private String parentMethodName;
 
   public KeyboardShortcut() {
@@ -41,6 +47,8 @@ public class KeyboardShortcut {
     this.shift = shortcut.shift();
     this.command = shortcut.command();
     this.keyCode = shortcut.key();
+    this.global = shortcut.global();
+    this.parentClassName = parentMethod.getDeclaringClass().getName();
     this.parentMethodName = parentMethod.getName();
   }
 
@@ -51,6 +59,8 @@ public class KeyboardShortcut {
     this.shift = shortcut.shift();
     this.command = shortcut.command();
     this.keyCode = shortcut.key();
+    this.global = shortcut.global();
+    this.parentClassName = parentMethod.getDeclaringClass().getName();
     this.parentMethodName = parentMethod.getName();
   }
 
@@ -306,6 +316,22 @@ public class KeyboardShortcut {
   }
 
   /**
+   * Gets parentClassName (class where this shortcut should be triggered).
+   *
+   * @return value of parentClassName
+   */
+  public String getParentClassName() {
+    return parentClassName;
+  }
+
+  /**
+   * @param parentClassName The parentClassName to set
+   */
+  public void setParentClassName(String parentClassName) {
+    this.parentClassName = parentClassName;
+  }
+
+  /**
    * Gets parentMethodName
    *
    * @return value of parentMethodName
@@ -319,5 +345,13 @@ public class KeyboardShortcut {
    */
   public void setParentMethodName(String parentMethodName) {
     this.parentMethodName = parentMethodName;
+  }
+
+  public boolean isGlobal() {
+    return global;
+  }
+
+  public void setGlobal(boolean global) {
+    this.global = global;
   }
 }

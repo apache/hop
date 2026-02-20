@@ -30,6 +30,8 @@
     <name>Hop GUI</name>
 
     <properties>
+        <jediterm.version>3.57</jediterm.version>
+        <pty4j.version>0.13.4</pty4j.version>
         <xmlgraphics-commons.version>2.9</xmlgraphics-commons.version>
     </properties>
 
@@ -62,6 +64,34 @@
             <artifactId>${swt.artifactId}</artifactId>
             <version>${org.eclipse.platform.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <!-- JediTerm - JetBrains terminal emulator for POC/testing -->
+        <dependency>
+            <groupId>org.jetbrains.jediterm</groupId>
+            <artifactId>jediterm-core</artifactId>
+            <version>${jediterm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.jediterm</groupId>
+            <artifactId>jediterm-ui</artifactId>
+            <version>${jediterm.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.pty4j</groupId>
+                    <artifactId>pty4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.pty4j</groupId>
+            <artifactId>pty4j</artifactId>
+            <version>${pty4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.pty4j</groupId>
+                    <artifactId>purejavacomm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -96,4 +126,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <!-- JetBrains repository for JediTerm -->
+        <repository>
+            <id>jetbrains-intellij-dependencies</id>
+            <url>https://packages.jetbrains.team/maven/p/ij/intellij-dependencies</url>
+        </repository>
+    </repositories>
 </project>

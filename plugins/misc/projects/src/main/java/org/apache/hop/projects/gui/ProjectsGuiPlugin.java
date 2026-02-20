@@ -162,6 +162,12 @@ public class ProjectsGuiPlugin {
       //
       hopGui.fileDelegate.closeAllFiles();
 
+      // Clear all terminal tabs (saves current project's terminals first)
+      //
+      if (hopGui.getTerminalPanel() != null) {
+        hopGui.getTerminalPanel().clearAllTerminals();
+      }
+
       // This is called only in Hop GUI so we want to start with a new set of variables
       // It avoids variables from one project showing up in another
       //
@@ -206,6 +212,12 @@ public class ProjectsGuiPlugin {
       // Re-open last open files for the namespace
       //
       hopGui.auditDelegate.openLastFiles();
+
+      // Restore terminal tabs for the new project (per-project terminals)
+      //
+      if (hopGui.getTerminalPanel() != null && hopGui.getProps().openLastFile()) {
+        hopGui.getDisplay().asyncExec(() -> hopGui.getTerminalPanel().restoreTerminals());
+      }
 
       // Clear last used, fill it with something useful.
       //

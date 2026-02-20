@@ -18,11 +18,13 @@
 package org.apache.hop.pipeline.transforms.append;
 
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -75,9 +77,115 @@ public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
 
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
-    List<IStream> streams = getTransformIOMeta().getInfoStreams();
-    streams.get(0).setTransformMeta(TransformMeta.findTransform(transforms, headTransformName));
-    streams.get(1).setTransformMeta(TransformMeta.findTransform(transforms, tailTransformName));
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    if (infoStreams.size() < 2) {
+      return;
+    }
+    IStream headStream = infoStreams.get(0);
+    IStream tailStream = infoStreams.get(1);
+    // Respect user choice: only re-fill from stream/prev when they had set a value (e.g. rename).
+    boolean hadHeadFilledIn = !Utils.isEmpty(headTransformName);
+    boolean hadTailFilledIn = !Utils.isEmpty(tailTransformName);
+
+    if (parentTransformMeta != null) {
+      PipelineMeta pipelineMeta = parentTransformMeta.getParentPipelineMeta();
+      if (pipelineMeta != null) {
+        String[] prev = pipelineMeta.getPrevTransformNames(parentTransformMeta);
+        // Only auto-fill when both are empty (initial connect). Do not re-fill when user cleared
+        // one.
+        if (prev != null && prev.length == 2) {
+          if (Utils.isEmpty(headTransformName) && Utils.isEmpty(tailTransformName)) {
+            if (headStream.getTransformMeta() != null && tailStream.getTransformMeta() != null) {
+              headTransformName = headStream.getTransformName();
+              tailTransformName = tailStream.getTransformName();
+            } else {
+              headTransformName = prev[0];
+              tailTransformName = prev[1];
+              setChanged();
+            }
+          }
+        }
+        // Clear names that no longer exist in prev (e.g. transform was removed)
+        if (headTransformName != null && !ArrayUtils.contains(prev, headTransformName)) {
+          headTransformName = null;
+          setChanged();
+        }
+        if (tailTransformName != null && !ArrayUtils.contains(prev, tailTransformName)) {
+          tailTransformName = null;
+          setChanged();
+        }
+      }
+    }
+
+    // Resolve by name. Prefer stream only when the stored name is "stale": empty (auto-fill),
+    // not in prev (insert-in-the-middle), or transform not found (rename).
+    String[] prev = null;
+    if (parentTransformMeta != null && parentTransformMeta.getParentPipelineMeta() != null) {
+      prev = parentTransformMeta.getParentPipelineMeta().getPrevTransformNames(parentTransformMeta);
+    }
+    TransformMeta tmHead = null;
+    boolean headNameStale =
+        Utils.isEmpty(headTransformName)
+            || (prev != null && !ArrayUtils.contains(prev, headTransformName))
+            || TransformMeta.findTransform(transforms, headTransformName) == null;
+    boolean preferHeadStream =
+        headStream.getTransformMeta() != null
+            && prev != null
+            && ArrayUtils.contains(prev, headStream.getTransformName())
+            && headNameStale
+            && hadHeadFilledIn;
+    if (preferHeadStream) {
+      headTransformName = headStream.getTransformName();
+      tmHead = headStream.getTransformMeta();
+      setChanged();
+    }
+    if (tmHead == null) {
+      tmHead = TransformMeta.findTransform(transforms, headTransformName);
+      if (tmHead == null
+          && headStream.getTransformMeta() != null
+          && prev != null
+          && ArrayUtils.contains(prev, headStream.getTransformName())
+          && hadHeadFilledIn) {
+        headTransformName = headStream.getTransformName();
+        tmHead = TransformMeta.findTransform(transforms, headTransformName);
+      }
+    }
+    headStream.setTransformMeta(tmHead);
+    if (tmHead != null) {
+      headStream.setSubject(tmHead.getName());
+    }
+
+    TransformMeta tmTail = null;
+    boolean tailNameStale =
+        Utils.isEmpty(tailTransformName)
+            || (prev != null && !ArrayUtils.contains(prev, tailTransformName))
+            || TransformMeta.findTransform(transforms, tailTransformName) == null;
+    boolean preferTailStream =
+        tailStream.getTransformMeta() != null
+            && prev != null
+            && ArrayUtils.contains(prev, tailStream.getTransformName())
+            && tailNameStale
+            && hadTailFilledIn;
+    if (preferTailStream) {
+      tailTransformName = tailStream.getTransformName();
+      tmTail = tailStream.getTransformMeta();
+      setChanged();
+    }
+    if (tmTail == null) {
+      tmTail = TransformMeta.findTransform(transforms, tailTransformName);
+      if (tmTail == null
+          && tailStream.getTransformMeta() != null
+          && prev != null
+          && ArrayUtils.contains(prev, tailStream.getTransformName())
+          && hadTailFilledIn) {
+        tailTransformName = tailStream.getTransformName();
+        tmTail = TransformMeta.findTransform(transforms, tailTransformName);
+      }
+    }
+    tailStream.setTransformMeta(tmTail);
+    if (tmTail != null) {
+      tailStream.setSubject(tmTail.getName());
+    }
   }
 
   @Override

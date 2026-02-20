@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
@@ -141,9 +142,6 @@ public class WorkflowDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "WorkflowDialog.WorkflowProperties.ShellText"));
 
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
@@ -181,7 +179,7 @@ public class WorkflowDialog extends Dialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
@@ -332,7 +330,7 @@ public class WorkflowDialog extends Dialog {
     FormData fdlWorkflowStatus = new FormData();
     fdlWorkflowStatus.left = new FormAttachment(0, 0);
     fdlWorkflowStatus.right = new FormAttachment(middle, -margin);
-    fdlWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
+    fdlWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin);
     wlWorkflowStatus.setLayoutData(fdlWorkflowStatus);
     wWorkflowStatus = new Combo(wWorkflowComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wWorkflowStatus.add(BaseMessages.getString(PKG, "WorkflowDialog.Draft_WorkflowStatus.Label"));
@@ -344,7 +342,7 @@ public class WorkflowDialog extends Dialog {
     PropsUi.setLook(wWorkflowStatus);
     FormData fdWorkflowStatus = new FormData();
     fdWorkflowStatus.left = new FormAttachment(middle, 0);
-    fdWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
+    fdWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin);
     fdWorkflowStatus.right = new FormAttachment(100, 0);
     wWorkflowStatus.setLayoutData(fdWorkflowStatus);
 
@@ -676,7 +674,9 @@ public class WorkflowDialog extends Dialog {
 
       helpButton = HelpUtils.createHelpButton(shell, plugin);
 
-      shell.setImage(getImage(shell, plugin));
+      if (!OsHelper.isMac()) {
+        shell.setImage(getImage(shell, plugin));
+      }
 
     } catch (Throwable e) {
       // Ignore unexpected errors, not worth it

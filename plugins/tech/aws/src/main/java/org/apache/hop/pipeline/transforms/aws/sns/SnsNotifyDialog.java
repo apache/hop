@@ -23,7 +23,6 @@ import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.sns.AmazonSNS;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -31,6 +30,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -44,14 +44,11 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -59,7 +56,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class SnsNotifyDialog extends BaseTransformDialog {
 
@@ -121,16 +117,14 @@ public class SnsNotifyDialog extends BaseTransformDialog {
    */
   @Override
   public String open() {
+    createShell(BaseMessages.getString(PKG, "SNSNotify.Shell.Title"));
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
     CTabFolder tabFolder;
 
     // store some convenient SWT variables
     Shell parent = getParent();
     Display display = parent.getDisplay();
-
-    // SWT code for preparing the dialog
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, meta);
 
     // Save the value of the changed flag on the meta object. If the user cancels
     // the dialog, it will be restored to this saved value.
@@ -141,39 +135,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     // indicate that changes are being made.
     ModifyListener lsMod = e -> meta.setChanged();
 
-    // ------------------------------------------------------- //
-    // SWT code for building the actual settings dialog        //
-    // ------------------------------------------------------- //
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "SNSNotify.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
-
-    // transformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // ------------------------------------------------------- //
     // TABULATOREN START //
@@ -183,7 +145,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     tabFolder = new CTabFolder(shell, SWT.BORDER);
     FormData fdTabFolder = new FormData();
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.bottom = new FormAttachment(100, -50);
     tabFolder.setLayoutData(fdTabFolder);
@@ -458,20 +420,6 @@ public class SnsNotifyDialog extends BaseTransformDialog {
 
     tabFolder.setSelection(0);
 
-    // TABS ENDE
-
-    // OK and cancel buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Add listeners for cancel and OK
-    wOk.addListener(SWT.Selection, c -> ok());
-    wCancel.addListener(SWT.Selection, c -> cancel());
-
     // default listener (for hitting "enter")
     SelectionAdapter lsDef =
         new SelectionAdapter() {
@@ -485,15 +433,6 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     tAWSKeySecret.addSelectionListener(lsDef);
     tAWSRegion.addSelectionListener(lsDef);
 
-    // Detect X or ALT-F4 or something that kills this window and cancel the dialog properly
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
-
     // Set/Restore the dialog size based on last position on screen
     // The setSize() method is inherited from BaseTransformDialog
     setSize();
@@ -506,14 +445,9 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     // population
     meta.setChanged(changed);
 
-    // open dialog and enter event loop
-    shell.open();
-    while (!shell.isDisposed()) {
-      if (!display.readAndDispatch()) display.sleep();
-    }
+    focusTransformName();
 
-    // at this point the dialog has closed, so either ok() or cancel() have been executed
-    // The "transformName" variable is inherited from BaseTransformDialog
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
   }
 
@@ -594,8 +528,6 @@ public class SnsNotifyDialog extends BaseTransformDialog {
    * the dialog controls.
    */
   private void populateDialog() {
-    wTransformName.selectAll();
-
     tAWSCredChain.setText(meta.getAwsCredChain());
     tAWSKey.setText(meta.getAwsKey());
     tAWSKeySecret.setText(meta.getAwsKeySecret());

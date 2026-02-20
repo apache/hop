@@ -31,7 +31,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -54,43 +53,12 @@ public class CubeInputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "CubeInputDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "CubeInputDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "CubeInputDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // Filename line
     Label wlFilename = new Label(shell, SWT.RIGHT);
@@ -98,7 +66,7 @@ public class CubeInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.top = new FormAttachment(wTransformName, margin + 5);
+    fdlFilename.top = new FormAttachment(wSpacer, margin + 5);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
     Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -106,14 +74,14 @@ public class CubeInputDialog extends BaseTransformDialog {
     wbFilename.setText(BaseMessages.getString(PKG, "CubeInputDialog.FilenameButton.Label"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
-    fdbFilename.top = new FormAttachment(wTransformName, margin + 5);
+    fdbFilename.top = new FormAttachment(wSpacer, margin + 5);
     wbFilename.setLayoutData(fdbFilename);
     wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
-    fdFilename.top = new FormAttachment(wTransformName, margin + 5);
+    fdFilename.top = new FormAttachment(wSpacer, margin + 5);
     fdFilename.right = new FormAttachment(wbFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
@@ -141,7 +109,7 @@ public class CubeInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlAddResult);
     FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment(0, 0);
-    fdlAddResult.top = new FormAttachment(wLimit, 2 * margin);
+    fdlAddResult.top = new FormAttachment(wLimit, margin);
     fdlAddResult.right = new FormAttachment(middle, -margin);
     wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button(shell, SWT.CHECK);
@@ -152,18 +120,6 @@ public class CubeInputDialog extends BaseTransformDialog {
     fdAddResult.top = new FormAttachment(wlAddResult, 0, SWT.CENTER);
     wAddResult.setLayoutData(fdAddResult);
     wAddResult.addSelectionListener(new ComponentSelectionListener(input));
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wAddResult);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
 
     wbFilename.addListener(
         SWT.Selection,
@@ -180,7 +136,7 @@ public class CubeInputDialog extends BaseTransformDialog {
                 false));
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -192,9 +148,6 @@ public class CubeInputDialog extends BaseTransformDialog {
     wFilename.setText(Const.NVL(input.getFile().getName(), ""));
     wLimit.setText("" + input.getRowLimit());
     wAddResult.setSelection(input.isAddFilenameResult());
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

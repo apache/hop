@@ -30,9 +30,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -40,19 +38,14 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the check database connection action settings. */
 public class ActionCheckDbConnectionsDialog extends ActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class;
-
-  private Text wName;
 
   private ActionCheckDbConnections action;
 
@@ -74,57 +67,18 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionCheckDbConnections.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = (ModifyEvent e) -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionCheckDbConnections.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Action name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wName, 2 * margin);
+    fdlFields.top = new FormAttachment(wSpacer, margin);
     wlFields.setLayoutData(fdlFields);
 
     // Buttons to the right of the screen...
@@ -190,7 +144,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wbGetConnections, -margin);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wCancel, -margin);
     wFields.setLayoutData(fdFields);
 
     // Delete files from the list of files...
@@ -207,6 +161,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
     wbGetConnections.addListener(SWT.Selection, e -> getDatabases());
 
     getData();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -239,9 +194,11 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog {
       ti.setText(3, connection.getWaitTimeUnit().getDescription());
     }
     wFields.optimizeTableView();
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

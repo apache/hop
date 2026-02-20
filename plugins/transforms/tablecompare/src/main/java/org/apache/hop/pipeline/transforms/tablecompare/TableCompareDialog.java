@@ -26,9 +26,11 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.LabelCombo;
@@ -45,12 +47,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class TableCompareDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TableCompare.class;
@@ -93,11 +92,9 @@ public class TableCompareDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "TableCompareDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
     SelectionAdapter lsSelection =
@@ -108,46 +105,6 @@ public class TableCompareDialog extends BaseTransformDialog {
           }
         };
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "TableCompareDialog.Shell.Title"));
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "TableCompareDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     ScrolledComposite sc = new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL);
     CTabFolder wTabFolder = new CTabFolder(sc, SWT.BORDER);
@@ -518,9 +475,9 @@ public class TableCompareDialog extends BaseTransformDialog {
 
     FormData fdSc = new FormData();
     fdSc.left = new FormAttachment(0, 0);
-    fdSc.top = new FormAttachment(wTransformName, margin);
+    fdSc.top = new FormAttachment(wSpacer, 0);
     fdSc.right = new FormAttachment(100, 0);
-    fdSc.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
     sc.setLayoutData(fdSc);
 
     sc.setContent(wTabFolder);
@@ -538,7 +495,7 @@ public class TableCompareDialog extends BaseTransformDialog {
     sc.setMinSize(wTabFolder.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     sc.setExpandHorizontal(true);
     sc.setExpandVertical(true);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -602,9 +559,6 @@ public class TableCompareDialog extends BaseTransformDialog {
     wCompareValue.setText(Const.NVL(input.getValueCompareField(), ""));
 
     setComboValues();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {
@@ -639,30 +593,36 @@ public class TableCompareDialog extends BaseTransformDialog {
     input.setValueReferenceField(wReferenceValue.getText());
     input.setValueCompareField(wCompareValue.getText());
 
-    DatabaseMeta refDatabaseMeta =
-        pipelineMeta.findDatabase(input.getReferenceConnection(), variables);
-    if (refDatabaseMeta == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG, "TableCompareDialog.InvalidConnection.ReferenceConnection.DialogMessage"));
-      mb.setText(
-          BaseMessages.getString(
-              PKG, "TableCompareDialog.InvalidConnection.ReferenceConnection.DialogTitle"));
-      mb.open();
-    }
+    try {
+      IHopMetadataSerializer<DatabaseMeta> serializer =
+          metadataProvider.getSerializer(DatabaseMeta.class);
+      String realRefName = variables.resolve(input.getReferenceConnection());
+      DatabaseMeta refDatabaseMeta = serializer.load(realRefName);
+      if (refDatabaseMeta == null) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(
+            BaseMessages.getString(
+                PKG, "TableCompareDialog.InvalidConnection.ReferenceConnection.DialogMessage"));
+        mb.setText(
+            BaseMessages.getString(
+                PKG, "TableCompareDialog.InvalidConnection.ReferenceConnection.DialogTitle"));
+        mb.open();
+      }
 
-    DatabaseMeta compDatabaseMeta =
-        pipelineMeta.findDatabase(input.getCompareConnection(), variables);
-    if (compDatabaseMeta == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(
-              PKG, "TableCompareDialog.InvalidConnection.ComparisonConnection.DialogMessage"));
-      mb.setText(
-          BaseMessages.getString(
-              PKG, "TableCompareDialog.InvalidConnection.ComparisonConnection.DialogTitle"));
-      mb.open();
+      String realCmpName = variables.resolve(input.getCompareConnection());
+      DatabaseMeta compDatabaseMeta = serializer.load(realCmpName);
+      if (compDatabaseMeta == null) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(
+            BaseMessages.getString(
+                PKG, "TableCompareDialog.InvalidConnection.ComparisonConnection.DialogMessage"));
+        mb.setText(
+            BaseMessages.getString(
+                PKG, "TableCompareDialog.InvalidConnection.ComparisonConnection.DialogTitle"));
+        mb.open();
+      }
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error validating database connection", e);
     }
 
     dispose();

@@ -71,7 +71,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class VerticaBulkLoaderDialog extends BaseTransformDialog {
 
@@ -129,6 +128,9 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
 
   /** Open the dialog. */
   public String open() {
+    createShell(BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.DialogTitle"));
+    buildButtonBar().ok(e -> ok()).sql(e -> sql()).cancel(e -> cancel()).build();
+
     FormData fdDoMapping;
     FormData fdGetFields;
     Label wlFields;
@@ -158,11 +160,6 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     FormData fdTabFolder;
     CTabFolder wTabFolder;
     Label wlTruncate;
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     FocusListener lsFocusLost =
@@ -174,39 +171,9 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
         };
     backupChanged = input.hasChanged();
 
-    int middle = props.getMiddlePct();
-    int margin = Const.MARGIN;
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.DialogTitle"));
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
     // Connection line
     DatabaseMeta dbm = pipelineMeta.findDatabase(input.getConnection(), variables);
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), null);
+    wConnection = addConnectionLine(shell, wSpacer, input.getDatabaseMeta(), null);
     if (input.getDatabaseMeta() == null && pipelineMeta.nrDatabases() == 1) {
       wConnection.select(0);
     }
@@ -221,7 +188,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdlSchema.top = new FormAttachment(wConnection, margin);
     wlSchema.setLayoutData(fdlSchema);
 
     wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -230,7 +197,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     wSchema.addFocusListener(lsFocusLost);
     fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.top = new FormAttachment(wConnection, margin);
     fdSchema.right = new FormAttachment(100, 0);
     wSchema.setLayoutData(fdSchema);
 
@@ -362,8 +329,8 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.MainTab.CTabItem")); // $NON-NLS-1$
 
     FormLayout mainLayout = new FormLayout();
-    mainLayout.marginWidth = 3;
-    mainLayout.marginHeight = 3;
+    mainLayout.marginWidth = PropsUi.getFormMargin();
+    mainLayout.marginHeight = PropsUi.getFormMargin();
 
     Composite wMainComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wMainComp);
@@ -435,7 +402,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     fdlExceptionsLogFile = new FormData();
     fdlExceptionsLogFile.left = new FormAttachment(0, 0);
     fdlExceptionsLogFile.right = new FormAttachment(middle, -margin);
-    fdlExceptionsLogFile.top = new FormAttachment(wlAbortOnError, margin * 2);
+    fdlExceptionsLogFile.top = new FormAttachment(wlAbortOnError, margin);
     wlExceptionsLogFile.setLayoutData(fdlExceptionsLogFile);
 
     wExceptionsLogFile = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -447,7 +414,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     wExceptionsLogFile.addFocusListener(lsFocusLost);
     fdExceptionsLogFile = new FormData();
     fdExceptionsLogFile.left = new FormAttachment(middle, 0);
-    fdExceptionsLogFile.top = new FormAttachment(wlAbortOnError, margin * 2);
+    fdExceptionsLogFile.top = new FormAttachment(wlAbortOnError, margin);
     fdExceptionsLogFile.right = new FormAttachment(100, 0);
     wExceptionsLogFile.setLayoutData(fdExceptionsLogFile);
 
@@ -463,7 +430,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     fdlRejectedDataLogFile = new FormData();
     fdlRejectedDataLogFile.left = new FormAttachment(0, 0);
     fdlRejectedDataLogFile.right = new FormAttachment(middle, -margin);
-    fdlRejectedDataLogFile.top = new FormAttachment(wlExceptionsLogFile, margin * 2);
+    fdlRejectedDataLogFile.top = new FormAttachment(wlExceptionsLogFile, margin);
     wlRejectedDataLogFile.setLayoutData(fdlRejectedDataLogFile);
 
     wRejectedDataLogFile = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -475,7 +442,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     wRejectedDataLogFile.addFocusListener(lsFocusLost);
     fdRejectedDataLogFile = new FormData();
     fdRejectedDataLogFile.left = new FormAttachment(middle, 0);
-    fdRejectedDataLogFile.top = new FormAttachment(wlExceptionsLogFile, margin * 2);
+    fdRejectedDataLogFile.top = new FormAttachment(wlExceptionsLogFile, margin);
     fdRejectedDataLogFile.right = new FormAttachment(100, 0);
     wRejectedDataLogFile.setLayoutData(fdRejectedDataLogFile);
 
@@ -489,7 +456,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     FormData fdlStreamName = new FormData();
     fdlStreamName.left = new FormAttachment(0, 0);
     fdlStreamName.right = new FormAttachment(middle, -margin);
-    fdlStreamName.top = new FormAttachment(wlRejectedDataLogFile, margin * 2);
+    fdlStreamName.top = new FormAttachment(wlRejectedDataLogFile, margin);
     wlStreamName.setLayoutData(fdlStreamName);
 
     wStreamName = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -500,7 +467,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     wStreamName.addFocusListener(lsFocusLost);
     fdStreamName = new FormData();
     fdStreamName.left = new FormAttachment(middle, 0);
-    fdStreamName.top = new FormAttachment(wlRejectedDataLogFile, margin * 2);
+    fdStreamName.top = new FormAttachment(wlRejectedDataLogFile, margin);
     fdStreamName.right = new FormAttachment(100, 0);
     wStreamName.setLayoutData(fdStreamName);
 
@@ -585,7 +552,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(wDoMapping, -margin);
-    fdFields.bottom = new FormAttachment(100, -2 * margin);
+    fdFields.bottom = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
 
     FormData fdFieldsComp = new FormData();
@@ -625,28 +592,13 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
         };
     new Thread(runnable).start();
 
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString("System.Button.OK"));
-    wCreate = new Button(shell, SWT.PUSH);
-    wCreate.setText(BaseMessages.getString("System.Button.SQL"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel, wCreate}, margin, null);
-
     fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(wlSpecifyFields, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
     wTabFolder.setSelection(0);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, c -> ok());
-    wCancel.addListener(SWT.Selection, c -> cancel());
-    wCreate.addListener(SWT.Selection, c -> sql());
     wGetFields.addListener(SWT.Selection, c -> get());
 
     // Set the shell size, based upon previous time...
@@ -655,7 +607,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     getData();
     setTableFieldCombo();
     input.setChanged(backupChanged);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
   }
@@ -910,8 +862,6 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
     }
 
     setFlags();
-
-    wTransformName.selectAll();
   }
 
   private void cancel() {

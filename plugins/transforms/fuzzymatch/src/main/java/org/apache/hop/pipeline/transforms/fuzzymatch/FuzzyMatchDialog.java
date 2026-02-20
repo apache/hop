@@ -57,6 +57,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -66,7 +68,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class FuzzyMatchDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FuzzyMatchMeta.class;
@@ -117,41 +118,34 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "FuzzyMatchDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    ScrolledComposite wScrolledComposite =
+        new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(wScrolledComposite);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, 0);
+    fdSc.top = new FormAttachment(wSpacer, 0);
+    fdSc.right = new FormAttachment(100, 0);
+    fdSc.bottom = new FormAttachment(wOk, -margin);
+    wScrolledComposite.setLayoutData(fdSc);
+    wScrolledComposite.setLayout(new FillLayout());
+    wScrolledComposite.setExpandHorizontal(true);
+    wScrolledComposite.setExpandVertical(true);
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "FuzzyMatchDialog.Shell.Title"));
+    Composite wContent = new Composite(wScrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
+    Label wContentTop = new Label(wContent, SWT.NONE);
+    wContentTop.setLayoutData(new FormData(0, 0));
 
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "FuzzyMatchDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    CTabFolder wTabFolder = new CTabFolder(wContent, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
@@ -189,7 +183,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
     FormData fdlTransform = new FormData();
     fdlTransform.left = new FormAttachment(0, 0);
     fdlTransform.right = new FormAttachment(middle, -margin);
-    fdlTransform.top = new FormAttachment(wTransformName, margin);
+    fdlTransform.top = new FormAttachment(wSpacer, margin);
     wlTransform.setLayoutData(fdlTransform);
     wTransform = new CCombo(wLookupGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTransform);
@@ -204,7 +198,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
 
     FormData fdTransform = new FormData();
     fdTransform.left = new FormAttachment(middle, 0);
-    fdTransform.top = new FormAttachment(wTransformName, margin);
+    fdTransform.top = new FormAttachment(wSpacer, margin);
     fdTransform.right = new FormAttachment(100, 0);
     wTransform.setLayoutData(fdTransform);
 
@@ -230,7 +224,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
 
     FormData fdLookupGroup = new FormData();
     fdLookupGroup.left = new FormAttachment(0, margin);
-    fdLookupGroup.top = new FormAttachment(wTransformName, margin);
+    fdLookupGroup.top = new FormAttachment(wSpacer, margin);
     fdLookupGroup.right = new FormAttachment(100, -margin);
     wLookupGroup.setLayoutData(fdLookupGroup);
 
@@ -430,16 +424,6 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
     // / END OF General TAB
     // ///////////////////////////////////////////////////////////
 
-    // The buttons go at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
     // ////////////////////////
     // START OF Fields TAB ///
     // ////////////////////////
@@ -578,18 +562,22 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wContentTop, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     wTabFolder.setSelection(0);
+
+    wScrolledComposite.setContent(wContent);
+    wContent.pack();
+    wScrolledComposite.setMinSize(wContent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
     getData();
     setComboBoxesLookup();
     activeAlgorithm();
     activeGetCloserValue();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -625,9 +613,6 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
     wTransform.setText(Const.NVL(infoStream.getTransformName(), ""));
 
     wReturn.optimizeTableView();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

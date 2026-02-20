@@ -30,9 +30,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -51,7 +49,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XSLT job entry settings. */
 public class XsltDialog extends ActionDialog {
@@ -70,8 +67,6 @@ public class XsltDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionXSLT.Filetype.All")
       };
   public static final String CONST_SYSTEM_BUTTON_BROWSE = "System.Button.Browse";
-
-  private Text wName;
 
   private Label wlxmlFilename;
   private Button wbxmlFilename;
@@ -112,51 +107,11 @@ public class XsltDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionXSLT.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionXSLT.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionXSLT.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-    fdlName.top = new FormAttachment(wName, 0, SWT.CENTER);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -229,7 +184,7 @@ public class XsltDialog extends ActionDialog {
     wbxmlFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbxmlFilename = new FormData();
     fdbxmlFilename.right = new FormAttachment(100, 0);
-    fdbxmlFilename.top = new FormAttachment(wlPrevious, 2 * margin);
+    fdbxmlFilename.top = new FormAttachment(wlPrevious, margin);
     wbxmlFilename.setLayoutData(fdbxmlFilename);
     wxmlFilename = new TextVar(variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wxmlFilename);
@@ -268,7 +223,7 @@ public class XsltDialog extends ActionDialog {
     wbxslFilename.setText(BaseMessages.getString(PKG, CONST_SYSTEM_BUTTON_BROWSE));
     FormData fdbxslFilename = new FormData();
     fdbxslFilename.right = new FormAttachment(100, 0);
-    fdbxslFilename.top = new FormAttachment(wxmlFilename, 0);
+    fdbxslFilename.top = new FormAttachment(wxmlFilename, margin);
     wbxslFilename.setLayoutData(fdbxslFilename);
     wxslFilename = new TextVar(variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wxslFilename);
@@ -330,7 +285,7 @@ public class XsltDialog extends ActionDialog {
 
     FormData fdFiles = new FormData();
     fdFiles.left = new FormAttachment(0, margin);
-    fdFiles.top = new FormAttachment(wName, margin);
+    fdFiles.top = new FormAttachment(0, margin);
     fdFiles.right = new FormAttachment(100, -margin);
     wFiles.setLayoutData(fdFiles);
     // ///////////////////////////////////////////////////////////
@@ -436,10 +391,10 @@ public class XsltDialog extends ActionDialog {
     // ///////////////////////////////////////////////////////////
 
     FormData fdGeneralComp = new FormData();
-    fdGeneralComp.left = new FormAttachment(0, 0);
-    fdGeneralComp.top = new FormAttachment(0, 0);
-    fdGeneralComp.right = new FormAttachment(100, 0);
-    fdGeneralComp.bottom = new FormAttachment(500, -margin);
+    fdGeneralComp.left = new FormAttachment(0, margin);
+    fdGeneralComp.top = new FormAttachment(0, margin);
+    fdGeneralComp.right = new FormAttachment(100, -margin);
+    fdGeneralComp.bottom = new FormAttachment(100, -margin);
     wGeneralComp.setLayoutData(fdGeneralComp);
 
     wGeneralComp.layout();
@@ -515,7 +470,7 @@ public class XsltDialog extends ActionDialog {
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wOutputProperties, 2 * margin);
+    fdlFields.top = new FormAttachment(wOutputProperties, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int FieldsRows = action.getParameterField().length;
@@ -551,10 +506,10 @@ public class XsltDialog extends ActionDialog {
     wFields.setLayoutData(fdFields);
 
     FormData fdAdvancedComp = new FormData();
-    fdAdvancedComp.left = new FormAttachment(0, 0);
-    fdAdvancedComp.top = new FormAttachment(0, 0);
-    fdAdvancedComp.right = new FormAttachment(100, 0);
-    fdAdvancedComp.bottom = new FormAttachment(500, -margin);
+    fdAdvancedComp.left = new FormAttachment(0, margin);
+    fdAdvancedComp.top = new FormAttachment(0, margin);
+    fdAdvancedComp.right = new FormAttachment(100, -margin);
+    fdAdvancedComp.bottom = new FormAttachment(100, -margin);
     wAdvancedComp.setLayoutData(fdAdvancedComp);
 
     wAdvancedComp.layout();
@@ -566,13 +521,14 @@ public class XsltDialog extends ActionDialog {
     // ///////////////////////////////////////////////////////////
 
     FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wName, margin);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.left = new FormAttachment(0, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
+    fdTabFolder.right = new FormAttachment(100, -margin);
+    fdTabFolder.bottom = new FormAttachment(wCancel, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
+    focusActionName();
     refreshArgFromPrevious();
     wTabFolder.setSelection(0);
 
@@ -627,9 +583,11 @@ public class XsltDialog extends ActionDialog {
         item.setText(2, Const.NVL(action.getOutputPropertyValue()[i], ""));
       }
     }
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

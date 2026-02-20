@@ -24,9 +24,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.start.ActionStart;
@@ -41,7 +39,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class ActionStartDialog extends ActionDialog {
   private static final Class<?> PKG = ActionStart.class;
@@ -60,7 +57,6 @@ public class ActionStartDialog extends ActionDialog {
   private ActionStart action;
 
   private Group gRepeat;
-  private Text wName;
   private Button wRepeat;
   private TextVar wIntervalSeconds;
   private TextVar wIntervalMinutes;
@@ -79,46 +75,8 @@ public class ActionStartDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionStart.Name"));
-
-    int margin = PropsUi.getMargin();
-    int middle = props.getMiddlePct();
-
-    // Some buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionStart.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
+    createShell(BaseMessages.getString(PKG, "ActionStart.Name"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     Label wlRepeat = new Label(shell, SWT.RIGHT);
     wlRepeat.setText(BaseMessages.getString(PKG, "ActionStart.Repeat.Label"));
@@ -126,7 +84,7 @@ public class ActionStartDialog extends ActionDialog {
     FormData fdlRepeat = new FormData();
     fdlRepeat.left = new FormAttachment(0, 0);
     fdlRepeat.right = new FormAttachment(middle, -margin);
-    fdlRepeat.top = new FormAttachment(wName, margin);
+    fdlRepeat.top = new FormAttachment(wSpacer, margin);
     wlRepeat.setLayoutData(fdlRepeat);
     wRepeat = new Button(shell, SWT.CHECK);
     PropsUi.setLook(wRepeat);
@@ -144,7 +102,7 @@ public class ActionStartDialog extends ActionDialog {
     fdgRepeat.left = new FormAttachment(0, 0);
     fdgRepeat.right = new FormAttachment(100, 0);
     fdgRepeat.top = new FormAttachment(wRepeat, 0);
-    fdgRepeat.bottom = new FormAttachment(wOk, -2 * margin);
+    fdgRepeat.bottom = new FormAttachment(wCancel, -margin);
     gRepeat.setLayoutData(fdgRepeat);
 
     FormLayout groupLayout = new FormLayout();
@@ -226,10 +184,16 @@ public class ActionStartDialog extends ActionDialog {
 
     getData();
     enableDisableControls();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, n -> ok(), n -> cancel());
 
     return action;
+  }
+
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   public void getData() {
@@ -243,7 +207,6 @@ public class ActionStartDialog extends ActionDialog {
     wDayOfWeek.setText(Const.NVL(action.getWeekDay(), ""));
     wDayOfMonth.setText(Const.NVL(action.getDayOfMonth(), ""));
     wDoNotWaitOnFirstExecution.setSelection(action.isDoNotWaitOnFirstExecution());
-    wName.setFocus();
   }
 
   private void cancel() {
@@ -270,7 +233,7 @@ public class ActionStartDialog extends ActionDialog {
   private void placeControl(Composite composite, String text, Control control, Control under) {
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
-    int extraVerticalMargin = (under instanceof Button) ? 2 * margin : 0;
+    int extraVerticalMargin = (under instanceof Button) ? margin : 0;
 
     Label label = new Label(composite, SWT.RIGHT);
     label.setText(text);

@@ -26,24 +26,18 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.LabelTextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a Action As400Command metadata. */
 public class ActionAs400CommandDialog extends ActionDialog {
@@ -52,8 +46,6 @@ public class ActionAs400CommandDialog extends ActionDialog {
   private ActionAs400Command action;
 
   private boolean changed;
-
-  private Text wName;
 
   private LabelTextVar wServerName;
 
@@ -78,55 +70,11 @@ public class ActionAs400CommandDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    createShell(BaseMessages.getString(PKG, "ActionAs400CommandDialog.Shell.Title"), action);
     shell.setMinimumSize(new Point(600, 400));
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
 
     ModifyListener lsMod = (ModifyEvent e) -> action.setChanged();
     changed = action.hasChanged();
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = 15;
-    formLayout.marginHeight = 15;
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.Shell.Title"));
-
-    Label wicon = new Label(shell, SWT.RIGHT);
-    wicon.setImage(shell.getImage());
-    FormData fdlicon = new FormData();
-    fdlicon.top = new FormAttachment(0, 0);
-    fdlicon.right = new FormAttachment(100, 0);
-    wicon.setLayoutData(fdlicon);
-    PropsUi.setLook(wicon);
-
-    Label wlName = new Label(shell, SWT.RIGHT);
-    PropsUi.setLook(wlName);
-    wlName.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.Name.Label"));
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.top = new FormAttachment(wicon, 0, SWT.CENTER);
-    fdlName.right = new FormAttachment(middle, -margin);
-    wlName.setLayoutData(fdlName);
-
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.right = new FormAttachment(wicon, -margin);
-    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    fdName.left = new FormAttachment(wlName, margin);
-    wName.setLayoutData(fdName);
-
-    Label spacer = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
-    FormData fdSpacer = new FormData();
-    fdSpacer.left = new FormAttachment(0, 0);
-    fdSpacer.top = new FormAttachment(wicon, 0);
-    fdSpacer.right = new FormAttachment(100, 0);
-    spacer.setLayoutData(fdSpacer);
 
     Group systemGroup = new Group(shell, SWT.SHADOW_NONE);
     systemGroup.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.System.Group.Label"));
@@ -135,7 +83,7 @@ public class ActionAs400CommandDialog extends ActionDialog {
     systemGroupLayout.marginHeight = PropsUi.getFormMargin();
     systemGroup.setLayout(systemGroupLayout);
     systemGroup.setLayoutData(
-        new FormDataBuilder().top(spacer, PropsUi.getFormMargin()).fullWidth().result());
+        new FormDataBuilder().top(wSpacer, PropsUi.getFormMargin()).fullWidth().result());
     PropsUi.setLook(systemGroup);
 
     // Widget ServerName
@@ -227,20 +175,14 @@ public class ActionAs400CommandDialog extends ActionDialog {
     PropsUi.setLook(wCommand);
 
     // at the bottom
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, (Event e) -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, (Event e) -> cancel());
     Button wTest = new Button(shell, SWT.PUSH);
     wTest.setText(BaseMessages.getString(PKG, "ActionAs400CommandDialog.TestConnection.Label"));
     wTest.addListener(SWT.Selection, (Event e) -> onTest());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wTest, wOk, wCancel}, PropsUi.getMargin(), null);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build(commandGroup);
+    setButtonPositions(new Button[] {wTest, wOk, wCancel}, margin, commandGroup);
 
     getData();
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -248,18 +190,18 @@ public class ActionAs400CommandDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (action.getName() != null) {
-      wName.setText(action.getName());
-    }
+    wName.setText(Const.NVL(action.getName(), ""));
     wServerName.setText(Const.NVL(action.getServer(), ""));
     wUserName.setText(Const.NVL(action.getUser(), ""));
     wPassword.setText(Const.NVL(action.getPassword(), ""));
     wCommand.setText(Const.NVL(action.getCommand(), ""));
     wProxyHost.setText(Const.NVL(action.getProxyHost(), ""));
     wProxyPort.setText(Const.NVL(action.getProxyPort(), ""));
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

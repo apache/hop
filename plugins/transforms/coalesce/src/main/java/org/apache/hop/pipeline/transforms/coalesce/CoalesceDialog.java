@@ -42,12 +42,10 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class CoalesceDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CoalesceMeta.class;
@@ -69,67 +67,23 @@ public class CoalesceDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "CoalesceDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    shell.setText(BaseMessages.getString(PKG, "CoalesceDialog.Shell.Title"));
-    shell.setMinimumSize(500, 300);
-    setShellImage(shell, input);
-    PropsUi.setLook(shell);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-    shell.setLayout(formLayout);
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // The buttons at the bottom of the dialog
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    // Transform name line
-    //
-    Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    wlTransformName.setLayoutData(new FormDataBuilder().right(middle, -margin).result());
-    PropsUi.setLook(wlTransformName);
-
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    wTransformName.addListener(SWT.Modify, e -> input.setChanged());
-    wTransformName.setLayoutData(
-        new FormDataBuilder()
-            .left(wlTransformName, 0)
-            .top(wlTransformName, 0, SWT.CENTER)
-            .right()
-            .result());
-    PropsUi.setLook(wTransformName);
 
     // Treat empty strings as nulls
     //
     wEmptyStrings = new Button(shell, SWT.CHECK);
     wEmptyStrings.setText(BaseMessages.getString(PKG, "CoalesceDialog.Shell.EmptyStringsAsNulls"));
-    wEmptyStrings.setLayoutData(
-        new FormDataBuilder().left(0, 0).top(wTransformName, margin * 2).result());
+    wEmptyStrings.setLayoutData(new FormDataBuilder().left(0, 0).top(wSpacer, margin).result());
     wEmptyStrings.addListener(SWT.Selection, e -> input.setChanged());
     PropsUi.setLook(wEmptyStrings);
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "CoalesceDialog.Fields.Label"));
-    wlFields.setLayoutData(new FormDataBuilder().left().top(wEmptyStrings, margin * 2).result());
+    wlFields.setLayoutData(new FormDataBuilder().left().top(wEmptyStrings, margin).result());
     PropsUi.setLook(wlFields);
 
     SelectionAdapter pathSelection =
@@ -205,7 +159,7 @@ public class CoalesceDialog extends BaseTransformDialog {
             .left()
             .right(100, 0)
             .top(wlFields, PropsUi.getMargin())
-            .bottom(wOk, margin * 2)
+            .bottom(wOk, margin)
             .result());
 
     this.wFields.getTable().addListener(SWT.Resize, new ColumnsResizer(3, 20, 10, 5, 52));
@@ -214,7 +168,7 @@ public class CoalesceDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     // Search the fields in the background
@@ -241,7 +195,7 @@ public class CoalesceDialog extends BaseTransformDialog {
     new Thread(runnable).start();
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -265,9 +219,6 @@ public class CoalesceDialog extends BaseTransformDialog {
 
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

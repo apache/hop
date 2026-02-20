@@ -38,7 +38,6 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.ui.workflow.actions.ActionBaseDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -76,12 +75,9 @@ public class ActionWorkflowDialog extends ActionBaseDialog {
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
-    display = parent.getDisplay();
+    display = getParent().getDisplay();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(action);
 
     backupChanged = action.hasChanged();
 

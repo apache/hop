@@ -38,20 +38,21 @@ import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class JavaFilterDialog extends BaseTransformDialog {
   private static final Class<?> PKG = JavaFilterMeta.class;
 
-  private Text wTransformName;
   private CCombo wTrueTo;
   private CCombo wFalseTo;
   private StyledTextComp wCondition;
@@ -72,54 +73,30 @@ public class JavaFilterDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "JavaFilterDialog.DialogTitle"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    ModifyListener lsMod = e -> input.setChanged();
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
+
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
+
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "JavaFilterDialog.DialogTitle"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
-
-    Group wSettingsGroup = new Group(shell, SWT.SHADOW_NONE);
+    Group wSettingsGroup = new Group(wContent, SWT.SHADOW_NONE);
     PropsUi.setLook(wSettingsGroup);
     wSettingsGroup.setText(BaseMessages.getString(PKG, "JavaFIlterDialog.Settings.Label"));
     FormLayout settingsLayout = new FormLayout();
@@ -134,7 +111,7 @@ public class JavaFilterDialog extends BaseTransformDialog {
     FormData fdlTrueTo = new FormData();
     fdlTrueTo.left = new FormAttachment(0, 0);
     fdlTrueTo.right = new FormAttachment(middle, -margin);
-    fdlTrueTo.top = new FormAttachment(wTransformName, margin);
+    fdlTrueTo.top = new FormAttachment(0, margin);
     wlTrueTo.setLayoutData(fdlTrueTo);
     wTrueTo = new CCombo(wSettingsGroup, SWT.BORDER);
     PropsUi.setLook(wTrueTo);
@@ -150,7 +127,7 @@ public class JavaFilterDialog extends BaseTransformDialog {
     wTrueTo.addModifyListener(lsMod);
     FormData fdTrueTo = new FormData();
     fdTrueTo.left = new FormAttachment(middle, 0);
-    fdTrueTo.top = new FormAttachment(wTransformName, margin);
+    fdTrueTo.top = new FormAttachment(0, margin);
     fdTrueTo.right = new FormAttachment(100, 0);
     wTrueTo.setLayoutData(fdTrueTo);
 
@@ -196,11 +173,11 @@ public class JavaFilterDialog extends BaseTransformDialog {
             wSettingsGroup,
             SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     PropsUi.setLook(wCondition);
-    wCondition.addModifyListener(lsMod);
     FormData fdCondition = new FormData();
     fdCondition.top = new FormAttachment(wFalseTo, margin);
     fdCondition.left = new FormAttachment(middle, 0);
     fdCondition.right = new FormAttachment(100, 0);
+    fdCondition.height = 200;
     wCondition.setLayoutData(fdCondition);
 
     wEditor = new Button(wSettingsGroup, SWT.PUSH | SWT.CENTER);
@@ -213,10 +190,17 @@ public class JavaFilterDialog extends BaseTransformDialog {
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment(0, margin);
-    fdSettingsGroup.top = new FormAttachment(wTransformName, margin);
+    fdSettingsGroup.top = new FormAttachment(0, margin);
     fdSettingsGroup.right = new FormAttachment(100, -margin);
-    fdSettingsGroup.bottom = new FormAttachment(wOk, -margin);
     wSettingsGroup.setLayoutData(fdSettingsGroup);
+
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     //
     // Search the fields in the background
@@ -240,13 +224,11 @@ public class JavaFilterDialog extends BaseTransformDialog {
     new Thread(runnable).start();
 
     // Add listeners
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
     wEditor.addListener(SWT.Selection, e -> editorDialog());
 
     getData();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -258,9 +240,6 @@ public class JavaFilterDialog extends BaseTransformDialog {
     wTrueTo.setText(Const.NVL(input.getTrueTransform(), ""));
     wFalseTo.setText(Const.NVL(input.getFalseTransform(), ""));
     wCondition.setText(Const.NVL(input.getCondition(), ""));
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

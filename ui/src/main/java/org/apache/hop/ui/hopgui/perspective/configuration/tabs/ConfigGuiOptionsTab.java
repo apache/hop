@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ExpandBar;
@@ -95,6 +96,13 @@ public class ConfigGuiOptionsTab {
   private Button wDisableZoomScrolling;
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
+  private Button wMetricsPanelShowUnits;
+  private Button wMetricsPanelShowInput;
+  private Button wMetricsPanelShowRead;
+  private Button wMetricsPanelShowOutput;
+  private Button wMetricsPanelShowUpdated;
+  private Button wMetricsPanelShowRejected;
+  private Button wMetricsPanelShowBuffersInput;
   private Combo wDefaultLocale;
 
   private boolean isReloading = false; // Flag to prevent saving during reload
@@ -165,6 +173,15 @@ public class ConfigGuiOptionsTab {
       wEnableInfiniteMove.setSelection(props.isInfiniteCanvasMoveEnabled());
       wHideMenuBar.setSelection(props.isHidingMenuBar());
       wShowTableViewToolbar.setSelection(props.isShowTableViewToolbar());
+      if (wMetricsPanelShowUnits != null && !wMetricsPanelShowUnits.isDisposed()) {
+        wMetricsPanelShowUnits.setSelection(props.isMetricsPanelShowUnits());
+        wMetricsPanelShowInput.setSelection(props.isMetricsPanelShowInput());
+        wMetricsPanelShowRead.setSelection(props.isMetricsPanelShowRead());
+        wMetricsPanelShowOutput.setSelection(props.isMetricsPanelShowOutput());
+        wMetricsPanelShowUpdated.setSelection(props.isMetricsPanelShowUpdated());
+        wMetricsPanelShowRejected.setSelection(props.isMetricsPanelShowRejected());
+        wMetricsPanelShowBuffersInput.setSelection(props.isMetricsPanelShowBuffersInput());
+      }
       // On macOS (and other non-Windows), dark mode follows system; sync from system so UI and
       // props match. In Web environment, isSystemDarkTheme() is not available.
       boolean darkMode;
@@ -205,6 +222,8 @@ public class ConfigGuiOptionsTab {
     Shell shell = wTabFolder.getShell();
     PropsUi props = PropsUi.getInstance();
     int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+    int h = (int) (40 * props.getZoomFactor());
 
     CTabItem wLookTab = new CTabItem(wTabFolder, SWT.NONE);
     wLookTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -725,6 +744,128 @@ public class ConfigGuiOptionsTab {
                       }
                     }));
 
+    lastControl = tablesExpandBar;
+
+    // Metrics panel section - using ExpandBar
+    ExpandBar metricsPanelExpandBar = new ExpandBar(wLookComp, SWT.V_SCROLL);
+    PropsUi.setLook(metricsPanelExpandBar);
+
+    FormData fdMetricsPanelExpandBar = new FormData();
+    fdMetricsPanelExpandBar.left = new FormAttachment(0, 0);
+    fdMetricsPanelExpandBar.right = new FormAttachment(100, 0);
+    fdMetricsPanelExpandBar.top = new FormAttachment(lastControl, 2 * margin);
+    metricsPanelExpandBar.setLayoutData(fdMetricsPanelExpandBar);
+
+    Composite metricsPanelContent = new Composite(metricsPanelExpandBar, SWT.NONE);
+    PropsUi.setLook(metricsPanelContent);
+    FormLayout metricsPanelLayout = new FormLayout();
+    metricsPanelLayout.marginWidth = PropsUi.getFormMargin();
+    metricsPanelLayout.marginHeight = PropsUi.getFormMargin();
+    metricsPanelContent.setLayout(metricsPanelLayout);
+
+    Control lastMetricsPanelControl = null;
+    wMetricsPanelShowUnits =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.ShowUnits.Label",
+            "EnterOptionsDialog.MetricsPanel.ShowUnits.ToolTip",
+            props.isMetricsPanelShowUnits(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelShowUnits;
+
+    wMetricsPanelShowInput =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.ShowInput.Label",
+            null,
+            props.isMetricsPanelShowInput(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelShowInput;
+
+    wMetricsPanelShowRead =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.ShowRead.Label",
+            null,
+            props.isMetricsPanelShowRead(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelShowRead;
+
+    wMetricsPanelShowOutput =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.ShowOutput.Label",
+            null,
+            props.isMetricsPanelShowOutput(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelShowOutput;
+
+    wMetricsPanelShowUpdated =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.ShowUpdated.Label",
+            null,
+            props.isMetricsPanelShowUpdated(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelShowUpdated;
+
+    wMetricsPanelShowRejected =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.ShowRejected.Label",
+            null,
+            props.isMetricsPanelShowRejected(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelShowRejected;
+
+    wMetricsPanelShowBuffersInput =
+        createCheckbox(
+            metricsPanelContent,
+            "EnterOptionsDialog.MetricsPanel.ShowBuffersInput.Label",
+            null,
+            props.isMetricsPanelShowBuffersInput(),
+            lastMetricsPanelControl,
+            margin);
+    lastMetricsPanelControl = wMetricsPanelShowBuffersInput;
+
+    ExpandItem metricsPanelItem = new ExpandItem(metricsPanelExpandBar, SWT.NONE);
+    metricsPanelItem.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.Section.MetricsPanel"));
+    metricsPanelItem.setControl(metricsPanelContent);
+    metricsPanelItem.setHeight(metricsPanelContent.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+    metricsPanelItem.setExpanded(true);
+
+    metricsPanelExpandBar.addListener(
+        SWT.Expand,
+        e ->
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
+                        wLookComp.layout();
+                        sLookComp.setMinHeight(wLookComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+                      }
+                    }));
+    metricsPanelExpandBar.addListener(
+        SWT.Collapse,
+        e ->
+            Display.getDefault()
+                .asyncExec(
+                    () -> {
+                      if (!wLookComp.isDisposed() && !sLookComp.isDisposed()) {
+                        wLookComp.layout();
+                        sLookComp.setMinHeight(wLookComp.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+                      }
+                    }));
+
+    lastControl = metricsPanelExpandBar;
+
     FormData fdLookComp = new FormData();
     fdLookComp.left = new FormAttachment(0, 0);
     fdLookComp.right = new FormAttachment(100, 0);
@@ -955,6 +1096,13 @@ public class ConfigGuiOptionsTab {
     props.setDarkMode(darkMode);
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
+    props.setMetricsPanelShowUnits(wMetricsPanelShowUnits.getSelection());
+    props.setMetricsPanelShowInput(wMetricsPanelShowInput.getSelection());
+    props.setMetricsPanelShowRead(wMetricsPanelShowRead.getSelection());
+    props.setMetricsPanelShowOutput(wMetricsPanelShowOutput.getSelection());
+    props.setMetricsPanelShowUpdated(wMetricsPanelShowUpdated.getSelection());
+    props.setMetricsPanelShowRejected(wMetricsPanelShowRejected.getSelection());
+    props.setMetricsPanelShowBuffersInput(wMetricsPanelShowBuffersInput.getSelection());
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if (defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length) {

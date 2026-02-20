@@ -51,6 +51,14 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
     if (row == null) {
       // No more files, we're done.
       closeFile();
+
+      // Do we need the file metadata and the file was empty?
+      //
+      if (meta.isSendingNullsRowWhenEmpty() && getLinesInput() == 0) {
+        Object[] outputRow = RowDataUtil.allocateRowData(getInputRowMeta().size());
+        putRow(data.outputRowMeta, outputRow);
+      }
+
       setOutputDone();
       return false;
     }
@@ -112,6 +120,7 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
 
       RowMetaAndData r = data.reader.read();
       while (r != null && !isStopped()) {
+        incrementLinesInput();
         // Add r to the input rows...
         //
         Object[] outputRow = RowDataUtil.addRowData(row, getInputRowMeta().size(), r.getData());

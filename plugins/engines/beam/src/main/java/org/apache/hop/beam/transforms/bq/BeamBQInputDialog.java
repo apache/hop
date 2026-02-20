@@ -45,22 +45,21 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class BeamBQInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BeamBQInputDialog.class;
   private final BeamBQInputMeta input;
-
-  int middle;
-  int margin;
 
   private TextVar wProjectId;
   private TextVar wDatasetId;
@@ -79,51 +78,37 @@ public class BeamBQInputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "BeamBQInputDialog.DialogTitle"));
+    buildButtonBar().ok(e -> ok()).get(e -> getFields()).cancel(e -> cancel()).build();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(scrolledComposite);
+    FormData fdScrolledComposite = new FormData();
+    fdScrolledComposite.left = new FormAttachment(0, 0);
+    fdScrolledComposite.top = new FormAttachment(wSpacer, 0);
+    fdScrolledComposite.right = new FormAttachment(100, 0);
+    fdScrolledComposite.bottom = new FormAttachment(wOk, -margin);
+    scrolledComposite.setLayoutData(fdScrolledComposite);
+    scrolledComposite.setLayout(new FillLayout());
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    Composite wContent = new Composite(scrolledComposite, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.DialogTitle"));
+    Control lastControl = null;
 
-    middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
-    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
-
-    Label wlProjectId = new Label(shell, SWT.RIGHT);
+    Label wlProjectId = new Label(wContent, SWT.RIGHT);
     wlProjectId.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.ProjectId"));
     PropsUi.setLook(wlProjectId);
     FormData fdlProjectId = new FormData();
     fdlProjectId.left = new FormAttachment(0, 0);
-    fdlProjectId.top = new FormAttachment(lastControl, margin);
+    fdlProjectId.top = new FormAttachment(0, margin);
     fdlProjectId.right = new FormAttachment(middle, -margin);
     wlProjectId.setLayoutData(fdlProjectId);
-    wProjectId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wProjectId = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wProjectId);
     FormData fdProjectId = new FormData();
     fdProjectId.left = new FormAttachment(middle, 0);
@@ -132,7 +117,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     wProjectId.setLayoutData(fdProjectId);
     lastControl = wProjectId;
 
-    Label wlDatasetId = new Label(shell, SWT.RIGHT);
+    Label wlDatasetId = new Label(wContent, SWT.RIGHT);
     wlDatasetId.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.DatasetId"));
     PropsUi.setLook(wlDatasetId);
     FormData fdlDatasetId = new FormData();
@@ -140,7 +125,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     fdlDatasetId.top = new FormAttachment(lastControl, margin);
     fdlDatasetId.right = new FormAttachment(middle, -margin);
     wlDatasetId.setLayoutData(fdlDatasetId);
-    wDatasetId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDatasetId = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDatasetId);
     FormData fdDatasetId = new FormData();
     fdDatasetId.left = new FormAttachment(middle, 0);
@@ -149,7 +134,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     wDatasetId.setLayoutData(fdDatasetId);
     lastControl = wDatasetId;
 
-    Label wlTableId = new Label(shell, SWT.RIGHT);
+    Label wlTableId = new Label(wContent, SWT.RIGHT);
     wlTableId.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.TableId"));
     PropsUi.setLook(wlTableId);
     FormData fdlTableId = new FormData();
@@ -157,7 +142,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     fdlTableId.top = new FormAttachment(lastControl, margin);
     fdlTableId.right = new FormAttachment(middle, -margin);
     wlTableId.setLayoutData(fdlTableId);
-    wTableId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTableId = new TextVar(variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTableId);
     FormData fdTableId = new FormData();
     fdTableId.left = new FormAttachment(middle, 0);
@@ -166,7 +151,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     wTableId.setLayoutData(fdTableId);
     lastControl = wTableId;
 
-    Label wlQuery = new Label(shell, SWT.LEFT);
+    Label wlQuery = new Label(wContent, SWT.LEFT);
     wlQuery.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.Query"));
     PropsUi.setLook(wlQuery);
     FormData fdlQuery = new FormData();
@@ -174,7 +159,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     fdlQuery.top = new FormAttachment(lastControl, margin);
     fdlQuery.right = new FormAttachment(100, 0);
     wlQuery.setLayoutData(fdlQuery);
-    wQuery = new TextVar(variables, shell, SWT.LEFT | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+    wQuery = new TextVar(variables, wContent, SWT.LEFT | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
     PropsUi.setLook(wQuery, Props.WIDGET_STYLE_FIXED);
     FormData fdQuery = new FormData();
     fdQuery.left = new FormAttachment(0, 0);
@@ -184,7 +169,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     wQuery.setLayoutData(fdQuery);
     lastControl = wQuery;
 
-    Label wlFields = new Label(shell, SWT.LEFT);
+    Label wlFields = new Label(wContent, SWT.LEFT);
     wlFields.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.Fields"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
@@ -192,17 +177,6 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(lastControl, margin);
     fdlFields.right = new FormAttachment(middle, -margin);
     wlFields.setLayoutData(fdlFields);
-
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
-    wGet.addListener(SWT.Selection, e -> getFields());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wGet, wCancel}, margin, null);
 
     ColumnInfo[] columns =
         new ColumnInfo[] {
@@ -225,7 +199,7 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     wFields =
         new TableView(
             Variables.getADefaultVariableSpace(),
-            shell,
+            wContent,
             SWT.NONE,
             columns,
             input.getFields().size(),
@@ -236,13 +210,22 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
+
+    wContent.pack();
+    Rectangle bounds = wContent.getBounds();
+    scrolledComposite.setContent(wContent);
+    scrolledComposite.setExpandHorizontal(true);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setMinWidth(bounds.width);
+    scrolledComposite.setMinHeight(bounds.height);
 
     getData();
 
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    focusTransformName();
 
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
   }
 
@@ -300,7 +283,6 @@ public class BeamBQInputDialog extends BaseTransformDialog {
 
   /** Populate the widgets. */
   public void getData() {
-    wTransformName.setText(transformName);
     wProjectId.setText(Const.NVL(input.getProjectId(), ""));
     wDatasetId.setText(Const.NVL(input.getDatasetId(), ""));
     wTableId.setText(Const.NVL(input.getTableId(), ""));
@@ -316,9 +298,6 @@ public class BeamBQInputDialog extends BaseTransformDialog {
     wFields.removeEmptyRows();
     wFields.setRowNums();
     wFields.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

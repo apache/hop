@@ -36,9 +36,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -52,7 +50,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class RepeatDialog extends ActionDialog {
 
@@ -62,7 +59,6 @@ public class RepeatDialog extends ActionDialog {
 
   private Repeat action;
 
-  private Text wName;
   private TextVar wFilename;
   private TextVar wVariableName;
   private TextVar wVariableValue;
@@ -99,43 +95,16 @@ public class RepeatDialog extends ActionDialog {
 
   @Override
   public IAction open() {
+    createShell(BaseMessages.getString(PKG, "Repeat.Name"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "Repeat.Name"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText("Action name");
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-    Control lastControl = wName;
+    Control lastControl = wSpacer;
 
     Label wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "Repeat.FileToRepeat.Label"));
     PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
-    fdlFilename.left = new FormAttachment(0, 0);
+    fdlFilename.left = new FormAttachment(0, margin);
     fdlFilename.right = new FormAttachment(middle, -margin);
     fdlFilename.top = new FormAttachment(lastControl, margin);
     wlFilename.setLayoutData(fdlFilename);
@@ -168,7 +137,7 @@ public class RepeatDialog extends ActionDialog {
     PropsUi.setLook(wlRunConfiguration);
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment(0, 0);
-    fdlRunConfiguration.top = new FormAttachment(lastControl, Const.isOSX() ? 0 : 5);
+    fdlRunConfiguration.top = new FormAttachment(lastControl, margin);
     fdlRunConfiguration.right = new FormAttachment(middle, -margin);
     wlRunConfiguration.setLayoutData(fdlRunConfiguration);
 
@@ -399,9 +368,9 @@ public class RepeatDialog extends ActionDialog {
     wLogFileUpdateInterval.setLayoutData(fdLogFileUpdateInterval);
 
     FormData fdLogFileGroup = new FormData();
-    fdLogFileGroup.left = new FormAttachment(0, 0);
-    fdLogFileGroup.right = new FormAttachment(100, 0);
-    fdLogFileGroup.top = new FormAttachment(lastControl, 2 * margin);
+    fdLogFileGroup.left = new FormAttachment(0, margin);
+    fdLogFileGroup.right = new FormAttachment(100, -margin);
+    fdLogFileGroup.top = new FormAttachment(lastControl, margin);
     wLogFileGroup.setLayoutData(fdLogFileGroup);
     wLogFileGroup.pack();
     lastControl = wLogFileGroup;
@@ -412,30 +381,11 @@ public class RepeatDialog extends ActionDialog {
     wlParameters.setText(BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Label"));
     PropsUi.setLook(wlParameters);
     FormData fdlParameters = new FormData();
-    fdlParameters.left = new FormAttachment(0, 0);
-    fdlParameters.top = new FormAttachment(lastControl, 2 * margin);
+    fdlParameters.left = new FormAttachment(0, margin);
+    fdlParameters.top = new FormAttachment(lastControl, margin);
     fdlParameters.right = new FormAttachment(100, 0);
     wlParameters.setLayoutData(fdlParameters);
     lastControl = wlParameters;
-
-    // Add buttons first, then the script field can use dynamic sizing
-    //
-    Button wOK = new Button(shell, SWT.PUSH);
-    wOK.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOK.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    // Put these buttons at the bottom
-    //
-    BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wOK, wCancel,
-        },
-        margin,
-        null);
 
     ColumnInfo[] columnInfos =
         new ColumnInfo[] {
@@ -457,14 +407,14 @@ public class RepeatDialog extends ActionDialog {
             variables, shell, SWT.BORDER, columnInfos, action.getParameters().size(), null, props);
     PropsUi.setLook(wParameters);
     FormData fdParameters = new FormData();
-    fdParameters.left = new FormAttachment(0, 0);
-    fdParameters.right = new FormAttachment(100, 0);
+    fdParameters.left = new FormAttachment(0, margin);
+    fdParameters.right = new FormAttachment(100, -margin);
     fdParameters.top = new FormAttachment(lastControl, margin);
-    fdParameters.bottom = new FormAttachment(wOK, -margin * 2);
+    fdParameters.bottom = new FormAttachment(wCancel, -margin);
     wParameters.setLayoutData(fdParameters);
 
     getData();
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -584,10 +534,12 @@ public class RepeatDialog extends ActionDialog {
       }
     }
 
-    wName.selectAll();
-    wName.setFocus();
-
     enableControls();
+  }
+
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void ok() {

@@ -38,6 +38,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
@@ -58,6 +59,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -107,8 +109,8 @@ public class ConfigurationPerspective implements IHopPerspective {
     return "configuration";
   }
 
-  @GuiKeyboardShortcut(control = true, shift = true, key = 'c')
-  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'c')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'c', global = true)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'c', global = true)
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);
@@ -244,6 +246,14 @@ public class ConfigurationPerspective implements IHopPerspective {
     loadSettingCategories();
 
     sashForm.setWeights(20, 80);
+
+    // Register with key handler so activate shortcut (Ctrl+Shift+C / Cmd+Shift+C) works
+    HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
+    keyHandler.addParentObjectToHandle(this);
+    Shell shell = (sashForm != null && !sashForm.isDisposed()) ? sashForm.getShell() : null;
+    if (shell != null) {
+      HopGui.getInstance().replaceKeyboardShortcutListeners(shell, keyHandler);
+    }
   }
 
   private void loadSettingCategories() {

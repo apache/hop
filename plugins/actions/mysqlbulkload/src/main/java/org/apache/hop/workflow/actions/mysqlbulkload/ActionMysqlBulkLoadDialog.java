@@ -34,9 +34,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -51,7 +49,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the MySqlBulkLoader. */
 public class ActionMysqlBulkLoadDialog extends ActionDialog {
@@ -62,8 +59,6 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filetype.Text"),
         BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Filetype.All")
       };
-
-  private Text wName;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -112,55 +107,15 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // Filename line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-
     // Connection line
     DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
-    wConnection = addConnectionLine(shell, wName, databaseMeta, lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, databaseMeta, lsMod);
 
     // Schema name line
     // Schema name
@@ -296,7 +251,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     FormData fdlPriorityValue = new FormData();
     fdlPriorityValue.left = new FormAttachment(0, 0);
     fdlPriorityValue.right = new FormAttachment(middle, -margin);
-    fdlPriorityValue.top = new FormAttachment(wlLocalInfile, 2 * margin);
+    fdlPriorityValue.top = new FormAttachment(wlLocalInfile, margin);
     wlPriorityValue.setLayoutData(fdlPriorityValue);
     wPriorityValue = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wPriorityValue.add(BaseMessages.getString(PKG, "ActionMysqlBulkLoad.NorProrityValue.Label"));
@@ -306,7 +261,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     PropsUi.setLook(wPriorityValue);
     FormData fdPriorityValue = new FormData();
     fdPriorityValue.left = new FormAttachment(middle, 0);
-    fdPriorityValue.top = new FormAttachment(wlLocalInfile, 2 * margin);
+    fdPriorityValue.top = new FormAttachment(wlLocalInfile, margin);
     fdPriorityValue.right = new FormAttachment(100, 0);
     wPriorityValue.setLayoutData(fdPriorityValue);
 
@@ -484,7 +439,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     FormData fdlIgnorelines = new FormData();
     fdlIgnorelines.left = new FormAttachment(0, 0);
     fdlIgnorelines.right = new FormAttachment(middle, -margin);
-    fdlIgnorelines.top = new FormAttachment(wlReplaceData, 2 * margin);
+    fdlIgnorelines.top = new FormAttachment(wlReplaceData, margin);
     wlIgnorelines.setLayoutData(fdlIgnorelines);
 
     wIgnorelines = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -492,7 +447,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     wIgnorelines.addModifyListener(lsMod);
     FormData fdIgnorelines = new FormData();
     fdIgnorelines.left = new FormAttachment(middle, 0);
-    fdIgnorelines.top = new FormAttachment(wlReplaceData, 2 * margin);
+    fdIgnorelines.top = new FormAttachment(wlReplaceData, margin);
     fdIgnorelines.right = new FormAttachment(100, 0);
     wIgnorelines.setLayoutData(fdIgnorelines);
 
@@ -541,7 +496,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     fdFileResult.left = new FormAttachment(0, margin);
     fdFileResult.top = new FormAttachment(wIgnorelines, margin);
     fdFileResult.right = new FormAttachment(100, -margin);
-    fdFileResult.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFileResult.bottom = new FormAttachment(wCancel, -margin);
     wFileResult.setLayoutData(fdFileResult);
 
     // ///////////////////////////////////////////////////////////
@@ -549,7 +504,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     // ///////////////////////////////////////////////////////////
 
     getData();
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -557,7 +512,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    wName.setText(Const.nullToEmpty(action.getName()));
+    wName.setText(Const.NVL(action.getName(), ""));
     if (action.getSchemaName() != null) {
       wSchemaname.setText(action.getSchemaName());
     }
@@ -611,9 +566,11 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog {
     }
 
     wAddFileToResult.setSelection(action.isAddFileToResult());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

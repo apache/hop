@@ -24,9 +24,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -35,11 +33,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the File compare action settings. */
 public class ActionFileCompareDialog extends ActionDialog {
@@ -47,8 +43,6 @@ public class ActionFileCompareDialog extends ActionDialog {
 
   private static final String[] FILETYPES =
       new String[] {BaseMessages.getString(PKG, "ActionFileCompare.Filetype.All")};
-
-  private Text wName;
 
   private TextVar wFilename1;
 
@@ -70,66 +64,35 @@ public class ActionFileCompareDialog extends ActionDialog {
 
   @Override
   public IAction open() {
+    createShell(BaseMessages.getString(PKG, "ActionFileCompare.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    shell.setMinimumSize(400, 230);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
-    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionFileCompare.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Name line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
-    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
+    ModifyListener lsMod = e -> action.setChanged();
 
     // Filename 1 line
     Label wlFilename1 = new Label(shell, SWT.RIGHT);
     wlFilename1.setText(BaseMessages.getString(PKG, "ActionFileCompare.Filename1.Label"));
     PropsUi.setLook(wlFilename1);
     FormData fdlFilename1 = new FormData();
-    fdlFilename1.left = new FormAttachment(0, 0);
-    fdlFilename1.top = new FormAttachment(wName, margin);
+    fdlFilename1.left = new FormAttachment(0, margin);
+    fdlFilename1.top = new FormAttachment(wSpacer, margin);
     fdlFilename1.right = new FormAttachment(middle, -margin);
     wlFilename1.setLayoutData(fdlFilename1);
     Button wbFilename1 = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbFilename1);
     wbFilename1.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename1 = new FormData();
-    fdbFilename1.right = new FormAttachment(100, 0);
-    fdbFilename1.top = new FormAttachment(wName, 0);
+    fdbFilename1.right = new FormAttachment(100, -margin);
+    fdbFilename1.top = new FormAttachment(wlFilename1, 0, SWT.CENTER);
     wbFilename1.setLayoutData(fdbFilename1);
     wFilename1 = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename1);
     wFilename1.addModifyListener(lsMod);
     FormData fdFilename1 = new FormData();
     fdFilename1.left = new FormAttachment(middle, 0);
-    fdFilename1.top = new FormAttachment(wName, margin);
+    fdFilename1.top = new FormAttachment(wlFilename1, 0, SWT.CENTER);
     fdFilename1.right = new FormAttachment(wbFilename1, -margin);
     wFilename1.setLayoutData(fdFilename1);
 
@@ -148,7 +111,7 @@ public class ActionFileCompareDialog extends ActionDialog {
     wlFilename2.setText(BaseMessages.getString(PKG, "ActionFileCompare.Filename2.Label"));
     PropsUi.setLook(wlFilename2);
     FormData fdlFilename2 = new FormData();
-    fdlFilename2.left = new FormAttachment(0, 0);
+    fdlFilename2.left = new FormAttachment(0, margin);
     fdlFilename2.top = new FormAttachment(wFilename1, margin);
     fdlFilename2.right = new FormAttachment(middle, -margin);
     wlFilename2.setLayoutData(fdlFilename2);
@@ -156,15 +119,15 @@ public class ActionFileCompareDialog extends ActionDialog {
     PropsUi.setLook(wbFilename2);
     wbFilename2.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename2 = new FormData();
-    fdbFilename2.right = new FormAttachment(100, 0);
-    fdbFilename2.top = new FormAttachment(wFilename1, 0);
+    fdbFilename2.right = new FormAttachment(100, -margin);
+    fdbFilename2.top = new FormAttachment(wlFilename2, 0, SWT.CENTER);
     wbFilename2.setLayoutData(fdbFilename2);
     wFilename2 = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFilename2);
     wFilename2.addModifyListener(lsMod);
     FormData fdFilename2 = new FormData();
     fdFilename2.left = new FormAttachment(middle, 0);
-    fdFilename2.top = new FormAttachment(wFilename1, margin);
+    fdFilename2.top = new FormAttachment(wlFilename2, 0, SWT.CENTER);
     fdFilename2.right = new FormAttachment(wbFilename2, -margin);
     wFilename2.setLayoutData(fdFilename2);
 
@@ -184,8 +147,8 @@ public class ActionFileCompareDialog extends ActionDialog {
         BaseMessages.getString(PKG, "ActionFileCompare.AddFilenameResult.Label"));
     PropsUi.setLook(wlAddFilenameResult);
     FormData fdlAddFilenameResult = new FormData();
-    fdlAddFilenameResult.left = new FormAttachment(0, 0);
-    fdlAddFilenameResult.top = new FormAttachment(wbFilename2, 2 * margin);
+    fdlAddFilenameResult.left = new FormAttachment(0, margin);
+    fdlAddFilenameResult.top = new FormAttachment(wbFilename2, margin);
     fdlAddFilenameResult.right = new FormAttachment(middle, -margin);
     wlAddFilenameResult.setLayoutData(fdlAddFilenameResult);
     wAddFilenameResult = new Button(shell, SWT.CHECK);
@@ -195,7 +158,7 @@ public class ActionFileCompareDialog extends ActionDialog {
     FormData fdAddFilenameResult = new FormData();
     fdAddFilenameResult.left = new FormAttachment(middle, 0);
     fdAddFilenameResult.top = new FormAttachment(wlAddFilenameResult, 0, SWT.CENTER);
-    fdAddFilenameResult.right = new FormAttachment(100, 0);
+    fdAddFilenameResult.right = new FormAttachment(100, -margin);
     wAddFilenameResult.setLayoutData(fdAddFilenameResult);
     wAddFilenameResult.addSelectionListener(
         new SelectionAdapter() {
@@ -205,17 +168,8 @@ public class ActionFileCompareDialog extends ActionDialog {
           }
         });
 
-    // Buttons at the bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
     getData();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -234,9 +188,11 @@ public class ActionFileCompareDialog extends ActionDialog {
       wFilename2.setText(action.getFilename2());
     }
     wAddFilenameResult.setSelection(action.isAddFilenameToResult());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

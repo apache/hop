@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.tablecompare;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.ActionTransformType;
@@ -45,6 +47,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::TableCompareMeta.keyword",
     documentationUrl = "/pipeline/transforms/tablecompare.html",
     actionTransformTypes = {ActionTransformType.RDBMS})
+@Getter
+@Setter
 public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class;
 
@@ -139,253 +143,11 @@ public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompa
       injectionKeyDescription = "TableCompareMeta.Injection.ValueCompareField")
   private String valueCompareField;
 
+  @HopMetadataProperty(key = "subject_field_name")
+  private String subjectFieldName;
+
   public TableCompareMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  /**
-   * @return the referenceSchemaField
-   */
-  public String getReferenceSchemaField() {
-    return referenceSchemaField;
-  }
-
-  /**
-   * @param referenceSchemaField the referenceSchemaField to set
-   */
-  public void setReferenceSchemaField(String referenceSchemaField) {
-    this.referenceSchemaField = referenceSchemaField;
-  }
-
-  /**
-   * @return the referenceTableField
-   */
-  public String getReferenceTableField() {
-    return referenceTableField;
-  }
-
-  /**
-   * @param referenceTableField the referenceTableField to set
-   */
-  public void setReferenceTableField(String referenceTableField) {
-    this.referenceTableField = referenceTableField;
-  }
-
-  /**
-   * @return the compareSchemaField
-   */
-  public String getCompareSchemaField() {
-    return compareSchemaField;
-  }
-
-  /**
-   * @param compareSchemaField the compareSchemaField to set
-   */
-  public void setCompareSchemaField(String compareSchemaField) {
-    this.compareSchemaField = compareSchemaField;
-  }
-
-  /**
-   * @return the compareTableField
-   */
-  public String getCompareTableField() {
-    return compareTableField;
-  }
-
-  /**
-   * @param compareTableField the compareTableField to set
-   */
-  public void setCompareTableField(String compareTableField) {
-    this.compareTableField = compareTableField;
-  }
-
-  /**
-   * @return the nrErrorsField
-   */
-  public String getNrErrorsField() {
-    return nrErrorsField;
-  }
-
-  /**
-   * @param nrErrorsField the nrErrorsField to set
-   */
-  public void setNrErrorsField(String nrErrorsField) {
-    this.nrErrorsField = nrErrorsField;
-  }
-
-  /**
-   * @return the referenceConnection
-   */
-  public String getReferenceConnection() {
-    return referenceConnection;
-  }
-
-  /**
-   * @param referenceConnection the referenceConnection to set
-   */
-  public void setReferenceConnection(String referenceConnection) {
-    this.referenceConnection = referenceConnection;
-  }
-
-  /**
-   * @return the compareConnection
-   */
-  public String getCompareConnection() {
-    return compareConnection;
-  }
-
-  /**
-   * @param compareConnection the compareConnection to set
-   */
-  public void setCompareConnection(String compareConnection) {
-    this.compareConnection = compareConnection;
-  }
-
-  /**
-   * @return the keyFieldsField
-   */
-  public String getKeyFieldsField() {
-    return keyFieldsField;
-  }
-
-  /**
-   * @param keyFieldsField the keyFieldsField to set
-   */
-  public void setKeyFieldsField(String keyFieldsField) {
-    this.keyFieldsField = keyFieldsField;
-  }
-
-  /**
-   * @return the excludeFieldsField
-   */
-  public String getExcludeFieldsField() {
-    return excludeFieldsField;
-  }
-
-  /**
-   * @param excludeFieldsField the excludeFieldsField to set
-   */
-  public void setExcludeFieldsField(String excludeFieldsField) {
-    this.excludeFieldsField = excludeFieldsField;
-  }
-
-  /**
-   * @return the nrRecordsReferenceField
-   */
-  public String getNrRecordsReferenceField() {
-    return nrRecordsReferenceField;
-  }
-
-  /**
-   * @param nrRecordsReferenceField the nrRecordsReferenceField to set
-   */
-  public void setNrRecordsReferenceField(String nrRecordsReferenceField) {
-    this.nrRecordsReferenceField = nrRecordsReferenceField;
-  }
-
-  /**
-   * @return the nrRecordsCompareField
-   */
-  public String getNrRecordsCompareField() {
-    return nrRecordsCompareField;
-  }
-
-  /**
-   * @param nrRecordsCompareField the nrRecordsCompareField to set
-   */
-  public void setNrRecordsCompareField(String nrRecordsCompareField) {
-    this.nrRecordsCompareField = nrRecordsCompareField;
-  }
-
-  /**
-   * @return the nrErrorsLeftJoinField
-   */
-  public String getNrErrorsLeftJoinField() {
-    return nrErrorsLeftJoinField;
-  }
-
-  /**
-   * @param nrErrorsLeftJoinField the nrErrorsLeftJoinField to set
-   */
-  public void setNrErrorsLeftJoinField(String nrErrorsLeftJoinField) {
-    this.nrErrorsLeftJoinField = nrErrorsLeftJoinField;
-  }
-
-  /**
-   * @return the nrErrorsInnerJoinField
-   */
-  public String getNrErrorsInnerJoinField() {
-    return nrErrorsInnerJoinField;
-  }
-
-  /**
-   * @param nrErrorsInnerJoinField the nrErrorsInnerJoinField to set
-   */
-  public void setNrErrorsInnerJoinField(String nrErrorsInnerJoinField) {
-    this.nrErrorsInnerJoinField = nrErrorsInnerJoinField;
-  }
-
-  /**
-   * @return the nrErrorsRightJoinField
-   */
-  public String getNrErrorsRightJoinField() {
-    return nrErrorsRightJoinField;
-  }
-
-  /**
-   * @param nrErrorsRightJoinField the nrErrorsRightJoinField to set
-   */
-  public void setNrErrorsRightJoinField(String nrErrorsRightJoinField) {
-    this.nrErrorsRightJoinField = nrErrorsRightJoinField;
-  }
-
-  /**
-   * @return the keyDescriptionField
-   */
-  public String getKeyDescriptionField() {
-    return keyDescriptionField;
-  }
-
-  /**
-   * @param keyDescriptionField the keyDescriptionField to set
-   */
-  public void setKeyDescriptionField(String keyDescriptionField) {
-    this.keyDescriptionField = keyDescriptionField;
-  }
-
-  /**
-   * @return the valueReferenceField
-   */
-  public String getValueReferenceField() {
-    return valueReferenceField;
-  }
-
-  /**
-   * @param valueReferenceField the valueReferenceField to set
-   */
-  public void setValueReferenceField(String valueReferenceField) {
-    this.valueReferenceField = valueReferenceField;
-  }
-
-  /**
-   * @return the valueCompareField
-   */
-  public String getValueCompareField() {
-    return valueCompareField;
-  }
-
-  /**
-   * @param valueCompareField the valueCompareField to set
-   */
-  public void setValueCompareField(String valueCompareField) {
-    this.valueCompareField = valueCompareField;
-  }
-
-  @Override
-  public Object clone() {
-    TableCompareMeta retval = (TableCompareMeta) super.clone();
-
-    return retval;
   }
 
   @Override

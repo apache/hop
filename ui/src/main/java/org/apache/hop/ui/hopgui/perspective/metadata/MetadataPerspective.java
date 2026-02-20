@@ -156,8 +156,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     return "metadata-perspective";
   }
 
-  @GuiKeyboardShortcut(control = true, shift = true, key = 'm')
-  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'm')
+  @GuiKeyboardShortcut(control = true, shift = true, key = 'm', global = true)
+  @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'm', global = true)
   @Override
   public void activate() {
     hopGui.setActivePerspective(this);

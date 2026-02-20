@@ -347,6 +347,9 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
           retval += "VARCHAR(" + length + ")";
         }
         break;
+      case IValueMeta.TYPE_BINARY:
+        retval += "BYTEA";
+        break;
       default:
         retval += " UNKNOWN";
         break;

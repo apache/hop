@@ -64,7 +64,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class Neo4JOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
@@ -114,7 +113,15 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "Neo4JOutputDialog.Shell.Title"));
+
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "Neo4JOutputDialog.Button.ShowCypher"),
+            e -> showCypherPreview())
+        .cancel(e -> cancel())
+        .build();
 
     // Initialize nodeFromField and nodeToField if they are null (e.g., for new transforms)
     if (input.getNodeFromField() == null) {
@@ -123,10 +130,6 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     if (input.getNodeToField() == null) {
       input.setNodeToField(new NodeToField());
     }
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
@@ -141,35 +144,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
       fieldNames = new String[] {};
     }
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.StepName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, 0);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, margin);
-    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
+    Control lastControl = wSpacer;
 
     wConnection =
         new MetaSelectionLine<>(
@@ -200,7 +175,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     FormData fdlBatchSize = new FormData();
     fdlBatchSize.left = new FormAttachment(0, 0);
     fdlBatchSize.right = new FormAttachment(middle, -margin);
-    fdlBatchSize.top = new FormAttachment(lastControl, 2 * margin);
+    fdlBatchSize.top = new FormAttachment(lastControl, margin);
     wlBatchSize.setLayoutData(fdlBatchSize);
     wBatchSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wBatchSize);
@@ -218,7 +193,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     FormData fdlCreateIndexes = new FormData();
     fdlCreateIndexes.left = new FormAttachment(0, 0);
     fdlCreateIndexes.right = new FormAttachment(middle, -margin);
-    fdlCreateIndexes.top = new FormAttachment(lastControl, 2 * margin);
+    fdlCreateIndexes.top = new FormAttachment(lastControl, margin);
     wlCreateIndexes.setLayoutData(fdlCreateIndexes);
     wCreateIndexes = new Button(shell, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wCreateIndexes);
@@ -235,7 +210,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     FormData fdlUseCreate = new FormData();
     fdlUseCreate.left = new FormAttachment(0, 0);
     fdlUseCreate.right = new FormAttachment(middle, -margin);
-    fdlUseCreate.top = new FormAttachment(lastControl, 2 * margin);
+    fdlUseCreate.top = new FormAttachment(lastControl, margin);
     wlUseCreate.setLayoutData(fdlUseCreate);
     wUseCreate = new Button(shell, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wUseCreate);
@@ -252,7 +227,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     FormData fdlOnlyCreateRelationships = new FormData();
     fdlOnlyCreateRelationships.left = new FormAttachment(0, 0);
     fdlOnlyCreateRelationships.right = new FormAttachment(middle, -margin);
-    fdlOnlyCreateRelationships.top = new FormAttachment(lastControl, 2 * margin);
+    fdlOnlyCreateRelationships.top = new FormAttachment(lastControl, margin);
     wlOnlyCreateRelationships.setLayoutData(fdlOnlyCreateRelationships);
     wOnlyCreateRelationships = new Button(shell, SWT.CHECK | SWT.BORDER);
     PropsUi.setLook(wOnlyCreateRelationships);
@@ -275,7 +250,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     FormData fdlArraySeparator = new FormData();
     fdlArraySeparator.left = new FormAttachment(0, 0);
     fdlArraySeparator.right = new FormAttachment(middle, -margin);
-    fdlArraySeparator.top = new FormAttachment(lastControl, 2 * margin);
+    fdlArraySeparator.top = new FormAttachment(lastControl, margin);
     wlArraySeparator.setLayoutData(fdlArraySeparator);
     wArraySeparator = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wArraySeparator.setToolTipText(ttArraySeparator);
@@ -286,7 +261,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdArraySeparator.right = new FormAttachment(100, 0);
     fdArraySeparator.top = new FormAttachment(wlArraySeparator, 0, SWT.CENTER);
     wArraySeparator.setLayoutData(fdArraySeparator);
-    lastControl = wlArraySeparator;
+    lastControl = wArraySeparator;
 
     // Array enclosure (for Array type properties)
     //
@@ -299,7 +274,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     FormData fdlArrayEnclosure = new FormData();
     fdlArrayEnclosure.left = new FormAttachment(0, 0);
     fdlArrayEnclosure.right = new FormAttachment(middle, -margin);
-    fdlArrayEnclosure.top = new FormAttachment(lastControl, 2 * margin);
+    fdlArrayEnclosure.top = new FormAttachment(lastControl, margin);
     wlArrayEnclosure.setLayoutData(fdlArrayEnclosure);
     wArrayEnclosure = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wArrayEnclosure.setToolTipText(ttArrayEnclosure);
@@ -310,7 +285,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdArrayEnclosure.right = new FormAttachment(100, 0);
     fdArrayEnclosure.top = new FormAttachment(wlArrayEnclosure, 0, SWT.CENTER);
     wArrayEnclosure.setLayoutData(fdArrayEnclosure);
-    lastControl = wlArrayEnclosure;
+    lastControl = wArrayEnclosure;
 
     Label wlReturnGraph = new Label(shell, SWT.RIGHT);
     wlReturnGraph.setText("Return graph data?");
@@ -321,7 +296,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     FormData fdlReturnGraph = new FormData();
     fdlReturnGraph.left = new FormAttachment(0, 0);
     fdlReturnGraph.right = new FormAttachment(middle, -margin);
-    fdlReturnGraph.top = new FormAttachment(lastControl, 2 * margin);
+    fdlReturnGraph.top = new FormAttachment(lastControl, margin);
     wlReturnGraph.setLayoutData(fdlReturnGraph);
     wReturnGraph = new Button(shell, SWT.CHECK | SWT.BORDER);
     wReturnGraph.setToolTipText(returnGraphTooltipText);
@@ -340,7 +315,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     FormData fdlReturnGraphField = new FormData();
     fdlReturnGraphField.left = new FormAttachment(0, 0);
     fdlReturnGraphField.right = new FormAttachment(middle, -margin);
-    fdlReturnGraphField.top = new FormAttachment(lastControl, 2 * margin);
+    fdlReturnGraphField.top = new FormAttachment(lastControl, margin);
     wlReturnGraphField.setLayoutData(fdlReturnGraphField);
     wReturnGraphField = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wReturnGraphField);
@@ -352,23 +327,6 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wReturnGraphField.setLayoutData(fdReturnGraphField);
     lastControl = wReturnGraphField;
 
-    // Some buttons
-    Button wShowCypher = new Button(shell, SWT.PUSH);
-    wShowCypher.setText(BaseMessages.getString(PKG, "Neo4JOutputDialog.Button.ShowCypher"));
-    wShowCypher.addListener(SWT.Selection, e -> showCypherPreview());
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wShowCypher, wOk, wCancel}, margin, null);
-
-    // Add listeners
-    //
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    wOk.addListener(SWT.Selection, e -> ok());
-
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -376,7 +334,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(lastControl, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
     wTabFolder.setLayoutData(fdTabFolder);
 
     /*
@@ -464,8 +422,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdFromLabelGrid.left = new FormAttachment(middle, margin);
     fdFromLabelGrid.top = new FormAttachment(lastFromControl, margin);
     fdFromLabelGrid.right = new FormAttachment(wGetFromLabel, 0);
-    fdFromLabelGrid.bottom =
-        new FormAttachment(0, margin * 2 + (int) (props.getZoomFactor() * 150));
+    fdFromLabelGrid.bottom = new FormAttachment(0, margin + (int) (props.getZoomFactor() * 150));
     wFromLabelGrid.setLayoutData(fdFromLabelGrid);
     lastFromControl = wFromLabelGrid;
 
@@ -633,8 +590,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     fdToLabelGrid.left = new FormAttachment(middle, margin);
     fdToLabelGrid.right = new FormAttachment(wGetToLabel, 0);
     fdToLabelGrid.top = new FormAttachment(lastToControl, margin);
-    fdToLabelGrid.bottom = new FormAttachment(0, margin * 2 + (int) (props.getZoomFactor() * 150));
-    fdToLabelGrid.bottom = new FormAttachment(0, margin * 2 + (int) (props.getZoomFactor() * 150));
+    fdToLabelGrid.bottom = new FormAttachment(0, margin + (int) (props.getZoomFactor() * 150));
+    fdToLabelGrid.bottom = new FormAttachment(0, margin + (int) (props.getZoomFactor() * 150));
     wToLabelGrid.setLayoutData(fdToLabelGrid);
     lastToControl = wToLabelGrid;
 
@@ -758,7 +715,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlRelValue);
     FormData fdlRelValue = new FormData();
     fdlRelValue.left = new FormAttachment(0, 0);
-    fdlRelValue.top = new FormAttachment(lastControl, margin * 2);
+    fdlRelValue.top = new FormAttachment(lastControl, margin);
     fdlRelValue.right = new FormAttachment(middle, -margin);
     wlRelValue.setLayoutData(fdlRelValue);
     wRelValue = new TextVar(variables, wRelationshipsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -845,7 +802,7 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
     wTabFolder.setSelection(0);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -875,8 +832,6 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
   }
 
   private void getData() {
-    wTransformName.setText(transformName);
-    wTransformName.selectAll();
     wConnection.setText(Const.NVL(input.getConnection(), ""));
     wBatchSize.setText(Const.NVL(input.getBatchSize(), ""));
     wCreateIndexes.setSelection(input.isCreatingIndexes());

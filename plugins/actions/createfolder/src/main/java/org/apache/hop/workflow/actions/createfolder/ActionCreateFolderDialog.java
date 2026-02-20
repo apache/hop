@@ -24,9 +24,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -35,17 +33,13 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Create Folder action settings. */
 public class ActionCreateFolderDialog extends ActionDialog {
   private static final Class<?> PKG = ActionCreateFolder.class;
-
-  private Text wName;
 
   private TextVar wFoldername;
 
@@ -66,43 +60,12 @@ public class ActionCreateFolderDialog extends ActionDialog {
 
   @Override
   public IAction open() {
+    createShell(BaseMessages.getString(PKG, "ActionCreateFolder.Title"), action);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    shell.setMinimumSize(400, 180);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
-    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionCreateFolder.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // Foldername line
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
-    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    wName.addModifyListener(lsMod);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
+    ModifyListener lsMod = e -> action.setChanged();
 
     // Foldername line
     Label wlFoldername = new Label(shell, SWT.RIGHT);
@@ -110,7 +73,7 @@ public class ActionCreateFolderDialog extends ActionDialog {
     PropsUi.setLook(wlFoldername);
     FormData fdlFoldername = new FormData();
     fdlFoldername.left = new FormAttachment(0, 0);
-    fdlFoldername.top = new FormAttachment(wName, margin);
+    fdlFoldername.top = new FormAttachment(wSpacer, margin);
     fdlFoldername.right = new FormAttachment(middle, -margin);
     wlFoldername.setLayoutData(fdlFoldername);
 
@@ -119,7 +82,7 @@ public class ActionCreateFolderDialog extends ActionDialog {
     wbFoldername.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFoldername = new FormData();
     fdbFoldername.right = new FormAttachment(100, 0);
-    fdbFoldername.top = new FormAttachment(wName, 0);
+    fdbFoldername.top = new FormAttachment(wlFoldername, 0, SWT.CENTER);
     wbFoldername.setLayoutData(fdbFoldername);
 
     wFoldername = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -127,7 +90,7 @@ public class ActionCreateFolderDialog extends ActionDialog {
     wFoldername.addModifyListener(lsMod);
     FormData fdFoldername = new FormData();
     fdFoldername.left = new FormAttachment(middle, 0);
-    fdFoldername.top = new FormAttachment(wName, margin);
+    fdFoldername.top = new FormAttachment(wlFoldername, 0, SWT.CENTER);
     fdFoldername.right = new FormAttachment(wbFoldername, -margin);
     wFoldername.setLayoutData(fdFoldername);
 
@@ -163,15 +126,8 @@ public class ActionCreateFolderDialog extends ActionDialog {
           }
         });
 
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
     getData();
+    focusActionName();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -187,9 +143,11 @@ public class ActionCreateFolderDialog extends ActionDialog {
       wFoldername.setText(action.getFolderName());
     }
     wAbortExists.setSelection(action.isFailIfFolderExists());
+  }
 
-    wName.selectAll();
-    wName.setFocus();
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

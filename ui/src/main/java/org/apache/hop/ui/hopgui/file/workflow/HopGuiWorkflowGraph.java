@@ -138,7 +138,6 @@ import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExten
 import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
-import org.apache.hop.ui.hopgui.selection.HopGuiSelectionTracker;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
 import org.apache.hop.ui.hopgui.shared.SwtGc;
 import org.apache.hop.ui.util.EnvironmentUtils;
@@ -721,8 +720,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       selectedNotes = workflowMeta.getSelectedNotes();
       selectedNote = currentNotePad;
       // Track that a note was selected
-      HopGuiSelectionTracker.getInstance()
-          .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
       Point loc = currentNotePad.getLocation();
 
       previousNoteLocations = workflowMeta.getSelectedNoteLocations();
@@ -897,12 +894,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         workflowMeta.unselectAll();
         selectInRect(workflowMeta, selectionRegion);
         selectionRegion = null;
-        // Track that actions/notes were selected via region selection
-        if (!workflowMeta.getSelectedActions().isEmpty()
-            || !workflowMeta.getSelectedNotes().isEmpty()) {
-          HopGuiSelectionTracker.getInstance()
-              .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
-        }
         updateGui();
         return;
       }
@@ -956,19 +947,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               selectedAction.setSelected(true);
             }
             // Track that an action was selected
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
           }
         } else {
           // Find out which Transforms & Notes are selected
           selectedActions = workflowMeta.getSelectedActions();
           selectedNotes = workflowMeta.getSelectedNotes();
-          // Track that actions/notes were selected
-          if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {
-            HopGuiSelectionTracker.getInstance()
-                .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
-          }
-
           // We moved around some items: store undo info...
           //
           boolean also = false;
@@ -1061,18 +1044,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 selectedNote.setSelected(true);
               }
               // Track that a note was selected
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
             }
           } else {
             // Find out which Transforms & Notes are selected
             selectedActions = workflowMeta.getSelectedActions();
             selectedNotes = workflowMeta.getSelectedNotes();
             // Track that actions/notes were selected
-            if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {
-              HopGuiSelectionTracker.getInstance()
-                  .setLastSelectionType(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH);
-            }
+            if (!selectedActions.isEmpty() || !selectedNotes.isEmpty()) {}
 
             // We moved around some items: store undo info...
             boolean also = false;
@@ -2170,12 +2148,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiOsxKeyboardShortcut(key = SWT.DEL)
   @Override
   public void deleteSelected() {
-    // Only handle delete if a workflow graph item was the last selected item
-    HopGuiSelectionTracker selectionTracker = HopGuiSelectionTracker.getInstance();
-    if (!selectionTracker.isLastSelection(HopGuiSelectionTracker.SelectionType.WORKFLOW_GRAPH)) {
-      return;
-    }
-
+    // Shortcut only fires when focus is in this graph
     deleteSelected(null);
   }
 
@@ -3615,10 +3588,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
 
-    // Add a tab folder ...
-    //
+    // Always use standalone mode - execution results render in workflow's own sashForm
+    // Add a tab folder in the workflow's sashForm
     extraViewTabFolder = new CTabFolder(sashForm, SWT.MULTI);
     PropsUi.setLook(extraViewTabFolder, Props.WIDGET_STYLE_TAB);
+
+    // Layout the tab folder to fill its parent
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.top = new FormAttachment(0, 0);
+    fdTabFolder.bottom = new FormAttachment(100, 0);
+    extraViewTabFolder.setLayoutData(fdTabFolder);
 
     extraViewTabFolder.addMouseListener(
         new MouseAdapter() {
@@ -3632,13 +3613,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             }
           }
         });
-
-    FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.top = new FormAttachment(0, 0);
-    fdTabFolder.bottom = new FormAttachment(100, 0);
-    extraViewTabFolder.setLayoutData(fdTabFolder);
 
     // Create toolbar for close and min/max to the upper right corner...
     //
@@ -3670,6 +3644,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     int height = extraViewToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     extraViewTabFolder.setTabHeight(Math.max(height, extraViewTabFolder.getTabHeight()));
 
+    // Refresh layout for standalone mode
+    sashForm.layout(true, true);
     sashForm.setWeights(new int[] {60, 40});
   }
 
@@ -3691,13 +3667,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /** If the extra tab view at the bottom is empty, we close it. */
   public void checkEmptyExtraView() {
-    if (extraViewTabFolder.getItemCount() == 0) {
+    if (extraViewTabFolder != null && extraViewTabFolder.getItemCount() == 0) {
       disposeExtraView();
     }
   }
 
   private void rotateExtraView() {
-
     // Toggle orientation
     boolean orientation = !PropsUi.getInstance().isGraphExtraViewVerticalOrientation();
     PropsUi.getInstance().setGraphExtraViewVerticalOrientation(orientation);
@@ -3717,6 +3692,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     extraViewTabFolder.dispose();
+    extraViewTabFolder = null;
+
     sashForm.layout();
     sashForm.setWeights(100);
 
@@ -3733,15 +3710,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     boolean maximized = sashForm.getMaximizedControl() != null;
     if (maximized) {
-      // Minimize
-      //
+      // Restore
       sashForm.setMaximizedControl(null);
       minMaxItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
       minMaxItem.setToolTipText(
           BaseMessages.getString(PKG, "WorkflowGraph.ExecutionResultsPanel.MaxButton.Tooltip"));
     } else {
       // Maximize
-      //
       sashForm.setMaximizedControl(extraViewTabFolder);
       minMaxItem.setImage(GuiResource.getInstance().getImageMinimizePanel());
       minMaxItem.setToolTipText(

@@ -29,11 +29,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class DetectLastRowDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DetectLastRowMeta.class;
@@ -53,44 +50,12 @@ public class DetectLastRowDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "DetectLastRowDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "DetectLastRowDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "DetectLastRowDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     // Result fieldname ...
     Label wlResult = new Label(shell, SWT.RIGHT);
@@ -99,7 +64,7 @@ public class DetectLastRowDialog extends BaseTransformDialog {
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
-    fdlResult.top = new FormAttachment(wTransformName, margin * 2);
+    fdlResult.top = new FormAttachment(wSpacer, margin);
     wlResult.setLayoutData(fdlResult);
 
     wResult = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -108,24 +73,12 @@ public class DetectLastRowDialog extends BaseTransformDialog {
     wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
-    fdResult.top = new FormAttachment(wTransformName, margin * 2);
+    fdResult.top = new FormAttachment(wSpacer, margin);
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
 
-    // THE BUTTONS
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wResult);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -140,9 +93,6 @@ public class DetectLastRowDialog extends BaseTransformDialog {
     if (input.getResultFieldName() != null) {
       wResult.setText(input.getResultFieldName());
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

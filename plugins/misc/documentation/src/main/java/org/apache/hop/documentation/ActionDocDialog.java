@@ -26,26 +26,22 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit a ActionDoc object. */
 public class ActionDocDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDoc.class;
 
-  private Text wName;
   private GuiCompositeWidgets widgets;
   private Composite wWidgets;
   private ActionDoc action;
@@ -61,64 +57,50 @@ public class ActionDocDialog extends ActionDialog {
 
   @Override
   public IAction open() {
-    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
+    createShell(BaseMessages.getString(PKG, "ActionDoc.Title"), action);
+    int margin = this.margin;
+    int middle = this.middle;
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "ActionDoc.Title"));
+    ScrolledComposite sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.H_SCROLL);
+    PropsUi.setLook(sc);
+    FormData fdSc = new FormData();
+    fdSc.left = new FormAttachment(0, margin);
+    fdSc.top = new FormAttachment(wSpacer, margin);
+    fdSc.right = new FormAttachment(100, -margin);
+    fdSc.bottom = new FormAttachment(wCancel, -margin);
+    sc.setLayoutData(fdSc);
+    sc.setLayout(new FillLayout());
+    sc.setExpandHorizontal(true);
+    sc.setExpandVertical(true);
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
+    Composite wContent = new Composite(sc, SWT.NONE);
+    PropsUi.setLook(wContent);
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = PropsUi.getFormMargin();
+    contentLayout.marginHeight = PropsUi.getFormMargin();
+    wContent.setLayout(contentLayout);
 
-    // Buttons go at the very bottom
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
-
-    // The widgets get handles automatically from the metadata class
-    //
-    wWidgets = new Composite(shell, SWT.BACKGROUND);
+    wWidgets = new Composite(wContent, SWT.BACKGROUND);
     wWidgets.setLayout(new FormLayout());
     PropsUi.setLook(wWidgets);
     FormData fdWidgets = new FormData();
     fdWidgets.left = new FormAttachment(0, 0);
     fdWidgets.right = new FormAttachment(100, 0);
-    fdWidgets.top = new FormAttachment(wName, margin);
-    fdWidgets.bottom = new FormAttachment(wOk, -2 * margin);
+    fdWidgets.top = new FormAttachment(0, margin);
+    fdWidgets.bottom = new FormAttachment(100, 0);
     wWidgets.setLayoutData(fdWidgets);
 
-    // The name of the action
-    Label wlName = new Label(wWidgets, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionDoc.ActionName.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(wWidgets, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-
     widgets = new GuiCompositeWidgets(variables);
-    widgets.createCompositeWidgets(action, null, wWidgets, ActionDoc.GUI_WIDGETS_PARENT_ID, wName);
+    widgets.createCompositeWidgets(action, null, wWidgets, ActionDoc.GUI_WIDGETS_PARENT_ID, null);
+
+    sc.setContent(wContent);
+    wContent.pack();
+    sc.setMinSize(wContent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
     getData();
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -129,8 +111,11 @@ public class ActionDocDialog extends ActionDialog {
     wName.setText(Const.NVL(action.getName(), ""));
 
     widgets.setWidgetsContents(action, wWidgets, ActionDoc.GUI_WIDGETS_PARENT_ID);
-    wName.selectAll();
-    wName.setFocus();
+  }
+
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void cancel() {

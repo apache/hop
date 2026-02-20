@@ -35,14 +35,15 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>64</xloc>
       <yloc>48</yloc>
@@ -53,23 +54,20 @@ limitations under the License.
       <description/>
       <type>WORKFLOW</type>
       <attributes/>
-      <run_configuration>local</run_configuration>
-      <filename>${PROJECT_HOME}/0012-1-dimension-lookup-update-insert.hwf</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
       <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0012-1-dimension-lookup-update-insert.hwf</filename>
+      <loglevel>Nothing</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
       <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
       <xloc>320</xloc>
       <yloc>48</yloc>
@@ -80,26 +78,23 @@ limitations under the License.
       <description/>
       <type>WORKFLOW</type>
       <attributes/>
-      <run_configuration>local</run_configuration>
-      <filename>${PROJECT_HOME}/0012-2-dimension-lookup-update-punch-through.hwf</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
       <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0012-2-dimension-lookup-update-punch-through.hwf</filename>
+      <loglevel>Nothing</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
       <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>656</xloc>
-      <yloc>48</yloc>
+      <xloc>320</xloc>
+      <yloc>128</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -107,26 +102,75 @@ limitations under the License.
       <description/>
       <type>WORKFLOW</type>
       <attributes/>
-      <run_configuration>local</run_configuration>
-      <filename>${PROJECT_HOME}/0012-3-dimension-lookup-update-update.hwf</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
       <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0012-3-dimension-lookup-update-update.hwf</filename>
+      <loglevel>Nothing</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
       <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>1008</xloc>
-      <yloc>48</yloc>
+      <xloc>320</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0012-4-dimension-lookup-tk-field.hwf</name>
+      <description/>
+      <type>WORKFLOW</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0012-4-dimension-lookup-tk-field.hwf</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Nothing</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>288</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0012-5-dimension-lookup-tk-uuid.hwf</name>
+      <description/>
+      <type>WORKFLOW</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0012-5-dimension-lookup-tk-uuid.hwf</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Nothing</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>368</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -148,6 +192,20 @@ limitations under the License.
     <hop>
       <from>0012-2-dimension-lookup-update-punch-through.hwf</from>
       <to>0012-3-dimension-lookup-update-update.hwf</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0012-3-dimension-lookup-update-update.hwf</from>
+      <to>0012-4-dimension-lookup-tk-field.hwf</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0012-4-dimension-lookup-tk-field.hwf</from>
+      <to>0012-5-dimension-lookup-tk-uuid.hwf</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

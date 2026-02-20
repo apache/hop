@@ -32,9 +32,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
@@ -42,13 +40,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 public class RunPipelineTestsDialog extends ActionDialog implements IActionDialog {
 
@@ -57,8 +51,6 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
   private static final String COLON_SEPARATOR = " : ";
 
   private RunPipelineTests action;
-
-  private Text wName;
 
   private TableView wTestNames;
 
@@ -76,75 +68,26 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
 
   @Override
   public IAction open() {
-
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
-    PropsUi.setLook(shell);
-    WorkflowDialog.setShellImage(shell, action);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
+    createShell(BaseMessages.getString(PKG, "RunPipelineTests.Name"), action);
     ModifyListener lsMod = e -> action.setChanged();
 
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "RunPipelineTests.Name"));
+    int margin = this.margin;
 
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "RunTestsDialog.Button.GetTestNames"), e -> getTestNames())
+        .cancel(e -> cancel())
+        .build();
 
-    Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "RunPipelineTests.Name.Label"));
-    PropsUi.setLook(wlName);
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, -margin);
-    fdlName.top = new FormAttachment(0, margin);
-    wlName.setLayoutData(fdlName);
-    wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wName);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, 0);
-    fdName.top = new FormAttachment(0, margin);
-    fdName.right = new FormAttachment(100, 0);
-    wName.setLayoutData(fdName);
-    Control lastControl = wName;
-
-    // TestNames
-    //
     Label wlTestNames = new Label(shell, SWT.LEFT);
     wlTestNames.setText(BaseMessages.getString(PKG, "RunTestsDialog.TestsToExecute.Label"));
     PropsUi.setLook(wlTestNames);
     FormData fdlTestNames = new FormData();
     fdlTestNames.left = new FormAttachment(0, 0);
-    fdlTestNames.top = new FormAttachment(lastControl, 2 * margin);
+    fdlTestNames.top = new FormAttachment(wSpacer, 2 * margin);
     fdlTestNames.right = new FormAttachment(100, 0);
     wlTestNames.setLayoutData(fdlTestNames);
-    lastControl = wlTestNames;
-
-    // Add buttons first, then the script field can use dynamic sizing
-    //
-    Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "RunTestsDialog.Button.GetTestNames"));
-    wGet.addListener(SWT.Selection, e -> getTestNames());
-    Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-
-    // Put these buttons at the bottom
-    //
-    BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wOk, wGet, wCancel,
-        },
-        margin,
-        null);
 
     int tableCols = 1;
     int upInsRows =
@@ -166,13 +109,13 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     FormData fdTestNames = new FormData();
     fdTestNames.left = new FormAttachment(0, 0);
     fdTestNames.right = new FormAttachment(100, 0);
-    fdTestNames.top = new FormAttachment(lastControl, margin);
-    fdTestNames.bottom = new FormAttachment(wOk, -margin * 2);
+    fdTestNames.top = new FormAttachment(wlTestNames, margin);
+    fdTestNames.bottom = new FormAttachment(wCancel, -margin * 2);
     wTestNames.setLayoutData(fdTestNames);
 
     setTableCombo();
     getData();
-
+    focusActionName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
@@ -220,6 +163,11 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
   private void cancel() {
     action = null;
     dispose();
+  }
+
+  @Override
+  protected void onActionNameModified() {
+    action.setChanged();
   }
 
   private void getData() {

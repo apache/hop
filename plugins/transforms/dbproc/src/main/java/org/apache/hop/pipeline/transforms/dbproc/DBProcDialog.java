@@ -48,7 +48,6 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -85,59 +84,12 @@ public class DBProcDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "DBProcDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "DBProcDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // The buttons go at the bottom
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "DBProcDialog.GetFields.Button"));
-    wGet.addListener(SWT.Selection, e -> get());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(
-        new Button[] {
-          wOk, wGet, wCancel,
-        },
-        margin,
-        null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "DBProcDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), null);
+    wConnection = addConnectionLine(shell, wSpacer, input.getConnection(), null);
 
     // ProcName line...
     // add button to get list of procedures on selected connection...
@@ -145,7 +97,7 @@ public class DBProcDialog extends BaseTransformDialog {
     wbProcName.setText(BaseMessages.getString(PKG, "DBProcDialog.Finding.Button"));
     FormData fdbProcName = new FormData();
     fdbProcName.right = new FormAttachment(100, 0);
-    fdbProcName.top = new FormAttachment(wConnection, margin * 2);
+    fdbProcName.top = new FormAttachment(wConnection, margin);
     wbProcName.setLayoutData(fdbProcName);
     wbProcName.addListener(SWT.Selection, this::selectProcedure);
 
@@ -155,14 +107,14 @@ public class DBProcDialog extends BaseTransformDialog {
     FormData fdlProcName = new FormData();
     fdlProcName.left = new FormAttachment(0, 0);
     fdlProcName.right = new FormAttachment(middle, -margin);
-    fdlProcName.top = new FormAttachment(wConnection, margin * 2);
+    fdlProcName.top = new FormAttachment(wConnection, margin);
     wlProcName.setLayoutData(fdlProcName);
 
     wProcName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wProcName);
     FormData fdProcName = new FormData();
     fdProcName.left = new FormAttachment(middle, 0);
-    fdProcName.top = new FormAttachment(wConnection, margin * 2);
+    fdProcName.top = new FormAttachment(wConnection, margin);
     fdProcName.right = new FormAttachment(wbProcName, -margin);
     wProcName.setLayoutData(fdProcName);
 
@@ -192,13 +144,13 @@ public class DBProcDialog extends BaseTransformDialog {
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment(0, 0);
     fdlResult.right = new FormAttachment(middle, -margin);
-    fdlResult.top = new FormAttachment(wAutoCommit, margin * 2);
+    fdlResult.top = new FormAttachment(wAutoCommit, margin);
     wlResult.setLayoutData(fdlResult);
     wResult = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wResult);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(middle, 0);
-    fdResult.top = new FormAttachment(wAutoCommit, margin * 2);
+    fdResult.top = new FormAttachment(wAutoCommit, margin);
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
 
@@ -266,7 +218,7 @@ public class DBProcDialog extends BaseTransformDialog {
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * margin);
+    fdFields.bottom = new FormAttachment(wOk, -margin);
     wFields.setLayoutData(fdFields);
 
     //
@@ -301,7 +253,7 @@ public class DBProcDialog extends BaseTransformDialog {
     shell.addListener(SWT.Resize, lsResize);
 
     getData();
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -373,9 +325,6 @@ public class DBProcDialog extends BaseTransformDialog {
     wAutoCommit.setSelection(input.isAutoCommit());
 
     wFields.optimizeTableView();
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

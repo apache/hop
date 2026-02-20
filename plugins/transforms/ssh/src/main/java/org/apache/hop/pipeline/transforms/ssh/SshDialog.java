@@ -56,7 +56,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 public class SshDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SshMeta.class;
@@ -107,57 +106,12 @@ public class SshDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "SSHDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar().ok(e -> ok()).preview(e -> preview()).cancel(e -> cancel()).build();
 
     ModifyListener lsMod = e -> input.setChanged();
-
     changed = input.hasChanged();
-
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "SSHDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    int margin = PropsUi.getMargin();
-
-    // THE BUTTONS at the bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    wPreview = new Button(shell, SWT.PUSH);
-    wPreview.setText(BaseMessages.getString(PKG, "SSHDialog.Button.PreviewRows"));
-    wPreview.addListener(SWT.Selection, e -> preview());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wPreview, wCancel}, margin, null);
-
-    // TransformName line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "SSHDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -201,7 +155,7 @@ public class SshDialog extends BaseTransformDialog {
     wServerName.addModifyListener(lsMod);
     FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment(0, 0);
-    fdServerName.top = new FormAttachment(wTransformName, margin);
+    fdServerName.top = new FormAttachment(wSpacer, margin);
     fdServerName.right = new FormAttachment(100, 0);
     wServerName.setLayoutData(fdServerName);
 
@@ -297,7 +251,7 @@ public class SshDialog extends BaseTransformDialog {
     wbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, -margin);
-    fdbFilename.top = new FormAttachment(wUseKey, 2 * margin);
+    fdbFilename.top = new FormAttachment(wUseKey, margin);
     wbFilename.setLayoutData(fdbFilename);
 
     wbFilename.addListener(
@@ -321,7 +275,7 @@ public class SshDialog extends BaseTransformDialog {
     FormData fdlPrivateKey = new FormData();
     fdlPrivateKey.left = new FormAttachment(0, 0);
     fdlPrivateKey.right = new FormAttachment(middle, 0);
-    fdlPrivateKey.top = new FormAttachment(wUseKey, 2 * margin);
+    fdlPrivateKey.top = new FormAttachment(wUseKey, margin);
     wlPrivateKey.setLayoutData(fdlPrivateKey);
     wPrivateKey = new TextVar(variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wPrivateKey.setToolTipText(BaseMessages.getString(PKG, "SSHDialog.PrivateKey.Tooltip"));
@@ -329,7 +283,7 @@ public class SshDialog extends BaseTransformDialog {
     wPrivateKey.addModifyListener(lsMod);
     FormData fdPrivateKey = new FormData();
     fdPrivateKey.left = new FormAttachment(middle, margin);
-    fdPrivateKey.top = new FormAttachment(wUseKey, 2 * margin);
+    fdPrivateKey.top = new FormAttachment(wUseKey, margin);
     fdPrivateKey.right = new FormAttachment(wbFilename, -margin);
     wPrivateKey.setLayoutData(fdPrivateKey);
 
@@ -360,7 +314,7 @@ public class SshDialog extends BaseTransformDialog {
     wProxyHost.addModifyListener(lsMod);
     FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment(0, 0);
-    fdProxyHost.top = new FormAttachment(wPassphrase, 2 * margin);
+    fdProxyHost.top = new FormAttachment(wPassphrase, margin);
     fdProxyHost.right = new FormAttachment(100, 0);
     wProxyHost.setLayoutData(fdProxyHost);
 
@@ -416,14 +370,14 @@ public class SshDialog extends BaseTransformDialog {
     PropsUi.setLook(wTest);
     FormData fdTest = new FormData();
     wTest.setToolTipText(BaseMessages.getString(PKG, "SSHDialog.TestConnection.Tooltip"));
-    fdTest.top = new FormAttachment(wProxyPassword, 2 * margin);
+    fdTest.top = new FormAttachment(wProxyPassword, margin);
     fdTest.right = new FormAttachment(100, 0);
     wTest.setLayoutData(fdTest);
     wTest.addListener(SWT.Selection, e -> test());
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment(0, margin);
-    fdSettingsGroup.top = new FormAttachment(wTransformName, margin);
+    fdSettingsGroup.top = new FormAttachment(wSpacer, margin);
     fdSettingsGroup.right = new FormAttachment(100, -margin);
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
@@ -483,7 +437,7 @@ public class SshDialog extends BaseTransformDialog {
     wResultOutFieldName.addModifyListener(lsMod);
     FormData fdResultOutFieldName = new FormData();
     fdResultOutFieldName.left = new FormAttachment(0, 0);
-    fdResultOutFieldName.top = new FormAttachment(wTransformName, margin);
+    fdResultOutFieldName.top = new FormAttachment(wSpacer, margin);
     fdResultOutFieldName.right = new FormAttachment(100, 0);
     wResultOutFieldName.setLayoutData(fdResultOutFieldName);
 
@@ -504,7 +458,7 @@ public class SshDialog extends BaseTransformDialog {
 
     FormData fdOutput = new FormData();
     fdOutput.left = new FormAttachment(0, margin);
-    fdOutput.top = new FormAttachment(wTransformName, margin);
+    fdOutput.top = new FormAttachment(wSpacer, margin);
     fdOutput.right = new FormAttachment(100, -margin);
     wOutput.setLayoutData(fdOutput);
 
@@ -586,7 +540,7 @@ public class SshDialog extends BaseTransformDialog {
     FormData fdCommand = new FormData();
     fdCommand.left = new FormAttachment(middle, margin);
     fdCommand.top = new FormAttachment(wCommandField, margin);
-    fdCommand.right = new FormAttachment(100, -2 * margin);
+    fdCommand.right = new FormAttachment(100, -margin);
     fdCommand.bottom = new FormAttachment(100, -margin);
     wCommand.setLayoutData(fdCommand);
 
@@ -617,9 +571,9 @@ public class SshDialog extends BaseTransformDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     wTabFolder.setSelection(0);
@@ -627,7 +581,7 @@ public class SshDialog extends BaseTransformDialog {
     activateKey();
     activateDynamicCommand();
     input.setChanged(changed);
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -680,9 +634,6 @@ public class SshDialog extends BaseTransformDialog {
     if (input.getProxyPassword() != null) {
       wProxyPassword.setText(input.getProxyPassword());
     }
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void cancel() {

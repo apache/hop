@@ -18,8 +18,12 @@
 package org.apache.hop.ui.hopgui;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -41,6 +45,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
 
   public Set<Object> parentObjects;
 
+  /** Parent -> Control (e.g. shell) so we try that parent when focus is in its window. */
+  private final Map<Object, Control> parentToControl = new HashMap<>();
+
   private KeyboardShortcut lastShortcut;
   private long lastShortcutTime;
 
@@ -59,24 +66,36 @@ public class HopGuiKeyHandler extends KeyAdapter {
     parentObjects.add(parentObject);
   }
 
+  /** Register parent with its window control so shortcuts in that window take precedence. */
+  public void addParentObjectToHandle(Object parentObject, Control control) {
+    parentObjects.add(parentObject);
+    if (control != null) {
+      parentToControl.put(parentObject, control);
+    }
+  }
+
   public void removeParentObjectToHandle(Object parentObject) {
     parentObjects.remove(parentObject);
+    parentToControl.remove(parentObject);
   }
 
   @Override
   public void keyPressed(KeyEvent event) {
-    // TODO: allow for keyboard shortcut priorities for certain objects.
-    //
+    if (!event.doit) {
+      return;
+    }
 
-    // Ignore shortcuts inside Text or Combo widgets
+    // Ignore shortcuts inside Text, Combo, or StyledText widgets (including terminal)
     if (event.widget instanceof Text
         || event.widget instanceof Combo
-        || event.widget instanceof CCombo) {
-      // Ignore Copy/Cut/Paste/Select all
-      String keys = new String(new char[] {'a', 'c', 'v', 'x'});
-      if ((event.stateMask & (SWT.CONTROL + SWT.COMMAND)) != 0
-          && keys.indexOf(event.keyCode) >= 0) {
-        return;
+        || event.widget instanceof CCombo
+        || event.widget instanceof org.eclipse.swt.custom.StyledText) {
+      // Ignore Copy/Cut/Paste/Select all - check both keyCode and character
+      if ((event.stateMask & (SWT.CONTROL + SWT.COMMAND)) != 0) {
+        char key = Character.toLowerCase((char) event.keyCode);
+        if (key == 'a' || key == 'c' || key == 'v' || key == 'x') {
+          return;
+        }
       }
       // Ignore DEL and Backspace
       if (event.keyCode == SWT.DEL || event.character == SWT.BS) {
@@ -84,47 +103,109 @@ public class HopGuiKeyHandler extends KeyAdapter {
       }
     }
 
-    for (Object parentObject : parentObjects) {
+    List<Object> orderedParents = getParentObjectsInContextOrder(event.widget);
+    for (Object parentObject : orderedParents) {
       List<KeyboardShortcut> shortcuts =
           GuiRegistry.getInstance().getKeyboardShortcuts(parentObject.getClass().getName());
       if (shortcuts != null) {
         for (KeyboardShortcut shortcut : shortcuts) {
           if (handleKey(parentObject, event, shortcut)) {
             event.doit = false;
-            return; // This key is handled.
+            return;
           }
         }
       }
     }
   }
 
-  private boolean handleKey(Object parentObject, KeyEvent event, KeyboardShortcut shortcut) {
-    // If this is a control, only handle the shortcut if the control is visible.
-    // This prevents keyboard shortcuts being applied to a workflow or pipeline which
-    // isn't visible (in another tab, for example).
-    //
-    if (parentObject instanceof Control control) {
+  /** Order: parents whose window has focus (closest first), then active perspectives, then rest. */
+  private List<Object> getParentObjectsInContextOrder(Object focusedWidget) {
+    List<Object> inFocus = new ArrayList<>();
+    List<Object> fallback = new ArrayList<>();
+    for (Object parent : parentObjects) {
+      Control control = parent instanceof Control c ? c : parentToControl.get(parent);
+      if (control != null && isWidgetInControlHierarchy(focusedWidget, control)) {
+        inFocus.add(parent);
+      } else {
+        fallback.add(parent);
+      }
+    }
+    inFocus.sort(
+        Comparator.comparingInt(
+            p -> {
+              Control c = p instanceof Control x ? x : parentToControl.get(p);
+              return c != null ? getDepthFromWidgetToControl(focusedWidget, c) : Integer.MAX_VALUE;
+            }));
+    fallback.sort(
+        (a, b) -> {
+          boolean aActive = isActivePerspective(a);
+          boolean bActive = isActivePerspective(b);
+          if (aActive && !bActive) return -1;
+          if (!aActive && bActive) return 1;
+          return 0;
+        });
+    List<Object> result = new ArrayList<>(inFocus);
+    result.addAll(fallback);
+    return result;
+  }
+
+  private boolean isActivePerspective(Object parent) {
+    if (parent instanceof IHopPerspective perspective) {
       try {
-        if (!control.isVisible()) {
-          return false;
-        }
-      } catch (SWTException e) {
-        // Invalid thread: none of our business, bail out
-        //
+        return perspective.isActive();
+      } catch (Exception e) {
         return false;
       }
     }
-    // If this is attached to a perspective, and it's not active, bail out.
-    // Except if it's shortcut to activate perspective
-    if (parentObject instanceof IHopPerspective perspective) {
+    return false;
+  }
+
+  /** Depth from widget to control (1 = direct parent). */
+  private int getDepthFromWidgetToControl(Object widget, Control control) {
+    if (!(widget instanceof Control)) {
+      return Integer.MAX_VALUE;
+    }
+    int depth = 0;
+    Control current = (Control) widget;
+    while (current != null) {
+      if (current == control) {
+        return depth;
+      }
+      depth++;
       try {
-        // TODO: It's not the best way to check with the method name, but it works for now.
-        if (!perspective.isActive() && !shortcut.getParentMethodName().equals("activate")) {
-          return false;
+        current = current.getParent();
+      } catch (Exception e) {
+        return Integer.MAX_VALUE;
+      }
+    }
+    return Integer.MAX_VALUE;
+  }
+
+  private boolean isParentInContext(
+      Object parentObject, KeyEvent event, KeyboardShortcut shortcut) {
+    if (parentObject instanceof Control control) {
+      try {
+        if (!control.isVisible()) {
+          return shortcut.isGlobal();
         }
-      } catch (Exception ex) {
+        return shortcut.isGlobal() || isWidgetInControlHierarchy(event.widget, control);
+      } catch (SWTException e) {
         return false;
       }
+    }
+    if (parentObject instanceof IHopPerspective perspective) {
+      try {
+        return perspective.isActive() || shortcut.isGlobal();
+      } catch (Exception e) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean handleKey(Object parentObject, KeyEvent event, KeyboardShortcut shortcut) {
+    if (!isParentInContext(parentObject, event, shortcut)) {
+      return false;
     }
 
     int keyCode = (event.keyCode & SWT.KEY_MASK);
@@ -141,16 +222,25 @@ public class HopGuiKeyHandler extends KeyAdapter {
     else if (keyCode == SWT.KEYPAD_MULTIPLY) keyCode = '*';
     else if (keyCode == SWT.KEYPAD_DIVIDE) keyCode = '/';
     else if (keyCode == SWT.KEYPAD_EQUAL) keyCode = '=';
+    // Backtick: in SWT use event.character ('`' = 96); keyCode may be 0 or 192 (VK_OEM_3) on some
+    // platforms
+    else if (keyCode == 192) keyCode = '`';
 
-    boolean keyMatch = keyCode == shortcut.getKeyCode();
+    int shortcutKey = shortcut.getKeyCode();
+    // Match by keyCode, or by event.character (SWT maps backtick/grave accent to event.character)
+    boolean keyMatch =
+        keyCode == shortcutKey || (shortcutKey != 0 && event.character == shortcutKey);
     boolean altMatch = shortcut.isAlt() == alt;
     boolean shiftMatch = shortcut.isShift() == shift;
     boolean controlMatch = shortcut.isControl() == control;
     boolean commandMatch = shortcut.isCommand() == command;
 
     if (matchOS && keyMatch && altMatch && shiftMatch && controlMatch && commandMatch) {
-      // This is the key: call the method to which the original key shortcut annotation belongs
-      //
+      // Only invoke if this shortcut is linked to this class (context)
+      if (shortcut.getParentClassName() != null
+          && !shortcut.getParentClassName().equals(parentObject.getClass().getName())) {
+        return false;
+      }
       try {
         Class<?> parentClass = parentObject.getClass();
         Method method = parentClass.getMethod(shortcut.getParentMethodName());
@@ -162,6 +252,25 @@ public class HopGuiKeyHandler extends KeyAdapter {
         LogChannel.UI.logError(
             "Error calling keyboard shortcut method on parent object " + parentObject.toString(),
             ex);
+      }
+    }
+    return false;
+  }
+
+  private boolean isWidgetInControlHierarchy(Object widget, Control control) {
+    if (!(widget instanceof Control)) {
+      return false;
+    }
+
+    Control current = (Control) widget;
+    while (current != null) {
+      if (current == control) {
+        return true;
+      }
+      try {
+        current = current.getParent();
+      } catch (Exception e) {
+        return false;
       }
     }
     return false;

@@ -100,8 +100,10 @@ public class DataSetCsvUtil {
             for (int i = 0; i < setRowMeta.size(); i++) {
               IValueMeta valueMeta = setRowMeta.getValueMeta(i).clone();
               constantValueMeta.setConversionMetadata(valueMeta);
-              String value = csvRecord.get(i);
-              row[i] = valueMeta.convertData(constantValueMeta, value);
+              if (i < csvRecord.size()) {
+                String value = csvRecord.get(i);
+                row[i] = valueMeta.convertData(constantValueMeta, value);
+              }
             }
             rows.add(row);
           }

@@ -57,6 +57,7 @@ import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -90,6 +91,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -164,12 +166,13 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   private CTabItem fieldsTab;
 
-  private int margin;
   private TableView wInfoTransforms;
   private TableView wTargetTransforms;
   private TableView wParameters;
   private String[] prevTransformNames;
   private String[] nextTransformNames;
+
+  public static final String WARNING_CLOSE_UNSAVED_PARAMETER = "UserDefinedJavaClassCloseWarning";
 
   public UserDefinedJavaClassDialog(
       Shell parent,
@@ -212,57 +215,19 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   @Override
   public String open() {
-    Shell parent = getParent();
+    createShell(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Shell.Title"));
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    PropsUi.setLook(shell);
-    setShellImage(shell, input);
+    buildButtonBar()
+        .ok(e -> ok())
+        .custom(
+            BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TestClass.Button"), e -> test())
+        .cancel(e -> cancel())
+        .build();
 
     lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = PropsUi.getFormMargin();
-    formLayout.marginHeight = PropsUi.getFormMargin();
-
-    shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Shell.Title"));
-
-    int middle = props.getMiddlePct();
-    margin = PropsUi.getMargin();
-
-    // Buttons go at the very bottom
-    //
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
-    Button wTest = new Button(shell, SWT.PUSH);
-    wTest.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TestClass.Button"));
-    wTest.addListener(SWT.Selection, e -> test());
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wTest, wCancel}, margin, null);
-
-    // Filename line
-    wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(
-        BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.TransformName.Label"));
-    PropsUi.setLook(wlTransformName);
-    fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment(0, 0);
-    fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
-    wlTransformName.setLayoutData(fdlTransformName);
-    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
-    PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
-    fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
-    fdTransformName.right = new FormAttachment(100, 0);
-    wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wSpacer;
 
     SashForm wSash = new SashForm(shell, SWT.VERTICAL);
 
@@ -324,6 +289,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     fdScript.top = new FormAttachment(wlScript, margin);
     fdScript.right = new FormAttachment(100, -5);
     fdScript.bottom = new FormAttachment(wlPosition, -margin);
+    fdScript.width = 500;
+    fdScript.height = 400;
     folder.setLayoutData(fdScript);
 
     Text wlHelpLabel = new Text(wTop, SWT.V_SCROLL | SWT.LEFT);
@@ -357,7 +324,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    fdTabFolder.width = 500;
+    fdTabFolder.height = 400;
     wTabFolder.setLayoutData(fdTabFolder);
 
     // The Fields tab...
@@ -381,13 +350,15 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     wTabFolder.setSelection(fieldsTab);
 
     FormData fdSash = new FormData();
-    fdSash.left = new FormAttachment(0, 0);
-    fdSash.top = new FormAttachment(wTransformName, 0);
-    fdSash.right = new FormAttachment(100, 0);
-    fdSash.bottom = new FormAttachment(wOk, -2 * margin);
+    fdSash.left = new FormAttachment(0, margin);
+    fdSash.top = new FormAttachment(lastControl, margin);
+    fdSash.right = new FormAttachment(100, -margin);
+    fdSash.bottom = new FormAttachment(wOk, -margin);
+    fdSash.width = 500;
+    fdSash.height = 400;
     wSash.setLayoutData(fdSash);
 
-    wSash.setWeights(new int[] {75, 25});
+    wSash.setWeights(new int[] {70, 30});
 
     wTree.addListener(SWT.MouseDoubleClick, this::treeDblClick);
 
@@ -527,7 +498,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
             event.data = wTree.getSelection()[0].getData();
           }
         });
-
+    focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), this::cancel);
 
     return transformName;
@@ -1153,9 +1124,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
     wParameters.setRowNums();
     wParameters.optWidth(true);
-
-    wTransformName.selectAll();
-    wTransformName.setFocus();
   }
 
   private void refresh() {
@@ -1171,16 +1139,30 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
   private boolean cancel() {
     if (input.hasChanged()) {
-      MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.APPLICATION_MODAL);
-      box.setText(
-          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.WarningDialogChanged.Title"));
-      box.setMessage(
-          BaseMessages.getString(
-              PKG, "UserDefinedJavaClassDialog.WarningDialogChanged.Message", Const.CR));
-      int answer = box.open();
-
-      if (answer == SWT.NO) {
-        return false;
+      if ("Y".equalsIgnoreCase(props.getCustomParameter(WARNING_CLOSE_UNSAVED_PARAMETER, "Y"))) {
+        MessageDialogWithToggle md =
+            new MessageDialogWithToggle(
+                shell,
+                BaseMessages.getString(
+                    PKG, "UserDefinedJavaClassDialog.WarningDialogChanged.Title"),
+                BaseMessages.getString(
+                    PKG, "UserDefinedJavaClassDialog.WarningDialogChanged.Message", Const.CR),
+                SWT.ICON_WARNING,
+                new String[] {
+                  BaseMessages.getString(
+                      PKG, "UserDefinedJavaClassDialog.WarningDialogChanged.Yes"),
+                  BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.WarningDialogChanged.No")
+                },
+                BaseMessages.getString(
+                    PKG, "UserDefinedJavaClassDialog.WarningDialogChanged.DoNotShowAgain"),
+                "N"
+                    .equalsIgnoreCase(
+                        props.getCustomParameter(WARNING_CLOSE_UNSAVED_PARAMETER, "Y")));
+        int answer = md.open();
+        props.setCustomParameter(WARNING_CLOSE_UNSAVED_PARAMETER, md.getToggleState() ? "N" : "Y");
+        if (answer == 1) {
+          return false;
+        }
       }
     }
     transformName = null;
