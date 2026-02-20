@@ -133,6 +133,15 @@ public class SqlEditor {
     BaseTransformDialog.positionBottomButtons(
         shell, new Button[] {wExec, wClear, wCancel}, margin, null);
 
+    wlPosition = new Label(shell, SWT.NONE);
+    wlPosition.setText(BaseMessages.getString(PKG, "SQLEditor.LineNr.Label", "0"));
+    PropsUi.setLook(wlPosition);
+    FormData fdlPosition = new FormData();
+    fdlPosition.left = new FormAttachment(0, 0);
+    fdlPosition.bottom = new FormAttachment(wExec, -margin);
+    fdlPosition.right = new FormAttachment(100, 0);
+    wlPosition.setLayoutData(fdlPosition);
+
     // Script line
     Label wlScript = new Label(shell, SWT.NONE);
     wlScript.setText(BaseMessages.getString(PKG, "SQLEditor.Editor.Label"));
@@ -158,7 +167,7 @@ public class SqlEditor {
     fdScript.left = new FormAttachment(0, 0);
     fdScript.top = new FormAttachment(wlScript, margin);
     fdScript.right = new FormAttachment(100, -10);
-    fdScript.bottom = new FormAttachment(wExec, -2 * margin);
+    fdScript.bottom = new FormAttachment(wlPosition, -margin);
     wScript.setLayoutData(fdScript);
     wScript.addModifyListener(event -> setPosition());
     wScript.addKeyListener(
@@ -202,15 +211,6 @@ public class SqlEditor {
             setPosition();
           }
         });
-
-    wlPosition = new Label(shell, SWT.NONE);
-    wlPosition.setText(BaseMessages.getString(PKG, "SQLEditor.LineNr.Label", "0"));
-    PropsUi.setLook(wlPosition);
-    FormData fdlPosition = new FormData();
-    fdlPosition.left = new FormAttachment(0, 0);
-    fdlPosition.top = new FormAttachment(wScript, margin);
-    fdlPosition.right = new FormAttachment(100, 0);
-    wlPosition.setLayoutData(fdlPosition);
 
     getData();
 

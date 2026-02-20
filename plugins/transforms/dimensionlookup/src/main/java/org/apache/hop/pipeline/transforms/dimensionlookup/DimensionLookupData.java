@@ -24,6 +24,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.hash.ByteArrayHashMap;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
@@ -44,7 +45,8 @@ public class DimensionLookupData extends BaseTransformData implements ITransform
 
   public long smallestCacheKey;
 
-  public Long notFoundTk;
+  public IValueMeta notFoundTkMeta;
+  public Object notFoundTk;
 
   public IRowMeta outputRowMeta;
 
@@ -87,6 +89,9 @@ public class DimensionLookupData extends BaseTransformData implements ITransform
 
   /** The input row metadata, but converted to normal storage type */
   public IRowMeta inputRowMeta;
+
+  public IValueMeta tkFieldType;
+  public int tkFieldIndex;
 
   public DimensionLookupData() {
     super();

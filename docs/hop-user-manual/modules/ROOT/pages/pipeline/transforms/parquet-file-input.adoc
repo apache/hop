@@ -68,6 +68,10 @@ Any supported file location is fine.
 the output fields.  It prevents you from having to define all the fields when this metadata is already in
 a parquet file schema.
 
+|Output null row when empty
+|In case you want to extract file metadata and there were no rows found in the parquet file(s) you will receive one empty row.
+This row can then be used to extract metadata with the xref:pipeline/transforms/metastructure.adoc[Metadata structure of stream] transform.
+
 |Fields
 |In this table you can specify all the fields you want to obtain from the parquet files as well as their desired Hop output type.
 
