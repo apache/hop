@@ -100,6 +100,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandl
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.eclipse.swt.SWT;
@@ -179,6 +180,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   public static final String CONTEXT_MENU_OPEN = "ExplorerPerspective-ContextMenu-10100-Open";
   public static final String CONTEXT_MENU_OPEN_AS_TEXT =
       "ExplorerPerspective-ContextMenu-10101-OpenAsText";
+  public static final String CONTEXT_MENU_OPEN_IN_EXPLORER =
+      "ExplorerPerspective-ContextMenu-10102-OpenInExplorer";
   public static final String CONTEXT_MENU_RENAME = "ExplorerPerspective-ContextMenu-10300-Rename";
   public static final String CONTEXT_MENU_COPY_NAME =
       "ExplorerPerspective-ContextMenu-10400-CopyName";
@@ -1612,6 +1615,32 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       return;
     }
     openFile(selection[0]);
+  }
+
+  @GuiMenuElement(
+      root = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      parentId = GUI_PLUGIN_CONTEXT_MENU_PARENT_ID,
+      id = CONTEXT_MENU_OPEN_IN_EXPLORER,
+      label = "i18n::ExplorerPerspective.Menu.OpenInExplorer")
+  public void openFileInExplorer() {
+    TreeItem[] selection = tree.getSelection();
+    if (selection == null || selection.length == 0) {
+      return;
+    }
+
+    TreeItemFolder tif = (TreeItemFolder) selection[0].getData();
+    if (tif != null) {
+      try {
+        EnvironmentUtils.getInstance().openFileExplorer(tif.path);
+      } catch (Throwable e) {
+        new ErrorDialog(
+            getShell(),
+            BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFileInExplorer.Title"),
+            BaseMessages.getString(
+                PKG, "ExplorerPerspective.Error.OpenFileInExplorer.Message", tif.path),
+            e);
+      }
+    }
   }
 
   @GuiMenuElement(
