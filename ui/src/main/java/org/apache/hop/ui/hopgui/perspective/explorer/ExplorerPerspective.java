@@ -135,6 +135,7 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -568,6 +569,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     tree.addListener(SWT.Selection, event -> updateSelection());
     tree.addListener(SWT.DefaultSelection, this::openFile);
     PropsUi.setLook(tree);
+    logFileExplorerFont("tree", tree.getFont());
 
     FormData treeFormData = new FormData();
     treeFormData.left = new FormAttachment(0, 0);
@@ -637,6 +639,24 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     //
     GuiRegistry.getInstance().executeCallbackMethods(GUI_TOOLBAR_CREATED_CALLBACK_ID);
     GuiRegistry.getInstance().executeCallbackMethods(GUI_CONTEXT_MENU_CREATED_CALLBACK_ID);
+  }
+
+  private void logFileExplorerFont(String widget, Font font) {
+    if (font == null || font.isDisposed()) {
+      return;
+    }
+    FontData[] fda = font.getFontData();
+    if (fda != null && fda.length > 0) {
+      hopGui
+          .getLog()
+          .logBasic(
+              "File explorer "
+                  + widget
+                  + " font: family="
+                  + fda[0].getName()
+                  + ", size="
+                  + fda[0].getHeight());
+    }
   }
 
   /**

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.xml.types;
+package org.apache.hop.ui.hopgui.perspective.explorer.file.types.xml;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -33,12 +33,12 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
     id = "XmlExplorerFileType",
     name = "XML File Type",
     description = "XML file handling in the explorer perspective",
-    image = "add_xml.svg")
+    image = "ui/images/file.svg")
 public class XmlExplorerFileType extends BaseTextExplorerFileType<XmlExplorerFileTypeHandler> {
 
   public XmlExplorerFileType() {
     super(
-        "XML file",
+        "XML File",
         ".xml",
         new String[] {"*.xml"},
         new String[] {"XML files"},
@@ -52,14 +52,14 @@ public class XmlExplorerFileType extends BaseTextExplorerFileType<XmlExplorerFil
   }
 
   @Override
-  public IHopFileTypeHandler newFile(HopGui hopGui, IVariables parentVariableSpace)
-      throws HopException {
-    return new EmptyHopFileTypeHandler();
-  }
-
-  @Override
   public XmlExplorerFileTypeHandler createFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile file) {
     return new XmlExplorerFileTypeHandler(hopGui, perspective, file);
+  }
+
+  @Override
+  public IHopFileTypeHandler newFile(HopGui hopGui, IVariables parentVariableSpace)
+      throws HopException {
+    return new EmptyHopFileTypeHandler();
   }
 }

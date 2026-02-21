@@ -15,23 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.types;
+package org.apache.hop.ui.hopgui.perspective.explorer.file.types.xml;
 
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExplorerFileTypeHandler;
 
-/** How do we handle a JSON file in file explorer perspective? */
-public class JsonExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler {
+/** Handler for XML files in the file explorer perspective (syntax-highlighted view and edit). */
+public class XmlExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler {
 
-  public JsonExplorerFileTypeHandler(
+  public XmlExplorerFileTypeHandler(
       HopGui hopGui, ExplorerPerspective perspective, ExplorerFile explorerFile) {
     super(hopGui, perspective, explorerFile);
   }
 
   @Override
   protected String getLanguageId() {
-    return "json";
+    return "xml";
   }
 }

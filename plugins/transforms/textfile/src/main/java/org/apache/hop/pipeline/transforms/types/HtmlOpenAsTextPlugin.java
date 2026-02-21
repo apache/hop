@@ -57,12 +57,17 @@ public class HtmlOpenAsTextPlugin {
       return;
     }
 
-    try {
-      HopGui hopGui = HopGui.getInstance();
-      RawExplorerFileType rawFileType = new RawExplorerFileType();
-      rawFileType.openFile(hopGui, filename, hopGui.getVariables());
-    } catch (Exception e) {
-      HopGui.getInstance().getLog().logError("Error opening file as text", e);
-    }
+    HopGui hopGui = HopGui.getInstance();
+    hopGui
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              try {
+                RawExplorerFileType rawFileType = new RawExplorerFileType();
+                rawFileType.openFile(hopGui, filename, hopGui.getVariables());
+              } catch (Exception e) {
+                hopGui.getLog().logError("Error opening file as text", e);
+              }
+            });
   }
 }

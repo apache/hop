@@ -21,26 +21,23 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.editor.IContentEditorWidget;
+import org.apache.hop.ui.hopgui.ContentEditorFacade;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 
 /** This handles a text file in the file explorer perspective: open, save, ... */
 public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
 
-  private Text wText;
+  protected IContentEditorWidget editorWidget;
   protected boolean reloadListener = false;
 
   public BaseTextExplorerFileTypeHandler(
@@ -48,30 +45,21 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     super(hopGui, perspective, explorerFile);
   }
 
+  /**
+   * Language id for syntax highlighting (e.g. "json", "xml"). Subclasses can override; default is
+   * null (plain text).
+   */
+  protected String getLanguageId() {
+    return null;
+  }
+
   @Override
   public void renderFile(Composite composite) {
-    // Render the file by simply showing the file content as a text widget...
-    //
-    wText = new Text(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-    PropsUi.setLook(wText, Props.WIDGET_STYLE_FIXED);
-    FormData fdText = new FormData();
-    fdText.left = new FormAttachment(0, 0);
-    fdText.right = new FormAttachment(100, 0);
-    fdText.top = new FormAttachment(0, 0);
-    fdText.bottom = new FormAttachment(100, 0);
-    wText.setLayoutData(fdText);
-
-    // TODO: add bottom section to show status, size, changed dates, cursor position...
-    // TODO: options for validation, pretty print, ...
-    // TODO: options for reading the file with a various transform plugins
-    // TODO: option to discard changes (reload from disk)
-    // TODO: find in file feature, hook it up to the project find function
-    //
+    editorWidget = ContentEditorFacade.createContentEditor(composite, getLanguageId());
 
     reload();
-    // If the widget changes after this it's been changed by the user
-    //
-    wText.addModifyListener(
+    reloadListener = true;
+    editorWidget.addModifyListener(
         e -> {
           if (reloadListener) {
             this.setChanged();
@@ -93,7 +81,7 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
       // Save the file...
       //
       try (OutputStream outputStream = HopVfs.getOutputStream(filename, false)) {
-        outputStream.write(wText.getText().getBytes(StandardCharsets.UTF_8));
+        outputStream.write(editorWidget.getText().getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
       }
 
@@ -147,13 +135,8 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   @Override
   public void reload() {
     try {
-      // Disable the Modifylistener temporary
-      reloadListener = false;
       String contents = readTextFileContent("UTF-8");
-      wText.setText(Const.NVL(contents, ""));
-
-      // enable the Modifylistener temporary
-      reloadListener = true;
+      editorWidget.setTextSuppressModify(Const.NVL(contents, ""));
     } catch (Exception e) {
       LogChannel.UI.logError(
           "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
@@ -162,16 +145,16 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
 
   @Override
   public void selectAll() {
-    wText.selectAll();
+    editorWidget.selectAll();
   }
 
   @Override
   public void unselectAll() {
-    wText.setSelection(0, 0);
+    editorWidget.unselectAll();
   }
 
   @Override
   public void copySelectedToClipboard() {
-    wText.copy();
+    editorWidget.copy();
   }
 }

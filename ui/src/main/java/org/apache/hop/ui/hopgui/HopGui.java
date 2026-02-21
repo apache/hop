@@ -21,6 +21,7 @@ import static org.apache.hop.core.Const.getDocUrl;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1274,8 +1275,8 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = true, key = 'c')
   public void menuEditCopySelected() {
     Control focusControl = display.getFocusControl();
-    if (focusControl instanceof org.eclipse.swt.custom.StyledText styledText) {
-      if (styledText.getSelectionCount() > 0) {
+    if (isStyledTextControl(focusControl)) {
+      if (getStyledTextSelectionCount(focusControl) > 0) {
         return;
       }
     }
@@ -1294,7 +1295,7 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = true, key = 'v')
   public void menuEditPaste() {
     Control focusControl = display.getFocusControl();
-    if (focusControl instanceof org.eclipse.swt.custom.StyledText) {
+    if (isStyledTextControl(focusControl)) {
       // Terminal handles paste internally
       return;
     }
@@ -1313,6 +1314,31 @@ public class HopGui
   @GuiOsxKeyboardShortcut(command = true, key = 'x')
   public void menuEditCutSelected() {
     getActiveFileTypeHandler().cutSelectedToClipboard();
+  }
+
+  /**
+   * Returns true if the control is a StyledText. Uses class name so RAP (Hop Web) does not load
+   * org.eclipse.swt.custom.StyledText, which is not available in RAP.
+   */
+  private static boolean isStyledTextControl(Control control) {
+    return control != null
+        && "org.eclipse.swt.custom.StyledText".equals(control.getClass().getName());
+  }
+
+  /**
+   * Returns getSelectionCount() for a StyledText control, or 0. Uses reflection so StyledText is
+   * not loaded on RAP.
+   */
+  private static int getStyledTextSelectionCount(Control control) {
+    if (!isStyledTextControl(control)) {
+      return 0;
+    }
+    try {
+      Method m = control.getClass().getMethod("getSelectionCount");
+      return ((Number) m.invoke(control)).intValue();
+    } catch (Exception e) {
+      return 0;
+    }
   }
 
   @GuiMenuElement(
