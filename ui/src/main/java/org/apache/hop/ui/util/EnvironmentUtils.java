@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
@@ -214,6 +215,21 @@ public class EnvironmentUtils {
 
   public String getHopWebTheme() {
     return System.getProperty("HOP_WEB_THEME");
+  }
+
+  /** Open file explorer based on OS and select the file */
+  public void openFileExplorer(String path) throws HopException {
+    try {
+      if (OsHelper.isWindows()) {
+        Runtime.getRuntime().exec("explorer.exe  /select," + path);
+      } else if (OsHelper.isMac()) {
+        Runtime.getRuntime().exec("open -R " + path);
+      } else {
+        Runtime.getRuntime().exec("xdg-open " + path);
+      }
+    } catch (IOException e) {
+      throw new HopException("Error opening file in explorer", e);
+    }
   }
 
   public void openUrl(String url) throws HopException {
