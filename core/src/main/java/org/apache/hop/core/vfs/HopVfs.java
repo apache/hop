@@ -376,6 +376,15 @@ public class HopVfs {
     }
   }
 
+  public static boolean isLocalFileSystem(String path) {
+    try {
+      FileObject fileObject = getFileObject(path);
+      return fileObject instanceof LocalFile;
+    } catch (HopFileException e) {
+      return false;
+    }
+  }
+
   public static InputStream getInputStream(FileObject fileObject) throws FileSystemException {
     FileContent content = fileObject.getContent();
     return content.getInputStream();

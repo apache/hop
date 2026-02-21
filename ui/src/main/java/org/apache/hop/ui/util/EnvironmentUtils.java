@@ -16,7 +16,9 @@
  */
 package org.apache.hop.ui.util;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
@@ -26,6 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.OsHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
@@ -214,6 +217,35 @@ public class EnvironmentUtils {
 
   public String getHopWebTheme() {
     return System.getProperty("HOP_WEB_THEME");
+  }
+
+  /** Open the file explorer based on OS and select the file */
+  public void openFileExplorer(String path) throws HopException {
+
+    if (path == null || path.isBlank()) {
+      return;
+    }
+
+    try {
+      if (OsHelper.isWindows()) {
+        // Open File Explorer on Windows
+        Runtime.getRuntime().exec("explorer.exe  /select," + path);
+      } else if (OsHelper.isMac()) {
+        // Open Finder on Mac
+        Runtime.getRuntime().exec("open -R " + path);
+      } else if (Desktop.isDesktopSupported()) {
+        File file = new File(path);
+        if (file.exists()) {
+          // If it is a file, open the parent folder
+          if (file.isFile()) {
+            file = file.getParentFile();
+          }
+          Desktop.getDesktop().open(file);
+        }
+      }
+    } catch (IOException e) {
+      throw new HopException("Error opening file in explorer", e);
+    }
   }
 
   public void openUrl(String url) throws HopException {
