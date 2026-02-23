@@ -205,6 +205,12 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
               fileSystemOptions,
               account);
 
+      if (azureMetadataType != null) {
+        String cacheTtlSeconds = variables.resolve(azureMetadataType.getCacheTtlSeconds());
+        long ttlMs = org.apache.hop.core.Const.toLong(cacheTtlSeconds, 10L) * 1000L;
+        azureFileSystem.setListCacheTtlMs(ttlMs);
+      }
+
     } finally {
       UserAuthenticatorUtils.cleanup(authData);
     }

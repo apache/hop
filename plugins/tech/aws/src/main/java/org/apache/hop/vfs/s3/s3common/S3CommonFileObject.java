@@ -287,7 +287,8 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
 
   /**
    * headObject failed with a non-404 error (e.g. 400 from cross-region). Use listObjectsV2 (which
-   * handles cross-region) to determine if the path is a file, folder, or imaginary.
+   * handles cross-region) to determine if the path is a file, folder, or imaginary. If list returns
+   * 403 (e.g. public bucket with GetObject but not ListBucket), try getObject for the exact key.
    */
   private void resolveTypeViaList(String key, String bucket, String keyWithDelimiter)
       throws FileSystemException {
@@ -323,8 +324,50 @@ public abstract class S3CommonFileObject extends AbstractFileObject {
         }
       }
     } catch (S3Exception listError) {
-      LogChannel.GENERAL.logError("Could not get information on " + getQualifiedName(), listError);
-      throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), listError);
+      if (isAccessDenied(listError)) {
+        resolveTypeViaGetObject(key, bucket);
+      } else {
+        LogChannel.GENERAL.logError(
+            "Could not get information on " + getQualifiedName(), listError);
+        throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), listError);
+      }
+    }
+  }
+
+  private static boolean isAccessDenied(S3Exception e) {
+    Integer code = e.statusCode();
+    return code != null && code == 403;
+  }
+
+  /**
+   * List returned 403 (e.g. public bucket that allows GetObject but not ListBucket). Try getObject
+   * for the exact key; if it succeeds, treat as file.
+   */
+  private void resolveTypeViaGetObject(String key, String bucket) throws FileSystemException {
+    try {
+      ResponseInputStream<GetObjectResponse> stream =
+          fileSystem
+              .getS3Client()
+              .getObject(GetObjectRequest.builder().bucket(bucket).key(key).build());
+      try {
+        GetObjectResponse r = stream.response();
+        contentLength = r.contentLength();
+        lastModified = r.lastModified();
+        injectType(getName().getType());
+      } finally {
+        stream.close();
+      }
+    } catch (S3Exception e) {
+      LogChannel.GENERAL.logError("Could not get information on " + getQualifiedName(), e);
+      throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), e);
+    } catch (IOException e) {
+      throw new FileSystemException("vfs.provider/get-type.error", getQualifiedName(), e);
+    } finally {
+      try {
+        closeS3Object();
+      } catch (IOException e) {
+        LogChannel.GENERAL.logDebug("Error closing S3 object", e);
+      }
     }
   }
 

@@ -64,7 +64,10 @@ public class S3Meta extends HopMetadataBase implements Serializable, IHopMetadat
   /** Cache TTL in seconds for list-result caching (avoids redundant headObject calls). */
   @HopMetadataProperty private String cacheTtlSeconds;
 
-  /** Authentication type: {@link S3AuthType#name()} (Default, ACCESS_KEYS, CREDENTIALS_FILE). */
+  /**
+   * Authentication type: {@link S3AuthType#name()} (Default, ACCESS_KEYS, CREDENTIALS_FILE,
+   * ANONYMOUS).
+   */
   @HopMetadataProperty private String authenticationType;
 
   public S3Meta() {

@@ -19,10 +19,14 @@ package org.apache.hop.vfs.s3.metadata;
 
 /** S3 authentication method. */
 public enum S3AuthType {
-  /** Default credential chain (environment, instance profile, etc.) */
+  /**
+   * Default credential chain (environment, instance profile, etc.) with anonymous fallback on 403
+   */
   DEFAULT,
   /** Explicit access key and secret (and optional session token) */
   ACCESS_KEYS,
   /** AWS credentials file with optional profile name */
-  CREDENTIALS_FILE
+  CREDENTIALS_FILE,
+  /** Anonymous access only (for public buckets; no credentials) */
+  ANONYMOUS
 }

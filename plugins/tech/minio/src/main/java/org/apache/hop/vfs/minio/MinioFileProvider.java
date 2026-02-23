@@ -129,6 +129,11 @@ public class MinioFileProvider extends AbstractOriginatingFileProvider {
       String partSize = variables.resolve(minioMeta.getPartSize());
       fileSystem.setPartSize(Const.toLong(partSize, DEFAULT_PART_SIZE));
 
+      // List cache TTL in seconds (same as S3)
+      String cacheTtlSeconds = variables.resolve(minioMeta.getCacheTtlSeconds());
+      long ttlMs = Const.toLong(cacheTtlSeconds, 10L) * 1000L;
+      fileSystem.setListCacheTtlMs(ttlMs);
+
       return fileSystem;
     } finally {
       UserAuthenticatorUtils.cleanup(authData);

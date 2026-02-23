@@ -32,8 +32,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -155,16 +158,27 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         type = FileType.FOLDER;
         ListPathsOptions rootLpo = new ListPathsOptions();
         rootLpo.setRecursive(false);
+        Map<String, AzureListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
         fileSystemClient
             .listPaths(rootLpo, null)
             .forEach(
                 pi -> {
                   String childName = pi.getName();
-                  // Only add non-empty, valid child names
                   if (!childName.isEmpty() && !childName.equals(".") && !childName.equals("..")) {
                     children.add(childName);
+                    cacheEntries.put(
+                        childName,
+                        new AzureListCache.ChildInfo(
+                            Boolean.TRUE.equals(pi.isDirectory()) ? FileType.FOLDER : FileType.FILE,
+                            pi.getContentLength(),
+                            pi.getLastModified() != null
+                                ? pi.getLastModified().toInstant()
+                                : Instant.EPOCH));
                   }
                 });
+        if (!cacheEntries.isEmpty()) {
+          getAbstractFileSystem().putListCache(containerName, "", cacheEntries);
+        }
       } else {
         type = FileType.IMAGINARY;
         throw new HopException("Container does not exist: " + fullPath);
@@ -176,80 +190,124 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         type = FileType.FOLDER;
         ListPathsOptions rootLpo = new ListPathsOptions();
         rootLpo.setRecursive(false);
+        Map<String, AzureListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
         fileSystemClient
             .listPaths(rootLpo, null)
             .forEach(
                 pi -> {
                   String childName = pi.getName();
-                  // Only add non-empty, valid child names
                   if (!childName.isEmpty() && !childName.equals(".") && !childName.equals("..")) {
                     children.add(childName);
+                    cacheEntries.put(
+                        childName,
+                        new AzureListCache.ChildInfo(
+                            Boolean.TRUE.equals(pi.isDirectory()) ? FileType.FOLDER : FileType.FILE,
+                            pi.getContentLength(),
+                            pi.getLastModified() != null
+                                ? pi.getLastModified().toInstant()
+                                : Instant.EPOCH));
                   }
                 });
+        if (!cacheEntries.isEmpty()) {
+          getAbstractFileSystem().putListCache(containerName, "", cacheEntries);
+        }
       } else {
         lpo.setPath(currentFilePath);
-        DataLakeDirectoryClient directoryClient =
-            fileSystemClient.getDirectoryClient(currentFilePath);
-        final Boolean exists = directoryClient.exists();
 
-        final Boolean isDirectory =
-            exists
-                && fileSystemClient
-                    .getDirectoryClient(currentFilePath)
-                    .getProperties()
-                    .isDirectory();
-        final Boolean isFile = !isDirectory;
-        if (exists && isDirectory) {
-          children = new ArrayList<>();
-          lpo.setRecursive(false); // Only get immediate children, not recursive
-          PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
+        String strippedPath = StringUtils.removeStart(currentFilePath, "/");
+        String parentPrefix = AzureListCache.parentPrefix(strippedPath);
+        AzureListCache.ChildInfo cached =
+            getAbstractFileSystem().getFromListCache(containerName, parentPrefix, strippedPath);
 
-          // Normalize the current path for comparison
-          final String normalizedCurrentPath;
-          String tempPath = StringUtils.removeStart(currentFilePath, "/");
-          if (!tempPath.isEmpty() && !tempPath.endsWith("/")) {
-            normalizedCurrentPath = tempPath + "/";
-          } else {
-            normalizedCurrentPath = tempPath;
+        if (cached != null && cached.type == FileType.FILE) {
+          type = FileType.FILE;
+          size = cached.size;
+          lastModified = cached.lastModified != null ? cached.lastModified.toEpochMilli() : 0;
+          dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
+          attached = true;
+          return;
+        }
+
+        boolean knownFolder = cached != null && cached.type == FileType.FOLDER;
+
+        if (knownFolder) {
+          type = FileType.FOLDER;
+          lastModified = cached.lastModified != null ? cached.lastModified.toEpochMilli() : 0;
+        }
+
+        if (!knownFolder) {
+          DataLakeDirectoryClient directoryClient =
+              fileSystemClient.getDirectoryClient(currentFilePath);
+          final Boolean exists = directoryClient.exists();
+
+          final Boolean isDirectory =
+              exists
+                  && fileSystemClient
+                      .getDirectoryClient(currentFilePath)
+                      .getProperties()
+                      .isDirectory();
+          final Boolean isFile = !isDirectory;
+          if (exists && isFile) {
+            dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
+            size = dataLakeFileClient.getProperties().getFileSize();
+            type = FileType.FILE;
+            lastModified =
+                dataLakeFileClient.getProperties().getLastModified().toEpochSecond() * 1000L;
+            return;
+          } else if (!exists) {
+            lastModified = 0;
+            type = FileType.IMAGINARY;
+            size = 0;
+            pathItem = null;
+            dirPathItem = null;
+            return;
           }
-
-          pathItems.forEach(
-              item -> {
-                String itemName = item.getName();
-                String childName;
-
-                // Remove the current directory prefix to get the child name
-                if (!normalizedCurrentPath.isEmpty()
-                    && itemName.startsWith(normalizedCurrentPath)) {
-                  childName = itemName.substring(normalizedCurrentPath.length());
-                } else {
-                  childName = itemName;
-                }
-
-                // Remove any leading slashes
-                childName = StringUtils.removeStart(childName, "/");
-
-                // Only add non-empty, valid child names
-                if (!childName.isEmpty() && !childName.equals(".") && !childName.equals("..")) {
-                  children.add(childName);
-                }
-              });
-          size = children.size();
           type = FileType.FOLDER;
           lastModified = directoryClient.getProperties().getLastModified().toEpochSecond() * 1000L;
-        } else if (exists && isFile) {
-          dataLakeFileClient = fileSystemClient.getFileClient(currentFilePath);
-          size = dataLakeFileClient.getProperties().getFileSize();
-          type = FileType.FILE;
-          lastModified =
-              dataLakeFileClient.getProperties().getLastModified().toEpochSecond() * 1000L;
-        } else {
-          lastModified = 0;
-          type = FileType.IMAGINARY;
-          size = 0;
-          pathItem = null;
-          dirPathItem = null;
         }
+
+        children = new ArrayList<>();
+        lpo.setRecursive(false);
+        PagedIterable<PathItem> pathItems = fileSystemClient.listPaths(lpo, null);
+
+        final String normalizedCurrentPath;
+        String tempPath = StringUtils.removeStart(currentFilePath, "/");
+        if (!tempPath.isEmpty() && !tempPath.endsWith("/")) {
+          normalizedCurrentPath = tempPath + "/";
+        } else {
+          normalizedCurrentPath = tempPath;
+        }
+
+        Map<String, AzureListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
+        pathItems.forEach(
+            item -> {
+              String itemName = item.getName();
+              String childName;
+
+              if (!normalizedCurrentPath.isEmpty() && itemName.startsWith(normalizedCurrentPath)) {
+                childName = itemName.substring(normalizedCurrentPath.length());
+              } else {
+                childName = itemName;
+              }
+
+              childName = StringUtils.removeStart(childName, "/");
+
+              if (!childName.isEmpty() && !childName.equals(".") && !childName.equals("..")) {
+                children.add(childName);
+                cacheEntries.put(
+                    itemName,
+                    new AzureListCache.ChildInfo(
+                        Boolean.TRUE.equals(item.isDirectory()) ? FileType.FOLDER : FileType.FILE,
+                        item.getContentLength(),
+                        item.getLastModified() != null
+                            ? item.getLastModified().toInstant()
+                            : Instant.EPOCH));
+              }
+            });
+        if (!cacheEntries.isEmpty()) {
+          getAbstractFileSystem().putListCache(containerName, normalizedCurrentPath, cacheEntries);
+        }
+        size = children.size();
       }
     }
   }
@@ -364,6 +422,11 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         children = null;
         size = 0;
         lastModified = 0;
+        if (containerName != null && currentFilePath != null) {
+          getAbstractFileSystem()
+              .invalidateListCacheForParentOf(
+                  containerName, StringUtils.removeStart(currentFilePath, "/"));
+        }
       }
     }
   }
@@ -388,9 +451,12 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       // Start the copy operation
       fileClient.rename(
           containerName, ((AzureFileName) newfile.getName()).getPathAfterContainer().substring(1));
-      //      newBlob.startCopy(cloudBlob.getUri());
-      // Delete the original blob
-      // doDelete();
+      getAbstractFileSystem()
+          .invalidateListCacheForParentOf(
+              containerName, StringUtils.removeStart(currentFilePath, "/"));
+      String newPath = ((AzureFileName) newfile.getName()).getPathAfterContainer();
+      getAbstractFileSystem()
+          .invalidateListCacheForParentOf(containerName, StringUtils.removeStart(newPath, "/"));
     } else {
       throw new FileSystemException("Renaming of directories not supported on this file.");
     }
@@ -398,8 +464,12 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected void doCreateFolder() {
-    // create a folder, we already know the path
     service.getFileSystemClient(containerName).createDirectory(currentFilePath.substring(1));
+    if (containerName != null && currentFilePath != null) {
+      getAbstractFileSystem()
+          .invalidateListCacheForParentOf(
+              containerName, StringUtils.removeStart(currentFilePath, "/"));
+    }
   }
 
   @Override
@@ -419,6 +489,9 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
         throw new UnsupportedOperationException();
       }
       type = FileType.FILE;
+      getAbstractFileSystem()
+          .invalidateListCacheForParentOf(
+              containerName, StringUtils.removeStart(currentFilePath, "/"));
       return new BlockBlobOutputStream(dataLakeFileClient.getOutputStream());
     } else {
       throw new UnsupportedOperationException();

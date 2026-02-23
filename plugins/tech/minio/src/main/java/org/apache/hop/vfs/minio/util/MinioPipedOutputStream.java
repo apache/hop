@@ -84,6 +84,8 @@ public class MinioPipedOutputStream extends PipedOutputStream {
 
   @Override
   public void close() throws IOException {
+    // Start upload even when no bytes were written (0-byte file), so PutObject is still executed
+    initializeWrite();
     super.close();
     if (initialized && isBlockedUntilDone()) {
       while (!result.get()) {

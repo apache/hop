@@ -169,10 +169,8 @@ public class GoogleDriveFileObject extends AbstractFileObject {
         }
         ByteArrayContent fileContent =
             new ByteArrayContent("application/octet-stream", toByteArray());
-        if (count > 0) {
-          driveService.files().create(file, fileContent).execute();
-          ((GoogleDriveFileSystem) getFileSystem()).clearFileFromCache(getName());
-        }
+        driveService.files().create(file, fileContent).execute();
+        ((GoogleDriveFileSystem) getFileSystem()).clearFileFromCache(getName());
       }
     };
   }

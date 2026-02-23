@@ -51,9 +51,18 @@ public class MinioFileSystem extends AbstractFileSystem {
   protected long partSize;
 
   private MinioClient client;
+  private long listCacheTtlMs = MinioListCache.DEFAULT_TTL_MS;
+  private MinioListCache listCache;
 
   protected MinioFileSystem(final FileName rootName, final FileSystemOptions fileSystemOptions) {
     super(rootName, null, fileSystemOptions);
+  }
+
+  private MinioListCache getListCache() {
+    if (listCache == null) {
+      listCache = new MinioListCache(listCacheTtlMs);
+    }
+    return listCache;
   }
 
   @Override
@@ -125,5 +134,27 @@ public class MinioFileSystem extends AbstractFileSystem {
 
   public long convertToLong(String partSize) {
     return storageUnitConverter.displaySizeToByteCount(partSize);
+  }
+
+  public void setListCacheTtlMs(long listCacheTtlMs) {
+    this.listCacheTtlMs = listCacheTtlMs;
+  }
+
+  void putListCache(
+      String bucket, String prefix, java.util.Map<String, MinioListCache.ChildInfo> entries) {
+    getListCache().put(bucket, prefix, entries);
+  }
+
+  MinioListCache.ChildInfo getFromListCache(
+      String bucket, String parentPrefix, String childFullKey) {
+    return getListCache().get(bucket, parentPrefix, childFullKey);
+  }
+
+  void invalidateListCache(String bucket, String prefix) {
+    getListCache().invalidate(bucket, prefix);
+  }
+
+  void invalidateListCacheForParentOf(String bucket, String key) {
+    getListCache().invalidateParentOf(bucket, key);
   }
 }

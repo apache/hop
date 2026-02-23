@@ -56,8 +56,15 @@ public class S3FileProvider extends S3CommonFileProvider {
   @Override
   public FileSystem doCreateFileSystem(
       final FileName name, final FileSystemOptions fileSystemOptions) {
-    FileSystemOptions options =
-        fileSystemOptions != null ? fileSystemOptions : getDefaultFileSystemOptions();
+    // Named connections (s3test:// etc.) must use a dedicated options instance so we never
+    // mutate the default options used by s3://. Otherwise using s3test:// would overwrite
+    // the default S3 configuration.
+    final FileSystemOptions options;
+    if (s3Meta != null && variables != null) {
+      options = new FileSystemOptions();
+    } else {
+      options = fileSystemOptions != null ? fileSystemOptions : getDefaultFileSystemOptions();
+    }
 
     if (s3Meta != null && variables != null) {
       S3CommonFileSystemConfigBuilder config = new S3CommonFileSystemConfigBuilder(options);
@@ -68,6 +75,8 @@ public class S3FileProvider extends S3CommonFileProvider {
           authType = S3AuthType.ACCESS_KEYS.name();
         } else if (StringUtils.isNotEmpty(s3Meta.getCredentialsFile())) {
           authType = S3AuthType.CREDENTIALS_FILE.name();
+        } else if (S3AuthType.ANONYMOUS.name().equals(s3Meta.getAuthenticationType())) {
+          authType = S3AuthType.ANONYMOUS.name();
         } else {
           authType = S3AuthType.DEFAULT.name();
         }
@@ -108,13 +117,14 @@ public class S3FileProvider extends S3CommonFileProvider {
         if (StringUtils.isNotEmpty(profileName)) {
           config.setProfileName(profileName);
         }
+      } else if (S3AuthType.ANONYMOUS.name().equals(authType)) {
+        config.setUseAnonymousAccess(true);
       }
       config.setPathStyleAccess(String.valueOf(s3Meta.isPathStyleAccess()));
       String cacheTtl = variables.resolve(s3Meta.getCacheTtlSeconds());
       if (StringUtils.isNotEmpty(cacheTtl)) {
         config.setCacheTtlSeconds(cacheTtl);
       }
-      options = config.getFileSystemOptions();
     }
 
     return new S3FileSystem(name, options);

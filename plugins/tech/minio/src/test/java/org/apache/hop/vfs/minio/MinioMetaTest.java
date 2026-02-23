@@ -40,6 +40,7 @@ class MinioMetaTest {
   void testDefaultConstructor() {
     assertNotNull(minioMeta, "MinioMeta should not be null");
     assertEquals("5242880", minioMeta.getPartSize(), "Default part size should be 5MB");
+    assertEquals("5", minioMeta.getCacheTtlSeconds(), "Default cache TTL should be 5 seconds");
   }
 
   @Test
@@ -102,6 +103,16 @@ class MinioMetaTest {
   }
 
   @Test
+  void testCacheTtlSeconds() {
+    String cacheTtlSeconds = "30";
+    minioMeta.setCacheTtlSeconds(cacheTtlSeconds);
+    assertEquals(
+        cacheTtlSeconds,
+        minioMeta.getCacheTtlSeconds(),
+        "Cache TTL (seconds) should be set correctly");
+  }
+
+  @Test
   void testAllProperties() {
     String description = "Test MinIO connection";
     String hostname = "minio.example.com";
@@ -111,6 +122,7 @@ class MinioMetaTest {
     String secretKey = "test-secret-key";
     String region = "us-west-2";
     String partSize = "10485760";
+    String cacheTtlSeconds = "60";
 
     minioMeta.setDescription(description);
     minioMeta.setEndPointHostname(hostname);
@@ -120,6 +132,7 @@ class MinioMetaTest {
     minioMeta.setSecretKey(secretKey);
     minioMeta.setRegion(region);
     minioMeta.setPartSize(partSize);
+    minioMeta.setCacheTtlSeconds(cacheTtlSeconds);
 
     assertEquals(description, minioMeta.getDescription(), "Description should be set correctly");
     assertEquals(
@@ -130,6 +143,10 @@ class MinioMetaTest {
     assertEquals(secretKey, minioMeta.getSecretKey(), "Secret key should be set correctly");
     assertEquals(region, minioMeta.getRegion(), "Region should be set correctly");
     assertEquals(partSize, minioMeta.getPartSize(), "Part size should be set correctly");
+    assertEquals(
+        cacheTtlSeconds,
+        minioMeta.getCacheTtlSeconds(),
+        "Cache TTL (seconds) should be set correctly");
   }
 
   @Test
@@ -141,6 +158,7 @@ class MinioMetaTest {
     minioMeta.setSecretKey(null);
     minioMeta.setRegion(null);
     minioMeta.setPartSize(null);
+    minioMeta.setCacheTtlSeconds(null);
 
     assertNull(minioMeta.getDescription(), "Description should be null");
     assertNull(minioMeta.getEndPointHostname(), "EndPoint hostname should be null");
@@ -149,5 +167,6 @@ class MinioMetaTest {
     assertNull(minioMeta.getSecretKey(), "Secret key should be null");
     assertNull(minioMeta.getRegion(), "Region should be null");
     assertNull(minioMeta.getPartSize(), "Part size should be null");
+    assertNull(minioMeta.getCacheTtlSeconds(), "Cache TTL should be null");
   }
 }

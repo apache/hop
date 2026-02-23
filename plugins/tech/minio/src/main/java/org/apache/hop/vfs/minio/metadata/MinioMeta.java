@@ -47,6 +47,7 @@ public class MinioMeta extends HopMetadataBase implements Serializable, IHopMeta
   private static final String WIDGET_ID_MINIO_ENDPOINT_SECURE = "10220-minio-endpoint-secure";
   private static final String WIDGET_ID_MINIO_REGION = "10300-minio-region";
   private static final String WIDGET_ID_MINIO_PART_SIZE = "10400-minio-part-size";
+  private static final String WIDGET_ID_MINIO_CACHE_TTL_SECONDS = "10410-minio-cache-ttl-seconds";
 
   @GuiWidgetElement(
       id = WIDGET_ID_MINIO_DESCRIPTION,
@@ -122,8 +123,18 @@ public class MinioMeta extends HopMetadataBase implements Serializable, IHopMeta
   @HopMetadataProperty
   private String partSize;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_MINIO_CACHE_TTL_SECONDS,
+      parentId = MinioMetaEditor.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "i18n:org.apache.hop.vfs.minio.metadata:MinioVFS.CacheTtl.Label",
+      toolTip = "i18n:org.apache.hop.vfs.minio.metadata:MinioVFS.CacheTtl.Description")
+  @HopMetadataProperty
+  private String cacheTtlSeconds;
+
   public MinioMeta() {
     // Do nothing
     this.partSize = Integer.toString(5 * 1024 * 1024);
+    this.cacheTtlSeconds = "5";
   }
 }

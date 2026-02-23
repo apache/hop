@@ -20,6 +20,7 @@ package org.apache.hop.vfs.gs;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
@@ -33,7 +34,9 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
@@ -51,6 +54,10 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
   String bucketName;
   String bucketPath;
   String scheme;
+
+  private FileType cachedType = null;
+  private Long cachedSize = null;
+  private Instant cachedLastModified = null;
 
   protected GoogleStorageFileObject(
       String scheme, AbstractFileName name, GoogleStorageFileSystem fs) {
@@ -86,6 +93,20 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
         this.bucket = storage.get(bucketName);
       }
       if (!bucketPath.isEmpty() && this.blob == null) {
+        String parentPrefix = GoogleStorageListCache.parentPrefix(bucketPath);
+        GoogleStorageListCache.ChildInfo cached =
+            getAbstractFileSystem().getFromListCache(bucketName, parentPrefix, bucketPath);
+        if (cached == null) {
+          cached =
+              getAbstractFileSystem().getFromListCache(bucketName, parentPrefix, bucketPath + "/");
+        }
+        if (cached != null) {
+          cachedType = cached.type;
+          cachedSize = cached.size;
+          cachedLastModified = cached.lastModified;
+          return;
+        }
+
         this.blob = storage.get(bucketName, bucketPath);
         String parent = getParentFolder(bucketPath);
         String child = lastPathElement(stripTrailingSlash(bucketPath));
@@ -112,6 +133,9 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
 
   @Override
   protected long doGetContentSize() throws Exception {
+    if (cachedSize != null) {
+      return cachedSize;
+    }
     return hasObject() ? blob.getSize() : 0L;
   }
 
@@ -121,11 +145,17 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       throw new FileNotFoundException();
     }
     Storage storage = getAbstractFileSystem().setupStorage();
-    return new ReadChannelInputStream(storage.reader(blob.getBlobId()));
+    if (blob != null) {
+      return new ReadChannelInputStream(storage.reader(blob.getBlobId()));
+    }
+    return new ReadChannelInputStream(storage.reader(BlobId.of(bucketName, bucketPath)));
   }
 
   @Override
   protected FileType doGetType() throws Exception {
+    if (cachedType != null) {
+      return cachedType;
+    }
     if (getName() instanceof GoogleStorageFileName) {
       return getName().getType();
     }
@@ -154,18 +184,34 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
         results.add(b.getName());
       }
     } else {
-      Page<Blob> page;
+      String prefix;
       if (!bucketPath.isEmpty()) {
+        prefix = appendTrailingSlash(bucketPath);
+      } else {
+        prefix = "";
+      }
+      Page<Blob> page;
+      if (!prefix.isEmpty()) {
         page =
             storage.list(
-                bucketName,
-                BlobListOption.currentDirectory(),
-                BlobListOption.prefix(appendTrailingSlash(bucketPath)));
+                bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(prefix));
       } else {
         page = storage.list(bucketName, BlobListOption.currentDirectory());
       }
+      Map<String, GoogleStorageListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
       for (Blob b : page.iterateAll()) {
         results.add(lastPathElement(stripTrailingSlash(b.getName())));
+        FileType childType = b.isDirectory() ? FileType.FOLDER : FileType.FILE;
+        long childSize = b.getSize() != null ? b.getSize() : 0L;
+        Instant childLastMod =
+            b.getUpdateTimeOffsetDateTime() != null
+                ? b.getUpdateTimeOffsetDateTime().toInstant()
+                : Instant.EPOCH;
+        cacheEntries.put(
+            b.getName(), new GoogleStorageListCache.ChildInfo(childType, childSize, childLastMod));
+      }
+      if (!cacheEntries.isEmpty()) {
+        getAbstractFileSystem().putListCache(bucketName, prefix, cacheEntries);
       }
     }
     return results.toArray(new String[0]);
@@ -179,6 +225,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
     } else {
       this.blob =
           storage.create(BlobInfo.newBuilder(bucket, appendTrailingSlash(bucketPath)).build());
+      getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
     }
   }
 
@@ -190,16 +237,23 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
     if (!blob.delete()) {
       throw new IOException("Failed to delete object '" + this + "' (not found)");
     }
+    getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
   }
 
   @Override
   protected void doDetach() throws Exception {
     bucket = null;
     blob = null;
+    cachedType = null;
+    cachedSize = null;
+    cachedLastModified = null;
   }
 
   @Override
   protected long doGetLastModifiedTime() throws Exception {
+    if (cachedLastModified != null && !Instant.EPOCH.equals(cachedLastModified)) {
+      return cachedLastModified.toEpochMilli();
+    }
     if (hasObject()) {
       GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
       if (isFolder()) {
@@ -237,6 +291,7 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
       this.blob =
           storage.create(BlobInfo.newBuilder(bucket, stripTrailingSlash(bucketPath)).build());
     }
+    getAbstractFileSystem().invalidateListCacheForParentOf(bucketName, bucketPath);
     return new WriteChannelOutputStream(storage.writer(blob));
   }
 
@@ -257,30 +312,46 @@ public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFil
                 getAbstractFileSystem()));
       }
     } else {
-      Page<Blob> page;
+      String prefix;
       if (!bucketPath.isEmpty()) {
+        prefix = appendTrailingSlash(bucketPath);
+      } else {
+        prefix = "";
+      }
+      Page<Blob> page;
+      if (!prefix.isEmpty()) {
         page =
             storage.list(
-                bucketName,
-                BlobListOption.currentDirectory(),
-                BlobListOption.prefix(appendTrailingSlash(bucketPath)));
+                bucketName, BlobListOption.currentDirectory(), BlobListOption.prefix(prefix));
       } else {
         page = storage.list(bucketName, BlobListOption.currentDirectory());
       }
+      Map<String, GoogleStorageListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
       for (Blob b : page.iterateAll()) {
         if (this.blob != null && b.getName().equals(this.blob.getName())) {
           continue;
         }
+        FileType childType = b.isDirectory() ? FileType.FOLDER : FileType.FILE;
+        long childSize = b.getSize() != null ? b.getSize() : 0L;
+        Instant childLastMod =
+            b.getUpdateTimeOffsetDateTime() != null
+                ? b.getUpdateTimeOffsetDateTime().toInstant()
+                : Instant.EPOCH;
+        cacheEntries.put(
+            b.getName(), new GoogleStorageListCache.ChildInfo(childType, childSize, childLastMod));
         results.add(
             new GoogleStorageFileObject(
                 scheme,
                 new GoogleStorageFileName(
                     scheme,
                     getName().getPath() + "/" + lastPathElement(stripTrailingSlash(b.getName())),
-                    b.isDirectory() ? FileType.FOLDER : FileType.FILE),
+                    childType),
                 getAbstractFileSystem(),
                 this.bucket != null ? bucket : storage.get(bucketName),
                 b));
+      }
+      if (!cacheEntries.isEmpty()) {
+        getAbstractFileSystem().putListCache(bucketName, prefix, cacheEntries);
       }
     }
     return results.toArray(new FileObject[0]);

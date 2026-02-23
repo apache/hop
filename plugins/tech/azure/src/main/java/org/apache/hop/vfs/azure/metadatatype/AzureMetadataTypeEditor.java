@@ -48,6 +48,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
   private Label wlStorageAccountKey;
   private PasswordTextVar wStorageAccountKey;
   private TextVar wStorageAccountEndpoint;
+  private TextVar wCacheTtlSeconds;
 
   public AzureMetadataTypeEditor(
       HopGui hopGui, MetadataManager<AzureMetadataType> manager, AzureMetadataType metadata) {
@@ -184,6 +185,26 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     wStorageAccountKey.setLayoutData(fdStorageAccountKey);
     lastControl = wStorageAccountKey;
 
+    // Cache TTL (seconds)
+    //
+    Label wlCacheTtlSeconds = new Label(parent, SWT.RIGHT);
+    PropsUi.setLook(wlCacheTtlSeconds);
+    wlCacheTtlSeconds.setText(
+        BaseMessages.getString(PKG, "AzureMetadataTypeEditor.CacheTtlSeconds.Label"));
+    FormData fdlCacheTtlSeconds = new FormData();
+    fdlCacheTtlSeconds.top = new FormAttachment(lastControl, margin);
+    fdlCacheTtlSeconds.left = new FormAttachment(0, 0);
+    fdlCacheTtlSeconds.right = new FormAttachment(middle, -margin);
+    wlCacheTtlSeconds.setLayoutData(fdlCacheTtlSeconds);
+    wCacheTtlSeconds = new TextVar(getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCacheTtlSeconds);
+    FormData fdCacheTtlSeconds = new FormData();
+    fdCacheTtlSeconds.top = new FormAttachment(wlCacheTtlSeconds, 0, SWT.CENTER);
+    fdCacheTtlSeconds.left = new FormAttachment(middle, 0);
+    fdCacheTtlSeconds.right = new FormAttachment(95, 0);
+    wCacheTtlSeconds.setLayoutData(fdCacheTtlSeconds);
+    lastControl = wCacheTtlSeconds;
+
     // Add listener to authentication type to show/hide storage account key
     wAuthenticationType.addModifyListener(
         e -> {
@@ -203,6 +224,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     wAuthenticationType.addModifyListener(e -> setChanged());
     wStorageAccountKey.addModifyListener(e -> setChanged());
     wStorageAccountEndpoint.addModifyListener(e -> setChanged());
+    wCacheTtlSeconds.addModifyListener(e -> setChanged());
   }
 
   @Override
@@ -214,6 +236,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     wAuthenticationType.setText(Const.NVL(azureMetadataType.getAuthenticationType(), "Key"));
     wStorageAccountKey.setText(Const.NVL(azureMetadataType.getStorageAccountKey(), ""));
     wStorageAccountEndpoint.setText(Const.NVL(azureMetadataType.getStorageAccountEndpoint(), ""));
+    wCacheTtlSeconds.setText(Const.NVL(azureMetadataType.getCacheTtlSeconds(), "5"));
 
     // Show/hide storage account key based on authentication type
     String authType = wAuthenticationType.getText();
@@ -230,6 +253,7 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
     azureMetadataType.setAuthenticationType(wAuthenticationType.getText());
     azureMetadataType.setStorageAccountKey(wStorageAccountKey.getText());
     azureMetadataType.setStorageAccountEndpoint(wStorageAccountEndpoint.getText());
+    azureMetadataType.setCacheTtlSeconds(wCacheTtlSeconds.getText());
   }
 
   @Override

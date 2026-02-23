@@ -217,6 +217,7 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
           BaseMessages.getString(PKG, "S3Meta.AuthType.Default"),
           BaseMessages.getString(PKG, "S3Meta.AuthType.AccessKeys"),
           BaseMessages.getString(PKG, "S3Meta.AuthType.CredentialsFile"),
+          BaseMessages.getString(PKG, "S3Meta.AuthType.Anonymous"),
         });
     FormData fdAuthType = new FormData();
     fdAuthType.top = new FormAttachment(wlAuthType, 0, SWT.CENTER);
@@ -496,6 +497,8 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
       authIdx = 1;
     } else if (S3AuthType.CREDENTIALS_FILE.name().equals(authType)) {
       authIdx = 2;
+    } else if (S3AuthType.ANONYMOUS.name().equals(authType)) {
+      authIdx = 3;
     }
     wAuthType.select(authIdx);
 
@@ -532,6 +535,13 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
       meta.setSessionToken(null);
       meta.setCredentialsFile(wCredentialsFile.getText());
       meta.setProfileName(wProfileName.getText());
+    } else if (authIdx == 3) {
+      meta.setAuthenticationType(S3AuthType.ANONYMOUS.name());
+      meta.setAccessKey(null);
+      meta.setSecretKey(null);
+      meta.setSessionToken(null);
+      meta.setCredentialsFile(null);
+      meta.setProfileName(null);
     } else {
       meta.setAuthenticationType(S3AuthType.DEFAULT.name());
       meta.setAccessKey(null);

@@ -103,6 +103,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
 
   @Override
   public void close() throws IOException {
+    initializeWrite();
     super.close();
     if (initialized && isBlockedUntilDone()) {
       while (!result.isDone()) {

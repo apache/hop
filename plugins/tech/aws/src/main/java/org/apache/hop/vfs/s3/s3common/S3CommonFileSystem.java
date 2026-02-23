@@ -27,6 +27,7 @@ import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.vfs.s3.amazon.s3.S3Util;
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
@@ -117,32 +118,76 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
       }
 
       boolean crossRegion = S3Util.isEmpty(region);
-      S3ClientBuilder builder =
-          S3Client.builder()
-              .crossRegionAccessEnabled(crossRegion)
-              .region(awsRegion)
-              .credentialsProvider(
-                  credentialsProvider != null
-                      ? credentialsProvider
-                      : DefaultCredentialsProvider.create());
+      if (cfg.getUseAnonymousAccess()) {
+        // Named connection with "Anonymous access": single client, no credentials
+        S3ClientBuilder anonymousBuilder =
+            S3Client.builder()
+                .crossRegionAccessEnabled(crossRegion)
+                .region(awsRegion)
+                .credentialsProvider(AnonymousCredentialsProvider.create());
+        if (!S3Util.isEmpty(endpoint)) {
+          anonymousBuilder.endpointOverride(URI.create(endpoint)).forcePathStyle(pathStyle);
+        }
+        client = anonymousBuilder.build();
+      } else if (credentialsProvider != null) {
+        // Explicit credentials: single client
+        S3ClientBuilder builder =
+            S3Client.builder()
+                .crossRegionAccessEnabled(crossRegion)
+                .region(awsRegion)
+                .credentialsProvider(credentialsProvider);
 
-      if (!S3Util.isEmpty(endpoint)) {
-        builder.endpointOverride(URI.create(endpoint)).forcePathStyle(pathStyle);
+        if (!S3Util.isEmpty(endpoint)) {
+          builder.endpointOverride(URI.create(endpoint)).forcePathStyle(pathStyle);
+        }
+
+        client = builder.build();
+      } else {
+        // Default client: use default credential chain first, fall back to anonymous on 403.
+        // This keeps the behavior that worked in the past (public buckets work without
+        // credentials).
+        S3ClientBuilder baseBuilder =
+            S3Client.builder().crossRegionAccessEnabled(crossRegion).region(awsRegion);
+
+        if (!S3Util.isEmpty(endpoint)) {
+          baseBuilder.endpointOverride(URI.create(endpoint)).forcePathStyle(pathStyle);
+        }
+
+        S3Client primaryClient =
+            baseBuilder.credentialsProvider(DefaultCredentialsProvider.create()).build();
+
+        S3ClientBuilder anonymousBuilder =
+            S3Client.builder()
+                .crossRegionAccessEnabled(crossRegion)
+                .region(awsRegion)
+                .credentialsProvider(AnonymousCredentialsProvider.create());
+        if (!S3Util.isEmpty(endpoint)) {
+          anonymousBuilder.endpointOverride(URI.create(endpoint)).forcePathStyle(pathStyle);
+        }
+        S3Client anonymousClient = anonymousBuilder.build();
+
+        client = S3ClientWithAnonymousFallback.create(primaryClient, anonymousClient);
       }
-
-      client = builder.build();
     }
     if (client == null || hasClientChangedCredentials()) {
       try {
+        // No options (e.g. plain s3://): default chain with anonymous fallback on 403
         String regionStr = System.getenv(S3Util.AWS_REGION);
         Region region = regionStr != null ? Region.of(regionStr) : Region.US_EAST_1;
         boolean crossRegion = S3Util.isEmpty(regionStr);
-        client =
+        S3Client primaryClient =
             S3Client.builder()
                 .crossRegionAccessEnabled(crossRegion)
                 .region(region)
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
+        S3Client anonymousClient =
+            S3Client.builder()
+                .crossRegionAccessEnabled(crossRegion)
+                .region(region)
+                .credentialsProvider(AnonymousCredentialsProvider.create())
+                .build();
+        client = S3ClientWithAnonymousFallback.create(primaryClient, anonymousClient);
         awsAccessKeyCache = System.getProperty(S3Util.ACCESS_KEY_SYSTEM_PROPERTY);
         awsSecretKeyCache = System.getProperty(S3Util.SECRET_KEY_SYSTEM_PROPERTY);
       } catch (Throwable t) {

@@ -74,6 +74,8 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       "10900-google-cloud-service-connect-timeout";
   private static final String WIDGET_ID_GOOGLE_CLOUD_SERVICE_READ_TIMEOUT =
       "1100-google-cloud-service-read-timeout";
+  private static final String WIDGET_ID_GOOGLE_CLOUD_CACHE_TTL_SECONDS =
+      "11100-google-cloud-cache-ttl-seconds";
 
   @GuiWidgetElement(
       id = WIDGET_ID_GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY_FILE,
@@ -186,6 +188,15 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       toolTip = "i18n::GoogleCloudPlugin.ReadTimeout.Description")
   private String readTimeout;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_GOOGLE_CLOUD_CACHE_TTL_SECONDS,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      variables = true,
+      label = "i18n::GoogleCloudPlugin.CacheTtlSeconds.Label",
+      toolTip = "i18n::GoogleCloudPlugin.CacheTtlSeconds.Description")
+  private String cacheTtlSeconds;
+
   /**
    * Gets instance
    *
@@ -207,6 +218,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
     instance.maxRpcTimeout = config.getMaxRpcTimeout();
     instance.connectTimeout = config.getConnectionTimeout();
     instance.readTimeout = config.getReadTimeout();
+    instance.cacheTtlSeconds = config.getCacheTtlSeconds();
 
     return instance;
   }
@@ -297,6 +309,12 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         changed = true;
       }
 
+      if (cacheTtlSeconds != null) {
+        config.setCacheTtlSeconds(cacheTtlSeconds);
+        log.logBasic("Google Cloud list cache TTL (seconds) set to " + cacheTtlSeconds);
+        changed = true;
+      }
+
       // Save to file if anything changed
       //
       if (changed) {
@@ -377,6 +395,10 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
         case WIDGET_ID_GOOGLE_CLOUD_SERVICE_READ_TIMEOUT:
           readTimeout = ((TextVar) control).getText();
           GoogleCloudConfigSingleton.getConfig().setReadTimeout(readTimeout);
+          break;
+        case WIDGET_ID_GOOGLE_CLOUD_CACHE_TTL_SECONDS:
+          cacheTtlSeconds = ((TextVar) control).getText();
+          GoogleCloudConfigSingleton.getConfig().setCacheTtlSeconds(cacheTtlSeconds);
           break;
         default:
           break;

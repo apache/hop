@@ -39,6 +39,9 @@ public class GoogleCloudConfig {
   private String connectionTimeout;
   private String readTimeout;
 
+  /** Cache TTL in seconds for list-result caching (same as S3/MinIO/Azure). */
+  private String cacheTtlSeconds;
+
   public GoogleCloudConfig() {
     scanFoldersForLastModifDate = false;
     maxAttempts = "6";
@@ -51,6 +54,7 @@ public class GoogleCloudConfig {
     maxRpcTimeout = "50";
     connectionTimeout = "20";
     readTimeout = "20";
+    cacheTtlSeconds = "5";
   }
 
   public GoogleCloudConfig(GoogleCloudConfig config) {
@@ -67,5 +71,6 @@ public class GoogleCloudConfig {
     maxRpcTimeout = config.maxRpcTimeout;
     connectionTimeout = config.connectionTimeout;
     readTimeout = config.readTimeout;
+    cacheTtlSeconds = config.cacheTtlSeconds;
   }
 }

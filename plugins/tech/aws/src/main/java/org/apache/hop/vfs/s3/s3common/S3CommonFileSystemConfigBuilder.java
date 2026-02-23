@@ -36,6 +36,7 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
   private static final String ENDPOINT = "endpoint";
   private static final String PATH_STYLE_ACCESS = "pathSyleAccess";
   private static final String CACHE_TTL_SECONDS = "cacheTtlSeconds";
+  private static final String USE_ANONYMOUS_ACCESS = "useAnonymousAccess";
 
   @Getter @Setter private FileSystemOptions fileSystemOptions;
 
@@ -113,6 +114,15 @@ public class S3CommonFileSystemConfigBuilder extends FileSystemConfigBuilder {
 
   public String getCacheTtlSeconds() {
     return (String) this.getParam(getFileSystemOptions(), CACHE_TTL_SECONDS);
+  }
+
+  public void setUseAnonymousAccess(boolean useAnonymousAccess) {
+    this.setParam(getFileSystemOptions(), USE_ANONYMOUS_ACCESS, useAnonymousAccess);
+  }
+
+  public boolean getUseAnonymousAccess() {
+    Boolean value = (Boolean) this.getParam(getFileSystemOptions(), USE_ANONYMOUS_ACCESS);
+    return Boolean.TRUE.equals(value);
   }
 
   @Override

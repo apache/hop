@@ -167,4 +167,15 @@ class S3FileProviderTest {
     FileSystem fs = namedProvider.doCreateFileSystem(fileName, null);
     assertNotNull(fs);
   }
+
+  @Test
+  void testDoCreateFileSystemWithAnonymousAuth() {
+    S3Meta meta = new S3Meta();
+    meta.setAuthenticationType(S3AuthType.ANONYMOUS.name());
+    meta.setRegion("us-east-1");
+
+    S3FileProvider namedProvider = new S3FileProvider(variables, meta);
+    FileSystem fs = namedProvider.doCreateFileSystem(fileName, null);
+    assertNotNull(fs);
+  }
 }

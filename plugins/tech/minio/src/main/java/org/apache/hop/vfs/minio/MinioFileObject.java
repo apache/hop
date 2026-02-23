@@ -38,9 +38,12 @@ import io.minio.messages.Item;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -62,6 +65,10 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   protected MinioPipedOutputStream outputStream;
   protected GetObjectResponse responseInputStream;
+
+  private FileType cachedType = null;
+  private Long cachedSize = null;
+  private Instant cachedLastModified = null;
 
   protected MinioFileObject(final AbstractFileName name, final MinioFileSystem fileSystem) {
     super(name, fileSystem);
@@ -91,6 +98,9 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   @Override
   protected long doGetContentSize() {
+    if (cachedSize != null) {
+      return cachedSize;
+    }
     if (statObjectResponse != null) {
       return statObjectResponse.size();
     } else {
@@ -116,7 +126,6 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
   protected String[] doListChildren() throws Exception {
     List<String> childrenList = new ArrayList<>();
 
-    // Do we need to list the buckets as "folders" of the root?
     if (isRootBucket()) {
       List<Bucket> buckets = fileSystem.getClient().listBuckets();
       for (Bucket bucket : buckets) {
@@ -127,17 +136,31 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
       if (!path.endsWith("/")) {
         path += DELIMITER;
       }
-      // The regular case
+      String prefix = path.equals(DELIMITER) ? "" : path;
+
       ListObjectsArgs.Builder listObjectsArgsBuilder = ListObjectsArgs.builder().bucket(bucketName);
-      if (!path.equals(DELIMITER)) listObjectsArgsBuilder.prefix(path);
+      if (!prefix.isEmpty()) {
+        listObjectsArgsBuilder.prefix(prefix);
+      }
 
       ListObjectsArgs args = listObjectsArgsBuilder.build();
       Iterable<Result<Item>> results = fileSystem.getClient().listObjects(args);
+      Map<String, MinioListCache.ChildInfo> cacheEntries = new LinkedHashMap<>();
       for (Result<Item> result : results) {
         Item item = result.get();
         if (item != null) {
           String objectName = item.objectName();
+          FileType childType = item.isDir() ? FileType.FOLDER : FileType.FILE;
+          long childSize = item.size();
+          Instant childLastMod =
+              item.lastModified() != null ? item.lastModified().toInstant() : Instant.EPOCH;
+
+          cacheEntries.put(
+              objectName, new MinioListCache.ChildInfo(childType, childSize, childLastMod));
           if (item.isDir() && !objectName.endsWith(DELIMITER)) {
+            cacheEntries.put(
+                objectName + DELIMITER,
+                new MinioListCache.ChildInfo(childType, childSize, childLastMod));
             objectName += DELIMITER;
           }
 
@@ -148,6 +171,9 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
             }
           }
         }
+      }
+      if (!cacheEntries.isEmpty()) {
+        fileSystem.putListCache(bucketName, prefix, cacheEntries);
       }
     }
     return childrenList.toArray(new String[0]);
@@ -163,8 +189,6 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   @Override
   public void doAttach() throws FileSystemException {
-    // This allows us to sprinkle doAttach() where needed without incurring a performance hit.
-    //
     if (attached) {
       return;
     }
@@ -173,32 +197,34 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
     LogChannel.GENERAL.logDebug("Attach called on {0}", getQualifiedName());
     injectType(FileType.IMAGINARY);
 
-    // The root bucket is minio:/// and is a folder
-    // If the key is empty and the bucket is known, it's also a folder
-    //
     if (StringUtils.isEmpty(key)) {
-      // cannot attach to root bucket
       injectType(FileType.FOLDER);
       return;
     }
 
+    String parentPrefix = MinioListCache.parentPrefix(key);
+    MinioListCache.ChildInfo cached = fileSystem.getFromListCache(bucketName, parentPrefix, key);
+    if (cached == null && !key.endsWith(DELIMITER)) {
+      cached = fileSystem.getFromListCache(bucketName, parentPrefix, key + DELIMITER);
+    }
+    if (cached != null) {
+      cachedType = cached.type;
+      cachedSize = cached.size;
+      cachedLastModified = cached.lastModified;
+      injectType(cached.type);
+      return;
+    }
+
     try {
-      // We'll first try the file scenario:
-      //
       StatObjectArgs statArgs = StatObjectArgs.builder().bucket(bucketName).object(key).build();
       statObjectResponse = fileSystem.getClient().statObject(statArgs);
 
-      // In MinIO keys with a trailing slash (delimiter), are considered folders.
-      //
       if (key.endsWith(DELIMITER)) {
         injectType(FileType.FOLDER);
       } else {
         injectType(getName().getType());
       }
     } catch (Exception e) {
-      // File does not exist.
-      // Perhaps it's a folder and we can find it by looking for the key with an extra slash?
-      //
       if (key.endsWith(DELIMITER)) {
         statObjectResponse = null;
       } else {
@@ -208,7 +234,6 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
           statObjectResponse = fileSystem.getClient().statObject(statArgs);
           injectType(FileType.FOLDER);
         } catch (Exception ex) {
-          // Still doesn't exist?
           statObjectResponse = null;
         }
       }
@@ -232,6 +257,9 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
       outputStream = null;
       responseInputStream = null;
       statObjectResponse = null;
+      cachedType = null;
+      cachedSize = null;
+      cachedLastModified = null;
       attached = false;
     }
   }
@@ -274,6 +302,7 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
       RemoveObjectArgs removeObjectArgs =
           RemoveObjectArgs.builder().bucket(bucketName).object(key).build();
       fileSystem.getClient().removeObject(removeObjectArgs);
+      fileSystem.invalidateListCacheForParentOf(bucketName, key);
       doDetach();
     } catch (Exception e) {
       throw new FileSystemException("Error deleting object " + key + " in bucket " + bucketName, e);
@@ -317,6 +346,7 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
               .stream(new ByteArrayInputStream(new byte[] {}), 0, -1)
               .build();
       client.putObject(args);
+      fileSystem.invalidateListCacheForParentOf(bucketName, key);
     } catch (Exception e) {
       throw new FileSystemException("Error creating folder", e);
     } finally {
@@ -353,6 +383,9 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
 
   @Override
   public long doGetLastModifiedTime() {
+    if (cachedLastModified != null && !Instant.EPOCH.equals(cachedLastModified)) {
+      return cachedLastModified.toEpochMilli();
+    }
     if (statObjectResponse == null) {
       return 0;
     }
@@ -370,6 +403,7 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
                 .contentType("binary/octet-stream")
                 .build();
         fileSystem.getClient().putObject(args);
+        fileSystem.invalidateListCacheForParentOf(bucketName, key);
       } catch (Exception e) {
         throw new FileSystemException("vfs.provider.local/create-folder.error", this, e);
       }
@@ -404,11 +438,11 @@ public class MinioFileObject extends AbstractFileObject<MinioFileSystem> {
             .build();
     fileSystem.getClient().copyObject(args);
 
-    // Delete self
+    fileSystem.invalidateListCacheForParentOf(bucketName, key);
+    fileSystem.invalidateListCacheForParentOf(dest.bucketName, dest.key);
+
     delete();
 
-    // Invalidate metadata: the old file no longer exists
-    //
     closeMinio();
   }
 

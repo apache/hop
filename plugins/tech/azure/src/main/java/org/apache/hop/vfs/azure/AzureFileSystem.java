@@ -32,6 +32,8 @@ public class AzureFileSystem extends AbstractFileSystem {
   private final DataLakeServiceClient serviceClient;
   private final String fsName;
   private final String account;
+  private long listCacheTtlMs = AzureListCache.DEFAULT_TTL_MS;
+  private AzureListCache listCache;
 
   public AzureFileSystem(
       AzureFileName fileName,
@@ -44,6 +46,17 @@ public class AzureFileSystem extends AbstractFileSystem {
     this.serviceClient = serviceClient;
     this.fsName = fsName;
     this.account = account;
+  }
+
+  public void setListCacheTtlMs(long listCacheTtlMs) {
+    this.listCacheTtlMs = listCacheTtlMs;
+  }
+
+  private AzureListCache getListCache() {
+    if (listCache == null) {
+      listCache = new AzureListCache(listCacheTtlMs);
+    }
+    return listCache;
   }
 
   @Override
@@ -62,5 +75,23 @@ public class AzureFileSystem extends AbstractFileSystem {
 
   public String getAccount() {
     return account;
+  }
+
+  void putListCache(
+      String container, String prefix, java.util.Map<String, AzureListCache.ChildInfo> entries) {
+    getListCache().put(container, prefix, entries);
+  }
+
+  AzureListCache.ChildInfo getFromListCache(
+      String container, String parentPrefix, String childPath) {
+    return getListCache().get(container, parentPrefix, childPath);
+  }
+
+  void invalidateListCache(String container, String prefix) {
+    getListCache().invalidate(container, prefix);
+  }
+
+  void invalidateListCacheForParentOf(String container, String path) {
+    getListCache().invalidateParentOf(container, path);
   }
 }

@@ -20,8 +20,12 @@ package org.apache.hop.vfs.minio;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.FileType;
@@ -235,5 +239,62 @@ class MinioFileSystemTest {
   void testDefaultPartSize() {
     fileSystem.setPartSize(MinioFileProvider.DEFAULT_PART_SIZE);
     assertEquals(5242880L, fileSystem.getPartSize(), "Default part size should be 5MB");
+  }
+
+  @Test
+  void testPutAndGetListCache() {
+    Map<String, MinioListCache.ChildInfo> entries = new LinkedHashMap<>();
+    entries.put("path/file.txt", new MinioListCache.ChildInfo(FileType.FILE, 512, Instant.now()));
+
+    fileSystem.putListCache("test-bucket", "path/", entries);
+
+    MinioListCache.ChildInfo info =
+        fileSystem.getFromListCache("test-bucket", "path/", "path/file.txt");
+    assertNotNull(info, "Should retrieve cached entry");
+    assertEquals(FileType.FILE, info.type);
+    assertEquals(512, info.size);
+  }
+
+  @Test
+  void testGetFromListCacheMiss() {
+    MinioListCache.ChildInfo info =
+        fileSystem.getFromListCache("test-bucket", "path/", "path/missing.txt");
+    assertNull(info, "Should return null for cache miss");
+  }
+
+  @Test
+  void testInvalidateListCache() {
+    Map<String, MinioListCache.ChildInfo> entries = new LinkedHashMap<>();
+    entries.put("path/file.txt", new MinioListCache.ChildInfo(FileType.FILE, 10, Instant.now()));
+    fileSystem.putListCache("test-bucket", "path/", entries);
+
+    assertNotNull(fileSystem.getFromListCache("test-bucket", "path/", "path/file.txt"));
+
+    fileSystem.invalidateListCache("test-bucket", "path/");
+    assertNull(fileSystem.getFromListCache("test-bucket", "path/", "path/file.txt"));
+  }
+
+  @Test
+  void testInvalidateListCacheForParentOf() {
+    Map<String, MinioListCache.ChildInfo> entries = new LinkedHashMap<>();
+    entries.put("dir/file.txt", new MinioListCache.ChildInfo(FileType.FILE, 10, Instant.now()));
+    fileSystem.putListCache("test-bucket", "dir/", entries);
+
+    assertNotNull(fileSystem.getFromListCache("test-bucket", "dir/", "dir/file.txt"));
+
+    fileSystem.invalidateListCacheForParentOf("test-bucket", "dir/file.txt");
+    assertNull(fileSystem.getFromListCache("test-bucket", "dir/", "dir/file.txt"));
+  }
+
+  @Test
+  void testListCacheIsolatedBetweenInstances() {
+    MinioFileSystem fs2 = new MinioFileSystem(rootName, new FileSystemOptions());
+
+    Map<String, MinioListCache.ChildInfo> entries = new LinkedHashMap<>();
+    entries.put("key", new MinioListCache.ChildInfo(FileType.FILE, 10, Instant.now()));
+    fileSystem.putListCache("bucket", "prefix/", entries);
+
+    assertNotNull(fileSystem.getFromListCache("bucket", "prefix/", "key"));
+    assertNull(fs2.getFromListCache("bucket", "prefix/", "key"));
   }
 }

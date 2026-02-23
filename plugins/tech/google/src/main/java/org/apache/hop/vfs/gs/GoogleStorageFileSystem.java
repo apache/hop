@@ -38,11 +38,22 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
   Storage storage = null;
   FileSystemOptions fileSystemOptions;
 
+  private GoogleStorageListCache listCache;
+
   protected GoogleStorageFileSystem(
       FileName rootName, FileObject parentLayer, FileSystemOptions fileSystemOptions)
       throws FileSystemException {
     super(rootName, parentLayer, fileSystemOptions);
     this.fileSystemOptions = fileSystemOptions;
+  }
+
+  private GoogleStorageListCache getListCache() {
+    if (listCache == null) {
+      GoogleCloudConfig config = GoogleCloudConfigSingleton.getConfig();
+      long ttlMs = org.apache.hop.core.Const.toLong(config.getCacheTtlSeconds(), 10L) * 1000L;
+      listCache = new GoogleStorageListCache(ttlMs);
+    }
+    return listCache;
   }
 
   @Override
@@ -97,6 +108,26 @@ public class GoogleStorageFileSystem extends AbstractFileSystem {
     } else {
       return name.getPath().substring(1);
     }
+  }
+
+  void putListCache(
+      String bucket,
+      String prefix,
+      java.util.Map<String, GoogleStorageListCache.ChildInfo> entries) {
+    getListCache().put(bucket, prefix, entries);
+  }
+
+  GoogleStorageListCache.ChildInfo getFromListCache(
+      String bucket, String parentPrefix, String childFullKey) {
+    return getListCache().get(bucket, parentPrefix, childFullKey);
+  }
+
+  void invalidateListCache(String bucket, String prefix) {
+    getListCache().invalidate(bucket, prefix);
+  }
+
+  void invalidateListCacheForParentOf(String bucket, String key) {
+    getListCache().invalidateParentOf(bucket, key);
   }
 
   String getBucketPath(FileName name) {
