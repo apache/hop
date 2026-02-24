@@ -1279,10 +1279,27 @@ public class TableView extends Composite {
        * @return true if it is wrong event
        */
       private boolean isWrongLostFocusEvent() {
+        Control innerControl = getInnerTextControl();
+        if (innerControl == null || innerControl.isDisposed()) {
+          return false;
+        }
+
+        if (Boolean.TRUE.equals(innerControl.getData())) {
+          return true;
+        }
+
         Control controlGotFocus = Display.getCurrent().getCursorControl();
-        return Const.isLinux() && (controlGotFocus == null || text.equals(controlGotFocus));
+        return Const.isLinux() && (controlGotFocus == null || innerControl.equals(controlGotFocus));
       }
     };
+  }
+
+  /** Returns the actual focusable text control, unwrapping TextVar if necessary. */
+  private Control getInnerTextControl() {
+    if (text instanceof TextVar textVar) {
+      return textVar.getTextWidget();
+    }
+    return text;
   }
 
   private void addRightClickMenu(boolean undoEnabled) {
@@ -2578,13 +2595,15 @@ public class TableView extends Composite {
     if (useVariables) {
       IGetCaretPosition getCaretPositionInterface =
           () -> ((TextVar) text).getTextWidget().getCaretPosition();
-
-      // The text widget will be disposed when we get here
-      // So we need to write to the table row
-      //
       IInsertText insertTextInterface =
           (string, position) -> {
-            StringBuilder buffer = new StringBuilder(table.getItem(rowNr).getText(colNr));
+            String currentText;
+            if (text != null && !text.isDisposed()) {
+              currentText = getTextWidgetValue(colNr);
+            } else {
+              currentText = table.getItem(rowNr).getText(colNr);
+            }
+            StringBuilder buffer = new StringBuilder(currentText);
             buffer.insert(position, string);
             table.getItem(rowNr).setText(colNr, buffer.toString());
             int newPosition = position + string.length();
