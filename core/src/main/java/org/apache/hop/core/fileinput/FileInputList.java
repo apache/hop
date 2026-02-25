@@ -89,7 +89,11 @@ public class FileInputList {
   public static String getRequiredFilesDescription(List<FileObject> nonExistantFiles) {
     StringBuilder buffer = new StringBuilder();
     for (FileObject file : nonExistantFiles) {
-      buffer.append(file.getName().getURI());
+      try {
+        buffer.append(file.getName().getURI());
+      } catch (Exception e) {
+        buffer.append(file.getPublicURIString());
+      }
       buffer.append(Const.CR);
     }
     return buffer.toString();

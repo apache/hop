@@ -17,23 +17,24 @@
 
 package org.apache.hop.pipeline.transforms.aws.sqs;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.sqs.AmazonSQSClient;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.amazonaws.services.sqs.model.AmazonSQSException;
-import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import java.util.List;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.SqsClientBuilder;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
+import software.amazon.awssdk.services.sqs.model.SqsException;
 
 public class AwsSqsReader {
 
-  private AmazonSQSClient sqsClient;
+  private SqsClient sqsClient;
   private SqsReaderMeta meta;
   private String awsKey;
   private String awsRegion;
@@ -43,13 +44,6 @@ public class AwsSqsReader {
   private String awsCredChain;
   private String deleteMessage;
 
-  /**
-   * Constructor for new AWS SQS Object
-   *
-   * @param transformMeta SqsReaderMeta
-   * @param t PipelineMeta
-   * @param bst BaseTransform
-   */
   public AwsSqsReader(SqsReaderMeta transformMeta, PipelineMeta t, BaseTransform bst) {
 
     this.meta = transformMeta;
@@ -72,20 +66,13 @@ public class AwsSqsReader {
     try {
       baseTransform.logBasic("Starting connection to AWS SQS");
 
+      SqsClientBuilder builder = SqsClient.builder().region(Region.of(this.awsRegion));
+
       if (this.awsCredChain.equalsIgnoreCase("N")) {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.awsKey, this.awsKeySecret);
-        sqsClient =
-            (AmazonSQSClient)
-                AmazonSQSClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                    .withRegion(this.awsRegion)
-                    .build();
-
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(this.awsKey, this.awsKeySecret);
+        sqsClient = builder.credentialsProvider(StaticCredentialsProvider.create(awsCreds)).build();
       } else {
-        AWSCredentialsProvider provider = new DefaultAWSCredentialsProviderChain();
-        sqsClient =
-            (AmazonSQSClient) AmazonSQSClientBuilder.standard().withCredentials(provider).build();
-
+        sqsClient = builder.credentialsProvider(DefaultCredentialsProvider.create()).build();
         baseTransform.logBasic("Connected to SQS with provided Credentials Chain");
       }
       return true;
@@ -99,48 +86,46 @@ public class AwsSqsReader {
   /** Disconnects from AWS */
   public void disconnectAWSConnection() {
     try {
-      sqsClient.shutdown();
-
+      if (sqsClient != null) {
+        sqsClient.close();
+      }
       baseTransform.logBasic("Disconnected from SQS");
-
-    } catch (AmazonClientException e) {
+    } catch (Exception e) {
       baseTransform.logError(e.getMessage());
       baseTransform.setErrors(1);
     }
   }
 
   /**
-   * @param queueURL
-   * @param numMsgs
-   * @param isPreview
-   * @return
-   * @throws AmazonSQSException
+   * @param queueURL queue URL
+   * @param numMsgs max number of messages
+   * @param isPreview whether this is a preview
+   * @return list of SQS messages
+   * @throws SqsException on SQS errors
    */
   public List<Message> readMessages(String queueURL, int numMsgs, boolean isPreview)
-      throws AmazonSQSException {
+      throws SqsException {
 
     int numMessages = (numMsgs > 10) ? 10 : numMsgs;
 
-    try {
+    ReceiveMessageRequest receiveMessageRequest =
+        ReceiveMessageRequest.builder().queueUrl(queueURL).maxNumberOfMessages(numMessages).build();
+    ReceiveMessageResponse response = sqsClient.receiveMessage(receiveMessageRequest);
+    List<Message> messages = response.messages();
 
-      ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(queueURL);
-      receiveMessageRequest.setMaxNumberOfMessages(numMessages);
-      List<Message> messages = sqsClient.receiveMessage(receiveMessageRequest).getMessages();
+    baseTransform.logDebug(messages.size() + " Message(s) retrieved from queue");
 
-      baseTransform.logDebug(messages.size() + " Message(s) retrieved from queue");
-
-      if (this.deleteMessage.equalsIgnoreCase("Y") && !isPreview) {
-
-        for (Message m : messages) {
-          sqsClient.deleteMessage(queueURL, m.getReceiptHandle());
-        }
-        baseTransform.logDebug(messages.size() + " Message(s) deleted from queue");
+    if (this.deleteMessage.equalsIgnoreCase("Y") && !isPreview) {
+      for (Message m : messages) {
+        sqsClient.deleteMessage(
+            DeleteMessageRequest.builder()
+                .queueUrl(queueURL)
+                .receiptHandle(m.receiptHandle())
+                .build());
       }
-
-      return messages;
-
-    } catch (AmazonSQSException e) {
-      throw e;
+      baseTransform.logDebug(messages.size() + " Message(s) deleted from queue");
     }
+
+    return messages;
   }
 }

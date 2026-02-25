@@ -90,6 +90,7 @@ class GetFileNamesTransformTest {
     // Setup meta for non-file field mode
     GetFileNamesMeta meta = new GetFileNamesMeta();
     meta.setFileField(false);
+    meta.setRaiseAnExceptionIfNoFile(false);
     meta.setDefault();
 
     // Add a file item to the list
@@ -124,6 +125,7 @@ class GetFileNamesTransformTest {
     // Setup meta for file field mode
     GetFileNamesMeta meta = new GetFileNamesMeta();
     meta.setFileField(true);
+    meta.setRaiseAnExceptionIfNoFile(false);
     meta.setDefault();
     meta.setDynamicFilenameField("filename");
 

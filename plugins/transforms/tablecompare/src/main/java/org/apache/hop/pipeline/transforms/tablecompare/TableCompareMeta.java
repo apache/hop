@@ -71,6 +71,12 @@ public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompa
   private String referenceTableField;
 
   @HopMetadataProperty(
+      key = "reference_cte_field",
+      injectionKeyDescription = " TableCompareMeta.Injection.ReferenceCteField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
+  private String referenceCteField;
+
+  @HopMetadataProperty(
       key = "compare_connection",
       injectionKeyDescription = "TableCompareMeta.Injection.CompareConnection",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
@@ -87,6 +93,12 @@ public class TableCompareMeta extends BaseTransformMeta<TableCompare, TableCompa
       injectionKeyDescription = "TableCompareMeta.Injection.CompareTableField",
       hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String compareTableField;
+
+  @HopMetadataProperty(
+      key = "compare_cte_field",
+      injectionKeyDescription = "TableCompareMeta.Injection.CompareCteField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
+  private String compareCteField;
 
   @HopMetadataProperty(
       key = "key_fields_field",

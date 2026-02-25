@@ -17,22 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.aws.sns;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.sns.AmazonSNSClient;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
-import com.amazonaws.services.sns.model.AmazonSNSException;
-import com.amazonaws.services.sns.model.PublishRequest;
-import com.amazonaws.services.sns.model.PublishResult;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.SnsClientBuilder;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
+import software.amazon.awssdk.services.sns.model.SnsException;
 
 public class AwsSns {
 
-  private AmazonSNSClient snsClient;
+  private SnsClient snsClient;
   private SnsNotifyMeta meta;
   private String awsKey;
   private String awsRegion;
@@ -63,27 +62,19 @@ public class AwsSns {
     try {
       baseTransform.logBasic("Starting connection to AWS SNS");
 
-      if (this.awsCredChain.equalsIgnoreCase("N")) {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.awsKey, this.awsKeySecret);
-        snsClient =
-            (AmazonSNSClient)
-                AmazonSNSClientBuilder.standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                    .withRegion(this.awsRegion)
-                    .build();
+      SnsClientBuilder builder = SnsClient.builder().region(Region.of(this.awsRegion));
 
+      if (this.awsCredChain.equalsIgnoreCase("N")) {
+        AwsBasicCredentials awsCreds = AwsBasicCredentials.create(this.awsKey, this.awsKeySecret);
+        snsClient = builder.credentialsProvider(StaticCredentialsProvider.create(awsCreds)).build();
         baseTransform.logBasic(
             "Connected to SNS in Region "
                 + this.awsRegion
                 + " with API-Key >>"
                 + this.awsKey
                 + "<<");
-
       } else {
-        AWSCredentialsProvider provider = new DefaultAWSCredentialsProviderChain();
-        snsClient =
-            (AmazonSNSClient) AmazonSNSClientBuilder.standard().withCredentials(provider).build();
-
+        snsClient = builder.credentialsProvider(DefaultCredentialsProvider.create()).build();
         baseTransform.logBasic("Connected to SNS with provided Credentials Chain");
       }
       return true;
@@ -98,11 +89,11 @@ public class AwsSns {
   /** Disconnects from AWS */
   public void disconnectAWSConnection() {
     try {
-      snsClient.shutdown();
-
+      if (snsClient != null) {
+        snsClient.close();
+      }
       baseTransform.logBasic("Disconnected from SNS in Region " + this.awsRegion);
-
-    } catch (AmazonClientException e) {
+    } catch (Exception e) {
       baseTransform.logError(e.getMessage());
       baseTransform.setErrors(1);
     }
@@ -116,22 +107,17 @@ public class AwsSns {
    * @param msg Message Content
    * @return SNS messageID on successful publish
    */
-  public String publishToSNS(String tARN, String subj, String msg) throws AmazonSNSException {
+  public String publishToSNS(String tARN, String subj, String msg) throws SnsException {
 
     String topicARN = baseTransform.resolve(tARN);
     String subject = baseTransform.resolve(subj);
     String message = baseTransform.resolve(msg);
 
-    try {
-
-      PublishRequest publishRequest = new PublishRequest(topicARN, message, subject);
-      PublishResult publishResult = snsClient.publish(publishRequest);
-      String messageId = publishResult.getMessageId();
-      baseTransform.logBasic(messageId);
-      return messageId;
-
-    } catch (AmazonSNSException e) {
-      throw e;
-    }
+    PublishRequest publishRequest =
+        PublishRequest.builder().topicArn(topicARN).message(message).subject(subject).build();
+    PublishResponse publishResult = snsClient.publish(publishRequest);
+    String messageId = publishResult.messageId();
+    baseTransform.logBasic(messageId);
+    return messageId;
   }
 }

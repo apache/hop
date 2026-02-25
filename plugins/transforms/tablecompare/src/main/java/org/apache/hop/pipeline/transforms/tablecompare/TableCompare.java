@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.tablecompare;
 
 import java.sql.ResultSet;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -95,6 +96,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
                 CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
                 meta.getReferenceTableField()));
       }
+      // Optional CTE
+      data.refCteIndex = getInputRowMeta().indexOfValue(meta.getReferenceCteField());
 
       // Compare schema
       //
@@ -125,6 +128,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
                 CONST_TABLE_COMPARE_EXCEPTION_CAN_NOT_FIND_FIELD,
                 meta.getCompareTableField()));
       }
+      // Optional CTE
+      data.cmpCteIndex = getInputRowMeta().indexOfValue(meta.getCompareCteField());
 
       // Key fields
       //
@@ -210,8 +215,17 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     try {
       String referenceSchema = getInputRowMeta().getString(r, data.refSchemaIndex);
       String referenceTable = getInputRowMeta().getString(r, data.refTableIndex);
+
+      String referenceCte = "";
+      if (data.refCteIndex >= 0) {
+        referenceCte = getInputRowMeta().getString(r, data.refCteIndex);
+      }
       String compareSchema = getInputRowMeta().getString(r, data.cmpSchemaIndex);
       String compareTable = getInputRowMeta().getString(r, data.cmpTableIndex);
+      String compareCte = "";
+      if (data.cmpCteIndex >= 0) {
+        compareCte = getInputRowMeta().getString(r, data.cmpCteIndex);
+      }
       String keyFields = getInputRowMeta().getString(r, data.keyFieldsIndex);
       String excludeFields = getInputRowMeta().getString(r, data.excludeFieldsIndex);
 
@@ -220,8 +234,10 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
           r,
           referenceSchema,
           referenceTable,
+          referenceCte,
           compareSchema,
           compareTable,
+          compareCte,
           keyFields,
           excludeFields);
     } catch (Exception e) {
@@ -235,8 +251,10 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       Object[] r,
       String referenceSchema,
       String referenceTable,
+      String referenceCte,
       String compareSchema,
       String compareTable,
+      String compareCte,
       String keyFields,
       String excludeFields)
       throws HopException {
@@ -315,7 +333,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
     try {
       IRowMeta refFields = data.referenceDb.getTableFieldsMeta(referenceSchema, referenceTable);
+      IRowMeta allRefFields = refFields.clone();
       IRowMeta cmpFields = data.compareDb.getTableFieldsMeta(compareSchema, compareTable);
+      IRowMeta allCmpFields = cmpFields.clone();
 
       // Remove the excluded fields from these fields...
       //
@@ -350,7 +370,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
         // See if all the key fields exist in the reference & compare tables...
         //
         for (String key : keys) {
-          if (refFields.indexOfValue(key) < 0) {
+          if (allRefFields.indexOfValue(key) < 0) {
             if (getTransformMeta().isDoingErrorHandling()) {
               Object[] errorRowData = constructErrorRow(rowMeta, r, null, null, null);
               putError(
@@ -369,7 +389,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
           }
         }
         for (String key : keys) {
-          if (cmpFields.indexOfValue(key) < 0) {
+          if (allCmpFields.indexOfValue(key) < 0) {
             if (getTransformMeta().isDoingErrorHandling()) {
               Object[] errorRowData = constructErrorRow(rowMeta, r, null, null, null);
               putError(
@@ -403,10 +423,18 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
         int[] keyNrs = new int[keys.length];
 
+        // The reference SQL
         StringBuilder refSql = new StringBuilder();
+        if (StringUtils.isNotEmpty(referenceCte)) {
+          refSql.append(referenceCte);
+        }
         refSql.append("SELECT ");
-        StringBuilder cmpSql = new StringBuilder();
 
+        // The compare SQL
+        StringBuilder cmpSql = new StringBuilder();
+        if (StringUtils.isNotEmpty(compareCte)) {
+          cmpSql.append(compareCte);
+        }
         cmpSql.append("SELECT ");
         for (int i = 0; i < keys.length; i++) {
           if (i > 0) {
@@ -417,25 +445,39 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
           refSql.append(refConnectionDatabaseMeta.quoteField(keys[i]));
           cmpSql.append(refConnectionDatabaseMeta.quoteField(keys[i]));
         }
-        int[] valueNrs = new int[refFields.size() - keys.length];
-        int valueNr = keys.length;
-        int valueIndex = 0;
-        for (int i = 0; i < refFields.getFieldNames().length; i++) {
-          String field = refFields.getFieldNames()[i];
-          if (Const.indexOfString(field, keys) < 0) {
-            refSql.append(", ").append(refConnectionDatabaseMeta.quoteField(field));
-            valueRowMeta.addValueMeta(refFields.searchValueMeta(field));
-            valueNrs[valueIndex++] = valueNr++;
-          }
-        }
 
-        for (String field : cmpFields.getFieldNames()) {
-          if (Const.indexOfString(field, keys) < 0) {
-            cmpSql.append(", ").append(compConnectionDatabaseMeta.quoteField(field));
+        // We only compare values if there are any to compare
+        //
+        int[] valueNrs = new int[0];
+        if (refFields.size() - keys.length > 0) {
+          valueNrs = new int[refFields.size() - keys.length];
+          int valueNr = keys.length;
+          int valueIndex = 0;
+          for (int i = 0; i < refFields.getFieldNames().length; i++) {
+            String field = refFields.getFieldNames()[i];
+            if (Const.indexOfString(field, keys) < 0) {
+              refSql.append(", ").append(refConnectionDatabaseMeta.quoteField(field));
+              valueRowMeta.addValueMeta(refFields.searchValueMeta(field));
+              valueNrs[valueIndex++] = valueNr++;
+            }
+          }
+
+          for (String field : cmpFields.getFieldNames()) {
+            if (Const.indexOfString(field, keys) < 0) {
+              cmpSql.append(", ").append(compConnectionDatabaseMeta.quoteField(field));
+            }
           }
         }
-        refSql.append(" FROM ").append(refSchemaTable).append(" ORDER BY ");
-        cmpSql.append(" FROM ").append(cmpSchemaTable).append(" ORDER BY ");
+        refSql.append(" FROM ");
+        if (StringUtils.isNotEmpty(referenceCte)) {
+          refSql.append("_");
+        }
+        refSql.append(refSchemaTable).append(" ORDER BY ");
+        cmpSql.append(" FROM ");
+        if (StringUtils.isNotEmpty(compareCte)) {
+          cmpSql.append("_");
+        }
+        cmpSql.append(cmpSchemaTable).append(" ORDER BY ");
         for (int i = 0; i < keys.length; i++) {
           if (i > 0) {
             refSql.append(", ");

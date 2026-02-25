@@ -32,6 +32,7 @@ import org.apache.hop.core.util.StorageUnitConverter;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileName;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileProvider;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileSystem;
+import org.apache.hop.vfs.s3.s3common.S3CommonFileSystemConfigBuilder;
 import org.apache.hop.vfs.s3.s3common.S3HopProperty;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,6 +141,38 @@ class S3FileSystemTest {
     long _10MBLong = 10L * 1024L * 1024L;
     s3FileSystem.storageUnitConverter = new StorageUnitConverter();
     assertEquals(_10MBLong, s3FileSystem.convertToLong("10MB"));
+  }
+
+  @Test
+  void testCacheTtlFromOptions() {
+    FileSystemOptions options = new FileSystemOptions();
+    S3CommonFileSystemConfigBuilder config = new S3CommonFileSystemConfigBuilder(options);
+    config.setCacheTtlSeconds("15");
+
+    S3FileSystem fs = new S3FileSystem(fileName, options);
+    assertNotNull(fs);
+  }
+
+  @Test
+  void testCacheTtlDefaultWhenNotSet() {
+    S3FileSystem fs = new S3FileSystem(fileName, new FileSystemOptions());
+    assertNotNull(fs);
+  }
+
+  @Test
+  void testCacheTtlWithNullOptions() {
+    S3FileSystem fs = new S3FileSystem(fileName, null);
+    assertNotNull(fs);
+  }
+
+  @Test
+  void testCacheTtlWithInvalidValue() {
+    FileSystemOptions options = new FileSystemOptions();
+    S3CommonFileSystemConfigBuilder config = new S3CommonFileSystemConfigBuilder(options);
+    config.setCacheTtlSeconds("notanumber");
+
+    S3FileSystem fs = new S3FileSystem(fileName, options);
+    assertNotNull(fs);
   }
 
   public S3FileSystem getTestInstance() {

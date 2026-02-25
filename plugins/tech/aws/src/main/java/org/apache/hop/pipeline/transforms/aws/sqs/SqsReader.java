@@ -17,7 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.aws.sqs;
 
-import com.amazonaws.services.sqs.model.Message;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -34,6 +33,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import software.amazon.awssdk.services.sqs.model.Message;
 
 public class SqsReader extends BaseTransform<SqsReaderMeta, SqsReaderData> {
 
@@ -151,28 +151,28 @@ public class SqsReader extends BaseTransform<SqsReaderMeta, SqsReaderData> {
 
           int idxMessageIdField = data.outputRowMeta.indexOfValue(data.realMessageIDFieldName);
           if (idxMessageIdField >= 0) {
-            outputRow[idxMessageIdField] = m.getMessageId();
+            outputRow[idxMessageIdField] = m.messageId();
           }
 
           int idxMessageBodyField = data.outputRowMeta.indexOfValue(data.realMessageBodyFieldName);
           if (idxMessageBodyField >= 0) {
-            outputRow[idxMessageBodyField] = m.getBody();
+            outputRow[idxMessageBodyField] = m.body();
           }
 
           int idxReceiptHandleField =
               data.outputRowMeta.indexOfValue(data.realReceiptHandleFieldName);
           if (idxReceiptHandleField >= 0) {
-            outputRow[idxReceiptHandleField] = m.getReceiptHandle();
+            outputRow[idxReceiptHandleField] = m.receiptHandle();
           }
 
           int idxBodyMD5Field = data.outputRowMeta.indexOfValue(data.realBodyMD5FieldName);
           if (idxBodyMD5Field >= 0) {
-            outputRow[idxBodyMD5Field] = m.getMD5OfBody();
+            outputRow[idxBodyMD5Field] = m.md5OfBody();
           }
 
           int idxSNSMessageField = data.outputRowMeta.indexOfValue(data.realSNSMessageFieldName);
           if (idxSNSMessageField >= 0) {
-            outputRow[idxSNSMessageField] = getSNSMessageContent(m.getBody());
+            outputRow[idxSNSMessageField] = getSNSMessageContent(m.body());
           }
 
           putRow(data.outputRowMeta, outputRow);

@@ -52,6 +52,10 @@ TIP: You can click on the red error handling arrow to configure additional infor
 |Reference schema field / Compare schema field|contain the schema names for the reference/compare table.
 |Reference table field / Compare table field|contain the actual table names.
 This means that you could compare two tables with a different name, as long as they have the same column names.
+|Reference CTE field / Compare CTE field|Specify the Common Table Expression to use with the table queries to compare values.
+This CTE clause will be pre-pended to the generated SQL.
+You can specify multiple CTEs but the one being read from must be called `_<table name>`
+(with an underscore in front of the table name in other words).
 |===
 
 === Other fields tab

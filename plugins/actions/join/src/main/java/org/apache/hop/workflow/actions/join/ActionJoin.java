@@ -78,20 +78,35 @@ public class ActionJoin extends ActionBase {
       var workflowTracker = this.parentWorkflow.getWorkflowTracker();
       while (!parentWorkflow.isStopped()) {
         Thread.sleep(500L);
-        boolean hasAllResult = true;
+        boolean completed = true;
+        boolean success = true;
+        int errors = 0;
+
+        // Checks if all previous actions have completed successfully
         for (ActionMeta actionMeta : prevActions) {
           var tracker = workflowTracker.findWorkflowTracker(actionMeta);
           if (tracker != null) {
-            if (tracker.getActionResult().getResult() == null) {
-              hasAllResult = false;
+            Result actionResult = tracker.getActionResult().getResult();
+            if (actionResult == null) {
+              completed = false;
+            } else if (!actionResult.isResult()) {
+              WorkflowHopMeta hopMeta = findWorkflowHop(actionMeta);
+              // If one previous action has failure and the hop is true evaluation, repeat failure
+              // to the join action
+              if (!hopMeta.isUnconditional() && hopMeta.isEvaluation()) {
+                success = false;
+                errors++;
+              }
             }
           } else {
-            hasAllResult = false;
+            completed = false;
           }
         }
 
         // If all previous actions have a result
-        if (hasAllResult) {
+        if (completed) {
+          result.setResult(success);
+          result.setNrErrors(errors);
           break;
         }
       }
@@ -111,6 +126,12 @@ public class ActionJoin extends ActionBase {
     return false;
   }
 
+  @Override
+  public boolean isEvaluation() {
+    return true;
+  }
+
+  @Override
   public boolean isJoin() {
     return true;
   }
@@ -133,6 +154,25 @@ public class ActionJoin extends ActionBase {
       String message = BaseMessages.getString(PKG, "ActionJoin.CheckResult.NoParallelExecution");
       remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_WARNING, message, this));
     }
+  }
+
+  /**
+   * Finds a workflow hop from the specified action and to this action.
+   *
+   * @param from the starting action for the workflow hop to be found
+   * @return the {@code WorkflowHopMeta} object representing the hop from the specified starting
+   *     action to this action, or {@code null} if no such hop exists
+   */
+  public WorkflowHopMeta findWorkflowHop(ActionMeta from) {
+    for (WorkflowHopMeta hop : this.parentWorkflowMeta.getWorkflowHops()) {
+      if (hop.getFromAction() != null
+          && hop.getToAction() != null
+          && hop.getFromAction().equals(from)
+          && hop.getToAction().getAction().equals(this)) {
+        return hop;
+      }
+    }
+    return null;
   }
 
   /** Find previous actions */

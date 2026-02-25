@@ -156,6 +156,7 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     super(); // allocate BaseTransformMeta
     filesList = new ArrayList<>();
     filterItemList = new ArrayList<>();
+    raiseAnExceptionIfNoFile = true;
   }
 
   public String getRequiredFilesDesc(String tt) {
