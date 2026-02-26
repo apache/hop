@@ -20,6 +20,7 @@ package org.apache.hop.metadata.serializer;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
@@ -41,8 +42,12 @@ public class BaseMetadataProvider {
   public <T extends IHopMetadata> List<Class<T>> getMetadataClasses() {
     try {
       PluginRegistry registry = PluginRegistry.getInstance();
+      List<String> disabledIds = GuiRegistry.getDisabledGuiElements();
       List<Class<T>> classes = new ArrayList<>();
       for (IPlugin plugin : registry.getPlugins(MetadataPluginType.class)) {
+        if (disabledIds.contains(plugin.getIds()[0])) {
+          continue;
+        }
         String className = plugin.getClassMap().get(plugin.getMainType());
         Class<?> pluginClass = registry.getClassLoader(plugin).loadClass(className);
         classes.add((Class<T>) pluginClass);

@@ -17,20 +17,14 @@
 
 package org.apache.hop.ui.hopgui;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -46,16 +40,12 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 public class HopGuiEnvironment extends HopClientEnvironment {
 
@@ -84,40 +74,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
    * @throws HopException
    */
   public static void initGuiPlugins() throws HopException {
-    List<String> excludedGuiElements = new ArrayList<>();
-
-    // Try loading code exclusions
-    try {
-      FileObject applicationFolderFile = HopVfs.getFileObject("./disabledGuiElements.xml");
-      FileObject configFolderFile =
-          HopVfs.getFileObject(
-              Const.HOP_CONFIG_FOLDER + File.separator + "disabledGuiElements.xml");
-      String path;
-
-      if (applicationFolderFile.exists()) {
-        path = applicationFolderFile.getPath().toAbsolutePath().toString();
-        Document document = XmlHandler.loadXmlFile(path);
-        Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
-        List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
-
-        for (Node exclusionNode : exclusionNodes) {
-          excludedGuiElements.add(exclusionNode.getTextContent());
-        }
-      }
-
-      if (configFolderFile.exists()) {
-        path = configFolderFile.getPath().toAbsolutePath().toString();
-        Document document = XmlHandler.loadXmlFile(path);
-        Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
-        List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
-
-        for (Node exclusionNode : exclusionNodes) {
-          excludedGuiElements.add(exclusionNode.getTextContent());
-        }
-      }
-    } catch (HopXmlException | FileSystemException e) {
-      // ignore
-    }
+    List<String> excludedGuiElements = GuiRegistry.getDisabledGuiElements();
 
     try {
       GuiRegistry guiRegistry = GuiRegistry.getInstance();
@@ -148,7 +105,7 @@ public class HopGuiEnvironment extends HopClientEnvironment {
         List<Method> methods = findDeclaredMethods(guiPluginClass);
         for (Method method : methods) {
           GuiMenuElement menuElement = method.getAnnotation(GuiMenuElement.class);
-          if (menuElement != null) {
+          if (menuElement != null && !excludedGuiElements.contains(menuElement.id())) {
             guiRegistry.addGuiMenuElement(guiPluginClassName, menuElement, method, classLoader);
           }
           GuiToolbarElement toolbarElement = method.getAnnotation(GuiToolbarElement.class);
@@ -168,6 +125,11 @@ public class HopGuiEnvironment extends HopClientEnvironment {
             if (EnvironmentUtils.getInstance().isWeb() && shortcut.key() == SWT.ESC) {
               continue;
             }
+            // Use id() if set, otherwise className#methodName for disabledGuiElements.xml
+            String shortcutId = guiPluginClassName + "#" + method.getName();
+            if (excludedGuiElements.contains(shortcutId)) {
+              continue; // Skip: disabled in disabledGuiElements.xml
+            }
             guiRegistry.addKeyboardShortcut(guiPluginClassName, method, shortcut);
           }
           GuiOsxKeyboardShortcut osxShortcut = method.getAnnotation(GuiOsxKeyboardShortcut.class);
@@ -175,6 +137,11 @@ public class HopGuiEnvironment extends HopClientEnvironment {
             // RAP does not support ESC as a shortcut key.
             if (EnvironmentUtils.getInstance().isWeb() && osxShortcut.key() == SWT.ESC) {
               continue;
+            }
+            // Osx shortcut has no id(); use className#methodName for disabledGuiElements.xml
+            String osxShortcutId = guiPluginClassName + "#" + method.getName();
+            if (excludedGuiElements.contains(osxShortcutId)) {
+              continue; // Skip: disabled in disabledGuiElements.xml
             }
             guiRegistry.addKeyboardShortcut(guiPluginClassName, method, osxShortcut);
           }
@@ -204,8 +171,14 @@ public class HopGuiEnvironment extends HopClientEnvironment {
           }
 
           GuiTab guiTab = method.getAnnotation(GuiTab.class);
-          if (guiTab != null && !excludedGuiElements.contains(guiTab.id())) {
-            guiRegistry.addGuiTab(guiPluginClassName, method, guiTab, classLoader);
+          if (guiTab != null) {
+            String tabId =
+                (guiTab.id() != null && !guiTab.id().isBlank())
+                    ? guiTab.id()
+                    : guiPluginClassName + "#" + method.getName();
+            if (!excludedGuiElements.contains(tabId)) {
+              guiRegistry.addGuiTab(guiPluginClassName, method, guiTab, classLoader);
+            }
           }
         }
       }

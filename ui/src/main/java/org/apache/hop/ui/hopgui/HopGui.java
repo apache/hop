@@ -19,7 +19,6 @@ package org.apache.hop.ui.hopgui;
 
 import static org.apache.hop.core.Const.getDocUrl;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -36,8 +35,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.HopEnvironment;
@@ -46,8 +43,6 @@ import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.IUndo;
@@ -74,8 +69,6 @@ import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
@@ -157,8 +150,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 @GuiPlugin(name = "Hop Gui", description = "The main hop graphical user interface")
 @SuppressWarnings("java:S1104")
@@ -564,40 +555,7 @@ public class HopGui
   }
 
   private void loadPerspectives() {
-    List<String> excludedGuiElements = new ArrayList<>();
-
-    // Try loading code exclusions
-    try {
-      FileObject applicationFolderFile = HopVfs.getFileObject("./disabledGuiElements.xml");
-      FileObject configFolderFile =
-          HopVfs.getFileObject(
-              Const.HOP_CONFIG_FOLDER + File.separator + "disabledGuiElements.xml");
-      String path = null;
-
-      if (applicationFolderFile.exists()) {
-        path = applicationFolderFile.getPath().toAbsolutePath().toString();
-        Document document = XmlHandler.loadXmlFile(path);
-        Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
-        List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
-
-        for (Node exclusionNode : exclusionNodes) {
-          excludedGuiElements.add(exclusionNode.getTextContent());
-        }
-      }
-
-      if (configFolderFile.exists()) {
-        path = configFolderFile.getPath().toAbsolutePath().toString();
-        Document document = XmlHandler.loadXmlFile(path);
-        Node exclusionsNode = XmlHandler.getSubNode(document, "exclusions");
-        List<Node> exclusionNodes = XmlHandler.getNodes(exclusionsNode, "exclusion");
-
-        for (Node exclusionNode : exclusionNodes) {
-          excludedGuiElements.add(exclusionNode.getTextContent());
-        }
-      }
-    } catch (HopXmlException | FileSystemException | HopFileException e) {
-      // ignore
-    }
+    List<String> excludedGuiElements = GuiRegistry.getDisabledGuiElements();
 
     try {
       // Preload the perspectives and store them in the manager as well as the GuiRegistry

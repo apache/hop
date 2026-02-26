@@ -23,6 +23,7 @@ import com.google.common.collect.Table;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
@@ -82,6 +83,9 @@ public class ExtensionPointMap {
    * @param extensionPointPlugin
    */
   public void addExtensionPoint(IPlugin extensionPointPlugin) {
+    if (GuiRegistry.getDisabledGuiElements().contains(extensionPointPlugin.getIds()[0])) {
+      return;
+    }
     lock.writeLock().lock();
     try {
       for (String id : extensionPointPlugin.getIds()) {

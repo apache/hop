@@ -62,6 +62,17 @@ Example to block calls using any System. methods:
 </exclusions>
 ----
 
-For each element that needs to be disabled, you can add an extra `<exclusion>` line. The value equals the ID element used in `@GuiWidgetElement`, `@GuiToolbarElement` , `@GuiContextAction` or `@HopPerspectivePlugin` 
+For each element that needs to be disabled, you can add an extra `<exclusion>` line. The value equals the ID element used in:
+
+* `@GuiWidgetElement` – use the element's `id`
+* `@GuiToolbarElement` – use the element's `id`
+* `@GuiContextAction` – use the action's `id`
+* `@HopPerspectivePlugin` – use the perspective plugin's `id`
+* `@GuiMenuElement` – use the menu element's `id`
+* `@GuiTab` – use the tab's `id`, or `className#methodName` when `id` is empty
+* `@GuiKeyboardShortcut` – use the shortcut's `className#methodName`
+* `@HopMetadata` – use the metadata plugin id (from `key` or `name` in the annotation)
+* `@ExtensionPoint` – use the extension point plugin's `id`
+* `@ConfigPlugin` – use the config plugin's `id` 
 
 

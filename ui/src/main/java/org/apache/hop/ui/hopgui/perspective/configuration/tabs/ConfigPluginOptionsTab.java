@@ -20,10 +20,12 @@ package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -96,8 +98,12 @@ public class ConfigPluginOptionsTab {
     //
     pluginDataMap.clear();
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
+    List<String> disabledIds = GuiRegistry.getDisabledGuiElements();
     java.util.List<IPlugin> configPlugins = pluginRegistry.getPlugins(ConfigPluginType.class);
     for (IPlugin configPlugin : configPlugins) {
+      if (disabledIds.contains(configPlugin.getIds()[0])) {
+        continue;
+      }
       try {
         Object emptySourceData = pluginRegistry.loadClass(configPlugin);
         GuiPlugin annotation = emptySourceData.getClass().getAnnotation(GuiPlugin.class);
