@@ -93,6 +93,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
+import org.apache.hop.ui.hopgui.perspective.IFileDropReceiver;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
@@ -124,7 +125,9 @@ import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -151,7 +154,7 @@ import org.eclipse.swt.widgets.Widget;
     name = "i18n::ExplorerPerspective.Name",
     description = "i18n::ExplorerPerspective.GuiPlugin.Description")
 @SuppressWarnings("java:S1104")
-public class ExplorerPerspective implements IHopPerspective, TabClosable {
+public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileDropReceiver {
 
   public static final Class<?> PKG = ExplorerPerspective.class; // i18n
 
@@ -208,6 +211,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   @Getter private Tree tree;
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
+  private Composite tabFolderWrapper;
   private Control toolBar;
   @Getter private GuiMenuWidgets menuWidgets;
   private final List<TabItemHandler> items;
@@ -304,7 +308,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
         ExplorerPerspectiveConfigSingleton.getConfig().getFileExplorerVisibleByDefault();
     fileExplorerPanelVisible = visibleByDefault == null || visibleByDefault;
     if (!fileExplorerPanelVisible) {
-      sash.setMaximizedControl(tabFolder);
+      sash.setMaximizedControl(tabFolderWrapper);
     }
 
     // Refresh the file explorer when a project is activated or updated.
@@ -579,6 +583,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     dragSource.setTransfer(fileTransfer);
     dragSource.addDragListener(
         new DragSourceAdapter() {
+          private Image dragImage;
+
           @Override
           public void dragStart(DragSourceEvent event) {
             ExplorerFile file = getSelectedFile();
@@ -594,6 +600,33 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
             // Used by dragOver
             dragFile = file.getFilename();
+
+            // Set an explicit drag image to avoid macOS NPE in TreeDragSourceEffect when the
+            // native side requests the default tree drag image (dragImageFromListener.handle null).
+            if (EnvironmentUtils.getInstance().isWeb()) {
+              event.image = GuiResource.getInstance().getImageHop();
+            } else {
+              TreeItem[] selection = tree.getSelection();
+              if (selection != null && selection.length > 0) {
+                Rectangle bounds = selection[0].getBounds();
+                int w = Math.max(1, bounds.width);
+                int h = Math.max(1, bounds.height);
+                try {
+                  dragImage = new Image(hopGui.getDisplay(), w, h);
+                  GC gc = new GC(tree);
+                  try {
+                    gc.copyArea(dragImage, bounds.x, bounds.y);
+                  } finally {
+                    gc.dispose();
+                  }
+                  event.image = dragImage;
+                } catch (Exception e) {
+                  hopGui
+                      .getLog()
+                      .logDebug(getClass().getSimpleName(), "Could not create drag image", e);
+                }
+              }
+            }
           }
 
           @Override
@@ -606,6 +639,10 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
           @Override
           public void dragFinished(DragSourceEvent event) {
+            if (dragImage != null) {
+              dragImage.dispose();
+              dragImage = null;
+            }
             dragFile = null;
           }
         });
@@ -766,7 +803,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   }
 
   /**
-   * This is called when a user expands a folder. We only need to lazily load the contents of the
    * folder if it's not loaded already. To keep track of this we have a flag called "loaded" in the
    * item data.
    */
@@ -1106,7 +1142,13 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   }
 
   protected void createTabFolder(Composite parent) {
-    tabFolder = new CTabFolder(parent, SWT.MULTI | SWT.BORDER);
+    tabFolderWrapper = new Composite(parent, SWT.NONE);
+    tabFolderWrapper.setLayout(new FormLayout());
+    tabFolderWrapper.setLayoutData(new FormDataBuilder().fullSize().result());
+    PropsUi.setLook(tabFolderWrapper);
+
+    tabFolder = new CTabFolder(tabFolderWrapper, SWT.MULTI | SWT.BORDER);
+    tabFolder.setLayoutData(new FormDataBuilder().fullSize().result());
     tabFolder.addListener(
         SWT.Selection,
         e -> {
@@ -1138,7 +1180,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
         SWT.Selection,
         e -> {
           if (sash.getMaximizedControl() == null) {
-            sash.setMaximizedControl(tabFolder);
+            sash.setMaximizedControl(tabFolderWrapper);
             item.setImage(GuiResource.getInstance().getImageMinimizePanel());
           } else {
             sash.setMaximizedControl(null);
@@ -1150,9 +1192,54 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     new TabCloseHandler(this);
 
-    // Support reorder tab item
+    // Support reorder tab item (also handles file drops when perspective implements
+    // IFileDropReceiver)
     //
     new TabItemReorder(this, tabFolder);
+  }
+
+  @Override
+  public void openDroppedFiles(String[] paths) {
+    if (paths == null || paths.length == 0) {
+      return;
+    }
+    List<String> errors = new ArrayList<>();
+    IHopFileTypeHandler lastOpened = null;
+    for (String path : paths) {
+      try {
+        FileObject fileObject = HopVfs.getFileObject(path);
+        if (fileObject.isFolder()) {
+          continue;
+        }
+        String filename = HopVfs.getFilename(fileObject);
+        IHopFileType fileType = getFileType(filename);
+        if (fileType instanceof FolderFileType || !fileType.supportsOpening()) {
+          continue;
+        }
+        IHopFileTypeHandler handler = fileType.openFile(hopGui, filename, hopGui.getVariables());
+        if (handler != null && !(handler instanceof EmptyHopFileTypeHandler)) {
+          lastOpened = handler;
+          handler.updateGui();
+        }
+      } catch (Exception e) {
+        errors.add(path + ": " + e.getMessage());
+        hopGui.getLog().logError("Error opening dropped file '" + path + "'", e);
+      }
+    }
+    if (!errors.isEmpty()) {
+      String message = String.join("\n", errors);
+      MessageBox messageBox = new MessageBox(hopGui.getShell(), SWT.ICON_WARNING | SWT.OK);
+      messageBox.setText(BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Header"));
+      messageBox.setMessage(
+          BaseMessages.getString(PKG, "ExplorerPerspective.Error.OpenFile.Message")
+              + Const.CR
+              + Const.CR
+              + message);
+      messageBox.open();
+    }
+    if (lastOpened != null) {
+      setActiveFileTypeHandler(lastOpened);
+    }
   }
 
   protected TabItemHandler findTabItemHandler(String filename) {
@@ -2571,8 +2658,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       sash.setMaximizedControl(null);
       sash.setWeights(20, 80);
     } else {
-      // Hide the file explorer panel - maximize the tab folder
-      sash.setMaximizedControl(tabFolder);
+      // Hide the file explorer panel - maximize the tab folder area
+      sash.setMaximizedControl(tabFolderWrapper);
     }
   }
 
@@ -2642,7 +2729,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
         sash.setMaximizedControl(null);
         sash.setWeights(20, 80);
       } else {
-        sash.setMaximizedControl(tabFolder);
+        sash.setMaximizedControl(tabFolderWrapper);
       }
     }
   }

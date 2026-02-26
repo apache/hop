@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.util.EnvironmentUtils;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.dnd.ByteArrayTransfer;
@@ -31,6 +32,7 @@ import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.graphics.Font;
@@ -40,10 +42,17 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Listener;
 
 public class TabItemReorder {
   private final IHopPerspective perspective;
   private CTabItem dragItem;
+
+  /**
+   * Tab under the cursor during a tab drag; drop will swap with this tab. Painted as drop
+   * indicator.
+   */
+  private CTabItem dropTargetTab;
 
   public TabItemReorder(IHopPerspective perspective, CTabFolder folder) {
     this.perspective = perspective;
@@ -104,33 +113,103 @@ public class TabItemReorder {
           }
         });
 
-    DropTarget dropTarget = new DropTarget(folder, DND.DROP_MOVE);
-    dropTarget.setTransfer(TabTransfer.INSTANCE, TextTransfer.getInstance());
+    DropTarget dropTarget = new DropTarget(folder, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
+    dropTarget.setTransfer(
+        TabTransfer.INSTANCE, TextTransfer.getInstance(), FileTransfer.getInstance());
+
+    // Paint a drop indicator (highlight) on the tab we're about to swap with
+    Listener paintListener =
+        event -> {
+          if (dropTargetTab == null || dragItem == null || dropTargetTab.isDisposed()) {
+            return;
+          }
+          Rectangle b = dropTargetTab.getBounds();
+          if (b.width <= 0 || b.height <= 0) {
+            return;
+          }
+          GC gc = event.gc;
+          gc.setLineWidth(2);
+          gc.setForeground(folder.getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION));
+          gc.drawRectangle(b.x, b.y, b.width, b.height);
+        };
+    folder.addListener(SWT.Paint, paintListener);
+
     dropTarget.addDropListener(
         new DropTargetListener() {
+          private boolean isFileDrop;
+
           @Override
           public void dragEnter(DropTargetEvent event) {
+            isFileDrop = isFileTransferType(event);
+            if (isFileDrop) {
+              event.currentDataType = getFileTransferDataType(event);
+              if (event.detail == DND.DROP_DEFAULT) {
+                event.detail = preferredFileDropOperation(event);
+              }
+            }
             handleDragEvent(event);
           }
 
           @Override
           public void dragLeave(DropTargetEvent event) {
             handleDragEvent(event);
+            if (dropTargetTab != null) {
+              dropTargetTab = null;
+              folder.redraw();
+            }
           }
 
           @Override
           public void dragOperationChanged(DropTargetEvent event) {
+            if (isFileDrop) {
+              if (event.detail == DND.DROP_DEFAULT) {
+                event.detail = preferredFileDropOperation(event);
+              }
+            }
             handleDragEvent(event);
           }
 
           @Override
           public void dragOver(DropTargetEvent event) {
+            if (!isFileDrop) {
+              isFileDrop = isFileTransferType(event);
+              if (isFileDrop) {
+                event.currentDataType = getFileTransferDataType(event);
+              }
+            }
+            if (isFileDrop) {
+              if (event.detail == DND.DROP_DEFAULT) {
+                event.detail = preferredFileDropOperation(event);
+              }
+            }
             handleDragEvent(event);
+            // Update drop indicator for tab reorder
+            if (!isFileDrop && dragItem != null && event.detail != DND.DROP_NONE) {
+              Point p = folder.toControl(folder.getDisplay().getCursorLocation());
+              CTabItem over = folder.getItem(p);
+              CTabItem newTarget = (over != null && over != dragItem) ? over : null;
+              if (newTarget != dropTargetTab) {
+                dropTargetTab = newTarget;
+                folder.redraw();
+              }
+            } else if (dropTargetTab != null) {
+              dropTargetTab = null;
+              folder.redraw();
+            }
           }
 
           @Override
           public void drop(DropTargetEvent event) {
             handleDragEvent(event);
+            if (dropTargetTab != null) {
+              dropTargetTab = null;
+              folder.redraw();
+            }
+            if (event.data instanceof String[] paths
+                && perspective instanceof IFileDropReceiver receiver) {
+              receiver.openDroppedFiles(paths);
+              return;
+            }
             if (event.detail == DND.DROP_MOVE) {
               moveTabs(folder, event);
             }
@@ -141,7 +220,58 @@ public class TabItemReorder {
             handleDragEvent(event);
           }
 
+          private boolean isFileTransferType(DropTargetEvent event) {
+            if (event.dataTypes == null) {
+              return false;
+            }
+            FileTransfer ft = FileTransfer.getInstance();
+            for (int i = 0; i < event.dataTypes.length; i++) {
+              if (ft.isSupportedType(event.dataTypes[i])) {
+                return true;
+              }
+            }
+            return false;
+          }
+
+          private TransferData getFileTransferDataType(DropTargetEvent event) {
+            if (event.dataTypes == null) {
+              return null;
+            }
+            FileTransfer ft = FileTransfer.getInstance();
+            for (int i = 0; i < event.dataTypes.length; i++) {
+              if (ft.isSupportedType(event.dataTypes[i])) {
+                return event.dataTypes[i];
+              }
+            }
+            return null;
+          }
+
+          private int preferredFileDropOperation(DropTargetEvent event) {
+            if ((event.operations & DND.DROP_MOVE) != 0) {
+              return DND.DROP_MOVE;
+            }
+            if ((event.operations & DND.DROP_COPY) != 0) {
+              return DND.DROP_COPY;
+            }
+            if ((event.operations & DND.DROP_LINK) != 0) {
+              return DND.DROP_LINK;
+            }
+            return DND.DROP_NONE;
+          }
+
           private void handleDragEvent(DropTargetEvent event) {
+            if (isFileDrop && perspective instanceof IFileDropReceiver) {
+              if (event.dataTypes != null
+                  && !FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
+                event.currentDataType = getFileTransferDataType(event);
+              }
+              if (event.currentDataType != null
+                  && FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
+                event.detail = preferredFileDropOperation(event);
+                event.feedback = DND.FEEDBACK_NONE;
+                return;
+              }
+            }
             if (!isDropSupported(folder, event)) {
               event.detail = DND.DROP_NONE;
             } else {
