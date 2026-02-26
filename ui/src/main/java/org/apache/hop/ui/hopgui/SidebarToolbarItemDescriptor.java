@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import lombok.Builder;
 import lombok.Value;
 
@@ -57,8 +58,14 @@ public class SidebarToolbarItemDescriptor {
    */
   @Builder.Default Set<String> hiddenForPerspectiveIds = Collections.emptySet();
 
-  /** Image path (e.g. "ui/images/show-results.svg"). */
+  /** Image path used when the item is in its default (inactive) state. */
   String imagePath;
+
+  /**
+   * Optional image path used when the item is in its active/selected state (e.g.
+   * "ui/images/hide-results.svg"). When empty, {@link #imagePath} is used for both states.
+   */
+  @Builder.Default String activeImagePath = "";
 
   /** Icon size in pixels. */
   int imageSize;
@@ -68,6 +75,12 @@ public class SidebarToolbarItemDescriptor {
 
   /** Called when the button is selected. */
   Runnable onSelect;
+
+  /**
+   * Supplies the current "selected/active" state of this toolbar item. Used to render the button
+   * with a highlight when its associated panel is visible (e.g. terminal panel open).
+   */
+  @Builder.Default BooleanSupplier selectedSupplier = () -> false;
 
   /** Whether this item is available (e.g. terminal only when not in web). */
   @Builder.Default boolean available = true;

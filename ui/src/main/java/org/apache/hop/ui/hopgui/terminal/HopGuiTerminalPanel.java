@@ -19,6 +19,7 @@ package org.apache.hop.ui.hopgui.terminal;
 
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
@@ -27,6 +28,7 @@ import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -42,6 +44,8 @@ import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -60,6 +64,8 @@ import org.eclipse.swt.widgets.ToolItem;
 @GuiPlugin(name = "Terminal panel", description = "Terminal panel")
 public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
+  private static final Class<?> PKG = HopGuiTerminalPanel.class;
+
   public static final String ID_MAIN_MENU_TOOLS_TERMINAL = "40010-menu-tools-terminal";
   public static final String ID_MAIN_MENU_TOOLS_NEW_TERMINAL = "40020-menu-tools-new-terminal";
 
@@ -76,7 +82,18 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   private boolean isClearing = false;
   private int terminalCounter = 1;
 
+  /** Font size scale for all terminal tabs (100 = 100%). Persisted and applied to new tabs. */
+  private int terminalFontSizePercent = 100;
+
   private static final String TERMINAL_AUDIT_TYPE = "terminal";
+
+  /** Reserved state key for panel visibility (minimized vs visible). Not a terminal tab. */
+  private static final String STATE_PANEL_VISIBLE_KEY = "terminalPanelVisible";
+
+  private static final String STATE_PANEL_VISIBLE_PROP = "visible";
+
+  /** Reserved state key for terminal font size percent (e.g. 100 = 100%). */
+  private static final String STATE_TERMINAL_FONT_SIZE_PERCENT_KEY = "terminalFontSizePercent";
 
   // State map keys
   private static final String STATE_TAB_NAME = "tabName";
@@ -154,7 +171,8 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
     newTerminalTab = new CTabItem(terminalTabs, SWT.NONE);
     newTerminalTab.setText("+");
-    newTerminalTab.setToolTipText("Create a new terminal");
+    newTerminalTab.setToolTipText(
+        BaseMessages.getString(PKG, "HopGuiTerminalPanel.NewTab.Tooltip"));
     Composite newTerminalPlaceholder = new Composite(terminalTabs, SWT.NONE);
     newTerminalTab.setControl(newTerminalPlaceholder);
 
@@ -166,11 +184,13 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         SWT.Selection,
         event -> {
           CTabItem item = terminalTabs.getSelection();
-          if (item == newTerminalTab) {
-            if (isClearing || isClosingTab[0]) {
-              return;
-            }
+          // When only the "+" tab exists, getSelection() can be null; create a new terminal.
+          if (item == null && terminalTabs.getItemCount() == 1 && !isClearing && !isClosingTab[0]) {
             createNewTerminal(null, null);
+            return;
+          }
+          if (item == newTerminalTab) {
+            // Creation is handled by MouseDown so we don't double-create when both fire
             return;
           }
 
@@ -182,6 +202,17 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
                 composite.forceFocus();
               }
             }
+          }
+        });
+
+    // Ensure + tab click always creates a terminal (e.g. when it's the only tab and
+    // Selection doesn't fire because selection doesn't change)
+    terminalTabs.addListener(
+        SWT.MouseDown,
+        event -> {
+          CTabItem item = terminalTabs.getItem(new Point(event.x, event.y));
+          if (item == newTerminalTab && !isClearing && !isClosingTab[0]) {
+            createNewTerminal(null, null);
           }
         });
 
@@ -240,7 +271,9 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       terminalTab.setText(shellName + " (" + (terminalCounter - 1) + ")");
     }
     terminalTab.setImage(GuiResource.getInstance().getImageTerminal());
-    terminalTab.setToolTipText("Terminal: " + shellPath + " in " + workingDirectory);
+    terminalTab.setToolTipText(
+        BaseMessages.getString(
+            PKG, "HopGuiTerminalPanel.Tab.Tooltip", shellPath, workingDirectory));
 
     terminalTab.setData("terminalId", terminalId);
     terminalTab.setData("workingDirectory", workingDirectory);
@@ -251,7 +284,8 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     terminalTab.setControl(terminalWidgetComposite);
 
     ITerminalWidget terminalWidget =
-        new JediTerminalWidget(terminalWidgetComposite, shellPath, workingDirectory);
+        new JediTerminalWidget(
+            terminalWidgetComposite, shellPath, workingDirectory, getTerminalFontSizePercent());
 
     terminalTab.setData("terminalWidget", terminalWidget);
 
@@ -285,7 +319,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
   /** Extract shell name from full path (e.g., "/bin/bash" -> "bash") */
   private String extractShellName(String shellPath) {
     if (shellPath == null || shellPath.isEmpty()) {
-      return "Terminal";
+      return BaseMessages.getString(PKG, "HopGuiTerminalPanel.ShellName.Default");
     }
 
     // Handle Windows paths
@@ -334,6 +368,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       }
 
       layout(true, true);
+      hopGui.refreshSidebarToolbarButtonStates();
     }
   }
 
@@ -343,6 +378,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       terminalVisible = false;
       verticalSash.setMaximizedControl(perspectiveComposite);
       layout(true, true);
+      hopGui.refreshSidebarToolbarButtonStates();
     }
   }
 
@@ -450,7 +486,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     return items;
   }
 
-  /** Create toolbar with panel controls (maximize/minimize, close) */
+  /** Create toolbar with font size controls and panel controls (maximize/minimize, close) */
   private void createTerminalToolbar() {
     ToolBar toolBar = new ToolBar(terminalTabs, SWT.FLAT);
     terminalTabs.setTopRight(toolBar, SWT.RIGHT);
@@ -463,10 +499,34 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
       toolBar.setBackground(terminalTabs.getBackground());
     }
 
+    // Font size: increase
+    ToolItem increaseFontItem = new ToolItem(toolBar, SWT.PUSH);
+    increaseFontItem.setImage(GuiResource.getInstance().getImage("ui/images/zoom-in.svg", 16, 16));
+    increaseFontItem.setToolTipText(
+        BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.IncreaseFont"));
+    increaseFontItem.addListener(SWT.Selection, e -> increaseTerminalFontSize());
+
+    // Font size: decrease
+    ToolItem decreaseFontItem = new ToolItem(toolBar, SWT.PUSH);
+    decreaseFontItem.setImage(GuiResource.getInstance().getImage("ui/images/zoom-out.svg", 16, 16));
+    decreaseFontItem.setToolTipText(
+        BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.DecreaseFont"));
+    decreaseFontItem.addListener(SWT.Selection, e -> decreaseTerminalFontSize());
+
+    // Font size: reset to 100%
+    ToolItem resetFontItem = new ToolItem(toolBar, SWT.PUSH);
+    resetFontItem.setImage(GuiResource.getInstance().getImage("ui/images/zoom-100.svg", 16, 16));
+    resetFontItem.setToolTipText(
+        BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.ResetFont"));
+    resetFontItem.addListener(SWT.Selection, e -> resetTerminalFontSize());
+
+    new ToolItem(toolBar, SWT.SEPARATOR);
+
     // Maximize/Minimize button
     final ToolItem maximizeItem = new ToolItem(toolBar, SWT.PUSH);
     maximizeItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    maximizeItem.setToolTipText("Maximize terminal panel");
+    maximizeItem.setToolTipText(
+        BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.Maximize"));
     maximizeItem.addListener(
         SWT.Selection,
         e -> {
@@ -474,24 +534,61 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
             // Maximize terminal panel
             verticalSash.setMaximizedControl(bottomPanelComposite);
             maximizeItem.setImage(GuiResource.getInstance().getImageMinimizePanel());
-            maximizeItem.setToolTipText("Restore terminal panel");
+            maximizeItem.setToolTipText(
+                BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.Restore"));
           } else {
             // Restore normal split
             verticalSash.setMaximizedControl(null);
             verticalSash.setWeights(100 - terminalHeightPercent, terminalHeightPercent);
             maximizeItem.setImage(GuiResource.getInstance().getImageMaximizePanel());
-            maximizeItem.setToolTipText("Maximize terminal panel");
+            maximizeItem.setToolTipText(
+                BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.Maximize"));
           }
         });
 
     // Close button
     final ToolItem closeItem = new ToolItem(toolBar, SWT.PUSH);
     closeItem.setImage(GuiResource.getInstance().getImageClose());
-    closeItem.setToolTipText("Close terminal panel");
+    closeItem.setToolTipText(BaseMessages.getString(PKG, "HopGuiTerminalPanel.Toolbar.Close"));
     closeItem.addListener(SWT.Selection, e -> hideTerminal());
 
     int height = toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
     terminalTabs.setTabHeight(Math.max(height, terminalTabs.getTabHeight()));
+  }
+
+  private void increaseTerminalFontSize() {
+    terminalFontSizePercent = Math.min(200, terminalFontSizePercent + 10);
+    applyFontSizeToAllTerminals();
+    saveOpenTerminals();
+  }
+
+  private void decreaseTerminalFontSize() {
+    terminalFontSizePercent = Math.max(50, terminalFontSizePercent - 10);
+    applyFontSizeToAllTerminals();
+    saveOpenTerminals();
+  }
+
+  private void resetTerminalFontSize() {
+    terminalFontSizePercent = 100;
+    applyFontSizeToAllTerminals();
+    saveOpenTerminals();
+  }
+
+  /** Apply current terminal font size percent to all open terminal tabs. */
+  private void applyFontSizeToAllTerminals() {
+    for (CTabItem item : terminalTabs.getItems()) {
+      if (item == newTerminalTab) {
+        continue;
+      }
+      ITerminalWidget widget = (ITerminalWidget) item.getData("terminalWidget");
+      if (widget != null) {
+        widget.setFontScalePercent(terminalFontSizePercent);
+      }
+    }
+  }
+
+  private int getTerminalFontSizePercent() {
+    return terminalFontSizePercent;
   }
 
   /** Rename a terminal tab via dialog */
@@ -503,7 +600,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     final Text text = new Text(terminalTabs, SWT.BORDER);
     text.setText(item.getText());
 
-    org.eclipse.swt.graphics.Rectangle bounds = item.getBounds();
+    Rectangle bounds = item.getBounds();
     text.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
     text.moveAbove(null);
 
@@ -546,7 +643,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     saveOpenTerminals();
   }
 
-  /** Save all open terminals */
+  /** Save all open terminals and panel visibility */
   private void saveOpenTerminals() {
     try {
       java.util.List<String> terminalIds = new java.util.ArrayList<>();
@@ -569,6 +666,17 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
         }
       }
 
+      // Persist panel visibility so we don't reopen when user had minimized the terminal
+      stateMap.add(
+          new AuditState(
+              STATE_PANEL_VISIBLE_KEY,
+              java.util.Map.of(STATE_PANEL_VISIBLE_PROP, Boolean.valueOf(terminalVisible))));
+
+      stateMap.add(
+          new AuditState(
+              STATE_TERMINAL_FONT_SIZE_PERCENT_KEY,
+              java.util.Map.of("value", Integer.valueOf(terminalFontSizePercent))));
+
       AuditList auditList = new AuditList(terminalIds);
       AuditManager.getActive()
           .storeList(HopNamespace.getNamespace(), TERMINAL_AUDIT_TYPE, auditList);
@@ -580,7 +688,9 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           .getLog()
           .logDebug("Saved " + terminalIds.size() + " open terminal(s) for current project");
     } catch (Exception e) {
-      hopGui.getLog().logError("Error saving open terminals", e);
+      hopGui
+          .getLog()
+          .logError(BaseMessages.getString(PKG, "HopGuiTerminalPanel.Error.SavingTerminals"), e);
     }
   }
 
@@ -645,7 +755,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
     return System.getProperty("user.home");
   }
 
-  /** Restore terminals from previous session */
+  /** Restore terminals from previous session; respects saved panel visibility (minimized state). */
   public void restoreTerminals() {
     try {
       String namespace = HopNamespace.getNamespace();
@@ -663,21 +773,51 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
       AuditList auditList = AuditManager.getActive().retrieveList(namespace, TERMINAL_AUDIT_TYPE);
 
-      if (auditList.getNames().isEmpty()) {
-        return;
-      }
-
       AuditStateMap stateMap;
       try {
         stateMap =
             AuditManager.getActive()
                 .loadAuditStateMap(HopNamespace.getNamespace(), TERMINAL_AUDIT_TYPE);
       } catch (Exception e) {
-        hopGui.getLog().logError("Error loading terminal state map", e);
+        hopGui
+            .getLog()
+            .logError(BaseMessages.getString(PKG, "HopGuiTerminalPanel.Error.LoadingStateMap"), e);
         stateMap = new AuditStateMap();
       }
 
+      // Restore panel visibility: if user had minimized (hidden) the terminal, keep it hidden
+      boolean savedPanelVisible = true;
+      AuditState panelVisibleState = stateMap.get(STATE_PANEL_VISIBLE_KEY);
+      if (panelVisibleState != null
+          && panelVisibleState.getStateMap() != null
+          && panelVisibleState.getStateMap().get(STATE_PANEL_VISIBLE_PROP) instanceof Boolean) {
+        savedPanelVisible =
+            Boolean.TRUE.equals(panelVisibleState.getStateMap().get(STATE_PANEL_VISIBLE_PROP));
+      }
+
+      // Restore terminal font size percent
+      AuditState fontSizeState = stateMap.get(STATE_TERMINAL_FONT_SIZE_PERCENT_KEY);
+      if (fontSizeState != null
+          && fontSizeState.getStateMap() != null
+          && fontSizeState.getStateMap().get("value") != null) {
+        int saved = Const.toInt(fontSizeState.getStateMap().get("value").toString(), 100);
+        terminalFontSizePercent = Math.max(50, Math.min(200, saved));
+      }
+
+      if (auditList.getNames().isEmpty()) {
+        return;
+      }
+
+      // If panel was hidden when saved, create terminals without showing the panel
+      boolean wasVisible = terminalVisible;
+      if (!savedPanelVisible) {
+        terminalVisible = true; // prevent createNewTerminal from calling showTerminal()
+      }
+
       for (String terminalId : auditList.getNames()) {
+        if (STATE_PANEL_VISIBLE_KEY.equals(terminalId)) {
+          continue;
+        }
         String customTabName = null;
         String workingDir = null;
         String shellPath = null;
@@ -700,8 +840,15 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
 
         createNewTerminal(workingDir, shellPath, customTabName);
       }
+
+      if (!savedPanelVisible) {
+        terminalVisible = wasVisible;
+        hideTerminal();
+      }
     } catch (Exception e) {
-      hopGui.getLog().logError("Error restoring terminals", e);
+      hopGui
+          .getLog()
+          .logError(BaseMessages.getString(PKG, "HopGuiTerminalPanel.Error.RestoringTerminals"), e);
     }
   }
 

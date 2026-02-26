@@ -21,6 +21,7 @@ import com.jediterm.terminal.TerminalColor;
 import com.jediterm.terminal.TextStyle;
 import com.jediterm.terminal.TtyConnector;
 import com.jediterm.terminal.ui.JediTermWidget;
+import com.jediterm.terminal.ui.TerminalPanel;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import com.pty4j.PtyProcess;
 import com.pty4j.PtyProcessBuilder;
@@ -29,12 +30,15 @@ import java.awt.Frame;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
@@ -42,6 +46,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
@@ -57,6 +62,9 @@ public class JediTerminalWidget implements ITerminalWidget {
   private final String shellPath;
   private final String workingDirectory;
 
+  /** Font scale percent (100 = base size). Mutable so toolbar +/- can update all tabs. */
+  private final AtomicInteger fontScalePercent = new AtomicInteger(100);
+
   private Composite bridgeComposite;
   private Frame awtFrame;
   private JediTermWidget jediTermWidget;
@@ -64,8 +72,14 @@ public class JediTerminalWidget implements ITerminalWidget {
   private Pty4JTtyConnector ttyConnector;
 
   public JediTerminalWidget(Composite parent, String shellPath, String workingDirectory) {
+    this(parent, shellPath, workingDirectory, 100);
+  }
+
+  public JediTerminalWidget(
+      Composite parent, String shellPath, String workingDirectory, int fontScalePercent) {
     this.shellPath = shellPath;
     this.workingDirectory = workingDirectory;
+    this.fontScalePercent.set(Math.max(50, Math.min(200, fontScalePercent)));
 
     createWidget(parent, parent.getDisplay());
 
@@ -131,7 +145,7 @@ public class JediTerminalWidget implements ITerminalWidget {
 
     // Defer focus until after terminal initialization
     bridgeComposite.addListener(
-        org.eclipse.swt.SWT.FocusIn,
+        SWT.FocusIn,
         event -> {
           display.asyncExec(
               () -> {
@@ -199,14 +213,18 @@ public class JediTerminalWidget implements ITerminalWidget {
     }
   }
 
-  /** Create SettingsProvider with Hop theme and font scaling */
+  /**
+   * Create SettingsProvider with Hop theme and fixed-width font; font size uses fontScalePercent.
+   */
   private DefaultSettingsProvider createHopSettingsProvider(
       final boolean isDarkMode, final Display display) {
-    // Get the SWT system font size as base
-    FontData systemFontData = display.getSystemFont().getFontData()[0];
-    int swtFontSize = systemFontData.getHeight();
+    // Hop's fixed-width font (name, style, base size from preferences)
+    Font swtFixedFont = GuiResource.getInstance().getFontFixed();
+    FontData[] fixedFontData = swtFixedFont.getFontData();
+    final String fontName = fixedFontData.length > 0 ? fixedFontData[0].getName() : "Monospaced";
+    final int baseFontHeight = fixedFontData.length > 0 ? fixedFontData[0].getHeight() : 12;
+    int swtStyle = fixedFontData.length > 0 ? fixedFontData[0].getStyle() : SWT.NORMAL;
 
-    // Get font scale from system property, default 1.0
     float fontScale = 1.0f;
     String manualScale = System.getProperty("JediTerm.fontScale");
     if (manualScale != null && !manualScale.isEmpty()) {
@@ -217,11 +235,22 @@ public class JediTerminalWidget implements ITerminalWidget {
         log.logError("JediTerm: Invalid JediTerm.fontScale value: " + manualScale, e);
       }
     }
+    final float systemPropScale = fontScale;
 
-    float nativeZoomFactor = (float) PropsUi.getNativeZoomFactor();
-    final int targetFontSize = Math.round(swtFontSize * fontScale * nativeZoomFactor);
+    int awtStyle = java.awt.Font.PLAIN;
+    if ((swtStyle & SWT.BOLD) != 0) awtStyle |= java.awt.Font.BOLD;
+    if ((swtStyle & SWT.ITALIC) != 0) awtStyle |= java.awt.Font.ITALIC;
+    final int finalAwtStyle = awtStyle;
 
     return new DefaultSettingsProvider() {
+      private int computeFontSize() {
+        // baseFontHeight already includes Hop's globalZoomFactor (applied in GuiResource).
+        // Both SWT and AWT interpret point sizes the same way and apply screen DPI
+        // internally, so no additional nativeZoomFactor or DPI correction is needed.
+        int percent = fontScalePercent.get();
+        return Math.max(6, Math.round(baseFontHeight * (percent / 100f) * systemPropScale));
+      }
+
       @Override
       public TerminalColor getDefaultBackground() {
         if (Const.isWindows() && !isDarkMode) {
@@ -272,14 +301,39 @@ public class JediTerminalWidget implements ITerminalWidget {
 
       @Override
       public java.awt.Font getTerminalFont() {
-        return new java.awt.Font("Monospaced", java.awt.Font.PLAIN, targetFontSize);
+        return new java.awt.Font(fontName, finalAwtStyle, computeFontSize());
       }
 
       @Override
       public float getTerminalFontSize() {
-        return (float) targetFontSize;
+        return (float) computeFontSize();
       }
     };
+  }
+
+  @Override
+  public void setFontScalePercent(int percent) {
+    int clamped = Math.max(50, Math.min(200, percent));
+    fontScalePercent.set(clamped);
+    if (jediTermWidget == null) {
+      return;
+    }
+    // The DefaultSettingsProvider already reads fontScalePercent via computeFontSize(),
+    // so updating the AtomicInteger is enough for the provider. We now need to tell
+    // TerminalPanel to re-read the font from the provider and recalculate its character
+    // grid. TerminalPanel.reinitFontAndResize() does exactly that but is protected,
+    // so we call it via reflection.
+    java.awt.EventQueue.invokeLater(
+        () -> {
+          try {
+            TerminalPanel panel = jediTermWidget.getTerminalPanel();
+            Method reinit = TerminalPanel.class.getDeclaredMethod("reinitFontAndResize");
+            reinit.setAccessible(true);
+            reinit.invoke(panel);
+          } catch (Exception e) {
+            log.logDebug("Terminal font reinit: " + e.getMessage());
+          }
+        });
   }
 
   public void startShellProcess() {

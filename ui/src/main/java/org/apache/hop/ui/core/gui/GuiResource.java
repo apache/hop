@@ -1628,14 +1628,12 @@ public class GuiResource {
   }
 
   public Color getWidgetBackGroundColor() {
-    if (OsHelper.isMac()) {
-      if (PropsUi.getInstance().isDarkMode()) {
-        return display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
-      } else {
-        return colorDemoGray;
-      }
-    } else {
-      return colorWhite;
+    if (PropsUi.getInstance().isDarkMode()) {
+      return display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
     }
+    if (OsHelper.isMac()) {
+      return colorDemoGray;
+    }
+    return colorWhite;
   }
 }

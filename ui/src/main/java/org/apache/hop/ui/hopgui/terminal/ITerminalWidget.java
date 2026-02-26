@@ -67,4 +67,15 @@ public interface ITerminalWidget {
    * @return Terminal type string
    */
   String getTerminalType();
+
+  /**
+   * Set the terminal font scale as a percentage of the base font size (e.g. 100 = 100%, 120 =
+   * 120%). Applied to all terminal tabs when changed from the toolbar. Default implementation does
+   * nothing.
+   *
+   * @param percent font scale percent (typically 50–200)
+   */
+  default void setFontScalePercent(int percent) {
+    // no-op for implementations that don't support dynamic font scaling
+  }
 }

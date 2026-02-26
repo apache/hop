@@ -60,6 +60,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.history.AuditManager;
+import org.apache.hop.history.AuditState;
+import org.apache.hop.history.AuditStateMap;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -72,6 +75,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.IToolbarContainer;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -189,6 +193,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       "ExplorerPerspective-ContextMenu-10401-CopyPath";
   public static final String CONTEXT_MENU_DELETE = "ExplorerPerspective-ContextMenu-90000-Delete";
   private static final String FILE_EXPLORER_TREE = "File explorer tree";
+  private static final String EXPLORER_AUDIT_TYPE = "explorer-perspective-state";
+  private static final String STATE_PANEL_VISIBLE_KEY = "panel-visible";
+  private static final String STATE_PANEL_VISIBLE_PROP = "visible";
   private static ExplorerPerspective instance;
   @Getter private GuiToolbarWidgets toolBarWidgets;
 
@@ -290,14 +297,14 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
     sash.setWeights(20, 80);
 
-    // Set initial file explorer panel visibility from configuration
+    // Set initial file explorer panel visibility from configuration only.
+    // Saved state is applied later in applyRestoredState() after startup (and project) so
+    // the correct namespace is set (see HopGui open() async block and ProjectActivated).
     Boolean visibleByDefault =
         ExplorerPerspectiveConfigSingleton.getConfig().getFileExplorerVisibleByDefault();
-    if (visibleByDefault != null && !visibleByDefault) {
-      fileExplorerPanelVisible = false;
+    fileExplorerPanelVisible = visibleByDefault == null || visibleByDefault;
+    if (!fileExplorerPanelVisible) {
       sash.setMaximizedControl(tabFolder);
-    } else {
-      fileExplorerPanelVisible = true;
     }
 
     // Refresh the file explorer when a project is activated or updated.
@@ -306,7 +313,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
         .getEventsHandler()
         .addEventListener(
             getClass().getName() + "ProjectActivated",
-            e -> refresh(),
+            e -> {
+              refresh();
+              // Defer so namespace and UI are fully updated after project switch
+              hopGui.getDisplay().asyncExec(() -> applyRestoredState());
+            },
             HopGuiEvents.ProjectActivated.name());
 
     hopGui
@@ -2572,6 +2583,68 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
    */
   public boolean isFileExplorerPanelVisible() {
     return fileExplorerPanelVisible;
+  }
+
+  /** Save the file explorer panel visibility state so it persists across restarts. */
+  public void saveExplorerStateOnShutdown() {
+    try {
+      AuditStateMap stateMap = new AuditStateMap();
+      stateMap.add(
+          new AuditState(
+              STATE_PANEL_VISIBLE_KEY,
+              Map.of(STATE_PANEL_VISIBLE_PROP, Boolean.valueOf(fileExplorerPanelVisible))));
+      AuditManager.getActive()
+          .saveAuditStateMap(HopNamespace.getNamespace(), EXPLORER_AUDIT_TYPE, stateMap);
+    } catch (Exception e) {
+      hopGui.getLog().logError("Error saving explorer perspective state", e);
+    }
+  }
+
+  /**
+   * Restore file explorer panel visibility from saved audit state.
+   *
+   * @return the saved visibility, or null if no saved state exists
+   */
+  private Boolean restoreFileExplorerPanelVisibility() {
+    try {
+      AuditStateMap stateMap =
+          AuditManager.getActive()
+              .loadAuditStateMap(HopNamespace.getNamespace(), EXPLORER_AUDIT_TYPE);
+      AuditState state = stateMap.get(STATE_PANEL_VISIBLE_KEY);
+      if (state != null) {
+        Object visible = state.getStateMap().get(STATE_PANEL_VISIBLE_PROP);
+        if (visible instanceof Boolean) {
+          return (Boolean) visible;
+        }
+        if (visible != null) {
+          return Boolean.parseBoolean(visible.toString());
+        }
+      }
+    } catch (Exception e) {
+      hopGui.getLog().logError("Error restoring explorer perspective state", e);
+    }
+    return null;
+  }
+
+  /**
+   * Load saved file explorer panel visibility for the current namespace and apply it. Call this
+   * after startup (e.g. from HopGui open() async block) and when the project changes
+   * (ProjectActivated), so the correct namespace is in effect.
+   */
+  public void applyRestoredState() {
+    if (sash == null || sash.isDisposed()) {
+      return;
+    }
+    Boolean savedVisibility = restoreFileExplorerPanelVisibility();
+    if (savedVisibility != null) {
+      fileExplorerPanelVisible = savedVisibility;
+      if (fileExplorerPanelVisible) {
+        sash.setMaximizedControl(null);
+        sash.setWeights(20, 80);
+      } else {
+        sash.setMaximizedControl(tabFolder);
+      }
+    }
   }
 
   public static class DetermineRootFolderExtension {

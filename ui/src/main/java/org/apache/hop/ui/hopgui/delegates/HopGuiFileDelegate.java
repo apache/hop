@@ -56,6 +56,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowSvgPainter;
@@ -322,6 +323,13 @@ public class HopGuiFileDelegate {
     //
     if (hopGui.getTerminalPanel() != null) {
       hopGui.getTerminalPanel().saveTerminalsOnShutdown();
+    }
+
+    // Save explorer perspective state (file explorer panel visibility)
+    //
+    ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
+    if (explorerPerspective != null) {
+      explorerPerspective.saveExplorerStateOnShutdown();
     }
 
     return true;

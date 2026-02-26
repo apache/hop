@@ -168,6 +168,11 @@ public class ProjectsGuiPlugin {
         hopGui.getTerminalPanel().clearAllTerminals();
       }
 
+      // Save explorer perspective state for the current project before switching namespace
+      //
+      org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective.getInstance()
+          .saveExplorerStateOnShutdown();
+
       // This is called only in Hop GUI so we want to start with a new set of variables
       // It avoids variables from one project showing up in another
       //

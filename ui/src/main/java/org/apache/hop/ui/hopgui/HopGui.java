@@ -283,7 +283,7 @@ public class HopGui
   private GuiToolbarWidgets statusToolbarWidgets;
 
   private Composite perspectivesSidebar;
-  private ToolBar bottomToolbar;
+  private Composite bottomToolbar;
   private final java.util.List<SidebarToolbarItemDescriptor> sidebarToolbarDescriptors =
       new java.util.ArrayList<>();
   private java.util.List<SidebarButton> sidebarButtons = new java.util.ArrayList<>();
@@ -506,6 +506,11 @@ public class HopGui
           }
 
           // Terminal restoration is handled by the Projects plugin
+
+          // Restore explorer perspective state (file explorer panel visibility) for current
+          // namespace (default or project set by extension point).
+          //
+          ExplorerPerspective.getInstance().applyRestoredState();
 
           // We need to start tracking file history again.
           //
@@ -1593,12 +1598,16 @@ public class HopGui
     fdPerspectivesContainer.right = new FormAttachment(100, 0);
     perspectivesContainer.setLayoutData(fdPerspectivesContainer);
 
-    bottomToolbar = new ToolBar(perspectivesSidebar, SWT.WRAP | SWT.RIGHT | SWT.VERTICAL);
-    PropsUi.setLook(bottomToolbar, Props.WIDGET_STYLE_TOOLBAR);
+    bottomToolbar = new Composite(perspectivesSidebar, SWT.NONE);
+    GridLayout bottomLayout = new GridLayout(1, true);
+    bottomLayout.marginWidth = 0;
+    bottomLayout.marginHeight = 0;
+    bottomLayout.verticalSpacing = 1;
+    bottomToolbar.setLayout(bottomLayout);
+    bottomToolbar.setBackground(GuiResource.getInstance().getWidgetBackGroundColor());
     FormData fdBottomToolbar = new FormData();
     fdBottomToolbar.left = new FormAttachment(0, 0);
     fdBottomToolbar.right = new FormAttachment(100, 0);
-    // Add small margin at bottom to create visual separation from project/environment dropdowns
     fdBottomToolbar.bottom = new FormAttachment(100, -4);
     bottomToolbar.setLayoutData(fdBottomToolbar);
 
@@ -1618,6 +1627,7 @@ public class HopGui
                     terminalPanel.toggleTerminal();
                   }
                 })
+            .selectedSupplier(() -> terminalPanel != null && terminalPanel.isTerminalVisible())
             .available(!EnvironmentUtils.getInstance().isWeb())
             .build());
     sidebarToolbarDescriptors.add(
@@ -1625,9 +1635,18 @@ public class HopGui
             .id(SIDEBAR_TOOLBAR_ITEM_EXECUTION_RESULTS)
             .visibleForPerspectiveIds(Set.of(PERSPECTIVE_ID_EXPLORER))
             .imagePath("ui/images/show-results.svg")
+            .activeImagePath("ui/images/hide-results.svg")
             .imageSize(sidebarIconSize)
             .tooltip("Toggle Execution Results (Logging/Metrics/Problems)")
             .onSelect(this::toggleExecutionResults)
+            .selectedSupplier(
+                () -> {
+                  HopGuiPipelineGraph pg = getActivePipelineGraph();
+                  if (pg != null) return pg.isExecutionResultsPaneVisible();
+                  HopGuiWorkflowGraph wg = getActiveWorkflowGraph();
+                  if (wg != null) return wg.isExecutionResultsPaneVisible();
+                  return false;
+                })
             .available(true)
             .build());
 
@@ -1910,6 +1929,7 @@ public class HopGui
 
     perspectiveManager.notifyPerspectiveActivated(perspective);
 
+    updateSidebarButtonSelection(perspective);
     refreshBottomToolbarItems();
   }
 
@@ -1930,9 +1950,8 @@ public class HopGui
   /**
    * Refresh the bottom sidebar toolbar so only items visible for the current perspective are shown.
    * Items are added in reverse descriptor order so that the second, third, etc. buttons appear
-   * above the first (SWT vertical toolbar lays out first-added at top). This avoids overlapping and
-   * keeps perspective-specific buttons (e.g. execution) above the always-visible ones (e.g.
-   * terminal).
+   * above the first (GridLayout lays out first-added at top). This avoids overlapping and keeps
+   * perspective-specific buttons (e.g. execution) above the always-visible ones (e.g. terminal).
    */
   public void refreshBottomToolbarItems() {
     if (bottomToolbar == null || bottomToolbar.isDisposed()) {
@@ -1959,32 +1978,188 @@ public class HopGui
       }
     }
 
-    // Dispose existing items
-    for (ToolItem item : bottomToolbar.getItems()) {
-      item.dispose();
+    // Dispose existing children
+    for (Control child : bottomToolbar.getChildren()) {
+      child.dispose();
     }
 
-    // Add in reverse order: last in list becomes first (top) in toolbar so we don't overlap
+    Color normalBg = GuiResource.getInstance().getWidgetBackGroundColor();
+    Color selectionBg = GuiResource.getInstance().getColorLightBlue();
+    Color hoverBg = GuiResource.getInstance().getColorGray();
+    int buttonSize = (int) (34 * PropsUi.getNativeZoomFactor());
+
+    // Add in reverse order: last in list becomes first (top) in toolbar
     for (int i = visible.size() - 1; i >= 0; i--) {
       SidebarToolbarItemDescriptor d = visible.get(i);
-      ToolItem item = new ToolItem(bottomToolbar, SWT.PUSH);
-      Image img =
-          GuiResource.getInstance().getImage(d.getImagePath(), d.getImageSize(), d.getImageSize());
-      item.setImage(img);
-      item.setToolTipText(d.getTooltip());
-      item.setData("descriptor", d);
-      item.addListener(
-          SWT.Selection,
-          event -> {
-            SidebarToolbarItemDescriptor desc =
-                (SidebarToolbarItemDescriptor) item.getData("descriptor");
-            if (desc != null && desc.getOnSelect() != null) {
-              desc.getOnSelect().run();
-            }
-          });
+
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        // RAP: use Composite + Label (same pattern as SidebarButton)
+        Composite comp = new Composite(bottomToolbar, SWT.NONE);
+        comp.setToolTipText(d.getTooltip());
+        comp.setBackground(normalBg);
+        comp.setData("descriptor", d);
+        comp.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
+
+        GridLayout gl = new GridLayout(1, false);
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        comp.setLayout(gl);
+
+        Label imgLabel = new Label(comp, SWT.NONE);
+        imgLabel.setImage(resolveButtonImage(d));
+        imgLabel.setBackground(normalBg);
+        imgLabel.setToolTipText(d.getTooltip());
+        imgLabel.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
+        imgLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
+
+        GridData compGd = new GridData();
+        compGd.widthHint = buttonSize;
+        compGd.heightHint = buttonSize;
+        comp.setLayoutData(compGd);
+
+        Runnable updateVisual =
+            () -> {
+              boolean sel = d.getSelectedSupplier().getAsBoolean();
+              boolean hov = Boolean.TRUE.equals(comp.getData("hovered"));
+              Color bg = sel ? selectionBg : hov ? hoverBg : normalBg;
+              comp.setBackground(bg);
+              imgLabel.setBackground(bg);
+              imgLabel.setImage(resolveButtonImage(d));
+              comp.redraw();
+            };
+        comp.setData("updateVisual", updateVisual);
+
+        comp.addListener(
+            SWT.MouseEnter,
+            e -> {
+              comp.setData("hovered", true);
+              updateVisual.run();
+            });
+        comp.addListener(
+            SWT.MouseExit,
+            e -> {
+              comp.setData("hovered", false);
+              updateVisual.run();
+            });
+        comp.addListener(
+            SWT.MouseDown,
+            e -> {
+              if (d.getOnSelect() != null) d.getOnSelect().run();
+              updateVisual.run();
+            });
+        imgLabel.addListener(
+            SWT.MouseEnter,
+            e -> {
+              comp.setData("hovered", true);
+              updateVisual.run();
+            });
+        imgLabel.addListener(
+            SWT.MouseExit,
+            e -> {
+              comp.setData("hovered", false);
+              updateVisual.run();
+            });
+        imgLabel.addListener(
+            SWT.MouseDown,
+            e -> {
+              if (d.getOnSelect() != null) d.getOnSelect().run();
+              updateVisual.run();
+            });
+
+        updateVisual.run();
+      } else {
+        // Desktop SWT: Canvas with custom painting (matches SidebarButton style)
+        Canvas canvas = new Canvas(bottomToolbar, SWT.NONE);
+        canvas.setToolTipText(d.getTooltip());
+        canvas.setBackground(normalBg);
+        canvas.setData("descriptor", d);
+        canvas.setData("selected", d.getSelectedSupplier().getAsBoolean());
+        canvas.setData("hovered", false);
+
+        GridData gd = new GridData();
+        gd.widthHint = buttonSize;
+        gd.heightHint = buttonSize;
+        canvas.setLayoutData(gd);
+
+        canvas.addPaintListener(
+            e -> {
+              GC gc = e.gc;
+              Point size = canvas.getSize();
+              gc.setAntialias(SWT.ON);
+
+              boolean sel = Boolean.TRUE.equals(canvas.getData("selected"));
+              boolean hov = Boolean.TRUE.equals(canvas.getData("hovered"));
+              gc.setBackground(sel ? selectionBg : hov ? hoverBg : normalBg);
+              gc.fillRoundRectangle(4, 4, size.x - 8, size.y - 8, 8, 8);
+
+              Image currentImg = resolveButtonImage(d);
+              if (currentImg != null && !currentImg.isDisposed()) {
+                Rectangle imgBounds = currentImg.getBounds();
+                int x = (size.x - imgBounds.width) / 2;
+                int y = (size.y - imgBounds.height) / 2;
+                gc.drawImage(currentImg, x, y);
+              }
+            });
+
+        canvas.addListener(
+            SWT.MouseEnter,
+            e -> {
+              canvas.setData("hovered", true);
+              canvas.redraw();
+            });
+        canvas.addListener(
+            SWT.MouseExit,
+            e -> {
+              canvas.setData("hovered", false);
+              canvas.redraw();
+            });
+        canvas.addListener(
+            SWT.MouseDown,
+            e -> {
+              if (d.getOnSelect() != null) {
+                d.getOnSelect().run();
+              }
+              canvas.setData("selected", d.getSelectedSupplier().getAsBoolean());
+              canvas.redraw();
+            });
+      }
     }
-    bottomToolbar.pack();
+    bottomToolbar.layout(true, true);
     bottomToolbar.getParent().layout(true, true);
+  }
+
+  /**
+   * Update the visual selected/active state of all bottom sidebar toolbar buttons. Call this after
+   * an action that changes the state externally (e.g. terminal toggled via keyboard shortcut).
+   */
+  public void refreshSidebarToolbarButtonStates() {
+    if (bottomToolbar == null || bottomToolbar.isDisposed()) {
+      return;
+    }
+    for (Control child : bottomToolbar.getChildren()) {
+      SidebarToolbarItemDescriptor desc =
+          (SidebarToolbarItemDescriptor) child.getData("descriptor");
+      if (desc != null) {
+        boolean selected = desc.getSelectedSupplier().getAsBoolean();
+        if (EnvironmentUtils.getInstance().isWeb()) {
+          Runnable updateVisual = (Runnable) child.getData("updateVisual");
+          if (updateVisual != null) {
+            updateVisual.run();
+          }
+        } else {
+          child.setData("selected", selected);
+          child.redraw();
+        }
+      }
+    }
+  }
+
+  /** Resolve the correct image for a sidebar toolbar button based on its current selected state. */
+  private Image resolveButtonImage(SidebarToolbarItemDescriptor d) {
+    boolean active = d.getSelectedSupplier().getAsBoolean();
+    String path =
+        active && !d.getActiveImagePath().isEmpty() ? d.getActiveImagePath() : d.getImagePath();
+    return GuiResource.getInstance().getImage(path, d.getImageSize(), d.getImageSize());
   }
 
   public boolean isActivePerspective(IHopPerspective perspective) {
@@ -2088,12 +2263,14 @@ public class HopGui
     HopGuiPipelineGraph pipelineGraph = getActivePipelineGraph();
     if (pipelineGraph != null) {
       pipelineGraph.showExecutionResults();
+      refreshSidebarToolbarButtonStates();
       return;
     }
 
     HopGuiWorkflowGraph workflowGraph = getActiveWorkflowGraph();
     if (workflowGraph != null) {
       workflowGraph.showExecutionResults();
+      refreshSidebarToolbarButtonStates();
     }
   }
 

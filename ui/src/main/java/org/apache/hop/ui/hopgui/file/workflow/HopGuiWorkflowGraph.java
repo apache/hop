@@ -3703,6 +3703,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.ShowExecutionResults", PKG));
     toolBarWidgets.setToolbarItemImage(
         TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS, "ui/images/show-results.svg");
+    hopGui.refreshSidebarToolbarButtonStates();
   }
 
   private void minMaxExtraView() {
@@ -3758,6 +3759,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.HideExecutionResults", PKG));
     toolBarWidgets.setToolbarItemImage(
         TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS, "ui/images/hide-results.svg");
+    hopGui.refreshSidebarToolbarButtonStates();
   }
 
   @Override

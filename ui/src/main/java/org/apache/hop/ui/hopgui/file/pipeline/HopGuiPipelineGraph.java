@@ -4257,6 +4257,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         BaseMessages.getString(PKG, "HopGui.Tooltip.ShowExecutionResults"));
     toolBarWidgets.setToolbarItemImage(
         TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS, "ui/images/show-results.svg");
+    hopGui.refreshSidebarToolbarButtonStates();
   }
 
   private void minMaxExtraView() {
@@ -4553,6 +4554,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     toolBarWidgets.setToolbarItemToolTip(
         TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS,
         BaseMessages.getString(PKG, "HopGui.Tooltip.HideExecutionResults"));
+    hopGui.refreshSidebarToolbarButtonStates();
   }
 
   public synchronized void debug(
