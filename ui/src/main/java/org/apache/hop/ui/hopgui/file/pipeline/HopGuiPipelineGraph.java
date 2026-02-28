@@ -542,6 +542,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     canvas.addPaintListener(this::paintControl);
+    addListener(
+        SWT.Show,
+        e ->
+            getDisplay()
+                .asyncExec(
+                    () -> {
+                      if (!isDisposed() && canvas != null && !canvas.isDisposed()) {
+                        canvas.redraw();
+                      }
+                    }));
 
     selectedTransforms = null;
     lastClick = null;
@@ -564,6 +574,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     hopGui.replaceKeyboardShortcutListeners(this);
     canvas.pack();
+
+    addListener(SWT.Resize, e -> redraw());
 
     // Update menu, toolbar, force redraw canvas
     //

@@ -127,6 +127,7 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -199,6 +200,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private static final String EXPLORER_AUDIT_TYPE = "explorer-perspective-state";
   private static final String STATE_PANEL_VISIBLE_KEY = "panel-visible";
   private static final String STATE_PANEL_VISIBLE_PROP = "visible";
+  private static final String STATE_EDITOR_SPLIT_KEY = "editor-split";
+  private static final String STATE_EDITOR_SPLIT_PROP = "split";
+  private static final String STATE_EDITOR_SASH_WEIGHTS_KEY = "editor-sash-weights";
+  private static final String STATE_EDITOR_SASH_WEIGHTS_PROP = "weights";
+  private static final String KEY_TAB_FOLDER = "hop-explorer-tabFolder";
+
   private static ExplorerPerspective instance;
   @Getter private GuiToolbarWidgets toolBarWidgets;
 
@@ -211,12 +218,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Getter private Tree tree;
   private TreeEditor treeEditor;
   private CTabFolder tabFolder;
+  private CTabFolder tabFolder2;
+  private SashForm editorSash;
+  private CTabFolder activeTabFolder;
+  private boolean editorSplit;
   private Composite tabFolderWrapper;
   private Control toolBar;
   @Getter private GuiMenuWidgets menuWidgets;
   private final List<TabItemHandler> items;
   private boolean showingHiddenFiles;
 
+  private CTabItem splitMenuTargetTab;
   private boolean fileExplorerPanelVisible = true;
   @Getter private String rootFolder;
   @Getter private String rootName;
@@ -333,6 +345,51 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
     // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
+
+    // Sync active tab with focused editor content so Save/shortcuts target the right tab in split
+    // view
+    ExplorerPerspective perspective = this;
+    parent
+        .getDisplay()
+        .addFilter(
+            SWT.FocusIn,
+            e -> {
+              if (!(e.widget instanceof Control)) {
+                return;
+              }
+              Control focusControl = (Control) e.widget;
+              if (hopGui.getActivePerspective() != perspective) {
+                return;
+              }
+              Control c = focusControl;
+              while (c != null) {
+                Object data = c.getData(KEY_TAB_FOLDER);
+                if (data == tabFolder || data == tabFolder2) {
+                  CTabFolder folder = (CTabFolder) data;
+                  for (CTabItem item : folder.getItems()) {
+                    if (item.getControl() == c) {
+                      if (activeTabFolder != folder || folder.getSelection() != item) {
+                        activeTabFolder = folder;
+                        folder.setSelection(item);
+                        folder.showItem(item);
+                        Object handler = item.getData();
+                        if (handler instanceof IHopFileTypeHandler) {
+                          hopGui.handleFileCapabilities(
+                              ((IHopFileTypeHandler) handler).getFileType(),
+                              (IHopFileTypeHandler) handler,
+                              ((IHopFileTypeHandler) handler).hasChanged(),
+                              false,
+                              false);
+                        }
+                      }
+                      break;
+                    }
+                  }
+                  break;
+                }
+                c = c.getParent();
+              }
+            });
   }
 
   private void loadFileTypes() {
@@ -1147,18 +1204,29 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     tabFolderWrapper.setLayoutData(new FormDataBuilder().fullSize().result());
     PropsUi.setLook(tabFolderWrapper);
 
-    tabFolder = new CTabFolder(tabFolderWrapper, SWT.MULTI | SWT.BORDER);
-    tabFolder.setLayoutData(new FormDataBuilder().fullSize().result());
-    tabFolder.addListener(
+    editorSash = new SashForm(tabFolderWrapper, SWT.HORIZONTAL);
+    editorSash.setLayoutData(new FormDataBuilder().fullSize().result());
+
+    tabFolder = createSingleTabFolder(editorSash, true);
+    tabFolder2 = createSingleTabFolder(editorSash, false);
+
+    activeTabFolder = tabFolder;
+    editorSash.setMaximizedControl(tabFolder);
+  }
+
+  private CTabFolder createSingleTabFolder(Composite parent, boolean primary) {
+    CTabFolder folder = new CTabFolder(parent, SWT.MULTI | SWT.BORDER);
+    folder.setLayoutData(new FormDataBuilder().fullSize().result());
+    folder.addListener(
         SWT.Selection,
         e -> {
+          activeTabFolder = folder;
           updateGui();
-          // Notify zoom handler when tab is switched (for web/RAP)
-          if (org.apache.hop.ui.util.EnvironmentUtils.getInstance().isWeb()) {
+          if (EnvironmentUtils.getInstance().isWeb()) {
             notifyZoomHandlerForActiveTab();
           }
         });
-    tabFolder.addCTabFolder2Listener(
+    folder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
           @Override
           public void close(CTabFolderEvent event) {
@@ -1166,36 +1234,73 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
             closeTab(event, tabItem);
           }
         });
-    PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(folder, Props.WIDGET_STYLE_TAB);
 
-    // Show/Hide tree
-    //
-    ToolBar tabToolBar = new ToolBar(tabFolder, SWT.FLAT);
-    tabFolder.setTopRight(tabToolBar, SWT.RIGHT);
-    PropsUi.setLook(tabToolBar);
+    folder.addListener(SWT.FocusIn, e -> activeTabFolder = folder);
 
-    final ToolItem item = new ToolItem(tabToolBar, SWT.PUSH);
-    item.setImage(GuiResource.getInstance().getImageMaximizePanel());
-    item.addListener(
+    if (primary) {
+      ToolBar tabToolBar = new ToolBar(folder, SWT.FLAT);
+      folder.setTopRight(tabToolBar, SWT.RIGHT);
+      PropsUi.setLook(tabToolBar);
+
+      final ToolItem item = new ToolItem(tabToolBar, SWT.PUSH);
+      item.setImage(GuiResource.getInstance().getImageMaximizePanel());
+      item.addListener(
+          SWT.Selection,
+          e -> {
+            if (sash.getMaximizedControl() == null) {
+              sash.setMaximizedControl(tabFolderWrapper);
+              item.setImage(GuiResource.getInstance().getImageMinimizePanel());
+            } else {
+              sash.setMaximizedControl(null);
+              item.setImage(GuiResource.getInstance().getImageMaximizePanel());
+            }
+          });
+      int height = tabToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+      folder.setTabHeight(Math.max(height, folder.getTabHeight()));
+    }
+
+    new TabCloseHandler(this, folder);
+    new TabItemReorder(this, folder);
+
+    Menu menu = folder.getMenu();
+    new MenuItem(menu, SWT.SEPARATOR);
+    MenuItem miSplitMove = new MenuItem(menu, SWT.NONE);
+    miSplitMove.setText(BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+
+    folder.addListener(
+        SWT.MenuDetect,
+        event -> {
+          Point pt = folder.toControl(folder.getDisplay().getCursorLocation());
+          splitMenuTargetTab = folder.getItem(new Point(pt.x, pt.y));
+        });
+
+    menu.addListener(
+        SWT.Show,
+        e -> {
+          if (!editorSplit || folder == tabFolder) {
+            miSplitMove.setText(
+                BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToRight"));
+          } else {
+            miSplitMove.setText(
+                BaseMessages.getString(PKG, "ExplorerPerspective.TabMenu.MoveToLeft"));
+          }
+          miSplitMove.setEnabled(splitMenuTargetTab != null);
+        });
+
+    miSplitMove.addListener(
         SWT.Selection,
         e -> {
-          if (sash.getMaximizedControl() == null) {
-            sash.setMaximizedControl(tabFolderWrapper);
-            item.setImage(GuiResource.getInstance().getImageMinimizePanel());
-          } else {
-            sash.setMaximizedControl(null);
-            item.setImage(GuiResource.getInstance().getImageMaximizePanel());
+          if (splitMenuTargetTab != null && !splitMenuTargetTab.isDisposed()) {
+            splitOrMoveTab(splitMenuTargetTab);
           }
         });
-    int height = tabToolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-    tabFolder.setTabHeight(Math.max(height, tabFolder.getTabHeight()));
 
-    new TabCloseHandler(this);
+    return folder;
+  }
 
-    // Support reorder tab item (also handles file drops when perspective implements
-    // IFileDropReceiver)
-    //
-    new TabItemReorder(this, tabFolder);
+  private CTabFolder getTargetTabFolder() {
+    return activeTabFolder != null ? activeTabFolder : tabFolder;
   }
 
   @Override
@@ -1322,63 +1427,148 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   @Override
   public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
+    if (tabItem == null || tabItem.isDisposed()) {
+      return;
+    }
     IHopFileTypeHandler fileTypeHandler = (IHopFileTypeHandler) tabItem.getData();
-    boolean isRemoved = remove(fileTypeHandler);
+    boolean isRemoved = false;
+    if (fileTypeHandler != null) {
+      isRemoved = remove(fileTypeHandler);
+    }
+    // If remove failed (e.g. null/broken handler) or tab is still there, close it directly
+    if (!tabItem.isDisposed()) {
+      removeHandlerAndDisposeTab(tabItem);
+      isRemoved = true;
+    }
     if (!isRemoved && event != null) {
-      // Ignore event if canceled
       event.doit = false;
     }
   }
 
+  /**
+   * Remove any handler for this tab from the items list and dispose the tab. Used when the tab is
+   * broken (null handler or handler not in list) so the user can still close it.
+   */
+  private void removeHandlerAndDisposeTab(CTabItem tabItem) {
+    if (tabItem == null || tabItem.isDisposed()) {
+      return;
+    }
+    TabItemHandler toRemove = findHandlerByTabItem(tabItem);
+    if (toRemove != null) {
+      items.remove(toRemove);
+      IHopFileTypeHandler fileTypeHandler = toRemove.getTypeHandler();
+      if (fileTypeHandler != null && fileTypeHandler.getFilename() != null) {
+        hopGui.fileRefreshDelegate.remove(fileTypeHandler.getFilename());
+      }
+    }
+    tabItem.dispose();
+    if (!hopGui.fileDelegate.isClosing()) {
+      if (editorSplit && (tabFolder.getItemCount() == 0 || tabFolder2.getItemCount() == 0)) {
+        unsplitEditor();
+      }
+      if (tabFolder.getItemCount() == 0 && tabFolder2.getItemCount() == 0) {
+        HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
+      }
+      updateGui();
+    }
+  }
+
   private void removeTabItem(TabItemHandler item) {
+    if (item == null) {
+      return;
+    }
     items.remove(item);
-
-    // Close the tab
-    item.getTabItem().dispose();
-
-    // Remove the file in refreshDelegate
-    //
+    CTabItem tabItem = item.getTabItem();
+    if (tabItem != null && !tabItem.isDisposed()) {
+      tabItem.dispose();
+    }
     IHopFileTypeHandler fileTypeHandler = item.getTypeHandler();
-    if (fileTypeHandler.getFilename() != null) {
+    if (fileTypeHandler != null && fileTypeHandler.getFilename() != null) {
       hopGui.fileRefreshDelegate.remove(fileTypeHandler.getFilename());
     }
 
-    // Avoid refresh in a closing process (when switching project or exit)
     if (!hopGui.fileDelegate.isClosing()) {
 
-      // If all tab items are closed
-      //
-      if (tabFolder.getItemCount() == 0) {
+      if (editorSplit && (tabFolder.getItemCount() == 0 || tabFolder2.getItemCount() == 0)) {
+        unsplitEditor();
+      }
+
+      if (tabFolder.getItemCount() == 0 && tabFolder2.getItemCount() == 0) {
         HopGui.getInstance().handleFileCapabilities(new EmptyFileType(), false, false, false);
       }
 
-      // Update HopGui menu and toolbar
-      //
       this.updateGui();
     }
   }
 
   @Override
   public CTabFolder getTabFolder() {
-    return tabFolder;
+    return getTargetTabFolder();
+  }
+
+  /**
+   * Returns tab item handlers in pane order: left pane (tabFolder) first by tab index, then right
+   * pane (tabFolder2) by tab index. Used when persisting open files so restore order matches split
+   * layout.
+   */
+  public List<TabItemHandler> getTabItemHandlersInPaneOrder() {
+    List<TabItemHandler> ordered = new ArrayList<>();
+    if (tabFolder == null || tabFolder2 == null) {
+      return getItems();
+    }
+    for (CTabItem item : tabFolder.getItems()) {
+      TabItemHandler h = findHandlerByTabItem(item);
+      if (h != null) {
+        ordered.add(h);
+      }
+    }
+    for (CTabItem item : tabFolder2.getItems()) {
+      TabItemHandler h = findHandlerByTabItem(item);
+      if (h != null) {
+        ordered.add(h);
+      }
+    }
+    return ordered;
+  }
+
+  private TabItemHandler findHandlerByTabItem(CTabItem tabItem) {
+    for (TabItemHandler h : items) {
+      if (h.getTabItem() == tabItem) {
+        return h;
+      }
+    }
+    return null;
+  }
+
+  /** Pane index for persistence: 0 = left (tabFolder), 1 = right (tabFolder2). */
+  public int getPaneIndexForTab(CTabItem tabItem) {
+    if (tabItem == null || tabItem.isDisposed()) {
+      return 0;
+    }
+    return tabItem.getParent() == tabFolder2 ? 1 : 0;
+  }
+
+  /** The right-hand tab folder when split; used by audit restore to target the correct pane. */
+  public CTabFolder getRightTabFolder() {
+    return tabFolder2;
   }
 
   public void addFile(IExplorerFileTypeHandler fileTypeHandler) {
 
-    // Select and show tab item
-    //
     TabItemHandler handler =
         this.findTabItemHandler(fileTypeHandler.getFilename(), fileTypeHandler.getFileType());
     if (handler != null) {
-      tabFolder.setSelection(handler.getTabItem());
-      tabFolder.showItem(handler.getTabItem());
-      tabFolder.setFocus();
+      CTabFolder owningFolder = handler.getTabItem().getParent();
+      owningFolder.setSelection(handler.getTabItem());
+      owningFolder.showItem(handler.getTabItem());
+      owningFolder.setFocus();
+      activeTabFolder = owningFolder;
       return;
     }
 
-    // Create tab item
-    //
-    CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    CTabFolder targetFolder = getTargetTabFolder();
+
+    CTabItem tabItem = new CTabItem(targetFolder, SWT.CLOSE);
     tabItem.setFont(GuiResource.getInstance().getFontDefault());
     String displayName = getTabDisplayName(fileTypeHandler);
     tabItem.setText(Const.NVL(displayName, ""));
@@ -1386,8 +1576,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     tabItem.setImage(getFileTypeImage(fileTypeHandler.getFileType()));
     tabItem.setData(fileTypeHandler);
 
-    // Set the tab bold if the file has changed and vice-versa
-    //
     fileTypeHandler.addContentChangedListener(
         new IContentChangedListener() {
           @Override
@@ -1397,13 +1585,11 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
           @Override
           public void contentSafe(Object parentObject) {
-            tabItem.setFont(tabFolder.getFont());
+            tabItem.setFont(tabItem.getParent().getFont());
           }
         });
 
-    // Create file content area
-    //
-    Composite composite = new Composite(tabFolder, SWT.NONE);
+    Composite composite = new Composite(targetFolder, SWT.NONE);
     FormLayout layoutComposite = new FormLayout();
     layoutComposite.marginWidth = PropsUi.getFormMargin();
     layoutComposite.marginHeight = PropsUi.getFormMargin();
@@ -1411,21 +1597,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     composite.setLayoutData(new FormDataBuilder().fullSize().result());
     PropsUi.setLook(composite);
 
-    // This is usually done by the file type
-    //
     fileTypeHandler.renderFile(composite);
 
+    composite.setData(KEY_TAB_FOLDER, targetFolder);
     tabItem.setControl(composite);
 
     items.add(new TabItemHandler(tabItem, fileTypeHandler));
 
     hopGui.fileRefreshDelegate.register(fileTypeHandler.getFilename(), fileTypeHandler);
 
-    // Switch to the tab
-    //
-    tabFolder.setSelection(tabItem);
+    targetFolder.setSelection(tabItem);
 
-    // Add key listeners
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(this);
     HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
@@ -1441,50 +1623,48 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    */
   public IHopFileTypeHandler addPipeline(PipelineMeta pipelineMeta) throws HopException {
 
-    // Select and show the tab item (If it's a new pipeline, the file name will be null)
-    //
     TabItemHandler handler = this.findTabItemHandler(pipelineMeta.getFilename());
     if (handler != null) {
-      tabFolder.setSelection(handler.getTabItem());
-      tabFolder.showItem(handler.getTabItem());
-      tabFolder.setFocus();
+      CTabFolder owningFolder = handler.getTabItem().getParent();
+      owningFolder.setSelection(handler.getTabItem());
+      owningFolder.showItem(handler.getTabItem());
+      owningFolder.setFocus();
+      activeTabFolder = owningFolder;
       return handler.getTypeHandler();
     }
 
-    // Create the pipeline graph
-    //
-    HopGuiPipelineGraph pipelineGraph =
-        new HopGuiPipelineGraph(tabFolder, hopGui, this, pipelineMeta, pipelineFileType);
+    CTabFolder targetFolder = getTargetTabFolder();
 
-    // Assign the control to the tab
-    //
-    CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    HopGuiPipelineGraph pipelineGraph =
+        new HopGuiPipelineGraph(targetFolder, hopGui, this, pipelineMeta, pipelineFileType);
+
+    CTabItem tabItem = new CTabItem(targetFolder, SWT.CLOSE);
     tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setImage(GuiResource.getInstance().getImagePipeline());
     tabItem.setText(Const.NVL(pipelineGraph.getName(), "<>"));
     tabItem.setToolTipText(pipelineGraph.getFilename());
+    pipelineGraph.setData(KEY_TAB_FOLDER, targetFolder);
     tabItem.setControl(pipelineGraph);
     tabItem.setData(pipelineGraph);
+    pipelineGraph.addListener(
+        SWT.Show,
+        e -> {
+          if (!pipelineGraph.isDisposed()) {
+            pipelineGraph.redraw();
+          }
+        });
 
     items.add(new TabItemHandler(tabItem, pipelineGraph));
 
-    // If it's a new pipeline, the file name will be null. So, ignore
-    //
     if (pipelineMeta.getFilename() != null) {
       hopGui.fileRefreshDelegate.register(pipelineMeta.getFilename(), pipelineGraph);
     }
 
-    // Update the internal variables (file specific) in the pipeline graph variables
-    //
     pipelineMeta.setInternalHopVariables(pipelineGraph.getVariables());
 
-    // Update the variables using the list of parameters
-    //
     hopGui.setParametersAsVariablesInUI(pipelineMeta, pipelineGraph.getVariables());
 
-    // Switch to the tab
-    //
-    tabFolder.setSelection(tabItem);
+    targetFolder.setSelection(tabItem);
 
     try {
       ExtensionPointHandler.callExtensionPoint(
@@ -1500,7 +1680,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           e);
     }
 
-    // Add key listeners
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(this);
     HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
@@ -1518,46 +1697,48 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    */
   public IHopFileTypeHandler addWorkflow(WorkflowMeta workflowMeta) throws HopException {
 
-    // Select and show the tab item (If it's a new workflow, the file name will be null)
-    //
     TabItemHandler handler = this.findTabItemHandler(workflowMeta.getFilename());
     if (handler != null) {
-      tabFolder.setSelection(handler.getTabItem());
-      tabFolder.showItem(handler.getTabItem());
-      tabFolder.setFocus();
+      CTabFolder owningFolder = handler.getTabItem().getParent();
+      owningFolder.setSelection(handler.getTabItem());
+      owningFolder.showItem(handler.getTabItem());
+      owningFolder.setFocus();
+      activeTabFolder = owningFolder;
       return handler.getTypeHandler();
     }
 
-    HopGuiWorkflowGraph workflowGraph =
-        new HopGuiWorkflowGraph(tabFolder, hopGui, this, workflowMeta, workflowFileType);
+    CTabFolder targetFolder = getTargetTabFolder();
 
-    CTabItem tabItem = new CTabItem(tabFolder, SWT.CLOSE);
+    HopGuiWorkflowGraph workflowGraph =
+        new HopGuiWorkflowGraph(targetFolder, hopGui, this, workflowMeta, workflowFileType);
+
+    CTabItem tabItem = new CTabItem(targetFolder, SWT.CLOSE);
     tabItem.setFont(GuiResource.getInstance().getFontDefault());
     tabItem.setImage(GuiResource.getInstance().getImageWorkflow());
     tabItem.setText(Const.NVL(workflowGraph.getName(), "<>"));
     tabItem.setToolTipText(workflowGraph.getFilename());
+    workflowGraph.setData(KEY_TAB_FOLDER, targetFolder);
     tabItem.setControl(workflowGraph);
     tabItem.setData(workflowGraph);
+    workflowGraph.addListener(
+        SWT.Show,
+        e -> {
+          if (!workflowGraph.isDisposed()) {
+            workflowGraph.redraw();
+          }
+        });
 
     items.add(new TabItemHandler(tabItem, workflowGraph));
 
-    // If it's a new workflow, the file name will be null
-    //
     if (workflowMeta.getFilename() != null) {
       hopGui.fileRefreshDelegate.register(workflowMeta.getFilename(), workflowGraph);
     }
 
-    // Update the internal variables (file specific) in the workflow graph variables
-    //
     workflowMeta.setInternalHopVariables(workflowGraph.getVariables());
 
-    // Update the variables using the list of parameters
-    //
     hopGui.setParametersAsVariablesInUI(workflowMeta, workflowGraph.getVariables());
 
-    // Switch to the tab
-    //
-    tabFolder.setSelection(tabItem);
+    targetFolder.setSelection(tabItem);
 
     try {
       ExtensionPointHandler.callExtensionPoint(
@@ -1573,7 +1754,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           e);
     }
 
-    // Add key listeners
     HopGuiKeyHandler keyHandler = HopGuiKeyHandler.getInstance();
     keyHandler.addParentObjectToHandle(this);
     HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
@@ -1675,28 +1855,41 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
 
   @Override
   public IHopFileTypeHandler getActiveFileTypeHandler() {
-    if (tabFolder.getSelectionIndex() < 0) {
+    CTabFolder active = getTargetTabFolder();
+    if (active.getSelectionIndex() < 0) {
+      CTabFolder other = (active == tabFolder) ? tabFolder2 : tabFolder;
+      if (other.getSelectionIndex() >= 0) {
+        return (IHopFileTypeHandler) other.getSelection().getData();
+      }
       return new EmptyHopFileTypeHandler();
     }
-    return (IHopFileTypeHandler) tabFolder.getSelection().getData();
+    return (IHopFileTypeHandler) active.getSelection().getData();
   }
 
   @Override
   public void setActiveFileTypeHandler(IHopFileTypeHandler fileTypeHandler) {
-    for (CTabItem item : tabFolder.getItems()) {
-      if (item.getData().equals(fileTypeHandler)) {
-        tabFolder.setSelection(item);
-        tabFolder.showItem(item);
+    for (CTabFolder folder : getTabFolders()) {
+      for (CTabItem item : folder.getItems()) {
+        if (item.getData().equals(fileTypeHandler)) {
+          folder.setSelection(item);
+          folder.showItem(item);
+          activeTabFolder = folder;
 
-        HopGui.getInstance()
-            .handleFileCapabilities(
-                fileTypeHandler.getFileType(),
-                fileTypeHandler,
-                fileTypeHandler.hasChanged(),
-                false,
-                false);
+          HopGui.getInstance()
+              .handleFileCapabilities(
+                  fileTypeHandler.getFileType(),
+                  fileTypeHandler,
+                  fileTypeHandler.hasChanged(),
+                  false,
+                  false);
+          return;
+        }
       }
     }
+  }
+
+  private List<CTabFolder> getTabFolders() {
+    return List.of(tabFolder, tabFolder2);
   }
 
   @GuiMenuElement(
@@ -1804,7 +1997,8 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @GuiKeyboardShortcut(alt = true, key = SWT.F1)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.F1)
   public void selectInTree() {
-    if (tabFolder.getSelectionIndex() >= 0) {
+    CTabFolder active = getTargetTabFolder();
+    if (active.getSelectionIndex() >= 0) {
       this.selectInTree(getActiveFileTypeHandler().getFilename());
     }
   }
@@ -2333,7 +2527,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         Font font =
             fileTypeHandler.hasChanged()
                 ? GuiResource.getInstance().getFontBold()
-                : tabFolder.getFont();
+                : tabItem.getParent().getFont();
         tabItem.setFont(font);
       }
     }
@@ -2546,12 +2740,15 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
    */
   @Override
   public boolean remove(IHopFileTypeHandler fileTypeHandler) {
-    if (fileTypeHandler.isCloseable()) {
-      TabItemHandler item = this.getTabItemHandler(fileTypeHandler);
-      removeTabItem(item);
-      return true;
+    if (fileTypeHandler == null || !fileTypeHandler.isCloseable()) {
+      return false;
     }
-    return false;
+    TabItemHandler item = this.getTabItemHandler(fileTypeHandler);
+    if (item == null) {
+      return true; // Allow close to proceed; closeTab will dispose the tab directly
+    }
+    removeTabItem(item);
+    return true;
   }
 
   @Override
@@ -2562,11 +2759,12 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Override
   public void navigateToPreviousFile() {
     if (hasNavigationPreviousFile()) {
-      int index = tabFolder.getSelectionIndex() - 1;
+      CTabFolder active = getTargetTabFolder();
+      int index = active.getSelectionIndex() - 1;
       if (index < 0) {
-        index = tabFolder.getItemCount() - 1;
+        index = active.getItemCount() - 1;
       }
-      tabFolder.setSelection(index);
+      active.setSelection(index);
       updateGui();
     }
   }
@@ -2574,23 +2772,24 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Override
   public void navigateToNextFile() {
     if (hasNavigationNextFile()) {
-      int index = tabFolder.getSelectionIndex() + 1;
-      if (index >= tabFolder.getItemCount()) {
+      CTabFolder active = getTargetTabFolder();
+      int index = active.getSelectionIndex() + 1;
+      if (index >= active.getItemCount()) {
         index = 0;
       }
-      tabFolder.setSelection(index);
+      active.setSelection(index);
       updateGui();
     }
   }
 
   @Override
   public boolean hasNavigationPreviousFile() {
-    return tabFolder.getItemCount() > 1;
+    return getTargetTabFolder().getItemCount() > 1;
   }
 
   @Override
   public boolean hasNavigationNextFile() {
-    return tabFolder.getItemCount() > 1;
+    return getTargetTabFolder().getItemCount() > 1;
   }
 
   @Override
@@ -2654,12 +2853,121 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     fileExplorerPanelVisible = !fileExplorerPanelVisible;
 
     if (fileExplorerPanelVisible) {
-      // Show the file explorer panel - restore normal layout
       sash.setMaximizedControl(null);
       sash.setWeights(20, 80);
     } else {
-      // Hide the file explorer panel - maximize the tab folder area
       sash.setMaximizedControl(tabFolderWrapper);
+    }
+  }
+
+  /** Split the editor to show two files side by side. If already split, this is a no-op. */
+  public void splitEditor() {
+    if (editorSplit) {
+      return;
+    }
+    editorSplit = true;
+    editorSash.setMaximizedControl(null);
+    editorSash.setWeights(50, 50);
+    editorSash.layout(true);
+  }
+
+  /**
+   * Unsplit the editor back to a single pane, moving all tabs from the second pane to the first.
+   */
+  public void unsplitEditor() {
+    if (!editorSplit) {
+      return;
+    }
+
+    CTabItem[] itemsToMove = tabFolder2.getItems();
+    for (CTabItem srcItem : itemsToMove) {
+      moveTabToFolder(srcItem, tabFolder);
+    }
+
+    editorSplit = false;
+    activeTabFolder = tabFolder;
+    editorSash.setMaximizedControl(tabFolder);
+    editorSash.layout(true);
+  }
+
+  private void moveTabToFolder(CTabItem srcItem, CTabFolder dstFolder) {
+    String text = srcItem.getText();
+    Image image = srcItem.getImage();
+    String tooltip = srcItem.getToolTipText();
+    Font font = srcItem.getFont();
+    Object data = srcItem.getData();
+    boolean showClose = srcItem.getShowClose();
+    Control control = srcItem.getControl();
+
+    // Detach control from the old tab item before disposing it. This prevents CTabFolder from
+    // hiding the control during srcItem.dispose().
+    srcItem.setControl(null);
+    srcItem.dispose();
+
+    // Reparent the control to the destination folder (mirrors addPipeline where the graph is
+    // created with targetFolder as its parent).
+    control.setParent(dstFolder);
+    control.setData(KEY_TAB_FOLDER, dstFolder);
+
+    // Create the new tab item and wire it up — same order as addPipeline/addWorkflow.
+    CTabItem newItem = new CTabItem(dstFolder, SWT.CLOSE);
+    newItem.setText(text);
+    newItem.setImage(image);
+    newItem.setToolTipText(tooltip);
+    newItem.setFont(font);
+    newItem.setControl(control);
+    newItem.setData(data);
+    newItem.setShowClose(showClose);
+
+    for (TabItemHandler handler : items) {
+      if (handler.getTabItem() == srcItem) {
+        handler.setTabItem(newItem);
+        break;
+      }
+    }
+  }
+
+  /** Move a tab to the other split pane. If not currently split, creates the split first. */
+  private void splitOrMoveTab(CTabItem tab) {
+    CTabFolder sourceFolder = tab.getParent();
+    CTabFolder targetFolder;
+
+    if (!editorSplit) {
+      splitEditor();
+      targetFolder = tabFolder2;
+    } else {
+      targetFolder = (sourceFolder == tabFolder) ? tabFolder2 : tabFolder;
+    }
+
+    moveTabToFolder(tab, targetFolder);
+    targetFolder.setSelection(targetFolder.getItemCount() - 1);
+    activeTabFolder = targetFolder;
+
+    if (editorSplit && sourceFolder.getItemCount() == 0) {
+      unsplitEditor();
+    }
+
+    // Match what addPipeline/addWorkflow do after setSelection: give focus to the moved tab's
+    // control and refresh the GUI so toolbar/menu state is up to date.
+    CTabItem sel = targetFolder.getSelection();
+    if (sel != null && sel.getControl() != null && !sel.getControl().isDisposed()) {
+      sel.getControl().setFocus();
+    }
+    updateGui();
+  }
+
+  @Override
+  public void onTabMovedBetweenFolders(CTabFolder sourceFolder, CTabFolder targetFolder) {
+    activeTabFolder = targetFolder;
+    if (editorSplit && sourceFolder.getItemCount() == 0) {
+      unsplitEditor();
+    }
+  }
+
+  @Override
+  public void setDropTargetFolder(CTabFolder folder) {
+    if (folder == tabFolder || folder == tabFolder2) {
+      activeTabFolder = folder;
     }
   }
 
@@ -2680,6 +2988,19 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           new AuditState(
               STATE_PANEL_VISIBLE_KEY,
               Map.of(STATE_PANEL_VISIBLE_PROP, Boolean.valueOf(fileExplorerPanelVisible))));
+      stateMap.add(
+          new AuditState(
+              STATE_EDITOR_SPLIT_KEY,
+              Map.of(STATE_EDITOR_SPLIT_PROP, Boolean.valueOf(editorSplit))));
+      if (editorSash != null && !editorSash.isDisposed()) {
+        int[] weights = editorSash.getWeights();
+        if (weights != null && weights.length >= 2) {
+          stateMap.add(
+              new AuditState(
+                  STATE_EDITOR_SASH_WEIGHTS_KEY,
+                  Map.of(STATE_EDITOR_SASH_WEIGHTS_PROP, weights[0] + "," + weights[1])));
+        }
+      }
       AuditManager.getActive()
           .saveAuditStateMap(HopNamespace.getNamespace(), EXPLORER_AUDIT_TYPE, stateMap);
     } catch (Exception e) {
@@ -2688,7 +3009,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   /**
-   * Restore file explorer panel visibility from saved audit state.
+   * Load saved file explorer panel visibility from saved audit state.
    *
    * @return the saved visibility, or null if no saved state exists
    */
@@ -2714,6 +3035,54 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   }
 
   /**
+   * Load and apply saved editor split state (split on/off and sash weights). Called on startup
+   * before opening files so that tabs open in the correct pane, and from applyRestoredState when
+   * project changes.
+   */
+  public void applyRestoredEditorSplitState() {
+    if (editorSash == null || editorSash.isDisposed()) {
+      return;
+    }
+    try {
+      AuditStateMap stateMap =
+          AuditManager.getActive()
+              .loadAuditStateMap(HopNamespace.getNamespace(), EXPLORER_AUDIT_TYPE);
+      AuditState splitState = stateMap.get(STATE_EDITOR_SPLIT_KEY);
+      if (splitState != null) {
+        Object split = splitState.getStateMap().get(STATE_EDITOR_SPLIT_PROP);
+        boolean wasSplit = split instanceof Boolean && (Boolean) split;
+        if (wasSplit) {
+          editorSplit = true;
+          editorSash.setMaximizedControl(null);
+          AuditState weightsState = stateMap.get(STATE_EDITOR_SASH_WEIGHTS_KEY);
+          if (weightsState != null) {
+            Object weightsObj = weightsState.getStateMap().get(STATE_EDITOR_SASH_WEIGHTS_PROP);
+            if (weightsObj != null) {
+              String[] parts = weightsObj.toString().split(",");
+              if (parts.length >= 2) {
+                try {
+                  int w0 = Integer.parseInt(parts[0].trim());
+                  int w1 = Integer.parseInt(parts[1].trim());
+                  editorSash.setWeights(w0, w1);
+                } catch (NumberFormatException ignored) {
+                  editorSash.setWeights(50, 50);
+                }
+              }
+            } else {
+              editorSash.setWeights(50, 50);
+            }
+          } else {
+            editorSash.setWeights(50, 50);
+          }
+          editorSash.layout(true);
+        }
+      }
+    } catch (Exception e) {
+      hopGui.getLog().logError("Error restoring explorer editor split state", e);
+    }
+  }
+
+  /**
    * Load saved file explorer panel visibility for the current namespace and apply it. Call this
    * after startup (e.g. from HopGui open() async block) and when the project changes
    * (ProjectActivated), so the correct namespace is in effect.
@@ -2732,6 +3101,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         sash.setMaximizedControl(tabFolderWrapper);
       }
     }
+    applyRestoredEditorSplitState();
   }
 
   public static class DetermineRootFolderExtension {
