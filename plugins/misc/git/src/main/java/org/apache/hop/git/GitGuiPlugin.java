@@ -349,7 +349,8 @@ public class GitGuiPlugin
     Control control = statusWidgets.getWidgetsMap().get(ID_TOOLBAR_ITEM_GIT);
     if (control != null && !control.isDisposed()) {
       Rectangle rect = control.getBounds();
-      Point pt = control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
+      int menuGap = 6;
+      Point pt = control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height + menuGap));
       Menu menu = createGitContextMenu();
       menu.setLocation(pt);
       menu.setVisible(true);

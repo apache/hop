@@ -1514,7 +1514,8 @@ public class HopGui
         ToolbarFacade.createToolbarContainer(shell, SWT.WRAP | SWT.RIGHT | SWT.HORIZONTAL);
     statusToolbar = statusToolbarContainer.getControl();
     FormData fdToolBar = new FormData();
-    fdToolBar.left = new FormAttachment(0, 10);
+    int sidebarWidth = (int) (40 * PropsUi.getNativeZoomFactor());
+    fdToolBar.left = new FormAttachment(0, sidebarWidth);
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.bottom = new FormAttachment(100, 0);
     statusToolbar.setLayoutData(fdToolBar);

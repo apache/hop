@@ -637,7 +637,9 @@ public class ProjectsGuiPlugin {
         HopGui.getInstance().getStatusToolbarWidgets().getControlForMenu(ID_TOOLBAR_ITEM_PROJECT);
     if (control != null && !control.isDisposed()) {
       Rectangle rect = control.getBounds();
-      Point location = control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
+      int menuGap = 6;
+      Point location =
+          control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height + menuGap));
       Menu menu = createProjectContextMenu();
       menu.setLocation(location);
       menu.setVisible(true);
@@ -765,7 +767,9 @@ public class ProjectsGuiPlugin {
             .getControlForMenu(ID_TOOLBAR_ITEM_ENVIRONMENT);
     if (control != null && !control.isDisposed()) {
       Rectangle rect = control.getBounds();
-      Point location = control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height));
+      int menuGap = 6;
+      Point location =
+          control.getParent().toDisplay(new Point(rect.x, rect.y + rect.height + menuGap));
       Menu menu = createEnvironmentContextMenu();
       menu.setLocation(location);
       menu.setVisible(true);
