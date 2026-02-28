@@ -1628,8 +1628,10 @@ public class GuiResource {
   }
 
   public Color getWidgetBackGroundColor() {
-    if (PropsUi.getInstance().isDarkMode()) {
+    if (PropsUi.getInstance().isDarkMode() && !OsHelper.isWindows()) {
       return display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+    } else if (PropsUi.getInstance().isDarkMode() && OsHelper.isWindows()) {
+      return colorDemoGray;
     }
     if (OsHelper.isMac()) {
       return colorDemoGray;
