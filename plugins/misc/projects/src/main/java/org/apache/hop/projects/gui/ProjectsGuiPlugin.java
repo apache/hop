@@ -215,8 +215,7 @@ public class ProjectsGuiPlugin {
       hopGui.setVariables(variables);
 
       // Re-open last open files for the namespace
-      //
-      hopGui.auditDelegate.openLastFiles();
+      hopGui.getDisplay().asyncExec(() -> hopGui.auditDelegate.openLastFiles());
 
       // Restore terminal tabs for the new project (per-project terminals)
       //

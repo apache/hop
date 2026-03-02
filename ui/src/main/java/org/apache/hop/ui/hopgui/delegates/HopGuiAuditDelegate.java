@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.delegates;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.AuditList;
@@ -36,9 +37,12 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.util.SwtErrorHandler;
 import org.eclipse.swt.SWT;
@@ -48,7 +52,23 @@ public class HopGuiAuditDelegate {
   private static final Class<?> PKG = HopGuiAuditDelegate.class;
 
   public static final String STATE_PROPERTY_ACTIVE = "active";
+
+  /** Explorer perspective: pane index 0 = left, 1 = right. */
+  public static final String STATE_PROPERTY_PANE = "pane";
+
   public static final String METADATA_FILENAME_PREFIX = "METADATA:";
+
+  /**
+   * File type name in state so the same file can be restored in different modes (e.g. pipeline vs
+   * text).
+   */
+  public static final String STATE_PROPERTY_FILETYPE = "fileType";
+
+  /**
+   * Delimiter between file type name and filename in the audit key. Enables multiple tabs for the
+   * same file. Uses a character that does not appear in paths or type names.
+   */
+  private static final String TAB_KEY_DELIMITER = "\u0001";
 
   private HopGui hopGui;
 
@@ -98,6 +118,11 @@ public class HopGuiAuditDelegate {
           auditStateMap = new AuditStateMap();
         }
 
+        // Restore editor split state before opening files so tabs land in the correct pane
+        if (perspective instanceof ExplorerPerspective explorerPerspective) {
+          explorerPerspective.applyRestoredEditorSplitState();
+        }
+
         for (String filename : auditList.getNames()) {
           try {
             if (StringUtils.isNotEmpty(filename)) {
@@ -112,11 +137,55 @@ public class HopGuiAuditDelegate {
                   openMetadataObject(className, name);
                 }
               } else {
-                // Regular filename
-                IHopFileTypeHandler fileTypeHandler = hopGui.fileDelegate.fileOpen(filename, false);
+                // Regular file: key may be composite "fileTypeName\u0001filename" or legacy
+                // "filename"
+                String tabKey = filename;
+                String resolvedFilename = filename;
+                IHopFileType hopFileToUse = null;
+                if (filename.contains(TAB_KEY_DELIMITER)) {
+                  String[] parts = filename.split(Pattern.quote(TAB_KEY_DELIMITER), 2);
+                  if (parts.length >= 2) {
+                    String fileTypeName = parts[0];
+                    resolvedFilename = parts[1];
+                    hopFileToUse =
+                        HopFileTypeRegistry.getInstance().getFileTypeByName(fileTypeName);
+                  }
+                }
+                if (hopFileToUse == null) {
+                  hopFileToUse =
+                      HopFileTypeRegistry.getInstance().findHopFileType(resolvedFilename);
+                }
+
+                // Set target pane for Explorer split view before opening
+                if (perspective instanceof ExplorerPerspective explorerPerspective) {
+                  AuditState auditState = auditStateMap.get(tabKey);
+                  Object paneObj =
+                      auditState != null ? auditState.getStateMap().get(STATE_PROPERTY_PANE) : null;
+                  int pane = 0;
+                  if (paneObj instanceof Number) {
+                    pane = ((Number) paneObj).intValue();
+                  } else if (paneObj != null) {
+                    try {
+                      pane = Integer.parseInt(paneObj.toString());
+                    } catch (NumberFormatException ignored) {
+                      pane = 0;
+                    }
+                  }
+                  if (pane == 1 && explorerPerspective.getRightTabFolder() != null) {
+                    perspective.setDropTargetFolder(explorerPerspective.getRightTabFolder());
+                  }
+                }
+
+                IHopFileTypeHandler fileTypeHandler = null;
+                if (hopFileToUse != null) {
+                  fileTypeHandler =
+                      hopGui.fileDelegate.fileOpenWithType(resolvedFilename, hopFileToUse, false);
+                } else {
+                  fileTypeHandler = hopGui.fileDelegate.fileOpen(resolvedFilename, false);
+                }
                 if (fileTypeHandler != null) {
                   // Restore zoom, scroll and so on
-                  AuditState auditState = auditStateMap.get(filename);
+                  AuditState auditState = auditStateMap.get(tabKey);
                   if (auditState != null) {
                     fileTypeHandler.applyStateProperties(auditState.getStateMap());
 
@@ -125,13 +194,22 @@ public class HopGuiAuditDelegate {
                       activeFileTypeHandler = fileTypeHandler;
                     }
                   }
+                } else if (hopFileToUse == null) {
+                  failedFiles.add(resolvedFilename);
                 }
               }
             }
           } catch (Exception e) {
             // Collect failed files instead of showing error dialog immediately
-            hopGui.getLog().logError("Error opening file '" + filename + "'", e);
-            failedFiles.add(filename);
+            String displayName = filename;
+            if (filename.contains(TAB_KEY_DELIMITER)) {
+              String[] p = filename.split(Pattern.quote(TAB_KEY_DELIMITER), 2);
+              if (p.length >= 2) {
+                displayName = p[1];
+              }
+            }
+            hopGui.getLog().logError("Error opening file '" + displayName + "'", e);
+            failedFiles.add(displayName);
           }
         }
 
@@ -232,22 +310,32 @@ public class HopGuiAuditDelegate {
       IHopFileTypeHandler activeFileTypeHandler = perspective.getActiveFileTypeHandler();
       List<TabItemHandler> tabItems = perspective.getItems();
       if (tabItems != null) {
+        // Use pane order for Explorer (left then right) so restore order matches split layout
+        List<TabItemHandler> tabItemsToSave =
+            perspective instanceof ExplorerPerspective ep
+                ? ep.getTabItemHandlersInPaneOrder()
+                : tabItems;
+
         // This perspective has the ability to handle multiple files.
         // Let's save the files in the given order...
         //
         AuditStateMap auditStateMap = new AuditStateMap();
 
         List<String> files = new ArrayList<>();
-        for (TabItemHandler tabItem : tabItems) {
+        for (TabItemHandler tabItem : tabItemsToSave) {
           IHopFileTypeHandler typeHandler = tabItem.getTypeHandler();
           String filename = typeHandler.getFilename();
           String name = typeHandler.getName();
           if (StringUtils.isNotEmpty(filename)) {
-            // Regular filename
+            // Regular filename — use composite key (fileType + filename) so same file in
+            // different modes (e.g. pipeline vs text) gets separate tabs
             //
-            files.add(filename);
+            IHopFileType fileType = typeHandler.getFileType();
+            String tabKey =
+                (fileType != null ? fileType.getName() : "") + TAB_KEY_DELIMITER + filename;
+            files.add(tabKey);
 
-            // Also save the state : active, zoom, ...
+            // Also save the state : active, zoom, pane (Explorer split), fileType, ...
             //
             Map<String, Object> stateProperties = typeHandler.getStateProperties();
             boolean active =
@@ -255,8 +343,14 @@ public class HopGuiAuditDelegate {
                     && activeFileTypeHandler.getFilename() != null
                     && activeFileTypeHandler.getFilename().equals(filename);
             stateProperties.put(STATE_PROPERTY_ACTIVE, active);
+            if (fileType != null) {
+              stateProperties.put(STATE_PROPERTY_FILETYPE, fileType.getName());
+            }
+            if (perspective instanceof ExplorerPerspective ep) {
+              stateProperties.put(STATE_PROPERTY_PANE, ep.getPaneIndexForTab(tabItem.getTabItem()));
+            }
 
-            auditStateMap.add(new AuditState(filename, stateProperties));
+            auditStateMap.add(new AuditState(tabKey, stateProperties));
           } else if (typeHandler instanceof MetadataEditor<?> metadataEditor
               && StringUtils.isNotEmpty(name)) {
             // Don't save new unchanged metadata objects...

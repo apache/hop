@@ -95,11 +95,7 @@ public class HopGuiLogBrowser {
                     () -> {
                       IHasLogChannel provider = logProvider.getLogChannelProvider();
 
-                      if (provider != null
-                          && !text.isDisposed()
-                          && !busy.get()
-                          && !paused.get()
-                          && text.isVisible()) {
+                      if (provider != null && !text.isDisposed() && !busy.get() && !paused.get()) {
                         busy.set(true);
 
                         ILogChannel logChannel = provider.getLogChannel();
@@ -218,7 +214,9 @@ public class HopGuiLogBrowser {
                               }
                             }
 
-                            text.setSelection(text.getCharCount());
+                            if (!text.isDisposed()) {
+                              text.setSelection(text.getCharCount());
+                            }
                             lastLogId.set(lastNr);
                           }
                         }
