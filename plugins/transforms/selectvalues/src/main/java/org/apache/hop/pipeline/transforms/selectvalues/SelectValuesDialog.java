@@ -152,15 +152,13 @@ public class SelectValuesDialog extends BaseTransformDialog {
     selectLayout.marginHeight = margin;
     wSelectComp.setLayout(selectLayout);
 
+    // Include unspecified fields (at bottom of tab)
     Label wlUnspecified = new Label(wSelectComp, SWT.RIGHT);
     wlUnspecified.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Unspecified.Label"));
     PropsUi.setLook(wlUnspecified);
-    wlUnspecified.setLayoutData(FormDataBuilder.builder().left().bottom(100, 0).build());
 
     wUnspecified = new Button(wSelectComp, SWT.CHECK);
     PropsUi.setLook(wUnspecified);
-    wUnspecified.setLayoutData(
-        FormDataBuilder.builder().left(wlUnspecified, margin).bottom(100, 5).build());
     wUnspecified.addSelectionListener(lsSel);
     // Update combo boxes when "Include unspecified fields" checkbox is toggled
     wUnspecified.addSelectionListener(
@@ -179,16 +177,12 @@ public class SelectValuesDialog extends BaseTransformDialog {
             }
           }
         });
-    // Label: select & Alter.  Button: Get fields to select
+
+    // Row 1: Label "Select & Alter"
     Label wlFields = new Label(wSelectComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     wlFields.setLayoutData(FormDataBuilder.builder().top().left().build());
-
-    Button wGetSelect = new Button(wSelectComp, SWT.PUSH);
-    wGetSelect.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetSelect.Button"));
-    wGetSelect.addListener(SWT.Selection, e -> get());
-    wGetSelect.setLayoutData(FormDataBuilder.builder().top().right().build());
 
     final int fieldsCols = 4;
     final int fieldsRows = input.getSelectOption().getSelectFields().size();
@@ -231,13 +225,27 @@ public class SelectValuesDialog extends BaseTransformDialog {
             lsMod,
             props);
 
+    // Row 2: Get fields button (below table, above "Include unspecified fields")
+    Button wGetSelect = new Button(wSelectComp, SWT.PUSH);
+    wGetSelect.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetSelect.Button"));
+    wGetSelect.addListener(SWT.Selection, e -> get());
+
+    // Layout bottom-up: checkbox pinned to bottom, button above it, table fills remaining space.
+    wlUnspecified.setLayoutData(FormDataBuilder.builder().left().bottom(100, 0).build());
+    wUnspecified.setLayoutData(
+        FormDataBuilder.builder().left(wlUnspecified, margin).bottom(100, 0).build());
+
+    wGetSelect.setLayoutData(
+        FormDataBuilder.builder().left().bottom(wlUnspecified, -margin).build());
+
     wFields.setLayoutData(
         FormDataBuilder.builder()
             .top(wlFields, margin)
             .left()
             .right()
-            .bottom(wlUnspecified, -2 * margin)
+            .bottom(wGetSelect, -margin)
             .build());
+
     wSelectComp.setLayoutData(
         FormDataBuilder.builder().top().left().right().bottom(100, 0).build());
 
@@ -268,11 +276,6 @@ public class SelectValuesDialog extends BaseTransformDialog {
     PropsUi.setLook(wlRemove);
     wlRemove.setLayoutData(FormDataBuilder.builder().top().left().build());
 
-    Button wGetRemove = new Button(wRemoveComp, SWT.PUSH);
-    wGetRemove.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetRemove.Button"));
-    wGetRemove.addListener(SWT.Selection, e -> get());
-    wGetRemove.setLayoutData(FormDataBuilder.builder().top().right().build());
-
     final int RemoveCols = 1;
     final int RemoveRows = input.getSelectOption().getDeleteName().size();
 
@@ -296,9 +299,21 @@ public class SelectValuesDialog extends BaseTransformDialog {
             RemoveRows,
             lsMod,
             props);
+
+    Button wGetRemove = new Button(wRemoveComp, SWT.PUSH);
+    wGetRemove.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetRemove.Button"));
+    wGetRemove.addListener(SWT.Selection, e -> get());
+
+    wGetRemove.setLayoutData(FormDataBuilder.builder().left().bottom(100, 0).build());
     wRemove.setLayoutData(
-        FormDataBuilder.builder().top(wlRemove, margin).left().right().bottom(100, 0).build());
-    wRemoveComp.setLayoutData(FormDataBuilder.builder().top().left().bottom(100, 0).build());
+        FormDataBuilder.builder()
+            .top(wlRemove, margin)
+            .left()
+            .right()
+            .bottom(wGetRemove, -margin)
+            .build());
+    wRemoveComp.setLayoutData(
+        FormDataBuilder.builder().top().left().right().bottom(100, 0).build());
 
     wRemoveComp.layout();
     wRemoveTab.setControl(wRemoveComp);
@@ -327,11 +342,6 @@ public class SelectValuesDialog extends BaseTransformDialog {
     wlMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Meta.Label"));
     PropsUi.setLook(wlMeta);
     wlMeta.setLayoutData(FormDataBuilder.builder().top().left().build());
-
-    Button wGetMeta = new Button(wMetaComp, SWT.PUSH);
-    wGetMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetMeta.Button"));
-    wGetMeta.addListener(SWT.Selection, e -> get());
-    wGetMeta.setLayoutData(FormDataBuilder.builder().top().right().build());
 
     final int MetaRows = input.getSelectOption().getMeta().size();
 
@@ -425,8 +435,18 @@ public class SelectValuesDialog extends BaseTransformDialog {
             lsMod,
             props);
 
+    Button wGetMeta = new Button(wMetaComp, SWT.PUSH);
+    wGetMeta.setText(BaseMessages.getString(PKG, "SelectValuesDialog.GetMeta.Button"));
+    wGetMeta.addListener(SWT.Selection, e -> get());
+
+    wGetMeta.setLayoutData(FormDataBuilder.builder().left().bottom(100, 0).build());
     wMeta.setLayoutData(
-        FormDataBuilder.builder().top(wlMeta, margin).left().right().bottom(100, 0).build());
+        FormDataBuilder.builder()
+            .top(wlMeta, margin)
+            .left()
+            .right()
+            .bottom(wGetMeta, -margin)
+            .build());
     wMetaComp.setLayoutData(
         FormDataBuilder.builder().top().left().right(100, 0).bottom(100, 0).build());
 

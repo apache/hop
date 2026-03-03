@@ -70,8 +70,10 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
 
     try {
       jsonFactory = JacksonFactory.getDefaultInstance();
-      httpTransport =
-          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
+
+      String host = resolve(meta.getProxyHost());
+      String port = resolve(meta.getProxyPort());
+      httpTransport = GoogleSheetsConnectionFactory.newTransport(host, port);
     } catch (Exception e) {
       logError("cannot initiate HTTP transport" + e.getMessage());
       return false;
@@ -84,7 +86,8 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
                 scope,
                 resolve(meta.getJsonCredentialPath()),
                 resolve(meta.getImpersonation()),
-                variables);
+                variables,
+                httpTransport);
         Sheets service =
             new Sheets.Builder(
                     httpTransport,

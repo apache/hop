@@ -18,9 +18,13 @@
 package org.apache.hop.pipeline.transforms.googlesheets;
 
 import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
 import com.google.api.services.sqladmin.SQLAdminScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
+import com.google.auth.http.HttpTransportFactory;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.auth.oauth2.UserCredentials;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +40,11 @@ public class GoogleSheetsCredentials {
   public static final String APPLICATION_NAME = "Apache-Hop-Google-Sheets";
 
   public static HttpCredentialsAdapter getCredentialsJson(
-      String scope, String jsonCredentialPath, String impersonation, IVariables variables)
+      String scope,
+      String jsonCredentialPath,
+      String impersonation,
+      IVariables variables,
+      HttpTransport httpTransport)
       throws IOException {
 
     GoogleCredentials credential;
@@ -51,11 +59,34 @@ public class GoogleSheetsCredentials {
     if (in == null) {
       throw new FileNotFoundException("Resource not found:" + jsonCredentialPath);
     }
+
+    credential = GoogleCredentials.fromStream(in);
+
+    if (httpTransport != null) {
+      HttpTransportFactory proxyTransportFactory =
+          new HttpTransportFactory() {
+            @Override
+            public HttpTransport create() {
+              return httpTransport;
+            }
+          };
+
+      if (credential instanceof ServiceAccountCredentials) {
+        credential =
+            ((ServiceAccountCredentials) credential)
+                .toBuilder().setHttpTransportFactory(proxyTransportFactory).build();
+      } else if (credential instanceof UserCredentials) {
+        credential =
+            ((UserCredentials) credential)
+                .toBuilder().setHttpTransportFactory(proxyTransportFactory).build();
+      }
+    }
+
     if (StringUtils.isEmpty(impersonation)) {
-      credential = GoogleCredentials.fromStream(in).createScoped(Collections.singleton(scope));
+      credential = credential.createScoped(Collections.singleton(scope));
     } else {
       credential =
-          GoogleCredentials.fromStream(in)
+          credential
               .createScoped(Collections.singleton(SQLAdminScopes.SQLSERVICE_ADMIN))
               .createDelegated(impersonation);
     }

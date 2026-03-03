@@ -103,6 +103,7 @@ public class TabItemReorder {
 
           @Override
           public void dragFinished(DragSourceEvent event) {
+            dragItem = null;
             if (EnvironmentUtils.getInstance().isWeb()) {
               return;
             }
@@ -207,6 +208,7 @@ public class TabItemReorder {
             }
             if (event.data instanceof String[] paths
                 && perspective instanceof IFileDropReceiver receiver) {
+              perspective.setDropTargetFolder(folder);
               receiver.openDroppedFiles(paths);
               return;
             }
@@ -281,38 +283,71 @@ public class TabItemReorder {
           }
 
           private boolean isDropSupported(CTabFolder folder, DropTargetEvent event) {
-            if (dragItem == null) {
+            if (dragItem != null && !dragItem.isDisposed()) {
+              Point point = folder.toControl(folder.getDisplay().getCursorLocation());
+              return folder.getItem(new Point(point.x, point.y)) != null;
+            }
+            return hasActiveTabTransfer(event);
+          }
+
+          private boolean hasActiveTabTransfer(DropTargetEvent event) {
+            if (event.dataTypes == null) {
               return false;
             }
-            Point point = folder.toControl(folder.getDisplay().getCursorLocation());
-            return folder.getItem(new Point(point.x, point.y)) != null;
+            for (TransferData td : event.dataTypes) {
+              if (TabTransfer.INSTANCE.isSupportedType(td)) {
+                return true;
+              }
+            }
+            return false;
           }
         });
   }
 
   private void moveTabs(CTabFolder folder, DropTargetEvent event) {
+    CTabItem sourceItem = this.dragItem;
+
+    if (sourceItem == null || sourceItem.isDisposed()) {
+      sourceItem = null;
+    }
+
+    if (sourceItem == null && event.data instanceof CTabItem transferredItem) {
+      if (!transferredItem.isDisposed()) {
+        sourceItem = transferredItem;
+      }
+    }
+
+    if (sourceItem == null) {
+      return;
+    }
+
+    if (sourceItem.getParent() != folder) {
+      moveTabBetweenFolders(sourceItem, folder);
+      return;
+    }
+
     Point point = folder.toControl(folder.getDisplay().getCursorLocation());
     CTabItem dropItem = folder.getItem(new Point(point.x, point.y));
-    if (dropItem != null && dragItem != null) {
-      Control dragControl = dragItem.getControl();
-      String dragText = dragItem.getText();
-      Image dragImage = dragItem.getImage();
-      String dragToolTip = dragItem.getToolTipText();
-      boolean dragShowClose = dragItem.getShowClose();
-      Font dragFont = dragItem.getFont();
-      IHopFileTypeHandler dragFileTypeHandler = (IHopFileTypeHandler) dragItem.getData();
+    if (dropItem != null) {
+      Control dragControl = sourceItem.getControl();
+      String dragText = sourceItem.getText();
+      Image dragImage = sourceItem.getImage();
+      String dragToolTip = sourceItem.getToolTipText();
+      boolean dragShowClose = sourceItem.getShowClose();
+      Font dragFont = sourceItem.getFont();
+      IHopFileTypeHandler dragFileTypeHandler = (IHopFileTypeHandler) sourceItem.getData();
       IHopFileTypeHandler dropFileTypeHandler = (IHopFileTypeHandler) dropItem.getData();
 
       updateTabItemHandler(dragFileTypeHandler, dropItem);
-      updateTabItemHandler(dropFileTypeHandler, dragItem);
+      updateTabItemHandler(dropFileTypeHandler, sourceItem);
 
-      dragItem.setText(dropItem.getText());
-      dragItem.setImage(dropItem.getImage());
-      dragItem.setToolTipText(dropItem.getToolTipText());
-      dragItem.setFont(dropItem.getFont());
-      dragItem.setData(dropItem.getData());
-      dragItem.setShowClose(dropItem.getShowClose());
-      dragItem.setControl(dropItem.getControl());
+      sourceItem.setText(dropItem.getText());
+      sourceItem.setImage(dropItem.getImage());
+      sourceItem.setToolTipText(dropItem.getToolTipText());
+      sourceItem.setFont(dropItem.getFont());
+      sourceItem.setData(dropItem.getData());
+      sourceItem.setShowClose(dropItem.getShowClose());
+      sourceItem.setControl(dropItem.getControl());
 
       dropItem.setText(dragText);
       dropItem.setImage(dragImage);
@@ -324,6 +359,35 @@ public class TabItemReorder {
 
       folder.setSelection(dropItem);
     }
+  }
+
+  private void moveTabBetweenFolders(CTabItem srcItem, CTabFolder dstFolder) {
+    CTabFolder srcFolder = srcItem.getParent();
+    Control control = srcItem.getControl();
+    String text = srcItem.getText();
+    Image image = srcItem.getImage();
+    String tooltip = srcItem.getToolTipText();
+    Font font = srcItem.getFont();
+    IHopFileTypeHandler data = (IHopFileTypeHandler) srcItem.getData();
+    boolean showClose = srcItem.getShowClose();
+
+    control.setParent(dstFolder);
+
+    CTabItem newItem = new CTabItem(dstFolder, SWT.CLOSE);
+    newItem.setText(text);
+    newItem.setImage(image);
+    newItem.setToolTipText(tooltip);
+    newItem.setFont(font);
+    newItem.setData(data);
+    newItem.setShowClose(showClose);
+    newItem.setControl(control);
+
+    updateTabItemHandler(data, newItem);
+
+    srcItem.dispose();
+    dstFolder.setSelection(newItem);
+
+    perspective.onTabMovedBetweenFolders(srcFolder, dstFolder);
   }
 
   private void updateTabItemHandler(IHopFileTypeHandler fileTypeHandler, CTabItem tabItem) {

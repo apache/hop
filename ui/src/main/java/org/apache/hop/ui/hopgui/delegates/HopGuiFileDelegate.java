@@ -109,7 +109,6 @@ public class HopGuiFileDelegate {
 
   public IHopFileTypeHandler fileOpen(String filename, boolean activatePerspective)
       throws Exception {
-
     HopFileTypeRegistry fileRegistry = HopFileTypeRegistry.getInstance();
     IHopFileType hopFile = fileRegistry.findHopFileType(filename);
     if (hopFile == null) {
@@ -120,7 +119,15 @@ public class HopGuiFileDelegate {
               + filename
               + "'");
     }
+    return fileOpenWithType(filename, hopFile, activatePerspective);
+  }
 
+  /**
+   * Open a file with a specific file type. Used when restoring tabs so the same file can be
+   * reopened in different modes (e.g. pipeline and text).
+   */
+  public IHopFileTypeHandler fileOpenWithType(
+      String filename, IHopFileType hopFile, boolean activatePerspective) throws Exception {
     IHopFileTypeHandler fileTypeHandler = hopFile.openFile(hopGui, filename, hopGui.getVariables());
     if (fileTypeHandler != null) {
       hopGui.handleFileCapabilities(

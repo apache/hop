@@ -71,7 +71,7 @@ Linux/macOS::
 --
 [source,shell]
 ----
-./hop.sh doc -s ~/projects/my-hop-project -t ~/docs
+./hop doc -s ~/projects/my-hop-project -t ~/docs
 ----
 ====
 
@@ -108,7 +108,7 @@ Linux/macOS::
 --
 [source,shell]
 ----
-./hop.sh doc -s ~/projects/my-hop-project -t ~/docs --generate-html --remove-markdown
+./hop doc -s ~/projects/my-hop-project -t ~/docs --generate-html --remove-markdown
 ----
 ====
 

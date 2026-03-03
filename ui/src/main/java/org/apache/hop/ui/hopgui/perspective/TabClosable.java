@@ -30,12 +30,13 @@ public interface TabClosable {
 
   /** Get all the tabs on the right-hand side of the selected one */
   default List<CTabItem> getTabsToRight(CTabItem selectedTabItem) {
+    CTabFolder folder = selectedTabItem.getParent();
     List<CTabItem> items = new ArrayList<>();
-    for (int i = getTabFolder().getItems().length - 1; i >= 0; i--) {
-      if (selectedTabItem.equals(getTabFolder().getItems()[i])) {
+    for (int i = folder.getItems().length - 1; i >= 0; i--) {
+      if (selectedTabItem.equals(folder.getItems()[i])) {
         break;
       } else {
-        items.add(getTabFolder().getItems()[i]);
+        items.add(folder.getItems()[i]);
       }
     }
     return items;
@@ -43,8 +44,9 @@ public interface TabClosable {
 
   /** Get all the tabs on the left-hand side of the selected one */
   default List<CTabItem> getTabsToLeft(CTabItem selectedTabItem) {
+    CTabFolder folder = selectedTabItem.getParent();
     List<CTabItem> items = new ArrayList<>();
-    for (CTabItem item : getTabFolder().getItems()) {
+    for (CTabItem item : folder.getItems()) {
       if (selectedTabItem.equals(item)) {
         break;
       } else {
@@ -56,8 +58,9 @@ public interface TabClosable {
 
   /** Get all the other tabs of the selected one */
   default List<CTabItem> getOtherTabs(CTabItem selectedTabItem) {
+    CTabFolder folder = selectedTabItem.getParent();
     List<CTabItem> items = new ArrayList<>();
-    for (CTabItem item : getTabFolder().getItems()) {
+    for (CTabItem item : folder.getItems()) {
       if (!selectedTabItem.equals(item)) {
         items.add(item);
       }
