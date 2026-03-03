@@ -521,7 +521,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
   private void testServiceAccount() {
     try {
       NetHttpTransport netHttpTransport =
-          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
+          GoogleSheetsConnectionFactory.newTransport(
+              variables.resolve(meta.getProxyHost()), variables.resolve(meta.getProxyPort()));
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
@@ -531,7 +532,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
               scope,
               variables.resolve(meta.getJsonCredentialPath()),
               variables.resolve(meta.getImpersonation()),
-              variables);
+              variables,
+              netHttpTransport);
       //
       new Drive.Builder(
               netHttpTransport,
@@ -551,7 +553,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
   private void selectSpreadSheet() {
     try {
       NetHttpTransport netHttpTransport =
-          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
+          GoogleSheetsConnectionFactory.newTransport(
+              variables.resolve(meta.getProxyHost()), variables.resolve(meta.getProxyPort()));
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       String scope = "https://www.googleapis.com/auth/drive.readonly";
       HttpRequestInitializer credential =
@@ -559,7 +562,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
               scope,
               variables.resolve(meta.getJsonCredentialPath()),
               variables.resolve(meta.getImpersonation()),
-              variables);
+              variables,
+              netHttpTransport);
       //
       Drive service =
           new Drive.Builder(
@@ -618,7 +622,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
     try {
 
       NetHttpTransport netHttpTransport =
-          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
+          GoogleSheetsConnectionFactory.newTransport(
+              variables.resolve(meta.getProxyHost()), variables.resolve(meta.getProxyPort()));
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
@@ -627,7 +632,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
               scope,
               variables.resolve(meta.getJsonCredentialPath()),
               variables.resolve(meta.getImpersonation()),
-              variables);
+              variables,
+              netHttpTransport);
       //
       Sheets service =
           new Sheets.Builder(
@@ -834,7 +840,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
       GoogleSheetsInputMeta meta = new GoogleSheetsInputMeta();
       setData(meta);
       NetHttpTransport netHttpTransport =
-          GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
+          GoogleSheetsConnectionFactory.newTransport(
+              variables.resolve(meta.getProxyHost()), variables.resolve(meta.getProxyPort()));
       JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
       wFields.table.removeAll();
@@ -844,7 +851,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
               scope,
               variables.resolve(meta.getJsonCredentialPath()),
               variables.resolve(meta.getImpersonation()),
-              variables);
+              variables,
+              netHttpTransport);
       Sheets service =
           new Sheets.Builder(
                   netHttpTransport,

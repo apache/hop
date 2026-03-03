@@ -35,7 +35,7 @@ public class GoogleSheetsConnectionFactory {
 
   public static NetHttpTransport newTransport(String proxyHost, String proxyPort)
       throws GeneralSecurityException, IOException {
-    if (proxyHost != null && proxyPort != null) {
+    if (proxyHost != null && !proxyHost.isEmpty() && proxyPort != null && !proxyPort.isEmpty()) {
       int port = Integer.parseInt(proxyPort);
       return newProxyTransport(proxyHost, port);
     } else {

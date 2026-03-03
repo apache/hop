@@ -86,7 +86,8 @@ public class GoogleSheetsOutput
       // Check if file exists
       try {
         httpTransport =
-            GoogleSheetsConnectionFactory.newTransport(meta.getProxyHost(), meta.getProxyPort());
+            GoogleSheetsConnectionFactory.newTransport(
+                resolve(meta.getProxyHost()), resolve(meta.getProxyPort()));
         jsonFactory = JacksonFactory.getDefaultInstance();
         scope = "https://www.googleapis.com/auth/drive";
 
@@ -95,7 +96,8 @@ public class GoogleSheetsOutput
                 scope,
                 resolve(meta.getJsonCredentialPath()),
                 resolve(meta.getImpersonation()),
-                variables);
+                variables,
+                httpTransport);
         Drive service =
             new Drive.Builder(
                     httpTransport,
@@ -362,7 +364,8 @@ public class GoogleSheetsOutput
                   scope,
                   resolve(meta.getJsonCredentialPath()),
                   resolve(meta.getImpersonation()),
-                  variables);
+                  variables,
+                  httpTransport);
           data.service =
               new Sheets.Builder(
                       httpTransport,
