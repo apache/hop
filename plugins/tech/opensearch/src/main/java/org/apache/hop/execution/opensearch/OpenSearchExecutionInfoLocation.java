@@ -22,10 +22,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +41,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.IExecutionSelector;
+import org.apache.hop.execution.LastPeriod;
 import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
 import org.apache.hop.execution.caching.CacheEntry;
 import org.apache.hop.execution.caching.DatedId;
@@ -231,7 +236,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       // Search for the document with the given executionId
       //
       URI uri = URI.create(actualUrl);
-      URI postUri = uri.resolve(actualIndexName + "/_search");
+      URI postUri = uri.resolve(actualIndexName + "/_search?_source=false");
 
       String body =
           """
@@ -415,30 +420,59 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
   }
 
   @Override
-  protected void retrieveIds(boolean includeChildren, Set<DatedId> ids, int limit)
+  protected void retrieveIds(
+      boolean includeChildren, Set<DatedId> ids, int limit, IExecutionSelector selector)
       throws HopException {
     // Get all the IDs from OpenSearch if we don't have it in the cache.
     //
     try {
       URI uri = URI.create(actualUrl);
-      URI postUri = uri.resolve(actualIndexName + "/_search");
+      URI postUri = uri.resolve("_plugins/_sql");
 
       String body =
           """
             {
-              __LIMIT_CLAUSE__
-              "from": 0,
-              "query" : { "match_all" : {} },
-              "fields": [ "id", "execution.executionStartDate" ],
-              "sort" : [ { "execution.executionStartDate" : {"order" : "desc" }} ],
-              "_source": false
+              "query": "SELECT id, creationDate __FROM_CLAUSE__ __WHERE_CLAUSE__ ORDER BY creationDate DESC LIMIT 50" }
             }
           """;
-      String limitClause = "";
-      if (limit > 0) {
-        limitClause = "\"size\": " + limit + ",";
+
+      body = body.replace("__FROM_CLAUSE__", "FROM " + actualIndexName);
+
+      String whereClause = "";
+      if (selector != null) {
+        if (selector.startDateFilter() != LastPeriod.NONE) {
+          // OpenSearch uses UTC and the GUI runs in local time.
+          //
+          ZonedDateTime localStartDate =
+              selector.startDateFilter().calculateStartDate().atZone(ZoneId.systemDefault());
+          Date localStart = new Date(localStartDate.toInstant().toEpochMilli());
+
+          SimpleDateFormat whereFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+          whereFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+          whereClause =
+              addToWhereClause(
+                  whereClause,
+                  "creationDate >= datetime('" + whereFormat.format(localStart) + "') ");
+        }
+
+        /*
+          // OpenSearch throws some errors on these nested conditions
+          //
+          if (selector.isSelectingParents()) {
+            whereClause = addToWhereClause(whereClause, "e.parentId IS NULL ");
+          }
+          if (selector.isSelectingPipelines()) {
+            whereClause = addToWhereClause(whereClause, "e.executionType = 'Pipeline' ");
+          }
+          if (selector.isSelectingWorkflows()) {
+            whereClause = addToWhereClause(whereClause, "e.executionType = 'Workflows' ");
+          }
+          if (selector.isSelectingFinished()) {
+            whereClause = addToWhereClause(whereClause, "s.statusDescription = 'Finished' ");
+          }
+        */
       }
-      body = body.replace("__LIMIT_CLAUSE__", limitClause);
+      body = body.replace("__WHERE_CLAUSE__", whereClause);
 
       RestCaller restCaller =
           new RestCaller(
@@ -459,41 +493,38 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       //
       JSONParser parser = new JSONParser();
       JSONObject j = (JSONObject) parser.parse(responseBody);
-      JSONObject jHitsTop = (JSONObject) j.get("hits");
-      if (jHitsTop == null) {
+      JSONArray dataRows = (JSONArray) j.get("datarows");
+      if (dataRows == null) {
         // Nothing left to do, something went wrong
-        return;
-      }
-      JSONArray jHits = (JSONArray) jHitsTop.get("hits");
-      if (Utils.isEmpty(jHits)) {
-        // No hits returned
         return;
       }
 
       // This array contains the results wrapped in its own structure.
-      // The element fields.id[0] contains the result
       //
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-      for (Object hit : jHits) {
-        JSONObject jHit = (JSONObject) hit;
-        JSONObject jHitsFields = (JSONObject) jHit.get("fields");
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
+      sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        JSONArray jHitsFieldsIds = (JSONArray) jHitsFields.get("id");
-        if (Utils.isEmpty(jHitsFieldsIds)) {
-          // Skip this one
-          continue;
-        }
-        String id = (String) jHitsFieldsIds.get(0);
-        JSONArray jHitsFieldsStart = (JSONArray) jHitsFields.get("execution.executionStartDate");
-        if (jHitsFieldsStart != null && !jHitsFieldsStart.isEmpty()) {
-          String startDate = (String) jHitsFieldsStart.get(0);
-          // Add the dated id
-          ids.add(new DatedId(id, sdf.parse(startDate)));
-        }
+      for (int r = 0; r < dataRows.size(); r++) {
+        JSONArray dataRow = (JSONArray) dataRows.get(r);
+        String id = (String) dataRow.get(0);
+        String creationDateString = (String) dataRow.get(1);
+        Date creationDate = sdf.parse(creationDateString + " UTC");
+        ids.add(new DatedId(id, creationDate));
       }
     } catch (Exception e) {
       throw new HopException("Error finding execution ids from OpenSearch", e);
     }
+  }
+
+  private String addToWhereClause(String whereClause, String clause) {
+    String result = whereClause;
+    if (StringUtils.isEmpty(whereClause)) {
+      result += " WHERE ";
+    } else {
+      result += " AND ";
+    }
+    result += clause;
+    return result;
   }
 
   /** A button to create and configure the specified index */
@@ -515,20 +546,40 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
               {
                 "mappings" : {
                   "properties": {
-                    "id": { "type" : "text"},
-                    "name": { "type" : "text"},
-                    "execution.id": { "type" : "text"},
-                    "execution.name": { "type" : "text"},
-                    "execution.filename": { "type" : "text"},
-                    "execution.executionType": { "type" : "text"},
-                    "execution.parentId": { "type" : "text"},
-                    "execution.registrationDate": { "type": "date" },
-                    "execution.executionStartDate": { "type": "date" },
-                    "executionState.updateTime": { "type": "date" },
-                    "executionState.executionEndDate": { "type": "date" },
-                    "childExecutions": { "type": "object", "enabled" : false },
-                    "childExecutionStates": { "type": "object", "enabled" : false },
-                    "childExecutionData": { "type": "object", "enabled" : false }
+                    "id"  : { "type": "text"},
+                    "name": { "type": "text"},
+                    "creationDate": { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
+                    "summary": {
+                      "type" : "nested",
+                      "properties": {
+                        "startDate"  : { "type": "date", "format": "yyyy/MM/dd HH:mm:ss.SSS" },
+                        "endDate"    : { "type": "date", "format": "yyyy/MM/dd HH:mm:ss.SSS" },
+                        "durationMs" : { "type": "long" }
+                      }
+                    },
+                    "execution": {
+                      "type" : "nested",
+                      "properties": {
+                        "id"              : { "type": "text"} ,
+                        "name"            : { "type": "text" },
+                        "filename"        : { "type": "text" },
+                        "executionType"   : { "type": "text" },
+                        "parentId"        : { "type": "text" },
+                        "registrationDate": { "type": "long" }
+                      }
+                    },
+                    "executionState": {
+                      "type" : "nested",
+                      "properties": {
+                        "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "updateTime":         { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "statusDescription":  { "type": "text" }
+                      }
+                    },
+                    "childExecutions"     : { "type": "object", "enabled": false },
+                    "childExecutionStates": { "type": "object", "enabled": false },
+                    "childExecutionData"  : { "type": "object", "enabled": false }
                   }
                 }, "settings": {
                   "index.mapping.total_fields.limit": 500

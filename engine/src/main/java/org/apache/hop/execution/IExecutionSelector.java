@@ -18,17 +18,17 @@
 package org.apache.hop.execution;
 
 public interface IExecutionSelector {
-  boolean selectingParents();
+  boolean isSelectingParents();
 
-  boolean selectingFailed();
+  boolean isSelectingFailed();
 
-  boolean selectingRunning();
+  boolean isSelectingRunning();
 
-  boolean selectingFinished();
+  boolean isSelectingFinished();
 
-  boolean selectingPipelines();
+  boolean isSelectingPipelines();
 
-  boolean selectingWorkflows();
+  boolean isSelectingWorkflows();
 
   String filterText();
 

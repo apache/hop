@@ -144,11 +144,11 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
         String id = getIdFromFileName(file);
 
         // We do a first filtering on the modification date
-        // This is probably the execution end date, so we add a day.
+        // This is probably the execution end date, so we add an hour.
         //
         LastPeriod dateFilter = selector.startDateFilter();
         if (dateFilter != null) {
-          LocalDateTime roughStartDate = dateFilter.calculateStartDate().minusDays(1);
+          LocalDateTime roughStartDate = dateFilter.calculateStartDate().minusHours(1);
           long startDate =
               ZonedDateTime.of(roughStartDate, ZoneId.systemDefault()).toInstant().toEpochMilli();
           long lastModified = file.getContent().getLastModifiedTime();
@@ -175,7 +175,7 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
           // To add child IDs we need to load the file.
           // We won't store these in the cache though.
           //
-          if (!selector.selectingParents()) {
+          if (!selector.isSelectingParents()) {
             entry = loadCacheEntry(id);
             if (entry != null) {
               addChildIds(entry, ids);

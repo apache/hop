@@ -255,6 +255,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     StringBuilder cypher = new StringBuilder();
 
     addIndex(cypher, "idx_execution_id", EL_EXECUTION, EP_ID);
+    addIndex(cypher, "idx_execution_start_date", EL_EXECUTION, EP_EXECUTION_START_DATE);
     addIndex(cypher, "idx_execution_failed", EL_EXECUTION, EP_FAILED);
     addIndex(cypher, "idx_execution_parent_id", EL_EXECUTION, EP_PARENT_ID);
     addIndex(cypher, "idx_execution_metric_id", EL_EXECUTION, EP_ID, EP_NAME, EP_COPY_NR);
@@ -648,43 +649,36 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     // Can we push down some selector parameters?
     //
     boolean firstCondition = true;
-    if (selector.selectingParents()) {
+    if (selector.isSelectingParents()) {
       builder.withWhereIsNull(firstCondition, "n", EP_PARENT_ID);
       firstCondition = false;
     }
-    if (selector.selectingFailed()) {
+    if (selector.isSelectingFailed()) {
       builder.withWhereEquals(firstCondition, "n", EP_FAILED, "pFailed", true);
       firstCondition = false;
     }
-    if (selector.selectingRunning()) {
+    if (selector.isSelectingRunning()) {
       builder.withWhereEquals(firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Running");
       firstCondition = false;
     }
-    if (selector.selectingFinished()) {
+    if (selector.isSelectingFinished()) {
       builder.withWhereContains(firstCondition, "n", EP_STATUS_DESCRIPTION, "pStatus", "Finished");
       firstCondition = false;
     }
-    if (selector.selectingWorkflows()) {
+    if (selector.isSelectingWorkflows()) {
       builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Workflow");
-    } else if (selector.selectingPipelines()) {
+    } else if (selector.isSelectingPipelines()) {
       builder.withWhereEquals(firstCondition, "n", EP_EXECUTION_TYPE, "pType", "Pipeline");
     } else {
       if (firstCondition) {
         builder.withExtraClause(" WHERE ");
-        firstCondition = false;
       } else {
         builder.withExtraClause(" AND ");
       }
       builder.withExtraClause("n." + EP_EXECUTION_TYPE + " IN [ 'Workflow', 'Pipeline' ]");
     }
     if (selector.startDateFilter() != LastPeriod.NONE) {
-      if (firstCondition) {
-        builder.withExtraClause(" WHERE ");
-        firstCondition = false;
-      } else {
-        builder.withExtraClause(" AND ");
-      }
-      builder.withExtraClause("n." + EP_EXECUTION_START_DATE + " >= $fromStartDate ");
+      builder.withExtraClause(" AND n." + EP_EXECUTION_START_DATE + " >= $fromStartDate ");
       builder.parameters().put("fromStartDate", selector.startDateFilter().calculateStartDate());
     }
 
@@ -713,6 +707,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
     // ORDER BY executionStartDate DESC
     builder.withOrderBy("n", EP_EXECUTION_START_DATE, false);
+    builder.withLimit(50);
 
     Result result = transaction.run(builder.cypher(), builder.parameters());
     while (result.hasNext()) {

@@ -33,7 +33,12 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
+import org.apache.hop.core.metrics.MetricsDuration;
+import org.apache.hop.core.metrics.MetricsSnapshotType;
+import org.apache.hop.core.metrics.MetricsUtil;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -44,6 +49,7 @@ import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.LastPeriod;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
@@ -158,6 +164,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private static final String AUDIT_ONLY_PIPELINES = "only-pipelines";
   private static final String AUDIT_FILTER_TEXT = "filter-text";
   private static final String AUDIT_TIME_FILTER = "time-filter";
+  public static final String SNAP_ID_EIL_REFRESH = "EILRefresh";
 
   @Getter private static ExecutionPerspective instance;
 
@@ -600,6 +607,13 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   @GuiKeyboardShortcut(key = SWT.F5)
   @GuiOsxKeyboardShortcut(key = SWT.F5)
   public void refresh() {
+    // Only refresh if we're actually displaying anything.
+    // Let's be conservative with responsiveness.
+    //
+    if (!hopGui.isActivePerspective(this)) {
+      return;
+    }
+
     Cursor busyCursor = getBusyCursor();
 
     try {
@@ -623,8 +637,15 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
       List<ExecutionInfoLocation> locations = serializer.loadAll();
       Collections.sort(locations, Comparator.comparing(HopMetadataBase::getName));
+      ILogChannel log = hopGui.getLog();
+      Metrics startLocationRefresh =
+          new Metrics(MetricsSnapshotType.START, SNAP_ID_EIL_REFRESH, "Refresh EIL tree");
+      Metrics endLocationRefresh =
+          new Metrics(MetricsSnapshotType.STOP, SNAP_ID_EIL_REFRESH, "Refresh EIL tree end");
+      log.setGatheringMetrics(true);
 
       for (ExecutionInfoLocation location : locations) {
+        log.snap(startLocationRefresh);
         IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
         try {
@@ -643,32 +664,43 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           locationItem.setData(location);
 
           try {
-            // Get the data in the location
+            // Get the data in the location.  The plugins are supposed to prune as much of the IDs
+            // upfront.
+            // Below we'll run the isSelected() condition again to make sure.
             //
-            List<String> ids =
-                iLocation.findExecutionIDs(
-                    new DefaultExecutionSelector(
-                        onlyShowingParents,
-                        onlyShowingFailed,
-                        onlyShowingRunning,
-                        onlyShowingFinished,
-                        onlyShowingWorkflows,
-                        onlyShowingPipelines,
-                        filterText,
-                        timeFilter));
+            IExecutionSelector executionSelector =
+                new DefaultExecutionSelector(
+                    onlyShowingParents,
+                    onlyShowingFailed,
+                    onlyShowingRunning,
+                    onlyShowingFinished,
+                    onlyShowingWorkflows,
+                    onlyShowingPipelines,
+                    filterText,
+                    timeFilter);
+            List<String> ids = iLocation.findExecutionIDs(executionSelector);
+
             // Display the executions
             //
             for (String id : ids) {
               try {
                 Execution execution = iLocation.getExecution(id);
                 if (execution != null) {
+                  ExecutionState state = iLocation.getExecutionState(id);
+
+                  // Apply an extra filter to make sure
+                  //
+                  if (!executionSelector.isSelected(execution, state)) {
+                    continue;
+                  }
+
                   TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
                   switch (execution.getExecutionType()) {
                     case Pipeline:
-                      decoratePipelineTreeItem(executionItem, execution);
+                      decoratePipelineTreeItem(executionItem, execution, state);
                       break;
                     case Workflow:
-                      decorateWorkflowTreeItem(executionItem, execution);
+                      decorateWorkflowTreeItem(executionItem, execution, state);
                       break;
                     default:
                       break;
@@ -701,7 +733,19 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           locationItem.setImage(GuiResource.getInstance().getImageLocation());
           locationItem.setData(CONST_ERROR, e);
         }
+        log.snap(endLocationRefresh);
+        MetricsDuration duration =
+            MetricsUtil.getLastDuration(log.getLogChannelId(), SNAP_ID_EIL_REFRESH);
+        if (duration != null) {
+          log.logBasic(
+              "Tree refresh of location "
+                  + Const.rpad(location.getName(), " ", 25)
+                  + " took "
+                  + duration.getDuration()
+                  + "ms");
+        }
       }
+      log.setGatheringMetrics(false);
 
       TreeUtil.setOptimalWidthOnColumns(tree);
       TreeMemory.setExpandedFromMemory(tree, EXECUTION_PERSPECTIVE_TREE);
@@ -861,7 +905,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     refresh();
   }
 
-  private void decoratePipelineTreeItem(TreeItem executionItem, Execution execution) {
+  private void decoratePipelineTreeItem(
+      TreeItem executionItem, Execution execution, ExecutionState state) {
     try {
       executionItem.setImage(GuiResource.getInstance().getImagePipeline());
 
@@ -869,13 +914,18 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       label += " - " + START_DATE_FORMAT.format(execution.getExecutionStartDate());
       executionItem.setText(label);
       executionItem.setData(execution);
+
+      if (state.isFailed()) {
+        executionItem.setBackground(GuiResource.getInstance().getColorLightRed());
+      }
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing pipeline execution information tree item", e);
     }
   }
 
-  private void decorateWorkflowTreeItem(TreeItem executionItem, Execution execution) {
+  private void decorateWorkflowTreeItem(
+      TreeItem executionItem, Execution execution, ExecutionState state) {
     try {
       executionItem.setImage(GuiResource.getInstance().getImageWorkflow());
 
@@ -885,6 +935,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
               + new SimpleDateFormat("yyyy/MM/dd HH:mm").format(execution.getExecutionStartDate());
       executionItem.setText(label);
       executionItem.setData(execution);
+
+      if (state.isFailed()) {
+        executionItem.setBackground(GuiResource.getInstance().getColorLightRed());
+      }
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing workflow execution information tree item", e);

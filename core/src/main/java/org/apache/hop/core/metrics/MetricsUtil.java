@@ -95,6 +95,34 @@ public class MetricsUtil {
     return new ArrayList<>(map.values());
   }
 
+  public static MetricsDuration getLastDuration(String logChannelId, String metricsCode) {
+    Queue<IMetricsSnapshot> metrics = MetricsRegistry.getInstance().getSnapshotList(logChannelId);
+    Iterator<IMetricsSnapshot> iterator = metrics.iterator();
+    IMetricsSnapshot lastStartSnapshot = null;
+    IMetricsSnapshot lastStopSnapshot = null;
+    while (iterator.hasNext()) {
+      IMetricsSnapshot snapshot = iterator.next();
+      if (snapshot.getMetric().getCode().equals(metricsCode)) {
+        if (snapshot.getMetric().getType() == MetricsSnapshotType.START) {
+          lastStartSnapshot = snapshot;
+        }
+        if (snapshot.getMetric().getType() == MetricsSnapshotType.STOP) {
+          lastStopSnapshot = snapshot;
+        }
+      }
+    }
+    if (lastStartSnapshot != null && lastStopSnapshot != null) {
+      long ms = lastStopSnapshot.getDate().getTime() - lastStartSnapshot.getDate().getTime();
+      return new MetricsDuration(
+          lastStartSnapshot.getDate(),
+          lastStartSnapshot.getMetric().getDescription(),
+          lastStartSnapshot.getSubject(),
+          logChannelId,
+          ms);
+    }
+    return null;
+  }
+
   public static List<MetricsDuration> getAllDurations(String parentLogChannelId) {
     List<MetricsDuration> durations = new ArrayList<>();
 

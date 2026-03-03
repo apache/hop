@@ -256,7 +256,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
     // Get all the IDs from disk if we don't have it in the cache.
     //
-    retrieveIds(!selector.selectingParents(), dateIds, 500, selector);
+    retrieveIds(!selector.isSelectingParents(), dateIds, 50, selector);
 
     // Reverse sort the IDs by date
     //
@@ -267,39 +267,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     // Take only the first from the list
     //
     int iLimit = datedIds.size();
-    List<String> list = new ArrayList<>();
-    for (int i = 0; i < iLimit; i++) {
-      list.add(datedIds.get(i).getId());
-    }
-    return list;
-  }
-
-  public List<String> findExecu(boolean includeChildren, int limit) throws HopException {
-    Set<DatedId> ids = new HashSet<>();
-
-    // The data in the cache is the most recent, so we start with that.
-    //
-    getExecutionIdsFromCache(ids, includeChildren);
-
-    // Get all the IDs from disk if we don't have it in the cache.
-    //
-    retrieveIds(includeChildren, ids, limit, null);
-
-    // Reverse sort the IDs by date
-    //
-    List<DatedId> datedIds = new ArrayList<>(ids);
-    datedIds.sort(Comparator.comparing(DatedId::getDate));
-    Collections.reverse(datedIds); // Newest first
-
-    // Take only the first from the list
-    //
-    int iLimit;
-    if (limit > 0) {
-      iLimit = Math.min(limit, datedIds.size());
-    } else {
-      iLimit = datedIds.size();
-    }
-
     List<String> list = new ArrayList<>();
     for (int i = 0; i < iLimit; i++) {
       list.add(datedIds.get(i).getId());
@@ -523,7 +490,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       if (selector.isSelected(cacheEntry.getExecution(), cacheEntry.getExecutionState())) {
         ids.add(new DatedId(cacheEntry.getId(), cacheEntry.getExecution().getRegistrationDate()));
       }
-      if (!selector.selectingParents()) {
+      if (!selector.isSelectingParents()) {
         addChildIds(cacheEntry, ids, selector);
       }
     }

@@ -25,6 +25,7 @@ import lombok.Getter;
 import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -77,6 +78,7 @@ public class AnonymousPipelineRunner {
                   PipelineEngineFactory.createPipelineEngine(runConfiguration, meta);
           pipeline.setParent(new LoggingObject("AnonymousPipelineRunner"));
           pipeline.setMetadataProvider(metadataProvider);
+          pipeline.setLogLevel(LogLevel.ERROR);
 
           final AnonymousPipelineResults results = new AnonymousPipelineResults();
 

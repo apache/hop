@@ -24,36 +24,36 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
 public record DefaultExecutionSelector(
-    boolean selectingParents,
-    boolean selectingFailed,
-    boolean selectingRunning,
-    boolean selectingFinished,
-    boolean selectingWorkflows,
-    boolean selectingPipelines,
+    boolean isSelectingParents,
+    boolean isSelectingFailed,
+    boolean isSelectingRunning,
+    boolean isSelectingFinished,
+    boolean isSelectingWorkflows,
+    boolean isSelectingPipelines,
     String filterText,
     LastPeriod startDateFilter)
     implements IExecutionSelector {
   public static final SimpleDateFormat START_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
   public boolean isSelected(Execution execution, ExecutionState executionState) {
-    if (selectingParents && StringUtils.isNotEmpty(executionState.getParentId())) {
+    if (isSelectingParents && StringUtils.isNotEmpty(executionState.getParentId())) {
       return false;
     }
-    if (selectingFailed && !executionState.isFailed()) {
+    if (isSelectingFailed && !executionState.isFailed()) {
       return false;
     }
-    if (selectingFinished
+    if (isSelectingFinished
         && !executionState.getStatusDescription().toLowerCase().startsWith("finished")) {
       return false;
     }
-    if (selectingRunning
+    if (isSelectingRunning
         && !executionState.getStatusDescription().toLowerCase().startsWith("running")) {
       return false;
     }
-    if (selectingWorkflows && !execution.getExecutionType().equals(ExecutionType.Workflow)) {
+    if (isSelectingWorkflows && !execution.getExecutionType().equals(ExecutionType.Workflow)) {
       return false;
     }
-    if (selectingPipelines && !execution.getExecutionType().equals(ExecutionType.Pipeline)) {
+    if (isSelectingPipelines && !execution.getExecutionType().equals(ExecutionType.Pipeline)) {
       return false;
     }
     if (StringUtils.isNotEmpty(filterText)) {
