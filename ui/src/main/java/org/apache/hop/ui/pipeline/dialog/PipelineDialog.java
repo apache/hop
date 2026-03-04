@@ -486,7 +486,6 @@ public class PipelineDialog extends Dialog {
 
     String actualName =
         AbstractMeta.extractNameFromFilename(sync, name, filename, PipelineMeta.PIPELINE_EXTENSION);
-    wPipelineName.setEnabled(!sync);
     wPipelineName.setEditable(!sync);
 
     wPipelineName.setText(Const.NVL(actualName, ""));
