@@ -78,7 +78,7 @@ limitations under the License.
         <exclude-mask>.*testLotusEml.eml$</exclude-mask>
         <include-sub-folders>Y</include-sub-folders>
         <mask>.*</mask>
-        <name>zip:s3://apache-hop/tika-test-files.zip</name>
+        <name>zip:s3anon://apache-hop/tika-test-files.zip</name>
         <required>Y</required>
       </file>
     </files>
@@ -137,7 +137,6 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <fields>
-      <select_unspecified>N</select_unspecified>
       <remove>
         <name>content</name>
       </remove>
@@ -147,6 +146,7 @@ limitations under the License.
       <remove>
         <name>lastModificationDate</name>
       </remove>
+      <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
     <GUI>
