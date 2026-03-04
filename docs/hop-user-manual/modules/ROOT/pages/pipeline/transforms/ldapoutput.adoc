@@ -81,7 +81,7 @@ The following sections describe the available options for the LDAP Output transf
 [options="header"]
 |===
 |Option|Description
-|Operation|Insert, Update, Upsert, Add atribute, Delete, Rename DN (distinguished name).
+|Operation|Insert, Update, Upsert, Add attribute, Delete, Rename DN (distinguished name), Remove attribute.
 |Multi valued field seperator|
 |Fail if not exist|
 |Dn fieldname|Field which contains the distinguished name.
@@ -89,6 +89,18 @@ The following sections describe the available options for the LDAP Output transf
 |New DN fieldname|Field which contains the new distinguished name (rename).
 |Delete RDN|Whether or not to delete the RDN (relative distinguished name)
 |===
+
+=== Operation Types
+
+The LDAP Output transform supports the following operation types:
+
+* *Insert*: Creates a new LDAP entry with the specified DN and attributes.
+* *Update*: Updates existing attributes of an LDAP entry. The entry must exist.
+* *Upsert*: Inserts a new entry if it doesn't exist, or updates it if it does exist.
+* *Add attribute*: Adds new attribute values to an existing LDAP entry without removing existing values.
+* *Delete*: Deletes an entire LDAP entry.
+* *Rename DN*: Renames an LDAP entry by changing its distinguished name.
+* *Remove attribute*: Removes attribute values from an LDAP entry. If a value is specified, only that specific value is removed. If no value is specified (empty), the entire attribute is removed from the entry.
 
 == Fields Tab
 

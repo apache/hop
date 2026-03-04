@@ -1,0 +1,2 @@
+dn,objectClass,ou
+"ou=People,dc=hop,dc=apache,dc=org",organizationalUnit,People

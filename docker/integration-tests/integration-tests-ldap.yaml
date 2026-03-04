@@ -1,0 +1,46 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+services:
+  integration_test_ldap:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      openldap:
+        condition: service_healthy
+    links:
+      - openldap
+
+  openldap:
+    image: osixia/openldap:1.5.0
+    hostname: openldap
+    ports:
+      - "389:389"
+      - "636:636"
+    environment:
+      - LDAP_ORGANISATION=Apache Hop
+      - LDAP_DOMAIN=hop.apache.org
+      - LDAP_ADMIN_PASSWORD=admin
+      - LDAP_CONFIG_PASSWORD=config
+      - LDAP_TLS=false
+    healthcheck:
+      test: ["CMD", "ldapsearch", "-x", "-H", "ldap://localhost", "-b", "dc=hop,dc=apache,dc=org", "-D", "cn=admin,dc=hop,dc=apache,dc=org", "-w", "admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

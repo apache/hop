@@ -17,12 +17,18 @@
 package org.apache.hop.pipeline.transforms.ldapinput;
 
 import java.util.HashSet;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes an LDAP Input */
+@Getter
+@Setter
 public class LdapInputField implements Cloneable {
   private static final Class<?> PKG = LdapInputMeta.class;
 
@@ -52,21 +58,45 @@ public class LdapInputField implements Cloneable {
     BaseMessages.getString(PKG, "LdapInputField.TrimType.Both")
   };
 
-  private String name;
-  private String attribute;
+  @HopMetadataProperty private String name;
 
+  @HopMetadataProperty private String attribute;
+
+  @HopMetadataProperty(
+      key = "attribute_fetch_as",
+      intCodeConverter = LdapInputFetchAttributeAsConverter.class)
   private int fetchAttributeAs;
+
+  @HopMetadataProperty(intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class)
   private int type;
-  private int length;
-  private String format;
+
+  @HopMetadataProperty private int length;
+
+  @HopMetadataProperty private String format;
+
+  @HopMetadataProperty(
+      key = "trim_type",
+      intCodeConverter = ValueMetaBase.TrimTypeCodeConverter.class)
   private int trimtype;
-  private int precision;
+
+  @HopMetadataProperty private int precision;
+
+  @HopMetadataProperty(key = "currency")
   private String currencySymbol;
+
+  @HopMetadataProperty(key = "decimal")
   private String decimalSymbol;
+
+  @HopMetadataProperty(key = "group")
   private String groupSymbol;
+
+  @HopMetadataProperty(key = "repeat")
   private boolean repeat;
+
   private String realAttribute;
   private boolean objectSid;
+
+  @HopMetadataProperty(key = "sorted_key")
   private boolean sortedKey;
 
   private String[] samples;
@@ -265,6 +295,24 @@ public class LdapInputField implements Cloneable {
     this.trimtype = trimtype;
   }
 
+  /**
+   * Setter for metadata serialization - matches field name trimtype
+   *
+   * @param trimtype The trim type value to set
+   */
+  public void setTrimtype(int trimtype) {
+    this.trimtype = trimtype;
+  }
+
+  /**
+   * Getter for metadata serialization - matches field name trimtype
+   *
+   * @return The trim type value
+   */
+  public int getTrimtype() {
+    return trimtype;
+  }
+
   public boolean isSortedKey() {
     return sortedKey;
   }
@@ -309,12 +357,30 @@ public class LdapInputField implements Cloneable {
     this.precision = precision;
   }
 
-  public boolean isRepeated() {
+  public boolean isRepeat() {
     return repeat;
   }
 
-  public void setRepeated(boolean repeat) {
+  //  public void setRepeated(boolean repeat) {
+  //    this.repeat = repeat;
+  //  }
+
+  /**
+   * Setter for metadata serialization - matches field name repeat
+   *
+   * @param repeat The repeat value to set
+   */
+  public void setRepeat(boolean repeat) {
     this.repeat = repeat;
+  }
+
+  /**
+   * Getter for metadata serialization - matches field name repeat
+   *
+   * @return The repeat value
+   */
+  public boolean getRepeat() {
+    return repeat;
   }
 
   public void flipRepeated() {
