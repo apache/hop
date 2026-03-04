@@ -462,6 +462,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     canvas.addPaintListener(this::paintControl);
+    addListener(
+        SWT.Show,
+        e ->
+            getDisplay()
+                .asyncExec(
+                    () -> {
+                      if (!isDisposed() && canvas != null && !canvas.isDisposed()) {
+                        canvas.redraw();
+                      }
+                    }));
 
     selectedActions = null;
     lastClick = null;
@@ -477,6 +487,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     setBackground(GuiResource.getInstance().getColorBackground());
 
     canvas.pack();
+
+    addListener(SWT.Resize, e -> redraw());
 
     updateGui();
   }

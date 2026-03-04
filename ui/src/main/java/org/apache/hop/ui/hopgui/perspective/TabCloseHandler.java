@@ -35,14 +35,17 @@ public class TabCloseHandler {
   CTabItem selectedItem;
 
   public TabCloseHandler(TabClosable tabClosablePerspective) {
-    this.tabFolder = tabClosablePerspective.getTabFolder();
+    this(tabClosablePerspective, tabClosablePerspective.getTabFolder());
+  }
+
+  public TabCloseHandler(TabClosable tabClosablePerspective, CTabFolder tabFolder) {
+    this.tabFolder = tabFolder;
 
     Menu menu = new Menu(tabFolder);
     tabFolder.setMenu(menu);
     tabFolder.addListener(SWT.MenuDetect, this::handleTabMenuDetectEvent);
     tabFolder.addListener(SWT.MouseUp, event -> handleMouseUp(event, tabClosablePerspective));
 
-    // Create menu item
     MenuItem miClose = new MenuItem(menu, SWT.NONE);
     miClose.setText(BaseMessages.getString(PKG, "HopGui.TabItem.Close.Text"));
     miClose.addListener(
@@ -62,7 +65,7 @@ public class TabCloseHandler {
     miCloseAll.addListener(
         SWT.Selection,
         event -> {
-          for (CTabItem tabItem : tabClosablePerspective.getTabFolder().getItems()) {
+          for (CTabItem tabItem : this.tabFolder.getItems()) {
             tabClosablePerspective.closeTab(null, tabItem);
           }
         });
