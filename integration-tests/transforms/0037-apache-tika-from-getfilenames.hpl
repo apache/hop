@@ -123,14 +123,16 @@ limitations under the License.
     </partitioning>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <exclude_wildcard_Field/>
     <file>
       <exclude_filemask>.*testLotusEml.eml$</exclude_filemask>
       <file_required>Y</file_required>
       <filemask>.*</filemask>
       <include_subfolders>Y</include_subfolders>
-      <name>zip:s3://apache-hop/tika-test-files.zip</name>
+      <name>zip:s3anon://apache-hop/tika-test-files.zip</name>
     </file>
     <filefield>N</filefield>
+    <filename_Field/>
     <filter>
       <filterfiletype>all_files</filterfiletype>
     </filter>
@@ -138,6 +140,8 @@ limitations under the License.
     <limit>0</limit>
     <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
     <rownum>N</rownum>
+    <rownum_field/>
+    <wildcard_Field/>
     <attributes/>
     <GUI>
       <xloc>96</xloc>
@@ -157,7 +161,9 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <length>-2</length>
         <name>filename</name>
+        <precision>-2</precision>
         <rename>source_filename</rename>
       </field>
       <select_unspecified>N</select_unspecified>
@@ -205,7 +211,6 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <fields>
-      <select_unspecified>N</select_unspecified>
       <remove>
         <name>content</name>
       </remove>
@@ -215,6 +220,7 @@ limitations under the License.
       <remove>
         <name>lastModificationDate</name>
       </remove>
+      <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
     <GUI>

@@ -1,0 +1,10 @@
+{
+  "cacheTtlSeconds": "5",
+  "partSize": "5MB",
+  "pathStyleAccess": false,
+  "description": "",
+  "endpoint": "",
+  "virtualPath": "",
+  "name": "s3anon",
+  "authenticationType": "ANONYMOUS"
+}
