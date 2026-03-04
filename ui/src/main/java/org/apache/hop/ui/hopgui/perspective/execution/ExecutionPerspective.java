@@ -127,6 +127,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       "ExecutionPerspective-Toolbar-10030-Duplicate";
   public static final String TOOLBAR_ITEM_DELETE = "ExecutionPerspective-Toolbar-10040-Delete";
   public static final String TOOLBAR_ITEM_REFRESH = "ExecutionPerspective-Toolbar-10100-Refresh";
+  public static final String TOOLBAR_ITEM_FORCE_REFRESH =
+      "ExecutionPerspective-Toolbar-10110-ForceRefresh";
   public static final String TOOLBAR_ITEM_SELECT_PARENTS =
       "ExecutionPerspective-Toolbar-10150-SelectParents";
   public static final String TOOLBAR_ITEM_SELECT_FAILED =
@@ -203,7 +205,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   @GuiOsxKeyboardShortcut(command = true, shift = true, key = 'i', global = true)
   @Override
   public void activate() {
-    hopGui.setActivePerspective(this);
+    // Prevents refreshes when not needed.
+    if (!hopGui.isActivePerspective(this)) {
+      hopGui.setActivePerspective(this);
+    }
   }
 
   @Override
@@ -601,6 +606,27 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_FORCE_REFRESH,
+      toolTip = "i18n::ExecutionPerspective.ToolbarElement.ForceRefresh.Tooltip",
+      image = "ui/images/force-refresh.svg")
+  @GuiKeyboardShortcut(key = SWT.F5)
+  @GuiOsxKeyboardShortcut(key = SWT.F5)
+  public void forcedRefresh() {
+    // This is a manual refresh button push.
+    // As such we consider this a forced refresh.
+    // This means we'll clear the cache of the locations.
+    //
+    for (ExecutionInfoLocation location : locationMap.values()) {
+      location.getExecutionInfoLocation().clearCaches();
+    }
+
+    // Now do a refresh
+    //
+    refresh();
+  }
+
+  @GuiToolbarElement(
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
       toolTip = "i18n::ExecutionPerspective.ToolbarElement.Refresh.Tooltip",
       image = "ui/images/refresh.svg")
@@ -642,6 +668,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           new Metrics(MetricsSnapshotType.START, SNAP_ID_EIL_REFRESH, "Refresh EIL tree");
       Metrics endLocationRefresh =
           new Metrics(MetricsSnapshotType.STOP, SNAP_ID_EIL_REFRESH, "Refresh EIL tree end");
+
       log.setGatheringMetrics(true);
 
       for (ExecutionInfoLocation location : locations) {
@@ -686,21 +713,26 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
               try {
                 Execution execution = iLocation.getExecution(id);
                 if (execution != null) {
-                  ExecutionState state = iLocation.getExecutionState(id);
-
                   // Apply an extra filter to make sure
                   //
-                  if (!executionSelector.isSelected(execution, state)) {
+
+                  if (!executionSelector.isSelected(execution)) {
+                    continue;
+                  }
+                  // We only need to consider the state after the previous filtering
+                  //
+                  ExecutionState state = iLocation.getExecutionState(id);
+                  if (!executionSelector.isSelected(state)) {
                     continue;
                   }
 
                   TreeItem executionItem = new TreeItem(locationItem, SWT.NONE);
                   switch (execution.getExecutionType()) {
                     case Pipeline:
-                      decoratePipelineTreeItem(executionItem, execution, state);
+                      decoratePipelineTreeItem(executionItem, location, execution, state);
                       break;
                     case Workflow:
-                      decorateWorkflowTreeItem(executionItem, execution, state);
+                      decorateWorkflowTreeItem(executionItem, location, execution, state);
                       break;
                     default:
                       break;
@@ -855,7 +887,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_TIME_FILTER,
       type = GuiToolbarElementType.COMBO,
-      extraWidth = -100, // make less wide
+      extraWidth = -1, // make less wide
+      readOnly = true,
       comboValuesMethod = "getLastPeriodDescriptions",
       toolTip = "i18n::ExecutionPerspective.ToolbarElement.TimeFilter.Tooltip")
   public void selectTimeFilter() {
@@ -906,7 +939,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   private void decoratePipelineTreeItem(
-      TreeItem executionItem, Execution execution, ExecutionState state) {
+      TreeItem executionItem,
+      ExecutionInfoLocation location,
+      Execution execution,
+      ExecutionState state) {
     try {
       executionItem.setImage(GuiResource.getInstance().getImagePipeline());
 
@@ -915,9 +951,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       executionItem.setText(label);
       executionItem.setData(execution);
 
-      if (state.isFailed()) {
-        executionItem.setBackground(GuiResource.getInstance().getColorLightRed());
-      }
+      decorateItemWithState(executionItem, location, state);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing pipeline execution information tree item", e);
@@ -925,7 +959,10 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   }
 
   private void decorateWorkflowTreeItem(
-      TreeItem executionItem, Execution execution, ExecutionState state) {
+      TreeItem executionItem,
+      ExecutionInfoLocation location,
+      Execution execution,
+      ExecutionState state) {
     try {
       executionItem.setImage(GuiResource.getInstance().getImageWorkflow());
 
@@ -936,12 +973,23 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       executionItem.setText(label);
       executionItem.setData(execution);
 
-      if (state.isFailed()) {
-        executionItem.setBackground(GuiResource.getInstance().getColorLightRed());
-      }
+      decorateItemWithState(executionItem, location, state);
     } catch (Exception e) {
       new ErrorDialog(
           getShell(), CONST_ERROR1, "Error drawing workflow execution information tree item", e);
+    }
+  }
+
+  private static void decorateItemWithState(
+      TreeItem executionItem, ExecutionInfoLocation location, ExecutionState state) {
+    long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
+
+    if (state.isFailed()) {
+      executionItem.setBackground(GuiResource.getInstance().getColorLightRed());
+    } else if (state.isStale(loggingInterval)) {
+      executionItem.setBackground(GuiResource.getInstance().getColorLightGray());
+    } else if (state.isRunning()) {
+      executionItem.setBackground(GuiResource.getInstance().getColorLightBlueMuted());
     }
   }
 
@@ -1161,5 +1209,15 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     } catch (Exception e) {
       hopGui.getLog().logError("Error restoring explorer perspective state", e);
     }
+  }
+
+  public ExecutionInfoLocation lookupLocation(String locationName) {
+    ExecutionInfoLocation location = locationMap.get(locationName);
+    if (location == null) {
+      // Not yet loaded in the map in the refresh
+      //
+      refresh();
+    }
+    return locationMap.get(locationName);
   }
 }

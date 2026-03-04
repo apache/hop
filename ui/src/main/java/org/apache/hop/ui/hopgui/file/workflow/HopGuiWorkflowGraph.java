@@ -4346,15 +4346,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               variables.resolve(
                   workflow.getWorkflowRunConfiguration().getExecutionInfoLocationName());
           if (StringUtils.isNotEmpty(locationName)) {
-            ExecutionInfoLocation location =
-                executionPerspective.getLocationMap().get(locationName);
-            IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-            Execution execution = iLocation.getExecution(workflow.getLogChannelId());
-            if (execution != null) {
-              ExecutionState executionState = iLocation.getExecutionState(execution.getId());
-              executionPerspective.createExecutionViewer(locationName, execution, executionState);
-              executionPerspective.activate();
-              return;
+            ExecutionInfoLocation location = executionPerspective.lookupLocation(locationName);
+            if (location != null) {
+              IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+              Execution execution = iLocation.getExecution(workflow.getLogChannelId());
+              if (execution != null) {
+                ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+                executionPerspective.createExecutionViewer(locationName, execution, executionState);
+                executionPerspective.activate();
+                return;
+              }
             }
           }
         }

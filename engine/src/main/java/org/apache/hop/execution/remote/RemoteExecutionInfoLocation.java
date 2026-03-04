@@ -125,6 +125,11 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   public void close() throws HopException {}
 
   @Override
+  public void clearCaches() {
+    // Nothing to cache. We think the Hop server services are not the slowest part.
+  }
+
+  @Override
   public void unBuffer(String executionId) throws HopException {}
 
   private String getJson(Object object) throws JsonProcessingException {

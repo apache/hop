@@ -76,6 +76,7 @@ import org.apache.hop.neo4j.execution.builder.CypherMergeBuilder;
 import org.apache.hop.neo4j.execution.builder.CypherQueryBuilder;
 import org.apache.hop.neo4j.execution.builder.CypherRelationshipBuilder;
 import org.apache.hop.neo4j.execution.builder.ICypherBuilder;
+import org.apache.hop.neo4j.execution.cache.NeoLocationCache;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -182,9 +183,9 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   @HopMetadataProperty(key = "connection")
   protected String connectionName;
 
-  private ILogChannel log;
-  private Driver driver;
-  private Session session;
+  private transient ILogChannel log;
+  private transient Driver driver;
+  private transient Session session;
 
   public NeoExecutionInfoLocation() {}
 
@@ -236,6 +237,11 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     } catch (Exception e) {
       throw new HopException("Error closing Neo4j execution information location", e);
     }
+  }
+
+  @Override
+  public void clearCaches() {
+    NeoLocationCache.clear();
   }
 
   @Override
@@ -294,18 +300,18 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   private void addIndex(StringBuilder cypher, String indexName, String label, String... keys) {
     assert keys != null && keys.length > 0 : "specify one or more keys";
 
-    String keysClause = "ON ";
+    StringBuilder keysClause = new StringBuilder("ON ");
     boolean firstKey = true;
     for (String key : keys) {
       if (firstKey) {
         firstKey = false;
-        keysClause += "( ";
+        keysClause.append("( ");
       } else {
-        keysClause += ", ";
+        keysClause.append(", ");
       }
-      keysClause += "n." + key;
+      keysClause.append("n.").append(key);
     }
-    keysClause += ") ";
+    keysClause.append(") ");
     cypher
         .append("CREATE INDEX ")
         .append(indexName)
@@ -456,11 +462,15 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         execute(transaction, selfRelationshipBuilder);
       }
 
+      // See if we need to cache this
+      //
+      NeoLocationCache.store(execution);
+
       // Transaction is automatically committed by executeWrite
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw e;
+      throw new RuntimeException("Error registering new Execution in Neo4j", e);
     }
   }
 
@@ -471,6 +481,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         return session.executeWrite(transaction -> deleteNeo4jExecution(transaction, executionId));
       } catch (Exception e) {
         throw new HopException("Error deleting execution with id " + executionId + " in Neo4j", e);
+      } finally {
+        NeoLocationCache.remove(executionId);
       }
     }
   }
@@ -548,6 +560,13 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private Execution getNeo4jExecution(TransactionContext transaction, String executionId) {
+    // Check the cache
+    //
+    Execution execution = NeoLocationCache.getExecution(executionId);
+    if (execution != null) {
+      return execution;
+    }
+
     CypherQueryBuilder builder =
         CypherQueryBuilder.of()
             .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
@@ -573,7 +592,12 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
     org.neo4j.driver.Record record = result.next();
 
-    return buildExecution(executionId, record);
+    execution = buildExecution(executionId, record);
+
+    // Add it to the cache
+    NeoLocationCache.store(execution);
+
+    return execution;
   }
 
   private @NotNull Execution buildExecution(String executionId, org.neo4j.driver.Record record) {
@@ -715,7 +739,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       String executionId = getString(record, EP_ID);
       Execution execution = buildExecution(executionId, record);
       ExecutionState state = buildExecutionState(executionId, record, "");
-      if (selector.isSelected(execution, state)) {
+      if (selector.isSelected(execution) && selector.isSelected(state)) {
         ids.add(executionId);
       }
     }
@@ -788,7 +812,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw e;
+      throw new RuntimeException("Error updating the state of an execution in Neo4j", e);
+    } finally {
+      // Update the cache
+      NeoLocationCache.store(state);
     }
   }
 
@@ -812,6 +839,12 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
   private ExecutionState getNeo4jExecutionState(
       TransactionContext transaction, String executionId, boolean includeLogging) {
+    // Check the cache first
+    ExecutionState cachedState = NeoLocationCache.getExecutionState(executionId);
+    if (cachedState != null) {
+      return cachedState;
+    }
+
     CypherQueryBuilder executionBuilder =
         CypherQueryBuilder.of()
             .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
@@ -879,6 +912,10 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
 
     state.setMetrics(new ArrayList<>(metricsMap.values()));
+
+    // Save it in the cache
+    //
+    NeoLocationCache.store(state);
 
     return state;
   }
@@ -962,8 +999,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
    *
    * @param executionType The type of execution to look for
    * @param name The name of the executor
-   * @return
-   * @throws HopException
+   * @return The previous successful execution
+   * @throws HopException In case something went wrong finding the execution
    */
   @Override
   public Execution findPreviousSuccessfulExecution(ExecutionType executionType, String name)
@@ -995,8 +1032,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   /**
    * Find those Executions that have a matching parentId
    *
-   * @param transaction
-   * @param parentExecutionId
+   * @param transaction The read transaction to use
+   * @param parentExecutionId The parent execution ID
    * @return The list of executions or an empty list if nothing was found
    */
   private List<Execution> findNeo4jExecutions(
@@ -1068,6 +1105,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       assert data != null : "no execution data provided";
       assert data.getExecutionType() != null : "execution data has no type";
 
+      // We'll not cache this data as it can be a lot.
+
       // Merge the ExecutionData node
       //
       CypherMergeBuilder stateCypherBuilder =
@@ -1133,7 +1172,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw e;
+      throw new RuntimeException("Error registering execution data to Neo4j", e);
     }
   }
 
@@ -1296,7 +1335,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 .withCreate("s", "r", R_HAS_ROW));
       }
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Error saving rows and their metadata in Neo4j", e);
     }
   }
 
@@ -1500,6 +1539,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         // We get the String version
         // Convert to type JsonNode
         //
+        //noinspection CatchMayIgnoreException
         try {
           yield ((ValueMetaJson) valueMeta).convertStringToJson(value.asString());
         } catch (Exception e) {

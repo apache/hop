@@ -309,17 +309,13 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       // Calculate information staleness
       //
       String statusDescription = executionState.getStatusDescription();
-      if (Pipeline.STRING_RUNNING.equalsIgnoreCase(statusDescription)
-          || Pipeline.STRING_INITIALIZING.equalsIgnoreCase(statusDescription)) {
-        long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
-        if (System.currentTimeMillis() - executionState.getUpdateTime().getTime()
-            > loggingInterval) {
-          // The information is stale, not getting updates!
-          //
-          TableItem item = infoView.add("Update state", STRING_STATE_STALE);
-          item.setBackground(GuiResource.getInstance().getColorLightBlue());
-          item.setForeground(GuiResource.getInstance().getColorWhite());
-        }
+      long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
+      if (executionState.isStale(loggingInterval)) {
+        // The information is stale, not getting updates!
+        //
+        TableItem item = infoView.add("Update state", STRING_STATE_STALE);
+        item.setBackground(GuiResource.getInstance().getColorLightBlue());
+        item.setForeground(GuiResource.getInstance().getColorWhite());
       }
 
       infoView.add("Name", execution.getName());

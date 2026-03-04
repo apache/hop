@@ -165,7 +165,10 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
           // Not much loaded from disk or cache
           continue;
         }
-        if (!selector.isSelected(entry.getExecution(), entry.getExecutionState())) {
+        if (!selector.isSelected(entry.getExecution())) {
+          continue;
+        }
+        if (!selector.isSelected(entry.getExecutionState())) {
           continue;
         }
 

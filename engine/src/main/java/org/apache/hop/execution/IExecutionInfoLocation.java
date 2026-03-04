@@ -58,9 +58,12 @@ public interface IExecutionInfoLocation extends Cloneable {
    * When you're done with this location you can call this method to clean up any left-over
    * temporary files, memory structures or database connections.
    *
-   * @throws HopException
+   * @throws HopException in case the underlying storage had an issue
    */
   void close() throws HopException;
+
+  /** Clear any caching to force a full refresh of execution information from source locations. */
+  void clearCaches();
 
   /**
    * Remove any buffering or caching for the execution information with the given ID.

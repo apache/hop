@@ -114,6 +114,11 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
+  public void clearCaches() {
+    // Nothing to clear
+  }
+
+  @Override
   public void unBuffer(String executionId) throws HopException {
     // Nothing to remove from a buffer or cache
   }

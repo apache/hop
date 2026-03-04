@@ -34,5 +34,20 @@ public interface IExecutionSelector {
 
   LastPeriod startDateFilter();
 
-  boolean isSelected(Execution execution, ExecutionState executionState);
+  /**
+   * We can filter on the level of the Execution here, for example on name and type.
+   *
+   * @param execution The execution to filter on
+   * @return true if the execution gets selected using the selector parameters.
+   */
+  boolean isSelected(Execution execution);
+
+  /**
+   * Here we filter using the execution state, for example with the status description, the failure
+   * state and the start date.
+   *
+   * @param executionState The Execution State to evaluate
+   * @return true if the execution state gets selected using the selector parameters.
+   */
+  boolean isSelected(ExecutionState executionState);
 }

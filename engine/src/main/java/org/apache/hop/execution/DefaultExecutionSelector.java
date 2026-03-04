@@ -35,21 +35,7 @@ public record DefaultExecutionSelector(
     implements IExecutionSelector {
   public static final SimpleDateFormat START_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
-  public boolean isSelected(Execution execution, ExecutionState executionState) {
-    if (isSelectingParents && StringUtils.isNotEmpty(executionState.getParentId())) {
-      return false;
-    }
-    if (isSelectingFailed && !executionState.isFailed()) {
-      return false;
-    }
-    if (isSelectingFinished
-        && !executionState.getStatusDescription().toLowerCase().startsWith("finished")) {
-      return false;
-    }
-    if (isSelectingRunning
-        && !executionState.getStatusDescription().toLowerCase().startsWith("running")) {
-      return false;
-    }
+  public boolean isSelected(Execution execution) {
     if (isSelectingWorkflows && !execution.getExecutionType().equals(ExecutionType.Workflow)) {
       return false;
     }
@@ -70,7 +56,22 @@ public record DefaultExecutionSelector(
     if (startDateFilter != null && execution.getExecutionStartDate() != null) {
       return startDateFilter.matches(execution.getExecutionStartDate());
     }
-    return true;
+    return false;
+  }
+
+  public boolean isSelected(ExecutionState executionState) {
+    if (isSelectingParents && StringUtils.isNotEmpty(executionState.getParentId())) {
+      return false;
+    }
+    if (isSelectingFailed && !executionState.isFailed()) {
+      return false;
+    }
+    if (isSelectingFinished
+        && !executionState.getStatusDescription().toLowerCase().startsWith("finished")) {
+      return false;
+    }
+    return !isSelectingRunning
+        || executionState.getStatusDescription().toLowerCase().startsWith("running");
   }
 
   /**
@@ -89,7 +90,7 @@ public record DefaultExecutionSelector(
     for (String id : ids) {
       Execution execution = location.getExecution(id);
       ExecutionState state = location.getExecutionState(id);
-      if (selector.isSelected(execution, state)) {
+      if (selector.isSelected(execution) && selector.isSelected(state)) {
         selection.add(id);
       }
     }

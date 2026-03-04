@@ -83,7 +83,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   protected Timer cacheTimer;
 
-  protected AtomicBoolean locked;
+  protected final AtomicBoolean locked;
 
   protected int delay;
   protected int maxAge;
@@ -198,6 +198,13 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   }
 
   @Override
+  public void clearCaches() {
+    synchronized (locked) {
+      cache.clear();
+    }
+  }
+
+  @Override
   public synchronized void registerExecution(Execution execution) throws HopException {
     /*
      We're going to collect execution information of actions along with the parent workflow.
@@ -268,8 +275,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     //
     int iLimit = datedIds.size();
     List<String> list = new ArrayList<>();
-    for (int i = 0; i < iLimit; i++) {
-      list.add(datedIds.get(i).getId());
+    for (DatedId datedId : datedIds) {
+      list.add(datedId.getId());
     }
     return list;
   }
@@ -469,10 +476,14 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
       CacheEntry entry, Set<DatedId> ids, IExecutionSelector selector) {
     for (String childId : entry.getChildIds()) {
       Execution childExecution = entry.getChildExecution(childId);
-      ExecutionState childExecutionState = entry.getChildExecutionState(childId);
-      if (selector.isSelected(childExecution, childExecutionState)) {
-        ids.add(new DatedId(childExecution.getId(), childExecution.getRegistrationDate()));
+      if (!selector.isSelected(childExecution)) {
+        continue;
       }
+      ExecutionState childExecutionState = entry.getChildExecutionState(childId);
+      if (!selector.isSelected(childExecutionState)) {
+        continue;
+      }
+      ids.add(new DatedId(childExecution.getId(), childExecution.getRegistrationDate()));
     }
   }
 
@@ -487,7 +498,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
   protected void getExecutionIdsFromCache(Set<DatedId> ids, IExecutionSelector selector) {
     for (CacheEntry cacheEntry : cache.values()) {
-      if (selector.isSelected(cacheEntry.getExecution(), cacheEntry.getExecutionState())) {
+      if (selector.isSelected(cacheEntry.getExecution())
+          && selector.isSelected(cacheEntry.getExecutionState())) {
         ids.add(new DatedId(cacheEntry.getId(), cacheEntry.getExecution().getRegistrationDate()));
       }
       if (!selector.isSelectingParents()) {
