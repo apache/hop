@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.pipeline.PipelineMetricDisplayUtil;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.ActionResult;
 import org.eclipse.swt.SWT;
@@ -131,6 +132,14 @@ public class HopGuiWorkflowGridDelegate {
     TreeColumn column7 = new TreeColumn(wTree, SWT.RIGHT);
     column7.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.LogDate"));
     column7.setWidth(150);
+
+    TreeColumn column8 = new TreeColumn(wTree, SWT.RIGHT);
+    column8.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.BytesRead"));
+    column8.setWidth(120);
+
+    TreeColumn column9 = new TreeColumn(wTree, SWT.RIGHT);
+    column9.setText(BaseMessages.getString(PKG, "WorkflowLog.Column.BytesWritten"));
+    column9.setWidth(120);
 
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment(0, 0);
@@ -288,6 +297,18 @@ public class HopGuiWorkflowGridDelegate {
             if (logDate != null) {
               treeItem.setText(6, new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(logDate));
             }
+            if (Const.toBoolean(
+                HopGui.getInstance()
+                    .getVariables()
+                    .getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+              treeItem.setText(
+                  7, result.getBytesRead() > 0 ? formatBytes(result.getBytesRead()) : "");
+              treeItem.setText(
+                  8, result.getBytesWritten() > 0 ? formatBytes(result.getBytesWritten()) : "");
+            } else {
+              treeItem.setText(7, "");
+              treeItem.setText(8, "");
+            }
           }
         }
         treeItem.setExpanded(true);
@@ -306,5 +327,9 @@ public class HopGuiWorkflowGridDelegate {
 
     // Reset nr of items
     this.previousNrItems = -1;
+  }
+
+  private static String formatBytes(long bytes) {
+    return PipelineMetricDisplayUtil.formatDataVolume(bytes);
   }
 }

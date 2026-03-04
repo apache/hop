@@ -32,6 +32,8 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.io.CountingInputStream;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -82,11 +84,12 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
 
         data.files.add(fileObject); // Remember the files!
         OutputStream outputStream = HopVfs.getOutputStream(fileObject, false);
+        CountingOutputStream counting = new CountingOutputStream(outputStream);
         if (meta.isCompressFiles()) {
-          gzos = new GZIPOutputStream(new BufferedOutputStream(outputStream));
+          gzos = new GZIPOutputStream(new BufferedOutputStream(counting));
           dos = new DataOutputStream(gzos);
         } else {
-          dos = new DataOutputStream(outputStream);
+          dos = new DataOutputStream(counting);
           gzos = null;
         }
 
@@ -102,7 +105,8 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
         if (gzos != null) {
           gzos.close(); // close gzip stream
         }
-        outputStream.close(); // close file stream
+        counting.close(); // close counting (and underlying file stream)
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + counting.getCount();
       } catch (Exception e) {
         logError("Error processing tmp-file: " + e.toString());
         return false;
@@ -133,14 +137,17 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
                   + BaseMessages.getString(PKG, "BlockingTransform.Log.Openfilename2"));
         }
         InputStream fi = HopVfs.getInputStream(fileObject);
+        CountingInputStream countingFi = new CountingInputStream(fi);
+        data.countingInputStreams.add(countingFi);
+        data.fis.add(countingFi);
         DataInputStream di;
-        data.fis.add(fi);
         if (meta.isCompressFiles()) {
-          GZIPInputStream gzfi = new GZIPInputStream(new BufferedInputStream(fi));
+          GZIPInputStream gzfi =
+              new GZIPInputStream(new BufferedInputStream(data.fis.get(data.fis.size() - 1)));
           di = new DataInputStream(gzfi);
           data.gzis.add(gzfi);
         } else {
-          di = new DataInputStream(fi);
+          di = new DataInputStream(data.fis.get(data.fis.size() - 1));
         }
         data.dis.add(di);
 
@@ -200,6 +207,11 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
         } catch (HopFileException fe) {
           // empty file or EOF mostly
           try {
+            if (!data.countingInputStreams.isEmpty()) {
+              dataVolumeIn =
+                  (dataVolumeIn != null ? dataVolumeIn : 0L)
+                      + data.countingInputStreams.get(0).getCount();
+            }
             di.close();
             fi.close();
             if (gzfi != null) {
@@ -218,6 +230,9 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
           data.files.remove(0);
           data.dis.remove(0);
           data.fis.remove(0);
+          if (!data.countingInputStreams.isEmpty()) {
+            data.countingInputStreams.remove(0);
+          }
           if (gzfi != null) {
             data.gzis.remove(0);
           }

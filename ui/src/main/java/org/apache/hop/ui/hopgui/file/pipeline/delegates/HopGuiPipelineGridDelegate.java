@@ -495,11 +495,44 @@ public class HopGuiPipelineGridDelegate {
         "PipelineLog.MetricsView.ShowBuffersInput",
         props.isMetricsPanelShowBuffersInput(),
         props::setMetricsPanelShowBuffersInput);
+    MenuItem dataVolumeItem =
+        addMetricsViewMenuItem(
+            menu,
+            "PipelineLog.MetricsView.ShowDataVolume",
+            props.isMetricsPanelShowDataVolume(),
+            props::setMetricsPanelShowDataVolume);
+    boolean dataVolumeEnabled =
+        Const.toBoolean(
+            HopGui.getInstance().getVariables().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"));
+    dataVolumeItem.setEnabled(dataVolumeEnabled);
+    if (!dataVolumeEnabled) {
+      dataVolumeItem.setSelection(false);
+    }
+    MenuItem dataVolumeInItem =
+        addMetricsViewMenuItem(
+            menu,
+            "PipelineLog.MetricsView.ShowDataVolumeIn",
+            props.isMetricsPanelShowDataVolumeIn(),
+            props::setMetricsPanelShowDataVolumeIn);
+    dataVolumeInItem.setEnabled(dataVolumeEnabled);
+    if (!dataVolumeEnabled) {
+      dataVolumeInItem.setSelection(false);
+    }
+    MenuItem dataVolumeOutItem =
+        addMetricsViewMenuItem(
+            menu,
+            "PipelineLog.MetricsView.ShowDataVolumeOut",
+            props.isMetricsPanelShowDataVolumeOut(),
+            props::setMetricsPanelShowDataVolumeOut);
+    dataVolumeOutItem.setEnabled(dataVolumeEnabled);
+    if (!dataVolumeEnabled) {
+      dataVolumeOutItem.setSelection(false);
+    }
 
     return menu;
   }
 
-  private void addMetricsViewMenuItem(
+  private MenuItem addMetricsViewMenuItem(
       Menu menu, String messageKey, boolean selected, Consumer<Boolean> setOption) {
     MenuItem item = new MenuItem(menu, SWT.CHECK);
     item.setText(BaseMessages.getString(PKG, messageKey));
@@ -507,6 +540,7 @@ public class HopGuiPipelineGridDelegate {
     item.addListener(
         SWT.Selection,
         e -> setMetricsOptionAndRefresh(() -> setOption.accept(item.getSelection())));
+    return item;
   }
 
   private void setMetricsOptionAndRefresh(Runnable setOption) {
@@ -729,6 +763,9 @@ public class HopGuiPipelineGridDelegate {
       return false;
     }
     PropsUi props = PropsUi.getInstance();
+    boolean dataVolumeVarEnabled =
+        Const.toBoolean(
+            HopGui.getInstance().getVariables().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"));
     return switch (code) {
       case Pipeline.METRIC_NAME_INPUT -> !props.isMetricsPanelShowInput();
       case Pipeline.METRIC_NAME_READ -> !props.isMetricsPanelShowRead();
@@ -736,6 +773,12 @@ public class HopGuiPipelineGridDelegate {
       case Pipeline.METRIC_NAME_UPDATED -> !props.isMetricsPanelShowUpdated();
       case Pipeline.METRIC_NAME_REJECTED -> !props.isMetricsPanelShowRejected();
       case Pipeline.METRIC_NAME_BUFFER_IN -> !props.isMetricsPanelShowBuffersInput();
+      case Pipeline.METRIC_NAME_DATA_VOLUME ->
+          !dataVolumeVarEnabled || !props.isMetricsPanelShowDataVolume();
+      case Pipeline.METRIC_NAME_DATA_VOLUME_IN ->
+          !dataVolumeVarEnabled || !props.isMetricsPanelShowDataVolumeIn();
+      case Pipeline.METRIC_NAME_DATA_VOLUME_OUT ->
+          !dataVolumeVarEnabled || !props.isMetricsPanelShowDataVolumeOut();
       default -> false;
     };
   }
@@ -842,11 +885,18 @@ public class HopGuiPipelineGridDelegate {
       boolean showUnits = PropsUi.getInstance().isMetricsPanelShowUnits();
       for (IEngineMetric metric : usedMetrics) {
         Long value = engineMetrics.getComponentMetric(component, metric);
-        String unit = showUnits ? PipelineMetricDisplayUtil.getUnitForMetricCell(metric) : null;
-        String cell =
-            value == null
-                ? ""
-                : formatMetric(value) + (unit != null && !unit.isEmpty() ? " " + unit : "");
+        String cell;
+        if (Pipeline.METRIC_NAME_DATA_VOLUME.equals(metric.getCode())
+            || Pipeline.METRIC_NAME_DATA_VOLUME_IN.equals(metric.getCode())
+            || Pipeline.METRIC_NAME_DATA_VOLUME_OUT.equals(metric.getCode())) {
+          cell = value == null ? "" : PipelineMetricDisplayUtil.formatDataVolume(value);
+        } else {
+          String unit = showUnits ? PipelineMetricDisplayUtil.getUnitForMetricCell(metric) : null;
+          cell =
+              value == null
+                  ? ""
+                  : formatMetric(value) + (unit != null && !unit.isEmpty() ? " " + unit : "");
+        }
         componentStrings.add(cell);
       }
       String durationStr = calculateDuration(component);

@@ -230,6 +230,13 @@ public abstract class BaseFileInputTransform<
     return super.checkFeedback(lines);
   }
 
+  @Override
+  public void addDataVolumeIn(long bytes) {
+    if (bytes > 0) {
+      dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bytes;
+    }
+  }
+
   /**
    * Initialize error handling.
    *

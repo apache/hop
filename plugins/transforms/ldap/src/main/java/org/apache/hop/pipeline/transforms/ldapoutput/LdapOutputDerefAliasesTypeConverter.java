@@ -18,7 +18,7 @@ package org.apache.hop.pipeline.transforms.ldapoutput;
 
 import org.apache.hop.metadata.api.IIntCodeConverter;
 
-/** Converter for LDAP Output derefAliases type (int <-> code string) */
+/** Converter for LDAP Output derefAliases type (int {@literal <->} code string) */
 public class LdapOutputDerefAliasesTypeConverter implements IIntCodeConverter {
   @Override
   public String getCode(int type) {

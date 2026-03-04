@@ -109,6 +109,7 @@
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <jandex.version>3.2.2</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
+        <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
         <junit.version>5.10.2</junit.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
@@ -119,6 +120,7 @@
         <lombok.version>1.18.34</lombok.version>
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
         <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
+        <maven-javadoc-plugin.version>3.10.0</maven-javadoc-plugin.version>
         <maven-surefire-plugin.argLine>-Duser.timezone=UTC
             -Dfile.encoding=UTF-8
             -Duser.language=en -Duser.country=US
@@ -399,6 +401,30 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-javadoc</id>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <show>public</show>
+                            <failOnError>true</failOnError>
+                            <failOnWarnings>${javadoc.failOnWarnings}</failOnWarnings>
+                            <doclint>all,-missing</doclint>
+                            <source>${maven.compiler.source}</source>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <docencoding>${project.reporting.outputEncoding}</docencoding>
+                            <maxmemory>512m</maxmemory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -460,6 +486,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
                     <show>public</show>
                 </configuration>

@@ -41,4 +41,12 @@ public interface IBaseFileInputTransformControl {
   long getErrors();
 
   void setErrors(long e);
+
+  /**
+   * Add bytes read from an actual InputStream (for data volume in metric). Only called by input
+   * transforms that read from external sources.
+   *
+   * @param bytes number of bytes read
+   */
+  void addDataVolumeIn(long bytes);
 }

@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
@@ -323,7 +324,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       OutputStream outputStream;
       OutputStream fos = HopVfs.getOutputStream(filename, meta.isFileAppended());
-      outputStream = fos;
+      data.countingStream = new CountingOutputStream(fos);
+      outputStream = data.countingStream;
 
       if (!Utils.isEmpty(meta.getEncoding())) {
         data.writer =
@@ -367,8 +369,14 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     boolean retval = false;
 
     try {
+      data.writer.flush();
+      if (data.countingStream != null) {
+        dataVolumeOut =
+            (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+      }
       data.writer.close();
       data.writer = null;
+      data.countingStream = null;
       retval = true;
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "JsonOutput.Error.ClosingFile", e.toString()));

@@ -465,7 +465,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       // We display everything that makes sense:
       // name, copy, inits, input, read, written, output, updated, rejected, errors, buffer in,
-      // buffer out
+      // buffer out, data volume, data volume in, data volume out
       //
       List<ColumnInfo> columns = new ArrayList<>();
       columns.add(new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false, true));
@@ -479,6 +479,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       addColumn(columns, indexMap, metricNames, Pipeline.METRIC_UPDATED);
       addColumn(columns, indexMap, metricNames, Pipeline.METRIC_REJECTED);
       addColumn(columns, indexMap, metricNames, Pipeline.METRIC_ERROR);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_BUFFER_IN);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_BUFFER_OUT);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_DATA_VOLUME);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_DATA_VOLUME_IN);
+      addColumn(columns, indexMap, metricNames, Pipeline.METRIC_DATA_VOLUME_OUT);
 
       metricsView =
           new TableView(

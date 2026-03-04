@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -32,6 +33,7 @@ public class BlockingTransformData extends BaseTransformData implements ITransfo
   public List<FileObject> files;
   public List<Object[]> buffer;
   public List<InputStream> fis;
+  public List<CountingInputStream> countingInputStreams;
   public List<GZIPInputStream> gzis;
   public List<DataInputStream> dis;
   public List<Object[]> rowbuffer;
@@ -47,6 +49,7 @@ public class BlockingTransformData extends BaseTransformData implements ITransfo
     buffer = new ArrayList<>(BlockingTransformMeta.CACHE_SIZE);
     files = new ArrayList<>();
     fis = new ArrayList<>();
+    countingInputStreams = new ArrayList<>();
     dis = new ArrayList<>();
     gzis = new ArrayList<>();
     rowbuffer = new ArrayList<>();

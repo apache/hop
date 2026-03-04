@@ -539,6 +539,13 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     String unzipToFolder = realTargetdirectory;
     try {
 
+      if (sourceFileObject.getType().hasContent()) {
+        long size = sourceFileObject.getContent().getSize();
+        if (size > 0) {
+          result.setBytesReadThisAction(result.getBytesReadThisAction() + size);
+        }
+      }
+
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
@@ -716,9 +723,9 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
                   if (is != null) {
                     byte[] buff = new byte[2048];
                     int len;
-
                     while ((len = is.read(buff)) > 0) {
                       os.write(buff, 0, len);
+                      result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + len);
                     }
 
                     // Add filename to result filenames

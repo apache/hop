@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.jsoninput;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.BitSet;
 import org.apache.commons.lang.NotImplementedException;
@@ -31,6 +30,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -40,6 +40,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransform;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
@@ -388,17 +389,17 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     } else {
       while ((rawReaderRow = data.readerRowSet.getRow()) == null) {
         if (data.inputs.hasNext() && data.readerRowSet.isDone()) {
-          try (InputStream nextIn = data.inputs.next()) {
-
-            if (nextIn != null) {
-              parseNextInputToRowSet(nextIn);
-            } else {
-              parseNextInputToRowSet(new ByteArrayInputStream(EMPTY_JSON));
+          InputStream nextIn = data.inputs.next();
+          if (nextIn != null) {
+            CountingInputStream countingIn = new CountingInputStream(nextIn);
+            try {
+              parseNextInputToRowSet(countingIn);
+            } finally {
+              dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIn.getCount();
+              BaseTransform.closeQuietly(countingIn);
             }
-
-          } catch (IOException e) {
-            logError(BaseMessages.getString(PKG, "JsonInput.Log.UnexpectedError", e.toString()), e);
-            incrementErrors();
+          } else {
+            parseNextInputToRowSet(new ByteArrayInputStream(EMPTY_JSON));
           }
         } else {
           if (isDetailed()) {

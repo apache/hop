@@ -309,6 +309,9 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
     try {
       if (data.fis != null) {
+        if (data.totalBytesRead > 0) {
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + data.totalBytesRead;
+        }
         data.fis.close();
       }
     } catch (Exception e) {
@@ -323,6 +326,9 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
 
       // Close the previous file...
       //
+      if (data.totalBytesRead > 0) {
+        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + data.totalBytesRead;
+      }
       data.closeFile();
 
       if (data.filenr >= data.filenames.length) {

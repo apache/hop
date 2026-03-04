@@ -24,6 +24,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.zip.ZipOutputStream;
 import javax.xml.stream.XMLStreamWriter;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -51,6 +52,8 @@ public class XmlOutputData extends BaseTransformData implements ITransformData {
   public DateFormatSymbols dafs;
 
   public ZipOutputStream zip;
+
+  public CountingOutputStream countingStream;
 
   public XMLStreamWriter writer;
 

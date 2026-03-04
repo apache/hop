@@ -83,6 +83,11 @@ public final class PipelineMetricDisplayUtil {
         return "runs";
       case Pipeline.METRIC_NAME_FLUSH_BUFFER:
         return "flushes";
+      case Pipeline.METRIC_NAME_DATA_VOLUME:
+        return null; // Cell shows scaled unit (B/KB/MB/GB) via formatDataVolume()
+      case Pipeline.METRIC_NAME_DATA_VOLUME_IN:
+      case Pipeline.METRIC_NAME_DATA_VOLUME_OUT:
+        return null; // Cell shows scaled unit (B/KB/MB/GB) via formatDataVolume()
       default:
         return null;
     }
@@ -101,5 +106,33 @@ public final class PipelineMetricDisplayUtil {
       return "r";
     }
     return unit;
+  }
+
+  private static final long KB = 1024L;
+  private static final long MB = KB * 1024L;
+  private static final long GB = MB * 1024L;
+
+  /**
+   * Formats a byte count for display in the metrics panel with scaled unit (B, KB, MB, GB) and
+   * xx.xx notation for values >= 1 KB.
+   *
+   * @param bytes byte count (e.g. from data volume metric), or null if not tracked
+   * @return formatted string like "0 B", "512 B", "1.50 KB", "123.45 MB", "2.00 GB"; empty string
+   *     if null
+   */
+  public static String formatDataVolume(Long bytes) {
+    if (bytes == null || bytes < 0) {
+      return bytes == null ? "" : "0 B";
+    }
+    if (bytes < KB) {
+      return bytes + " B";
+    }
+    if (bytes < MB) {
+      return String.format("%.2f KB", bytes / (double) KB);
+    }
+    if (bytes < GB) {
+      return String.format("%.2f MB", bytes / (double) MB);
+    }
+    return String.format("%.2f GB", bytes / (double) GB);
   }
 }

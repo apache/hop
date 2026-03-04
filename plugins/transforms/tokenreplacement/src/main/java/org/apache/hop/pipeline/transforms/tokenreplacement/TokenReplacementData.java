@@ -22,6 +22,7 @@ import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -38,6 +39,9 @@ public class TokenReplacementData extends BaseTransformData implements ITransfor
   public List<String> openFiles;
   public List<OutputStream> openWriters;
   public List<OutputStream> openBufferedWriters;
+
+  /** When reading from file, holds the CountingInputStream for data volume tracking. */
+  public CountingInputStream currentCountingInputStream;
 
   public SimpleDateFormat defaultDateFormat;
   public DateFormatSymbols defaultDateFormatSymbols;

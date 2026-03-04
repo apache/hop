@@ -117,6 +117,18 @@ public class Result implements Cloneable {
   /** The number of lines rejected. */
   private long nrLinesRejected;
 
+  /**
+   * Bytes read by the current action only (when HOP_METRIC_DATA_VOLUME=Y). Workflow copies to
+   * ActionResult then clears.
+   */
+  private long bytesReadThisAction;
+
+  /**
+   * Bytes written by the current action only (when HOP_METRIC_DATA_VOLUME=Y). Workflow copies to
+   * ActionResult then clears.
+   */
+  private long bytesWrittenThisAction;
+
   /** The log channel id. */
   private String logChannelId;
 
@@ -287,6 +299,8 @@ public class Result implements Cloneable {
     nrLinesDeleted = 0;
     nrErrors = 0;
     nrFilesRetrieved = 0;
+    bytesReadThisAction = 0;
+    bytesWrittenThisAction = 0;
     logText = null;
   }
 
@@ -542,6 +556,22 @@ public class Result implements Cloneable {
    */
   public void increaseErrors(long incr) {
     nrErrors += incr;
+  }
+
+  public long getBytesReadThisAction() {
+    return bytesReadThisAction;
+  }
+
+  public void setBytesReadThisAction(long bytesReadThisAction) {
+    this.bytesReadThisAction = bytesReadThisAction;
+  }
+
+  public long getBytesWrittenThisAction() {
+    return bytesWrittenThisAction;
+  }
+
+  public void setBytesWrittenThisAction(long bytesWrittenThisAction) {
+    this.bytesWrittenThisAction = bytesWrittenThisAction;
   }
 
   @Deprecated(since = "2.16")

@@ -145,6 +145,9 @@ public abstract class Pipeline
   public static final String METRIC_NAME_BUFFER_OUT = "buffer_out";
   public static final String METRIC_NAME_FLUSH_BUFFER = "flush_buffer";
   public static final String METRIC_NAME_INIT = "init";
+  public static final String METRIC_NAME_DATA_VOLUME = "data_volume";
+  public static final String METRIC_NAME_DATA_VOLUME_IN = "data_volume_in";
+  public static final String METRIC_NAME_DATA_VOLUME_OUT = "data_volume_out";
 
   /** The package name, used for internationalization of messages. */
   private static final Class<?> PKG = Pipeline.class;
@@ -3225,6 +3228,27 @@ public abstract class Pipeline
           "The number of times a buffer flush occurred on a ",
           "100",
           true);
+  public static final IEngineMetric METRIC_DATA_VOLUME =
+      new EngineMetric(
+          METRIC_NAME_DATA_VOLUME,
+          "Data volume",
+          "Estimated bytes from rows on getRow (data between transforms, when HOP_METRIC_DATA_VOLUME is enabled)",
+          "110",
+          true);
+  public static final IEngineMetric METRIC_DATA_VOLUME_IN =
+      new EngineMetric(
+          METRIC_NAME_DATA_VOLUME_IN,
+          "Data volume in",
+          "Bytes read from InputStream (input transforms only)",
+          "111",
+          true);
+  public static final IEngineMetric METRIC_DATA_VOLUME_OUT =
+      new EngineMetric(
+          METRIC_NAME_DATA_VOLUME_OUT,
+          "Data volume out",
+          "Bytes written to OutputStream (output transforms only)",
+          "112",
+          true);
 
   @Override
   public EngineMetrics getEngineMetrics() {
@@ -3267,6 +3291,12 @@ public abstract class Pipeline
             metrics.setComponentMetric(
                 combi.transform, METRIC_REJECTED, combi.transform.getLinesRejected());
             metrics.setComponentMetric(combi.transform, METRIC_ERROR, combi.transform.getErrors());
+            metrics.setComponentMetric(
+                combi.transform, METRIC_DATA_VOLUME, combi.transform.getDataVolume());
+            metrics.setComponentMetric(
+                combi.transform, METRIC_DATA_VOLUME_IN, combi.transform.getDataVolumeIn());
+            metrics.setComponentMetric(
+                combi.transform, METRIC_DATA_VOLUME_OUT, combi.transform.getDataVolumeOut());
 
             long inputBufferSize = 0;
             for (IRowSet rowSet : transform.getInputRowSets()) {

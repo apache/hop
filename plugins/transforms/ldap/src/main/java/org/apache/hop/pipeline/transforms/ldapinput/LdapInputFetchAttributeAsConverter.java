@@ -18,7 +18,7 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 
 import org.apache.hop.metadata.api.IIntCodeConverter;
 
-/** Converter for LDAP Input fetch attribute as type (int <-> code string) */
+/** Converter for LDAP Input fetch attribute as type (int {@literal <->} code string) */
 public class LdapInputFetchAttributeAsConverter implements IIntCodeConverter {
   @Override
   public String getCode(int type) {

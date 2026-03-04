@@ -18,7 +18,7 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 
 import org.apache.hop.metadata.api.IIntCodeConverter;
 
-/** Converter for LDAP Input search scope (int <-> code string) */
+/** Converter for LDAP Input search scope (int {@literal <->} code string) */
 public class LdapInputSearchScopeConverter implements IIntCodeConverter {
   @Override
   public String getCode(int type) {

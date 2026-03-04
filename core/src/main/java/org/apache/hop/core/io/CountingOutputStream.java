@@ -14,19 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.hop.pipeline.transforms.ldapoutput;
 
-import org.apache.hop.metadata.api.IIntCodeConverter;
+package org.apache.hop.core.io;
 
-/** Converter for LDAP Output referral type (int {@literal <->} code string) */
-public class LdapOutputReferralTypeConverter implements IIntCodeConverter {
-  @Override
-  public String getCode(int type) {
-    return LdapOutputMeta.getReferralTypeCode(type);
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+/**
+ * OutputStream that counts the total number of bytes written. Use for data volume metrics (e.g.
+ * bytes written to a file).
+ */
+public class CountingOutputStream extends FilterOutputStream {
+
+  private long count;
+
+  public CountingOutputStream(OutputStream out) {
+    super(out);
   }
 
   @Override
-  public int getType(String code) {
-    return LdapOutputMeta.getReferralTypeByCode(code);
+  public void write(int b) throws IOException {
+    out.write(b);
+    count++;
+  }
+
+  @Override
+  public void write(byte[] b, int off, int len) throws IOException {
+    out.write(b, off, len);
+    count += len;
+  }
+
+  /**
+   * @return total bytes written so far
+   */
+  public long getCount() {
+    return count;
   }
 }

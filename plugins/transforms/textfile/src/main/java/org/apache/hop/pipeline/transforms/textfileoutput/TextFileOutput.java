@@ -36,6 +36,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.fileinput.CharsetToolkit;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -180,6 +181,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
           OutputStream fileOutputStream =
               getOutputStream(filename, this, !isZipFile && appendToExistingFile);
+          fileOutputStream = new CountingOutputStream(fileOutputStream);
           CompressionOutputStream compressionOutputStream =
               compressionProvider.createOutputStream(fileOutputStream);
 
@@ -216,6 +218,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           }
 
           OutputStream fileOutputStream = getOutputStream(filename, this, true);
+          fileOutputStream = new CountingOutputStream(fileOutputStream);
           ICompressionProvider compressionProvider = getCompressionProvider();
           CompressionOutputStream compressionOutputStream =
               compressionProvider.createOutputStream(fileOutputStream);
@@ -404,7 +407,11 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         writeEndedLine();
       }
       try {
-        flushOpenFiles(true);
+        TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+        if (coll != null) {
+          coll.forEachOpenStream(this::collectDataVolumeOut);
+          flushOpenFiles(true);
+        }
       } catch (IOException e) {
         throw new HopException("Unable to flush open files", e);
       }
@@ -414,7 +421,10 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   }
 
   public void flushOpenFiles(boolean closeAfterFlush) throws IOException {
-    data.getFileStreamsCollection().flushOpenFiles(true);
+    TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+    if (coll != null) {
+      coll.flushOpenFiles(true);
+    }
   }
 
   @Override
@@ -786,9 +796,51 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         meta);
   }
 
+  /**
+   * Returns the live data volume out by combining bytes from already-closed streams (accumulated in
+   * dataVolumeOut) with live counts from currently-open CountingOutputStreams.
+   */
+  @Override
+  public Long getDataVolumeOut() {
+    long total = dataVolumeOut != null ? dataVolumeOut : 0L;
+    TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+    if (coll != null) {
+      long[] live = {0};
+      coll.forEachOpenStream(
+          fs -> {
+            if (fs.getFileOutputStream() instanceof CountingOutputStream cos) {
+              live[0] += cos.getCount();
+            }
+          });
+      total += live[0];
+    }
+    return total > 0 ? total : null;
+  }
+
+  /** Flushes the given stream and adds its written byte count to dataVolumeOut. */
+  private void collectDataVolumeOut(TextFileOutputData.FileStream fs) {
+    if (fs == null || !fs.isOpen()) {
+      return;
+    }
+    try {
+      if (fs.getBufferedOutputStream() != null) {
+        fs.getBufferedOutputStream().flush();
+      }
+    } catch (IOException e) {
+      logDebug("Flush before reading data volume out: " + e.getMessage());
+    }
+    if (fs.getFileOutputStream() instanceof CountingOutputStream cos) {
+      dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + cos.getCount();
+    }
+  }
+
   protected boolean closeFile(String filename) {
     try {
-      data.getFileStreamsCollection().closeFile(filename);
+      TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+      if (coll != null) {
+        collectDataVolumeOut(coll.getStream(filename));
+        coll.closeFile(filename);
+      }
     } catch (Exception e) {
       logError("Exception trying to close file: " + e.toString());
       setErrors(1);
@@ -802,7 +854,17 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
     try {
       if (data.writer != null) {
-        data.getFileStreamsCollection().closeStream(data.writer);
+        final OutputStream writer = data.writer;
+        TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+        if (coll != null) {
+          coll.forEachOpenStream(
+              fs -> {
+                if (fs.getBufferedOutputStream() == writer) {
+                  collectDataVolumeOut(fs);
+                }
+              });
+          coll.closeStream(data.writer);
+        }
       }
       data.writer = null;
       data.out = null;
@@ -814,7 +876,6 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     } catch (Exception e) {
       logError("Exception trying to close file: " + e.toString());
       setErrors(1);
-      // Clean resources
       data.writer = null;
       data.out = null;
       data.fos = null;
@@ -944,7 +1005,11 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
   protected void close() throws IOException {
     if (!meta.isServletOutput()) {
-      data.getFileStreamsCollection().flushOpenFiles(true);
+      TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+      if (coll != null) {
+        coll.forEachOpenStream(this::collectDataVolumeOut);
+        coll.flushOpenFiles(true);
+      }
       data.writer = null;
     }
   }
