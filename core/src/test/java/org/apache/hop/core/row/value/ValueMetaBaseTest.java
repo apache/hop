@@ -17,13 +17,14 @@
 
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
@@ -65,6 +66,7 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
@@ -77,32 +79,30 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.owasp.encoder.Encode;
 import org.w3c.dom.Node;
 
-public class ValueMetaBaseTest {
-  protected class StoreLoggingEventListener implements IHopLoggingEventListener {
-
-    private List<HopLoggingEvent> events = new ArrayList<>();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueMetaBaseTest {
+  protected static class StoreLoggingEventListener implements IHopLoggingEventListener {
+    private final List<HopLoggingEvent> events = new ArrayList<>();
 
     @Override
     public void eventAdded(HopLoggingEvent event) {
       events.add(event);
     }
 
-    public List<HopLoggingEvent> getEvents() {
+    List<HopLoggingEvent> getEvents() {
       return events;
     }
   }
-
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   protected static final String TEST_NAME = "TEST_NAME";
   protected static final String LOG_FIELD = "LOG_FIELD";
@@ -119,16 +119,16 @@ public class ValueMetaBaseTest {
   protected ValueMetaBase valueMetaBase;
   protected IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     HopLogStore.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener(listener);
 
@@ -139,8 +139,8 @@ public class ValueMetaBaseTest {
     variables = Variables.getADefaultVariableSpace();
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     HopLogStore.getAppender().removeLoggingEventListener(listener);
     listener = new StoreLoggingEventListener();
   }
@@ -153,7 +153,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testDefaultCtor() {
+  void testDefaultCtor() {
     ValueMetaBase base = new ValueMetaBase();
     assertNotNull(base);
     assertNull(base.getName());
@@ -161,7 +161,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testCtorName() {
+  void testCtorName() {
     ValueMetaBase base = new ValueMetaBase("myValueMeta");
     assertEquals("myValueMeta", base.getName());
     assertEquals(IValueMeta.TYPE_NONE, base.getType());
@@ -169,7 +169,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testCtorNameAndType() {
+  void testCtorNameAndType() {
     IValueMeta base = new ValueMetaString("myStringType");
     assertEquals("myStringType", base.getName());
     assertEquals(IValueMeta.TYPE_STRING, base.getType());
@@ -177,7 +177,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void test4ArgCtor() {
+  void test4ArgCtor() {
     ValueMetaBase base = new ValueMetaBoolean("Hello, is it me you're looking for?", 4, 9);
     assertEquals("Hello, is it me you're looking for?", base.getName());
     assertEquals(IValueMeta.TYPE_BOOLEAN, base.getType());
@@ -187,7 +187,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testGetDataXML() throws IOException {
+  void testGetDataXML() throws IOException {
     BigDecimal bigDecimal = BigDecimal.ONE;
     ValueMetaBase valueDoubleMetaBase =
         new ValueMetaBase(String.valueOf(bigDecimal), IValueMeta.TYPE_BIGNUMBER);
@@ -267,7 +267,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testGetValueFromSqlTypeTypeOverride() throws Exception {
+  void testGetValueFromSqlTypeTypeOverride() throws Exception {
     final int varbinaryColumnIndex = 2;
 
     ValueMetaBase valueMetaBase = new ValueMetaBase(), valueMetaBaseSpy = spy(valueMetaBase);
@@ -284,7 +284,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testConvertStringToBoolean() {
+  void testConvertStringToBoolean() {
     assertNull(ValueMetaBase.convertStringToBoolean(null));
     assertNull(ValueMetaBase.convertStringToBoolean(""));
     assertTrue(ValueMetaBase.convertStringToBoolean("Y"));
@@ -306,7 +306,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testConvertDataFromStringToString() throws HopValueException {
+  void testConvertDataFromStringToString() throws HopValueException {
     ValueMetaBase inValueMetaString = new ValueMetaString();
     ValueMetaBase outValueMetaString = new ValueMetaString();
     String inputValueEmptyString = StringUtils.EMPTY;
@@ -321,41 +321,42 @@ public class ValueMetaBaseTest {
         outValueMetaString.convertDataFromString(
             inputValueEmptyString, inValueMetaString, nullIf, ifNull, trimType);
     assertEquals(
-        "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = N: "
-            + "Conversion from empty string to string must return empty string",
         StringUtils.EMPTY,
-        result);
+        result,
+        "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = N: "
+            + "Conversion from empty string to string must return empty string");
 
     result =
         outValueMetaString.convertDataFromString(
             inputValueNullString, inValueMetaString, nullIf, ifNull, trimType);
     assertEquals(
-        "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = N: " + "Conversion from null string must return null",
         null,
-        result);
+        result,
+        "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = N: "
+            + "Conversion from null string must return null");
 
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
     result =
         outValueMetaString.convertDataFromString(
             inputValueEmptyString, inValueMetaString, nullIf, ifNull, trimType);
     assertEquals(
-        "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = Y: "
-            + "Conversion from empty string to string must return empty string",
         StringUtils.EMPTY,
-        result);
+        result,
+        "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = Y: "
+            + "Conversion from empty string to string must return empty string");
 
     result =
         outValueMetaString.convertDataFromString(
             inputValueNullString, inValueMetaString, nullIf, ifNull, trimType);
     assertEquals(
-        "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = Y: "
-            + "Conversion from null string must return empty string",
         StringUtils.EMPTY,
-        result);
+        result,
+        "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = Y: "
+            + "Conversion from null string must return empty string");
   }
 
   @Test
-  public void testConvertDataFromStringToDate() throws HopValueException {
+  void testConvertDataFromStringToDate() throws HopValueException {
     ValueMetaBase inValueMetaString = new ValueMetaString();
     ValueMetaBase outValueMetaDate = new ValueMetaDate();
     String inputValueEmptyString = StringUtils.EMPTY;
@@ -367,11 +368,11 @@ public class ValueMetaBaseTest {
     result =
         outValueMetaDate.convertDataFromString(
             inputValueEmptyString, inValueMetaString, nullIf, ifNull, trimType);
-    assertEquals("Conversion from empty string to date must return null", null, result);
+    assertNull(result, "Conversion from empty string to date must return null");
   }
 
-  @Test(expected = HopValueException.class)
-  public void testConvertDataFromStringForNullMeta() throws HopValueException {
+  @Test
+  void testConvertDataFromStringForNullMeta() {
     IValueMeta valueMetaBase = new ValueMetaNone();
     String inputValueEmptyString = StringUtils.EMPTY;
     IValueMeta iValueMeta = null;
@@ -379,33 +380,37 @@ public class ValueMetaBaseTest {
     String ifNull = null;
     int trimType = 0;
 
-    valueMetaBase.convertDataFromString(
-        inputValueEmptyString, iValueMeta, nullIf, ifNull, trimType);
-  }
-
-  @Test(expected = HopValueException.class)
-  public void testGetBigDecimalThrowsHopValueException() throws HopValueException {
-    ValueMetaBase valueMeta = new ValueMetaBigNumber();
-    valueMeta.getBigNumber("1234567890");
-  }
-
-  @Test(expected = HopValueException.class)
-  public void testGetIntegerThrowsHopValueException() throws HopValueException {
-    ValueMetaBase valueMeta = new ValueMetaInteger();
-    valueMeta.getInteger("1234567890");
-  }
-
-  @Test(expected = HopValueException.class)
-  public void testGetNumberThrowsHopValueException() throws HopValueException {
-    ValueMetaBase valueMeta = new ValueMetaNumber();
-    valueMeta.getNumber("1234567890");
+    assertThrows(
+        HopValueException.class,
+        () ->
+            valueMetaBase.convertDataFromString(
+                inputValueEmptyString, iValueMeta, nullIf, ifNull, trimType));
   }
 
   @Test
-  public void testIsNumeric() {
+  void testGetBigDecimalThrowsHopValueException() {
+    ValueMetaBase valueMeta = new ValueMetaBigNumber();
+    assertThrows(HopValueException.class, () -> valueMeta.getBigNumber("1234567890"));
+  }
+
+  @Test
+  void testGetIntegerThrowsHopValueException() {
+    ValueMetaBase valueMeta = new ValueMetaInteger();
+    assertThrows(HopValueException.class, () -> valueMeta.getInteger("1234567890"));
+  }
+
+  @Test
+  void testGetNumberThrowsHopValueException() {
+    ValueMetaBase valueMeta = new ValueMetaNumber();
+
+    assertThrows(HopValueException.class, () -> valueMeta.getNumber("1234567890"));
+  }
+
+  @Test
+  void testIsNumeric() {
     int[] numTypes = {IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER};
     for (int type : numTypes) {
-      assertTrue(Integer.toString(type), ValueMetaBase.isNumeric(type));
+      assertTrue(ValueMetaBase.isNumeric(type), Integer.toString(type));
     }
 
     int[] notNumTypes = {
@@ -416,17 +421,17 @@ public class ValueMetaBaseTest {
       IValueMeta.TYPE_STRING
     };
     for (int type : notNumTypes) {
-      assertFalse(Integer.toString(type), ValueMetaBase.isNumeric(type));
+      assertFalse(ValueMetaBase.isNumeric(type), Integer.toString(type));
     }
   }
 
   @Test
-  public void testGetAllTypes() {
+  void testGetAllTypes() {
     assertArrayEquals(ValueMetaBase.getAllTypes(), ValueMetaFactory.getAllValueMetaNames());
   }
 
   @Test
-  public void testGetTrimTypeByCode() {
+  void testGetTrimTypeByCode() {
     assertEquals(IValueMeta.TRIM_TYPE_NONE, ValueMetaBase.getTrimTypeByCode("none"));
     assertEquals(IValueMeta.TRIM_TYPE_LEFT, ValueMetaBase.getTrimTypeByCode("left"));
     assertEquals(IValueMeta.TRIM_TYPE_RIGHT, ValueMetaBase.getTrimTypeByCode("right"));
@@ -437,7 +442,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testGetTrimTypeCode() {
+  void testGetTrimTypeCode() {
     assertEquals("none", ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE));
     assertEquals("left", ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_LEFT));
     assertEquals("right", ValueMetaBase.getTrimTypeCode(IValueMeta.TRIM_TYPE_RIGHT));
@@ -445,7 +450,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testGetTrimTypeByDesc() {
+  void testGetTrimTypeByDesc() {
     assertEquals(
         IValueMeta.TRIM_TYPE_NONE,
         ValueMetaBase.getTrimTypeByDesc(BaseMessages.getString(PKG, "ValueMeta.TrimType.None")));
@@ -464,7 +469,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testGetTrimTypeDesc() {
+  void testGetTrimTypeDesc() {
     assertEquals(
         ValueMetaBase.getTrimTypeDesc(IValueMeta.TRIM_TYPE_NONE),
         BaseMessages.getString(PKG, "ValueMeta.TrimType.None"));
@@ -485,7 +490,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testOrigin() {
+  void testOrigin() {
     ValueMetaBase base = new ValueMetaBase();
     base.setOrigin("myOrigin");
     assertEquals("myOrigin", base.getOrigin());
@@ -496,7 +501,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testName() {
+  void testName() {
     ValueMetaBase base = new ValueMetaBase();
     base.setName("myName");
     assertEquals("myName", base.getName());
@@ -507,7 +512,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testLength() {
+  void testLength() {
     ValueMetaBase base = new ValueMetaBase();
     base.setLength(6);
     assertEquals(6, base.getLength());
@@ -516,7 +521,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testPrecision() {
+  void testPrecision() {
     ValueMetaBase base = new ValueMetaBase();
     base.setPrecision(6);
     assertEquals(6, base.getPrecision());
@@ -525,7 +530,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testCompareIntegers() throws HopValueException {
+  void testCompareIntegers() throws HopValueException {
     ValueMetaBase intMeta = new ValueMetaInteger("int");
     Long int1 = 6223372036854775804L;
     Long int2 = -6223372036854775804L;
@@ -561,7 +566,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testCompareIntegerToDouble() throws HopValueException {
+  void testCompareIntegerToDouble() throws HopValueException {
     IValueMeta intMeta = new ValueMetaInteger("int");
     Long int1 = 2L;
     IValueMeta numberMeta = new ValueMetaNumber("number");
@@ -570,7 +575,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testCompareDate() throws HopValueException {
+  void testCompareDate() throws HopValueException {
     IValueMeta dateMeta = new ValueMetaDate("int");
     Date date1 = new Date(6223372036854775804L);
     Date date2 = new Date(-6223372036854775804L);
@@ -580,7 +585,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testCompareDateWithStorageMask() throws HopValueException {
+  void testCompareDateWithStorageMask() throws HopValueException {
     IValueMeta storageMeta = new ValueMetaString("string");
     storageMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
     storageMeta.setConversionMask("MM/dd/yyyy HH:mm");
@@ -607,7 +612,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testCompareDateNoStorageMask() throws HopValueException {
+  void testCompareDateNoStorageMask() throws HopValueException {
     IValueMeta storageMeta = new ValueMetaString("string");
     storageMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
     storageMeta.setConversionMask(
@@ -637,7 +642,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testCompareBinary() throws HopValueException {
+  void testCompareBinary() throws HopValueException {
     IValueMeta dateMeta = new ValueMetaBinary("int");
     byte[] value1 = new byte[] {0, 1, 0, 0, 0, 1};
     byte[] value2 = new byte[] {0, 1, 0, 0, 0, 0};
@@ -647,7 +652,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testDateParsing8601() throws Exception {
+  void testDateParsing8601() throws Exception {
     ValueMetaDate dateMeta = new ValueMetaDate("date");
     dateMeta.setDateFormatLenient(false);
 
@@ -673,7 +678,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testDateToStringParse() throws Exception {
+  void testDateToStringParse() throws Exception {
     ValueMetaBase dateMeta = new ValueMetaString("date");
     dateMeta.setDateFormatLenient(false);
 
@@ -685,7 +690,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testSetPreparedStatementStringValueDontLogTruncated() throws HopDatabaseException {
+  void testSetPreparedStatementStringValueDontLogTruncated() throws HopDatabaseException {
     ValueMetaBase valueMetaString = new ValueMetaString("LOG_FIELD", LOG_FIELD.length(), 0);
 
     DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
@@ -701,8 +706,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testValueMetaBaseOnlyHasOneLogger()
-      throws NoSuchFieldException, IllegalAccessException {
+  void testValueMetaBaseOnlyHasOneLogger() throws NoSuchFieldException, IllegalAccessException {
     Field log = ValueMetaBase.class.getDeclaredField("log");
     assertTrue(Modifier.isStatic(log.getModifiers()));
     assertTrue(Modifier.isFinal(log.getModifiers()));
@@ -732,7 +736,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testGetNativeDataTypeClass() {
+  void testGetNativeDataTypeClass() {
     IValueMeta base = new ValueMetaBase();
     Class<?> clazz = null;
     try {
@@ -745,7 +749,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testConvertDataUsingConversionMetaDataForCustomMeta() {
+  void testConvertDataUsingConversionMetaDataForCustomMeta() {
     ValueMetaBase baseMeta = new ValueMetaString("CUSTOM_VALUEMETA_STRING");
     baseMeta.setConversionMetadata(new ValueMetaBase("CUSTOM", 999));
     Object customData = new Object();
@@ -760,7 +764,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testConvertDataUsingConversionMetaData() throws HopValueException {
+  void testConvertDataUsingConversionMetaData() throws HopValueException {
     ValueMetaString base = new ValueMetaString();
     double delta = 1e-15;
 
@@ -802,7 +806,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testGetCompatibleString() throws HopValueException {
+  void testGetCompatibleString() throws HopValueException {
     ValueMetaInteger valueMetaInteger = new ValueMetaInteger("INTEGER");
     valueMetaInteger.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
 
@@ -810,7 +814,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testReadDataInet() throws Exception {
+  void testReadDataInet() throws Exception {
     InetAddress localhost = InetAddress.getByName("127.0.0.1");
     byte[] address = localhost.getAddress();
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -826,7 +830,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testWriteDataInet() throws Exception {
+  void testWriteDataInet() throws Exception {
     InetAddress localhost = InetAddress.getByName("127.0.0.1");
     byte[] address = localhost.getAddress();
 
@@ -847,7 +851,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testConvertBigNumberToBoolean() {
+  void testConvertBigNumberToBoolean() {
     ValueMetaBase vmb = new ValueMetaBase();
     assertTrue(vmb.convertBigNumberToBoolean(new BigDecimal("-234")));
     assertTrue(vmb.convertBigNumberToBoolean(new BigDecimal("234")));
@@ -856,7 +860,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testGetValueFromNode() throws Exception {
+  void testGetValueFromNode() throws Exception {
 
     ValueMetaBase valueMetaBase = null;
     Node xmlNode = null;
@@ -910,15 +914,15 @@ public class ValueMetaBaseTest {
     assertNull(valueMetaBase.getValue(xmlNode));
   }
 
-  @Test(expected = HopException.class)
-  public void testGetValueUnknownType() throws Exception {
-    ValueMetaBase valueMetaBase = new ValueMetaNone("test");
-    valueMetaBase.getValue(
-        XmlHandler.loadXmlString("<value-data>not empty</value-data>").getFirstChild());
+  @Test
+  void testGetValueUnknownType() throws HopXmlException {
+    ValueMetaBase metaBase = new ValueMetaNone("test");
+    Node node = XmlHandler.loadXmlString("<value-data>not empty</value-data>").getFirstChild();
+    assertThrows(HopException.class, () -> metaBase.getValue(node));
   }
 
   @Test
-  public void testConvertStringToTimestampType() throws HopValueException {
+  void testConvertStringToTimestampType() throws HopValueException {
     String timestampStringRepresentation = "2018/04/11 16:45:15.000000000";
     Timestamp expectedTimestamp = Timestamp.valueOf("2018-04-11 16:45:15.000000000");
 
@@ -930,7 +934,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testConvertNumberToString() throws HopValueException {
+  void testConvertNumberToString() throws HopValueException {
     String expectedStringRepresentation = "123.123";
     Number numberToTest = Double.valueOf("123.123");
 
@@ -945,7 +949,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testNullHashCodes() throws Exception {
+  void testNullHashCodes() throws Exception {
     ValueMetaBase valueMetaString = new ValueMetaBase();
 
     valueMetaString.type = IValueMeta.TYPE_BOOLEAN;
@@ -980,7 +984,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testHashCodes() throws Exception {
+  void testHashCodes() throws Exception {
     ValueMetaBase valueMetaString = new ValueMetaBase();
 
     valueMetaString.type = IValueMeta.TYPE_BOOLEAN;
@@ -1027,36 +1031,35 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlCharToHopString() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlCharToHopString() throws SQLException, HopDatabaseException {
     doReturn(Types.CHAR).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isString());
   }
 
   @Test
-  public void testMetdataPreviewSqlVarcharToHopString() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlVarcharToHopString() throws SQLException, HopDatabaseException {
     doReturn(Types.VARCHAR).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isString());
   }
 
   @Test
-  public void testMetdataPreviewSqlNVarcharToHopString() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlNVarcharToHopString() throws SQLException, HopDatabaseException {
     doReturn(Types.NVARCHAR).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isString());
   }
 
   @Test
-  public void testMetdataPreviewSqlLongVarcharToHopString()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlLongVarcharToHopString() throws SQLException, HopDatabaseException {
     doReturn(Types.LONGVARCHAR).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isString());
   }
 
   @Test
-  public void testMetdataPreviewSqlClobToHopString() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlClobToHopString() throws SQLException, HopDatabaseException {
     doReturn(Types.CLOB).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isString());
@@ -1065,7 +1068,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlNClobToHopString() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlNClobToHopString() throws SQLException, HopDatabaseException {
     doReturn(Types.NCLOB).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isString());
@@ -1074,7 +1077,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlBigIntToHopInteger() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBigIntToHopInteger() throws SQLException, HopDatabaseException {
     doReturn(Types.BIGINT).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isInteger());
@@ -1083,7 +1086,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlIntegerToHopInteger() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlIntegerToHopInteger() throws SQLException, HopDatabaseException {
     doReturn(Types.INTEGER).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isInteger());
@@ -1092,8 +1095,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlSmallIntToHopInteger()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlSmallIntToHopInteger() throws SQLException, HopDatabaseException {
     doReturn(Types.SMALLINT).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isInteger());
@@ -1102,7 +1104,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlTinyIntToHopInteger() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlTinyIntToHopInteger() throws SQLException, HopDatabaseException {
     doReturn(Types.TINYINT).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isInteger());
@@ -1111,8 +1113,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDecimalToHopBigNumber()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlDecimalToHopBigNumber() throws SQLException, HopDatabaseException {
     doReturn(Types.DECIMAL).when(resultSet).getInt("DATA_TYPE");
     doReturn(20).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
@@ -1133,7 +1134,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDecimalToHopInteger() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlDecimalToHopInteger() throws SQLException, HopDatabaseException {
     doReturn(Types.DECIMAL).when(resultSet).getInt("DATA_TYPE");
     doReturn(2).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
@@ -1145,7 +1146,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleToHopNumber() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlDoubleToHopNumber() throws SQLException, HopDatabaseException {
     doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
     doReturn(3).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
@@ -1157,8 +1158,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleWithoutDecimalDigits()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlDoubleWithoutDecimalDigits() throws SQLException, HopDatabaseException {
     doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
     doReturn(3).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
@@ -1170,8 +1170,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleToHopBigNumber()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlDoubleToHopBigNumber() throws SQLException, HopDatabaseException {
     doReturn(Types.DOUBLE).when(resultSet).getInt("DATA_TYPE");
     doReturn(20).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
@@ -1183,7 +1182,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlFloatToHopNumber() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlFloatToHopNumber() throws SQLException, HopDatabaseException {
     doReturn(Types.FLOAT).when(resultSet).getInt("DATA_TYPE");
     doReturn(3).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
@@ -1195,7 +1194,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlRealToHopNumber() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlRealToHopNumber() throws SQLException, HopDatabaseException {
     doReturn(Types.REAL).when(resultSet).getInt("DATA_TYPE");
     doReturn(3).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
@@ -1207,8 +1206,7 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewUnsupportedSqlTimestamp()
-      throws SQLException, HopDatabaseException {
+  void testMetdataPreviewUnsupportedSqlTimestamp() throws SQLException, HopDatabaseException {
     doReturn(Types.TIMESTAMP).when(resultSet).getInt("DATA_TYPE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
     doReturn(19).when(resultSet).getInt("DECIMAL_DIGITS");
@@ -1218,21 +1216,21 @@ public class ValueMetaBaseTest {
   }
 
   @Test
-  public void testMetdataPreviewSqlTimeToHopDate() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlTimeToHopDate() throws SQLException, HopDatabaseException {
     doReturn(Types.TIME).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isDate());
   }
 
   @Test
-  public void testMetdataPreviewSqlBooleanToHopBoolean() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBooleanToHopBoolean() throws SQLException, HopDatabaseException {
     doReturn(Types.BOOLEAN).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBoolean());
   }
 
   @Test
-  public void testMetdataPreviewSqlBitToHopBoolean() throws SQLException, HopDatabaseException {
+  void testMetdataPreviewSqlBitToHopBoolean() throws SQLException, HopDatabaseException {
     doReturn(Types.BIT).when(resultSet).getInt("DATA_TYPE");
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBoolean());

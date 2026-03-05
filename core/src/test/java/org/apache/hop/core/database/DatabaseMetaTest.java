@@ -17,10 +17,10 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -48,32 +48,32 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class DatabaseMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class DatabaseMetaTest {
+
   private static final String TABLE_NAME = "tableName";
   private static final String DROP_STATEMENT = "dropStatement";
-  private static final String DROP_STATEMENT_FALLBACK = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
   private DatabaseMeta databaseMeta;
   private IDatabase iDatabase;
   private IVariables variables;
 
-  @BeforeClass
-  public static void setUpOnce() throws HopException {
+  @BeforeAll
+  static void setUpOnce() throws HopException {
     // Register Natives to create a default DatabaseMeta
     DatabasePluginType.getInstance().searchPlugins();
     ValueMetaPluginType.getInstance().searchPlugins();
     HopClientEnvironment.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     databaseMeta = new DatabaseMeta();
     iDatabase = mock(IDatabase.class);
     databaseMeta.setIDatabase(iDatabase);
@@ -81,7 +81,7 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testGetDatabaseInterfacesMapWontReturnNullIfCalledSimultaneouslyWithClear()
+  void testGetDatabaseInterfacesMapWontReturnNullIfCalledSimultaneouslyWithClear()
       throws InterruptedException, ExecutionException {
     final AtomicBoolean done = new AtomicBoolean(false);
     ExecutorService executorService = Executors.newCachedThreadPool();
@@ -96,7 +96,7 @@ public class DatabaseMetaTest {
             () -> {
               int i = 0;
               while (!done.get()) {
-                assertNotNull("Got null on try: " + i++, DatabaseMeta.getIDatabaseMap());
+                assertNotNull(DatabaseMeta.getIDatabaseMap(), "Got null on try: " + i++);
                 if (i > 30000) {
                   done.set(true);
                 }
@@ -107,7 +107,7 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testApplyingDefaultOptions() {
+  void testApplyingDefaultOptions() {
     HashMap<String, String> existingOptions = new HashMap<>();
     existingOptions.put("type1.extra", "extraValue");
     existingOptions.put("type1.existing", "existingValue");
@@ -126,14 +126,14 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testGetFeatureSummary() {
-    DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
+  void testGetFeatureSummary() {
+    DatabaseMeta meta = mock(DatabaseMeta.class);
     NoneDatabaseMeta odbm = new NoneDatabaseMeta();
-    doCallRealMethod().when(databaseMeta).setIDatabase(any(IDatabase.class));
-    doCallRealMethod().when(databaseMeta).getFeatureSummary(variables);
-    doCallRealMethod().when(databaseMeta).getAttributes();
-    databaseMeta.setIDatabase(odbm);
-    List<RowMetaAndData> result = databaseMeta.getFeatureSummary(variables);
+    doCallRealMethod().when(meta).setIDatabase(any(IDatabase.class));
+    doCallRealMethod().when(meta).getFeatureSummary(variables);
+    doCallRealMethod().when(meta).getAttributes();
+    meta.setIDatabase(odbm);
+    List<RowMetaAndData> result = meta.getFeatureSummary(variables);
     assertNotNull(result);
     for (RowMetaAndData rmd : result) {
       assertEquals(2, rmd.getRowMeta().size());
@@ -145,16 +145,16 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testQuoteReservedWords() {
-    DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
-    doCallRealMethod().when(databaseMeta).quoteReservedWords(any(IRowMeta.class));
-    doCallRealMethod().when(databaseMeta).quoteField(anyString());
-    doCallRealMethod().when(databaseMeta).setIDatabase(any(IDatabase.class));
-    doReturn("\"").when(databaseMeta).getStartQuote();
-    doReturn("\"").when(databaseMeta).getEndQuote();
-    final IDatabase iDatabase = mock(IDatabase.class);
-    doReturn(true).when(iDatabase).isQuoteAllFields();
-    databaseMeta.setIDatabase(iDatabase);
+  void testQuoteReservedWords() {
+    DatabaseMeta meta = mock(DatabaseMeta.class);
+    doCallRealMethod().when(meta).quoteReservedWords(any(IRowMeta.class));
+    doCallRealMethod().when(meta).quoteField(anyString());
+    doCallRealMethod().when(meta).setIDatabase(any(IDatabase.class));
+    doReturn("\"").when(meta).getStartQuote();
+    doReturn("\"").when(meta).getEndQuote();
+    final IDatabase database = mock(IDatabase.class);
+    doReturn(true).when(database).isQuoteAllFields();
+    meta.setIDatabase(database);
 
     final RowMeta fields = new RowMeta();
     for (int i = 0; i < 10; i++) {
@@ -163,11 +163,11 @@ public class DatabaseMetaTest {
     }
 
     for (int i = 0; i < 10; i++) {
-      databaseMeta.quoteReservedWords(fields);
+      meta.quoteReservedWords(fields);
     }
 
     for (int i = 0; i < 10; i++) {
-      databaseMeta.quoteReservedWords(fields);
+      meta.quoteReservedWords(fields);
       final String name = fields.getValueMeta(i).getName();
       // check valueMeta index in list
       assertTrue(name.contains("test_" + i));
@@ -177,17 +177,18 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testModifyingName() {
-    DatabaseMeta databaseMeta = mock(DatabaseMeta.class);
+  @SuppressWarnings("unchecked")
+  void testModifyingName() {
+    DatabaseMeta meta = mock(DatabaseMeta.class);
     NoneDatabaseMeta odbm = new NoneDatabaseMeta();
-    doCallRealMethod().when(databaseMeta).setIDatabase(any(IDatabase.class));
-    doCallRealMethod().when(databaseMeta).setName(anyString());
-    doCallRealMethod().when(databaseMeta).getName();
-    databaseMeta.setIDatabase(odbm);
-    databaseMeta.setName("test");
+    doCallRealMethod().when(meta).setIDatabase(any(IDatabase.class));
+    doCallRealMethod().when(meta).setName(anyString());
+    doCallRealMethod().when(meta).getName();
+    meta.setIDatabase(odbm);
+    meta.setName("test");
 
     List<DatabaseMeta> list = new ArrayList<>();
-    list.add(databaseMeta);
+    list.add(meta);
 
     DatabaseMeta databaseMeta2 = mock(DatabaseMeta.class);
     NoneDatabaseMeta odbm2 = new NoneDatabaseMeta();
@@ -200,26 +201,26 @@ public class DatabaseMetaTest {
 
     databaseMeta2.verifyAndModifyDatabaseName(list, null);
 
-    assertNotEquals(databaseMeta.getName(), databaseMeta2.getName());
+    assertNotEquals(meta.getName(), databaseMeta2.getName());
   }
 
   @Test
-  public void indexOfName_NullArray() {
+  void indexOfName_NullArray() {
     assertEquals(-1, DatabaseMeta.indexOfName(null, ""));
   }
 
   @Test
-  public void indexOfName_NullName() {
+  void indexOfName_NullName() {
     assertEquals(-1, DatabaseMeta.indexOfName(new String[] {"1"}, null));
   }
 
   @Test
-  public void indexOfName_ExactMatch() {
+  void indexOfName_ExactMatch() {
     assertEquals(1, DatabaseMeta.indexOfName(new String[] {"a", "b", "c"}, "b"));
   }
 
   @Test
-  public void indexOfName_NonExactMatch() {
+  void indexOfName_NonExactMatch() {
     assertEquals(1, DatabaseMeta.indexOfName(new String[] {"a", "b", "c"}, "B"));
   }
 
@@ -229,7 +230,7 @@ public class DatabaseMetaTest {
    * new method of {@link IDatabase} should be used.
    */
   @Test
-  public void shouldCallNewMethodWhenDatabaseInterfaceIsOfANewType() {
+  void shouldCallNewMethodWhenDatabaseInterfaceIsOfANewType() {
     IDatabase databaseInterfaceNew = mock(IDatabase.class);
     databaseMeta.setIDatabase(databaseInterfaceNew);
     when(databaseInterfaceNew.getDropTableIfExistsStatement(TABLE_NAME)).thenReturn(DROP_STATEMENT);
@@ -240,12 +241,12 @@ public class DatabaseMetaTest {
   }
 
   @Test
-  public void testCheckParameters() {
+  void testCheckParameters() {
     DatabaseMeta meta = mock(DatabaseMeta.class);
-    BaseDatabaseMeta iDatabase = mock(BaseDatabaseMeta.class);
-    when(iDatabase.isRequiresName()).thenReturn(true);
-    when(iDatabase.getManualUrl()).thenReturn("");
-    when(meta.getIDatabase()).thenReturn(iDatabase);
+    BaseDatabaseMeta baseMeta = mock(BaseDatabaseMeta.class);
+    when(baseMeta.isRequiresName()).thenReturn(true);
+    when(baseMeta.getManualUrl()).thenReturn("");
+    when(meta.getIDatabase()).thenReturn(baseMeta);
     when(meta.getName()).thenReturn(null);
     when(meta.checkParameters()).thenCallRealMethod();
     assertEquals(2, meta.checkParameters().length);

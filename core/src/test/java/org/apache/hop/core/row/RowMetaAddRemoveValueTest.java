@@ -17,30 +17,29 @@
 
 package org.apache.hop.core.row;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class RowMetaAddRemoveValueTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class RowMetaAddRemoveValueTest {
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
+  @BeforeAll
+  static void setUpClass() throws Exception {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testAddRemoveValue() throws Exception {
-
+  void testAddRemoveValue() throws Exception {
     IRowMeta rowMeta = new RowMeta();
 
     // Add values
-
     IValueMeta a = ValueMetaFactory.createValueMeta("a", IValueMeta.TYPE_STRING);
     rowMeta.addValueMeta(a);
     assertEquals(1, rowMeta.size());
@@ -74,6 +73,10 @@ public class RowMetaAddRemoveValueTest {
     assertEquals(3, rowMeta.indexOfValue("b"));
     assertEquals(4, rowMeta.indexOfValue("c"));
 
+    testAddRemoveValue_remove(rowMeta);
+  }
+
+  private void testAddRemoveValue_remove(IRowMeta rowMeta) throws HopValueException {
     // Remove values in reverse order
     rowMeta.removeValueMeta("e");
     assertEquals(4, rowMeta.size());
@@ -102,12 +105,10 @@ public class RowMetaAddRemoveValueTest {
   }
 
   @Test
-  public void testAddRemoveRenameValue() throws Exception {
-
+  void testAddRemoveRenameValue() throws Exception {
     IRowMeta rowMeta = new RowMeta();
 
     // Add values
-
     IValueMeta a = ValueMetaFactory.createValueMeta("a", IValueMeta.TYPE_STRING);
     rowMeta.addValueMeta(a);
     assertEquals(1, rowMeta.size());
@@ -141,6 +142,10 @@ public class RowMetaAddRemoveValueTest {
     assertEquals(3, rowMeta.indexOfValue("a_1"));
     assertEquals(4, rowMeta.indexOfValue("a_2"));
 
+    testAddRemoveRenameValue_remove(rowMeta);
+  }
+
+  private void testAddRemoveRenameValue_remove(IRowMeta rowMeta) throws HopValueException {
     // Remove values in reverse order
     rowMeta.removeValueMeta("a_4");
     assertEquals(4, rowMeta.size());
@@ -169,12 +174,9 @@ public class RowMetaAddRemoveValueTest {
   }
 
   @Test
-  public void testAddRemoveValueCaseInsensitive() throws Exception {
-
+  void testAddRemoveValueCaseInsensitive() throws Exception {
     IRowMeta rowMeta = new RowMeta();
-
     // Add values
-
     IValueMeta a = ValueMetaFactory.createValueMeta("A", IValueMeta.TYPE_STRING);
     rowMeta.addValueMeta(a);
     assertEquals(1, rowMeta.size());
@@ -208,6 +210,10 @@ public class RowMetaAddRemoveValueTest {
     assertEquals(3, rowMeta.indexOfValue("b"));
     assertEquals(4, rowMeta.indexOfValue("c"));
 
+    testAddRemoveValueCaseInsensitive_remove(rowMeta);
+  }
+
+  private void testAddRemoveValueCaseInsensitive_remove(IRowMeta rowMeta) throws HopValueException {
     // Remove values in reverse order
     rowMeta.removeValueMeta("e");
     assertEquals(4, rowMeta.size());

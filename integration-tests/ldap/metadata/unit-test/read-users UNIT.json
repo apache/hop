@@ -1,0 +1,53 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Unit test for read-users pipeline",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "dn",
+          "data_set_field": "dn"
+        },
+        {
+          "transform_field": "cn",
+          "data_set_field": "cn"
+        },
+        {
+          "transform_field": "sn",
+          "data_set_field": "sn"
+        },
+        {
+          "transform_field": "uid",
+          "data_set_field": "uid"
+        },
+        {
+          "transform_field": "mail",
+          "data_set_field": "mail"
+        },
+        {
+          "transform_field": "telephoneNumber",
+          "data_set_field": "telephoneNumber"
+        }
+      ],
+      "field_order": [
+        "dn",
+        "cn",
+        "sn",
+        "uid",
+        "mail",
+        "telephoneNumber"
+      ],
+      "data_set_name": "golden-read-users",
+      "transform_name": "Preview"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "read-users UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./input/read-users.hpl"
+}

@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.row.value;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -27,31 +28,29 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ValueMetaBaseSetPreparedStmntValueTest {
-
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueMetaBaseSetPreparedStmntValueTest {
   private DatabaseMeta dbMeta;
   private PreparedStatement ps;
   private Date date;
   private Timestamp ts;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     dbMeta = mock(DatabaseMeta.class);
     IDatabase iDb = mock(BaseDatabaseMeta.class);
     when(dbMeta.supportsTimeStampToDateConversion()).thenReturn(true);
@@ -62,17 +61,18 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
   }
 
   @Test
-  public void testXMLParsingWithNoDataFormatLocale() throws IOException {
+  void testXMLParsingWithNoDataFormatLocale() throws IOException {
     IValueMeta r1 = new ValueMetaString("value");
     r1.setDateFormatLocale(null);
     IRowMeta row = new RowMeta();
-    row.setValueMetaList(new ArrayList<>(Arrays.asList(r1)));
+    row.setValueMetaList(new ArrayList<>(List.of(r1)));
 
-    row.getMetaXml();
+    String metaXml = row.getMetaXml();
+    assertNotNull(metaXml);
   }
 
   @Test
-  public void testDateRegular() throws Exception {
+  void testDateRegular() throws Exception {
 
     ValueMetaBase valueMeta = new ValueMetaDate("");
     valueMeta.setPrecision(1);
@@ -82,7 +82,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
   }
 
   @Test
-  public void testTimestampRegular() throws Exception {
+  void testTimestampRegular() throws Exception {
 
     ValueMetaBase valueMeta = new ValueMetaDate("");
     valueMeta.setPreparedStatementValue(dbMeta, ps, 1, ts);
@@ -91,7 +91,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
   }
 
   @Test
-  public void testConvertedTimestampRegular() throws Exception {
+  void testConvertedTimestampRegular() throws Exception {
 
     ValueMetaBase valueMeta = new ValueMetaDate("");
     valueMeta.setPreparedStatementValue(dbMeta, ps, 1, date);

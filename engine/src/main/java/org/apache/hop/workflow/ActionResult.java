@@ -48,6 +48,12 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
 
   private boolean checkpoint;
 
+  /** Bytes read by this action (per-action, not cumulative). */
+  private long bytesRead;
+
+  /** Bytes written by this action (per-action, not cumulative). */
+  private long bytesWritten;
+
   /** Creates a new empty action result... */
   public ActionResult() {
     logDate = new Date();
@@ -61,6 +67,24 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
       String reason,
       String actionName,
       String actionFilename) {
+    this(result, logChannelId, comment, reason, actionName, actionFilename, 0L, 0L);
+  }
+
+  /**
+   * Creates a new action result with per-action bytes read/written.
+   *
+   * @param bytesRead bytes read by this action only
+   * @param bytesWritten bytes written by this action only
+   */
+  public ActionResult(
+      Result result,
+      String logChannelId,
+      String comment,
+      String reason,
+      String actionName,
+      String actionFilename,
+      long bytesRead,
+      long bytesWritten) {
     this();
     if (result != null) {
       // lightClone doesn't bother cloning all the rows.
@@ -74,6 +98,8 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     this.reason = reason;
     this.actionName = actionName;
     this.actionFilename = actionFilename;
+    this.bytesRead = bytesRead;
+    this.bytesWritten = bytesWritten;
   }
 
   @Override
@@ -130,6 +156,8 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     }
     ActionResult that = (ActionResult) o;
     return checkpoint == that.checkpoint
+        && bytesRead == that.bytesRead
+        && bytesWritten == that.bytesWritten
         && java.util.Objects.equals(result, that.result)
         && java.util.Objects.equals(actionName, that.actionName)
         && java.util.Objects.equals(comment, that.comment)
@@ -142,6 +170,15 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
   @Override
   public int hashCode() {
     return java.util.Objects.hash(
-        result, actionName, comment, reason, logDate, actionFilename, logChannelId, checkpoint);
+        result,
+        actionName,
+        comment,
+        reason,
+        logDate,
+        actionFilename,
+        logChannelId,
+        checkpoint,
+        bytesRead,
+        bytesWritten);
   }
 }

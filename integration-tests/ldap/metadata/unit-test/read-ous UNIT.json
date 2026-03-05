@@ -1,0 +1,38 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Unit test for read-ous pipeline",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "dn",
+          "data_set_field": "dn"
+        },
+        {
+          "transform_field": "objectClass",
+          "data_set_field": "objectClass"
+        },
+        {
+          "transform_field": "ou",
+          "data_set_field": "ou"
+        }
+      ],
+      "field_order": [
+        "dn",
+        "objectClass",
+        "ou"
+      ],
+      "data_set_name": "golden-read-ous",
+      "transform_name": "Preview"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "read-ous UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./input/read-ous.hpl"
+}

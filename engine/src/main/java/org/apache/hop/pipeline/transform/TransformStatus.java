@@ -51,6 +51,16 @@ public class TransformStatus {
   @Getter @Setter private long linesOutput;
   @Setter @Getter private long linesUpdated;
   @Setter @Getter private long linesRejected;
+
+  /** Data volume: row-based estimate from getRow. */
+  @Setter @Getter private Long dataVolume;
+
+  /** Data volume in: bytes from InputStream (input transforms only). */
+  @Setter @Getter private Long dataVolumeIn;
+
+  /** Data volume out: bytes from OutputStream (output transforms only). */
+  @Setter @Getter private Long dataVolumeOut;
+
   @Setter @Getter private long inputBufferSize;
   @Setter @Getter private long outputBufferSize;
   @Setter @Getter private long errors;
@@ -87,6 +97,18 @@ public class TransformStatus {
     this.linesOutput = linesOutput + component.getLinesOutput();
     this.linesUpdated = linesUpdated + component.getLinesUpdated();
     this.linesRejected = linesRejected + component.getLinesRejected();
+    if (component.getDataVolume() != null) {
+      this.dataVolume =
+          (this.dataVolume != null ? this.dataVolume : 0L) + component.getDataVolume();
+    }
+    if (component.getDataVolumeIn() != null) {
+      this.dataVolumeIn =
+          (this.dataVolumeIn != null ? this.dataVolumeIn : 0L) + component.getDataVolumeIn();
+    }
+    if (component.getDataVolumeOut() != null) {
+      this.dataVolumeOut =
+          (this.dataVolumeOut != null ? this.dataVolumeOut : 0L) + component.getDataVolumeOut();
+    }
     this.errors = errors + component.getErrors();
     this.accumulatedRuntime = accumulatedRuntime + component.getExecutionDuration();
     this.statusDescription = component.getStatusDescription();
@@ -179,6 +201,15 @@ public class TransformStatus {
       xml.append(XmlHandler.addTagValue("linesOutput", linesOutput, false));
       xml.append(XmlHandler.addTagValue("linesUpdated", linesUpdated, false));
       xml.append(XmlHandler.addTagValue("linesRejected", linesRejected, false));
+      if (dataVolume != null) {
+        xml.append(XmlHandler.addTagValue("dataVolume", dataVolume, false));
+      }
+      if (dataVolumeIn != null) {
+        xml.append(XmlHandler.addTagValue("dataVolumeIn", dataVolumeIn, false));
+      }
+      if (dataVolumeOut != null) {
+        xml.append(XmlHandler.addTagValue("dataVolumeOut", dataVolumeOut, false));
+      }
       xml.append(XmlHandler.addTagValue("errors", errors, false));
       xml.append(XmlHandler.addTagValue("input_buffer_size", inputBufferSize, false));
       xml.append(XmlHandler.addTagValue("output_buffer_size", outputBufferSize, false));
@@ -224,6 +255,30 @@ public class TransformStatus {
     linesOutput = Long.parseLong(XmlHandler.getTagValue(node, "linesOutput"));
     linesUpdated = Long.parseLong(XmlHandler.getTagValue(node, "linesUpdated"));
     linesRejected = Long.parseLong(XmlHandler.getTagValue(node, "linesRejected"));
+    String dataVolumeStr = XmlHandler.getTagValue(node, "dataVolume");
+    if (dataVolumeStr == null || dataVolumeStr.isEmpty()) {
+      dataVolumeStr = XmlHandler.getTagValue(node, "dataVolumeIn");
+    }
+    dataVolume =
+        (dataVolumeStr != null && !dataVolumeStr.isEmpty()) ? Long.parseLong(dataVolumeStr) : null;
+    // New XML: dataVolumeIn tag = stream. Old XML: dataVolumeIn tag = row-based, so use volumeIn
+    // for stream
+    String dataVolumeInStr =
+        (dataVolumeStr != null && !dataVolumeStr.isEmpty())
+            ? XmlHandler.getTagValue(node, "dataVolumeIn")
+            : XmlHandler.getTagValue(node, "volumeIn");
+    dataVolumeIn =
+        (dataVolumeInStr != null && !dataVolumeInStr.isEmpty())
+            ? Long.parseLong(dataVolumeInStr)
+            : null;
+    String dataVolumeOutStr = XmlHandler.getTagValue(node, "dataVolumeOut");
+    if (dataVolumeOutStr == null || dataVolumeOutStr.isEmpty()) {
+      dataVolumeOutStr = XmlHandler.getTagValue(node, "volumeOut");
+    }
+    dataVolumeOut =
+        (dataVolumeOutStr != null && !dataVolumeOutStr.isEmpty())
+            ? Long.parseLong(dataVolumeOutStr)
+            : null;
     errors = Long.parseLong(XmlHandler.getTagValue(node, "errors"));
     inputBufferSize = Long.parseLong(XmlHandler.getTagValue(node, "input_buffer_size"));
     outputBufferSize = Long.parseLong(XmlHandler.getTagValue(node, "output_buffer_size"));

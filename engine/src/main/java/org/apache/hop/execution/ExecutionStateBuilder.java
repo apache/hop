@@ -118,6 +118,9 @@ public final class ExecutionStateBuilder {
         addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_UPDATED);
         addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_BUFFER_IN);
         addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_BUFFER_OUT);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_DATA_VOLUME);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_DATA_VOLUME_IN);
+        addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_DATA_VOLUME_OUT);
 
         builder.addMetrics(componentMetrics);
       }

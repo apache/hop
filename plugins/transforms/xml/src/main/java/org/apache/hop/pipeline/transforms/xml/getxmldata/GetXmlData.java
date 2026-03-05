@@ -32,6 +32,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -175,7 +176,14 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         // read string to parse
         data.document = reader.read(new StringReader(stringXML));
       } else if (readurl && HopVfs.startsWithScheme(stringXML, variables)) {
-        data.document = reader.read(HopVfs.getInputStream(stringXML, variables));
+        CountingInputStream countingIs =
+            new CountingInputStream(HopVfs.getInputStream(stringXML, variables));
+        try {
+          data.document = reader.read(countingIs);
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIs.getCount();
+        } finally {
+          BaseTransform.closeQuietly(countingIs);
+        }
       } else if (readurl) {
         // read url as source
         HttpClient client = HttpClientManager.getInstance().createDefaultClient();
@@ -203,10 +211,12 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
           encoding = meta.getEncoding();
         }
         InputStream is = HopVfs.getInputStream(file);
+        CountingInputStream countingIs = new CountingInputStream(is);
         try {
-          data.document = reader.read(is, encoding);
+          data.document = reader.read(countingIs, encoding);
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIs.getCount();
         } finally {
-          BaseTransform.closeQuietly(is);
+          BaseTransform.closeQuietly(countingIs);
         }
       }
 

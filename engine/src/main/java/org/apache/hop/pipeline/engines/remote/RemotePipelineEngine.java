@@ -552,6 +552,12 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
           engineMetrics.setComponentMetric(
               component, Pipeline.METRIC_ERROR, transformStatus.getErrors());
           engineMetrics.setComponentMetric(
+              component, Pipeline.METRIC_DATA_VOLUME, transformStatus.getDataVolume());
+          engineMetrics.setComponentMetric(
+              component, Pipeline.METRIC_DATA_VOLUME_IN, transformStatus.getDataVolumeIn());
+          engineMetrics.setComponentMetric(
+              component, Pipeline.METRIC_DATA_VOLUME_OUT, transformStatus.getDataVolumeOut());
+          engineMetrics.setComponentMetric(
               component, Pipeline.METRIC_BUFFER_IN, transformStatus.getInputBufferSize());
           engineMetrics.setComponentMetric(
               component, Pipeline.METRIC_BUFFER_OUT, transformStatus.getOutputBufferSize());

@@ -34,6 +34,8 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.io.CountingInputStream;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -354,6 +356,8 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
     BufferedOutputStream buff = null;
     ZipOutputStream out = null;
     InputStream in = null;
+    CountingInputStream countingIn = null;
+    CountingOutputStream countingOut = null;
     ZipInputStream zin = null;
     ZipEntry entry = null;
     File tempFile = null;
@@ -377,7 +381,9 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
 
       // Prepare Zip File
       buffer = new byte[18024];
-      dest = HopVfs.getOutputStream(localrealZipfilename, false, variables);
+      countingOut =
+          new CountingOutputStream(HopVfs.getOutputStream(localrealZipfilename, false, variables));
+      dest = countingOut;
       buff = new BufferedOutputStream(dest);
       out = new ZipOutputStream(buff);
 
@@ -416,7 +422,8 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
       out.setLevel(Deflater.BEST_COMPRESSION);
 
       // Associate a file input stream for the current file
-      in = HopVfs.getInputStream(data.sourceFile);
+      countingIn = new CountingInputStream(HopVfs.getInputStream(data.sourceFile));
+      in = countingIn;
 
       // Add ZIP entry to output stream.
       //
@@ -448,11 +455,17 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
           // Close the current file input stream
           in.close();
         }
+        if (countingIn != null) {
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIn.getCount();
+        }
         if (out != null) {
           // Close the ZipOutPutStream
           out.flush();
           out.closeEntry();
           out.close();
+        }
+        if (countingOut != null) {
+          dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + countingOut.getCount();
         }
         if (buff != null) {
           buff.close();

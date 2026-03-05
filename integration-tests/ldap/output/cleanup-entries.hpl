@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>cleanup-entries</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>LDAP Output: Cleanup - Delete all entries under People OU</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/02/16 12:00:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/02/16 12:00:00.000</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>LDAP Find All Entries</from>
+      <to>Filter OU</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Calculate Length</from>
+      <to>Sort Descending</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sort Descending</from>
+      <to>LDAP Delete Entries</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter OU</from>
+      <to>Calculate Length</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Calculate Length</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <calculation>
+      <calc_type>STRING_LEN</calc_type>
+      <field_a>dn</field_a>
+      <field_name>dn_length</field_name>
+      <remove>N</remove>
+      <value_length>10</value_length>
+      <value_precision>0</value_precision>
+      <value_type>Integer</value_type>
+    </calculation>
+    <failIfNoFile>Y</failIfNoFile>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter OU</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>&lt;></function>
+        <leftvalue>dn</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <name>constant</name>
+          <precision>-1</precision>
+          <text>ou=People,dc=hop,dc=apache,dc=org</text>
+          <type>String</type>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>336</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>LDAP Delete Entries</name>
+    <type>LDAPOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <deleteRDN>Y</deleteRDN>
+    <derefAliasesType>always</derefAliasesType>
+    <dnFieldName>dn</dnFieldName>
+    <failIfNotExist>N</failIfNotExist>
+    <fields>
+</fields>
+    <host>${LDAP_HOST}</host>
+    <multivaluedseparator>;</multivaluedseparator>
+    <newDnFieldName/>
+    <oldDnFieldName/>
+    <operationType>delete</operationType>
+    <password>${LDAP_PASSWORD}</password>
+    <port>${LDAP_PORT}</port>
+    <protocol>LDAP</protocol>
+    <referralType>follow</referralType>
+    <searchBase/>
+    <trustAllCertificates>N</trustAllCertificates>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <trustStorePath/>
+    <useCertificate>N</useCertificate>
+    <useauthentication>Y</useauthentication>
+    <username>${LDAP_USERNAME}</username>
+    <attributes/>
+    <GUI>
+      <xloc>1008</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>LDAP Find All Entries</name>
+    <type>LDAPInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <dynamicfilter>N</dynamicfilter>
+    <dynamicfilterfieldname/>
+    <dynamicseachfieldname/>
+    <dynamicsearch>N</dynamicsearch>
+    <fields>
+      <field>
+        <attribute>dn</attribute>
+        <attribute_fetch_as>string</attribute_fetch_as>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>dn</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <sorted_key>N</sorted_key>
+        <trim_type>none</trim_type>
+        <type>String</type>
+      </field>
+    </fields>
+    <filterstring>objectClass=*</filterstring>
+    <host>${LDAP_HOST}</host>
+    <limit>0</limit>
+    <multivaluedseparator>;</multivaluedseparator>
+    <pagesize>1000</pagesize>
+    <password>${LDAP_PASSWORD}</password>
+    <port>${LDAP_PORT}</port>
+    <protocol>LDAP</protocol>
+    <rownum>N</rownum>
+    <rownum_field/>
+    <searchScope>subtree</searchScope>
+    <searchbase>ou=People,dc=hop,dc=apache,dc=org</searchbase>
+    <timelimit>0</timelimit>
+    <trustAllCertificates>N</trustAllCertificates>
+    <trustStorePassword>Encrypted </trustStorePassword>
+    <trustStorePath/>
+    <useCertificate>N</useCertificate>
+    <useauthentication>Y</useauthentication>
+    <usepaging>N</usepaging>
+    <username>${LDAP_USERNAME}</username>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Sort Descending</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compress>N</compress>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <ascending>N</ascending>
+        <case_sensitive>Y</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>dn_length</name>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <free_memory>25</free_memory>
+    <sort_size>100000</sort_size>
+    <unique_rows>N</unique_rows>
+    <attributes/>
+    <GUI>
+      <xloc>784</xloc>
+      <yloc>112</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+    <error>
+      <source_transform>LDAP Delete Entries</source_transform>
+      <target_transform/>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename>nb_errors</nr_valuename>
+      <descriptions_valuename>error_description</descriptions_valuename>
+      <fields_valuename>error_fields</fields_valuename>
+      <codes_valuename>error_codes</codes_valuename>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+    <error>
+      <source_transform>LDAP Find All Entries</source_transform>
+      <target_transform/>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename/>
+      <descriptions_valuename/>
+      <fields_valuename/>
+      <codes_valuename/>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

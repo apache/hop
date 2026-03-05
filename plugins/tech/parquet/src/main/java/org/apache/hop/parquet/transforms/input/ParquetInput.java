@@ -107,6 +107,7 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
       }
 
       long size = fileObject.getContent().getSize();
+      dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + size;
       data.inputStream = HopVfs.getInputStream(fileObject);
 
       // Reads the whole file into memory...

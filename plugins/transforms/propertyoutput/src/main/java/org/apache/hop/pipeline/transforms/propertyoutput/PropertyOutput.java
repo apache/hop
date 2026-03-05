@@ -23,6 +23,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -251,8 +252,11 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
       return true;
     }
     boolean retval = false;
-    try (OutputStream propsFile = HopVfs.getOutputStream(data.file, false)) {
+    try (OutputStream raw = HopVfs.getOutputStream(data.file, false);
+        CountingOutputStream propsFile = new CountingOutputStream(raw)) {
       data.pro.store(propsFile, resolve(meta.getComment()));
+
+      dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + propsFile.getCount();
 
       if (meta.isAddToResult()) {
         // Add this to the result file names...

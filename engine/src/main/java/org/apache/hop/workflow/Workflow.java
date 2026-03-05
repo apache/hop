@@ -790,6 +790,14 @@ public abstract class Workflow extends Variables
 
       // Save this result as well...
       //
+      long actionBytesRead = 0;
+      long actionBytesWritten = 0;
+      if (Const.toBoolean(getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"))) {
+        actionBytesRead = newResult.getBytesReadThisAction();
+        actionBytesWritten = newResult.getBytesWrittenThisAction();
+        newResult.setBytesReadThisAction(0);
+        newResult.setBytesWrittenThisAction(0);
+      }
       ActionResult jerAfter =
           new ActionResult(
               newResult,
@@ -797,7 +805,9 @@ public abstract class Workflow extends Variables
               BaseMessages.getString(PKG, CONST_ACTION_FINISHED),
               null,
               actionMeta.getName(),
-              resolve(actionMeta.getAction().getFilename()));
+              resolve(actionMeta.getAction().getFilename()),
+              actionBytesRead,
+              actionBytesWritten);
       workflowTracker.addWorkflowTracker(new WorkflowTracker(workflowMeta, jerAfter));
       synchronized (actionResults) {
         actionResults.add(jerAfter);

@@ -24,14 +24,13 @@ import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogMessage;
 import org.apache.hop.core.logging.LoggingBuffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LoggingBufferConcurrencyTest {
-
+class LoggingBufferConcurrencyTest {
   private LoggingBuffer buffer;
 
   @Test
-  public void shouldNotFailProcessingEventsUnderHighContention() throws Exception {
+  void shouldNotFailProcessingEventsUnderHighContention() throws Exception {
     int modifiersAmount = 100;
     int readersAmount = 100;
 

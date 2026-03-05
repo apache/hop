@@ -37,6 +37,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -266,11 +267,8 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
           createParentFolder(schemaFileName);
         }
         OutputStream outputStream = getOutputStream(schemaFileName, false);
-
-        if (isDetailed()) {
-          logDetailed("Opening output stream in default encoding");
-        }
-        OutputStream schemaWriter = new BufferedOutputStream(outputStream, 5000);
+        CountingOutputStream countingStream = new CountingOutputStream(outputStream);
+        OutputStream schemaWriter = new BufferedOutputStream(countingStream, 5000);
 
         if (isDetailed()) {
           logDetailed("Opened new file with name [" + schemaFileName + "]");
@@ -278,6 +276,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
 
         schemaWriter.write(data.avroSchema.toString(true).getBytes());
         schemaWriter.close();
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + countingStream.getCount();
         if (isDetailed()) {
           logDetailed("Closed schema file with name [" + schemaFileName + "]");
         }
@@ -524,11 +523,11 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       }
 
       OutputStream outputStream = getOutputStream(filename, false);
-
+      data.countingOutputStream = new CountingOutputStream(outputStream);
       if (isDetailed()) {
         logDetailed("Opening output stream in default encoding");
       }
-      data.writer = new BufferedOutputStream(outputStream, 5000);
+      data.writer = new BufferedOutputStream(data.countingOutputStream, 5000);
 
       if (isDetailed()) {
         logDetailed("Opened new file with name [" + filename + "]");
@@ -557,6 +556,10 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
       if (data.writer != null) {
         data.writer.flush();
 
+        if (data.countingOutputStream != null) {
+          dataVolumeOut =
+              (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingOutputStream.getCount();
+        }
         if (isDebug()) {
           logDebug("Closing output stream");
         }
@@ -567,6 +570,7 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
         // Causes exception trying to close file in Java 8.  I believe the flush closes the file
         // also.
         data.writer = null;
+        data.countingOutputStream = null;
         data.dataFileWriter = null;
         if (isDebug()) {
           logDebug("Closed output stream");

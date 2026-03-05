@@ -38,6 +38,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.io.CountingInputStream;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -827,7 +829,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           pathToTmp = retrieveVfsPath(pathToTmp);
         }
         data.tempFile = File.createTempFile(getMeta().getPrefix(), ".tmp", new File(pathToTmp));
-        data.fosToTempFile = new FileOutputStream(data.tempFile);
+        data.fosToTempFile = new CountingOutputStream(new FileOutputStream(data.tempFile));
         data.dosToTempFile = new DataOutputStream(data.fosToTempFile);
         data.firstRead = true;
       } catch (IOException e) {
@@ -853,7 +855,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
       if (data.firstRead) {
         // Open the inputstream first...
         try {
-          data.fisToTmpFile = new FileInputStream(data.tempFile);
+          data.fisToTmpFile = new CountingInputStream(new FileInputStream(data.tempFile));
           data.disToTmpFile = new DataInputStream(data.fisToTmpFile);
           data.firstRead = false;
         } catch (IOException e) {
@@ -891,6 +893,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         data.dosToTempFile = null;
       }
       if (data.fosToTempFile != null) {
+        if (data.fosToTempFile instanceof CountingOutputStream cos) {
+          dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + cos.getCount();
+        }
         data.fosToTempFile.close();
         data.fosToTempFile = null;
       }
@@ -906,6 +911,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
   private void closeInput() throws HopFileException {
     try {
       if (data.fisToTmpFile != null) {
+        if (data.fisToTmpFile instanceof CountingInputStream cis) {
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + cis.getCount();
+        }
         data.fisToTmpFile.close();
         data.fisToTmpFile = null;
       }

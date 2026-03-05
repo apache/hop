@@ -16,14 +16,15 @@
  */
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ProgressNullMonitorListenerTest {
+/** Unit test for {@link ProgressNullMonitorListener} */
+class ProgressNullMonitorListenerTest {
 
   @Test
-  public void testClass() {
+  void testClass() {
     ProgressNullMonitorListener listener = new ProgressNullMonitorListener();
     listener.beginTask("", 0);
     listener.subTask("");

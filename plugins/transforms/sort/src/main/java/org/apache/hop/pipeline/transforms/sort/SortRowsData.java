@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -35,6 +36,7 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
   public int getBufferIndex;
 
   public List<InputStream> fis;
+  public List<CountingInputStream> countingInputStreams;
   public List<GZIPInputStream> gzis;
   public List<DataInputStream> dis;
   public List<Object[]> rowbuffer;
@@ -72,6 +74,7 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
 
     files = new ArrayList<>();
     fis = new ArrayList<>();
+    countingInputStreams = new ArrayList<>();
     gzis = new ArrayList<>();
     dis = new ArrayList<>();
     bufferSizes = new ArrayList<>();

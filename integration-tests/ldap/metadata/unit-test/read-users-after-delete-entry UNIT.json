@@ -1,0 +1,63 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "Unit test for reading users after delete-entry pipeline - verifies rwilson was deleted",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "dn",
+          "data_set_field": "dn"
+        },
+        {
+          "transform_field": "objectClass",
+          "data_set_field": "objectClass"
+        },
+        {
+          "transform_field": "cn",
+          "data_set_field": "cn"
+        },
+        {
+          "transform_field": "sn",
+          "data_set_field": "sn"
+        },
+        {
+          "transform_field": "uid",
+          "data_set_field": "uid"
+        },
+        {
+          "transform_field": "mail",
+          "data_set_field": "mail"
+        },
+        {
+          "transform_field": "telephoneNumber",
+          "data_set_field": "telephoneNumber"
+        },
+        {
+          "transform_field": "description",
+          "data_set_field": "description"
+        }
+      ],
+      "field_order": [
+        "dn",
+        "objectClass",
+        "cn",
+        "sn",
+        "uid",
+        "mail",
+        "telephoneNumber",
+        "description"
+      ],
+      "data_set_name": "golden-read-users-after-delete-entry",
+      "transform_name": "Verify Output"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "read-users-after-delete-entry UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./input/read-users-after-delete-entry.hpl"
+}

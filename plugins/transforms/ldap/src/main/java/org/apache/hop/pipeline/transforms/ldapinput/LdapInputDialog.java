@@ -946,7 +946,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     fdGet.bottom = new FormAttachment(100, 0);
     wGet.setLayoutData(fdGet);
 
-    final int FieldsRows = input.getInputFields().length;
+    final int FieldsRows = input.getInputFieldsArray().length;
 
     colinf =
         new ColumnInfo[] {
@@ -1231,7 +1231,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     }
 
     wUsingAuthentication.setSelection(in.isUseAuthentication());
-    wSetPaging.setSelection(in.isPaging());
+    wSetPaging.setSelection(in.isUsePaging());
     if (in.getPageSize() != null) {
       wPageSize.setText(in.getPageSize());
     }
@@ -1274,8 +1274,8 @@ public class LdapInputDialog extends BaseTransformDialog {
     if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "LdapInputDialog.Log.GettingFieldsInfo"));
     }
-    for (int i = 0; i < in.getInputFields().length; i++) {
-      LdapInputField field = in.getInputFields()[i];
+    for (int i = 0; i < in.getInputFieldsArray().length; i++) {
+      LdapInputField field = in.getInputFieldsArray()[i];
 
       if (field != null) {
         TableItem item = wFields.table.getItem(i);
@@ -1295,7 +1295,7 @@ public class LdapInputDialog extends BaseTransformDialog {
         String decim = field.getDecimalSymbol();
         String trim = field.getTrimTypeDesc();
         String rep =
-            field.isRepeated()
+            field.isRepeat()
                 ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
                 : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO);
 
@@ -1386,7 +1386,7 @@ public class LdapInputDialog extends BaseTransformDialog {
     in.setMultiValuedSeparator(wMultiValuedSeparator.getText());
     in.setIncludeRowNumber(wInclRownum.getSelection());
     in.setUseAuthentication(wUsingAuthentication.getSelection());
-    in.setPaging(wSetPaging.getSelection());
+    in.setUsePaging(wSetPaging.getSelection());
     in.setPageSize(wPageSize.getText());
     in.setRowNumberField(wInclRownumField.getText());
     in.setHost(wHost.getText());
@@ -1422,10 +1422,10 @@ public class LdapInputDialog extends BaseTransformDialog {
       field.setDecimalSymbol(item.getText(10));
       field.setGroupSymbol(item.getText(11));
       field.setTrimType(LdapInputField.getTrimTypeByDesc(item.getText(12)));
-      field.setRepeated(
+      field.setRepeat(
           BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(13)));
 
-      in.getInputFields()[i] = field;
+      in.getInputFields().set(i, field);
     }
     in.setSearchScope(LdapInputMeta.getSearchScopeByDesc(wSearchScope.getText()));
   }

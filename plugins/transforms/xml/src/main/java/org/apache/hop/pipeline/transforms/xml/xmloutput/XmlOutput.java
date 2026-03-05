@@ -29,6 +29,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -278,14 +279,17 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
 
       if (meta.isZipped()) {
         OutputStream fos = HopVfs.getOutputStream(file, false);
-        data.zip = new ZipOutputStream(fos);
+        data.countingStream = new CountingOutputStream(fos);
+        data.zip = new ZipOutputStream(data.countingStream);
         File entry = new File(buildFilename(false));
         ZipEntry zipentry = new ZipEntry(entry.getName());
         zipentry.setComment("Compressed by Apache Hop");
         data.zip.putNextEntry(zipentry);
         outputStream = data.zip;
       } else {
-        outputStream = HopVfs.getOutputStream(file, false);
+        OutputStream fos = HopVfs.getOutputStream(file, false);
+        data.countingStream = new CountingOutputStream(fos);
+        outputStream = data.countingStream;
       }
       if (!Utils.isEmpty(meta.getEncoding())) {
         if (isBasic()) {
@@ -344,9 +348,17 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
         if (meta.isZipped()) {
           data.zip.closeEntry();
           data.zip.finish();
+          if (data.countingStream != null) {
+            dataVolumeOut =
+                (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+          }
           data.zip.close();
+        } else {
+          if (data.countingStream != null) {
+            dataVolumeOut =
+                (dataVolumeOut != null ? dataVolumeOut : 0L) + data.countingStream.getCount();
+          }
         }
-
         closeOutputStream(outputStream);
 
         retval = true;

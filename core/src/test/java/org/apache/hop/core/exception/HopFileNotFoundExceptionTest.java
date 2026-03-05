@@ -17,74 +17,74 @@
 
 package org.apache.hop.core.exception;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.Const;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class HopFileNotFoundExceptionTest {
-
-  private String expectedNullMessage = Const.CR + "null" + Const.CR;
-  private String errorMessage = "error message";
-  private String causeExceptionMessage = "Cause exception";
-  private String filepath = "file.txt";
-  private Throwable cause = new RuntimeException(causeExceptionMessage);
+class HopFileNotFoundExceptionTest {
+  private final String expectedNullMessage = Const.CR + "null" + Const.CR;
+  private final String errorMessage = "error message";
+  private final String causeExceptionMessage = "Cause exception";
+  private final Throwable cause = new RuntimeException(causeExceptionMessage);
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     try {
       throw new HopFileNotFoundException();
     } catch (HopFileNotFoundException e) {
-      assertEquals(null, e.getCause());
+      assertNull(e.getCause());
       assertTrue(e.getMessage().contains(expectedNullMessage));
-      assertEquals(null, e.getFilepath());
+      assertNull(e.getFilepath());
     }
   }
 
   @Test
-  public void testConstructorMessage() {
+  void testConstructorMessage() {
     try {
       throw new HopFileNotFoundException(errorMessage);
     } catch (HopFileNotFoundException e) {
-      assertEquals(null, e.getCause());
+      assertNull(e.getCause());
       assertTrue(e.getMessage().contains(errorMessage));
-      assertEquals(null, e.getFilepath());
+      assertNull(e.getFilepath());
     }
   }
 
   @Test
-  public void testConstructorMessageAndFilepath() {
+  void testConstructorMessageAndFilepath() {
+    String filepath = "file.txt";
     try {
       throw new HopFileNotFoundException(errorMessage, filepath);
     } catch (HopFileNotFoundException e) {
-      assertEquals(null, e.getCause());
+      assertNull(e.getCause());
       assertTrue(e.getMessage().contains(errorMessage));
       assertEquals(filepath, e.getFilepath());
     }
   }
 
   @Test
-  public void testConstructorThrowable() {
+  void testConstructorThrowable() {
     try {
       throw new HopFileNotFoundException(cause);
     } catch (HopFileNotFoundException e) {
       assertEquals(cause, e.getCause());
       assertTrue(e.getMessage().contains(causeExceptionMessage));
-      assertEquals(null, e.getFilepath());
+      assertNull(e.getFilepath());
     }
   }
 
   @Test
-  public void testConstructorMessageAndThrowable() {
-    Throwable cause = new RuntimeException(causeExceptionMessage);
+  void testConstructorMessageAndThrowable() {
+    Throwable throwable = new RuntimeException(causeExceptionMessage);
     try {
-      throw new HopFileNotFoundException(errorMessage, cause);
+      throw new HopFileNotFoundException(errorMessage, throwable);
     } catch (HopFileNotFoundException e) {
       assertTrue(e.getMessage().contains(errorMessage));
       assertTrue(e.getMessage().contains(causeExceptionMessage));
-      assertEquals(cause, e.getCause());
-      assertEquals(null, e.getFilepath());
+      assertEquals(throwable, e.getCause());
+      assertNull(e.getFilepath());
     }
   }
 }

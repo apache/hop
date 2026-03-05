@@ -17,16 +17,18 @@
 
 package org.apache.hop.core.row.value;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
 import java.math.BigDecimal;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ValueMetaBaseLenientStringConversionTest {
+class ValueMetaBaseLenientStringConversionTest {
 
   @Test
-  public void testStrToIntLenient() throws Exception {
+  void testStrToIntLenient() throws Exception {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "Y");
 
     Object[] values =
@@ -43,12 +45,12 @@ public class ValueMetaBaseLenientStringConversionTest {
     for (int i = 0; i < values.length; i += 2) {
       long expected = (Long) values[i];
       long actual = meta.convertStringToInteger((String) values[i + 1]);
-      Assert.assertEquals("Can't convert '" + values[i + 1] + "' :", expected, actual);
+      assertEquals(expected, actual, "Can't convert '" + values[i + 1] + "' :");
     }
   }
 
   @Test
-  public void testStrToIntStrict() {
+  void testStrToIntStrict() {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 
     String[] values = new String[] {"1a", "1,1", "100,000,3", "100.000,3"};
@@ -62,16 +64,17 @@ public class ValueMetaBaseLenientStringConversionTest {
       } catch (Exception e) {
         exc = e;
       } finally {
-        Assert.assertTrue(
-            "Conversion of '" + value + "' didn't fail. Value is " + converted,
-            exc instanceof HopValueException);
+        assertInstanceOf(
+            HopValueException.class,
+            exc,
+            "Conversion of '" + value + "' didn't fail. Value is " + converted);
         exc = null;
       }
     }
   }
 
   @Test
-  public void testStrToBigNumberLenient() throws Exception {
+  void testStrToBigNumberLenient() throws Exception {
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "Y");
 
     Object[] values =
@@ -88,12 +91,12 @@ public class ValueMetaBaseLenientStringConversionTest {
     for (int i = 0; i < values.length; i += 2) {
       Double expected = (Double) values[i];
       Double actual = meta.convertStringToBigNumber((String) values[i + 1]).doubleValue();
-      Assert.assertEquals("Can't convert '" + values[i + 1] + "' :", expected, actual);
+      assertEquals(expected, actual, "Can't convert '" + values[i + 1] + "' :");
     }
   }
 
   @Test
-  public void testStrToBigNumberStrict() {
+  void testStrToBigNumberStrict() {
 
     System.setProperty(Const.HOP_LENIENT_STRING_TO_NUMBER_CONVERSION, "N");
 
@@ -108,9 +111,10 @@ public class ValueMetaBaseLenientStringConversionTest {
       } catch (Exception e) {
         exc = e;
       } finally {
-        Assert.assertTrue(
-            "Conversion of '" + value + "' didn't fail. Value is " + converted,
-            exc instanceof HopValueException);
+        assertInstanceOf(
+            HopValueException.class,
+            exc,
+            "Conversion of '" + value + "' didn't fail. Value is " + converted);
         exc = null;
       }
     }

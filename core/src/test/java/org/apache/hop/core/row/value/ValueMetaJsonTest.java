@@ -17,10 +17,11 @@
 
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,10 +43,9 @@ import java.sql.SQLException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.row.IValueMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ValueMetaJsonTest {
-
+class ValueMetaJsonTest {
   private static final ObjectMapper mapper = new ObjectMapper();
 
   private static JsonNode obj(String json) throws Exception {
@@ -57,7 +57,7 @@ public class ValueMetaJsonTest {
   // -------------------------
 
   @Test
-  public void testConvertPrettyPrinting() throws Exception {
+  void testConvertPrettyPrinting() throws Exception {
     ValueMetaJson vm = new ValueMetaJson("j");
     ObjectNode o = mapper.createObjectNode().put("a", 1).put("b", "x");
 
@@ -72,7 +72,7 @@ public class ValueMetaJsonTest {
   }
 
   @Test
-  public void testCloneValueData() throws Exception {
+  void testCloneValueData() throws Exception {
     ValueMetaJson vm = new ValueMetaJson("j");
     ObjectNode o = mapper.createObjectNode().put("a", 1);
     JsonNode cloned = (JsonNode) vm.cloneValueData(o);
@@ -81,7 +81,7 @@ public class ValueMetaJsonTest {
   }
 
   @Test
-  public void testGetJsonAcrossStorageTypes() throws Exception {
+  void testGetJsonAcrossStorageTypes() throws Exception {
     // NORMAL with JsonNode
     ValueMetaJson normal = new ValueMetaJson("j");
     normal.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
@@ -112,7 +112,7 @@ public class ValueMetaJsonTest {
   // -------------------------
 
   @Test
-  public void testJsonCompare() throws Exception {
+  void testJsonCompare() throws Exception {
     ValueMetaJson vm = new ValueMetaJson("j");
 
     // Kind precedence
@@ -150,7 +150,7 @@ public class ValueMetaJsonTest {
   }
 
   @Test
-  public void testBinaryCompare() throws Exception {
+  void testBinaryCompare() throws Exception {
     ValueMetaJson vm = new ValueMetaJson("j");
     JsonNode a = BinaryNode.valueOf(new byte[] {(byte) 0xFF}); // 255
     JsonNode b = BinaryNode.valueOf(new byte[] {0x00}); // 0
@@ -166,7 +166,7 @@ public class ValueMetaJsonTest {
   // -------------------------
 
   @Test
-  public void testGetValueFromResultSet_BinaryStream() throws Exception {
+  void testGetValueFromResultSet_BinaryStream() throws Exception {
     ValueMetaJson vm = new ValueMetaJson("j");
     IDatabase idb = mock(IDatabase.class);
     ResultSet rs = mock(ResultSet.class);
@@ -177,12 +177,12 @@ public class ValueMetaJsonTest {
     when(rs.getBinaryStream(1)).thenReturn(in); // index+1 = 1
 
     Object out = vm.getValueFromResultSet(idb, rs, 0);
-    assertTrue(out instanceof JsonNode);
+    assertInstanceOf(JsonNode.class, out);
     assertEquals(obj(json), out);
   }
 
   @Test
-  public void testGetValueFromResultSet_FallbackObject() throws Exception {
+  void testGetValueFromResultSet_FallbackObject() throws Exception {
     ValueMetaJson vm = new ValueMetaJson("j");
     IDatabase idb = mock(IDatabase.class);
     ResultSet rs = mock(ResultSet.class);
@@ -199,7 +199,7 @@ public class ValueMetaJsonTest {
   // -------------------------
 
   @Test
-  public void testNativeTypeInfo() throws Exception {
+  void testNativeTypeInfo() throws Exception {
     ValueMetaJson vm = new ValueMetaJson("j");
     JsonNode node = obj("{\"a\":1}");
     assertSame(node, vm.getNativeDataType(node));
@@ -207,7 +207,7 @@ public class ValueMetaJsonTest {
   }
 
   @Test
-  public void testDatabaseColumnTypeDefinition() {
+  void testDatabaseColumnTypeDefinition() {
     ValueMetaJson vm = new ValueMetaJson("col");
     IDatabase pg = mock(IDatabase.class);
     when(pg.isPostgresVariant()).thenReturn(true);

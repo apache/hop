@@ -461,7 +461,6 @@ public class WorkflowDialog extends Dialog {
 
     String actualName =
         AbstractMeta.extractNameFromFilename(sync, name, filename, WorkflowMeta.WORKFLOW_EXTENSION);
-    wWorkflowName.setEnabled(!sync);
     wWorkflowName.setEditable(!sync);
 
     wWorkflowName.setText(Const.NVL(actualName, ""));

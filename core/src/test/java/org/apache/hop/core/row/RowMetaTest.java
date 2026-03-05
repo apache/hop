@@ -17,15 +17,18 @@
 
 package org.apache.hop.core.row;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.spy;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,16 +45,15 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
-public class RowMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class RowMetaTest {
   IRowMeta rowMeta = new RowMeta();
   IValueMeta string;
   IValueMeta integer;
@@ -61,13 +63,13 @@ public class RowMetaTest {
   IValueMeta dup;
   IValueMeta bin;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     string = ValueMetaFactory.createValueMeta("string", IValueMeta.TYPE_STRING);
     rowMeta.addValueMeta(string);
     integer = ValueMetaFactory.createValueMeta("integer", IValueMeta.TYPE_INTEGER);
@@ -92,26 +94,26 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testRowMetaInitializingFromXmlNode() throws Exception {
+  void testRowMetaInitializingFromXmlNode() throws Exception {
     String testXmlNode = null;
     try (InputStream in = RowMetaTest.class.getResourceAsStream("rowMetaNode.xml")) {
-      testXmlNode = IOUtils.toString(in);
+      testXmlNode = IOUtils.toString(in, StandardCharsets.UTF_8);
     }
     Document xmlDoc = XmlHandler.loadXmlString(testXmlNode);
-    RowMeta rowMeta = spy(new RowMeta(XmlHandler.getSubNode(xmlDoc, RowMeta.XML_META_TAG)));
-    assertEquals(2, rowMeta.getValueMetaList().size());
-    IValueMeta valueMeta = rowMeta.getValueMeta(0);
-    assertTrue(valueMeta instanceof ValueMetaDate);
+    RowMeta meta = spy(new RowMeta(XmlHandler.getSubNode(xmlDoc, RowMeta.XML_META_TAG)));
+    assertEquals(2, meta.getValueMetaList().size());
+    IValueMeta valueMeta = meta.getValueMeta(0);
+    assertInstanceOf(ValueMetaDate.class, valueMeta);
     assertEquals("testDate", valueMeta.getName());
     assertNull(valueMeta.getConversionMask());
-    valueMeta = rowMeta.getValueMeta(1);
-    assertTrue(valueMeta instanceof ValueMetaTimestamp);
+    valueMeta = meta.getValueMeta(1);
+    assertInstanceOf(ValueMetaTimestamp.class, valueMeta);
     assertEquals("testTimestamp", valueMeta.getName());
     assertEquals("yyyy/MM/dd HH:mm:ss.000000000", valueMeta.getConversionMask());
   }
 
   @Test
-  public void testGetValueMetaList() {
+  void testGetValueMetaList() {
     List<IValueMeta> list = rowMeta.getValueMetaList();
     assertTrue(list.contains(string));
     assertTrue(list.contains(integer));
@@ -119,7 +121,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testSetValueMetaList() throws HopPluginException {
+  void testSetValueMetaList() throws HopPluginException {
     List<IValueMeta> setList =
         this.generateVList(new String[] {"alpha", "bravo"}, new int[] {2, 2});
     rowMeta.setValueMetaList(setList);
@@ -132,7 +134,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testSetValueMetaListNullName() throws HopPluginException {
+  void testSetValueMetaListNullName() throws HopPluginException {
     List<IValueMeta> setList = this.generateVList(new String[] {"alpha", null}, new int[] {2, 2});
     rowMeta.setValueMetaList(setList);
     assertTrue(setList.contains(rowMeta.searchValueMeta("alpha")));
@@ -143,82 +145,86 @@ public class RowMetaTest {
     assertEquals(-1, rowMeta.indexOfValue(null));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testDeSynchronizationModifyingOriginalList() {
-    // remember 0-based arrays
-    int size = rowMeta.size();
-    // should be added at the end
-    rowMeta.getValueMetaList().add(charly);
-    assertEquals(size, rowMeta.indexOfValue("charly"));
+  @Test
+  void testDeSynchronizationModifyingOriginalList() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> {
+          // remember 0-based arrays
+          int size = rowMeta.size();
+          // should be added at the end
+          rowMeta.getValueMetaList().add(charly);
+          assertEquals(size, rowMeta.indexOfValue("charly"));
+        });
   }
 
   @Test
-  public void testExists() {
+  void testExists() {
     assertTrue(rowMeta.exists(string));
     assertTrue(rowMeta.exists(date));
     assertTrue(rowMeta.exists(integer));
   }
 
   @Test
-  public void testAddValueMetaValueMetaInterface() {
+  void testAddValueMetaValueMetaInterface() {
     rowMeta.addValueMeta(charly);
     assertTrue(rowMeta.getValueMetaList().contains(charly));
   }
 
   @Test
-  public void testAddValueMetaNullName() {
+  void testAddValueMetaNullName() {
     IValueMeta vmi = new ValueMetaBase();
     rowMeta.addValueMeta(vmi);
     assertTrue(rowMeta.getValueMetaList().contains(vmi));
   }
 
   @Test
-  public void testAddValueMetaIntValueMetaInterface() {
+  void testAddValueMetaIntValueMetaInterface() {
     rowMeta.addValueMeta(1, charly);
     assertEquals(1, rowMeta.getValueMetaList().indexOf(charly));
   }
 
   @Test
-  public void testGetValueMeta() {
+  void testGetValueMeta() {
     // see before method insertion order.
     assertEquals(rowMeta.getValueMeta(1), integer);
   }
 
   @Test
-  public void testSetValueMeta() {
+  void testSetValueMeta() {
     rowMeta.setValueMeta(1, charly);
     assertEquals(1, rowMeta.getValueMetaList().indexOf(charly));
-    assertEquals("There is still 3 elements:", 3, rowMeta.size());
+    assertEquals(3, rowMeta.size(), "There is still 3 elements:");
     assertEquals(-1, rowMeta.indexOfValue("integer"));
   }
 
   @Test
-  public void testSetValueMetaDup() {
+  void testSetValueMetaDup() {
     rowMeta.setValueMeta(1, dup);
-    assertEquals("There is still 3 elements:", 3, rowMeta.size());
+    assertEquals(3, rowMeta.size(), "There is still 3 elements:");
     assertEquals(-1, rowMeta.indexOfValue("integer"));
 
     rowMeta.setValueMeta(1, dup);
-    assertEquals("There is still 3 elements:", 3, rowMeta.size());
+    assertEquals(3, rowMeta.size(), "There is still 3 elements:");
     assertEquals(-1, rowMeta.indexOfValue("integer"));
 
     rowMeta.setValueMeta(2, dup);
-    assertEquals("There is still 3 elements:", 3, rowMeta.size());
-    assertEquals("Original is still the same (object)", 1, rowMeta.getValueMetaList().indexOf(dup));
-    assertEquals("Original is still the same (name)", 1, rowMeta.indexOfValue("dup"));
-    assertEquals("Renaming happened", 2, rowMeta.indexOfValue("dup_1"));
+    assertEquals(3, rowMeta.size(), "There is still 3 elements:");
+    assertEquals(1, rowMeta.getValueMetaList().indexOf(dup), "Original is still the same (object)");
+    assertEquals(1, rowMeta.indexOfValue("dup"), "Original is still the same (name)");
+    assertEquals(2, rowMeta.indexOfValue("dup_1"), "Renaming happened");
   }
 
   @Test
-  public void testSetValueMetaNullName() {
+  void testSetValueMetaNullName() {
     IValueMeta vmi = new ValueMetaBase();
     rowMeta.setValueMeta(1, vmi);
     assertEquals(1, rowMeta.getValueMetaList().indexOf(vmi));
-    assertEquals("There is still 3 elements:", 3, rowMeta.size());
+    assertEquals(3, rowMeta.size(), "There is still 3 elements:");
   }
 
   @Test
-  public void testIndexOfValue() {
+  void testIndexOfValue() {
     List<IValueMeta> list = rowMeta.getValueMetaList();
     assertEquals(0, list.indexOf(string));
     assertEquals(1, list.indexOf(integer));
@@ -226,12 +232,12 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testIndexOfNullValue() {
+  void testIndexOfNullValue() {
     assertEquals(-1, rowMeta.indexOfValue(null));
   }
 
   @Test
-  public void testSearchValueMeta() {
+  void testSearchValueMeta() {
     IValueMeta vmi = rowMeta.searchValueMeta("integer");
     assertEquals(integer, vmi);
     vmi = rowMeta.searchValueMeta("string");
@@ -241,7 +247,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testAddRowMeta() throws HopPluginException {
+  void testAddRowMeta() throws HopPluginException {
     List<IValueMeta> list =
         this.generateVList(
             new String[] {"alfa", "bravo", "charly", "delta"}, new int[] {2, 2, 3, 4});
@@ -254,7 +260,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testMergeRowMeta() throws HopPluginException {
+  void testMergeRowMeta() throws HopPluginException {
     List<IValueMeta> list =
         this.generateVList(new String[] {"phobos", "demos", "mars"}, new int[] {6, 6, 6});
     list.add(1, integer);
@@ -277,7 +283,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testRemoveValueMetaString() throws HopValueException {
+  void testRemoveValueMetaString() throws HopValueException {
     rowMeta.removeValueMeta("string");
     assertEquals(2, rowMeta.size());
     assertNotNull(rowMeta.searchValueMeta("integer"));
@@ -286,7 +292,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testRemoveValueMetaInt() {
+  void testRemoveValueMetaInt() {
     rowMeta.removeValueMeta(1);
     assertEquals(2, rowMeta.size());
     assertNotNull(rowMeta.searchValueMeta("date"));
@@ -297,29 +303,29 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testLowerCaseNamesSearch() {
+  void testLowerCaseNamesSearch() {
     assertNotNull(rowMeta.searchValueMeta("Integer"));
     assertNotNull(rowMeta.searchValueMeta("string".toUpperCase()));
   }
 
   @Test
-  public void testMultipleSameNameInserts() {
+  void testMultipleSameNameInserts() {
     for (int i = 0; i < 13; i++) {
       rowMeta.addValueMeta(integer);
     }
     String resultName = "integer_13";
-    assertEquals(rowMeta.searchValueMeta(resultName).getName(), resultName);
+    assertEquals(resultName, rowMeta.searchValueMeta(resultName).getName());
   }
 
   @Test
-  public void testExternalValueMetaModification() {
+  void testExternalValueMetaModification() {
     IValueMeta vmi = rowMeta.searchValueMeta("string");
     vmi.setName("string2");
     assertNotNull(rowMeta.searchValueMeta(vmi.getName()));
   }
 
   @Test
-  public void testSwapNames() throws HopPluginException {
+  void testSwapNames() throws HopPluginException {
     IValueMeta string2 = ValueMetaFactory.createValueMeta("string2", IValueMeta.TYPE_STRING);
     rowMeta.addValueMeta(string2);
     assertSame(string, rowMeta.searchValueMeta("string"));
@@ -331,7 +337,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testCopyRowMetaCacheConstructor() {
+  void testCopyRowMetaCacheConstructor() {
     Map<String, Integer> mapping = new HashMap<>();
     mapping.put("a", 1);
     RowMeta.RowMetaCache rowMetaCache = new RowMeta.RowMetaCache(mapping);
@@ -343,7 +349,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testNeedRealClone() {
+  void testNeedRealClone() {
     RowMeta newRowMeta = new RowMeta();
     newRowMeta.addValueMeta(string);
     newRowMeta.addValueMeta(integer);
@@ -378,7 +384,7 @@ public class RowMetaTest {
   }
 
   // @Test
-  public void hasedRowMetaListFasterWhenSearchByName() throws HopPluginException {
+  void hasedRowMetaListFasterWhenSearchByName() throws HopPluginException {
     rowMeta.clear();
 
     IValueMeta searchFor = null;
@@ -406,16 +412,16 @@ public class RowMetaTest {
     time2 = stop - start;
 
     assertTrue(
+        time1 > time2,
         "array search is slower then current implementation : "
             + "for array list: "
             + time1
             + ", for hashed rowMeta: "
-            + time2,
-        time1 > time2);
+            + time2);
   }
 
   // @Test
-  public void hashedRowMetaListNotMuchSlowerThenIndexedAccess() throws HopPluginException {
+  void hashedRowMetaListNotMuchSlowerThenIndexedAccess() throws HopPluginException {
     rowMeta = new RowMeta();
 
     // create pre-existed rom meta list
@@ -431,10 +437,6 @@ public class RowMetaTest {
     long start, stop, time1, time2;
     start = System.nanoTime();
     // this is when filling regular array like in prev implementation
-    List<IValueMeta> prev = new ArrayList<>();
-    for (IValueMeta item : pre) {
-      prev.add(item);
-    }
     stop = System.nanoTime();
     time1 = stop - start;
 
@@ -447,11 +449,11 @@ public class RowMetaTest {
 
     // ~6 time slower that for original implementation
     // let say finally it is not 10 times slower :(
-    assertTrue("it is not 10 times slower than for original arrayList", time1 * 10 > time2);
+    assertTrue(time1 * 10 > time2, "it is not 10 times slower than for original arrayList");
   }
 
   @Test
-  public void testMergeRowMetaWithOriginTransform() throws Exception {
+  void testMergeRowMetaWithOriginTransform() throws Exception {
 
     List<IValueMeta> list =
         this.generateVList(new String[] {"phobos", "demos", "mars"}, new int[] {6, 6, 6});
@@ -481,7 +483,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testGetFieldNames() {
+  void testGetFieldNames() {
     rowMeta.clear();
     fillRowMeta();
     String[] names = rowMeta.getFieldNames();
@@ -493,7 +495,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     rowMeta.clear();
     byte[] byteArray = new byte[] {49, 50, 51};
     Object[] objArray = new Object[] {byteArray};

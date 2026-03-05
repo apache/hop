@@ -17,20 +17,20 @@
 
 package org.apache.hop.core.encryption;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for encryption, to make sure that encrypted password remain the same between versions.
  */
-public class HopTwoWayPasswordEncoderTest {
+class HopTwoWayPasswordEncoderTest {
 
   /** Test password encryption. */
   @Test
-  public void testEncode1() {
+  void testEncode1() {
 
     HopTwoWayPasswordEncoder encoder = new HopTwoWayPasswordEncoder();
 
@@ -64,7 +64,7 @@ public class HopTwoWayPasswordEncoderTest {
 
   /** Test password decryption. */
   @Test
-  public void testDecode1() {
+  void testDecode1() {
     HopTwoWayPasswordEncoder encoder = new HopTwoWayPasswordEncoder();
 
     String encryption;
@@ -107,7 +107,7 @@ public class HopTwoWayPasswordEncoderTest {
 
   /** Test password encryption (variable style). */
   @Test
-  public void testEncode2() {
+  void testEncode2() {
     HopTwoWayPasswordEncoder encoder = new HopTwoWayPasswordEncoder();
 
     String encryption;
@@ -136,7 +136,7 @@ public class HopTwoWayPasswordEncoderTest {
 
   /** Test password decryption (variable style). */
   @Test
-  public void testDecode2() {
+  void testDecode2() {
     HopTwoWayPasswordEncoder encoder = new HopTwoWayPasswordEncoder();
 
     String encryption;
@@ -172,7 +172,7 @@ public class HopTwoWayPasswordEncoderTest {
   }
 
   @Test
-  public void testEncodeDifferentSeed() {
+  void testEncodeDifferentSeed() {
 
     HopTwoWayPasswordEncoder encoder = new HopTwoWayPasswordEncoder();
     String encodeWithDefaultSeed = encoder.encode("Wibble", false);
@@ -196,7 +196,7 @@ public class HopTwoWayPasswordEncoderTest {
         decodeWithNondefaultSeed); // Make sure that the decode from either is correct.
   }
 
-  private class TestHopTwoWayPasswordEncoder extends HopTwoWayPasswordEncoder {
+  private static class TestHopTwoWayPasswordEncoder extends HopTwoWayPasswordEncoder {
 
     public TestHopTwoWayPasswordEncoder() {
       super();

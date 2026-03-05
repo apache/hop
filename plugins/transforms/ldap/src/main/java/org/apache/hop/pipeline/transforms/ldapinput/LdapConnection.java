@@ -73,6 +73,8 @@ public class LdapConnection {
 
   public static final int STATUS_ADDED = 4;
 
+  public static final int STATUS_REMOVED = 5;
+
   private final ILogChannel log;
 
   private String searchBase;
@@ -373,6 +375,71 @@ public class LdapConnection {
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(classFromResourcesPackage, "LdapConnection.Error.Add", dn), e);
+    }
+  }
+
+  /**
+   * Remove attributes from an LDAP entry. If a value is provided for an attribute, only that
+   * specific value is removed. If the value is empty or null, the entire attribute is removed.
+   *
+   * @param dn Distinguished Name of the entry to modify
+   * @param attributes attribute names to remove
+   * @param values values to remove (null/empty means remove entire attribute)
+   * @param multValuedSeparator separator for multi-valued attributes
+   * @param checkEntry if true, throw an exception when the entry is not found
+   * @return status: STATUS_REMOVED or STATUS_SKIPPED
+   * @throws HopException
+   */
+  public int removeAttribute(
+      String dn,
+      String[] attributes,
+      String[] values,
+      String multValuedSeparator,
+      boolean checkEntry)
+      throws HopException {
+    try {
+      int nrAttributes = attributes.length;
+      ModificationItem[] mods = new ModificationItem[nrAttributes];
+      for (int i = 0; i < nrAttributes; i++) {
+        Attribute mod;
+        if (!Utils.isEmpty(values[i])) {
+          String value = values[i].trim();
+          if (multValuedSeparator != null && value.contains(multValuedSeparator)) {
+            mod = new BasicAttribute(attributes[i]);
+            for (String singleValue : value.split(multValuedSeparator)) {
+              mod.add(singleValue);
+            }
+          } else {
+            mod = new BasicAttribute(attributes[i], value);
+          }
+        } else {
+          mod = new BasicAttribute(attributes[i]);
+        }
+        if (log.isDebug()) {
+          log.logDebug(
+              BaseMessages.getString(
+                  classFromResourcesPackage,
+                  "LdapConnection.RemoveAttribute.Attribute",
+                  attributes[i],
+                  Utils.isEmpty(values[i]) ? "(all values)" : values[i]));
+        }
+        mods[i] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, mod);
+      }
+      getInitialContext().modifyAttributes(dn, mods);
+      return STATUS_REMOVED;
+    } catch (NameNotFoundException n) {
+      if (checkEntry) {
+        throw new HopException(
+            BaseMessages.getString(
+                classFromResourcesPackage, CONST_LDAP_CONNECTION_ERROR_DELETING_NAME_NOT_FOUND, dn),
+            n);
+      }
+      return STATUS_SKIPPED;
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(
+              classFromResourcesPackage, "LdapConnection.Error.RemoveAttribute", dn),
+          e);
     }
   }
 

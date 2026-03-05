@@ -18,7 +18,10 @@
 package org.apache.hop.core.row.value;
 
 import static junit.framework.TestCase.failNotEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -29,37 +32,36 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ValueMetaStringTest {
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueMetaStringTest {
   private static final String BASE_VALUE = "Some text";
   private static final String TEST_VALUE = "Some text";
 
   private ConfigurableMeta meta;
 
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     meta = new ConfigurableMeta(BASE_VALUE);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     meta = null;
   }
 
   @Test
-  public void testGetNativeDataEmptyIsNotNull() throws Exception {
+  void testGetNativeDataEmptyIsNotNull() throws Exception {
     meta.setNullsAndEmptyAreDifferent(true);
 
     assertEquals(BASE_VALUE, meta.getNativeDataType(BASE_VALUE));
     assertEquals(TEST_VALUE, meta.getNativeDataType(TEST_VALUE));
-    assertEquals(null, meta.getNativeDataType(null));
+    assertNull(meta.getNativeDataType(null));
     assertEquals("1", meta.getNativeDataType(1));
     assertEquals("1.0", meta.getNativeDataType(1.0));
 
@@ -95,12 +97,12 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetNativeDataEmptyIsNull() throws Exception {
+  void testGetNativeDataEmptyIsNull() throws Exception {
     meta.setNullsAndEmptyAreDifferent(false);
 
     assertEquals(BASE_VALUE, meta.getNativeDataType(BASE_VALUE));
     assertEquals(TEST_VALUE, meta.getNativeDataType(TEST_VALUE));
-    assertEquals(null, meta.getNativeDataType(null));
+    assertNull(meta.getNativeDataType(null));
     assertEquals("1", meta.getNativeDataType(1));
     assertEquals("1.0", meta.getNativeDataType(1.0));
 
@@ -111,109 +113,109 @@ public class ValueMetaStringTest {
     assertEquals("2012-11-10 09:08:07.654321", meta.getNativeDataType(ts));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
-    // assertEquals( null, meta.getNativeDataType( "" ) ); //TODO: is it correct?
-    assertEquals("", meta.getNativeDataType("")); // TODO: is it correct?
+    // assertEquals( null, meta.getNativeDataType( "" ) ); // is it correct?
+    assertEquals("", meta.getNativeDataType("")); //  is it correct?
     assertEquals("1", meta.getNativeDataType("1"));
     assertEquals("    ", meta.getNativeDataType("    "));
     assertEquals("  1  ", meta.getNativeDataType("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_LEFT);
-    // assertEquals( null, meta.getNativeDataType( "" ) ); //TODO: is it correct?
-    assertEquals("", meta.getNativeDataType("")); // TODO: is it correct?
+    // assertEquals( null, meta.getNativeDataType( "" ) ); // is it correct?
+    assertEquals("", meta.getNativeDataType("")); //  is it correct?
     assertEquals("1", meta.getNativeDataType("1"));
-    // assertEquals( null, meta.getNativeDataType( "    " ) ); //TODO: is it correct?
-    assertEquals("", meta.getNativeDataType("    ")); // TODO: is it correct?
+    // assertEquals( null, meta.getNativeDataType( "    " ) ); // is it correct?
+    assertEquals("", meta.getNativeDataType("    ")); //  is it correct?
     assertEquals("1  ", meta.getNativeDataType("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_RIGHT);
-    // assertEquals( null, meta.getNativeDataType( "" ) ); //TODO: is it correct?
-    assertEquals("", meta.getNativeDataType("")); // TODO: is it correct?
+    // assertEquals( null, meta.getNativeDataType( "" ) ); // is it correct?
+    assertEquals("", meta.getNativeDataType("")); //  is it correct?
     assertEquals("1", meta.getNativeDataType("1"));
-    // assertEquals( null, meta.getNativeDataType( "    " ) ); //TODO: is it correct?
-    assertEquals("", meta.getNativeDataType("    ")); // TODO: is it correct?
+    // assertEquals( null, meta.getNativeDataType( "    " ) ); // is it correct?
+    assertEquals("", meta.getNativeDataType("    ")); //  is it correct?
     assertEquals("  1", meta.getNativeDataType("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-    // assertEquals( null, meta.getNativeDataType( "" ) ); //TODO: is it correct?
-    assertEquals("", meta.getNativeDataType("")); // TODO: is it correct?
+    // assertEquals( null, meta.getNativeDataType( "" ) ); // is it correct?
+    assertEquals("", meta.getNativeDataType("")); //  is it correct?
     assertEquals("1", meta.getNativeDataType("1"));
-    // assertEquals( null, meta.getNativeDataType( "    " ) ); //TODO: is it correct?
-    assertEquals("", meta.getNativeDataType("    ")); // TODO: is it correct?
+    // assertEquals( null, meta.getNativeDataType( "    " ) ); // is it correct?
+    assertEquals("", meta.getNativeDataType("    ")); //  is it correct?
     assertEquals("1", meta.getNativeDataType("  1  "));
   }
 
   @Test
-  public void testIsNullEmptyIsNotNull() throws HopValueException {
+  void testIsNullEmptyIsNotNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent(true);
 
-    assertEquals(true, meta.isNull(null));
-    assertEquals(false, meta.isNull(""));
+    assertTrue(meta.isNull(null));
+    assertFalse(meta.isNull(""));
 
-    assertEquals(false, meta.isNull("1"));
+    assertFalse(meta.isNull("1"));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
-    assertEquals(false, meta.isNull("    "));
-    assertEquals(false, meta.isNull("  1  "));
+    assertFalse(meta.isNull("    "));
+    assertFalse(meta.isNull("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_LEFT);
-    assertEquals(false, meta.isNull("    "));
-    assertEquals(false, meta.isNull("  1  "));
+    assertFalse(meta.isNull("    "));
+    assertFalse(meta.isNull("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_RIGHT);
-    assertEquals(false, meta.isNull("    "));
-    assertEquals(false, meta.isNull("  1  "));
+    assertFalse(meta.isNull("    "));
+    assertFalse(meta.isNull("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-    assertEquals(false, meta.isNull("    "));
-    assertEquals(false, meta.isNull("  1  "));
+    assertFalse(meta.isNull("    "));
+    assertFalse(meta.isNull("  1  "));
   }
 
   @Test
-  public void testIsNullEmptyIsNull() throws HopValueException {
+  void testIsNullEmptyIsNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent(false);
 
-    assertEquals(true, meta.isNull(null));
-    assertEquals(true, meta.isNull(""));
+    assertTrue(meta.isNull(null));
+    assertTrue(meta.isNull(""));
 
-    assertEquals(false, meta.isNull("1"));
+    assertFalse(meta.isNull("1"));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
-    assertEquals(false, meta.isNull("    "));
-    assertEquals(false, meta.isNull(meta.getString("    ")));
+    assertFalse(meta.isNull("    "));
+    assertFalse(meta.isNull(meta.getString("    ")));
 
-    assertEquals(false, meta.isNull("  1  "));
-    assertEquals(false, meta.isNull(meta.getString("  1  ")));
+    assertFalse(meta.isNull("  1  "));
+    assertFalse(meta.isNull(meta.getString("  1  ")));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_LEFT);
-    // assertEquals( true, meta.isNull( "    " ) ); //TODO: is it correct?
-    assertEquals(false, meta.isNull("    ")); // TODO: is it correct?
-    assertEquals(true, meta.isNull(meta.getString("    ")));
+    // assertEquals( true, meta.isNull( "    " ) ); // is it correct?
+    assertFalse(meta.isNull("    ")); //  is it correct?
+    assertTrue(meta.isNull(meta.getString("    ")));
 
-    assertEquals(false, meta.isNull("  1  "));
-    assertEquals(false, meta.isNull(meta.getString("  1  ")));
+    assertFalse(meta.isNull("  1  "));
+    assertFalse(meta.isNull(meta.getString("  1  ")));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_RIGHT);
-    // assertEquals( true, meta.isNull( "    " ) ); //TODO: is it correct?
-    assertEquals(false, meta.isNull("    ")); // TODO: is it correct?
-    assertEquals(true, meta.isNull(meta.getString("    ")));
+    // assertEquals( true, meta.isNull( "    " ) ); // is it correct?
+    assertFalse(meta.isNull("    ")); //  is it correct?
+    assertTrue(meta.isNull(meta.getString("    ")));
 
-    assertEquals(false, meta.isNull("  1  "));
-    assertEquals(false, meta.isNull(meta.getString("  1  ")));
+    assertFalse(meta.isNull("  1  "));
+    assertFalse(meta.isNull(meta.getString("  1  ")));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-    // assertEquals( true, meta.isNull( "    " ) ); //TODO: is it correct?
-    assertEquals(false, meta.isNull("    ")); // TODO: is it correct?
-    assertEquals(true, meta.isNull(meta.getString("    ")));
+    // assertEquals( true, meta.isNull( "    " ) ); // is it correct?
+    assertFalse(meta.isNull("    ")); //  is it correct?
+    assertTrue(meta.isNull(meta.getString("    ")));
 
-    assertEquals(false, meta.isNull("  1  "));
-    assertEquals(false, meta.isNull(meta.getString("  1  ")));
+    assertFalse(meta.isNull("  1  "));
+    assertFalse(meta.isNull(meta.getString("  1  ")));
   }
 
   @Test
-  public void testGetStringEmptyIsNotNull() throws HopValueException {
+  void testGetStringEmptyIsNotNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent(true);
 
-    assertEquals(null, meta.getString(null));
+    assertNull(meta.getString(null));
     assertEquals("", meta.getString(""));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
@@ -234,35 +236,35 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetStringEmptyIsNull() throws HopValueException {
+  void testGetStringEmptyIsNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent(false);
 
-    assertEquals(null, meta.getString(null));
-    // assertEquals( null, meta.getString( "" ) ); // TODO: is it correct?
-    assertEquals("", meta.getString("")); // TODO: is it correct?
+    assertNull(meta.getString(null));
+    // assertEquals( null, meta.getString( "" ) ); //  is it correct?
+    assertEquals("", meta.getString("")); //  is it correct?
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
     assertEquals("    ", meta.getString("    "));
     assertEquals("  1  ", meta.getString("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_LEFT);
-    // assertEquals( null, meta.getString( "    " ) ); // TODO: is it correct?
-    assertEquals("", meta.getString("    ")); // TODO: is it correct?
+    // assertEquals( null, meta.getString( "    " ) ); //  is it correct?
+    assertEquals("", meta.getString("    ")); //  is it correct?
     assertEquals("1  ", meta.getString("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_RIGHT);
-    // assertEquals( null, meta.getString( "    " ) ); // TODO: is it correct?
-    assertEquals("", meta.getString("    ")); // TODO: is it correct?
+    // assertEquals( null, meta.getString( "    " ) ); //  is it correct?
+    assertEquals("", meta.getString("    ")); //  is it correct?
     assertEquals("  1", meta.getString("  1  "));
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-    // assertEquals( null, meta.getString( "    " ) ); // TODO: is it correct?
-    assertEquals("", meta.getString("    ")); // TODO: is it correct?
+    // assertEquals( null, meta.getString( "    " ) ); //  is it correct?
+    assertEquals("", meta.getString("    ")); //  is it correct?
     assertEquals("1", meta.getString("  1  "));
   }
 
   @Test
-  public void testCompareEmptyIsNotNull() throws HopValueException {
+  void testCompareEmptyIsNotNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent(true);
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
@@ -558,7 +560,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testCompareEmptyIsNull() throws HopValueException {
+  void testCompareEmptyIsNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent(false);
 
     meta.setTrimType(IValueMeta.TRIM_TYPE_NONE);
@@ -623,8 +625,8 @@ public class ValueMetaStringTest {
 
     assertSignum(0, meta.compare(null, null)); // null == null
     assertSignum(0, meta.compare(null, "")); // null < null
-    // assertSignum( 0, meta.compare( null, " " ) ); // null == null //TODO: Is it correct?
-    assertSignum(-1, meta.compare(null, " ")); // null < null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( null, " " ) ); // null == null // Is it correct?
+    assertSignum(-1, meta.compare(null, " ")); // null < null // Is it correct?
     assertSignum(-1, meta.compare(null, " 1")); // null < "1"
     assertSignum(-1, meta.compare(null, " 1 ")); // null < "1 "
     assertSignum(-1, meta.compare(null, "1")); // null < "1"
@@ -632,16 +634,16 @@ public class ValueMetaStringTest {
 
     assertSignum(0, meta.compare("", null)); // null == null
     assertSignum(0, meta.compare("", "")); // null == null
-    // assertSignum( 0, meta.compare( "", " " ) ); // null == null //TODO: Is it correct?
-    assertSignum(-1, meta.compare("", " ")); // null < null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( "", " " ) ); // null == null // Is it correct?
+    assertSignum(-1, meta.compare("", " ")); // null < null // Is it correct?
     assertSignum(-1, meta.compare("", " 1")); // null < "1"
     assertSignum(-1, meta.compare("", " 1 ")); // null < "1 "
     assertSignum(-1, meta.compare("", "1")); // null < "1"
     assertSignum(-1, meta.compare("", "1 ")); // null < "1 "
 
     assertSignum(1, meta.compare(" ", null)); // null > null
-    // assertSignum( 0, meta.compare( " ", "" ) ); // null == null //TODO: Is it correct?
-    assertSignum(1, meta.compare(" ", "")); // null > null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( " ", "" ) ); // null == null // Is it correct?
+    assertSignum(1, meta.compare(" ", "")); // null > null // Is it correct?
     assertSignum(0, meta.compare(" ", " ")); // null == null
     assertSignum(-1, meta.compare(" ", " 1")); // null < "1"
     assertSignum(-1, meta.compare(" ", " 1 ")); // null < "1 "
@@ -684,8 +686,8 @@ public class ValueMetaStringTest {
 
     assertSignum(0, meta.compare(null, null)); // null == null
     assertSignum(0, meta.compare(null, "")); // null == null
-    // assertSignum( 0, meta.compare( null, " " ) ); // null == null //TODO: Is it correct?
-    assertSignum(-1, meta.compare(null, " ")); // null < null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( null, " " ) ); // null == null // Is it correct?
+    assertSignum(-1, meta.compare(null, " ")); // null < null // Is it correct?
     assertSignum(-1, meta.compare(null, " 1")); // null < " 1"
     assertSignum(-1, meta.compare(null, " 1 ")); // null < " 1"
     assertSignum(-1, meta.compare(null, "1")); // null < "1"
@@ -693,17 +695,17 @@ public class ValueMetaStringTest {
 
     assertSignum(0, meta.compare("", null)); // null == null
     assertSignum(0, meta.compare("", "")); // null == null
-    // assertSignum( 0, meta.compare( "", " " ) ); // null == null //TODO: Is it correct?
-    assertSignum(-1, meta.compare("", " ")); // null < null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( "", " " ) ); // null == null // Is it correct?
+    assertSignum(-1, meta.compare("", " ")); // null < null // Is it correct?
     assertSignum(-1, meta.compare("", " 1")); // null < " 1"
     assertSignum(-1, meta.compare("", " 1 ")); // null < " 1"
     assertSignum(-1, meta.compare("", "1")); // null < "1"
     assertSignum(-1, meta.compare("", "1 ")); // null < "1"
 
-    // assertSignum( 0, meta.compare( " ", null ) ); // null == null //TODO: Is it correct?
-    assertSignum(1, meta.compare(" ", null)); // null > null //TODO: Is it correct?
-    // assertSignum( 0, meta.compare( " ", "" ) ); // null == null //TODO: Is it correct?
-    assertSignum(1, meta.compare(" ", "")); // null > null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( " ", null ) ); // null == null // Is it correct?
+    assertSignum(1, meta.compare(" ", null)); // null > null // Is it correct?
+    // assertSignum( 0, meta.compare( " ", "" ) ); // null == null // Is it correct?
+    assertSignum(1, meta.compare(" ", "")); // null > null // Is it correct?
     assertSignum(0, meta.compare(" ", " ")); // null == null
     assertSignum(-1, meta.compare(" ", " 1")); // null < " 1"
     assertSignum(-1, meta.compare(" ", " 1 ")); // null < " 1"
@@ -746,8 +748,8 @@ public class ValueMetaStringTest {
 
     assertSignum(0, meta.compare(null, null)); // null == null
     assertSignum(0, meta.compare(null, "")); // null == null
-    // assertSignum( 0, meta.compare( null, " " ) ); // null == null //TODO: Is it correct?
-    assertSignum(-1, meta.compare(null, " ")); // null < null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( null, " " ) ); // null == null // Is it correct?
+    assertSignum(-1, meta.compare(null, " ")); // null < null // Is it correct?
     assertSignum(-1, meta.compare(null, " 1")); // null < "1"
     assertSignum(-1, meta.compare(null, " 1 ")); // null < "1"
     assertSignum(-1, meta.compare(null, "1")); // null < "1"
@@ -755,17 +757,17 @@ public class ValueMetaStringTest {
 
     assertSignum(0, meta.compare("", null)); // null == null
     assertSignum(0, meta.compare("", "")); // null == null
-    // assertSignum( 0, meta.compare( "", " " ) ); // null == null //TODO: Is it correct?
-    assertSignum(-1, meta.compare("", " ")); // null < null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( "", " " ) ); // null == null // Is it correct?
+    assertSignum(-1, meta.compare("", " ")); // null < null // Is it correct?
     assertSignum(-1, meta.compare("", " 1")); // null < "1"
     assertSignum(-1, meta.compare("", " 1 ")); // null < "1"
     assertSignum(-1, meta.compare("", "1")); // null < "1"
     assertSignum(-1, meta.compare("", "1 ")); // null < "1"
 
-    // assertSignum( 0, meta.compare( " ", null ) ); // null == null //TODO: Is it correct?
-    assertSignum(1, meta.compare(" ", null)); // null > null //TODO: Is it correct?
-    // assertSignum( 0, meta.compare( " ", "" ) ); // null == null //TODO: Is it correct?
-    assertSignum(1, meta.compare(" ", "")); // null > null //TODO: Is it correct?
+    // assertSignum( 0, meta.compare( " ", null ) ); // null == null // Is it correct?
+    assertSignum(1, meta.compare(" ", null)); // null > null // Is it correct?
+    // assertSignum( 0, meta.compare( " ", "" ) ); // null == null // Is it correct?
+    assertSignum(1, meta.compare(" ", "")); // null > null // Is it correct?
     assertSignum(0, meta.compare(" ", " ")); // null == null
     assertSignum(-1, meta.compare(" ", " 1")); // null < "1"
     assertSignum(-1, meta.compare(" ", " 1 ")); // null < "1"
@@ -809,7 +811,7 @@ public class ValueMetaStringTest {
 
     assertSignum(0, meta.compare(null, null)); // null == null
     assertSignum(0, meta.compare(null, "")); // null == null
-    assertSignum(-1, meta.compare(null, " ")); // null < null //TODO: Is it correct?
+    assertSignum(-1, meta.compare(null, " ")); // null < null // Is it correct?
     assertSignum(-1, meta.compare(null, " 1")); // null < "1"
     assertSignum(-1, meta.compare(null, " 1 ")); // null < "1"
     assertSignum(-1, meta.compare(null, "1")); // null < "1"
@@ -817,14 +819,14 @@ public class ValueMetaStringTest {
 
     assertSignum(0, meta.compare("", null)); // null == null
     assertSignum(0, meta.compare("", "")); // null == null
-    assertSignum(-1, meta.compare("", " ")); // null < null //TODO: Is it correct?
+    assertSignum(-1, meta.compare("", " ")); // null < null // Is it correct?
     assertSignum(-1, meta.compare("", " 1")); // null < "1"
     assertSignum(-1, meta.compare("", " 1 ")); // null < "1"
     assertSignum(-1, meta.compare("", "1")); // null < "1"
     assertSignum(-1, meta.compare("", "1 ")); // null < "1"
 
-    assertSignum(1, meta.compare(" ", null)); // null > null //TODO: Is it correct?
-    assertSignum(1, meta.compare(" ", "")); // null > null //TODO: Is it correct?
+    assertSignum(1, meta.compare(" ", null)); // null > null // Is it correct?
+    assertSignum(1, meta.compare(" ", "")); // null > null // Is it correct?
     assertSignum(0, meta.compare(" ", " ")); // null == null
     assertSignum(-1, meta.compare(" ", " 1")); // null < "1"
     assertSignum(-1, meta.compare(" ", " 1 ")); // null < "1"
@@ -865,7 +867,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testCompareCollatorEnabled() throws HopValueException {
+  void testCompareCollatorEnabled() throws HopValueException {
     ValueMetaString meta = new ValueMetaString(BASE_VALUE);
     meta.setCollatorDisabled(false);
     meta.setCollatorLocale(Locale.FRENCH);
@@ -900,7 +902,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetIntegerWithoutConversionMask() throws HopValueException {
+  void testGetIntegerWithoutConversionMask() throws HopValueException {
     String value = "100.56";
     IValueMeta stringValueMeta = new ValueMetaString("test");
 
@@ -910,7 +912,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetNumberWithoutConversionMask() throws HopValueException {
+  void testGetNumberWithoutConversionMask() throws HopValueException {
     String value = "100.56";
     IValueMeta stringValueMeta = new ValueMetaString("test");
 
@@ -920,17 +922,17 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetBigNumberWithoutConversionMask() throws HopValueException {
+  void testGetBigNumberWithoutConversionMask() throws HopValueException {
     String value = "100.5";
     IValueMeta stringValueMeta = new ValueMetaString("test");
 
-    BigDecimal expected = new BigDecimal(100.5);
+    BigDecimal expected = new BigDecimal("100.5");
     BigDecimal result = stringValueMeta.getBigNumber(value);
     assertEquals(expected, result);
   }
 
   @Test
-  public void testGetDateWithoutConversionMask() throws HopValueException {
+  void testGetDateWithoutConversionMask() throws HopValueException {
     Calendar date = new GregorianCalendar(2017, 9, 20); // month 9 = Oct
     String value = "2017/10/20 00:00:00.000";
     IValueMeta stringValueMeta = new ValueMetaString("test");
@@ -954,7 +956,7 @@ public class ValueMetaStringTest {
         failNotEquals(msg, "(>0)", actual);
       }
     } else {
-      assertEquals(msg, expected, actual);
+      assertEquals(expected, actual, msg);
     }
   }
 

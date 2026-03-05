@@ -460,6 +460,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               FileSelector fileSelector = new FileFilterSelector(nameFileFilter);
               destinationFileFolder.copyFrom(sourceFileFolder.getParent(), fileSelector);
 
+              trackBytesCopied(sourceFileFolder, result);
+
               if (isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
@@ -474,6 +476,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
               destinationFileFolder.copyFrom(
                   sourceFileFolder, new TextOneToOneFileSelector(destinationFileFolder));
+
+              trackBytesCopied(sourceFileFolder, result);
             } else {
               // Both source and destination are folders
               if (isDetailed()) {
@@ -492,6 +496,20 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 destinationFileFolder.copyFrom(sourceFileFolder, textFileSelector);
               } finally {
                 textFileSelector.shutdown();
+              }
+            }
+
+            // Track bytes for folder-to-folder copies via listAddResult
+            for (String copiedFile : listAddResult) {
+              try {
+                FileObject fo = HopVfs.getFileObject(copiedFile, getVariables());
+                if (fo.getType() == FileType.FILE && fo.getType().hasContent()) {
+                  long size = fo.getContent().getSize();
+                  result.setBytesReadThisAction(result.getBytesReadThisAction() + size);
+                  result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + size);
+                }
+              } catch (Exception e) {
+                logDebug("Could not get size of copied file: " + copiedFile);
               }
             }
 
@@ -636,6 +654,18 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
 
     return entrystatus;
+  }
+
+  private void trackBytesCopied(FileObject sourceFile, Result result) {
+    try {
+      if (sourceFile.getType().hasContent()) {
+        long size = sourceFile.getContent().getSize();
+        result.setBytesReadThisAction(result.getBytesReadThisAction() + size);
+        result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + size);
+      }
+    } catch (Exception e) {
+      logDebug("Could not get size of source file: " + sourceFile);
+    }
   }
 
   private class TextOneToOneFileSelector implements FileSelector {

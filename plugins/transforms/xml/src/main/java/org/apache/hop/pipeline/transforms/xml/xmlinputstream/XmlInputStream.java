@@ -36,6 +36,7 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -189,7 +190,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         return false;
       }
       data.fileObject = HopVfs.getFileObject(data.filenames[data.filenr], variables);
-      data.inputStream = HopVfs.getInputStream(data.fileObject);
+      data.inputStream = new CountingInputStream(HopVfs.getInputStream(data.fileObject));
       data.xmlEventReader = data.staxInstance.createXMLEventReader(data.inputStream, data.encoding);
     } catch (IOException | XMLStreamException e) {
       throw new HopException(e);
@@ -226,6 +227,9 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
     }
     if (data.inputStream != null) {
       try {
+        if (data.inputStream instanceof CountingInputStream cis) {
+          dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + cis.getCount();
+        }
         data.inputStream.close();
       } catch (IOException e) {
         if (isBasic()) {

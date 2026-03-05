@@ -1,0 +1,2 @@
+dn,cn,uid,description
+"uid=jdoe,ou=People,dc=hop,dc=apache,dc=org",John Doe,jdoe,Lead developer on the Hop project

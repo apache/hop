@@ -25,6 +25,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -132,6 +133,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
       String encoding = resolve(getEncoding());
 
       OutputStreamWriter osw = null;
+      CountingOutputStream counting = null;
       OutputStream os = null;
       try {
 
@@ -140,13 +142,14 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
 
         // Create / open file for writing
         os = HopVfs.getOutputStream(realFilename, isAppendFile(), getVariables());
+        counting = new CountingOutputStream(os);
 
         if (Utils.isEmpty(encoding)) {
           if (isDebug()) {
             logDebug(
                 BaseMessages.getString(PKG, "ActionWriteToFile.Log.WritingToFile", realFilename));
           }
-          osw = new OutputStreamWriter(os);
+          osw = new OutputStreamWriter(counting);
         } else {
           if (isDebug()) {
             logDebug(
@@ -156,9 +159,12 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
                     realFilename,
                     encoding));
           }
-          osw = new OutputStreamWriter(os, encoding);
+          osw = new OutputStreamWriter(counting, encoding);
         }
         osw.write(content);
+        osw.flush();
+
+        result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + counting.getCount());
 
         result.setResult(true);
         result.setNrErrors(0);
@@ -170,15 +176,20 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
       } finally {
         if (osw != null) {
           try {
-            osw.flush();
             osw.close();
+          } catch (Exception ex) {
+            /* Ignore */
+          }
+        }
+        if (counting != null) {
+          try {
+            counting.close();
           } catch (Exception ex) {
             /* Ignore */
           }
         }
         if (os != null) {
           try {
-            os.flush();
             os.close();
           } catch (Exception ex) {
             /* Ignore */

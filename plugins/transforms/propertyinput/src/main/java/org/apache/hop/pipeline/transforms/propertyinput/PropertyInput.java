@@ -28,6 +28,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -459,6 +460,8 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       }
 
       inputStream = data.file.getContent().getInputStream();
+      CountingInputStream countingStream = new CountingInputStream(inputStream);
+      inputStream = countingStream;
       if (data.propFiles) {
         // load properties file
         data.properties = new Properties();
@@ -516,6 +519,9 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       setErrors(1);
       return false;
     } finally {
+      if (inputStream instanceof CountingInputStream cis) {
+        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + cis.getCount();
+      }
       BaseTransform.closeQuietly(inputStream);
     }
     return true;
