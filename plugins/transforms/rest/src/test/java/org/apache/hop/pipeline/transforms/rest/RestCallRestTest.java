@@ -783,7 +783,7 @@ class RestCallRestTest {
       // Verify
       assertNotNull(outputRow);
       assertEquals("{\"authenticated\":true}", outputRow[2]);
-      verify(builder, times(2)).header(anyString(), any());
+      verify(builder).headers(any());
     }
   }
 

@@ -196,34 +196,19 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
 
       // set the Authentication/Authorization header from the connection first, if available.
       // this transform's headers will override this value if available.
-      if (connection != null) {
-        if (connection.getAuthType().equals("API Key")) {
-          if (!StringUtils.isEmpty(resolve(connection.getAuthorizationHeaderName())))
-            if (!Utils.isEmpty(resolve(connection.getAuthorizationHeaderName()))) {
-              if (!StringUtils.isEmpty(resolve(connection.getAuthorizationPrefix()))) {
-                invocationBuilder.header(
-                    resolve(connection.getAuthorizationHeaderName()),
-                    resolve(connection.getAuthorizationPrefix())
-                        + " "
-                        + resolve(connection.getAuthorizationHeaderValue()));
-              } else {
-                invocationBuilder.header(
-                    resolve(connection.getAuthorizationHeaderName()),
-                    resolve(connection.getAuthorizationHeaderValue()));
-              }
-            }
-        }
-      }
+      MultivaluedMap<String, Object> headerMap = new MultivaluedHashMap<>();
+      addApiKeyHeaderIfAbsent(headerMap);
 
       boolean acceptHeaderProvided = false;
-      String contentType = null; // media type override, if not null
+      // media type override, if not null
+      String contentType = null;
       if (data.useHeaders) {
         // Add headers
         for (int i = 0; i < data.nrheader; i++) {
           String value = data.inputRowMeta.getString(rowData, data.indexOfHeaderFields[i]);
 
           // unsure if an already set header will be returned to builder
-          invocationBuilder.header(data.headerNames[i], value);
+          headerMap.putSingle(data.headerNames[i], value);
           if ("Content-Type".equals(data.headerNames[i])) {
             contentType = value;
           }
@@ -238,7 +223,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       if (!acceptHeaderProvided && data.mediaType != null) {
-        invocationBuilder = invocationBuilder.accept(data.mediaType);
+        headerMap.putSingle("Accept", data.mediaType);
       }
 
       Response response = null;
@@ -252,6 +237,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
 
       // execute first call
+      invocationBuilder.headers(headerMap);
       final Invocation.Builder finalInvocationBuilder = invocationBuilder;
       final String finalEntityString = entityString;
       final String finalContentType = contentType;
@@ -544,6 +530,39 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       }
     } catch (Exception e) {
       throw new HopException("Request could not be processed", e);
+    }
+  }
+
+  /**
+   * set the Authentication/Authorization header from the connection first, if available. this
+   * transform's headers will override this value if available.
+   *
+   * @param headers the mutable map containing HTTP headers that will be sent with the request
+   */
+  private void addApiKeyHeaderIfAbsent(MultivaluedMap<String, Object> headers) {
+    if (connection == null) {
+      return;
+    }
+
+    if (!"API Key".equals(connection.getAuthType())) {
+      return;
+    }
+
+    String headerName = resolve(connection.getAuthorizationHeaderName());
+    String headerValue = resolve(connection.getAuthorizationHeaderValue());
+    String prefix = resolve(connection.getAuthorizationPrefix());
+
+    if (Utils.isEmpty(headerName) || Utils.isEmpty(headerValue)) {
+      return;
+    }
+
+    if (!Utils.isEmpty(prefix)) {
+      headerValue = prefix + " " + headerValue;
+    }
+
+    // Only add header if not already present
+    if (!headers.containsKey(headerName)) {
+      headers.putSingle(headerName, headerValue);
     }
   }
 
