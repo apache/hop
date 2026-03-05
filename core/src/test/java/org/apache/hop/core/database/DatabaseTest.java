@@ -17,12 +17,14 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -57,17 +59,15 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class DatabaseTest {
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class DatabaseTest {
 
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
-  private static final String TEST_NAME_OF_DB_CONNECTION = "TEST_CONNECTION";
   private static final String SQL_MOCK_EXCEPTION_MESSAGE = "SQL mock exception";
   private static final SQLException SQL_EXCEPTION = new SQLException(SQL_MOCK_EXCEPTION_MESSAGE);
   private static final String EXISTING_TABLE_NAME = "TABLE";
@@ -93,20 +93,20 @@ public class DatabaseTest {
 
   // end common fields
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
+  @BeforeAll
+  static void setUpClass() throws Exception {
     HopClientEnvironment.init();
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     conn = mockConnection(mock(DatabaseMetaData.class));
     when(log.getLogLevel()).thenReturn(LogLevel.NOTHING);
     variables = new Variables();
   }
 
   @Test
-  public void testGetQueryFieldsFromDatabaseMetaData() throws Exception {
+  void testGetQueryFieldsFromDatabaseMetaData() throws Exception {
     DatabaseMeta meta = mock(DatabaseMeta.class);
     DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
     Connection conn = mockConnection(dbMetaData);
@@ -143,12 +143,9 @@ public class DatabaseTest {
    *
    * <p>During the execution calling getLookup() method we changing usually only lookup where clause
    * which will not impact return row structure.
-   *
-   * @throws HopDatabaseException
-   * @throws SQLException
    */
   @Test
-  public void testGetLookupMetaCalls() throws HopDatabaseException, SQLException {
+  void testGetLookupMetaCalls() throws HopDatabaseException, SQLException {
     when(meta.getQuotedSchemaTableCombination(
             nullable(IVariables.class), nullable(String.class), nullable(String.class)))
         .thenReturn("a");
@@ -173,12 +170,9 @@ public class DatabaseTest {
   /**
    * Test that for every PreparedStatement passed into lookup signature we do reset and re-create
    * row meta.
-   *
-   * @throws SQLException
-   * @throws HopDatabaseException
    */
   @Test
-  public void testGetLookupCallPSpassed() throws SQLException, HopDatabaseException {
+  void testGetLookupCallPSpassed() throws SQLException, HopDatabaseException {
     when(ps.executeQuery()).thenReturn(rs);
     when(rs.getMetaData()).thenReturn(rsMetaData);
     when(rsMetaData.getColumnCount()).thenReturn(0);
@@ -190,19 +184,19 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testCreateHopDatabaseBatchExceptionNullUpdatesWhenSqlException() {
+  void testCreateHopDatabaseBatchExceptionNullUpdatesWhenSqlException() {
     assertNull(Database.createHopDatabaseBatchException("", new SQLException()).getUpdateCounts());
   }
 
   @Test
-  public void testCreateHopDatabaseBatchExceptionNotUpdatesWhenBatchUpdateException() {
+  void testCreateHopDatabaseBatchExceptionNotUpdatesWhenBatchUpdateException() {
     assertNotNull(
         Database.createHopDatabaseBatchException("", new BatchUpdateException(new int[0]))
             .getUpdateCounts());
   }
 
   @Test
-  public void testCreateHopDatabaseBatchExceptionConstructsExceptionList() {
+  void testCreateHopDatabaseBatchExceptionConstructsExceptionList() {
     BatchUpdateException root = new BatchUpdateException();
     SQLException next = new SQLException();
     SQLException next2 = new SQLException();
@@ -215,96 +209,106 @@ public class DatabaseTest {
     assertEquals(next2, exceptionList.get(1));
   }
 
-  @Test(expected = HopDatabaseBatchException.class)
-  public void testInsertRowWithBatchAlwaysThrowsHopBatchException()
-      throws HopDatabaseException, SQLException {
-    when(meta.supportsBatchUpdates()).thenReturn(true);
-    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
-    Connection conn = mockConnection(dbMetaData);
-    when(ps.executeBatch()).thenThrow(new SQLException());
+  @Test
+  void testInsertRowWithBatchAlwaysThrowsHopBatchException() {
+    assertThrows(
+        HopDatabaseException.class,
+        () -> {
+          when(meta.supportsBatchUpdates()).thenReturn(true);
+          when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
+          Connection conn = mockConnection(dbMetaData);
+          when(ps.executeBatch()).thenThrow(new SQLException());
 
-    Database database = new Database(log, variables, meta);
-    database.setCommit(1);
-    database.setConnection(conn);
-    database.insertRow(ps, true, true);
+          Database database = new Database(log, variables, meta);
+          database.setCommit(1);
+          database.setConnection(conn);
+          database.insertRow(ps, true, true);
+        });
   }
 
-  @Test(expected = HopDatabaseException.class)
-  public void testInsertRowWithoutBatchDoesntThrowHopBatchException()
-      throws HopDatabaseException, SQLException {
+  @Test
+  void testInsertRowWithoutBatchDoesntThrowHopBatchException() throws SQLException {
     when(meta.supportsBatchUpdates()).thenReturn(true);
     when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
     when(ps.executeUpdate()).thenThrow(new SQLException());
 
-    Database database = new Database(log, variables, meta);
-    database.setConnection(conn);
-    try {
-      database.insertRow(ps, true, true);
-    } catch (HopDatabaseBatchException e) {
-      // noop
-    }
-  }
-
-  @Test(expected = HopDatabaseBatchException.class)
-  public void testEmptyAndCommitWithBatchAlwaysThrowsHopBatchException()
-      throws HopDatabaseException, SQLException {
-    when(meta.supportsBatchUpdates()).thenReturn(true);
-    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
-    Connection mockConnection = mockConnection(dbMetaData);
-    when(ps.executeBatch()).thenThrow(new SQLException());
-
-    Database database = new Database(log, variables, meta);
-    database.setCommit(1);
-    database.setConnection(mockConnection);
-    database.emptyAndCommit(ps, true, 1);
-  }
-
-  @Test(expected = HopDatabaseException.class)
-  public void testEmptyAndCommitWithoutBatchDoesntThrowHopBatchException()
-      throws HopDatabaseException, SQLException {
-    when(meta.supportsBatchUpdates()).thenReturn(true);
-    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
-    Connection mockConnection = mockConnection(dbMetaData);
-    doThrow(new SQLException()).when(ps).close();
-
-    Database database = new Database(log, variables, meta);
-    database.setConnection(mockConnection);
-    try {
-      database.emptyAndCommit(ps, true, 1);
-    } catch (HopDatabaseBatchException e) {
-      // noop
-    }
-  }
-
-  @Test(expected = HopDatabaseBatchException.class)
-  public void testInsertFinishedWithBatchAlwaysThrowsHopBatchException()
-      throws HopDatabaseException, SQLException {
-    when(meta.supportsBatchUpdates()).thenReturn(true);
-    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
-    Connection mockConnection = mockConnection(dbMetaData);
-    when(ps.executeBatch()).thenThrow(new SQLException());
-
-    Database database = new Database(log, variables, meta);
-    database.setCommit(1);
-    database.setConnection(mockConnection);
-    database.emptyAndCommit(ps, true, 1);
-  }
-
-  @Test(expected = HopDatabaseException.class)
-  public void testInsertFinishedWithoutBatchDoesntThrowHopBatchException()
-      throws HopDatabaseException, SQLException {
-    when(meta.supportsBatchUpdates()).thenReturn(true);
-    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
-    Connection mockConnection = mockConnection(dbMetaData);
-    doThrow(new SQLException()).when(ps).close();
-
-    Database database = new Database(log, variables, meta);
-    database.setConnection(mockConnection);
-    database.emptyAndCommit(ps, true, 1);
+    assertThrows(
+        HopDatabaseException.class,
+        () -> {
+          Database database = new Database(log, variables, meta);
+          database.setConnection(conn);
+          database.insertRow(ps, true, true);
+        });
   }
 
   @Test
-  public void insertRowAndExecuteBatchCauseNoErrors() throws Exception {
+  void testEmptyAndCommitWithBatchAlwaysThrowsHopBatchException() throws SQLException {
+    when(meta.supportsBatchUpdates()).thenReturn(true);
+    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
+    Connection mockConnection = mockConnection(dbMetaData);
+    when(ps.executeBatch()).thenThrow(new SQLException());
+
+    assertThrows(
+        HopDatabaseBatchException.class,
+        () -> {
+          Database database = new Database(log, variables, meta);
+          database.setCommit(1);
+          database.setConnection(mockConnection);
+          database.emptyAndCommit(ps, true, 1);
+        });
+  }
+
+  @Test
+  void testEmptyAndCommitWithoutBatchDoesntThrowHopBatchException() throws SQLException {
+    when(meta.supportsBatchUpdates()).thenReturn(true);
+    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
+    Connection mockConnection = mockConnection(dbMetaData);
+    doThrow(new SQLException()).when(ps).close();
+
+    assertThrows(
+        HopDatabaseException.class,
+        () -> {
+          Database database = new Database(log, variables, meta);
+          database.setConnection(mockConnection);
+          database.emptyAndCommit(ps, true, 1);
+        });
+  }
+
+  @Test
+  void testInsertFinishedWithBatchAlwaysThrowsHopBatchException() throws SQLException {
+    when(meta.supportsBatchUpdates()).thenReturn(true);
+    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
+    Connection mockConnection = mockConnection(dbMetaData);
+    when(ps.executeBatch()).thenThrow(new SQLException());
+
+    assertThrows(
+        HopDatabaseBatchException.class,
+        () -> {
+          Database database = new Database(log, variables, meta);
+          database.setCommit(1);
+          database.setConnection(mockConnection);
+          database.emptyAndCommit(ps, true, 1);
+        });
+  }
+
+  @Test
+  void testInsertFinishedWithoutBatchDoesntThrowHopBatchException() throws SQLException {
+    when(meta.supportsBatchUpdates()).thenReturn(true);
+    when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
+    Connection mockConnection = mockConnection(dbMetaData);
+    doThrow(new SQLException()).when(ps).close();
+
+    assertThrows(
+        HopDatabaseException.class,
+        () -> {
+          Database database = new Database(log, variables, meta);
+          database.setConnection(mockConnection);
+          database.emptyAndCommit(ps, true, 1);
+        });
+  }
+
+  @Test
+  void insertRowAndExecuteBatchCauseNoErrors() throws Exception {
     when(meta.supportsBatchUpdates()).thenReturn(true);
     when(dbMetaData.supportsBatchUpdates()).thenReturn(true);
 
@@ -320,7 +324,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void insertRowWhenDbDoNotSupportBatchLeadsToCommit() throws Exception {
+  void insertRowWhenDbDoNotSupportBatchLeadsToCommit() throws Exception {
     when(meta.supportsBatchUpdates()).thenReturn(false);
     when(dbMetaData.supportsBatchUpdates()).thenReturn(false);
 
@@ -333,7 +337,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetCreateSequenceStatement() throws Exception {
+  void testGetCreateSequenceStatement() throws Exception {
     when(meta.supportsSequences()).thenReturn(true);
     when(meta.supportsSequenceNoMaxValueOption()).thenReturn(true);
     doReturn(iDatabase).when(meta).getIDatabase();
@@ -346,7 +350,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testPrepareSql() throws Exception {
+  void testPrepareSql() throws Exception {
     doReturn(iDatabase).when(meta).getIDatabase();
 
     Database db = new Database(log, variables, meta);
@@ -359,7 +363,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetCreateTableStatement() throws Exception {
+  void testGetCreateTableStatement() throws Exception {
     IValueMeta v = mock(IValueMeta.class);
     doReturn(" ").when(iDatabase).getDataTablespaceDDL(any(IVariables.class), eq(meta));
     doReturn("CREATE TABLE ").when(iDatabase).getCreateTableStatement();
@@ -409,7 +413,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testCheckTableNotExistsByDbMeta() throws Exception {
+  void testCheckTableNotExistsByDbMeta() throws Exception {
     when(rs.next()).thenReturn(true, false);
     when(rs.getString("TABLE_NAME")).thenReturn(EXISTING_TABLE_NAME);
     when(dbMetaDataMock.getTables(any(), anyString(), anyString(), aryEq(TABLE_TYPES_TO_GET)))
@@ -418,12 +422,12 @@ public class DatabaseTest {
     db.setConnection(mockConnection(dbMetaDataMock));
 
     assertFalse(
-        "The table " + NOT_EXISTING_TABLE_NAME + " is in db meta data but should not be here",
-        db.checkTableExists(SCHEMA_TO_CHECK, NOT_EXISTING_TABLE_NAME));
+        db.checkTableExists(SCHEMA_TO_CHECK, NOT_EXISTING_TABLE_NAME),
+        "The table " + NOT_EXISTING_TABLE_NAME + " is in db meta data but should not be here");
   }
 
   @Test
-  public void testCheckTableExistsByDbMetaThrowsHopDatabaseException_WhenUnableToGetTableNames() {
+  void testCheckTableExistsByDbMetaThrowsHopDatabaseException_WhenUnableToGetTableNames() {
     HopDatabaseException kettleDatabaseException =
         new HopDatabaseException(
             "Unable to get table-names from the database meta-data.", SQL_EXCEPTION);
@@ -435,7 +439,7 @@ public class DatabaseTest {
       db.setConnection(mockConnection(dbMetaDataMock));
       assertFalse(db.checkTableExists(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME));
     } catch (HopDatabaseException e) {
-      assertTrue(e instanceof HopDatabaseException);
+      assertInstanceOf(HopDatabaseException.class, e);
       assertEquals(kettleDatabaseException.getLocalizedMessage(), e.getLocalizedMessage());
     } catch (Exception ex) {
       fail("There should be thrown HopDatabaseException but was :" + ex.getMessage());
@@ -443,7 +447,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testCheckTableExistsByDbMetaThrowsHopDatabaseException_WhenResultSetNull() {
+  void testCheckTableExistsByDbMetaThrowsHopDatabaseException_WhenResultSetNull() {
     HopDatabaseException kettleDatabaseException =
         new HopDatabaseException("Unable to get table-names from the database meta-data.");
     try {
@@ -454,7 +458,7 @@ public class DatabaseTest {
       db.setConnection(mockConnection(dbMetaDataMock));
       assertFalse(db.checkTableExists(SCHEMA_TO_CHECK, EXISTING_TABLE_NAME));
     } catch (HopDatabaseException e) {
-      assertTrue(e instanceof HopDatabaseException);
+      assertInstanceOf(HopDatabaseException.class, e);
       assertEquals(kettleDatabaseException.getLocalizedMessage(), e.getLocalizedMessage());
     } catch (Exception ex) {
       fail("There should be thrown HopDatabaseException but was :" + ex.getMessage());
@@ -468,7 +472,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testDisconnectPstmCloseFail()
+  void testDisconnectPstmCloseFail()
       throws SQLException, NoSuchFieldException, IllegalAccessException {
     Database db = new Database(log, variables, meta);
     Connection connection = mockConnection(dbMetaData);
@@ -485,7 +489,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testDisconnectCommitFail()
+  void testDisconnectCommitFail()
       throws SQLException, NoSuchFieldException, IllegalAccessException {
     when(meta.supportsEmptyTransactions()).thenReturn(true);
     when(dbMetaData.supportsTransactions()).thenReturn(true);
@@ -504,7 +508,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testDisconnectConnectionGroup() throws SQLException {
+  void testDisconnectConnectionGroup() throws SQLException {
     Database db = new Database(log, variables, meta);
     db.setConnection(conn);
     db.setConnectionGroup("1");
@@ -513,7 +517,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetTablenames() throws SQLException, HopDatabaseException {
+  void testGetTablenames() throws SQLException, HopDatabaseException {
     when(rs.next()).thenReturn(true, false);
     when(rs.getString("TABLE_NAME")).thenReturn(EXISTING_TABLE_NAME);
     when(dbMetaDataMock.getTables(
@@ -527,7 +531,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testCheckTableExistsNoProperty() throws Exception {
+  void testCheckTableExistsNoProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
     Database db = spy(new Database(log, variables, databaseMeta));
 
@@ -536,7 +540,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testCheckTableExistsFalseProperty() throws Exception {
+  void testCheckTableExistsFalseProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
     Database db = spy(new Database(log, variables, databaseMeta));
 
@@ -545,7 +549,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testCheckColumnExistsNoProperty() throws Exception {
+  void testCheckColumnExistsNoProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
     Database db = spy(new Database(log, variables, databaseMeta));
 
@@ -554,7 +558,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetTableFieldsMetaNoProperty() throws Exception {
+  void testGetTableFieldsMetaNoProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
     Database db = spy(new Database(log, variables, databaseMeta));
 
@@ -576,7 +580,7 @@ public class DatabaseTest {
   }
 
   @Test
-  public void testGetQueryFieldsFromPreparedStatement() throws Exception {
+  void testGetQueryFieldsFromPreparedStatement() throws Exception {
     when(rsMetaData.getColumnCount()).thenReturn(1);
     when(rsMetaData.getColumnName(1)).thenReturn(columnName);
     when(rsMetaData.getColumnLabel(1)).thenReturn(columnName);
@@ -594,11 +598,11 @@ public class DatabaseTest {
 
     assertEquals(1, iRowMeta.size());
     assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
-    assertTrue(iRowMeta.getValueMeta(0) instanceof ValueMetaNumber);
+    assertInstanceOf(ValueMetaNumber.class, iRowMeta.getValueMeta(0));
   }
 
   @Test
-  public void testGetQueryFieldsFallback() throws Exception {
+  void testGetQueryFieldsFallback() throws Exception {
     when(rsMetaData.getColumnCount()).thenReturn(1);
     when(rsMetaData.getColumnName(1)).thenReturn(columnName);
     when(rsMetaData.getColumnLabel(1)).thenReturn(columnName);
@@ -616,6 +620,6 @@ public class DatabaseTest {
 
     assertEquals(1, iRowMeta.size());
     assertEquals(columnName, iRowMeta.getValueMeta(0).getName());
-    assertTrue(iRowMeta.getValueMeta(0) instanceof ValueMetaNumber);
+    assertInstanceOf(ValueMetaNumber.class, iRowMeta.getValueMeta(0));
   }
 }

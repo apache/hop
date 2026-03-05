@@ -17,23 +17,22 @@
 
 package org.apache.hop.core.gui.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class GuiRegistryTest {
-
+class GuiRegistryTest {
   private GuiRegistry registry;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     registry = GuiRegistry.getInstance();
   }
 
   @Test
-  public void retrieveClassInstance() {
+  void retrieveClassInstance() {
     Object object1 = new Object();
     registry.registerGuiPluginObject("hop-gui-id1", "class1", "instance1", object1);
     Object verifyObject1111 = registry.findGuiPluginObject("hop-gui-id1", "class1", "instance1");
@@ -44,7 +43,7 @@ public class GuiRegistryTest {
   }
 
   @Test
-  public void retrieveSameObjectMultipleInstances() {
+  void retrieveSameObjectMultipleInstances() {
     Object object1 = new Object();
     registry.registerGuiPluginObject("hop-gui-id1", "class1", "instance1", object1);
     registry.registerGuiPluginObject("hop-gui-id1", "class1", "instance2", object1);

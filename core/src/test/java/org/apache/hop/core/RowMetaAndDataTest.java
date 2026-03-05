@@ -17,9 +17,11 @@
 
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.injection.DefaultInjectionTypeConverter;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -32,10 +34,10 @@ import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class RowMetaAndDataTest {
+class RowMetaAndDataTest {
   RowMeta rowsMeta;
   RowMetaAndData row;
 
@@ -48,8 +50,8 @@ public class RowMetaAndDataTest {
     three
   }
 
-  @Before
-  public void prepare() {
+  @BeforeEach
+  void prepare() {
     rowsMeta = new RowMeta();
 
     IValueMeta valueMetaString = new ValueMetaString("str");
@@ -63,7 +65,7 @@ public class RowMetaAndDataTest {
   }
 
   @Test
-  public void testMergeRowAndMetaData() {
+  void testMergeRowAndMetaData() {
     row = new RowMetaAndData(rowsMeta, "text", true, 1);
     RowMeta addRowMeta = new RowMeta();
     IValueMeta valueMetaString = new ValueMetaString("str");
@@ -79,8 +81,7 @@ public class RowMetaAndDataTest {
   }
 
   @Test
-  public void testStringConversion() throws Exception {
-
+  void testStringConversion() throws Exception {
     row = new RowMetaAndData(rowsMeta, "text", null, null);
     assertEquals("text", row.getAsJavaType("str", String.class, converter));
 
@@ -123,6 +124,10 @@ public class RowMetaAndDataTest {
     assertEquals(false, row.getAsJavaType("str", boolean.class, converter));
     assertEquals(false, row.getAsJavaType("str", Boolean.class, converter));
 
+    testStringConversion_other();
+  }
+
+  private void testStringConversion_other() throws HopValueException {
     row = new RowMetaAndData(rowsMeta, TestEnum.ONE.name(), null, null);
     assertEquals(TestEnum.ONE, row.getAsJavaType("str", TestEnum.class, converter));
     row = new RowMetaAndData(rowsMeta, TestEnum.Two.name(), null, null);
@@ -131,14 +136,14 @@ public class RowMetaAndDataTest {
     assertEquals(TestEnum.three, row.getAsJavaType("str", TestEnum.class, converter));
 
     row = new RowMetaAndData(rowsMeta, null, null, null);
-    assertEquals(null, row.getAsJavaType("str", String.class, converter));
-    assertEquals(null, row.getAsJavaType("str", Integer.class, converter));
-    assertEquals(null, row.getAsJavaType("str", Long.class, converter));
-    assertEquals(null, row.getAsJavaType("str", Boolean.class, converter));
+    assertNull(row.getAsJavaType("str", String.class, converter));
+    assertNull(row.getAsJavaType("str", Integer.class, converter));
+    assertNull(row.getAsJavaType("str", Long.class, converter));
+    assertNull(row.getAsJavaType("str", Boolean.class, converter));
   }
 
   @Test
-  public void testBooleanConversion() throws Exception {
+  void testBooleanConversion() throws Exception {
 
     row = new RowMetaAndData(rowsMeta, null, true, null);
     assertEquals(true, row.getAsJavaType("bool", boolean.class, converter));
@@ -159,14 +164,14 @@ public class RowMetaAndDataTest {
     assertEquals("N", row.getAsJavaType("bool", String.class, converter));
 
     row = new RowMetaAndData(rowsMeta, null, null, null);
-    assertEquals(null, row.getAsJavaType("bool", String.class, converter));
-    assertEquals(null, row.getAsJavaType("bool", Integer.class, converter));
-    assertEquals(null, row.getAsJavaType("bool", Long.class, converter));
-    assertEquals(null, row.getAsJavaType("bool", Boolean.class, converter));
+    assertNull(row.getAsJavaType("bool", String.class, converter));
+    assertNull(row.getAsJavaType("bool", Integer.class, converter));
+    assertNull(row.getAsJavaType("bool", Long.class, converter));
+    assertNull(row.getAsJavaType("bool", Boolean.class, converter));
   }
 
   @Test
-  public void testIntegerConversion() throws Exception {
+  void testIntegerConversion() throws Exception {
 
     row = new RowMetaAndData(rowsMeta, null, null, 7L);
     assertEquals(true, row.getAsJavaType("int", boolean.class, converter));
@@ -182,14 +187,14 @@ public class RowMetaAndDataTest {
     assertEquals(false, row.getAsJavaType("int", Boolean.class, converter));
 
     row = new RowMetaAndData(rowsMeta, null, null, null);
-    assertEquals(null, row.getAsJavaType("int", String.class, converter));
-    assertEquals(null, row.getAsJavaType("int", Integer.class, converter));
-    assertEquals(null, row.getAsJavaType("int", Long.class, converter));
-    assertEquals(null, row.getAsJavaType("int", Boolean.class, converter));
+    assertNull(row.getAsJavaType("int", String.class, converter));
+    assertNull(row.getAsJavaType("int", Integer.class, converter));
+    assertNull(row.getAsJavaType("int", Long.class, converter));
+    assertNull(row.getAsJavaType("int", Boolean.class, converter));
   }
 
   @Test
-  public void testEmptyValues() throws Exception {
+  void testEmptyValues() throws Exception {
     RowMeta rowsMetaEmpty = new RowMeta();
 
     rowsMetaEmpty.addValueMeta(new ValueMetaString("str"));

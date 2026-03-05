@@ -17,40 +17,39 @@
 
 package org.apache.hop.core.row;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Calendar;
 import java.util.TimeZone;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ValueDateUtilTest {
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueDateUtilTest {
   private TimeZone defTimeZone;
   private TimeZone defUserTimezone;
 
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     defUserTimezone = TimeZone.getTimeZone(System.getProperty("user.timezone"));
     defTimeZone = java.util.TimeZone.getDefault();
     System.setProperty("user.timezone", "UTC");
     TimeZone.setDefault(null);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     System.setProperty("user.timezone", defUserTimezone.getID());
     TimeZone.setDefault(defTimeZone);
   }
 
   @Test
-  public void shouldCalculateHourOfDayUsingValueMetasTimeZoneByDefault() throws HopValueException {
+  void shouldCalculateHourOfDayUsingValueMetasTimeZoneByDefault() throws HopValueException {
     Calendar date = Calendar.getInstance();
     date.setTimeInMillis(1454313600000L); // 2016-07-01 08:00:00 UTC
     IValueMeta valueMetaDate = new ValueMetaDate();
@@ -63,7 +62,7 @@ public class ValueDateUtilTest {
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_JAN() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_JAN() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -72,11 +71,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1233360000000L); // 2009-01-31 00:00:00
     Object workingDayOfJAN =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in JAN ", 22L, workingDayOfJAN);
+    assertEquals(22L, workingDayOfJAN, "Working days count in JAN ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_FEB() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_FEB() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -85,11 +84,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1235779200000L); // 2009-02-28 00:00:00
     Object workingDayOfFEB =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in FEB ", 20L, workingDayOfFEB);
+    assertEquals(20L, workingDayOfFEB, "Working days count in FEB ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_MAR() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_MAR() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -98,11 +97,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1238457600000L); // 2009-03-31 00:00:00
     Object workingDayOfMAR =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in MAR ", 22L, workingDayOfMAR);
+    assertEquals(22L, workingDayOfMAR, "Working days count in MAR ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_APR() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_APR() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -111,11 +110,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1241049600000L); // 2009-04-30 00:00:00
     Object workingDayOfAPR =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in APR ", 22L, workingDayOfAPR);
+    assertEquals(22L, workingDayOfAPR, "Working days count in APR ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_MAY() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_MAY() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -124,11 +123,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1243728000000L); // 2009-05-31 00:00:00
     Object workingDayOfMAY =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in MAY ", 21L, workingDayOfMAY);
+    assertEquals(21L, workingDayOfMAY, "Working days count in MAY ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_JUN() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_JUN() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -137,11 +136,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1246320000000L); // 2009-06-30 00:00:00
     Object workingDayOfJUN =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in JUN ", 22L, workingDayOfJUN);
+    assertEquals(22L, workingDayOfJUN, "Working days count in JUN ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_JUL() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_JUL() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -150,11 +149,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1248998400000L); // 2009-07-31 00:00:00
     Object workingDayOfJUL =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in JUL ", 23L, workingDayOfJUL);
+    assertEquals(23L, workingDayOfJUL, "Working days count in JUL ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_AUG() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_AUG() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -163,11 +162,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1251676800000L); // 2009-08-31 00:00:00
     Object workingDayOfAUG =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in AUG ", 21L, workingDayOfAUG);
+    assertEquals(21L, workingDayOfAUG, "Working days count in AUG ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_SEP() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_SEP() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -176,11 +175,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1254268800000L); // 2009-09-30 00:00:00
     Object workingDayOfSEP =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in SEP ", 22L, workingDayOfSEP);
+    assertEquals(22L, workingDayOfSEP, "Working days count in SEP ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_OCT() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_OCT() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -189,11 +188,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1256947200000L); // 2009-10-31 00:00:00
     Object workingDayOfOCT =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in OCT ", 22L, workingDayOfOCT);
+    assertEquals(22L, workingDayOfOCT, "Working days count in OCT ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_NOV() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_NOV() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -202,11 +201,11 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1259539200000L); // 2009-11-30 00:00:00
     Object workingDayOfNOV =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in NOV ", 21L, workingDayOfNOV);
+    assertEquals(21L, workingDayOfNOV, "Working days count in NOV ");
   }
 
   @Test
-  public void shouldCalculateDateWorkingDiff_DEC() throws HopValueException {
+  void shouldCalculateDateWorkingDiff_DEC() throws HopValueException {
     IValueMeta metaA = new ValueMetaDate();
     IValueMeta metaB = new ValueMetaDate();
     Calendar startDate = Calendar.getInstance();
@@ -215,6 +214,6 @@ public class ValueDateUtilTest {
     endDate.setTimeInMillis(1262217600000L); // 2009-12-31 00:00:00
     Object workingDayOfDEC =
         ValueDataUtil.dateWorkingDiff(metaA, endDate.getTime(), metaB, startDate.getTime());
-    assertEquals("Working days count in DEC ", 23L, workingDayOfDEC);
+    assertEquals(23L, workingDayOfDEC, "Working days count in DEC ");
   }
 }

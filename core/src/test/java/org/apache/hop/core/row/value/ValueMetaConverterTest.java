@@ -16,9 +16,9 @@
  */
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -30,12 +30,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ValueMetaConverterTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueMetaConverterTest {
 
   private static final int START_SOURCE = 1;
   private static final int END_SOURCE = 10;
@@ -44,7 +44,7 @@ public class ValueMetaConverterTest {
   private static final boolean IS_VERBOSE = false; // Change to true to display information
 
   @Test
-  public void convertFromSourceToTargetDataTypeTest() throws Exception {
+  void convertFromSourceToTargetDataTypeTest() throws Exception {
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
     Date date1 = (dateFormat.parse("1999/12/31 00:00:00.000"));
     Date timeStamp1 = new Timestamp(dateFormat.parse("2001/11/01 20:30:15.123").getTime());

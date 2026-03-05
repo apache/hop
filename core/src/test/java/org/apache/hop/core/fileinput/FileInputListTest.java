@@ -16,17 +16,17 @@
  */
 package org.apache.hop.core.fileinput;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.commons.vfs2.FileObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class FileInputListTest {
+class FileInputListTest {
 
   @Test
-  public void testGetUrlStrings() {
+  void testGetUrlStrings() {
 
     String sFileA = "hdfs://myfolderA/myfileA.txt";
     String sFileB = "file:///myfolderB/myfileB.txt";

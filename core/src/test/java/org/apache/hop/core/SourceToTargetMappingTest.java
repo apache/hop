@@ -16,14 +16,14 @@
  */
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class SourceToTargetMappingTest {
+class SourceToTargetMappingTest {
 
   @Test
-  public void testClass() {
+  void testClass() {
     SourceToTargetMapping mapping = new SourceToTargetMapping(2, 3);
     assertEquals(2, mapping.getSourcePosition());
     assertEquals(3, mapping.getTargetPosition());

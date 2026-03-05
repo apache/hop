@@ -17,20 +17,13 @@
 
 package org.apache.hop.core.svg;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.apache.commons.lang.SystemUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class HopSvgGraphics2DTest {
-
-  @Before
-  public void notOnWindows() {
-    org.junit.Assume.assumeFalse(SystemUtils.IS_OS_WINDOWS);
-  }
+class HopSvgGraphics2DTest {
 
   private static final String BASIC_SVG_XML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?><svg fill-opacity=\"1\" color-rendering=\"auto\" color-interpolation=\"auto\" text-rendering=\"auto\" "
@@ -57,7 +50,7 @@ public class HopSvgGraphics2DTest {
           + "</svg>\n";
 
   @Test
-  public void testNewDocumentXml() throws Exception {
+  void testNewDocumentXml() throws Exception {
     HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
     XmlMapper xmlMapper = new XmlMapper();
     JsonNode graphic2DNode = xmlMapper.readTree(graphics2D.toXml());
@@ -66,7 +59,7 @@ public class HopSvgGraphics2DTest {
   }
 
   @Test
-  public void testNewDocumentSimpleXml() throws Exception {
+  void testNewDocumentSimpleXml() throws Exception {
     HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
 
     graphics2D.drawOval(50, 50, 25, 25);

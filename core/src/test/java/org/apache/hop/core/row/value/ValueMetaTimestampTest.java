@@ -16,10 +16,10 @@
  */
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
@@ -30,17 +30,17 @@ import java.sql.Timestamp;
 import java.util.Date;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.stubbing.Answer;
 
 /** User: Dzmitry Stsiapanau Date: 3/20/2014 Time: 11:51 AM */
-public class ValueMetaTimestampTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueMetaTimestampTest {
 
   @Test
-  public void testSetPreparedStatementValue() throws Exception {
+  void testSetPreparedStatementValue() throws Exception {
     ValueMetaTimestamp vm = new ValueMetaTimestamp();
     PreparedStatement ps = mock(PreparedStatement.class);
     doAnswer(
@@ -60,7 +60,7 @@ public class ValueMetaTimestampTest {
   }
 
   @Test
-  public void testCompare() throws Exception {
+  void testCompare() throws Exception {
     ValueMetaTimestamp vm = new ValueMetaTimestamp();
     Timestamp earlier = Timestamp.valueOf("2012-12-12 12:12:12.121212");
     Timestamp later = Timestamp.valueOf("2013-12-12 12:12:12.121212");
@@ -86,7 +86,7 @@ public class ValueMetaTimestampTest {
   }
 
   @Test
-  public void testConvertStringToTimestamp() throws Exception {
+  void testConvertStringToTimestamp() throws Exception {
     ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
     assertEquals(
         Timestamp.valueOf("2012-04-05 04:03:02.123456"),
@@ -100,7 +100,7 @@ public class ValueMetaTimestampTest {
   }
 
   @Test
-  public void testConvertTimestampToString() {
+  void testConvertTimestampToString() {
     ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
     assertEquals(
         "2012/04/05 04:03:02.123456000",
@@ -116,7 +116,7 @@ public class ValueMetaTimestampTest {
   }
 
   @Test
-  public void testConvertDateToTimestamp() {
+  void testConvertDateToTimestamp() {
     ValueMetaTimestamp valueMetaTimestamp = new ValueMetaTimestamp();
     // Converting date to timestamp
     Date date = new Date();

@@ -17,11 +17,12 @@
 
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +30,13 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /** Test class for the basic functionality of the blocking & batching row set. */
-public class BlockingBatchingRowSetTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class BlockingBatchingRowSetTest {
 
   public IRowMeta createRowMetaInterface() {
     IRowMeta rm = new RowMeta();
@@ -53,16 +54,16 @@ public class BlockingBatchingRowSetTest {
 
   /** The basic stuff. */
   @Test
-  public void testBasicCreation() {
+  void testBasicCreation() {
     IRowSet set = new BlockingBatchingRowSet(10);
 
-    assertTrue(!set.isDone());
+    assertFalse(set.isDone());
     assertEquals(0, set.size());
   }
 
   /** Functionality test. */
   @Test
-  public void testFuntionality1() {
+  void testFunctionality1() {
     BlockingBatchingRowSet set = new BlockingBatchingRowSet(10);
 
     IRowMeta rm = createRowMetaInterface();
@@ -91,7 +92,7 @@ public class BlockingBatchingRowSetTest {
       set.putRow(rm, rows.get(index++));
       assertEquals(0, set.size());
     }
-    set.putRow(rm, rows.get(index++));
+    set.putRow(rm, rows.get(index));
     assertEquals(5, set.size());
 
     // Signal done...

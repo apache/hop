@@ -16,27 +16,27 @@
  */
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.io.Writer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class WriterOutputStreamTest {
+class WriterOutputStreamTest {
   Writer writer = mock(Writer.class);
   final String encoding = "UTF8";
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     writer = mock(Writer.class);
   }
 
   @Test
-  public void testConstructor() {
+  void testConstructor() {
     WriterOutputStream stream = new WriterOutputStream(writer);
     assertSame(writer, stream.getWriter());
     stream = new WriterOutputStream(writer, encoding);
@@ -45,7 +45,7 @@ public class WriterOutputStreamTest {
   }
 
   @Test
-  public void testWrite() throws IOException {
+  void testWrite() throws IOException {
     WriterOutputStream stream = new WriterOutputStream(writer);
     stream.write(68);
     stream.write("value".getBytes(), 1, 3);
