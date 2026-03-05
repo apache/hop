@@ -16,7 +16,7 @@
 # under the License.
 #
 
-FROM tomcat:10-jdk17-openjdk
+FROM tomcat:10-jdk21-openjdk
 LABEL maintainer="Apache Hop Team"
 ENV HOP_CONFIG_FOLDER=""
 ENV HOP_AES_ENCODER_KEY=""

@@ -16,7 +16,7 @@
 # under the License.
 #
 
-FROM tomcat:10-jdk17
+FROM tomcat:10-jdk21
 LABEL maintainer="Apache Hop Team"
 # The UID for the created user
 ARG HOP_UID=501

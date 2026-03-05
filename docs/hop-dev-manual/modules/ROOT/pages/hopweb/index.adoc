@@ -32,7 +32,7 @@ WARNING: Hop Web is built with https://eclipse.dev/rap/demos/[Eclipse RAP], and 
 
 Before starting, ensure you have:
 
-* **Java 17** installed and available in your PATH
+* **Java 21** installed and available in your PATH
 * **Apache Hop** built from source (run `mvn clean install -DskipTests` in the Hop source directory)
 * **Apache Tomcat 10** downloaded and extracted
 
@@ -55,7 +55,7 @@ Additional info in xref:hopweb/developer-guide.adoc#_building_the_hop_web_docker
 
 We'll use Apache Tomcat in this example. If you use another application server, the process should be similar.
 
-Hop 2.x is built with Java 17, so you'll need to https://tomcat.apache.org/download-10.cgi[download the latest Tomcat 10] (or use the official Tomcat 10 Docker image).
+Hop 2.x is built with Java 21, so you'll need to https://tomcat.apache.org/download-10.cgi[download the latest Tomcat 10] (or use the official Tomcat 10 Docker image).
 
 Copy or extract the following files from your Hop build, where `$CATALINA_HOME` is your Tomcat installation folder.
 
@@ -240,7 +240,7 @@ image:hop-web.png[Hop Web, width="90%"]
 === Tomcat won't start
 
 * **Check Tomcat logs**: `$CATALINA_HOME/logs/catalina.out` for errors
-* **Verify Java 17**: Run `java -version` (should show version 17)
+* **Verify Java 21**: Run `java -version` (should show version 17)
 * **Check port availability**: `lsof -i :8080` (Linux/Mac) - port 8080 must be free
 
 === Permission denied errors

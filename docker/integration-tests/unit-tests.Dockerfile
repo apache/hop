@@ -56,7 +56,7 @@ RUN apt-get update \
   procps \
   git \
   python3-pip \
-  openjdk-17-jre-headless \
+  openjdk-21-jre-headless \
   unzip \
   ttf-mscorefonts-installer \
   locales \

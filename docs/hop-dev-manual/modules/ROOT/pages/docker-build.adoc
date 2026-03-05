@@ -170,7 +170,7 @@ The following image stages can be specified with the `--images` argument:
 
 |`client`
 |`hop`
-|Main Hop client/server image. Based on Alpine Linux with OpenJDK 17. Can run pipelines, workflows, and Hop Server.
+|Main Hop client/server image. Based on Alpine Linux with OpenJDK 21. Can run pipelines, workflows, and Hop Server.
 
 |`web`
 |`hop-web`
