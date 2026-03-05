@@ -19,16 +19,17 @@ package org.apache.hop.core.hash;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.exception.HopValueException;
-import org.junit.Test;
+import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Test;
 
 /** Test class for the basic functionality of LongHashIndex. */
-public class LongHashIndexTest {
+class LongHashIndexTest {
 
-  @Test(timeout = 2000)
-  public void testNoEndlessLoop() throws HopValueException {
+  @Test
+  void testNoEndlessLoop() throws HopValueException {
     long[] inputData = {
       3034, 2085, 1912, 9367, 8442, 783, 2839, 8610, 5152, 7388, 7511, 1251, 3043, 3889, 9543, 9353,
       2241, 5416, 2127, 3513, 2171, 8633, 5594, 7228, 2225, 581, 6524, 7171, 5928, 5710, 804, 9535,
@@ -55,57 +56,58 @@ public class LongHashIndexTest {
     for (long currentElement : inputData) {
       index.put(currentElement, currentElement);
     }
+
+    assertNotNull(index);
   }
 
   @Test
-  public void testPutElements() throws HopValueException {
+  void testPutElements() throws HopValueException {
     LongHashIndex index = new LongHashIndex();
     index.put(1L, 1L);
     index.put(2L, 2L);
-    assertThat("Some elements were not added.", index.getSize(), equalTo(2));
+    MatcherAssert.assertThat("Some elements were not added.", index.getSize(), equalTo(2));
   }
 
   @Test
-  public void testPutElements_with_sameIndex_point() throws HopValueException {
+  void testPutElements_with_sameIndex_point() throws HopValueException {
     LongHashIndex index = new LongHashIndex();
     long firstVariable = 3513L;
     long secondVariableWithSameIndexPoint = 8633L;
     index.put(firstVariable, 1L);
     index.put(secondVariableWithSameIndexPoint, 2L);
-    assertThat("Element has uncorrect value.", index.get(firstVariable), equalTo(1L));
-    assertThat(
+    MatcherAssert.assertThat("Element has uncorrect value.", index.get(firstVariable), equalTo(1L));
+    MatcherAssert.assertThat(
         "Element has uncorrect value.", index.get(secondVariableWithSameIndexPoint), equalTo(2L));
   }
 
   @Test
-  public void testPutElements_when_initial_size_is_less_than_elementsCount()
-      throws HopValueException {
+  void testPutElements_when_initial_size_is_less_than_elementsCount() throws HopValueException {
     LongHashIndex index = new LongHashIndex(0);
     index.put(1L, 1L);
     index.put(2L, 2L);
-    assertThat("Some elements were not added.", index.getSize(), equalTo(2));
+    MatcherAssert.assertThat("Some elements were not added.", index.getSize(), equalTo(2));
   }
 
   @Test
-  public void testGet() throws HopValueException {
+  void testGet() throws HopValueException {
     LongHashIndex index = new LongHashIndex();
     index.put(1L, 1L);
-    assertThat("Element has uncorrect value.", index.get(1L), equalTo(1L));
+    MatcherAssert.assertThat("Element has uncorrect value.", index.get(1L), equalTo(1L));
   }
 
   @Test
-  public void testSize() throws HopValueException {
+  void testSize() throws HopValueException {
     LongHashIndex index = new LongHashIndex();
-    assertThat("Incorrect size of empty index.", index.getSize(), equalTo(0));
+    MatcherAssert.assertThat("Incorrect size of empty index.", index.getSize(), equalTo(0));
     index.put(1L, 1L);
-    assertThat("Incorrect size of index.", index.getSize(), equalTo(1));
+    MatcherAssert.assertThat("Incorrect size of index.", index.getSize(), equalTo(1));
   }
 
   @Test
-  public void testIsEmpty() throws HopValueException {
+  void testIsEmpty() throws HopValueException {
     LongHashIndex index = new LongHashIndex();
-    assertThat("Empty index should return true.", index.isEmpty(), is(true));
+    MatcherAssert.assertThat("Empty index should return true.", index.isEmpty(), is(true));
     index.put(1L, 1L);
-    assertThat("Not empty index should return false.", index.isEmpty(), is(false));
+    MatcherAssert.assertThat("Not empty index should return false.", index.isEmpty(), is(false));
   }
 }

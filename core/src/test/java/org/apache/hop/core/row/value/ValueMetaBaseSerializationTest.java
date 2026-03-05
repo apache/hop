@@ -16,8 +16,8 @@
  */
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,22 +27,22 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ValueMetaBaseSerializationTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueMetaBaseSerializationTest {
 
   @Test
-  public void restoresMetaData_storageTypeNormal() throws Exception {
+  void restoresMetaData_storageTypeNormal() throws Exception {
     ValueMetaBase vmb = createTestObject(IValueMeta.STORAGE_TYPE_NORMAL);
 
     checkRestoring(vmb);
   }
 
   @Test
-  public void restoresMetaData_storageTypeIndexed() throws Exception {
+  void restoresMetaData_storageTypeIndexed() throws Exception {
     ValueMetaBase vmb = createTestObject(IValueMeta.STORAGE_TYPE_INDEXED);
     vmb.setIndex(new Object[] {"qwerty", "asdfg"});
 
@@ -50,7 +50,7 @@ public class ValueMetaBaseSerializationTest {
   }
 
   @Test
-  public void restoresMetaData_storageTypeBinaryString() throws Exception {
+  void restoresMetaData_storageTypeBinaryString() throws Exception {
     ValueMetaBase vmb = createTestObject(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     vmb.setStorageMetadata(new ValueMetaBase("storageMetadataInstance", IValueMeta.TYPE_STRING));
 
@@ -92,7 +92,7 @@ public class ValueMetaBaseSerializationTest {
         new DataInputStream(new ByteArrayInputStream(os.toByteArray()));
     // an awkward hack, since readMetaData() expects object's type to have been read
     int restoredType = dataInputStream.readInt();
-    assertEquals("type", initial.getType(), restoredType);
+    assertEquals(initial.getType(), restoredType, "type");
 
     ValueMetaBase restored = new ValueMetaBase(initial.getName(), restoredType);
     restored.readMetaData(dataInputStream);
@@ -101,46 +101,46 @@ public class ValueMetaBaseSerializationTest {
   }
 
   private static void assertMetaDataAreEqual(IValueMeta expected, IValueMeta actual) {
-    assertEquals("storageType", expected.getStorageType(), actual.getStorageType());
+    assertEquals(expected.getStorageType(), actual.getStorageType(), "storageType");
 
     if (expected.getIndex() == null) {
-      assertNull("index", actual.getIndex());
+      assertNull(actual.getIndex(), "index");
     } else {
-      assertEquals("index.length", expected.getIndex().length, actual.getIndex().length);
+      assertEquals(expected.getIndex().length, actual.getIndex().length, "index.length");
       for (int i = 0; i < expected.getIndex().length; i++) {
-        assertEquals("index[" + i + "]", expected.getIndex()[i], actual.getIndex()[i]);
+        assertEquals(expected.getIndex()[i], actual.getIndex()[i], "index[" + i + "]");
       }
     }
 
     if (expected.getStorageMetadata() == null) {
-      assertNull("storageMetadata", actual.getStorageMetadata());
+      assertNull(actual.getStorageMetadata(), "storageMetadata");
     } else {
       assertMetaDataAreEqual(expected.getStorageMetadata(), actual.getStorageMetadata());
     }
 
-    assertEquals("name", expected.getName(), actual.getName());
-    assertEquals("length", expected.getLength(), actual.getLength());
-    assertEquals("origin", expected.getOrigin(), actual.getOrigin());
-    assertEquals("comments", expected.getComments(), actual.getComments());
-    assertEquals("conversionMask", expected.getConversionMask(), actual.getConversionMask());
-    assertEquals("decimalSymbol", expected.getDecimalSymbol(), actual.getDecimalSymbol());
-    assertEquals("groupingSymbol", expected.getGroupingSymbol(), actual.getGroupingSymbol());
-    assertEquals("currencySymbol", expected.getCurrencySymbol(), actual.getCurrencySymbol());
-    assertEquals("trimType", expected.getTrimType(), actual.getTrimType());
-    assertEquals("caseInsensitive", expected.isCaseInsensitive(), actual.isCaseInsensitive());
-    assertEquals("sortedDescending", expected.isSortedDescending(), actual.isSortedDescending());
+    assertEquals(expected.getName(), actual.getName(), "name");
+    assertEquals(expected.getLength(), actual.getLength(), "length");
+    assertEquals(expected.getOrigin(), actual.getOrigin(), "origin");
+    assertEquals(expected.getComments(), actual.getComments(), "comments");
+    assertEquals(expected.getConversionMask(), actual.getConversionMask(), "conversionMask");
+    assertEquals(expected.getDecimalSymbol(), actual.getDecimalSymbol(), "decimalSymbol");
+    assertEquals(expected.getGroupingSymbol(), actual.getGroupingSymbol(), "groupingSymbol");
+    assertEquals(expected.getCurrencySymbol(), actual.getCurrencySymbol(), "currencySymbol");
+    assertEquals(expected.getTrimType(), actual.getTrimType(), "trimType");
+    assertEquals(expected.isCaseInsensitive(), actual.isCaseInsensitive(), "caseInsensitive");
+    assertEquals(expected.isSortedDescending(), actual.isSortedDescending(), "sortedDescending");
     assertEquals(
-        "outputPaddingEnabled", expected.isOutputPaddingEnabled(), actual.isOutputPaddingEnabled());
-    assertEquals("dateFormatLenient", expected.isDateFormatLenient(), actual.isDateFormatLenient());
-    assertEquals("dateFormatLocale", expected.getDateFormatLocale(), actual.getDateFormatLocale());
+        expected.isOutputPaddingEnabled(), actual.isOutputPaddingEnabled(), "outputPaddingEnabled");
+    assertEquals(expected.isDateFormatLenient(), actual.isDateFormatLenient(), "dateFormatLenient");
+    assertEquals(expected.getDateFormatLocale(), actual.getDateFormatLocale(), "dateFormatLocale");
     assertEquals(
-        "dateFormatTimeZone", expected.getDateFormatTimeZone(), actual.getDateFormatTimeZone());
+        expected.getDateFormatTimeZone(), actual.getDateFormatTimeZone(), "dateFormatTimeZone");
     assertEquals(
-        "lenientStringToNumber",
         expected.isLenientStringToNumber(),
-        actual.isLenientStringToNumber());
-    assertEquals("collatorDisabled", expected.isCollatorDisabled(), actual.isCollatorDisabled());
-    assertEquals("collatorLocale", expected.getCollatorLocale(), actual.getCollatorLocale());
-    assertEquals("collatorStrength", expected.getCollatorStrength(), actual.getCollatorStrength());
+        actual.isLenientStringToNumber(),
+        "lenientStringToNumber");
+    assertEquals(expected.isCollatorDisabled(), actual.isCollatorDisabled(), "collatorDisabled");
+    assertEquals(expected.getCollatorLocale(), actual.getCollatorLocale(), "collatorLocale");
+    assertEquals(expected.getCollatorStrength(), actual.getCollatorStrength(), "collatorStrength");
   }
 }

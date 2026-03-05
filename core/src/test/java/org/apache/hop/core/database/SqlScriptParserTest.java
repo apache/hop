@@ -17,22 +17,23 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Test;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
-public class SqlScriptParserTest {
-
-  private SqlScriptParser sqlScriptParser = new SqlScriptParser(true);
-  private SqlScriptParser oracleSqlScriptParser = new SqlScriptParser(false);
+class SqlScriptParserTest {
+  private final SqlScriptParser sqlScriptParser = new SqlScriptParser(true);
+  private final SqlScriptParser oracleSqlScriptParser = new SqlScriptParser(false);
 
   @Test
-  public void testSplit() {
-    assertEquals(Arrays.asList(new String[0]), sqlScriptParser.split(null));
-    assertEquals(Arrays.asList(new String[0]), sqlScriptParser.split(""));
-    assertEquals(Arrays.asList(new String[0]), sqlScriptParser.split(" "));
+  void testSplit() {
+    assertEquals(List.of(), sqlScriptParser.split(null));
+    assertEquals(List.of(), sqlScriptParser.split(""));
+    assertEquals(List.of(), sqlScriptParser.split(" "));
     assertEquals(Arrays.asList("SELECT 1", "SELECT 2"), sqlScriptParser.split("SELECT 1;SELECT 2"));
     assertEquals(Collections.singletonList("SELECT '1;2'"), sqlScriptParser.split("SELECT '1;2'"));
     assertEquals(
@@ -75,8 +76,8 @@ public class SqlScriptParserTest {
   }
 
   @Test
-  public void testRemoveComments() {
-    assertEquals(null, sqlScriptParser.removeComments(null));
+  void testRemoveComments() {
+    assertNull(sqlScriptParser.removeComments(null));
     assertEquals("", sqlScriptParser.removeComments(""));
     assertEquals("SELECT col1 FROM test", sqlScriptParser.removeComments("SELECT col1 FROM test"));
     assertEquals(

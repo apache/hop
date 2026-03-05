@@ -17,11 +17,12 @@
 
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -32,15 +33,14 @@ import java.util.List;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /** Test class for the basic functionality of Const. */
-public class ConstTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ConstTest {
   private static final String DELIMITER1 = ",";
   private static final String DELIMITER2 = "</newpage>";
   private static final String ENCLOSURE1 = "\"";
@@ -62,7 +62,7 @@ public class ConstTest {
 
   /** Test sortString(). */
   @Test
-  public void testSortStrings() {
+  void testSortStrings() {
     String[] arr1 = {"Red", "Blue", "Black", "Black", "Green"};
     String[] arr2 = {"aaa", "zzz", "yyy", "sss", "ttt", "t"};
     String[] arr3 = {"A", "B", "C", "D"};
@@ -81,7 +81,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testNVL() {
+  void testNVL() {
     assertNull(Const.NVL(null, null));
     assertEquals("test", Const.NVL("test", "test1"));
     assertEquals("test", Const.NVL("test", null));
@@ -89,14 +89,14 @@ public class ConstTest {
   }
 
   @Test
-  public void testNullToEmpty_NVL() {
+  void testNullToEmpty_NVL() {
     assertEquals(Const.NVL(null, ""), Const.nullToEmpty(null));
     assertEquals(Const.NVL("", ""), Const.nullToEmpty(""));
     assertEquals(Const.NVL("xpto", ""), Const.nullToEmpty("xpto"));
   }
 
   @Test
-  public void testNrSpacesBefore() {
+  void testNrSpacesBefore() {
     try {
       Const.nrSpacesBefore(null);
       fail("Expected NullPointerException");
@@ -114,7 +114,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testNrSpacesAfter() {
+  void testNrSpacesAfter() {
     try {
       Const.nrSpacesAfter(null);
       fail("Expected NullPointerException");
@@ -132,7 +132,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testLtrim() {
+  void testLtrim() {
     assertEquals(null, Const.ltrim(null));
     assertEquals("", Const.ltrim(""));
     assertEquals("", Const.ltrim("  "));
@@ -141,7 +141,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRtrim() {
+  void testRtrim() {
     assertEquals(null, Const.rtrim(null));
     assertEquals("", Const.rtrim(""));
     assertEquals("", Const.rtrim("  "));
@@ -150,7 +150,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testTrim() {
+  void testTrim() {
     assertEquals(null, Const.trim(null));
     assertEquals("", Const.trim(""));
     assertEquals("", Const.trim("  "));
@@ -159,7 +159,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testOnlySpaces() {
+  void testOnlySpaces() {
     try {
       Const.onlySpaces(null);
       fail("Expected NullPointerException");
@@ -173,7 +173,7 @@ public class ConstTest {
 
   /** Test splitString with String separator. */
   @Test
-  public void testSplitString() {
+  void testSplitString() {
     assertEquals(0, Const.splitString("", ";").length);
     assertEquals(0, Const.splitString(null, ";").length);
 
@@ -210,7 +210,7 @@ public class ConstTest {
 
   /** Test splitString with char separator. */
   @Test
-  public void testSplitStringChar() {
+  void testSplitStringChar() {
     assertEquals(0, Const.splitString("", ';').length);
     assertEquals(0, Const.splitString(null, ';').length);
 
@@ -247,33 +247,33 @@ public class ConstTest {
 
   /** Test splitString with delimiter and enclosure */
   @Test
-  public void testSplitStringNullWithDelimiterNullAndEnclosureNull() {
+  void testSplitStringNullWithDelimiterNullAndEnclosureNull() {
     String[] result = Const.splitString(null, null, null);
     assertNull(result);
   }
 
   @Test
-  public void testSplitStringNullWithDelimiterNullAndEnclosureNullRemoveEnclosure() {
+  void testSplitStringNullWithDelimiterNullAndEnclosureNullRemoveEnclosure() {
     String[] result = Const.splitString(null, null, null, true);
     assertNull(result);
   }
 
   @Test
-  public void testSplitStringWithDelimiterNullAndEnclosureNull() {
+  void testSplitStringWithDelimiterNullAndEnclosureNull() {
     String stringToSplit = "Hello, world";
     String[] result = Const.splitString(stringToSplit, null, null);
     assertSplit(result, stringToSplit);
   }
 
   @Test
-  public void testSplitStringWithDelimiterNullAndEnclosureNullRemoveEnclosure() {
+  void testSplitStringWithDelimiterNullAndEnclosureNullRemoveEnclosure() {
     String stringToSplit = "Hello, world";
     String[] result = Const.splitString(stringToSplit, null, null, true);
     assertSplit(result, stringToSplit);
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndEnclosureNull() {
+  void testSplitStringWithDelimiterAndEnclosureNull() {
     String mask = "Hello%s world";
     String[] chunks = {"Hello", " world"};
 
@@ -283,7 +283,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndEnclosureNullMultiChar() {
+  void testSplitStringWithDelimiterAndEnclosureNullMultiChar() {
     String mask = "Hello%s world";
     String[] chunks = {"Hello", " world"};
 
@@ -293,7 +293,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndEnclosureNullRemoveEnclosure() {
+  void testSplitStringWithDelimiterAndEnclosureNullRemoveEnclosure() {
     String mask = "Hello%s world";
     String[] chunks = {"Hello", " world"};
 
@@ -303,7 +303,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndEnclosureNullMultiCharRemoveEnclosure() {
+  void testSplitStringWithDelimiterAndEnclosureNullMultiCharRemoveEnclosure() {
     String mask = "Hello%s world";
     String[] chunks = {"Hello", " world"};
 
@@ -313,7 +313,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndEmptyEnclosure() {
+  void testSplitStringWithDelimiterAndEmptyEnclosure() {
     String mask = "Hello%s world";
     String[] chunks = {"Hello", " world"};
 
@@ -323,7 +323,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndEmptyEnclosureMultiChar() {
+  void testSplitStringWithDelimiterAndEmptyEnclosureMultiChar() {
     String mask = "Hello%s world";
     String[] chunks = {"Hello", " world"};
 
@@ -333,7 +333,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndEmptyEnclosureRemoveEnclosure() {
+  void testSplitStringWithDelimiterAndEmptyEnclosureRemoveEnclosure() {
     String mask = "Hello%s world";
     String[] chunks = {"Hello", " world"};
 
@@ -343,7 +343,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndEmptyEnclosureMultiCharRemoveEnclosure() {
+  void testSplitStringWithDelimiterAndEmptyEnclosureMultiCharRemoveEnclosure() {
     String mask = "Hello%s world";
     String[] chunks = {"Hello", " world"};
 
@@ -353,7 +353,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosure1() {
+  void testSplitStringWithDelimiterAndQuoteEnclosure1() {
     // "Hello, world"
     String mask = "%sHello%s world%s";
 
@@ -363,7 +363,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureMultiChar1() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureMultiChar1() {
     // "Hello, world"
     String mask = "%sHello%s world%s";
 
@@ -373,7 +373,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureRemoveEnclosure1() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureRemoveEnclosure1() {
     // "Hello, world"
     String mask = "%sHello%s world%s";
     String[] chunks1 = {"Hello" + DELIMITER1 + " world"};
@@ -384,7 +384,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureMultiCharRemoveEnclosure1() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureMultiCharRemoveEnclosure1() {
     // "Hello, world"
     String mask = "%sHello%s world%s";
     String[] chunks2 = {"Hello" + DELIMITER2 + " world"};
@@ -395,12 +395,12 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosure2() {
+  void testSplitStringWithDelimiterAndQuoteEnclosure2() {
     testSplitStringWithDelimiterAndQuoteEnclosure2(ENCLOSURE1, DELIMITER1);
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureMultiChar2() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureMultiChar2() {
     testSplitStringWithDelimiterAndQuoteEnclosure2(ENCLOSURE2, DELIMITER2);
   }
 
@@ -416,12 +416,12 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureRemoveEnclosure2() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureRemoveEnclosure2() {
     testSplitStringWithDelimiterAndQuoteEnclosureRemoveEnclosure2(ENCLOSURE1, DELIMITER1);
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureMultiCharRemoveEnclosure2() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureMultiCharRemoveEnclosure2() {
     testSplitStringWithDelimiterAndQuoteEnclosureRemoveEnclosure2(ENCLOSURE2, DELIMITER2);
   }
 
@@ -437,12 +437,12 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosure3() {
+  void testSplitStringWithDelimiterAndQuoteEnclosure3() {
     testSplitStringWithDelimiterAndQuoteEnclosure3(ENCLOSURE1, DELIMITER1);
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureMultiChar3() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureMultiChar3() {
     testSplitStringWithDelimiterAndQuoteEnclosure3(ENCLOSURE2, DELIMITER2);
   }
 
@@ -460,12 +460,12 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureRemovesEnclosure3() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureRemovesEnclosure3() {
     testSplitStringWithDelimiterAndQuoteEnclosureRemovesEnclosure3(ENCLOSURE1, DELIMITER1);
   }
 
   @Test
-  public void testSplitStringWithDelimiterAndQuoteEnclosureMultiCharRemovesEnclosure3() {
+  void testSplitStringWithDelimiterAndQuoteEnclosureMultiCharRemovesEnclosure3() {
     testSplitStringWithDelimiterAndQuoteEnclosureRemovesEnclosure3(ENCLOSURE2, DELIMITER2);
   }
 
@@ -481,7 +481,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithDifferentDelimiterAndEnclosure() {
+  void testSplitStringWithDifferentDelimiterAndEnclosure() {
     // Try a different delimiter and enclosure
     String[] result = Const.splitString("a;'b;c;d';'e,f';'g';h", ";", "'");
     assertNotNull(result);
@@ -503,7 +503,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithMultipleCharacterDelimiterAndEnclosure() {
+  void testSplitStringWithMultipleCharacterDelimiterAndEnclosure() {
     // Check for multiple-character strings
     String[] result =
         Const.splitString(
@@ -515,12 +515,12 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringRemoveEnclosureNested1() {
+  void testSplitStringRemoveEnclosureNested1() {
     testSplitStringRemoveEnclosureNested1(ENCLOSURE1, DELIMITER1);
   }
 
   @Test
-  public void testSplitStringRemoveEnclosureNestedMultiChar1() {
+  void testSplitStringRemoveEnclosureNestedMultiChar1() {
     testSplitStringRemoveEnclosureNested1(ENCLOSURE2, DELIMITER2);
   }
 
@@ -536,12 +536,12 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringRemoveEnclosureNested2() {
+  void testSplitStringRemoveEnclosureNested2() {
     testSplitStringRemoveEnclosureNested(ENCLOSURE1, DELIMITER1);
   }
 
   @Test
-  public void testSplitStringRemoveEnclosureNestedMultiChar2() {
+  void testSplitStringRemoveEnclosureNestedMultiChar2() {
     testSplitStringRemoveEnclosureNested(ENCLOSURE2, DELIMITER2);
   }
 
@@ -565,7 +565,7 @@ public class ConstTest {
 
   /** Test splitString with delimiter and enclosure */
   @Test
-  public void testSplitStringWithEscaping() {
+  void testSplitStringWithEscaping() {
     String[] result;
 
     result = Const.splitString(null, null, null);
@@ -585,7 +585,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSplitStringWithEscapeString() {
+  void testSplitStringWithEscapeString() {
     String string = "aaa:123.4:c:ddd-dd:eeee\\\\:\\\\:eee:fff";
     String[] chunks =
         new String[] {
@@ -617,7 +617,7 @@ public class ConstTest {
 
   /** Test splitPath. */
   @Test
-  public void testSplitPath() {
+  void testSplitPath() {
     String[] a = Const.splitPath("", "/");
     assertEquals(0, a.length);
 
@@ -659,8 +659,9 @@ public class ConstTest {
   }
 
   @Test
-  @SuppressWarnings("java:S1874") // Ignore BigDecimal RoundingModes as code will be removed
-  public void testRound_BigDecimal() {
+  @SuppressWarnings("java:S1874")
+  // Ignore BigDecimal RoundingModes as code will be removed
+  void testRound_BigDecimal() {
     assertEquals(new BigDecimal("1.0"), Const.round(new BigDecimal("1.0"), 0, BigDecimal.ROUND_UP));
     assertEquals(
         new BigDecimal("1.0"), Const.round(new BigDecimal("1.0"), 0, BigDecimal.ROUND_DOWN));
@@ -1615,7 +1616,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRound_BigDecimal_RoundingMode() {
+  void testRound_BigDecimal_RoundingMode() {
     assertEquals(new BigDecimal("1.0"), Const.round(new BigDecimal("1.0"), 0, RoundingMode.UP));
     assertEquals(new BigDecimal("1.0"), Const.round(new BigDecimal("1.0"), 0, RoundingMode.DOWN));
     assertEquals(
@@ -2354,8 +2355,9 @@ public class ConstTest {
   }
 
   @Test
-  @SuppressWarnings("java:S1874") // Ignore BigDecimal RoundingModes as code will be removed
-  public void testRound() {
+  @SuppressWarnings("java:S1874")
+  // Ignore BigDecimal RoundingModes as code will be removed
+  void testRound() {
     assertEquals(1.0, Const.round(1.0, 0, BigDecimal.ROUND_UP));
     assertEquals(1.0, Const.round(1.0, 0, BigDecimal.ROUND_DOWN));
     assertEquals(1.0, Const.round(1.0, 0, BigDecimal.ROUND_CEILING));
@@ -2796,7 +2798,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRound_roundingMode() {
+  void testRound_roundingMode() {
     assertEquals(1.0, Const.round(1.0, 0, RoundingMode.UP));
     assertEquals(1.0, Const.round(1.0, 0, RoundingMode.DOWN));
     assertEquals(1.0, Const.round(1.0, 0, RoundingMode.CEILING));
@@ -3237,8 +3239,9 @@ public class ConstTest {
   }
 
   @Test
-  @SuppressWarnings("java:S1874") // Ignore BigDecimal RoundingModes as code will be removed
-  public void testRound_Long() {
+  @SuppressWarnings("java:S1874")
+  // Ignore BigDecimal RoundingModes as code will be removed
+  void testRound_Long() {
     assertEquals(1L, Const.round(1L, 0, BigDecimal.ROUND_UP));
     assertEquals(1L, Const.round(1L, 0, BigDecimal.ROUND_DOWN));
     assertEquals(1L, Const.round(1L, 0, BigDecimal.ROUND_CEILING));
@@ -3421,7 +3424,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRound_Long_RoundingMode() {
+  void testRound_Long_RoundingMode() {
     assertEquals(1L, Const.round(1L, 0, RoundingMode.UP));
     assertEquals(1L, Const.round(1L, 0, RoundingMode.DOWN));
     assertEquals(1L, Const.round(1L, 0, RoundingMode.CEILING));
@@ -3603,46 +3606,46 @@ public class ConstTest {
     assertEquals(-300L, Const.round(-270L, -2, null));
   }
 
-  public static void assertEquals(Object expected, Object actual) {
+  static void assertEquals(Object expected, Object actual) {
     assertEquals("", expected, actual);
   }
 
-  public static void assertEquals(String msg, Object expected, Object actual) {
+  static void assertEquals(String msg, Object expected, Object actual) {
     if (expected instanceof BigDecimal && actual instanceof BigDecimal) {
       if (((BigDecimal) expected).compareTo((BigDecimal) actual) != 0) {
-        Assert.assertEquals(msg, expected, actual);
+        Assertions.assertEquals(expected, actual, msg);
       }
     } else if (expected instanceof Number && actual instanceof Number) {
-      Assert.assertEquals(
-          msg + " dataType(" + expected + "," + actual + ")",
+      Assertions.assertEquals(
           expected.getClass(),
-          actual.getClass());
-      Assert.assertEquals(msg, expected, actual);
+          actual.getClass(),
+          msg + " dataType(" + expected + "," + actual + ")");
+      Assertions.assertEquals(expected, actual, msg);
     } else {
-      Assert.assertEquals(msg, expected, actual);
+      Assertions.assertEquals(expected, actual, msg);
     }
   }
 
   @Test
-  public void testToInt() {
+  void testToInt() {
     assertEquals(123, Const.toInt("123", -12));
     assertEquals(-12, Const.toInt("123f", -12));
   }
 
   @Test
-  public void testToLong() {
+  void testToLong() {
     assertEquals(1447252914241L, Const.toLong("1447252914241", -12));
     assertEquals(-1447252914241L, Const.toLong("1447252914241L", -1447252914241L));
   }
 
   @Test
-  public void testToDouble() {
-    Assert.assertEquals(123.45, Const.toDouble("123.45", -12.34), 1e-15);
-    Assert.assertEquals(-12.34, Const.toDouble("123asd", -12.34), 1e-15);
+  void testToDouble() {
+    Assertions.assertEquals(123.45, Const.toDouble("123.45", -12.34), 1e-15);
+    Assertions.assertEquals(-12.34, Const.toDouble("123asd", -12.34), 1e-15);
   }
 
   @Test
-  public void testRightPad() {
+  void testRightPad() {
     final String s = "Pad me baby one more time";
 
     assertEquals("     ", Const.rightPad((String) null, 5));
@@ -3658,7 +3661,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testReplace() {
+  void testReplace() {
     final String source = "A journey of a thousand miles never begins";
     assertEquals(
         "A journey of a thousand miles begins with a single transform",
@@ -3672,7 +3675,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRepl() {
+  void testRepl() {
     String source = "A journey of a thousand miles never begins";
     StringBuffer sb = new StringBuffer(source);
     Const.repl(sb, "never begins", "begins with a single transform");
@@ -3714,7 +3717,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetOS() {
+  void testGetOS() {
     final String key = "os.name";
     final String os = System.getProperty(key);
     System.setProperty(key, "BeOS");
@@ -3723,12 +3726,12 @@ public class ConstTest {
   }
 
   @Test
-  public void testQuoteCharByOS() {
+  void testQuoteCharByOS() {
     assertEquals(SystemUtils.IS_OS_WINDOWS ? "\"" : "'", Const.getQuoteCharByOS());
   }
 
   @Test
-  public void testOptionallyQuoteStringByOS() {
+  void testOptionallyQuoteStringByOS() {
     assertEquals(
         Const.getQuoteCharByOS() + "Quote me" + Const.getQuoteCharByOS(),
         Const.optionallyQuoteStringByOS("Quote me"));
@@ -3742,45 +3745,45 @@ public class ConstTest {
   }
 
   @Test
-  public void testIsWindows() {
+  void testIsWindows() {
     assertEquals(SystemUtils.IS_OS_WINDOWS, Const.isWindows());
   }
 
   @Test
-  public void testIsLinux() {
+  void testIsLinux() {
     assertEquals(SystemUtils.IS_OS_LINUX, Const.isLinux());
   }
 
   @Test
-  public void testIsOSX() {
+  void testIsOSX() {
     assertEquals(SystemUtils.IS_OS_MAC_OSX, Const.isOSX());
   }
 
   @Test
-  public void testIsKDE() {
+  void testIsKDE() {
     final String kdeVersion = System.getenv("KDE_SESSION_VERSION");
     assertEquals(kdeVersion != null && !kdeVersion.isEmpty(), Const.isKDE());
   }
 
   @Test
-  public void testGetHostName() {
+  void testGetHostName() {
     assertFalse(Const.getHostname().isEmpty());
   }
 
   @Test
-  public void testGetHostnameReal() {
+  void testGetHostnameReal() {
     doWithModifiedSystemProperty(
         "HOP_SYSTEM_HOSTNAME", "MyHost", () -> assertEquals("MyHost", Const.getHostnameReal()));
   }
 
   @Test
-  public void testNullToEmpty() {
+  void testNullToEmpty() {
     assertEquals("", Const.nullToEmpty(null));
     assertEquals("value", Const.nullToEmpty("value"));
   }
 
   @Test
-  public void testIndexOfString() {
+  void testIndexOfString() {
     assertEquals(-1, Const.indexOfString(null, (String[]) null));
     assertEquals(-1, Const.indexOfString(null, new String[] {}));
     assertEquals(1, Const.indexOfString("bar", new String[] {"foo", "bar"}));
@@ -3791,32 +3794,32 @@ public class ConstTest {
   }
 
   @Test
-  public void testIndexsOfStrings() {
-    Assert.assertArrayEquals(
+  void testIndexsOfStrings() {
+    assertArrayEquals(
         new int[] {2, 1, -1},
         Const.indexsOfStrings(
             new String[] {"foo", "bar", "qux"}, new String[] {"baz", "bar", "foo"}));
   }
 
   @Test
-  public void testIndexsOfFoundStrings() {
-    Assert.assertArrayEquals(
+  void testIndexsOfFoundStrings() {
+    assertArrayEquals(
         new int[] {2, 1},
         Const.indexesOfFoundStrings(
             new String[] {"qux", "foo", "bar"}, new String[] {"baz", "bar", "foo"}));
   }
 
   @Test
-  public void testGetDistinctStrings() {
+  void testGetDistinctStrings() {
     assertNull(Const.getDistinctStrings(null));
-    Assert.assertEquals(0, Const.getDistinctStrings(new String[] {}).length);
-    Assert.assertArrayEquals(
+    assertEquals(0, Const.getDistinctStrings(new String[] {}).length);
+    assertArrayEquals(
         new String[] {"bar", "foo"},
         Const.getDistinctStrings(new String[] {"foo", "bar", "foo", "bar"}));
   }
 
   @Test
-  public void testStackTracker() {
+  void testStackTracker() {
     String trace = Const.getClassicStackTrace(new Exception());
     assertTrue(trace.contains(getClass().getName()));
     assertTrue(trace.contains("testStackTracker"));
@@ -3824,7 +3827,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetSimpleStackTrace() {
+  void testGetSimpleStackTrace() {
     Throwable throwable =
         new HopException(
             "Message1",
@@ -3838,7 +3841,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testCreateFilename() {
+  void testCreateFilename() {
     assertEquals(
         "dir" + Const.FILE_SEPARATOR + "file__1.ext",
         Const.createFilename("dir" + Const.FILE_SEPARATOR, "File\t~ 1", ".ext"));
@@ -3848,7 +3851,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testCreateName() {
+  void testCreateName() {
     assertNull(Const.createName(null));
     assertEquals(
         "test - pipeline",
@@ -3856,7 +3859,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testFilenameOnly() {
+  void testFilenameOnly() {
     assertNull(Const.filenameOnly(null));
     assertTrue(Const.filenameOnly("").isEmpty());
     assertEquals("file.txt", Const.filenameOnly("dir" + Const.FILE_SEPARATOR + "file.txt"));
@@ -3864,7 +3867,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetDateFormats() {
+  void testGetDateFormats() {
     final String[] formats = Const.getDateFormats();
     assertTrue(formats.length > 0);
     for (String format : formats) {
@@ -3873,7 +3876,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetNumberFormats() {
+  void testGetNumberFormats() {
     final String[] formats = Const.getNumberFormats();
     assertTrue(formats.length > 0);
     for (String format : formats) {
@@ -3882,7 +3885,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetConversionFormats() {
+  void testGetConversionFormats() {
     final List<String> dateFormats = Arrays.asList(Const.getDateFormats());
     final List<String> numberFormats = Arrays.asList(Const.getNumberFormats());
     final List<String> conversionFormats = Arrays.asList(Const.getConversionFormats());
@@ -3892,7 +3895,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testTrimToType() {
+  void testTrimToType() {
     final String source = " trim me hard ";
     assertEquals("trim me hard", Const.trimToType(source, IValueMeta.TRIM_TYPE_BOTH));
     assertEquals("trim me hard ", Const.trimToType(source, IValueMeta.TRIM_TYPE_LEFT));
@@ -3901,7 +3904,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testSafeAppendDirectory() {
+  void testSafeAppendDirectory() {
     final String expected = "dir" + Const.FILE_SEPARATOR + "file";
     assertEquals(expected, Const.safeAppendDirectory("dir", "file"));
     assertEquals(expected, Const.safeAppendDirectory("dir" + Const.FILE_SEPARATOR, "file"));
@@ -3912,7 +3915,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetEmptyPaddedStrings() {
+  void testGetEmptyPaddedStrings() {
     final String[] strings = Const.getEmptyPaddedStrings();
     for (int i = 0; i < 250; i++) {
       assertEquals(i, strings[i].length());
@@ -3920,24 +3923,24 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetPercentageFreeMemory() {
+  void testGetPercentageFreeMemory() {
     assertTrue(Const.getPercentageFreeMemory() > 0);
   }
 
   @Test
-  public void testRemoveDigits() {
+  void testRemoveDigits() {
     assertNull(Const.removeDigits(null));
     assertEquals("foobar", Const.removeDigits("123foo456bar789"));
   }
 
   @Test
-  public void testGetDigitsOnly() {
+  void testGetDigitsOnly() {
     assertNull(Const.removeDigits(null));
     assertEquals("123456789", Const.getDigitsOnly("123foo456bar789"));
   }
 
   @Test
-  public void testRemoveTimeFromDate() {
+  void testRemoveTimeFromDate() {
     final Date date = Const.removeTimeFromDate(new Date());
     assertEquals(0, date.getHours());
     assertEquals(0, date.getMinutes());
@@ -3945,7 +3948,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testEscapeUnescapeXML() {
+  void testEscapeUnescapeXML() {
     final String xml = "<xml xmlns:test=\"http://test\">";
     final String escaped = "&lt;xml xmlns:test=&quot;http://test&quot;&gt;";
     assertNull(Const.escapeXml(null));
@@ -3955,7 +3958,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testEscapeUnescapeHtml() {
+  void testEscapeUnescapeHtml() {
     final String html = "<td>";
     final String escaped = "&lt;td&gt;";
     assertNull(Const.escapeHtml(null));
@@ -3965,13 +3968,13 @@ public class ConstTest {
   }
 
   @Test
-  public void testEscapeSql() {
+  void testEscapeSql() {
     assertEquals(
         "SELECT ''Let''s rock!'' FROM dual", Const.escapeSql("SELECT 'Let's rock!' FROM dual"));
   }
 
   @Test
-  public void testRemoveCRLF() {
+  void testRemoveCRLF() {
     assertEquals("foo\tbar", Const.removeCRLF("foo\r\n\tbar"));
     assertEquals("", Const.removeCRLF(""));
     assertEquals("", Const.removeCRLF(null));
@@ -3983,7 +3986,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRemoveCR() {
+  void testRemoveCR() {
     assertEquals("foo\n\tbar", Const.removeCR("foo\r\n\tbar"));
     assertEquals("", Const.removeCR(""));
     assertEquals("", Const.removeCR(null));
@@ -3996,7 +3999,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRemoveLF() {
+  void testRemoveLF() {
     assertEquals("foo\r\tbar", Const.removeLF("foo\r\n\tbar"));
     assertEquals("", Const.removeLF(""));
     assertEquals("", Const.removeLF(null));
@@ -4009,7 +4012,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRemoveTAB() {
+  void testRemoveTAB() {
     assertEquals("foo\r\nbar", Const.removeTAB("foo\r\n\tbar"));
     assertEquals("", Const.removeTAB(""));
     assertEquals("", Const.removeTAB(null));
@@ -4019,7 +4022,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testAddTimeToDate() throws Exception {
+  void testAddTimeToDate() throws Exception {
     final Date date = new Date(1447252914241L);
     assertNull(Const.addTimeToDate(null, null, null));
     assertEquals(date, Const.addTimeToDate(date, null, null));
@@ -4027,33 +4030,33 @@ public class ConstTest {
   }
 
   @Test
-  public void testGetOccurenceString() {
+  void testGetOccurenceString() {
     assertEquals(0, Const.getOccurenceString("", ""));
     assertEquals(0, Const.getOccurenceString("foo bar bazfoo", "cat"));
     assertEquals(2, Const.getOccurenceString("foo bar bazfoo", "foo"));
   }
 
   @Test
-  public void testGetAvailableFontNames() {
+  void testGetAvailableFontNames() {
     assertTrue(Const.getAvailableFontNames().length > 0);
   }
 
   @Test
-  public void testProtectXmlCdata() {
+  void testProtectXmlCdata() {
     assertEquals(null, Const.protectXmlCdata(null));
     assertEquals("", Const.protectXmlCdata(""));
     assertEquals("<![CDATA[foo]]>", Const.protectXmlCdata("foo"));
   }
 
   @Test
-  public void testGetOcuranceString() {
+  void testGetOcuranceString() {
     assertEquals(0, Const.getOcuranceString("", ""));
     assertEquals(0, Const.getOcuranceString("foo bar bazfoo", "cat"));
     assertEquals(2, Const.getOcuranceString("foo bar bazfoo", "foo"));
   }
 
   @Test
-  public void testEscapeXml() {
+  void testEscapeXml() {
     final String xml = "<xml xmlns:test=\"http://test\">";
     final String escaped = "&lt;xml xmlns:test=&quot;http://test&quot;&gt;";
     assertNull(Const.escapeXml(null));
@@ -4061,7 +4064,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testLpad() {
+  void testLpad() {
     final String s = "pad me";
     assertEquals(s, Const.lpad(s, "-", 0));
     assertEquals(s, Const.lpad(s, "-", 3));
@@ -4077,7 +4080,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testRpad() {
+  void testRpad() {
     final String s = "pad me";
     assertEquals(s, Const.rpad(s, "-", 0));
     assertEquals(s, Const.rpad(s, "-", 3));
@@ -4093,14 +4096,14 @@ public class ConstTest {
   }
 
   @Test
-  public void testClassIsOrExtends() {
+  void testClassIsOrExtends() {
     assertFalse(Const.classIsOrExtends(Object.class, Object.class));
     assertTrue(Const.classIsOrExtends(String.class, String.class));
     assertTrue(Const.classIsOrExtends(ArrayList.class, ArrayList.class));
   }
 
   @Test
-  public void testReleaseType() {
+  void testReleaseType() {
     for (Const.ReleaseType type : Const.ReleaseType.values()) {
       assertFalse(type.getMessage().isEmpty());
     }
@@ -4116,7 +4119,7 @@ public class ConstTest {
   }
 
   @Test
-  public void testToBoolean() {
+  void testToBoolean() {
     assertTrue(Const.toBoolean("Y"));
     assertTrue(Const.toBoolean("y"));
     assertTrue(Const.toBoolean("true"));

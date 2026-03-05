@@ -18,8 +18,11 @@
 package org.apache.hop.core;
 
 import static org.apache.hop.core.Condition.Function;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -27,18 +30,17 @@ import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class ConditionTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ConditionTest {
 
   @Test
-  public void testNegatedTrueFuncEvaluatesAsFalse() throws Exception {
+  void testNegatedTrueFuncEvaluatesAsFalse() throws Exception {
     String left = "test_filed";
     String right = "test_value";
     Function func = Function.TRUE;
@@ -49,7 +51,7 @@ public class ConditionTest {
   }
 
   @Test
-  public void testCacheInvalidationTest() throws Exception {
+  void testCacheInvalidationTest() throws Exception {
     IRowMeta rowMeta1 = new RowMeta();
     rowMeta1.addValueMeta(new ValueMetaNumber("name1"));
     rowMeta1.addValueMeta(new ValueMetaNumber("name2"));
@@ -69,7 +71,7 @@ public class ConditionTest {
   }
 
   @Test
-  public void testNullLessThanNumberEvaluatesAsFalse() throws Exception {
+  void testNullLessThanNumberEvaluatesAsFalse() throws Exception {
     IRowMeta rowMeta1 = new RowMeta();
     rowMeta1.addValueMeta(new ValueMetaInteger("name1"));
 
@@ -84,36 +86,36 @@ public class ConditionTest {
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     Document document = XmlHandler.loadXmlFile(getClass().getResourceAsStream("/condition.xml"));
     Node node = XmlHandler.getSubNode(document, Condition.XML_TAG);
 
     Condition condition = new Condition(node);
 
-    Assert.assertNotNull(condition);
-    Assert.assertEquals(2, condition.getChildren().size());
+    assertNotNull(condition);
+    assertEquals(2, condition.getChildren().size());
     Condition c1 = condition.getChildren().get(0);
-    Assert.assertEquals("stateCode", c1.getLeftValueName());
-    Assert.assertEquals("FL", c1.getRightValueString());
+    assertEquals("stateCode", c1.getLeftValueName());
+    assertEquals("FL", c1.getRightValueString());
 
     Condition c2 = condition.getChildren().get(1);
-    Assert.assertEquals("housenr", c2.getLeftValueName());
-    Assert.assertEquals("100", c2.getRightValueString());
+    assertEquals("housenr", c2.getLeftValueName());
+    assertEquals("100", c2.getRightValueString());
   }
 
   @Test
-  public void testSerialization2() throws Exception {
+  void testSerialization2() throws Exception {
     Document document = XmlHandler.loadXmlFile(getClass().getResourceAsStream("/condition2.xml"));
     Node node = XmlHandler.getSubNode(document, Condition.XML_TAG);
 
     Condition condition = new Condition(node);
 
-    Assert.assertNotNull(condition);
-    Assert.assertEquals(0, condition.getChildren().size());
+    assertNotNull(condition);
+    assertEquals(0, condition.getChildren().size());
 
-    Assert.assertEquals("id1", condition.getLeftValueName());
-    Assert.assertEquals("rangeStart", condition.getRightValueName());
-    Assert.assertNull(condition.getRightValue());
-    Assert.assertEquals(Function.LARGER_EQUAL, condition.getFunction());
+    assertEquals("id1", condition.getLeftValueName());
+    assertEquals("rangeStart", condition.getRightValueName());
+    assertNull(condition.getRightValue());
+    assertEquals(Function.LARGER_EQUAL, condition.getFunction());
   }
 }

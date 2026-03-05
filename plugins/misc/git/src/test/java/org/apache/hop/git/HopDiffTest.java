@@ -26,7 +26,7 @@ import static org.apache.hop.git.HopDiff.REMOVED;
 import static org.apache.hop.git.HopDiff.UNCHANGED;
 import static org.apache.hop.git.HopDiff.compareActions;
 import static org.apache.hop.git.HopDiff.compareTransforms;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,22 +39,21 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class HopDiffTest {
-
+class HopDiffTest {
   IHopMetadataProvider metadataProvider;
 
-  @Before
-  public void setUp() throws HopException {
+  @BeforeEach
+  void setUp() throws HopException {
     HopClientEnvironment.getInstance().setClient(HopClientEnvironment.ClientType.OTHER);
     HopEnvironment.init();
     metadataProvider = new MemoryMetadataProvider();
   }
 
   @Test
-  public void diffPipelineTest() throws Exception {
+  void diffPipelineTest() throws Exception {
     File file = new File("src/test/resources/r1.hpl");
     InputStream xmlStream = new FileInputStream(file);
     PipelineMeta pipelineMeta =
@@ -74,7 +73,7 @@ public class HopDiffTest {
   }
 
   @Test
-  public void diffWorkflowTest() throws Exception {
+  void diffWorkflowTest() throws Exception {
     File file = new File("src/test/resources/r1.hwf");
     InputStream xmlStream = new FileInputStream(file);
     WorkflowMeta jobMeta = new WorkflowMeta(xmlStream, metadataProvider, new Variables());

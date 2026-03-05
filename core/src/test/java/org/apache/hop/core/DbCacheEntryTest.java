@@ -16,12 +16,12 @@
  */
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,11 +31,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopFileException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DbCacheEntryTest {
+class DbCacheEntryTest {
+
   @Test
-  public void testClass() throws IOException, HopFileException {
+  void testClass() throws IOException, HopFileException {
     final String dbName = "dbName";
     final String sql = "sql query";
     DbCacheEntry entry = new DbCacheEntry(dbName, sql);
@@ -46,7 +47,7 @@ public class DbCacheEntryTest {
     assertFalse(otherEntry.sameDB("otherDb"));
     assertEquals(0, otherEntry.hashCode());
     assertNotEquals(entry, otherEntry);
-    assertNotEquals(entry, new Object());
+    assertNotEquals(new Object(), entry);
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutputStream dos = new DataOutputStream(baos);

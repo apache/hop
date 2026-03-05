@@ -16,18 +16,19 @@
  */
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CheckResultTest {
+class CheckResultTest {
+
   @Test
-  public void testClass() {
+  void testClass() {
     final int type = ICheckResult.TYPE_RESULT_ERROR;
     final String text = "some text";
     final String sourceMetaName = "meta name";
@@ -44,7 +45,7 @@ public class CheckResultTest {
     cr.setText(text);
     assertSame(text, cr.getText());
 
-    assertNull(null, cr.getSourceInfo());
+    assertNull(cr.getSourceInfo());
 
     assertNull(cr.getErrorCode());
     cr.setErrorCode(errorCode);

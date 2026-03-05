@@ -17,9 +17,9 @@
 
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Calendar;
@@ -30,23 +30,22 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.TemporaryFolder;
 
-public class ResultFileTest {
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ResultFileTest {
 
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
-  @Before
-  public void before() throws Exception {
+  @BeforeEach
+  void before() throws Exception {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testGetRow() throws HopFileException, FileSystemException {
+  void testGetRow() throws HopFileException, FileSystemException {
     File tempDir = new File(new TemporaryFolder().toString());
     FileObject tempFile = HopVfs.createTempFile("prefix", "suffix", tempDir.toString());
     Date timeBeforeFile = Calendar.getInstance().getTime();
@@ -69,9 +68,9 @@ public class ResultFileTest {
     assertEquals("myOrigin", resultFile.getOrigin());
     assertEquals("myOriginParent", resultFile.getOriginParent());
     assertTrue(
-        "ResultFile timestamp is created in the expected window",
         timeBeforeFile.compareTo(resultFile.getTimestamp()) <= 0
-            && timeAfterFile.compareTo(resultFile.getTimestamp()) >= 0);
+            && timeAfterFile.compareTo(resultFile.getTimestamp()) >= 0,
+        "ResultFile timestamp is created in the expected window");
 
     tempFile.delete();
     tempDir.delete();

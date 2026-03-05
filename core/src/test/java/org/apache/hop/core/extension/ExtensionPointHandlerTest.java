@@ -28,16 +28,17 @@ import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ExtensionPointHandlerTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ExtensionPointHandlerTest {
   private static final String TEST_NAME = "testName";
 
   @Test
-  public void callExtensionPointTest() throws Exception {
+  @SuppressWarnings("unchecked")
+  void callExtensionPointTest() throws Exception {
     IPluginMock pluginInterface = mock(IPluginMock.class);
     when(pluginInterface.getName()).thenReturn(TEST_NAME);
     when(pluginInterface.getMainType()).thenReturn((Class) IExtensionPoint.class);

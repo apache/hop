@@ -16,16 +16,17 @@
  */
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.apache.hop.core.row.RowMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BlockingListeningRowSetTest {
+class BlockingListeningRowSetTest {
+
   @Test
-  public void testClass() {
+  void testClass() {
     BlockingListeningRowSet rowSet = new BlockingListeningRowSet(1);
     assertEquals(0, rowSet.size());
     final Object[] row = new Object[] {};

@@ -17,12 +17,12 @@
 
 package org.apache.hop.core.hash;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,12 +30,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ByteArrayHashIndexTest {
+class ByteArrayHashIndexTest {
 
   @Test
-  public void testArraySizeConstructor() {
+  void testArraySizeConstructor() {
     // Test default constructor (uses STANDARD_INDEX_SIZE = 512)
     ByteArrayHashIndex obj = new ByteArrayHashIndex(new RowMeta());
     assertEquals(512, obj.getSize());
@@ -62,7 +62,7 @@ public class ByteArrayHashIndexTest {
   }
 
   @Test
-  public void testGetAndPut() throws HopValueException {
+  void testGetAndPut() throws HopValueException {
     ByteArrayHashIndex obj = new ByteArrayHashIndex(new RowMeta(), 10);
     assertNull(obj.get(new byte[] {10}));
 
@@ -76,30 +76,30 @@ public class ByteArrayHashIndexTest {
    * ensures resize() is called and prevents infinite loops when the table fills up.
    */
   @Test
-  public void testCountIncrementedOnEmptySlotInsert() throws HopValueException {
+  void testCountIncrementedOnEmptySlotInsert() throws HopValueException {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaInteger("id"));
 
     ByteArrayHashIndex hashIndex = new ByteArrayHashIndex(rowMeta, 4);
 
-    assertEquals("Initial count should be 0", 0, hashIndex.getCount());
+    assertEquals(0, hashIndex.getCount(), "Initial count should be 0");
 
     // Insert first entry - goes into empty home slot
     byte[] key1 = RowMeta.extractData(rowMeta, new Object[] {1L});
     hashIndex.put(key1, new byte[] {1});
-    assertEquals("Count should be 1 after first insert", 1, hashIndex.getCount());
+    assertEquals(1, hashIndex.getCount(), "Count should be 1 after first insert");
 
     // Insert second entry
     byte[] key2 = RowMeta.extractData(rowMeta, new Object[] {2L});
     hashIndex.put(key2, new byte[] {2});
-    assertEquals("Count should be 2 after second insert", 2, hashIndex.getCount());
+    assertEquals(2, hashIndex.getCount(), "Count should be 2 after second insert");
 
     // Insert more entries to trigger resize
     for (int i = 3; i <= 10; i++) {
       byte[] key = RowMeta.extractData(rowMeta, new Object[] {(long) i});
       hashIndex.put(key, new byte[] {(byte) i});
     }
-    assertEquals("Count should be 10 after all inserts", 10, hashIndex.getCount());
+    assertEquals(10, hashIndex.getCount(), "Count should be 10 after all inserts");
 
     // Verify table was resized (started at 4, should be larger now)
     assertTrue(hashIndex.getSize() > 4);
@@ -108,8 +108,8 @@ public class ByteArrayHashIndexTest {
     for (int i = 1; i <= 10; i++) {
       byte[] key = RowMeta.extractData(rowMeta, new Object[] {(long) i});
       byte[] value = hashIndex.get(key);
-      assertNotNull("Entry " + i + " should be retrievable", value);
-      assertEquals("Entry " + i + " should have correct value", (byte) i, value[0]);
+      assertNotNull(value, "Entry " + i + " should be retrievable");
+      assertEquals((byte) i, value[0], "Entry " + i + " should have correct value");
     }
   }
 
@@ -118,7 +118,7 @@ public class ByteArrayHashIndexTest {
    * empty home slot didn't call resize(), causing infinite loops when the table became full.
    */
   @Test
-  public void testPutDoesNotHangWhenTableFills() throws Exception {
+  void testPutDoesNotHangWhenTableFills() throws Exception {
     final int TIMEOUT_SECONDS = 2;
     final CountDownLatch done = new CountDownLatch(1);
     final AtomicReference<Throwable> error = new AtomicReference<>();

@@ -17,9 +17,9 @@
 
 package org.apache.hop.core.database;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import java.sql.Connection;
@@ -40,25 +40,25 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class DatabaseConnectingTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class DatabaseConnectingTest {
 
   private static final String GROUP = "group";
   private static final String ANOTHER_GROUP = "another-group";
 
-  @BeforeClass
-  public static void setUp() throws Exception {
+  @BeforeAll
+  static void setUp() throws Exception {
     HopClientEnvironment.init();
   }
 
-  @After
-  public void removeFromSharedConnectionMap() {
+  @AfterEach
+  void removeFromSharedConnectionMap() {
     removeFromSharedConnectionMap(GROUP);
   }
 
@@ -67,7 +67,7 @@ public class DatabaseConnectingTest {
   }
 
   @Test
-  public void connect_GroupIsNull() throws Exception {
+  void connect_GroupIsNull() throws Exception {
     Connection connection1 = mock(Connection.class);
     DatabaseStub db1 = createStubDatabase(connection1);
 
@@ -82,7 +82,7 @@ public class DatabaseConnectingTest {
   }
 
   @Test
-  public void connect_GroupIsEqual_Consequently() throws Exception {
+  void connect_GroupIsEqual_Consequently() throws Exception {
     Connection shared = mock(Connection.class);
 
     DatabaseStub db1 = createStubDatabase(shared);
@@ -97,7 +97,7 @@ public class DatabaseConnectingTest {
   }
 
   @Test
-  public void connect_GroupIsEqual_InParallel() throws Exception {
+  void connect_GroupIsEqual_InParallel() throws Exception {
     final Connection shared = mock(Connection.class);
     final int dbsAmount = 300;
     final int threadsAmount = 50;
@@ -127,15 +127,15 @@ public class DatabaseConnectingTest {
               "There should be %d shares of the connection, but found %d",
               dbsAmount, db.getOpened());
       // 0 is for those instances that use the shared connection
-      assertTrue(message, db.getOpened() == 0 || db.getOpened() == dbsAmount);
+      assertTrue(db.getOpened() == 0 || db.getOpened() == dbsAmount, message);
 
-      assertTrue("Each instance should have a unique 'copy' value", copies.remove(db.getCopy()));
+      assertTrue(copies.remove(db.getCopy()), "Each instance should have a unique 'copy' value");
     }
     assertTrue(copies.isEmpty());
   }
 
   @Test
-  public void connect_TwoGroups() throws Exception {
+  void connect_TwoGroups() throws Exception {
     try {
       Connection shared1 = mock(Connection.class);
       Connection shared2 = mock(Connection.class);
@@ -171,7 +171,7 @@ public class DatabaseConnectingTest {
   }
 
   @Test
-  public void connect_ManyGroups_Simultaneously() throws Exception {
+  void connect_ManyGroups_Simultaneously() throws Exception {
     final int groupsAmount = 30;
 
     Map<String, Connection> groups = new HashMap<>(groupsAmount);

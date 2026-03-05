@@ -19,12 +19,13 @@ package org.apache.hop.core.xml;
 
 import java.io.ByteArrayInputStream;
 import org.apache.hop.core.exception.HopException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class XmlCheckTest {
+class XmlCheckTest {
 
-  @Test(expected = HopException.class)
-  public void exceptionIsThrownWhenParsingXmlWithBigAmountOfExternalEntities() throws HopException {
+  @Test
+  void exceptionIsThrownWhenParsingXmlWithBigAmountOfExternalEntities() {
     final String maliciousXml =
         "<?xml version=\"1.0\"?>\n"
             + "<!DOCTYPE lolz [\n"
@@ -42,6 +43,8 @@ public class XmlCheckTest {
             + "]>\n"
             + "<lolz>&lol9;</lolz>";
 
-    XmlCheck.isXmlWellFormed(new ByteArrayInputStream(maliciousXml.getBytes()));
+    Assertions.assertThrows(
+        HopException.class,
+        () -> XmlCheck.isXmlWellFormed(new ByteArrayInputStream(maliciousXml.getBytes())));
   }
 }

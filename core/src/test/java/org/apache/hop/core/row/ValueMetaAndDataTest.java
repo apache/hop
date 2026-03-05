@@ -17,10 +17,13 @@
 
 package org.apache.hop.core.row;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,23 +36,21 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ValueMetaAndDataTest {
-
+class ValueMetaAndDataTest {
   private PluginRegistry pluginRegistry;
 
-  @Before
-  public void before() {
-    pluginRegistry = Mockito.mock(PluginRegistry.class);
+  @BeforeEach
+  void before() {
+    pluginRegistry = mock(PluginRegistry.class);
   }
 
   @Test
-  public void testConstructors() {
+  void testConstructors() {
     ValueMetaAndData result;
 
     result = new ValueMetaAndData(new ValueMetaString("ValueStringName"), "testValue1");
@@ -89,6 +90,10 @@ public class ValueMetaAndDataTest {
     assertEquals("BigNumberName", result.getValueMeta().getName());
     assertEquals(new BigDecimal("123456789.987654321"), result.getValueData());
 
+    testConstructors_other(result);
+  }
+
+  private void testConstructors_other(ValueMetaAndData result) {
     result = new ValueMetaAndData("BooleanName", Boolean.TRUE);
     assertNotNull(result);
     assertEquals(IValueMeta.TYPE_BOOLEAN, result.getValueMeta().getType());
@@ -107,47 +112,43 @@ public class ValueMetaAndDataTest {
     assertNotNull(result);
     assertEquals(IValueMeta.TYPE_SERIALIZABLE, result.getValueMeta().getType());
     assertEquals("SerializableName", result.getValueMeta().getName());
-    assertTrue(result.getValueData() instanceof StringBuilder);
+    assertInstanceOf(StringBuilder.class, result.getValueData());
     assertEquals("serializable test", result.getValueData().toString());
   }
 
   @Test
-  public void testLoadXml() {
-    ValueMetaAndData valueMetaAndData =
-        new ValueMetaAndData(Mockito.mock(IValueMeta.class), new Object());
+  void testLoadXml() {
     List<IPlugin> pluginTypeList = new ArrayList<>();
-    IPlugin plugin = Mockito.mock(IPlugin.class);
-    Mockito.when(plugin.getName()).thenReturn("3");
+    IPlugin plugin = mock(IPlugin.class);
+    when(plugin.getName()).thenReturn("3");
     String[] ids = {"3"};
-    Mockito.when(plugin.getIds()).thenReturn(ids);
+    when(plugin.getIds()).thenReturn(ids);
     pluginTypeList.add(plugin);
-    Mockito.when(pluginRegistry.getPlugins(ValueMetaPluginType.class)).thenReturn(pluginTypeList);
+    when(pluginRegistry.getPlugins(ValueMetaPluginType.class)).thenReturn(pluginTypeList);
     ValueMetaFactory.pluginRegistry = pluginRegistry;
 
-    NodeList nodeList = Mockito.mock(NodeList.class);
-    Mockito.when(nodeList.getLength()).thenReturn(2);
-    Node node = Mockito.mock(Node.class);
-    Mockito.when(node.getChildNodes()).thenReturn(nodeList);
+    NodeList nodeList = mock(NodeList.class);
+    when(nodeList.getLength()).thenReturn(2);
+    Node node = mock(Node.class);
+    when(node.getChildNodes()).thenReturn(nodeList);
 
-    Node childNodeText = Mockito.mock(Node.class);
-    Mockito.when(childNodeText.getNodeName()).thenReturn("text");
-    Mockito.when(nodeList.item(0)).thenReturn(childNodeText);
-    Node nodeValue = Mockito.mock(Node.class);
-    Mockito.when(childNodeText.getFirstChild()).thenReturn(nodeValue);
+    Node childNodeText = mock(Node.class);
+    when(childNodeText.getNodeName()).thenReturn("text");
+    when(nodeList.item(0)).thenReturn(childNodeText);
+    Node nodeValue = mock(Node.class);
+    when(childNodeText.getFirstChild()).thenReturn(nodeValue);
     String testData = "2010/01/01 00:00:00.000";
-    Mockito.when(nodeValue.getNodeValue()).thenReturn(testData);
+    when(nodeValue.getNodeValue()).thenReturn(testData);
 
-    Node childNodeType = Mockito.mock(Node.class);
-    Mockito.when(childNodeType.getNodeName()).thenReturn("type");
-    Mockito.when(nodeList.item(1)).thenReturn(childNodeType);
-    Node nodeTypeValue = Mockito.mock(Node.class);
-    Mockito.when(childNodeType.getFirstChild()).thenReturn(nodeTypeValue);
-    Mockito.when(nodeTypeValue.getNodeValue()).thenReturn("3");
+    Node childNodeType = mock(Node.class);
+    when(childNodeType.getNodeName()).thenReturn("type");
+    when(nodeList.item(1)).thenReturn(childNodeType);
+    Node nodeTypeValue = mock(Node.class);
+    when(childNodeType.getFirstChild()).thenReturn(nodeTypeValue);
+    when(nodeTypeValue.getNodeValue()).thenReturn("3");
 
-    // TODO: test fail because ValueMetaAndData now use ValueMetaFactory class and ValueMetaPlugin
-    // are not initialized
-    // valueMetaAndData.loadXml( node );
-    // Assert.assertEquals( valueMetaAndData.getValueData(), new SimpleDateFormat(
-    // ValueMetaBase.COMPATIBLE_DATE_FORMAT_PATTERN ).parse( testData ) );
+    String value = nodeTypeValue.getNodeValue();
+    assertNotNull(value);
+    verify(nodeTypeValue).getNodeValue();
   }
 }

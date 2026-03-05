@@ -18,9 +18,9 @@
 
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,10 +35,10 @@ import org.apache.avro.util.Utf8;
 import org.apache.hop.core.HopClientEnvironment;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class ValueMetaAvroRecordTest {
+class ValueMetaAvroRecordTest {
 
   private static final String SCHEMA_JSON =
       "{\n"
@@ -92,13 +92,13 @@ public class ValueMetaAvroRecordTest {
           + "  \"type\": \"record\"\n"
           + "}";
 
-  @BeforeClass
-  public static void before() throws Exception {
+  @BeforeAll
+  static void before() throws Exception {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testCloneMeta() {
+  void testCloneMeta() {
     Schema schema = new Schema.Parser().parse(SCHEMA_JSON);
     String schemaString1 = schema.toString(true);
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test");
@@ -112,7 +112,7 @@ public class ValueMetaAvroRecordTest {
   }
 
   @Test
-  public void testCloneData() throws Exception {
+  void testCloneData() throws Exception {
     GenericRecord genericRecord = generateGenericRecord();
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", genericRecord.getSchema());
 
@@ -123,7 +123,7 @@ public class ValueMetaAvroRecordTest {
   }
 
   @Test
-  public void testToStringMeta() {
+  void testToStringMeta() {
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test");
 
     assertEquals("Avro Generic Record", valueMeta.toStringMeta());
@@ -142,7 +142,7 @@ public class ValueMetaAvroRecordTest {
   }
 
   @Test
-  public void testWriteReadMeta() throws Exception {
+  void testWriteReadMeta() throws Exception {
     Schema schema = new Schema.Parser().parse(SCHEMA_JSON);
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", schema);
 
@@ -162,7 +162,7 @@ public class ValueMetaAvroRecordTest {
   }
 
   @Test
-  public void testStoreLoadMetaInJson() throws Exception {
+  void testStoreLoadMetaInJson() throws Exception {
     Schema schema = new Schema.Parser().parse(SCHEMA_JSON);
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", schema);
 
@@ -193,7 +193,7 @@ public class ValueMetaAvroRecordTest {
   }
 
   @Test
-  public void testWriteReadData() throws Exception {
+  void testWriteReadData() throws Exception {
     GenericRecord genericRecord = generateGenericRecord();
     Schema schema = genericRecord.getSchema();
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", schema);
