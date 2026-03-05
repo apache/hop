@@ -94,7 +94,7 @@ RUN addgroup -g ${HOP_GID} -S hop \
     && adduser -u ${HOP_UID} -S -D -G hop hop \
     && chmod 777 -R /tmp && chmod o+t -R /tmp \
     && apk update \
-    && apk --no-cache add bash curl fontconfig msttcorefonts-installer openjdk17-jre procps \
+    && apk --no-cache add bash curl fontconfig msttcorefonts-installer openjdk21-jre procps \
     && update-ms-fonts \
     && fc-cache -f \
     && rm -rf /var/cache/apk/* \

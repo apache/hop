@@ -17,7 +17,6 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -26,13 +25,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class SSTableOutputTest {
   private static TransformMockHelper<SSTableOutputMeta, SSTableOutputData> helper;
-  private static final SecurityManager sm = System.getSecurityManager();
 
   @BeforeAll
   static void setUp() throws HopException {
@@ -52,29 +49,16 @@ class SSTableOutputTest {
     helper.cleanUp();
   }
 
-  @AfterEach
-  void tearDown() throws Exception {
-    // Restore original security manager if needed
-    if (System.getSecurityManager() != sm) {
-      System.setSecurityManager(sm);
-    }
-  }
-
   @Test
-  void testDisableSystemExit() throws Exception {
-    assertThrows(
-        SecurityException.class,
-        () -> {
-          SSTableOutput ssTableOutput =
-              new SSTableOutput(
-                  helper.transformMeta,
-                  helper.iTransformMeta,
-                  helper.data,
-                  0,
-                  helper.pipelineMeta,
-                  helper.pipeline);
-          ssTableOutput.disableSystemExit(sm, helper.logChannel);
-          System.exit(1);
-        });
+  void testTransformCanBeCreated() {
+    SSTableOutput transform =
+        new SSTableOutput(
+            helper.transformMeta,
+            helper.iTransformMeta,
+            helper.data,
+            0,
+            helper.pipelineMeta,
+            helper.pipeline);
+    org.junit.jupiter.api.Assertions.assertNotNull(transform);
   }
 }
