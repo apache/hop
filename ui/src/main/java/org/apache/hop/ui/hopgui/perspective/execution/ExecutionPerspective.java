@@ -19,7 +19,6 @@ package org.apache.hop.ui.hopgui.perspective.execution;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -177,7 +176,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private boolean onlyShowingWorkflows;
   private boolean onlyShowingPipelines;
   private String filterText;
-  private LastPeriod timeFilter = LastPeriod.ONE_DAY;
+  private LastPeriod timeFilter = LastPeriod.ONE_HOUR;
 
   private HopGui hopGui;
   private SashForm sash;
@@ -186,9 +185,14 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
   private Control toolBar;
   private GuiToolbarWidgets toolBarWidgets;
 
-  private List<IExecutionViewer> viewers = new ArrayList<>();
+  private final List<IExecutionViewer> viewers = new ArrayList<>();
 
-  private Map<String, ExecutionInfoLocation> locationMap;
+  /**
+   * -- GETTER -- Gets locationMap
+   *
+   * @return value of locationMap
+   */
+  @Getter private Map<String, ExecutionInfoLocation> locationMap;
 
   public static final SimpleDateFormat START_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
@@ -465,6 +469,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       // Load metadata
       IHopMetadataProvider provider = new SerializableMetadataProvider(execution.getMetadataJson());
       IVariables variables = Variables.getADefaultVariableSpace();
+      //noinspection deprecation
       variables.setVariables(execution.getVariableValues());
 
       switch (execution.getExecutionType()) {
@@ -662,7 +667,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           metadataProvider.getSerializer(ExecutionInfoLocation.class);
 
       List<ExecutionInfoLocation> locations = serializer.loadAll();
-      Collections.sort(locations, Comparator.comparing(HopMetadataBase::getName));
+      locations.sort(Comparator.comparing(HopMetadataBase::getName));
       ILogChannel log = hopGui.getLog();
       Metrics startLocationRefresh =
           new Metrics(MetricsSnapshotType.START, SNAP_ID_EIL_REFRESH, "Refresh EIL tree");
@@ -995,11 +1000,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
 
   @Override
   public boolean remove(IHopFileTypeHandler typeHandler) {
-    if (typeHandler instanceof MetadataEditor) {
-      MetadataEditor<?> editor = (MetadataEditor<?>) typeHandler;
-
+    if (typeHandler instanceof MetadataEditor<?> editor) {
       if (editor.isCloseable()) {
-
         viewers.remove(editor);
 
         for (CTabItem item : tabFolder.getItems()) {
@@ -1108,15 +1110,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     return new ArrayList<>();
   }
 
-  /**
-   * Gets locationMap
-   *
-   * @return value of locationMap
-   */
-  public Map<String, ExecutionInfoLocation> getLocationMap() {
-    return locationMap;
-  }
-
   @Override
   public void closeTab(CTabFolderEvent event, CTabItem tabItem) {
     IExecutionViewer viewer = (IExecutionViewer) tabItem.getData();
@@ -1194,7 +1187,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       onlyShowingPipelines = toolbarState.extractBoolean(AUDIT_ONLY_PIPELINES, false);
       filterText = toolbarState.extractString(AUDIT_FILTER_TEXT, "");
       String timeFilterName = toolbarState.extractString(AUDIT_TIME_FILTER, "");
-      timeFilter = IEnumHasCode.lookupCode(LastPeriod.class, timeFilterName, LastPeriod.ONE_DAY);
+      timeFilter = IEnumHasCode.lookupCode(LastPeriod.class, timeFilterName, LastPeriod.ONE_HOUR);
 
       AuditState sashState = stateMap.get(AUDIT_SASH_WEIGHTS);
       if (sashState == null) {
