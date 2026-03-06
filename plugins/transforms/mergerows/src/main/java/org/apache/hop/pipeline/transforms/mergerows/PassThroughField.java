@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,31 +17,30 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
-import java.util.List;
-import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
-@SuppressWarnings("java:S1104")
-public class MergeRowsData extends BaseTransformData implements ITransformData {
-  public IRowMeta outputRowMeta;
+@Getter
+@Setter
+public class PassThroughField {
+  @HopMetadataProperty private String sourceField;
 
-  public Object[] one;
-  public Object[] two;
-  public int[] keyNrs;
-  public int[] valueNrs;
+  @HopMetadataProperty private String renameTo;
 
-  public IRowSet oneRowSet;
-  public IRowMeta oneRowMeta;
-  public IRowSet twoRowSet;
-  public IRowMeta twoRowMeta;
+  @HopMetadataProperty private boolean referenceField;
 
-  public List<Integer> passThroughIndexes;
-  public Object[] oneCopy;
-  public Object[] twoCopy;
+  public PassThroughField() {}
 
-  public MergeRowsData() {
-    super();
+  public PassThroughField(String sourceField, String renameTo, boolean referenceField) {
+    this.sourceField = sourceField;
+    this.renameTo = renameTo;
+    this.referenceField = referenceField;
+  }
+
+  public PassThroughField(PassThroughField f) {
+    this.sourceField = f.sourceField;
+    this.renameTo = f.renameTo;
+    this.referenceField = f.referenceField;
   }
 }

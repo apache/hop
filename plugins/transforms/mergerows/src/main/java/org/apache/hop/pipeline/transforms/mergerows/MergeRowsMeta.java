@@ -99,18 +99,30 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
       injectionKeyDescription = "MergeRows.Injection.DIFF_FIELD")
   private String diffJsonField;
 
+  @HopMetadataProperty(
+      groupKey = "passthrough-fields",
+      key = "passthrough-field",
+      injectionGroupKey = "PASSTHROUGH_FIELDS",
+      injectionGroupDescription = "MergeRows.Injection.PASSTHROUGH_FIELDS",
+      injectionKey = "PASSTHROUGH_FIELD",
+      injectionKeyDescription = "MergeRows.Injection.PASSTHROUGH_FIELD")
+  private List<PassThroughField> passThroughFields;
+
   public MergeRowsMeta() {
     super();
     keyFields = new ArrayList<>();
     valueFields = new ArrayList<>();
+    passThroughFields = new ArrayList<>();
   }
 
   public MergeRowsMeta(MergeRowsMeta m) {
+    this();
     this.flagField = m.flagField;
     this.keyFields = new ArrayList<>(m.keyFields);
     this.valueFields = new ArrayList<>(m.valueFields);
     this.referenceTransform = m.referenceTransform;
     this.compareTransform = m.compareTransform;
+    m.getPassThroughFields().forEach(f -> this.passThroughFields.add(new PassThroughField(f)));
   }
 
   @Override
@@ -165,6 +177,41 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
     IValueMeta flagFieldValue = new ValueMetaString(flagField);
     flagFieldValue.setOrigin(name);
     r.addValueMeta(flagFieldValue);
+
+    if (info == null || info.length != 2) {
+      return;
+    }
+
+    // Add the passthrough fields
+    //
+    for (PassThroughField field : passThroughFields) {
+      IValueMeta valueMeta = null;
+      if (field.isReferenceField()) {
+        if (info[0] != null) {
+          valueMeta = info[0].searchValueMeta(field.getSourceField());
+          if (valueMeta == null) {
+            throw new HopTransformException(
+                "Unable to find passthrough reference field '" + field.getSourceField() + "'");
+          }
+        }
+      } else {
+        if (info[1] != null) {
+          valueMeta = info[1].searchValueMeta(field.getSourceField());
+          if (valueMeta == null) {
+            throw new HopTransformException(
+                "Unable to find passthrough compare field '" + field.getSourceField() + "'");
+          }
+        }
+      }
+      if (valueMeta != null) {
+        // create a copy to prevent renaming fields from the reference/compare transforms.
+        valueMeta = valueMeta.clone();
+        if (StringUtils.isNotEmpty(field.getRenameTo())) {
+          valueMeta.setName(field.getRenameTo());
+        }
+        r.addValueMeta(valueMeta);
+      }
+    }
   }
 
   @Override
