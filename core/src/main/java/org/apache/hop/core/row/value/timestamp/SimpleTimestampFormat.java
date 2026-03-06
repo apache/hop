@@ -315,8 +315,6 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
    * pos</code> is not changed, the error index of <code>pos</code> is set to the index of the
    * character where the error occurred, and null is returned.
    *
-   * <p>
-   *
    * <p>This parsing operation uses the {@link SimpleDateFormat#calendar calendar} to produce a
    * {@code Date}. All of the {@code calendar}'s date-time fields are {@linkplain
    * java.util.Calendar#clear() cleared} before parsing, and the {@code calendar}'s default values

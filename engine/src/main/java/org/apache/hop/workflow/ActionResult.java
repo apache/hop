@@ -30,8 +30,6 @@ import org.apache.hop.core.Result;
  * <p>--> result of the execution (Result)
  *
  * <p>--> ...
- *
- * <p>
  */
 @Getter
 @Setter

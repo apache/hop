@@ -29,7 +29,7 @@
     <name>Hop Core</name>
 
     <properties>
-        <batik.version>1.17</batik.version>
+        <batik.version>1.19</batik.version>
     </properties>
 
     <dependencyManagement>

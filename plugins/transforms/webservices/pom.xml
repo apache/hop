@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms Web Services</name>
 
     <properties>
-        <wsdl4j.version>1.6.2</wsdl4j.version>
+        <wsdl4j.version>1.6.3</wsdl4j.version>
     </properties>
 
     <dependencies>

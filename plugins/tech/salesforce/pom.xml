@@ -60,7 +60,7 @@
         <dependency>
             <groupId>jakarta.xml.soap</groupId>
             <artifactId>jakarta.xml.soap-api</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.2</version>
         </dependency>
         <!-- WireMock for HTTP mocking in OAuth/JWT tests -->
         <dependency>

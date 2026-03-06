@@ -30,8 +30,8 @@
     <name>Hop Plugins Transforms JSON</name>
 
     <properties>
-        <encoder.version>1.2</encoder.version>
-        <json-path.version>2.9.0</json-path.version>
+        <encoder.version>1.4.0</encoder.version>
+        <json-path.version>2.10.0</json-path.version>
     </properties>
 
     <dependencyManagement>

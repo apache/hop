@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms Script</name>
 
     <properties>
-        <groovy.version>4.0.22</groovy.version>
+        <groovy.version>4.0.30</groovy.version>
         <jython.version>2.7.4</jython.version>
     </properties>
 

@@ -30,7 +30,7 @@
     <name>Hop Plugins Miscellaneous Documentation</name>
 
     <properties>
-        <commonmark.version>0.27.0</commonmark.version>
+        <commonmark.version>0.27.1</commonmark.version>
     </properties>
 
     <dependencyManagement>

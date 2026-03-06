@@ -31,7 +31,7 @@
 
     <properties>
         <jediterm.version>3.57</jediterm.version>
-        <pty4j.version>0.13.4</pty4j.version>
+        <pty4j.version>0.13.12</pty4j.version>
         <xmlgraphics-commons.version>2.9</xmlgraphics-commons.version>
     </properties>
 

@@ -29,7 +29,7 @@
     <name>Hop Plugins Databases MariaDB</name>
 
     <properties>
-        <mariadb.version>3.4.0</mariadb.version>
+        <mariadb.version>3.5.7</mariadb.version>
     </properties>
 
     <dependencies>

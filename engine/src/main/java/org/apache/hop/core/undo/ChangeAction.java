@@ -38,8 +38,6 @@ import org.apache.hop.workflow.action.ActionMeta;
  *
  * <p>connection
  *
- * <p>
- *
  * <p>Build an Undo/Redo class containing:
  *
  * <p>Type of change
@@ -47,8 +45,6 @@ import org.apache.hop.workflow.action.ActionMeta;
  * <p>Description of action
  *
  * <p>Link to previous infomation
- *
- * <p>
  */
 public class ChangeAction {
   private static final Class<?> PKG = ChangeAction.class;

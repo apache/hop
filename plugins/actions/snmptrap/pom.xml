@@ -30,7 +30,7 @@
     <name>Hop Plugins Actions Send SNMP trap</name>
 
     <properties>
-        <snmp4j.version>1.9.1f</snmp4j.version>
+        <snmp4j.version>3.9.7</snmp4j.version>
     </properties>
 
     <dependencies>

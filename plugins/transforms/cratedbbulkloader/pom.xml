@@ -28,7 +28,7 @@
     <name>Hop Plugins Transforms CrateDB bulk loader</name>
 
     <properties>
-        <testcontainers.version>1.19.8</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 
     <dependencyManagement>

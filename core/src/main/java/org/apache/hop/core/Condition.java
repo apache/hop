@@ -55,23 +55,15 @@ import org.w3c.dom.Node;
  *
  * <p>A condition can either be
  *
- * <p>
- *
  * <p>1) Atomic (a=10, B='aa')
  *
  * <p>2) Composite ( NOT Condition1 AND Condition2 OR Condition3 )
- *
- * <p>
  *
  * <p>If the nr of atomic conditions is 0, the condition is atomic, otherwise it's Composit.
  *
  * <p>Precedence doesn't exist. Conditions are evaluated in the order in which they are found.
  *
  * <p>A condition can be negated or not.
- *
- * <p>
- *
- * <p>
  */
 @Getter
 @Setter

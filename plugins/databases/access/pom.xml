@@ -29,7 +29,7 @@
     <name>Hop Plugins Databases Microsoft Access</name>
 
     <properties>
-        <ucanaccess.version>5.1.3</ucanaccess.version>
+        <ucanaccess.version>5.1.5</ucanaccess.version>
     </properties>
 
     <dependencyManagement>
