@@ -28,30 +28,29 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.eclipse.swt.widgets.TableItem;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class EditRowsDialog_EmptyStringVsNull_Test {
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
+class EditRowsDialog_EmptyStringVsNull_Test {
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @BeforeClass
-  public static void initHop() throws Exception {
+  @BeforeAll
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
   @Test
-  public void emptyAndNullsAreNotDifferent() throws Exception {
+  void emptyAndNullsAreNotDifferent() throws Exception {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
     executeAndAssertResults(new String[] {"", null, null});
   }
 
   @Test
-  public void emptyAndNullsAreDifferent() throws Exception {
+  void emptyAndNullsAreDifferent() throws Exception {
     System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
     executeAndAssertResults(new String[] {"", "", ""});
   }

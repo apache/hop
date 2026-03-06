@@ -16,17 +16,19 @@
  */
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.Date;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class TimedRowTest {
+/** Unit test for {@link TimedRow} */
+class TimedRowTest {
+
   @Test
-  public void testClass() {
+  void testClass() {
     final long time = 1447691729119L;
     final Date date = new Date(time);
     final Object[] data = new Object[] {"value1", "value2", null};

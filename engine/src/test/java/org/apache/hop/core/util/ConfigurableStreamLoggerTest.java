@@ -23,29 +23,28 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class ConfigurableStreamLoggerTest {
-
-  public static String INPUT = "str1\nstr2";
-  public static String PREFIX = "OUTPUT";
-  public static String OUT1 = "OUTPUT str1";
-  public static String OUT2 = "OUTPUT str2";
+class ConfigurableStreamLoggerTest {
+  static final String INPUT = "str1\nstr2";
+  static final String PREFIX = "OUTPUT";
+  static final String OUT1 = "OUTPUT str1";
+  static final String OUT2 = "OUTPUT str2";
 
   private ConfigurableStreamLogger streamLogger;
   private ILogChannel log;
   private InputStream is;
 
-  @Before
-  public void init() {
+  @BeforeEach
+  void init() {
     log = Mockito.mock(LogChannel.class);
     is = new ByteArrayInputStream(INPUT.getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
-  public void testLogError() {
+  void testLogError() {
     streamLogger = new ConfigurableStreamLogger(log, is, LogLevel.ERROR, PREFIX);
     streamLogger.run();
 
@@ -54,7 +53,7 @@ public class ConfigurableStreamLoggerTest {
   }
 
   @Test
-  public void testLogMinimal() {
+  void testLogMinimal() {
     streamLogger = new ConfigurableStreamLogger(log, is, LogLevel.MINIMAL, PREFIX);
     streamLogger.run();
 
@@ -63,7 +62,7 @@ public class ConfigurableStreamLoggerTest {
   }
 
   @Test
-  public void testLogBasic() {
+  void testLogBasic() {
     streamLogger = new ConfigurableStreamLogger(log, is, LogLevel.BASIC, PREFIX);
     streamLogger.run();
 
@@ -72,7 +71,7 @@ public class ConfigurableStreamLoggerTest {
   }
 
   @Test
-  public void testLogDetailed() {
+  void testLogDetailed() {
     streamLogger = new ConfigurableStreamLogger(log, is, LogLevel.DETAILED, PREFIX);
     streamLogger.run();
 
@@ -81,7 +80,7 @@ public class ConfigurableStreamLoggerTest {
   }
 
   @Test
-  public void testLogDebug() {
+  void testLogDebug() {
     streamLogger = new ConfigurableStreamLogger(log, is, LogLevel.DEBUG, PREFIX);
     streamLogger.run();
 
@@ -90,7 +89,7 @@ public class ConfigurableStreamLoggerTest {
   }
 
   @Test
-  public void testLogRowlevel() {
+  void testLogRowLevel() {
     streamLogger = new ConfigurableStreamLogger(log, is, LogLevel.ROWLEVEL, PREFIX);
     streamLogger.run();
 

@@ -17,25 +17,23 @@
 
 package org.apache.hop.pipeline;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class DatabaseImpactTest {
-
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
+class DatabaseImpactTest {
   private Class<?> PKG = Pipeline.class;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
   @Test
-  public void testGetRow() throws HopValueException {
+  void testGetRow() throws HopValueException {
     DatabaseImpact testObject =
         new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ,
@@ -86,6 +84,11 @@ public class DatabaseImpactTest {
     assertEquals(
         BaseMessages.getString(PKG, "DatabaseImpact.RowDesc.Label.Value"),
         rmd.getValueMeta(6).getName());
+
+    testGetRow_1(rmd);
+  }
+
+  private void testGetRow_1(RowMetaAndData rmd) throws HopValueException {
     assertEquals("MyValue", rmd.getString(6, "default"));
     assertEquals(IValueMeta.TYPE_STRING, rmd.getValueMeta(7).getType());
     assertEquals(

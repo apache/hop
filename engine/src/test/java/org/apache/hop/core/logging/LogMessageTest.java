@@ -17,18 +17,19 @@
 
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.variables.DescribedVariable;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class LogMessageTest {
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
+class LogMessageTest {
   private LogMessage logMessage;
 
   private static final String LOG_MESSAGE = "Test Message";
@@ -36,21 +37,19 @@ public class LogMessageTest {
   private static String treeLogChannelId;
   private static String simpleLogChannelId;
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     treeLogChannelId = LoggingRegistry.getInstance().registerLoggingSource(getTreeLoggingObject());
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     LoggingRegistry.getInstance().removeIncludingChildren(treeLogChannelId);
     System.clearProperty(Const.HOP_LOG_MARK_MAPPINGS);
   }
 
   @Test
-  public void testWhenLogMarkMappingTurnOn_DetailedSubjectUsed() {
+  void testWhenLogMarkMappingTurnOn_DetailedSubjectUsed() {
     turnOnLogMarkMapping();
 
     logMessage = new LogMessage(LOG_MESSAGE, treeLogChannelId, LOG_LEVEL);
@@ -62,7 +61,7 @@ public class LogMessageTest {
   }
 
   @Test
-  public void testWhenLogMarkMappingTurnOff_SimpleSubjectUsed() {
+  void testWhenLogMarkMappingTurnOff_SimpleSubjectUsed() {
     turnOffLogMarkMapping();
 
     logMessage = new LogMessage(LOG_MESSAGE, treeLogChannelId, LOG_LEVEL);
@@ -73,8 +72,7 @@ public class LogMessageTest {
   }
 
   @Test
-  public void
-      testWhenLogMarkMappingTurnOnAndNoSubMappingUsed_DetailedSubjectContainsOnlySimpleSubject() {
+  void testWhenLogMarkMappingTurnOnAndNoSubMappingUsed_DetailedSubjectContainsOnlySimpleSubject() {
     turnOnLogMarkMapping();
 
     simpleLogChannelId =
@@ -90,7 +88,7 @@ public class LogMessageTest {
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     turnOnLogMarkMapping();
 
     simpleLogChannelId =
@@ -102,7 +100,7 @@ public class LogMessageTest {
   }
 
   @Test
-  public void testToString_withOneArgument() {
+  void testToString_withOneArgument() {
     turnOnLogMarkMapping();
 
     simpleLogChannelId =
@@ -116,7 +114,7 @@ public class LogMessageTest {
   }
 
   @Test
-  public void testGetMessage() {
+  void testGetMessage() {
     LogMessage msg =
         new LogMessage(
             "m {0}, {1}, {2}, {3}, {4,number,#.00}, {5} {foe}",

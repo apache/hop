@@ -17,19 +17,20 @@
 
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LoggingRegistryTest {
+/** Unit test for {@link LoggingRegistry} */
+class LoggingRegistryTest {
   public static final String LOG_CHANEL_ID_PARENT = "parent-chanel-id";
   public static final String LOG_CHANEL_ID_CHILD = "child-chanel-id";
   public static final String STRING_DEFAULT = "<def>";
 
   @Test
-  public void correctLogIdReturned_WhenLogObjectRegisteredAlready() {
+  void correctLogIdReturned_WhenLogObjectRegisteredAlready() {
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
 
     LoggingObject parent =
@@ -48,7 +49,7 @@ public class LoggingRegistryTest {
   }
 
   @Test
-  public void testRegisterFileWriter() {
+  void testRegisterFileWriter() {
     String id = "1";
 
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
@@ -60,7 +61,7 @@ public class LoggingRegistryTest {
   }
 
   @Test
-  public void testFileWritersIds() {
+  void testFileWritersIds() {
     String id = "1";
 
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();
@@ -72,7 +73,7 @@ public class LoggingRegistryTest {
   }
 
   @Test
-  public void testRemoveFileWriter() {
+  void testRemoveFileWriter() {
     String id = "1";
 
     LoggingRegistry loggingRegistry = LoggingRegistry.getInstance();

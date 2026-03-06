@@ -16,19 +16,19 @@
  */
 package org.apache.hop.core.parameters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class NamedParamsExceptionTest {
-
+/** Unit test for {@link NamedParamsException} */
+class NamedParamsExceptionTest {
   NamedParamsException exception;
 
   @Test
-  public void testConstructors() {
+  void testConstructors() {
     exception = new NamedParamsException();
     assertNotNull(exception);
     assertMessage("null", exception);

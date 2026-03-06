@@ -17,45 +17,46 @@
 
 package org.apache.hop.utils;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.nio.file.Path;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.FileUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class FileUtilsTest {
+class FileUtilsTest {
+  @TempDir Path testFolder;
 
   @Test
-  public void testCreateTempDir() {
-    String tempDir = TestUtils.createTempDir();
-    if (tempDir != null) {
-      File fl = new File(tempDir);
-      assertTrue("Dir should be created", fl.exists());
-      try {
-        fl.delete();
-      } catch (Exception ex) {
-        ex.printStackTrace();
-      }
+  void testCreateTempDir() {
+    String tempDir = testFolder.toAbsolutePath().toString();
+    File fl = new File(tempDir);
+    assertTrue(fl.exists(), "Dir should be created");
+    try {
+      fl.delete();
+    } catch (Exception ex) {
+      ex.printStackTrace();
     }
   }
 
   @Test
-  public void testCreateParentFolder() {
-    String tempDir = TestUtils.createTempDir();
+  void testCreateParentFolder() {
+    String tempDir = testFolder.toAbsolutePath().toString();
     String suff = tempDir.substring(tempDir.lastIndexOf(File.separator) + 1);
     tempDir += File.separator + suff + File.separator + suff;
     assertTrue(
-        "Dir should be created",
-        FileUtil.createParentFolder(getClass(), tempDir, true, new LogChannel(this)));
+        FileUtil.createParentFolder(getClass(), tempDir, true, new LogChannel(this)),
+        "Dir should be created");
     File fl = new File(tempDir.substring(0, tempDir.lastIndexOf(File.separator)));
-    assertTrue("Dir should exist", fl.exists());
+    assertTrue(fl.exists(), "Dir should exist");
     fl.delete();
     new File(tempDir).delete();
   }
 
   @Test
-  public void testIsFullyQualified() {
+  void testIsFullyQualified() {
     assertTrue(FileUtil.isFullyQualified("/test"));
     assertTrue(FileUtil.isFullyQualified("\\test"));
   }

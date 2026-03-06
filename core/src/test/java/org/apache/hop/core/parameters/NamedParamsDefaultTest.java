@@ -16,24 +16,26 @@
  */
 package org.apache.hop.core.parameters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.spy;
 
 import org.apache.hop.core.variables.Variables;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class NamedParamsDefaultTest {
+/** Unit test for {@link INamedParameters} */
+class NamedParamsDefaultTest {
   INamedParameters namedParams;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     namedParams = spy(new NamedParameters());
   }
 
   @Test
-  public void testParameters() throws Exception {
+  void testParameters() throws Exception {
     assertNull(namedParams.getParameterValue("var1"));
     assertNull(namedParams.getParameterDefault("var1"));
     assertNull(namedParams.getParameterDescription("var1"));
@@ -76,9 +78,12 @@ public class NamedParamsDefaultTest {
     assertEquals("CCC", variables.getVariable("var3"));
   }
 
-  @Test(expected = DuplicateParamException.class)
-  public void testAddParameterDefinitionWithException() throws DuplicateParamException {
+  @Test
+  void testAddParameterDefinitionWithException() throws DuplicateParamException {
     namedParams.addParameterDefinition("key", "value", "description");
-    namedParams.addParameterDefinition("key", "value", "description");
+
+    assertThrows(
+        DuplicateParamException.class,
+        () -> namedParams.addParameterDefinition("key", "value", "description"));
   }
 }

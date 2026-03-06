@@ -17,40 +17,41 @@
 
 package org.apache.test.util;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * This is a base class for creating guard tests, that check a transform cannot be executed in the
  * single-threaded mode
  */
-public abstract class SingleThreadedExecutionGuarder<Meta extends ITransformMeta> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
+public abstract class SingleThreadedExecutionGuarder<T extends ITransformMeta> {
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     HopEnvironment.init();
   }
 
-  protected abstract Meta createMeta();
+  protected abstract T createMeta();
 
-  @Test(expected = HopException.class)
+  @Test
   public void failsWhenGivenNonSingleThreadTransforms() throws Exception {
-    Meta metaInterface = createMeta();
+    T metaInterface = createMeta();
 
     PluginRegistry plugReg = PluginRegistry.getInstance();
     String id = plugReg.getPluginId(TransformPluginType.class, metaInterface);
@@ -65,7 +66,11 @@ public abstract class SingleThreadedExecutionGuarder<Meta extends ITransformMeta
     Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
     pipeline.prepareExecution();
 
-    SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor(pipeline);
-    executor.init();
+    assertThrows(
+        HopException.class,
+        () -> {
+          SingleThreadedPipelineExecutor executor = new SingleThreadedPipelineExecutor(pipeline);
+          executor.init();
+        });
   }
 }

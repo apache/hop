@@ -17,26 +17,27 @@
 
 package org.apache.hop.core.xml;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class XmlUtilsTest {
+/** Unit test for {@link XmlParserFactoryProducer} */
+class XmlUtilsTest {
   @Test
-  public void secureFeatureEnabledAfterDocBuilderFactoryCreation() throws Exception {
+  void secureFeatureEnabledAfterDocBuilderFactoryCreation() throws Exception {
     DocumentBuilderFactory documentBuilderFactory =
         XmlParserFactoryProducer.createSecureDocBuilderFactory();
 
-    assertEquals(true, documentBuilderFactory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING));
+    assertTrue(documentBuilderFactory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING));
   }
 
   @Test
-  public void secureFeatureEnabledAfterSAXParserFactoryCreation() throws Exception {
+  void secureFeatureEnabledAfterSAXParserFactoryCreation() throws Exception {
     SAXParserFactory saxParserFactory = XmlParserFactoryProducer.createSecureSAXParserFactory();
 
-    assertEquals(true, saxParserFactory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING));
+    assertTrue(saxParserFactory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING));
   }
 }

@@ -17,21 +17,23 @@
 
 package org.apache.hop.metadata.serializer.xml;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Arrays;
-import junit.framework.TestCase;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.xml.classes.Field;
 import org.apache.hop.metadata.serializer.xml.classes.Info;
 import org.apache.hop.metadata.serializer.xml.classes.MetaData;
 import org.apache.hop.metadata.serializer.xml.classes.TestEnum;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 
-public class XmlMetadataUtilTest extends TestCase {
+/** Unit test for {@link XmlMetadataUtil} */
+class XmlMetadataUtilTest {
 
   @Test
-  public void testMetaXml() throws Exception {
+  void testMetaXml() throws Exception {
     MetaData metaTest = new MetaData();
     metaTest.setFilename("filename.csv");
     metaTest.setGroup("\"");

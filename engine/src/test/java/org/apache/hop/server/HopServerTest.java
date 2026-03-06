@@ -17,11 +17,11 @@
 
 package org.apache.hop.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -63,10 +63,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.protocol.HttpContext;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -74,12 +74,12 @@ import org.mockito.stubbing.Answer;
  *
  * @see HopServerMeta
  */
-public class HopServerTest {
+class HopServerTest {
   HopServerMeta hopServer;
   IVariables variables;
 
-  @BeforeClass
-  public static void beforeClass() throws HopException {
+  @BeforeAll
+  static void beforeClass() throws HopException {
     PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
     PluginRegistry.init();
     String passwordEncoderPluginID =
@@ -87,13 +87,13 @@ public class HopServerTest {
     Encr.init(passwordEncoderPluginID);
   }
 
-  @AfterClass
-  public static void tearDown() {
+  @AfterAll
+  static void tearDown() {
     PluginRegistry.getInstance().reset();
   }
 
-  @Before
-  public void init() throws Exception {
+  @BeforeEach
+  void init() throws Exception {
     ServerConnectionManager connectionManager = ServerConnectionManager.getInstance();
     HttpClient httpClient = spy(connectionManager.createHttpClient());
 
@@ -133,8 +133,8 @@ public class HopServerTest {
     return resp;
   }
 
-  @Test(expected = HopException.class)
-  public void testExecService() throws Exception {
+  @Test
+  void testExecService() throws Exception {
     String nonExistingAppName = "wrong_app_name";
     HttpGet httpGetMock = mock(HttpGet.class);
 
@@ -158,12 +158,14 @@ public class HopServerTest {
         .buildExecuteServiceMethod(any(IVariables.class), anyString(), anyMap());
     hopServer.setHostname("hostNameStub");
     hopServer.setUsername("userNAmeStub");
-    hopServer.execService(Variables.getADefaultVariableSpace(), nonExistingAppName);
-    fail("Incorrect connection details had been used, but no exception was thrown");
+
+    assertThrows(
+        HopException.class,
+        () -> hopServer.execService(Variables.getADefaultVariableSpace(), nonExistingAppName));
   }
 
-  @Test(expected = HopException.class)
-  public void testSendXml() throws Exception {
+  @Test
+  void testSendXml() throws Exception {
     hopServer.setHostname("hostNameStub");
     hopServer.setUsername("userNAmeStub");
     HttpPost httpPostMock = mock(HttpPost.class);
@@ -172,12 +174,12 @@ public class HopServerTest {
     doReturn(httpPostMock)
         .when(hopServer)
         .buildSendXmlMethod(any(Variables.class), any(byte[].class), anyString());
-    hopServer.sendXml(variables, "", "");
-    fail("Incorrect connection details had been used, but no exception was thrown");
+
+    assertThrows(HopException.class, () -> hopServer.sendXml(variables, "", ""));
   }
 
-  @Test(expected = HopException.class)
-  public void testSendExport() throws Exception {
+  @Test
+  void testSendExport() throws Exception {
     hopServer.setHostname("hostNameStub");
     hopServer.setUsername("userNAmeStub");
     HttpPost httpPostMock = mock(HttpPost.class);
@@ -190,12 +192,14 @@ public class HopServerTest {
     File tempFile;
     tempFile = File.createTempFile("ApacheHop-", "tmp");
     tempFile.deleteOnExit();
-    hopServer.sendExport(variables, tempFile.getAbsolutePath(), "", "");
-    fail("Incorrect connection details had been used, but no exception was thrown");
+
+    assertThrows(
+        HopException.class,
+        () -> hopServer.sendExport(variables, tempFile.getAbsolutePath(), "", ""));
   }
 
   @Test
-  public void testSendExportOk() throws Exception {
+  void testSendExportOk() throws Exception {
     hopServer.setUsername("uname");
     hopServer.setPassword("passw");
     hopServer.setHostname("hname");
@@ -233,7 +237,7 @@ public class HopServerTest {
   }
 
   @Test
-  public void testAddCredentials() {
+  void testAddCredentials() {
     String testUser = "test_username";
     hopServer.setUsername(testUser);
     String testPassword = "test_password";
@@ -257,7 +261,7 @@ public class HopServerTest {
   }
 
   @Test
-  public void testAuthCredentialsSchemeWithSSL() {
+  void testAuthCredentialsSchemeWithSSL() {
     hopServer.setUsername("admin");
     hopServer.setPassword("password");
     hopServer.setHostname("localhost");
@@ -270,7 +274,7 @@ public class HopServerTest {
   }
 
   @Test
-  public void testAuthCredentialsSchemeWithoutSSL() {
+  void testAuthCredentialsSchemeWithoutSSL() {
     hopServer.setUsername("admin");
     hopServer.setPassword("password");
     hopServer.setHostname("localhost");
@@ -283,7 +287,7 @@ public class HopServerTest {
   }
 
   @Test
-  public void testModifyingName() {
+  void testModifyingName() {
     hopServer.setName("test");
     List<HopServerMeta> list = new ArrayList<>();
     list.add(hopServer);
@@ -293,11 +297,11 @@ public class HopServerTest {
 
     hopServer2.verifyAndModifyHopServerName(list, null);
 
-    assertFalse(hopServer.getName().equals(hopServer2.getName()));
+    assertNotEquals(hopServer.getName(), hopServer2.getName());
   }
 
   @Test
-  public void testEqualsHashCodeConsistency() {
+  void testEqualsHashCodeConsistency() {
     HopServerMeta server = new HopServerMeta();
     server.setName("server");
     TestUtils.checkEqualsHashCodeConsistency(server, server);

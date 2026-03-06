@@ -17,32 +17,32 @@
 
 package org.apache.hop.core.gui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class WorkflowTrackerTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class WorkflowTrackerTest {
 
-  @Test
   // Number of workflow trackers should be limited by HOP_MAX_JOB_TRACKER_SIZE
-  public void testAddJobTracker() {
+  @Test
+  void testAddJobTracker() {
     final String old = System.getProperty(Const.HOP_MAX_WORKFLOW_TRACKER_SIZE);
 
-    final Integer maxTestSize = 30;
+    final int maxTestSize = 30;
     try {
-      System.setProperty(Const.HOP_MAX_WORKFLOW_TRACKER_SIZE, maxTestSize.toString());
+      System.setProperty(Const.HOP_MAX_WORKFLOW_TRACKER_SIZE, Integer.toString(maxTestSize));
 
       WorkflowMeta workflowMeta = mock(WorkflowMeta.class);
       WorkflowTracker workflowTracker = new WorkflowTracker(workflowMeta);
@@ -52,8 +52,8 @@ public class WorkflowTrackerTest {
       }
 
       assertTrue(
-          "More JobTrackers than allowed were added",
-          workflowTracker.getTotalNumberOfItems() <= maxTestSize);
+          workflowTracker.getTotalNumberOfItems() <= maxTestSize,
+          "More JobTrackers than allowed were added");
     } finally {
       if (old == null) {
         System.clearProperty(Const.HOP_MAX_WORKFLOW_TRACKER_SIZE);
@@ -64,7 +64,7 @@ public class WorkflowTrackerTest {
   }
 
   @Test
-  public void findJobTracker_EntryNameIsNull() {
+  void findJobTracker_EntryNameIsNull() {
     WorkflowTracker workflowTracker = createTracker();
     workflowTracker.addWorkflowTracker(createTracker());
 
@@ -74,19 +74,18 @@ public class WorkflowTrackerTest {
   }
 
   @Test
-  public void findJobTracker_EntryNameNotFound() {
+  void findJobTracker_EntryNameNotFound() {
     WorkflowTracker workflowTracker = createTracker();
     for (int i = 0; i < 3; i++) {
       workflowTracker.addWorkflowTracker(createTracker(Integer.toString(i)));
     }
 
     ActionMeta copy = createActionMeta("not match");
-
     assertNull(workflowTracker.findWorkflowTracker(copy));
   }
 
   @Test
-  public void findJobTracker_EntryNameFound() {
+  void findJobTracker_EntryNameFound() {
     WorkflowTracker workflowTracker = createTracker();
     WorkflowTracker[] children =
         new WorkflowTracker[] {createTracker("0"), createTracker("1"), createTracker("2")};
@@ -95,7 +94,6 @@ public class WorkflowTrackerTest {
     }
 
     ActionMeta actionMeta = createActionMeta("1");
-
     assertEquals(children[1], workflowTracker.findWorkflowTracker(actionMeta));
   }
 

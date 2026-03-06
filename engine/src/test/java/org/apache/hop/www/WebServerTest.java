@@ -16,8 +16,8 @@
  */
 package org.apache.hop.www;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,19 +25,17 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.server.HopServerMeta;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ServerConnector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class WebServerTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  /** */
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
+class WebServerTest {
   private static final String EMPTY_STRING = "";
 
   private static final boolean SHOULD_JOIN = false;
@@ -62,14 +60,14 @@ public class WebServerTest {
 
   private WebServer webServer;
   private WebServer webServerNg;
-  private PipelineMap trMapMock = mock(PipelineMap.class);
-  private HopServerConfig sServerConfMock = mock(HopServerConfig.class);
-  private HopServerMeta sServer = mock(HopServerMeta.class);
-  private WorkflowMap jbMapMock = mock(WorkflowMap.class);
-  private ILogChannel logMock = mock(ILogChannel.class);
+  private final PipelineMap trMapMock = mock(PipelineMap.class);
+  private final HopServerConfig sServerConfMock = mock(HopServerConfig.class);
+  private final HopServerMeta sServer = mock(HopServerMeta.class);
+  private final WorkflowMap jbMapMock = mock(WorkflowMap.class);
+  private final ILogChannel logMock = mock(ILogChannel.class);
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, ACCEPTORS);
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE, ACCEPT_QUEUE_SIZE);
     System.setProperty(Const.HOP_SERVER_JETTY_RES_MAX_IDLE_TIME, RES_MAX_IDLE_TIME);
@@ -83,8 +81,8 @@ public class WebServerTest {
             logMock, trMapMock, jbMapMock, HOST_NAME, PORT, SHUTDOEN_PORT, SHOULD_JOIN, null);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     webServer.setWebServerShutdownHandler(null); // disable system.exit
     webServer.stopServer();
 
@@ -94,7 +92,7 @@ public class WebServerTest {
   }
 
   @Test
-  public void testJettyOption_AcceptQueueSizeSetUp() {
+  void testJettyOption_AcceptQueueSizeSetUp() {
     assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServer).size());
     for (ServerConnector sc : getSocketConnectors(webServer)) {
       assertEquals(EXPECTED_ACCEPT_QUEUE_SIZE, sc.getAcceptQueueSize());
@@ -102,7 +100,7 @@ public class WebServerTest {
   }
 
   @Test
-  public void testJettyOption_LowResourceMaxIdleTimeSetUp() {
+  void testJettyOption_LowResourceMaxIdleTimeSetUp() {
     assertEquals(EXPECTED_CONNECTORS_SIZE, getSocketConnectors(webServer).size());
     for (ServerConnector sc : getSocketConnectors(webServer)) {
       assertEquals(EXPECTED_RES_MAX_IDLE_TIME, sc.getIdleTimeout());
@@ -110,7 +108,7 @@ public class WebServerTest {
   }
 
   @Test
-  public void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsInvalidValue()
+  void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsInvalidValue()
       throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, "TEST");
     try {
@@ -129,8 +127,7 @@ public class WebServerTest {
   }
 
   @Test
-  public void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsEmpty()
-      throws Exception {
+  void testNoExceptionAndUsingDefaultServerValue_WhenJettyOptionSetAsEmpty() throws Exception {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, EMPTY_STRING);
     try {
       webServerNg =

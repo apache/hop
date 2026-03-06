@@ -17,9 +17,10 @@
 
 package org.apache.hop.workflow;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -41,22 +42,21 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class WorkflowMetaTest {
-
+class WorkflowMetaTest {
   private static final String WORKFLOW_META_NAME = "workflowName";
 
   private WorkflowMeta workflowMeta;
   private IVariables variables;
   private IContentChangedListener listener;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     workflowMeta = new WorkflowMeta();
     workflowMeta.setNameSynchronizedWithFilename(false);
     // prepare
@@ -68,12 +68,12 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testPathExist() {
+  void testPathExist() {
     assertTrue(testPath("je1-je4"));
   }
 
   @Test
-  public void testPathNotExist() {
+  void testPathNotExist() {
     assertFalse(testPath("je2-je4"));
   }
 
@@ -107,7 +107,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testContentChangeListener() {
+  void testContentChangeListener() {
     workflowMeta.setChanged();
     workflowMeta.setChanged(true);
 
@@ -126,7 +126,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void shouldUseCoordinatesOfItsTransformsAndNotesWhenCalculatingMinimumPoint() {
+  void shouldUseCoordinatesOfItsTransformsAndNotesWhenCalculatingMinimumPoint() {
     Point actionPoint = new Point(500, 500);
     Point notePadMetaPoint = new Point(400, 400);
     ActionMeta actionMeta = mock(ActionMeta.class);
@@ -155,38 +155,38 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testEquals_oneNameNull() {
+  void testEquals_oneNameNull() {
     assertFalse(testEquals(null, null));
   }
 
   @Test
-  public void testEquals_secondNameNull() {
+  void testEquals_secondNameNull() {
     workflowMeta.setName(null);
     assertFalse(testEquals(WORKFLOW_META_NAME, null));
   }
 
   @Test
-  public void testEquals_sameFilename() {
+  void testEquals_sameFilename() {
     String newFilename = "Filename";
     workflowMeta.setFilename(newFilename);
     assertFalse(testEquals(null, newFilename));
   }
 
   @Test
-  public void testEquals_difFilenameSameName() {
+  void testEquals_difFilenameSameName() {
     workflowMeta.setFilename("Filename");
     assertFalse(testEquals(WORKFLOW_META_NAME, "OtherFileName"));
   }
 
   @Test
-  public void testEquals_sameFilenameSameName() {
+  void testEquals_sameFilenameSameName() {
     String newFilename = "Filename";
     workflowMeta.setFilename(newFilename);
     assertTrue(testEquals(WORKFLOW_META_NAME, newFilename));
   }
 
   @Test
-  public void testEquals_sameFilenameDifName() {
+  void testEquals_sameFilenameDifName() {
     String newFilename = "Filename";
     workflowMeta.setFilename(newFilename);
     assertFalse(testEquals("OtherName", newFilename));
@@ -201,12 +201,12 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testLoadXml() throws HopException {
+  void testLoadXml() throws HopException {
     String directory = "/home/admin";
     Node workflowNode = Mockito.mock(Node.class);
     NodeList nodeList =
         new NodeList() {
-          Node node = Mockito.mock(Node.class);
+          final Node node = Mockito.mock(Node.class);
 
           {
             Mockito.when(node.getNodeName()).thenReturn("directory");
@@ -232,11 +232,12 @@ public class WorkflowMetaTest {
 
     meta.loadXml(workflowNode, null, Mockito.mock(IHopMetadataProvider.class), new Variables());
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine(meta);
+    assertNotNull(workflow);
     workflow.setInternalHopVariables();
   }
 
   @Test
-  public void testAddRemoveJobEntryCopySetUnsetParent() {
+  void testAddRemoveJobEntryCopySetUnsetParent() {
     ActionMeta actionCopy = mock(ActionMeta.class);
     workflowMeta.addAction(actionCopy);
     workflowMeta.removeAction(0);
@@ -245,7 +246,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testHasLoop_simpleLoop() {
+  void testHasLoop_simpleLoop() {
     // main->2->3->main
     WorkflowMeta workflowMetaSpy = spy(workflowMeta);
     ActionMeta actionCopyMain = createAction("mainTransform");
@@ -261,7 +262,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testHasLoop_loopInPrevTransforms() {
+  void testHasLoop_loopInPrevTransforms() {
     // main->2->3->4->3
     WorkflowMeta workflowMetaSpy = spy(workflowMeta);
     ActionMeta actionCopyMain = createAction("mainTransform");
@@ -288,7 +289,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithFilename() {
+  void testSetInternalEntryCurrentDirectoryWithFilename() {
     WorkflowMeta workflowMetaTest = new WorkflowMeta();
     workflowMetaTest.setFilename("hasFilename");
     variables.setVariable(
@@ -303,7 +304,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
+  void testSetInternalEntryCurrentDirectoryWithoutFilename() {
     WorkflowMeta workflowMetaTest = new WorkflowMeta();
     variables.setVariable(
         Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution");
@@ -317,7 +318,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testUpdateCurrentDirWithFilename() {
+  void testUpdateCurrentDirWithFilename() {
     WorkflowMeta workflowMetaTest = new WorkflowMeta();
     workflowMetaTest.setFilename("hasFilename");
     variables.setVariable(
@@ -332,7 +333,7 @@ public class WorkflowMetaTest {
   }
 
   @Test
-  public void testUpdateCurrentDirWithoutFilename() {
+  void testUpdateCurrentDirWithoutFilename() {
     WorkflowMeta workflowMetaTest = new WorkflowMeta();
     variables.setVariable(
         Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution");

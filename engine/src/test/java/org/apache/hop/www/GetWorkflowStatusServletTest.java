@@ -17,7 +17,7 @@
 
 package org.apache.hop.www;
 
-import static junit.framework.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -38,24 +38,24 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.owasp.encoder.Encode;
 
-public class GetWorkflowStatusServletTest {
+class GetWorkflowStatusServletTest {
   private WorkflowMap mockWorkflowMap;
 
   private GetWorkflowStatusServlet getWorkflowStatusServlet;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     mockWorkflowMap = mock(WorkflowMap.class);
     getWorkflowStatusServlet = new GetWorkflowStatusServlet(mockWorkflowMap);
   }
 
   @Test
-  public void testGetJobStatusServletEscapesHtmlWhenPipelineNotFound()
+  void testGetJobStatusServletEscapesHtmlWhenPipelineNotFound()
       throws ServletException, IOException {
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
@@ -75,8 +75,7 @@ public class GetWorkflowStatusServletTest {
   }
 
   @Test
-  public void testGetJobStatusServletEscapesHtmlWhenPipelineFound()
-      throws ServletException, IOException {
+  void testGetJobStatusServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
@@ -102,7 +101,7 @@ public class GetWorkflowStatusServletTest {
   }
 
   @Test
-  public void testGetJobStatus() throws ServletException, IOException {
+  void testGetJobStatus() throws ServletException, IOException {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);

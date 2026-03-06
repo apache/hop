@@ -16,27 +16,27 @@
  */
 package org.apache.hop.core.svg;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Unit tests for the SvgImage class */
-public class SvgImageTest {
+class SvgImageTest {
 
   SvgImage image;
   Document document;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     document = mock(Document.class);
     image = new SvgImage(document);
   }
 
   @Test
-  public void testGetDocument() {
+  void testGetDocument() {
     assertEquals(document, image.getDocument());
   }
 }

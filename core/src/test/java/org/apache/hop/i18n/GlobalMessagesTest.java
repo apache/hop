@@ -17,14 +17,15 @@
 
 package org.apache.hop.i18n;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class GlobalMessagesTest {
+/** Unit test for {@link GlobalMessages} */
+class GlobalMessagesTest {
   /*
    * Reading properties file without native2ascii. (use UTF8 characters) #620
    */
@@ -34,7 +35,7 @@ public class GlobalMessagesTest {
    * to validate that old-style escaped ISO-8859-1 files are read correctly as before
    */
   @Test
-  public void testGetBundleOldASCII() throws Exception {
+  void testGetBundleOldASCII() throws Exception {
     final String pkgName = "org.apache.hop/i18n/messages/test_ascii_messages";
     final String msgKey = "System.Dialog.SelectEnvironmentVar.Title";
 
@@ -77,7 +78,7 @@ public class GlobalMessagesTest {
    * to validate that new-style UTF8 files are read correctly
    */
   @Test
-  public void testGetBundleNewUTF8() throws Exception {
+  void testGetBundleNewUTF8() throws Exception {
     final String pkgName = "org.apache.hop/i18n/messages/test_utf8_messages";
     final String msgKey = "System.Dialog.SelectEnvironmentVar.Title";
 
@@ -118,7 +119,7 @@ public class GlobalMessagesTest {
    * to validate the format of an unmatched string
    */
   @Test
-  public void testUnmatchedString() {
+  void testUnmatchedString() {
     String messageId = UUID.randomUUID().toString();
     assertEquals("!" + messageId + "!", GlobalMessages.getInstance().getString(messageId));
   }

@@ -16,7 +16,7 @@
  */
 package org.apache.hop.www;
 
-import static junit.framework.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -35,24 +35,23 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.owasp.encoder.Encode;
 
-public class PrepareExecutionPipelineServletTest {
+class PrepareExecutionPipelineServletTest {
   private PipelineMap mockPipelineMap;
-
   private PrepareExecutionPipelineServlet prepareExecutionPipelineServlet;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     mockPipelineMap = mock(PipelineMap.class);
     prepareExecutionPipelineServlet = new PrepareExecutionPipelineServlet(mockPipelineMap);
   }
 
   @Test
-  public void testPausePipelineServletEscapesHtmlWhenPipelineNotFound()
+  void testPausePipelineServletEscapesHtmlWhenPipelineNotFound()
       throws ServletException, IOException {
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);
@@ -72,8 +71,7 @@ public class PrepareExecutionPipelineServletTest {
   }
 
   @Test
-  public void testPausePipelineServletEscapesHtmlWhenPipelineFound()
-      throws ServletException, IOException {
+  void testPausePipelineServletEscapesHtmlWhenPipelineFound() throws ServletException, IOException {
     HopLogStore.init();
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockHttpServletResponse = mock(HttpServletResponse.class);

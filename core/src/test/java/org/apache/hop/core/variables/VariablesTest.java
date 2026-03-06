@@ -17,15 +17,16 @@
 
 package org.apache.hop.core.variables;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ import java.util.concurrent.Future;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -46,16 +47,15 @@ import org.mockito.stubbing.Answer;
  *
  * @see Variables
  */
-public class VariablesTest {
-
-  private Variables variables = new Variables();
+class VariablesTest {
+  private final Variables variables = new Variables();
 
   /**
    * Checks if an ConcurrentModificationException while iterating over the System properties is
    * occurred.
    */
   @Test
-  public void testinItializeVariablesFrom() {
+  void initializeVariablesFrom() {
     final Variables variablesMock = mock(Variables.class);
     doCallRealMethod().when(variablesMock).initializeFrom(any(IVariables.class));
 
@@ -69,7 +69,7 @@ public class VariablesTest {
               @Override
               public Map<String, String> answer(InvocationOnMock invocation) throws Throwable {
                 if (System.getProperty(keyStub) == null) {
-                  modifySystemproperties();
+                  modifySystemProperties();
                 }
 
                 if (invocation.getArguments()[1] != null) {
@@ -84,9 +84,10 @@ public class VariablesTest {
         .put(anyString(), anyString());
 
     variablesMock.initializeFrom(null);
+    verify(variablesMock).initializeFrom(null);
   }
 
-  private void modifySystemproperties() {
+  private void modifySystemProperties() {
     final String keyStub = "key";
     final String valueStub = "value";
 
@@ -94,13 +95,9 @@ public class VariablesTest {
     thread.start();
   }
 
-  /**
-   * Spawns 20 threads that modify variables to test concurrent modification error fix.
-   *
-   * @throws Exception
-   */
+  /** Spawns 20 threads that modify variables to test concurrent modification error fix. */
   @Test
-  public void testConcurrentModification() throws Exception {
+  void testConcurrentModification() throws Exception {
 
     int threads = 20;
     List<Callable<Boolean>> callables = new ArrayList<>();
@@ -127,7 +124,7 @@ public class VariablesTest {
   }
 
   @Test
-  public void testFieldSubstitution() throws HopValueException {
+  void testFieldSubstitution() throws HopValueException {
     Object[] rowData = new Object[] {"DataOne", "DataTwo"};
     RowMeta rm = new RowMeta();
     rm.addValueMeta(new ValueMetaString("FieldOne"));
@@ -141,7 +138,7 @@ public class VariablesTest {
   }
 
   @Test
-  public void testEnvironmentSubstitute() {
+  void testEnvironmentSubstitute() {
     Variables vars = new Variables();
     vars.setVariable("VarOne", "DataOne");
     vars.setVariable("VarTwo", "DataTwo");

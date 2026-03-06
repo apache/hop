@@ -17,19 +17,19 @@
 
 package org.apache.hop.pipeline.transform;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class TransformErrorMetaTest {
+class TransformErrorMetaTest {
 
   @Test
-  public void testGetErrorRowMeta() {
+  void testGetErrorRowMeta() {
     IVariables vars = new Variables();
     vars.setVariable("VarNumberErrors", "nbrErrors");
     vars.setVariable("VarErrorDescription", "errorDescription");
@@ -43,8 +43,8 @@ public class TransformErrorMetaTest {
             "${VarErrorDescription}",
             "${VarErrorFields}",
             "${VarErrorCodes}");
-    IRowMeta result =
-        testObject.getErrorRowMeta(vars); // 10, "some data was bad", "factId", "BAD131" );
+    // 10, "some data was bad", "factId", "BAD131" );
+    IRowMeta result = testObject.getErrorRowMeta(vars);
 
     assertNotNull(result);
     assertEquals(4, result.size());

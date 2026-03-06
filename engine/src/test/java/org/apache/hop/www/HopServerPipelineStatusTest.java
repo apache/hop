@@ -17,8 +17,9 @@
 
 package org.apache.hop.www;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,25 +34,24 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.www.HopServerWorkflowStatusTest.LoggingStringLoadSaveValidator;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Node;
 
-public class HopServerPipelineStatusTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
+class HopServerPipelineStatusTest {
 
   @Test
-  public void testStaticFinal() {
+  void testStaticFinal() {
     assertEquals("pipeline-status", HopServerPipelineStatus.XML_TAG);
   }
 
   @Test
-  public void testNoDate() throws HopException {
+  void testNoDate() throws HopException {
     String pipelineName = "testNullDate";
     String id = UUID.randomUUID().toString();
     String status = Pipeline.STRING_FINISHED;
@@ -61,20 +61,20 @@ public class HopServerPipelineStatusTest {
         XmlHandler.getSubNode(XmlHandler.loadXmlString(resultXML), HopServerPipelineStatus.XML_TAG);
 
     assertEquals(
-        "The XML document should match after rebuilding from XML",
         resultXML,
-        HopServerPipelineStatus.fromXml(resultXML).getXml());
+        HopServerPipelineStatus.fromXml(resultXML).getXml(),
+        "The XML document should match after rebuilding from XML");
     assertEquals(
-        "There should be one \"log_date\" node in the XML",
         1,
-        XmlHandler.countNodes(newPipelineStatus, "log_date"));
+        XmlHandler.countNodes(newPipelineStatus, "log_date"),
+        "There should be one \"log_date\" node in the XML");
     assertFalse(
-        "The \"log_date\" node should have a null value",
-        Utils.isEmpty(XmlHandler.getTagValue(newPipelineStatus, "log_date")));
+        Utils.isEmpty(XmlHandler.getTagValue(newPipelineStatus, "log_date")),
+        "The \"log_date\" node should have a null value");
   }
 
   @Test
-  public void testWithDate() throws HopException {
+  void testWithDate() throws HopException {
     String pipelineName = "testWithDate";
     String id = UUID.randomUUID().toString();
     String status = Pipeline.STRING_FINISHED;
@@ -86,22 +86,22 @@ public class HopServerPipelineStatusTest {
         XmlHandler.getSubNode(XmlHandler.loadXmlString(resultXML), HopServerPipelineStatus.XML_TAG);
 
     assertEquals(
-        "The XML document should match after rebuilding from XML",
         resultXML,
-        HopServerPipelineStatus.fromXml(resultXML).getXml());
+        HopServerPipelineStatus.fromXml(resultXML).getXml(),
+        "The XML document should match after rebuilding from XML");
     assertEquals(
-        "There should be one \"log_date\" node in the XML",
         1,
-        XmlHandler.countNodes(newPipelineStatus, "log_date"));
+        XmlHandler.countNodes(newPipelineStatus, "log_date"),
+        "There should be one \"log_date\" node in the XML");
     assertEquals(
-        "The \"log_date\" node should match the original value",
         XmlHandler.date2string(logDate),
-        XmlHandler.getTagValue(newPipelineStatus, "log_date"));
+        XmlHandler.getTagValue(newPipelineStatus, "log_date"),
+        "The \"log_date\" node should match the original value");
   }
 
   @Test
-  public void testSerialization() throws HopException {
-    // TODO Add TransformStatusList
+  void testSerialization() throws HopException {
+    //  Add TransformStatusList
     List<String> attributes =
         Arrays.asList(
             "PipelineName",
@@ -124,7 +124,7 @@ public class HopServerPipelineStatusTest {
   }
 
   @Test
-  public void testGetXML() throws HopException {
+  void testGetXML() throws HopException {
     HopServerPipelineStatus pipelineStatus = new HopServerPipelineStatus();
     RowMetaAndData rowMetaAndData = new RowMetaAndData();
     String testData = "testData";
@@ -134,7 +134,7 @@ public class HopServerPipelineStatusTest {
     Result result = new Result();
     result.setRows(rows);
     pipelineStatus.setResult(result);
-    Assert.assertFalse(pipelineStatus.getXml().contains(testData));
-    Assert.assertTrue(pipelineStatus.getXml(true).contains(testData));
+    assertFalse(pipelineStatus.getXml().contains(testData));
+    assertTrue(pipelineStatus.getXml(true).contains(testData));
   }
 }

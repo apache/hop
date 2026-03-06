@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transform;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -30,12 +30,12 @@ import java.util.List;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BaseTransformMetaCloningTest {
+class BaseTransformMetaCloningTest {
 
   @Test
-  public void testClone() {
+  void testClone() {
     final Database db1 = mock(Database.class);
     final Database db2 = mock(Database.class);
     final TransformMeta transformMeta = mock(TransformMeta.class);
@@ -69,7 +69,7 @@ public class BaseTransformMetaCloningTest {
   }
 
   @Test
-  public void testCloneWithInfoTransforms() {
+  void testCloneWithInfoTransforms() {
     final Database db1 = mock(Database.class);
     final Database db2 = mock(Database.class);
     final TransformMeta transformMeta = mock(TransformMeta.class);
@@ -110,7 +110,7 @@ public class BaseTransformMetaCloningTest {
     assertNotNull(clonedInfoStreams);
     assertEquals(1, clonedInfoStreams.size());
 
-    final IStream clonedStream = clonedInfoStreams.get(0);
+    final IStream clonedStream = clonedInfoStreams.getFirst();
     assertNotSame(stream, clonedStream);
     assertEquals(stream.getStreamType(), clonedStream.getStreamType());
     assertEquals(refTransformName, clonedStream.getTransformName());

@@ -16,44 +16,45 @@
  */
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.row.RowMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class QueueRowSetTest {
+/** Unit test for {@link QueueRowSet} */
+class QueueRowSetTest {
   Object[] row;
   QueueRowSet rowSet;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     rowSet = new QueueRowSet();
     row = new Object[] {};
   }
 
   @Test
-  public void testPutRow() {
+  void testPutRow() {
     rowSet.putRow(new RowMeta(), row);
     assertSame(row, rowSet.getRow());
   }
 
   @Test
-  public void testPutRowWait() {
+  void testPutRowWait() {
     rowSet.putRowWait(new RowMeta(), row, 1, TimeUnit.SECONDS);
     assertSame(row, rowSet.getRowWait(1, TimeUnit.SECONDS));
   }
 
   @Test
-  public void testGetRowImmediate() {
+  void testGetRowImmediate() {
     rowSet.putRow(new RowMeta(), row);
     assertSame(row, rowSet.getRowImmediate());
   }
 
   @Test
-  public void testSize() {
+  void testSize() {
     assertEquals(0, rowSet.size());
     rowSet.putRow(new RowMeta(), row);
     assertEquals(1, rowSet.size());

@@ -17,9 +17,9 @@
 
 package org.apache.hop.core.compress.gzip;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,28 +27,28 @@ import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class GzipCompressionOutputStreamTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class GzipCompressionOutputStreamTest {
 
   public static final String PROVIDER_NAME = "GZip";
 
   public CompressionProviderFactory factory = null;
   public GzipCompressionOutputStream outStream = null;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     factory = CompressionProviderFactory.getInstance();
     ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream in = new ByteArrayOutputStream();
@@ -56,18 +56,18 @@ public class GzipCompressionOutputStreamTest {
   }
 
   @Test
-  public void testCtor() {
+  void testCtor() {
     assertNotNull(outStream);
   }
 
   @Test
-  public void getCompressionProvider() {
+  void getCompressionProvider() {
     ICompressionProvider provider = outStream.getCompressionProvider();
     assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test
-  public void testClose() throws IOException {
+  void testClose() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new GzipCompressionOutputStream(out, provider) {};
@@ -81,18 +81,20 @@ public class GzipCompressionOutputStreamTest {
   }
 
   @Test
-  public void testWrite() throws IOException {
+  void testWrite() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new GzipCompressionOutputStream(out, provider);
+    assertNotNull(outStream);
     outStream.write("Test".getBytes());
   }
 
   @Test
-  public void testAddEntry() throws IOException {
+  void testAddEntry() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new GzipCompressionOutputStream(out, provider);
+    assertNotNull(outStream);
     outStream.addEntry(null, null);
   }
 }

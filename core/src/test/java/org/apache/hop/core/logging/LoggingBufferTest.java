@@ -17,20 +17,20 @@
 
 package org.apache.hop.core.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LoggingBufferTest {
+/** Unit test for {@link LoggingBuffer} */
+class LoggingBufferTest {
 
   @Test
-  public void testRaceCondition() throws Exception {
-
+  void testRaceCondition() throws Exception {
     final int eventCount = 100;
-
     final LoggingBuffer buf = new LoggingBuffer(200);
-
     final AtomicBoolean done = new AtomicBoolean(false);
 
     final IHopLoggingEventListener lsnr =
@@ -39,7 +39,6 @@ public class LoggingBufferTest {
         };
 
     final HopLoggingEvent event = new HopLoggingEvent();
-
     final CountDownLatch latch = new CountDownLatch(1);
 
     Thread.UncaughtExceptionHandler errorHandler = (t, e) -> e.printStackTrace();
@@ -83,11 +82,11 @@ public class LoggingBufferTest {
     latch.await();
 
     // check
-    Assert.assertEquals("Failed", true, done.get());
+    assertTrue(done.get(), "Failed");
   }
 
   @Test
-  public void testRemoveBufferLinesBefore() {
+  void testRemoveBufferLinesBefore() {
     LoggingBuffer loggingBuffer = new LoggingBuffer(100);
     for (int i = 0; i < 40; i++) {
       HopLoggingEvent event = new HopLoggingEvent();
@@ -96,11 +95,11 @@ public class LoggingBufferTest {
       loggingBuffer.addLogggingEvent(event);
     }
     loggingBuffer.removeBufferLinesBefore(20);
-    Assert.assertEquals(20, loggingBuffer.size());
+    assertEquals(20, loggingBuffer.size());
   }
 
   @Test
-  public void testRemoveChannelFromBuffer() {
+  void testRemoveChannelFromBuffer() {
     String logChannelId = "1";
     String otherLogChannelId = "2";
     LoggingBuffer loggingBuffer = new LoggingBuffer(20);
@@ -124,6 +123,6 @@ public class LoggingBufferTest {
       loggingBuffer.addLogggingEvent(event);
     }
     loggingBuffer.removeChannelFromBuffer(logChannelId);
-    Assert.assertEquals(10, loggingBuffer.size());
+    assertEquals(10, loggingBuffer.size());
   }
 }

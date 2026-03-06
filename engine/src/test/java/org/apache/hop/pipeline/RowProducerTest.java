@@ -16,9 +16,9 @@
  */
 package org.apache.hop.pipeline;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -30,10 +30,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class RowProducerTest {
+class RowProducerTest {
 
   RowProducer rowProducer;
   ITransform iTransform;
@@ -41,8 +41,8 @@ public class RowProducerTest {
   IRowMeta rowMeta;
   Object[] rowData;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     iTransform = mock(ITransform.class);
     rowSet = mock(IRowSet.class);
     rowProducer = new RowProducer(iTransform, rowSet);
@@ -51,7 +51,7 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testPutRow2Arg() {
+  void testPutRow2Arg() {
     when(rowSet.putRowWait(
             any(IRowMeta.class), any(Object[].class), anyLong(), any(TimeUnit.class)))
         .thenReturn(true);
@@ -61,7 +61,7 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testPutRow3Arg() {
+  void testPutRow3Arg() {
     when(rowSet.putRowWait(
             any(IRowMeta.class), any(Object[].class), anyLong(), any(TimeUnit.class)))
         .thenReturn(true);
@@ -71,19 +71,19 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testPutRowWait() {
+  void testPutRowWait() {
     rowProducer.putRowWait(rowMeta, rowData, 1, TimeUnit.MILLISECONDS);
     verify(rowSet, times(1)).putRowWait(rowMeta, rowData, 1, TimeUnit.MILLISECONDS);
   }
 
   @Test
-  public void testFinished() {
+  void testFinished() {
     rowProducer.finished();
     verify(rowSet, times(1)).setDone();
   }
 
   @Test
-  public void testGetSetRowSet() {
+  void testGetSetRowSet() {
     assertEquals(rowSet, rowProducer.getRowSet());
     rowProducer.setRowSet(null);
     assertNull(rowProducer.getRowSet());
@@ -93,7 +93,7 @@ public class RowProducerTest {
   }
 
   @Test
-  public void testGetSetTransform() {
+  void testGetSetTransform() {
     assertEquals(iTransform, rowProducer.getTransform());
     rowProducer.setTransform(null);
     assertNull(rowProducer.getTransform());

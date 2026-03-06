@@ -17,9 +17,9 @@
 
 package org.apache.hop.core.compress.zip;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,82 +33,84 @@ import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ZipCompressionOutputStreamTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ZipCompressionOutputStreamTest {
+  static final String PROVIDER_NAME = "Zip";
 
-  public static final String PROVIDER_NAME = "Zip";
-
-  public CompressionProviderFactory factory = null;
-  public ZipCompressionOutputStream outStream = null;
+  CompressionProviderFactory factory = null;
+  ZipCompressionOutputStream outStream = null;
 
   private ByteArrayOutputStream internalStream;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     factory = CompressionProviderFactory.getInstance();
     ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     internalStream = new ByteArrayOutputStream();
     outStream = new ZipCompressionOutputStream(internalStream, provider);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     internalStream = null;
   }
 
   @Test
-  public void testCtor() {
+  void testCtor() {
     assertNotNull(outStream);
   }
 
   @Test
-  public void getCompressionProvider() {
+  void getCompressionProvider() {
     ICompressionProvider provider = outStream.getCompressionProvider();
     assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test
-  public void testClose() throws IOException {
+  void testClose() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new ZipCompressionOutputStream(out, provider);
+    assertNotNull(outStream);
     outStream.close();
   }
 
   @Test
-  public void testAddEntryAndWrite() throws IOException {
+  void testAddEntryAndWrite() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new ZipCompressionOutputStream(out, provider);
+    assertNotNull(outStream);
     outStream.addEntry("./test.zip", null);
     outStream.write("Test".getBytes());
   }
 
   @Test
-  public void directoriesHierarchyIsIgnored() throws Exception {
+  void directoriesHierarchyIsIgnored() throws Exception {
     outStream.addEntry(createFilePath("1", "~", "hop", "dir"), "txt");
     outStream.close();
 
     Map<String, String> map = readArchive(internalStream.toByteArray());
+    assertNotNull(map);
     assertEquals(1, map.size());
     assertEquals("1.txt", map.keySet().iterator().next());
   }
 
   @Test
-  public void extraZipExtensionIsIgnored() throws Exception {
+  void extraZipExtensionIsIgnored() throws Exception {
     outStream.addEntry(createFilePath("1.zip", "~", "hop", "dir"), "txt");
     outStream.close();
 
@@ -118,7 +120,7 @@ public class ZipCompressionOutputStreamTest {
   }
 
   @Test
-  public void absentExtensionIsOk() throws Exception {
+  void absentExtensionIsOk() throws Exception {
     outStream.addEntry(createFilePath("1", "~", "hop", "dir"), null);
     outStream.close();
 
@@ -128,7 +130,7 @@ public class ZipCompressionOutputStreamTest {
   }
 
   @Test
-  public void createsWellFormedArchive() throws Exception {
+  void createsWellFormedArchive() throws Exception {
     outStream.addEntry("1", "txt");
     outStream.write("1.txt".getBytes());
     outStream.addEntry("2", "txt");
@@ -161,7 +163,7 @@ public class ZipCompressionOutputStreamTest {
       while ((read = stream.read(buf)) > 0) {
         os.write(buf, 0, read);
       }
-      result.put(entry.getName(), new String(os.toByteArray()));
+      result.put(entry.getName(), os.toString());
     }
 
     return result;

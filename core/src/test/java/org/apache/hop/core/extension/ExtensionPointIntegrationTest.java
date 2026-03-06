@@ -16,11 +16,11 @@
  */
 package org.apache.hop.core.extension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
@@ -44,20 +44,20 @@ import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ExtensionPointIntegrationTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ExtensionPointIntegrationTest {
   public static final String EXECUTED_FIELD_NAME = "executed";
   private static final int TOTAL_THREADS_TO_RUN = 2000;
   private static final int MAX_TIMEOUT_SECONDS = 60;
   private static ClassPool pool;
 
-  @BeforeClass
-  public static void setupBeforeClass() throws Exception {
+  @BeforeAll
+  static void setupBeforeClass() throws Exception {
     pool = ClassPool.getDefault();
     pool.insertClassPath(new ClassClassPath(ExtensionPointIntegrationTest.class));
     for (HopExtensionPoint ep : HopExtensionPoint.values()) {
@@ -70,7 +70,7 @@ public class ExtensionPointIntegrationTest {
   }
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     // check that all extension points are added to the map
     assertEquals(
         HopExtensionPoint.values().length, ExtensionPointMap.getInstance().getNumberOfRows());
@@ -115,7 +115,7 @@ public class ExtensionPointIntegrationTest {
         HopExtensionPoint.values().length - 1, ExtensionPointMap.getInstance().getNumberOfRows());
   }
 
-  private static Class createClassRuntime(HopExtensionPoint ep)
+  private static Class<?> createClassRuntime(HopExtensionPoint ep)
       throws NotFoundException, CannotCompileException {
     return createClassRuntime(ep, "");
   }
@@ -126,10 +126,8 @@ public class ExtensionPointIntegrationTest {
    * @param ep extension point id
    * @param addition addition to class name to avoid duplicate classes
    * @return class
-   * @throws NotFoundException
-   * @throws CannotCompileException
    */
-  private static Class createClassRuntime(HopExtensionPoint ep, String addition)
+  private static Class<?> createClassRuntime(HopExtensionPoint ep, String addition)
       throws NotFoundException, CannotCompileException {
     final CtClass ctClass = pool.makeClass("Plugin" + ep.id + addition);
     ctClass.addInterface(pool.get(IExtensionPoint.class.getCanonicalName()));
@@ -145,7 +143,7 @@ public class ExtensionPointIntegrationTest {
   }
 
   @Test
-  public void testExtensionPointMapConcurrency() throws InterruptedException {
+  void testExtensionPointMapConcurrency() throws InterruptedException {
     final ILogChannel log = mock(ILogChannel.class);
 
     List<Runnable> parallelTasksList = new ArrayList<>(TOTAL_THREADS_TO_RUN);
@@ -215,17 +213,17 @@ public class ExtensionPointIntegrationTest {
       }
       // wait until all threads are ready
       assertTrue(
-          "Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent",
-          allExecutorThreadsReady.await(10L * runnables.size(), TimeUnit.MILLISECONDS));
+          allExecutorThreadsReady.await(10L * runnables.size(), TimeUnit.MILLISECONDS),
+          "Timeout initializing threads! Perform long lasting initializations before passing runnables to assertConcurrent");
       // start all test runners
       afterInitBlocker.countDown();
       assertTrue(
-          String.format("Timeout! Run took more than %s seconds", MAX_TIMEOUT_SECONDS),
-          allDone.await(MAX_TIMEOUT_SECONDS, TimeUnit.SECONDS));
+          allDone.await(MAX_TIMEOUT_SECONDS, TimeUnit.SECONDS),
+          String.format("Timeout! Run took more than %s seconds", MAX_TIMEOUT_SECONDS));
     } finally {
       threadPool.shutdownNow();
     }
     assertTrue(
-        String.format(" Run failed with exception(s): %s", exceptions), exceptions.isEmpty());
+        exceptions.isEmpty(), String.format(" Run failed with exception(s): %s", exceptions));
   }
 }

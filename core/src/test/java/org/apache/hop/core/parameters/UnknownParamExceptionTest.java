@@ -16,19 +16,19 @@
  */
 package org.apache.hop.core.parameters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UnknownParamExceptionTest {
-
+/** Unit test for {@link UnknownParamException} */
+class UnknownParamExceptionTest {
   UnknownParamException exception;
 
   @Test
-  public void testConstructors() {
+  void testConstructors() {
     exception = new UnknownParamException();
     assertNotNull(exception);
     NamedParamsExceptionTest.assertMessage("null", exception);

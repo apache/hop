@@ -17,36 +17,34 @@
 
 package org.apache.hop.core.compress;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class CompressionOutputStreamTest {
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class CompressionOutputStreamTest {
+  static final String PROVIDER_NAME = "None";
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  CompressionProviderFactory factory = null;
+  CompressionOutputStream outStream = null;
 
-  public static final String PROVIDER_NAME = "None";
-
-  public CompressionProviderFactory factory = null;
-  public CompressionOutputStream outStream = null;
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     factory = CompressionProviderFactory.getInstance();
     ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream in = new ByteArrayOutputStream();
@@ -54,42 +52,45 @@ public class CompressionOutputStreamTest {
   }
 
   @Test
-  public void testCtor() {
+  void testCtor() {
     assertNotNull(outStream);
   }
 
   @Test
-  public void getCompressionProvider() {
+  void getCompressionProvider() {
     ICompressionProvider provider = outStream.getCompressionProvider();
     assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test
-  public void testClose() throws IOException {
+  void testClose() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new DummyCompressionOS(out, provider);
+    assertNotNull(outStream);
     outStream.close();
   }
 
   @Test
-  public void testWrite() throws IOException {
+  void testWrite() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new DummyCompressionOS(out, provider);
+    assertNotNull(outStream);
     outStream.write("Test".getBytes());
   }
 
   @Test
-  public void testAddEntry() throws IOException {
+  void testAddEntry() throws IOException {
     ICompressionProvider provider = outStream.getCompressionProvider();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     outStream = new DummyCompressionOS(out, provider);
+    assertNotNull(outStream);
     outStream.addEntry(null, null);
   }
 
   private static class DummyCompressionOS extends CompressionOutputStream {
-    public DummyCompressionOS(OutputStream out, ICompressionProvider provider) {
+    DummyCompressionOS(OutputStream out, ICompressionProvider provider) {
       super(out, provider);
     }
   }

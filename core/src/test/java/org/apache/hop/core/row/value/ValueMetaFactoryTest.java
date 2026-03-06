@@ -17,13 +17,15 @@
 
 package org.apache.hop.core.row.value;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -35,21 +37,22 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ValueMetaFactoryTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+/** Unit test for {@link ValueMetaFactory} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueMetaFactoryTest {
 
-  @BeforeClass
-  public static void beforeClassSetUp() throws HopException {
+  @BeforeAll
+  static void beforeClassSetUp() throws HopException {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testClone() throws HopException {
+  void testClone() throws HopException {
     IValueMeta original = new ValueMetaString();
     original.setCollatorLocale(Locale.CANADA);
     original.setCollatorStrength(3);
@@ -63,6 +66,8 @@ public class ValueMetaFactoryTest {
     if (expected == null && actual == null) {
       return;
     }
+    assertNotNull(expected);
+
     assertEquals(expected.getName(), actual.getName());
     assertEquals(expected.getType(), actual.getType());
     assertEquals(expected.getLength(), actual.getLength());
@@ -95,235 +100,233 @@ public class ValueMetaFactoryTest {
   }
 
   @Test
-  public void testCreateValueMeta() throws HopPluginException {
+  void testCreateValueMeta() throws HopPluginException {
     IValueMeta testObject;
 
-    try {
-      testObject = ValueMetaFactory.createValueMeta(Integer.MIN_VALUE);
-      fail();
-    } catch (HopPluginException expected) {
-      // Do nothing, Integer.MIN_VALUE is not a valid option
-    }
-
-    try {
-      testObject = ValueMetaFactory.createValueMeta(null, Integer.MIN_VALUE);
-      fail();
-    } catch (HopPluginException expected) {
-      // Do nothing, Integer.MIN_VALUE is not a valid option
-    }
-
-    try {
-      testObject = ValueMetaFactory.createValueMeta(null, Integer.MIN_VALUE, 10, 10);
-      fail();
-    } catch (HopPluginException expected) {
-      // Do nothing, Integer.MIN_VALUE is not a valid option
-    }
-
     testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_NONE);
-    assertTrue(testObject instanceof ValueMetaNone);
-    assertEquals(null, testObject.getName());
+    assertInstanceOf(ValueMetaNone.class, testObject);
+    assertNull(testObject.getName());
     assertEquals(-1, testObject.getLength());
     assertEquals(-1, testObject.getPrecision());
 
     testObject = ValueMetaFactory.createValueMeta("testNone", IValueMeta.TYPE_NONE);
-    assertTrue(testObject instanceof ValueMetaNone);
+    assertInstanceOf(ValueMetaNone.class, testObject);
     assertEquals("testNone", testObject.getName());
     assertEquals(-1, testObject.getLength());
     assertEquals(-1, testObject.getPrecision());
 
     testObject = ValueMetaFactory.createValueMeta("testNone", IValueMeta.TYPE_NONE, 10, 20);
-    assertTrue(testObject instanceof ValueMetaNone);
+    assertInstanceOf(ValueMetaNone.class, testObject);
     assertEquals("testNone", testObject.getName());
     assertEquals(10, testObject.getLength());
     assertEquals(20, testObject.getPrecision());
 
     testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_NUMBER);
-    assertTrue(testObject instanceof ValueMetaNumber);
-    assertEquals(null, testObject.getName());
+    assertInstanceOf(ValueMetaNumber.class, testObject);
+    assertNull(testObject.getName());
     assertEquals(-1, testObject.getLength());
     assertEquals(-1, testObject.getPrecision());
 
-    testObject = ValueMetaFactory.createValueMeta("testNumber", IValueMeta.TYPE_NUMBER);
-    assertTrue(testObject instanceof ValueMetaNumber);
-    assertEquals("testNumber", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
+    testCreateValueMeta_1(testObject);
+    testCreateValueMeta_2(testObject);
+    testCreateValueMeta_3(testObject);
+    testCreateValueMeta_4(testObject);
+    testCreateValueMeta_5(testObject);
+    testCreateValueMeta_6(testObject);
+  }
 
-    testObject = ValueMetaFactory.createValueMeta("testNumber", IValueMeta.TYPE_NUMBER, 10, 20);
-    assertTrue(testObject instanceof ValueMetaNumber);
-    assertEquals("testNumber", testObject.getName());
-    assertEquals(10, testObject.getLength());
-    assertEquals(20, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_STRING);
-    assertTrue(testObject instanceof ValueMetaString);
-    assertEquals(null, testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testString", IValueMeta.TYPE_STRING);
-    assertTrue(testObject instanceof ValueMetaString);
-    assertEquals("testString", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testString", IValueMeta.TYPE_STRING, 1000, 50);
-    assertTrue(testObject instanceof ValueMetaString);
-    assertEquals("testString", testObject.getName());
-    assertEquals(1000, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision()); // Special case for String
-
-    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_DATE);
-    assertTrue(testObject instanceof ValueMetaDate);
-    assertEquals(null, testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testDate", IValueMeta.TYPE_DATE);
-    assertTrue(testObject instanceof ValueMetaDate);
-    assertEquals("testDate", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testDate", IValueMeta.TYPE_DATE, 10, 20);
-    assertTrue(testObject instanceof ValueMetaDate);
-    assertEquals("testDate", testObject.getName());
-    assertEquals(10, testObject.getLength());
-    assertEquals(20, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_BOOLEAN);
-    assertTrue(testObject instanceof ValueMetaBoolean);
-    assertEquals(null, testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testBoolean", IValueMeta.TYPE_BOOLEAN);
-    assertTrue(testObject instanceof ValueMetaBoolean);
-    assertEquals("testBoolean", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testBoolean", IValueMeta.TYPE_BOOLEAN, 10, 20);
-    assertTrue(testObject instanceof ValueMetaBoolean);
-    assertEquals("testBoolean", testObject.getName());
-    assertEquals(10, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_INTEGER);
-    assertTrue(testObject instanceof ValueMetaInteger);
-    assertEquals(null, testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(0, testObject.getPrecision()); // Special case for Integer
-
-    testObject = ValueMetaFactory.createValueMeta("testInteger", IValueMeta.TYPE_INTEGER);
-    assertTrue(testObject instanceof ValueMetaInteger);
-    assertEquals("testInteger", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(0, testObject.getPrecision()); // Special case for Integer
-
-    testObject = ValueMetaFactory.createValueMeta("testInteger", IValueMeta.TYPE_INTEGER, 10, 20);
-    assertTrue(testObject instanceof ValueMetaInteger);
-    assertEquals("testInteger", testObject.getName());
-    assertEquals(10, testObject.getLength());
-    assertEquals(0, testObject.getPrecision()); // Special case for Integer
-
-    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_BIGNUMBER);
-    assertTrue(testObject instanceof ValueMetaBigNumber);
-    assertEquals(null, testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testBigNumber", IValueMeta.TYPE_BIGNUMBER);
-    assertTrue(testObject instanceof ValueMetaBigNumber);
-    assertEquals("testBigNumber", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject =
-        ValueMetaFactory.createValueMeta("testBigNumber", IValueMeta.TYPE_BIGNUMBER, 10, 20);
-    assertTrue(testObject instanceof ValueMetaBigNumber);
-    assertEquals("testBigNumber", testObject.getName());
-    assertEquals(10, testObject.getLength());
-    assertEquals(20, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_SERIALIZABLE);
-    assertTrue(testObject instanceof ValueMetaSerializable);
-    assertEquals(null, testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testSerializable", IValueMeta.TYPE_SERIALIZABLE);
-    assertTrue(testObject instanceof ValueMetaSerializable);
-    assertEquals("testSerializable", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject =
-        ValueMetaFactory.createValueMeta("testSerializable", IValueMeta.TYPE_SERIALIZABLE, 10, 20);
-    assertTrue(testObject instanceof ValueMetaSerializable);
-    assertEquals("testSerializable", testObject.getName());
-    assertEquals(10, testObject.getLength());
-    assertEquals(20, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_BINARY);
-    assertTrue(testObject instanceof ValueMetaBinary);
-    assertEquals(null, testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(0, testObject.getPrecision()); // Special case for Binary
-
-    testObject = ValueMetaFactory.createValueMeta("testBinary", IValueMeta.TYPE_BINARY);
-    assertTrue(testObject instanceof ValueMetaBinary);
-    assertEquals("testBinary", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(0, testObject.getPrecision()); // Special case for Binary
-
-    testObject = ValueMetaFactory.createValueMeta("testBinary", IValueMeta.TYPE_BINARY, 10, 20);
-    assertTrue(testObject instanceof ValueMetaBinary);
-    assertEquals("testBinary", testObject.getName());
-    assertEquals(10, testObject.getLength());
-    assertEquals(0, testObject.getPrecision()); // Special case for Binary
-
-    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_TIMESTAMP);
-    assertTrue(testObject instanceof ValueMetaTimestamp);
-    assertEquals(null, testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
-    testObject = ValueMetaFactory.createValueMeta("testTimestamp", IValueMeta.TYPE_TIMESTAMP);
-    assertTrue(testObject instanceof ValueMetaTimestamp);
-    assertEquals("testTimestamp", testObject.getName());
-    assertEquals(-1, testObject.getLength());
-    assertEquals(-1, testObject.getPrecision());
-
+  private void testCreateValueMeta_1(IValueMeta testObject) throws HopPluginException {
     testObject =
         ValueMetaFactory.createValueMeta("testTimestamp", IValueMeta.TYPE_TIMESTAMP, 10, 20);
-    assertTrue(testObject instanceof ValueMetaTimestamp);
+    assertInstanceOf(ValueMetaTimestamp.class, testObject);
     assertEquals("testTimestamp", testObject.getName());
     assertEquals(10, testObject.getLength());
     assertEquals(20, testObject.getPrecision());
 
     testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_INET);
-    assertTrue(testObject instanceof ValueMetaInternetAddress);
-    assertEquals(null, testObject.getName());
+    assertInstanceOf(ValueMetaInternetAddress.class, testObject);
+    assertNull(testObject.getName());
     assertEquals(-1, testObject.getLength());
     assertEquals(-1, testObject.getPrecision());
 
     testObject = ValueMetaFactory.createValueMeta("testInternetAddress", IValueMeta.TYPE_INET);
-    assertTrue(testObject instanceof ValueMetaInternetAddress);
+    assertInstanceOf(ValueMetaInternetAddress.class, testObject);
     assertEquals("testInternetAddress", testObject.getName());
     assertEquals(-1, testObject.getLength());
     assertEquals(-1, testObject.getPrecision());
 
     testObject =
         ValueMetaFactory.createValueMeta("testInternetAddress", IValueMeta.TYPE_INET, 10, 20);
-    assertTrue(testObject instanceof ValueMetaInternetAddress);
+    assertInstanceOf(ValueMetaInternetAddress.class, testObject);
     assertEquals("testInternetAddress", testObject.getName());
     assertEquals(10, testObject.getLength());
     assertEquals(20, testObject.getPrecision());
   }
 
+  private void testCreateValueMeta_2(IValueMeta testObject) throws HopPluginException {
+    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_BINARY);
+    assertInstanceOf(ValueMetaBinary.class, testObject);
+    assertNull(testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(0, testObject.getPrecision()); // Special case for Binary
+
+    testObject = ValueMetaFactory.createValueMeta("testBinary", IValueMeta.TYPE_BINARY);
+    assertInstanceOf(ValueMetaBinary.class, testObject);
+    assertEquals("testBinary", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(0, testObject.getPrecision()); // Special case for Binary
+
+    testObject = ValueMetaFactory.createValueMeta("testBinary", IValueMeta.TYPE_BINARY, 10, 20);
+    assertInstanceOf(ValueMetaBinary.class, testObject);
+    assertEquals("testBinary", testObject.getName());
+    assertEquals(10, testObject.getLength());
+    assertEquals(0, testObject.getPrecision()); // Special case for Binary
+
+    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_TIMESTAMP);
+    assertInstanceOf(ValueMetaTimestamp.class, testObject);
+    assertNull(testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta("testTimestamp", IValueMeta.TYPE_TIMESTAMP);
+    assertInstanceOf(ValueMetaTimestamp.class, testObject);
+    assertEquals("testTimestamp", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+  }
+
+  private void testCreateValueMeta_3(IValueMeta testObject) throws HopPluginException {
+    testObject = ValueMetaFactory.createValueMeta("testBigNumber", IValueMeta.TYPE_BIGNUMBER);
+    assertInstanceOf(ValueMetaBigNumber.class, testObject);
+    assertEquals("testBigNumber", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject =
+        ValueMetaFactory.createValueMeta("testBigNumber", IValueMeta.TYPE_BIGNUMBER, 10, 20);
+    assertInstanceOf(ValueMetaBigNumber.class, testObject);
+    assertEquals("testBigNumber", testObject.getName());
+    assertEquals(10, testObject.getLength());
+    assertEquals(20, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_SERIALIZABLE);
+    assertInstanceOf(ValueMetaSerializable.class, testObject);
+    assertNull(testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta("testSerializable", IValueMeta.TYPE_SERIALIZABLE);
+    assertInstanceOf(ValueMetaSerializable.class, testObject);
+    assertEquals("testSerializable", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject =
+        ValueMetaFactory.createValueMeta("testSerializable", IValueMeta.TYPE_SERIALIZABLE, 10, 20);
+    assertInstanceOf(ValueMetaSerializable.class, testObject);
+    assertEquals("testSerializable", testObject.getName());
+    assertEquals(10, testObject.getLength());
+    assertEquals(20, testObject.getPrecision());
+  }
+
+  private void testCreateValueMeta_4(IValueMeta testObject) throws HopPluginException {
+    testObject = ValueMetaFactory.createValueMeta("testBoolean", IValueMeta.TYPE_BOOLEAN, 10, 20);
+    assertInstanceOf(ValueMetaBoolean.class, testObject);
+    assertEquals("testBoolean", testObject.getName());
+    assertEquals(10, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_INTEGER);
+    assertInstanceOf(ValueMetaInteger.class, testObject);
+    assertNull(testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(0, testObject.getPrecision()); // Special case for Integer
+
+    testObject = ValueMetaFactory.createValueMeta("testInteger", IValueMeta.TYPE_INTEGER);
+    assertInstanceOf(ValueMetaInteger.class, testObject);
+    assertEquals("testInteger", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(0, testObject.getPrecision()); // Special case for Integer
+
+    testObject = ValueMetaFactory.createValueMeta("testInteger", IValueMeta.TYPE_INTEGER, 10, 20);
+    assertInstanceOf(ValueMetaInteger.class, testObject);
+    assertEquals("testInteger", testObject.getName());
+    assertEquals(10, testObject.getLength());
+    assertEquals(0, testObject.getPrecision()); // Special case for Integer
+
+    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_BIGNUMBER);
+    assertInstanceOf(ValueMetaBigNumber.class, testObject);
+    assertNull(testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+  }
+
+  private void testCreateValueMeta_5(IValueMeta testObject) throws HopPluginException {
+    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_DATE);
+    assertInstanceOf(ValueMetaDate.class, testObject);
+    assertNull(testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta("testDate", IValueMeta.TYPE_DATE);
+    assertInstanceOf(ValueMetaDate.class, testObject);
+    assertEquals("testDate", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta("testDate", IValueMeta.TYPE_DATE, 10, 20);
+    assertInstanceOf(ValueMetaDate.class, testObject);
+    assertEquals("testDate", testObject.getName());
+    assertEquals(10, testObject.getLength());
+    assertEquals(20, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_BOOLEAN);
+    assertInstanceOf(ValueMetaBoolean.class, testObject);
+    assertNull(testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta("testBoolean", IValueMeta.TYPE_BOOLEAN);
+    assertInstanceOf(ValueMetaBoolean.class, testObject);
+    assertEquals("testBoolean", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+  }
+
+  private void testCreateValueMeta_6(IValueMeta testObject) throws HopPluginException {
+    testObject = ValueMetaFactory.createValueMeta("testNumber", IValueMeta.TYPE_NUMBER);
+    assertInstanceOf(ValueMetaNumber.class, testObject);
+    assertEquals("testNumber", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta("testNumber", IValueMeta.TYPE_NUMBER, 10, 20);
+    assertInstanceOf(ValueMetaNumber.class, testObject);
+    assertEquals("testNumber", testObject.getName());
+    assertEquals(10, testObject.getLength());
+    assertEquals(20, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta(IValueMeta.TYPE_STRING);
+    assertInstanceOf(ValueMetaString.class, testObject);
+    assertNull(testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta("testString", IValueMeta.TYPE_STRING);
+    assertInstanceOf(ValueMetaString.class, testObject);
+    assertEquals("testString", testObject.getName());
+    assertEquals(-1, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision());
+
+    testObject = ValueMetaFactory.createValueMeta("testString", IValueMeta.TYPE_STRING, 1000, 50);
+    assertInstanceOf(ValueMetaString.class, testObject);
+    assertEquals("testString", testObject.getName());
+    assertEquals(1000, testObject.getLength());
+    assertEquals(-1, testObject.getPrecision()); // Special case for String
+  }
+
   @Test
-  public void testGetValueMetaNames() {
+  void testGetValueMetaNames() {
     List<String> dataTypes = Arrays.<String>asList(ValueMetaFactory.getValueMetaNames());
 
     assertTrue(dataTypes.contains("Number"));
@@ -339,7 +342,7 @@ public class ValueMetaFactoryTest {
   }
 
   @Test
-  public void testGetAllValueMetaNames() {
+  void testGetAllValueMetaNames() {
     List<String> dataTypes = Arrays.<String>asList(ValueMetaFactory.getAllValueMetaNames());
 
     assertTrue(dataTypes.contains("Number"));
@@ -355,7 +358,7 @@ public class ValueMetaFactoryTest {
   }
 
   @Test
-  public void testGetValueMetaName() {
+  void testGetValueMetaName() {
     assertEquals("-", ValueMetaFactory.getValueMetaName(Integer.MIN_VALUE));
     assertEquals("None", ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NONE));
     assertEquals("Number", ValueMetaFactory.getValueMetaName(IValueMeta.TYPE_NUMBER));
@@ -371,7 +374,7 @@ public class ValueMetaFactoryTest {
   }
 
   @Test
-  public void testGetIdForValueMeta() {
+  void testGetIdForValueMeta() {
     assertEquals(IValueMeta.TYPE_NONE, ValueMetaFactory.getIdForValueMeta(null));
     assertEquals(IValueMeta.TYPE_NONE, ValueMetaFactory.getIdForValueMeta(""));
     assertEquals(IValueMeta.TYPE_NONE, ValueMetaFactory.getIdForValueMeta("None"));
@@ -388,7 +391,7 @@ public class ValueMetaFactoryTest {
   }
 
   @Test
-  public void testGetValueMetaPluginClasses() throws HopPluginException {
+  void testGetValueMetaPluginClasses() throws HopPluginException {
     List<IValueMeta> dataTypes = ValueMetaFactory.getValueMetaPluginClasses();
 
     boolean numberExists = false;
@@ -448,31 +451,32 @@ public class ValueMetaFactoryTest {
   }
 
   @Test
-  public void testGuessValueMetaInterface() {
-    assertTrue(
-        ValueMetaFactory.guessValueMetaInterface(new BigDecimal(1.0))
-            instanceof ValueMetaBigNumber);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(1.0) instanceof ValueMetaNumber);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(1L) instanceof ValueMetaInteger);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(new String()) instanceof ValueMetaString);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(new Date()) instanceof ValueMetaDate);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(Boolean.FALSE) instanceof ValueMetaBoolean);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(Boolean.TRUE) instanceof ValueMetaBoolean);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(false) instanceof ValueMetaBoolean);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(true) instanceof ValueMetaBoolean);
-    assertTrue(ValueMetaFactory.guessValueMetaInterface(new byte[10]) instanceof ValueMetaBinary);
+  void testGuessValueMetaInterface() {
+    assertInstanceOf(
+        ValueMetaBigNumber.class, ValueMetaFactory.guessValueMetaInterface(new BigDecimal("1.0")));
+    assertInstanceOf(ValueMetaNumber.class, ValueMetaFactory.guessValueMetaInterface(1.0));
+    assertInstanceOf(ValueMetaInteger.class, ValueMetaFactory.guessValueMetaInterface(1L));
+    assertInstanceOf(ValueMetaString.class, ValueMetaFactory.guessValueMetaInterface(""));
+    assertInstanceOf(ValueMetaDate.class, ValueMetaFactory.guessValueMetaInterface(new Date()));
+    assertInstanceOf(
+        ValueMetaBoolean.class, ValueMetaFactory.guessValueMetaInterface(Boolean.FALSE));
+    assertInstanceOf(
+        ValueMetaBoolean.class, ValueMetaFactory.guessValueMetaInterface(Boolean.TRUE));
+    assertInstanceOf(ValueMetaBoolean.class, ValueMetaFactory.guessValueMetaInterface(false));
+    assertInstanceOf(ValueMetaBoolean.class, ValueMetaFactory.guessValueMetaInterface(true));
+    assertInstanceOf(ValueMetaBinary.class, ValueMetaFactory.guessValueMetaInterface(new byte[10]));
 
     // Test Unsupported Data Types
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(null));
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface((short) 1));
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface((byte) 1));
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(1.0F));
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface(new StringBuilder()));
-    assertEquals(null, ValueMetaFactory.guessValueMetaInterface((byte) 1));
+    assertNull(ValueMetaFactory.guessValueMetaInterface(null));
+    assertNull(ValueMetaFactory.guessValueMetaInterface((short) 1));
+    assertNull(ValueMetaFactory.guessValueMetaInterface((byte) 1));
+    assertNull(ValueMetaFactory.guessValueMetaInterface(1.0F));
+    assertNull(ValueMetaFactory.guessValueMetaInterface(new StringBuilder()));
+    assertNull(ValueMetaFactory.guessValueMetaInterface((byte) 1));
   }
 
   @Test
-  public void testGetNativeDataTypeClass() throws HopPluginException {
+  void testGetNativeDataTypeClass() throws HopPluginException {
     for (String valueMetaName : ValueMetaFactory.getValueMetaNames()) {
       int valueMetaID = ValueMetaFactory.getIdForValueMeta(valueMetaName);
       IValueMeta valueMeta = ValueMetaFactory.createValueMeta(valueMetaID);

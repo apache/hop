@@ -17,22 +17,24 @@
 
 package org.apache.hop.core.vfs;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.OutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.variables.Variables;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class HopVfsTest {
+/** Unit test for {@link HopVfs} */
+class HopVfsTest {
 
   /**
    * Test to validate that startsWitScheme() returns true if the fileName starts with known protocol
    * like zip: jar: then it returns true else returns false
    */
   @Test
-  public void testStartsWithScheme() {
+  void testStartsWithScheme() {
     String fileName =
         "zip:file:///SavedLinkedres.zip!Calculate median and percentiles using the group by transforms.hpl";
     assertTrue(HopVfs.startsWithScheme(fileName, new Variables()));
@@ -43,7 +45,7 @@ public class HopVfsTest {
   }
 
   @Test
-  public void testCheckForSchemeSuccess() {
+  void testCheckForSchemeSuccess() {
     String[] schemes = {"hdfs"};
     String vfsFilename = "hdfs://company.com:8020/tmp/acltest/";
 
@@ -52,7 +54,7 @@ public class HopVfsTest {
   }
 
   @Test
-  public void testCheckForSchemeFail() {
+  void testCheckForSchemeFail() {
     String[] schemes = {"file"};
     String vfsFilename = "hdfs://company.com:8020/tmp/acltest/";
 
@@ -61,9 +63,11 @@ public class HopVfsTest {
   }
 
   @Test
-  public void testRamFilesCache() throws Exception {
+  void testRamFilesCache() throws Exception {
     String filename = "ram:///test-file.txt";
     FileObject fileObject = HopVfs.getFileObject(filename);
+
+    assertNotNull(fileObject);
     try (OutputStream outputStream = fileObject.getContent().getOutputStream()) {
       outputStream.write("Test-content".getBytes());
     }

@@ -17,34 +17,36 @@
 
 package org.apache.hop.server;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.net.ssl.SSLContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ServerConnectionManagerTest {
-
+/** Unit test for {@link ServerConnectionManager} */
+class ServerConnectionManagerTest {
   private SSLContext defaultContext;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     ServerConnectionManager.reset();
     defaultContext = SSLContext.getDefault();
   }
 
   @Test
-  public void shouldOverrideDefaultSSLContextByDefault() throws Exception {
+  void shouldOverrideDefaultSSLContextByDefault() throws Exception {
     System.clearProperty("javax.net.ssl.keyStore");
     ServerConnectionManager instance = ServerConnectionManager.getInstance();
+
+    assertNotNull(instance);
     assertNotEquals(defaultContext, SSLContext.getDefault());
   }
 
   @Test
-  public void shouldNotOverrideDefaultSSLContextIfKeystoreIsSet() throws Exception {
+  void shouldNotOverrideDefaultSSLContextIfKeystoreIsSet() throws Exception {
     System.setProperty("javax.net.ssl.keyStore", "NONE");
-    ServerConnectionManager instance = ServerConnectionManager.getInstance();
     assertEquals(defaultContext, SSLContext.getDefault());
   }
 }

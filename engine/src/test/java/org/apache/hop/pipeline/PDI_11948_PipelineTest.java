@@ -17,18 +17,19 @@
 
 package org.apache.hop.pipeline;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PDI_11948_PipelineTest {
+class PDI_11948_PipelineTest {
 
-  @Test(expected = IllegalArgumentException.class)
-  public void setServletReponseTest() {
+  @Test
+  void setServletResponseTest() {
     Pipeline pipelineMock = mock(Pipeline.class);
 
     doCallRealMethod().when(pipelineMock).setServletReponse(null);
-    pipelineMock.setServletReponse(null);
+    assertThrows(IllegalArgumentException.class, () -> pipelineMock.setServletReponse(null));
   }
 }

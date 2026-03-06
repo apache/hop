@@ -17,19 +17,19 @@
 
 package org.apache.hop.www;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.UUID;
 import org.apache.hop.core.exception.HopXmlException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class WebResultTest {
+class WebResultTest {
 
   @Test
-  public void testStatics() {
+  void testStatics() {
     assertEquals("webresult", WebResult.XML_TAG);
     assertEquals("OK", WebResult.STRING_OK);
     assertEquals("ERROR", WebResult.STRING_ERROR);
@@ -40,7 +40,7 @@ public class WebResultTest {
   }
 
   @Test
-  public void testConstructors() {
+  void testConstructors() {
     String expectedResult = UUID.randomUUID().toString();
     WebResult result = new WebResult(expectedResult);
     assertEquals(expectedResult, result.getResult());
@@ -58,7 +58,7 @@ public class WebResultTest {
   }
 
   @Test
-  public void testSerialization() throws HopXmlException {
+  void testSerialization() throws HopXmlException {
     WebResult original =
         new WebResult(
             UUID.randomUUID().toString(),
@@ -76,7 +76,7 @@ public class WebResultTest {
   }
 
   @Test
-  public void testSetters() {
+  void testSetters() {
     WebResult result = new WebResult("");
     assertEquals("", result.getResult());
 

@@ -17,10 +17,11 @@
 
 package org.apache.hop.core.plugins;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
@@ -41,15 +42,16 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class PluginRegistryUnitTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+/** Unit test for {@link PluginRegistry} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class PluginRegistryUnitTest {
 
   @Test
-  public void getGetPluginInformation() throws HopPluginException {
+  void getGetPluginInformation() throws HopPluginException {
     PluginRegistry.getInstance().reset();
     RowBuffer result = PluginRegistry.getInstance().getPluginInformation(BasePluginType.class);
     assertNotNull(result);
@@ -62,7 +64,7 @@ public class PluginRegistryUnitTest {
 
   /** Test that additional plugin mappings can be added via the PluginRegistry. */
   @Test
-  public void testSupplementalPluginMappings() throws Exception {
+  void testSupplementalPluginMappings() throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin mockPlugin = mock(IPlugin.class);
     when(mockPlugin.getIds()).thenReturn(new String[] {"mockPlugin"});
@@ -87,7 +89,7 @@ public class PluginRegistryUnitTest {
 
   /** Test that several plugin jar can share the same classloader. */
   @Test
-  public void testPluginClassloaderGroup() throws Exception {
+  void testPluginClassloaderGroup() throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin mockPlugin1 = mock(IPlugin.class);
     when(mockPlugin1.getIds()).thenReturn(new String[] {"mockPlugin"});
@@ -129,16 +131,17 @@ public class PluginRegistryUnitTest {
     assertNotEquals(ucl, registry.getClassLoader(mockPlugin1));
   }
 
-  @Test(expected = HopPluginClassMapException.class)
-  public void testClassloadingPluginNoClassRegistered() throws HopPluginException {
+  @Test
+  void testClassloadingPluginNoClassRegistered() {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPluginMock plugin = mock(IPluginMock.class);
     when(plugin.loadClass(any())).thenReturn(null);
-    registry.loadClass(plugin, Class.class);
+
+    assertThrows(HopPluginClassMapException.class, () -> registry.loadClass(plugin, Class.class));
   }
 
   @Test
-  public void testMergingPluginFragment() throws HopPluginException {
+  void testMergingPluginFragment() throws HopPluginException {
     // setup
     // initialize Fragment Type
     PluginRegistry registry = PluginRegistry.getInstance();
@@ -152,31 +155,6 @@ public class PluginRegistryUnitTest {
 
           @Override
           protected String extractID(ValueMetaPlugin annotation) {
-            return null;
-          }
-
-          @Override
-          protected String extractImageFile(ValueMetaPlugin annotation) {
-            return null;
-          }
-
-          @Override
-          protected String extractDocumentationUrl(ValueMetaPlugin annotation) {
-            return null;
-          }
-
-          @Override
-          protected String extractCasesUrl(ValueMetaPlugin annotation) {
-            return null;
-          }
-
-          @Override
-          protected String extractForumUrl(ValueMetaPlugin annotation) {
-            return null;
-          }
-
-          @Override
-          protected String extractSuggestion(ValueMetaPlugin annotation) {
             return null;
           }
         };

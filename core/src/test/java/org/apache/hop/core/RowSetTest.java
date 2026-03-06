@@ -17,22 +17,22 @@
 
 package org.apache.hop.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /** Test class for the basic functionality of IRowSet. */
-public class RowSetTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class RowSetTest {
 
-  public IRowMeta createRowMetaInterface() {
+  IRowMeta createRowMetaInterface() {
     IRowMeta rm = new RowMeta();
 
     IValueMeta[] valuesMeta = {
@@ -48,18 +48,16 @@ public class RowSetTest {
 
   /** The basic stuff. */
   @Test
-  public void testBasicCreation() {
+  void testBasicCreation() {
     IRowSet set = new BlockingRowSet(10);
 
-    assertTrue(!set.isDone());
-    // TODO assertTrue(set.isEmpty());
-    // TODO assertTrue(!set.isFull());
+    assertFalse(set.isDone());
     assertEquals(0, set.size());
   }
 
   /** Functionality test. */
   @Test
-  public void testFuntionality1() {
+  void testFunctionality1() {
     IRowSet set = new BlockingRowSet(3);
 
     IRowMeta rm = createRowMetaInterface();
@@ -70,97 +68,76 @@ public class RowSetTest {
     Object[] r4 = new Object[] {4L};
     Object[] r5 = new Object[] {5L};
 
-    // TODO assertTrue(set.isEmpty());
     assertEquals(0, set.size());
 
     // Add first row. State 1
     set.putRow(rm, r1);
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(!set.isFull());
+
     assertEquals(1, set.size());
 
     // Add another row. State: 1 2
     set.putRow(rm, r2);
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(!set.isFull());
+
     assertEquals(2, set.size());
 
     // Pop off row. State: 2
     Object[] r = set.getRow();
     int i = rm.indexOfValue("ROWNR");
     assertEquals(1L, ((Long) r[i]).longValue());
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(!set.isFull());
+
     assertEquals(1, set.size());
 
     // Add another row. State: 2 3
     set.putRow(rm, r3);
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(!set.isFull());
+
     assertEquals(2, set.size());
 
     // Add another row. State: 2 3 4
     set.putRow(rm, r4);
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(set.isFull());
+
     assertEquals(3, set.size());
 
-    /*********************************************************************
+    /*
      * This was made in more restrict in older version v2.5.0 with a new IRowSet implementation. After older version v2.5.0 you may not try to put
      * more rows in a rowset then it can hold (this functionality was also never used in Apache Hop anyway).
-     *
-     * // Add another row. State: 2 3 4 5 // Note that we can still add rows after the set is full. set.putRow(r5);
-     * assertTrue(!set.isEmpty()); assertTrue(set.isFull()); assertEquals(4, set.size());
-     *********************************************************************/
+     */
 
     // Pop off row. State: 3 4
     r = set.getRow();
     i = rm.indexOfValue("ROWNR");
     assertEquals(2L, ((Long) r[i]).longValue());
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(!set.isFull());
+
     assertEquals(2, set.size());
 
     // Add another row. State: 3 4 5
     set.putRow(rm, r5);
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(set.isFull());
     assertEquals(3, set.size());
 
     // Pop off row. State: 4 5
     r = set.getRow();
     i = rm.indexOfValue("ROWNR");
     assertEquals(3L, ((Long) r[i]).longValue());
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(!set.isFull());
+
     assertEquals(2, set.size());
 
     // Pop off row. State: 5
     r = set.getRow();
     i = rm.indexOfValue("ROWNR");
     assertEquals(4L, ((Long) r[i]).longValue());
-    // TODO assertTrue(!set.isEmpty());
-    // TODO assertTrue(!set.isFull());
+
     assertEquals(1, set.size());
 
     // Pop off row. State:
     r = set.getRow();
     i = rm.indexOfValue("ROWNR");
     assertEquals(5L, ((Long) r[i]).longValue());
-    // TODO assertTrue(set.isEmpty());
-    // TODO assertTrue(!set.isFull());
-    assertEquals(0, set.size());
 
-    /*********************************************************************
-     * This was changed v2.5.0 with a new IRowSet // Pop off row. State: try { r = set.getRow();
-     * fail("expected NoSuchElementException"); } catch ( IndexOutOfBoundsException ex ) { } assertTrue(set.isEmpty());
-     * assertTrue(!set.isFull()); assertEquals(0, set.size());
-     **********************************************************************/
+    assertEquals(0, set.size());
   }
 
   /** Names test. Just for completeness. */
   @Test
-  public void testNames() {
+  void testNames() {
     IRowSet set = new BlockingRowSet(3);
 
     set.setThreadNameFromToCopy("from", 2, "to", 3);

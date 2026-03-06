@@ -17,10 +17,12 @@
 
 package org.apache.hop.metadata.serializer.json;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -33,32 +35,24 @@ import org.apache.hop.metadata.serializer.json.person.Person;
 import org.apache.hop.metadata.serializer.json.person.interest.Cooking;
 import org.apache.hop.metadata.serializer.json.person.interest.Music;
 import org.apache.hop.metadata.serializer.json.person.interest.Running;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class JsonMetadataSerializerTest extends TestCase {
+/** Unit test for {@link JsonMetadataSerializer} */
+class JsonMetadataSerializerTest {
 
   private JsonMetadataProvider metadataProvider;
 
-  @Override
-  protected void setUp() throws Exception {
-    String baseFolder =
-        System.getProperty("java.io.tmpdir")
-            + Const.FILE_SEPARATOR
-            + "metadata"; // UUID.randomUUID();
+  @BeforeEach
+  void setUp() {
+    String baseFolder = System.getProperty("java.io.tmpdir") + Const.FILE_SEPARATOR + "metadata";
     metadataProvider =
         new JsonMetadataProvider(
             new HopTwoWayPasswordEncoder(), baseFolder, Variables.getADefaultVariableSpace());
   }
 
-  @Override
-  protected void tearDown() throws Exception {
-    // TODO: Remove the temp folder
-    //
-
-  }
-
   @Test
-  public void testPersonSerialization() throws HopException {
+  void testPersonSerialization() throws HopException {
     Map<String, String> attributes = new HashMap<>();
     attributes.put("attribute1", "value1");
     attributes.put("attribute2", "value2");

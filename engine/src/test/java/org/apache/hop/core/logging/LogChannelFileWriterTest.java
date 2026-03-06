@@ -17,7 +17,7 @@
 
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.atLeastOnce;
@@ -29,16 +29,16 @@ import static org.mockito.Mockito.when;
 import java.io.OutputStream;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class LogChannelFileWriterTest {
+@ExtendWith(MockitoExtension.class)
+class LogChannelFileWriterTest {
 
   String id = "1";
   String logMessage = "Log message";
@@ -48,15 +48,14 @@ public class LogChannelFileWriterTest {
   @Mock OutputStream outputStream;
   @Captor ArgumentCaptor<byte[]> captor;
 
-  @Before
-  public void setup() throws Exception {
+  @BeforeEach
+  void setup() throws Exception {
     when(fileObject.getContent()).thenReturn(fileContent);
     when(fileContent.getOutputStream(anyBoolean())).thenReturn(outputStream);
   }
 
   @Test
-  public void test() throws Exception {
-
+  void test() throws Exception {
     LogChannelFileWriter writer = new LogChannelFileWriter(id, fileObject, false);
 
     LoggingRegistry.getInstance()
@@ -72,12 +71,12 @@ public class LogChannelFileWriterTest {
   }
 
   @Test
-  public void testStartStopLogging() throws Exception {
+  void testStartStopLogging() throws Exception {
     LogChannelFileWriter writer = new LogChannelFileWriter(id, fileObject, false);
 
     doAnswer(
             invocationOnMock -> {
-              Thread.sleep(2000);
+              Thread.sleep(1000);
               return null;
             })
         .when(outputStream)

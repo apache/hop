@@ -17,31 +17,31 @@
 
 package org.apache.hop.ui.core.widget.text;
 
-import org.eclipse.swt.custom.StyleRange;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TextFormatterTest {
+import org.eclipse.swt.custom.StyleRange;
+import org.junit.jupiter.api.Test;
+
+class TextFormatterTest {
 
   @Test
-  public void testUrlFormatter() {
+  void testUrlFormatter() {
     String value =
         "This has one [this is the first value](http://www.example.com/page/index.html?query=test1) [this is the second"
             + " value](http://www.example.com/page/index.html?query=test2)";
 
     Format format = TextFormatter.getInstance().execute(value);
 
-    Assert.assertEquals(
-        "This has one this is the first value this is the second value", format.getText());
-    Assert.assertEquals(2, format.getStyleRanges().size());
+    assertEquals("This has one this is the first value this is the second value", format.getText());
+    assertEquals(2, format.getStyleRanges().size());
 
     // Cast Object to StyleRange to access properties
     StyleRange styleRange0 = (StyleRange) format.getStyleRanges().get(0);
     StyleRange styleRange1 = (StyleRange) format.getStyleRanges().get(1);
 
-    Assert.assertEquals("http://www.example.com/page/index.html?query=test1", styleRange0.data);
-    Assert.assertEquals("http://www.example.com/page/index.html?query=test2", styleRange1.data);
-    Assert.assertEquals(13, styleRange0.start);
-    Assert.assertEquals(37, styleRange1.start);
+    assertEquals("http://www.example.com/page/index.html?query=test1", styleRange0.data);
+    assertEquals("http://www.example.com/page/index.html?query=test2", styleRange1.data);
+    assertEquals(13, styleRange0.start);
+    assertEquals(37, styleRange1.start);
   }
 }

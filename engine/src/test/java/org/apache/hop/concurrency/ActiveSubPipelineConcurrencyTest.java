@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * In this test we add new elements to shared pipeline concurrently and get added elements from this
@@ -39,7 +39,7 @@ import org.junit.Test;
  * {@link java.util.HashMap#size()} method (as a result there would be an error in {@link
  * Getter#call()} ).
  */
-public class ActiveSubPipelineConcurrencyTest {
+class ActiveSubPipelineConcurrencyTest {
   private static final int NUMBER_OF_GETTERS = 10;
   private static final int NUMBER_OF_CREATES = 10;
   private static final int NUMBER_OF_CREATE_CYCLES = 20;
@@ -49,7 +49,7 @@ public class ActiveSubPipelineConcurrencyTest {
   private final Object lock = new Object();
 
   @Test
-  public void getAndCreateConcurrently() throws Exception {
+  void getAndCreateConcurrently() throws Exception {
     AtomicBoolean condition = new AtomicBoolean(true);
     IPipelineEngine<PipelineMeta> pipeline = new LocalPipelineEngine();
     createSubPipeline(pipeline);
@@ -101,7 +101,7 @@ public class ActiveSubPipelineConcurrencyTest {
       while (condition.get()) {
         final String activeSubPipelineName =
             createPipelineName(random.nextInt(INITIAL_NUMBER_OF_PIPELINE));
-        IPipelineEngine subPipeline = pipeline.getActiveSubPipeline(activeSubPipelineName);
+        IPipelineEngine<?> subPipeline = pipeline.getActiveSubPipeline(activeSubPipelineName);
 
         if (subPipeline == null) {
           throw new IllegalStateException(
