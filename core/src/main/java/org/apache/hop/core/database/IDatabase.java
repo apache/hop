@@ -1209,4 +1209,38 @@ public interface IDatabase extends Cloneable {
    * @return true to hide URL information in test connection results
    */
   boolean isHideUrlInTestConnection();
+
+  // SSH Tunnel configuration methods
+
+  boolean isSshTunnelEnabled();
+
+  void setSshTunnelEnabled(boolean enabled);
+
+  String getSshTunnelHost();
+
+  void setSshTunnelHost(String host);
+
+  String getSshTunnelPort();
+
+  void setSshTunnelPort(String port);
+
+  String getSshTunnelUsername();
+
+  void setSshTunnelUsername(String username);
+
+  String getSshTunnelPassword();
+
+  void setSshTunnelPassword(String password);
+
+  boolean isSshTunnelUsePrivateKey();
+
+  void setSshTunnelUsePrivateKey(boolean usePrivateKey);
+
+  String getSshTunnelPrivateKeyFile();
+
+  void setSshTunnelPrivateKeyFile(String privateKeyFile);
+
+  String getSshTunnelPassphrase();
+
+  void setSshTunnelPassphrase(String passphrase);
 }
