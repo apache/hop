@@ -537,7 +537,7 @@ public class HopVfs {
    * Creates a file using "java.io.tmpdir" directory
    *
    * @param prefix - file name
-   * @param prefix - file extension
+   * @param suffix - file extension
    * @return FileObject
    * @throws HopFileException
    */

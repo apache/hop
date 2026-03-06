@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms SSH</name>
 
     <properties>
-        <sshlib.version>2.2.23</sshlib.version>
+        <sshlib.version>2.2.43</sshlib.version>
     </properties>
 
     <dependencies>

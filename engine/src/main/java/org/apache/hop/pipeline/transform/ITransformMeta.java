@@ -49,8 +49,6 @@ import org.w3c.dom.Node;
  * interface that a plugin implements. The responsibilities of the implementing class are listed
  * below:
  *
- * <p>
- *
  * <ul>
  *   <li><b>Keep track of the transform settings</b> The implementing class typically keeps track of
  *       transform settings using private fields with corresponding getters and setters. The dialog
@@ -71,7 +69,6 @@ import org.w3c.dom.Node;
  *       such as lists or custom helper objects. See
  *       org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta.clone() for an example on
  *       creating a deep copy.
- *       <p>
  *   <li><b>Serialize transform settings</b><br>
  *       The plugin needs to be able to serialize its settings to XML . The interface methods are as
  *       follows.
@@ -86,7 +83,6 @@ import org.w3c.dom.Node;
  *       XML. The XML node containing the transform's settings is passed in as an argument. Again,
  *       the helper class org.apache.hop.core.xml.XmlHandler is typically used to conveniently read
  *       the transform settings from the XML node.
- *       <p>
  *   <li><b>Provide instances of other plugin classes</b><br>
  *       The ITransformMeta plugin class is the main class tying in with the rest of Apache Hop
  *       architecture. It is responsible for supplying instances of the other plugin classes

@@ -97,27 +97,27 @@
     </distributionManagement>
 
     <properties>
-        <apache-beam.version>2.70.0</apache-beam.version>
+        <apache-beam.version>2.71.0</apache-beam.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
         <attach-sources-phase>verify</attach-sources-phase>
         <azure-sdk-bom.version>1.2.26</azure-sdk-bom.version>
         <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
-        <byte-buddy.version>1.14.15</byte-buddy.version>
+        <byte-buddy.version>1.18.7</byte-buddy.version>
         <cyclonedx-maven-plugin.version>2.8.1</cyclonedx-maven-plugin.version>
         <hadoop.version>3.4.2</hadoop.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <jandex.version>3.2.2</jandex.version>
+        <jandex.version>3.5.3</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
         <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
-        <junit.version>5.10.2</junit.version>
+        <junit.version>5.14.3</junit.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
         <license.inceptionYear>2020</license.inceptionYear>
         <license.licenseFile>LICENSE.txt</license.licenseFile>
         <license.licenseName>apache_v2</license.licenseName>
         <license.organizationName>Apache</license.organizationName>
-        <lombok.version>1.18.34</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
         <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
         <maven-javadoc-plugin.version>3.10.0</maven-javadoc-plugin.version>
@@ -146,9 +146,9 @@
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
         <maven.compiler.source>${target.jdk.version}</maven.compiler.source>
         <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
-        <mockito-core.version>5.12.0</mockito-core.version>
+        <mockito-core.version>5.22.0</mockito-core.version>
         <netty.version>4.2.8.Final</netty.version>
-        <objenesis.version>3.4</objenesis.version>
+        <objenesis.version>3.5</objenesis.version>
         <opentelemetry.version>1.56.0</opentelemetry.version>
         <org.eclipse.platform.version>3.132.0</org.eclipse.platform.version>
         <project.build.outputTimestamp>1770029303</project.build.outputTimestamp>
@@ -162,6 +162,21 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.21.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.21.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>2.21</version>
+            </dependency>
             <dependency>
                 <groupId>io.smallrye</groupId>
                 <artifactId>jandex</artifactId>
@@ -304,6 +319,15 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-Xlint:-options</arg>
+                    </compilerArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

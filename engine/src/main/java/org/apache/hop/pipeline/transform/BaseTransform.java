@@ -81,7 +81,6 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
  * <ul>
  *   <li>Transform Initialization<br>
  *       The init() method is called when a pipeline is preparing to start execution.
- *       <p>
  *       <pre>
  * public boolean init(...)
  * </pre>
@@ -91,14 +90,11 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
  *       method must return true in case the transform initialized correctly, it must returned false
  *       if there was an initialization error. Apache Hop will abort the execution of a pipeline in
  *       case any transform returns false upon initialization.
- *       <p>
- *       <p>
  *   <li>Row Processing<br>
  *       Once the pipeline starts execution it enters a tight loop calling processRow() on each
  *       transform until the method returns false. Each transform typically reads a single row from
  *       the input stream, alters the row structure and fields and passes the row on to next
  *       transforms.
- *       <p>
  *       <pre>
  * public boolean processRow(...)
  * </pre>
@@ -114,10 +110,8 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
  *         <li>If the transform is not done processing all rows, the method must return true. Hop
  *             will call processRow() again in this case.
  *       </ul>
- *       <p>
  *   <li>Transform Clean-Up<br>
  *       Once the pipeline is complete, Hop calls dispose() on all transforms.
- *       <p>
  *       <pre>
  * public void dispose(...)
  * </pre>

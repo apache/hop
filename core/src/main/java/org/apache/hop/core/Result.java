@@ -37,8 +37,6 @@ import org.w3c.dom.Node;
  * Describes the result of the execution of a Pipeline or a Job. The information available includes
  * the following:
  *
- * <p>
- *
  * <ul>
  *   <li>Number of errors the workflow or pipeline encountered
  *   <li>Number of lines input

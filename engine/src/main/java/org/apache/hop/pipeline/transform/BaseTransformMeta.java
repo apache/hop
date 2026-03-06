@@ -63,8 +63,6 @@ import org.w3c.dom.Node;
  *
  * <p>For example, the "Text File Output" transform's TextFileOutputMeta class extends
  * BaseTransformMeta by adding fields for the output file name, compression, file format, etc...
- *
- * <p>
  */
 public class BaseTransformMeta<Main extends ITransform, Data extends ITransformData>
     implements ITransformMeta, Cloneable {

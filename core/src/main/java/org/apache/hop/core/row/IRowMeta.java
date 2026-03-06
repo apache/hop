@@ -61,8 +61,6 @@ import org.w3c.dom.Node;
  * <p><i>public List{@literal <}IValueMeta{@literal >} getValueMetaList()</i><br>
  * Returns a list of all field descriptions. The index of the field description matches the field
  * index in the row array.
- *
- * <p>
  */
 @JsonDeserialize(as = RowMeta.class)
 public interface IRowMeta extends Cloneable {

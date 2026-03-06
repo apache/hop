@@ -36,6 +36,7 @@ limitations under the License.
       <type>SPECIAL</type>
       <attributes/>
       <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
       <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
@@ -117,6 +118,7 @@ limitations under the License.
       <description/>
       <type>GET_POP</type>
       <attributes/>
+      <aftergetimap>1</aftergetimap>
       <attachmentfolder/>
       <attachmentwildcard/>
       <bodysearch/>

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -73,7 +74,7 @@ class WorkflowActionGetPOPLoadSaveTest extends WorkflowActionLoadSaveTestSupport
         "moveToIMAPFolder",
         "createMoveToFolder",
         "createLocalFolder",
-        //        "afterGetIMAP",
+        "afterGetIMAP",
         "includeSubFolders",
         "useProxy",
         "proxyUsername");
@@ -90,8 +91,8 @@ class WorkflowActionGetPOPLoadSaveTest extends WorkflowActionLoadSaveTestSupport
     //        new IntLoadSaveValidator(MailConnectionMeta.conditionDateCode.length));
     //    validators.put(
     //        "actionType", new IntLoadSaveValidator(MailConnectionMeta.actionTypeCode.length));
-    //    validators.put(
-    //        "afterGetIMAP", new IntLoadSaveValidator(MailConnectionMeta.afterGetIMAPCode.length));
+    validators.put(
+        "afterGetIMAP", new IntLoadSaveValidator(MailConnectionMeta.afterGetIMAPCode.length));
 
     return validators;
   }

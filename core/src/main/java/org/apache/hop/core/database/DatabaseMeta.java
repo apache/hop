@@ -351,8 +351,6 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    *
    * <p>TYPE_ACCESS_OCI
    *
-   * <p>
-   *
    * @return The type of database access.
    */
   public int getAccessType() {

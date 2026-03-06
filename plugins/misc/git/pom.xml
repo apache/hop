@@ -29,7 +29,7 @@
     <name>Hop Plugins Miscellaneous Git</name>
 
     <properties>
-        <dependency.jgit.revision>7.3.0.202506031305-r</dependency.jgit.revision>
+        <dependency.jgit.revision>7.5.0.202512021534-r</dependency.jgit.revision>
     </properties>
 
     <dependencyManagement>

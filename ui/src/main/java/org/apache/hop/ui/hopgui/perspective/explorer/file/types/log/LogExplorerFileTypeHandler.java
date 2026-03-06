@@ -25,13 +25,9 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.text.BaseTextExp
 /**
  * How do we handle a log file in file explorer perspective?
  *
- * <p>
- *
  * <p>TODO: add bottom section to show status, size, cursor position...
  *
  * <p>TODO: add a checkbox so that we can implement a "tail -f" log viewer
- *
- * <p>
  */
 public class LogExplorerFileTypeHandler extends BaseTextExplorerFileTypeHandler {
 

@@ -200,8 +200,6 @@ public abstract class TextComposite extends Composite {
    * <p>Indexing is zero based. The range of a selection is from 0..N where N is the number of
    * characters in the widget.
    *
-   * <p>
-   *
    * @param start the start of the range
    * @param end the end of the range
    */

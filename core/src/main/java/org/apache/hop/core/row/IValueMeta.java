@@ -61,8 +61,6 @@ import org.w3c.dom.Node;
  *
  * <p><b>Apache Hop Field Type / Java Mapping</b>
  *
- * <p>
- *
  * <Table border="1">
  * <caption>Java mappings</caption>
  * <tr>
@@ -125,8 +123,6 @@ import org.w3c.dom.Node;
  *
  * <p>In addition to the data type of a field, the storage type (getStorageType()/setStorageType())
  * is used to interpret the actual field value in a row array.
- *
- * <p>
  *
  * <Table border="1">
  * <caption>Storage mappings</caption>

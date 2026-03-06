@@ -60,7 +60,11 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <BATCH_SIZE>500</BATCH_SIZE>
+    <USE_BATCH>N</USE_BATCH>
+    <conditionreceiveddate>0</conditionreceiveddate>
     <delete>N</delete>
+    <endMsg/>
     <fields>
       <field>
         <column>0</column>
@@ -143,6 +147,8 @@ limitations under the License.
         <name>Content Type (Body)</name>
       </field>
     </fields>
+    <firstmails/>
+    <folderfield/>
     <imapfirstmails>10</imapfirstmails>
     <imapfolder>INBOX</imapfolder>
     <includesubfolders>Y</includesubfolders>
@@ -152,10 +158,18 @@ limitations under the License.
     <notTermSubjectSearch>N</notTermSubjectSearch>
     <password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password>
     <protocol>IMAP</protocol>
+    <proxyusername/>
+    <receivedDate1/>
+    <receivedDate2/>
+    <recipientSearch/>
     <retrievemails>0</retrievemails>
     <rowlimit>0</rowlimit>
+    <senderSearch/>
     <servername>${MAIL_SMTP_SERVER}</servername>
     <sslport>993</sslport>
+    <startMsg/>
+    <stopOnError>N</stopOnError>
+    <subjectSearch/>
     <usedynamicfolder>N</usedynamicfolder>
     <useproxy>N</useproxy>
     <username>user01@example.com</username>

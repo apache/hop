@@ -87,6 +87,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
   public int valueIMAPList;
 
+  @HopMetadataProperty(key = "aftergetimap")
   public int afterGetIMAP;
 
   @HopMetadataProperty(key = "servername")

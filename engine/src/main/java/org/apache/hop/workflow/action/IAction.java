@@ -42,8 +42,6 @@ import org.w3c.dom.Node;
  * IAction is the main Java interface that a plugin implements. The responsibilities of the
  * implementing class are listed below:
  *
- * <p>
- *
  * <ul>
  *   <li><b>Maintain action settings</b><br>
  *       The implementing class typically keeps track of action settings using private fields with
