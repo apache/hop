@@ -155,66 +155,70 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       //
       addExecutionFinishedListener(
           pipeline -> {
-            String group = (String) pipeline.getExtensionDataMap().get(Const.CONNECTION_GROUP);
-            List<Database> databases = DatabaseConnectionMap.getInstance().getDatabases(group);
-            Result result = pipeline.getResult();
-            for (Database database : databases) {
-              // All fine?  Commit!
-              //
-              try {
-                if (result.isResult() && !result.isStopped() && result.getNrErrors() == 0) {
-                  try {
-                    database.commit(true);
-                    pipeline
-                        .getLogChannel()
-                        .logBasic(
-                            "All transactions of database connection '"
-                                + database.getDatabaseMeta().getName()
-                                + "' were committed at the end of the pipeline!");
-                  } catch (HopDatabaseException e) {
-                    throw new HopException(
-                        "Error committing database connection "
-                            + database.getDatabaseMeta().getName(),
-                        e);
-                  }
-                } else {
-                  try {
-                    database.rollback(true);
-                    pipeline
-                        .getLogChannel()
-                        .logBasic(
-                            "All transactions of database connection '"
-                                + database.getDatabaseMeta().getName()
-                                + "' were rolled back at the end of the pipeline!");
-                  } catch (HopDatabaseException e) {
-                    throw new HopException(
-                        "Error rolling back database connection "
-                            + database.getDatabaseMeta().getName(),
-                        e);
-                  }
-                }
-              } finally {
-                // Always close connection!
+            try {
+              String group = (String) pipeline.getExtensionDataMap().get(Const.CONNECTION_GROUP);
+              List<Database> databases = DatabaseConnectionMap.getInstance().getDatabases(group);
+              Result result = pipeline.getResult();
+              for (Database database : databases) {
+                // All fine?  Commit!
+                //
                 try {
-                  database.closeConnectionOnly();
-                  pipeline
-                      .getLogChannel()
-                      .logDebug(
-                          "Database connection '"
-                              + database.getDatabaseMeta().getName()
-                              + "' closed successfully!");
-                } catch (HopDatabaseException hde) {
-                  pipeline
-                      .getLogChannel()
-                      .logError(
-                          "Error disconnecting from database - closeConnectionOnly failed:"
-                              + Const.CR
-                              + hde.getMessage());
-                  pipeline.getLogChannel().logError(Const.getStackTracker(hde));
+                  if (result.isResult() && !result.isStopped() && result.getNrErrors() == 0) {
+                    try {
+                      database.commit(true);
+                      pipeline
+                          .getLogChannel()
+                          .logBasic(
+                              "All transactions of database connection '"
+                                  + database.getDatabaseMeta().getName()
+                                  + "' were committed at the end of the pipeline!");
+                    } catch (HopDatabaseException e) {
+                      throw new HopException(
+                          "Error committing database connection "
+                              + database.getDatabaseMeta().getName(),
+                          e);
+                    }
+                  } else {
+                    try {
+                      database.rollback(true);
+                      pipeline
+                          .getLogChannel()
+                          .logBasic(
+                              "All transactions of database connection '"
+                                  + database.getDatabaseMeta().getName()
+                                  + "' were rolled back at the end of the pipeline!");
+                    } catch (HopDatabaseException e) {
+                      throw new HopException(
+                          "Error rolling back database connection "
+                              + database.getDatabaseMeta().getName(),
+                          e);
+                    }
+                  }
+                } finally {
+                  // Always close connection!
+                  try {
+                    database.closeConnectionOnly();
+                    pipeline
+                        .getLogChannel()
+                        .logDebug(
+                            "Database connection '"
+                                + database.getDatabaseMeta().getName()
+                                + "' closed successfully!");
+                  } catch (HopDatabaseException hde) {
+                    pipeline
+                        .getLogChannel()
+                        .logError(
+                            "Error disconnecting from database - closeConnectionOnly failed:"
+                                + Const.CR
+                                + hde.getMessage());
+                    pipeline.getLogChannel().logError(Const.getStackTracker(hde));
+                  }
                 }
+                // Definitely remove the connection reference the connections map
+                DatabaseConnectionMap.getInstance().removeConnection(group, null, database);
               }
-              // Definitely remove the connection reference the connections map
-              DatabaseConnectionMap.getInstance().removeConnection(group, null, database);
+            } catch (Exception e) {
+              log.logError("Error finishing database handling of the transactional pipeline" + e);
             }
           });
     }

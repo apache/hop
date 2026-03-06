@@ -1,0 +1,27 @@
+{
+  "virtualPath": "",
+  "rdbms": {
+    "POSTGRESQL": {
+      "databaseName": "none",
+      "pluginId": "POSTGRESQL",
+      "accessType": 0,
+      "hostname": "localhost",
+      "password": "Encrypted 2be98afa605d39a8da51ee367d180a4c9",
+      "pluginName": "PostgreSQL",
+      "port": "5432",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "username": "no-user"
+    }
+  },
+  "name": "not-working"
+}
