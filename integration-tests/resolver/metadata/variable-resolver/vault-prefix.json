@@ -1,0 +1,17 @@
+{
+  "virtualPath": "",
+  "name": "vault-prefix",
+  "description": "Hashicorp Vault",
+  "variable-resolver": {
+    "Vault-Variable-Resolver": {
+      "vaultAddress": "http://vault:8200",
+      "pemString": "",
+      "openTimeout": "",
+      "verifyingSsl": false,
+      "pemFilePath": "",
+      "readTimeout": "",
+      "pathPrefix": "secret/data/",
+      "vaultToken": "myroot"
+    }
+  }
+}
