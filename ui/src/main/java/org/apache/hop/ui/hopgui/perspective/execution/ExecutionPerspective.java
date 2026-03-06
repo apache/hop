@@ -720,7 +720,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
                 if (execution != null) {
                   // Apply an extra filter to make sure
                   //
-
                   if (!executionSelector.isSelected(execution)) {
                     continue;
                   }

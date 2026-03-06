@@ -257,6 +257,15 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
   public List<String> findExecutionIDs(IExecutionSelector selector) throws HopException {
     Set<DatedId> dateIds = new HashSet<>();
 
+    if (selector.isSelectingByUuid()) {
+      // We try the cache and simply loading the file itself by ID.
+      //
+      CacheEntry cacheEntry = loadCacheEntry(selector.filterText());
+      if (cacheEntry != null) {
+        return List.of(cacheEntry.getId());
+      }
+    }
+
     // The data in the cache is the most recent, so we start with that.
     //
     getExecutionIdsFromCache(dateIds, selector);
@@ -273,7 +282,6 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
 
     // Take only the first from the list
     //
-    int iLimit = datedIds.size();
     List<String> list = new ArrayList<>();
     for (DatedId datedId : datedIds) {
       list.add(datedId.getId());

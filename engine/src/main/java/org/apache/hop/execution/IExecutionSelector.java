@@ -50,4 +50,9 @@ public interface IExecutionSelector {
    * @return true if the execution state gets selected using the selector parameters.
    */
   boolean isSelected(ExecutionState executionState);
+
+  /**
+   * @return True if the filter string is a UUID.
+   */
+  boolean isSelectingByUuid();
 }
