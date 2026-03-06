@@ -299,7 +299,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wlValues.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Values.Label"));
     PropsUi.setLook(wlValues);
     FormData fdlValues = new FormData();
-    fdlValues.left = new FormAttachment(50, 0);
+    fdlValues.left = new FormAttachment(0, 0);
     fdlValues.top = new FormAttachment(wDiffField, margin);
     wlValues.setLayoutData(fdlValues);
 
@@ -362,7 +362,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wlExtra.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Extra.Label"));
     PropsUi.setLook(wlExtra);
     FormData fdlExtra = new FormData();
-    fdlExtra.left = new FormAttachment(50, 0);
+    fdlExtra.left = new FormAttachment(0, 0);
     fdlExtra.top = new FormAttachment(wDiffField, margin);
     wlExtra.setLayoutData(fdlExtra);
 
