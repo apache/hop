@@ -5607,15 +5607,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               variables.resolve(
                   pipeline.getPipelineRunConfiguration().getExecutionInfoLocationName());
           if (StringUtils.isNotEmpty(locationName)) {
-            ExecutionInfoLocation location = ep.getLocationMap().get(locationName);
-            IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
-            Execution execution = iLocation.getExecution(pipeline.getLogChannelId());
-            if (execution != null) {
-              ExecutionState executionState =
-                  location.getExecutionInfoLocation().getExecutionState(execution.getId());
-              ep.createExecutionViewer(locationName, execution, executionState);
-              ep.activate();
-              return;
+            ExecutionInfoLocation location = ep.lookupLocation(locationName);
+            if (location != null) {
+              IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+              Execution execution = iLocation.getExecution(pipeline.getLogChannelId());
+              if (execution != null) {
+                ExecutionState executionState =
+                    location.getExecutionInfoLocation().getExecutionState(execution.getId());
+                ep.createExecutionViewer(locationName, execution, executionState);
+                ep.activate();
+                return;
+              }
             }
           }
         }

@@ -38,6 +38,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.caching.BaseCachingExecutionInfoLocation;
 import org.apache.hop.execution.caching.CacheEntry;
 import org.apache.hop.execution.caching.DatedId;
@@ -341,7 +342,8 @@ public class ElasticExecutionInfoLocation extends BaseCachingExecutionInfoLocati
   }
 
   @Override
-  protected void retrieveIds(boolean includeChildren, Set<DatedId> ids, int limit)
+  protected void retrieveIds(
+      boolean includeChildren, Set<DatedId> ids, int limit, IExecutionSelector selector)
       throws HopException {
     // Get all the IDs from Elastic if we don't have it in the cache.
     //

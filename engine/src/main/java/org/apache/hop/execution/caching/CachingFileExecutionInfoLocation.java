@@ -19,6 +19,9 @@
 package org.apache.hop.execution.caching;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Set;
 import lombok.Getter;
@@ -36,6 +39,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionInfoLocation;
+import org.apache.hop.execution.IExecutionSelector;
+import org.apache.hop.execution.LastPeriod;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -129,7 +134,8 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
   }
 
   @Override
-  protected void retrieveIds(boolean includeChildren, Set<DatedId> ids, int limit)
+  protected void retrieveIds(
+      boolean includeChildren, Set<DatedId> ids, int limit, final IExecutionSelector selector)
       throws HopException {
     try {
       FileObject[] files = getAllFileObjects(actualRootFolder);
@@ -137,14 +143,43 @@ public class CachingFileExecutionInfoLocation extends BaseCachingExecutionInfoLo
       for (FileObject file : files) {
         String id = getIdFromFileName(file);
 
+        // We do a first filtering on the modification date
+        // This is probably the execution end date, so we add an hour.
+        //
+        LastPeriod dateFilter = selector.startDateFilter();
+        if (dateFilter != null) {
+          LocalDateTime roughStartDate = dateFilter.calculateStartDate().minusHours(1);
+          long startDate =
+              ZonedDateTime.of(roughStartDate, ZoneId.systemDefault()).toInstant().toEpochMilli();
+          long lastModified = file.getContent().getLastModifiedTime();
+          if (lastModified < startDate) {
+            // Skip for performance
+            continue;
+          }
+        }
+
+        // Apply the other filters by loading the file
+        //
+        CacheEntry entry = findCacheEntry(id);
+        if (entry == null) {
+          // Not much loaded from disk or cache
+          continue;
+        }
+        if (!selector.isSelected(entry.getExecution())) {
+          continue;
+        }
+        if (!selector.isSelected(entry.getExecutionState())) {
+          continue;
+        }
+
         if (!ids.contains(new DatedId(id, null))) {
           ids.add(new DatedId(id, new Date(file.getContent().getLastModifiedTime())));
 
           // To add child IDs we need to load the file.
           // We won't store these in the cache though.
           //
-          if (includeChildren) {
-            CacheEntry entry = loadCacheEntry(id);
+          if (!selector.isSelectingParents()) {
+            entry = loadCacheEntry(id);
             if (entry != null) {
               addChildIds(entry, ids);
             }

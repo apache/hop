@@ -41,6 +41,7 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.execution.DefaultExecutionSelector;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -48,6 +49,7 @@ import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionMatcher;
+import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -109,6 +111,11 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public synchronized void close() throws HopException {
     // Nothing to close
+  }
+
+  @Override
+  public void clearCaches() {
+    // Nothing to clear
   }
 
   @Override
@@ -492,6 +499,11 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       throw new HopException(
           "Error finding child executions for parent ID " + parentExecutionId, e);
     }
+  }
+
+  @Override
+  public List<String> findExecutionIDs(IExecutionSelector pruner) throws HopException {
+    return DefaultExecutionSelector.findExecutionIDs(this, pruner);
   }
 
   @Override

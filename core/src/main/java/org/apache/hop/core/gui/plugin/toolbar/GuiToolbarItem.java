@@ -39,6 +39,7 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
   private String getComboValuesMethod;
   private boolean ignored;
   private boolean addingSeparator;
+  private String defaultText;
   private ClassLoader classLoader;
 
   // The singleton listener class to use
@@ -85,6 +86,7 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     this.extraWidth = toolbarElement.extraWidth();
     this.alignRight = toolbarElement.alignRight();
     this.readOnly = toolbarElement.readOnly();
+    this.defaultText = toolbarElement.defaultText();
   }
 
   @Override

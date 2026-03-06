@@ -56,6 +56,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -337,6 +338,11 @@ public class HopGuiFileDelegate {
     ExplorerPerspective explorerPerspective = ExplorerPerspective.getInstance();
     if (explorerPerspective != null) {
       explorerPerspective.saveExplorerStateOnShutdown();
+    }
+
+    ExecutionPerspective executionPerspective = ExecutionPerspective.getInstance();
+    if (executionPerspective != null) {
+      executionPerspective.saveState();
     }
 
     return true;

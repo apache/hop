@@ -18,8 +18,13 @@ package org.apache.hop.history;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class AuditStateMap {
+
   private Map<String, AuditState> nameStateMap;
 
   public AuditStateMap() {
@@ -27,22 +32,6 @@ public class AuditStateMap {
   }
 
   public AuditStateMap(Map<String, AuditState> nameStateMap) {
-    this.nameStateMap = nameStateMap;
-  }
-
-  /**
-   * Gets nameStateMap
-   *
-   * @return value of nameStateMap
-   */
-  public Map<String, AuditState> getNameStateMap() {
-    return nameStateMap;
-  }
-
-  /**
-   * @param nameStateMap The nameStateMap to set
-   */
-  public void setNameStateMap(Map<String, AuditState> nameStateMap) {
     this.nameStateMap = nameStateMap;
   }
 

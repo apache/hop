@@ -50,6 +50,10 @@ public class CacheEntry {
   // The name of the pipeline of workflow
   private String name;
 
+  // The creation date of this entry
+  //
+  private Date creationDate;
+
   // The parent execution: pipeline or workflow
   private Execution execution;
 
@@ -79,6 +83,7 @@ public class CacheEntry {
     childExecutionData = new HashMap<>();
     summary = new EntrySummary();
     lastWritten = new Date();
+    creationDate = new Date();
     dirty = true;
   }
 

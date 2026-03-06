@@ -62,6 +62,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -223,6 +224,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
       case CHECKBOX:
         addToolbarCheckbox(toolbarItem, toolBar);
         break;
+      case TEXT:
+        addToolbarText(toolbarItem, toolBar);
+        break;
       default:
         break;
     }
@@ -258,6 +262,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
       case CHECKBOX:
         addWebToolbarCheckbox(toolbarItem, parent);
         break;
+      case TEXT:
+        addWebToolbarText(toolbarItem, parent);
       default:
         break;
     }
@@ -324,6 +330,26 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     combo.addListener(SWT.Selection, listener);
     combo.addListener(SWT.DefaultSelection, listener);
     widgetsMap.put(toolbarItem.getId(), combo);
+  }
+
+  private void addWebToolbarText(GuiToolbarItem toolbarItem, Composite parent) {
+    Text text =
+        new Text(
+            parent,
+            SWT.SINGLE
+                | SWT.BORDER
+                | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT)
+                | (toolbarItem.isReadOnly() ? SWT.READ_ONLY : SWT.NONE));
+    text.setText(Const.NVL(toolbarItem.getDefaultText(), ""));
+    text.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
+    PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
+    text.pack();
+    int width = 200 + toolbarItem.getExtraWidth();
+    text.setLayoutData(new RowData(width, SWT.DEFAULT));
+    Listener listener = getListener(toolbarItem);
+    text.addListener(SWT.Selection, listener);
+    text.addListener(SWT.DefaultSelection, listener);
+    widgetsMap.put(toolbarItem.getId(), text);
   }
 
   private void addWebToolbarCheckbox(GuiToolbarItem toolbarItem, Composite parent) {
@@ -461,6 +487,31 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     toolItemMap.put(toolbarItem.getId(), comboSeparator);
     widgetsMap.put(toolbarItem.getId(), combo);
     PropsUi.setLook(combo, Props.WIDGET_STYLE_TOOLBAR);
+  }
+
+  private void addToolbarText(GuiToolbarItem toolbarItem, ToolBar toolBar) {
+    ToolItem textSeparator = new ToolItem(toolBar, SWT.SEPARATOR | SWT.BOTTOM);
+    Text text =
+        new Text(
+            toolBar,
+            SWT.SINGLE
+                | SWT.BORDER
+                | (toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT)
+                | (toolbarItem.isReadOnly() ? SWT.READ_ONLY : SWT.NONE));
+    text.setText(Const.NVL(toolbarItem.getDefaultText(), ""));
+    text.setToolTipText(Const.NVL(toolbarItem.getToolTip(), ""));
+    PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
+    text.pack();
+    // extra room for widget decorations
+    textSeparator.setWidth(200 + toolbarItem.getExtraWidth());
+    textSeparator.setControl(text);
+
+    Listener listener = getListener(toolbarItem);
+    text.addListener(SWT.Selection, listener);
+    text.addListener(SWT.DefaultSelection, listener);
+    toolItemMap.put(toolbarItem.getId(), textSeparator);
+    widgetsMap.put(toolbarItem.getId(), text);
+    PropsUi.setLook(text, Props.WIDGET_STYLE_TOOLBAR);
   }
 
   private void addToolbarCheckbox(GuiToolbarItem toolbarItem, ToolBar toolBar) {

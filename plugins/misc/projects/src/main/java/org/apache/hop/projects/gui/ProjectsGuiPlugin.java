@@ -88,6 +88,8 @@ import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.FileTree;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
+import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -170,8 +172,8 @@ public class ProjectsGuiPlugin {
 
       // Save explorer perspective state for the current project before switching namespace
       //
-      org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective.getInstance()
-          .saveExplorerStateOnShutdown();
+      ExplorerPerspective.getInstance().saveExplorerStateOnShutdown();
+      ExecutionPerspective.getInstance().saveState();
 
       // This is called only in Hop GUI so we want to start with a new set of variables
       // It avoids variables from one project showing up in another
@@ -269,6 +271,13 @@ public class ProjectsGuiPlugin {
                 "open",
                 new Date());
         AuditManager.getActive().storeEvent(envUsedEvent);
+      }
+
+      // Restore the state of the execution perspective as well
+      //
+      ExecutionPerspective.getInstance().restoreState();
+      if (ExecutionPerspective.getInstance().isActive()) {
+        ExecutionPerspective.getInstance().refresh();
       }
 
       // Send out an event notifying that a new project is activated...

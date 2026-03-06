@@ -58,9 +58,12 @@ public interface IExecutionInfoLocation extends Cloneable {
    * When you're done with this location you can call this method to clean up any left-over
    * temporary files, memory structures or database connections.
    *
-   * @throws HopException
+   * @throws HopException in case the underlying storage had an issue
    */
   void close() throws HopException;
+
+  /** Clear any caching to force a full refresh of execution information from source locations. */
+  void clearCaches();
 
   /**
    * Remove any buffering or caching for the execution information with the given ID.
@@ -185,6 +188,17 @@ public interface IExecutionInfoLocation extends Cloneable {
    * @throws HopException In case of an unexpected error.
    */
   List<Execution> findExecutions(IExecutionMatcher matcher) throws HopException;
+
+  /**
+   * Find execution IDs of pipelines and workflows. This method accepts a selector which will allow
+   * implementations to be more efficient with the retrieval of execution IDs. For example, it would
+   * be possible to look at states first to limit the list of IDs.
+   *
+   * @param selector The selection condition to apply to all available executions
+   * @return The list of selected execution IDs.
+   * @throws HopException In case something goes wrong
+   */
+  List<String> findExecutionIDs(IExecutionSelector selector) throws HopException;
 
   /**
    * Get execution data for transforms or an action. The parent ID would typically be a pipeline ID,

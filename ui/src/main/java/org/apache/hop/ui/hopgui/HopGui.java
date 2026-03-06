@@ -502,6 +502,7 @@ public class HopGui
           // namespace (default or project set by extension point).
           //
           ExplorerPerspective.getInstance().applyRestoredState();
+          ExecutionPerspective.getInstance().restoreState();
 
           // We need to start tracking file history again.
           //

@@ -19,10 +19,13 @@ package org.apache.hop.history;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 
 /** This class allows you to describe the state of objects like loaded files, windows and so on */
+@Setter
+@Getter
 public class AuditState {
-
   // The name of the parent (filename, window name, ...)
   private String name;
 
@@ -56,35 +59,27 @@ public class AuditState {
     return Objects.hash(name);
   }
 
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
+  public boolean extractBoolean(String key, boolean defaultValue) {
+    Object only = getStateMap().get(key);
+    if (only instanceof Boolean) {
+      return (Boolean) only;
+    }
+    return defaultValue;
   }
 
-  /**
-   * @param name The name to set
-   */
-  public void setName(String name) {
-    this.name = name;
+  public String extractString(String key, String defaultValue) {
+    Object object = getStateMap().get(key);
+    if (object instanceof String) {
+      return (String) object;
+    }
+    return defaultValue;
   }
 
-  /**
-   * Gets stateMap
-   *
-   * @return value of stateMap
-   */
-  public Map<String, Object> getStateMap() {
-    return stateMap;
-  }
-
-  /**
-   * @param stateMap The stateMap to set
-   */
-  public void setStateMap(Map<String, Object> stateMap) {
-    this.stateMap = stateMap;
+  public int extractInteger(String key, int defaultValue) {
+    Object object = getStateMap().get(key);
+    if (object instanceof Integer) {
+      return (Integer) object;
+    }
+    return defaultValue;
   }
 }

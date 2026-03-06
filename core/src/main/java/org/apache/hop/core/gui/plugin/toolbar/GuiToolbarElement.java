@@ -140,4 +140,11 @@ public @interface GuiToolbarElement {
    * @return if the widget should be read-only
    */
   boolean readOnly() default false;
+
+  /**
+   * Set the default content for a TEXT widget in the toolbar.
+   *
+   * @return The default text value
+   */
+  String defaultText() default "";
 }

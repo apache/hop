@@ -309,17 +309,13 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       // Calculate information staleness
       //
       String statusDescription = executionState.getStatusDescription();
-      if (Pipeline.STRING_RUNNING.equalsIgnoreCase(statusDescription)
-          || Pipeline.STRING_INITIALIZING.equalsIgnoreCase(statusDescription)) {
-        long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
-        if (System.currentTimeMillis() - executionState.getUpdateTime().getTime()
-            > loggingInterval) {
-          // The information is stale, not getting updates!
-          //
-          TableItem item = infoView.add("Update state", STRING_STATE_STALE);
-          item.setBackground(GuiResource.getInstance().getColorLightBlue());
-          item.setForeground(GuiResource.getInstance().getColorWhite());
-        }
+      long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
+      if (executionState.isStale(loggingInterval)) {
+        // The information is stale, not getting updates!
+        //
+        TableItem item = infoView.add("Update state", STRING_STATE_STALE);
+        item.setBackground(GuiResource.getInstance().getColorLightBlue());
+        item.setForeground(GuiResource.getInstance().getColorWhite());
       }
 
       infoView.add("Name", execution.getName());
@@ -329,9 +325,15 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       infoView.add("Parent ID", execution.getParentId());
       infoView.add("Registration", formatDate(execution.getRegistrationDate()));
       infoView.add("Start", formatDate(execution.getExecutionStartDate()));
+      infoView.add("End", formatDate(executionState.getExecutionEndDate()));
       infoView.add("Type", executionState.getExecutionType().name());
       infoView.add("Status", statusDescription);
       infoView.add("Status Last updated", formatDate(executionState.getUpdateTime()));
+      infoView.add(
+          "Failed",
+          executionState.isFailed()
+              ? BaseMessages.getString("System.Button.Yes")
+              : BaseMessages.getString("System.Button.No"));
       infoView.add("Container ID", executionState.getContainerId());
 
       infoView.optimizeTableView();

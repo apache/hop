@@ -57,6 +57,10 @@ public abstract class BaseCypherBuilder implements ICypherBuilder {
     }
   }
 
+  public void withExtraClause(String clause) {
+    cypher.append(clause).append(" ");
+  }
+
   public String cypher() {
     return cypher.toString();
   }

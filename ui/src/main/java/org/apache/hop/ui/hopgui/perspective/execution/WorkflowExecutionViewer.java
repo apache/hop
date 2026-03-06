@@ -61,7 +61,6 @@ import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -303,17 +302,13 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       // Calculate information staleness
       //
       String statusDescription = executionState.getStatusDescription();
-      if (Pipeline.STRING_RUNNING.equalsIgnoreCase(statusDescription)
-          || Pipeline.STRING_INITIALIZING.equalsIgnoreCase(statusDescription)) {
-        long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
-        if (System.currentTimeMillis() - executionState.getUpdateTime().getTime()
-            > loggingInterval) {
-          // The information is stale, not getting updates!
-          //
-          TableItem item = infoView.add("Update state", STRING_STATE_STALE);
-          item.setBackground(GuiResource.getInstance().getColorLightBlue());
-          item.setForeground(GuiResource.getInstance().getColorWhite());
-        }
+      long loggingInterval = Const.toLong(location.getDataLoggingInterval(), 20000);
+      if (executionState.isStale(loggingInterval)) {
+        // The information is stale, not getting updates!
+        //
+        TableItem item = infoView.add("Update state", STRING_STATE_STALE);
+        item.setBackground(GuiResource.getInstance().getColorLightBlue());
+        item.setForeground(GuiResource.getInstance().getColorWhite());
       }
 
       infoView.add("Name", execution.getName());

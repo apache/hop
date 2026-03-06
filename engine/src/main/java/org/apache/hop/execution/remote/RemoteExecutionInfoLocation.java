@@ -33,6 +33,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.execution.DefaultExecutionSelector;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -40,6 +41,7 @@ import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.execution.ExecutionType;
 import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.execution.IExecutionMatcher;
+import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -121,6 +123,11 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public void close() throws HopException {}
+
+  @Override
+  public void clearCaches() {
+    // Nothing to cache. We think the Hop server services are not the slowest part.
+  }
 
   @Override
   public void unBuffer(String executionId) throws HopException {}
@@ -233,6 +240,11 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     } catch (Exception e) {
       throw new HopException("Error get execution IDs from remote location", e);
     }
+  }
+
+  @Override
+  public List<String> findExecutionIDs(IExecutionSelector pruner) throws HopException {
+    return DefaultExecutionSelector.findExecutionIDs(this, pruner);
   }
 
   @Override

@@ -90,4 +90,34 @@ public class ExecutionState {
     this.childIds = new ArrayList<>();
     this.details = new HashMap<>();
   }
+
+  public boolean isRunning() {
+    if (statusDescription == null) {
+      return false;
+    }
+    return (statusDescription.toLowerCase().contains("running"))
+        || statusDescription.toLowerCase().contains("initializing");
+  }
+
+  public boolean isFinished() {
+    return executionEndDate != null;
+  }
+
+  /**
+   * We haven't received an update in quite a while
+   *
+   * @return true if the state is stale
+   */
+  public boolean isStale(long loggingInterval) {
+    if (isFinished()) {
+      // After finishing updates are no longer received.
+      return false;
+    }
+    if (updateTime == null) {
+      // We didn't get an update yet right after starting.
+      // It's too early to call it stale.
+      return false;
+    }
+    return System.currentTimeMillis() - updateTime.getTime() > loggingInterval;
+  }
 }
