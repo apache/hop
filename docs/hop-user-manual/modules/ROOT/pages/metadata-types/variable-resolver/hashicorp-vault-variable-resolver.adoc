@@ -27,6 +27,21 @@ Here are the options to use:
 
 * Vault address: The base address and port of the Vault server (for example: https://vault-server:8200)
 * Vault token: The token to use to authenticate
+* Path prefix: an optional path prefix which gets added before the key paths in the resolver expressions.  For example, if you put `kv-other/data` in here, expression
+
+[source]
+----
+#{vault:db:password}
+----
+
+will resolve internally to:
+
+[source]
+----
+#{vault:kv-other/data/db:password}
+----
+
+
 * Validate HTTPS connections?: It's recommended to enable connection validation in production. This secures the connection with the X.509 certificate specified in one of either next option.
 * PEM file path: The name of the file (VFS) containing the X.509 certificate string
 * PEM string: The X.509 string itself in case you're not using a file

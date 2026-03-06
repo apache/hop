@@ -54,7 +54,7 @@ public class VaultVariableResolver implements IVariableResolver {
 
   @GuiWidgetElement(
       id = "vaultAddress",
-      order = "01",
+      order = "10",
       label =
           "i18n:org.apache.hop.core.variables.resolver.vault:VaultVariableResolver.label.vaultAddress",
       type = GuiElementType.TEXT,
@@ -64,7 +64,7 @@ public class VaultVariableResolver implements IVariableResolver {
 
   @GuiWidgetElement(
       id = "vaultToken",
-      order = "02",
+      order = "20",
       label =
           "i18n:org.apache.hop.core.variables.resolver.vault:VaultVariableResolver.label.vaultToken",
       type = GuiElementType.TEXT,
@@ -74,8 +74,18 @@ public class VaultVariableResolver implements IVariableResolver {
   private String vaultToken;
 
   @GuiWidgetElement(
+      id = "pathPrefix",
+      order = "30",
+      label =
+          "i18n:org.apache.hop.core.variables.resolver.vault:VaultVariableResolver.label.pathPrefix",
+      type = GuiElementType.TEXT,
+      parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID)
+  @HopMetadataProperty
+  private String pathPrefix;
+
+  @GuiWidgetElement(
       id = "verifyingSsl",
-      order = "03",
+      order = "40",
       label =
           "i18n:org.apache.hop.core.variables.resolver.vault:VaultVariableResolver.label.verifyingSsl",
       toolTip =
@@ -87,7 +97,7 @@ public class VaultVariableResolver implements IVariableResolver {
 
   @GuiWidgetElement(
       id = "pemFilePath",
-      order = "04",
+      order = "50",
       label =
           "i18n:org.apache.hop.core.variables.resolver.vault:VaultVariableResolver.label.pemFilePath",
       type = GuiElementType.FILENAME,
@@ -97,7 +107,7 @@ public class VaultVariableResolver implements IVariableResolver {
 
   @GuiWidgetElement(
       id = "pemString",
-      order = "05",
+      order = "60",
       label =
           "i18n:org.apache.hop.core.variables.resolver.vault:VaultVariableResolver.label.pemString",
       type = GuiElementType.TEXT,
@@ -108,7 +118,7 @@ public class VaultVariableResolver implements IVariableResolver {
 
   @GuiWidgetElement(
       id = "openTimeout",
-      order = "06",
+      order = "70",
       label =
           "i18n:org.apache.hop.core.variables.resolver.vault:VaultVariableResolver.label.openTimeout",
       type = GuiElementType.TEXT,
@@ -118,7 +128,7 @@ public class VaultVariableResolver implements IVariableResolver {
 
   @GuiWidgetElement(
       id = "readTimeout",
-      order = "07",
+      order = "80",
       label =
           "i18n:org.apache.hop.core.variables.resolver.vault:VaultVariableResolver.label.readTimeout",
       type = GuiElementType.TEXT,
@@ -173,7 +183,14 @@ public class VaultVariableResolver implements IVariableResolver {
 
       final Vault vault = new Vault(vaultConfig);
 
-      LogicalResponse logicalResponse = vault.logical().read(secretPath);
+      String path;
+      if (StringUtils.isNotEmpty(pathPrefix)) {
+        path = variables.resolve(pathPrefix) + secretPath;
+      } else {
+        path = secretPath;
+      }
+
+      LogicalResponse logicalResponse = vault.logical().read(path);
       if (logicalResponse == null) {
         LogChannel.GENERAL.logDetailed(
             "The secret with path '" + secretPath + "' was not found in the vault");
