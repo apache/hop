@@ -36,6 +36,7 @@ limitations under the License.
       <type>SPECIAL</type>
       <attributes/>
       <DayOfMonth>1</DayOfMonth>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
       <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
@@ -128,14 +129,19 @@ limitations under the License.
       <description/>
       <type>GET_POP</type>
       <attributes/>
+      <attachmentfolder/>
+      <attachmentwildcard/>
+      <bodysearch/>
       <connectionName>james-imap</connectionName>
       <createlocalfolder>Y</createlocalfolder>
       <createmovetofolder>N</createmovetofolder>
       <delete>N</delete>
       <filenamepattern>name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail</filenamepattern>
+      <firstmails/>
       <imapfirstmails>0</imapfirstmails>
       <imapfolder>INBOX</imapfolder>
       <includesubfolders>N</includesubfolders>
+      <movetoimapfolder/>
       <nottermbodysearch>N</nottermbodysearch>
       <nottermreceipientsearh>N</nottermreceipientsearh>
       <nottermreceiveddatesearch>N</nottermreceiveddatesearch>
@@ -144,11 +150,20 @@ limitations under the License.
       <outputdirectory>${PROJECT_HOME}/output</outputdirectory>
       <password>Encrypted </password>
       <protocol>IMAP</protocol>
+      <proxyusername/>
+      <receivedDate1/>
+      <receivedDate2/>
+      <recipientsearch/>
       <retrievemails>0</retrievemails>
       <saveattachment>Y</saveattachment>
       <savemessage>Y</savemessage>
+      <sendersearch/>
+      <servername/>
+      <sslport/>
+      <subjectsearch/>
       <usedifferentfolderforattachment>N</usedifferentfolderforattachment>
       <useproxy>N</useproxy>
+      <username/>
       <usessl>N</usessl>
       <usexoauth2>N</usexoauth2>
       <parallel>N</parallel>
