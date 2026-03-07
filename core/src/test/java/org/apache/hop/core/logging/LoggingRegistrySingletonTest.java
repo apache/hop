@@ -17,6 +17,8 @@
 
 package org.apache.hop.core.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -28,24 +30,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import junit.framework.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Note, this test must be run on separate JAVA instance, to be sure LoggingRegistry was not already
  * initialized when using differed initialization or do initialize immediate in static way.
  */
-public class LoggingRegistrySingltonTest {
+class LoggingRegistrySingletonTest {
 
   /**
    * Test that LoggingRegistry is concurrent-sage initialized over multiple calls. Creating more
    * than 1000 threads can cause significant performance impact.
-   *
-   * @throws InterruptedException
-   * @throws ExecutionException
    */
-  @Test(timeout = 30000)
-  public void testLoggingRegistryConcurrentInitialization()
+  @Test
+  void testLoggingRegistryConcurrentInitialization()
       throws InterruptedException, ExecutionException {
     CountDownLatch start = new CountDownLatch(1);
 
@@ -63,7 +61,8 @@ public class LoggingRegistrySingltonTest {
       distinct.add(instance);
       i++;
     }
-    Assert.assertEquals("Only one singlton instance ;)", 1, distinct.size());
+
+    assertEquals(1, distinct.size(), "Only one singleton instance ;)");
   }
 
   CompletionService<LoggingRegistry> registerHounds(int count, CountDownLatch start) {
@@ -77,10 +76,10 @@ public class LoggingRegistrySingltonTest {
     return completionService;
   }
 
-  class LogRegistryKicker implements Callable<LoggingRegistry> {
+  static class LogRegistryKicker implements Callable<LoggingRegistry> {
     CountDownLatch start;
 
-    LogRegistryKicker(CountDownLatch start) {
+    public LogRegistryKicker(CountDownLatch start) {
       this.start = start;
     }
 

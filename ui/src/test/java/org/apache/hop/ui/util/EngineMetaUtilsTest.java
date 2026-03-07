@@ -17,22 +17,22 @@
 
 package org.apache.hop.ui.util;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class EngineMetaUtilsTest {
+class EngineMetaUtilsTest {
 
   @Test
-  public void isJobOrPipeline_withJob() {
+  void isJobOrPipeline_withJob() {
     WorkflowMeta jobInstance = new WorkflowMeta();
     assertTrue(EngineMetaUtils.isJobOrPipeline(jobInstance));
   }
 
   @Test
-  public void isJobOrPipeline_withPipeline() {
+  void isJobOrPipeline_withPipeline() {
     PipelineMeta pipelineInstance = new PipelineMeta();
     assertTrue(EngineMetaUtils.isJobOrPipeline(pipelineInstance));
   }

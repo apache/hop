@@ -25,16 +25,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for GetRootServlet class
  *
  * @see GetRootServlet
  */
-public class GetRootServletTest {
+class GetRootServletTest {
+
   @Test
-  public void testDoGetReturn404StatusCode() throws ServletException, IOException {
+  void testDoGetReturn404StatusCode() throws ServletException, IOException {
     GetRootServlet servlet = new GetRootServlet();
     servlet.setJettyMode(true);
     HttpServletRequest request =

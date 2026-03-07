@@ -25,30 +25,25 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.security.NoSuchAlgorithmException;
 import java.util.zip.GZIPOutputStream;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class HttpUtilTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+/** Unit test for {@link HttpUtil} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class HttpUtilTest {
 
-  public static final String DEFAULT_ENCODING = "UTF-8";
-  public static final String STANDART =
+  static final String DEFAULT_ENCODING = "UTF-8";
+  static final String STANDART =
       "(\u256e\u00b0-\u00b0)\u256e\u2533\u2501\u2501\u2533\u30c6\u30fc\u30d6"
           + "\u30eb(\u256f\u00b0\u25a1\u00b0)\u256f\u253b\u2501\u2501\u253b\u30aa\u30d5";
 
-  /**
-   * Test that we can decode/encode Strings without loss of data.
-   *
-   * @throws IOException
-   * @throws NoSuchAlgorithmException
-   */
+  /** Test that we can decode/encode Strings without loss of data. */
   @Test
-  public final void testDecodeBase64ZippedString() throws IOException {
+  final void testDecodeBase64ZippedString() throws IOException {
     String enc64 = this.canonicalBase64Encode(STANDART);
     // decode string
     String decoded = HttpUtil.decodeBase64ZippedString(enc64);
@@ -57,7 +52,7 @@ public class HttpUtilTest {
   }
 
   @Test
-  public void testConstructUrl() throws Exception {
+  void testConstructUrl() throws Exception {
     Variables variables = new Variables();
     String expected = "hostname:1234/webAppName?param=value";
 
@@ -77,13 +72,9 @@ public class HttpUtilTest {
             variables, "hostname", String.valueOf(1234), "webAppName", "?param=value", true));
   }
 
-  /**
-   * Test that we can encode and decode String using only static class-under-test methods.
-   *
-   * @throws IOException
-   */
+  /** Test that we can encode and decode String using only static class-under-test methods. */
   @Test
-  public void testEncodeBase64ZippedString() throws IOException {
+  void testEncodeBase64ZippedString() throws IOException {
     String enc64 = HttpUtil.encodeBase64ZippedString(STANDART);
     String decoded = HttpUtil.decodeBase64ZippedString(enc64);
 
@@ -91,12 +82,11 @@ public class HttpUtilTest {
   }
 
   /**
-   * https://www.securecoding.cert.org/confluence/display/java/IDS12-J.+Perform+lossless+conversion+
+   * <a
+   * href="https://www.securecoding.cert.org/confluence/display/java/IDS12-J.+Perform+lossless+conversion+">...</a>
    * of+String+data+between+differing+character+encodings
    *
    * @param in string to encode
-   * @return
-   * @throws IOException
    */
   private String canonicalBase64Encode(String in) throws IOException {
     Charset charset = Charset.forName(DEFAULT_ENCODING);

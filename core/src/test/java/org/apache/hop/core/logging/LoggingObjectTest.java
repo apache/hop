@@ -17,13 +17,15 @@
 
 package org.apache.hop.core.logging;
 
-import junit.framework.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public class LoggingObjectTest {
+import org.junit.jupiter.api.Test;
+
+/** Unit test for {@link LoggingObject} */
+class LoggingObjectTest {
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     ILoggingObject parent =
         new LoggingObject(new SimpleLoggingObject("parent", LoggingObjectType.WORKFLOW, null));
 
@@ -37,6 +39,6 @@ public class LoggingObjectTest {
     loggingObject2.setParent(parent);
     loggingObject2.setObjectName("job2");
 
-    Assert.assertFalse(loggingObject1.equals(loggingObject2));
+    assertNotEquals(loggingObject1, loggingObject2);
   }
 }

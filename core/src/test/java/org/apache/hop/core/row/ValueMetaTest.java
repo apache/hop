@@ -17,9 +17,12 @@
 
 package org.apache.hop.core.row;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -35,13 +38,13 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /** Test functionality in ValueMeta */
-public class ValueMetaTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ValueMetaTest {
 
   /**
    * Compare to byte arrays for equality.
@@ -66,7 +69,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testCvtStringToBinaryString() throws Exception {
+  void testCvtStringToBinaryString() throws Exception {
     ValueMetaString val1 = new ValueMetaString("STR1");
     val1.setLength(6);
     val1.setStringEncoding("UTF8");
@@ -95,7 +98,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testCvtStringBinaryString() throws Exception {
+  void testCvtStringBinaryString() throws Exception {
     ValueMetaString val1 = new ValueMetaString("STR1");
     val1.setLength(6);
     val1.setStringEncoding("UTF8");
@@ -117,7 +120,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testIntegerToStringToInteger() throws Exception {
+  void testIntegerToStringToInteger() throws Exception {
     IValueMeta intValueMeta = new ValueMetaInteger("i");
     intValueMeta.setConversionMask(null);
     intValueMeta.setLength(7);
@@ -137,7 +140,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testNumberToStringToNumber() throws Exception {
+  void testNumberToStringToNumber() throws Exception {
     IValueMeta numValueMeta = new ValueMetaNumber("i");
     numValueMeta.setConversionMask(null);
     numValueMeta.setLength(7, 3);
@@ -159,7 +162,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testBigNumberToStringToBigNumber() throws Exception {
+  void testBigNumberToStringToBigNumber() throws Exception {
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setLength(42, 9);
     numValueMeta.setDecimalSymbol(".");
@@ -179,7 +182,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testBigNumberToStringToBigNumberWithByteLimitValues() throws Exception {
+  void testBigNumberToStringToBigNumberWithByteLimitValues() throws Exception {
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -199,7 +202,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testByteToStringToBigNumberWithByteLimitValues() throws Exception {
+  void testByteToStringToBigNumberWithByteLimitValues() throws Exception {
     ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -225,7 +228,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testBigNumberToStringToBigNumberWithShortLimitValues() throws Exception {
+  void testBigNumberToStringToBigNumberWithShortLimitValues() throws Exception {
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -245,7 +248,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testShortToStringToBigNumberWithShortLimitValues() throws Exception {
+  void testShortToStringToBigNumberWithShortLimitValues() throws Exception {
     ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -271,7 +274,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testBigNumberToStringToBigNumberWithIntLimitValues() throws Exception {
+  void testBigNumberToStringToBigNumberWithIntLimitValues() throws Exception {
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -292,7 +295,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testIntToStringToBigNumberWithIntLimitValues() throws Exception {
+  void testIntToStringToBigNumberWithIntLimitValues() throws Exception {
     ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -319,7 +322,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testBigNumberToStringToBigNumberWithLongLimitValues() throws Exception {
+  void testBigNumberToStringToBigNumberWithLongLimitValues() throws Exception {
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -342,7 +345,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testLongToStringToBigNumberWithLongLimitValues() throws Exception {
+  void testLongToStringToBigNumberWithLongLimitValues() throws Exception {
     ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -371,7 +374,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testBigNumberToStringToBigNumberWithFloatLimitValues() throws Exception {
+  void testBigNumberToStringToBigNumberWithFloatLimitValues() throws Exception {
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -392,7 +395,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testFloatToStringToBigNumberWithFloatLimitValues() throws Exception {
+  void testFloatToStringToBigNumberWithFloatLimitValues() throws Exception {
     ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -422,7 +425,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testBigNumberToStringToBigNumberWithDoubleLimitValues() throws Exception {
+  void testBigNumberToStringToBigNumberWithDoubleLimitValues() throws Exception {
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -443,7 +446,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testDoubleToStringToBigNumberWithDoubleLimitValues() throws Exception {
+  void testDoubleToStringToBigNumberWithDoubleLimitValues() throws Exception {
     ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(".");
     numValueMeta.setGroupingSymbol(",");
@@ -465,7 +468,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testBigNumberToStringToBigNumberWithNumberCloseToZero() throws Exception {
+  void testBigNumberToStringToBigNumberWithNumberCloseToZero() throws Exception {
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(",");
     numValueMeta.setGroupingSymbol(".");
@@ -492,7 +495,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testToStringToBigNumberWithNumberCloseToZero() throws Exception {
+  void testToStringToBigNumberWithNumberCloseToZero() throws Exception {
     ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(",");
     numValueMeta.setGroupingSymbol(".");
@@ -520,7 +523,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testPDI17366Conversion() throws Exception {
+  void testPDI17366Conversion() throws Exception {
     ValueMetaBigNumber numValueMeta = new ValueMetaBigNumber("i");
     numValueMeta.setDecimalSymbol(",");
     numValueMeta.setGroupingSymbol(".");
@@ -545,7 +548,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testDateToStringToDate() throws Exception {
+  void testDateToStringToDate() throws Exception {
     TimeZone.setDefault(TimeZone.getTimeZone("CET"));
 
     IValueMeta datValueMeta = new ValueMetaDate("i");
@@ -565,7 +568,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testDateStringDL8601() throws Exception {
+  void testDateStringDL8601() throws Exception {
     TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
 
     IValueMeta datValueMeta = new ValueMetaString();
@@ -575,9 +578,9 @@ public class ValueMetaTest {
       // make sure it's what we expect...
       Calendar c = Calendar.getInstance();
       c.setTime(res);
-      assertEquals("Month should be 2", 2, c.get(Calendar.MONTH));
-      assertEquals("Day should be 8", 8, c.get(Calendar.DAY_OF_MONTH));
-      assertEquals("Year should be 2008", 2008, c.get(Calendar.YEAR));
+      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
     } catch (Exception ex) {
       fail("Error converting date." + ex.getMessage());
     }
@@ -589,9 +592,9 @@ public class ValueMetaTest {
       // make sure it's what we expect...
       Calendar c = Calendar.getInstance();
       c.setTime(res);
-      assertEquals("Month should be 2", 2, c.get(Calendar.MONTH));
-      assertEquals("Day should be 8", 8, c.get(Calendar.DAY_OF_MONTH));
-      assertEquals("Year should be 2008", 2008, c.get(Calendar.YEAR));
+      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
     } catch (Exception ex) {
       fail("Error converting date." + ex.getMessage());
     }
@@ -603,16 +606,16 @@ public class ValueMetaTest {
       // make sure it's what we expect...
       Calendar c = Calendar.getInstance();
       c.setTime(res);
-      assertEquals("Month should be 2", 2, c.get(Calendar.MONTH));
-      assertEquals("Day should be 8", 8, c.get(Calendar.DAY_OF_MONTH));
-      assertEquals("Year should be 2008", 2008, c.get(Calendar.YEAR));
+      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
     } catch (Exception ex) {
       fail("Error converting date." + ex.getMessage());
     }
   }
 
   @Test
-  public void testDateStringUTC() throws Exception {
+  void testDateStringUTC() throws Exception {
     TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
 
     IValueMeta datValueMeta = new ValueMetaString();
@@ -622,16 +625,16 @@ public class ValueMetaTest {
       // make sure it's what we expect...
       Calendar c = Calendar.getInstance();
       c.setTime(res);
-      assertEquals("Month should be 2", 2, c.get(Calendar.MONTH));
-      assertEquals("Day should be 8", 8, c.get(Calendar.DAY_OF_MONTH));
-      assertEquals("Year should be 2008", 2008, c.get(Calendar.YEAR));
+      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
     } catch (Exception ex) {
       fail("Error converting date." + ex.getMessage());
     }
   }
 
   @Test
-  public void testDateStringOffset() throws Exception {
+  void testDateStringOffset() throws Exception {
     TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
 
     IValueMeta datValueMeta = new ValueMetaString();
@@ -641,9 +644,9 @@ public class ValueMetaTest {
       // make sure it's what we expect...
       Calendar c = Calendar.getInstance();
       c.setTime(res);
-      assertEquals("Month should be 2", 2, c.get(Calendar.MONTH));
-      assertEquals("Day should be 8", 8, c.get(Calendar.DAY_OF_MONTH));
-      assertEquals("Year should be 2008", 2008, c.get(Calendar.YEAR));
+      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
     } catch (Exception ex) {
       fail("Error converting date." + ex.getMessage());
     }
@@ -654,16 +657,16 @@ public class ValueMetaTest {
       // make sure it's what we expect...
       Calendar c = Calendar.getInstance();
       c.setTime(res);
-      assertEquals("Month should be 2", 2, c.get(Calendar.MONTH));
-      assertEquals("Day should be 8", 8, c.get(Calendar.DAY_OF_MONTH));
-      assertEquals("Year should be 2008", 2008, c.get(Calendar.YEAR));
+      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+      assertEquals(8, c.get(Calendar.DAY_OF_MONTH), "Day should be 8");
+      assertEquals(2008, c.get(Calendar.YEAR), "Year should be 2008");
     } catch (Exception ex) {
       fail("Error converting date." + ex.getMessage());
     }
   }
 
   @Test
-  public void testDateString8601() throws Exception {
+  void testDateString8601() throws Exception {
     TimeZone.setDefault(TimeZone.getTimeZone("Europe/Kaliningrad"));
 
     IValueMeta datValueMeta = new ValueMetaString();
@@ -672,9 +675,9 @@ public class ValueMetaTest {
       Date res = datValueMeta.getDate("2011-03-13T02:23:18.000Z");
       Calendar c = Calendar.getInstance();
       c.setTime(res);
-      assertEquals("Month should be 2", 2, c.get(Calendar.MONTH));
-      assertEquals("Day should be 13", 13, c.get(Calendar.DAY_OF_MONTH));
-      assertEquals("Year should be 2011", 2011, c.get(Calendar.YEAR));
+      assertEquals(2, c.get(Calendar.MONTH), "Month should be 2");
+      assertEquals(13, c.get(Calendar.DAY_OF_MONTH), "Day should be 13");
+      assertEquals(2011, c.get(Calendar.YEAR), "Year should be 2011");
     } catch (Exception ex) {
       fail("Error converting date." + ex.getMessage());
     }
@@ -686,11 +689,12 @@ public class ValueMetaTest {
       datValueMeta.getDate("2011-03-13T02:23:18.000Z");
       fail("Expected exception when trying to convert date");
     } catch (Exception ex) {
+      // ignore
     }
   }
 
   @Test
-  public void testConvertDataDate() throws Exception {
+  void testConvertDataDate() throws Exception {
     TimeZone.setDefault(TimeZone.getTimeZone("CET"));
 
     IValueMeta source = new ValueMetaString("src");
@@ -707,7 +711,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testConvertDataInteger() throws Exception {
+  void testConvertDataInteger() throws Exception {
     IValueMeta source = new ValueMetaString("src");
     source.setConversionMask(" #,##0");
     source.setLength(12, 3);
@@ -727,7 +731,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testConvertDataNumber() throws Exception {
+  void testConvertDataNumber() throws Exception {
     IValueMeta source = new ValueMetaString("src");
     source.setConversionMask("###,###,##0.000");
     source.setLength(3, 0);
@@ -752,11 +756,9 @@ public class ValueMetaTest {
    * converted from the byte[] to Integer, rather left untouched until it's needed.
    *
    * <p>However at that time we do need it we should get the correct value back.
-   *
-   * @throws Exception
    */
   @Test
-  public void testLazyConversionInteger() throws Exception {
+  void testLazyConversionInteger() throws Exception {
     byte[] data = ("1234").getBytes();
     IValueMeta intValueMeta = new ValueMetaInteger("i");
     intValueMeta.setConversionMask(null);
@@ -782,11 +784,9 @@ public class ValueMetaTest {
    * converted from the byte[] to Integer, rather left untouched until it's needed.
    *
    * <p>However at that time we do need it we should get the correct value back.
-   *
-   * @throws Exception
    */
   @Test
-  public void testLazyConversionNumber() throws Exception {
+  void testLazyConversionNumber() throws Exception {
     byte[] data = ("1,234.56").getBytes();
     IValueMeta numValueMeta = new ValueMetaNumber("i");
     numValueMeta.setConversionMask(null);
@@ -830,11 +830,9 @@ public class ValueMetaTest {
    * converted from the byte[] to Integer, rather left untouched until it's needed.
    *
    * <p>However at that time we do need it we should get the correct value back.
-   *
-   * @throws Exception
    */
   @Test
-  public void testLazyConversionBigNumber() throws Exception {
+  void testLazyConversionBigNumber() throws Exception {
     String originalValue = "34983433433212304121900934.5634314343";
     byte[] data = originalValue.getBytes();
     IValueMeta numValueMeta = new ValueMetaBigNumber("i");
@@ -876,7 +874,7 @@ public class ValueMetaTest {
   }
 
   @Test
-  public void testLazyConversionNullInteger() throws Exception {
+  void testLazyConversionNullInteger() throws Exception {
     byte[] data = new byte[0];
     IValueMeta intValueMeta = new ValueMetaBoolean("i");
     intValueMeta.setConversionMask(null);
@@ -886,19 +884,19 @@ public class ValueMetaTest {
     intValueMeta.setStorageMetadata(strValueMeta);
 
     Double numberValue = intValueMeta.getNumber(data);
-    assertEquals(null, numberValue);
+    assertNull(numberValue);
     Long integerValue = intValueMeta.getInteger(data);
-    assertEquals(null, integerValue);
+    assertNull(integerValue);
     BigDecimal bigNumberValue = intValueMeta.getBigNumber(data);
-    assertEquals(null, bigNumberValue);
+    assertNull(bigNumberValue);
     Date dateValue = intValueMeta.getDate(data);
-    assertEquals(null, dateValue);
+    assertNull(dateValue);
     String string = intValueMeta.getString(data);
-    assertEquals(null, string);
+    assertNull(string);
   }
 
   @Test
-  public void testLazyConversionNullNumber() throws Exception {
+  void testLazyConversionNullNumber() throws Exception {
     byte[] data = new byte[0];
     IValueMeta intValueMeta = new ValueMetaNumber("i");
     intValueMeta.setConversionMask(null);
@@ -908,22 +906,22 @@ public class ValueMetaTest {
     intValueMeta.setStorageMetadata(strValueMeta);
 
     Double numberValue = intValueMeta.getNumber(data);
-    assertEquals(null, numberValue);
+    assertNull(numberValue);
     Long integerValue = intValueMeta.getInteger(data);
-    assertEquals(null, integerValue);
+    assertNull(integerValue);
     BigDecimal bigNumberValue = intValueMeta.getBigNumber(data);
-    assertEquals(null, bigNumberValue);
+    assertNull(bigNumberValue);
     Date dateValue = intValueMeta.getDate(data);
-    assertEquals(null, dateValue);
+    assertNull(dateValue);
     String string = intValueMeta.getString(data);
-    assertEquals(null, string);
+    assertNull(string);
 
     Boolean b = intValueMeta.getBoolean(data);
-    assertEquals(null, b);
+    assertNull(b);
   }
 
   @Test
-  public void testCompareIntegersNormalStorageData() throws Exception {
+  void testCompareIntegersNormalStorageData() throws Exception {
     Long integer1 = 1234L;
     Long integer2 = 1235L;
     Long integer3 = 1233L;
@@ -937,18 +935,18 @@ public class ValueMetaTest {
     assertTrue(one.compare(integer1, integer2) < 0);
     assertTrue(one.compare(integer1, integer3) > 0);
     assertEquals(0, one.compare(integer1, integer4));
-    assertTrue(one.compare(integer1, integer5) != 0);
+    assertNotEquals(0, one.compare(integer1, integer5));
     assertEquals(0, one.compare(integer5, integer6));
 
     assertTrue(one.compare(integer1, two, integer2) < 0);
     assertTrue(one.compare(integer1, two, integer3) > 0);
     assertEquals(0, one.compare(integer1, two, integer4));
-    assertTrue(one.compare(integer1, two, integer5) != 0);
+    assertNotEquals(0, one.compare(integer1, two, integer5));
     assertEquals(0, one.compare(integer5, two, integer6));
   }
 
   @Test
-  public void testCompareNumbersNormalStorageData() throws Exception {
+  void testCompareNumbersNormalStorageData() throws Exception {
     Double number1 = 1234.56;
     Double number2 = 1235.56;
     Double number3 = 1233.56;
@@ -962,18 +960,19 @@ public class ValueMetaTest {
     assertTrue(one.compare(number1, number2) < 0);
     assertTrue(one.compare(number1, number3) > 0);
     assertEquals(0, one.compare(number1, number4));
-    assertTrue(one.compare(number1, number5) != 0);
+    assertNotEquals(0, one.compare(number1, number5));
     assertEquals(0, one.compare(number5, number6));
 
     assertTrue(one.compare(number1, two, number2) < 0);
     assertTrue(one.compare(number1, two, number3) > 0);
     assertEquals(0, one.compare(number1, two, number4));
-    assertTrue(one.compare(number1, two, number5) != 0);
+
+    assertNotEquals(0, one.compare(number1, two, number5));
     assertEquals(0, one.compare(number5, two, number6));
   }
 
   @Test
-  public void testCompareBigNumberNormalStorageData() throws Exception {
+  void testCompareBigNumberNormalStorageData() throws Exception {
     BigDecimal number1 = new BigDecimal("987908798769876.23943409");
     BigDecimal number2 = new BigDecimal("999908798769876.23943409");
     BigDecimal number3 = new BigDecimal("955908798769876.23943409");
@@ -987,18 +986,18 @@ public class ValueMetaTest {
     assertTrue(one.compare(number1, number2) < 0);
     assertTrue(one.compare(number1, number3) > 0);
     assertEquals(0, one.compare(number1, number4));
-    assertTrue(one.compare(number1, number5) != 0);
+    assertNotEquals(0, one.compare(number1, number5));
     assertEquals(0, one.compare(number5, number6));
 
     assertTrue(one.compare(number1, two, number2) < 0);
     assertTrue(one.compare(number1, two, number3) > 0);
     assertEquals(0, one.compare(number1, two, number4));
-    assertTrue(one.compare(number1, two, number5) != 0);
+    assertNotEquals(0, one.compare(number1, two, number5));
     assertEquals(0, one.compare(number5, two, number6));
   }
 
   @Test
-  public void testCompareDatesNormalStorageData() throws Exception {
+  void testCompareDatesNormalStorageData() throws Exception {
     Date date1 = new Date();
     Date date2 = new Date(date1.getTime() + 3600);
     Date date3 = new Date(date1.getTime() - 3600);
@@ -1012,18 +1011,20 @@ public class ValueMetaTest {
     assertTrue(one.compare(date1, date2) < 0);
     assertTrue(one.compare(date1, date3) > 0);
     assertEquals(0, one.compare(date1, date4));
-    assertTrue(one.compare(date1, date5) != 0);
+
+    assertNotEquals(0, one.compare(date1, date5));
     assertEquals(0, one.compare(date5, date6));
 
     assertTrue(one.compare(date1, two, date2) < 0);
     assertTrue(one.compare(date1, two, date3) > 0);
     assertEquals(0, one.compare(date1, two, date4));
-    assertTrue(one.compare(date1, two, date5) != 0);
+
+    assertNotEquals(0, one.compare(date1, two, date5));
     assertEquals(0, one.compare(date5, two, date6));
   }
 
   @Test
-  public void testCompareBooleanNormalStorageData() throws Exception {
+  void testCompareBooleanNormalStorageData() throws Exception {
     Boolean boolean1 = Boolean.FALSE;
     Boolean boolean2 = Boolean.TRUE;
     Boolean boolean3 = Boolean.FALSE;
@@ -1035,17 +1036,19 @@ public class ValueMetaTest {
 
     assertTrue(one.compare(boolean1, boolean2) < 0);
     assertEquals(0, one.compare(boolean1, boolean3));
-    assertTrue(one.compare(boolean1, boolean4) != 0);
+
+    assertNotEquals(0, one.compare(boolean1, boolean4));
     assertEquals(0, one.compare(boolean4, boolean5));
 
     assertTrue(one.compare(boolean1, two, boolean2) < 0);
     assertEquals(0, one.compare(boolean1, two, boolean3));
-    assertTrue(one.compare(boolean1, two, boolean4) != 0);
+
+    assertNotEquals(0, one.compare(boolean1, two, boolean4));
     assertEquals(0, one.compare(boolean4, two, boolean5));
   }
 
   @Test
-  public void testCompareStringsNormalStorageData() throws Exception {
+  void testCompareStringsNormalStorageData() throws Exception {
     String string1 = "bbbbb";
     String string2 = "ccccc";
     String string3 = "aaaaa";
@@ -1059,25 +1062,27 @@ public class ValueMetaTest {
     assertTrue(one.compare(string1, string2) < 0);
     assertTrue(one.compare(string1, string3) > 0);
     assertEquals(0, one.compare(string1, string4));
-    assertTrue(one.compare(string1, string5) != 0);
+
+    assertNotEquals(0, one.compare(string1, string5));
     assertEquals(0, one.compare(string5, string6));
 
     assertTrue(one.compare(string1, two, string2) < 0);
     assertTrue(one.compare(string1, two, string3) > 0);
     assertEquals(0, one.compare(string1, two, string4));
-    assertTrue(one.compare(string1, two, string5) != 0);
+
+    assertNotEquals(0, one.compare(string1, two, string5));
     assertEquals(0, one.compare(string5, two, string6));
   }
 
   @Test
-  public void testValueMetaInheritance() {
-    assertTrue(new ValueMetaBoolean() instanceof IValueMeta);
-    assertTrue(new ValueMetaString() instanceof IValueMeta);
-    assertTrue(new ValueMetaDate() instanceof IValueMeta);
+  void testValueMetaInheritance() {
+    assertInstanceOf(IValueMeta.class, new ValueMetaBoolean());
+    assertInstanceOf(IValueMeta.class, new ValueMetaString());
+    assertInstanceOf(IValueMeta.class, new ValueMetaDate());
   }
 
   @Test
-  public void testGetNativeDataTypeClass() throws HopException {
+  void testGetNativeDataTypeClass() throws HopException {
     PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
     PluginRegistry.init();
     String[] valueMetaNames = ValueMetaFactory.getValueMetaNames();

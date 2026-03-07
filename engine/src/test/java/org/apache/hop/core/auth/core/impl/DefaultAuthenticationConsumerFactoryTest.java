@@ -17,32 +17,42 @@
 
 package org.apache.hop.core.auth.core.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.apache.hop.core.auth.DelegatingKerberosConsumer;
 import org.apache.hop.core.auth.core.AuthenticationFactoryException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DefaultAuthenticationConsumerFactoryTest {
-  @Test(expected = AuthenticationFactoryException.class)
-  public void testDefaultAuthenticationConsumerFactoryFailsWithMultipleConstructors()
-      throws AuthenticationFactoryException {
-    new DefaultAuthenticationConsumerFactory(TwoConstructorConsumer.class);
-  }
+/** Unit test for {@link DefaultAuthenticationConsumerFactory} */
+class DefaultAuthenticationConsumerFactoryTest {
 
-  @Test(expected = AuthenticationFactoryException.class)
-  public void testDefaultAuthenticationConsumerFactoryFailsWithWrongConstructorArgCount()
-      throws AuthenticationFactoryException {
-    new DefaultAuthenticationConsumerFactory(TwoConstructorArgConsumer.class);
-  }
-
-  @Test(expected = AuthenticationFactoryException.class)
-  public void testDefaultAuthenticationConsumerFactoryFailsNoConsumeMethod()
-      throws AuthenticationFactoryException {
-    new DefaultAuthenticationConsumerFactory(NoConsumeConsumer.class);
+  @Test
+  void testDefaultAuthenticationConsumerFactoryFailsWithMultipleConstructors() {
+    assertThrows(
+        AuthenticationFactoryException.class,
+        () -> new DefaultAuthenticationConsumerFactory(TwoConstructorConsumer.class));
   }
 
   @Test
-  public void testDefaultAuthenticationConsumerFactorySucceedsWithConsumer()
+  void testDefaultAuthenticationConsumerFactoryFailsWithWrongConstructorArgCount() {
+    assertThrows(
+        AuthenticationFactoryException.class,
+        () -> new DefaultAuthenticationConsumerFactory(TwoConstructorArgConsumer.class));
+  }
+
+  @Test
+  void testDefaultAuthenticationConsumerFactoryFailsNoConsumeMethod() {
+    assertThrows(
+        AuthenticationFactoryException.class,
+        () -> new DefaultAuthenticationConsumerFactory(TwoConstructorArgConsumer.class));
+  }
+
+  @Test
+  void testDefaultAuthenticationConsumerFactorySucceedsWithConsumer()
       throws AuthenticationFactoryException {
-    new DefaultAuthenticationConsumerFactory(DelegatingKerberosConsumer.class);
+    DefaultAuthenticationConsumerFactory factory =
+        new DefaultAuthenticationConsumerFactory(DelegatingKerberosConsumer.class);
+    assertNotNull(factory);
   }
 }

@@ -17,9 +17,9 @@
 
 package org.apache.hop.core.compress;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.spy;
@@ -29,29 +29,27 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class CompressionInputStreamTest {
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class CompressionInputStreamTest {
+  static final String PROVIDER_NAME = "None";
 
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  CompressionProviderFactory factory = null;
+  CompressionInputStream inStream = null;
 
-  public static final String PROVIDER_NAME = "None";
-
-  public CompressionProviderFactory factory = null;
-  public CompressionInputStream inStream = null;
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     factory = CompressionProviderFactory.getInstance();
     ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayInputStream in = createTestInputStream();
@@ -59,31 +57,32 @@ public class CompressionInputStreamTest {
   }
 
   @Test
-  public void testCtor() {
+  void testCtor() {
     assertNotNull(inStream);
   }
 
   @Test
-  public void getCompressionProvider() {
+  void getCompressionProvider() {
     ICompressionProvider provider = inStream.getCompressionProvider();
     assertEquals(PROVIDER_NAME, provider.getName());
   }
 
   @Test
-  public void testNextEntry() throws IOException {
+  void testNextEntry() throws IOException {
     assertNull(inStream.nextEntry());
   }
 
   @Test
-  public void testClose() throws IOException {
+  void testClose() throws IOException {
     ICompressionProvider provider = inStream.getCompressionProvider();
     ByteArrayInputStream in = createTestInputStream();
     inStream = new DummyCompressionIS(in, provider);
+    assertNotNull(inStream);
     inStream.close();
   }
 
   @Test
-  public void testRead() throws IOException {
+  void testRead() throws IOException {
     ICompressionProvider provider = inStream.getCompressionProvider();
     ByteArrayInputStream in = createTestInputStream();
     inStream = new DummyCompressionIS(in, provider);
@@ -91,7 +90,7 @@ public class CompressionInputStreamTest {
   }
 
   @Test
-  public void delegatesReadBuffer() throws Exception {
+  void delegatesReadBuffer() throws Exception {
     ByteArrayInputStream in = createTestInputStream();
     in = spy(in);
     inStream = new DummyCompressionIS(in, inStream.getCompressionProvider());
@@ -100,7 +99,7 @@ public class CompressionInputStreamTest {
   }
 
   @Test
-  public void delegatesReadBufferWithParams() throws Exception {
+  void delegatesReadBufferWithParams() throws Exception {
     ByteArrayInputStream in = createTestInputStream();
     in = spy(in);
     inStream = new DummyCompressionIS(in, inStream.getCompressionProvider());
@@ -113,7 +112,7 @@ public class CompressionInputStreamTest {
   }
 
   private static class DummyCompressionIS extends CompressionInputStream {
-    public DummyCompressionIS(InputStream in, ICompressionProvider provider) {
+    DummyCompressionIS(InputStream in, ICompressionProvider provider) {
       super(in, provider);
     }
   }

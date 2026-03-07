@@ -16,7 +16,7 @@
  */
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,21 +26,23 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.core.metrics.IMetricsSnapshot;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class MetricsRegistryTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+/** Unit test for {@link MetricsRegistry} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class MetricsRegistryTest {
   private MetricsRegistry metricsRegistry;
   private List<String> logIds;
-  private int threadCount = 100;
-  private int logChannelIdCount = 20;
+  private final int threadCount = 100;
+  private final int logChannelIdCount = 20;
   private CountDownLatch countDownLatch = null;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     metricsRegistry = MetricsRegistry.getInstance();
     metricsRegistry.reset();
     logIds = new ArrayList<>(logChannelIdCount);
@@ -51,26 +53,27 @@ public class MetricsRegistryTest {
   }
 
   @Test
-  public void testConcurrencySnap() throws Exception {
+  void testConcurrencySnap() throws Exception {
     ExecutorService service = Executors.newFixedThreadPool(threadCount);
     for (int i = 0; i < threadCount; i++) {
       service.submit(new ConcurrentPutIfAbsent(logIds.get(i % 20)));
     }
     countDownLatch.countDown();
     service.awaitTermination(2000, TimeUnit.MILLISECONDS);
-    int expectedQueueCount = logChannelIdCount > threadCount ? threadCount : logChannelIdCount;
+    int expectedQueueCount = Math.min(logChannelIdCount, threadCount);
+
     assertEquals(expectedQueueCount, metricsRegistry.getSnapshotLists().size());
   }
 
-  private class ConcurrentPutIfAbsent implements Callable<Queue> {
-    private String id;
+  private class ConcurrentPutIfAbsent implements Callable<Queue<IMetricsSnapshot>> {
+    private final String id;
 
     ConcurrentPutIfAbsent(String id) {
       this.id = id;
     }
 
     @Override
-    public Queue call() throws Exception {
+    public Queue<IMetricsSnapshot> call() throws Exception {
       countDownLatch.await();
       return metricsRegistry.getSnapshotList(id);
     }

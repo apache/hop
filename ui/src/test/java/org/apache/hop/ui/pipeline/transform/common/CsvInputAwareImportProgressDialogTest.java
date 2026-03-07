@@ -17,23 +17,26 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CsvInputAwareImportProgressDialogTest {
+class CsvInputAwareImportProgressDialogTest {
 
   @Test
-  public void testGetStringFromRow() throws HopException {
+  void testGetStringFromRow() throws HopException {
 
     final String[] row = new String[2];
     row[0] = "foo";
     row[1] = null;
     final ICsvInputAwareImportProgressDialog dlg =
-        (failOnParseError) -> {
+        failOnParseError -> {
           return null;
         };
     final IRowMeta rowMeta = Mockito.mock(RowMeta.class);
@@ -42,26 +45,27 @@ public class CsvInputAwareImportProgressDialogTest {
     // value back and no
     // Exception
     try {
-      Assert.assertNull(dlg.getStringFromRow(rowMeta, row, 2, false));
+      assertNull(dlg.getStringFromRow(rowMeta, row, 2, false));
     } catch (final HopException e) {
-      Assert.fail("Exception should not have been thrown");
+      fail("Exception should not have been thrown");
     }
 
     // we should always get back a 'null', when the index is valid and the value is null
     try {
-      Assert.assertNull(dlg.getStringFromRow(rowMeta, row, 1, false));
-      Assert.assertNull(dlg.getStringFromRow(rowMeta, row, 1, true));
+      assertNull(dlg.getStringFromRow(rowMeta, row, 1, false));
+      assertNull(dlg.getStringFromRow(rowMeta, row, 1, true));
     } catch (final HopException e) {
-      Assert.fail("Exception should not have been thrown");
+      fail("Exception should not have been thrown");
     }
 
     // verify that when 'failOnParseError' is true, and row value is null or index is out of bounds,
     // we get a NPE
     // wrapped in a HopException
     try {
-      Assert.assertNull(dlg.getStringFromRow(rowMeta, row, 2, true));
-      Assert.fail("Exception should not have been thrown");
+      assertNull(dlg.getStringFromRow(rowMeta, row, 2, true));
+      fail("Exception should not have been thrown");
     } catch (final HopException e) {
+      // ignore
     }
 
     // when 'failOnParseError' is false, we do not want to throw an exception - we also need to
@@ -71,9 +75,9 @@ public class CsvInputAwareImportProgressDialogTest {
     // we mock this method to return something other than what is in the row object
     Mockito.when(rowMeta.getString(row, 0)).thenReturn("foe");
     try {
-      Assert.assertEquals("foe", dlg.getStringFromRow(rowMeta, row, 0, false));
+      assertEquals("foe", dlg.getStringFromRow(rowMeta, row, 0, false));
     } catch (final HopException e) {
-      Assert.fail("Exception should not have been thrown");
+      fail("Exception should not have been thrown");
     }
 
     // when RowMetaInterfece.getString is mocked to throw an NPE and 'failOnParseError' is false, we
@@ -81,9 +85,9 @@ public class CsvInputAwareImportProgressDialogTest {
     // back the value from the row object
     Mockito.when(rowMeta.getString(row, 0)).thenThrow(new NullPointerException("NPE"));
     try {
-      Assert.assertEquals("foo", dlg.getStringFromRow(rowMeta, row, 0, false));
+      assertEquals("foo", dlg.getStringFromRow(rowMeta, row, 0, false));
     } catch (final HopException e) {
-      Assert.fail("Exception should not have been thrown");
+      fail("Exception should not have been thrown");
     }
 
     // when 'failOnParseError' is true and RowMetaInterfece.getString throws an exception, we expect
@@ -91,8 +95,9 @@ public class CsvInputAwareImportProgressDialogTest {
     // a HopException
     try {
       dlg.getStringFromRow(rowMeta, row, 0, true);
-      Assert.fail("Exception should have been thrown");
+      fail("Exception should have been thrown");
     } catch (final HopException e) {
+      // ignore
     }
   }
 }

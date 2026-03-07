@@ -17,27 +17,26 @@
 
 package org.apache.hop.concurrency;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * This test consists of two similar cases. There are three type of actors: getters, searchers and
@@ -47,32 +46,26 @@ import org.junit.runners.Parameterized;
  * <tt>updatersCycles</tt> times. The difference between two cases is the second has a small limit
  * of stored children, so the parent WorkflowTracker will be forced to remove some of its elements.
  */
-@RunWith(Parameterized.class)
-public class WorkflowTrackerConcurrencyTest {
-
+class WorkflowTrackerConcurrencyTest {
   private static final int GETTERS_AMOUNT = 10;
-
   private static final int SEARCHERS_AMOUNT = 20;
-
   private static final int UPDATERS_AMOUNT = 5;
   private static final int UPDATERS_CYCLES = 10;
-
   private static final int JOBS_LIMIT = 20;
 
-  @BeforeClass
-  public static void setUp() {
+  @BeforeAll
+  static void setUp() {
     // a guarding check for tests' parameters
     int jobsToBeAdded = UPDATERS_AMOUNT * UPDATERS_CYCLES;
     assertTrue(
-        "The limit of stored workflows must be less than the amount of children to be added",
-        JOBS_LIMIT < jobsToBeAdded);
+        JOBS_LIMIT < jobsToBeAdded,
+        "The limit of stored workflows must be less than the amount of children to be added");
   }
 
-  @Parameterized.Parameters
-  public static List<Object[]> getData() {
-    return Arrays.asList(
-        new Object[] {new WorkflowTracker(mockWorkflowMeta("parent"))},
-        new Object[] {new WorkflowTracker(mockWorkflowMeta("parent"), JOBS_LIMIT)});
+  static Stream<WorkflowTracker<WorkflowMeta>> trackerProvider() {
+    return Stream.of(
+        new WorkflowTracker<>(mockWorkflowMeta("parent")),
+        new WorkflowTracker<>(mockWorkflowMeta("parent"), JOBS_LIMIT));
   }
 
   private static WorkflowMeta mockWorkflowMeta(String name) {
@@ -81,14 +74,9 @@ public class WorkflowTrackerConcurrencyTest {
     return meta;
   }
 
-  private final WorkflowTracker tracker;
-
-  public WorkflowTrackerConcurrencyTest(WorkflowTracker tracker) {
-    this.tracker = tracker;
-  }
-
-  @Test
-  public void readAndUpdateTrackerConcurrently() throws Exception {
+  @ParameterizedTest
+  @MethodSource("trackerProvider")
+  void readAndUpdateTrackerConcurrently(WorkflowTracker<WorkflowMeta> tracker) throws Exception {
     final AtomicBoolean condition = new AtomicBoolean(true);
 
     List<Getter> getters = new ArrayList<>(GETTERS_AMOUNT);
@@ -100,7 +88,7 @@ public class WorkflowTrackerConcurrencyTest {
     for (int i = 0; i < SEARCHERS_AMOUNT; i++) {
       int lookingFor = UPDATERS_AMOUNT * UPDATERS_CYCLES / 2 + i;
       assertTrue(
-          "We are looking for reachable index", lookingFor < UPDATERS_AMOUNT * UPDATERS_CYCLES);
+          lookingFor < UPDATERS_AMOUNT * UPDATERS_CYCLES, "We are looking for reachable index");
       searchers.add(
           new Searcher(condition, tracker, mockActionMeta("workflow-action-" + lookingFor)));
     }
@@ -111,7 +99,6 @@ public class WorkflowTrackerConcurrencyTest {
       updaters.add(new Updater(tracker, UPDATERS_CYCLES, generator, "workflow-action-%d"));
     }
 
-    //noinspection unchecked
     ConcurrencyTestRunner.runAndCheckNoExceptionRaised(
         updaters, ListUtils.union(getters, searchers), condition);
     assertEquals(UPDATERS_AMOUNT * UPDATERS_CYCLES, generator.get());
@@ -124,10 +111,10 @@ public class WorkflowTrackerConcurrencyTest {
   }
 
   private static class Getter extends StopOnErrorCallable<Object> {
-    private final WorkflowTracker tracker;
+    private final WorkflowTracker<?> tracker;
     private final Random random;
 
-    public Getter(AtomicBoolean condition, WorkflowTracker tracker) {
+    public Getter(AtomicBoolean condition, WorkflowTracker<?> tracker) {
       super(condition);
       this.tracker = tracker;
       this.random = new Random();
@@ -141,7 +128,8 @@ public class WorkflowTrackerConcurrencyTest {
           continue;
         }
         int i = random.nextInt(amount);
-        WorkflowTracker t = tracker.getWorkflowTracker(i);
+        @SuppressWarnings("unchecked")
+        WorkflowTracker<WorkflowMeta> t = tracker.getWorkflowTracker(i);
         if (t == null) {
           throw new IllegalStateException(
               String.format(
@@ -154,10 +142,11 @@ public class WorkflowTrackerConcurrencyTest {
   }
 
   private static class Searcher extends StopOnErrorCallable<Object> {
-    private final WorkflowTracker tracker;
+    private final WorkflowTracker<WorkflowMeta> tracker;
     private final ActionMeta copy;
 
-    public Searcher(AtomicBoolean condition, WorkflowTracker tracker, ActionMeta copy) {
+    public Searcher(
+        AtomicBoolean condition, WorkflowTracker<WorkflowMeta> tracker, ActionMeta copy) {
       super(condition);
       this.tracker = tracker;
       this.copy = copy;
@@ -174,13 +163,16 @@ public class WorkflowTrackerConcurrencyTest {
   }
 
   private static class Updater implements Callable<Exception> {
-    private final WorkflowTracker tracker;
+    private final WorkflowTracker<WorkflowMeta> tracker;
     private final int cycles;
     private final AtomicInteger idGenerator;
     private final String resultNameTemplate;
 
     public Updater(
-        WorkflowTracker tracker, int cycles, AtomicInteger idGenerator, String resultNameTemplate) {
+        WorkflowTracker<WorkflowMeta> tracker,
+        int cycles,
+        AtomicInteger idGenerator,
+        String resultNameTemplate) {
       this.tracker = tracker;
       this.cycles = cycles;
       this.idGenerator = idGenerator;
@@ -195,7 +187,8 @@ public class WorkflowTrackerConcurrencyTest {
           int id = idGenerator.getAndIncrement();
           ActionResult result = new ActionResult();
           result.setActionName(String.format(resultNameTemplate, id));
-          WorkflowTracker child = new WorkflowTracker(mockWorkflowMeta("child-" + id), result);
+          WorkflowTracker<WorkflowMeta> child =
+              new WorkflowTracker<>(mockWorkflowMeta("child-" + id), result);
           tracker.addWorkflowTracker(child);
         }
       } catch (Exception e) {

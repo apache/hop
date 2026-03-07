@@ -19,13 +19,13 @@ package org.apache.hop.pipeline;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
@@ -59,19 +59,19 @@ import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class PipelineMetaTest {
+class PipelineMetaTest {
   public static final String TRANSFORM_NAME = "Any transform name";
 
-  @BeforeClass
-  public static void initHop() throws Exception {
+  @BeforeAll
+  static void initHop() throws Exception {
     HopEnvironment.init();
   }
 
@@ -79,15 +79,15 @@ public class PipelineMetaTest {
   private IVariables variables;
   private IHopMetadataProvider metadataProvider;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pipelineMeta = new PipelineMeta();
     variables = new Variables();
     metadataProvider = new MemoryMetadataProvider();
   }
 
   @Test
-  public void testGetMinimum() {
+  void testGetMinimum() {
     final Point minimalCanvasPoint = new Point(0, 0);
 
     // for test goal should content coordinate more than NotePadMetaPoint
@@ -108,7 +108,7 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testContentChangeListener() {
+  void testContentChangeListener() {
     IContentChangedListener listener = mock(IContentChangedListener.class);
     pipelineMeta.addContentChangedListener(listener);
 
@@ -130,54 +130,54 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testCompare() {
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setNameSynchronizedWithFilename(false);
-    pipelineMeta.setFilename("aFile");
-    pipelineMeta.setName("aName");
+  void testCompare() {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setNameSynchronizedWithFilename(false);
+    meta.setFilename("aFile");
+    meta.setName("aName");
     PipelineMeta pipelineMeta2 = new PipelineMeta();
     pipelineMeta2.setNameSynchronizedWithFilename(false);
     pipelineMeta2.setFilename("aFile");
     pipelineMeta2.setName("aName");
-    assertEquals(0, pipelineMeta.compare(pipelineMeta, pipelineMeta2));
+    assertEquals(0, meta.compare(meta, pipelineMeta2));
     pipelineMeta2.setFilename(null);
-    assertEquals(1, pipelineMeta.compare(pipelineMeta, pipelineMeta2));
-    assertEquals(-1, pipelineMeta.compare(pipelineMeta2, pipelineMeta));
+    assertEquals(1, meta.compare(meta, pipelineMeta2));
+    assertEquals(-1, meta.compare(pipelineMeta2, meta));
     pipelineMeta2.setFilename("aFile");
     pipelineMeta2.setName(null);
-    assertEquals(1, pipelineMeta.compare(pipelineMeta, pipelineMeta2));
-    assertEquals(-1, pipelineMeta.compare(pipelineMeta2, pipelineMeta));
+    assertEquals(1, meta.compare(meta, pipelineMeta2));
+    assertEquals(-1, meta.compare(pipelineMeta2, meta));
     pipelineMeta2.setFilename("aFile2");
     pipelineMeta2.setName("aName");
-    assertEquals(-1, pipelineMeta.compare(pipelineMeta, pipelineMeta2));
-    assertEquals(1, pipelineMeta.compare(pipelineMeta2, pipelineMeta));
+    assertEquals(-1, meta.compare(meta, pipelineMeta2));
+    assertEquals(1, meta.compare(pipelineMeta2, meta));
     pipelineMeta2.setFilename("aFile");
     pipelineMeta2.setName("aName2");
-    assertEquals(-1, pipelineMeta.compare(pipelineMeta, pipelineMeta2));
-    assertEquals(1, pipelineMeta.compare(pipelineMeta2, pipelineMeta));
-    pipelineMeta.setFilename(null);
+    assertEquals(-1, meta.compare(meta, pipelineMeta2));
+    assertEquals(1, meta.compare(pipelineMeta2, meta));
+    meta.setFilename(null);
     pipelineMeta2.setFilename(null);
     pipelineMeta2.setName("aName");
-    assertEquals(0, pipelineMeta.compare(pipelineMeta, pipelineMeta2));
+    assertEquals(0, meta.compare(meta, pipelineMeta2));
   }
 
   @Test
-  public void testEquals() {
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setFilename("1");
-    pipelineMeta.setName("2");
-    assertNotEquals("somethingelse", pipelineMeta);
+  void testEquals() {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setFilename("1");
+    meta.setName("2");
+
     PipelineMeta pipelineMeta2 = new PipelineMeta();
     pipelineMeta2.setFilename("1");
     pipelineMeta2.setName("2");
-    assertEquals(pipelineMeta, pipelineMeta2);
+    assertEquals(meta, pipelineMeta2);
   }
 
   @Test
-  public void testPipelineHops() {
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setFilename("pipelineFile");
-    pipelineMeta.setName("myPipeline");
+  void testPipelineHops() {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setFilename("pipelineFile");
+    meta.setName("myPipeline");
     TransformMeta transform1 = new TransformMeta("name1", null);
     TransformMeta transform2 = new TransformMeta("name2", null);
     TransformMeta transform3 = new TransformMeta("name3", null);
@@ -185,37 +185,38 @@ public class PipelineMetaTest {
     PipelineHopMeta hopMeta1 = new PipelineHopMeta(transform1, transform2, true);
     PipelineHopMeta hopMeta2 = new PipelineHopMeta(transform2, transform3, true);
     PipelineHopMeta hopMeta3 = new PipelineHopMeta(transform3, transform4, false);
-    pipelineMeta.addPipelineHop(0, hopMeta1);
-    pipelineMeta.addPipelineHop(1, hopMeta2);
-    pipelineMeta.addPipelineHop(2, hopMeta3);
-    List<TransformMeta> hops = pipelineMeta.getPipelineHopTransforms(true);
+    meta.addPipelineHop(0, hopMeta1);
+    meta.addPipelineHop(1, hopMeta2);
+    meta.addPipelineHop(2, hopMeta3);
+    List<TransformMeta> hops = meta.getPipelineHopTransforms(true);
     assertSame(transform1, hops.get(0));
     assertSame(transform2, hops.get(1));
     assertSame(transform3, hops.get(2));
     assertSame(transform4, hops.get(3));
-    assertEquals(hopMeta2, pipelineMeta.findPipelineHop("name2 --> name3 (enabled)"));
-    assertEquals(hopMeta3, pipelineMeta.findPipelineHopFrom(transform3));
-    assertEquals(hopMeta2, pipelineMeta.findPipelineHop(hopMeta2));
-    assertEquals(hopMeta1, pipelineMeta.findPipelineHop(transform1, transform2));
-    assertEquals(null, pipelineMeta.findPipelineHop(transform3, transform4, false));
-    assertEquals(hopMeta3, pipelineMeta.findPipelineHop(transform3, transform4, true));
-    assertEquals(hopMeta2, pipelineMeta.findPipelineHopTo(transform3));
-    pipelineMeta.removePipelineHop(0);
-    hops = pipelineMeta.getPipelineHopTransforms(true);
+    assertEquals(hopMeta2, meta.findPipelineHop("name2 --> name3 (enabled)"));
+    assertEquals(hopMeta3, meta.findPipelineHopFrom(transform3));
+    assertEquals(hopMeta2, meta.findPipelineHop(hopMeta2));
+    assertEquals(hopMeta1, meta.findPipelineHop(transform1, transform2));
+
+    assertNull(meta.findPipelineHop(transform3, transform4, false));
+    assertEquals(hopMeta3, meta.findPipelineHop(transform3, transform4, true));
+    assertEquals(hopMeta2, meta.findPipelineHopTo(transform3));
+    meta.removePipelineHop(0);
+    hops = meta.getPipelineHopTransforms(true);
     assertSame(transform2, hops.get(0));
     assertSame(transform3, hops.get(1));
     assertSame(transform4, hops.get(2));
-    pipelineMeta.removePipelineHop(hopMeta2);
-    hops = pipelineMeta.getPipelineHopTransforms(true);
+    meta.removePipelineHop(hopMeta2);
+    hops = meta.getPipelineHopTransforms(true);
     assertSame(transform3, hops.get(0));
     assertSame(transform4, hops.get(1));
   }
 
   @Test
-  public void testGetAllPipelineHops() {
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setFilename("pipelineFile");
-    pipelineMeta.setName("myPipeline");
+  void testGetAllPipelineHops() {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setFilename("pipelineFile");
+    meta.setName("myPipeline");
     TransformMeta transform1 = new TransformMeta("name1", null);
     TransformMeta transform2 = new TransformMeta("name2", null);
     TransformMeta transform3 = new TransformMeta("name3", null);
@@ -223,16 +224,16 @@ public class PipelineMetaTest {
     PipelineHopMeta hopMeta1 = new PipelineHopMeta(transform1, transform2, true);
     PipelineHopMeta hopMeta2 = new PipelineHopMeta(transform2, transform3, true);
     PipelineHopMeta hopMeta3 = new PipelineHopMeta(transform2, transform4, true);
-    pipelineMeta.addPipelineHop(0, hopMeta1);
-    pipelineMeta.addPipelineHop(1, hopMeta2);
-    pipelineMeta.addPipelineHop(2, hopMeta3);
-    List<PipelineHopMeta> allPipelineHopFrom = pipelineMeta.findAllPipelineHopFrom(transform2);
+    meta.addPipelineHop(0, hopMeta1);
+    meta.addPipelineHop(1, hopMeta2);
+    meta.addPipelineHop(2, hopMeta3);
+    List<PipelineHopMeta> allPipelineHopFrom = meta.findAllPipelineHopFrom(transform2);
     assertEquals(transform3, allPipelineHopFrom.get(0).getToTransform());
     assertEquals(transform4, allPipelineHopFrom.get(1).getToTransform());
   }
 
   @Test
-  public void testAddTransformWithChangeListenerInterface() {
+  void testAddTransformWithChangeListenerInterface() {
     TransformMeta transformMeta = mock(TransformMeta.class);
     TransformMetaChangeListenerInterfaceMock metaInterface =
         mock(TransformMetaChangeListenerInterfaceMock.class);
@@ -250,7 +251,7 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testIsAnySelectedTransformUsedInPipelineHopsNothingSelectedCase() {
+  void testIsAnySelectedTransformUsedInPipelineHopsNothingSelectedCase() {
     List<TransformMeta> selectedTransforms =
         asList(new TransformMeta(), new TransformMeta(), new TransformMeta());
     pipelineMeta.getTransforms().addAll(selectedTransforms);
@@ -259,7 +260,7 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testIsAnySelectedTransformUsedInPipelineHopsAnySelectedCase() {
+  void testIsAnySelectedTransformUsedInPipelineHopsAnySelectedCase() {
     TransformMeta transformMeta = new TransformMeta();
     transformMeta.setName(TRANSFORM_NAME);
     PipelineHopMeta pipelineHopMeta = new PipelineHopMeta();
@@ -276,34 +277,28 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testCloneWithParam() throws Exception {
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    pipelineMeta.setFilename("pipelineFile");
-    pipelineMeta.setName("myPipeline");
-    pipelineMeta.addParameterDefinition("key", "defValue", "description");
-    Object clone = pipelineMeta.realClone(true);
+  void testCloneWithParam() throws Exception {
+    PipelineMeta meta = new PipelineMeta();
+    meta.setFilename("pipelineFile");
+    meta.setName("myPipeline");
+    meta.addParameterDefinition("key", "defValue", "description");
+    Object clone = meta.realClone(true);
     assertNotNull(clone);
   }
 
-  private static TransformMeta mockTransformMeta(String name) {
-    TransformMeta meta = mock(TransformMeta.class);
-    when(meta.getName()).thenReturn(name);
-    return meta;
-  }
-
-  public abstract static class TransformMetaChangeListenerInterfaceMock
+  abstract static class TransformMetaChangeListenerInterfaceMock
       implements ITransformMeta, ITransformMetaChangeListener {
     @Override
     public abstract Object clone();
   }
 
   @Test
-  public void testLoadXml() throws HopException {
+  void testLoadXml() throws HopException {
     String directory = "/home/admin";
     Node workflowNode = Mockito.mock(Node.class);
     NodeList nodeList =
         new NodeList() {
-          ArrayList<Node> nodes = new ArrayList<>();
+          final ArrayList<Node> nodes = new ArrayList<>();
 
           {
             Node nodeInfo = Mockito.mock(Node.class);
@@ -331,26 +326,27 @@ public class PipelineMetaTest {
           }
         };
 
+    assertNotNull(nodeList);
     Mockito.when(workflowNode.getChildNodes()).thenReturn(nodeList);
 
     PipelineMeta meta = new PipelineMeta();
 
-    IVariables variables = Mockito.mock(IVariables.class);
-    Mockito.when(variables.getVariableNames()).thenReturn(new String[0]);
+    IVariables iVariables = Mockito.mock(IVariables.class);
+    Mockito.when(iVariables.getVariableNames()).thenReturn(new String[0]);
 
-    meta.loadXml(workflowNode, null, metadataProvider, variables);
-    meta.setInternalHopVariables(variables);
+    meta.loadXml(workflowNode, null, metadataProvider, iVariables);
+    meta.setInternalHopVariables(iVariables);
   }
 
   @Test
-  public void infoTransformFieldsAreNotIncludedInGetTransformFields() throws HopTransformException {
+  void infoTransformFieldsAreNotIncludedInGetTransformFields() throws HopTransformException {
     // validates that the fields from info transforms are not included in the resulting transform
     // fields for a transformMeta.
     //  This is important with transforms like StreamLookup and Append, where the previous
     // transforms may or may not
     //  have their fields included in the current transform.
 
-    PipelineMeta pipelineMeta = new PipelineMeta();
+    PipelineMeta meta = new PipelineMeta();
     TransformMeta toBeAppended1 =
         testTransform(
             "toBeAppended1",
@@ -368,34 +364,33 @@ public class PipelineMetaTest {
             );
     TransformMeta after = new TransformMeta("after", new DummyMeta());
 
-    wireUpTestPipelineMeta(pipelineMeta, toBeAppended1, toBeAppended2, append, after);
+    wireUpTestPipelineMeta(meta, toBeAppended1, toBeAppended2, append, after);
 
     IRowMeta results =
-        pipelineMeta.getTransformFields(variables, append, after, mock(IProgressMonitor.class));
+        meta.getTransformFields(variables, append, after, mock(IProgressMonitor.class));
 
     assertEquals(1, results.size());
     assertEquals("outputField", results.getFieldNames()[0]);
   }
 
   @Test
-  public void prevTransformFieldsAreIncludedInGetTransformFields() throws HopTransformException {
+  void prevTransformFieldsAreIncludedInGetTransformFields() throws HopTransformException {
 
-    PipelineMeta pipelineMeta = new PipelineMeta();
+    PipelineMeta meta = new PipelineMeta();
     TransformMeta prevTransform1 =
         testTransform("prevTransform1", emptyList(), asList("field1", "field2"));
     TransformMeta prevTransform2 =
         testTransform("prevTransform2", emptyList(), asList("field3", "field4", "field5"));
 
     TransformMeta someTransform =
-        testTransform("transform", asList("prevTransform1"), asList("outputField"));
+        testTransform("transform", List.of("prevTransform1"), List.of("outputField"));
 
     TransformMeta after = new TransformMeta("after", new DummyMeta());
 
-    wireUpTestPipelineMeta(pipelineMeta, prevTransform1, prevTransform2, someTransform, after);
+    wireUpTestPipelineMeta(meta, prevTransform1, prevTransform2, someTransform, after);
 
     IRowMeta results =
-        pipelineMeta.getTransformFields(
-            variables, someTransform, after, mock(IProgressMonitor.class));
+        meta.getTransformFields(variables, someTransform, after, mock(IProgressMonitor.class));
 
     assertEquals(4, results.size());
     assertArrayEquals(
@@ -403,12 +398,12 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void findPreviousTransformsNullMeta() {
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    List<TransformMeta> result = pipelineMeta.findPreviousTransforms(null, false);
+  void findPreviousTransformsNullMeta() {
+    PipelineMeta meta = new PipelineMeta();
+    List<TransformMeta> result = meta.findPreviousTransforms(null, false);
 
     assertEquals(0, result.size());
-    assertEquals(result, new ArrayList<>());
+    assertEquals(new ArrayList<>(), result);
   }
 
   private void wireUpTestPipelineMeta(
@@ -442,8 +437,7 @@ public class PipelineMetaTest {
     TransformIOMeta transformIOMeta = mock(TransformIOMeta.class);
     when(transformIOMeta.getInfoTransformNames())
         .thenReturn(infoTransformNames.toArray(new String[0]));
-    fieldNames.stream()
-        .forEach(field -> rowMetaWithFields.addValueMeta(new ValueMetaString(field)));
+    fieldNames.forEach(field -> rowMetaWithFields.addValueMeta(new ValueMetaString(field)));
     ITransformMeta newSmi = spy(smi);
     when(newSmi.getTransformIOMeta()).thenReturn(transformIOMeta);
 
@@ -460,14 +454,8 @@ public class PipelineMetaTest {
     return newSmi;
   }
 
-  private TransformMeta createTransformMeta(String name) {
-    TransformMeta transformMeta = mock(TransformMeta.class);
-    when(transformMeta.getName()).thenReturn(name);
-    return transformMeta;
-  }
-
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithFilename() {
+  void testSetInternalEntryCurrentDirectoryWithFilename() {
     PipelineMeta pipelineMetaTest = new PipelineMeta();
     pipelineMetaTest.setFilename("hasFilename");
     variables.setVariable(
@@ -482,7 +470,7 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
+  void testSetInternalEntryCurrentDirectoryWithoutFilename() {
     PipelineMeta pipelineMetaTest = new PipelineMeta();
     variables.setVariable(
         Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution");
@@ -496,7 +484,7 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testSerialization1() throws Exception {
+  void testSerialization1() throws Exception {
     pipelineMeta.setName("testSerialization1");
     pipelineMeta.setDescription("description of testSerialization1");
     pipelineMeta.setExtendedDescription("extended description of testSerialization1");

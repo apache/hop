@@ -17,14 +17,15 @@
 
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class LogChannelFileWriterBufferTest {
+/** Unit test for {@link LogChannelFileWriterBuffer} */
+class LogChannelFileWriterBufferTest {
 
   @Test
-  public void test() {
+  void test() {
     String id = "1";
     String logMessage = "Log message";
 

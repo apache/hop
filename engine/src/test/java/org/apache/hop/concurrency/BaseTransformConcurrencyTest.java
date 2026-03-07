@@ -34,9 +34,9 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BaseTransformConcurrencyTest {
+class BaseTransformConcurrencyTest {
   private static final String TRANSFORM_META = "TransformMeta";
 
   private BaseTransform<ITransformMeta, ITransformData> baseTransform;
@@ -49,7 +49,7 @@ public class BaseTransformConcurrencyTest {
    * modification exception.
    */
   @Test
-  public void testRowListeners() throws Exception {
+  void testRowListeners() throws Exception {
     int modifiersAmount = 100;
     int traversersAmount = 100;
 
@@ -61,7 +61,7 @@ public class BaseTransformConcurrencyTest {
         .thenReturn(mock(TransformPartitioningMeta.class));
 
     baseTransform =
-        new BaseTransform(
+        new BaseTransform<>(
             transformMeta, null, null, 0, pipelineMeta, spy(new LocalPipelineEngine()));
 
     AtomicBoolean condition = new AtomicBoolean(true);
@@ -91,7 +91,7 @@ public class BaseTransformConcurrencyTest {
    * modification exception.
    */
   @Test
-  public void testInputOutputRowSets() throws Exception {
+  void testInputOutputRowSets() throws Exception {
     int modifiersAmount = 100;
     int traversersAmount = 100;
 
@@ -103,7 +103,7 @@ public class BaseTransformConcurrencyTest {
         .thenReturn(mock(TransformPartitioningMeta.class));
 
     baseTransform =
-        new BaseTransform(
+        new BaseTransform<>(
             transformMeta, null, null, 0, pipelineMeta, spy(new LocalPipelineEngine()));
 
     AtomicBoolean condition = new AtomicBoolean(true);
@@ -124,26 +124,28 @@ public class BaseTransformConcurrencyTest {
     runner.checkNoExceptionRaised();
   }
 
-  private class RowSetsModifier extends StopOnErrorCallable<BaseTransform> {
+  private class RowSetsModifier
+      extends StopOnErrorCallable<BaseTransform<ITransformMeta, ITransformData>> {
     RowSetsModifier(AtomicBoolean condition) {
       super(condition);
     }
 
     @Override
-    BaseTransform doCall() {
+    BaseTransform<ITransformMeta, ITransformData> doCall() {
       baseTransform.addRowSetToInputRowSets(mock(IRowSet.class));
       baseTransform.addRowSetToOutputRowSets(mock(IRowSet.class));
       return null;
     }
   }
 
-  private class RowSetsTraverser extends StopOnErrorCallable<BaseTransform> {
+  private class RowSetsTraverser
+      extends StopOnErrorCallable<BaseTransform<ITransformMeta, ITransformData>> {
     RowSetsTraverser(AtomicBoolean condition) {
       super(condition);
     }
 
     @Override
-    BaseTransform doCall() {
+    BaseTransform<ITransformMeta, ITransformData> doCall() {
       for (IRowSet rowSet : baseTransform.getInputRowSets()) {
         rowSet.setRowMeta(mock(IRowMeta.class));
       }
@@ -154,25 +156,27 @@ public class BaseTransformConcurrencyTest {
     }
   }
 
-  private class RowListenersModifier extends StopOnErrorCallable<BaseTransform> {
+  private class RowListenersModifier
+      extends StopOnErrorCallable<BaseTransform<ITransformMeta, ITransformData>> {
     RowListenersModifier(AtomicBoolean condition) {
       super(condition);
     }
 
     @Override
-    BaseTransform doCall() {
+    BaseTransform<ITransformMeta, ITransformData> doCall() {
       baseTransform.addRowListener(mock(IRowListener.class));
       return null;
     }
   }
 
-  private class RowListenersTraverser extends StopOnErrorCallable<BaseTransform> {
+  private class RowListenersTraverser
+      extends StopOnErrorCallable<BaseTransform<ITransformMeta, ITransformData>> {
     RowListenersTraverser(AtomicBoolean condition) {
       super(condition);
     }
 
     @Override
-    BaseTransform doCall() throws Exception {
+    BaseTransform<ITransformMeta, ITransformData> doCall() throws Exception {
       for (IRowListener rowListener : baseTransform.getRowListeners()) {
         rowListener.rowWrittenEvent(mock(IRowMeta.class), new Object[] {});
       }

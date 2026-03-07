@@ -17,25 +17,25 @@
 
 package org.apache.hop.core.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.server.HopServerMeta;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class SerializableMetadataProviderTest {
+class SerializableMetadataProviderTest {
 
-  @Before
-  public void before() throws Exception {
+  @BeforeEach
+  void before() throws Exception {
     HopEnvironment.init();
   }
 
   @Test
-  public void testRoundTrip() throws Exception {
+  void testRoundTrip() throws Exception {
     MemoryMetadataProvider source = new MemoryMetadataProvider();
     IHopMetadataSerializer<HopServerMeta> sourceSerializer =
         source.getSerializer(HopServerMeta.class);

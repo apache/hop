@@ -17,9 +17,9 @@
 
 package org.apache.hop.core.compress.zip;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,38 +29,37 @@ import java.util.zip.ZipOutputStream;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class ZipCompressionProviderTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class ZipCompressionProviderTest {
+  static final String PROVIDER_NAME = "Zip";
 
-  public static final String PROVIDER_NAME = "Zip";
+  CompressionProviderFactory factory = null;
 
-  public CompressionProviderFactory factory = null;
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     factory = CompressionProviderFactory.getInstance();
   }
 
   @Test
-  public void testCtor() {
+  void testCtor() {
     ZipCompressionProvider ncp = new ZipCompressionProvider();
     assertNotNull(ncp);
   }
 
   @Test
-  public void testGetName() {
+  void testGetName() {
     ZipCompressionProvider provider =
         (ZipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     assertNotNull(provider);
@@ -68,7 +67,7 @@ public class ZipCompressionProviderTest {
   }
 
   @Test
-  public void testGetProviderAttributes() {
+  void testGetProviderAttributes() {
     ZipCompressionProvider provider =
         (ZipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     assertEquals("ZIP compression", provider.getDescription());
@@ -78,7 +77,7 @@ public class ZipCompressionProviderTest {
   }
 
   @Test
-  public void testCreateInputStream() throws IOException {
+  void testCreateInputStream() throws IOException {
     ZipCompressionProvider provider =
         (ZipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayInputStream in = new ByteArrayInputStream("Test".getBytes());
@@ -92,7 +91,7 @@ public class ZipCompressionProviderTest {
   }
 
   @Test
-  public void testCreateOutputStream() throws IOException {
+  void testCreateOutputStream() throws IOException {
     ZipCompressionProvider provider =
         (ZipCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream out = new ByteArrayOutputStream();

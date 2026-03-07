@@ -16,26 +16,27 @@
  */
 package org.apache.hop.pipeline;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TransformWithMappingMetaTest {
+@ExtendWith(MockitoExtension.class)
+class TransformWithMappingMetaTest {
 
   @Mock PipelineMeta pipelineMeta;
 
-  @Before
-  public void setupBefore() throws Exception {
+  @BeforeEach
+  void setupBefore() throws Exception {
     // Without initialization of the Hop Environment, the load of the pipeline fails
     // when run in Windows (saying it cannot find the Database plugin ID for Oracle). Digging into
     // it I discovered that it's during the read of the shared objects xml which doesn't reference
@@ -45,7 +46,7 @@ public class TransformWithMappingMetaTest {
   }
 
   @Test
-  public void activateParamsTest() throws Exception {
+  void activateParamsTest() throws Exception {
     String childParam = "childParam";
     String childValue = "childValue";
     String paramOverwrite = "paramOverwrite";
@@ -72,13 +73,13 @@ public class TransformWithMappingMetaTest {
         new String[] {childValue, transformValue},
         true);
 
-    Assert.assertEquals(childValue, pipeline.getVariable(childParam));
+    assertEquals(childValue, pipeline.getVariable(childParam));
     // the transform parameter prevails
-    Assert.assertEquals(transformValue, pipeline.getVariable(paramOverwrite));
+    assertEquals(transformValue, pipeline.getVariable(paramOverwrite));
   }
 
   @Test
-  public void activateParamsWithTruePassParametersFlagTest() throws Exception {
+  void activateParamsWithTruePassParametersFlagTest() throws Exception {
     String childParam = "childParam";
     String childValue = "childValue";
     String paramOverwrite = "paramOverwrite";
@@ -109,64 +110,62 @@ public class TransformWithMappingMetaTest {
         new String[] {childValue, transformValue},
         true);
 
-    // childVariableSpace.setVariable( parentAndChildParameter, parentValue);
-
-    Assert.assertEquals(childValue, pipeline.getVariable(childParam));
+    assertEquals(childValue, pipeline.getVariable(childParam));
     // the transform parameter prevails
-    Assert.assertEquals(transformValue, pipeline.getVariable(paramOverwrite));
+    assertEquals(transformValue, pipeline.getVariable(paramOverwrite));
 
-    Assert.assertEquals(parentValue, pipeline.getVariable(parentAndChildParameter));
+    assertEquals(parentValue, pipeline.getVariable(parentAndChildParameter));
   }
 
   @Test
-  public void replaceVariablesWithWorkflowInternalVariablesTest() {
+  void replaceVariablesWithWorkflowInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
-    IVariables ChildVariables = new Variables();
+    IVariables childVariables = new Variables();
     IVariables replaceByParentVariables = new Variables();
 
     for (String internalVariable : Const.INTERNAL_WORKFLOW_VARIABLES) {
-      ChildVariables.setVariable(internalVariable, "childValue");
+      childVariables.setVariable(internalVariable, "childValue");
       replaceByParentVariables.setVariable(internalVariable, "parentValue");
     }
 
-    ChildVariables.setVariable(variableChildOnly, "childValueVariable");
-    ChildVariables.setVariable(variableOverwrite, "childNotInternalValue");
+    childVariables.setVariable(variableChildOnly, "childValueVariable");
+    childVariables.setVariable(variableOverwrite, "childNotInternalValue");
     replaceByParentVariables.setVariable(variableOverwrite, "parentNotInternalValue");
 
-    TransformWithMappingMeta.replaceVariableValues(ChildVariables, replaceByParentVariables);
+    TransformWithMappingMeta.replaceVariableValues(childVariables, replaceByParentVariables);
     // do not replace internal variables
-    Assert.assertEquals(
-        "childValue", ChildVariables.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+    assertEquals(
+        "childValue", childVariables.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
     // replace non internal variables
-    Assert.assertEquals("parentNotInternalValue", ChildVariables.getVariable(variableOverwrite));
+    assertEquals("parentNotInternalValue", childVariables.getVariable(variableOverwrite));
     // keep child only variables
-    Assert.assertEquals(variableChildOnly, ChildVariables.getVariable(variableChildOnly));
+    assertEquals(variableChildOnly, childVariables.getVariable(variableChildOnly));
   }
 
   @Test
-  public void replaceVariablesWithPipelineInternalVariablesTest() {
+  void replaceVariablesWithPipelineInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
-    IVariables ChildVariables = new Variables();
+    IVariables childVariables = new Variables();
     IVariables replaceByParentVariables = new Variables();
 
     for (String internalVariable : Const.INTERNAL_PIPELINE_VARIABLES) {
-      ChildVariables.setVariable(internalVariable, "childValue");
+      childVariables.setVariable(internalVariable, "childValue");
       replaceByParentVariables.setVariable(internalVariable, "parentValue");
     }
 
-    ChildVariables.setVariable(variableChildOnly, "childValueVariable");
-    ChildVariables.setVariable(variableOverwrite, "childNotInternalValue");
+    childVariables.setVariable(variableChildOnly, "childValueVariable");
+    childVariables.setVariable(variableOverwrite, "childNotInternalValue");
     replaceByParentVariables.setVariable(variableOverwrite, "parentNotInternalValue");
 
-    TransformWithMappingMeta.replaceVariableValues(ChildVariables, replaceByParentVariables);
+    TransformWithMappingMeta.replaceVariableValues(childVariables, replaceByParentVariables);
     // do not replace internal variables
-    Assert.assertEquals(
-        "childValue", ChildVariables.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
+    assertEquals(
+        "childValue", childVariables.getVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER));
     // replace non internal variables
-    Assert.assertEquals("parentNotInternalValue", ChildVariables.getVariable(variableOverwrite));
+    assertEquals("parentNotInternalValue", childVariables.getVariable(variableOverwrite));
     // keep child only variables
-    Assert.assertEquals(variableChildOnly, ChildVariables.getVariable(variableChildOnly));
+    assertEquals(variableChildOnly, childVariables.getVariable(variableChildOnly));
   }
 }

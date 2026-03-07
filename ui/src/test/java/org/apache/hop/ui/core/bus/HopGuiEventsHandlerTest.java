@@ -17,31 +17,30 @@
 
 package org.apache.hop.ui.core.bus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class HopGuiEventsHandlerTest {
-
+class HopGuiEventsHandlerTest {
   private HopGuiEventsHandler events;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     events = new HopGuiEventsHandler();
   }
 
   @Test
-  public void testAddRemoveListener() {
+  void testAddRemoveListener() {
     Map<String, Map<String, IHopGuiEventListener>> guiEventListenerMap =
         events.getGuiEventListenerMap();
 
@@ -55,12 +54,11 @@ public class HopGuiEventsHandlerTest {
     assertTrue(eventListenerMap.isEmpty());
 
     // See that the sub-map is cleaned out
-    //
     assertNull(guiEventListenerMap.get("guiId-1"));
   }
 
   @Test
-  public void testAddRemoveListeners() {
+  void testAddRemoveListeners() {
     Map<String, Map<String, IHopGuiEventListener>> guiEventListenerMap =
         events.getGuiEventListenerMap();
 
@@ -75,12 +73,11 @@ public class HopGuiEventsHandlerTest {
     events.removeEventListeners("guiId-1");
 
     // See that this map is cleaned out
-    //
     assertNull(guiEventListenerMap.get("guiId-1"));
   }
 
   @Test
-  public void testFiringListeners() throws Exception {
+  void testFiringListeners() throws Exception {
     AtomicInteger counter = new AtomicInteger(0);
 
     events.<AtomicInteger>addEventListener(
@@ -91,14 +88,12 @@ public class HopGuiEventsHandlerTest {
   }
 
   @Test
-  public void testAddEventExceptions() {
+  void testAddEventExceptions() {
     // The GUI ID can't be null or empty
-    //
     assertThrows(RuntimeException.class, () -> events.addEventListener(null, e -> {}, "eventId-1"));
     assertThrows(RuntimeException.class, () -> events.addEventListener("", e -> {}, "eventId-1"));
 
     // We need at least 1 non-null event ID
-    //
     assertThrows(RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}));
     assertThrows(
         RuntimeException.class, () -> events.addEventListener("guiId-1", e -> {}, (String[]) null));
@@ -106,23 +101,20 @@ public class HopGuiEventsHandlerTest {
   }
 
   @Test
-  public void testFireEventExceptions() {
+  void testFireEventExceptions() {
     // The GUI ID can't be null or empty
-    //
     assertThrows(RuntimeException.class, () -> events.fire());
     assertThrows(RuntimeException.class, () -> events.fire(""));
     assertThrows(RuntimeException.class, () -> events.fire((Object[]) null));
   }
 
   @Test
-  public void testFiringMultipleListenerOnOneOrAllEvents() throws Exception {
-
+  void testFiringMultipleListenerOnOneOrAllEvents() throws Exception {
     AtomicInteger counter = new AtomicInteger(0);
     List<String> eventIdList = new ArrayList<>();
 
     // We want to refresh something when any of a list of events happens...
     // Multiple places in the code might add a refresh method for different events
-    //
     IHopGuiEventListener<AtomicInteger> listener =
         event -> {
           event.getSubject().incrementAndGet();
@@ -140,7 +132,6 @@ public class HopGuiEventsHandlerTest {
     assertEquals("eventId-2", eventIdList.get(0));
 
     // Fire 2 more events
-    //
     events.fire(counter, true, "eventId-2", "eventId-1");
     assertEquals(3, counter.get());
     assertEquals(3, eventIdList.size());
@@ -149,14 +140,13 @@ public class HopGuiEventsHandlerTest {
   }
 
   @Test
-  public void testFiringOneListenerOnOneOrAllEvents() throws Exception {
+  void testFiringOneListenerOnOneOrAllEvents() throws Exception {
 
     AtomicInteger counter = new AtomicInteger(0);
     List<String> eventIdList = new ArrayList<>();
 
     // We want to refresh something when any of a list of events happens...
     // This listener is usually registered once when the GUI is initialized (perspective)
-    //
     IHopGuiEventListener<AtomicInteger> listener =
         event -> {
           event.getSubject().incrementAndGet();
@@ -172,7 +162,6 @@ public class HopGuiEventsHandlerTest {
     assertEquals("eventId-3", eventIdList.get(0));
 
     // Fire 2 more events
-    //
     events.fire(counter, true, "eventId-2", "eventId-1");
     assertEquals(3, counter.get());
     assertEquals(3, eventIdList.size());

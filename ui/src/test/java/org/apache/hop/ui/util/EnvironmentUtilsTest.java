@@ -17,36 +17,35 @@
 
 package org.apache.hop.ui.util;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import org.eclipse.swt.SWT;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
-public class EnvironmentUtilsTest {
-
+class EnvironmentUtilsTest {
   private MockedStatic<SWT> mockedSWT;
 
-  @Before
-  public void setUpStaticMocks() {
+  @BeforeEach
+  void setUpStaticMocks() {
     mockedSWT = Mockito.mockStatic(SWT.class);
   }
 
-  @After
-  public void tearDownStaticMocks() {
+  @AfterEach
+  void tearDownStaticMocks() {
     mockedSWT.closeOnDemand();
   }
 
   @Test
-  public void isUnSupportedBrowserEnvironmentTest() {
+  void isUnSupportedBrowserEnvironmentTest() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock(Case.UBUNTU_16);
     assertFalse(mock.getMockedInstance().isUnsupportedBrowserEnvironment());
     mock = new EnvironmentUtilsMock(Case.MAC_OS_X);
@@ -60,7 +59,7 @@ public class EnvironmentUtilsTest {
   }
 
   @Test
-  public void isWebkitUnavailableTest() {
+  void isWebkitUnavailableTest() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock(Case.UBUNTU_16);
     assertFalse(mock.getMockedInstance().isWebkitUnavailable());
     mock = new EnvironmentUtilsMock(Case.UBUNTU_14);
@@ -74,29 +73,29 @@ public class EnvironmentUtilsTest {
   }
 
   @Test
-  public void getBrowserName() {
+  void getBrowserName() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock(Case.UBUNTU_16);
-    Assert.assertEquals("Midori", mock.getMockedInstance().getBrowserName());
+    assertEquals("Midori", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.UBUNTU_14);
-    Assert.assertEquals("Midori", mock.getMockedInstance().getBrowserName());
+    assertEquals("Midori", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.MAC_OS_X);
-    Assert.assertEquals("Safari", mock.getMockedInstance().getBrowserName());
+    assertEquals("Safari", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.MACOS_X_WRONG);
-    Assert.assertEquals("Safari", mock.getMockedInstance().getBrowserName());
+    assertEquals("Safari", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.WINDOWS);
-    Assert.assertEquals("MSIE", mock.getMockedInstance().getBrowserName());
+    assertEquals("MSIE", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.WINDOWS_WRONG);
-    Assert.assertEquals("MSIE", mock.getMockedInstance().getBrowserName());
+    assertEquals("MSIE", mock.getMockedInstance().getBrowserName());
   }
 
   @Test
-  public void isWeb() {
+  void isWeb() {
     // This should be true as long as the test runs on SWT.
     mockedSWT.when(SWT::getPlatform).thenReturn("rap");
     assertTrue(EnvironmentUtils.getInstance().isWeb());
   }
 
-  class EnvironmentUtilsMock extends EnvironmentUtils {
+  static class EnvironmentUtilsMock extends EnvironmentUtils {
 
     private final Case option;
     private static final String WEBKIT_PATH = "/path/mock/webkit";

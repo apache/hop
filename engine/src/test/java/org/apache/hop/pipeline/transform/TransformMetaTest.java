@@ -17,9 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,10 +32,10 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.utils.TestUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class TransformMetaTest {
+class TransformMetaTest {
 
   private static final IVariables variables = new Variables();
   private static final Random rand = new Random();
@@ -45,21 +43,21 @@ public class TransformMetaTest {
   private static final String TRANSFORM_ID = "transform_id";
 
   @Test
-  public void cloning() throws Exception {
+  void cloning() throws Exception {
     TransformMeta meta = createTestMeta();
     TransformMeta clone = (TransformMeta) meta.clone();
     assertEquals(meta, clone);
   }
 
   @Test
-  public void testEqualsHashCodeConsistency() {
+  void testEqualsHashCodeConsistency() {
     TransformMeta transform = new TransformMeta();
     transform.setName("transform");
     TestUtils.checkEqualsHashCodeConsistency(transform, transform);
 
     TransformMeta transformSame = new TransformMeta();
     transformSame.setName("transform");
-    Assert.assertEquals(transform, transformSame);
+    assertEquals(transform, transformSame);
     TestUtils.checkEqualsHashCodeConsistency(transform, transformSame);
 
     TransformMeta transformCaps = new TransformMeta();
@@ -72,12 +70,12 @@ public class TransformMetaTest {
   }
 
   @Test
-  public void transformMetaXmlConsistency() throws Exception {
+  void transformMetaXmlConsistency() throws Exception {
     TransformMeta meta = new TransformMeta("id", "name", null);
     ITransformMeta smi = new Missing(meta.getName(), meta.getTransformPluginId());
     meta.setTransform(smi);
     TransformMeta fromXml = TransformMeta.fromXml(meta.getXml());
-    assertThat(meta.getXml(), is(fromXml.getXml()));
+    Assertions.assertEquals(fromXml.getXml(), meta.getXml());
   }
 
   private static TransformMeta createTestMeta() throws Exception {

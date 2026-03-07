@@ -16,14 +16,14 @@
  */
 package org.apache.hop.pipeline.transform;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class TransformStatusTest {
+class TransformStatusTest {
 
   @Test
-  public void testOverrideDescription() {
+  void testOverrideDescription() {
     TransformStatus status = new TransformStatus();
     status.setStatusDescription("Empty");
     String[] overrides = status.getPipelineLogFields("Override");

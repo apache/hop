@@ -17,8 +17,8 @@
 
 package org.apache.hop.core.auth.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,23 +36,25 @@ import org.apache.hop.core.auth.KerberosAuthenticationProvider;
 import org.apache.hop.core.auth.NoAuthenticationAuthenticationProvider;
 import org.apache.hop.core.auth.UsernamePasswordAuthenticationProvider;
 import org.apache.hop.core.auth.core.impl.ClassloaderBridgingAuthenticationPerformer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-public class AuthenticationManagerTest {
+/** Unit test for {@link AuthenticationManager} */
+@SuppressWarnings("unchecked")
+class AuthenticationManagerTest {
   private AuthenticationManager manager;
   private NoAuthenticationAuthenticationProvider noAuthenticationAuthenticationProvider;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     manager = new AuthenticationManager();
     noAuthenticationAuthenticationProvider = new NoAuthenticationAuthenticationProvider();
     manager.registerAuthenticationProvider(noAuthenticationAuthenticationProvider);
   }
 
   @Test
-  public void testNoAuthProviderAndConsumer()
+  void testNoAuthProviderAndConsumer()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
     manager.registerConsumerClass(DelegatingNoAuthConsumer.class);
     IAuthenticationConsumer<Object, NoAuthenticationAuthenticationProvider> consumer =
@@ -67,7 +69,7 @@ public class AuthenticationManagerTest {
   }
 
   @Test
-  public void testUsernamePasswordProviderConsumer()
+  void testUsernamePasswordProviderConsumer()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
     manager.registerConsumerClass(DelegatingNoAuthConsumer.class);
     manager.registerConsumerClass(DelegatingUsernamePasswordConsumer.class);
@@ -86,7 +88,7 @@ public class AuthenticationManagerTest {
   }
 
   @Test
-  public void testKerberosProviderConsumer()
+  void testKerberosProviderConsumer()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
     manager.registerConsumerClass(DelegatingNoAuthConsumer.class);
     manager.registerConsumerClass(DelegatingUsernamePasswordConsumer.class);
@@ -104,7 +106,7 @@ public class AuthenticationManagerTest {
   }
 
   @Test
-  public void testGetSupportedPerformers() throws AuthenticationFactoryException {
+  void testGetSupportedPerformers() throws AuthenticationFactoryException {
     manager.registerConsumerClass(DelegatingNoAuthConsumer.class);
     manager.registerConsumerClass(DelegatingUsernamePasswordConsumer.class);
     manager.registerConsumerClass(DelegatingKerberosConsumer.class);
@@ -130,14 +132,13 @@ public class AuthenticationManagerTest {
   }
 
   @Test
-  public void testRegisterUnregisterProvider() throws AuthenticationFactoryException {
+  void testRegisterUnregisterProvider() throws AuthenticationFactoryException {
     manager.registerConsumerClass(DelegatingNoAuthConsumer.class);
     manager.registerConsumerClass(DelegatingUsernamePasswordConsumer.class);
     List<IAuthenticationPerformer<Object, IAuthenticationConsumer>> performers =
         manager.getSupportedAuthenticationPerformers(Object.class, IAuthenticationConsumer.class);
     assertEquals(1, performers.size());
-    Set<String> ids =
-        new HashSet<>(Arrays.asList(NoAuthenticationAuthenticationProvider.NO_AUTH_ID));
+    Set<String> ids = new HashSet<>(List.of(NoAuthenticationAuthenticationProvider.NO_AUTH_ID));
     for (IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers) {
       ids.remove(performer.getAuthenticationProvider().getId());
     }
@@ -161,7 +162,7 @@ public class AuthenticationManagerTest {
     performers =
         manager.getSupportedAuthenticationPerformers(Object.class, IAuthenticationConsumer.class);
     assertEquals(1, performers.size());
-    ids = new HashSet<>(Arrays.asList(NoAuthenticationAuthenticationProvider.NO_AUTH_ID));
+    ids = new HashSet<>(List.of(NoAuthenticationAuthenticationProvider.NO_AUTH_ID));
     for (IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers) {
       ids.remove(performer.getAuthenticationProvider().getId());
     }
@@ -169,7 +170,7 @@ public class AuthenticationManagerTest {
   }
 
   @Test
-  public void testRegisterConsumerFactory()
+  void testRegisterConsumerFactory()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
     IAuthenticationConsumer<Object, KerberosAuthenticationProvider> authConsumer =
         mock(IAuthenticationConsumer.class);
@@ -191,17 +192,15 @@ public class AuthenticationManagerTest {
   }
 
   @Test
-  public void testClassLoaderBridgingPerformer()
+  void testClassLoaderBridgingPerformer()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
     manager.setAuthenticationPerformerFactory(
         new IAuthenticationPerformerFactory() {
 
           @Override
-          public <ReturnType, CreateArgType, ConsumedType>
-              IAuthenticationPerformer<ReturnType, CreateArgType> create(
-                  IAuthenticationProvider authenticationProvider,
-                  IAuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType>
-                      authenticationConsumer) {
+          public <R, C, T> IAuthenticationPerformer<R, C> create(
+              IAuthenticationProvider authenticationProvider,
+              IAuthenticationConsumerFactory<R, C, T> authenticationConsumer) {
             if (AuthenticationConsumerInvocationHandler.isCompatible(
                 authenticationConsumer.getConsumedType(), authenticationProvider)) {
               return new ClassloaderBridgingAuthenticationPerformer<>(

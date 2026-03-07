@@ -16,24 +16,19 @@
  */
 package org.apache.hop.core.parameters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DuplicateParamExceptionTest {
+/** Unit test for {@link DuplicateParamException} */
+class DuplicateParamExceptionTest {
   DuplicateParamException exception;
 
-  @Before
-  public void setUp() throws Exception {
-    // Do nothing
-  }
-
   @Test
-  public void testConstructors() {
+  void testConstructors() {
     exception = new DuplicateParamException();
     assertNotNull(exception);
     NamedParamsExceptionTest.assertMessage("null", exception);

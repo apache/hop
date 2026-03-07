@@ -17,21 +17,20 @@
 
 package org.apache.hop.core.reflection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class StringSearchResultTest {
-
+class StringSearchResultTest {
   private Class<?> PKG = Const.class;
 
   @Test
-  public void testgetResultRowMeta() {
+  void testGetResultRowMeta() {
     IRowMeta rm = StringSearchResult.getResultRowMeta();
     assertNotNull(rm);
     assertEquals(4, rm.getValueMetaList().size());

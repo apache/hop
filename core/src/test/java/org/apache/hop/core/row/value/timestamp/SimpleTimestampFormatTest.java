@@ -16,7 +16,8 @@
  */
 package org.apache.hop.core.row.value.timestamp;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -28,49 +29,48 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /** User: Dzmitry Stsiapanau Date: 3/17/14 Time: 4:46 PM */
-public class SimpleTimestampFormatTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class SimpleTimestampFormatTest {
   private static Locale formatLocale;
-  private Set<Locale> locales =
+  private final Set<Locale> locales =
       new HashSet<>(Arrays.asList(Locale.US, Locale.GERMANY, Locale.JAPANESE, Locale.CHINESE));
   private ResourceBundle tdb;
 
-  private static String stringNinePrecision = "2014-03-15 15:30:45.123456789";
-  private static String stringFourPrecision = "2014-03-15 15:30:45.1234";
-  private static String stringThreePrecision = "2014-03-15 15:30:45.123";
-  private static String stringWithoutPrecision = "2014-03-15 15:30:45";
-  private static String stringWithoutPrecisionWithDot = "2014-11-15 15:30:45.000";
-  private Timestamp timestampNinePrecision = Timestamp.valueOf(stringNinePrecision);
-  private Timestamp timestampFourPrecision = Timestamp.valueOf(stringFourPrecision);
-  private Timestamp timestampThreePrecision = Timestamp.valueOf(stringThreePrecision);
-  private Timestamp timestampWithoutPrecision = Timestamp.valueOf(stringWithoutPrecision);
-  private Timestamp timestampWithoutPrecisionWithDot =
+  private final String stringNinePrecision = "2014-03-15 15:30:45.123456789";
+  private final String stringFourPrecision = "2014-03-15 15:30:45.1234";
+  private final String stringThreePrecision = "2014-03-15 15:30:45.123";
+  private final String stringWithoutPrecision = "2014-03-15 15:30:45";
+  private final String stringWithoutPrecisionWithDot = "2014-11-15 15:30:45.000";
+  private final Timestamp timestampNinePrecision = Timestamp.valueOf(stringNinePrecision);
+  private final Timestamp timestampFourPrecision = Timestamp.valueOf(stringFourPrecision);
+  private final Timestamp timestampThreePrecision = Timestamp.valueOf(stringThreePrecision);
+  private final Timestamp timestampWithoutPrecision = Timestamp.valueOf(stringWithoutPrecision);
+  private final Timestamp timestampWithoutPrecisionWithDot =
       Timestamp.valueOf(stringWithoutPrecisionWithDot);
-  private Date dateThreePrecision = new Date(timestampThreePrecision.getTime());
-  private Date dateWithoutPrecision = new Date(timestampWithoutPrecision.getTime());
+  private final Date dateThreePrecision = new Date(timestampThreePrecision.getTime());
+  private final Date dateWithoutPrecision = new Date(timestampWithoutPrecision.getTime());
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     formatLocale = Locale.getDefault(Locale.Category.FORMAT);
   }
 
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     Locale.setDefault(Locale.Category.FORMAT, formatLocale);
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testFormat() {
+  @Disabled("This test needs to be reviewed")
+  void testFormat() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -92,33 +92,33 @@ public class SimpleTimestampFormatTest {
   private void checkFormat(String patternName, SimpleTimestampFormat stf) {
     String localeForErrorMSG = Locale.getDefault(Locale.Category.FORMAT).toLanguageTag();
     assertEquals(
-        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern(),
         tdb.getString("TIMESTAMP.NINE." + patternName),
-        (stf.format(timestampNinePrecision)));
+        (stf.format(timestampNinePrecision)),
+        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern());
     assertEquals(
-        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern(),
         tdb.getString("TIMESTAMP.THREE." + patternName),
-        (stf.format(timestampThreePrecision)));
+        (stf.format(timestampThreePrecision)),
+        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern());
     assertEquals(
-        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern(),
         tdb.getString("TIMESTAMP.ZERO." + patternName),
-        (stf.format(timestampWithoutPrecision)));
+        (stf.format(timestampWithoutPrecision)),
+        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern());
     assertEquals(
-        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern(),
         tdb.getString("TIMESTAMP.DOT." + patternName),
-        (stf.format(timestampWithoutPrecisionWithDot)));
+        (stf.format(timestampWithoutPrecisionWithDot)),
+        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern());
     assertEquals(
-        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern(),
         tdb.getString("DATE.THREE." + patternName),
-        (stf.format(dateThreePrecision)));
+        (stf.format(dateThreePrecision)),
+        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern());
     assertEquals(
-        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern(),
         tdb.getString("DATE.ZERO." + patternName),
-        (stf.format(dateWithoutPrecision)));
+        (stf.format(dateWithoutPrecision)),
+        localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern());
   }
 
   @Test
-  public void testParse() throws Exception {
+  void testParse() throws Exception {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -210,20 +210,20 @@ public class SimpleTimestampFormatTest {
       throws ParseException {
     if (date instanceof Timestamp) {
       assertEquals(
-          localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern(),
           date,
-          (stf.parse(tdb.getString(patternName))));
+          (stf.parse(tdb.getString(patternName))),
+          localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern());
     } else {
       assertEquals(
-          localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern(),
           date,
-          (stf.parse(tdb.getString(patternName))));
+          (stf.parse(tdb.getString(patternName))),
+          localeForErrorMSG + "=locale localized pattern= " + stf.toLocalizedPattern());
     }
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testToPattern() {
+  @Disabled("This test needs to be reviewed")
+  void testToPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -240,8 +240,8 @@ public class SimpleTimestampFormatTest {
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testToLocalizedPattern() {
+  @Disabled("This test needs to be reviewed")
+  void testToLocalizedPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -262,8 +262,8 @@ public class SimpleTimestampFormatTest {
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testApplyPattern() {
+  @Disabled("This test needs to be reviewed")
+  void testApplyPattern() {
     for (Locale locale : locales) {
       Locale.setDefault(Locale.Category.FORMAT, locale);
       tdb =
@@ -278,7 +278,7 @@ public class SimpleTimestampFormatTest {
   }
 
   @Test
-  public void testApplyLocalizedPattern() {
+  void testApplyLocalizedPattern() {
     Locale.setDefault(Locale.Category.FORMAT, Locale.US);
     SimpleTimestampFormat stf = new SimpleTimestampFormat(new SimpleDateFormat().toPattern());
     for (Locale locale : locales) {
@@ -288,15 +288,15 @@ public class SimpleTimestampFormatTest {
               "org/apache/hop/core/row/value/timestamp/messages/testdates", locale);
       stf.applyLocalizedPattern(tdb.getString("PATTERN.LOCALE.DEFAULT"));
       assertEquals(
-          locale.toLanguageTag(),
           tdb.getString("PATTERN.LOCALE.DEFAULT"),
-          stf.toLocalizedPattern());
+          stf.toLocalizedPattern(),
+          locale.toLanguageTag());
       checkFormat("LOCALE.DEFAULT", stf);
     }
   }
 
   @Test
-  public void testParseNull() throws Exception {
+  void testParseNull() {
     String pattern = "yyyy-MM-dd HH:mm:ss.S";
     SimpleTimestampFormat stf = new SimpleTimestampFormat(pattern);
     // This value mimics a bad parse that might return null from super.parse()
@@ -305,6 +305,6 @@ public class SimpleTimestampFormatTest {
     ParsePosition pos = new ParsePosition(0);
     java.util.Date result = stf.parse(invalidValue, pos);
     // Should return null (and set error index) instead of throwing NPE
-    assertEquals(null, result);
+    assertNull(result);
   }
 }

@@ -17,22 +17,24 @@
 
 package org.apache.hop.core.attributes;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.w3c.dom.Node;
 
-public class AttributesUtilTest {
+/** Unit test for {@link AttributesUtil} */
+@SuppressWarnings("unchecked")
+class AttributesUtilTest {
 
   private static MockedStatic<AttributesUtil> mockedAttributesUtil;
 
@@ -41,19 +43,18 @@ public class AttributesUtilTest {
   private static final String A_VALUE = "aVALUE";
   private static final String A_GROUP = "attributesGroup";
 
-  @BeforeClass
-  public static void setUpStaticMocks() {
+  @BeforeAll
+  static void setUpStaticMocks() {
     mockedAttributesUtil = Mockito.mockStatic(AttributesUtil.class);
   }
 
-  @AfterClass
-  public static void tearDownStaticMocks() {
+  @AfterAll
+  static void tearDownStaticMocks() {
     mockedAttributesUtil.close();
   }
 
   @Test
-  public void testGetAttributesXml_DefaultTag() {
-
+  void testGetAttributesXml_DefaultTag() {
     mockedAttributesUtil
         .when(() -> AttributesUtil.getAttributesXml(any(Map.class)))
         .thenCallRealMethod();
@@ -85,8 +86,7 @@ public class AttributesUtilTest {
   }
 
   @Test
-  public void testGetAttributesXml_CustomTag() {
-
+  void testGetAttributesXml_CustomTag() {
     mockedAttributesUtil
         .when(() -> AttributesUtil.getAttributesXml(any(Map.class), anyString()))
         .thenCallRealMethod();
@@ -112,8 +112,7 @@ public class AttributesUtilTest {
   }
 
   @Test
-  public void testGetAttributesXml_DefaultTag_NullParameter() {
-
+  void testGetAttributesXml_DefaultTag_NullParameter() {
     mockedAttributesUtil
         .when(() -> AttributesUtil.getAttributesXml(nullable(Map.class)))
         .thenCallRealMethod();
@@ -130,8 +129,7 @@ public class AttributesUtilTest {
   }
 
   @Test
-  public void testGetAttributesXml_CustomTag_NullParameter() {
-
+  void testGetAttributesXml_CustomTag_NullParameter() {
     mockedAttributesUtil
         .when(() -> AttributesUtil.getAttributesXml(nullable(Map.class), nullable(String.class)))
         .thenCallRealMethod();
@@ -145,8 +143,7 @@ public class AttributesUtilTest {
   }
 
   @Test
-  public void testGetAttributesXml_DefaultTag_EmptyMap() {
-
+  void testGetAttributesXml_DefaultTag_EmptyMap() {
     mockedAttributesUtil
         .when(() -> AttributesUtil.getAttributesXml(any(Map.class)))
         .thenCallRealMethod();
@@ -165,8 +162,7 @@ public class AttributesUtilTest {
   }
 
   @Test
-  public void testGetAttributesXml_CustomTag_EmptyMap() {
-
+  void testGetAttributesXml_CustomTag_EmptyMap() {
     mockedAttributesUtil
         .when(() -> AttributesUtil.getAttributesXml(any(Map.class), anyString()))
         .thenCallRealMethod();
@@ -182,8 +178,7 @@ public class AttributesUtilTest {
   }
 
   @Test
-  public void testLoadAttributes_NullParameter() {
-
+  void testLoadAttributes_NullParameter() {
     mockedAttributesUtil
         .when(() -> AttributesUtil.loadAttributes(any(Node.class)))
         .thenCallRealMethod();

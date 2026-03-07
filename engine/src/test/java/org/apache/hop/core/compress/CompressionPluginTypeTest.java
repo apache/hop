@@ -17,19 +17,19 @@
 
 package org.apache.hop.core.compress;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CompressionPluginTypeTest {
+class CompressionPluginTypeTest {
 
   @Test
-  public void testGetInstance() {
+  void testGetInstance() {
     CompressionPluginType instance = CompressionPluginType.getInstance();
     CompressionPluginType instance2 = CompressionPluginType.getInstance();
     assertSame(instance, instance2);
@@ -40,9 +40,9 @@ public class CompressionPluginTypeTest {
   }
 
   @Test
-  public void testGetPluginInfo() {
+  void testGetPluginInfo() {
     CompressionPluginType instance = CompressionPluginType.getInstance();
-    CompressionPlugin a = new FakePlugin().getClass().getAnnotation(CompressionPlugin.class);
+    CompressionPlugin a = FakePlugin.class.getAnnotation(CompressionPlugin.class);
     assertNotNull(a);
     assertEquals("", instance.extractCategory(a));
     assertEquals("Fake", instance.extractID(a));
@@ -56,5 +56,5 @@ public class CompressionPluginTypeTest {
   }
 
   @CompressionPlugin(id = "Fake", name = "FakePlugin")
-  private class FakePlugin {}
+  private static class FakePlugin {}
 }

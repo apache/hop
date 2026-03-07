@@ -17,12 +17,12 @@
 
 package org.apache.hop.core.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,16 +32,17 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class JsonUtilTest {
-
-  // -------------------------
-  // Singletons
-  // -------------------------
+/**
+ * Unit test for {@link JsonUtil}
+ *
+ * @author lance 2026/3/6 17:01
+ */
+class JsonUtilTest {
 
   @Test
-  public void testSingletons() {
+  void testSingletons() {
     assertNotNull(JsonUtil.jsonReader());
     assertNotNull(JsonUtil.jsonMapper());
     // same instance each call
@@ -49,45 +50,41 @@ public class JsonUtilTest {
     assertSame(JsonUtil.jsonMapper(), JsonUtil.jsonMapper());
   }
 
-  // -------------------------
-  // Parse
-  // -------------------------
-
   @Test
-  public void testParseCharSequence() throws Exception {
+  void testParseCharSequence() throws Exception {
     JsonNode n = JsonUtil.parse("{a:1, b:\"x\"}");
     assertEquals(1, n.get("a").intValue());
     assertEquals("x", n.get("b").textValue());
   }
 
   @Test
-  public void testParseBytes() throws Exception {
+  void testParseBytes() throws Exception {
     byte[] bytes = "{\"k\":true}".getBytes(StandardCharsets.UTF_8);
     JsonNode n = JsonUtil.parse(bytes);
     assertTrue(n.get("k").booleanValue());
   }
 
   @Test
-  public void testParseStream() throws Exception {
+  void testParseStream() throws Exception {
     InputStream in = new ByteArrayInputStream("{\"n\":42}".getBytes(StandardCharsets.UTF_8));
     JsonNode n = JsonUtil.parse(in);
     assertEquals(42, n.get("n").intValue());
   }
 
   @Test
-  public void testParseNulls() throws Exception {
+  void testParseNulls() throws Exception {
     assertNull(JsonUtil.parse((CharSequence) null));
     assertNull(JsonUtil.parse((byte[]) null));
     assertNull(JsonUtil.parse((InputStream) null));
   }
 
   @Test
-  public void testParseInvalid() {
+  void testParseInvalid() {
     assertThrows(JsonProcessingException.class, () -> JsonUtil.parse("{oops"));
   }
 
   @Test
-  public void testParseTextValue() throws Exception {
+  void testParseTextValue() throws Exception {
     var bytes = "{\"a\":1}".getBytes(StandardCharsets.UTF_8);
     assertEquals(1, JsonUtil.parseTextValue(bytes).get("a").intValue());
 
@@ -114,7 +111,7 @@ public class JsonUtilTest {
   // -------------------------
 
   @Test
-  public void testMapObjectToJson() {
+  void testMapObjectToJson() {
     assertNull(JsonUtil.mapObjectToJson(null));
 
     ObjectNode node = JsonUtil.jsonMapper().createObjectNode().put("x", 1);
@@ -130,7 +127,7 @@ public class JsonUtilTest {
   }
 
   @Test
-  public void testMapJsonToString() throws Exception {
+  void testMapJsonToString() throws Exception {
     ObjectNode o = JsonUtil.jsonMapper().createObjectNode().put("a", 1).put("b", "x");
 
     String compact = JsonUtil.mapJsonToString(o, false);
@@ -144,7 +141,7 @@ public class JsonUtilTest {
   }
 
   @Test
-  public void testMapJsonToBytes() throws Exception {
+  void testMapJsonToBytes() throws Exception {
     ObjectNode o = JsonUtil.jsonMapper().createObjectNode().put("a", "u");
     byte[] bytes = JsonUtil.mapJsonToBytes(o);
     assertNotNull(bytes);

@@ -33,9 +33,10 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.WorkflowMap;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
+/** Unit test for {@link WorkflowMap} */
 public class WorkflowMapConcurrencyTest {
   public static final String WORKFLOW_NAME_STRING = "workflow";
   public static final String WORKFLOW_ID_STRING = "workflow";
@@ -48,8 +49,8 @@ public class WorkflowMapConcurrencyTest {
 
   private static WorkflowMap workflowMap;
 
-  @BeforeClass
-  public static void init() {
+  @BeforeAll
+  static void init() {
     workflowMap = new WorkflowMap();
     for (int i = 0; i < INITIAL_WORKFLOW_MAP_SIZE; i++) {
       workflowMap.addWorkflow(
@@ -68,7 +69,7 @@ public class WorkflowMapConcurrencyTest {
   }
 
   @Test
-  public void updateGetAndReplaceConcurrently() throws Exception {
+  void updateGetAndReplaceConcurrently() throws Exception {
     AtomicBoolean condition = new AtomicBoolean(true);
     AtomicInteger generator = new AtomicInteger(10);
 
@@ -88,7 +89,6 @@ public class WorkflowMapConcurrencyTest {
       replacers.add(new Replacer(workflowMap, condition));
     }
 
-    //noinspection unchecked
     ConcurrencyTestRunner.runAndCheckNoExceptionRaised(
         updaters, ListUtils.union(replacers, getters), condition);
   }
@@ -184,8 +184,7 @@ public class WorkflowMapConcurrencyTest {
       final String workflowName = WORKFLOW_NAME_STRING + i;
       final String workflowId = WORKFLOW_ID_STRING + i;
 
-      HopServerObjectEntry entry = new HopServerObjectEntry(workflowName, workflowId);
-
+      new HopServerObjectEntry(workflowName, workflowId);
       workflowMap.replaceWorkflow(
           mockWorkflow(i + 1), mockWorkflow(i + 1), mock(WorkflowConfiguration.class));
 

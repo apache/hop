@@ -17,41 +17,41 @@
 
 package org.apache.hop.ui.hopgui.terminal;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class TerminalShellDetectorTest {
+class TerminalShellDetectorTest {
 
   @Test
-  public void testDetectDefaultShell() {
+  void testDetectDefaultShell() {
     // Test that we can detect a default shell
     String shell = TerminalShellDetector.detectDefaultShell();
 
-    assertNotNull("Shell path should not be null", shell);
-    assertFalse("Shell path should not be empty", shell.isEmpty());
+    assertNotNull(shell, "Shell path should not be null");
+    assertFalse(shell.isEmpty(), "Shell path should not be empty");
 
     // Verify the shell path contains expected shell names based on OS
     String os = System.getProperty("os.name").toLowerCase();
     if (os.contains("win")) {
       // Windows should return PowerShell or cmd
       assertTrue(
-          "Windows should detect PowerShell or cmd",
-          shell.contains("powershell") || shell.contains("cmd"));
+          shell.contains("powershell") || shell.contains("cmd"),
+          "Windows should detect PowerShell or cmd");
     } else if (os.contains("mac") || os.contains("nix") || os.contains("nux")) {
       // Unix-like systems should return a shell in /bin
-      assertTrue("Unix-like systems should return a shell in /bin", shell.startsWith("/bin/"));
+      assertTrue(shell.startsWith("/bin/"), "Unix-like systems should return a shell in /bin");
     }
   }
 
   @Test
-  public void testDetectDefaultShellReturnsExecutable() {
+  void testDetectDefaultShellReturnsExecutable() {
     // Test that the detected shell is an actual executable file
     String shell = TerminalShellDetector.detectDefaultShell();
 
-    assertNotNull("Shell path should not be null", shell);
+    assertNotNull(shell, "Shell path should not be null");
 
     // On Windows, PowerShell/cmd detection is based on typical locations
     // On Unix, we verify the shell exists in /bin
@@ -59,18 +59,18 @@ public class TerminalShellDetectorTest {
     if (!os.contains("win")) {
       // For Unix systems, verify the shell path looks valid
       assertTrue(
-          "Shell should be in /bin or /usr/bin",
-          shell.startsWith("/bin/") || shell.startsWith("/usr/bin/"));
+          shell.startsWith("/bin/") || shell.startsWith("/usr/bin/"),
+          "Shell should be in /bin or /usr/bin");
     }
   }
 
   @Test
-  public void testShellDetectionFallback() {
+  void testShellDetectionFallback() {
     // This test verifies that even if preferred shells aren't found,
     // we still get a fallback shell
     String shell = TerminalShellDetector.detectDefaultShell();
 
-    assertNotNull("Should always return a shell, even if fallback", shell);
-    assertFalse("Shell path should not be empty", shell.isEmpty());
+    assertNotNull(shell, "Should always return a shell, even if fallback");
+    assertFalse(shell.isEmpty(), "Shell path should not be empty");
   }
 }

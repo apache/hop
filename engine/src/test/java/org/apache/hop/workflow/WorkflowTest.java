@@ -17,34 +17,19 @@
 
 package org.apache.hop.workflow;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.util.concurrent.CountDownLatch;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.workflow.actions.start.ActionStart;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class WorkflowTest {
-  private static final String STRING_DEFAULT = "<def>";
-  private IWorkflowEngine<WorkflowMeta> mockedWorkflow;
-  private Database mockedDataBase;
-  private IVariables mockedVariableSpace;
-  private IHopMetadataProvider mockedMetadataProvider;
-  private WorkflowMeta mockedWorkflowMeta;
-  private ActionMeta mockedActionMeta;
-  private ActionStart mockedActionStart;
-  private LogChannel mockedLogChannel;
+class WorkflowTest {
+
   int count = 10000;
 
   private abstract class WorkflowKicker implements Runnable {
@@ -69,20 +54,6 @@ public class WorkflowTest {
     public boolean isStopped() {
       c++;
       return c >= max;
-    }
-  }
-
-  private class WorkflowFinishedListenerAdder extends WorkflowKicker {
-    WorkflowFinishedListenerAdder(IWorkflowEngine<WorkflowMeta> workflow, CountDownLatch start) {
-      super(workflow, start);
-    }
-
-    @Override
-    public void run() {
-      await();
-      while (!isStopped()) {
-        workflow.addExecutionFinishedListener(w -> {});
-      }
     }
   }
 
@@ -114,28 +85,16 @@ public class WorkflowTest {
     }
   }
 
-  @BeforeClass
-  public static void beforeClass() throws HopException {
+  @BeforeAll
+  static void beforeClass() throws HopException {
     HopEnvironment.init();
-  }
-
-  @Before
-  public void init() {
-    mockedDataBase = mock(Database.class);
-    mockedWorkflow = mock(Workflow.class);
-    mockedVariableSpace = mock(IVariables.class);
-    mockedMetadataProvider = mock(IHopMetadataProvider.class);
-    mockedWorkflowMeta = mock(WorkflowMeta.class);
-    mockedActionMeta = mock(ActionMeta.class);
-    mockedActionStart = mock(ActionStart.class);
-    mockedLogChannel = mock(LogChannel.class);
   }
 
   /**
    * When a workflow is scheduled twice, it gets the same log channel Id and both logs get merged
    */
   @Test
-  public void testTwoWorkflowsGetSameLogChannelId() {
+  void testTwoWorkflowsGetSameLogChannelId() {
     WorkflowMeta meta = mock(WorkflowMeta.class);
 
     IWorkflowEngine<WorkflowMeta> workflow1 = new LocalWorkflowEngine(meta);
@@ -144,20 +103,16 @@ public class WorkflowTest {
     assertEquals(workflow1.getLogChannelId(), workflow2.getLogChannelId());
   }
 
-  /**
-   * Test that workflow stop listeners can be accessed concurrently
-   *
-   * @throws InterruptedException
-   */
+  /** Test that workflow stop listeners can be accessed concurrently */
   @Test
-  public void testExecutionStoppedListenersConcurrentModification() throws InterruptedException {
+  void testExecutionStoppedListenersConcurrentModification() throws InterruptedException {
     CountDownLatch start = new CountDownLatch(1);
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine();
     WorkflowStopExecutionCaller stopper = new WorkflowStopExecutionCaller(workflow, start);
     WorkflowStoppedListenerAdder adder = new WorkflowStoppedListenerAdder(workflow, start);
     startThreads(stopper, adder, start);
-    assertEquals("All workflow stop listeners is added", count, adder.c);
-    assertEquals("All stop call success", count, stopper.c);
+    assertEquals(count, adder.c, "All workflow stop listeners is added");
+    assertEquals(count, stopper.c, "All stop call success");
   }
 
   private void startThreads(Runnable run1, Runnable run2, CountDownLatch start)

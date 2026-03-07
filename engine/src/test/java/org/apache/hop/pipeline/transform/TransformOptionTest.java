@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transform;
 
 import static org.apache.hop.i18n.BaseMessages.getString;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -28,25 +28,25 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TransformOptionTest {
+@ExtendWith(MockitoExtension.class)
+class TransformOptionTest {
   @Mock TransformMeta transformMeta;
   @Mock IVariables variables;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     HopEnvironment.init();
   }
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     when(variables.resolve(anyString()))
         .thenAnswer(
             incovacationMock -> {
@@ -56,7 +56,7 @@ public class TransformOptionTest {
   }
 
   @Test
-  public void testCheckPass() {
+  void testCheckPass() {
     List<ICheckResult> remarks = new ArrayList<>();
     TransformOption.checkInteger(remarks, transformMeta, variables, "IDENTIFIER", "9");
     TransformOption.checkLong(remarks, transformMeta, variables, "IDENTIFIER", "9");
@@ -66,7 +66,7 @@ public class TransformOptionTest {
   }
 
   @Test
-  public void testCheckPassEmpty() {
+  void testCheckPassEmpty() {
     List<ICheckResult> remarks = new ArrayList<>();
     TransformOption.checkInteger(remarks, transformMeta, variables, "IDENTIFIER", "");
     TransformOption.checkLong(remarks, transformMeta, variables, "IDENTIFIER", "");
@@ -78,32 +78,32 @@ public class TransformOptionTest {
   }
 
   @Test
-  public void testCheckFailInteger() {
+  void testCheckFailInteger() {
     List<ICheckResult> remarks = new ArrayList<>();
     TransformOption.checkInteger(remarks, transformMeta, variables, "IDENTIFIER", "asdf");
     assertEquals(1, remarks.size());
     assertEquals(
-        remarks.get(0).getText(),
+        remarks.getFirst().getText(),
         getString(TransformOption.class, "TransformOption.CheckResult.NotAInteger", "IDENTIFIER"));
   }
 
   @Test
-  public void testCheckFailLong() {
+  void testCheckFailLong() {
     List<ICheckResult> remarks = new ArrayList<>();
     TransformOption.checkLong(remarks, transformMeta, variables, "IDENTIFIER", "asdf");
     assertEquals(1, remarks.size());
     assertEquals(
-        remarks.get(0).getText(),
+        remarks.getFirst().getText(),
         getString(TransformOption.class, "TransformOption.CheckResult.NotAInteger", "IDENTIFIER"));
   }
 
   @Test
-  public void testCheckFailBoolean() {
+  void testCheckFailBoolean() {
     List<ICheckResult> remarks = new ArrayList<>();
     TransformOption.checkBoolean(remarks, transformMeta, variables, "IDENTIFIER", "asdf");
     assertEquals(1, remarks.size());
     assertEquals(
-        remarks.get(0).getText(),
+        remarks.getFirst().getText(),
         getString(TransformOption.class, "TransformOption.CheckResult.NotABoolean", "IDENTIFIER"));
   }
 }

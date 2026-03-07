@@ -17,36 +17,36 @@
 
 package org.apache.hop.core.logging;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class LoggingPluginTypeTest {
-
+/** Unit test for {@link LoggingPluginType} */
+class LoggingPluginTypeTest {
   private LoggingPlugin annotation;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     annotation = mock(LoggingPlugin.class);
     when(annotation.id()).thenReturn("id");
   }
 
   @Test
-  public void pickUpsId() {
+  void pickUpsId() {
     assertEquals("id", LoggingPluginType.getInstance().extractID(annotation));
   }
 
   @Test
-  public void pickUpName_NameIsSpecified() {
+  void pickUpName_NameIsSpecified() {
     when(annotation.name()).thenReturn("name");
     assertEquals("name", LoggingPluginType.getInstance().extractName(annotation));
   }
 
   @Test
-  public void pickUpName_NameIsNotSpecified() {
+  void pickUpName_NameIsNotSpecified() {
     assertEquals("id", LoggingPluginType.getInstance().extractName(annotation));
   }
 }

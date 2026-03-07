@@ -17,11 +17,12 @@
 
 package org.apache.hop.core.row;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,14 +41,14 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 
-public class ValueDataUtilTest {
+/** Unit test for {@link ValueDataUtil} */
+class ValueDataUtilTest {
 
   @Test
-  public void testPlus() throws HopValueException {
-
+  void testPlus() throws HopValueException {
     long longValue = 1;
 
     assertEquals(
@@ -57,245 +58,259 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void checksumTest() throws Exception {
+  void checksumTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     String checksum = ValueDataUtil.createChecksum(path, "MD5", false);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
   }
 
   @Test
-  public void checksumMissingFileTest() throws Exception {
+  void checksumMissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
     String checksum = ValueDataUtil.createChecksum(nonExistingFile, "MD5", false);
     assertNull(checksum);
   }
 
   @Test
-  public void checksumWithFailIfNoFileTest() throws Exception {
+  void checksumWithFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     String checksum = ValueDataUtil.createChecksum(path, "MD5", true);
     assertEquals("098f6bcd4621d373cade4e832627b4f6", checksum);
   }
 
-  @Test(expected = HopFileNotFoundException.class)
-  public void checksumFailIfNoFileTest() throws HopFileNotFoundException {
+  @Test
+  void checksumFailIfNoFileTest() {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.createChecksum(nonExistingPath, "MD5", true);
+    assertThrows(
+        HopFileNotFoundException.class,
+        () -> ValueDataUtil.createChecksum(nonExistingPath, "MD5", true));
   }
 
   @Test
-  public void checksumNullPathNoFailTest() throws HopFileNotFoundException {
+  void checksumNullPathNoFailTest() throws HopFileNotFoundException {
     assertNull(ValueDataUtil.createChecksum(null, "MD5", false));
   }
 
   @Test
-  public void checksumNullPathFailTest() throws HopFileNotFoundException {
+  void checksumNullPathFailTest() throws HopFileNotFoundException {
     assertNull(ValueDataUtil.createChecksum(null, "MD5", true));
   }
 
   @Test
-  public void checksumCRC32Test() throws Exception {
+  void checksumCRC32Test() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     long checksum = ValueDataUtil.checksumCRC32(path, false);
-    assertEquals(3632233996l, checksum);
+    assertEquals(3632233996L, checksum);
   }
 
   @Test
-  public void checksumCRC32MissingFileTest() throws Exception {
+  void checksumCRC32MissingFileTest() throws Exception {
     String nonExistingFile = "nonExistingFile";
     long checksum = ValueDataUtil.checksumCRC32(nonExistingFile, false);
     assertEquals(0, checksum);
   }
 
   @Test
-  public void checksumCRC32NoFailIfNoFileTest() throws HopFileNotFoundException {
+  void checksumCRC32NoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
     long checksum = ValueDataUtil.checksumCRC32(nonExistingPath, false);
     assertEquals(0, checksum);
   }
 
-  @Test(expected = HopFileNotFoundException.class)
-  public void checksumCRC32FailIfNoFileTest() throws HopFileNotFoundException {
+  @Test
+  void checksumCRC32FailIfNoFileTest() {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.checksumCRC32(nonExistingPath, true);
+
+    assertThrows(
+        HopFileNotFoundException.class, () -> ValueDataUtil.checksumCRC32(nonExistingPath, true));
   }
 
   @Test
-  public void checksumCRC32NullPathNoFailTest() throws HopFileNotFoundException {
+  void checksumCRC32NullPathNoFailTest() throws HopFileNotFoundException {
     long checksum = ValueDataUtil.checksumCRC32(null, false);
     assertEquals(0, checksum);
   }
 
   @Test
-  public void checksumCRC32NullPathFailTest() throws HopFileNotFoundException {
+  void checksumCRC32NullPathFailTest() throws HopFileNotFoundException {
     long checksum = ValueDataUtil.checksumCRC32(null, true);
     assertEquals(0, checksum);
   }
 
   @Test
-  public void checksumAdlerWithFailIfNoFileTest() throws Exception {
+  void checksumAdlerWithFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     long checksum = ValueDataUtil.checksumAdler32(path, true);
     assertEquals(73204161L, checksum);
   }
 
   @Test
-  public void checksumAdlerWithoutFailIfNoFileTest() throws Exception {
+  void checksumAdlerWithoutFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     long checksum = ValueDataUtil.checksumAdler32(path, false);
     assertEquals(73204161L, checksum);
   }
 
   @Test
-  public void checksumAdlerNoFailIfNoFileTest() throws HopFileNotFoundException {
+  void checksumAdlerNoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
     long checksum = ValueDataUtil.checksumAdler32(nonExistingPath, false);
     assertEquals(0, checksum);
   }
 
-  @Test(expected = HopFileNotFoundException.class)
-  public void checksumAdlerFailIfNoFileTest() throws HopFileNotFoundException {
+  @Test
+  void checksumAdlerFailIfNoFileTest() {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.checksumAdler32(nonExistingPath, true);
+
+    assertThrows(
+        HopFileNotFoundException.class, () -> ValueDataUtil.checksumAdler32(nonExistingPath, true));
   }
 
   @Test
-  public void checksumAdlerNullPathNoFailTest() throws HopFileNotFoundException {
+  void checksumAdlerNullPathNoFailTest() throws HopFileNotFoundException {
     long checksum = ValueDataUtil.checksumAdler32(null, false);
     assertEquals(0, checksum);
   }
 
   @Test
-  public void checksumAdlerNullPathFailTest() throws HopFileNotFoundException {
+  void checksumAdlerNullPathFailTest() throws HopFileNotFoundException {
     long checksum = ValueDataUtil.checksumAdler32(null, true);
     assertEquals(0, checksum);
   }
 
   @Test
-  public void xmlFileWellFormedTest() throws HopFileNotFoundException {
+  void xmlFileWellFormedTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
     boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(xmlFilePath, true);
     assertTrue(wellFormed);
   }
 
   @Test
-  public void xmlFileBadlyFormedTest() throws HopFileNotFoundException {
+  void xmlFileBadlyFormedTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource("invalid-xml-sample.xml").getPath();
     boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(invalidXmlFilePath, true);
     assertFalse(wellFormed);
   }
 
   @Test
-  public void xmlFileWellFormedWithoutFailIfNoFileTest() throws HopFileNotFoundException {
+  void xmlFileWellFormedWithoutFailIfNoFileTest() throws HopFileNotFoundException {
     String xmlFilePath = getClass().getResource("xml-sample.xml").getPath();
     boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(xmlFilePath, false);
     assertTrue(wellFormed);
   }
 
   @Test
-  public void xmlFileBadlyFormedWithNoFailIfNoFileTest() throws HopFileNotFoundException {
+  void xmlFileBadlyFormedWithNoFailIfNoFileTest() throws HopFileNotFoundException {
     String invalidXmlFilePath = getClass().getResource("invalid-xml-sample.xml").getPath();
     boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(invalidXmlFilePath, false);
     assertFalse(wellFormed);
   }
 
   @Test
-  public void xmlFileWellFormedNoFailIfNoFileTest() throws HopFileNotFoundException {
+  void xmlFileWellFormedNoFailIfNoFileTest() throws HopFileNotFoundException {
     String nonExistingPath = "nonExistingPath";
     boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(nonExistingPath, false);
     assertFalse(wellFormed);
   }
 
-  @Test(expected = HopFileNotFoundException.class)
-  public void xmlFileWellFormedFailIfNoFileTest() throws HopFileNotFoundException {
+  @Test
+  void xmlFileWellFormedFailIfNoFileTest() {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.isXmlFileWellFormed(nonExistingPath, true);
+
+    assertThrows(
+        HopFileNotFoundException.class,
+        () -> ValueDataUtil.isXmlFileWellFormed(nonExistingPath, true));
   }
 
   @Test
-  public void xmlFileWellFormedNullPathNoFailTest() throws HopFileNotFoundException {
+  void xmlFileWellFormedNullPathNoFailTest() throws HopFileNotFoundException {
     boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(null, false);
     assertFalse(wellFormed);
   }
 
   @Test
-  public void xmlFileWellFormedNullPathFailTest() throws HopFileNotFoundException {
+  void xmlFileWellFormedNullPathFailTest() throws HopFileNotFoundException {
     boolean wellFormed = ValueDataUtil.isXmlFileWellFormed(null, true);
     assertFalse(wellFormed);
   }
 
   @Test
-  public void loadFileContentInBinary() throws Exception {
+  void loadFileContentInBinary() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     byte[] content = ValueDataUtil.loadFileContentInBinary(path, true);
     assertTrue(Arrays.equals("test".getBytes(), content));
   }
 
   @Test
-  public void loadFileContentInBinaryNoFailIfNoFileTest() throws Exception {
+  void loadFileContentInBinaryNoFailIfNoFileTest() throws Exception {
     String nonExistingPath = "nonExistingPath";
     assertNull(ValueDataUtil.loadFileContentInBinary(nonExistingPath, false));
   }
 
-  @Test(expected = HopFileNotFoundException.class)
-  public void loadFileContentInBinaryFailIfNoFileTest()
-      throws HopFileNotFoundException, HopValueException {
+  @Test
+  void loadFileContentInBinaryFailIfNoFileTest() {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.loadFileContentInBinary(nonExistingPath, true);
+
+    assertThrows(
+        HopFileNotFoundException.class,
+        () -> ValueDataUtil.loadFileContentInBinary(nonExistingPath, true));
   }
 
   @Test
-  public void loadFileContentInBinaryNullPathNoFailTest() throws Exception {
+  void loadFileContentInBinaryNullPathNoFailTest() throws Exception {
     assertNull(ValueDataUtil.loadFileContentInBinary(null, false));
   }
 
   @Test
-  public void loadFileContentInBinaryNullPathFailTest()
+  void loadFileContentInBinaryNullPathFailTest()
       throws HopFileNotFoundException, HopValueException {
     assertNull(ValueDataUtil.loadFileContentInBinary(null, true));
   }
 
   @Test
-  public void getFileEncodingWithFailIfNoFileTest() throws Exception {
+  void getFileEncodingWithFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     String encoding = ValueDataUtil.getFileEncoding(new ValueMetaString(), path, true);
     assertEquals("US-ASCII", encoding);
   }
 
   @Test
-  public void getFileEncodingWithoutFailIfNoFileTest() throws Exception {
+  void getFileEncodingWithoutFailIfNoFileTest() throws Exception {
     String path = getClass().getResource("txt-sample.txt").getPath();
     String encoding = ValueDataUtil.getFileEncoding(new ValueMetaString(), path, false);
     assertEquals("US-ASCII", encoding);
   }
 
   @Test
-  public void getFileEncodingNoFailIfNoFileTest() throws Exception {
+  void getFileEncodingNoFailIfNoFileTest() throws Exception {
     String nonExistingPath = "nonExistingPath";
     String encoding = ValueDataUtil.getFileEncoding(new ValueMetaString(), nonExistingPath, false);
     assertNull(encoding);
   }
 
-  @Test(expected = HopFileNotFoundException.class)
-  public void getFileEncodingFailIfNoFileTest() throws HopFileNotFoundException, HopValueException {
+  @Test
+  void getFileEncodingFailIfNoFileTest() {
     String nonExistingPath = "nonExistingPath";
-    ValueDataUtil.getFileEncoding(new ValueMetaString(), nonExistingPath, true);
+
+    assertThrows(
+        HopFileNotFoundException.class,
+        () -> ValueDataUtil.getFileEncoding(new ValueMetaString(), nonExistingPath, true));
   }
 
   @Test
-  public void getFileEncodingNullPathNoFailTest() throws Exception {
+  void getFileEncodingNullPathNoFailTest() throws Exception {
     String encoding = ValueDataUtil.getFileEncoding(new ValueMetaString(), null, false);
     assertNull(encoding);
   }
 
   @Test
-  public void getFileEncodingNullPathFailTest() throws HopFileNotFoundException, HopValueException {
+  void getFileEncodingNullPathFailTest() throws HopFileNotFoundException, HopValueException {
     String encoding = ValueDataUtil.getFileEncoding(new ValueMetaString(), null, true);
     assertNull(encoding);
   }
 
   @Test
-  public void testMulitplyBigNumbers() {
+  void testMulitplyBigNumbers() {
     BigDecimal field1 = new BigDecimal("123456789012345678901.1234567890123456789");
     BigDecimal field2 = new BigDecimal("1.0");
     BigDecimal field3 = new BigDecimal("2.0");
@@ -316,7 +331,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDivisionBigNumbers() {
+  void testDivisionBigNumbers() {
     BigDecimal field1 = new BigDecimal("123456789012345678901.1234567890123456789");
     BigDecimal field2 = new BigDecimal("1.0");
     BigDecimal field3 = new BigDecimal("2.0");
@@ -335,7 +350,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testRemainderBigNumbers() throws Exception {
+  void testRemainderBigNumbers() throws Exception {
     BigDecimal field1 = new BigDecimal("123456789012345678901.1234567890123456789");
     BigDecimal field2 = new BigDecimal("1.0");
     BigDecimal field3 = new BigDecimal("2.0");
@@ -354,7 +369,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testSumWithNullValues() throws Exception {
+  void testSumWithNullValues() throws Exception {
     IValueMeta metaA = new ValueMetaInteger();
     metaA.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
     IValueMeta metaB = new ValueMetaInteger();
@@ -367,7 +382,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testSumConvertingStorageTypeToNormal() throws Exception {
+  void testSumConvertingStorageTypeToNormal() throws Exception {
     IValueMeta metaA = mock(ValueMetaInteger.class);
     metaA.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
 
@@ -385,66 +400,66 @@ public class ValueDataUtilTest {
 
   // String manipulation tests
   @Test
-  public void testInitCap() {
+  void testInitCap() {
     assertEquals("Hello World", ValueDataUtil.initCap("hello world"));
     assertEquals("Apache Hop", ValueDataUtil.initCap("apache hop"));
     assertNull(ValueDataUtil.initCap(null));
   }
 
   @Test
-  public void testUpperCase() {
+  void testUpperCase() {
     assertEquals("HELLO", ValueDataUtil.upperCase("hello"));
     assertEquals("APACHE HOP", ValueDataUtil.upperCase("Apache Hop"));
     assertNull(ValueDataUtil.upperCase(null));
   }
 
   @Test
-  public void testLowerCase() {
+  void testLowerCase() {
     assertEquals("hello", ValueDataUtil.lowerCase("HELLO"));
     assertEquals("apache hop", ValueDataUtil.lowerCase("Apache Hop"));
     assertNull(ValueDataUtil.lowerCase(null));
   }
 
   @Test
-  public void testRemoveCR() {
+  void testRemoveCR() {
     assertEquals("helloworld", ValueDataUtil.removeCR("hello\rworld"));
     assertNull(ValueDataUtil.removeCR(null));
   }
 
   @Test
-  public void testRemoveLF() {
+  void testRemoveLF() {
     assertEquals("helloworld", ValueDataUtil.removeLF("hello\nworld"));
     assertNull(ValueDataUtil.removeLF(null));
   }
 
   @Test
-  public void testRemoveCRLF() {
+  void testRemoveCRLF() {
     assertEquals("helloworld", ValueDataUtil.removeCRLF("hello\r\nworld"));
     assertNull(ValueDataUtil.removeCRLF(null));
   }
 
   @Test
-  public void testRemoveTAB() {
+  void testRemoveTAB() {
     assertEquals("helloworld", ValueDataUtil.removeTAB("hello\tworld"));
     assertNull(ValueDataUtil.removeTAB(null));
   }
 
   @Test
-  public void testGetDigits() {
+  void testGetDigits() {
     assertEquals("123", ValueDataUtil.getDigits("abc123def"));
     assertEquals("", ValueDataUtil.getDigits("abcdef"));
     assertNull(ValueDataUtil.getDigits(null));
   }
 
   @Test
-  public void testRemoveDigits() {
+  void testRemoveDigits() {
     assertEquals("abcdef", ValueDataUtil.removeDigits("abc123def"));
     assertEquals("abcdef", ValueDataUtil.removeDigits("abcdef"));
     assertNull(ValueDataUtil.removeDigits(null));
   }
 
   @Test
-  public void testStringLen() {
+  void testStringLen() {
     assertEquals(5, ValueDataUtil.stringLen("hello"));
     assertEquals(0, ValueDataUtil.stringLen(""));
     assertEquals(0, ValueDataUtil.stringLen(null));
@@ -452,7 +467,7 @@ public class ValueDataUtilTest {
 
   // String distance/similarity tests
   @Test
-  public void testLevenshteinDistance() {
+  void testLevenshteinDistance() {
     Long distance = ValueDataUtil.getLevenshteinDistance("kitten", "sitting");
     assertEquals(Long.valueOf(3), distance);
 
@@ -461,7 +476,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDamerauLevenshteinDistance() {
+  void testDamerauLevenshteinDistance() {
     Long distance = ValueDataUtil.getDamerauLevenshteinDistance("abc", "acb");
     assertEquals(Long.valueOf(1), distance);
 
@@ -469,7 +484,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testJaroSimilitude() {
+  void testJaroSimilitude() {
     Double similarity = ValueDataUtil.getJaroSimilitude("martha", "marhta");
     assertTrue(similarity > 0.9);
 
@@ -477,7 +492,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testJaroWinklerSimilitude() {
+  void testJaroWinklerSimilitude() {
     Double similarity = ValueDataUtil.getJaroWinklerSimilitude("martha", "marhta");
     assertTrue(similarity > 0.9);
 
@@ -486,28 +501,28 @@ public class ValueDataUtilTest {
 
   // Phonetic algorithms tests
   @Test
-  public void testMetaphone() {
+  void testMetaphone() {
     String metaphone = ValueDataUtil.getMetaphone("hello");
     assertEquals("HL", metaphone);
     assertNull(ValueDataUtil.getMetaphone(null));
   }
 
   @Test
-  public void testDoubleMetaphone() {
+  void testDoubleMetaphone() {
     String doubleMetaphone = ValueDataUtil.getDoubleMetaphone("hello");
     assertEquals("HL", doubleMetaphone);
     assertNull(ValueDataUtil.getDoubleMetaphone(null));
   }
 
   @Test
-  public void testSoundEx() {
+  void testSoundEx() {
     String soundex = ValueDataUtil.getSoundEx("hello");
     assertEquals("H400", soundex);
     assertNull(ValueDataUtil.getSoundEx(null));
   }
 
   @Test
-  public void testRefinedSoundEx() {
+  void testRefinedSoundEx() {
     String refinedSoundex = ValueDataUtil.getRefinedSoundEx("hello");
     assertNotNull(refinedSoundex);
     assertNull(ValueDataUtil.getRefinedSoundEx(null));
@@ -515,7 +530,7 @@ public class ValueDataUtilTest {
 
   // Math operations tests
   @Test
-  public void testAbs() throws HopValueException {
+  void testAbs() throws HopValueException {
     assertEquals(5L, ValueDataUtil.abs(new ValueMetaInteger(), (long) -5));
     assertEquals(5.5, ValueDataUtil.abs(new ValueMetaNumber(), -5.5));
     assertEquals(
@@ -523,7 +538,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testSqrt() throws HopValueException {
+  void testSqrt() throws HopValueException {
     Object result = ValueDataUtil.sqrt(new ValueMetaNumber(), 16.0);
     assertEquals(4.0, (Double) result, 0.001);
 
@@ -532,7 +547,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testCeil() throws HopValueException {
+  void testCeil() throws HopValueException {
     assertEquals(6.0, ValueDataUtil.ceil(new ValueMetaNumber(), 5.3));
     assertEquals(5L, ValueDataUtil.ceil(new ValueMetaInteger(), 5L));
     assertEquals(
@@ -541,7 +556,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testFloor() throws HopValueException {
+  void testFloor() throws HopValueException {
     assertEquals(5.0, ValueDataUtil.floor(new ValueMetaNumber(), 5.9));
     assertEquals(5L, ValueDataUtil.floor(new ValueMetaInteger(), 5L));
     assertEquals(
@@ -550,21 +565,21 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testRoundNoDigits() throws HopValueException {
+  void testRoundNoDigits() throws HopValueException {
     assertEquals(5.0, ValueDataUtil.round(new ValueMetaNumber(), 5.4));
     assertEquals(6.0, ValueDataUtil.round(new ValueMetaNumber(), 5.5));
     assertEquals(5L, ValueDataUtil.round(new ValueMetaInteger(), 5L));
   }
 
   @Test
-  public void testRoundWithDigits() throws HopValueException {
+  void testRoundWithDigits() throws HopValueException {
     Object result = ValueDataUtil.round(new ValueMetaNumber(), 5.456, new ValueMetaInteger(), 2L);
     assertEquals(5.46, (Double) result, 0.001);
   }
 
   // Date operations tests
   @Test
-  public void testRemoveTimeFromDate() throws HopValueException {
+  void testRemoveTimeFromDate() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15, 14, 30, 45);
     Date dateWithTime = cal.getTime();
@@ -580,7 +595,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testAddDays() throws HopValueException {
+  void testAddDays() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15, 0, 0, 0);
     Date date = cal.getTime();
@@ -594,7 +609,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testAddHours() throws HopValueException {
+  void testAddHours() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15, 10, 0, 0);
     Date date = cal.getTime();
@@ -608,7 +623,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testAddMinutes() throws HopValueException {
+  void testAddMinutes() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15, 10, 30, 0);
     Date date = cal.getTime();
@@ -622,7 +637,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testYearOfDate() throws HopValueException {
+  void testYearOfDate() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15);
     Date date = cal.getTime();
@@ -632,7 +647,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testMonthOfDate() throws HopValueException {
+  void testMonthOfDate() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.MARCH, 15);
     Date date = cal.getTime();
@@ -642,7 +657,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDayOfMonth() throws HopValueException {
+  void testDayOfMonth() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15);
     Date date = cal.getTime();
@@ -652,7 +667,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testHourOfDay() throws HopValueException {
+  void testHourOfDay() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15, 14, 30, 0);
     Date date = cal.getTime();
@@ -663,14 +678,14 @@ public class ValueDataUtilTest {
 
   // NVL function tests
   @Test
-  public void testNvlWithNullFirstValue() throws HopValueException {
+  void testNvlWithNullFirstValue() throws HopValueException {
     String result =
         (String) ValueDataUtil.nvl(new ValueMetaString(), null, new ValueMetaString(), "default");
     assertEquals("default", result);
   }
 
   @Test
-  public void testNvlWithNonNullFirstValue() throws HopValueException {
+  void testNvlWithNonNullFirstValue() throws HopValueException {
     String result =
         (String)
             ValueDataUtil.nvl(
@@ -680,7 +695,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testNvlWithIntegers() throws HopValueException {
+  void testNvlWithIntegers() throws HopValueException {
     Long result =
         (Long) ValueDataUtil.nvl(new ValueMetaInteger(), null, new ValueMetaInteger(), 100L);
     assertEquals(Long.valueOf(100), result);
@@ -688,14 +703,14 @@ public class ValueDataUtilTest {
 
   // URL encoding/decoding tests
   @Test
-  public void testUrlEncode() {
+  void testUrlEncode() {
     String encoded = ValueDataUtil.urlEncode("hello world");
     assertEquals("hello+world", encoded);
     assertNull(ValueDataUtil.urlEncode(null));
   }
 
   @Test
-  public void testUrlDecode() {
+  void testUrlDecode() {
     String decoded = ValueDataUtil.urlDecode("hello+world");
     assertEquals("hello world", decoded);
     assertNull(ValueDataUtil.urlDecode(null));
@@ -703,41 +718,41 @@ public class ValueDataUtilTest {
 
   // Hex encoding/decoding tests
   @Test
-  public void testByteToHexEncode() throws HopValueException {
+  void testByteToHexEncode() throws HopValueException {
     String hex = ValueDataUtil.byteToHexEncode(new ValueMetaString(), "test");
     assertEquals("74657374", hex);
   }
 
   @Test
-  public void testHexToByteDecode() throws HopValueException {
+  void testHexToByteDecode() throws HopValueException {
     String decoded = ValueDataUtil.hexToByteDecode(new ValueMetaString(), "74657374");
     assertEquals("test", decoded);
   }
 
   // XML/HTML escape tests
   @Test
-  public void testEscapeXml() {
+  void testEscapeXml() {
     String escaped = ValueDataUtil.escapeXml("<hello>");
     assertTrue(escaped.contains("&lt;") && escaped.contains("&gt;"));
     assertNull(ValueDataUtil.escapeXml(null));
   }
 
   @Test
-  public void testUnEscapeXml() {
+  void testUnEscapeXml() {
     String unescaped = ValueDataUtil.unEscapeXml("&lt;hello&gt;");
     assertEquals("<hello>", unescaped);
     assertNull(ValueDataUtil.unEscapeXml(null));
   }
 
   @Test
-  public void testEscapeHtml() {
+  void testEscapeHtml() {
     String escaped = ValueDataUtil.escapeHtml("<hello>");
     assertTrue(escaped.contains("&lt;") && escaped.contains("&gt;"));
     assertNull(ValueDataUtil.escapeHtml(null));
   }
 
   @Test
-  public void testUnEscapeHtml() {
+  void testUnEscapeHtml() {
     String unescaped = ValueDataUtil.unEscapeHtml("&lt;hello&gt;");
     assertEquals("<hello>", unescaped);
     assertNull(ValueDataUtil.unEscapeHtml(null));
@@ -745,7 +760,7 @@ public class ValueDataUtilTest {
 
   // Test getZeroForValueMetaType
   @Test
-  public void testGetZeroForValueMetaType() throws HopValueException {
+  void testGetZeroForValueMetaType() throws HopValueException {
     assertEquals(0L, ValueDataUtil.getZeroForValueMetaType(new ValueMetaInteger()));
     assertEquals((double) 0, ValueDataUtil.getZeroForValueMetaType(new ValueMetaNumber()));
     assertEquals(
@@ -753,19 +768,22 @@ public class ValueDataUtilTest {
     assertEquals("", ValueDataUtil.getZeroForValueMetaType(new ValueMetaString()));
   }
 
-  @Test(expected = HopValueException.class)
-  public void testGetZeroForValueMetaTypeWithNull() throws HopValueException {
-    ValueDataUtil.getZeroForValueMetaType(null);
+  @Test
+  void testGetZeroForValueMetaTypeWithNull() {
+
+    assertThrows(HopValueException.class, () -> ValueDataUtil.getZeroForValueMetaType(null));
   }
 
-  @Test(expected = HopValueException.class)
-  public void testGetZeroForValueMetaTypeWithUnsupportedType() throws HopValueException {
-    ValueDataUtil.getZeroForValueMetaType(new ValueMetaBoolean());
+  @Test
+  void testGetZeroForValueMetaTypeWithUnsupportedType() {
+    assertThrows(
+        HopValueException.class,
+        () -> ValueDataUtil.getZeroForValueMetaType(new ValueMetaBoolean()));
   }
 
   // Test minus operation
   @Test
-  public void testMinus() throws HopValueException {
+  void testMinus() throws HopValueException {
     Object result =
         ValueDataUtil.minus(
             new ValueMetaInteger(), 10L,
@@ -781,7 +799,7 @@ public class ValueDataUtilTest {
 
   // Test multiply operation
   @Test
-  public void testMultiply() throws HopValueException {
+  void testMultiply() throws HopValueException {
     Object result =
         ValueDataUtil.multiply(
             new ValueMetaInteger(), 5L,
@@ -797,7 +815,7 @@ public class ValueDataUtilTest {
 
   // Test divide operation
   @Test
-  public void testDivide() throws HopValueException {
+  void testDivide() throws HopValueException {
     Object result =
         ValueDataUtil.divide(
             new ValueMetaInteger(), 10L,
@@ -813,7 +831,7 @@ public class ValueDataUtilTest {
 
   // Test isXmlWellFormed (for string content, not file)
   @Test
-  public void testIsXmlWellFormed() {
+  void testIsXmlWellFormed() {
     assertTrue(
         ValueDataUtil.isXmlWellFormed(
             new ValueMetaString(), "<?xml version=\"1.0\"?><root>test</root>"));
@@ -823,7 +841,7 @@ public class ValueDataUtilTest {
 
   // SQL escape test
   @Test
-  public void testEscapeSql() {
+  void testEscapeSql() {
     String escaped = ValueDataUtil.escapeSql("O'Reilly");
     assertEquals("O''Reilly", escaped);
     assertNull(ValueDataUtil.escapeSql(null));
@@ -831,7 +849,7 @@ public class ValueDataUtilTest {
 
   // CDATA test
   @Test
-  public void testUseCDATA() {
+  void testUseCDATA() {
     String cdata = ValueDataUtil.useCDATA("<test>data</test>");
     assertTrue(cdata.startsWith("<![CDATA[") && cdata.endsWith("]]>"));
     assertNull(ValueDataUtil.useCDATA(null));
@@ -839,7 +857,7 @@ public class ValueDataUtilTest {
 
   // Percentage functions tests
   @Test
-  public void testPercent1() throws HopValueException {
+  void testPercent1() throws HopValueException {
     // percent1: A / B * 100
     Object result =
         ValueDataUtil.percent1(
@@ -849,7 +867,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testPercent2() throws HopValueException {
+  void testPercent2() throws HopValueException {
     // percent2: A - (A * B / 100)
     Object result =
         ValueDataUtil.percent2(
@@ -859,7 +877,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testPercent3() throws HopValueException {
+  void testPercent3() throws HopValueException {
     // percent3: A + (A * B / 100)
     Object result =
         ValueDataUtil.percent3(
@@ -870,7 +888,7 @@ public class ValueDataUtilTest {
 
   // Combination functions tests
   @Test
-  public void testCombination1() throws HopValueException {
+  void testCombination1() throws HopValueException {
     // combination1: A + B * C
     Object result =
         ValueDataUtil.combination1(
@@ -881,7 +899,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testCombination2() throws HopValueException {
+  void testCombination2() throws HopValueException {
     // combination2: SQRT(A * A + B * B)
     Object result =
         ValueDataUtil.combination2(new ValueMetaNumber(), 3.0, new ValueMetaNumber(), 4.0);
@@ -890,7 +908,7 @@ public class ValueDataUtilTest {
 
   // Additional date operations tests
   @Test
-  public void testAddSeconds() throws HopValueException {
+  void testAddSeconds() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15, 10, 30, 0);
     Date date = cal.getTime();
@@ -905,7 +923,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testAddMonths() throws HopValueException {
+  void testAddMonths() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15);
     Date date = cal.getTime();
@@ -919,7 +937,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testQuarterOfDate() throws HopValueException {
+  void testQuarterOfDate() throws HopValueException {
     Calendar cal = Calendar.getInstance();
 
     // Q1 - January
@@ -944,7 +962,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testWeekOfYear() throws HopValueException {
+  void testWeekOfYear() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15);
     Date date = cal.getTime();
@@ -954,7 +972,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testWeekOfYearISO8601() throws HopValueException {
+  void testWeekOfYearISO8601() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15);
     Date date = cal.getTime();
@@ -964,7 +982,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testYearOfDateISO8601() throws HopValueException {
+  void testYearOfDateISO8601() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 1);
     Date date = cal.getTime();
@@ -974,7 +992,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDayOfYear() throws HopValueException {
+  void testDayOfYear() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 1);
     Date date = cal.getTime();
@@ -985,11 +1003,11 @@ public class ValueDataUtilTest {
     cal.set(2024, Calendar.DECEMBER, 31);
     date = cal.getTime();
     day = (Long) ValueDataUtil.dayOfYear(new ValueMetaDate(), date);
-    assertTrue(day == 366); // 2024 is a leap year
+    assertEquals(366, (long) day); // 2024 is a leap year
   }
 
   @Test
-  public void testMinuteOfHour() throws HopValueException {
+  void testMinuteOfHour() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15, 14, 35, 0);
     Date date = cal.getTime();
@@ -999,7 +1017,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testSecondOfMinute() throws HopValueException {
+  void testSecondOfMinute() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15, 14, 30, 45);
     Date date = cal.getTime();
@@ -1009,7 +1027,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDayOfWeek() throws HopValueException {
+  void testDayOfWeek() throws HopValueException {
     Calendar cal = Calendar.getInstance();
     cal.set(2024, Calendar.JANUARY, 15); // Monday
     Date date = cal.getTime();
@@ -1020,34 +1038,34 @@ public class ValueDataUtilTest {
 
   // Hex encoding tests
   @Test
-  public void testCharToHexEncode() throws HopValueException {
+  void testCharToHexEncode() throws HopValueException {
     String hex = ValueDataUtil.charToHexEncode(new ValueMetaString(), "A");
     assertEquals("0041", hex);
   }
 
   @Test
-  public void testHexToCharDecode() throws HopValueException {
+  void testHexToCharDecode() throws HopValueException {
     String decoded = ValueDataUtil.hexToCharDecode(new ValueMetaString(), "0041");
     assertEquals("A", decoded);
   }
 
   // String utility functions tests
   @Test
-  public void testRightPadString() {
+  void testRightPadString() {
     assertEquals("test  ", ValueDataUtil.rightPad("test", 6));
     assertEquals("test", ValueDataUtil.rightPad("test", 4));
     assertEquals("te", ValueDataUtil.rightPad("test", 2)); // Truncates if limit is shorter
   }
 
   @Test
-  public void testRightPadStringBuffer() {
+  void testRightPadStringBuffer() {
     StringBuffer sb = new StringBuffer("test");
     String result = ValueDataUtil.rightPad(sb, 6);
     assertEquals("test  ", result);
   }
 
   @Test
-  public void testReplace() {
+  void testReplace() {
     String result = ValueDataUtil.replace("hello world", "world", "universe");
     assertEquals("hello universe", result);
 
@@ -1056,28 +1074,28 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testReplaceBuffer() {
+  void testReplaceBuffer() {
     StringBuffer buffer = new StringBuffer("hello world");
     ValueDataUtil.replaceBuffer(buffer, "world", "universe");
     assertEquals("hello universe", buffer.toString());
   }
 
   @Test
-  public void testNrSpacesBefore() {
+  void testNrSpacesBefore() {
     assertEquals(0, ValueDataUtil.nrSpacesBefore("test"));
     assertEquals(3, ValueDataUtil.nrSpacesBefore("   test"));
     assertEquals(0, ValueDataUtil.nrSpacesBefore(""));
   }
 
   @Test
-  public void testNrSpacesAfter() {
+  void testNrSpacesAfter() {
     assertEquals(0, ValueDataUtil.nrSpacesAfter("test"));
     assertEquals(3, ValueDataUtil.nrSpacesAfter("test   "));
     assertEquals(0, ValueDataUtil.nrSpacesAfter(""));
   }
 
   @Test
-  public void testOnlySpaces() {
+  void testOnlySpaces() {
     assertTrue(ValueDataUtil.onlySpaces("   "));
     assertTrue(ValueDataUtil.onlySpaces(""));
     assertFalse(ValueDataUtil.onlySpaces("  a  "));
@@ -1086,7 +1104,7 @@ public class ValueDataUtilTest {
 
   // Date difference tests
   @Test
-  public void testDateDiff() throws HopValueException {
+  void testDateDiff() throws HopValueException {
     Calendar cal1 = Calendar.getInstance();
     cal1.set(2024, Calendar.JANUARY, 1, 0, 0, 0);
     Date date1 = cal1.getTime();
@@ -1101,7 +1119,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDateDiffHours() throws HopValueException {
+  void testDateDiffHours() throws HopValueException {
     Calendar cal1 = Calendar.getInstance();
     cal1.set(2024, Calendar.JANUARY, 1, 0, 0, 0);
     Date date1 = cal1.getTime();
@@ -1116,7 +1134,7 @@ public class ValueDataUtilTest {
   }
 
   @Test
-  public void testDateDiffMinutes() throws HopValueException {
+  void testDateDiffMinutes() throws HopValueException {
     Calendar cal1 = Calendar.getInstance();
     cal1.set(2024, Calendar.JANUARY, 1, 0, 0, 0);
     Date date1 = cal1.getTime();
@@ -1132,7 +1150,7 @@ public class ValueDataUtilTest {
 
   // Test addTimeToDate
   @Test
-  public void testAddTimeToDate() throws HopValueException {
+  void testAddTimeToDate() throws HopValueException {
     Calendar dateCal = Calendar.getInstance();
     dateCal.set(2024, Calendar.JANUARY, 15, 0, 0, 0);
     Date date = dateCal.getTime();
@@ -1155,7 +1173,7 @@ public class ValueDataUtilTest {
 
   // Test plus3
   @Test
-  public void testPlus3() throws HopValueException {
+  void testPlus3() throws HopValueException {
     Object result =
         ValueDataUtil.plus3(
             new ValueMetaInteger(), 10L,
@@ -1173,23 +1191,23 @@ public class ValueDataUtilTest {
 
   // Test multiplyDoubles and multiplyLongs
   @Test
-  public void testMultiplyDoubles() {
+  void testMultiplyDoubles() {
     assertEquals(Double.valueOf(6.0), ValueDataUtil.multiplyDoubles(2.0, 3.0));
   }
 
   @Test
-  public void testMultiplyLongs() {
+  void testMultiplyLongs() {
     assertEquals(Long.valueOf(6), ValueDataUtil.multiplyLongs(2L, 3L));
   }
 
   // Test divideDoubles and divideLongs
   @Test
-  public void testDivideDoubles() {
+  void testDivideDoubles() {
     assertEquals(Double.valueOf(2.0), ValueDataUtil.divideDoubles(6.0, 3.0));
   }
 
   @Test
-  public void testDivideLongs() {
+  void testDivideLongs() {
     assertEquals(Long.valueOf(2), ValueDataUtil.divideLongs(6L, 3L));
   }
 }

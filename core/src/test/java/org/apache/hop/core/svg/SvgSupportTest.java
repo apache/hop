@@ -16,48 +16,39 @@
  */
 package org.apache.hop.core.svg;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for the SvgSupport class */
-public class SvgSupportTest {
-
+class SvgSupportTest {
   public static final String SVG_IMAGE =
-      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-          + "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.0\"\n"
-          + "\twidth=\"38\" height=\"32\"  viewBox=\"0 0 39.875 33.6667\">\n"
-          + "<path style=\"stroke: none; fill: #323296;\" d=\"M 10,0 L 30.5,0 39.875,17.5 30.5,33.6667 10,33.6667 L 0,17.5"
-          + "L 10,0 z\"/>\n</svg>";
-
-  @Before
-  public void setUp() {
-    // This isn't really a setup line, instead it is here to show that we didn't privatize the
-    // default constructor.
-    // It will stop compiling if we make that change to the code. However it should probably be
-    // refactored a bit
-    // further than that, to better support unit testing.
-    new SvgSupport();
-  }
+      """
+			<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+			<svg xmlns="http://www.w3.org/2000/svg" version="1.0"
+			     width="38" height="32" viewBox="0 0 39.875 33.6667">
+			    <path style="stroke: none; fill: #323296;"
+			          d="M 10,0 L 30.5,0 39.875,17.5 30.5,33.6667 10,33.6667 L 0,17.5 L 10,0 z"/>
+			</svg>
+			""";
 
   @Test
-  public void testIsSvgEnabled() {
+  void testIsSvgEnabled() {
     assertTrue(SvgSupport.isSvgEnabled());
   }
 
   @Test
-  public void testLoadSvgImage() throws Exception {
+  void testLoadSvgImage() throws Exception {
     SvgImage image = SvgSupport.loadSvgImage(new ByteArrayInputStream(SVG_IMAGE.getBytes()));
     assertNotNull(image);
   }
 
   @Test
-  public void testToPngName() {
+  void testToPngName() {
     assertTrue(SvgSupport.isPngName("my_file.png"));
     assertTrue(SvgSupport.isPngName("my_file.PNG"));
     assertTrue(SvgSupport.isPngName(".png"));
@@ -67,7 +58,7 @@ public class SvgSupportTest {
   }
 
   @Test
-  public void testToSvgName() {
+  void testToSvgName() {
     assertTrue(SvgSupport.isSvgName("my_file.svg"));
     assertTrue(SvgSupport.isSvgName("my_file.SVG"));
     assertTrue(SvgSupport.isSvgName(".svg"));

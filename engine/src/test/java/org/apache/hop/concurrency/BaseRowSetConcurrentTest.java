@@ -17,6 +17,8 @@
 
 package org.apache.hop.concurrency;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,8 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.hop.core.BlockingRowSet;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * We have a {@link org.apache.hop.core.BaseRowSet} with a bunch of attributes (originTransformName,
@@ -58,13 +59,13 @@ import org.junit.Test;
  *
  * <p>It calls toString method of shared blockingRowSet and verifies it's consistency.
  */
-public class BaseRowSetConcurrentTest {
+class BaseRowSetConcurrentTest {
   private static final int MUTATE_CIRCLES = 100;
   private static final int NUMBER_OF_MUTATORS = 20;
   private static final int NUMBER_OF_GETTERS = 20;
 
   @Test
-  public void test() throws Exception {
+  void test() throws Exception {
     BlockingRowSet sharedBlockingRowSet = new BlockingRowSet(100);
     // fill data with initial values
     sharedBlockingRowSet.setThreadNameFromToCopy("1", 1, "1", 1);
@@ -76,7 +77,7 @@ public class BaseRowSetConcurrentTest {
     ConcurrencyTestRunner.runAndCheckNoExceptionRaised(mutators, getters, condition);
   }
 
-  private class Mutator extends StopOnErrorCallable<Object> {
+  private static class Mutator extends StopOnErrorCallable<Object> {
     private static final String STRING_DEFAULT = "<def>";
     private final BlockingRowSet blockingRowSet;
     private final Random random;
@@ -102,7 +103,7 @@ public class BaseRowSetConcurrentTest {
     }
   }
 
-  private class Getter extends StopOnErrorCallable<Object> {
+  private static class Getter extends StopOnErrorCallable<Object> {
     private final BlockingRowSet blockingRowSet;
 
     private Getter(BlockingRowSet blockingRowSet, AtomicBoolean condition) {
@@ -124,7 +125,7 @@ public class BaseRowSetConcurrentTest {
 
       // we expect that all ids (and all digits are ids here) refer to the same set,
       // that means that they are equal.
-      Assert.assertEquals(1, ids.size());
+      assertEquals(1, ids.size());
     }
 
     /**

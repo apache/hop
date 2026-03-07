@@ -16,89 +16,95 @@
  */
 package org.apache.hop.core.fileinput;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.commons.vfs2.FileSystemException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class NonAccessibleFileObjectTest {
+/** Unit test for {@link NonAccessibleFileObject} */
+class NonAccessibleFileObjectTest {
 
   @Test
-  public void testGetPublicURIString() {
+  void testGetPublicURIString() {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket/mykey");
     assertEquals("s3:///mybucket/mykey", obj.getPublicURIString());
   }
 
   @Test
-  public void testGetPublicURIStringWithNullPath() {
+  void testGetPublicURIStringWithNullPath() {
     NonAccessibleFileObject obj = new NonAccessibleFileObject(null);
-    assertEquals(null, obj.getPublicURIString());
+    assertNull(obj.getPublicURIString());
   }
 
   @Test
-  public void testExists() throws FileSystemException {
+  void testExists() throws FileSystemException {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
     assertFalse(obj.exists());
   }
 
   @Test
-  public void testIsReadable() throws FileSystemException {
+  void testIsReadable() throws FileSystemException {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
     assertFalse(obj.isReadable());
   }
 
   @Test
-  public void testIsWriteable() throws FileSystemException {
+  void testIsWriteable() throws FileSystemException {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
     assertFalse(obj.isWriteable());
   }
 
   @Test
-  public void testCanRenameTo() {
+  void testCanRenameTo() {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
     assertFalse(obj.canRenameTo(null));
   }
 
   @Test
-  public void testGetURL() throws FileSystemException {
+  void testGetURL() throws FileSystemException {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("http://example.com/file");
     assertEquals("http://example.com/file", obj.getURL().toString());
   }
 
-  @Test(expected = FileSystemException.class)
-  public void testGetURLWithInvalidURL() throws FileSystemException {
+  @Test
+  void testGetURLWithInvalidURL() {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("not a valid url");
-    obj.getURL();
+    assertThrows(FileSystemException.class, obj::getURL);
   }
 
   @Test
-  public void testIsAttached() {
+  void testIsAttached() {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
     assertFalse(obj.isAttached());
   }
 
   @Test
-  public void testIsContentOpen() {
+  void testIsContentOpen() {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
     assertFalse(obj.isContentOpen());
   }
 
   @Test
-  public void testIsHidden() throws FileSystemException {
+  void testIsHidden() throws FileSystemException {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
     assertFalse(obj.isHidden());
   }
 
   @Test
-  public void testCloseDoesNotThrow() throws FileSystemException {
+  void testCloseDoesNotThrow() throws FileSystemException {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
+    assertNotNull(obj);
     obj.close();
   }
 
   @Test
-  public void testRefreshDoesNotThrow() throws FileSystemException {
+  void testRefreshDoesNotThrow() throws FileSystemException {
     NonAccessibleFileObject obj = new NonAccessibleFileObject("s3:///mybucket");
+    assertNotNull(obj);
     obj.refresh();
   }
 }

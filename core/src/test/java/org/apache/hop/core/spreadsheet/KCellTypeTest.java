@@ -17,14 +17,15 @@
 
 package org.apache.hop.core.spreadsheet;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class KCellTypeTest {
+/** Unit test for {@link KCellType} */
+class KCellTypeTest {
 
   @Test
-  public void testEnums() {
+  void testEnums() {
     assertEquals("Empty", KCellType.EMPTY.getDescription());
     assertEquals("Boolean", KCellType.BOOLEAN.getDescription());
     assertEquals("Boolean formula", KCellType.BOOLEAN_FORMULA.getDescription());

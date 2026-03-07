@@ -16,6 +16,7 @@
  */
 package org.apache.hop.www;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
@@ -27,33 +28,33 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 
-public class HopServerTest {
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
+class HopServerTest {
   private MockedStatic<Client> mockedClient;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Before
-  public void setUpStaticMocks() {
+  @BeforeEach
+  void setUpStaticMocks() {
     mockedClient = mockStatic(Client.class);
   }
 
-  @After
-  public void tearDownStaticMocks() {
+  @AfterEach
+  void tearDownStaticMocks() {
     mockedClient.closeOnDemand();
   }
 
-  @Ignore("This test needs to be reviewed")
   @Test
-  public void callStopHopServerRestService() throws Exception {
+  @Disabled("This test needs to be reviewed")
+  void callStopHopServerRestService() {
     WebTarget target = mock(WebTarget.class);
     doReturn("<serverstatus>").when(target).request(MediaType.TEXT_PLAIN).get();
 
@@ -66,7 +67,14 @@ public class HopServerTest {
     doReturn(stop).when(client).target("http://localhost:8080/hop/stopHopServer");
     when(ClientBuilder.newClient(any(ClientConfig.class))).thenReturn(client);
 
-    HopServer.callStopHopServerRestService(
-        "localhost", "8080", "8079", "admin", "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde");
+    assertThrows(
+        HopServer.HopServerCommandException.class,
+        () ->
+            HopServer.callStopHopServerRestService(
+                "localhost",
+                "8080",
+                "8079",
+                "admin",
+                "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde"));
   }
 }

@@ -17,21 +17,24 @@
 
 package org.apache.hop.core.metrics;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class MetricsDurationTest {
-
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+/** Unit test for {@link MetricsDuration} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class MetricsDurationTest {
 
   @Test
-  public void test() {
-    Date startDate = new Date((2016 - 1900), Calendar.JANUARY, 10);
+  void test() {
+    LocalDate localDate = LocalDate.of(2016, 1, 10);
+    Date startDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
     Long duration = 4L;
     MetricsDuration metric =
         new MetricsDuration(startDate, "theDesc", "theSubj", "theLogChannel", duration);

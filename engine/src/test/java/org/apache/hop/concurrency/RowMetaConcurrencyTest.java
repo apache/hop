@@ -17,8 +17,8 @@
 
 package org.apache.hop.concurrency;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,14 +34,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class RowMetaConcurrencyTest {
+/** Unit test for {@link RowMeta} */
+class RowMetaConcurrencyTest {
 
   private static final int CYCLES = 50;
 
   @Test
-  public void fiveAddersAgainstTenReaders() throws Exception {
+  void fiveAddersAgainstTenReaders() throws Exception {
     final int addersAmount = 5;
     final int readersAmount = 10;
 
@@ -73,13 +74,13 @@ public class RowMetaConcurrencyTest {
     assertEquals(CYCLES * addersAmount, metas.size());
     assertEquals(CYCLES * addersAmount, results.size());
     for (IValueMeta meta : metas) {
-      assertTrue(meta.getName(), results.remove(meta));
+      assertTrue(results.remove(meta), meta.getName());
     }
     assertTrue(results.isEmpty());
   }
 
   @Test
-  public void fiveShufflersAgainstTenSearchers() throws Exception {
+  void fiveShufflersAgainstTenSearchers() throws Exception {
     final int elementsAmount = 100;
     final int shufflersAmount = 5;
     final int searchersAmount = 10;
@@ -107,7 +108,8 @@ public class RowMetaConcurrencyTest {
   }
 
   @Test
-  public void addRemoveSearch() throws Exception {
+  @SuppressWarnings("unchecked")
+  void addRemoveSearch() throws Exception {
     final int addersAmount = 5;
     final int removeAmount = 10;
     final int searchersAmount = 10;
@@ -153,7 +155,7 @@ public class RowMetaConcurrencyTest {
       ExecutionResult<List<String>> result = (ExecutionResult<List<String>>) results.get(remover);
       assertTrue(result.getResult().isEmpty());
       for (String name : remover.getToRemove()) {
-        assertEquals(name, -1, rowMeta.indexOfValue(name));
+        assertEquals(-1, rowMeta.indexOfValue(name), name);
       }
     }
     // adders should add all elements
@@ -162,7 +164,7 @@ public class RowMetaConcurrencyTest {
       ExecutionResult<List<IValueMeta>> result =
           (ExecutionResult<List<IValueMeta>>) results.get(adder);
       for (IValueMeta meta : result.getResult()) {
-        assertTrue(meta.getName(), metas.remove(meta));
+        assertTrue(metas.remove(meta), meta.getName());
       }
     }
     assertEquals(searchersAmount, metas.size());
@@ -268,7 +270,7 @@ public class RowMetaConcurrencyTest {
 
   private static class Remover extends StopOnErrorCallable<List<String>> {
     private final RowMeta rowMeta;
-    private final List<String> toRemove;
+    @lombok.Getter private final List<String> toRemove;
 
     public Remover(AtomicBoolean condition, RowMeta rowMeta, List<String> toRemove) {
       super(condition);
@@ -287,10 +289,6 @@ public class RowMetaConcurrencyTest {
         Thread.sleep(random.nextInt(100));
       }
       return result;
-    }
-
-    public List<String> getToRemove() {
-      return toRemove;
     }
   }
 }

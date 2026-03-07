@@ -17,45 +17,49 @@
 
 package org.apache.hop.i18n;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Locale;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class GlobalMessageUtilTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+/** Unit test for {@link GlobalMessageUtil} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class GlobalMessageUtilTest {
 
   @Test
-  public void testGetLocaleString() {
-    Assert.assertEquals("", GlobalMessageUtil.getLocaleString(null));
-    Assert.assertEquals("", GlobalMessageUtil.getLocaleString(new Locale("")));
-    Assert.assertEquals("en", GlobalMessageUtil.getLocaleString(Locale.ENGLISH));
-    Assert.assertEquals("en_US", GlobalMessageUtil.getLocaleString(Locale.US));
-    Assert.assertEquals("en", GlobalMessageUtil.getLocaleString(new Locale("EN")));
-    Assert.assertEquals("en_US", GlobalMessageUtil.getLocaleString(new Locale("EN", "us")));
+  void testGetLocaleString() {
+    assertEquals("", GlobalMessageUtil.getLocaleString(null));
+    assertEquals("", GlobalMessageUtil.getLocaleString(Locale.of("")));
+    assertEquals("en", GlobalMessageUtil.getLocaleString(Locale.ENGLISH));
+    assertEquals("en_US", GlobalMessageUtil.getLocaleString(Locale.US));
+    assertEquals("en", GlobalMessageUtil.getLocaleString(Locale.of("EN")));
+    assertEquals("en_US", GlobalMessageUtil.getLocaleString(Locale.of("EN", "us")));
   }
 
   @Test
-  public void isMissingKey() {
-    Assert.assertTrue(GlobalMessageUtil.isMissingKey(null));
-    Assert.assertFalse(GlobalMessageUtil.isMissingKey(""));
-    Assert.assertFalse(GlobalMessageUtil.isMissingKey(" "));
-    Assert.assertTrue(GlobalMessageUtil.isMissingKey("!foo!"));
-    Assert.assertTrue(GlobalMessageUtil.isMissingKey("!foo! "));
-    Assert.assertTrue(GlobalMessageUtil.isMissingKey(" !foo!"));
-    Assert.assertFalse(GlobalMessageUtil.isMissingKey("!foo"));
-    Assert.assertFalse(GlobalMessageUtil.isMissingKey("foo!"));
-    Assert.assertFalse(GlobalMessageUtil.isMissingKey("foo"));
-    Assert.assertFalse(GlobalMessageUtil.isMissingKey("!"));
-    Assert.assertFalse(GlobalMessageUtil.isMissingKey(" !"));
+  void isMissingKey() {
+    assertTrue(GlobalMessageUtil.isMissingKey(null));
+    assertFalse(GlobalMessageUtil.isMissingKey(""));
+    assertFalse(GlobalMessageUtil.isMissingKey(" "));
+    assertTrue(GlobalMessageUtil.isMissingKey("!foo!"));
+    assertTrue(GlobalMessageUtil.isMissingKey("!foo! "));
+    assertTrue(GlobalMessageUtil.isMissingKey(" !foo!"));
+    assertFalse(GlobalMessageUtil.isMissingKey("!foo"));
+    assertFalse(GlobalMessageUtil.isMissingKey("foo!"));
+    assertFalse(GlobalMessageUtil.isMissingKey("foo"));
+    assertFalse(GlobalMessageUtil.isMissingKey("!"));
+    assertFalse(GlobalMessageUtil.isMissingKey(" !"));
   }
 
   @Test
-  public void calculateString() {
+  void calculateString() {
 
     // "fr", "FR"
-    Assert.assertEquals(
+    assertEquals(
         "Une certaine valeur foo",
         GlobalMessageUtil.calculateString(
             GlobalMessages.SYSTEM_BUNDLE_PACKAGE,
@@ -74,10 +78,10 @@ public class GlobalMessageUtilTest {
             new String[] {"foo"},
             GlobalMessages.PKG,
             GlobalMessages.BUNDLE_NAME);
-    Assert.assertEquals("Some Value foo", str);
+    assertEquals("Some Value foo", str);
 
     // "jp"
-    Assert.assertEquals(
+    assertEquals(
         "何らかの値 foo",
         GlobalMessageUtil.calculateString(
             GlobalMessages.SYSTEM_BUNDLE_PACKAGE,
@@ -96,12 +100,12 @@ public class GlobalMessageUtilTest {
             new String[] {"foo"},
             GlobalMessages.PKG,
             GlobalMessages.BUNDLE_NAME);
-    Assert.assertEquals("何らかの値 foo", str);
+    assertEquals("何らかの値 foo", str);
 
     // try with multiple packages
     // make sure the selected language is used correctly
     LanguageChoice.getInstance().setDefaultLocale(Locale.FRANCE); // "fr", "FR"
-    Assert.assertEquals(
+    assertEquals(
         "Une certaine valeur foo",
         GlobalMessageUtil.calculateString(
             new String[] {GlobalMessages.SYSTEM_BUNDLE_PACKAGE},
@@ -112,7 +116,7 @@ public class GlobalMessageUtilTest {
 
     LanguageChoice.getInstance()
         .setDefaultLocale(Locale.FRENCH); // "fr" - fall back on "default" messages.properties
-    Assert.assertEquals(
+    assertEquals(
         "Some Value foo",
         GlobalMessageUtil.calculateString(
             new String[] {GlobalMessages.SYSTEM_BUNDLE_PACKAGE},
@@ -123,7 +127,7 @@ public class GlobalMessageUtilTest {
 
     LanguageChoice.getInstance()
         .setDefaultLocale(Locale.FRENCH); // "fr" - fall back on foo/messages_fr.properties
-    Assert.assertEquals(
+    assertEquals(
         "Une certaine valeur foo",
         GlobalMessageUtil.calculateString(
             new String[] {GlobalMessages.SYSTEM_BUNDLE_PACKAGE, "org.apache.hop.foo"},
@@ -133,7 +137,7 @@ public class GlobalMessageUtilTest {
             GlobalMessages.BUNDLE_NAME));
 
     LanguageChoice.getInstance().setDefaultLocale(Locale.JAPANESE); // "jp"
-    Assert.assertEquals(
+    assertEquals(
         "何らかの値 foo",
         GlobalMessageUtil.calculateString(
             new String[] {GlobalMessages.SYSTEM_BUNDLE_PACKAGE},
@@ -143,7 +147,7 @@ public class GlobalMessageUtilTest {
             GlobalMessages.BUNDLE_NAME));
 
     LanguageChoice.getInstance().setDefaultLocale(Locale.JAPAN); // "jp", "JP" - fall back on "jp"
-    Assert.assertEquals(
+    assertEquals(
         "何らかの値 foo",
         GlobalMessageUtil.calculateString(
             new String[] {GlobalMessages.SYSTEM_BUNDLE_PACKAGE},

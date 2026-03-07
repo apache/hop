@@ -17,10 +17,10 @@
 
 package org.apache.hop.core.injection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,32 +36,26 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class MetaPropInjectionTest {
+class MetaPropInjectionTest {
 
-  /**
-   * Test to see that the annotations are picked up properly in various scenarios
-   *
-   * @throws Exception
-   */
+  /** Test to see that the annotations are picked up properly in various scenarios */
   @Test
-  public void testHopMetadataPropertyInjectionInfo() {
+  void testHopMetadataPropertyInjectionInfo() {
     BeanInjectionInfo<PropBeanParent> info = new BeanInjectionInfo<>(PropBeanParent.class);
     assertEquals(4, info.getGroups().size());
     assertEquals(11, info.getProperties().size());
 
     // String PropBeanParent.stringField
-    //
     BeanInjectionInfo<PropBeanParent>.Property prop = info.getProperties().get("str");
     assertNotNull(prop);
     assertEquals(2, prop.getPath().size());
-    BeanLevelInfo beanLevelInfo = prop.getPath().get(1);
+    BeanLevelInfo<?> beanLevelInfo = prop.getPath().get(1);
     assertEquals(String.class, beanLevelInfo.leafClass);
     assertEquals("stringField", beanLevelInfo.field.getName());
 
     // int PropBeanParent.intField
-    //
     prop = info.getProperties().get("int");
     assertNotNull(prop);
     assertEquals(2, prop.getPath().size());
@@ -70,7 +64,6 @@ public class MetaPropInjectionTest {
     assertEquals("intField", beanLevelInfo.field.getName());
 
     // long PropBeanParent.longField
-    //
     prop = info.getProperties().get("long");
     assertNotNull(prop);
     assertEquals(2, prop.getPath().size());
@@ -79,7 +72,6 @@ public class MetaPropInjectionTest {
     assertEquals("longField", beanLevelInfo.field.getName());
 
     // boolean PropBeanParent.booleanField
-    //
     prop = info.getProperties().get("boolean");
     assertNotNull(prop);
     assertEquals(2, prop.getPath().size());
@@ -87,32 +79,15 @@ public class MetaPropInjectionTest {
     assertEquals(boolean.class, beanLevelInfo.leafClass);
     assertEquals("booleanField", beanLevelInfo.field.getName());
 
-    // PropBeanChild PropBeanParent.child
-    //
-    prop = info.getProperties().get("child1");
-    assertNotNull(prop);
-    assertEquals(3, prop.getPath().size());
-    beanLevelInfo = prop.getPath().get(1);
-    assertEquals(PropBeanChild.class, beanLevelInfo.leafClass);
-    assertEquals("child", beanLevelInfo.field.getName());
-    beanLevelInfo = prop.getPath().get(2);
-    assertEquals(String.class, beanLevelInfo.leafClass);
-    assertEquals("childField1", beanLevelInfo.field.getName());
+    testHopMetadataPropertyInjectionInfo_1(prop, info, beanLevelInfo);
+    testHopMetadataPropertyInjectionInfo_2(prop, info, beanLevelInfo);
+  }
 
+  private void testHopMetadataPropertyInjectionInfo_1(
+      BeanInjectionInfo<PropBeanParent>.Property prop,
+      BeanInjectionInfo<PropBeanParent> info,
+      BeanLevelInfo<?> beanLevelInfo) {
     // PropBeanChild PropBeanParent.child
-    //
-    prop = info.getProperties().get("child2");
-    assertNotNull(prop);
-    assertEquals(3, prop.getPath().size());
-    beanLevelInfo = prop.getPath().get(1);
-    assertEquals(PropBeanChild.class, beanLevelInfo.leafClass);
-    assertEquals("child", beanLevelInfo.field.getName());
-    beanLevelInfo = prop.getPath().get(2);
-    assertEquals(String.class, beanLevelInfo.leafClass);
-    assertEquals("childField2", beanLevelInfo.field.getName());
-
-    // PropBeanChild PropBeanParent.child
-    //
     prop = info.getProperties().get("f1");
     assertNotNull(prop);
     assertEquals(3, prop.getPath().size());
@@ -124,7 +99,6 @@ public class MetaPropInjectionTest {
     assertEquals("f1", beanLevelInfo.field.getName());
 
     // PropBeanChild PropBeanParent.child
-    //
     prop = info.getProperties().get("f2");
     assertNotNull(prop);
     assertEquals(3, prop.getPath().size());
@@ -136,7 +110,6 @@ public class MetaPropInjectionTest {
     assertEquals("f2", beanLevelInfo.field.getName());
 
     // PropBeanChild PropBeanParent.child
-    //
     prop = info.getProperties().get("string");
     assertNotNull(prop);
     assertEquals(3, prop.getPath().size());
@@ -150,7 +123,6 @@ public class MetaPropInjectionTest {
     assertNull(beanLevelInfo.setter);
 
     // PropBeanChild PropBeanParent.child
-    //
     prop = info.getProperties().get("grand_child_name");
     assertNotNull(prop);
     assertEquals(4, prop.getPath().size());
@@ -168,8 +140,35 @@ public class MetaPropInjectionTest {
     assertEquals(String.class, prop.getPath().get(3).leafClass);
   }
 
+  private void testHopMetadataPropertyInjectionInfo_2(
+      BeanInjectionInfo<PropBeanParent>.Property prop,
+      BeanInjectionInfo<PropBeanParent> info,
+      BeanLevelInfo<?> beanLevelInfo) {
+    // PropBeanChild PropBeanParent.child
+    prop = info.getProperties().get("child2");
+    assertNotNull(prop);
+    assertEquals(3, prop.getPath().size());
+    beanLevelInfo = prop.getPath().get(1);
+    assertEquals(PropBeanChild.class, beanLevelInfo.leafClass);
+    assertEquals("child", beanLevelInfo.field.getName());
+    beanLevelInfo = prop.getPath().get(2);
+    assertEquals(String.class, beanLevelInfo.leafClass);
+    assertEquals("childField2", beanLevelInfo.field.getName());
+
+    // PropBeanChild PropBeanParent.child
+    prop = info.getProperties().get("child1");
+    assertNotNull(prop);
+    assertEquals(3, prop.getPath().size());
+    beanLevelInfo = prop.getPath().get(1);
+    assertEquals(PropBeanChild.class, beanLevelInfo.leafClass);
+    assertEquals("child", beanLevelInfo.field.getName());
+    beanLevelInfo = prop.getPath().get(2);
+    assertEquals(String.class, beanLevelInfo.leafClass);
+    assertEquals("childField1", beanLevelInfo.field.getName());
+  }
+
   @Test
-  public void testHopMetadataPropertyInjection() throws Exception {
+  void testHopMetadataPropertyInjection() throws Exception {
     // The object to inject into
     //
     PropBeanParent parent = new PropBeanParent();
@@ -189,16 +188,15 @@ public class MetaPropInjectionTest {
 
     BeanInjector<PropBeanParent> injector = new BeanInjector<>(info, new MemoryMetadataProvider());
 
-    injector.setProperty(parent, "str", Arrays.asList(parentMetadata), "stringValue");
-    injector.setProperty(parent, "int", Arrays.asList(parentMetadata), "intValue");
-    injector.setProperty(parent, "long", Arrays.asList(parentMetadata), "longValue");
-    injector.setProperty(parent, "boolean", Arrays.asList(parentMetadata), "booleanValue");
-    injector.setProperty(parent, "child1", Arrays.asList(parentMetadata), "childValue1");
-    injector.setProperty(parent, "child2", Arrays.asList(parentMetadata), "childValue2");
+    injector.setProperty(parent, "str", List.of(parentMetadata), "stringValue");
+    injector.setProperty(parent, "int", List.of(parentMetadata), "intValue");
+    injector.setProperty(parent, "long", List.of(parentMetadata), "longValue");
+    injector.setProperty(parent, "boolean", List.of(parentMetadata), "booleanValue");
+    injector.setProperty(parent, "child1", List.of(parentMetadata), "childValue1");
+    injector.setProperty(parent, "child2", List.of(parentMetadata), "childValue2");
+    injector.setProperty(parent, "grand_child_name", List.of(parentMetadata), "grandChildName");
     injector.setProperty(
-        parent, "grand_child_name", Arrays.asList(parentMetadata), "grandChildName");
-    injector.setProperty(
-        parent, "grand_child_description", Arrays.asList(parentMetadata), "grandChildDescription");
+        parent, "grand_child_description", List.of(parentMetadata), "grandChildDescription");
 
     assertEquals("someString", parent.getStringField());
     assertEquals(123, parent.getIntField());

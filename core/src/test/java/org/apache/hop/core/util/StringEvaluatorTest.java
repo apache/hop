@@ -17,10 +17,10 @@
 
 package org.apache.hop.core.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,40 +30,41 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /** Test class for StringEvaluator functionality. */
-public class StringEvaluatorTest {
+class StringEvaluatorTest {
 
   private StringEvaluator evaluator;
   private static Locale defaultLocale;
 
-  @BeforeClass
-  public static void setUpClass() {
+  @BeforeAll
+  static void setUpClass() {
     defaultLocale = Locale.getDefault();
   }
 
-  @Before
-  public void setUp() throws HopException {
+  @BeforeEach
+  void setUp() throws HopException {
     HopClientEnvironment.init();
     evaluator = new StringEvaluator();
     Locale.setDefault(Locale.US);
   }
 
-  @AfterClass
-  public static void tearDown() {
+  @AfterAll
+  static void tearDown() {
     Locale.setDefault(defaultLocale);
   }
 
-  /////////////////////////////////////
+  // ///////////////////////////////////
   // common
-  ////////////////////////////////////
+  // /////////////////////////////////
+
   @Test
-  public void testEmpty() {
+  void testEmpty() {
     evaluator.evaluateString("");
     assertTrue(evaluator.getStringEvaluationResults().isEmpty());
 
@@ -72,7 +73,7 @@ public class StringEvaluatorTest {
   }
 
   @Test
-  public void testGetValues_WithoutDublicate() {
+  void testGetValues_WithoutDuplicate() {
     List<String> strings = Arrays.asList("name1", "name2");
     for (String string : strings) {
       evaluator.evaluateString(string);
@@ -83,30 +84,28 @@ public class StringEvaluatorTest {
     Collections.sort(actualStrings);
 
     Iterator<String> exIterator = strings.iterator();
-    Iterator<String> iterator = actualStrings.iterator();
-    while (iterator.hasNext()) {
-      assertEquals(exIterator.next(), iterator.next());
+    for (String actualString : actualStrings) {
+      assertEquals(exIterator.next(), actualString);
     }
   }
 
   @Test
-  public void testGetValues_Duplicate() {
+  void testGetValues_Duplicate() {
     String dublicatedString = "name1";
-    List<String> strings = Arrays.asList(dublicatedString);
+    List<String> strings = List.of(dublicatedString);
     for (String string : strings) {
       evaluator.evaluateString(string);
     }
     evaluator.evaluateString(dublicatedString);
     assertEquals(strings.size(), evaluator.getValues().size());
     Iterator<String> exIterator = strings.iterator();
-    Iterator<String> iterator = evaluator.getValues().iterator();
-    while (iterator.hasNext()) {
-      assertEquals(exIterator.next(), iterator.next());
+    for (String s : evaluator.getValues()) {
+      assertEquals(exIterator.next(), s);
     }
   }
 
   @Test
-  public void testGetCount() {
+  void testGetCount() {
     List<String> strings = Arrays.asList("02/29/2000", "03/29/2000");
     for (String string : strings) {
       evaluator.evaluateString(string);
@@ -115,9 +114,9 @@ public class StringEvaluatorTest {
   }
 
   @Test
-  public void testGetAdvicedResult_NullInput() {
+  void testGetAdvicedResult_NullInput() {
     String expectedNull = "";
-    List<String> strings = Arrays.asList(expectedNull);
+    List<String> strings = List.of(expectedNull);
     for (String string : strings) {
       evaluator.evaluateString(string);
     }
@@ -126,7 +125,7 @@ public class StringEvaluatorTest {
   }
 
   @Test
-  public void testGetAdvicedResult_MinMaxInput() {
+  void testGetAdvicedResult_MinMaxInput() {
     String expectedMin = "500";
     String expectedMax = "1000";
     List<String> strings = Arrays.asList(expectedMax, expectedMin);
@@ -139,11 +138,12 @@ public class StringEvaluatorTest {
     assertEquals(expectedMax.length(), evaluator.getMaxLength());
   }
 
-  /////////////////////////////////////
+  // ///////////////////////////////////
   // mixed types
-  ////////////////////////////////////
+  // //////////////////////////////////
+
   @Test
-  public void testIntegerWithNumber() {
+  void testIntegerWithNumber() {
     List<String> strings = Arrays.asList("1", "1.1");
     String mask = "#.#";
     for (String string : strings) {
@@ -154,28 +154,29 @@ public class StringEvaluatorTest {
     assertEquals(mask, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 
-  /////////////////////////////////////
+  // ///////////////////////////////////
   // number types
-  ////////////////////////////////////
+  // / /////////////////////////////////
+
   @Test
-  public void testNumberWithPoint() {
+  void testNumberWithPoint() {
     testNumber("#.#", "1.1");
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testNumberWithGroupAndPoint() {
+  @Disabled("This test needs to be reviewed")
+  void testNumberWithGroupAndPoint() {
     testNumber("#,###,###.#", "1,111,111.1");
   }
 
   @Test
-  @Ignore("This test needs to be reviewed")
-  public void testNumbers() {
+  @Disabled("This test needs to be reviewed")
+  void testNumbers() {
     testNumber("#,###,###.#", "1,111,111.1", "1,111");
   }
 
   @Test
-  public void testStringAsNumber() {
+  void testStringAsNumber() {
     evaluator.evaluateString("1");
     evaluator.evaluateString("1.111111111");
     evaluator.evaluateString("1,111");
@@ -196,16 +197,17 @@ public class StringEvaluatorTest {
     assertEquals(mask, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 
-  /////////////////////////////////////
+  // ///////////////////////////////////
   // integer types
-  ////////////////////////////////////
+  // //////////////////////////////////
+
   @Test
-  public void testInteger() {
+  void testInteger() {
     testInteger("#", "1");
   }
 
   @Test
-  public void testIntegerWithGroup() {
+  void testIntegerWithGroup() {
     testInteger("#", "1111");
   }
 
@@ -218,11 +220,12 @@ public class StringEvaluatorTest {
     assertEquals(mask, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 
-  /////////////////////////////////////
+  // ///////////////////////////////////
   // currency types
-  ////////////////////////////////////
+
+  // / /////////////////////////////////
   @Test
-  public void testCurrency() {
+  void testCurrency() {
     testCurrencyBasic("+123", "-123", "(123)");
   }
 
@@ -234,26 +237,27 @@ public class StringEvaluatorTest {
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isString());
   }
 
-  /////////////////////////////////////
+  // ///////////////////////////////////
   // boolean types
-  ////////////////////////////////////
+
+  // / /////////////////////////////////
   @Test
-  public void testBooleanY() {
+  void testBooleanY() {
     testBoolean("Y");
   }
 
   @Test
-  public void testBooleanN() {
+  void testBooleanN() {
     testBoolean("N");
   }
 
   @Test
-  public void testBooleanTrue() {
+  void testBooleanTrue() {
     testBoolean("True");
   }
 
   @Test
-  public void testBooleanFalse() {
+  void testBooleanFalse() {
     testBoolean("False");
   }
 
@@ -265,26 +269,27 @@ public class StringEvaluatorTest {
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isBoolean());
   }
 
-  /////////////////////////////////////
+  // ///////////////////////////////////
   // Date types, use default USA format
-  ////////////////////////////////////
+
+  // / /////////////////////////////////
   @Test
-  public void testDate() {
+  void testDate() {
     testDefaultDateFormat("MM/dd/yyyy", "10/10/2000");
   }
 
   @Test
-  public void testDateArray() {
+  void testDateArray() {
     testDefaultDateFormat("MM/dd/yyyy", "10/10/2000", "11/10/2000", "12/10/2000");
   }
 
   @Test
-  public void testTimeStamp() {
+  void testTimeStamp() {
     testDefaultDateFormat("MM/dd/yyyy HH:mm:ss", "10/10/2000 00:00:00");
   }
 
   @Test
-  public void testTimeStampSeconds() {
+  void testTimeStampSeconds() {
     testDefaultDateFormat("MM/dd/yyyy HH:mm:ss", "10/10/2000 00:00:00");
   }
 
@@ -299,38 +304,38 @@ public class StringEvaluatorTest {
   }
 
   @Test
-  public void testDate2YearDigits() {
+  void testDate2YearDigits() {
     testDefaultDateFormat("MM/dd/yy", "10/10/20", "11/10/20", "12/10/20");
   }
 
   @Test
-  public void testCustomDateFormat() {
+  void testCustomDateFormat() {
     String sampleFormat = "MM/dd/yyyy HH:mm:ss";
     ArrayList<String> dateFormats = new ArrayList<>();
     dateFormats.add(sampleFormat);
-    StringEvaluator evaluator = new StringEvaluator(true, new ArrayList<>(), dateFormats);
-    evaluator.evaluateString("02/29/2000 00:00:00");
-    assertFalse(evaluator.getStringEvaluationResults().isEmpty());
-    assertTrue(evaluator.getAdvicedResult().getConversionMeta().isDate());
+    StringEvaluator strEvaluator = new StringEvaluator(true, new ArrayList<>(), dateFormats);
+    strEvaluator.evaluateString("02/29/2000 00:00:00");
+    assertFalse(strEvaluator.getStringEvaluationResults().isEmpty());
+    assertTrue(strEvaluator.getAdvicedResult().getConversionMeta().isDate());
     assertEquals(
-        sampleFormat, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
+        sampleFormat, strEvaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 
   @Test
-  public void testAdviceedOneDateFormat() {
+  void testAdviceOneDateFormat() {
     String sampleLongFormat = "MM/dd/yyyy HH:mm:ss";
     String sampleShortFormat = "MM/dd/yy HH:mm:ss";
     ArrayList<String> dateFormats = new ArrayList<>();
     dateFormats.add(sampleLongFormat);
     dateFormats.add(sampleShortFormat);
-    StringEvaluator evaluator = new StringEvaluator(true, new ArrayList<>(), dateFormats);
-    evaluator.evaluateString("02/29/20 00:00:00");
-    assertFalse(evaluator.getStringEvaluationResults().isEmpty());
-    assertTrue(evaluator.getAdvicedResult().getConversionMeta().isDate());
+    StringEvaluator strEvaluator = new StringEvaluator(true, new ArrayList<>(), dateFormats);
+    strEvaluator.evaluateString("02/29/20 00:00:00");
+    assertFalse(strEvaluator.getStringEvaluationResults().isEmpty());
+    assertTrue(strEvaluator.getAdvicedResult().getConversionMeta().isDate());
     assertNotEquals(
-        sampleLongFormat, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
-    // should advice short format
+        sampleLongFormat, strEvaluator.getAdvicedResult().getConversionMeta().getConversionMask());
+    // should advise short format
     assertEquals(
-        sampleShortFormat, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
+        sampleShortFormat, strEvaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 }

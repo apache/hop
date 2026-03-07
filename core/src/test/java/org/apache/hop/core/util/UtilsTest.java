@@ -16,11 +16,11 @@
  */
 package org.apache.hop.core.util;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,63 +28,64 @@ import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class UtilsTest {
-  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+/** Unit test for {@link Utils} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class UtilsTest {
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
+  @BeforeAll
+  static void setUpBeforeClass() throws HopException {
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testIsEmpty() {
+  void testIsEmpty() {
     assertTrue(Utils.isEmpty((String) null));
     assertTrue(Utils.isEmpty(""));
     assertFalse(Utils.isEmpty("test"));
   }
 
   @Test
-  public void testIsEmptyStringArray() {
+  void testIsEmptyStringArray() {
     assertTrue(Utils.isEmpty((String[]) null));
     assertTrue(Utils.isEmpty(new String[] {}));
     assertFalse(Utils.isEmpty(new String[] {"test"}));
   }
 
   @Test
-  public void testIsEmptyObjectArray() {
+  void testIsEmptyObjectArray() {
     assertTrue(Utils.isEmpty((Object[]) null));
     assertTrue(Utils.isEmpty(new Object[] {}));
     assertFalse(Utils.isEmpty(new Object[] {"test"}));
   }
 
   @Test
-  public void testIsEmptyList() {
+  void testIsEmptyList() {
     assertTrue(Utils.isEmpty((List<String>) null));
     assertTrue(Utils.isEmpty(new ArrayList<>()));
     assertFalse(Utils.isEmpty(Arrays.asList("test", 1)));
   }
 
   @Test
-  public void testIsEmptyStringBuffer() {
+  void testIsEmptyStringBuffer() {
     assertTrue(Utils.isEmpty((StringBuffer) null));
-    assertTrue(Utils.isEmpty(new StringBuffer("")));
+    assertTrue(Utils.isEmpty(new StringBuffer()));
     assertFalse(Utils.isEmpty(new StringBuffer("test")));
   }
 
   @Test
-  public void testIsEmptyStringBuilder() {
+  void testIsEmptyStringBuilder() {
     assertTrue(Utils.isEmpty((StringBuilder) null));
-    assertTrue(Utils.isEmpty(new StringBuilder("")));
+    assertTrue(Utils.isEmpty(new StringBuilder()));
     assertFalse(Utils.isEmpty(new StringBuilder("test")));
   }
 
   @Test
-  public void testResolvePassword() {
+  void testResolvePassword() {
     String password = "password";
     // is supposed the password stays the same
     assertSame(
@@ -92,7 +93,7 @@ public class UtilsTest {
   }
 
   @Test
-  public void testResolvePasswordEncrypted() {
+  void testResolvePasswordEncrypted() {
     String decPassword = "password";
     // is supposed encrypted with Encr.bat util
     String encPassword = "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde";
@@ -102,14 +103,14 @@ public class UtilsTest {
   }
 
   @Test
-  public void testResolvePasswordNull() {
+  void testResolvePasswordNull() {
     String password = null;
     // null is valid input parameter
     assertSame(password, Utils.resolvePassword(Variables.getADefaultVariableSpace(), password));
   }
 
   @Test
-  public void testResolvePasswordVariable() {
+  void testResolvePasswordVariable() {
     String passwordKey = "PASS_VAR";
     String passwordVar = "${" + passwordKey + "}";
     String passwordValue = "password";
@@ -120,22 +121,11 @@ public class UtilsTest {
   }
 
   @Test
-  public void testNormalizeArraysMethods() {
+  void testNormalizeArraysMethods() {
     String[] s1 = new String[] {"one"};
     String[] s2 = new String[] {"one", "two"};
-    String[] s3 = new String[] {"one", "two", "three"};
     long[] l1 = new long[] {1};
     long[] l2 = new long[] {1, 2};
-    long[] l3 = new long[] {1, 2, 3};
-    short[] sh1 = new short[] {1};
-    short[] sh2 = new short[] {1, 2};
-    short[] sh3 = new short[] {1, 2, 3};
-    boolean[] b1 = new boolean[] {true};
-    boolean[] b2 = new boolean[] {true, false};
-    boolean[] b3 = new boolean[] {true, false, true};
-    int[] i1 = new int[] {1};
-    int[] i2 = new int[] {1, 2};
-    int[] i3 = new int[] {1, 3};
 
     String[][] newS = Utils.normalizeArrays(3, s1, s2);
     assertEquals(2, newS.length);
@@ -164,6 +154,18 @@ public class UtilsTest {
     assertEquals(2, newL[0].length);
     assertArrayEquals(newL[0], l2);
     assertSame(newL[0], l2); // If arrays are equal sized, it should return original object
+
+    testNormalizeArraysMethods_1();
+  }
+
+  private void testNormalizeArraysMethods_1() {
+    short[] sh1 = new short[] {1};
+    short[] sh2 = new short[] {1, 2};
+
+    boolean[] b1 = new boolean[] {true};
+    boolean[] b2 = new boolean[] {true, false};
+    int[] i1 = new int[] {1};
+    int[] i2 = new int[] {1, 2};
 
     short[][] newSh = Utils.normalizeArrays(3, sh1, sh2);
     assertEquals(2, newSh.length);
@@ -208,7 +210,7 @@ public class UtilsTest {
   }
 
   @Test
-  public void testDamerauLevenshteinDistance() {
+  void testDamerauLevenshteinDistance() {
     int distance = Utils.getDamerauLevenshteinDistance("Hello", "Hallow");
     assertEquals(2, distance);
     distance = Utils.getDamerauLevenshteinDistance("Green", "Grean");

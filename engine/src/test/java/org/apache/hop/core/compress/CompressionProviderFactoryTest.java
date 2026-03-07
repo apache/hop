@@ -17,10 +17,10 @@
 
 package org.apache.hop.core.compress;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,35 +29,35 @@ import org.apache.hop.core.compress.hadoopsnappy.HadoopSnappyCompressionProvider
 import org.apache.hop.core.compress.snappy.SnappyCompressionProvider;
 import org.apache.hop.core.compress.zip.ZipCompressionProvider;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-public class CompressionProviderFactoryTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class CompressionProviderFactoryTest {
 
-  public CompressionProviderFactory factory = null;
+  CompressionProviderFactory factory = null;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     factory = CompressionProviderFactory.getInstance();
   }
 
   @Test
-  public void testGetInstance() {
+  void testGetInstance() {
     assertNotNull(factory);
   }
 
   @Test
-  public void testCreateCoreProviders() {
+  void testCreateCoreProviders() {
     ICompressionProvider provider = factory.createCompressionProviderInstance("None");
     assertNotNull(provider);
     assertTrue(provider.getClass().isAssignableFrom(NoneCompressionProvider.class));
@@ -94,7 +94,7 @@ public class CompressionProviderFactoryTest {
    * factory
    */
   @Test
-  public void getCoreProviderNames() {
+  void getCoreProviderNames() {
     final HashMap<String, Boolean> foundProvider =
         new HashMap<>() {
           {
@@ -123,7 +123,7 @@ public class CompressionProviderFactoryTest {
 
   /** Test that all core compression plugins (None, Zip, GZip) are available via the factory */
   @Test
-  public void getCoreProviders() {
+  void getCoreProviders() {
     final HashMap<String, Boolean> foundProvider =
         new HashMap<>() {
           {
@@ -151,7 +151,7 @@ public class CompressionProviderFactoryTest {
   }
 
   @Test
-  public void getNonExistentProvider() {
+  void getNonExistentProvider() {
     ICompressionProvider provider = factory.createCompressionProviderInstance("Fake");
     assertNull(provider);
     provider = factory.getCompressionProviderByName(null);

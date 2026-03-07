@@ -17,10 +17,10 @@
 
 package org.apache.hop.core.compress.snappy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,40 +28,39 @@ import java.io.IOException;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
 
-public class SnappyCompressionProviderTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
+@ExtendWith(RestoreHopEnvironmentExtension.class)
+class SnappyCompressionProviderTest {
   public static final String PROVIDER_NAME = "Snappy";
 
   public CompressionProviderFactory factory = null;
 
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  @BeforeAll
+  static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
   }
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     factory = CompressionProviderFactory.getInstance();
   }
 
   @Test
-  public void testCtor() {
+  void testCtor() {
     SnappyCompressionProvider ncp = new SnappyCompressionProvider();
     assertNotNull(ncp);
   }
 
   @Test
-  public void testGetName() {
+  void testGetName() {
     SnappyCompressionProvider provider =
         (SnappyCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     assertNotNull(provider);
@@ -69,7 +68,7 @@ public class SnappyCompressionProviderTest {
   }
 
   @Test
-  public void testGetProviderAttributes() {
+  void testGetProviderAttributes() {
     SnappyCompressionProvider provider =
         (SnappyCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     assertEquals("Snappy compression", provider.getDescription());
@@ -79,7 +78,7 @@ public class SnappyCompressionProviderTest {
   }
 
   @Test
-  public void testCreateInputStream() throws IOException {
+  void testCreateInputStream() throws IOException {
     SnappyCompressionProvider provider =
         (SnappyCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     SnappyInputStream in = createSnappyInputStream();
@@ -90,7 +89,7 @@ public class SnappyCompressionProviderTest {
   }
 
   @Test
-  public void testCreateOutputStream() throws IOException {
+  void testCreateOutputStream() throws IOException {
     SnappyCompressionProvider provider =
         (SnappyCompressionProvider) factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream out = new ByteArrayOutputStream();

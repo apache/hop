@@ -17,8 +17,8 @@
 
 package org.apache.hop.core.plugins;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,13 +27,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PluginTest {
+/** Unit test for {@link IPlugin} */
+class PluginTest {
 
   /** test that a plugin's fragment is added to the plugin */
   @Test
-  public void testFragmentMerge() {
+  void testFragmentMerge() {
     Map<Class<?>, String> classMap =
         new HashMap<>() {
           {
@@ -112,7 +113,7 @@ public class PluginTest {
   }
 
   @Test
-  public void testFragmentMergeWithNull() {
+  void testFragmentMergeWithNull() {
     IPlugin plugin =
         new Plugin(
             new String[] {"plugintest"},

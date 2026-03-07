@@ -18,8 +18,8 @@
 
 package org.apache.hop.execution;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
@@ -32,19 +32,19 @@ import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ExecutionDataTest {
+class ExecutionDataTest {
 
-  @Before
-  public void before() throws Exception {
+  @BeforeEach
+  void before() throws Exception {
     // Load data type plugins
     HopClientEnvironment.init();
   }
 
   @Test
-  public void testSerialization() throws Exception {
+  void testSerialization() throws Exception {
     IRowMeta rowMeta =
         new RowMetaBuilder()
             .addInteger("id", 9)

@@ -16,6 +16,9 @@
  */
 package org.apache.hop.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,13 +30,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ConcurrentMapPropertiesTest {
+class ConcurrentMapPropertiesTest {
 
   @Test
-  public void runMapTests() throws IOException {
+  void runMapTests() throws IOException {
     Properties p = new Properties();
     ConcurrentMapProperties c = new ConcurrentMapProperties();
 
@@ -43,8 +45,8 @@ public class ConcurrentMapPropertiesTest {
       c.put(unique, unique);
     }
 
-    Assert.assertEquals(p, c);
-    Assert.assertEquals(p.size(), c.size());
+    assertEquals(p, c);
+    assertEquals(p.size(), c.size());
 
     List<String> removeKeys = new ArrayList<>(c.size());
 
@@ -59,24 +61,24 @@ public class ConcurrentMapPropertiesTest {
       p.remove(rmKey);
     }
 
-    Assert.assertEquals(p.size(), c.size());
-    Assert.assertEquals(p, c);
+    assertEquals(p.size(), c.size());
+    assertEquals(p, c);
 
     p.clear();
     c.clear();
 
-    Assert.assertEquals(p, c);
-    Assert.assertEquals(0, p.size());
-    Assert.assertEquals(0, c.size());
+    assertEquals(p, c);
+    assertEquals(0, p.size());
+    assertEquals(0, c.size());
 
     Map<String, String> addKeys = removeKeys.stream().collect(Collectors.toMap(x -> x, x -> x));
     p.putAll(addKeys);
     c.putAll(addKeys);
 
-    Assert.assertEquals(p, c);
+    assertEquals(p, c);
 
     for (String property : removeKeys) {
-      Assert.assertEquals(p.getProperty(property), c.getProperty(property));
+      assertEquals(p.getProperty(property), c.getProperty(property));
     }
 
     Path tempFile = Files.createTempFile("propstest", "props");
@@ -84,10 +86,10 @@ public class ConcurrentMapPropertiesTest {
     c.store(new FileOutputStream(tempFile.toFile()), "No Comments");
     c.clear();
 
-    Assert.assertEquals(0, c.size());
+    assertTrue(c.isEmpty());
 
     c.load(new FileInputStream(tempFile.toFile()));
 
-    Assert.assertEquals(c, p);
+    assertEquals(c, p);
   }
 }
