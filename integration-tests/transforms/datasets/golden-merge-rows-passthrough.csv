@@ -1,0 +1,13 @@
+id,name,score,flagfield,ref-id,ref-name,ref-score,cmp-id,cmp-name,cmp-score
+1,James,3.6,identical,1,James,3.6,1,James,3.6
+2,Marie,8.3,deleted,2,Marie,8.3,,,
+3,Michael,9.1,identical,3,Michael,9.1,3,Michael,9.1
+4,Patricia,4.2,changed,4,Patrcia,4.2,4,Patricia,4.2
+5,Robert,5,identical,5,Robert,5,5,Robert,5
+6,Linda,1.6,deleted,6,Linda,1.6,,,
+7,David,7.2,identical,7,David,7.2,7,David,7.2
+8,Elizabeth,6.9,identical,8,Elizabeth,6.9,8,Elizabeth,6.9
+9,William,4.2,changed,9,Willian,4.2,9,William,4.2
+10,Barbara,0.5,identical,10,Barbara,0.5,10,Barbara,0.5
+11,Richard,9.6,new,,,,11,Richard,9.6
+12,Susan,5.4,new,,,,12,Susan,5.4

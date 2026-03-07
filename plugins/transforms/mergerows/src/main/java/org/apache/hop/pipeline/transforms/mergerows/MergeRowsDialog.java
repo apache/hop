@@ -19,8 +19,10 @@ package org.apache.hop.pipeline.transforms.mergerows;
 
 import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -31,17 +33,19 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -51,16 +55,19 @@ public class MergeRowsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MergeRowsMeta.class;
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeRowsSortWarning";
 
+  private static final String YES = BaseMessages.getString("System.Combo.Yes");
+  private static final String NO = BaseMessages.getString("System.Combo.No");
+
+  private CTabFolder wTabFolder;
+
   private CCombo wReference;
-
   private CCombo wCompare;
-
   private Text wFlagField;
   private Text wDiffField;
 
   private TableView wKeys;
-
   private TableView wValues;
+  private TableView wExtra;
 
   private final MergeRowsMeta input;
 
@@ -79,43 +86,46 @@ public class MergeRowsDialog extends BaseTransformDialog {
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
-    Button wbKeys = new Button(shell, SWT.PUSH);
-    wbKeys.setText(BaseMessages.getString(PKG, "MergeRowsDialog.KeyFields.Button"));
-    FormData fdbKeys = new FormData();
-    fdbKeys.bottom = new FormAttachment(wOk, -margin);
-    fdbKeys.left = new FormAttachment(0, 0);
-    fdbKeys.right = new FormAttachment(50, -margin);
-    wbKeys.setLayoutData(fdbKeys);
-    wbKeys.addSelectionListener(
-        new SelectionAdapter() {
+    // We want 4 tabs: Sources, Keys, Values, Extra
+    //
+    wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getKeys();
-          }
-        });
+    addSourcesTab();
+    addKeysTab();
+    addValuesTab();
+    addExtraTab();
 
-    Button wbValues = new Button(shell, SWT.PUSH);
-    wbValues.setText(BaseMessages.getString(PKG, "MergeRowsDialog.ValueFields.Button"));
-    FormData fdbValues = new FormData();
-    fdbValues.bottom = new FormAttachment(wOk, -margin);
-    fdbValues.left = new FormAttachment(50, 0);
-    fdbValues.right = new FormAttachment(100, 0);
-    wbValues.setLayoutData(fdbValues);
-    wbValues.addSelectionListener(
-        new SelectionAdapter() {
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    wTabFolder.setLayoutData(fdTabFolder);
+    wTabFolder.setSelection(0);
 
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getValues();
-          }
-        });
+    getData();
+    input.setChanged(backupChanged);
+    focusTransformName();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
+    return transformName;
+  }
+
+  private void addSourcesTab() {
+    CTabItem wSourcesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSourcesTab.setFont(GuiResource.getInstance().getFontDefault());
+    wSourcesTab.setText(BaseMessages.getString(PKG, "MergeRowsDialog.SourcesTab.CTabItem"));
+
+    Composite wSourcesComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wSourcesComp);
+    wSourcesComp.setLayout(props.createFormLayout());
 
     // Get the previous transforms...
     String[] previousTransforms = pipelineMeta.getPrevTransformNames(transformName);
 
     // Send 'True' data to...
-    Label wlReference = new Label(shell, SWT.RIGHT);
+    Label wlReference = new Label(wSourcesComp, SWT.RIGHT);
     wlReference.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Reference.Label"));
     PropsUi.setLook(wlReference);
     FormData fdlReference = new FormData();
@@ -123,13 +133,11 @@ public class MergeRowsDialog extends BaseTransformDialog {
     fdlReference.right = new FormAttachment(middle, -margin);
     fdlReference.top = new FormAttachment(wSpacer, margin);
     wlReference.setLayoutData(fdlReference);
-    wReference = new CCombo(shell, SWT.BORDER);
+    wReference = new CCombo(wSourcesComp, SWT.BORDER);
     PropsUi.setLook(wReference);
-
     if (previousTransforms != null) {
       wReference.setItems(previousTransforms);
     }
-
     wReference.addModifyListener(lsMod);
     FormData fdReference = new FormData();
     fdReference.left = new FormAttachment(middle, 0);
@@ -138,7 +146,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wReference.setLayoutData(fdReference);
 
     // Send 'False' data to...
-    Label wlCompare = new Label(shell, SWT.RIGHT);
+    Label wlCompare = new Label(wSourcesComp, SWT.RIGHT);
     wlCompare.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Compare.Label"));
     PropsUi.setLook(wlCompare);
     FormData fdlCompare = new FormData();
@@ -146,13 +154,11 @@ public class MergeRowsDialog extends BaseTransformDialog {
     fdlCompare.right = new FormAttachment(middle, -margin);
     fdlCompare.top = new FormAttachment(wReference, margin);
     wlCompare.setLayoutData(fdlCompare);
-    wCompare = new CCombo(shell, SWT.BORDER);
+    wCompare = new CCombo(wSourcesComp, SWT.BORDER);
     PropsUi.setLook(wCompare);
-
     if (previousTransforms != null) {
       wCompare.setItems(previousTransforms);
     }
-
     wCompare.addModifyListener(lsMod);
     FormData fdCompare = new FormData();
     fdCompare.top = new FormAttachment(wReference, margin);
@@ -161,51 +167,79 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wCompare.setLayoutData(fdCompare);
 
     // The flag field line
-    Label wlFlagField = new Label(shell, SWT.RIGHT);
+    Label wlFlagField = new Label(wSourcesComp, SWT.RIGHT);
     wlFlagField.setText(BaseMessages.getString(PKG, "MergeRowsDialog.FlagField.Label"));
     PropsUi.setLook(wlFlagField);
-    FormData fdlFlagfield = new FormData();
-    fdlFlagfield.left = new FormAttachment(0, 0);
-    fdlFlagfield.right = new FormAttachment(middle, -margin);
-    fdlFlagfield.top = new FormAttachment(wCompare, margin);
-    wlFlagField.setLayoutData(fdlFlagfield);
-    wFlagField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    FormData fdlFlagField = new FormData();
+    fdlFlagField.left = new FormAttachment(0, 0);
+    fdlFlagField.right = new FormAttachment(middle, -margin);
+    fdlFlagField.top = new FormAttachment(wCompare, margin);
+    wlFlagField.setLayoutData(fdlFlagField);
+    wFlagField = new Text(wSourcesComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFlagField);
     wFlagField.addModifyListener(lsMod);
-    FormData fdFlagfield = new FormData();
-    fdFlagfield.top = new FormAttachment(wCompare, margin);
-    fdFlagfield.left = new FormAttachment(middle, 0);
-    fdFlagfield.right = new FormAttachment(100, 0);
-    wFlagField.setLayoutData(fdFlagfield);
+    FormData fdFlagField = new FormData();
+    fdFlagField.top = new FormAttachment(wCompare, margin);
+    fdFlagField.left = new FormAttachment(middle, 0);
+    fdFlagField.right = new FormAttachment(100, 0);
+    wFlagField.setLayoutData(fdFlagField);
 
     // The flag field line
-    Label wlDiffField = new Label(shell, SWT.RIGHT);
+    Label wlDiffField = new Label(wSourcesComp, SWT.RIGHT);
     wlDiffField.setText(BaseMessages.getString(PKG, "MergeRowsDialog.DiffField.Label"));
     PropsUi.setLook(wlDiffField);
-    FormData fdlDifffield = new FormData();
-    fdlDifffield.left = new FormAttachment(0, 0);
-    fdlDifffield.right = new FormAttachment(middle, -margin);
-    fdlDifffield.top = new FormAttachment(wFlagField, margin);
-    wlDiffField.setLayoutData(fdlDifffield);
-    wDiffField = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    FormData fdlDiffField = new FormData();
+    fdlDiffField.left = new FormAttachment(0, 0);
+    fdlDiffField.right = new FormAttachment(middle, -margin);
+    fdlDiffField.top = new FormAttachment(wFlagField, margin);
+    wlDiffField.setLayoutData(fdlDiffField);
+    wDiffField = new Text(wSourcesComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDiffField);
     wDiffField.addModifyListener(lsMod);
-    FormData fdDifffield = new FormData();
-    fdDifffield.top = new FormAttachment(wFlagField, margin);
-    fdDifffield.left = new FormAttachment(middle, 0);
-    fdDifffield.right = new FormAttachment(100, 0);
-    wDiffField.setLayoutData(fdDifffield);
+    FormData fdDiffField = new FormData();
+    fdDiffField.top = new FormAttachment(wFlagField, margin);
+    fdDiffField.left = new FormAttachment(middle, 0);
+    fdDiffField.right = new FormAttachment(100, 0);
+    wDiffField.setLayoutData(fdDiffField);
+
+    FormData fdSourcesComp = new FormData();
+    fdSourcesComp.left = new FormAttachment(0, 0);
+    fdSourcesComp.top = new FormAttachment(0, 0);
+    fdSourcesComp.right = new FormAttachment(100, 0);
+    fdSourcesComp.bottom = new FormAttachment(100, 0);
+    wSourcesComp.setLayoutData(fdSourcesComp);
+
+    wSourcesComp.layout();
+    wSourcesTab.setControl(wSourcesComp);
+  }
+
+  private void addKeysTab() {
+    CTabItem wKeysTab = new CTabItem(wTabFolder, SWT.NONE);
+    wKeysTab.setFont(GuiResource.getInstance().getFontDefault());
+    wKeysTab.setText(BaseMessages.getString(PKG, "MergeRowsDialog.KeysTab.CTabItem"));
+
+    Composite wKeysComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wKeysComp);
+    wKeysComp.setLayout(props.createFormLayout());
+
+    // The [Get key fields] button at the bottom:
+    Button wbKeys = new Button(wKeysComp, SWT.PUSH);
+    wbKeys.setText(BaseMessages.getString(PKG, "MergeRowsDialog.KeyFields.Button"));
+    FormData fdbKeys = new FormData();
+    fdbKeys.bottom = new FormAttachment(100, -margin);
+    fdbKeys.left = new FormAttachment(0, 0);
+    wbKeys.setLayoutData(fdbKeys);
+    wbKeys.addListener(SWT.Selection, e -> getKeys());
 
     // THE KEYS TO MATCH...
-    Label wlKeys = new Label(shell, SWT.NONE);
+
+    Label wlKeys = new Label(wKeysComp, SWT.NONE);
     wlKeys.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Keys.Label"));
     PropsUi.setLook(wlKeys);
     FormData fdlKeys = new FormData();
     fdlKeys.left = new FormAttachment(0, 0);
-    fdlKeys.top = new FormAttachment(wDiffField, margin);
+    fdlKeys.top = new FormAttachment(0, 0);
     wlKeys.setLayoutData(fdlKeys);
-
-    int nrKeyRows = (input.getKeyFields() != null ? input.getKeyFields().size() : 1);
 
     ColumnInfo[] ciKeys =
         new ColumnInfo[] {
@@ -218,10 +252,10 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wKeys =
         new TableView(
             variables,
-            shell,
+            wKeysComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciKeys,
-            nrKeyRows,
+            1,
             lsMod,
             props);
 
@@ -229,19 +263,45 @@ public class MergeRowsDialog extends BaseTransformDialog {
     fdKeys.top = new FormAttachment(wlKeys, margin);
     fdKeys.left = new FormAttachment(0, 0);
     fdKeys.bottom = new FormAttachment(wbKeys, -margin);
-    fdKeys.right = new FormAttachment(50, -margin);
+    fdKeys.right = new FormAttachment(100, 0);
     wKeys.setLayoutData(fdKeys);
 
+    FormData fdKeysComp = new FormData();
+    fdKeysComp.left = new FormAttachment(0, 0);
+    fdKeysComp.top = new FormAttachment(0, 0);
+    fdKeysComp.right = new FormAttachment(100, 0);
+    fdKeysComp.bottom = new FormAttachment(100, 0);
+    wKeysComp.setLayoutData(fdKeysComp);
+
+    wKeysComp.layout();
+    wKeysTab.setControl(wKeysComp);
+  }
+
+  private void addValuesTab() {
+    CTabItem wValuesTab = new CTabItem(wTabFolder, SWT.NONE);
+    wValuesTab.setFont(GuiResource.getInstance().getFontDefault());
+    wValuesTab.setText(BaseMessages.getString(PKG, "MergeRowsDialog.ValuesTab.CTabItem"));
+
+    Composite wValuesComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wValuesComp);
+    wValuesComp.setLayout(props.createFormLayout());
+
+    Button wbValues = new Button(wValuesComp, SWT.PUSH);
+    wbValues.setText(BaseMessages.getString(PKG, "MergeRowsDialog.ValueFields.Button"));
+    FormData fdbValues = new FormData();
+    fdbValues.bottom = new FormAttachment(100, -margin);
+    fdbValues.left = new FormAttachment(0, 0);
+    wbValues.setLayoutData(fdbValues);
+    wbValues.addListener(SWT.Selection, e -> getValues());
+
     // VALUES TO COMPARE
-    Label wlValues = new Label(shell, SWT.NONE);
+    Label wlValues = new Label(wValuesComp, SWT.NONE);
     wlValues.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Values.Label"));
     PropsUi.setLook(wlValues);
     FormData fdlValues = new FormData();
-    fdlValues.left = new FormAttachment(50, 0);
+    fdlValues.left = new FormAttachment(0, 0);
     fdlValues.top = new FormAttachment(wDiffField, margin);
     wlValues.setLayoutData(fdlValues);
-
-    int nrValueRows = (input.getValueFields() != null ? input.getValueFields().size() : 1);
 
     ColumnInfo[] ciValues =
         new ColumnInfo[] {
@@ -254,26 +314,129 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wValues =
         new TableView(
             variables,
-            shell,
+            wValuesComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciValues,
-            nrValueRows,
+            1,
             lsMod,
             props);
 
     FormData fdValues = new FormData();
     fdValues.top = new FormAttachment(wlValues, margin);
-    fdValues.left = new FormAttachment(50, 0);
+    fdValues.left = new FormAttachment(0, 0);
     fdValues.bottom = new FormAttachment(wbValues, -margin);
     fdValues.right = new FormAttachment(100, 0);
     wValues.setLayoutData(fdValues);
 
-    getData();
-    input.setChanged(backupChanged);
-    focusTransformName();
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    FormData fdValuesComp = new FormData();
+    fdValuesComp.left = new FormAttachment(0, 0);
+    fdValuesComp.top = new FormAttachment(0, 0);
+    fdValuesComp.right = new FormAttachment(100, 0);
+    fdValuesComp.bottom = new FormAttachment(100, 0);
+    wValuesComp.setLayoutData(fdValuesComp);
 
-    return transformName;
+    wValuesComp.layout();
+    wValuesTab.setControl(wValuesComp);
+  }
+
+  private void addExtraTab() {
+    CTabItem wExtraTab = new CTabItem(wTabFolder, SWT.NONE);
+    wExtraTab.setFont(GuiResource.getInstance().getFontDefault());
+    wExtraTab.setText(BaseMessages.getString(PKG, "MergeRowsDialog.ExtraTab.CTabItem"));
+
+    Composite wExtraComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wExtraComp);
+    wExtraComp.setLayout(props.createFormLayout());
+
+    // The [Get fields] button at the bottom
+    Button wbExtra = new Button(wExtraComp, SWT.PUSH);
+    wbExtra.setText(BaseMessages.getString(PKG, "MergeRowsDialog.ExtraFields.Button"));
+    FormData fdbExtra = new FormData();
+    fdbExtra.bottom = new FormAttachment(100, -margin);
+    fdbExtra.left = new FormAttachment(0, 0);
+    wbExtra.setLayoutData(fdbExtra);
+    wbExtra.addListener(SWT.Selection, e -> getPassThroughFields());
+
+    // Extra fields to pass through to the output
+    Label wlExtra = new Label(wExtraComp, SWT.NONE);
+    wlExtra.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Extra.Label"));
+    PropsUi.setLook(wlExtra);
+    FormData fdlExtra = new FormData();
+    fdlExtra.left = new FormAttachment(0, 0);
+    fdlExtra.top = new FormAttachment(wDiffField, margin);
+    wlExtra.setLayoutData(fdlExtra);
+
+    ColumnInfo[] ciExtra =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.Reference.Label"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              YES,
+              NO),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.Field.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "MergeRowsDialog.ExtraColumn.RenameTo.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+        };
+
+    wExtra =
+        new TableView(
+            variables,
+            wExtraComp,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+            ciExtra,
+            1,
+            lsMod,
+            props);
+
+    FormData fdExtra = new FormData();
+    fdExtra.top = new FormAttachment(wlExtra, margin);
+    fdExtra.left = new FormAttachment(0, 0);
+    fdExtra.bottom = new FormAttachment(wbExtra, -margin);
+    fdExtra.right = new FormAttachment(100, 0);
+    wExtra.setLayoutData(fdExtra);
+
+    FormData fdExtraComp = new FormData();
+    fdExtraComp.left = new FormAttachment(0, 0);
+    fdExtraComp.top = new FormAttachment(0, 0);
+    fdExtraComp.right = new FormAttachment(100, 0);
+    fdExtraComp.bottom = new FormAttachment(100, 0);
+    wExtraComp.setLayoutData(fdExtraComp);
+
+    wExtraComp.layout();
+    wExtraTab.setControl(wExtraComp);
+  }
+
+  private void getPassThroughFields() {
+    MergeRowsMeta meta = new MergeRowsMeta();
+    getInfo(meta);
+
+    // Get all fields from both reference and compare transforms
+    // and add them to the wExtra table view.
+    try {
+      IRowMeta refRowMeta =
+          pipelineMeta.getTransformFields(variables, meta.getReferenceTransform());
+      for (IValueMeta refValueMeta : refRowMeta.getValueMetaList()) {
+        TableItem item = new TableItem(wExtra.table, SWT.NONE);
+        item.setText(1, YES);
+        item.setText(2, refValueMeta.getName());
+        item.setText(3, "ref-" + refValueMeta.getName());
+      }
+      IRowMeta cmpRowMeta = pipelineMeta.getTransformFields(variables, meta.getCompareTransform());
+      for (IValueMeta cmpValueMeta : cmpRowMeta.getValueMetaList()) {
+        TableItem item = new TableItem(wExtra.table, SWT.NONE);
+        item.setText(1, NO);
+        item.setText(2, cmpValueMeta.getName());
+        item.setText(3, "cmp-" + cmpValueMeta.getName());
+      }
+      wExtra.optimizeTableView();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error adding passthrough fields", e);
+    }
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -286,13 +449,23 @@ public class MergeRowsDialog extends BaseTransformDialog {
     wDiffField.setText(Const.NVL(input.getDiffJsonField(), ""));
 
     for (int i = 0; i < input.getKeyFields().size(); i++) {
-      TableItem item = wKeys.table.getItem(i);
+      TableItem item = new TableItem(wKeys.table, SWT.NONE);
       item.setText(1, Const.NVL(input.getKeyFields().get(i), ""));
     }
+    wKeys.optimizeTableView();
     for (int i = 0; i < input.getValueFields().size(); i++) {
-      TableItem item = wValues.table.getItem(i);
+      TableItem item = new TableItem(wValues.table, SWT.NONE);
       item.setText(1, Const.NVL(input.getValueFields().get(i), ""));
     }
+    wValues.optimizeTableView();
+    for (int i = 0; i < input.getPassThroughFields().size(); i++) {
+      PassThroughField field = input.getPassThroughFields().get(i);
+      TableItem item = new TableItem(wExtra.table, SWT.NONE);
+      item.setText(1, field.isReferenceField() ? YES : NO);
+      item.setText(2, Const.NVL(field.getSourceField(), ""));
+      item.setText(3, Const.NVL(field.getRenameTo(), ""));
+    }
+    wExtra.optimizeTableView();
   }
 
   private void cancel() {
@@ -305,33 +478,11 @@ public class MergeRowsDialog extends BaseTransformDialog {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-
-    input.setReferenceTransform(wReference.getText());
-    input.setCompareTransform(wCompare.getText());
-    List<IStream> infoStreams = input.getTransformIOMeta().getInfoStreams();
-    infoStreams.get(0).setTransformMeta(pipelineMeta.findTransform(wReference.getText()));
-    infoStreams.get(1).setTransformMeta(pipelineMeta.findTransform(wCompare.getText()));
-    input.setFlagField(wFlagField.getText());
-    input.setDiffJsonField(wDiffField.getText());
-
-    int nrKeys = wKeys.nrNonEmpty();
-    int nrValues = wValues.nrNonEmpty();
-
-    input.getKeyFields().clear();
-    for (int i = 0; i < nrKeys; i++) {
-      TableItem item = wKeys.getNonEmpty(i);
-      input.getKeyFields().add(item.getText(1));
-    }
-
-    input.getValueFields().clear();
-    for (int i = 0; i < nrValues; i++) {
-      TableItem item = wValues.getNonEmpty(i);
-      input.getValueFields().add(item.getText(1));
-    }
+    getInfo(input);
 
     transformName = wTransformName.getText(); // return value
 
-    if (nrKeys > 0
+    if (!input.getKeyFields().isEmpty()
         && "Y".equalsIgnoreCase(props.getCustomParameter(STRING_SORT_WARNING_PARAMETER, "Y"))) {
       MessageDialogWithToggle md =
           new MessageDialogWithToggle(
@@ -351,6 +502,34 @@ public class MergeRowsDialog extends BaseTransformDialog {
     }
 
     dispose();
+  }
+
+  private void getInfo(MergeRowsMeta meta) {
+    meta.setReferenceTransform(wReference.getText());
+    meta.setCompareTransform(wCompare.getText());
+    List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
+    infoStreams.get(0).setTransformMeta(pipelineMeta.findTransform(wReference.getText()));
+    infoStreams.get(1).setTransformMeta(pipelineMeta.findTransform(wCompare.getText()));
+    meta.setFlagField(wFlagField.getText());
+    meta.setDiffJsonField(wDiffField.getText());
+
+    meta.getKeyFields().clear();
+    for (TableItem item : wKeys.getNonEmptyItems()) {
+      meta.getKeyFields().add(item.getText(1));
+    }
+
+    meta.getValueFields().clear();
+    for (TableItem item : wValues.getNonEmptyItems()) {
+      meta.getValueFields().add(item.getText(1));
+    }
+
+    meta.getPassThroughFields().clear();
+    for (TableItem item : wExtra.getNonEmptyItems()) {
+      boolean reference = YES.equalsIgnoreCase(item.getText(1));
+      String fieldName = item.getText(2);
+      String renameTo = item.getText(3);
+      meta.getPassThroughFields().add(new PassThroughField(fieldName, renameTo, reference));
+    }
   }
 
   private void getKeys() {

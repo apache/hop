@@ -61,6 +61,9 @@ limitations under the License.
         <test_name>
           <name>0077-merge-rows-diff UNIT</name>
         </test_name>
+        <test_name>
+          <name>0077-merge-rows-passthrough UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
       <xloc>272</xloc>

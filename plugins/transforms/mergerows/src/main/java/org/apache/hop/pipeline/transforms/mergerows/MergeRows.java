@@ -17,12 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -115,6 +117,43 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
           }
         }
       }
+
+      // Calculate the indices for the passthrough fields.
+      //
+      data.passThroughIndexes = new ArrayList<>();
+      data.oneRowMeta = data.oneRowSet.getRowMeta();
+      if (data.oneRowMeta == null) {
+        data.oneRowMeta =
+            getPipelineMeta().getPrevTransformFields(this, meta.getReferenceTransform());
+      }
+      data.twoRowMeta = data.twoRowSet.getRowMeta();
+      if (data.twoRowMeta == null) {
+        data.twoRowMeta =
+            getPipelineMeta().getPrevTransformFields(this, meta.getCompareTransform());
+      }
+      for (PassThroughField field : meta.getPassThroughFields()) {
+        int index;
+        if (field.isReferenceField()) {
+          index = data.oneRowMeta.indexOfValue(field.getSourceField());
+          if (index < 0) {
+            throw new HopTransformException(
+                "Unable to find passthrough field '"
+                    + field.getSourceField()
+                    + "' from reference transform "
+                    + meta.getReferenceTransform());
+          }
+        } else {
+          index = data.twoRowMeta.indexOfValue(field.getSourceField());
+          if (index < 0) {
+            throw new HopTransformException(
+                "Unable to find passthrough field '"
+                    + field.getSourceField()
+                    + "' from compare transform "
+                    + meta.getCompareTransform());
+          }
+        }
+        data.passThroughIndexes.add(index);
+      }
     }
 
     if (isRowLevel()) {
@@ -130,23 +169,13 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
 
     if (data.outputRowMeta == null) {
       data.outputRowMeta = new RowMeta();
-      if (data.one != null) {
-        meta.getFields(
-            data.outputRowMeta,
-            getTransformName(),
-            new IRowMeta[] {data.oneRowSet.getRowMeta()},
-            null,
-            this,
-            metadataProvider);
-      } else {
-        meta.getFields(
-            data.outputRowMeta,
-            getTransformName(),
-            new IRowMeta[] {data.twoRowSet.getRowMeta()},
-            null,
-            this,
-            metadataProvider);
-      }
+      meta.getFields(
+          data.outputRowMeta,
+          getTransformName(),
+          new IRowMeta[] {data.oneRowMeta, data.twoRowMeta},
+          null,
+          this,
+          metadataProvider);
     }
 
     Object[] outputRow;
@@ -154,24 +183,27 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
     String differenceJson = "{\"changes\":[]}";
     boolean getDifference = StringUtils.isNotEmpty(meta.getDiffJsonField());
 
-    if (data.one == null && data.two != null) { // Record 2 is flagged as new!
+    // Remember the rows used to compare: copy rows 'one' and 'two'.
+    copyOneTwo();
 
+    if (data.one == null && data.two != null) { // Record 2 is flagged as new!
       outputRow = data.two;
       flagField = VALUE_NEW;
 
       // Also get a next row from compare rowset...
       data.two = getRowFrom(data.twoRowSet);
+
     } else if (data.one != null && data.two == null) { // Record 1 is flagged as deleted!
       outputRow = data.one;
       flagField = VALUE_DELETED;
 
       // Also get a next row from reference rowset...
       data.one = getRowFrom(data.oneRowSet);
+
     } else { // OK, Here is the real start of the compare code!
 
       int compare = data.oneRowSet.getRowMeta().compare(data.one, data.two, data.keyNrs);
       if (compare == 0) { // The Key matches, we CAN compare the two rows...
-
         int compareValues = 0;
         if (getDifference) {
           JSONObject j = new JSONObject();
@@ -214,27 +246,52 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
         data.two = getRowFrom(data.twoRowSet);
       } else {
         if (compare < 0) { // one < two
-
           outputRow = data.one;
           flagField = VALUE_DELETED;
-
           data.one = getRowFrom(data.oneRowSet);
         } else {
           outputRow = data.two;
           flagField = VALUE_NEW;
-
           data.two = getRowFrom(data.twoRowSet);
         }
       }
     }
 
+    int extraPassthroughFields = meta.getPassThroughFields().size();
+
     // Optionally add the difference JSON field
     //
     outputRow = RowDataUtil.resizeArray(outputRow, data.outputRowMeta.size());
+    int tailIndex = data.outputRowMeta.size() - 2 - extraPassthroughFields;
     if (getDifference && differenceJson != null) {
-      outputRow[data.outputRowMeta.size() - 2] = differenceJson;
+      outputRow[tailIndex++] = differenceJson;
+    } else {
+      tailIndex++;
     }
-    outputRow[data.outputRowMeta.size() - 1] = flagField;
+    outputRow[tailIndex++] = flagField;
+
+    // Copy the passthrough fields
+    //
+    for (int i = 0; i < extraPassthroughFields; i++) {
+      int sourceIndex = data.passThroughIndexes.get(i);
+      PassThroughField field = meta.getPassThroughFields().get(i);
+      if (field.isReferenceField()) {
+        // If the record is deleted, identical or changed we copy data
+        // from the reference row.
+        //
+        if (data.oneCopy != null && !VALUE_NEW.equals(flagField)) {
+          outputRow[tailIndex] = data.oneCopy[sourceIndex];
+        }
+      } else {
+        // If the record is new, identical or changed we copy data
+        // from the compared-to row.
+        //
+        if (data.twoCopy != null && !VALUE_DELETED.equals(flagField)) {
+          outputRow[tailIndex] = data.twoCopy[sourceIndex];
+        }
+      }
+      tailIndex++;
+    }
 
     // send the row to the next transforms...
     putRow(data.outputRowMeta, outputRow);
@@ -244,6 +301,23 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
     }
 
     return true;
+  }
+
+  private void copyOneTwo() throws HopValueException {
+    data.oneCopy = null;
+    data.twoCopy = null;
+
+    // We only need the exact current record values in case we want to pass through fields
+    //
+    if (meta.getPassThroughFields().isEmpty()) {
+      return;
+    }
+    if (data.one != null) {
+      data.oneCopy = data.oneRowMeta.cloneRow(data.one);
+    }
+    if (data.two != null) {
+      data.twoCopy = data.twoRowMeta.cloneRow(data.two);
+    }
   }
 
   /**
