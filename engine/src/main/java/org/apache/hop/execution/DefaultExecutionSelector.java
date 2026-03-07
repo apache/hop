@@ -20,6 +20,7 @@ package org.apache.hop.execution;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 
@@ -41,6 +42,9 @@ public record DefaultExecutionSelector(
     }
     if (isSelectingPipelines && !execution.getExecutionType().equals(ExecutionType.Pipeline)) {
       return false;
+    }
+    if (isSelectingByUuid()) {
+      return execution.getId().equalsIgnoreCase(filterText);
     }
     if (StringUtils.isNotEmpty(filterText)) {
       boolean match = execution.getName().toLowerCase().contains(filterText.toLowerCase());
@@ -95,5 +99,18 @@ public record DefaultExecutionSelector(
       }
     }
     return selection;
+  }
+
+  @Override
+  public boolean isSelectingByUuid() {
+    if (StringUtils.isEmpty(filterText)) {
+      return false;
+    }
+    try {
+      UUID.fromString(filterText);
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
   }
 }

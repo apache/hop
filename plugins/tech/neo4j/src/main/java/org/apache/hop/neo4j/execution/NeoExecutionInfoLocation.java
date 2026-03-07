@@ -677,6 +677,12 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       builder.withWhereIsNull(firstCondition, "n", EP_PARENT_ID);
       firstCondition = false;
     }
+    // We filter by execution ID on the nodes because the filter text is a UUID
+    //
+    if (selector.isSelectingByUuid()) {
+      builder.withWhereEquals(firstCondition, "n", EP_ID, "pId", selector.filterText());
+      firstCondition = false;
+    }
     if (selector.isSelectingFailed()) {
       builder.withWhereEquals(firstCondition, "n", EP_FAILED, "pFailed", true);
       firstCondition = false;
