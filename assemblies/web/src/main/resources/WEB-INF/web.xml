@@ -40,6 +40,10 @@
         <servlet-name>HopGui</servlet-name>
         <url-pattern>/ui</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HopGui</servlet-name>
+        <url-pattern>/ui-dark</url-pattern>
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>welcome</servlet-name>

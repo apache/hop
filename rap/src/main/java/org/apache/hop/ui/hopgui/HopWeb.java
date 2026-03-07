@@ -45,7 +45,6 @@ import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
-import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -54,7 +53,6 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 
 public class HopWeb implements ApplicationConfiguration {
 
-  public static final String HOP_WEB_THEME = "HOP_WEB_THEME";
   public static final String CONST_LIGHT = "light";
 
   @Override
@@ -142,28 +140,25 @@ public class HopWeb implements ApplicationConfiguration {
                       }
                     }));
 
-    // Only 2 choices for now
+    // Only 2 choices for now; both themes registered for use by /ui and /ui-dark entry points
     //
     application.addStyleSheet("dark", "org/apache/hop/ui/hopgui/dark-mode.css");
     application.addStyleSheet(CONST_LIGHT, "org/apache/hop/ui/hopgui/light-mode.css");
 
-    String themeId = System.getProperty(HOP_WEB_THEME, CONST_LIGHT);
-    if ("dark".equalsIgnoreCase(themeId)) {
-      themeId = "dark";
-      PropsUi.getInstance().setDarkMode(true);
-      LogChannel.UI.logBasic("Hop web: enabled dark mode rendering");
-    } else {
-      themeId = CONST_LIGHT;
-      PropsUi.getInstance().setDarkMode(false);
-    }
-    LogChannel.UI.logBasic("Hop web: selected theme is: " + themeId);
+    Map<String, String> propertiesLight = new HashMap<>();
+    propertiesLight.put(WebClient.PAGE_TITLE, "Apache Hop Web");
+    propertiesLight.put(WebClient.FAVICON, "ui/images/logo_icon.png");
+    propertiesLight.put(WebClient.THEME_ID, CONST_LIGHT);
+    propertiesLight.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
 
-    Map<String, String> properties = new HashMap<>();
-    properties.put(WebClient.PAGE_TITLE, "Apache Hop Web");
-    properties.put(WebClient.FAVICON, "ui/images/logo_icon.png");
-    properties.put(WebClient.THEME_ID, themeId);
-    properties.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
-    application.addEntryPoint("/ui", HopWebEntryPoint.class, properties);
+    Map<String, String> propertiesDark = new HashMap<>();
+    propertiesDark.put(WebClient.PAGE_TITLE, "Apache Hop Web");
+    propertiesDark.put(WebClient.FAVICON, "ui/images/logo_icon.png");
+    propertiesDark.put(WebClient.THEME_ID, "dark");
+    propertiesDark.put(WebClient.HEAD_HTML, readTextFromResource("head.html"));
+
+    application.addEntryPoint("/ui", HopWebEntryPoint.class, propertiesLight);
+    application.addEntryPoint("/ui-dark", HopWebEntryPoint.class, propertiesDark);
     application.setOperationMode(Application.OperationMode.SWT_COMPATIBILITY);
 
     // Print some important system settings...

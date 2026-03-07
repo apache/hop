@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -303,6 +304,12 @@ public class HopGui
   private boolean openingLastFiles;
   private boolean reOpeningFiles;
 
+  /**
+   * When set by Hop Web, called when the user changes the theme preference so the client can
+   * redirect to /ui or /ui-dark. Not used in desktop.
+   */
+  private Consumer<Boolean> webThemeRedirectCallback;
+
   protected HopGui() {
     this(Display.getCurrent());
   }
@@ -356,6 +363,20 @@ public class HopGui
 
   public static HopGui getInstance() {
     return (HopGui) PROVIDER.getInstanceInternal();
+  }
+
+  public void setWebThemeRedirectCallback(Consumer<Boolean> callback) {
+    this.webThemeRedirectCallback = callback;
+  }
+
+  /**
+   * Called when the user changes the theme (dark mode) preference in Hop Web. If a redirect
+   * callback is set, triggers a full-page redirect so the new theme takes effect.
+   */
+  public void notifyWebThemePreferenceChanged(boolean darkMode) {
+    if (webThemeRedirectCallback != null) {
+      webThemeRedirectCallback.accept(darkMode);
+    }
   }
 
   public static void main(String[] arguments) {

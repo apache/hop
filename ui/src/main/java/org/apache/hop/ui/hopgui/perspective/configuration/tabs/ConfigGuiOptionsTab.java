@@ -23,6 +23,7 @@ import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.i18n.LanguageChoice;
@@ -301,7 +302,7 @@ public class ConfigGuiOptionsTab {
             margin);
     lastControl = wHideMenuBar;
 
-    // Dark mode (Windows only)
+    // Dark mode (Windows and Hop Web: user can toggle; macOS/other desktop follows system)
     wDarkMode =
         createCheckbox(
             wLookComp,
@@ -310,7 +311,7 @@ public class ConfigGuiOptionsTab {
             props.isDarkMode(),
             lastControl,
             margin);
-    wDarkMode.setEnabled(Const.isWindows());
+    wDarkMode.setEnabled(Const.isWindows() || EnvironmentUtils.getInstance().isWeb());
     lastControl = wDarkMode;
 
     // General appearance section - using ExpandBar
@@ -1151,6 +1152,7 @@ public class ConfigGuiOptionsTab {
     props.setShowingMetricsAboveRunningTransforms(wMetricsOnTransforms.getSelection());
     // On macOS (and other non-Windows), dark mode follows system; persist system theme, not
     // checkbox. In Web environment, isSystemDarkTheme() is not available.
+    boolean previousDarkMode = props.isDarkMode();
     boolean darkMode;
     if (EnvironmentUtils.getInstance().isWeb() || Const.isWindows()) {
       darkMode = wDarkMode.getSelection();
@@ -1186,11 +1188,33 @@ public class ConfigGuiOptionsTab {
     String defaultLocale = GlobalMessages.localeCodes[defaultLocaleIndex];
     LanguageChoice.getInstance().setDefaultLocale(EnvUtil.createLocale(defaultLocale));
 
-    try {
-      HopConfig.getInstance().saveToFile();
-    } catch (Exception e) {
-      new ErrorDialog(
-          HopGui.getInstance().getShell(), "Error", "Error saving configuration to file", e);
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      // Hop Web: store theme in audit folder (per-user), not in hop-config
+      if (previousDarkMode != darkMode) {
+        java.util.Map<String, Object> themeState = new java.util.HashMap<>();
+        themeState.put("darkMode", Boolean.valueOf(darkMode));
+        AuditManager.storeState(
+            HopGui.getInstance().getLog(), "hop-web", "preferences", "theme", themeState);
+      }
+      // Don't persist dark mode to HopConfig when in web
+      props.setDarkMode(previousDarkMode);
+      try {
+        HopConfig.getInstance().saveToFile();
+      } catch (Exception e) {
+        new ErrorDialog(
+            HopGui.getInstance().getShell(), "Error", "Error saving configuration to file", e);
+      }
+      props.setDarkMode(darkMode);
+      if (previousDarkMode != darkMode) {
+        HopGui.getInstance().notifyWebThemePreferenceChanged(darkMode);
+      }
+    } else {
+      try {
+        HopConfig.getInstance().saveToFile();
+      } catch (Exception e) {
+        new ErrorDialog(
+            HopGui.getInstance().getShell(), "Error", "Error saving configuration to file", e);
+      }
     }
   }
 
