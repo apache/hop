@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -91,6 +92,7 @@ public class ExecutionState {
     this.details = new HashMap<>();
   }
 
+  @JsonIgnore
   public boolean isRunning() {
     if (statusDescription == null) {
       return false;
@@ -99,6 +101,7 @@ public class ExecutionState {
         || statusDescription.toLowerCase().contains("initializing");
   }
 
+  @JsonIgnore
   public boolean isFinished() {
     return executionEndDate != null;
   }
@@ -108,6 +111,7 @@ public class ExecutionState {
    *
    * @return true if the state is stale
    */
+  @JsonIgnore
   public boolean isStale(long loggingInterval) {
     if (isFinished()) {
       // After finishing updates are no longer received.

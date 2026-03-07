@@ -20,7 +20,6 @@ package org.apache.hop.execution.opensearch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
-import java.net.http.HttpRequest;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -360,15 +359,6 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
             """;
       body = body.replace("executionId", executionId);
 
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(postUri)
-              .header("Content-Type", "application/json")
-              .header("Accept", "application/json")
-              .header("Authorization", getAuthorizationHeaderValue(actualUsername, actualPassword))
-              .POST(HttpRequest.BodyPublishers.ofString(body))
-              .build();
-
       RestCaller restCaller =
           new RestCaller(
               metadataProvider,
@@ -439,39 +429,37 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       body = body.replace("__FROM_CLAUSE__", "FROM " + actualIndexName);
 
       String whereClause = "";
-      if (selector != null) {
-        if (selector.startDateFilter() != LastPeriod.NONE) {
-          // OpenSearch uses UTC and the GUI runs in local time.
-          //
-          ZonedDateTime localStartDate =
-              selector.startDateFilter().calculateStartDate().atZone(ZoneId.systemDefault());
-          Date localStart = new Date(localStartDate.toInstant().toEpochMilli());
+      if (selector != null && selector.startDateFilter() != LastPeriod.NONE) {
+        // OpenSearch uses UTC and the GUI runs in local time.
+        //
+        ZonedDateTime localStartDate =
+            selector.startDateFilter().calculateStartDate().atZone(ZoneId.systemDefault());
+        Date localStart = new Date(localStartDate.toInstant().toEpochMilli());
 
-          SimpleDateFormat whereFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-          whereFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-          whereClause =
-              addToWhereClause(
-                  whereClause,
-                  "creationDate >= datetime('" + whereFormat.format(localStart) + "') ");
-        }
-
-        /*
-          // OpenSearch throws some errors on these nested conditions
-          //
-          if (selector.isSelectingParents()) {
-            whereClause = addToWhereClause(whereClause, "e.parentId IS NULL ");
-          }
-          if (selector.isSelectingPipelines()) {
-            whereClause = addToWhereClause(whereClause, "e.executionType = 'Pipeline' ");
-          }
-          if (selector.isSelectingWorkflows()) {
-            whereClause = addToWhereClause(whereClause, "e.executionType = 'Workflows' ");
-          }
-          if (selector.isSelectingFinished()) {
-            whereClause = addToWhereClause(whereClause, "s.statusDescription = 'Finished' ");
-          }
-        */
+        SimpleDateFormat whereFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        whereFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        whereClause =
+            addToWhereClause(
+                whereClause, "creationDate >= datetime('" + whereFormat.format(localStart) + "') ");
       }
+
+      /*
+        // OpenSearch throws some errors on these nested conditions
+        //
+        if (selector.isSelectingParents()) {
+          whereClause = addToWhereClause(whereClause, "e.parentId IS NULL ");
+        }
+        if (selector.isSelectingPipelines()) {
+          whereClause = addToWhereClause(whereClause, "e.executionType = 'Pipeline' ");
+        }
+        if (selector.isSelectingWorkflows()) {
+          whereClause = addToWhereClause(whereClause, "e.executionType = 'Workflows' ");
+        }
+        if (selector.isSelectingFinished()) {
+          whereClause = addToWhereClause(whereClause, "s.statusDescription = 'Finished' ");
+        }
+      */
+
       body = body.replace("__WHERE_CLAUSE__", whereClause);
 
       RestCaller restCaller =
@@ -504,11 +492,11 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
       sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-      for (int r = 0; r < dataRows.size(); r++) {
-        JSONArray dataRow = (JSONArray) dataRows.get(r);
+      for (Object row : dataRows) {
+        JSONArray dataRow = (JSONArray) row;
         String id = (String) dataRow.get(0);
-        String creationDateString = (String) dataRow.get(1);
-        Date creationDate = sdf.parse(creationDateString + " UTC");
+        Long creationEpoch = (Long) dataRow.get(1);
+        Date creationDate = new Date(creationEpoch);
         ids.add(new DatedId(id, creationDate));
       }
     } catch (Exception e) {
@@ -597,11 +585,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
               putBody,
               location.ignoreSsl,
               getHeaders());
-      try {
-        result = restCaller.execute();
-      } catch (Exception e) {
-        result = Const.getSimpleStackTrace(e);
-      }
+      result = getResultFromPipeline(restCaller);
       if (restCaller.getResult() == null || restCaller.getResult().getNrErrors() > 0) {
         result += Const.CR + "Logging: " + restCaller.getLoggingText();
       }
@@ -628,6 +612,16 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
       new ErrorDialog(
           hopGui.getShell(), "Error", "Error creating OpenSearch index " + location.indexName, e);
     }
+  }
+
+  private static String getResultFromPipeline(RestCaller restCaller) {
+    String result;
+    try {
+      result = restCaller.execute();
+    } catch (Exception e) {
+      result = Const.getSimpleStackTrace(e);
+    }
+    return result;
   }
 
   @Override
