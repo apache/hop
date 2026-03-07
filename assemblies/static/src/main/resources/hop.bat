@@ -48,10 +48,10 @@ REM See if we need to enable some remote debugging options for our developers.
 REM
 FOR %%a in (%*) DO (
   if "%%~a" == "--dev-debug" (
-    set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5010
+    set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5010
   )
   if "%%~a" == "--dev-debug-wait" (
-    set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010
+    set HOP_OPTIONS=%HOP_OPTIONS% -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010
   )
 )
 

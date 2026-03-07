@@ -39,7 +39,7 @@ fi
 
 # optional line for attaching a debugger
 #
-#HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5007"
+#HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5007"
 
 # Add HOP variables if they're set:
 #

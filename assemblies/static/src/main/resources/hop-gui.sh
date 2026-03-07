@@ -40,7 +40,7 @@ fi
 # optional line for attaching a debugger
 #
 if [ "$1" = "debug" ] || [ "$1" = "DEBUG" ]; then
-  HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+  HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
 fi
 
 # Add HOP variables if they're set:
