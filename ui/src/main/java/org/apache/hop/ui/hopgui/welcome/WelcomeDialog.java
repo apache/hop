@@ -32,6 +32,7 @@ import org.apache.hop.core.svg.SvgCache;
 import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.svg.SvgImage;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -40,8 +41,6 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -66,23 +65,19 @@ public class WelcomeDialog {
   private List wTopics;
   private Composite wPluginsComp;
 
-  public WelcomeDialog() {
-    // Do nothing
-  }
-
   public void open() {
     Shell parent = HopGui.getInstance().getShell();
     try {
       shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.RESIZE | SWT.MAX);
       shell.setLayout(new FormLayout());
       shell.setText("Apache Hop");
+      shell.setImage(GuiResource.getInstance().getImageHop());
       PropsUi.setLook(shell);
 
       PropsUi props = PropsUi.getInstance();
       int margin = PropsUi.getMargin();
 
       // Logo at the top left
-      //
       Label logoLabel = new Label(shell, SWT.NONE);
       SvgCacheEntry cacheEntry =
           SvgCache.loadSvg(new SvgFile("ui/images/logo_hop.svg", getClass().getClassLoader()));
@@ -91,59 +86,53 @@ public class WelcomeDialog {
       int logoSize = (int) (75 * props.getZoomFactor());
       this.logoImage = imageSvg.getAsBitmapForSize(shell.getDisplay(), logoSize, logoSize);
       logoLabel.setImage(this.logoImage);
-      FormData fdLogoLabel = new FormData();
-      fdLogoLabel.left = new FormAttachment(0, 0);
-      fdLogoLabel.top = new FormAttachment(0, 0);
-      logoLabel.setLayoutData(fdLogoLabel);
+      logoLabel.setLayoutData(FormDataBuilder.builder().top().left().build());
 
       // Apache Hop
-      //
       Label welcome = new Label(shell, SWT.CENTER);
       PropsUi.setLook(welcome);
       welcome.setText("Apache Hop");
       titleFont =
           new Font(shell.getDisplay(), "Open Sans", (int) (18 * props.getZoomFactor()), SWT.NONE);
       welcome.setFont(titleFont);
-      FormData fdWelcome = new FormData();
-      fdWelcome.left = new FormAttachment(logoLabel, PropsUi.getMargin(), SWT.RIGHT);
-      fdWelcome.right = new FormAttachment(100, 0);
-      fdWelcome.top = new FormAttachment(logoLabel, 0, SWT.CENTER);
-      welcome.setLayoutData(fdWelcome);
+      welcome.setLayoutData(
+          FormDataBuilder.builder()
+              .top(logoLabel, 0, SWT.CENTER)
+              .right(100, 0)
+              .left(logoLabel, margin, SWT.RIGHT)
+              .build());
 
       // An area at the bottom that shows the "don't show this again" option.
-      //
       doNotShow = new Button(shell, SWT.CHECK);
       doNotShow.setText("Don't show this at startup (find me in the Help menu)");
       doNotShow.addListener(SWT.Selection, this::dontShowAgain);
       doNotShow.setSelection(HopConfig.readOptionBoolean(HOP_CONFIG_NO_SHOW_OPTION, false));
       PropsUi.setLook(doNotShow);
-      FormData fdDoNotShow = new FormData();
-      fdDoNotShow.bottom = new FormAttachment(100, 0);
-      fdDoNotShow.left = new FormAttachment(0, margin);
-      fdDoNotShow.right = new FormAttachment(100, 0);
-      doNotShow.setLayoutData(fdDoNotShow);
+      doNotShow.setLayoutData(
+          FormDataBuilder.builder().right(100, 0).bottom(100, 0).left(0, margin).build());
 
       // The rest of the dialog is for plugin specific stuff
       // On the left we have the welcome/help topics
-      //
       wTopics = new List(shell, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER | SWT.LEFT);
       PropsUi.setLook(wTopics);
-      FormData fdTopics = new FormData();
-      fdTopics.left = new FormAttachment(0, 0);
-      fdTopics.right = new FormAttachment(logoLabel, 0, SWT.RIGHT);
-      fdTopics.top = new FormAttachment(logoLabel, 2 * margin);
-      fdTopics.bottom = new FormAttachment(doNotShow, -2 * margin);
-      wTopics.setLayoutData(fdTopics);
+      wTopics.setLayoutData(
+          FormDataBuilder.builder()
+              .top(logoLabel, 2 * margin)
+              .right(logoLabel, 0, SWT.RIGHT)
+              .bottom(doNotShow, -2 * margin)
+              .left()
+              .build());
 
       wPluginsComp = new Composite(shell, SWT.NONE);
       PropsUi.setLook(wPluginsComp);
       wPluginsComp.setLayout(new FormLayout());
-      FormData fdPluginsComp = new FormData();
-      fdPluginsComp.left = new FormAttachment(logoLabel, 2 * margin, SWT.RIGHT);
-      fdPluginsComp.right = new FormAttachment(100, 0);
-      fdPluginsComp.top = new FormAttachment(logoLabel, 2 * margin, SWT.BOTTOM);
-      fdPluginsComp.bottom = new FormAttachment(doNotShow, -2 * margin);
-      wPluginsComp.setLayoutData(fdPluginsComp);
+      wPluginsComp.setLayoutData(
+          FormDataBuilder.builder()
+              .top(logoLabel, 2 * margin, SWT.BOTTOM)
+              .right(100, 0)
+              .bottom(doNotShow, -2 * margin)
+              .left(logoLabel, 2 * margin, SWT.RIGHT)
+              .build());
 
       // What is the list?  Look in the GUI plugin registry and look for widgets with the parent.
       //
@@ -201,8 +190,8 @@ public class WelcomeDialog {
   }
 
   private void dontShowAgain(Event event) {
-    boolean doNotShow = ((Button) event.widget).getSelection();
-    HopConfig.getInstance().saveOption(HOP_CONFIG_NO_SHOW_OPTION, doNotShow);
+    boolean isSelected = ((Button) event.widget).getSelection();
+    HopConfig.getInstance().saveOption(HOP_CONFIG_NO_SHOW_OPTION, isSelected);
   }
 
   public void close() {
