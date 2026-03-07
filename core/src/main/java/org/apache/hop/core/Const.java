@@ -1536,11 +1536,32 @@ public class Const {
   }
 
   /**
-   * @return True if the OS is an OSX derivate.
+   * @return True if the OS is an OSX derivate. When a {@link ClientOsProvider} is set (e.g. by Hop
+   *     Web from the client's User-Agent), returns the client's OS so shortcuts and labels match
+   *     the user's machine.
    */
   public static boolean isOSX() {
+    if (clientOsProvider != null) {
+      try {
+        return clientOsProvider.isClientMac();
+      } catch (Exception e) {
+        // Fall through to server OS (e.g. provider called outside a web request)
+      }
+    }
     return getHopPlatformOs().startsWith("Darwin") || getSystemOs().toUpperCase().contains("OS X");
   }
+
+  /**
+   * Set the provider used by {@link #isOSX()} when running in a web context. The RAP/Hop Web module
+   * sets this so the client's OS (from User-Agent) is used for shortcut matching and display.
+   *
+   * @param provider the provider, or null to use server OS
+   */
+  public static void setClientOsProvider(ClientOsProvider provider) {
+    clientOsProvider = provider;
+  }
+
+  private static volatile ClientOsProvider clientOsProvider;
 
   /**
    * @return True if KDE is in use.

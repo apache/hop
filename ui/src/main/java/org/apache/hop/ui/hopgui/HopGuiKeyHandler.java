@@ -38,6 +38,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 
 public class HopGuiKeyHandler extends KeyAdapter {
 
@@ -85,11 +86,12 @@ public class HopGuiKeyHandler extends KeyAdapter {
       return;
     }
 
-    // Ignore shortcuts inside Text, Combo, or StyledText widgets (including terminal)
+    // Ignore shortcuts inside Text, Combo, StyledText, or CCombo widgets (including terminal).
+    // StyledText is not available in RAP, so we check via reflection to avoid NoClassDefFoundError.
     if (event.widget instanceof Text
         || event.widget instanceof Combo
         || event.widget instanceof CCombo
-        || event.widget instanceof org.eclipse.swt.custom.StyledText) {
+        || isStyledText(event.widget)) {
       // Ignore Copy/Cut/Paste/Select all - check both keyCode and character
       if ((event.stateMask & (SWT.CONTROL + SWT.COMMAND)) != 0) {
         char key = Character.toLowerCase((char) event.keyCode);
@@ -214,6 +216,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
     boolean control = (event.stateMask & SWT.CONTROL) != 0;
     boolean command = (event.stateMask & SWT.COMMAND) != 0;
+    // On Mac (Hop Web), client sends Command as Ctrl in a synthetic event; treat as command for
+    // osx shortcut matching.
+    boolean effectiveCommand = command || (Const.isOSX() && shortcut.isCommand() && control);
 
     boolean matchOS = Const.isOSX() == shortcut.isOsx();
 
@@ -232,8 +237,9 @@ public class HopGuiKeyHandler extends KeyAdapter {
         keyCode == shortcutKey || (shortcutKey != 0 && event.character == shortcutKey);
     boolean altMatch = shortcut.isAlt() == alt;
     boolean shiftMatch = shortcut.isShift() == shift;
-    boolean controlMatch = shortcut.isControl() == control;
-    boolean commandMatch = shortcut.isCommand() == command;
+    boolean controlMatch =
+        shortcut.isControl() == control || (Const.isOSX() && shortcut.isCommand() && control);
+    boolean commandMatch = shortcut.isCommand() == effectiveCommand;
 
     if (matchOS && keyMatch && altMatch && shiftMatch && controlMatch && commandMatch) {
       // Only invoke if this shortcut is linked to this class (context)
@@ -274,5 +280,21 @@ public class HopGuiKeyHandler extends KeyAdapter {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns true if the widget is a StyledText. Uses reflection so that StyledText is not
+   * referenced when it is not on the classpath (e.g. in RAP/Hop Web).
+   */
+  private static boolean isStyledText(Widget widget) {
+    if (widget == null) {
+      return false;
+    }
+    try {
+      Class<?> st = Class.forName("org.eclipse.swt.custom.StyledText");
+      return st.isInstance(widget);
+    } catch (ClassNotFoundException e) {
+      return false;
+    }
   }
 }

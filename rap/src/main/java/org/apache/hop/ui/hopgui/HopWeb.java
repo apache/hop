@@ -76,15 +76,18 @@ public class HopWeb implements ApplicationConfiguration {
         }
       }
 
-      // Register alternate images for toolbar toggles (e.g. show/hide, show-all/show-selected)
-      // so setToolbarItemImage() can switch icons in RWT without "Resource does not exist"
+      // Register alternate images for toolbar toggles (e.g. show/hide, show-all/show-selected,
+      // show-results/hide-results) so setToolbarItemImage() can switch icons in RWT without
+      // "Resource does not exist"
       ClassLoader uiClassLoader = HopWeb.class.getClassLoader();
       for (String path :
           new String[] {
             "ui/images/show.svg",
             "ui/images/hide.svg",
             "ui/images/show-all.svg",
-            "ui/images/show-selected.svg"
+            "ui/images/show-selected.svg",
+            "ui/images/show-results.svg",
+            "ui/images/hide-results.svg"
           }) {
         addResource(application, path, uiClassLoader);
       }
@@ -124,7 +127,10 @@ public class HopWeb implements ApplicationConfiguration {
             return new ByteArrayInputStream(outputStream.toByteArray());
           }
         });
-    Stream.of("org/apache/hop/ui/hopgui/clipboard.js", "org/apache/hop/ui/hopgui/canvas-zoom.js")
+    Stream.of(
+            "org/apache/hop/ui/hopgui/clipboard.js",
+            "org/apache/hop/ui/hopgui/canvas-zoom.js",
+            "org/apache/hop/ui/hopgui/mac-command-keys.js")
         .forEach(
             str ->
                 application.addResource(

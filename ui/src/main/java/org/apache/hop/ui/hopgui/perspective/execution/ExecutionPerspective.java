@@ -546,67 +546,91 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     //
     // Only showing parent executions
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SELECT_PARENTS);
-    if (onlyShowingParents) {
-      item.setImage(GuiResource.getInstance().getImageUp());
-    } else {
-      item.setImage(GuiResource.getInstance().getImageUpDisabled());
+    if (item != null && !item.isDisposed()) {
+      if (onlyShowingParents) {
+        item.setImage(GuiResource.getInstance().getImageUp());
+      } else {
+        item.setImage(GuiResource.getInstance().getImageUpDisabled());
+      }
     }
 
     // Failed
     item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SELECT_FAILED);
-    if (onlyShowingFailed) {
-      item.setImage(GuiResource.getInstance().getImageError());
-    } else {
-      item.setImage(GuiResource.getInstance().getImageErrorDisabled());
+    if (item != null && !item.isDisposed()) {
+      if (onlyShowingFailed) {
+        item.setImage(GuiResource.getInstance().getImageError());
+      } else {
+        item.setImage(GuiResource.getInstance().getImageErrorDisabled());
+      }
     }
 
     // Running
     item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SELECT_RUNNING);
-    if (onlyShowingRunning) {
-      item.setImage(GuiResource.getInstance().getImageRunningIcon());
-    } else {
-      item.setImage(GuiResource.getInstance().getImageRunningIconDisabled());
+    if (item != null && !item.isDisposed()) {
+      if (onlyShowingRunning) {
+        item.setImage(GuiResource.getInstance().getImageRunningIcon());
+      } else {
+        item.setImage(GuiResource.getInstance().getImageRunningIconDisabled());
+      }
     }
 
     // Finished
     item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SELECT_FINISHED);
-    if (onlyShowingFinished) {
-      item.setImage(GuiResource.getInstance().getImageFinishedIcon());
-    } else {
-      item.setImage(GuiResource.getInstance().getImageFinishedIconDisabled());
+    if (item != null && !item.isDisposed()) {
+      if (onlyShowingFinished) {
+        item.setImage(GuiResource.getInstance().getImageFinishedIcon());
+      } else {
+        item.setImage(GuiResource.getInstance().getImageFinishedIconDisabled());
+      }
     }
 
     // Workflows
     item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SELECT_WORKFLOWS);
-    if (onlyShowingWorkflows) {
-      item.setImage(GuiResource.getInstance().getImageWorkflow());
-    } else {
-      item.setImage(GuiResource.getInstance().getImageWorkflowDisabled());
+    if (item != null && !item.isDisposed()) {
+      if (onlyShowingWorkflows) {
+        item.setImage(GuiResource.getInstance().getImageWorkflow());
+      } else {
+        item.setImage(GuiResource.getInstance().getImageWorkflowDisabled());
+      }
     }
 
     // Pipelines
     item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SELECT_PIPELINES);
-    if (onlyShowingPipelines) {
-      item.setImage(GuiResource.getInstance().getImagePipeline());
-    } else {
-      item.setImage(GuiResource.getInstance().getImagePipelineDisabled());
+    if (item != null && !item.isDisposed()) {
+      if (onlyShowingPipelines) {
+        item.setImage(GuiResource.getInstance().getImagePipeline());
+      } else {
+        item.setImage(GuiResource.getInstance().getImagePipelineDisabled());
+      }
     }
 
     // Time filter
     item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_TIME_FILTER);
-    ((Combo) item.getControl()).setText(timeFilter.getDescription());
+    if (item != null && !item.isDisposed()) {
+      org.eclipse.swt.widgets.Control control = item.getControl();
+      if (control != null && !control.isDisposed() && control instanceof Combo) {
+        ((Combo) control).setText(timeFilter.getDescription());
+      }
+    }
 
     // Filter string
     item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_FILTER_TEXT);
-    ((Text) item.getControl()).setText(Const.NVL(filterText, ""));
+    if (item != null && !item.isDisposed()) {
+      org.eclipse.swt.widgets.Control control = item.getControl();
+      if (control != null && !control.isDisposed() && control instanceof Text) {
+        ((Text) control).setText(Const.NVL(filterText, ""));
+      }
+    }
 
     final IHopFileTypeHandler activeHandler = getActiveFileTypeHandler();
-    hopGui
-        .getDisplay()
-        .asyncExec(
-            () ->
-                hopGui.handleFileCapabilities(
-                    activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
+    if (activeHandler != null) {
+      hopGui
+          .getDisplay()
+          .asyncExec(
+              () ->
+                  hopGui.handleFileCapabilities(
+                      activeHandler.getFileType(), activeHandler.hasChanged(), false, false));
+    }
   }
 
   @GuiToolbarElement(
@@ -1116,6 +1140,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     boolean isRemoved = viewers.remove(viewer);
     tabItem.dispose();
 
+    if (isRemoved) {
+      hopGui.auditDelegate.writeLastOpenFiles();
+    }
     if (!isRemoved && event != null) {
       event.doit = false;
     }

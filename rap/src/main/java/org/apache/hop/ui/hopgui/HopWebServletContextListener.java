@@ -21,6 +21,7 @@ import jakarta.servlet.ServletContextEvent;
 import java.util.logging.Logger;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.history.AuditManager;
 import org.eclipse.rap.rwt.engine.RWTServletContextListener;
 
 public class HopWebServletContextListener extends RWTServletContextListener {
@@ -40,6 +41,8 @@ public class HopWebServletContextListener extends RWTServletContextListener {
     } catch (HopException e) {
       e.printStackTrace();
     }
+    // Use per-user audit folders in Hop Web when the user is authenticated
+    AuditManager.setSessionAuditManagerProvider(new HopWebAuditManagerProvider());
     super.contextInitialized(event);
   }
 
