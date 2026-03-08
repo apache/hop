@@ -506,7 +506,7 @@ public class GuiCompositeWidgets {
     } else {
       // Old layout: checkbox next to label
       layoutControlBetweenLabelAndRightControl(
-          props, lastControl, label, control, null, useNewLayout);
+          props, lastControl, label, control, null, useNewLayout, true);
     }
 
     return control;
@@ -666,6 +666,18 @@ public class GuiCompositeWidgets {
       Control control,
       Control rightControl,
       boolean useNewLayout) {
+    layoutControlBetweenLabelAndRightControl(
+        props, lastControl, label, control, rightControl, useNewLayout, false);
+  }
+
+  private void layoutControlBetweenLabelAndRightControl(
+      PropsUi props,
+      Control lastControl,
+      Label label,
+      Control control,
+      Control rightControl,
+      boolean useNewLayout,
+      boolean checkBox) {
     FormData fdControl = new FormData();
     if (label != null) {
       if (useNewLayout) {
@@ -687,7 +699,12 @@ public class GuiCompositeWidgets {
         }
         // Attach to lastControl to create proper vertical spacing between widgets
         if (lastControl != null) {
-          fdControl.top = new FormAttachment(lastControl, PropsUi.getMargin());
+          if (checkBox) {
+            // Center on the label
+            fdControl.top = new FormAttachment(label, 0, SWT.CENTER);
+          } else {
+            fdControl.top = new FormAttachment(lastControl, PropsUi.getMargin());
+          }
         } else {
           fdControl.top = new FormAttachment(0, PropsUi.getMargin());
         }
@@ -1086,6 +1103,15 @@ public class GuiCompositeWidgets {
       for (GuiElements child : guiElements.getChildren()) {
         enableWidget(sourceData, child, enabled);
       }
+    }
+  }
+
+  public void setComboValues(String widgetId, String[] fieldNames) {
+    Control control = widgetsMap.get(widgetId);
+    if (control instanceof Combo combo) {
+      combo.setItems(fieldNames);
+    } else if (control instanceof ComboVar comboVar) {
+      comboVar.setItems(fieldNames);
     }
   }
 }

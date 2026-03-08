@@ -1,0 +1,89 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The DDL transform generates SQL Data Definition Language.
+
+= image:transforms/icons/ddl.svg[DDL Icon, role="image-doc-icon"] DDL
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+This transform generates https://en.wikipedia.org/wiki/Data_definition_language[DDL] using column metadata taken from input rows.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:check_mark.svg[Supported, 24]
+!Dataflow! image:check_mark.svg[Supported, 24]
+!===
+|===
+
+== Options
+
+[options="header]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+This name has to be unique in a single pipeline.
+|Connection name|The name of the database connection to use for the SQL dialect and execution.
+|Table schema|The database schema for the table.
+|Table name|The name of the table to generate the DDL for.
+|Column field name|The name of the input field to contain the table column name.
+|Column type name|The name of the input field to contain the Apache Hop type for the column name.  It will get translated into the correct type for the chosen database.
+|Column length name|The name of the input field to contain the column length.
+|Column precision name|The name of the input field to contain the column precision.
+|Execute DDL?|Execute the generated DDL?
+|DDL output field (optional)|Specify the name of the field to contain the generated SQL in the output.
+|Load all data from table|Pre-loads the cache with all the data present in the lookup table.
+|Drop table before creation?|Check this option if you want to always re-create the specified table. The table is NOT dropped if the DDL is not executed.
+
+*IMPORTANT*: USE WITH CAUTION!
+|===
+
+== Example
+
+We have 2 input rows for the DDL transform:
+
+[options="header]
+|===
+|name|hopType|length|precision
+|id|Integer|9|0
+|name|String|100|-1
+|===
+
+For a standard https://en.wikipedia.org/wiki/H2_Database_Engine[H2] database we can generate the DDL for table `ddlTest`.  At runtime it will generate
+
+[source,sql]
+----
+CREATE TABLE ddlTest
+(
+  id INT
+, name VARCHAR(100)
+)
+;
+----
+
+== Hop Metadata
+
+If you want to re-use field level metadata you can consider using the xref:pipeline/transforms/metadata-input.adoc[Metadata Input] transform.  For example, you can get access to the JSON of xref:metadata-types/beam-file-definition.adoc[Beam File Definition] or xref:metadata-types/static-schema-definition.adoc[Static Schema Definition] elements.  You can then use the xref:pipeline/transforms/jsoninput.adoc[JSON Input] transform to parse the metadata and extract the 4 fields you need.
+
