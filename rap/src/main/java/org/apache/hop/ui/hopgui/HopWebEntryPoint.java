@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,38 +28,98 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.history.AuditManager;
+import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
+import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.rap.rwt.client.service.JavaScriptLoader;
 import org.eclipse.rap.rwt.client.service.StartupParameters;
 import org.eclipse.rap.rwt.service.ResourceManager;
+import org.eclipse.rap.rwt.service.UISessionEvent;
+import org.eclipse.rap.rwt.service.UISessionListener;
 import org.eclipse.rap.rwt.widgets.WidgetUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 public class HopWebEntryPoint extends AbstractEntryPoint {
 
+  /** Audit group/type/name for Hop Web theme preference (per-user in audit folder). */
+  public static final String AUDIT_GROUP_HOP_WEB = "hop-web";
+
+  public static final String AUDIT_TYPE_PREFERENCES = "preferences";
+  public static final String AUDIT_NAME_THEME = "theme";
+  public static final String AUDIT_KEY_DARK_MODE = "darkMode";
+
   @Override
   protected void createContents(Composite parent) {
     // So drill-down and other GUI checks can use Const.getHopPlatformRuntime() from any thread
     System.setProperty(Const.HOP_PLATFORM_RUNTIME, "GUI");
+
+    String path = null;
+    try {
+      if (RWT.getRequest() != null) {
+        path = RWT.getRequest().getRequestURI();
+      }
+    } catch (Exception ignored) {
+      // ignore
+    }
+    boolean onDarkPath = path != null && path.contains("/ui-dark");
+
+    // Redirect to /ui or /ui-dark if user's saved theme preference (in audit) doesn't match current
+    // path
+    try {
+      AuditState themeState =
+          AuditManager.retrieveState(
+              LogChannel.UI, AUDIT_GROUP_HOP_WEB, AUDIT_TYPE_PREFERENCES, AUDIT_NAME_THEME);
+      if (themeState != null) {
+        boolean preferDark = themeState.extractBoolean(AUDIT_KEY_DARK_MODE, false);
+        if (preferDark && !onDarkPath) {
+          parent.getDisplay().asyncExec(() -> redirectToTheme(true));
+          return;
+        }
+        if (!preferDark && onDarkPath) {
+          parent.getDisplay().asyncExec(() -> redirectToTheme(false));
+          return;
+        }
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logDebug("Could not read Hop Web theme preference from audit", e);
+    }
+
+    // Sync PropsUi dark mode with the theme for this entry point (/ui = light, /ui-dark = dark)
+    try {
+      PropsUi.getInstance().setDarkMode(onDarkPath);
+    } catch (Exception e) {
+      PropsUi.getInstance().setDarkMode(false);
+    }
+
+    // Detect client OS from User-Agent so Const.isOSX() reflects the user's machine
+    RapClientOsProvider.detectAndStoreClientMac();
+    Const.setClientOsProvider(new RapClientOsProvider());
+
     ResourceManager resourceManager = RWT.getResourceManager();
     JavaScriptLoader jsLoader = RWT.getClient().getService(JavaScriptLoader.class);
 
     // Load canvas zoom handler
     String jsLocation = resourceManager.getLocation("js/canvas-zoom.js");
     jsLoader.require(jsLocation);
+    // Map Mac Command key to Ctrl so RAP ACTIVE_KEYS (CTRL+S etc.) match when user presses Cmd+S
+    String macKeysLocation = resourceManager.getLocation("js/mac-command-keys.js");
+    jsLoader.require(macKeysLocation);
 
     // Configure keyboard shortcuts for RAP dynamically from annotations
     // ACTIVE_KEYS tells RAP to send these key combinations to the server
     // CANCEL_KEYS prevents the browser from handling these shortcuts
     // Note: CTRL automatically maps to Command key on Mac
     Display display = parent.getDisplay();
-    String[] shortcuts = buildKeyboardShortcuts();
-    display.setData(RWT.ACTIVE_KEYS, shortcuts);
-    display.setData(RWT.CANCEL_KEYS, shortcuts);
+    String[] allShortcuts = buildKeyboardShortcuts();
+    display.setData(RWT.ACTIVE_KEYS, allShortcuts);
+    display.setData(RWT.CANCEL_KEYS, allShortcuts);
 
     // Transferring Widget Data for client-side canvas drawing instructions
     WidgetUtil.registerDataKeys("props");
@@ -73,7 +134,7 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     //
     StartupParameters serviceParams = RWT.getClient().getService(StartupParameters.class);
     List<String> args = new ArrayList<>();
-    String[] options = {"user", "pass", "file"};
+    String[] options = {"user", "pass", "project", "file"};
     for (String option : options) {
       if (serviceParams.getParameter(option) != null) {
         args.add("-" + option + "=" + serviceParams.getParameter(option));
@@ -83,6 +144,20 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     HopGui.getInstance().setCommandLineArguments(args);
     HopGui.getInstance().setShell(parent.getShell());
     HopGui.getInstance().setProps(PropsUi.getInstance());
+
+    // When user changes theme in Configuration → GUI options, redirect so the new theme takes
+    // effect
+    HopGui.getInstance()
+        .setWebThemeRedirectCallback(
+            dark -> {
+              try {
+                saveThemePreferenceToAudit(dark);
+                redirectToTheme(dark);
+              } catch (Exception e) {
+                LogChannel.UI.logError("Failed to redirect for theme change", e);
+              }
+            });
+
     try {
       ExtensionPointHandler.callExtensionPoint(
           HopGui.getInstance().getLog(),
@@ -96,6 +171,66 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
     }
 
     HopGui.getInstance().open();
+
+    // URL params were only for initial project/file; clear so they don't affect CLI/run.
+    HopGui.getInstance().setCommandLineArguments(new ArrayList<>());
+
+    HopWebUrlHelper.setUrlUpdater(new RapHopWebUrlUpdater());
+
+    // Persist open tabs when the session ends (browser close, timeout, etc.).
+    // We use the session-cached audit manager so no request is needed.
+    // Skip if the UI is already disposed (beforeDestroy runs during teardown).
+    RWT.getUISession()
+        .addUISessionListener(
+            new UISessionListener() {
+              @Override
+              public void beforeDestroy(UISessionEvent event) {
+                try {
+                  HopGui hopGui = HopGui.getInstance();
+                  if (hopGui == null || hopGui.auditDelegate == null) {
+                    return;
+                  }
+                  if (hopGui.getShell() != null && hopGui.getShell().isDisposed()) {
+                    return;
+                  }
+                  hopGui.auditDelegate.writeLastOpenFiles();
+                } catch (SWTException e) {
+                  if (e.code != SWT.ERROR_WIDGET_DISPOSED) {
+                    LogChannel.UI.logError("Error persisting open files on session end", e);
+                  }
+                } catch (Exception e) {
+                  LogChannel.UI.logError("Error persisting open files on session end", e);
+                }
+              }
+            });
+  }
+
+  /** Redirect the browser to /ui or /ui-dark so the theme takes effect. */
+  private void redirectToTheme(boolean dark) {
+    String contextPath = "";
+    try {
+      if (RWT.getRequest() != null && RWT.getRequest().getContextPath() != null) {
+        contextPath = RWT.getRequest().getContextPath();
+      }
+    } catch (Exception ignored) {
+      // ignore
+    }
+    if (!contextPath.endsWith("/")) {
+      contextPath += "/";
+    }
+    String path = dark ? "ui-dark" : "ui";
+    String url = contextPath + path;
+    String escaped = url.replace("\\", "\\\\").replace("'", "\\'");
+    JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
+    executor.execute("window.location.href = '" + escaped + "';");
+  }
+
+  /** Save the user's theme preference to the audit folder (per-user when authenticated). */
+  private void saveThemePreferenceToAudit(boolean darkMode) {
+    Map<String, Object> state = new HashMap<>();
+    state.put(AUDIT_KEY_DARK_MODE, Boolean.valueOf(darkMode));
+    AuditManager.storeState(
+        LogChannel.UI, AUDIT_GROUP_HOP_WEB, AUDIT_TYPE_PREFERENCES, AUDIT_NAME_THEME, state);
   }
 
   /**
@@ -115,11 +250,16 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
       return new String[0];
     }
 
-    // Convert each shortcut to RAP format
+    // Convert each shortcut to RAP format. Only include shortcuts for the client's OS so macOS
+    // users get Cmd-based shortcuts and others get Ctrl-based.
+    boolean clientIsMac = Const.isOSX();
     for (Map.Entry<String, List<KeyboardShortcut>> entry : allShortcuts.entrySet()) {
       List<KeyboardShortcut> shortcutList = entry.getValue();
       if (shortcutList != null) {
         for (KeyboardShortcut shortcut : shortcutList) {
+          if (shortcut.isOsx() != clientIsMac) {
+            continue;
+          }
           String rapShortcut = convertToRapFormat(shortcut);
           if (rapShortcut != null && !rapShortcut.isEmpty()) {
             shortcuts.add(rapShortcut);
@@ -132,7 +272,9 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
   }
 
   /**
-   * Convert a KeyboardShortcut to RAP format
+   * Convert a KeyboardShortcut to RAP format for ACTIVE_KEYS / CANCEL_KEYS. RAP only supports CTRL,
+   * ALT, SHIFT (not META), so we use CTRL+ for all command/control shortcuts; on Mac the browser
+   * typically maps Cmd to CTRL when sending to the server.
    *
    * @param shortcut The keyboard shortcut to convert
    * @return RAP format string (e.g., "CTRL+C", "ALT+SHIFT+F1") or null if invalid
@@ -144,12 +286,10 @@ public class HopWebEntryPoint extends AbstractEntryPoint {
 
     StringBuilder sb = new StringBuilder();
 
-    // Add modifiers in RAP order
     if (shortcut.isAlt()) {
       sb.append("ALT+");
     }
     if (shortcut.isControl() || shortcut.isCommand()) {
-      // CTRL maps to Command on Mac automatically
       sb.append("CTRL+");
     }
     if (shortcut.isShift()) {

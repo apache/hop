@@ -1156,6 +1156,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     MetadataEditor<?> editor = (MetadataEditor<?>) tabItem.getData();
 
     boolean isRemoved = remove(editor);
+    if (isRemoved) {
+      hopGui.auditDelegate.writeLastOpenFiles();
+    }
     if (!isRemoved && event != null) {
       // Ignore event if canceled
       event.doit = false;

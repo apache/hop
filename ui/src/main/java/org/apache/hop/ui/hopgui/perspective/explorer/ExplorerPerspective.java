@@ -81,6 +81,7 @@ import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
+import org.apache.hop.ui.hopgui.HopWebUrlHelper;
 import org.apache.hop.ui.hopgui.ToolbarFacade;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
@@ -910,6 +911,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
               tif.fileType.openFile(hopGui, tif.path, hopGui.getVariables());
           if (handler != null) {
             handler.updateGui();
+            hopGui.auditDelegate.writeLastOpenFiles();
           }
         }
       }
@@ -1224,6 +1226,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           updateGui();
           if (EnvironmentUtils.getInstance().isWeb()) {
             notifyZoomHandlerForActiveTab();
+            updateWebUrlForActiveTab();
           }
         });
     folder.addCTabFolder2Listener(
@@ -1330,6 +1333,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         errors.add(path + ": " + e.getMessage());
         hopGui.getLog().logError("Error opening dropped file '" + path + "'", e);
       }
+    }
+    if (lastOpened != null) {
+      hopGui.auditDelegate.writeLastOpenFiles();
     }
     if (!errors.isEmpty()) {
       String message = String.join("\n", errors);
@@ -1439,6 +1445,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (!tabItem.isDisposed()) {
       removeHandlerAndDisposeTab(tabItem);
       isRemoved = true;
+    }
+    if (isRemoved) {
+      hopGui.auditDelegate.writeLastOpenFiles();
     }
     if (!isRemoved && event != null) {
       event.doit = false;
@@ -1563,6 +1572,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       owningFolder.showItem(handler.getTabItem());
       owningFolder.setFocus();
       activeTabFolder = owningFolder;
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        updateWebUrlForActiveTab();
+      }
       return;
     }
 
@@ -1613,6 +1625,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
 
     updateGui();
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      updateWebUrlForActiveTab();
+    }
   }
 
   /**
@@ -1630,6 +1645,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       owningFolder.showItem(handler.getTabItem());
       owningFolder.setFocus();
       activeTabFolder = owningFolder;
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        updateWebUrlForActiveTab();
+      }
       return handler.getTypeHandler();
     }
 
@@ -1685,6 +1703,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
 
     pipelineGraph.setFocus();
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      updateWebUrlForActiveTab();
+    }
 
     return pipelineGraph;
   }
@@ -1704,6 +1725,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       owningFolder.showItem(handler.getTabItem());
       owningFolder.setFocus();
       activeTabFolder = owningFolder;
+      if (EnvironmentUtils.getInstance().isWeb()) {
+        updateWebUrlForActiveTab();
+      }
       return handler.getTypeHandler();
     }
 
@@ -1759,6 +1783,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     HopGui.getInstance().replaceKeyboardShortcutListeners(this.getShell(), keyHandler);
 
     workflowGraph.setFocus();
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      updateWebUrlForActiveTab();
+    }
 
     return workflowGraph;
   }
@@ -1856,10 +1883,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   @Override
   public IHopFileTypeHandler getActiveFileTypeHandler() {
     CTabFolder active = getTargetTabFolder();
-    if (active.getSelectionIndex() < 0) {
+    if (active == null || active.isDisposed()) {
+      return new EmptyHopFileTypeHandler();
+    }
+    int idx = active.getSelectionIndex();
+    if (idx < 0 || idx >= active.getItemCount()) {
       CTabFolder other = (active == tabFolder) ? tabFolder2 : tabFolder;
-      if (other.getSelectionIndex() >= 0) {
-        return (IHopFileTypeHandler) other.getSelection().getData();
+      if (other != null && !other.isDisposed()) {
+        int otherIdx = other.getSelectionIndex();
+        if (otherIdx >= 0 && otherIdx < other.getItemCount()) {
+          return (IHopFileTypeHandler) other.getSelection().getData();
+        }
       }
       return new EmptyHopFileTypeHandler();
     }
@@ -1882,10 +1916,47 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                   fileTypeHandler.hasChanged(),
                   false,
                   false);
+          if (EnvironmentUtils.getInstance().isWeb()) {
+            updateWebUrlForActiveTab();
+          }
           return;
         }
       }
     }
+  }
+
+  private void updateWebUrlForActiveTab() {
+    if (HopWebUrlHelper.getUrlUpdater() == null) {
+      return;
+    }
+    IHopFileTypeHandler handler = getActiveFileTypeHandler();
+    String filename = handler != null ? handler.getFilename() : null;
+    if (filename != null) {
+      HopWebUrlHelper.getUrlUpdater().updateUrl(HopNamespace.getNamespace(), filename);
+    }
+  }
+
+  @Override
+  public String getUrlForTab(CTabItem tabItem) {
+    if (tabItem == null || HopWebUrlHelper.getUrlUpdater() == null) {
+      return null;
+    }
+    String filename = getFilenameForTab(tabItem);
+    if (filename == null) {
+      return null;
+    }
+    return HopWebUrlHelper.getUrlUpdater().buildUrl(HopNamespace.getNamespace(), filename);
+  }
+
+  private String getFilenameForTab(CTabItem tabItem) {
+    if (tabItem == null) {
+      return null;
+    }
+    Object data = tabItem.getData();
+    if (data instanceof IHopFileTypeHandler) {
+      return ((IHopFileTypeHandler) data).getFilename();
+    }
+    return null;
   }
 
   private List<CTabFolder> getTabFolders() {

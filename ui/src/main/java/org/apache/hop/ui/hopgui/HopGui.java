@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -303,6 +304,12 @@ public class HopGui
   private boolean openingLastFiles;
   private boolean reOpeningFiles;
 
+  /**
+   * When set by Hop Web, called when the user changes the theme preference so the client can
+   * redirect to /ui or /ui-dark. Not used in desktop.
+   */
+  private Consumer<Boolean> webThemeRedirectCallback;
+
   protected HopGui() {
     this(Display.getCurrent());
   }
@@ -356,6 +363,20 @@ public class HopGui
 
   public static HopGui getInstance() {
     return (HopGui) PROVIDER.getInstanceInternal();
+  }
+
+  public void setWebThemeRedirectCallback(Consumer<Boolean> callback) {
+    this.webThemeRedirectCallback = callback;
+  }
+
+  /**
+   * Called when the user changes the theme (dark mode) preference in Hop Web. If a redirect
+   * callback is set, triggers a full-page redirect so the new theme takes effect.
+   */
+  public void notifyWebThemePreferenceChanged(boolean darkMode) {
+    if (webThemeRedirectCallback != null) {
+      webThemeRedirectCallback.accept(darkMode);
+    }
   }
 
   public static void main(String[] arguments) {
@@ -491,8 +512,11 @@ public class HopGui
           }
 
           // Open the previously used files. Extension points can disable this
+          // (e.g. projects plugin sets openingLastFiles=false when loading a project).
+          // When the URL has ?file=..., we still restore last files first, then open/switch to
+          // that file so the user gets their previous tabs plus the requested file.
           //
-          if (openingLastFiles) {
+          if (openingLastFiles || hasFileInCommandLineArgs()) {
             auditDelegate.openLastFiles();
           }
 
@@ -507,6 +531,10 @@ public class HopGui
           // We need to start tracking file history again.
           //
           reOpeningFiles = false;
+
+          // Open file from URL/command line if -file= was provided (e.g. Hop Web ?file=...)
+          //
+          openFileFromCommandLineArgs();
         });
 
     // Activate the default perspective
@@ -558,6 +586,51 @@ public class HopGui
       // Save the shell size and position before closing
       props.setScreen(new WindowProperty(shell));
     }
+  }
+
+  /**
+   * If -file= was passed in command line args (e.g. from Hop Web URL ?file=...), open that file
+   * once and remove the arg so the URL can later reflect the current tab.
+   */
+  private void openFileFromCommandLineArgs() {
+    List<String> args = getCommandLineArguments();
+    if (args == null) {
+      return;
+    }
+    String filePath = null;
+    for (int i = 0; i < args.size(); i++) {
+      String arg = args.get(i);
+      if (arg != null && arg.startsWith("-file=")) {
+        filePath = arg.substring("-file=".length()).trim();
+        args.remove(i);
+        break;
+      }
+    }
+    if (StringUtils.isEmpty(filePath)) {
+      return;
+    }
+    try {
+      String resolved = variables.resolve(filePath);
+      if (StringUtils.isNotEmpty(resolved)) {
+        fileDelegate.fileOpen(resolved, true);
+      }
+    } catch (Exception e) {
+      log.logError("Error opening file from URL '" + filePath + "'", e);
+    }
+  }
+
+  /** True if command line args contain -file=... (e.g. from Hop Web URL). */
+  private boolean hasFileInCommandLineArgs() {
+    List<String> args = getCommandLineArguments();
+    if (args == null) {
+      return false;
+    }
+    for (String arg : args) {
+      if (arg != null && arg.startsWith("-file=")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void loadPerspectives() {

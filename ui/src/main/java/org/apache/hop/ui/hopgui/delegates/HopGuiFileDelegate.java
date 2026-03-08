@@ -231,7 +231,11 @@ public class HopGuiFileDelegate {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       if (fileType.hasCapability(IHopFileType.CAPABILITY_CLOSE)) {
-        return perspective.remove(typeHandler);
+        boolean removed = perspective.remove(typeHandler);
+        if (removed) {
+          hopGui.auditDelegate.writeLastOpenFiles();
+        }
+        return removed;
       }
     } catch (Exception e) {
       new ErrorDialog(hopGui.getActiveShell(), CONST_ERROR, "Error saving/closing file", e);

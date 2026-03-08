@@ -2682,8 +2682,8 @@ public class TableView extends Composite {
 
   private void fixWebLook(Control control) {
     if (EnvironmentUtils.getInstance().isWeb()) {
-      String hopWebTheme = EnvironmentUtils.getInstance().getHopWebTheme();
-      if ("dark".equalsIgnoreCase(hopWebTheme)) {
+      boolean dark = PropsUi.getInstance().isDarkMode();
+      if (dark) {
         control.setForeground(GuiResource.getInstance().getColorWhite());
         control.setBackground(GuiResource.getInstance().getColorBlack());
       } else {
