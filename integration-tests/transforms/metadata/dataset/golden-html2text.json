@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-html2text.csv",
+  "name": "golden-html2text",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "html",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "html2text_output",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

@@ -35,14 +35,12 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.html2text.Html2TextMeta.SafelistType;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 
 public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
   public static final int OVER_ALLOCATE_SIZE = 10;
   private static final Class<?> PKG = Html2Text.class; // For Translator
-  private SafelistType safelistType;
 
   private final int cores = Runtime.getRuntime().availableProcessors();
   private final int maxJobs = cores * 100;
@@ -61,14 +59,14 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private void finish() {
+  private void finish() throws HopException {
     // Wait until all jobs are finished.
     synchronized (lock) {
       while (jobs.get() > 0) {
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          throw new HopException("Waiting for jobs to finished interrupted", e);
         }
       }
     }
@@ -100,11 +98,8 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
       }
       // cache the position of the field
       cacheIndexPositions();
-
-      this.safelistType = SafelistType.valueOf(meta.getSafelistType());
     } // End If first
 
-    boolean sendToErrorRow = false;
     String errorMessage = null;
 
     process(r);
@@ -119,7 +114,6 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
       }
     } catch (Exception e) {
       if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
         logError(BaseMessages.getString(PKG, "Html2Text.ErrorInTransformRunning") + e.getMessage());
@@ -128,10 +122,9 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, meta.getHtmlField(), "Html2Text001");
-      }
+
+      // Add this row to the error output of this transform
+      putError(getInputRowMeta(), r, 1, errorMessage, meta.getHtmlField(), "Html2Text001");
     }
 
     return true;
@@ -150,13 +143,13 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
     }
   }
 
-  private void processAsync(String html, Object[] inputRow) {
+  private void processAsync(String html, Object[] inputRow) throws HopTransformException {
     synchronized (lock) {
       while (jobs.get() > maxJobs) {
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          throw new HopTransformException("Error waiting for async processing lock release", e);
         }
       }
     }
@@ -184,12 +177,11 @@ public class Html2Text extends BaseTransform<Html2TextMeta, Html2TextData> {
 
     if (meta.isCleanOnly()) {
       Safelist safelist;
-      switch (safelistType) {
-        case basic -> safelist = Safelist.basic();
-        case simpleText -> safelist = Safelist.simpleText();
-        case basicWithImages -> safelist = Safelist.basicWithImages();
-        case none -> safelist = Safelist.none();
-        case relaxed -> safelist = Safelist.relaxed();
+      switch (meta.getSafelistType()) {
+        case SIMPLE_TEXT -> safelist = Safelist.simpleText();
+        case BASIC_WITH_IMAGES -> safelist = Safelist.basicWithImages();
+        case NONE -> safelist = Safelist.none();
+        case RELAXED -> safelist = Safelist.relaxed();
         default -> safelist = Safelist.basic();
       }
 
