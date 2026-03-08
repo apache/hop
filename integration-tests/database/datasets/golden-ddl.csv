@@ -1,0 +1,7 @@
+ddl
+"CREATE TABLE ddlTest
+(
+  id INT
+, name VARCHAR(100)
+)
+;"

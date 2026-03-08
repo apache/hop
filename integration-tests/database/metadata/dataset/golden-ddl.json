@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-ddl.csv",
+  "name": "golden-ddl",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 65535,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "ddl",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

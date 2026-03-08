@@ -1,0 +1,28 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "ddl",
+          "data_set_field": "ddl"
+        }
+      ],
+      "field_order": [
+        "ddl"
+      ],
+      "data_set_name": "golden-ddl",
+      "transform_name": "Check"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0037-ddl UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0037-ddl.hpl"
+}
