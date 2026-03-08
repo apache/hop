@@ -17,31 +17,28 @@
 
 package org.apache.hop.pipeline.transforms.html2text;
 
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR;
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
 import static org.apache.hop.core.util.Utils.isEmpty;
-import static org.apache.hop.core.xml.XmlHandler.addTagValue;
-import static org.apache.hop.core.xml.XmlHandler.getTagValue;
 import static org.apache.hop.i18n.BaseMessages.getString;
-import static org.apache.hop.pipeline.transforms.html2text.Html2TextMeta.SafelistType.basic;
+import static org.apache.hop.pipeline.transforms.html2text.Html2TextMeta.SafelistType.BASIC;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "Html2Text",
@@ -50,90 +47,49 @@ import org.w3c.dom.Node;
     description = "i18n::BaseTransform.TypeTooltipDesc.Html2Text",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     documentationUrl = "/pipeline/transforms/html2text.html")
+@Getter
+@Setter
 public class Html2TextMeta extends BaseTransformMeta<Html2Text, Html2TextData> {
   private static final Class<?> PKG = Html2TextMeta.class; // For Translator
 
+  @HopMetadataProperty(key = "htmlField")
   private String htmlField;
-  private String outputField = "html2text_output";
-  private String safelistType = basic.getCode();
-  private boolean parallelism = false;
-  private boolean normalisedText = false;
-  private boolean cleanOnly = false;
+
+  @HopMetadataProperty(key = "outputField")
+  private String outputField;
+
+  @HopMetadataProperty(key = "safelistType", storeWithCode = true)
+  private SafelistType safelistType;
+
+  @HopMetadataProperty(key = "cleanOnly")
+  private boolean cleanOnly;
+
+  @HopMetadataProperty(key = "parallelism")
+  private boolean parallelism;
+
+  @HopMetadataProperty(key = "normalisedText")
+  private boolean normalisedText;
 
   public Html2TextMeta() {
     super();
-  }
-
-  @Override
-  public void setDefault() {
-    normalisedText = false;
-    parallelism = false;
-    cleanOnly = false;
-    outputField = "html2text_output";
-    safelistType = basic.getCode();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      htmlField = getTagValue(transformNode, "htmlField");
-      outputField = getTagValue(transformNode, "outputField");
-      safelistType = getTagValue(transformNode, "safelistType");
-      cleanOnly = equalsIgnoreCase("Y", getTagValue(transformNode, "cleanOnly"));
-      parallelism = equalsIgnoreCase("Y", getTagValue(transformNode, "parallelism"));
-      normalisedText = equalsIgnoreCase("Y", getTagValue(transformNode, "normalisedText"));
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          getString(PKG, "Html2TextMeta.Exception.UnableToReadTransformMeta"), e);
-    }
+    this.outputField = "html2text_output";
+    this.safelistType = BASIC;
   }
 
   @Override
   public void getFields(
-      IRowMeta r,
+      IRowMeta inputRowMeta,
       String name,
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
 
-    valueMetaString(r, name, outputField);
-  }
-
-  private void valueMetaString(IRowMeta r, String name, String metaName) {
-    IValueMeta sText = new ValueMetaString(metaName);
-    sText.setOrigin(name);
-    r.addValueMeta(sText);
-  }
-
-  private void valueMetaBoolean(IRowMeta r, String name, String metaName) {
-    IValueMeta sText = new ValueMetaBoolean(metaName);
-    sText.setOrigin(name);
-    r.addValueMeta(sText);
-  }
-
-  private void valueMetaInteger(IRowMeta r, String name, String metaName) {
-    IValueMeta sText = new ValueMetaInteger(metaName);
-    sText.setOrigin(name);
-    r.addValueMeta(sText);
-  }
-
-  @Override
-  public String getXml() {
-    return "    "
-        + addTagValue("htmlField", htmlField)
-        + "    "
-        + addTagValue("outputField", outputField)
-        + "    "
-        + addTagValue("safelistType", safelistType)
-        + "    "
-        + addTagValue("cleanOnly", cleanOnly)
-        + "    "
-        + addTagValue("normalisedText", normalisedText)
-        + "    "
-        + addTagValue("parallelism", parallelism);
+    // We simply add the output field to contain the generated text.
+    //
+    IValueMeta outputFieldMeta = new ValueMetaString(outputField);
+    outputFieldMeta.setOrigin(name);
+    inputRowMeta.addValueMeta(outputFieldMeta);
   }
 
   @Override
@@ -201,60 +157,13 @@ public class Html2TextMeta extends BaseTransformMeta<Html2Text, Html2TextData> {
     return true;
   }
 
-  public String getHtmlField() {
-    return htmlField;
-  }
-
-  public void setHtmlField(String htmlField) {
-    this.htmlField = htmlField;
-  }
-
-  public String getOutputField() {
-    return outputField;
-  }
-
-  public void setOutputField(String outputField) {
-    this.outputField = outputField;
-  }
-
-  public boolean isParallelism() {
-    return parallelism;
-  }
-
-  public void setParallelism(boolean parallelism) {
-    this.parallelism = parallelism;
-  }
-
-  public String getSafelistType() {
-    return safelistType;
-  }
-
-  public void setSafelistType(String safelistType) {
-    this.safelistType = safelistType;
-  }
-
-  public boolean isCleanOnly() {
-    return cleanOnly;
-  }
-
-  public void setCleanOnly(boolean cleanOnly) {
-    this.cleanOnly = cleanOnly;
-  }
-
-  public boolean isNormalisedText() {
-    return normalisedText;
-  }
-
-  public void setNormalisedText(boolean normalisedText) {
-    this.normalisedText = normalisedText;
-  }
-
-  public enum SafelistType {
-    none("none", getString(PKG, "Html2TextDialog.SafelistType.none")),
-    relaxed("relaxed", getString(PKG, "Html2TextDialog.SafelistType.relaxed")),
-    basic("basic", getString(PKG, "Html2TextDialog.SafelistType.basic")),
-    simpleText("simpleText", getString(PKG, "Html2TextDialog.SafelistType.simpleText")),
-    basicWithImages(
+  @Getter
+  public enum SafelistType implements IEnumHasCodeAndDescription {
+    NONE("none", getString(PKG, "Html2TextDialog.SafelistType.none")),
+    RELAXED("relaxed", getString(PKG, "Html2TextDialog.SafelistType.relaxed")),
+    BASIC("basic", getString(PKG, "Html2TextDialog.SafelistType.basic")),
+    SIMPLE_TEXT("simpleText", getString(PKG, "Html2TextDialog.SafelistType.simpleText")),
+    BASIC_WITH_IMAGES(
         "basicWithImages", getString(PKG, "Html2TextDialog.SafelistType.basicWithImages"));
 
     private final String code;
@@ -266,29 +175,11 @@ public class Html2TextMeta extends BaseTransformMeta<Html2Text, Html2TextData> {
     }
 
     public static SafelistType getTypeFromDescription(String description) {
-      for (SafelistType type : values()) {
-        if (equalsIgnoreCase(type.description, description)) {
-          return type;
-        }
-      }
-      return basic;
+      return IEnumHasCodeAndDescription.lookupDescription(SafelistType.class, description, BASIC);
     }
 
     public static String[] getDescriptions() {
-      SafelistType[] types = SafelistType.values();
-      String[] descriptions = new String[types.length];
-      for (int i = 0; i < types.length; i++) {
-        descriptions[i] = types[i].description;
-      }
-      return descriptions;
-    }
-
-    public String getCode() {
-      return code;
-    }
-
-    public String getDescription() {
-      return description;
+      return IEnumHasCodeAndDescription.getDescriptions(SafelistType.class);
     }
   }
 }

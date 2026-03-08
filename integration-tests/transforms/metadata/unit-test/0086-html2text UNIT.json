@@ -1,0 +1,33 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "html",
+          "data_set_field": "html"
+        },
+        {
+          "transform_field": "html2text_output",
+          "data_set_field": "html2text_output"
+        }
+      ],
+      "field_order": [
+        "html",
+        "html2text_output"
+      ],
+      "data_set_name": "golden-html2text",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0086-html2text UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "/home/matt/git/mattcasters/hop/integration-tests/database/0086-html2text.hpl"
+}

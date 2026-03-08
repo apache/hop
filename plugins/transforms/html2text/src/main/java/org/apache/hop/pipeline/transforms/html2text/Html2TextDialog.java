@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.html2text;
 
 import static org.apache.hop.core.util.Utils.isEmpty;
 import static org.apache.hop.i18n.BaseMessages.getString;
-import static org.apache.hop.pipeline.transforms.html2text.Html2TextMeta.SafelistType.getTypeFromDescription;
 import static org.eclipse.swt.SWT.BORDER;
 import static org.eclipse.swt.SWT.CHECK;
 import static org.eclipse.swt.SWT.CURSOR_WAIT;
@@ -28,6 +27,7 @@ import static org.eclipse.swt.SWT.READ_ONLY;
 import static org.eclipse.swt.SWT.RIGHT;
 import static org.eclipse.swt.SWT.SINGLE;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -177,7 +177,7 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
     wNormalisedText.setToolTipText(getString(PKG, "Html2TextDialog.NormalisedText.Tooltip"));
     FormData fdNormalisedText = new FormData();
     fdNormalisedText.left = new FormAttachment(middle, -margin);
-    fdNormalisedText.top = new FormAttachment(wOutputField, margin);
+    fdNormalisedText.top = new FormAttachment(wlNormalisedText, 0, SWT.CENTER);
     fdNormalisedText.right = new FormAttachment(100, 0);
     wNormalisedText.setLayoutData(fdNormalisedText);
     wNormalisedText.addSelectionListener(
@@ -202,7 +202,7 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
     // wCleanOnly.setToolTipText(getString(PKG, "Html2TextDialog.CleanOnly.Tooltip"));
     FormData fdCleanOnly = new FormData();
     fdCleanOnly.left = new FormAttachment(middle, -margin);
-    fdCleanOnly.top = new FormAttachment(wNormalisedText, margin);
+    fdCleanOnly.top = new FormAttachment(wlCleanOnly, 0, SWT.CENTER);
     fdCleanOnly.right = new FormAttachment(100, 0);
     wCleanOnly.setLayoutData(fdCleanOnly);
 
@@ -265,7 +265,7 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
     wParallelism.setToolTipText(getString(PKG, "Html2TextDialog.Parallelism.Tooltip"));
     FormData fdParallelism = new FormData();
     fdParallelism.left = new FormAttachment(middle, -margin);
-    fdParallelism.top = new FormAttachment(wSafelistType, margin);
+    fdParallelism.top = new FormAttachment(wlParallelism, 0, SWT.CENTER);
     fdParallelism.right = new FormAttachment(100, 0);
     wParallelism.setLayoutData(fdParallelism);
     wParallelism.addSelectionListener(
@@ -294,28 +294,12 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getHtmlField() != null) {
-      wHtmlFieldName.setText(input.getHtmlField());
-    }
-
-    if (input.isParallelism()) {
-      wParallelism.setEnabled(input.isParallelism());
-    }
-
-    if (input.isCleanOnly()) {
-      wCleanOnly.setEnabled(input.isCleanOnly());
-    }
-
-    if (input.isNormalisedText()) {
-      wNormalisedText.setEnabled(input.isNormalisedText());
-    }
-
-    if (input.getSafelistType() != null) {
-      String d = SafelistType.valueOf(input.getSafelistType()).getDescription();
-      wSafelistType.setText(d);
-    }
-
-    wOutputField.setText(String.valueOf(input.getOutputField()));
+    wHtmlFieldName.setText(Const.NVL(input.getHtmlField(), ""));
+    wParallelism.setSelection(input.isParallelism());
+    wCleanOnly.setSelection(input.isCleanOnly());
+    wNormalisedText.setSelection(input.isNormalisedText());
+    wSafelistType.setText(input.getSafelistType().getDescription());
+    wOutputField.setText(Const.NVL(input.getOutputField(), ""));
   }
 
   private void cancel() {
@@ -330,9 +314,7 @@ public class Html2TextDialog extends BaseTransformDialog implements ITransformDi
     }
 
     input.setHtmlField(wHtmlFieldName.getText());
-
-    input.setSafelistType(getTypeFromDescription(wSafelistType.getText()).getCode());
-
+    input.setSafelistType(SafelistType.getTypeFromDescription(wSafelistType.getText()));
     input.setOutputField(wOutputField.getText());
     input.setCleanOnly(wCleanOnly.getSelection());
     input.setNormalisedText(wNormalisedText.getSelection());

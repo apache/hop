@@ -17,25 +17,34 @@
 
 package org.apache.hop.pipeline.transforms.html2text;
 
-import java.util.Arrays;
-import java.util.List;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 class Html2TextMetaTest {
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   @Test
-  void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList("htmlField", "outputField");
+  void testLoadSave() throws Exception {
+    Path path = Paths.get(getClass().getResource("/transform.xml").toURI());
+    String xml = Files.readString(path);
+    Html2TextMeta meta = new Html2TextMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        Html2TextMeta.class,
+        meta,
+        new MemoryMetadataProvider());
 
-    LoadSaveTester<Html2TextMeta> loadSaveTester =
-        new LoadSaveTester<>(Html2TextMeta.class, attributes);
-
-    loadSaveTester.testSerialization();
+    Assertions.assertEquals("html", meta.getHtmlField());
+    Assertions.assertEquals("outputField", meta.getOutputField());
+    Assertions.assertEquals(Html2TextMeta.SafelistType.BASIC, meta.getSafelistType());
+    Assertions.assertTrue(meta.isCleanOnly());
+    Assertions.assertTrue(meta.isNormalisedText());
+    Assertions.assertTrue(meta.isParallelism());
   }
 }
