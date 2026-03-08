@@ -19,24 +19,44 @@
 package org.apache.hop.pipeline.transforms.splunkinput;
 
 import java.util.Objects;
-import org.apache.hop.core.injection.Injection;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class ReturnValue {
-
-  @Injection(name = "RETURN_NAME", group = "RETURNS")
+  @HopMetadataProperty(
+      key = "return_name",
+      injectionKey = "return_name",
+      injectionKeyDescription = "SplunkInputMeta.Injection.Return.Name")
   private String name;
 
-  @Injection(name = "RETURN_SPLUNK_NAME", group = "RETURNS")
+  @HopMetadataProperty(
+      key = "return_splunk_name",
+      injectionKey = "return_splunk_name",
+      injectionKeyDescription = "SplunkInputMeta.Injection.Return.SplunkName")
   private String splunkName;
 
-  @Injection(name = "RETURN_TYPE", group = "RETURNS")
+  @HopMetadataProperty(
+      key = "return_type",
+      injectionKey = "return_type",
+      injectionKeyDescription = "SplunkInputMeta.Injection.Return.Type")
   private String type;
 
-  @Injection(name = "RETURN_LENGTH", group = "RETURNS")
+  @HopMetadataProperty(
+      key = "return_length",
+      injectionKey = "return_length",
+      injectionKeyDescription = "SplunkInputMeta.Injection.Return.Length")
   private int length;
 
-  @Injection(name = "RETURN_FORMAT", group = "RETURNS")
+  @HopMetadataProperty(
+      key = "return_format",
+      injectionKey = "return_format",
+      injectionKeyDescription = "SplunkInputMeta.Injection.Return.Format")
   private String format;
+
+  public ReturnValue() {}
 
   public ReturnValue(String name, String splunkName, String type, int length, String format) {
     this.name = name;
@@ -66,85 +86,5 @@ public class ReturnValue {
   @Override
   public String toString() {
     return "ReturnValue{" + "name='" + name + '\'' + '}';
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  /**
-   * Gets splunkName
-   *
-   * @return value of splunkName
-   */
-  public String getSplunkName() {
-    return splunkName;
-  }
-
-  /**
-   * @param splunkName The splunkName to set
-   */
-  public void setSplunkName(String splunkName) {
-    this.splunkName = splunkName;
-  }
-
-  /**
-   * Gets type
-   *
-   * @return value of type
-   */
-  public String getType() {
-    return type;
-  }
-
-  /**
-   * @param type The type to set
-   */
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  /**
-   * Gets length
-   *
-   * @return value of length
-   */
-  public int getLength() {
-    return length;
-  }
-
-  /**
-   * @param length The length to set
-   */
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  /**
-   * Gets format
-   *
-   * @return value of format
-   */
-  public String getFormat() {
-    return format;
-  }
-
-  /**
-   * @param format The format to set
-   */
-  public void setFormat(String format) {
-    this.format = format;
   }
 }

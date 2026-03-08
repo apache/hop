@@ -20,23 +20,19 @@ package org.apache.hop.pipeline.transforms.splunkinput;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hop.core.Const;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "SplunkInput",
@@ -46,37 +42,34 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::SplunkInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/splunkinput.html")
-@InjectionSupported(
-    localizationPrefix = "Splunk.Injection.",
-    groups = {"PARAMETERS", "RETURNS"})
+@Getter
+@Setter
 public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputData> {
-
-  public static final String CONNECTION = "connection";
-  public static final String QUERY = "query";
-  public static final String RETURNS = "returns";
-  public static final String RETURN = "return";
-  public static final String RETURN_NAME = "return_name";
-  public static final String RETURN_SPLUNK_NAME = "return_splunk_name";
-  public static final String RETURN_TYPE = "return_type";
-  public static final String RETURN_LENGTH = "return_length";
-  public static final String RETURN_FORMAT = "return_format";
-
-  @Injection(name = CONNECTION)
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKey = "connection",
+      injectionKeyDescription = "SplunkInputMeta.Injection.Connection")
   private String connectionName;
 
-  @Injection(name = QUERY)
+  @HopMetadataProperty(
+      key = "query",
+      injectionKey = "query",
+      injectionKeyDescription = "SplunkInputMeta.Injection.Query")
   private String query;
 
-  @InjectionDeep private List<ReturnValue> returnValues;
+  @HopMetadataProperty(
+      groupKey = "returns",
+      injectionGroupKey = "returns",
+      injectionKeyDescription = "SplunkInputMeta.Injection.Returns",
+      key = "return",
+      injectionKey = "return",
+      injectionGroupDescription = "SplunkInputMeta.Injection.Return")
+  private List<ReturnValue> returnValues;
 
   public SplunkInputMeta() {
     super();
     returnValues = new ArrayList<>();
-  }
-
-  @Override
-  public void setDefault() {
-    query = "search * | head 100";
+    this.query = "search * | head 100";
   }
 
   @Override
@@ -105,94 +98,5 @@ public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputD
                 + "'");
       }
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-    xml.append(XmlHandler.addTagValue(CONNECTION, connectionName));
-    xml.append(XmlHandler.addTagValue(QUERY, query));
-
-    xml.append(XmlHandler.openTag(RETURNS));
-    for (ReturnValue returnValue : returnValues) {
-      xml.append(XmlHandler.openTag(RETURN));
-      xml.append(XmlHandler.addTagValue(RETURN_NAME, returnValue.getName()));
-      xml.append(XmlHandler.addTagValue(RETURN_SPLUNK_NAME, returnValue.getSplunkName()));
-      xml.append(XmlHandler.addTagValue(RETURN_TYPE, returnValue.getType()));
-      xml.append(XmlHandler.addTagValue(RETURN_LENGTH, returnValue.getLength()));
-      xml.append(XmlHandler.addTagValue(RETURN_FORMAT, returnValue.getFormat()));
-      xml.append(XmlHandler.closeTag(RETURN));
-    }
-    xml.append(XmlHandler.closeTag(RETURNS));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node stepnode, IHopMetadataProvider provider) throws HopXmlException {
-    connectionName = XmlHandler.getTagValue(stepnode, CONNECTION);
-    query = XmlHandler.getTagValue(stepnode, QUERY);
-
-    // Parse return values
-    //
-    Node returnsNode = XmlHandler.getSubNode(stepnode, RETURNS);
-    List<Node> returnNodes = XmlHandler.getNodes(returnsNode, RETURN);
-    returnValues = new ArrayList<>();
-    for (Node returnNode : returnNodes) {
-      String name = XmlHandler.getTagValue(returnNode, RETURN_NAME);
-      String splunkName = XmlHandler.getTagValue(returnNode, RETURN_SPLUNK_NAME);
-      String type = XmlHandler.getTagValue(returnNode, RETURN_TYPE);
-      int length = Const.toInt(XmlHandler.getTagValue(returnNode, RETURN_LENGTH), -1);
-      String format = XmlHandler.getTagValue(returnNode, RETURN_FORMAT);
-      returnValues.add(new ReturnValue(name, splunkName, type, length, format));
-    }
-  }
-
-  /**
-   * Gets connectionName
-   *
-   * @return value of connectionName
-   */
-  public String getConnectionName() {
-    return connectionName;
-  }
-
-  /**
-   * @param connectionName The connectionName to set
-   */
-  public void setConnectionName(String connectionName) {
-    this.connectionName = connectionName;
-  }
-
-  /**
-   * Gets query
-   *
-   * @return value of query
-   */
-  public String getQuery() {
-    return query;
-  }
-
-  /**
-   * @param query The query to set
-   */
-  public void setQuery(String query) {
-    this.query = query;
-  }
-
-  /**
-   * Gets returnValues
-   *
-   * @return value of returnValues
-   */
-  public List<ReturnValue> getReturnValues() {
-    return returnValues;
-  }
-
-  /**
-   * @param returnValues The returnValues to set
-   */
-  public void setReturnValues(List<ReturnValue> returnValues) {
-    this.returnValues = returnValues;
   }
 }

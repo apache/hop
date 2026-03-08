@@ -1,0 +1,58 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "connection",
+          "data_set_field": "connection"
+        },
+        {
+          "transform_field": "query",
+          "data_set_field": "query"
+        },
+        {
+          "transform_field": "returnName",
+          "data_set_field": "returnName"
+        },
+        {
+          "transform_field": "returnSplunkName",
+          "data_set_field": "returnSplunkName"
+        },
+        {
+          "transform_field": "returnType",
+          "data_set_field": "returnType"
+        },
+        {
+          "transform_field": "returnLength",
+          "data_set_field": "returnLength"
+        },
+        {
+          "transform_field": "returnFormat",
+          "data_set_field": "returnFormat"
+        }
+      ],
+      "field_order": [
+        "connection",
+        "query",
+        "returnName",
+        "returnSplunkName",
+        "returnType",
+        "returnLength",
+        "returnFormat"
+      ],
+      "data_set_name": "golden-splunk-input",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0033-splunk-input-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0033-splunk-input-validate.hpl"
+}
