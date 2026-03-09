@@ -16,20 +16,13 @@
  */
 package org.apache.hop.core.reflection;
 
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 // import org.apache.hop.pipeline.transforms.filterrows.FilterRowsMeta;
 
+@ExtendWith(RestoreHopEngineEnvironmentExtension.class)
 public class StringSearcherTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws org.apache.hop.core.exception.HopException {
-    HopEnvironment.init();
-  }
 
   // TODO: Move Test
   /* @Test

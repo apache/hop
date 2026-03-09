@@ -17,11 +17,16 @@
 
 package org.apache.hop.core;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 /** Test class for counter functionality. */
-public class CounterTest extends TestCase {
+class CounterTest {
   /** Constructor test 1. */
+  @Test
   public void testConstructor1() {
     Counter cnt1 = new Counter();
     assertEquals(1L, cnt1.getCounter());
@@ -53,6 +58,7 @@ public class CounterTest extends TestCase {
   }
 
   /** Test the setting of stuff. */
+  @Test
   public void testSets() {
     Counter cnt1 = new Counter();
     cnt1.setCounter(5L);
@@ -69,6 +75,7 @@ public class CounterTest extends TestCase {
   }
 
   /** Test next(). */
+  @Test
   public void testNext() {
     Counter cnt1 = new Counter();
     cnt1.setCounter(2L);

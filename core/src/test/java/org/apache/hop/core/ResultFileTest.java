@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
 import org.apache.commons.vfs2.FileObject;
@@ -34,10 +35,12 @@ import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 @ExtendWith(RestoreHopEnvironmentExtension.class)
 class ResultFileTest {
+
+  @TempDir Path tempDirPath;
 
   @BeforeEach
   void before() throws Exception {
@@ -46,8 +49,8 @@ class ResultFileTest {
 
   @Test
   void testGetRow() throws HopFileException, FileSystemException {
-    File tempDir = new File(new TemporaryFolder().toString());
-    FileObject tempFile = HopVfs.createTempFile("prefix", "suffix", tempDir.toString());
+    File tempDir = tempDirPath.toFile();
+    FileObject tempFile = HopVfs.createTempFile("prefix", "suffix", tempDir.getAbsolutePath());
     Date timeBeforeFile = Calendar.getInstance().getTime();
     ResultFile resultFile =
         new ResultFile(ResultFile.FILE_TYPE_GENERAL, tempFile, "myOriginParent", "myOrigin");
@@ -73,6 +76,5 @@ class ResultFileTest {
         "ResultFile timestamp is created in the expected window");
 
     tempFile.delete();
-    tempDir.delete();
   }
 }

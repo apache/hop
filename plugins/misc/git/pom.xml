@@ -60,12 +60,20 @@
             <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
             <version>${dependency.jgit.revision}</version>
         </dependency>
+        <!-- JUnit 4 API needed by org.eclipse.jgit.junit.RepositoryTestCase (TemporaryFolder, etc.) -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.junit</artifactId>
             <version>${dependency.jgit.revision}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Required to run UIGitTest: org.eclipse.jgit.junit.RepositoryTestCase expects JUnit 4 TestName rule -->
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>

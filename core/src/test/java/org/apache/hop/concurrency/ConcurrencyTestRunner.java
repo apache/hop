@@ -31,7 +31,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * This class is aimed to be a general runner for concurrency tests. You need to follow a convention
@@ -196,7 +196,7 @@ class ConcurrencyTestRunner<M, B> {
         String stacktrace = Throwables.getStackTraceAsString(throwable);
         message.append('\n').append(stacktrace);
       }
-      Assert.fail(message.toString());
+      Assertions.fail(message.toString());
     }
   }
 

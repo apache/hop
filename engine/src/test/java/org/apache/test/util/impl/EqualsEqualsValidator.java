@@ -17,7 +17,7 @@
 
 package org.apache.test.util.impl;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.apache.test.util.IObjectValidator;
 
@@ -26,6 +26,6 @@ public class EqualsEqualsValidator<T> implements IObjectValidator<T> {
   @Override
   public void validate(T expected, Object actual) {
     assertSame(
-        "Expected " + expected + " == " + actual + " to evaluate to true.", expected, actual);
+        expected, actual, "Expected " + expected + " == " + actual + " to evaluate to true.");
   }
 }

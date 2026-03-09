@@ -17,20 +17,25 @@
 
 package org.apache.hop.pipeline.transform;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.TestCase;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.IRowSet;
+import org.junit.jupiter.api.Test;
 
-public class DynamicWaitTimesTest extends TestCase {
+class DynamicWaitTimesTest {
 
   DynamicWaitTimes.SingleStreamStatus status;
   AtomicInteger activeStreamIndex = new AtomicInteger();
 
+  @Test
   public void testSingleStreamStatus() {
     IRowSet rowSet = new BlockingRowSet(3);
     status = DynamicWaitTimes.build(Collections.singletonList(rowSet), () -> 0, 20);
@@ -43,6 +48,7 @@ public class DynamicWaitTimesTest extends TestCase {
     assertEquals(20, status.get());
   }
 
+  @Test
   public void testMultiStreamStatus() {
     List<IRowSet> rowSetList =
         new ArrayList<>(

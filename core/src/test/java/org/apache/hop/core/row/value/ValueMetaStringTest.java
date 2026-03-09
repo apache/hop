@@ -17,11 +17,11 @@
 
 package org.apache.hop.core.row.value;
 
-import static junit.framework.TestCase.failNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -949,11 +949,11 @@ class ValueMetaStringTest {
   private static void assertSignum(String msg, int expected, int actual) {
     if (expected < 0) {
       if (actual >= 0) {
-        failNotEquals(msg, "(<0)", actual);
+        fail(msg + " expected negative but was: " + actual);
       }
     } else if (expected > 0) {
       if (actual <= 0) {
-        failNotEquals(msg, "(>0)", actual);
+        fail(msg + " expected positive but was: " + actual);
       }
     } else {
       assertEquals(expected, actual, msg);

@@ -17,7 +17,7 @@
 
 package org.apache.test.util.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.test.util.IObjectValidator;
 

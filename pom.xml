@@ -110,7 +110,7 @@
         <jandex.version>3.5.3</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
         <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
-        <junit.version>5.14.3</junit.version>
+        <junit.version>6.0.3</junit.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
         <license.inceptionYear>2020</license.inceptionYear>
@@ -121,7 +121,9 @@
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
         <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
         <maven-javadoc-plugin.version>3.10.0</maven-javadoc-plugin.version>
-        <maven-surefire-plugin.argLine>-Duser.timezone=UTC
+        <maven-surefire-plugin.argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito-core.version}/mockito-core-${mockito-core.version}.jar
+            -Xshare:off
+            -Duser.timezone=UTC
             -Dfile.encoding=UTF-8
             -Duser.language=en -Duser.country=US
             --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED

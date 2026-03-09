@@ -18,10 +18,11 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import junit.framework.TestCase;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
@@ -32,17 +33,18 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore("This test needs to be reviewed")
-public class MetadataTestBase extends TestCase {
+@Disabled("This test needs to be reviewed")
+class MetadataTestBase {
   protected MultiMetadataProvider multiMetadataProvider;
   protected MemoryMetadataProvider provider1;
   protected MemoryMetadataProvider provider2;
   protected MemoryMetadataProvider provider3;
 
-  @Override
-  protected void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     HopClientEnvironment.init();
     PluginRegistry registry = PluginRegistry.getInstance();
     registry.registerPluginType(MetadataPluginType.class);

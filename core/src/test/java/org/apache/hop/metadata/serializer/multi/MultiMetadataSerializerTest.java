@@ -18,11 +18,17 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class MultiMetadataSerializerTest extends MetadataTestBase {
+class MultiMetadataSerializerTest extends MetadataTestBase {
 
   protected MetadataType1 object1;
   protected MetadataType2 object2;
@@ -31,7 +37,8 @@ public class MultiMetadataSerializerTest extends MetadataTestBase {
   protected MetadataType1 object5;
 
   @Override
-  protected void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     super.setUp();
 
     // Throw a few objects in providers 1, 2 and 3
@@ -52,6 +59,7 @@ public class MultiMetadataSerializerTest extends MetadataTestBase {
     provider3.getSerializer(type1).save(object5); // same name as in provider 1
   }
 
+  @Test
   public void testLoad() throws HopException {
     IHopMetadataSerializer<MetadataType1> s1 =
         multiMetadataProvider.getSerializer(MetadataType1.class);
@@ -81,6 +89,7 @@ public class MultiMetadataSerializerTest extends MetadataTestBase {
     assertEquals("v4", m4.getValue());
   }
 
+  @Test
   public void testSave() throws HopException {
 
     MetadataType1 m6 = new MetadataType1("t1o6", "d6", "v6");
@@ -112,6 +121,7 @@ public class MultiMetadataSerializerTest extends MetadataTestBase {
     assertEquals(m7, t1o7);
   }
 
+  @Test
   public void testListObjectNames() throws HopException {
     IHopMetadataSerializer<MetadataType1> s1 =
         multiMetadataProvider.getSerializer(MetadataType1.class);
@@ -128,6 +138,7 @@ public class MultiMetadataSerializerTest extends MetadataTestBase {
     assertTrue(names2.contains("t2o4"));
   }
 
+  @Test
   public void testExists() throws HopException {
     IHopMetadataSerializer<MetadataType1> s1 =
         multiMetadataProvider.getSerializer(MetadataType1.class);

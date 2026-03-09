@@ -17,9 +17,14 @@
 
 package org.apache.hop.core.row;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RowDataUtilTest extends TestCase {
+import org.junit.jupiter.api.Test;
+
+class RowDataUtilTest {
   public boolean arrayCompare(Object[] arr1, int start1, Object[] arr2, int start2, int len) {
     boolean rcode = true;
 
@@ -36,6 +41,7 @@ public class RowDataUtilTest extends TestCase {
     return rcode;
   }
 
+  @Test
   public void testResizeArray() {
     Object[] arr1 = new Object[] {"test", Boolean.TRUE, 100L, 101L, new String("test1")};
     Object[] nullArr =
@@ -65,6 +71,7 @@ public class RowDataUtilTest extends TestCase {
     assertTrue(arrayCompare(arr1, 0, arr4, 0, arr1.length)); // Elements of arr1 are copied
   }
 
+  @Test
   public void testRemoveItem() {
     Object[] arr = new Object[] {1L, 2L, 3L, 4L, 5L};
 
@@ -98,6 +105,7 @@ public class RowDataUtilTest extends TestCase {
     assertTrue(arrayCompare(newArr4, 0, comp4, 0, newArr4.length));
   }
 
+  @Test
   public void testAddRowData() {
     Object[] arr = new Object[] {1L, 2L, 3L};
 
@@ -120,6 +128,7 @@ public class RowDataUtilTest extends TestCase {
     assertTrue(arrayCompare(newArr4, 0, arr, 0, arr.length));
   }
 
+  @Test
   public void testAddValueData() {
     Object[] arr1 = new Object[] {1L};
     Object[] arr2 = new Object[] {1L, 2L};
@@ -133,6 +142,7 @@ public class RowDataUtilTest extends TestCase {
     assertTrue(arrayCompare(newArr2, 0, arr2, 0, arr2.length));
   }
 
+  @Test
   public void testRemoveItems() {
     Object[] arr1 = new Object[] {1L, 2L, 3L, 4L, 5L};
     Object[] comp1 = new Object[] {2L, 4L};

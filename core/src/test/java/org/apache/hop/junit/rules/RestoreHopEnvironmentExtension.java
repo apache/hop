@@ -48,7 +48,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * JUnit 5 Extension that restores all system properties and resets any Hop related environment
- * instances. This is the JUnit 5 equivalent of the JUnit 4 RestoreHopEnvironment rule.
+ * instances.
  */
 public class RestoreHopEnvironmentExtension implements BeforeAllCallback, AfterAllCallback {
   private Properties originalProperties;

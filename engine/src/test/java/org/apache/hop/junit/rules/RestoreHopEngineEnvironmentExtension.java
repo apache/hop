@@ -21,8 +21,7 @@ import org.apache.hop.core.HopEnvironment;
 
 /**
  * JUnit 5 Extension that restores all system properties and resets any Hop related environment
- * instances, including full engine initialization. This is the JUnit 5 equivalent of the JUnit 4
- * RestoreHopEngineEnvironment rule.
+ * instances, including full engine initialization.
  */
 public class RestoreHopEngineEnvironmentExtension extends RestoreHopEnvironmentExtension {
 

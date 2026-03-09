@@ -18,6 +18,10 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -25,9 +29,11 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.junit.jupiter.api.Test;
 
-public class MultiMetadataProviderTest extends MetadataTestBase {
+class MultiMetadataProviderTest extends MetadataTestBase {
 
+  @Test
   public void testGetDescription() {
     String description = multiMetadataProvider.getDescription();
     assertNotNull(description);
@@ -35,6 +41,7 @@ public class MultiMetadataProviderTest extends MetadataTestBase {
         "Multi Metadata Provider with 3 providers: Provider1, Provider2, Provider3", description);
   }
 
+  @Test
   public void testGetMetadataClasses() {
     List<Class<IHopMetadata>> list = multiMetadataProvider.getMetadataClasses();
     assertEquals(2, list.size());
@@ -42,11 +49,13 @@ public class MultiMetadataProviderTest extends MetadataTestBase {
     assertTrue(list.contains(MetadataType2.class));
   }
 
+  @Test
   public void testGetMetadataClassForKey() throws HopException {
     assertEquals(MetadataType1.class, multiMetadataProvider.getMetadataClassForKey("type-1"));
     assertEquals(MetadataType2.class, multiMetadataProvider.getMetadataClassForKey("type-2"));
   }
 
+  @Test
   public void testFindProvider() {
     IHopMetadataProvider look1 = multiMetadataProvider.findProvider("Provider1");
     assertNotNull(look1);
@@ -59,11 +68,13 @@ public class MultiMetadataProviderTest extends MetadataTestBase {
     assertEquals(provider3, look3);
   }
 
+  @Test
   public void testGetProviders() {
     List<IHopMetadataProvider> list = multiMetadataProvider.getProviders();
     assertEquals(3, list.size());
   }
 
+  @Test
   public void testSetProviders() {
     List<IHopMetadataProvider> list = multiMetadataProvider.getProviders();
     MemoryMetadataProvider provider4 =
