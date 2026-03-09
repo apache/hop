@@ -15,36 +15,41 @@
  * limitations under the License.
  */
 
+/*
+ * Hop Web dark theme – aligned with macOS / GNOME (Adwaita) dark style.
+ * Soft dark grays, good contrast, blue accent for selection/focus.
+ */
+
 * {
-    color: #000000;
-    background-color: #001;
+    color: #e8e8e8;
+    background-color: #242424;
     background-image: none;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
 }
 
 *:disabled {
-    color: #303030;
+    color: #6e6e6e;
 }
 
 Widget-Badge {
-    background-color: #dd0000;
+    background-color: #c0392b;
     border: none;
     border-radius: 10px;
     font: 10px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #000001;
+    color: #ffffff;
 }
 
 Widget-ToolTip {
     padding: 10px;
-    background-color: rgb(32, 31, 27);
+    background-color: #2d2d2d;
     background-image: none;
-    border: none;
-    border-radius: 1px;
+    border: 1px solid #404040;
+    border-radius: 6px;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #e0e0e0;
-    opacity: 0.9;
+    color: #e8e8e8;
+    opacity: 0.98;
     animation: fadeIn 150ms ease-in, fadeOut 150ms ease-in;
-    box-shadow: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     text-align: center;
 }
 
@@ -69,13 +74,13 @@ Widget-ToolTip-Pointer:right {
 }
 
 Display {
-    rwt-shadow-color: #585955;
-    rwt-highlight-color: #ffffff;
-    rwt-darkshadow-color: #7a7873;
-    rwt-lightshadow-color: #23201b;
-    rwt-thinborder-color: #535766;
-    rwt-selectionmarker-color: #0137c3;
-    rwt-infobackground-color: #ffffff;
+    rwt-shadow-color: #404040;
+    rwt-highlight-color: #3d3d3d;
+    rwt-darkshadow-color: #1a1a1a;
+    rwt-lightshadow-color: #363636;
+    rwt-thinborder-color: #454545;
+    rwt-selectionmarker-color: #3584e4;
+    rwt-infobackground-color: #2d2d2d;
 
     rwt-error-image: url(resource/widget/rap/dialog/error.png);
     rwt-information-image: url(resource/widget/rap/dialog/information.png);
@@ -96,15 +101,15 @@ SystemMessage-DisplayOverlay {
 
 ErrorBox-Titlebar {
     font: bold 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: white;
-    background-color: #bf9869;
+    color: #ffffff;
+    background-color: #c0392b;
 }
 
 ErrorBox {
-    border: 1px solid #c4a667;
+    border: 1px solid #404040;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #b5b5b5;
-    background-color: black;
+    color: #e8e8e8;
+    background-color: #2d2d2d;
 }
 
 /* Default theme for all controls */
@@ -115,7 +120,7 @@ ErrorBox {
 }
 
 *[BORDER] {
-    border: 1px solid #333333;
+    border: 1px solid #404040;
 }
 
 /* Default theme for all composites */
@@ -123,7 +128,7 @@ ErrorBox {
 Composite {
     padding: 0;
     opacity: 1;
-    background-color: #000001;
+    background-color: #242424;
     background-image: none;
     background-repeat: repeat;
     background-position: left top;
@@ -133,8 +138,8 @@ Composite {
 }
 
 Composite[BORDER] {
-    border: 1px solid #424242;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
 }
 
 /* Button default theme */
@@ -145,13 +150,13 @@ Button {
     background-repeat: repeat;
     background-position: left top;
     border: none;
-    border-radius: 2px;
+    border-radius: 4px;
     padding: 6px 15px;
     spacing: 2px;
     cursor: default;
     animation: none;
-    color: #b5b5b5;
-    background-color: #000001;
+    color: #e8e8e8;
+    background-color: #2d2d2d;
     opacity: 1;
     text-shadow: none;
     box-shadow: none;
@@ -165,29 +170,29 @@ Button[PUSH][BORDER],
 Button[TOGGLE][BORDER],
 Button[PUSH][FLAT],
 Button[TOGGLE][FLAT] {
-    border: 1px solid #424242;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
     padding: 6px 15px;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
     animation: none;
     cursor: pointer;
-    text-shadow: 0 1px 0 #000001;
+    text-shadow: none;
 }
 
 Button[ARROW],
 Button[ARROW][BORDER],
 Button[ARROW][FLAT] {
-    border: 1px solid #424242;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
     padding: 10px;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
     cursor: pointer;
 }
@@ -195,13 +200,14 @@ Button[ARROW][FLAT] {
 Button[ARROW]:default,
 Button[PUSH]:default,
 Button[TOGGLE]:default {
-    background-color: #416693;
+    background-color: #3584e4;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#e2eefc),
-            to(#d4d4d4)
+            from(#4a9eff),
+            to(#2870c2)
     );
-    border: 1px solid #a0b3ca;
+    border: 1px solid #3584e4;
+    color: #ffffff;
 }
 
 Button[ARROW]:disabled,
@@ -209,10 +215,10 @@ Button[PUSH]:disabled,
 Button[TOGGLE]:disabled,
 Button[TOGGLE]:selected:disabled {
     cursor: default;
-    color: #dfdfdf;
+    color: #6e6e6e;
     background-image: none;
-    background-color: #303030;
-    border: 1px solid #d2d2d2;
+    background-color: #363636;
+    border: 1px solid #404040;
 }
 
 Button[ARROW]:hover,
@@ -220,8 +226,8 @@ Button[PUSH]:hover,
 Button[TOGGLE]:hover {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#151515),
-            to(#2a2a2a)
+            from(#404040),
+            to(#363636)
     );
 }
 
@@ -230,24 +236,24 @@ Button[PUSH]:pressed,
 Button[TOGGLE]:pressed {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+            from(#2d2d2d),
+            to(#363636)
     );
 }
 
 Button[TOGGLE]:selected {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+            from(#404040),
+            to(#363636)
     );
 }
 
 Button[TOGGLE]:selected:hover {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+            from(#454545),
+            to(#3d3d3d)
     );
 }
 
@@ -261,7 +267,7 @@ Button[CHECK][BORDER],
 Button[RADIO][BORDER] {
     cursor: default;
     background-image: none;
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     border-radius: 2px;
 }
 
@@ -323,7 +329,7 @@ Button-ArrowIcon[RIGHT] {
 
 Button-FocusIndicator[ARROW], Button-FocusIndicator[PUSH], Button-FocusIndicator[TOGGLE] {
     background-color: transparent;
-    border: 1px dotted #b8b8b8;
+    border: 1px dotted #3584e4;
     margin: 2px;
     padding: 0px;
     opacity: 1;
@@ -331,7 +337,7 @@ Button-FocusIndicator[ARROW], Button-FocusIndicator[PUSH], Button-FocusIndicator
 
 Button-FocusIndicator[CHECK], Button-FocusIndicator[RADIO] {
     background-color: transparent;
-    border: 1px dotted #b8b8b8;
+    border: 1px dotted #3584e4;
     padding: 2px 2px 2px 1px;
     margin: 0px;
     opacity: 1;
@@ -342,19 +348,19 @@ Button-FocusIndicator[CHECK], Button-FocusIndicator[RADIO] {
 Combo,
 Combo[BORDER] {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #959595;
-    background-color: #000001;
-    border: 1px solid #333333;
-    border-radius: 0 2px 2px 0;
+    color: #e8e8e8;
+    background-color: #2d2d2d;
+    border: 1px solid #404040;
+    border-radius: 4px;
     background-image: none;
     text-shadow: none;
-    box-shadow: inset 0 0 3px #424242;
+    box-shadow: none;
 }
 
 Combo:focused,
 Combo[BORDER]:focused {
-    border: 1px solid #555555;
-    box-shadow: 0 0 5px #4f7cb1;
+    border: 1px solid #3584e4;
+    box-shadow: 0 0 0 1px #3584e4;
 }
 
 Combo:disabled,
@@ -364,21 +370,21 @@ Combo[BORDER]:disabled {
 
 Combo-Button {
     cursor: default;
-    background-color: #efefef;
+    background-color: #363636;
     border: none;
-    border-left: 1px solid #424242;
-    border-radius: 0px 2px 2px 0px;
+    border-left: 1px solid #404040;
+    border-radius: 0 4px 4px 0;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#404040),
+            to(#363636)
     );
     width: 30px;
 }
 
 Combo-Button[RIGHT_TO_LEFT] {
     border: none;
-    border-right: 1px solid #424242;
+    border-right: 1px solid #404040;
 }
 
 Combo-Button:disabled {
@@ -402,7 +408,7 @@ Combo-List {
 
 Combo-List-Item {
     color: #ffffff;
-    background-color: #101010;
+    background-color: #2d2d2d;
     background-image: none;
     text-decoration: none;
     text-shadow: none;
@@ -414,8 +420,8 @@ Combo-List-Item:hover, Combo-List-Item:even:hover {
 }
 
 Combo-List-Item:selected, Combo-List-Item:even:selected {
-    color: #e0e0e0;
-    background-color: #3a3a3a;
+    color: #ffffff;
+    background-color: #3584e4;
 }
 
 Combo-Field {
@@ -432,9 +438,9 @@ Combo-FocusIndicator {
 /* DropDown default theme */
 
 DropDown {
-    border: 1px solid #333333;
-    border-radius: 0;
-    box-shadow: 0 0 5px #444444;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 DropDown-Item {
@@ -447,11 +453,12 @@ DropDown-Item {
 }
 
 DropDown-Item:hover {
-    background-color: #0f0f0f;
+    background-color: #404040;
 }
 
 DropDown-Item:selected {
-    background-color: #3a3a3a;
+    background-color: #3584e4;
+    color: #ffffff;
 }
 
 /* CoolBar default theme */
@@ -461,20 +468,20 @@ CoolBar {
 }
 
 CoolItem-Handle {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     width: 2px;
 }
 
 /* CTabFolder default theme */
 
 CTabFolder {
-    border-color: #424242;
-    border-radius: 2px;
+    border-color: #404040;
+    border-radius: 4px;
 }
 
 CTabItem {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #b5b5b5;
+    color: #b0b0b0;
     background-color: transparent;
     background-image: none;
     padding: 8px 15px;
@@ -484,13 +491,13 @@ CTabItem {
 }
 
 CTabItem:selected {
-    color: #b5b5b5;
-    background-color: #292929;
+    color: #e8e8e8;
+    background-color: #2d2d2d;
 }
 
 /* Do not gray out disabled CTabItems, this is SWT behavior */
 CTabItem:disabled {
-    color: black;
+    color: #6e6e6e;
 }
 
 CTabFolder-DropDownButton-Icon {
@@ -513,25 +520,25 @@ CTabFolder-DropDownButton-Icon[RIGHT_TO_LEFT]:hover {
 
 Group {
     font: 10px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #b5b5b5;
-    background-color: #000001;
+    color: #e8e8e8;
+    background-color: #242424;
     border: none;
 }
 
 Group-Frame {
     margin: 20px 0 0 0;
     padding: 15px 8px 8px 8px;
-    border: 1px solid #424242;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
 }
 
 Group-Label {
     padding: 2px 10px 2px 10px;
-    background-color: #f0f0f0;
+    background-color: #363636;
     background-image: none;
     background-repeat: repeat;
     background-position: left top;
-    border: 1px solid #333333;
+    border: 1px solid #404040;
     border-radius: 10px;
     color: inherit;
     margin: 10px 10px 10px 20px;
@@ -542,8 +549,8 @@ Group-Label {
 
 Label {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #b5b5b5;
-    background-color: #000001;
+    color: #e8e8e8;
+    background-color: transparent;
     background-image: none;
     background-repeat: repeat;
     background-position: left top;
@@ -557,13 +564,13 @@ Label {
 }
 
 Label[BORDER] {
-    border: 1px solid #333333;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
 }
 
 Label-SeparatorLine {
     background-image: none;
-    background-color: #d2d2d2;
+    background-color: #505050;
     border: none;
     border-radius: 0;
     width: 2px;
@@ -573,8 +580,8 @@ Label-SeparatorLine {
 
 Link {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #b5b5b5;
-    background-color: #000001;
+    color: #e8e8e8;
+    background-color: transparent;
     background-image: none;
     background-repeat: repeat;
     background-position: left top;
@@ -583,25 +590,26 @@ Link {
 }
 
 Link[BORDER] {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
 }
 
 Link-Hyperlink {
-    color: #416693;
+    color: #6eb3f7;
     text-shadow: none;
     text-decoration: none;
 }
 
 Link-Hyperlink:disabled {
-    color: #959595;
+    color: #6e6e6e;
 }
 
 Link-Hyperlink:hover {
     text-decoration: underline;
+    color: #8ec8ff;
 }
 
 Link-Hyperlink:hover:disabled {
-    color: #959595;
+    color: #6e6e6e;
     text-decoration: none;
 }
 
@@ -609,19 +617,19 @@ Link-Hyperlink:hover:disabled {
 
 List {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    background-color: #000001;
+    background-color: #242424;
     border: none;
-    color: #b5b5b5;
+    color: #e8e8e8;
 }
 
 List[BORDER] {
-    border: 1px solid #333333;
+    border: 1px solid #404040;
 }
 
 List-Item {
     padding: 5px 10px 5px 10px;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    background-color: #000001;
+    background-color: transparent;
     color: inherit;
     background-image: none;
     background-repeat: repeat;
@@ -630,34 +638,33 @@ List-Item {
 }
 
 List-Item:hover {
-    background-color: #a0a0a0;
+    background-color: #404040;
 }
 
 List-Item:selected {
-    color: #959595;
-    /* background-color property is used on the server to compute system color with id
-       SWT.COLOR_LIST_SELECTION (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=434191) */
-    background-color: #3a3a3a;
+    color: #ffffff;
+    background-color: #3584e4;
 }
 
 List-Item:selected:unfocused {
-    background-color: #808080;
+    background-color: #404040;
 }
 
 List-Item:even {
-    background-color: #f5f5f5;
+    background-color: #282828;
 }
 
 List-Item:even:hover {
-    background-color: #e8e8e8;
+    background-color: #404040;
 }
 
 List-Item:even:selected {
-    background-color: #959595;
+    background-color: #3584e4;
+    color: #ffffff;
 }
 
 List-Item:even:selected:unfocused {
-    background-color: #dadee6;
+    background-color: #404040;
 }
 
 List-GridLine {
@@ -668,17 +675,17 @@ List-GridLine {
 
 Menu {
     padding: 0;
-    color: #0059a5;
-    background-color: #060606;
-    border: 1px solid #a0b3ca;
-    border-radius: 2px;
-    box-shadow: 0 0 4px #ababab;
+    color: #e8e8e8;
+    background-color: #2d2d2d;
+    border: 1px solid #404040;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     opacity: 1;
     animation: none;
 }
 
 MenuItem {
-    color: #b5b5b5;
+    color: #e8e8e8;
     background-color: transparent;
     background-image: none;
     opacity: 1;
@@ -695,7 +702,7 @@ MenuItem:hover {
     background-image: gradient(
             linear, left top, left bottom,
             from(#404040),
-            to(#505050)
+            to(#363636)
     );
 }
 
@@ -703,13 +710,13 @@ MenuItem:pressed {
     color: #ffffff;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#505050),
-            to(#404040)
+            from(#3584e4),
+            to(#2870c2)
     );
 }
 
 MenuItem:disabled {
-    color: #424242;
+    color: #6e6e6e;
     text-shadow: none;
 }
 
@@ -737,19 +744,19 @@ MenuItem-CascadeIcon[RIGHT_TO_LEFT] {
 /* ProgressBar default theme */
 
 ProgressBar {
-    background-color: #000001;
+    background-color: #2d2d2d;
     background-image: url(resource/widget/rap/progressbar/progressbar-background.png);
-    border: 1px solid #424242;
-    border-radius: 15px;
+    border: 1px solid #404040;
+    border-radius: 6px;
     width: 16px;
 }
 
 ProgressBar-Indicator {
-    background-color: #00589f;
+    background-color: #3584e4;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#5882b5),
-            to(#416693)
+            from(#4a9eff),
+            to(#2870c2)
     );
     opacity: 1;
 }
@@ -758,7 +765,7 @@ ProgressBar-Indicator:paused {
     background-image: gradient(
             linear, left top, left bottom,
             from(#818181),
-            to(#b5b5b5)
+            to(#e8e8e8)
     );
 }
 
@@ -775,8 +782,8 @@ ProgressBar-Indicator:error {
 Shell {
     animation: none;
     border: none;
-    border-radius: 2px;
-    background-color: #000001;
+    border-radius: 4px;
+    background-color: #242424;
     background-image: none;
     padding: 0;
     opacity: 1;
@@ -784,14 +791,14 @@ Shell {
 }
 
 Shell[TITLE], Shell[BORDER] {
-    background-color: #000001;
-    border: 1px solid #6e6e6e;
-    border-radius: 2px;
-    box-shadow: 0 0 4px #ababab;
+    background-color: #242424;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 Shell[BORDER]:inactive, Shell[TITLE]:inactive {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     box-shadow: none;
 }
 
@@ -804,7 +811,7 @@ Shell:maximized, Shell:maximized:inactive {
 Shell-DisplayOverlay {
     animation: fadeIn 200ms linear, fadeOut 400ms ease-out;
     background-image: none;
-    background-color: #808080;
+    background-color: #6e6e6e;
     opacity: 0.2;
 }
 
@@ -812,12 +819,12 @@ Shell-DisplayOverlay {
 
 Shell-Titlebar {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    background-color: #000000;
-    background-gradient-color: #202020;
-    color: #ffffff;
+    background-color: #2d2d2d;
+    background-gradient-color: #363636;
+    color: #e8e8e8;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#303030), to(#202020)
+            from(#363636), to(#2d2d2d)
     );
     padding: 0 10px 0 10px;
     margin: 0px;
@@ -828,11 +835,11 @@ Shell-Titlebar {
 }
 
 Shell-Titlebar:inactive {
-    background-color: #000000;
-    background-gradient-color: #101010;
+    background-color: #2d2d2d;
+    background-gradient-color: #242424;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#202020), to(#101010)
+            from(#2d2d2d), to(#242424)
     );
 }
 
@@ -921,23 +928,23 @@ Shell-CloseButton:inactive:hover {
 Spinner {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
-    border-radius: 0 2px 2px 0;
-    color: #b5b5b5;
-    background-color: #000001;
+    border-radius: 4px;
+    color: #e8e8e8;
+    background-color: #2d2d2d;
     background-image: none;
     text-shadow: none;
     box-shadow: none;
 }
 
 Spinner[BORDER] {
-    border: 1px solid #aaaaaa;
-    border-radius: 0 2px 2px 0;
-    box-shadow: inset 0 0 3px #424242;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    box-shadow: none;
 }
 
 Spinner[BORDER]:focused {
-    border: 1px solid #a0a0a0;
-    box-shadow: 0 0 5px #a0a0a0;
+    border: 1px solid #3584e4;
+    box-shadow: 0 0 0 1px #3584e4;
 }
 
 Spinner:disabled,
@@ -950,22 +957,22 @@ Spinner-Field {
 }
 
 Spinner-UpButton {
-    background-color: #efefef;
+    background-color: #363636;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#efefef)
+            from(#404040),
+            to(#363636)
     );
     width: 30px;
     border: none;
-    border-left: 1px solid #424242;
-    border-radius: 0px 2px 0px 0px;
+    border-left: 1px solid #404040;
+    border-radius: 0 4px 0 0;
     cursor: default;
 }
 
 Spinner-UpButton[RIGHT_TO_LEFT] {
     border: none;
-    border-right: 1px solid #424242;
+    border-right: 1px solid #404040;
 }
 
 Spinner-UpButton:disabled {
@@ -982,22 +989,22 @@ Spinner-UpButton-Icon:hover {
 }
 
 Spinner-DownButton {
-    background-color: #efefef;
+    background-color: #363636;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#efefef),
-            to(#1b1b1b)
+            from(#363636),
+            to(#404040)
     );
     width: 30px;
     border: none;
-    border-left: 1px solid #424242;
-    border-radius: 0px 0px 2px 0px;
+    border-left: 1px solid #404040;
+    border-radius: 0 0 4px 0;
     cursor: default;
 }
 
 Spinner-DownButton[RIGHT_TO_LEFT] {
     border: none;
-    border-right: 1px solid #424242;
+    border-right: 1px solid #404040;
 }
 
 Spinner-DownButton:disabled {
@@ -1021,29 +1028,29 @@ TabFolder {
 }
 
 TabFolder[BORDER] {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
 }
 
 TabFolder-ContentContainer {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
 }
 
 TabItem {
-    color: #b5b5b5;
-    background-color: #000001;
+    color: #e8e8e8;
+    background-color: #242424;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
     background-repeat: repeat;
     background-position: left top;
-    border-top-color: #5882b5;
-    border-bottom-color: #5882b5;
-    text-shadow: 0 1px 0 #000001;
+    border-top-color: #3584e4;
+    border-bottom-color: #3584e4;
+    text-shadow: 0 1px 0 #242424;
     padding: 6px;
     margin: 6px 1px 1px 0px;
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     border-bottom: none;
 }
 
@@ -1053,7 +1060,7 @@ TabItem[RIGHT_TO_LEFT] {
 
 TabItem:bottom {
     margin: 1px 1px 6px 0px;
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     border-top: none;
 }
 
@@ -1064,12 +1071,12 @@ TabItem[RIGHT_TO_LEFT]:bottom {
 TabItem:selected {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+            from(#404040),
+            to(#363636)
     );
     margin: 3px -1px 0px -2px;
-    border: 1px solid #424242;
-    border-top: 3px solid #5882b5;
+    border: 1px solid #404040;
+    border-top: 3px solid #3584e4;
     border-bottom: none;
 }
 
@@ -1079,9 +1086,9 @@ TabItem[RIGHT_TO_LEFT]:selected {
 
 TabItem:bottom:selected {
     margin: 0px -1px 3px -2px;
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     border-top: none;
-    border-bottom: 3px solid #5882b5;
+    border-bottom: 3px solid #3584e4;
 }
 
 TabItem[RIGHT_TO_LEFT]:bottom:selected {
@@ -1108,36 +1115,35 @@ TabItem[RIGHT_TO_LEFT]:bottom:selected:first {
 
 Table {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    background-color: #111111;
+    background-color: #242424;
     background-image: none;
-    color: #B5B5B5;
+    color: #e8e8e8;
     border: none;
 }
 
 Table[BORDER] {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
 }
 
 TableColumn {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    background-color: #f0f0f0;
     padding: 8px 3px 8px 3px;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
-    color: #ffffff;
-    border-bottom: 1px solid #424242;
-    text-shadow: 0 1px 0 #000000;
+    color: #e8e8e8;
+    border-bottom: 1px solid #404040;
+    text-shadow: none;
     text-overflow: ellipsis;
 }
 
 TableColumn:hover {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#1b1b1b),
-            to(#060606)
+            from(#404040),
+            to(#363636)
     );
 }
 
@@ -1152,7 +1158,7 @@ TableItem:linesvisible:even:rowtemplate {
 }
 
 TableItem:linesvisible:even {
-    background-color: #252525;
+    background-color: #282828;
     color: inherit;
 }
 
@@ -1164,18 +1170,18 @@ Table-RowOverlay {
 
 Table-RowOverlay:hover {
     color: inherit;
-    background-color: rgba(181, 181, 181, 0.2);
+    background-color: rgba(255, 255, 255, 0.06);
     background-image: none;
 }
 
 Table-RowOverlay:selected {
     color: inherit;
-    background-color: rgba(20, 110, 190, 0.25);
+    background-color: rgba(53, 132, 228, 0.3);
     background-image: none;
 }
 
 Table-RowOverlay:selected:unfocused {
-    background-color: rgba(98, 130, 171, 0.2);
+    background-color: rgba(53, 132, 228, 0.2);
     background-image: none;
     color: inherit;
 }
@@ -1195,6 +1201,7 @@ TableColumn-SortIndicator:down {
 Table-Cell {
     spacing: 3px;
     padding: 5px 3px 5px 3px;
+    color: #e8e8e8;
 }
 
 Table-GridLine,
@@ -1205,7 +1212,7 @@ Table-GridLine:vertical:rowtemplate {
 Table-GridLine:vertical,
 Table-GridLine:header,
 Table-GridLine:horizontal:rowtemplate {
-    color: #dedede;
+    color: #404040;
 }
 
 
@@ -1244,12 +1251,12 @@ Table-Checkbox:checked:grayed:hover {
 Text {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
-    border-radius: 0;
+    border-radius: 4px;
     padding: 5px 10px 5px 10px;
-    color: #b5b5b5;
+    color: #e8e8e8;
     background-repeat: repeat;
     background-position: left top;
-    background-color: #000001;
+    background-color: #2d2d2d;
     background-image: none;
     text-shadow: none;
     box-shadow: none;
@@ -1265,15 +1272,15 @@ Text[MULTI] {
 
 Text[BORDER],
 Text[MULTI][BORDER] {
-    border: 1px solid #aaaaaa;
-    border-radius: 0;
-    box-shadow: inset 0 0 3px #424242;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    box-shadow: none;
 }
 
 Text[BORDER]:focused,
 Text[MULTI][BORDER]:focused {
-    border: 1px solid #a0a0a0;
-    box-shadow: 0 0 5px #a0a0a0;
+    border: 1px solid #3584e4;
+    box-shadow: 0 0 0 1px #3584e4;
 }
 
 Text[BORDER]:disabled,
@@ -1284,7 +1291,7 @@ Text[MULTI][BORDER]:read-only {
 }
 
 Text-Message {
-    color: #a7a6aa;
+    color: #6e6e6e;
     text-shadow: none;
 }
 
@@ -1302,27 +1309,27 @@ Text-Cancel-Icon {
 
 ToolBar {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #b5b5b5;
+    color: #e8e8e8;
     padding: 0;
     spacing: 0;
-    background-color: #001;
+    background-color: #242424;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#2d2d2d),
+            to(#242424)
     );
-    border: 1px solid #424242;
-    border-radius: 3px;
+    border: 1px solid #404040;
+    border-radius: 6px;
     opacity: 1;
 }
 
 ToolBar[VERTICAL] {
     background-image: gradient(
             linear, left top, right top,
-            from(#161616),
-            color-stop(45%, #060606),
-            color-stop(55%, #060606),
-            to(#161616)
+            from(#2d2d2d),
+            color-stop(45%, #242424),
+            color-stop(55%, #242424),
+            to(#2d2d2d)
     );
 }
 
@@ -1333,7 +1340,7 @@ ToolBar[FLAT] {
 }
 
 ToolBar[FLAT][BORDER] {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     padding: 3px 3px 6px 3px;
 }
 
@@ -1391,23 +1398,23 @@ ToolItem:hover,
 ToolItem:pressed,
 ToolItem:selected {
     border: none;
-    border-left: 1px solid #424242;
-    border-right: 1px solid #424242;
+    border-left: 1px solid #404040;
+    border-right: 1px solid #404040;
 }
 
 ToolItem[VERTICAL]:hover,
 ToolItem[VERTICAL]:pressed,
 ToolItem[VERTICAL]:selected {
     border: none;
-    border-top: 1px solid #424242;
-    border-bottom: 1px solid #424242;
+    border-top: 1px solid #404040;
+    border-bottom: 1px solid #404040;
 }
 
 ToolItem:hover {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#151515),
-            to(#2a2a2a)
+            from(#404040),
+            to(#363636)
     );
 }
 
@@ -1415,8 +1422,8 @@ ToolItem:pressed {
     padding: 9px 8px 7px 8px;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+            from(#363636),
+            to(#2d2d2d)
     );
 }
 
@@ -1424,19 +1431,19 @@ ToolItem:selected {
     padding: 9px 8px 7px 8px;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#1b1b1b),
-            to(#060606)
+            from(#404040),
+            to(#363636)
     );
 }
 
 ToolItem[VERTICAL]:hover {
-    background-color: #3C3F41;
+    background-color: #404040;
     background-image: none;
     border-radius: 6px;
 }
 
 ToolItem[VERTICAL]:pressed, ToolItem[VERTICAL]:selected {
-    background-color: #4A9EFF;
+    background-color: #3584e4;
     background-image: none;
     border-radius: 6px;
 }
@@ -1449,7 +1456,7 @@ ToolItem[RIGHT_TO_LEFT]:last:selected,
 ToolItem[RIGHT_TO_LEFT]:last:pressed {
     border: none;
     border-left: 1px solid transparent;
-    border-right: 1px solid #424242;
+    border-right: 1px solid #404040;
 }
 
 ToolItem:last:hover,
@@ -1459,7 +1466,7 @@ ToolItem[RIGHT_TO_LEFT]:first:hover,
 ToolItem[RIGHT_TO_LEFT]:first:selected,
 ToolItem[RIGHT_TO_LEFT]:first:pressed {
     border: none;
-    border-left: 1px solid #424242;
+    border-left: 1px solid #404040;
     border-right: 1px solid transparent;
 }
 
@@ -1468,14 +1475,14 @@ ToolItem[VERTICAL]:first:selected,
 ToolItem[VERTICAL]:first:pressed {
     border: none;
     border-top: 1px solid transparent;
-    border-bottom: 1px solid #424242;
+    border-bottom: 1px solid #404040;
 }
 
 ToolItem[VERTICAL]:last:hover,
 ToolItem[VERTICAL]:last:selected,
 ToolItem[VERTICAL]:last:pressed {
     border: none;
-    border-top: 1px solid #424242;
+    border-top: 1px solid #404040;
     border-bottom: 1px solid transparent;
 }
 
@@ -1495,8 +1502,8 @@ ToolItem[FLAT]:first:selected,
 ToolItem[FLAT]:last:hover,
 ToolItem[FLAT]:last:pressed,
 ToolItem[FLAT]:last:selected {
-    border: 1px solid #424242;
-    border-radius: 3px 3px 3px 3px;
+    border: 1px solid #404040;
+    border-radius: 6px;
 }
 
 ToolItem[FLAT]:hover,
@@ -1504,24 +1511,24 @@ ToolItem[FLAT]:first:hover,
 ToolItem[FLAT]:last:hover {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
 }
 
 ToolItem[FLAT]:pressed, ToolItem[FLAT]:first:pressed, ToolItem[FLAT]:last:pressed {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+            from(#2d2d2d),
+            to(#363636)
     );
 }
 
 ToolItem[FLAT]:selected {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#1b1b1b),
-            to(#060606)
+            from(#404040),
+            to(#363636)
     );
 }
 
@@ -1538,13 +1545,13 @@ ToolItem-Separator {
 
 Tree, Grid {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    background-color: #000001;
+    background-color: #242424;
     border: none;
-    color: #b5b5b5;
+    color: #e8e8e8;
 }
 
 Tree[BORDER], Grid[BORDER] {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
 }
 
 TreeItem, GridItem,
@@ -1558,7 +1565,7 @@ TreeItem:linesvisible:even:rowtemplate {
 }
 
 TreeItem:linesvisible:even {
-    background-color: #f5f5f5;
+    background-color: #282828;
     color: inherit;
     border: none;
 }
@@ -1571,18 +1578,18 @@ Tree-RowOverlay, Grid-RowOverlay {
 
 Tree-RowOverlay:hover, Grid-RowOverlay:hover {
     color: inherit;
-    background-color: rgba(181, 181, 181, 0.2);
+    background-color: rgba(255, 255, 255, 0.06);
     background-image: none;
 }
 
 Tree-RowOverlay:selected, Grid-RowOverlay:selected {
     color: inherit;
-    background-color: rgba(20, 110, 190, 0.25);
+    background-color: rgba(53, 132, 228, 0.3);
     background-image: none;
 }
 
 Tree-RowOverlay:selected:unfocused, Grid-RowOverlay:selected:unfocused {
-    background-color: rgba(98, 130, 171, 0.2);
+    background-color: rgba(53, 132, 228, 0.2);
     background-image: none;
     color: inherit;
 }
@@ -1590,14 +1597,14 @@ Tree-RowOverlay:selected:unfocused, Grid-RowOverlay:selected:unfocused {
 TreeColumn, GridColumn {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     color: inherit;
-    background-color: #f0f0f0;
+    background-color: #363636;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
     padding: 8px 10px 8px 6px;
-    border-bottom: 1px solid #424242;
+    border-bottom: 1px solid #404040;
     text-shadow: none;
     text-overflow: ellipsis;
 }
@@ -1605,8 +1612,8 @@ TreeColumn, GridColumn {
 TreeColumn:hover, GridColumn:hover {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#1b1b1b),
-            to(#060606)
+            from(#404040),
+            to(#363636)
     );
 }
 
@@ -1635,7 +1642,7 @@ Tree-GridLine:vertical:rowtemplate, Grid-GridLine:vertical:rowtemplate {
 Tree-GridLine:vertical,
 Tree-GridLine:header,
 Tree-GridLine:horizontal:rowtemplate {
-    color: #dedede;
+    color: #404040;
 }
 
 Grid-GridLine {
@@ -1821,20 +1828,20 @@ Grid-Indent[RIGHT_TO_LEFT]:first:last:expanded:hover {
 /* Scale default theme */
 
 Scale {
-    background-color: white;
+    background-color: #2d2d2d;
     background-image: none;
     border-radius: 3px;
 }
 
 Scale-Thumb {
-    background-color: #e5e5e5;
+    background-color: #505050;
     background-image: none;
-    border: 1px solid #a4a4a4;
-    border-radius: 2px 2px 2px 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
 }
 
 Scale-Thumb:focused {
-    border: 1px solid #a0a0a0;
+    border: 1px solid #3584e4;
 }
 
 /* DateTime default theme */
@@ -1843,16 +1850,16 @@ DateTime {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     border: none;
     border-radius: 0 2px 2px 0;
-    color: #464a4e;
-    background-color: #000001;
+    color: #b0b0b0;
+    background-color: #242424;
     background-image: none;
     text-shadow: none;
     box-shadow: none;
 }
 
 DateTime[BORDER]:focused {
-    border: 1px solid #a0a0a0;
-    box-shadow: 0 0 5px #a0a0a0;
+    border: 1px solid #606060;
+    box-shadow: 0 0 5px #606060;
 }
 
 DateTime-Field {
@@ -1863,9 +1870,9 @@ DateTime-Field {
 }
 
 DateTime[BORDER] {
-    border: 1px solid #aaaaaa;
+    border: 1px solid #505050;
     border-radius: 0 2px 2px 0;
-    box-shadow: inset 0 0 3px #424242;
+    box-shadow: inset 0 0 3px #404040;
 }
 
 DateTime[BORDER]:disabled {
@@ -1885,26 +1892,26 @@ DateTime-Calendar-Day:today {
 
 DateTime-Field:selected,
 DateTime-Calendar-Day:selected {
-    background-color: #5882b5;
-    color: #000001;
+    background-color: #3584e4;
+    color: #ffffff;
 }
 
 DateTime-Calendar-Day:selected:hover {
-    background-color: #5882b5;
-    color: #000001;
+    background-color: #3584e4;
+    color: #ffffff;
 }
 
 DateTime-Calendar-Day:selected:unfocused {
-    background-color: #c0c0c0;
+    background-color: #505050;
 }
 
 DateTime-Calendar-Day:otherMonth {
     background-color: transparent;
-    color: #808080;
+    color: #6e6e6e;
 }
 
 DateTime-Calendar-Day:hover {
-    background-color: #b5b5b5;
+    background-color: #404040;
 }
 
 DateTime-Calendar-Navbar {
@@ -1913,7 +1920,7 @@ DateTime-Calendar-Navbar {
     background-color: #00569c;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#416693), to(#5882b5)
+            from(#2870c2), to(#3584e4)
     );
     color: white;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
@@ -1989,22 +1996,22 @@ DateTime-Calendar-NextYearButton[RIGHT_TO_LEFT]:hover {
 }
 
 DateTime-UpButton {
-    background-color: #f0f0f0;
+    background-color: #363636;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#efefef)
+            from(#363636),
+            to(#404040)
     );;
     width: 30px;
     border: none;
-    border-left: 1px solid #424242;
+    border-left: 1px solid #404040;
     border-radius: 0px 2px 0px 0px;
     cursor: default;
 }
 
 DateTime-UpButton[RIGHT_TO_LEFT] {
     border: none;
-    border-right: 1px solid #424242;
+    border-right: 1px solid #404040;
 }
 
 DateTime-UpButton-Icon {
@@ -2016,22 +2023,22 @@ DateTime-UpButton-Icon:hover {
 }
 
 DateTime-DownButton {
-    background-color: #f0f0f0;
+    background-color: #363636;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#efefef),
-            to(#1b1b1b)
+            from(#404040),
+            to(#2d2d2d)
     );
     width: 30px;
     border: none;
-    border-left: 1px solid #424242;
+    border-left: 1px solid #404040;
     border-radius: 0px 0px 2px 0px;
     cursor: default;
 }
 
 DateTime-DownButton[RIGHT_TO_LEFT] {
     border: none;
-    border-right: 1px solid #424242;
+    border-right: 1px solid #404040;
 }
 
 DateTime-DownButton-Icon {
@@ -2044,21 +2051,21 @@ DateTime-DownButton-Icon:hover {
 
 DateTime-DropDownButton {
     cursor: default;
-    background-color: #f0f0f0;
+    background-color: #363636;
     border: none;
-    border-left: 1px solid #424242;
+    border-left: 1px solid #404040;
     border-radius: 0px 2px 2px 0px;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
     width: 30px;
 }
 
 DateTime-DropDownButton[RIGHT_TO_LEFT] {
     border: none;
-    border-right: 1px solid #424242;
+    border-right: 1px solid #404040;
 }
 
 DateTime-DropDownButton:disabled,
@@ -2083,18 +2090,18 @@ DateTime-DropDownCalendar {
 /* ExpandBar default theme */
 
 ExpandBar {
-    color: #b5b5b5;
-    background-color: white;
+    color: #e8e8e8;
+    background-color: #242424;
 }
 
 ExpandBar[BORDER] {
-    border: 1px solid #424242;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
 }
 
 ExpandItem {
-    border: 1px solid #424242;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
 }
 
 ExpandItem-Header {
@@ -2103,8 +2110,8 @@ ExpandItem-Header {
     cursor: pointer;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
     text-shadow: none;
 }
@@ -2138,11 +2145,11 @@ Sash {
 }
 
 Sash[BORDER] {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
 }
 
 Sash:hover {
-    background-color: #e5e5e5;
+    background-color: #404040;
 }
 
 Sash-Handle:horizontal {
@@ -2157,7 +2164,7 @@ Sash-Handle:vertical {
 
 Slider {
     border: none;
-    background-color: #f0f0f0;
+    background-color: #363636;
     border-radius: 2px;
 }
 
@@ -2165,9 +2172,9 @@ Slider {
 
 Slider-Thumb[HORIZONTAL],
 Slider-Thumb[VERTICAL] {
-    background-color: #1b1b1b;
+    background-color: #2d2d2d;
     background-image: url(resource/widget/rap/slider/slider-background.png);
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     border-radius: 2px;
 }
 
@@ -2175,8 +2182,8 @@ Slider-Thumb[VERTICAL] {
 
 Slider-UpButton,
 Slider-DownButton {
-    background-color: #1b1b1b;
-    border: 1px solid #424242;
+    background-color: #2d2d2d;
+    border: 1px solid #404040;
     cursor: default;
     padding: 0;
 }
@@ -2249,20 +2256,16 @@ Slider-DownButton-Icon[VERTICAL] {
 
 ToolTip {
     cursor: default;
-    border: 1px solid #a0b3ca;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 6px;
     padding: 8px;
     opacity: 1;
-    color: #b5b5b5;
-    background-image: gradient(
-            linear, left top, right top,
-            from(#f8f9ff),
-            to(#f4f4f4)
-    );
+    color: #e8e8e8;
+    background-image: none;
+    background-color: #2d2d2d;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    background-color: #fcfcfc;
     animation: fadeIn 200ms linear, fadeOut 600ms ease-out;
-    box-shadow: 0 0 4px #adadad;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     width: auto;
     height: auto;
 }
@@ -2280,13 +2283,13 @@ ToolTip-Image[ICON_WARNING] {
 }
 
 ToolTip-Text {
-    color: #b5b5b5;
+    color: #e8e8e8;
     font: bold 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     text-shadow: none;
 }
 
 ToolTip-Message {
-    color: #b5b5b5;
+    color: #b0b0b0;
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     text-shadow: none;
 }
@@ -2295,24 +2298,24 @@ ToolTip-Message {
 
 CCombo {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #b5b5b5;
-    background-color: #000001;
+    color: #e8e8e8;
+    background-color: #2d2d2d;
     background-image: none;
     border: none;
-    border-radius: 0 2px 2px 0;
+    border-radius: 4px;
     text-shadow: none;
     box-shadow: none;
 }
 
 CCombo[BORDER] {
-    border: 1px solid #303030;
-    border-radius: 0 2px 2px 0;
-    box-shadow: inset 0 0 3px #202020;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    box-shadow: none;
 }
 
 CCombo[BORDER]:focused {
-    border: 1px solid #606060;
-    box-shadow: 0 0 5px #606060;
+    border: 1px solid #3584e4;
+    box-shadow: 0 0 0 1px #3584e4;
 }
 
 CCombo:disabled,
@@ -2322,21 +2325,21 @@ CCombo[BORDER]:disabled {
 
 CCombo-Button {
     cursor: default;
-    background-color: #efefef;
+    background-color: #363636;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#404040),
+            to(#363636)
     );
     border: none;
-    border-left: 1px solid #424242;
-    border-radius: 0px 2px 2px 0px;
+    border-left: 1px solid #404040;
+    border-radius: 0 4px 4px 0;
     width: 30px;
 }
 
 CCombo-Button[RIGHT_TO_LEFT] {
     border: none;
-    border-right: 1px solid #424242;
+    border-right: 1px solid #404040;
 }
 
 CCombo-Button:disabled {
@@ -2353,8 +2356,8 @@ CCombo-Button-Icon:hover {
 }
 
 CCombo-List {
-    border: 1px solid #303030;
-    box-shadow: 0 0 5px #303030;
+    border: 1px solid #404040;
+    box-shadow: 0 0 5px #404040;
     border-radius: 2px;
 }
 
@@ -2368,7 +2371,7 @@ CCombo-List-Item {
 }
 
 CCombo-List-Item:hover, CCombo-List-Item:even:hover {
-    background-color: #f0f0f0;
+    background-color: #363636;
 }
 
 CCombo-List-Item:selected, CCombo-List-Item:even:selected {
@@ -2390,8 +2393,8 @@ CCombo-FocusIndicator {
 
 CLabel {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
-    color: #b5b5b5;
-    background-color: #000001;
+    color: #e8e8e8;
+    background-color: #242424;
     background-image: none;
     background-repeat: repeat;
     background-position: left top;
@@ -2404,7 +2407,7 @@ CLabel {
 }
 
 CLabel[BORDER] {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     border-radius: 2px;
 }
 
@@ -2415,7 +2418,7 @@ Browser {
 }
 
 Browser[BORDER] {
-    border: 1px solid #a4a4a4;
+    border: 1px solid #404040;
 }
 
 /* ScrollBar default theme */
@@ -2434,8 +2437,8 @@ ScrollBar:active {
 }
 
 ScrollBar-Thumb {
-    background-color: #cccccc;
-    border: 1px solid #424242;
+    background-color: #505050;
+    border: 1px solid #404040;
     border-radius: 15px;
     background-image: none;
     min-height: 20px;
@@ -2456,50 +2459,52 @@ FileUpload {
     font: 12px Verdana, "Lucida Sans", Arial, Helvetica, sans-serif;
     background-image: gradient(
             linear, left top, left bottom,
-            from(#060606),
-            to(#1b1b1b)
+            from(#363636),
+            to(#2d2d2d)
     );
     background-repeat: repeat;
     background-position: left top;
-    border: 1px solid #424242;
-    border-radius: 2px;
+    border: 1px solid #404040;
+    border-radius: 4px;
     padding: 6px 15px;
     spacing: 2px;
     cursor: pointer;
     animation: none;
-    color: #b5b5b5;
-    background-color: #000001;
+    color: #e8e8e8;
+    background-color: #2d2d2d;
     opacity: 1;
-    text-shadow: 0 1px 0 #000001;
+    text-shadow: none;
+    box-shadow: none;
+    text-decoration: none;
 }
 
 FileUpload:disabled {
     cursor: default;
-    color: #d2d2d2;
+    color: #6e6e6e;
     background-image: none;
-    background-color: #fafafa;
-    border: 1px solid #d2d2d2;
+    background-color: #363636;
+    border: 1px solid #404040;
 }
 
 FileUpload:hover {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#151515),
-            to(#2a2a2a)
+            from(#404040),
+            to(#363636)
     );
 }
 
 FileUpload:pressed {
     background-image: gradient(
             linear, left top, left bottom,
-            from(#2a2a2a),
-            to(#151515)
+            from(#2d2d2d),
+            to(#363636)
     );
 }
 
 FileUpload-FocusIndicator {
     background-color: transparent;
-    border: 1px dotted #b8b8b8;
+    border: 1px dotted #3584e4;
     margin: 2px;
     padding: 0px;
     opacity: 1;
@@ -2515,10 +2520,11 @@ Label.sidebarButton {
     border-radius: 6px;
 }
 
+
 /* JFace specific theming */
 
 Shell.jface_contentProposalPopup, Shell.jface_infoPopupDialog {
-    border: 1px solid #424242;
+    border: 1px solid #404040;
     padding: 0;
-    box-shadow: 0 0 4px #ababab;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }

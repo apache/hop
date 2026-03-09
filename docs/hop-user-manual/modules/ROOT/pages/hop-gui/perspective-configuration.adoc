@@ -114,7 +114,7 @@ The `Look & Feel` configuration options allow you to configure various aspects o
 |Show Canvas Grid|show the grid (dotted) for workflows and pipelines in Hop GUI |no
 |Hide the menu bar|Do not show the menu bar. If enabled (default), the menu options are available from the Apache Hop icon in Hop GUI's upper left corner. |yes
 |Show a toolbar above tables|Show a toolbar with options to cut/copy/paste, move lines up/down etc in table views (e.g. in preview dialogs, transform configuration options)|yes
-|Dark mode|use dark mode. This options is read only (can't be changed). Your operating system's theme settings are used by default. |N/A
+|Dark mode|use dark mode. On Hop Web and Windows you can toggle this; on macOS and other desktop platforms it follows the operating system theme. Changing it in Hop Web reloads the page to apply the theme. |N/A
 |Preferred Language
 a|the default language to use in Hop GUI.
 

@@ -67,9 +67,7 @@ This method is not implemented in RAP/RWT.
 
 == Themes
 
-Hop Web now has 2 themes implemented: "light" and "dark".
-They are selected with the system environment variable `HOP_WEB_THEME` which you can pass to a docker container using `--env HOP_WEB_THEME=dark`.
-The default theme is `light`
+Hop Web has two themes: "light" and "dark". The theme is a per-user setting stored in the audit folder. Users choose it in Configuration → GUI options (Dark mode); the page reloads to apply it. Use `/ui` for light and `/ui-dark` for dark, or let the app redirect based on the saved preference.
 
 To change a theme you need to look in 2 different locations:
 
@@ -107,7 +105,7 @@ If you rebuild any of these modules after changes you can simply run `docker/cre
 
 To then run it simply execute:
 
-`docker run -p 8080:8080 -e HOP_WEB_THEME=dark hop-web`
+`docker run -p 8080:8080 hop-web`
 
 == Configuring Hop Web
 

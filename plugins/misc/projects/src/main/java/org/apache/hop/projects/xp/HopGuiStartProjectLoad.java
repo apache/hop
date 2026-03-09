@@ -61,9 +61,23 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
         logChannelInterface.logBasic("Projects enabled");
 
         // Build list of candidate projects to try: last used first, then default.
+        // If -project= is present in URL/command line args, prefer that project first.
         // Defensive: try multiple recent projects so one failing does not block startup.
         //
         List<String> candidateNames = new ArrayList<>();
+        for (String arg : hopGui.getCommandLineArguments()) {
+          if (arg != null && arg.startsWith("-project=")) {
+            String projectName = arg.substring("-project=".length()).trim();
+            if (StringUtils.isNotEmpty(projectName)
+                && config.findProjectConfig(projectName) != null
+                && !candidateNames.contains(projectName)) {
+              candidateNames.add(projectName);
+              logChannelInterface.logBasic(
+                  "Using project from URL/arguments: '" + projectName + "'");
+            }
+            break;
+          }
+        }
         List<AuditEvent> auditEvents =
             AuditManager.findEvents(
                 ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,

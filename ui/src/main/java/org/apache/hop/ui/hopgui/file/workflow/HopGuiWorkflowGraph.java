@@ -282,6 +282,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   // Keep track if a contextual dialog box is open, do not display the tooltip
   private boolean openedContextDialog = false;
 
+  /** Screen position where action icon drag started; drag commits only after movement threshold. */
+  private Point actionDragStartScreen;
+
+  /** True once pointer has moved past {@link #ACTION_DRAG_THRESHOLD_PX} and drag has started. */
+  private boolean actionDragCommitted;
+
   protected int lastButton;
 
   protected WorkflowHopMeta lastHopSplit;
@@ -291,6 +297,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   protected static final double THETA = Math.toRadians(10); // arrowhead sharpness
 
   protected static final int SIZE = 30; // arrowhead length
+
+  /** Minimum pointer movement (px) before an action icon mousedown is treated as drag. */
+  private static final int ACTION_DRAG_THRESHOLD_PX = 5;
 
   protected int currentMouseX = 0;
 
@@ -582,6 +591,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     lastClick = new Point(real.x, real.y);
     lastButton = event.button;
     dragSelection = false;
+    actionDragStartScreen = null;
 
     // Hide the tooltip!
     hideToolTips();
@@ -636,15 +646,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             canvas.setData(START_HOP_NODE, currentAction.getName());
             startHopAction = currentAction;
           } else {
-            canvas.setData("mode", "drag");
-            dragSelection = true;
-            selectedActions = workflowMeta.getSelectedActions();
-            selectedAction = currentAction;
-            //
-            // When an icon is moved that is not selected, it gets
-            // selected too late.
-            // It is not captured here, but in the mouseMoveListener...
-            //
+            // Defer entering drag mode until pointer moves past threshold (avoids drag when
+            // clicking on name or making a small movement)
+            actionDragStartScreen = new Point(event.x, event.y);
+            actionDragCommitted = false;
             previousActionLocations = workflowMeta.getSelectedLocations();
 
             Point p = currentAction.getLocation();
@@ -927,7 +932,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               && selectionRegion == null
               && selectedActions == null
               && selectedNotes == null) {
-            // This is available only in single click mode...
             ActionMeta actionMeta = (ActionMeta) areaOwner.getParent();
             editAction(actionMeta);
             return;
@@ -936,6 +940,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         default:
           break;
       }
+    }
+
+    // If we mousedown on action icon but never committed to drag, treat as click (promote for click
+    // handling below)
+    if (selectedAction == null
+        && currentAction != null
+        && startHopAction == null
+        && selectionRegion == null
+        && selectedActions == null
+        && selectedNotes == null) {
+      selectedAction = currentAction;
     }
 
     // Clicked on an icon?
@@ -1032,6 +1047,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       selectedNote = null;
       startHopAction = null;
       endHopLocation = null;
+      actionDragStartScreen = null;
+      actionDragCommitted = false;
 
       updateGui();
     } else {
@@ -1098,6 +1115,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         selectedNote = null;
         startHopAction = null;
         endHopLocation = null;
+        actionDragStartScreen = null;
+        actionDragCommitted = false;
 
         updateGui();
       }
@@ -1319,6 +1338,29 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } else {
       if (mouseOverName != null) {
         mouseOverName = null;
+        doRedraw = true;
+      }
+    }
+
+    //
+    // Commit to drag mode only after pointer moves past threshold (avoids drag when clicking name
+    // or making a small movement)
+    //
+    if (currentAction != null
+        && iconOffset != null
+        && !actionDragCommitted
+        && actionDragStartScreen != null
+        && startHopAction == null
+        && selectionRegion == null) {
+      int dx = event.x - actionDragStartScreen.x;
+      int dy = event.y - actionDragStartScreen.y;
+      int thresholdSq = ACTION_DRAG_THRESHOLD_PX * ACTION_DRAG_THRESHOLD_PX;
+      if (dx * dx + dy * dy > thresholdSq) {
+        actionDragCommitted = true;
+        canvas.setData("mode", "drag");
+        dragSelection = true;
+        selectedActions = workflowMeta.getSelectedActions();
+        selectedAction = currentAction;
         doRedraw = true;
       }
     }
@@ -1864,6 +1906,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     hopCandidate = null;
     lastHopSplit = null;
     lastButton = 0;
+    actionDragStartScreen = null;
+    actionDragCommitted = false;
     canvas.setData("mode", "null");
     canvas.setData(START_HOP_NODE, null);
     startHopAction = null;

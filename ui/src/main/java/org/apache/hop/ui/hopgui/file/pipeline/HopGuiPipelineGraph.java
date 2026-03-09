@@ -286,6 +286,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private static final int HOP_SEL_MARGIN = 9;
 
+  /** Minimum pointer movement (px) before an icon mousedown is treated as drag instead of click. */
+  private static final int ICON_DRAG_THRESHOLD_PX = 5;
+
   @Getter private PipelineMeta pipelineMeta;
   @Getter public IPipelineEngine<PipelineMeta> pipeline;
 
@@ -318,6 +321,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private PipelineHopMeta candidate;
 
   private boolean dragSelection;
+
+  /**
+   * Screen position where icon drag started; drag commits only after movement exceeds threshold.
+   */
+  private Point iconDragStartScreen;
+
+  /** True once pointer has moved past {@link #ICON_DRAG_THRESHOLD_PX} and drag has started. */
+  private boolean iconDragCommitted;
 
   private boolean splitHop;
 
@@ -393,7 +404,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Setter private HopPipelineFileType<PipelineMeta> fileType;
   private boolean doubleClick;
-  private boolean mouseMovedSinceClick;
 
   private PipelineHopMeta clickedPipelineHop;
 
@@ -664,7 +674,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       mouseHover(event);
     }
     doubleClick = false;
-    mouseMovedSinceClick = false;
     resize = null;
 
     boolean alt = (event.stateMask & SWT.ALT) != 0;
@@ -675,6 +684,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     lastClick = new Point(real.x, real.y);
     lastButton = event.button;
     dragSelection = false;
+    iconDragStartScreen = null;
 
     // Hide the tooltip!
     hideToolTips();
@@ -777,22 +787,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             canvas.setData(START_HOP_NODE, currentTransform.getName());
             startHopTransform = currentTransform;
           } else {
-            canvas.setData("mode", "drag");
-            dragSelection = true;
-            selectedTransforms = pipelineMeta.getSelectedTransforms();
-            selectedTransform = currentTransform;
-
-            pipelineGridDelegate.onPipelineSelectionChanged();
-
-            for (ITransformSelectionListener listener : currentTransformListeners) {
-              listener.onUpdateSelection(currentTransform);
-            }
-
-            //
-            // When an icon is moved that is not selected, it gets
-            // selected too late.
-            // It is not captured here, but in the mouseMoveListener...
-            //
+            // Defer entering drag mode until pointer moves past threshold (avoids drag when
+            // clicking on name or making a small movement)
+            iconDragStartScreen = new Point(event.x, event.y);
+            iconDragCommitted = false;
             previousTransformLocations = pipelineMeta.getSelectedTransformLocations();
 
             Point p = currentTransform.getLocation();
@@ -1042,8 +1040,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (areaOwner != null && areaOwner.getAreaType() != null) {
       switch (areaOwner.getAreaType()) {
         case TRANSFORM_OUTPUT_DATA:
-          if ((!mouseMovedSinceClick || EnvironmentUtils.getInstance().isWeb())
-              && showTransformOutputData(areaOwner)) {
+          if (showTransformOutputData(areaOwner)) {
             return;
           }
           break;
@@ -1059,8 +1056,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           if (startHopTransform == null
               && selectionRegion == null
               && selectedTransforms == null
-              && selectedNotes == null
-              && !mouseMovedSinceClick) {
+              && selectedNotes == null) {
             // Single click on transform name: edit (do not treat as drag end when release is here)
             //
             TransformMeta transformMeta = (TransformMeta) areaOwner.getParent();
@@ -1073,6 +1069,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         default:
           break;
       }
+    }
+
+    // If we mousedown on icon but never committed to drag, treat as click (promote for click
+    // handling below)
+    if (selectedTransform == null
+        && currentTransform != null
+        && startHopTransform == null
+        && selectionRegion == null
+        && selectedTransforms == null
+        && selectedNotes == null) {
+      selectedTransform = currentTransform;
     }
 
     // Clicked on an icon?
@@ -1157,6 +1164,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       startHopTransform = null;
       endHopLocation = null;
       dragSelection = false;
+      iconDragStartScreen = null;
+      iconDragCommitted = false;
 
       updateGui();
     } else {
@@ -1235,6 +1244,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         selectedNote = null;
         startHopTransform = null;
         endHopLocation = null;
+        iconDragStartScreen = null;
+        iconDragCommitted = false;
         updateGui();
       }
     }
@@ -1508,7 +1519,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void mouseMove(MouseEvent event) {
     boolean shift = (event.stateMask & SWT.SHIFT) != 0;
-    mouseMovedSinceClick = true;
     boolean doRedraw = false;
 
     // disable the tooltip
@@ -1606,6 +1616,32 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if (mouseOverName != null) {
         mouseOverName = null;
         doRedraw = true;
+      }
+    }
+
+    //
+    // Commit to drag mode only after pointer moves past threshold (avoids drag when clicking name
+    // or making a small movement)
+    //
+    if (currentTransform != null
+        && iconOffset != null
+        && !iconDragCommitted
+        && iconDragStartScreen != null
+        && startHopTransform == null
+        && selectionRegion == null) {
+      int dx = event.x - iconDragStartScreen.x;
+      int dy = event.y - iconDragStartScreen.y;
+      int thresholdSq = ICON_DRAG_THRESHOLD_PX * ICON_DRAG_THRESHOLD_PX;
+      if (dx * dx + dy * dy > thresholdSq) {
+        iconDragCommitted = true;
+        canvas.setData("mode", "drag");
+        dragSelection = true;
+        selectedTransforms = pipelineMeta.getSelectedTransforms();
+        selectedTransform = currentTransform;
+        pipelineGridDelegate.onPipelineSelectionChanged();
+        for (ITransformSelectionListener listener : currentTransformListeners) {
+          listener.onUpdateSelection(currentTransform);
+        }
       }
     }
 
@@ -2259,6 +2295,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     lastButton = 0;
     iconOffset = null;
     dragSelection = false;
+    iconDragStartScreen = null;
+    iconDragCommitted = false;
     canvas.setData("mode", "null");
     canvas.setData(START_HOP_NODE, null);
     startHopTransform = null;

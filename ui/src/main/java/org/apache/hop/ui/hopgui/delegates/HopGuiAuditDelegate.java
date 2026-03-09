@@ -81,6 +81,8 @@ public class HopGuiAuditDelegate {
       return;
     }
 
+    String namespace = HopNamespace.getNamespace();
+
     // Collect files that fail to open
     List<String> failedFiles = new ArrayList<>();
 
@@ -305,6 +307,7 @@ public class HopGuiAuditDelegate {
       return;
     }
 
+    String namespace = HopNamespace.getNamespace();
     List<IHopPerspective> perspectives = hopGui.getPerspectiveManager().getPerspectives();
     for (IHopPerspective perspective : perspectives) {
       IHopFileTypeHandler activeFileTypeHandler = perspective.getActiveFileTypeHandler();

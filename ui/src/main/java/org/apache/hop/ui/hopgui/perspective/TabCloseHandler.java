@@ -31,6 +31,7 @@ public class TabCloseHandler {
 
   private static final Class<?> PKG = HopGui.class;
 
+  private final TabClosable tabClosablePerspective;
   CTabFolder tabFolder;
   CTabItem selectedItem;
 
@@ -39,6 +40,7 @@ public class TabCloseHandler {
   }
 
   public TabCloseHandler(TabClosable tabClosablePerspective, CTabFolder tabFolder) {
+    this.tabClosablePerspective = tabClosablePerspective;
     this.tabFolder = tabFolder;
 
     Menu menu = new Menu(tabFolder);

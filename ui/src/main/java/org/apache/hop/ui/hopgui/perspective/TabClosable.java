@@ -70,4 +70,12 @@ public interface TabClosable {
 
   /** Get the tabFolder of the perspective */
   CTabFolder getTabFolder();
+
+  /**
+   * Optional: return a shareable URL for this tab (e.g. for Hop Web ?project=&amp;file=). Returns
+   * null if not supported (e.g. desktop or non-file tab).
+   */
+  default String getUrlForTab(CTabItem tabItem) {
+    return null;
+  }
 }

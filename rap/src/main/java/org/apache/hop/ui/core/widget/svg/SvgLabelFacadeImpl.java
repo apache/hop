@@ -18,7 +18,14 @@
 
 package org.apache.hop.ui.core.widget.svg;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.svg.SvgCache;
+import org.apache.hop.core.svg.SvgCacheEntry;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
@@ -26,11 +33,37 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolItem;
 
 public class SvgLabelFacadeImpl extends SvgLabelFacade {
+
+  /**
+   * Build a data URI for the SVG with dark-mode colors applied using the same color-contrasting map
+   * that the desktop uses in SwtUniversalImageSvg. Returns null if the SVG is not in the cache.
+   */
+  private String buildDarkModeSrc(String imageFile) {
+    try {
+      SvgCacheEntry entry = SvgCache.findSvg(imageFile);
+      if (entry == null) {
+        return null;
+      }
+      String svgXml = XmlHandler.getXmlString(entry.getSvgDocument(), false, false);
+      for (Map.Entry<String, String> e :
+          PropsUi.getInstance().getContrastingColorStrings().entrySet()) {
+        svgXml = svgXml.replace(e.getKey(), e.getValue());
+      }
+      return "data:image/svg+xml;base64,"
+          + Base64.getEncoder().encodeToString(svgXml.getBytes(StandardCharsets.UTF_8));
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
   @Override
   public void setDataInternal(String id, Label label, String imageFile, int size) {
-    // What's the location of the SVG file?
     try {
-      String src = RWT.getResourceManager().getLocation(imageFile);
+      boolean darkMode = PropsUi.getInstance().isDarkMode();
+      String src = darkMode ? buildDarkModeSrc(imageFile) : null;
+      if (src == null) {
+        src = RWT.getResourceManager().getLocation(imageFile);
+      }
       label.setData(RWT.MARKUP_ENABLED, Boolean.TRUE);
       label.setText(
           "<img id='"
@@ -99,7 +132,11 @@ public class SvgLabelFacadeImpl extends SvgLabelFacade {
   @Override
   public void updateImageSourceInternal(String id, Label label, String imagePath) {
     try {
-      String src = RWT.getResourceManager().getLocation(imagePath);
+      boolean darkMode = PropsUi.getInstance().isDarkMode();
+      String src = darkMode ? buildDarkModeSrc(imagePath) : null;
+      if (src == null) {
+        src = RWT.getResourceManager().getLocation(imagePath);
+      }
       if (src == null) {
         return;
       }

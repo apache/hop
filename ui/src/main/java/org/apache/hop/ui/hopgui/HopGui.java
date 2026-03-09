@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -303,6 +304,12 @@ public class HopGui
   private boolean openingLastFiles;
   private boolean reOpeningFiles;
 
+  /**
+   * When set by Hop Web, called when the user changes the theme preference so the client can
+   * redirect to /ui or /ui-dark. Not used in desktop.
+   */
+  private Consumer<Boolean> webThemeRedirectCallback;
+
   protected HopGui() {
     this(Display.getCurrent());
   }
@@ -356,6 +363,27 @@ public class HopGui
 
   public static HopGui getInstance() {
     return (HopGui) PROVIDER.getInstanceInternal();
+  }
+
+  public void setWebThemeRedirectCallback(Consumer<Boolean> callback) {
+    this.webThemeRedirectCallback = callback;
+  }
+
+  /**
+   * Called when the user changes the theme (dark mode) preference in Hop Web. If a redirect
+   * callback is set, triggers a full-page redirect so the new theme takes effect.
+   *
+   * @param darkMode true = dark, false = light, null = follow system (Hop Web only)
+   */
+  public void notifyWebThemePreferenceChanged(Boolean darkMode) {
+    if (webThemeRedirectCallback != null) {
+      webThemeRedirectCallback.accept(darkMode);
+    }
+  }
+
+  /** Overload for primitive boolean (delegates to Boolean version). */
+  public void notifyWebThemePreferenceChanged(boolean darkMode) {
+    notifyWebThemePreferenceChanged(Boolean.valueOf(darkMode));
   }
 
   public static void main(String[] arguments) {
@@ -491,8 +519,11 @@ public class HopGui
           }
 
           // Open the previously used files. Extension points can disable this
+          // (e.g. projects plugin sets openingLastFiles=false when loading a project).
+          // When the URL has ?file=..., we still restore last files first, then open/switch to
+          // that file so the user gets their previous tabs plus the requested file.
           //
-          if (openingLastFiles) {
+          if (openingLastFiles || hasFileInCommandLineArgs()) {
             auditDelegate.openLastFiles();
           }
 
@@ -507,6 +538,10 @@ public class HopGui
           // We need to start tracking file history again.
           //
           reOpeningFiles = false;
+
+          // Open file from URL/command line if -file= was provided (e.g. Hop Web ?file=...)
+          //
+          openFileFromCommandLineArgs();
         });
 
     // Activate the default perspective
@@ -558,6 +593,51 @@ public class HopGui
       // Save the shell size and position before closing
       props.setScreen(new WindowProperty(shell));
     }
+  }
+
+  /**
+   * If -file= was passed in command line args (e.g. from Hop Web URL ?file=...), open that file
+   * once and remove the arg so the URL can later reflect the current tab.
+   */
+  private void openFileFromCommandLineArgs() {
+    List<String> args = getCommandLineArguments();
+    if (args == null) {
+      return;
+    }
+    String filePath = null;
+    for (int i = 0; i < args.size(); i++) {
+      String arg = args.get(i);
+      if (arg != null && arg.startsWith("-file=")) {
+        filePath = arg.substring("-file=".length()).trim();
+        args.remove(i);
+        break;
+      }
+    }
+    if (StringUtils.isEmpty(filePath)) {
+      return;
+    }
+    try {
+      String resolved = variables.resolve(filePath);
+      if (StringUtils.isNotEmpty(resolved)) {
+        fileDelegate.fileOpen(resolved, true);
+      }
+    } catch (Exception e) {
+      log.logError("Error opening file from URL '" + filePath + "'", e);
+    }
+  }
+
+  /** True if command line args contain -file=... (e.g. from Hop Web URL). */
+  private boolean hasFileInCommandLineArgs() {
+    List<String> args = getCommandLineArguments();
+    if (args == null) {
+      return false;
+    }
+    for (String arg : args) {
+      if (arg != null && arg.startsWith("-file=")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void loadPerspectives() {
@@ -619,7 +699,13 @@ public class HopGui
         // Get the perspectives container from the sidebar
         Composite perspectivesContainer =
             (Composite) perspectivesSidebar.getData("perspectivesContainer");
-        createStyledSidebarButton(perspectivesContainer, image, tooltip, perspective);
+        createStyledSidebarButton(
+            perspectivesContainer,
+            image,
+            perspectivePlugin.getImageFile(),
+            sidebarIconSize,
+            tooltip,
+            perspective);
       }
 
       perspectivesSidebar.layout(true, true);
@@ -661,9 +747,15 @@ public class HopGui
    * and selection colors.
    */
   private void createStyledSidebarButton(
-      Composite parent, Image image, String tooltip, IHopPerspective perspective) {
+      Composite parent,
+      Image image,
+      String imagePath,
+      int imageSize,
+      String tooltip,
+      IHopPerspective perspective) {
 
-    SidebarButton button = new SidebarButton(parent, image, tooltip, perspective);
+    SidebarButton button =
+        new SidebarButton(parent, image, imagePath, imageSize, tooltip, perspective);
     sidebarButtons.add(button);
 
     GridData gd = new GridData();
@@ -685,7 +777,12 @@ public class HopGui
     Color normalBg = GuiResource.getInstance().getWidgetBackGroundColor();
 
     public SidebarButton(
-        Composite parent, Image image, String tooltip, IHopPerspective perspective) {
+        Composite parent,
+        Image image,
+        String imagePath,
+        int imageSize,
+        String tooltip,
+        IHopPerspective perspective) {
       this.image = image;
       this.perspective = perspective;
 
@@ -710,10 +807,10 @@ public class HopGui
         comp.setLayout(layout);
 
         imageLabel = new Label(comp, SWT.NONE);
-        imageLabel.setImage(image);
         imageLabel.setBackground(normalBg);
         imageLabel.setToolTipText(tooltip);
         imageLabel.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
+        SvgLabelFacade.setData(perspective.getId() + "-sidebar", imageLabel, imagePath, imageSize);
 
         // Center the label in the composite
         GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, true);
@@ -1966,11 +2063,12 @@ public class HopGui
         comp.setLayout(gl);
 
         Label imgLabel = new Label(comp, SWT.NONE);
-        imgLabel.setImage(resolveButtonImage(d));
         imgLabel.setBackground(normalBg);
         imgLabel.setToolTipText(d.getTooltip());
         imgLabel.setData("org.eclipse.rap.rwt.customVariant", "sidebarButton");
         imgLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true));
+        String svgId = "sidebar-bottom-" + d.getId();
+        SvgLabelFacade.setData(svgId, imgLabel, d.getImagePath(), d.getImageSize());
 
         GridData compGd = new GridData();
         compGd.widthHint = buttonSize;
@@ -1984,7 +2082,11 @@ public class HopGui
               Color bg = sel ? selectionBg : hov ? hoverBg : normalBg;
               comp.setBackground(bg);
               imgLabel.setBackground(bg);
-              imgLabel.setImage(resolveButtonImage(d));
+              String newPath =
+                  sel && !d.getActiveImagePath().isEmpty()
+                      ? d.getActiveImagePath()
+                      : d.getImagePath();
+              SvgLabelFacade.updateImageSource(svgId, imgLabel, newPath);
               comp.redraw();
             };
         comp.setData("updateVisual", updateVisual);

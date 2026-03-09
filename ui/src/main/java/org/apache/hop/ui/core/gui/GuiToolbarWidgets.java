@@ -398,6 +398,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
 
     String imageFilename = findImageFilename(toolbarItem);
     String uniqueId = instanceId + "-" + toolbarItem.getId();
+    imageLabel.setData("org.eclipse.rap.rwt.customVariant", "toolbarIcon");
     SvgLabelFacade.setData(uniqueId, imageLabel, imageFilename, size);
     composite.setData("iconSize", size);
     composite.setData("uniqueId", uniqueId);
@@ -625,6 +626,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
     // Create a unique DOM element ID by combining instance ID with toolbar item ID
     // This prevents ID collisions when multiple tabs have the same toolbar items
     String uniqueId = instanceId + "-" + toolbarItem.getId();
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      imageLabel.setData("org.eclipse.rap.rwt.customVariant", "toolbarIcon");
+    }
     SvgLabelFacade.setData(uniqueId, imageLabel, imageFilename, size);
     // Store so setToolbarItemImage() can update the icon when toggling state (e.g. show/hide
     // selected)

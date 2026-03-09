@@ -215,10 +215,6 @@ public class EnvironmentUtils {
     return SWT.getPlatform().equals("rap");
   }
 
-  public String getHopWebTheme() {
-    return System.getProperty("HOP_WEB_THEME");
-  }
-
   /** Open the file explorer based on OS and select the file */
   public void openFileExplorer(String path) throws HopException {
 

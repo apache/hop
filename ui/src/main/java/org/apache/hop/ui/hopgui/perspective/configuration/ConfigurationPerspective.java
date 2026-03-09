@@ -48,6 +48,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -86,9 +87,21 @@ public class ConfigurationPerspective implements IHopPerspective {
 
   private HopGui hopGui;
   private SashForm sashForm;
-  public CTabFolder configTabs;
+
+  /** Content area showing one config panel at a time (no tab bar; tree on the left selects). */
+  private Composite contentArea;
+
+  private StackLayout contentStackLayout;
+
+  /** Temporary CTabFolder used only to build tab content; disposed after reparenting. */
+  private CTabFolder configTabs;
+
   private Tree categoryTree;
-  private Map<String, CTabItem> categoryTabs = new HashMap<>();
+
+  /** Category name -> the panel control (reparented from CTabItem). */
+  private Map<String, Control> categoryTabs = new HashMap<>();
+
+  private String currentCategoryName;
   private List<Object> tabInstances = new ArrayList<>(); // Store tab instances for refreshing
   private List<Control> highlightedControls = new ArrayList<>();
   private String currentSearchText = ""; // Track current search for re-applying highlights
@@ -197,10 +210,9 @@ public class ConfigurationPerspective implements IHopPerspective {
                 showCategory(parentItem.getText(), false); // Don't apply highlighting yet
 
                 // Then show the specific plugin settings
-                CTabItem pluginTab = categoryTabs.get(parentItem.getText());
-                if (pluginTab != null) {
-                  Control tabControl = pluginTab.getControl();
-                  if (tabControl instanceof Composite tabComposite) {
+                Control pluginPanel = categoryTabs.get(parentItem.getText());
+                if (pluginPanel != null && !pluginPanel.isDisposed()) {
+                  if (pluginPanel instanceof Composite tabComposite) {
                     Composite pluginComposite = findPluginComposite(tabComposite);
                     if (pluginComposite != null) {
                       ConfigPluginOptionsTab.showConfigPluginSettings(pluginName, pluginComposite);
@@ -220,10 +232,9 @@ public class ConfigurationPerspective implements IHopPerspective {
 
               // If it's the Plugins category (parent), show instructions
               if (categoryName.equalsIgnoreCase("Plugins") || categoryName.contains("plugin")) {
-                CTabItem pluginTab = categoryTabs.get(categoryName);
-                if (pluginTab != null) {
-                  Control tabControl = pluginTab.getControl();
-                  if (tabControl instanceof Composite tabComposite) {
+                Control pluginPanel = categoryTabs.get(categoryName);
+                if (pluginPanel != null && !pluginPanel.isDisposed()) {
+                  if (pluginPanel instanceof Composite tabComposite) {
                     Composite pluginComposite = findPluginComposite(tabComposite);
                     if (pluginComposite != null) {
                       ConfigPluginOptionsTab.showPluginInstructions(pluginComposite);
@@ -235,15 +246,55 @@ public class ConfigurationPerspective implements IHopPerspective {
           }
         });
 
-    // Right side: Content area - just use the tab folder directly
-    configTabs = new CTabFolder(sashForm, SWT.BORDER);
-    PropsUi.setLook(configTabs, Props.WIDGET_STYLE_TAB);
+    // Right side: Content area (stack of panels; no tab bar – tree on the left selects)
+    contentArea = new Composite(sashForm, SWT.NONE);
+    contentStackLayout = new StackLayout();
+    contentArea.setLayout(contentStackLayout);
+    PropsUi.setLook(contentArea);
+    contentArea.setLayoutData(new FormDataBuilder().fullSize().result());
 
-    // Hide the tab bar, we'll use the tree for navigation
+    // Build tabs in a temporary CTabFolder so existing @GuiTab methods work unchanged
+    configTabs = new CTabFolder(contentArea, SWT.BORDER);
+    configTabs.setLayoutData(new FormDataBuilder().fullSize().result());
+    PropsUi.setLook(configTabs, Props.WIDGET_STYLE_TAB);
     configTabs.setTabHeight(0);
 
-    // Load all setting tabs
+    // Load all setting tabs (adds CTabItems to configTabs)
     loadSettingCategories();
+
+    // Reparent each tab's control into contentArea and dispose the tab folder
+    CTabItem[] items = configTabs.getItems();
+    for (CTabItem item : items) {
+      Control c = item.getControl();
+      if (c != null && !c.isDisposed()) {
+        c.setParent(contentArea);
+        c.setLayoutData(new FormDataBuilder().fullSize().result());
+        categoryTabs.put(item.getText(), c);
+      }
+    }
+    for (CTabItem item : items) {
+      if (!item.isDisposed()) {
+        item.setControl(null);
+        item.dispose();
+      }
+    }
+    if (!configTabs.isDisposed()) {
+      configTabs.dispose();
+    }
+    configTabs = null;
+
+    // Select first category and show its panel
+    if (categoryTree.getItemCount() > 0) {
+      TreeItem firstItem = categoryTree.getItem(0);
+      String firstName = firstItem.getText();
+      currentCategoryName = firstName;
+      Control firstPanel = categoryTabs.get(firstName);
+      if (firstPanel != null && !firstPanel.isDisposed()) {
+        contentStackLayout.topControl = firstPanel;
+        contentArea.layout(true, true);
+      }
+      categoryTree.setSelection(firstItem);
+    }
 
     sashForm.setWeights(20, 80);
 
@@ -295,11 +346,7 @@ public class ConfigurationPerspective implements IHopPerspective {
             pluginsTreeItem.setImage(tab.getImage());
           }
 
-          // Store the tab for the parent item
-          categoryTabs.put(categoryName, tab);
-
-          // Try to find plugin sub-items by looking at the tab's control
-          // If it's a ConfigPluginOptionsTab, it has a list of plugins
+          // Tab stored in categoryTabs when we reparent (no put here)
           expandPluginsIntoTree(tab, pluginsTreeItem);
         } else {
           // Regular tree item
@@ -308,23 +355,16 @@ public class ConfigurationPerspective implements IHopPerspective {
           if (tab.getImage() != null) {
             treeItem.setImage(tab.getImage());
           }
-
-          // Store mapping from category name to tab
-          categoryTabs.put(categoryName, tab);
+          // Tab stored in categoryTabs when we reparent (no put here)
         }
       }
 
-      // Select first item by default
-      if (categoryTree.getItemCount() > 0) {
-        categoryTree.setSelection(categoryTree.getItem(0));
-        showCategory(categoryTree.getItem(0).getText());
-      }
+      // Select first item and show its panel (done after reparent in initialize())
     }
   }
 
   private void expandPluginsIntoTree(CTabItem pluginTab, TreeItem parentItem) {
-    // Store the parent tab mapping
-    categoryTabs.put(parentItem.getText(), pluginTab);
+    // Tab will be stored in categoryTabs when we reparent (by tab text = parentItem.getText())
 
     // Get plugin names from ConfigPluginOptionsTab
     Set<String> pluginNames = ConfigPluginOptionsTab.getPluginNames();
@@ -350,11 +390,11 @@ public class ConfigurationPerspective implements IHopPerspective {
   }
 
   private void showCategory(String categoryName, boolean applyHighlighting) {
-    // Find the corresponding tab
-    CTabItem tab = categoryTabs.get(categoryName);
-    if (tab != null && !tab.isDisposed()) {
-      configTabs.setSelection(tab);
-      configTabs.layout();
+    Control panel = categoryTabs.get(categoryName);
+    if (panel != null && !panel.isDisposed()) {
+      currentCategoryName = categoryName;
+      contentStackLayout.topControl = panel;
+      contentArea.layout(true, true);
 
       // Re-apply highlighting if there's an active search and it's requested
       if (applyHighlighting && currentSearchText != null && !currentSearchText.trim().isEmpty()) {
@@ -406,10 +446,16 @@ public class ConfigurationPerspective implements IHopPerspective {
       }
 
       // Search within the category's content
-      CTabItem tab = categoryTabs.get(item.getText());
-      if (tab != null && !tab.isDisposed()) {
-        Control control = tab.getControl();
-        if (control instanceof Composite controlComposite) {
+      Control panel = categoryTabs.get(item.getText());
+      if (panel != null && !panel.isDisposed()) {
+        Control searchRoot = panel;
+        if (panel instanceof ScrolledComposite sc) {
+          Control content = sc.getContent();
+          if (content instanceof Composite) {
+            searchRoot = content;
+          }
+        }
+        if (searchRoot instanceof Composite controlComposite) {
           List<Control> matches = searchInComposite(controlComposite, lowerSearch);
           if (!matches.isEmpty()) {
             hasMatchingContent = true;
@@ -472,20 +518,24 @@ public class ConfigurationPerspective implements IHopPerspective {
           .timerExec(
               100, // 100ms delay to allow plugin content to render
               () -> {
-                // Get the currently displayed tab
-                CTabItem selectedTab = configTabs.getSelection();
-                if (selectedTab != null && !selectedTab.isDisposed()) {
-                  Control control = selectedTab.getControl();
-                  if (control instanceof Composite controlComposite && !control.isDisposed()) {
+                Control top = contentStackLayout.topControl;
+                if (top != null && !top.isDisposed()) {
+                  Control searchIn = top;
+                  if (top instanceof ScrolledComposite sc) {
+                    Control content = sc.getContent();
+                    if (content instanceof Composite) {
+                      searchIn = content;
+                    }
+                  }
+                  if (searchIn instanceof Composite controlComposite) {
                     List<Control> matches = searchInComposite(controlComposite, lowerSearch);
                     for (Control match : matches) {
                       if (!match.isDisposed()) {
                         highlightControl(match, highlightColor);
                       }
                     }
-                    // Force a redraw to show highlights
-                    if (!control.isDisposed()) {
-                      control.redraw();
+                    if (!top.isDisposed()) {
+                      top.redraw();
                     }
                   }
                 }
@@ -754,20 +804,24 @@ public class ConfigurationPerspective implements IHopPerspective {
               // Clear existing highlights first
               clearHighlights();
 
-              // Get the currently displayed tab
-              CTabItem selectedTab = configTabs.getSelection();
-              if (selectedTab != null && !selectedTab.isDisposed()) {
-                Control control = selectedTab.getControl();
-                if (control instanceof Composite composite1 && !control.isDisposed()) {
+              Control top = contentStackLayout.topControl;
+              if (top != null && !top.isDisposed()) {
+                Control searchIn = top;
+                if (top instanceof ScrolledComposite sc) {
+                  Control content = sc.getContent();
+                  if (content instanceof Composite) {
+                    searchIn = content;
+                  }
+                }
+                if (searchIn instanceof Composite composite1) {
                   List<Control> matches = searchInComposite(composite1, lowerSearch);
                   for (Control match : matches) {
                     if (!match.isDisposed()) {
                       highlightControl(match, highlightColor);
                     }
                   }
-                  // Force a redraw to show highlights
-                  if (!control.isDisposed()) {
-                    control.redraw();
+                  if (!top.isDisposed()) {
+                    top.redraw();
                   }
                 }
               }
