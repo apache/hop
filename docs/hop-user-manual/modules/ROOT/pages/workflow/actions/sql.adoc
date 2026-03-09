@@ -39,6 +39,7 @@ Common uses associated with the SQL workflow action include truncating tables, d
 |Database Connection|The database connection to use.
 |SQL from file|Enable this option to load the SQL statement from a file given by the SQL filename
 |SQL filename|The filename for the file with SQL statements.
+|File encoding|Character encoding of the SQL file (e.g. UTF-8, windows-1252). Leave empty to use the system default. Useful when the file is UTF-8 but the system uses another encoding (e.g. Windows-1252).
 |Send SQL as single statement?|Enable this option to not separate the statement by semicolons.
 This is often useful when a script is given or multiple statements should be processed and committed as one single statement.
 |Use variable substitution?|Enables variables to be used in the SQL Script.

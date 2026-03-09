@@ -40,6 +40,7 @@ class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<ActionSql>
         "useVariableSubstitution",
         "sqlFromFile",
         "sqlFilename",
+        "sqlFilenameEncoding",
         "sendOneStatement",
         "connection");
   }
@@ -51,6 +52,7 @@ class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<ActionSql>
         "useVariableSubstitution", "isUseVariableSubstitution",
         "sqlFromFile", "isSqlFromFile",
         "sqlFilename", "getSqlFilename",
+        "sqlFilenameEncoding", "getSqlFilenameEncoding",
         "sendOneStatement", "isSendOneStatement",
         "connection", "getConnection");
   }
@@ -62,6 +64,7 @@ class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<ActionSql>
         "useVariableSubstitution", "setUseVariableSubstitution",
         "sqlFromFile", "setSqlFromFile",
         "sqlFilename", "setSqlFilename",
+        "sqlFilenameEncoding", "setSqlFilenameEncoding",
         "sendOneStatement", "setSendOneStatement",
         "connection", "setConnection");
   }

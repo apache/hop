@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.sql;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -28,6 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.SQLStyledTextComp;
 import org.apache.hop.ui.core.widget.StyledTextComp;
@@ -38,6 +41,8 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -78,6 +83,9 @@ public class ActionSqlDialog extends ActionDialog {
   private Label wlFilename;
   private Button wbFilename;
   private TextVar wFilename;
+  private Label wlEncoding;
+  private ComboVar wEncoding;
+  private boolean gotEncodings = false;
 
   public ActionSqlDialog(
       Shell parent, ActionSql action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -164,13 +172,45 @@ public class ActionSqlDialog extends ActionDialog {
                 FILETYPES,
                 true));
 
+    // File encoding (when SQL from file)
+    wlEncoding = new Label(shell, SWT.RIGHT);
+    wlEncoding.setText(BaseMessages.getString(PKG, "ActionSQL.Encoding.Label"));
+    PropsUi.setLook(wlEncoding);
+    FormData fdlEncoding = new FormData();
+    fdlEncoding.left = new FormAttachment(0, 0);
+    fdlEncoding.top = new FormAttachment(wbFilename, margin);
+    fdlEncoding.right = new FormAttachment(middle, -margin);
+    wlEncoding.setLayoutData(fdlEncoding);
+
+    wEncoding = new ComboVar(variables, shell, SWT.BORDER | SWT.READ_ONLY);
+    wEncoding.setEditable(true);
+    PropsUi.setLook(wEncoding);
+    wEncoding.setToolTipText(BaseMessages.getString(PKG, "ActionSQL.Encoding.Tooltip"));
+    FormData fdEncoding = new FormData();
+    fdEncoding.left = new FormAttachment(middle, 0);
+    fdEncoding.top = new FormAttachment(wbFilename, margin);
+    fdEncoding.right = new FormAttachment(100, -margin);
+    wEncoding.setLayoutData(fdEncoding);
+    wEncoding.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            setEncodings();
+          }
+        });
+
     // Send one SQL Statement?
     Label wlUseOneStatement = new Label(shell, SWT.RIGHT);
     wlUseOneStatement.setText(BaseMessages.getString(PKG, "ActionSQL.SendOneStatement.Label"));
     PropsUi.setLook(wlUseOneStatement);
     FormData fdlUseOneStatement = new FormData();
     fdlUseOneStatement.left = new FormAttachment(0, 0);
-    fdlUseOneStatement.top = new FormAttachment(wbFilename, margin);
+    fdlUseOneStatement.top = new FormAttachment(wlEncoding, margin);
     fdlUseOneStatement.right = new FormAttachment(middle, -margin);
     wlUseOneStatement.setLayoutData(fdlUseOneStatement);
     wSendOneStatement = new Button(shell, SWT.CHECK);
@@ -291,6 +331,7 @@ public class ActionSqlDialog extends ActionDialog {
     wSqlFromFile.setSelection(action.isSqlFromFile());
     wSendOneStatement.setSelection(action.isSendOneStatement());
     wFilename.setText(Const.nullToEmpty(action.getSqlFilename()));
+    wEncoding.setText(Const.nullToEmpty(action.getSqlFilenameEncoding()));
   }
 
   @Override
@@ -302,9 +343,27 @@ public class ActionSqlDialog extends ActionDialog {
     wlFilename.setEnabled(wSqlFromFile.getSelection());
     wFilename.setEnabled(wSqlFromFile.getSelection());
     wbFilename.setEnabled(wSqlFromFile.getSelection());
+    wlEncoding.setEnabled(wSqlFromFile.getSelection());
+    wEncoding.setEnabled(wSqlFromFile.getSelection());
     wSql.setEnabled(!wSqlFromFile.getSelection());
     wlSql.setEnabled(!wSqlFromFile.getSelection());
     wlPosition.setEnabled(!wSqlFromFile.getSelection());
+  }
+
+  private void setEncodings() {
+    if (!gotEncodings) {
+      gotEncodings = true;
+      wEncoding.removeAll();
+      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
+      for (Charset charSet : values) {
+        wEncoding.add(charSet.displayName());
+      }
+      String defEncoding = Const.getEnvironmentVariable("file.encoding", "UTF-8");
+      int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
+      if (idx >= 0) {
+        wEncoding.select(idx);
+      }
+    }
   }
 
   private void cancel() {
@@ -326,6 +385,7 @@ public class ActionSqlDialog extends ActionDialog {
     action.setUseVariableSubstitution(wUseSubs.getSelection());
     action.setSqlFromFile(wSqlFromFile.getSelection());
     action.setSqlFilename(wFilename.getText());
+    action.setSqlFilenameEncoding(wEncoding.getText());
     action.setSendOneStatement(wSendOneStatement.getSelection());
     action.setChanged();
 
