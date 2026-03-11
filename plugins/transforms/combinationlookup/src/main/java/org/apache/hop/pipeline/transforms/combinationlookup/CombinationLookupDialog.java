@@ -142,10 +142,9 @@ public class CombinationLookupDialog extends BaseTransformDialog {
           }
         };
     backupChanged = input.hasChanged();
-    databaseMeta = input.getDatabaseMeta();
 
     // Connection line
-    wConnection = addConnectionLine(shell, wSpacer, input.getDatabaseMeta(), lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, input.getConnectionName(), lsMod);
     wConnection.addSelectionListener(lsSelection);
     wConnection.addModifyListener(
         e -> {
@@ -657,7 +656,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
       // Determine the creation of the technical key for
       // backwards compatibility. Can probably be removed at
       // version 3.x or so (Sven Boden).
-      DatabaseMeta dbMeta = input.getDatabaseMeta();
+
+      DatabaseMeta dbMeta = pipelineMeta.findDatabase(input.getConnectionName(), variables);
       if (dbMeta == null || !dbMeta.supportsAutoinc()) {
         returnFields.setUseAutoIncrement(false);
       }
@@ -695,8 +695,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     wTable.setText(Const.NVL(input.getTableName(), ""));
     wTk.setText(Const.NVL(returnFields.getTechnicalKeyField(), ""));
 
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnectionName() != null) {
+      wConnection.setText(input.getConnectionName());
     }
     wHashfield.setText(Const.NVL(input.getHashField(), ""));
 
@@ -765,7 +765,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
       fields.setSequenceFrom(null);
     }
 
-    in.setDatabaseMeta(findDatabase(wConnection.getText()));
+    in.setConnectionName(wConnection.getText());
     in.setCommitSize(Const.toInt(wCommit.getText(), 0));
     in.setCacheSize(Const.toInt(wCachesize.getText(), 0));
 
@@ -895,7 +895,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
                   shell,
                   SWT.NONE,
                   variables,
-                  info.getDatabaseMeta(),
+                  pipelineMeta.findDatabase(info.getConnectionName(), variables),
                   DbCache.getInstance(),
                   sql.getSql());
           sqledit.open();
