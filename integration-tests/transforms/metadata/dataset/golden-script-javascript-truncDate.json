@@ -1,0 +1,56 @@
+{
+  "base_filename": "golden-script-javascript-truncDate.csv",
+  "name": "golden-script-javascript-truncDate",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "date0",
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "date1",
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "date2",
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "date3",
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "date4",
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "date5",
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS"
+    }
+  ],
+  "folder_name": ""
+}

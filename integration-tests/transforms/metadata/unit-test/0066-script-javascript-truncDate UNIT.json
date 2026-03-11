@@ -1,0 +1,53 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "date0",
+          "data_set_field": "date0"
+        },
+        {
+          "transform_field": "date1",
+          "data_set_field": "date1"
+        },
+        {
+          "transform_field": "date2",
+          "data_set_field": "date2"
+        },
+        {
+          "transform_field": "date3",
+          "data_set_field": "date3"
+        },
+        {
+          "transform_field": "date4",
+          "data_set_field": "date4"
+        },
+        {
+          "transform_field": "date5",
+          "data_set_field": "date5"
+        }
+      ],
+      "field_order": [
+        "date0",
+        "date1",
+        "date2",
+        "date3",
+        "date4",
+        "date5"
+      ],
+      "data_set_name": "golden-script-javascript-truncDate",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0066-script-javascript-truncDate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0066-script-javascript-truncDate.hpl"
+}
