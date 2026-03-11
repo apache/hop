@@ -27,7 +27,6 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
@@ -142,6 +141,9 @@ public class WorkflowDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "WorkflowDialog.WorkflowProperties.ShellText"));
 
+    middle = props.getMiddlePct();
+    margin = PropsUi.getMargin();
+
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
@@ -179,7 +181,7 @@ public class WorkflowDialog extends Dialog {
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(0, 0);
     fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
@@ -192,19 +194,6 @@ public class WorkflowDialog extends Dialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return workflowMeta;
-  }
-
-  public String[] listParameterNames() {
-    int count = wParamFields.nrNonEmpty();
-    java.util.List<String> list = new ArrayList<>();
-    for (int i = 0; i < count; i++) {
-      TableItem item = wParamFields.getNonEmpty(i);
-      String parameterName = item.getText(1);
-      if (!Utils.isEmpty(parameterName) && !list.contains(parameterName)) {
-        list.add(parameterName);
-      }
-    }
-    return list.toArray(new String[list.size()]);
   }
 
   private void addWorkflowTab() {
@@ -232,6 +221,7 @@ public class WorkflowDialog extends Dialog {
     fdlWorkflowName.right = new FormAttachment(middle, -margin);
     fdlWorkflowName.top = new FormAttachment(0, margin);
     wlWorkflowName.setLayoutData(fdlWorkflowName);
+
     wWorkflowName = new Text(wWorkflowComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wWorkflowName);
     wWorkflowName.addModifyListener(lsMod);
@@ -337,7 +327,8 @@ public class WorkflowDialog extends Dialog {
     wWorkflowStatus.add(
         BaseMessages.getString(PKG, "WorkflowDialog.Production_WorkflowStatus.Label"));
     wWorkflowStatus.add("");
-    wWorkflowStatus.select(-1); // +1: starts at -1
+    // +1: starts at -1
+    wWorkflowStatus.select(-1);
 
     PropsUi.setLook(wWorkflowStatus);
     FormData fdWorkflowStatus = new FormData();
@@ -490,10 +481,10 @@ public class WorkflowDialog extends Dialog {
     fdlFields.top = new FormAttachment(0, 0);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsCols = 3;
-    final int FieldsRows = workflowMeta.listParameters().length;
+    final int fieldsCols = 3;
+    final int fieldsRows = workflowMeta.listParameters().length;
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
+    ColumnInfo[] colinf = new ColumnInfo[fieldsCols];
     colinf[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "WorkflowDialog.ColumnInfo.Parameter.Label"),
@@ -516,7 +507,7 @@ public class WorkflowDialog extends Dialog {
             wParamComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
-            FieldsRows,
+            fieldsRows,
             lsMod,
             props);
 
@@ -660,7 +651,7 @@ public class WorkflowDialog extends Dialog {
     }
   }
 
-  public static final Button setShellImage(Shell shell, IAction action) {
+  public static Button setShellImage(Shell shell, IAction action) {
     Button helpButton = null;
     try {
       final IPlugin plugin = getPlugin(action);
@@ -677,7 +668,7 @@ public class WorkflowDialog extends Dialog {
         shell.setImage(getImage(shell, plugin));
       }
 
-    } catch (Throwable e) {
+    } catch (Exception e) {
       // Ignore unexpected errors, not worth it
     }
     return helpButton;
