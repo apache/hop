@@ -2628,24 +2628,19 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         // MONTHS
       case 5:
         cal.set(Calendar.MONTH, 0);
-        break;
-        // DAYS
+        // DAYS fall through
       case 4:
         cal.set(Calendar.DAY_OF_MONTH, 1);
-        break;
-        // HOURS
+        // HOURS fall through
       case 3:
         cal.set(Calendar.HOUR_OF_DAY, 0);
-        break;
-        // MINUTES
+        // MINUTES fall through
       case 2:
         cal.set(Calendar.MINUTE, 0);
-        break;
-        // SECONDS
+        // SECONDS fall through
       case 1:
         cal.set(Calendar.SECOND, 0);
-        // MILI-SECONDS
-        break;
+        // MILI-SECONDS fall through
       case 0:
         cal.set(Calendar.MILLISECOND, 0);
         break;

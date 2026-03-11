@@ -20,39 +20,53 @@ package org.apache.hop.pipeline.transforms.javascript;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.junit.jupiter.api.Test;
 
 class ScriptValuesAddedFunctionsTest {
+  private static final String FORMATTER = "yyyy-MM-dd HH:mm:ss";
 
   @Test
   void testTruncDate() {
-    Date dateBase = new Date(118, Calendar.FEBRUARY, 15, 11, 11, 11); // 2018-02-15 11:11:11
-    Calendar c = Calendar.getInstance();
-    c.set(2011, Calendar.NOVEMBER, 11, 11, 11, 11); // 2011-11-11 11:11:11
-    c.set(Calendar.MILLISECOND, 11);
+    LocalDateTime time = LocalDateTime.of(2025, 2, 15, 11, 11, 11, 123);
+    Date dateBase = Date.from(time.atZone(ZoneId.systemDefault()).toInstant());
 
-    Date rtn = null;
+    Date rtn;
     Calendar c2 = Calendar.getInstance();
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 5);
     c2.setTime(rtn);
     assertEquals(Calendar.JANUARY, c2.get(Calendar.MONTH));
+    assertEquals("2025-01-01 00:00:00", DateFormatUtils.format(rtn, FORMATTER));
+
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 4);
     c2.setTime(rtn);
     assertEquals(1, c2.get(Calendar.DAY_OF_MONTH));
+    assertEquals("2025-02-01 00:00:00", DateFormatUtils.format(rtn, FORMATTER));
+
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 3);
     c2.setTime(rtn);
     assertEquals(0, c2.get(Calendar.HOUR_OF_DAY));
+    assertEquals("2025-02-15 00:00:00", DateFormatUtils.format(rtn, FORMATTER));
+
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 2);
     c2.setTime(rtn);
     assertEquals(0, c2.get(Calendar.MINUTE));
+    assertEquals("2025-02-15 11:00:00", DateFormatUtils.format(rtn, FORMATTER));
+
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 1);
     c2.setTime(rtn);
     assertEquals(0, c2.get(Calendar.SECOND));
+    assertEquals("2025-02-15 11:11:00", DateFormatUtils.format(rtn, FORMATTER));
+
     rtn = ScriptValuesAddedFunctions.truncDate(dateBase, 0);
     c2.setTime(rtn);
     assertEquals(0, c2.get(Calendar.MILLISECOND));
+    assertEquals("2025-02-15 11:11:11", DateFormatUtils.format(rtn, FORMATTER));
+
     try {
       ScriptValuesAddedFunctions.truncDate(rtn, 6); // Should throw exception
       fail("Expected exception - passed in level > 5 to truncDate");
