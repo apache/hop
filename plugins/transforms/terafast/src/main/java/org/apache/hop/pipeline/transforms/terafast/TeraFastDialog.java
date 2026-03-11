@@ -215,54 +215,43 @@ public class TeraFastDialog extends BaseTransformDialog {
 
   /** Set data values in dialog. */
   public void getData() {
-    setTextIfPropertyValue(this.meta.getFastloadPath(), this.wFastLoadPath);
+    this.wFastLoadPath.setText(this.meta.getFastloadPath());
     if (this.wFastLoadPath.getText().isEmpty()) {
       this.wFastLoadPath.setText(TeraFastMeta.DEFAULT_FASTLOAD_PATH);
     }
-    setTextIfPropertyValue(this.meta.getControlFile(), this.wControlFile);
-    setTextIfPropertyValue(this.meta.getDataFile(), this.wDataFile);
+    this.wControlFile.setText(this.meta.getControlFile());
+    this.wDataFile.setText(this.meta.getDataFile());
     if (this.wDataFile.getText().isEmpty()) {
       this.wDataFile.setText(TeraFastMeta.DEFAULT_DATA_FILE);
     }
-    setTextIfPropertyValue(this.meta.getLogFile(), this.wLogFile);
-    setTextIfPropertyValue(this.meta.getTargetTable(), this.wTable);
+    this.wLogFile.setText(this.meta.getLogFile());
+    this.wTable.setText(this.meta.getTargetTable());
     if (this.wTable.getText().isEmpty()) {
       this.wTable.setText(TeraFastMeta.DEFAULT_TARGET_TABLE);
     }
     // Integer fields: always set from meta or default (evaluate() is false when value is 0)
-    Integer errLimit = this.meta.getErrorLimit().getValue();
+    Integer errLimit = this.meta.getErrorLimit();
     this.wErrLimit.setText(
         errLimit != null
             ? String.valueOf(errLimit)
             : String.valueOf(TeraFastMeta.DEFAULT_ERROR_LIMIT));
-    Integer sessions = this.meta.getSessions().getValue();
+    Integer sessions = this.meta.getSessions();
     this.wSessions.setText(
         sessions != null
             ? String.valueOf(sessions)
             : String.valueOf(TeraFastMeta.DEFAULT_SESSIONS));
-    setTextIfPropertyValue(this.meta.getConnectionName(), this.wConnection.getComboWidget());
-    this.wbTruncateTable.setSelection(
-        Boolean.TRUE.equals(this.meta.getTruncateTable().getValue())
-            || (this.meta.getTruncateTable().getValue() == null
-                && TeraFastMeta.DEFAULT_TRUNCATETABLE));
-    this.wUseControlFile.setSelection(
-        Boolean.TRUE.equals(this.meta.getUseControlFile().getValue())
-            || (this.meta.getUseControlFile().getValue() == null));
-    this.wVariableSubstitution.setSelection(
-        Boolean.TRUE.equals(this.meta.getVariableSubstitution().getValue())
-            || (this.meta.getVariableSubstitution().getValue() == null
-                && TeraFastMeta.DEFAULT_VARIABLE_SUBSTITUTION));
-
-    if (this.meta.getTableFieldList().getValue().size()
-        == this.meta.getStreamFieldList().getValue().size()) {
-      for (int i = 0; i < this.meta.getTableFieldList().getValue().size(); i++) {
+    this.wbTruncateTable.setSelection(this.meta.isTruncateTable());
+    this.wUseControlFile.setSelection(this.meta.isUseControlFile());
+    this.wVariableSubstitution.setSelection(this.meta.isVariableSubstitution());
+    if (this.meta.getTableFieldList().size() == this.meta.getStreamFieldList().size()) {
+      for (int i = 0; i < this.meta.getTableFieldList().size(); i++) {
         TableItem item = this.wReturn.table.getItem(i);
-        item.setText(1, this.meta.getTableFieldList().getValue().get(i));
-        item.setText(2, this.meta.getStreamFieldList().getValue().get(i));
+        item.setText(1, this.meta.getTableFieldList().get(i));
+        item.setText(2, this.meta.getStreamFieldList().get(i));
       }
     }
-    if (this.meta.getDbMeta() != null) {
-      this.wConnection.setText(this.meta.getConnectionName().getValue());
+    if (this.meta.getConnectionName() != null) {
+      this.wConnection.setText(this.meta.getConnectionName());
     }
     setTableFieldCombo();
   }
@@ -308,7 +297,7 @@ public class TeraFastDialog extends BaseTransformDialog {
       return;
     }
     // refresh fields
-    this.meta.getTargetTable().setValue(this.wTable.getText());
+    this.meta.setTargetTable(this.wTable.getText());
     try {
       targetFields = this.meta.getRequiredFields(variables);
     } catch (HopException e) {
@@ -412,32 +401,27 @@ public class TeraFastDialog extends BaseTransformDialog {
   /** Ok clicked. */
   public void ok() {
     this.transformName = this.wTransformName.getText(); // return value
-    this.meta.getUseControlFile().setValue(this.wUseControlFile.getSelection());
-    this.meta.getVariableSubstitution().setValue(this.wVariableSubstitution.getSelection());
-    this.meta.getControlFile().setValue(this.wControlFile.getText());
-    this.meta.getFastloadPath().setValue(this.wFastLoadPath.getText());
-    this.meta.getDataFile().setValue(this.wDataFile.getText());
-    this.meta.getLogFile().setValue(this.wLogFile.getText());
-    this.meta
-        .getErrorLimit()
-        .setValue(Const.toInt(this.wErrLimit.getText(), TeraFastMeta.DEFAULT_ERROR_LIMIT));
-    this.meta
-        .getSessions()
-        .setValue(Const.toInt(this.wSessions.getText(), TeraFastMeta.DEFAULT_SESSIONS));
-    this.meta.getTargetTable().setValue(this.wTable.getText());
-    this.meta.getConnectionName().setValue(this.wConnection.getText());
-    this.meta
-        .getTruncateTable()
-        .setValue(this.wbTruncateTable.getSelection() && this.wbTruncateTable.getEnabled());
-    this.meta.setDbMeta(this.pipelineMeta.findDatabase(this.wConnection.getText(), variables));
+    this.meta.setUseControlFile(this.wUseControlFile.getSelection());
+    this.meta.setVariableSubstitution(this.wVariableSubstitution.getSelection());
+    this.meta.setControlFile(this.wControlFile.getText());
+    this.meta.setFastloadPath(this.wFastLoadPath.getText());
+    this.meta.setDataFile(this.wDataFile.getText());
+    this.meta.setLogFile(this.wLogFile.getText());
+    this.meta.setErrorLimit(
+        Const.toInt(this.wErrLimit.getText(), TeraFastMeta.DEFAULT_ERROR_LIMIT));
+    this.meta.setSessions(Const.toInt(this.wSessions.getText(), TeraFastMeta.DEFAULT_SESSIONS));
+    this.meta.setTargetTable(this.wTable.getText());
+    this.meta.setConnectionName(this.wConnection.getText());
+    this.meta.setTruncateTable(
+        this.wbTruncateTable.getSelection() && this.wbTruncateTable.getEnabled());
 
-    this.meta.getTableFieldList().getValue().clear();
-    this.meta.getStreamFieldList().getValue().clear();
+    this.meta.getTableFieldList().clear();
+    this.meta.getStreamFieldList().clear();
     int nrFields = this.wReturn.nrNonEmpty();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = this.wReturn.getNonEmpty(i);
-      this.meta.getTableFieldList().getValue().add(item.getText(1));
-      this.meta.getStreamFieldList().getValue().add(item.getText(2));
+      this.meta.getTableFieldList().add(item.getText(1));
+      this.meta.getStreamFieldList().add(item.getText(2));
     }
 
     dispose();
@@ -475,7 +459,8 @@ public class TeraFastDialog extends BaseTransformDialog {
     this.buildLogFileLine(factory);
 
     // Connection line
-    this.wConnection = addConnectionLine(this.shell, this.wLogFile, meta.getDbMeta(), lsMod);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    this.wConnection = addConnectionLine(this.shell, this.wLogFile, databaseMeta, lsMod);
     this.buildTableLine(factory);
     this.buildTruncateTableLine(factory);
     this.buildDataFileLine(factory);

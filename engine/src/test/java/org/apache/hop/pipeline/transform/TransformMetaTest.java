@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.hop.core.util.AbstractTransformMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.partition.PartitionSchema;
@@ -79,7 +78,7 @@ class TransformMetaTest {
   }
 
   private static TransformMeta createTestMeta() throws Exception {
-    ITransformMeta transformMetaInterface = mock(AbstractTransformMeta.class);
+    ITransformMeta transformMetaInterface = mock(ITransformMeta.class);
     when(transformMetaInterface.clone()).thenReturn(transformMetaInterface);
 
     TransformMeta meta = new TransformMeta(TRANSFORM_ID, "transformName", transformMetaInterface);

@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.terafast;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Assert;
-import org.apache.hop.core.util.StringListPluginProperty;
 import org.apache.hop.core.util.Utils;
 
 public class FastloadControlBuilder {
@@ -131,16 +131,14 @@ public class FastloadControlBuilder {
    * @return this
    */
   public FastloadControlBuilder define(
-      final IRowMeta targetTableFields,
-      StringListPluginProperty tableFieldList,
-      final String dataFile) {
+      final IRowMeta targetTableFields, List<String> tableFieldList, final String dataFile) {
     Assert.assertNotNull(targetTableFields, "fields cannot be null");
     Assert.assertNotNull(dataFile, "dataFile cannot be null");
 
     this.builder.append("DEFINE ");
     for (int i = 0; i < targetTableFields.size(); i++) {
       IValueMeta value = targetTableFields.getValueMeta(i);
-      int tableIndex = tableFieldList.getValue().indexOf(value.getName());
+      int tableIndex = tableFieldList.indexOf(value.getName());
       if (tableIndex >= 0) {
         this.builder.append(value.getName());
         // all fields of type VARCHAR. converted by fastload if necessary
@@ -172,16 +170,13 @@ public class FastloadControlBuilder {
    * @return ...
    */
   public FastloadControlBuilder insert(
-      final IRowMeta targetTableFields,
-      StringListPluginProperty tableFieldList,
-      final String tableName) {
+      final IRowMeta targetTableFields, List<String> tableFieldList, final String tableName) {
     Assert.assertNotNull(targetTableFields, "targetTableFields cannot be null.");
     Assert.assertNotNull(tableName, "TableName cannot be null.");
 
     this.builder.append("INSERT INTO " + tableName + "(");
     for (int i = 0; i < targetTableFields.size(); i++) {
-      int tableIndex =
-          tableFieldList.getValue().indexOf(targetTableFields.getValueMeta(i).getName());
+      int tableIndex = tableFieldList.indexOf(targetTableFields.getValueMeta(i).getName());
       if (tableIndex >= 0) {
         this.builder.append(":" + targetTableFields.getValueMeta(i).getName());
         if (targetTableFields.getValueMeta(i).getType() == IValueMeta.TYPE_DATE) {

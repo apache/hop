@@ -33,20 +33,20 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.AbstractTransform;
 import org.apache.hop.core.util.ConfigurableStreamLogger;
-import org.apache.hop.core.util.GenericTransformData;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformData> {
+public class TeraFast extends BaseTransform<TeraFastMeta, TeraFastData> {
 
   private static final Class<?> PKG = TeraFastMeta.class;
 
@@ -63,7 +63,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
   public TeraFast(
       final TransformMeta transformMeta,
       final TeraFastMeta meta,
-      final GenericTransformData data,
+      final TeraFastData data,
       final int copyNr,
       final PipelineMeta pipelineMeta,
       final Pipeline pipeline) {
@@ -77,23 +77,22 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    * @throws HopException Upon any exception
    */
   public String createCommandLine() throws HopException {
-    if (StringUtils.isBlank(this.meta.getFastloadPath().getValue())) {
+    if (StringUtils.isBlank(this.meta.getFastloadPath())) {
       throw new HopException("Fastload path not set");
     }
     final StringBuilder builder = new StringBuilder();
     try {
       final FileObject fileObject =
-          HopVfs.getFileObject(resolve(this.meta.getFastloadPath().getValue()), variables);
+          HopVfs.getFileObject(resolve(this.meta.getFastloadPath()), variables);
       final String fastloadExec = HopVfs.getFilename(fileObject);
       builder.append(fastloadExec);
     } catch (Exception e) {
       throw new HopException("Error retrieving fastload application string", e);
     }
     // Add log error log, if set.
-    if (StringUtils.isNotBlank(this.meta.getLogFile().getValue())) {
+    if (StringUtils.isNotBlank(this.meta.getLogFile())) {
       try {
-        FileObject fileObject =
-            HopVfs.getFileObject(resolve(this.meta.getLogFile().getValue()), variables);
+        FileObject fileObject = HopVfs.getFileObject(resolve(this.meta.getLogFile()), variables);
         builder.append(" -e ");
         builder.append("\"" + HopVfs.getFilename(fileObject) + "\"");
       } catch (Exception e) {
@@ -105,7 +104,8 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
 
   protected void verifyDatabaseConnection() throws HopException {
     // Confirming Database Connection is defined.
-    if (this.meta.getDbMeta() == null) {
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
+    if (databaseMeta == null) {
       throw new HopException(
           BaseMessages.getString(PKG, "TeraFastDialog.GetSQL.NoConnectionDefined"));
     }
@@ -148,13 +148,13 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
         if (this.process != null) {
           final int exitVal = this.process.waitFor();
           if (exitVal != 0) {
-            setErrors(DEFAULT_ERROR_CODE);
+            setErrors(1);
           }
           logBasic(BaseMessages.getString(PKG, "TeraFast.Log.ExitValueFastloadPath", "" + exitVal));
         }
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "TeraFast.Log.ErrorInTransform"), e);
-        this.setDefaultError();
+        this.setErrors(1);
         stopAll();
       }
 
@@ -164,7 +164,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     if (this.first) {
       this.first = false;
       try {
-        final File tempDataFile = new File(resolveFileName(this.meta.getDataFile().getValue()));
+        final File tempDataFile = new File(resolveFileName(this.meta.getDataFile()));
         this.dataFile = FileUtils.openOutputStream(tempDataFile);
         this.dataFilePrintStream = new PrintStream(dataFile);
       } catch (IOException e) {
@@ -181,9 +181,9 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
       List<Integer> columnSortOrder = new ArrayList<>(tableRowMeta.size());
       for (int i = 0; i < tableRowMeta.size(); i++) {
         IValueMeta column = tableRowMeta.getValueMeta(i);
-        int tableIndex = this.meta.getTableFieldList().getValue().indexOf(column.getName());
+        int tableIndex = this.meta.getTableFieldList().indexOf(column.getName());
         if (tableIndex >= 0) {
-          String streamField = this.meta.getStreamFieldList().getValue().get(tableIndex);
+          String streamField = this.meta.getStreamFieldList().get(tableIndex);
           columnSortOrder.add(streamRowMeta.indexOfValue(streamField));
         }
       }
@@ -272,16 +272,18 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    * @throws HopException ...
    */
   public void execute() throws HopException {
-    if (this.meta.getTruncateTable().getValue()) {
-      Database db = new Database(this, this, this.meta.getDbMeta());
+    if (this.meta.isTruncateTable()) {
+      DatabaseMeta databaseMeta =
+          getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
+      Database db = new Database(this, this, databaseMeta);
       db.connect();
-      db.truncateTable(this.meta.getTargetTable().getValue());
+      db.truncateTable(this.meta.getTargetTable());
       db.commit();
       db.disconnect();
     }
     startFastLoad();
 
-    if (this.meta.getUseControlFile().getValue()) {
+    if (this.meta.isUseControlFile()) {
       this.invokeLoadingControlFile();
     } else {
       this.invokeLoadingCommand();
@@ -322,7 +324,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     final InputStream control;
     final String controlContent;
     try {
-      controlFile = new File(resolveFileName(this.meta.getControlFile().getValue()));
+      controlFile = new File(resolveFileName(this.meta.getControlFile()));
       control = FileUtils.openInputStream(controlFile);
       controlContent = resolve(FileUtils.readFileToString(controlFile));
     } catch (IOException e) {
@@ -347,29 +349,25 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    */
   private void invokeLoadingCommand() throws HopException {
     final FastloadControlBuilder builder = new FastloadControlBuilder();
-    builder.setSessions(this.meta.getSessions().getValue());
-    builder.setErrorLimit(this.meta.getErrorLimit().getValue());
+    DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
+    builder.setSessions(this.meta.getSessions());
+    builder.setErrorLimit(this.meta.getErrorLimit());
     builder.logon(
-        this.meta.getDbMeta().getHostname(),
-        this.meta.getDbMeta().getUsername(),
-        this.meta.getDbMeta().getPassword());
+        databaseMeta.getHostname(), databaseMeta.getUsername(), databaseMeta.getPassword());
     builder.setRecordFormat(FastloadControlBuilder.RECORD_VARTEXT);
     try {
       builder.define(
           this.meta.getRequiredFields(this),
           meta.getTableFieldList(),
-          resolveFileName(this.meta.getDataFile().getValue()));
+          resolveFileName(this.meta.getDataFile()));
     } catch (Exception ex) {
       throw new HopException("Error defining data file!", ex);
     }
     builder.show();
-    builder.beginLoading(
-        this.meta.getDbMeta().getPreferredSchemaName(), this.meta.getTargetTable().getValue());
+    builder.beginLoading(databaseMeta.getPreferredSchemaName(), this.meta.getTargetTable());
 
     builder.insert(
-        this.meta.getRequiredFields(this),
-        meta.getTableFieldList(),
-        this.meta.getTargetTable().getValue());
+        this.meta.getRequiredFields(this), meta.getTableFieldList(), this.meta.getTargetTable());
     builder.endLoading();
     builder.logoff();
     final String control = builder.toString();
@@ -402,11 +400,11 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
         logDetailed("Exit value for the fastload process was : " + exitValue);
         if (exitValue != 0) {
           logError("Exit value for the fastload process was : " + exitValue);
-          setErrors(DEFAULT_ERROR_CODE);
+          setErrors(1);
         }
       }
     } catch (InterruptedException e) {
-      setErrors(DEFAULT_ERROR_CODE);
+      setErrors(1);
       logError("Unexpected error encountered while finishing the fastload process", e);
     }
 
