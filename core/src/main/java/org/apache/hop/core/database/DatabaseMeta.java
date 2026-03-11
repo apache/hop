@@ -63,7 +63,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     description = "i18n::DatabaseMeta.description",
     image = "ui/images/database.svg",
     documentationUrl = "/metadata-types/rdbms-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION,
+    supportsGlobalReplace = true)
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
   private static final Class<?> PKG = Database.class;
 

@@ -42,10 +42,16 @@ import org.apache.hop.metadata.api.IHopMetadata;
 public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
-  @HopMetadataProperty private String filename;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_FILE)
+  private String filename;
+
   @HopMetadataProperty private String statusVariables;
   @HopMetadataProperty private String bodyContentVariable;
-  @HopMetadataProperty private String runConfigurationName;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG)
+  private String runConfigurationName;
+
   @HopMetadataProperty private String headerContentVariable;
 
   public AsyncWebService() {

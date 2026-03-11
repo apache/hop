@@ -36,7 +36,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::SplunkConnection.description",
     image = "splunk.svg",
     documentationUrl = "/metadata-types/splunk-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.SPLUNK_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.SPLUNK_CONNECTION,
+    supportsGlobalReplace = true)
 public class SplunkConnection extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private String hostname;

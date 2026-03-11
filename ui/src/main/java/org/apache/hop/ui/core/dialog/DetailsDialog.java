@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Text;
 
 public class DetailsDialog {
   private Shell shell;
-  private PropsUi props;
 
   private final String title;
   private final String message;
@@ -56,26 +55,27 @@ public class DetailsDialog {
   }
 
   public void open() {
-    shell = new Shell(parent, SWT.DIALOG_TRIM);
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
     shell.setImage(titleImage);
     shell.setText(Const.NVL(title, ""));
-    props = PropsUi.getInstance();
+    PropsUi.setLook(shell);
 
-    shell.setLayout(new FormLayout());
+    FormLayout layout = new FormLayout();
+    layout.marginLeft = PropsUi.getFormMargin();
+    layout.marginRight = PropsUi.getFormMargin();
+    layout.marginTop = PropsUi.getFormMargin();
+    layout.marginBottom = PropsUi.getFormMargin();
+    shell.setLayout(layout);
+    int margin = PropsUi.getMargin();
 
+    // Buttons first so content can reference their position
     Button wClose = new Button(shell, SWT.PUSH);
     PropsUi.setLook(wClose);
     wClose.setText(BaseMessages.getString("System.Button.Close"));
     wClose.addListener(SWT.Selection, e -> close());
-    BaseTransformDialog.positionBottomButtons(
-        shell,
-        new Button[] {
-          wClose,
-        },
-        PropsUi.getMargin(),
-        null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wClose}, margin, null);
 
-    Label wLabel = new Label(shell, SWT.LEFT);
+    Label wLabel = new Label(shell, SWT.LEFT | SWT.WRAP);
     PropsUi.setLook(wLabel);
     wLabel.setText(Const.NVL(message, ""));
     FormData fdLabel = new FormData();
@@ -84,22 +84,24 @@ public class DetailsDialog {
     fdLabel.right = new FormAttachment(100, 0);
     wLabel.setLayoutData(fdLabel);
 
-    Text wDetails = new Text(shell, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-    PropsUi.setLook(wDetails);
-    wDetails.setText(Const.NVL(details, ""));
-    wDetails.setSelection(details.length());
+    Text wDetailsText = new Text(shell, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+    PropsUi.setLook(wDetailsText);
+    String safeDetails = Const.NVL(details, "");
+    wDetailsText.setText(safeDetails);
+    wDetailsText.setSelection(safeDetails.length());
     FormData fdDetails = new FormData();
     fdDetails.left = new FormAttachment(0, 0);
     fdDetails.right = new FormAttachment(100, 0);
-    fdDetails.top = new FormAttachment(wLabel, PropsUi.getMargin());
-    fdDetails.bottom = new FormAttachment(wClose, -2 * PropsUi.getMargin());
-    wDetails.setLayoutData(fdDetails);
+    fdDetails.top = new FormAttachment(wLabel, margin);
+    fdDetails.bottom = new FormAttachment(wClose, -margin);
+    wDetailsText.setLayoutData(fdDetails);
 
+    shell.setDefaultButton(wClose);
     BaseDialog.defaultShellHandling(shell, c -> close(), c -> close());
   }
 
   private void close() {
-    props.setScreen(new WindowProperty(shell));
+    PropsUi.getInstance().setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 }

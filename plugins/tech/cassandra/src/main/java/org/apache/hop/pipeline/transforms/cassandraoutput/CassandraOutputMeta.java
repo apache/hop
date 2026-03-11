@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.cassandraoutput;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 
@@ -43,7 +44,8 @@ public class CassandraOutputMeta extends BaseTransformMeta<CassandraOutput, Cass
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTION",
-      injectionKeyDescription = "CassandraOutput.Injection.CONNECTION")
+      injectionKeyDescription = "CassandraOutput.Injection.CONNECTION",
+      hopMetadataPropertyType = HopMetadataPropertyType.CASSANDRA_CONNECTION)
   protected String connectionName;
 
   /** The cassandra node to put schema updates through */

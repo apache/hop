@@ -20,11 +20,14 @@ package org.apache.hop.testing.actions.runtests;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 @Getter
 @Setter
 public class RunPipelineTestsField {
 
-  @HopMetadataProperty(key = "name")
+  @HopMetadataProperty(
+      key = "name",
+      hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_UNIT_TEST)
   String testName;
 }

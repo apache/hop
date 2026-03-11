@@ -41,7 +41,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::DataSet.description",
     image = "dataset.svg",
     documentationUrl = "/metadata-types/data-set.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_DATA_SET)
+    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_DATA_SET,
+    supportsGlobalReplace = true)
 public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String VARIABLE_HOP_DATASETS_FOLDER = "HOP_DATASETS_FOLDER";

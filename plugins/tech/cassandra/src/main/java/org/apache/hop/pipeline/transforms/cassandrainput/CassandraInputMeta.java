@@ -34,6 +34,7 @@ import org.apache.hop.databases.cassandra.util.CqlUtils;
 import org.apache.hop.databases.cassandra.util.Selector;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -55,7 +56,8 @@ public class CassandraInputMeta extends BaseTransformMeta<CassandraInput, Cassan
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTION",
-      injectionKeyDescription = "CassandraInput.Injection.CONNECTION")
+      injectionKeyDescription = "CassandraInput.Injection.CONNECTION",
+      hopMetadataPropertyType = HopMetadataPropertyType.CASSANDRA_CONNECTION)
   protected String connectionName;
 
   /** The select query to execute */

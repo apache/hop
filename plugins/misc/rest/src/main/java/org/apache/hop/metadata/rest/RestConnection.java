@@ -57,7 +57,8 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
     description = "i18n::RestConnection.description",
     image = "rest.svg",
     documentationUrl = "/metadata-types/rest-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION,
+    supportsGlobalReplace = true)
 public class RestConnection extends HopMetadataBase implements IHopMetadata {
 
   private IVariables variables;

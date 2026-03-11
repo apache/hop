@@ -33,7 +33,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::SalesforceConnection.description",
     image = "salesforce.svg",
     documentationUrl = "/metadata-types/salesforce-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.SALESFORCE_CONNECTION,
+    supportsGlobalReplace = true)
 @Getter
 @Setter
 public class SalesforceConnection extends HopMetadataBase implements IHopMetadata {

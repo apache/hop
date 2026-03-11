@@ -199,7 +199,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "parameters")
   private ParameterDefinition parameterDefinition;
 
-  @HopMetadataProperty(key = "run_configuration")
+  @HopMetadataProperty(
+      key = "run_configuration",
+      hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG)
   private String runConfiguration;
 
   private IPipelineEngine<PipelineMeta> pipeline;

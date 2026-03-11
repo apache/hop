@@ -32,6 +32,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -105,7 +106,10 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   /** The default timeout for waiting for reading data (milliseconds) */
   public static final int DEFAULT_READ_TIMEOUT = 10000;
 
-  @HopMetadataProperty(key = "connection_name", injectionKey = "CONNECTION_NAME")
+  @HopMetadataProperty(
+      key = "connection_name",
+      injectionKey = "CONNECTION_NAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION)
   private String connectionName;
 
   @HopMetadataProperty(key = "url", injectionKey = "URL")

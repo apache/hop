@@ -38,14 +38,20 @@ import org.apache.hop.metadata.api.IHopMetadata;
 public class WebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
-  @HopMetadataProperty private String filename;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  private String filename;
+
   @HopMetadataProperty private String transformName;
   @HopMetadataProperty private String fieldName;
   @HopMetadataProperty private String contentType;
   @HopMetadataProperty private String statusCode;
   @HopMetadataProperty private boolean listingStatus;
   @HopMetadataProperty private String bodyContentVariable;
-  @HopMetadataProperty private String runConfigurationName;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG)
+  private String runConfigurationName;
+
   @HopMetadataProperty private String headerContentVariable;
 
   public WebService() {}

@@ -36,7 +36,10 @@ import org.apache.hop.metadata.api.IHopMetadata;
 public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
-  @HopMetadataProperty private String pipelineFilename;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  private String pipelineFilename;
+
   @HopMetadataProperty private List<DataProbeLocation> dataProbeLocations;
 
   public PipelineProbe() {

@@ -37,7 +37,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::ExecutionDataProfile.description",
     image = "ui/images/analyzer.svg",
     documentationUrl = "/metadata-types/execution-data-profile.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_DATA_PROFILE)
+    hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_DATA_PROFILE,
+    supportsGlobalReplace = true)
 public class ExecutionDataProfile extends HopMetadataBase implements IHopMetadata, Cloneable {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "ExecutionDataSamplerParent";

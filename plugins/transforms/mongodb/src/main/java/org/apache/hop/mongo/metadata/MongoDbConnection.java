@@ -49,7 +49,8 @@ import org.apache.hop.mongo.wrapper.MongoClientWrapperFactory;
     description = "i18n::MongoDbConnection.description",
     image = "MongoDB_Leaf_FullColor_RGB.svg",
     documentationUrl = "/metadata-types/mongodb-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.MONGODB_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.MONGODB_CONNECTION,
+    supportsGlobalReplace = true)
 @Getter
 @Setter
 public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {

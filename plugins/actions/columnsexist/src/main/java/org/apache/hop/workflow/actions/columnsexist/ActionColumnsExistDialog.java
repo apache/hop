@@ -86,7 +86,8 @@ public class ActionColumnsExistDialog extends ActionDialog {
     changed = action.hasChanged();
 
     // Connection line
-    wConnection = addConnectionLine(shell, wSpacer, action.getDatabaseMeta(), lsMod);
+    DatabaseMeta dbMeta = workflowMeta.findDatabase(action.getConnectionName(), variables);
+    wConnection = addConnectionLine(shell, wSpacer, dbMeta, lsMod);
 
     // Schema name line
     // Schema name
@@ -259,8 +260,8 @@ public class ActionColumnsExistDialog extends ActionDialog {
       wSchemaname.setText(action.getSchemaName());
     }
 
-    if (action.getDatabaseMeta() != null) {
-      wConnection.setText(action.getDatabaseMeta().getName());
+    if (action.getConnectionName() != null) {
+      wConnection.setText(action.getConnectionName());
     }
 
     if (action.getColumns() != null) {
@@ -295,7 +296,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
     }
 
     action.setName(wName.getText());
-    action.setDatabaseMeta(wConnection.loadSelectedElement());
+    action.setConnectionName(wConnection.getText());
     action.setTableName(wTablename.getText());
     action.setSchemaName(wSchemaname.getText());
 

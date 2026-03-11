@@ -45,12 +45,15 @@ import org.apache.hop.testing.util.DataSetConst;
     description = "i18n::PipelineUnitTest.description",
     image = "Test_tube_icon.svg",
     documentationUrl = "/metadata-types/pipeline-unit-test.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_UNIT_TEST)
+    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_UNIT_TEST,
+    supportsGlobalReplace = true)
 public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty private String description;
 
-  @HopMetadataProperty(key = "pipeline_filename")
+  @HopMetadataProperty(
+      key = "pipeline_filename",
+      hopMetadataPropertyType = HopMetadataPropertyType.HOP_FILE)
   protected String pipelineFilename; // file (3rd priority)
 
   @HopMetadataProperty(key = "input_data_sets")

@@ -51,4 +51,12 @@ public @interface HopMetadata {
    * @return the type of metadata this property represents.
    */
   HopMetadataPropertyType hopMetadataPropertyType() default HopMetadataPropertyType.NONE;
+
+  /**
+   * Set this to identify if this metadata object supports replacing values in Workflows and
+   * Pipelines
+   *
+   * @return true if global replace is supported
+   */
+  boolean supportsGlobalReplace() default false;
 }

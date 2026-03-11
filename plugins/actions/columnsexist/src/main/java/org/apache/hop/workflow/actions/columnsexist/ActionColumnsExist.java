@@ -33,6 +33,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -78,8 +79,10 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
 
   @Setter
   @Getter
-  @HopMetadataProperty(key = "connection", storeWithName = true)
-  private DatabaseMeta databaseMeta;
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
+  private String connectionName;
 
   @Setter
   @Getter
@@ -90,7 +93,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     super(n, "");
     this.schemaName = null;
     this.tableName = null;
-    this.databaseMeta = null;
+    this.connectionName = null;
     this.columns = new ArrayList<>();
   }
 
@@ -102,7 +105,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     super(meta.getName(), meta.getDescription(), meta.getPluginId());
     this.schemaName = meta.schemaName;
     this.tableName = meta.tableName;
-    this.databaseMeta = meta.databaseMeta;
+    this.connectionName = meta.connectionName;
     this.columns = meta.columns;
   }
 
@@ -137,6 +140,8 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
       logError(BaseMessages.getString(PKG, "ActionColumnsExist.Error.ColumnameEmpty"));
       return result;
     }
+
+    DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connectionName, getVariables());
     if (databaseMeta != null) {
       try (Database db = new Database(this, this, databaseMeta)) {
         String realSchemaName = resolve(schemaName);
@@ -201,6 +206,8 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
+
+    DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connectionName, getVariables());
     if (databaseMeta != null) {
       ResourceReference reference = new ResourceReference(this);
       reference

@@ -43,6 +43,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mail.metadata.MailServerConnection;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -195,7 +196,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "createlocalfolder")
   private boolean createLocalFolder;
 
-  @HopMetadataProperty private String connectionName;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.MAIL_SERVER_CONNECTION)
+  private String connectionName;
 
   private static final String DEFAULT_FILE_NAME_PATTERN =
       "name_{SYS|hhmmss_MMddyyyy|}_#IdFile#.mail";

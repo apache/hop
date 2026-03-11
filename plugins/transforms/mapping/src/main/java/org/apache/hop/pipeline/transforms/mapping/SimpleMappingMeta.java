@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.ISubPipelineAwareMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -60,7 +61,9 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
   private static final Class<?> PKG = SimpleMappingMeta.class;
 
-  @HopMetadataProperty(key = "runConfiguration")
+  @HopMetadataProperty(
+      key = "runConfiguration",
+      hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG)
   private String runConfigurationName;
 
   @HopMetadataProperty(key = "mappings")

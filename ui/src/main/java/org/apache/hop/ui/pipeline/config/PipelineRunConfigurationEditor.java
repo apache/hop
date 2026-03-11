@@ -533,7 +533,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
       new ErrorDialog(getShell(), "Error", "Error retrieving execution info profile metadata", e);
     }
 
-    wProfile.setText(Const.NVL(runConfiguration.getExecutionDataProfileName(), ""));
+    wProfile.setText(Const.NVL(workingConfiguration.getExecutionDataProfileName(), ""));
 
     for (int i = 0; i < workingConfiguration.getConfigurationVariables().size(); i++) {
       DescribedVariable vvd = workingConfiguration.getConfigurationVariables().get(i);

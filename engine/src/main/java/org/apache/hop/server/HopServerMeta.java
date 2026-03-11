@@ -109,7 +109,8 @@ import org.w3c.dom.Node;
     description = "i18n::HopServer.description",
     image = "ui/images/server.svg",
     documentationUrl = "/metadata-types/hop-server.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.SERVER_DEFINITION)
+    hopMetadataPropertyType = HopMetadataPropertyType.SERVER_DEFINITION,
+    supportsGlobalReplace = true)
 public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
   private static final Class<?> PKG = HopServerMeta.class;
   public static final String STRING_HOP_SERVER = "Hop Server";

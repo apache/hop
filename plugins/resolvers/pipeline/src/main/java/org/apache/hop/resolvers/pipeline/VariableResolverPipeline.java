@@ -35,6 +35,7 @@ import org.apache.hop.core.variables.resolver.IVariableResolver;
 import org.apache.hop.core.variables.resolver.VariableResolver;
 import org.apache.hop.core.variables.resolver.VariableResolverPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataInstance;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -66,7 +67,7 @@ public class VariableResolverPipeline implements IVariableResolver {
       typeFilename = TypePipelineFile.class,
       type = GuiElementType.FILENAME,
       parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID)
-  @HopMetadataProperty()
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
   private String filename;
 
   /** The name of the local Hop pipeline run configuration to use */
@@ -77,7 +78,7 @@ public class VariableResolverPipeline implements IVariableResolver {
       type = GuiElementType.METADATA,
       metadata = PipelineRunConfiguration.class,
       parentId = VariableResolver.GUI_PLUGIN_ELEMENT_PARENT_ID)
-  @HopMetadataProperty
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG)
   private String runConfigurationName;
 
   /** The name of the variable that will contain the expression in the pipeline. */

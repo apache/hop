@@ -37,12 +37,17 @@ public class PipelineLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
   @HopMetadataProperty private boolean loggingParentsOnly;
-  @HopMetadataProperty private String pipelineFilename;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  private String pipelineFilename;
+
   @HopMetadataProperty private boolean executingAtStart;
   @HopMetadataProperty private boolean executingPeriodically;
   @HopMetadataProperty private String intervalInSeconds;
   @HopMetadataProperty private boolean executingAtEnd;
-  @HopMetadataProperty private List<PipelineToLogLocation> pipelinesToLog;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  private List<PipelineToLogLocation> pipelinesToLog;
 
   public PipelineLog() {
     enabled = true;

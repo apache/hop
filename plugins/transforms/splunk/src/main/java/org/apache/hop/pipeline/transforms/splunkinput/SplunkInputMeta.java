@@ -30,6 +30,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -48,7 +49,8 @@ public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputD
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "connection",
-      injectionKeyDescription = "SplunkInputMeta.Injection.Connection")
+      injectionKeyDescription = "SplunkInputMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.SPLUNK_CONNECTION)
   private String connectionName;
 
   @HopMetadataProperty(

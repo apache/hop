@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.mongodb;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -30,7 +31,10 @@ public abstract class MongoDbMeta<Main extends ITransform, Data extends ITransfo
     extends BaseTransformMeta<Main, Data> {
   protected static Class<?> PKG = MongoDbInputMeta.class;
 
-  @HopMetadataProperty(key = "connection", injectionKey = "CONNECTION")
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKey = "CONNECTION",
+      hopMetadataPropertyType = HopMetadataPropertyType.MONGODB_CONNECTION)
   protected String connectionName;
 
   @HopMetadataProperty(key = "collection", injectionKey = "COLLECTION")

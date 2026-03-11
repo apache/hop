@@ -19,11 +19,17 @@
 package org.apache.hop.reflection.probe.meta;
 
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
+@Getter
+@Setter
 public class DataProbeLocation {
 
-  @HopMetadataProperty private String sourcePipelineFilename;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  private String sourcePipelineFilename;
 
   @HopMetadataProperty private String sourceTransformName;
 
@@ -50,37 +56,5 @@ public class DataProbeLocation {
   @Override
   public int hashCode() {
     return Objects.hash(sourcePipelineFilename, sourceTransformName);
-  }
-
-  /**
-   * Gets sourcePipelineFilename
-   *
-   * @return value of sourcePipelineFilename
-   */
-  public String getSourcePipelineFilename() {
-    return sourcePipelineFilename;
-  }
-
-  /**
-   * @param sourcePipelineFilename The sourcePipelineFilename to set
-   */
-  public void setSourcePipelineFilename(String sourcePipelineFilename) {
-    this.sourcePipelineFilename = sourcePipelineFilename;
-  }
-
-  /**
-   * Gets sourceTransformName
-   *
-   * @return value of sourceTransformName
-   */
-  public String getSourceTransformName() {
-    return sourceTransformName;
-  }
-
-  /**
-   * @param sourceTransformName The sourceTransformName to set
-   */
-  public void setSourceTransformName(String sourceTransformName) {
-    this.sourceTransformName = sourceTransformName;
   }
 }

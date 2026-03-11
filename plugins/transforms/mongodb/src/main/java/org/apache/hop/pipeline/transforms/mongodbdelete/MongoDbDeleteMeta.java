@@ -37,9 +37,6 @@ import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
 @Setter
 public class MongoDbDeleteMeta extends MongoDbMeta<MongoDbDelete, MongoDbDeleteData> {
 
-  @HopMetadataProperty(key = "connection", injectionKey = "CONNECTION")
-  private String connectionName;
-
   @HopMetadataProperty(key = "retries", injectionKey = "RETRIES")
   public int nbRetries = 5;
 
@@ -67,9 +64,6 @@ public class MongoDbDeleteMeta extends MongoDbMeta<MongoDbDelete, MongoDbDeleteD
       injectionKey = "MONGODB_FIELDS",
       injectionGroupKey = "MONGODB_FIELDS")
   protected List<MongoDbDeleteField> mongoFields;
-
-  @HopMetadataProperty(key = "collection", injectionKey = "COLLECTION")
-  private String collection;
 
   @Override
   public void setDefault() {

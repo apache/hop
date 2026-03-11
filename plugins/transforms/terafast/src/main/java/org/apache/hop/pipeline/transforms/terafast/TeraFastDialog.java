@@ -215,17 +215,17 @@ public class TeraFastDialog extends BaseTransformDialog {
 
   /** Set data values in dialog. */
   public void getData() {
-    this.wFastLoadPath.setText(this.meta.getFastloadPath());
+    this.wFastLoadPath.setText(Const.NVL(this.meta.getFastloadPath(), ""));
     if (this.wFastLoadPath.getText().isEmpty()) {
       this.wFastLoadPath.setText(TeraFastMeta.DEFAULT_FASTLOAD_PATH);
     }
-    this.wControlFile.setText(this.meta.getControlFile());
-    this.wDataFile.setText(this.meta.getDataFile());
+    this.wControlFile.setText(Const.NVL(this.meta.getControlFile(), ""));
+    this.wDataFile.setText(Const.NVL(this.meta.getDataFile(), ""));
     if (this.wDataFile.getText().isEmpty()) {
       this.wDataFile.setText(TeraFastMeta.DEFAULT_DATA_FILE);
     }
-    this.wLogFile.setText(this.meta.getLogFile());
-    this.wTable.setText(this.meta.getTargetTable());
+    this.wLogFile.setText(Const.NVL(this.meta.getLogFile(), ""));
+    this.wTable.setText(Const.NVL(this.meta.getTargetTable(), ""));
     if (this.wTable.getText().isEmpty()) {
       this.wTable.setText(TeraFastMeta.DEFAULT_TARGET_TABLE);
     }
@@ -459,7 +459,7 @@ public class TeraFastDialog extends BaseTransformDialog {
     this.buildLogFileLine(factory);
 
     // Connection line
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(meta.getConnectionName(), variables);
     this.wConnection = addConnectionLine(this.shell, this.wLogFile, databaseMeta, lsMod);
     this.buildTableLine(factory);
     this.buildTruncateTableLine(factory);

@@ -24,8 +24,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -64,11 +66,16 @@ import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.AuditState;
 import org.apache.hop.history.AuditStateMap;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.refactor.MetadataObjectReference;
+import org.apache.hop.metadata.refactor.MetadataReferenceFinder;
+import org.apache.hop.metadata.refactor.MetadataReferenceResult;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.bus.HopGuiEvents;
+import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.DetailsDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -105,7 +112,9 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.ExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.FolderFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.GenericFileType;
+import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.hopgui.shared.CanvasZoomHelper;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -133,9 +142,11 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -927,40 +938,83 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private void deleteFile(final TreeItem treeItem) {
     try {
       TreeItemFolder tif = (TreeItemFolder) treeItem.getData();
-      if (tif != null && tif.fileType != null) {
-        FileObject fileObject = HopVfs.getFileObject(tif.path);
+      if (tif == null || tif.fileType == null) {
+        return;
+      }
+      FileObject fileObject = HopVfs.getFileObject(tif.path);
 
-        String header =
-            BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
-        String message =
-            BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
-        if (fileObject.isFolder()) {
-          header =
-              BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header");
-          message =
-              BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message");
-        }
-
-        MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText(header);
-        box.setMessage(message + Const.CR + Const.CR + HopVfs.getFilename(fileObject));
-
-        int answer = box.open();
-        if ((answer & SWT.YES) != 0) {
-          // List files before they are deleted
+      // For pipeline/workflow files check if any other files or metadata objects still
+      // reference them before showing the standard confirmation box.
+      if (!fileObject.isFolder()) {
+        String path = HopVfs.getFilename(fileObject);
+        if (path.endsWith(".hpl") || path.endsWith(".hwf")) {
+          boolean confirmed =
+              confirmDeleteWithReferenceCheck(List.of(path), fileObject.getName().getBaseName());
+          if (!confirmed) {
+            return;
+          }
+          // User confirmed via the reference dialog — proceed directly to deletion.
           List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
+          fileObject.deleteAll();
+          treeItem.dispose();
+          for (String filename : filenames) {
+            TabItemHandler handler = findTabItemHandler(filename);
+            if (handler != null) {
+              removeTabItem(handler);
+            }
+          }
+          return;
+        }
+      } else {
+        // For folders: collect all .hpl/.hwf files and check for references collectively.
+        List<String> pipelineWorkflowFiles = new ArrayList<>();
+        for (String filename : getRecursiveFilenames(fileObject, new ArrayList<>())) {
+          if (filename.endsWith(".hpl") || filename.endsWith(".hwf")) {
+            pipelineWorkflowFiles.add(filename);
+          }
+        }
+        if (!pipelineWorkflowFiles.isEmpty()) {
+          String folderName = fileObject.getName().getBaseName();
+          boolean confirmed = confirmDeleteWithReferenceCheck(pipelineWorkflowFiles, folderName);
+          if (!confirmed) {
+            return;
+          }
+          // User confirmed — proceed directly to deletion.
+          List<String> allFilenames = getRecursiveFilenames(fileObject, new ArrayList<>());
+          fileObject.deleteAll();
+          treeItem.dispose();
+          for (String filename : allFilenames) {
+            TabItemHandler handler = findTabItemHandler(filename);
+            if (handler != null) {
+              removeTabItem(handler);
+            }
+          }
+          return;
+        }
+      }
 
-          // Delete file or folder
-          int deleted = fileObject.deleteAll();
-          if (deleted > 0) {
-            treeItem.dispose();
+      // No pipeline/workflow files involved — use the standard confirmation box.
+      String header =
+          fileObject.isFolder()
+              ? BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header")
+              : BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
+      String message =
+          fileObject.isFolder()
+              ? BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message")
+              : BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
 
-            // Closes all impacted file type handlers that are opened
-            for (String filename : filenames) {
-              TabItemHandler handler = findTabItemHandler(filename);
-              if (handler != null) {
-                removeTabItem(handler);
-              }
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      box.setText(header);
+      box.setMessage(message + Const.CR + Const.CR + HopVfs.getFilename(fileObject));
+
+      if ((box.open() & SWT.YES) != 0) {
+        List<String> filenames = getRecursiveFilenames(fileObject, new ArrayList<>());
+        if (fileObject.deleteAll() > 0) {
+          treeItem.dispose();
+          for (String filename : filenames) {
+            TabItemHandler handler = findTabItemHandler(filename);
+            if (handler != null) {
+              removeTabItem(handler);
             }
           }
         }
@@ -972,6 +1026,178 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           BaseMessages.getString(PKG, "ExplorerPerspective.Error.DeleteFile.Message"),
           e);
     }
+  }
+
+  /**
+   * Replaces the resolved {@code projectHome} prefix in {@code path} with {@code ${PROJECT_HOME}}
+   * so displayed paths are project-relative and shorter.
+   */
+  private static String toDisplayPath(String path, String projectHome) {
+    if (!StringUtils.isEmpty(projectHome) && path.startsWith(projectHome)) {
+      String rel = path.substring(projectHome.length());
+      return "${PROJECT_HOME}" + (rel.startsWith("/") ? rel : "/" + rel);
+    }
+    return path;
+  }
+
+  /**
+   * Finds all references to the given pipeline/workflow file paths in other files and metadata
+   * objects. If references exist, shows a warning dialog (Yes/Details/No). If no references exist,
+   * shows the standard Yes/No confirmation. Returns {@code true} if the user confirmed deletion.
+   */
+  private boolean confirmDeleteWithReferenceCheck(List<String> filePaths, String displayName)
+      throws HopException {
+    String projectHome = hopGui.getVariables().resolve("${PROJECT_HOME}");
+    List<String> searchRoots =
+        (!Utils.isEmpty(projectHome) && !"${PROJECT_HOME}".equals(projectHome))
+            ? List.of(projectHome)
+            : Collections.emptyList();
+
+    MetadataReferenceFinder finder = new MetadataReferenceFinder(hopGui.getMetadataProvider());
+
+    // Aggregate references across all supplied file paths
+    java.util.Set<String> seenFiles = new java.util.LinkedHashSet<>();
+    int totalFileRefCount = 0;
+    List<MetadataObjectReference> allMetadataRefs = new ArrayList<>();
+    List<String> detailLines = new ArrayList<>();
+
+    for (String filePath : filePaths) {
+      if (!searchRoots.isEmpty()) {
+        List<MetadataReferenceResult> fileRefs =
+            finder.findFileReferences(searchRoots, filePath, hopGui.getVariables());
+        for (MetadataReferenceResult r : fileRefs) {
+          if (seenFiles.add(r.getFilePath())) {
+            totalFileRefCount += r.getReferenceCount();
+            detailLines.add(toDisplayPath(r.getFilePath(), projectHome));
+          }
+        }
+      }
+      List<MetadataObjectReference> metaRefs =
+          finder.findFilePathReferencesInMetadata(filePath, hopGui.getVariables());
+      for (MetadataObjectReference r : metaRefs) {
+        if (!allMetadataRefs.contains(r)) {
+          allMetadataRefs.add(r);
+          detailLines.add(
+              BaseMessages.getString(
+                  PKG,
+                  "ExplorerPerspective.UpdateFileReferences.Details.MetadataEntry",
+                  r.getContainerMetadataKey(),
+                  r.getContainerObjectName()));
+        }
+      }
+    }
+
+    int totalRefCount = totalFileRefCount + allMetadataRefs.size();
+    if (totalRefCount > 0) {
+      return showDeleteWithReferencesDialog(
+          displayName, totalRefCount, seenFiles.size(), allMetadataRefs.size(), detailLines);
+    }
+
+    // No references — use the standard confirmation box.
+    String header =
+        BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
+    String message =
+        BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
+    MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+    box.setText(header);
+    box.setMessage(message + Const.CR + Const.CR + displayName);
+    return (box.open() & SWT.YES) != 0;
+  }
+
+  /**
+   * Shows a Yes/Details/No dialog warning that the file(s) being deleted still have active
+   * references. Returns {@code true} if the user confirms the deletion.
+   */
+  private boolean showDeleteWithReferencesDialog(
+      String displayName,
+      int totalRefCount,
+      int fileCount,
+      int metadataObjectCount,
+      List<String> detailLines) {
+    Shell shell =
+        new Shell(hopGui.getShell(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+    shell.setText(
+        BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.WithReferences.Title"));
+    shell.setImage(GuiResource.getInstance().getImageHop());
+    PropsUi.setLook(shell);
+    FormLayout layout = new FormLayout();
+    layout.marginLeft = PropsUi.getFormMargin();
+    layout.marginRight = PropsUi.getFormMargin();
+    layout.marginTop = PropsUi.getFormMargin();
+    layout.marginBottom = PropsUi.getFormMargin();
+    shell.setLayout(layout);
+    int margin = PropsUi.getMargin();
+
+    // Buttons first so the message label can attach its bottom to them
+    final boolean[] confirmed = new boolean[1];
+    Button wYes = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wYes);
+    wYes.setText(BaseMessages.getString("System.Button.Yes"));
+    wYes.addListener(
+        SWT.Selection,
+        e -> {
+          confirmed[0] = true;
+          shell.dispose();
+        });
+    Button wDetails = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wDetails);
+    wDetails.setText(
+        BaseMessages.getString(
+            PKG, "ExplorerPerspective.DeleteFile.WithReferences.Button.Details"));
+    wDetails.addListener(
+        SWT.Selection,
+        e -> {
+          new DetailsDialog(
+                  shell,
+                  BaseMessages.getString(
+                      PKG,
+                      "ExplorerPerspective.DeleteFile.WithReferences.Details.Title",
+                      displayName),
+                  GuiResource.getInstance().getImageHop(),
+                  BaseMessages.getString(
+                      PKG,
+                      "ExplorerPerspective.DeleteFile.WithReferences.Details.Message",
+                      displayName),
+                  String.join(Const.CR, detailLines))
+              .open();
+        });
+    Button wNo = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wNo);
+    wNo.setText(BaseMessages.getString("System.Button.No"));
+    wNo.addListener(
+        SWT.Selection,
+        e -> {
+          confirmed[0] = false;
+          shell.dispose();
+        });
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wYes, wDetails, wNo}, margin, null);
+
+    Label wMessage = new Label(shell, SWT.WRAP);
+    PropsUi.setLook(wMessage);
+    wMessage.setText(
+        BaseMessages.getString(
+            PKG,
+            "ExplorerPerspective.DeleteFile.WithReferences.Message",
+            totalRefCount,
+            displayName,
+            fileCount,
+            metadataObjectCount));
+    FormData fdMessage = new FormData();
+    fdMessage.left = new FormAttachment(0, margin);
+    fdMessage.right = new FormAttachment(100, -margin);
+    fdMessage.top = new FormAttachment(0, margin);
+    fdMessage.bottom = new FormAttachment(wYes, -margin);
+    wMessage.setLayoutData(fdMessage);
+
+    shell.setDefaultButton(wNo);
+    BaseDialog.defaultShellHandling(
+        shell,
+        c -> {
+          /* enter: no-op */
+        },
+        c -> confirmed[0] = false);
+    return confirmed[0];
   }
 
   private List<String> getRecursiveFilenames(FileObject parentFile, List<String> list)
@@ -997,19 +1223,29 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       text.addListener(
           SWT.KeyUp,
           event -> {
+            if (text.isDisposed()) {
+              return;
+            }
+            String newName;
+            try {
+              newName = text.getText();
+            } catch (org.eclipse.swt.SWTException e) {
+              if (e.code == org.eclipse.swt.SWT.ERROR_WIDGET_DISPOSED) {
+                return;
+              }
+              throw e;
+            }
             switch (event.keyCode) {
               case SWT.CR, SWT.KEYPAD_CR:
                 // If name changed
-                if (!item.getText().equals(text.getText())) {
+                if (!item.getText().equals(newName)) {
                   try {
                     FileObject file = HopVfs.getFileObject(tif.path);
                     FileObject newFile =
                         HopVfs.getFileObject(
-                            file.getParent().getName().toString()
-                                + File.separator
-                                + text.getText());
+                            file.getParent().getName().toString() + File.separator + newName);
                     renameFile(file, newFile);
-                    item.setText(text.getText());
+                    item.setText(newName);
                   } catch (Exception e) {
                     new ErrorDialog(
                         hopGui.getShell(),
@@ -1017,13 +1253,17 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
                         BaseMessages.getString(PKG, "ExplorerPerspective.Error.RenameFile.Message"),
                         e);
                   } finally {
-                    text.dispose();
+                    if (!text.isDisposed()) {
+                      text.dispose();
+                    }
                     refresh();
                   }
                 }
                 break;
               case SWT.ESC:
-                text.dispose();
+                if (!text.isDisposed()) {
+                  text.dispose();
+                }
                 break;
               default:
                 break;
@@ -1040,8 +1280,20 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
   private void renameFile(FileObject sourceFile, FileObject targetFile) throws FileSystemException {
 
     if (sourceFile.isFolder()) {
-      // List all impacted files
+      // List all impacted files before move
       List<String> filenames = getRecursiveFilenames(sourceFile, new ArrayList<>());
+
+      // Capture old and new paths for reference updates (before move)
+      List<String> oldPaths = new ArrayList<>(filenames);
+      Path sourcePath = sourceFile.getPath();
+      Path targetPath = targetFile.getPath();
+      List<String> newPaths = new ArrayList<>(oldPaths.size());
+      for (String filename : filenames) {
+        Path originalPath = Paths.get(filename);
+        Path relativePath =
+            originalPath.subpath(sourcePath.getNameCount(), originalPath.getNameCount());
+        newPaths.add(Paths.get(targetPath.toString(), relativePath.toString()).toString());
+      }
 
       // Rename the folder
       sourceFile.moveTo(targetFile);
@@ -1050,9 +1302,9 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       for (String filename : filenames) {
         TabItemHandler handler = findTabItemHandler(filename);
         if (handler != null) {
-          Path oldPath = Paths.get(filename);
-          Path targetPath = targetFile.getPath();
-          Path relativePath = oldPath.subpath(targetPath.getNameCount(), oldPath.getNameCount());
+          Path originalPath = Paths.get(filename);
+          Path relativePath =
+              originalPath.subpath(sourcePath.getNameCount(), originalPath.getNameCount());
           Path path = Paths.get(targetPath.toString(), relativePath.toString());
 
           changeFilename(handler.getTypeHandler(), path.toString());
@@ -1060,37 +1312,62 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           saveFileIfNameSynchronized(handler.getTypeHandler());
         }
       }
+
+      updateReferencesToMovedOrRenamedFile(oldPaths, newPaths);
     } else {
+      // Capture paths before move. Determine old/new by which file exists (avoids swap if tree
+      // passes source/target in unexpected order).
+      String pathFromSource = HopVfs.getFilename(sourceFile);
+      String pathFromTarget = HopVfs.getFilename(targetFile);
+      boolean sourceExists;
+      try {
+        sourceExists = sourceFile.exists();
+      } catch (Exception e) {
+        sourceExists = true; // assume source exists if we can't tell
+      }
+      String oldPath = sourceExists ? pathFromSource : pathFromTarget;
+      String newPath = sourceExists ? pathFromTarget : pathFromSource;
+
       // Rename the file
       sourceFile.moveTo(targetFile);
 
-      // Update opened file type handler
-      TabItemHandler handler = findTabItemHandler(HopVfs.getFilename(sourceFile));
+      // Update opened file type handler (use old path to find the handler)
+      TabItemHandler handler = findTabItemHandler(oldPath);
       if (handler != null) {
-        changeFilename(handler.getTypeHandler(), HopVfs.getFilename(targetFile));
+        changeFilename(handler.getTypeHandler(), newPath);
         updateTabItem(handler.getTypeHandler());
         saveFileIfNameSynchronized(handler.getTypeHandler());
       } else {
         // File is not open, but we still need to update the name attribute if name sync is enabled
         updateClosedFileIfNameSynchronized(targetFile);
       }
-    }
 
-    // TODO: Search and rename dependencies
+      updateReferencesToMovedOrRenamedFile(
+          java.util.Collections.singletonList(oldPath),
+          java.util.Collections.singletonList(newPath));
+    }
   }
 
   private void moveFile(FileObject sourceFile, FileObject targetFile) throws FileSystemException {
 
     if (sourceFile.isFolder()) {
-      // List all impacted files before moving the folder
+      // List all impacted files and paths before move
       List<String> filenames = getRecursiveFilenames(sourceFile, new ArrayList<>());
+      Path sourcePath = sourceFile.getPath();
+      Path targetPath = targetFile.getPath();
+      List<String> oldPaths = new ArrayList<>(filenames);
+      List<String> newPaths = new ArrayList<>(oldPaths.size());
+      for (String filename : filenames) {
+        Path originalPath = Paths.get(filename);
+        Path relativePath =
+            originalPath.subpath(sourcePath.getNameCount(), originalPath.getNameCount());
+        newPaths.add(Paths.get(targetPath.toString(), relativePath.toString()).toString());
+      }
 
       // Move file
       sourceFile.moveTo(targetFile);
 
       // Update all opened impacted file type handlers
-      Path sourcePath = sourceFile.getPath();
-      Path targetPath = targetFile.getPath();
       for (String filename : filenames) {
         TabItemHandler handler = findTabItemHandler(filename);
         if (handler != null) {
@@ -1103,19 +1380,259 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
         }
       }
 
-      // TODO: Search and move dependencies
+      updateReferencesToMovedOrRenamedFile(oldPaths, newPaths);
     } else {
+      // Capture paths before move. Determine old/new by which file exists.
+      String pathFromSource = HopVfs.getFilename(sourceFile);
+      String pathFromTarget = HopVfs.getFilename(targetFile);
+      boolean sourceExists;
+      try {
+        sourceExists = sourceFile.exists();
+      } catch (Exception e) {
+        sourceExists = true;
+      }
+      String oldPath = sourceExists ? pathFromSource : pathFromTarget;
+      String newPath = sourceExists ? pathFromTarget : pathFromSource;
+
       // Move file
       sourceFile.moveTo(targetFile);
 
       // Update opened file type handler
-      TabItemHandler handler = findTabItemHandler(HopVfs.getFilename(sourceFile));
+      TabItemHandler handler = findTabItemHandler(oldPath);
       if (handler != null) {
-        handler.getTypeHandler().setFilename(HopVfs.getFilename(targetFile));
+        handler.getTypeHandler().setFilename(newPath);
         updateTabItem(handler.getTypeHandler());
       }
 
-      // TODO: Search and move dependencies
+      updateReferencesToMovedOrRenamedFile(
+          java.util.Collections.singletonList(oldPath),
+          java.util.Collections.singletonList(newPath));
+    }
+  }
+
+  /**
+   * Shows a dialog asking to update file references. Yes/No confirm; Details opens a list of files
+   * that will be modified. Returns true if the user chose Yes.
+   */
+  private boolean showUpdateFileReferencesDialog(
+      int totalRefCount, int fileCount, int metadataObjectCount, List<String> detailLines) {
+    Shell shell =
+        new Shell(hopGui.getShell(), SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+    shell.setText(BaseMessages.getString(PKG, "ExplorerPerspective.UpdateFileReferences.Title"));
+    shell.setImage(GuiResource.getInstance().getImageHop());
+    PropsUi.setLook(shell);
+    FormLayout layout = new FormLayout();
+    layout.marginLeft = PropsUi.getFormMargin();
+    layout.marginRight = PropsUi.getFormMargin();
+    layout.marginTop = PropsUi.getFormMargin();
+    layout.marginBottom = PropsUi.getFormMargin();
+    shell.setLayout(layout);
+    int margin = PropsUi.getMargin();
+
+    // Buttons created first so content labels can attach their bottom edge to them
+    final boolean[] confirmed = new boolean[1];
+    Button wYes = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wYes);
+    wYes.setText(BaseMessages.getString("System.Button.Yes"));
+    wYes.addListener(
+        SWT.Selection,
+        e -> {
+          confirmed[0] = true;
+          shell.dispose();
+        });
+    Button wDetails = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wDetails);
+    wDetails.setText(
+        BaseMessages.getString(PKG, "ExplorerPerspective.UpdateFileReferences.Button.Details"));
+    wDetails.addListener(
+        SWT.Selection,
+        e -> {
+          DetailsDialog detailsDialog =
+              new DetailsDialog(
+                  shell,
+                  BaseMessages.getString(
+                      PKG, "ExplorerPerspective.UpdateFileReferences.Details.Title"),
+                  GuiResource.getInstance().getImageHop(),
+                  BaseMessages.getString(
+                      PKG, "ExplorerPerspective.UpdateFileReferences.Details.Message"),
+                  String.join(Const.CR, detailLines));
+          detailsDialog.open();
+        });
+    Button wNo = new Button(shell, SWT.PUSH);
+    PropsUi.setLook(wNo);
+    wNo.setText(BaseMessages.getString("System.Button.No"));
+    wNo.addListener(
+        SWT.Selection,
+        e -> {
+          confirmed[0] = false;
+          shell.dispose();
+        });
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wYes, wDetails, wNo}, margin, null);
+
+    // Main message
+    String messageKey =
+        metadataObjectCount > 0
+            ? "ExplorerPerspective.UpdateFileReferences.MessageWithMetadata"
+            : "ExplorerPerspective.UpdateFileReferences.Message";
+    Label wMessage = new Label(shell, SWT.WRAP);
+    PropsUi.setLook(wMessage);
+    wMessage.setText(
+        BaseMessages.getString(PKG, messageKey, totalRefCount, fileCount, metadataObjectCount));
+    FormData fdMessage = new FormData();
+    fdMessage.left = new FormAttachment(0, margin);
+    fdMessage.right = new FormAttachment(100, -margin);
+    fdMessage.top = new FormAttachment(0, margin);
+    wMessage.setLayoutData(fdMessage);
+
+    // Experimental feature note — always shown, fills remaining space above buttons
+    Label wNote = new Label(shell, SWT.WRAP);
+    PropsUi.setLook(wNote);
+    wNote.setText(
+        BaseMessages.getString(
+            PKG, "ExplorerPerspective.UpdateFileReferences.ExperimentalFeatureNote"));
+    FormData fdNote = new FormData();
+    fdNote.left = new FormAttachment(0, margin);
+    fdNote.right = new FormAttachment(100, -margin);
+    fdNote.top = new FormAttachment(wMessage, margin);
+    fdNote.bottom = new FormAttachment(wYes, -margin);
+    wNote.setLayoutData(fdNote);
+
+    shell.setDefaultButton(wYes);
+
+    BaseDialog.defaultShellHandling(
+        shell,
+        c -> {
+          /* enter in text field: no-op, buttons handle confirmation */
+        },
+        c -> confirmed[0] = false);
+
+    return confirmed[0];
+  }
+
+  /**
+   * Finds references to the given paths in other pipeline/workflow files (under PROJECT_HOME), asks
+   * the user to update them, then replaces and reloads open tabs.
+   */
+  private void updateReferencesToMovedOrRenamedFile(List<String> oldPaths, List<String> newPaths) {
+    if (oldPaths == null || newPaths == null || oldPaths.size() != newPaths.size()) {
+      return;
+    }
+    String projectHome = hopGui.getVariables().resolve("${PROJECT_HOME}");
+    if (Utils.isEmpty(projectHome) || "${PROJECT_HOME}".equals(projectHome)) {
+      return;
+    }
+    List<String> searchRoots = java.util.Collections.singletonList(projectHome);
+    try {
+      MetadataReferenceFinder finder = new MetadataReferenceFinder(hopGui.getMetadataProvider());
+      Map<String, String> oldToNew = new HashMap<>();
+
+      // File references (pipeline/workflow files referencing the renamed file)
+      List<MetadataReferenceResult> allFileRefs = new ArrayList<>();
+      java.util.Set<String> allFilePaths = new java.util.HashSet<>();
+      int totalFileRefCount = 0;
+
+      // Metadata references (metadata objects storing the file path)
+      // Keyed by old path so we can replace each old→new correctly
+      Map<String, List<MetadataObjectReference>> metadataRefsByOldPath = new LinkedHashMap<>();
+      List<MetadataObjectReference> allMetadataRefs = new ArrayList<>();
+
+      for (int i = 0; i < oldPaths.size(); i++) {
+        String oldPath = oldPaths.get(i);
+        String newPath = newPaths.get(i);
+        if (Utils.isEmpty(oldPath) || oldPath.equals(newPath)) {
+          continue;
+        }
+        oldToNew.put(oldPath, newPath);
+
+        // Find references in other pipeline/workflow files
+        List<MetadataReferenceResult> refs =
+            finder.findFileReferences(searchRoots, oldPath, hopGui.getVariables());
+        for (MetadataReferenceResult r : refs) {
+          totalFileRefCount += r.getReferenceCount();
+          if (allFilePaths.add(r.getFilePath())) {
+            allFileRefs.add(r);
+          }
+        }
+
+        // Find references in metadata objects (resolve variables so ${PROJECT_HOME}/... matches)
+        List<MetadataObjectReference> metaRefs =
+            finder.findFilePathReferencesInMetadata(oldPath, hopGui.getVariables());
+        if (!metaRefs.isEmpty()) {
+          metadataRefsByOldPath.put(oldPath, metaRefs);
+          allMetadataRefs.addAll(metaRefs);
+        }
+      }
+
+      if (totalFileRefCount == 0 && allMetadataRefs.isEmpty()) {
+        return;
+      }
+
+      // Before showing the "update?" dialog, prompt to save any open metadata tabs that would be
+      // affected — so the close/reopen afterwards starts from a clean saved state.
+      MetadataPerspective metadataPerspective = MetadataPerspective.getInstance();
+      if (!metadataPerspective.saveChangedEditorsForRefs(allMetadataRefs)) {
+        return; // user cancelled
+      }
+
+      // Build detail lines for the Details button — show project-relative paths
+      List<String> detailLines = new ArrayList<>();
+      for (String p : allFilePaths) {
+        detailLines.add(toDisplayPath(p, projectHome));
+      }
+      for (MetadataObjectReference ref : allMetadataRefs) {
+        detailLines.add(
+            BaseMessages.getString(
+                PKG,
+                "ExplorerPerspective.UpdateFileReferences.Details.MetadataEntry",
+                ref.getContainerMetadataKey(),
+                ref.getContainerObjectName()));
+      }
+
+      boolean update =
+          showUpdateFileReferencesDialog(
+              totalFileRefCount + allMetadataRefs.size(),
+              allFilePaths.size(),
+              allMetadataRefs.size(),
+              detailLines);
+      if (!update) {
+        return;
+      }
+
+      // Replace references in pipeline/workflow files
+      List<MetadataReferenceResult> filesToUpdate = new ArrayList<>();
+      for (String path : allFilePaths) {
+        filesToUpdate.add(new MetadataReferenceResult(path, 1));
+      }
+      if (oldToNew.size() == 1) {
+        Map.Entry<String, String> e = oldToNew.entrySet().iterator().next();
+        finder.replaceFileReferences(
+            filesToUpdate, e.getKey(), e.getValue(), hopGui.getVariables());
+      } else {
+        finder.replaceFileReferences(filesToUpdate, oldToNew, hopGui.getVariables());
+      }
+
+      // Replace references in metadata objects (one old→new pair at a time)
+      for (Map.Entry<String, List<MetadataObjectReference>> entry :
+          metadataRefsByOldPath.entrySet()) {
+        String oldPath = entry.getKey();
+        String newPath = oldToNew.get(oldPath);
+        finder.replaceFilePathReferencesInMetadata(
+            oldPath, newPath, entry.getValue(), hopGui.getVariables());
+      }
+
+      // Reload open pipeline/workflow tabs whose content changed
+      List<String> updatedPaths = new ArrayList<>(filesToUpdate.size());
+      for (MetadataReferenceResult r : filesToUpdate) {
+        updatedPaths.add(r.getFilePath());
+      }
+      reloadTabsForFilenames(updatedPaths);
+
+      // Close and reopen affected metadata tabs so their content is fresh
+      metadataPerspective.reloadEditorsForMetadata(allMetadataRefs);
+
+    } catch (HopException e) {
+      hopGui.getLog().logError("Error updating file references after rename/move", e);
     }
   }
 
@@ -1351,6 +1868,25 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
     if (lastOpened != null) {
       setActiveFileTypeHandler(lastOpened);
     }
+  }
+
+  /**
+   * Returns all open file handlers whose file has unsaved changes and whose filename is in the
+   * given collection. Useful for pre-flight checks before operations that modify files on disk.
+   */
+  public List<IHopFileTypeHandler> getChangedHandlersForFilenames(
+      java.util.Collection<String> filenames) {
+    List<IHopFileTypeHandler> result = new ArrayList<>();
+    if (filenames == null) {
+      return result;
+    }
+    for (String filename : filenames) {
+      TabItemHandler handler = findTabItemHandler(filename);
+      if (handler != null && handler.getTypeHandler().hasChanged()) {
+        result.add(handler.getTypeHandler());
+      }
+    }
+    return result;
   }
 
   protected TabItemHandler findTabItemHandler(String filename) {

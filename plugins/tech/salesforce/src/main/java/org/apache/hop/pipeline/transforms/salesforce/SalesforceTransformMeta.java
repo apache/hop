@@ -27,6 +27,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -87,7 +88,8 @@ public abstract class SalesforceTransformMeta<
   @HopMetadataProperty(
       key = "salesforce_connection",
       injectionKey = "SALESFORCE_CONNECTION",
-      injectionKeyDescription = "SalesforceInputMeta.Injection.SALESFORCE_CONNECTION")
+      injectionKeyDescription = "SalesforceInputMeta.Injection.SALESFORCE_CONNECTION",
+      hopMetadataPropertyType = HopMetadataPropertyType.SALESFORCE_CONNECTION)
   private String salesforceConnection;
 
   @Override

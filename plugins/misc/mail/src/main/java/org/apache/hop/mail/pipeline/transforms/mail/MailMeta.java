@@ -32,6 +32,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mail.workflow.actions.mail.MailEmbeddedImageField;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -92,7 +93,8 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
 
   @HopMetadataProperty private String sourcewildcard;
 
-  @HopMetadataProperty private String connectionName;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.MAIL_SERVER_CONNECTION)
+  private String connectionName;
 
   @HopMetadataProperty(key = "contact_person")
   private String contactPerson;

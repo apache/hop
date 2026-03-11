@@ -40,7 +40,7 @@ class ActionColumnsExistTest {
         ActionSerializationTestUtil.testSerialization(
             "/columns-exist-action.xml", ActionColumnsExist.class, provider);
 
-    Assertions.assertEquals("unit-test-db", action.getDatabaseMeta().getName());
+    Assertions.assertEquals("unit-test-db", action.getConnectionName());
     Assertions.assertEquals("SCHEMA", action.getSchemaName());
     Assertions.assertEquals("TABLE", action.getTableName());
     Assertions.assertEquals(2, action.getColumns().size());

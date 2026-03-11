@@ -17,16 +17,21 @@
 
 package org.apache.hop.pipeline.engines.remote;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import org.apache.hop.server.HopServerMeta;
 
 @GuiPlugin(description = "Remote pipeline run configuration widgets")
+@Getter
+@Setter
 public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguration
     implements IPipelineEngineRunConfiguration {
 
@@ -37,7 +42,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.HopServer.Label",
       metadata = HopServerMeta.class)
-  @HopMetadataProperty(key = "hop_server")
+  @HopMetadataProperty(
+      key = "hop_server",
+      hopMetadataPropertyType = HopMetadataPropertyType.SERVER_DEFINITION)
   protected String hopServerName;
 
   @GuiWidgetElement(
@@ -47,7 +54,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
       label =
           "i18n:org.apache.hop.ui.pipeline.config:PipelineRunConfigurationDialog.RunConfiguration.Label",
       metadata = PipelineRunConfiguration.class)
-  @HopMetadataProperty(key = "run_config")
+  @HopMetadataProperty(
+      key = "run_config",
+      hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG)
   protected String runConfigurationName;
 
   @GuiWidgetElement(
@@ -119,117 +128,5 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
   @Override
   public RemotePipelineRunConfiguration clone() {
     return new RemotePipelineRunConfiguration(this);
-  }
-
-  /**
-   * Gets hopServerName
-   *
-   * @return value of hopServerName
-   */
-  public String getHopServerName() {
-    return hopServerName;
-  }
-
-  /**
-   * @param hopServerName The hopServerName to set
-   */
-  public void setHopServerName(String hopServerName) {
-    this.hopServerName = hopServerName;
-  }
-
-  /**
-   * Gets runConfigurationName
-   *
-   * @return value of runConfigurationName
-   */
-  public String getRunConfigurationName() {
-    return runConfigurationName;
-  }
-
-  /**
-   * @param runConfigurationName The runConfigurationName to set
-   */
-  public void setRunConfigurationName(String runConfigurationName) {
-    this.runConfigurationName = runConfigurationName;
-  }
-
-  /**
-   * Gets serverPollDelay
-   *
-   * @return value of serverPollDelay
-   */
-  public String getServerPollDelay() {
-    return serverPollDelay;
-  }
-
-  /**
-   * @param serverPollDelay The serverPollDelay to set
-   */
-  public void setServerPollDelay(String serverPollDelay) {
-    this.serverPollDelay = serverPollDelay;
-  }
-
-  /**
-   * Gets serverPollInterval
-   *
-   * @return value of serverPollInterval
-   */
-  public String getServerPollInterval() {
-    return serverPollInterval;
-  }
-
-  /**
-   * @param serverPollInterval The serverPollInterval to set
-   */
-  public void setServerPollInterval(String serverPollInterval) {
-    this.serverPollInterval = serverPollInterval;
-  }
-
-  /**
-   * Gets exportingResources
-   *
-   * @return value of exportingResources
-   */
-  public boolean isExportingResources() {
-    return exportingResources;
-  }
-
-  /**
-   * @param exportingResources The exportingResources to set
-   */
-  public void setExportingResources(boolean exportingResources) {
-    this.exportingResources = exportingResources;
-  }
-
-  /**
-   * Gets namedResourcesSourceFolder
-   *
-   * @return value of namedResourcesSourceFolder
-   */
-  public String getNamedResourcesSourceFolder() {
-    return namedResourcesSourceFolder;
-  }
-
-  /**
-   * @param namedResourcesSourceFolder The namedResourcesSourceFolder to set
-   */
-  public void setNamedResourcesSourceFolder(String namedResourcesSourceFolder) {
-    this.namedResourcesSourceFolder = namedResourcesSourceFolder;
-  }
-
-  /**
-   * Gets namedResourcesTargetFolder
-   *
-   * @return value of namedResourcesTargetFolder
-   */
-  public String getNamedResourcesTargetFolder() {
-    return namedResourcesTargetFolder;
-  }
-
-  /**
-   * @param namedResourcesTargetFolder The namedResourcesTargetFolder to set
-   */
-  public void setNamedResourcesTargetFolder(String namedResourcesTargetFolder) {
-    this.namedResourcesTargetFolder = namedResourcesTargetFolder;
   }
 }

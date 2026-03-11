@@ -220,6 +220,14 @@ public class MetadataManager<T extends IHopMetadata> {
   }
 
   public void editWithEditor(String name) {
+    editWithEditorAtIndex(name, -1);
+  }
+
+  /**
+   * Like {@link #editWithEditor(String)} but inserts the new tab at {@code tabIndex} instead of
+   * appending it. Pass {@code -1} to append at the end (same as {@link #editWithEditor}).
+   */
+  public void editWithEditorAtIndex(String name, int tabIndex) {
     if (name == null) {
       return;
     }
@@ -246,7 +254,7 @@ public class MetadataManager<T extends IHopMetadata> {
 
         initializeElementVariables(element);
 
-        perspective.addEditor(createEditor(element));
+        perspective.addEditor(createEditor(element), tabIndex);
       } else {
         perspective.setActiveEditor(editor);
       }

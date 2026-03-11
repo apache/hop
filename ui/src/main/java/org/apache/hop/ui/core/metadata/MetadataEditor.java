@@ -57,7 +57,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
   private static final Class<?> PKG = MetadataEditorDialog.class;
 
   @Getter protected HopGui hopGui;
-  protected MetadataManager<T> manager;
+  @Getter protected MetadataManager<T> manager;
   protected T metadata;
 
   protected String title;
@@ -317,6 +317,10 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
       if (serializer.exists(originalName)) {
         serializer.delete(originalName);
       }
+      // Run global replace in pipelines/workflows if supported (same logic as rename from tree)
+      String objectKey = manager.getManagedClass().getAnnotation(HopMetadata.class).key();
+      MetadataPerspective.getInstance()
+          .performGlobalReplaceIfSupported(objectKey, originalName, name);
       this.originalName = metadata.getName();
     }
 

@@ -44,6 +44,7 @@ import org.apache.hop.execution.IExecutionMatcher;
 import org.apache.hop.execution.IExecutionSelector;
 import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.www.GetExecutionInfoServlet;
@@ -71,7 +72,9 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       metadata = HopServerMeta.class,
       toolTip = "i18n::RemoteExecutionInfoLocation.HopServer.Tooltip",
       label = "i18n::RemoteExecutionInfoLocation.HopServer.Label")
-  @HopMetadataProperty(key = "server")
+  @HopMetadataProperty(
+      key = "server",
+      hopMetadataPropertyType = HopMetadataPropertyType.SERVER_DEFINITION)
   protected String serverName;
 
   @GuiWidgetElement(

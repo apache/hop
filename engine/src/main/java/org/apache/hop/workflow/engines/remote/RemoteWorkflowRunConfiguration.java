@@ -21,6 +21,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -37,7 +38,9 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.HopServer.Label",
       metadata = HopServerMeta.class)
-  @HopMetadataProperty(key = "hop_server")
+  @HopMetadataProperty(
+      key = "hop_server",
+      hopMetadataPropertyType = HopMetadataPropertyType.SERVER_DEFINITION)
   protected String hopServerName;
 
   @GuiWidgetElement(
@@ -47,7 +50,9 @@ public class RemoteWorkflowRunConfiguration extends EmptyWorkflowRunConfiguratio
       label =
           "i18n:org.apache.hop.ui.workflow.config:WorkflowRunConfigurationDialog.RunConfiguration.Label",
       metadata = WorkflowRunConfiguration.class)
-  @HopMetadataProperty(key = "run_config")
+  @HopMetadataProperty(
+      key = "run_config",
+      hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG)
   protected String runConfigurationName;
 
   @GuiWidgetElement(

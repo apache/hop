@@ -37,6 +37,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mail.workflow.actions.getpop.MailConnectionMeta;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -170,7 +171,9 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   @HopMetadataProperty(key = "rowlimit")
   private String rowLimit;
 
-  @HopMetadataProperty(key = "connection_name")
+  @HopMetadataProperty(
+      key = "connection_name",
+      hopMetadataPropertyType = HopMetadataPropertyType.MAIL_SERVER_CONNECTION)
   private String connectionName;
 
   /** The fields ... */

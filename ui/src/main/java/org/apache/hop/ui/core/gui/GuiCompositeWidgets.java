@@ -887,6 +887,15 @@ public class GuiCompositeWidgets {
             break;
           case METADATA:
             MetaSelectionLine line = (MetaSelectionLine) control;
+            try {
+              line.fillItems();
+            } catch (Exception e) {
+              LogChannel.UI.logError(
+                  "Unable to fill items for metadata widget '"
+                      + guiElements.getFieldName()
+                      + "': "
+                      + e.getMessage());
+            }
             line.setText(stringValue);
             break;
           case BUTTON, LINK:

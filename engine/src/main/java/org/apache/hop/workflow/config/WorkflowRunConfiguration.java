@@ -31,7 +31,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     description = "i18n::WorkflowRunConfiguration.description",
     image = "ui/images/workflow_run_config.svg",
     documentationUrl = "/metadata-types/workflow-run-config.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG)
+    hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG,
+    supportsGlobalReplace = true)
 public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =
@@ -39,9 +40,11 @@ public class WorkflowRunConfiguration extends HopMetadataBase implements Cloneab
 
   @HopMetadataProperty private String description;
 
-  @HopMetadataProperty private IWorkflowEngineRunConfiguration engineRunConfiguration;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG)
+  private IWorkflowEngineRunConfiguration engineRunConfiguration;
 
-  @HopMetadataProperty private String executionInfoLocationName;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_LOCATION)
+  private String executionInfoLocationName;
 
   @HopMetadataProperty protected boolean defaultSelection;
 

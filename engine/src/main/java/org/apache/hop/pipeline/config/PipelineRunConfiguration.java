@@ -37,7 +37,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
     description = "i18n::PipelineRunConfiguration.description",
     image = "ui/images/pipeline_run_config.svg",
     documentationUrl = "/metadata-types/pipeline-run-config.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG)
+    hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_RUN_CONFIG,
+    supportsGlobalReplace = true)
 public class PipelineRunConfiguration extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID =
@@ -46,14 +47,17 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   @HopMetadataProperty private String description;
 
   /** The name of the location to send execution information to */
-  @HopMetadataProperty private String executionInfoLocationName;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_LOCATION)
+  private String executionInfoLocationName;
 
   @HopMetadataProperty private List<DescribedVariable> configurationVariables;
 
   @HopMetadataProperty private IPipelineEngineRunConfiguration engineRunConfiguration;
 
   /** The name of an {@link ExecutionDataProfile} */
-  @HopMetadataProperty(key = "dataProfile")
+  @HopMetadataProperty(
+      key = "dataProfile",
+      hopMetadataPropertyType = HopMetadataPropertyType.EXEC_INFO_DATA_PROFILE)
   protected String executionDataProfileName;
 
   @HopMetadataProperty protected boolean defaultSelection;

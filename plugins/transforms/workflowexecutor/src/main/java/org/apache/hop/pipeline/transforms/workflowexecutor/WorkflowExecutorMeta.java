@@ -84,7 +84,9 @@ public class WorkflowExecutorMeta
   private static final Class<?> PKG = WorkflowExecutorMeta.class;
 
   /** The name of the workflow run configuration to execute with */
-  @HopMetadataProperty(key = "run_configuration")
+  @HopMetadataProperty(
+      key = "run_configuration",
+      hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_RUN_CONFIG)
   private String runConfigurationName;
 
   @HopMetadataProperty(

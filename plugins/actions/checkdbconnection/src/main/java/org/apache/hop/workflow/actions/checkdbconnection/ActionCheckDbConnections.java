@@ -35,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -55,6 +56,8 @@ import org.apache.hop.workflow.action.IAction;
     keywords = "i18n::ActionCheckDbConnections.keyword",
     documentationUrl = "/workflow/actions/checkdbconnection.html",
     actionTransformTypes = {ActionTransformType.ENV_CHECK, ActionTransformType.RDBMS})
+@Getter
+@Setter
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckDbConnections.class;
 
@@ -310,7 +313,9 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
   @Getter
   @Setter
   public static final class CDConnection {
-    @HopMetadataProperty(key = "name")
+    @HopMetadataProperty(
+        key = "name",
+        hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
     private String name;
 
     @HopMetadataProperty(key = "waitfor")
@@ -330,23 +335,5 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
       this.waitTime = c.waitTime;
       this.waitTimeUnit = c.waitTimeUnit;
     }
-  }
-
-  /**
-   * Gets connections
-   *
-   * @return value of connections
-   */
-  public List<CDConnection> getConnections() {
-    return connections;
-  }
-
-  /**
-   * Sets connections
-   *
-   * @param connections value of connections
-   */
-  public void setConnections(List<CDConnection> connections) {
-    this.connections = connections;
   }
 }

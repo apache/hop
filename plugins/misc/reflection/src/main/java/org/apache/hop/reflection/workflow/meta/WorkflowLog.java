@@ -37,12 +37,17 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
   @HopMetadataProperty private boolean loggingParentsOnly;
-  @HopMetadataProperty private String pipelineFilename;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  private String pipelineFilename;
+
   @HopMetadataProperty private boolean executingAtStart;
   @HopMetadataProperty private boolean executingPeriodically;
   @HopMetadataProperty private String intervalInSeconds;
   @HopMetadataProperty private boolean executingAtEnd;
-  @HopMetadataProperty private List<String> workflowToLog;
+
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.WORKFLOW_FILE)
+  private List<String> workflowToLog;
 
   public WorkflowLog() {
     enabled = true;

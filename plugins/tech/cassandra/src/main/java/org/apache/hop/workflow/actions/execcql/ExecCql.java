@@ -42,6 +42,7 @@ import org.apache.hop.databases.cassandra.datastax.DriverCqlRowHandler;
 import org.apache.hop.databases.cassandra.datastax.TableMetaData;
 import org.apache.hop.databases.cassandra.metadata.CassandraConnection;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -58,7 +59,9 @@ import org.apache.hop.workflow.action.IAction;
 @Setter
 public class ExecCql extends ActionBase implements IAction {
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.CASSANDRA_CONNECTION)
   private String connectionName;
 
   @HopMetadataProperty(key = "script")

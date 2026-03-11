@@ -19,10 +19,12 @@ package org.apache.hop.reflection.pipeline.meta;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class PipelineToLogLocation {
 
-  @HopMetadataProperty private String pipelineToLogFilename;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_FILE)
+  private String pipelineToLogFilename;
 
   public PipelineToLogLocation() {}
 

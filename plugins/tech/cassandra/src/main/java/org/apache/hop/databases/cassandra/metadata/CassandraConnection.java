@@ -43,7 +43,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
     description = "i18n::CassandraConnection.description",
     image = "Cassandra_logo.svg",
     documentationUrl = "/metadata-types/cassandra/cassandra-connection.html",
-    hopMetadataPropertyType = HopMetadataPropertyType.CASSANDRA_CONNECTION)
+    hopMetadataPropertyType = HopMetadataPropertyType.CASSANDRA_CONNECTION,
+    supportsGlobalReplace = true)
 public class CassandraConnection extends HopMetadataBase implements IHopMetadata {
 
   public static final String WIDGET_ID_HOSTNAME = "10000-hostname";

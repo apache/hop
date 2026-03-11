@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -41,7 +42,8 @@ import org.apache.hop.testing.DataSet;
     keywords = "i18n::DataSetInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/datasetinput.html")
 public class DataSetInputMeta extends BaseTransformMeta<DataSetInput, DataSetInputData> {
-  @HopMetadataProperty private String dataSetName;
+  @HopMetadataProperty(hopMetadataPropertyType = HopMetadataPropertyType.PIPELINE_DATA_SET)
+  private String dataSetName;
 
   public DataSetInputMeta() {
     super();
