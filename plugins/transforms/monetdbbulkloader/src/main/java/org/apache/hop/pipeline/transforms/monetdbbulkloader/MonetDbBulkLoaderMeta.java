@@ -16,7 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -27,23 +30,20 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.databases.monetdb.MonetDBDatabaseMeta;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "MonetDBBulkLoader",
@@ -56,53 +56,69 @@ import org.w3c.dom.Node;
     isIncludeJdbcDrivers = true,
     classLoaderGroup = "monetdb",
     actionTransformTypes = {ActionTransformType.RDBMS, ActionTransformType.OUTPUT})
-@InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
+@Getter
+@Setter
 public class MonetDbBulkLoaderMeta
     extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
       MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
   public static final String CONST_SPACES = "        ";
 
+  /** Inline class representing a single field mapping from stream to table column. */
+  @Getter
+  @Setter
+  public static class MonetDbField {
+    @HopMetadataProperty(key = "stream_name", injectionKey = "TARGETFIELDS")
+    private String fieldTable;
+
+    @HopMetadataProperty(key = "field_name", injectionKey = "SOURCEFIELDS")
+    private String fieldStream;
+
+    @HopMetadataProperty(key = "field_format_ok", injectionKey = "FIELDFORMATOK")
+    private boolean fieldFormatOk;
+
+    public MonetDbField() {}
+
+    public MonetDbField(String fieldTable, String fieldStream, boolean fieldFormatOk) {
+      this.fieldTable = fieldTable;
+      this.fieldStream = fieldStream;
+      this.fieldFormatOk = fieldFormatOk;
+    }
+  }
+
   /** The database connection name * */
-  @Injection(name = "CONNECTIONNAME")
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKey = "CONNECTIONNAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String dbConnectionName;
 
   /** what's the schema for the target? */
-  @Injection(name = "SCHEMANAME")
+  @HopMetadataProperty(key = "schema", injectionKey = "SCHEMANAME")
   private String schemaName;
 
   /** what's the table for the target? */
-  @Injection(name = "TABLENAME")
+  @HopMetadataProperty(key = "table", injectionKey = "SCHEMANAME")
   private String tableName;
 
   /** Path to the log file */
-  @Injection(name = "LOGFILE")
+  @HopMetadataProperty(key = "log_file", injectionKey = "LOGFILE")
   private String logFile;
 
-  /** database connection */
-  private DatabaseMeta databaseMeta;
-
-  /** Field name of the target table */
-  @Injection(name = "TARGETFIELDS")
-  private String[] fieldTable;
-
-  /** Field name in the stream */
-  @Injection(name = "SOURCEFIELDS")
-  private String[] fieldStream;
-
-  /** flag to indicate that the format is OK for MonetDB */
-  @Injection(name = "FIELDFORMATOK")
-  private boolean[] fieldFormatOk;
+  @HopMetadataProperty(
+      key = "mapping",
+      inlineListTags = {"stream_name", "field_name", "field_format_ok"})
+  private List<MonetDbField> fields;
 
   /** Field separator character or string used to delimit fields */
-  @Injection(name = "SEPARATOR")
+  @HopMetadataProperty(key = "field_separator", injectionKey = "SEPARATOR")
   private String fieldSeparator;
 
   /**
    * Specifies which character surrounds each field's data. i.e. double quotes, single quotes or
    * something else
    */
-  @Injection(name = "FIELDENCLOSURE")
+  @HopMetadataProperty(key = "field_enclosure", injectionKey = "FIELDENCLOSURE")
   private String fieldEnclosure;
 
   /**
@@ -110,19 +126,19 @@ public class MonetDbBulkLoaderMeta
    * something else the value is written out as text to the API and MonetDB is able to interpret it
    * to the correct representation of NULL in the database for the given column type.
    */
-  @Injection(name = "NULLVALUE")
+  @HopMetadataProperty(key = "null_representation", injectionKey = "NULLVALUE")
   private String nullRepresentation;
 
   /** Encoding to use */
-  @Injection(name = "ENCODING")
+  @HopMetadataProperty(key = "encoding", injectionKey = "ENCODING")
   private String encoding;
 
   /** Truncate table? */
-  @Injection(name = "TRUNCATE")
+  @HopMetadataProperty(key = "truncate", injectionKey = "TRUNCATE")
   private boolean truncate = false;
 
   /** Fully Quote SQL used in the transform? */
-  @Injection(name = "QUOTEFIELDS")
+  @HopMetadataProperty(key = "fully_quote_sql", injectionKey = "QUOTEFIELDS")
   private boolean fullyQuoteSQL;
 
   /** Auto adjust the table structure? */
@@ -131,38 +147,11 @@ public class MonetDbBulkLoaderMeta
   /** Auto adjust strings that are too long? */
   private boolean autoStringWidths = false;
 
-  public boolean isAutoStringWidths() {
-    return autoStringWidths;
-  }
-
-  public boolean isTruncate() {
-    return truncate;
-  }
-
-  public void setTruncate(boolean truncate) {
-    this.truncate = truncate;
-  }
-
-  public boolean isFullyQuoteSQL() {
-    return fullyQuoteSQL;
-  }
-
-  public void setFullyQuoteSQL(boolean fullyQuoteSQLbool) {
-    this.fullyQuoteSQL = fullyQuoteSQLbool;
-  }
-
-  public boolean isAutoSchema() {
-    return autoSchema;
-  }
-
-  public void setAutoSchema(boolean autoSchema) {
-    this.autoSchema = autoSchema;
-  }
-
   /**
    * The number of rows to buffer before passing them over to MonetDB. This number should be
    * non-zero since we need to specify the number of rows we pass.
    */
+  @HopMetadataProperty(key = "buffer_size")
   private String bufferSize;
 
   /**
@@ -172,215 +161,19 @@ public class MonetDbBulkLoaderMeta
    */
   private boolean compatibilityDbVersionMode = false;
 
-  /**
-   * @return Returns the database.
-   */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /**
-   * @return Returns the database.
-   */
-  public DatabaseMeta getDatabaseMeta(MonetDbBulkLoader loader) {
-    return databaseMeta;
-  }
-
-  /**
-   * @param database The database to set.
-   */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
-  }
-
-  /**
-   * @return Returns the tableName.
-   */
-  public String getTableName() {
-    return tableName;
-  }
-
-  /**
-   * @param tableName The tableName to set.
-   */
-  public void setTableName(String tableName) {
-    this.tableName = tableName;
-  }
-
-  /**
-   * @return Returns the fieldTable.
-   */
-  public String[] getFieldTable() {
-    return fieldTable;
-  }
-
-  /**
-   * @param fieldTable The fieldTable to set.
-   */
-  public void setFieldTable(String[] fieldTable) {
-    this.fieldTable = fieldTable;
-  }
-
-  /**
-   * @return Returns the fieldStream.
-   */
-  public String[] getFieldStream() {
-    return fieldStream;
-  }
-
-  /**
-   * @param fieldStream The fieldStream to set.
-   */
-  public void setFieldStream(String[] fieldStream) {
-    this.fieldStream = fieldStream;
-  }
-
-  /**
-   * @deprecated
-   * @param transformNode xml for the transform
-   * @param metadataProvider containing variables
-   * @throws HopXmlException when unable to parse xml
-   */
-  @Override
-  @Deprecated(since = "2.14")
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  public void allocate(int nrvalues) {
-    fieldTable = new String[nrvalues];
-    fieldStream = new String[nrvalues];
-    fieldFormatOk = new boolean[nrvalues];
-  }
-
-  @Override
-  public Object clone() {
-    MonetDbBulkLoaderMeta retval = (MonetDbBulkLoaderMeta) super.clone();
-    int nrvalues = fieldTable.length;
-
-    retval.allocate(nrvalues);
-
-    System.arraycopy(fieldTable, 0, retval.fieldTable, 0, nrvalues);
-    System.arraycopy(fieldStream, 0, retval.fieldStream, 0, nrvalues);
-    System.arraycopy(fieldFormatOk, 0, retval.fieldFormatOk, 0, nrvalues);
-    return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      dbConnectionName = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, dbConnectionName);
-
-      schemaName = XmlHandler.getTagValue(transformNode, "schema");
-      tableName = XmlHandler.getTagValue(transformNode, "table");
-      bufferSize = XmlHandler.getTagValue(transformNode, "buffer_size");
-      logFile = XmlHandler.getTagValue(transformNode, "log_file");
-      truncate = "Y".equals(XmlHandler.getTagValue(transformNode, "truncate"));
-
-      // New in January 2013 Updates - For compatibility we set default values according to the old
-      // version of the transform.
-      //
-
-      // This expression will only be true if a yes answer was previously recorded.
-      fullyQuoteSQL = "Y".equals(XmlHandler.getTagValue(transformNode, "fully_quote_sql"));
-
-      fieldSeparator = XmlHandler.getTagValue(transformNode, "field_separator");
-      if (fieldSeparator == null) {
-        fieldSeparator = "|";
-      }
-      fieldEnclosure = XmlHandler.getTagValue(transformNode, "field_enclosure");
-      if (fieldEnclosure == null) {
-        fieldEnclosure = "\"";
-      }
-      nullRepresentation = XmlHandler.getTagValue(transformNode, "null_representation");
-      if (nullRepresentation == null) {
-        nullRepresentation = "null";
-      }
-      encoding = XmlHandler.getTagValue(transformNode, "encoding");
-      if (encoding == null) {
-        encoding = "UTF-8";
-      }
-
-      int nrvalues = XmlHandler.countNodes(transformNode, "mapping");
-      allocate(nrvalues);
-
-      for (int i = 0; i < nrvalues; i++) {
-        Node vnode = XmlHandler.getSubNodeByNr(transformNode, "mapping", i);
-
-        fieldTable[i] = XmlHandler.getTagValue(vnode, "stream_name");
-        fieldStream[i] = XmlHandler.getTagValue(vnode, "field_name");
-        if (fieldStream[i] == null) {
-          fieldStream[i] = fieldTable[i]; // default: the same name!
-        }
-        fieldFormatOk[i] = "Y".equalsIgnoreCase(XmlHandler.getTagValue(vnode, "field_format_ok"));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "MonetDBBulkLoaderMeta.Exception.UnableToReadTransformInfoFromXML"),
-          e);
-    }
-  }
-
   @Override
   public void setDefault() {
-    fieldTable = null;
-    databaseMeta = null;
+    fields = new ArrayList<>();
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "MonetDBBulkLoaderMeta.DefaultTableName");
     bufferSize = "100000";
     logFile = "";
     truncate = false;
     fullyQuoteSQL = true;
-
-    // MonetDB safe defaults.
     fieldSeparator = "|";
     fieldEnclosure = "\"";
     nullRepresentation = "";
     encoding = "UTF-8";
-    allocate(0);
-  }
-
-  /**
-   * @deprecated
-   * @return the XML to store the transform
-   */
-  @Override
-  @Deprecated(since = "2.14")
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    // General Settings Tab
-    retval.append("    ").append(XmlHandler.addTagValue("connection", dbConnectionName));
-    retval.append("    ").append(XmlHandler.addTagValue("buffer_size", bufferSize));
-    retval.append("    ").append(XmlHandler.addTagValue("schema", schemaName));
-    retval.append("    ").append(XmlHandler.addTagValue("table", tableName));
-    retval.append("    ").append(XmlHandler.addTagValue("log_file", logFile));
-    retval.append("    ").append(XmlHandler.addTagValue("truncate", truncate));
-    retval.append("    ").append(XmlHandler.addTagValue("fully_quote_sql", fullyQuoteSQL));
-
-    // MonetDB Settings Tab
-    retval.append("    ").append(XmlHandler.addTagValue("field_separator", fieldSeparator));
-    retval.append("    ").append(XmlHandler.addTagValue("field_enclosure", fieldEnclosure));
-    retval.append("    ").append(XmlHandler.addTagValue("null_representation", nullRepresentation));
-    retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
-
-    // Output Fields Tab
-    for (int i = 0; i < fieldTable.length; i++) {
-      Boolean fieldFormat = false;
-      if (fieldFormatOk.length == fieldTable.length) {
-        fieldFormat = fieldFormatOk[i];
-      }
-      retval.append("      <mapping>").append(Const.CR);
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("stream_name", fieldTable[i]));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("field_name", fieldStream[i]));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("field_format_ok", fieldFormat));
-      retval.append("      </mapping>").append(Const.CR);
-    }
-
-    return retval.toString();
   }
 
   @Override
@@ -408,6 +201,25 @@ public class MonetDbBulkLoaderMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     StringBuilder erroMessage = new StringBuilder();
+
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider
+              .getSerializer(DatabaseMeta.class)
+              .load(variables.resolve(dbConnectionName));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG,
+                  "TableInputMeta.CheckResult.DatabaseMetaError",
+                  variables.resolve(dbConnectionName)),
+              transformMeta);
+      remarks.add(cr);
+    }
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -441,8 +253,8 @@ public class MonetDbBulkLoaderMeta
             first = true;
             errorFound = false;
 
-            for (String field : fieldTable) {
-              IValueMeta v = r.searchValueMeta(field);
+            for (MonetDbField field : fields) {
+              IValueMeta v = r.searchValueMeta(field.fieldTable);
               if (v == null) {
                 if (first) {
                   first = false;
@@ -496,8 +308,8 @@ public class MonetDbBulkLoaderMeta
           erroMessage.setLength(0);
           boolean errorFound = false;
 
-          for (String s : fieldStream) {
-            IValueMeta v = prev.searchValueMeta(s);
+          for (MonetDbField s : fields) {
+            IValueMeta v = prev.searchValueMeta(s.fieldStream);
             if (v == null) {
               if (first) {
                 first = false;
@@ -608,21 +420,16 @@ public class MonetDbBulkLoaderMeta
   public IRowMeta updateFields(IRowMeta prev, MonetDbBulkLoaderData data) {
     // update the field table from the fields coming from the previous transforms
     IRowMeta tableFields = new RowMeta();
-    List<IValueMeta> fields = prev.getValueMetaList();
-    fieldTable = new String[fields.size()];
-    fieldStream = new String[fields.size()];
-    fieldFormatOk = new boolean[fields.size()];
+    List<IValueMeta> prevFields = prev.getValueMetaList();
     int idx = 0;
-    for (IValueMeta field : fields) {
+    for (IValueMeta field : prevFields) {
       IValueMeta tableField = field.clone();
       tableFields.addValueMeta(tableField);
-      fieldTable[idx] = field.getName();
-      fieldStream[idx] = field.getName();
-      fieldFormatOk[idx] = true;
+      fields.add(new MonetDbField(field.getName(), field.getName(), true));
       idx++;
     }
 
-    data.keynrs = new int[getFieldStream().length];
+    data.keynrs = new int[fields.size()];
     for (int i = 0; i < data.keynrs.length; i++) {
       data.keynrs[i] = i;
     }
@@ -636,6 +443,9 @@ public class MonetDbBulkLoaderMeta
       boolean autoSchema,
       MonetDbBulkLoaderData data,
       boolean safeMode) {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(dbConnectionName, variables);
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
@@ -649,11 +459,11 @@ public class MonetDbBulkLoaderMeta
         } else {
           tableFields = new RowMeta();
           // Now change the field names
-          for (int i = 0; i < fieldTable.length; i++) {
-            IValueMeta v = prev.searchValueMeta(fieldStream[i]);
+          for (int i = 0; i < fields.size(); i++) {
+            IValueMeta v = prev.searchValueMeta(fields.get(i).fieldStream);
             if (v != null) {
               IValueMeta tableField = v.clone();
-              tableField.setName(fieldTable[i]);
+              tableField.setName(fields.get(i).fieldTable);
               tableFields.addValueMeta(tableField);
             }
           }
@@ -712,11 +522,14 @@ public class MonetDbBulkLoaderMeta
       IRowMeta info,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(dbConnectionName, variables);
+
     if (prev != null) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
-      for (int i = 0; i < fieldTable.length; i++) {
-        IValueMeta v = prev.searchValueMeta(fieldStream[i]);
+      for (MonetDbField field : fields) {
+        IValueMeta v = prev.searchValueMeta(field.fieldStream);
 
         DatabaseImpact ii =
             new DatabaseImpact(
@@ -725,8 +538,8 @@ public class MonetDbBulkLoaderMeta
                 transformMeta.getName(),
                 databaseMeta.getDatabaseName(),
                 variables.resolve(tableName),
-                fieldTable[i],
-                fieldStream[i],
+                field.fieldTable,
+                field.fieldStream,
                 v != null ? v.getOrigin() : "?",
                 "",
                 "Type = " + v.toStringMeta());
@@ -739,6 +552,9 @@ public class MonetDbBulkLoaderMeta
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(dbConnectionName, variables);
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -774,109 +590,16 @@ public class MonetDbBulkLoaderMeta
   }
 
   /**
-   * @return the schemaName
-   */
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  /**
-   * @param schemaName the schemaName to set
-   */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
-  public String getLogFile() {
-    return logFile;
-  }
-
-  public void setLogFile(String logFile) {
-    this.logFile = logFile;
-  }
-
-  public String getFieldSeparator() {
-    return fieldSeparator;
-  }
-
-  public void setFieldSeparator(String fieldSeparatorStr) {
-    this.fieldSeparator = fieldSeparatorStr;
-  }
-
-  public String getFieldEnclosure() {
-    return fieldEnclosure;
-  }
-
-  public void setFieldEnclosure(String fieldEnclosureStr) {
-    this.fieldEnclosure = fieldEnclosureStr;
-  }
-
-  public String getNullRepresentation() {
-    return nullRepresentation;
-  }
-
-  public void setNullRepresentation(String nullRepresentationString) {
-    this.nullRepresentation = nullRepresentationString;
-  }
-
-  public String getEncoding() {
-    return encoding;
-  }
-
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  /**
-   * @return the bufferSize
-   */
-  public String getBufferSize() {
-    return bufferSize;
-  }
-
-  /**
-   * @param bufferSize the bufferSize to set
-   */
-  public void setBufferSize(String bufferSize) {
-    this.bufferSize = bufferSize;
-  }
-
-  /**
-   * @return the fieldFormatOk
-   */
-  public boolean[] getFieldFormatOk() {
-    return fieldFormatOk;
-  }
-
-  /**
-   * @param fieldFormatOk the fieldFormatOk to set
-   */
-  public void setFieldFormatOk(boolean[] fieldFormatOk) {
-    this.fieldFormatOk = fieldFormatOk;
-  }
-
-  /**
-   * @param dbConnectionName connection name to set
-   */
-  public void setDbConnectionName(String dbConnectionName) {
-    this.dbConnectionName = dbConnectionName;
-  }
-
-  /**
-   * @return the database connection name
-   */
-  public String getDbConnectionName() {
-    return this.dbConnectionName;
-  }
-
-  /**
    * Returns the version of MonetDB that is used.
    *
    * @return The version of MonetDB
    * @throws HopException if an error occurs
    */
   private MonetDbVersion getMonetDBVersion(IVariables variables) throws HopException {
-    Database db = null;
+    Database db;
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(dbConnectionName, variables);
 
     db = new Database(loggingObject, variables, databaseMeta);
     try {

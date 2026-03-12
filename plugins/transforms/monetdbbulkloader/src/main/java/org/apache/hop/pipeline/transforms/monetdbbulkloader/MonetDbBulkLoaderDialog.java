@@ -163,7 +163,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
     // Connection line
     //
     // Connection line
-    wConnection = addConnectionLine(shell, wSpacer, input.getDatabaseMeta(), lsMod);
+    wConnection = addConnectionLine(shell, wSpacer, input.getDbConnectionName(), lsMod);
 
     // //////////////////////////////////////////////
     // Prepare the Folder that will contain tabs. //
@@ -328,12 +328,13 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
     wFullyQuoteSQL = new Button(wGeneralSettingsComp, SWT.CHECK);
     PropsUi.setLook(wFullyQuoteSQL);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     SelectionAdapter lsFullyQuoteSQL =
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
-            input.getDatabaseMeta().setQuoteAllFields(wFullyQuoteSQL.getSelection());
+            databaseMeta.setQuoteAllFields(wFullyQuoteSQL.getSelection());
           }
         };
     wFullyQuoteSQL.addSelectionListener(lsFullyQuoteSQL);
@@ -408,7 +409,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
     PropsUi.setLook(wlReturn);
 
     int upInsCols = 3;
-    int upInsRows = (input.getFieldTable() != null ? input.getFieldTable().length : 1);
+    int upInsRows = (input.getFields() != null ? input.getFields().size() : 1);
 
     ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
@@ -784,21 +785,21 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
       logDebug(BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getFieldTable() != null) {
-      for (int i = 0; i < input.getFieldTable().length; i++) {
+    if (!input.getFields().isEmpty()) {
+      for (int i = 0; i < input.getFields().size(); i++) {
         TableItem item = wReturn.table.getItem(i);
-        if (input.getFieldTable()[i] != null) {
-          item.setText(1, input.getFieldTable()[i]);
+        if (input.getFields().get(i).getFieldTable() != null) {
+          item.setText(1, input.getFields().get(i).getFieldTable());
         }
-        if (input.getFieldStream()[i] != null) {
-          item.setText(2, input.getFieldStream()[i]);
+        if (input.getFields().get(i).getFieldStream() != null) {
+          item.setText(2, input.getFields().get(i).getFieldStream());
         }
-        item.setText(3, input.getFieldFormatOk()[i] ? "Y" : "N");
+        item.setText(3, input.getFields().get(i).isFieldFormatOk() ? "Y" : "N");
       }
     }
 
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getDbConnectionName() != null) {
+      wConnection.setText(input.getDbConnectionName());
     }
     // General Settings Tab values from transform meta-data configuration.
     if (input.getSchemaName() != null) {
@@ -855,24 +856,23 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
   protected void getInfo(MonetDbBulkLoaderMeta inf) {
     int nrfields = wReturn.nrNonEmpty();
 
-    inf.allocate(nrfields);
-
     if (log.isDebug()) {
       logDebug(
           BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Log.FoundFields", "" + nrfields));
     }
+    inf.getFields().clear();
 
     for (int i = 0; i < nrfields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
-      inf.getFieldTable()[i] = item.getText(1);
-      inf.getFieldStream()[i] = item.getText(2);
-      inf.getFieldFormatOk()[i] = "Y".equalsIgnoreCase(item.getText(3));
+      MonetDbBulkLoaderMeta.MonetDbField mf =
+          new MonetDbBulkLoaderMeta.MonetDbField(
+              item.getText(1), item.getText(2), "Y".equalsIgnoreCase(item.getText(3)));
+      inf.getFields().add(mf);
     }
     // General Settings Tab values from transform meta-data configuration.
     inf.setDbConnectionName(wConnection.getText());
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     inf.setBufferSize(wBufferSize.getText());
     inf.setLogFile(wLogFile.getText());
     inf.setTruncate(wTruncate.getSelection());
@@ -954,7 +954,6 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
       return;
     }
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
@@ -1118,17 +1117,13 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog {
 
       String name = transformName; // new name might not yet be linked to other transforms!
 
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
       SqlStatement sql = info.getTableDdl(variables, pipelineMeta, name, false, null, false);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
           SqlEditor sqledit =
               new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  info.getDatabaseMeta(),
-                  DbCache.getInstance(),
-                  sql.getSql());
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
