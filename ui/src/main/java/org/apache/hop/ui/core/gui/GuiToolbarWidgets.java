@@ -893,7 +893,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
   public void setToolbarItemToolTip(String id, String tooltip) {
     Control control = widgetsMap.get(id);
     ToolItem toolItem = toolItemMap.get(id);
-    if (control != null && !control.isDisposed()) {
+
+    // If it is a ToolBar, do not set a tooltip, as it will apply to all child items
+    if (control != null && !control.isDisposed() && !(control instanceof ToolBar)) {
       control.setToolTipText(Const.NVL(tooltip, ""));
     }
     if (toolItem != null && !toolItem.isDisposed()) {
