@@ -75,6 +75,8 @@ import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.IMetadataDropReceiver;
+import org.apache.hop.ui.hopgui.perspective.MetadataTransfer;
 import org.apache.hop.ui.hopgui.perspective.TabClosable;
 import org.apache.hop.ui.hopgui.perspective.TabCloseHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
@@ -89,13 +91,23 @@ import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -105,6 +117,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.Widget;
 
 @HopPerspectivePlugin(
     id = "200-HopMetadataPerspective",
@@ -115,7 +128,7 @@ import org.eclipse.swt.widgets.TreeItem;
 @GuiPlugin(
     name = "i18n::MetadataPerspective.Name",
     description = "i18n::MetadataPerspective.GuiPlugin.Description")
-public class MetadataPerspective implements IHopPerspective, TabClosable {
+public class MetadataPerspective implements IHopPerspective, TabClosable, IMetadataDropReceiver {
 
   public static final Class<?> PKG = MetadataPerspective.class; // i18n
   private static final String METADATA_PERSPECTIVE_TREE = "Metadata perspective tree";
@@ -372,6 +385,169 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
     // Remember tree node expanded/Collapsed
     TreeMemory.addTreeListener(tree, METADATA_PERSPECTIVE_TREE);
+
+    // Drag and drop: reorganize within tree (same type only) and drag to canvas to open
+    createTreeDragSource(tree);
+    createTreeDropTarget(tree);
+  }
+
+  /**
+   * Returns the metadata type key (objectKey) for the given tree item by walking up to the root
+   * class item.
+   */
+  private String getObjectKey(TreeItem item) {
+    TreeItem root = item;
+    while (root.getParentItem() != null) {
+      root = root.getParentItem();
+    }
+    return (String) root.getData();
+  }
+
+  private void createTreeDragSource(Tree tree) {
+    DragSource dragSource = new DragSource(tree, DND.DROP_MOVE);
+    dragSource.setTransfer(MetadataTransfer.INSTANCE);
+    dragSource.addDragListener(
+        new DragSourceAdapter() {
+          private Image dragImage;
+
+          @Override
+          public void dragStart(DragSourceEvent event) {
+            if (tree.getSelectionCount() != 1) {
+              event.doit = false;
+              return;
+            }
+            TreeItem item = tree.getSelection()[0];
+            if (item == null || !FILE.equals(item.getData(KEY_TYPE))) {
+              event.doit = false;
+              return;
+            }
+            if (dragImage != null) {
+              dragImage.dispose();
+              dragImage = null;
+            }
+            Rectangle bounds = item.getBounds();
+            if (bounds.width > 0 && bounds.height > 0) {
+              try {
+                dragImage = new Image(Display.getCurrent(), bounds.width, bounds.height);
+                GC gc = new GC(tree);
+                try {
+                  gc.copyArea(dragImage, bounds.x, bounds.y);
+                } finally {
+                  gc.dispose();
+                }
+                event.image = dragImage;
+              } catch (Exception e) {
+                LogChannel.GENERAL.logDebug("Could not create metadata drag image", e);
+              }
+            }
+          }
+
+          @Override
+          public void dragSetData(DragSourceEvent event) {
+            if (MetadataTransfer.INSTANCE.isSupportedType(event.dataType)) {
+              TreeItem item = tree.getSelection()[0];
+              String objectKey = getObjectKey(item);
+              String name = item.getText(0);
+              event.data = new String[] {objectKey, name};
+            }
+          }
+
+          @Override
+          public void dragFinished(DragSourceEvent event) {
+            if (dragImage != null) {
+              dragImage.dispose();
+              dragImage = null;
+            }
+          }
+        });
+  }
+
+  private void createTreeDropTarget(Tree tree) {
+    DropTarget dropTarget = new DropTarget(tree, DND.DROP_MOVE);
+    dropTarget.setTransfer(MetadataTransfer.INSTANCE);
+    dropTarget.addDropListener(
+        new DropTargetAdapter() {
+          @Override
+          public void dragOver(DropTargetEvent event) {
+            if (event.item == null) {
+              event.detail = DND.DROP_NONE;
+              return;
+            }
+            if (!MetadataTransfer.INSTANCE.isSupportedType(event.currentDataType)) {
+              return;
+            }
+            TreeItem targetItem = (TreeItem) event.item;
+            String targetType = (String) targetItem.getData(KEY_TYPE);
+            // Only allow drop on folder or on class root (MetadataItem); not on another file
+            if (FILE.equals(targetType)) {
+              event.detail = DND.DROP_NONE;
+              event.feedback = DND.FEEDBACK_NONE;
+              return;
+            }
+            // Same-type check is enforced in drop()
+            event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL | DND.FEEDBACK_EXPAND;
+            event.detail = DND.DROP_MOVE;
+          }
+
+          @Override
+          public void drop(DropTargetEvent event) {
+            if (!MetadataTransfer.INSTANCE.isSupportedType(event.currentDataType)
+                || event.data == null
+                || !(event.data instanceof String[])) {
+              return;
+            }
+            String[] payload = (String[]) event.data;
+            if (payload.length < 2) {
+              return;
+            }
+            String sourceObjectKey = payload[0];
+            String name = payload[1];
+            Widget item = event.item;
+            if (!(item instanceof TreeItem targetItem)) {
+              return;
+            }
+            String targetType = (String) targetItem.getData(KEY_TYPE);
+            if (FILE.equals(targetType)) {
+              return;
+            }
+            if (!sourceObjectKey.equals(getObjectKey(targetItem))) {
+              return;
+            }
+            String newVirtualPath =
+                FOLDER.equals(targetType) ? (String) targetItem.getData(VIRTUAL_PATH) : "";
+            try {
+              IHopMetadataProvider provider = hopGui.getMetadataProvider();
+              IHopMetadataSerializer<IHopMetadata> serializer =
+                  provider.getSerializer(provider.getMetadataClassForKey(sourceObjectKey));
+              IHopMetadata metadata = serializer.load(name);
+              metadata.setVirtualPath(Utils.isEmpty(newVirtualPath) ? "" : newVirtualPath);
+              serializer.save(metadata);
+              hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+              refresh();
+            } catch (Exception e) {
+              new ErrorDialog(
+                  getShell(),
+                  ERROR,
+                  BaseMessages.getString(PKG, "MetadataPerspective.DragDropMove.Error"),
+                  e);
+            }
+          }
+        });
+  }
+
+  @Override
+  public void openDroppedMetadata(String objectKey, String name) {
+    try {
+      MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
+      manager.editWithEditor(name);
+      hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(),
+          ERROR,
+          BaseMessages.getString(PKG, "MetadataPerspective.DragDropOpen.Error"),
+          e);
+    }
   }
 
   protected void createTabFolder(Composite parent) {
@@ -1208,6 +1384,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
           fileRefs.stream().mapToInt(MetadataReferenceResult::getReferenceCount).sum();
       int totalRefCount = fileRefCount + metadataRefs.size();
 
+      boolean confirmed;
       if (totalRefCount > 0) {
         List<String> detailLines = new ArrayList<>();
         for (MetadataReferenceResult r : fileRefs) {
@@ -1221,16 +1398,23 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                   r.getContainerMetadataKey(),
                   r.getContainerObjectName()));
         }
-        boolean confirmed =
+        confirmed =
             showDeleteWithReferencesDialog(
                 objectName, totalRefCount, fileRefs.size(), metadataRefs.size(), detailLines);
-        if (!confirmed) {
-          return;
-        }
+      } else {
+        MessageBox confirmBox = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+        confirmBox.setText(BaseMessages.getString(PKG, "MetadataPerspective.DeleteMetadata.Title"));
+        confirmBox.setMessage(
+            BaseMessages.getString(
+                PKG, "MetadataPerspective.DeleteMetadata.ConfirmNoRefs", objectName));
+        confirmed = (confirmBox.open() & SWT.YES) != 0;
+      }
+      if (!confirmed) {
+        return;
       }
 
       MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
-      manager.deleteMetadata(objectName);
+      manager.deleteMetadata(objectName, true);
 
       refresh();
       updateSelection();

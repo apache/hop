@@ -278,18 +278,32 @@ public class MetadataManager<T extends IHopMetadata> {
    * @return True if anything was deleted
    */
   public boolean deleteMetadata(String elementName) {
+    return deleteMetadata(elementName, false);
+  }
+
+  /**
+   * delete an element, optionally skipping the confirmation dialog (when the caller already
+   * confirmed, e.g. metadata perspective with reference check).
+   *
+   * @param elementName The name of the element to delete
+   * @param skipConfirmation When true, do not show the "Are you sure?" dialog
+   * @return True if anything was deleted
+   */
+  public boolean deleteMetadata(String elementName, boolean skipConfirmation) {
 
     if (StringUtils.isEmpty(elementName)) {
       return false;
     }
 
-    MessageBox confirmBox =
-        new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-    confirmBox.setText("Delete?");
-    confirmBox.setMessage("Are you sure you want to delete element " + elementName + "?");
-    int anwser = confirmBox.open();
-    if ((anwser & SWT.YES) == 0) {
-      return false;
+    if (!skipConfirmation) {
+      MessageBox confirmBox =
+          new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+      confirmBox.setText("Delete?");
+      confirmBox.setMessage("Are you sure you want to delete element " + elementName + "?");
+      int anwser = confirmBox.open();
+      if ((anwser & SWT.YES) == 0) {
+        return false;
+      }
     }
 
     try {

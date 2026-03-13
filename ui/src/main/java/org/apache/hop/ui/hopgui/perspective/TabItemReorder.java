@@ -116,7 +116,10 @@ public class TabItemReorder {
 
     DropTarget dropTarget = new DropTarget(folder, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
     dropTarget.setTransfer(
-        TabTransfer.INSTANCE, TextTransfer.getInstance(), FileTransfer.getInstance());
+        TabTransfer.INSTANCE,
+        TextTransfer.getInstance(),
+        FileTransfer.getInstance(),
+        MetadataTransfer.INSTANCE);
 
     // Paint a drop indicator (highlight) on the tab we're about to swap with
     Listener paintListener =
@@ -138,15 +141,20 @@ public class TabItemReorder {
     dropTarget.addDropListener(
         new DropTargetListener() {
           private boolean isFileDrop;
+          private boolean isMetadataDrop;
 
           @Override
           public void dragEnter(DropTargetEvent event) {
             isFileDrop = isFileTransferType(event);
+            isMetadataDrop = isMetadataTransferType(event);
             if (isFileDrop) {
               event.currentDataType = getFileTransferDataType(event);
               if (event.detail == DND.DROP_DEFAULT) {
                 event.detail = preferredFileDropOperation(event);
               }
+            } else if (isMetadataDrop) {
+              event.currentDataType = getMetadataTransferDataType(event);
+              event.detail = DND.DROP_MOVE;
             }
             handleDragEvent(event);
           }
@@ -172,16 +180,21 @@ public class TabItemReorder {
 
           @Override
           public void dragOver(DropTargetEvent event) {
-            if (!isFileDrop) {
+            if (!isFileDrop && !isMetadataDrop) {
               isFileDrop = isFileTransferType(event);
+              isMetadataDrop = isMetadataTransferType(event);
               if (isFileDrop) {
                 event.currentDataType = getFileTransferDataType(event);
+              } else if (isMetadataDrop) {
+                event.currentDataType = getMetadataTransferDataType(event);
               }
             }
             if (isFileDrop) {
               if (event.detail == DND.DROP_DEFAULT) {
                 event.detail = preferredFileDropOperation(event);
               }
+            } else if (isMetadataDrop) {
+              event.detail = DND.DROP_MOVE;
             }
             handleDragEvent(event);
             // Update drop indicator for tab reorder
@@ -205,6 +218,13 @@ public class TabItemReorder {
             if (dropTargetTab != null) {
               dropTargetTab = null;
               folder.redraw();
+            }
+            if (isMetadataTransferType(event)
+                && event.data instanceof String[] metadataData
+                && metadataData.length >= 2
+                && perspective instanceof IMetadataDropReceiver receiver) {
+              receiver.openDroppedMetadata(metadataData[0], metadataData[1]);
+              return;
             }
             if (event.data instanceof String[] paths
                 && perspective instanceof IFileDropReceiver receiver) {
@@ -262,6 +282,18 @@ public class TabItemReorder {
           }
 
           private void handleDragEvent(DropTargetEvent event) {
+            if (isMetadataDrop && perspective instanceof IMetadataDropReceiver) {
+              if (event.dataTypes != null
+                  && !MetadataTransfer.INSTANCE.isSupportedType(event.currentDataType)) {
+                event.currentDataType = getMetadataTransferDataType(event);
+              }
+              if (event.currentDataType != null
+                  && MetadataTransfer.INSTANCE.isSupportedType(event.currentDataType)) {
+                event.detail = DND.DROP_MOVE;
+                event.feedback = DND.FEEDBACK_NONE;
+                return;
+              }
+            }
             if (isFileDrop && perspective instanceof IFileDropReceiver) {
               if (event.dataTypes != null
                   && !FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
@@ -300,6 +332,30 @@ public class TabItemReorder {
               }
             }
             return false;
+          }
+
+          private boolean isMetadataTransferType(DropTargetEvent event) {
+            if (event.dataTypes == null) {
+              return false;
+            }
+            for (TransferData td : event.dataTypes) {
+              if (MetadataTransfer.INSTANCE.isSupportedType(td)) {
+                return true;
+              }
+            }
+            return false;
+          }
+
+          private TransferData getMetadataTransferDataType(DropTargetEvent event) {
+            if (event.dataTypes == null) {
+              return null;
+            }
+            for (TransferData td : event.dataTypes) {
+              if (MetadataTransfer.INSTANCE.isSupportedType(td)) {
+                return td;
+              }
+            }
+            return null;
           }
         });
   }
