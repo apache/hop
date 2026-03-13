@@ -20,6 +20,8 @@ package org.apache.hop.run;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,7 +97,9 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
 
   @CommandLine.Option(
       names = {"-p", "--parameters"},
-      description = "A list of PARAMETER=VALUE pairs")
+      description =
+          "A list of PARAMETER=VALUE pairs (default separator: comma). "
+              + "For values containing the separator, wrap in double quotes, e.g. -p 'key1=\"value1,value2\"'")
   protected String[] parameters = null;
 
   @CommandLine.Option(
@@ -435,6 +439,41 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
     return filename.toLowerCase().endsWith(".hwf");
   }
 
+  /**
+   * Split a string by the given separator, but do not split on separators that appear inside
+   * double-quoted sections. This allows values like key1="value1,value2" to be kept as one pair.
+   *
+   * @param s the string to split (e.g. key1="value1,value2",key2=value2)
+   * @param separator the separator character(s) between pairs (e.g. ",")
+   * @return array of pair strings (e.g. ["key1=\"value1,value2\"", "key2=value2"])
+   */
+  protected static String[] splitParameterPairsRespectingQuotes(String s, String separator) {
+    if (s == null || separator == null || separator.isEmpty()) {
+      return s == null ? new String[0] : new String[] {s};
+    }
+    List<String> pairs = new ArrayList<>();
+    StringBuilder current = new StringBuilder();
+    boolean inQuotes = false;
+    int i = 0;
+    while (i < s.length()) {
+      char c = s.charAt(i);
+      if (c == '"') {
+        inQuotes = !inQuotes;
+        current.append(c);
+        i++;
+      } else if (!inQuotes && s.substring(i).startsWith(separator)) {
+        pairs.add(current.toString().trim());
+        current.setLength(0);
+        i += separator.length();
+      } else {
+        current.append(c);
+        i++;
+      }
+    }
+    pairs.add(current.toString().trim());
+    return pairs.toArray(new String[0]);
+  }
+
   /** Set the variables and parameters */
   protected void parseParametersAndVariables(
       CommandLine cmd,
@@ -447,7 +486,11 @@ public abstract class HopRunBase implements Runnable, IHasHopMetadataProvider {
         parametersSeparator = parametersSeparator == null ? "," : parametersSeparator;
 
         for (String parameter : parameters) {
-          for (String singleParameter : parameter.split(parametersSeparator)) {
+          for (String singleParameter :
+              splitParameterPairsRespectingQuotes(parameter, parametersSeparator)) {
+            if (singleParameter.isEmpty()) {
+              continue;
+            }
             String[] split = singleParameter.split("=", 2);
             String key = split.length > 0 ? split[0] : null;
             String value = split.length > 1 ? split[1] : null;
