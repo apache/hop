@@ -317,7 +317,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     item.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
     item.addListener(SWT.Selection, e -> onHelpDatabaseType());
 
-    wConnectionType = new Combo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConnectionType = new Combo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
     wConnectionType.setItems(getConnectionTypes());
     PropsUi.setLook(wConnectionType);
     FormData fdConnectionType = new FormData();
