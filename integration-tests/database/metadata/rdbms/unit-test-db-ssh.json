@@ -1,0 +1,34 @@
+{
+  "rdbms": {
+    "POSTGRESQL": {
+      "sshTunnelPort": "${SSH_TUNNEL_PORT}",
+      "sshTunnelUsePrivateKey": false,
+      "databaseName": "${POSTGRES_DATABASE}",
+      "pluginId": "POSTGRESQL",
+      "sshTunnelEnabled": true,
+      "accessType": 0,
+      "sshTunnelUsername": "${SSH_TUNNEL_USER}",
+      "hostname": "${POSTGRES_HOST}",
+      "password": "${POSTGRES_PASSWORD}",
+      "pluginName": "PostgreSQL",
+      "port": "${POSTGRES_PORT}",
+      "sshTunnelHost": "${SSH_TUNNEL_HOST}",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "sshTunnelPassphrase": "Encrypted ",
+      "sshTunnelPassword": "${SSH_TUNNEL_PASSWORD}",
+      "sshTunnelPrivateKeyFile": "",
+      "username": "${POSTGRES_USER}"
+    }
+  },
+  "name": "unit-test-db-ssh"
+}
