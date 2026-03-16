@@ -1,5 +1,5 @@
 ddl
-"CREATE TABLE ddlTest
+"CREATE TABLE DDLTEST
 (
   id INT
 , name VARCHAR(100)
