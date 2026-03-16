@@ -598,7 +598,7 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_OPEN_TRANSFORM,
-      toolTip = "i18n::HopGuiPipelineGridDelegate.Toolbar.OpenTransform.Tooltip",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineGraph.EditTransform.Tooltip",
       image = "ui/images/edit.svg")
   public void openSelectedTransform() {
     openTransformForSelectedRow();
@@ -634,7 +634,7 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_COPY,
-      toolTip = "i18n::TableView.ToolBarWidget.CopySelected.ToolTip",
+      toolTip = "i18n:org.apache.hop.ui.core.widget:TableView.ToolBarWidget.CopySelected.ToolTip",
       image = "ui/images/copy.svg",
       separator = true)
   public void copyMetricsToClipboard() {
