@@ -1039,6 +1039,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
           if (path != null) {
             wFilenameList.getActiveTableItem().setText(wFilenameList.getActiveTableColumn(), path);
+            checkAlerts();
           }
         } catch (HopFileException e) {
           log.logError("Error selecting file or directory", e);
