@@ -30,7 +30,7 @@
 
     <properties>
         <jface.text.version>3.29.0</jface.text.version>
-        <tm4e.core.version>0.15.2-SNAPSHOT</tm4e.core.version>
+        <tm4e.core.version>0.17.3-SNAPSHOT</tm4e.core.version>
     </properties>
 
     <dependencies>
@@ -85,7 +85,7 @@
             </snapshots>
             <id>tm4e-snapshots</id>
             <name>Eclipse TM4E Snapshots</name>
-            <url>https://repo.eclipse.org/content/repositories/tm4e-snapshots/</url>
+            <url>https://repo.eclipse.org/repository/tm4e-maven2-snapshots/</url>
         </repository>
     </repositories>
 </project>
