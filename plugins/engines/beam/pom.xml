@@ -29,7 +29,7 @@
     <name>Hop Plugins Engines Beam</name>
 
     <properties>
-        <spark.version>3.5.1</spark.version>
+        <spark.version>3.5.7</spark.version>
     </properties>
 
     <dependencyManagement>
