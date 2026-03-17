@@ -584,7 +584,7 @@ public class Const {
   @Variable(
       value = "5000",
       description =
-          "The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)")
+          "The maximum number of workflow trackers childrens to keep track of. Default value is 5000.")
   public static final String HOP_MAX_WORKFLOW_TRACKER_SIZE = "HOP_MAX_WORKFLOW_TRACKER_SIZE";
 
   /**
