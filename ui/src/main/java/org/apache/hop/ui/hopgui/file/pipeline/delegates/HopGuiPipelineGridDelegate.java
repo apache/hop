@@ -63,6 +63,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.PipelineMetricDisplayUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
@@ -423,31 +424,32 @@ public class HopGuiPipelineGridDelegate {
 
   /**
    * Add a "View" dropdown to the toolbar with checkable items for metrics panel options (hide
-   * units, hide columns). Syncs with PropsUi so options dialog and toolbar stay in sync.
+   * units, hide columns). Syncs with PropsUi so options dialog and toolbar stay in sync. Uses a
+   * CLabel with SWT.CENTER so the text is centered consistently across platforms (e.g. Linux).
    */
   private void addMetricsViewDropdown(Control toolbarControl) {
     if (!(toolbarControl instanceof ToolBar tb)) {
       return;
     }
-    ToolItem viewItem = new ToolItem(tb, SWT.DROP_DOWN);
-    viewItem.setText(BaseMessages.getString(PKG, "PipelineLog.MetricsView.View"));
-    viewItem.setToolTipText(BaseMessages.getString(PKG, "PipelineLog.MetricsView.View.Tooltip"));
+    ToolItem viewItem = new ToolItem(tb, SWT.SEPARATOR);
+    CLabel viewLabel = new CLabel(tb, SWT.CENTER);
+    viewLabel.setText(BaseMessages.getString(PKG, "PipelineLog.MetricsView.View"));
+    viewLabel.setToolTipText(BaseMessages.getString(PKG, "PipelineLog.MetricsView.View.Tooltip"));
+    PropsUi.setLook(viewLabel, Props.WIDGET_STYLE_TOOLBAR);
+    viewLabel.pack();
 
-    viewItem.addListener(
-        SWT.Selection,
+    viewLabel.addListener(
+        SWT.MouseDown,
         e -> {
           Menu menu = createMetricsViewMenu(tb);
-          Point point;
-          if (e.detail == SWT.ARROW) {
-            point = tb.toDisplay(e.x, e.y + viewItem.getBounds().height);
-          } else {
-            // Clicked the "View" label: show menu below the button
-            Rectangle bounds = viewItem.getBounds();
-            point = tb.toDisplay(bounds.x, bounds.y + bounds.height);
-          }
+          Rectangle bounds = viewLabel.getBounds();
+          Point point = tb.toDisplay(bounds.x, bounds.y + bounds.height);
           menu.setLocation(point.x, point.y);
           menu.setVisible(true);
         });
+
+    viewItem.setWidth(viewLabel.getSize().x);
+    viewItem.setControl(viewLabel);
   }
 
   private Menu createMetricsViewMenu(ToolBar parent) {
@@ -596,7 +598,7 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_OPEN_TRANSFORM,
-      toolTip = "i18n::HopGuiPipelineGridDelegate.Toolbar.OpenTransform.Tooltip",
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineGraph.EditTransform.Tooltip",
       image = "ui/images/edit.svg")
   public void openSelectedTransform() {
     openTransformForSelectedRow();
@@ -632,7 +634,7 @@ public class HopGuiPipelineGridDelegate {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_COPY,
-      toolTip = "i18n::TableView.ToolBarWidget.CopySelected.ToolTip",
+      toolTip = "i18n:org.apache.hop.ui.core.widget:TableView.ToolBarWidget.CopySelected.ToolTip",
       image = "ui/images/copy.svg",
       separator = true)
   public void copyMetricsToClipboard() {

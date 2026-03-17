@@ -184,6 +184,21 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @HopMetadataProperty protected String pluginId;
   @HopMetadataProperty protected String pluginName;
 
+  // SSH Tunnel fields
+  @HopMetadataProperty protected boolean sshTunnelEnabled;
+  @HopMetadataProperty protected String sshTunnelHost;
+  @HopMetadataProperty protected String sshTunnelPort;
+  @HopMetadataProperty protected String sshTunnelUsername;
+
+  @HopMetadataProperty(password = true)
+  protected String sshTunnelPassword;
+
+  @HopMetadataProperty protected boolean sshTunnelUsePrivateKey;
+  @HopMetadataProperty protected String sshTunnelPrivateKeyFile;
+
+  @HopMetadataProperty(password = true)
+  protected String sshTunnelPassphrase;
+
   public BaseDatabaseMeta() {
     attributes = Collections.synchronizedMap(new HashMap<>());
     changed = false;

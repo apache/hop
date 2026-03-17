@@ -106,6 +106,18 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
   private TableView wOptions;
 
+  // SSH Tunnel tab widgets
+  private Button wSshTunnelEnabled;
+  private TextVar wSshTunnelHost;
+  private TextVar wSshTunnelPort;
+  private TextVar wSshTunnelUsername;
+  private TextVar wSshTunnelPassword;
+  private Button wSshTunnelUsePrivateKey;
+  private TextVar wSshTunnelPrivateKeyFile;
+  private TextVar wSshTunnelPassphrase;
+  private Label wlSshTunnelPrivateKeyFile;
+  private Label wlSshTunnelPassphrase;
+
   private PropsUi props;
   private int middle;
   private int margin;
@@ -212,6 +224,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     addGeneralTab();
     addAdvancedTab();
     addOptionsTab();
+    addSshTunnelTab();
 
     // Select the general tab
     //
@@ -255,6 +268,16 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wPreferredSchema.addListener(SWT.Modify, modifyListener);
     wSqlStatements.addListener(SWT.Modify, modifyListener);
     wOptions.addListener(SWT.Modify, modifyListener);
+    wSshTunnelEnabled.addListener(SWT.Selection, modifyListener);
+    wSshTunnelEnabled.addListener(SWT.Selection, event -> enableSshTunnelFields());
+    wSshTunnelHost.addListener(SWT.Modify, modifyListener);
+    wSshTunnelPort.addListener(SWT.Modify, modifyListener);
+    wSshTunnelUsername.addListener(SWT.Modify, modifyListener);
+    wSshTunnelPassword.addListener(SWT.Modify, modifyListener);
+    wSshTunnelUsePrivateKey.addListener(SWT.Selection, modifyListener);
+    wSshTunnelUsePrivateKey.addListener(SWT.Selection, event -> enableSshTunnelFields());
+    wSshTunnelPrivateKeyFile.addListener(SWT.Modify, modifyListener);
+    wSshTunnelPassphrase.addListener(SWT.Modify, modifyListener);
   }
 
   private void addGeneralTab() {
@@ -294,7 +317,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     item.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.Help"));
     item.addListener(SWT.Selection, e -> onHelpDatabaseType());
 
-    wConnectionType = new Combo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConnectionType = new Combo(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
     wConnectionType.setItems(getConnectionTypes());
     PropsUi.setLook(wConnectionType);
     FormData fdConnectionType = new FormData();
@@ -786,6 +809,208 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wOptionsTab.setControl(wOptionsComp);
   }
 
+  private void addSshTunnelTab() {
+
+    CTabItem wSshTunnelTab = new CTabItem(wTabFolder, SWT.NONE);
+    wSshTunnelTab.setFont(GuiResource.getInstance().getFontDefault());
+    wSshTunnelTab.setText(
+        "  " + BaseMessages.getString(PKG, "DatabaseDialog.SshTunnelTab.title") + "  ");
+
+    Composite wSshTunnelComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wSshTunnelComp);
+
+    FormLayout sshLayout = new FormLayout();
+    sshLayout.marginWidth = PropsUi.getFormMargin() * 2;
+    sshLayout.marginHeight = PropsUi.getFormMargin() * 2;
+    wSshTunnelComp.setLayout(sshLayout);
+
+    // Enable SSH Tunnel checkbox
+    Label wlSshTunnelEnabled = new Label(wSshTunnelComp, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelEnabled);
+    wlSshTunnelEnabled.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelEnabled"));
+    FormData fdlSshTunnelEnabled = new FormData();
+    fdlSshTunnelEnabled.top = new FormAttachment(0, 0);
+    fdlSshTunnelEnabled.left = new FormAttachment(0, 0);
+    fdlSshTunnelEnabled.right = new FormAttachment(middle, 0);
+    wlSshTunnelEnabled.setLayoutData(fdlSshTunnelEnabled);
+    wSshTunnelEnabled = new Button(wSshTunnelComp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wSshTunnelEnabled);
+    FormData fdSshTunnelEnabled = new FormData();
+    fdSshTunnelEnabled.top = new FormAttachment(wlSshTunnelEnabled, 0, SWT.CENTER);
+    fdSshTunnelEnabled.left = new FormAttachment(middle, margin);
+    fdSshTunnelEnabled.right = new FormAttachment(100, 0);
+    wSshTunnelEnabled.setLayoutData(fdSshTunnelEnabled);
+    Control lastControl = wSshTunnelEnabled;
+
+    // SSH Host
+    Label wlSshTunnelHost = new Label(wSshTunnelComp, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelHost);
+    wlSshTunnelHost.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelHost"));
+    FormData fdlSshTunnelHost = new FormData();
+    fdlSshTunnelHost.top = new FormAttachment(lastControl, margin);
+    fdlSshTunnelHost.left = new FormAttachment(0, 0);
+    fdlSshTunnelHost.right = new FormAttachment(middle, 0);
+    wlSshTunnelHost.setLayoutData(fdlSshTunnelHost);
+    wSshTunnelHost =
+        new TextVar(manager.getVariables(), wSshTunnelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSshTunnelHost);
+    FormData fdSshTunnelHost = new FormData();
+    fdSshTunnelHost.top = new FormAttachment(wlSshTunnelHost, 0, SWT.CENTER);
+    fdSshTunnelHost.left = new FormAttachment(middle, margin);
+    fdSshTunnelHost.right = new FormAttachment(100, 0);
+    wSshTunnelHost.setLayoutData(fdSshTunnelHost);
+    lastControl = wSshTunnelHost;
+
+    // SSH Port
+    Label wlSshTunnelPort = new Label(wSshTunnelComp, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelPort);
+    wlSshTunnelPort.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelPort"));
+    FormData fdlSshTunnelPort = new FormData();
+    fdlSshTunnelPort.top = new FormAttachment(lastControl, margin);
+    fdlSshTunnelPort.left = new FormAttachment(0, 0);
+    fdlSshTunnelPort.right = new FormAttachment(middle, 0);
+    wlSshTunnelPort.setLayoutData(fdlSshTunnelPort);
+    wSshTunnelPort =
+        new TextVar(manager.getVariables(), wSshTunnelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSshTunnelPort);
+    FormData fdSshTunnelPort = new FormData();
+    fdSshTunnelPort.top = new FormAttachment(wlSshTunnelPort, 0, SWT.CENTER);
+    fdSshTunnelPort.left = new FormAttachment(middle, margin);
+    fdSshTunnelPort.right = new FormAttachment(100, 0);
+    wSshTunnelPort.setLayoutData(fdSshTunnelPort);
+    lastControl = wSshTunnelPort;
+
+    // SSH Username
+    Label wlSshTunnelUsername = new Label(wSshTunnelComp, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelUsername);
+    wlSshTunnelUsername.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelUsername"));
+    FormData fdlSshTunnelUsername = new FormData();
+    fdlSshTunnelUsername.top = new FormAttachment(lastControl, margin);
+    fdlSshTunnelUsername.left = new FormAttachment(0, 0);
+    fdlSshTunnelUsername.right = new FormAttachment(middle, 0);
+    wlSshTunnelUsername.setLayoutData(fdlSshTunnelUsername);
+    wSshTunnelUsername =
+        new TextVar(manager.getVariables(), wSshTunnelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSshTunnelUsername);
+    FormData fdSshTunnelUsername = new FormData();
+    fdSshTunnelUsername.top = new FormAttachment(wlSshTunnelUsername, 0, SWT.CENTER);
+    fdSshTunnelUsername.left = new FormAttachment(middle, margin);
+    fdSshTunnelUsername.right = new FormAttachment(100, 0);
+    wSshTunnelUsername.setLayoutData(fdSshTunnelUsername);
+    lastControl = wSshTunnelUsername;
+
+    // SSH Password
+    Label wlSshTunnelPassword = new Label(wSshTunnelComp, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelPassword);
+    wlSshTunnelPassword.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelPassword"));
+    FormData fdlSshTunnelPassword = new FormData();
+    fdlSshTunnelPassword.top = new FormAttachment(lastControl, margin);
+    fdlSshTunnelPassword.left = new FormAttachment(0, 0);
+    fdlSshTunnelPassword.right = new FormAttachment(middle, 0);
+    wlSshTunnelPassword.setLayoutData(fdlSshTunnelPassword);
+    wSshTunnelPassword =
+        new TextVar(
+            manager.getVariables(),
+            wSshTunnelComp,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    PropsUi.setLook(wSshTunnelPassword);
+    FormData fdSshTunnelPassword = new FormData();
+    fdSshTunnelPassword.top = new FormAttachment(wlSshTunnelPassword, 0, SWT.CENTER);
+    fdSshTunnelPassword.left = new FormAttachment(middle, margin);
+    fdSshTunnelPassword.right = new FormAttachment(100, 0);
+    wSshTunnelPassword.setLayoutData(fdSshTunnelPassword);
+    lastControl = wSshTunnelPassword;
+
+    // Use Private Key checkbox
+    Label wlSshTunnelUsePrivateKey = new Label(wSshTunnelComp, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelUsePrivateKey);
+    wlSshTunnelUsePrivateKey.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelUsePrivateKey"));
+    FormData fdlSshTunnelUsePrivateKey = new FormData();
+    fdlSshTunnelUsePrivateKey.top = new FormAttachment(lastControl, margin);
+    fdlSshTunnelUsePrivateKey.left = new FormAttachment(0, 0);
+    fdlSshTunnelUsePrivateKey.right = new FormAttachment(middle, 0);
+    wlSshTunnelUsePrivateKey.setLayoutData(fdlSshTunnelUsePrivateKey);
+    wSshTunnelUsePrivateKey = new Button(wSshTunnelComp, SWT.CHECK | SWT.LEFT);
+    PropsUi.setLook(wSshTunnelUsePrivateKey);
+    FormData fdSshTunnelUsePrivateKey = new FormData();
+    fdSshTunnelUsePrivateKey.top = new FormAttachment(wlSshTunnelUsePrivateKey, 0, SWT.CENTER);
+    fdSshTunnelUsePrivateKey.left = new FormAttachment(middle, margin);
+    fdSshTunnelUsePrivateKey.right = new FormAttachment(100, 0);
+    wSshTunnelUsePrivateKey.setLayoutData(fdSshTunnelUsePrivateKey);
+    lastControl = wSshTunnelUsePrivateKey;
+
+    // Private Key File
+    wlSshTunnelPrivateKeyFile = new Label(wSshTunnelComp, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelPrivateKeyFile);
+    wlSshTunnelPrivateKeyFile.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelPrivateKeyFile"));
+    FormData fdlSshTunnelPrivateKeyFile = new FormData();
+    fdlSshTunnelPrivateKeyFile.top = new FormAttachment(lastControl, margin);
+    fdlSshTunnelPrivateKeyFile.left = new FormAttachment(0, 0);
+    fdlSshTunnelPrivateKeyFile.right = new FormAttachment(middle, 0);
+    wlSshTunnelPrivateKeyFile.setLayoutData(fdlSshTunnelPrivateKeyFile);
+    wSshTunnelPrivateKeyFile =
+        new TextVar(manager.getVariables(), wSshTunnelComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSshTunnelPrivateKeyFile);
+    FormData fdSshTunnelPrivateKeyFile = new FormData();
+    fdSshTunnelPrivateKeyFile.top = new FormAttachment(wlSshTunnelPrivateKeyFile, 0, SWT.CENTER);
+    fdSshTunnelPrivateKeyFile.left = new FormAttachment(middle, margin);
+    fdSshTunnelPrivateKeyFile.right = new FormAttachment(100, 0);
+    wSshTunnelPrivateKeyFile.setLayoutData(fdSshTunnelPrivateKeyFile);
+    lastControl = wSshTunnelPrivateKeyFile;
+
+    // Passphrase
+    wlSshTunnelPassphrase = new Label(wSshTunnelComp, SWT.RIGHT);
+    PropsUi.setLook(wlSshTunnelPassphrase);
+    wlSshTunnelPassphrase.setText(
+        BaseMessages.getString(PKG, "DatabaseDialog.label.SshTunnelPassphrase"));
+    FormData fdlSshTunnelPassphrase = new FormData();
+    fdlSshTunnelPassphrase.top = new FormAttachment(lastControl, margin);
+    fdlSshTunnelPassphrase.left = new FormAttachment(0, 0);
+    fdlSshTunnelPassphrase.right = new FormAttachment(middle, 0);
+    wlSshTunnelPassphrase.setLayoutData(fdlSshTunnelPassphrase);
+    wSshTunnelPassphrase =
+        new TextVar(
+            manager.getVariables(),
+            wSshTunnelComp,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    PropsUi.setLook(wSshTunnelPassphrase);
+    FormData fdSshTunnelPassphrase = new FormData();
+    fdSshTunnelPassphrase.top = new FormAttachment(wlSshTunnelPassphrase, 0, SWT.CENTER);
+    fdSshTunnelPassphrase.left = new FormAttachment(middle, margin);
+    fdSshTunnelPassphrase.right = new FormAttachment(100, 0);
+    wSshTunnelPassphrase.setLayoutData(fdSshTunnelPassphrase);
+
+    FormData fdSshTunnelComp = new FormData();
+    fdSshTunnelComp.left = new FormAttachment(0, 0);
+    fdSshTunnelComp.top = new FormAttachment(0, 0);
+    fdSshTunnelComp.right = new FormAttachment(100, 0);
+    fdSshTunnelComp.bottom = new FormAttachment(100, 0);
+    wSshTunnelComp.setLayoutData(fdSshTunnelComp);
+
+    wSshTunnelComp.layout();
+    wSshTunnelTab.setControl(wSshTunnelComp);
+  }
+
+  private void enableSshTunnelFields() {
+    boolean enabled = wSshTunnelEnabled.getSelection();
+    boolean usePrivateKey = wSshTunnelUsePrivateKey.getSelection();
+
+    wSshTunnelHost.setEnabled(enabled);
+    wSshTunnelPort.setEnabled(enabled);
+    wSshTunnelUsername.setEnabled(enabled);
+    wSshTunnelPassword.setEnabled(enabled && !usePrivateKey);
+    wSshTunnelUsePrivateKey.setEnabled(enabled);
+    wSshTunnelPrivateKeyFile.setEnabled(enabled && usePrivateKey);
+    wSshTunnelPassphrase.setEnabled(enabled && usePrivateKey);
+    wlSshTunnelPrivateKeyFile.setEnabled(enabled && usePrivateKey);
+    wlSshTunnelPassphrase.setEnabled(enabled && usePrivateKey);
+  }
+
   private void enableFields() {
     boolean manualUrl = false;
     if (wManualUrl != null) {
@@ -888,8 +1113,19 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wOptions.setRowNums();
     wOptions.optWidth(true);
 
+    // SSH Tunnel fields
+    wSshTunnelEnabled.setSelection(databaseMeta.isSshTunnelEnabled());
+    wSshTunnelHost.setText(Const.NVL(databaseMeta.getSshTunnelHost(), ""));
+    wSshTunnelPort.setText(Const.NVL(databaseMeta.getSshTunnelPort(), "22"));
+    wSshTunnelUsername.setText(Const.NVL(databaseMeta.getSshTunnelUsername(), ""));
+    wSshTunnelPassword.setText(Const.NVL(databaseMeta.getSshTunnelPassword(), ""));
+    wSshTunnelUsePrivateKey.setSelection(databaseMeta.isSshTunnelUsePrivateKey());
+    wSshTunnelPrivateKeyFile.setText(Const.NVL(databaseMeta.getSshTunnelPrivateKeyFile(), ""));
+    wSshTunnelPassphrase.setText(Const.NVL(databaseMeta.getSshTunnelPassphrase(), ""));
+
     updateDriverInfo();
     enableFields();
+    enableSshTunnelFields();
   }
 
   @Override
@@ -938,6 +1174,16 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       String value = item.getText(2);
       meta.addExtraOption(meta.getPluginId(), option, value);
     }
+
+    // SSH Tunnel fields
+    meta.setSshTunnelEnabled(wSshTunnelEnabled.getSelection());
+    meta.setSshTunnelHost(wSshTunnelHost.getText());
+    meta.setSshTunnelPort(wSshTunnelPort.getText());
+    meta.setSshTunnelUsername(wSshTunnelUsername.getText());
+    meta.setSshTunnelPassword(wSshTunnelPassword.getText());
+    meta.setSshTunnelUsePrivateKey(wSshTunnelUsePrivateKey.getSelection());
+    meta.setSshTunnelPrivateKeyFile(wSshTunnelPrivateKeyFile.getText());
+    meta.setSshTunnelPassphrase(wSshTunnelPassphrase.getText());
   }
 
   /** Update JDBC driver information and version */

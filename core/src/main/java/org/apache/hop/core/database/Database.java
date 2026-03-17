@@ -160,6 +160,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private int nrExecutedCommits;
 
+  private SshTunnelManager sshTunnelManager;
+
   private static final List<IValueMeta> valueMetaPluginClasses;
 
   static {
@@ -435,7 +437,24 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     try {
-      String url = resolve(databaseMeta.getURL(this));
+      // Open SSH tunnel if configured
+      String url;
+      if (databaseMeta.isSshTunnelEnabled() && !Utils.isEmpty(databaseMeta.getSshTunnelHost())) {
+        sshTunnelManager = new SshTunnelManager();
+        int localPort = sshTunnelManager.openTunnel(this, databaseMeta, log);
+
+        // Build URL using tunnel endpoint (localhost + forwarded port)
+        String tunnelUrl =
+            databaseMeta
+                .getIDatabase()
+                .getURL(
+                    "localhost",
+                    String.valueOf(localPort),
+                    resolve(databaseMeta.getDatabaseName()));
+        url = resolve(tunnelUrl);
+      } else {
+        url = resolve(databaseMeta.getURL(this));
+      }
       log.logDebug("Connecting to database using URL: " + url);
 
       String username = resolve(databaseMeta.getUsername());
@@ -608,6 +627,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
     } catch (SQLException e) {
       throw new HopDatabaseException("Error disconnecting from database '" + this + "'", e);
+    } finally {
+      // Close SSH tunnel after JDBC connection is closed.
+      // This must be here (not in disconnect()) because grouped connections
+      // use closeConnectionOnly() directly and would otherwise leak tunnels.
+      if (sshTunnelManager != null) {
+        sshTunnelManager.closeTunnel(log);
+        sshTunnelManager = null;
+      }
     }
   }
 

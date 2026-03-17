@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
@@ -46,8 +45,6 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -218,12 +215,8 @@ public class JediTerminalWidget implements ITerminalWidget {
    */
   private DefaultSettingsProvider createHopSettingsProvider(
       final boolean isDarkMode, final Display display) {
-    // Hop's fixed-width font (name, style, base size from preferences)
-    Font swtFixedFont = GuiResource.getInstance().getFontFixed();
-    FontData[] fixedFontData = swtFixedFont.getFontData();
-    final String fontName = fixedFontData.length > 0 ? fixedFontData[0].getName() : "Monospaced";
-    final int baseFontHeight = fixedFontData.length > 0 ? fixedFontData[0].getHeight() : 12;
-    int swtStyle = fixedFontData.length > 0 ? fixedFontData[0].getStyle() : SWT.NORMAL;
+    final String fontName = java.awt.Font.MONOSPACED;
+    final int baseFontHeight = 13;
 
     float fontScale = 1.0f;
     String manualScale = System.getProperty("JediTerm.fontScale");
@@ -237,18 +230,11 @@ public class JediTerminalWidget implements ITerminalWidget {
     }
     final float systemPropScale = fontScale;
 
-    int awtStyle = java.awt.Font.PLAIN;
-    if ((swtStyle & SWT.BOLD) != 0) awtStyle |= java.awt.Font.BOLD;
-    if ((swtStyle & SWT.ITALIC) != 0) awtStyle |= java.awt.Font.ITALIC;
-    final int finalAwtStyle = awtStyle;
+    final int finalAwtStyle = java.awt.Font.PLAIN;
 
     return new DefaultSettingsProvider() {
       private int computeFontSize() {
-        // baseFontHeight already includes Hop's globalZoomFactor (applied in GuiResource).
-        // Both SWT and AWT interpret point sizes the same way and apply screen DPI
-        // internally, so no additional nativeZoomFactor or DPI correction is needed.
-        int percent = fontScalePercent.get();
-        return Math.max(6, Math.round(baseFontHeight * (percent / 100f) * systemPropScale));
+        return Math.round(baseFontHeight * (fontScalePercent.get() / 100f) * systemPropScale);
       }
 
       @Override

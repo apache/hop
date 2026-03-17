@@ -887,18 +887,43 @@ public class GuiToolbarWidgets extends BaseGuiWidgets implements IToolbarWidgetR
    * Set the tooltip on a toolbar item. Works for both ToolBar (desktop) and web Composite (Hop
    * Web).
    *
+   * <p>On desktop, for plain toolbar buttons the stored control is the ToolBar (parent of the
+   * ToolItem). Setting the toolbar's tooltip would overwrite a shared control and on Windows can
+   * break all other toolbar item tooltips when one is updated. We only set the ToolItem's tooltip
+   * in that case. On Windows we also defer the update via asyncExec to avoid native tooltip state
+   * corruption when tooltips are changed in response to a button press.
+   *
    * @param id the toolbar item id (from @GuiToolbarElement)
    * @param tooltip the tooltip text
    */
   public void setToolbarItemToolTip(String id, String tooltip) {
     Control control = widgetsMap.get(id);
     ToolItem toolItem = toolItemMap.get(id);
-    if (control != null && !control.isDisposed()) {
-      control.setToolTipText(Const.NVL(tooltip, ""));
+    String safeTip = Const.NVL(tooltip, "");
+
+    Runnable update =
+        () -> {
+          if (control != null && !control.isDisposed()) {
+            // Do not set tooltip on the ToolBar when control is the ToolItem's parent (desktop
+            // toolbar buttons store item.getParent()). Setting the bar's tooltip overwrites a
+            // shared control and breaks other items' tooltips on Windows.
+            if (toolItem == null || control != toolItem.getParent()) {
+              control.setToolTipText(safeTip);
+            }
+          }
+          if (toolItem != null && !toolItem.isDisposed()) {
+            toolItem.setToolTipText(safeTip);
+          }
+        };
+
+    if (Const.isWindows()) {
+      Display display = Display.getCurrent();
+      if (display != null && !display.isDisposed()) {
+        display.asyncExec(update);
+        return;
+      }
     }
-    if (toolItem != null && !toolItem.isDisposed()) {
-      toolItem.setToolTipText(Const.NVL(tooltip, ""));
-    }
+    update.run();
   }
 
   /**

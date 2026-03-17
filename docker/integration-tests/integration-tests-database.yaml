@@ -23,12 +23,26 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      ssh:
+        condition: service_started
     links:
       - postgres
       - mssql
       - mysql
+      - ssh
+    environment:
+      - SSH_TUNNEL_HOST=ssh
+      - SSH_TUNNEL_PORT=22
+      - SSH_TUNNEL_USER=hop
+      - SSH_TUNNEL_PASSWORD=hop_ssh_password
     volumes:
       - ./resource/mssql/mssql_bulkload.csv:/tmp/mssql_bulkload.csv
+
+  ssh:
+    build:
+      context: .
+      dockerfile: ssh.Dockerfile
+    # No host port exposure needed; test container connects via service name "ssh"
 
   postgres:
     image: postgres:latest
