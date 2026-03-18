@@ -34,12 +34,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import javax.net.ssl.SSLContext;
@@ -333,6 +335,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           }
         }
       }
+      trackResponseBytes(response, body);
       // get Header
       MultivaluedMap<String, Object> headers = searchForHeaders(response);
       JSONObject json = new JSONObject();
@@ -491,6 +494,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           return invocationBuilder.get(Response.class);
         }
         case RestMeta.HTTP_METHOD_POST -> {
+          trackRequestBytes(
+              entityString,
+              contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
             return invocationBuilder.post(Entity.entity(entityString, contentType));
           } else {
@@ -498,6 +504,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           }
         }
         case RestMeta.HTTP_METHOD_PUT -> {
+          trackRequestBytes(
+              entityString,
+              contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
             return invocationBuilder.put(Entity.entity(entityString, contentType));
           } else {
@@ -505,6 +514,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           }
         }
         case RestMeta.HTTP_METHOD_DELETE -> {
+          trackRequestBytes(
+              entityString,
+              contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           Invocation invocation =
               invocationBuilder.build("DELETE", Entity.entity(entityString, data.mediaType));
           return invocation.invoke();
@@ -516,6 +528,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           return invocationBuilder.options();
         }
         case RestMeta.HTTP_METHOD_PATCH -> {
+          trackRequestBytes(
+              entityString,
+              contentType != null ? resolveCharset(contentType) : resolveCharset(data.mediaType));
           if (null != contentType) {
             return invocationBuilder.method(
                 RestMeta.HTTP_METHOD_PATCH, Entity.entity(entityString, contentType));
@@ -531,6 +546,53 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     } catch (Exception e) {
       throw new HopException("Request could not be processed", e);
     }
+  }
+
+  private void trackRequestBytes(String entityString, Charset charset) {
+    if (entityString == null) {
+      return;
+    }
+
+    byte[] requestBytes = entityString.getBytes(charset);
+    if (requestBytes.length > 0) {
+      dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + requestBytes.length;
+    }
+  }
+
+  private void trackResponseBytes(Response response, String body) {
+    long responseBytes = response.getLength();
+    if (responseBytes < 0 && body != null) {
+      responseBytes = body.getBytes(resolveCharset(response.getMediaType())).length;
+    }
+    if (responseBytes > 0) {
+      dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + responseBytes;
+    }
+  }
+
+  private Charset resolveCharset(String mediaTypeValue) {
+    if (!Utils.isEmpty(mediaTypeValue)) {
+      try {
+        return resolveCharset(MediaType.valueOf(mediaTypeValue));
+      } catch (Exception ignored) {
+        // Fall back to UTF-8 below if the header value is malformed.
+      }
+    }
+    return StandardCharsets.UTF_8;
+  }
+
+  private Charset resolveCharset(MediaType mediaType) {
+    if (mediaType != null) {
+      Map<String, String> parameters = mediaType.getParameters();
+      String charsetName = parameters.get("charset");
+      if (!Utils.isEmpty(charsetName)) {
+        try {
+          return Charset.forName(charsetName);
+        } catch (Exception ignored) {
+          // Fall back to UTF-8 below if the charset is unknown.
+        }
+      }
+    }
+    return StandardCharsets.UTF_8;
   }
 
   /**

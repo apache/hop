@@ -27,11 +27,17 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 
 import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import org.apache.hop.metadata.rest.RestConnection;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -134,5 +140,87 @@ class RestTest {
     assertNull(data.headerNames);
     assertNull(data.indexOfHeaderFields);
     assertNull(data.paramNames);
+  }
+
+  @Test
+  void testTrackRequestBytesAddsBytesForCharset() throws Exception {
+    Rest rest = newRest();
+
+    invokePrivate(rest, "trackRequestBytes", "hello", StandardCharsets.UTF_16LE);
+
+    assertEquals(10L, getLongField(rest, "dataVolumeOut"));
+  }
+
+  @Test
+  void testTrackResponseBytesFallsBackToBodyLength() throws Exception {
+    Rest rest = newRest();
+    Response response = mock(Response.class);
+    doReturn(-1).when(response).getLength();
+    doReturn(MediaType.valueOf("text/plain; charset=UTF-16LE")).when(response).getMediaType();
+
+    invokePrivate(rest, "trackResponseBytes", response, "ok");
+
+    assertEquals(4L, getLongField(rest, "dataVolumeIn"));
+  }
+
+  @Test
+  void testAddApiKeyHeaderIfAbsentAddsPrefixedHeaderWithoutOverriding() throws Exception {
+    Rest rest = newRest();
+    RestConnection connection = mock(RestConnection.class);
+    doReturn("API Key").when(connection).getAuthType();
+    doReturn("Authorization").when(connection).getAuthorizationHeaderName();
+    doReturn("secret").when(connection).getAuthorizationHeaderValue();
+    doReturn("Bearer").when(connection).getAuthorizationPrefix();
+
+    Field connectionField = Rest.class.getDeclaredField("connection");
+    connectionField.setAccessible(true);
+    connectionField.set(rest, connection);
+
+    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+    invokePrivate(rest, "addApiKeyHeaderIfAbsent", headers);
+    assertEquals("Bearer secret", headers.getFirst("Authorization"));
+
+    headers.putSingle("Authorization", "existing");
+    invokePrivate(rest, "addApiKeyHeaderIfAbsent", headers);
+    assertEquals("existing", headers.getFirst("Authorization"));
+  }
+
+  private Rest newRest() {
+    TransformMeta transformMeta = new TransformMeta();
+    transformMeta.setName("TestRest");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("TestRest");
+    pipelineMeta.addTransform(transformMeta);
+    return new Rest(
+        transformMeta,
+        mock(RestMeta.class),
+        new RestData(),
+        1,
+        pipelineMeta,
+        spy(new LocalPipelineEngine()));
+  }
+
+  private static Object invokePrivate(Object target, String methodName, Object... args)
+      throws Exception {
+    Method method =
+        switch (methodName) {
+          case "trackRequestBytes" ->
+              target
+                  .getClass()
+                  .getDeclaredMethod(methodName, String.class, java.nio.charset.Charset.class);
+          case "trackResponseBytes" ->
+              target.getClass().getDeclaredMethod(methodName, Response.class, String.class);
+          case "addApiKeyHeaderIfAbsent" ->
+              target.getClass().getDeclaredMethod(methodName, MultivaluedMap.class);
+          default -> throw new NoSuchMethodException(methodName);
+        };
+    method.setAccessible(true);
+    return method.invoke(target, args);
+  }
+
+  private static Long getLongField(Object target, String fieldName) throws Exception {
+    Field field = BaseTransform.class.getDeclaredField(fieldName);
+    field.setAccessible(true);
+    return (Long) field.get(target);
   }
 }
