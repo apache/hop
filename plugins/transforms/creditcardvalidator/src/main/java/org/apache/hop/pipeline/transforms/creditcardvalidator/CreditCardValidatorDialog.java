@@ -277,7 +277,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog {
     input.setResultFieldName(wResult.getText());
     input.setCardType(wFileType.getText());
     input.setNotValidMessage(wNotValidMsg.getText());
-	  // return value
+    // return value
     transformName = wTransformName.getText();
 
     dispose();
