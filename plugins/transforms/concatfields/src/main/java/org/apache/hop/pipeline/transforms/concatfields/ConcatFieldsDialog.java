@@ -412,7 +412,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     // New concat fields
-    // wTargetFieldName.setText(Const.NVL(input.getExtraFields().getTargetFieldName(), ""));
+    wTargetFieldName.setText(Const.NVL(input.getExtraFields().getTargetFieldName(), ""));
     wTargetFieldLength.setText("" + input.getExtraFields().getTargetFieldLength());
     wSeparator.setText(Const.NVL(input.getSeparator(), ""));
     wEnclosure.setText(Const.NVL(input.getEnclosure(), ""));
