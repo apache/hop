@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -67,12 +69,15 @@ import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
+@Getter
+@Setter
 public class Project extends ConfigFile implements IConfigFile {
 
   @JsonIgnore private String configFilename;
   private String description;
   private String company;
   private String department;
+  private String version;
   private String metadataBaseFolder;
   private String unitTestsBasePath;
   private String dataSetsCsvFolder;
@@ -132,6 +137,7 @@ public class Project extends ConfigFile implements IConfigFile {
       this.description = project.description;
       this.company = project.company;
       this.department = project.department;
+      this.version = project.version;
       this.metadataBaseFolder = project.metadataBaseFolder;
       this.unitTestsBasePath = project.unitTestsBasePath;
       this.dataSetsCsvFolder = project.dataSetsCsvFolder;
@@ -440,8 +446,7 @@ public class Project extends ConfigFile implements IConfigFile {
         List<ActionMeta> actionMetas = workflowMeta.getActions();
         workflowActionsMap.put(workflowMeta, actionMetas);
       } catch (Exception e) {
-        System.err.println("error getting workflow actions");
-        e.printStackTrace();
+        LogChannel.GENERAL.logError("error getting workflow actions", e);
       }
     }
 
@@ -613,141 +618,5 @@ public class Project extends ConfigFile implements IConfigFile {
   @Override
   public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;
-  }
-
-  /**
-   * Gets description
-   *
-   * @return value of description
-   */
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * @param description The description to set
-   */
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  /**
-   * Gets company
-   *
-   * @return value of company
-   */
-  public String getCompany() {
-    return company;
-  }
-
-  /**
-   * @param company The company to set
-   */
-  public void setCompany(String company) {
-    this.company = company;
-  }
-
-  /**
-   * Gets department
-   *
-   * @return value of department
-   */
-  public String getDepartment() {
-    return department;
-  }
-
-  /**
-   * @param department The department to set
-   */
-  public void setDepartment(String department) {
-    this.department = department;
-  }
-
-  /**
-   * Gets metadataBaseFolder
-   *
-   * @return value of metadataBaseFolder
-   */
-  public String getMetadataBaseFolder() {
-    return metadataBaseFolder;
-  }
-
-  /**
-   * @param metadataBaseFolder The metadataBaseFolder to set
-   */
-  public void setMetadataBaseFolder(String metadataBaseFolder) {
-    this.metadataBaseFolder = metadataBaseFolder;
-  }
-
-  /**
-   * Gets unitTestsBasePath
-   *
-   * @return value of unitTestsBasePath
-   */
-  public String getUnitTestsBasePath() {
-    return unitTestsBasePath;
-  }
-
-  /**
-   * @param unitTestsBasePath The unitTestsBasePath to set
-   */
-  public void setUnitTestsBasePath(String unitTestsBasePath) {
-    this.unitTestsBasePath = unitTestsBasePath;
-  }
-
-  /**
-   * Gets dataSetsCsvFolder
-   *
-   * @return value of dataSetsCsvFolder
-   */
-  public String getDataSetsCsvFolder() {
-    return dataSetsCsvFolder;
-  }
-
-  /**
-   * @param dataSetsCsvFolder The dataSetsCsvFolder to set
-   */
-  public void setDataSetsCsvFolder(String dataSetsCsvFolder) {
-    this.dataSetsCsvFolder = dataSetsCsvFolder;
-  }
-
-  /**
-   * Gets enforcingExecutionInHome
-   *
-   * @return value of enforcingExecutionInHome
-   */
-  public boolean isEnforcingExecutionInHome() {
-    return enforcingExecutionInHome;
-  }
-
-  /**
-   * @param enforcingExecutionInHome The enforcingExecutionInHome to set
-   */
-  public void setEnforcingExecutionInHome(boolean enforcingExecutionInHome) {
-    this.enforcingExecutionInHome = enforcingExecutionInHome;
-  }
-
-  /**
-   * Gets parentProjectName
-   *
-   * @return value of parentProjectName
-   */
-  public String getParentProjectName() {
-    return parentProjectName;
-  }
-
-  /**
-   * @param parentProjectName The parentProjectName to set
-   */
-  public void setParentProjectName(String parentProjectName) {
-    this.parentProjectName = parentProjectName;
-  }
-
-  public MultiMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
   }
 }
