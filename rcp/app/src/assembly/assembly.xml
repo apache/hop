@@ -26,6 +26,7 @@
     <baseDirectory>lib/core</baseDirectory>
     <dependencySets>
         <dependencySet>
+            <scope>runtime</scope>
             <outputDirectory>.</outputDirectory>
         </dependencySet>
     </dependencySets>
