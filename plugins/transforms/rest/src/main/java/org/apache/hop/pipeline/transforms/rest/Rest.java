@@ -135,7 +135,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
         logDetailed(BaseMessages.getString(PKG, "Rest.Log.ConnectingToURL", data.realUrl));
       }
       if (!StringUtils.isEmpty(meta.getConnectionName())) {
-        invocationBuilder = connection.getInvocationBuilder(data.realUrl);
+        invocationBuilder =
+            connection.getInvocationBuilder(data.realUrl, data.realProxyHost, data.realProxyPort);
       } else {
         ClientBuilder clientBuilder = createClientBuilder();
         clientBuilder

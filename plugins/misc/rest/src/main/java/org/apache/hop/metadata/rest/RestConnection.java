@@ -47,6 +47,7 @@ import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadata;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
 @Getter
@@ -60,6 +61,9 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
     hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION,
     supportsGlobalReplace = true)
 public class RestConnection extends HopMetadataBase implements IHopMetadata {
+  public static final String BASIC = "Basic";
+  public static final String API_KEY = "API Key";
+  public static final String BEARER = "Bearer";
 
   private IVariables variables;
   private ClientBuilder builder;
@@ -133,8 +137,13 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
   }
 
   public Invocation.Builder getInvocationBuilder(String url) throws HopException {
+    return getInvocationBuilder(url, null, 8080);
+  }
 
+  public Invocation.Builder getInvocationBuilder(String url, String proxyHost, Integer proxyPort)
+      throws HopException {
     builder = ClientBuilder.newBuilder();
+    setProxyHost(proxyHost, proxyPort);
 
     // Configure SSL if needed (client cert, trust store, or ignore SSL)
     if (needsSslConfiguration()) {
@@ -175,25 +184,21 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     if (StringUtils.isEmpty(authType)) {
       if (!StringUtils.isEmpty(authorizationHeaderName)
           && !StringUtils.isEmpty(authorizationHeaderValue)) {
-        authType = "API Key";
+        authType = API_KEY;
       } else {
         authType = "No Auth";
       }
     }
 
-    if (authType.equals("No Auth")) {
-      // Nothing required
-    }
-    if (authType.equals("Basic")) {
-      if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
-
-        client.register(
-            HttpAuthenticationFeature.basic(
-                resolve(username), Encr.decryptPasswordOptionallyEncrypted(resolve(password))));
-        target = client.target(url);
-        invocationBuilder = target.request();
-      }
-    } else if (authType.equals("API Key")) {
+    if (authType.equals(BASIC)
+        && !StringUtils.isEmpty(username)
+        && !StringUtils.isEmpty(password)) {
+      client.register(
+          HttpAuthenticationFeature.basic(
+              resolve(username), Encr.decryptPasswordOptionallyEncrypted(resolve(password))));
+      target = client.target(url);
+      invocationBuilder = target.request();
+    } else if (authType.equals(API_KEY)) {
       if (!StringUtils.isEmpty(resolve(authorizationPrefix))) {
         invocationBuilder.header(
             resolve(authorizationHeaderName),
@@ -205,12 +210,17 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
             resolve(authorizationHeaderName),
             Encr.decryptPasswordOptionallyEncrypted(resolve(authorizationHeaderValue)));
       }
-    } else if (authType.equals("Bearer")) {
-      if (!StringUtils.isEmpty(bearerToken)) {
-        invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + resolve(bearerToken));
-      }
+    } else if (authType.equals(BEARER) && !StringUtils.isEmpty(bearerToken)) {
+      invocationBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer " + resolve(bearerToken));
     }
     return invocationBuilder;
+  }
+
+  private void setProxyHost(String proxyHost, Integer proxyPort) {
+    if (!Utils.isEmpty(proxyHost) && proxyPort != null) {
+      builder =
+          builder.property(ClientProperties.PROXY_URI, "http://" + proxyHost + ":" + proxyPort);
+    }
   }
 
   public String getResponse(String url) throws HopException {
@@ -329,14 +339,17 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
       getLog().logDetailed("ignoreSsl=true -> using trust-all TrustManager.");
       return new TrustManager[] {
         new X509TrustManager() {
+          @Override
           public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[0];
           }
 
+          @Override
           public void checkClientTrusted(X509Certificate[] certs, String authType) {
             // Trust all - do nothing
           }
 
+          @Override
           public void checkServerTrusted(X509Certificate[] certs, String authType) {
             // Trust all - do nothing
           }
@@ -348,7 +361,8 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     if (Utils.isEmpty(trustStoreFile)) {
       getLog()
           .logDetailed("No trust store configured. Falling back to default system trust store.");
-      return null; // Use default system trust store
+      // Use default system trust store
+      return null;
     }
 
     // Load custom trust store
