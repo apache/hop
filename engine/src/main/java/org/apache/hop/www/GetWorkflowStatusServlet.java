@@ -92,16 +92,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
 
     response.setStatus(HttpServletResponse.SC_OK);
 
-    if (useXml) {
-      response.setContentType("text/xml");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-    }
-    if (useJson) {
-      response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-    } else {
-      response.setContentType("text/html;charset=UTF-8");
-    }
+    setResponseFormat(response, useXml, useJson);
 
     // ID is optional...
     //
@@ -206,7 +197,10 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
         }
       } else {
 
-        PrintWriter out = response.getWriter();
+        PrintWriter out = getSafeWriter(response);
+        if (out == null) {
+          return;
+        }
 
         int lastLineNr = HopLogStore.getLastBufferLineNr();
         int tableBorder = 0;
@@ -436,7 +430,10 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
         out.println("</HTML>");
       }
     } else {
-      PrintWriter out = response.getWriter();
+      PrintWriter out = getSafeWriter(response);
+      if (out == null) {
+        return;
+      }
       if (useXml) {
         out.println(
             new WebResult(

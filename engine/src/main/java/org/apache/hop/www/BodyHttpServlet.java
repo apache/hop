@@ -52,32 +52,42 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     }
 
     boolean useXML = useXML(request);
+    boolean useJson = isJsonRequest(request);
     PrintWriter out = new PrintWriter(response.getOutputStream());
 
     try {
 
       if (useXML) {
         startXml(response, out);
+      } else if (useJson) {
+        response.setContentType("application/json");
+        response.setCharacterEncoding(Const.XML_ENCODING);
       } else {
         beginHtml(response, out);
       }
 
       WebResult result = generateBody(request, response, useXML, variables);
       if (result != null) {
-        out.println(result.getXml());
+        if (useJson) {
+          out.println(result.getJson());
+        } else {
+          out.println(result.getXml());
+        }
       }
 
     } catch (Exception e) {
       String st = ExceptionUtils.getFullStackTrace(e);
       if (useXML) {
         out.println(new WebResult(WebResult.STRING_ERROR, st).getXml());
+      } else if (useJson) {
+        out.println(new WebResult(WebResult.STRING_ERROR, st).getJson());
       } else {
         out.println("<p><pre>");
         out.println(Encode.forHtml(st));
         out.println("</pre>");
       }
     } finally {
-      if (!useXML) {
+      if (!useXML && !useJson) {
         endHtml(out);
       }
       out.flush();

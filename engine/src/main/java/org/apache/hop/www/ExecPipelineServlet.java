@@ -42,6 +42,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "execPipeline", name = "Execute pipeline from file path")
 public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -97,23 +98,34 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
     String levelOption = request.getParameter(LEVEL);
     String runConfigOption = request.getParameter(RUN_CONFIG);
 
+    boolean useJson = isJsonRequest(request);
+
     response.setStatus(HttpServletResponse.SC_OK);
 
-    String encoding = System.getProperty("HOP_DEFAULT_SERVLET_ENCODING", null);
-    if (encoding != null && !Utils.isEmpty(encoding.trim())) {
-      response.setCharacterEncoding(encoding);
-      response.setContentType("text/html; charset=" + encoding);
-    } else {
-      response.setContentType("text/xml");
+    if (useJson) {
+      response.setContentType("application/json");
       response.setCharacterEncoding(Const.XML_ENCODING);
+    } else {
+      String encoding = System.getProperty("HOP_DEFAULT_SERVLET_ENCODING", null);
+      if (encoding != null && !Utils.isEmpty(encoding.trim())) {
+        response.setCharacterEncoding(encoding);
+        response.setContentType("text/html; charset=" + encoding);
+      } else {
+        response.setContentType("text/xml");
+        response.setCharacterEncoding(Const.XML_ENCODING);
+      }
     }
 
-    PrintWriter out = response.getWriter();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
 
     if (pipelineOption == null) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      out.println(
-          new WebResult(WebResult.STRING_ERROR, "Missing mandatory parameter: " + PIPELINE));
+      WebResult missing =
+          new WebResult(WebResult.STRING_ERROR, "Missing mandatory parameter: " + PIPELINE);
+      out.println(useJson ? missing.getJson() : missing.getXml());
       return;
     }
 
@@ -229,30 +241,39 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
       // Check for errors
       if (pipeline.isFinished() && pipeline.getErrors() > 0) {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        out.println(new WebResult(WebResult.STRING_ERROR, "Error executing pipeline: " + logging));
+        WebResult err =
+            new WebResult(WebResult.STRING_ERROR, "Error executing pipeline: " + logging);
+        out.println(useJson ? err.getJson() : err.getXml());
       } else {
-        out.println(new WebResult(WebResult.STRING_OK, "Pipeline executed successfully"));
+        WebResult ok = new WebResult(WebResult.STRING_OK, "Pipeline executed successfully");
+        out.println(useJson ? ok.getJson() : ok.getXml());
       }
       out.flush();
 
     } catch (Exception ex) {
       if (ex.getMessage() != null && ex.getMessage().contains(UNABLE_TO_FIND_PIPELINE)) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        out.println(
+        String safePipelineOption =
+            pipelineOption != null ? Encode.forHtml(pipelineOption) : "null";
+        String safeResolved =
+            pipelineOption != null ? Encode.forHtml(variables.resolve(pipelineOption)) : "null";
+        WebResult notFound =
             new WebResult(
                 WebResult.STRING_ERROR,
                 "Unable to find pipeline: "
-                    + pipelineOption
+                    + safePipelineOption
                     + " (resolved: "
-                    + (pipelineOption != null ? variables.resolve(pipelineOption) : "null")
-                    + ")"));
+                    + safeResolved
+                    + ")");
+        out.println(useJson ? notFound.getJson() : notFound.getXml());
       } else {
         String logging = Const.getStackTracker(ex);
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        out.println(
+        WebResult err =
             new WebResult(
                 WebResult.STRING_ERROR,
-                "Unexpected error executing pipeline: " + Const.CR + logging));
+                "Unexpected error executing pipeline: " + Const.CR + logging);
+        out.println(useJson ? err.getJson() : err.getXml());
       }
     }
   }

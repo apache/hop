@@ -42,6 +42,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
+import org.owasp.encoder.Encode;
 
 @HopServerServlet(id = "execWorkflow", name = "Execute workflow from file path")
 public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -97,23 +98,34 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
     String levelOption = request.getParameter(LEVEL);
     String runConfigOption = request.getParameter(RUN_CONFIG);
 
+    boolean useJson = isJsonRequest(request);
+
     response.setStatus(HttpServletResponse.SC_OK);
 
-    String encoding = System.getProperty("HOP_DEFAULT_SERVLET_ENCODING", null);
-    if (encoding != null && !Utils.isEmpty(encoding.trim())) {
-      response.setCharacterEncoding(encoding);
-      response.setContentType("text/html; charset=" + encoding);
-    } else {
-      response.setContentType("text/xml");
+    if (useJson) {
+      response.setContentType("application/json");
       response.setCharacterEncoding(Const.XML_ENCODING);
+    } else {
+      String encoding = System.getProperty("HOP_DEFAULT_SERVLET_ENCODING", null);
+      if (encoding != null && !Utils.isEmpty(encoding.trim())) {
+        response.setCharacterEncoding(encoding);
+        response.setContentType("text/html; charset=" + encoding);
+      } else {
+        response.setContentType("text/xml");
+        response.setCharacterEncoding(Const.XML_ENCODING);
+      }
     }
 
-    PrintWriter out = response.getWriter();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
 
     if (workflowOption == null) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      out.println(
-          new WebResult(WebResult.STRING_ERROR, "Missing mandatory parameter: " + WORKFLOW));
+      WebResult missing =
+          new WebResult(WebResult.STRING_ERROR, "Missing mandatory parameter: " + WORKFLOW);
+      out.println(useJson ? missing.getJson() : missing.getXml());
       return;
     }
 
@@ -227,30 +239,39 @@ public class ExecWorkflowServlet extends BaseHttpServlet implements IHopServerPl
       Result result = workflow.getResult();
       if (workflow.isFinished() && (result == null || result.getNrErrors() > 0)) {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        out.println(new WebResult(WebResult.STRING_ERROR, "Error executing workflow: " + logging));
+        WebResult err =
+            new WebResult(WebResult.STRING_ERROR, "Error executing workflow: " + logging);
+        out.println(useJson ? err.getJson() : err.getXml());
       } else {
-        out.println(new WebResult(WebResult.STRING_OK, "Workflow executed successfully"));
+        WebResult ok = new WebResult(WebResult.STRING_OK, "Workflow executed successfully");
+        out.println(useJson ? ok.getJson() : ok.getXml());
       }
       out.flush();
 
     } catch (Exception ex) {
       if (ex.getMessage() != null && ex.getMessage().contains(UNABLE_TO_FIND_WORKFLOW)) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        out.println(
+        String safeWorkflowOption =
+            workflowOption != null ? Encode.forHtml(workflowOption) : "null";
+        String safeResolved =
+            workflowOption != null ? Encode.forHtml(variables.resolve(workflowOption)) : "null";
+        WebResult notFound =
             new WebResult(
                 WebResult.STRING_ERROR,
                 "Unable to find workflow: "
-                    + workflowOption
+                    + safeWorkflowOption
                     + " (resolved: "
-                    + (workflowOption != null ? variables.resolve(workflowOption) : "null")
-                    + ")"));
+                    + safeResolved
+                    + ")");
+        out.println(useJson ? notFound.getJson() : notFound.getXml());
       } else {
         String logging = Const.getStackTracker(ex);
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        out.println(
+        WebResult err =
             new WebResult(
                 WebResult.STRING_ERROR,
-                "Unexpected error executing workflow: " + Const.CR + logging));
+                "Unexpected error executing workflow: " + Const.CR + logging);
+        out.println(useJson ? err.getJson() : err.getXml());
       }
     }
   }

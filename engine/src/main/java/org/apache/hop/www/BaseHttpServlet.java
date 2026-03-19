@@ -21,8 +21,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serial;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -33,15 +37,17 @@ import org.apache.http.entity.ContentType;
 public class BaseHttpServlet extends HttpServlet {
   @Serial protected static final long serialVersionUID = -1348342810327662788L;
 
-  protected PipelineMap pipelineMap;
-  protected WorkflowMap workflowMap;
-  protected HopServerConfig serverConfig;
+  @Setter @Getter protected PipelineMap pipelineMap;
+
+  @Setter @Getter protected WorkflowMap workflowMap;
+
+  @Setter @Getter protected HopServerConfig serverConfig;
   protected IVariables variables;
   protected boolean supportGraphicEnvironment;
 
-  private boolean jettyMode = false;
+  @Setter @Getter private boolean jettyMode = false;
 
-  protected ILogChannel log = new LogChannel("Servlet");
+  @Setter @Getter protected ILogChannel log = new LogChannel("Servlet");
 
   public String convertContextPath(String contextPath) {
     if (jettyMode) {
@@ -105,19 +111,90 @@ public class BaseHttpServlet extends HttpServlet {
   @Override
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    doGet(request, response);
+    try {
+      doGet(request, response);
+    } catch (Exception e) {
+      logError("Error handling PUT request", e);
+      sendSafeError(
+          response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process PUT request.");
+    }
   }
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    doGet(request, response);
+    try {
+      doGet(request, response);
+    } catch (Exception e) {
+      logError("Error handling POST request", e);
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Unable to process POST request.");
+    }
   }
 
   @Override
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    doGet(req, resp);
+    try {
+      doGet(req, resp);
+    } catch (Exception e) {
+      logError("Error handling DELETE request", e);
+      sendSafeError(
+          resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process DELETE request.");
+    }
+  }
+
+  protected boolean isJsonRequest(HttpServletRequest request) {
+    return "Y".equalsIgnoreCase(request.getParameter("json"));
+  }
+
+  protected void setResponseFormat(HttpServletResponse response, boolean useXml, boolean useJson) {
+    if (useXml) {
+      response.setContentType("text/xml");
+      response.setCharacterEncoding(Const.XML_ENCODING);
+    } else if (useJson) {
+      response.setContentType("application/json");
+      response.setCharacterEncoding(Const.XML_ENCODING);
+    } else {
+      response.setContentType("text/html;charset=UTF-8");
+    }
+  }
+
+  protected PrintWriter getSafeWriter(HttpServletResponse response) {
+    try {
+      return response.getWriter();
+    } catch (IOException e) {
+      log.logError("Failed to obtain response writer", e);
+      sendSafeError(
+          response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process request.");
+      return null;
+    }
+  }
+
+  protected BufferedReader getSafeReader(HttpServletRequest request, HttpServletResponse response) {
+    try {
+      return request.getReader();
+    } catch (IOException e) {
+      log.logError("Failed to obtain request reader", e);
+      sendSafeError(
+          response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process request.");
+      return null;
+    }
+  }
+
+  protected void sendSafeError(HttpServletResponse response, int status, String message) {
+    if (response.isCommitted()) {
+      response.setStatus(status);
+      return;
+    }
+    try {
+      response.sendError(status, message);
+    } catch (IOException e) {
+      log.logError("Failed to send error response (" + status + "): " + message, e);
+      response.setStatus(status);
+    }
   }
 
   public PipelineMap getPipelineMap() {
@@ -132,14 +209,6 @@ public class BaseHttpServlet extends HttpServlet {
       return HopServerSingleton.getInstance().getWorkflowMap();
     }
     return workflowMap;
-  }
-
-  public boolean isJettyMode() {
-    return jettyMode;
-  }
-
-  public void setJettyMode(boolean jettyMode) {
-    this.jettyMode = jettyMode;
   }
 
   public void logMinimal(String s) {
@@ -187,52 +256,6 @@ public class BaseHttpServlet extends HttpServlet {
     this.workflowMap = workflowMap;
     this.serverConfig = pipelineMap.getHopServerConfig();
     this.variables = serverConfig.getVariables();
-  }
-
-  /**
-   * @param pipelineMap The pipelineMap to set
-   */
-  public void setPipelineMap(PipelineMap pipelineMap) {
-    this.pipelineMap = pipelineMap;
-  }
-
-  /**
-   * @param workflowMap The workflowMap to set
-   */
-  public void setWorkflowMap(WorkflowMap workflowMap) {
-    this.workflowMap = workflowMap;
-  }
-
-  /**
-   * Gets serverConfig
-   *
-   * @return value of serverConfig
-   */
-  public HopServerConfig getServerConfig() {
-    return serverConfig;
-  }
-
-  /**
-   * @param serverConfig The serverConfig to set
-   */
-  public void setServerConfig(HopServerConfig serverConfig) {
-    this.serverConfig = serverConfig;
-  }
-
-  /**
-   * Gets log
-   *
-   * @return value of log
-   */
-  public ILogChannel getLog() {
-    return log;
-  }
-
-  /**
-   * @param log The log to set
-   */
-  public void setLog(ILogChannel log) {
-    this.log = log;
   }
 
   private String getContentEncoding(String contentTypeValue) {

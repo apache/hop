@@ -19,6 +19,8 @@ package org.apache.hop.www;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +32,7 @@ import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
@@ -77,17 +80,15 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
     final int nrLines = Const.toInt(request.getParameter("lines"), 0);
     String type = Const.NVL(request.getParameter("type"), TYPE_OUTPUT);
     boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
+    boolean useJson = isJsonRequest(request);
 
     response.setStatus(HttpServletResponse.SC_OK);
+    setResponseFormat(response, useXML, useJson);
 
-    if (useXML) {
-      response.setContentType("text/xml");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-    } else {
-      response.setContentType("text/html;charset=UTF-8");
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
     }
-
-    PrintWriter out = response.getWriter();
 
     // ID is optional...
     //
@@ -201,6 +202,42 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
           out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
           out.println(rowBuffer.getXml());
 
+        } else if (useJson) {
+
+          // Send the result back as JSON
+          //
+          try {
+            ObjectNode root = HopJson.newMapper().createObjectNode();
+            if (rowBuffer.getRowMeta() != null) {
+              ArrayNode fields = root.putArray("fields");
+              for (IValueMeta vm : rowBuffer.getRowMeta().getValueMetaList()) {
+                ObjectNode field = fields.addObject();
+                field.put("name", vm.getName());
+                field.put("type", vm.getTypeDesc());
+              }
+              ArrayNode rows = root.putArray("rows");
+              for (Object[] rowData : rowBuffer.getBuffer()) {
+                ArrayNode row = rows.addArray();
+                for (int v = 0; v < rowBuffer.getRowMeta().size(); v++) {
+                  IValueMeta vm = rowBuffer.getRowMeta().getValueMeta(v);
+                  try {
+                    row.add(vm.getString(rowData[v]));
+                  } catch (Exception e) {
+                    row.addNull();
+                  }
+                }
+              }
+            }
+            out.println(
+                HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValueAsString(root));
+          } catch (Exception e) {
+            out.println(
+                new WebResult(
+                        WebResult.STRING_ERROR,
+                        "Failed to serialize rows to JSON: " + e.getMessage())
+                    .getJson());
+          }
+
         } else {
           response.setContentType("text/html;charset=UTF-8");
 
@@ -273,24 +310,15 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
           out.println("</HTML>");
         }
       } else {
+        String notFoundMsg =
+            BaseMessages.getString(
+                PKG, "SniffTransformServlet.Log.CoundNotFindSpecTransform", transformName);
         if (useXML) {
-          out.println(
-              new WebResult(
-                      WebResult.STRING_ERROR,
-                      BaseMessages.getString(
-                          PKG,
-                          "SniffTransformServlet.Log.CoundNotFindSpecTransform",
-                          transformName))
-                  .getXml());
+          out.println(new WebResult(WebResult.STRING_ERROR, notFoundMsg).getXml());
+        } else if (useJson) {
+          out.println(new WebResult(WebResult.STRING_ERROR, notFoundMsg).getJson());
         } else {
-          out.println(
-              CONST_HEADER_START
-                  + Encode.forHtml(
-                      BaseMessages.getString(
-                          PKG,
-                          "SniffTransformServlet.Log.CoundNotFindSpecTransform",
-                          transformName))
-                  + CONST_HEADER_END);
+          out.println(CONST_HEADER_START + Encode.forHtml(notFoundMsg) + CONST_HEADER_END);
           out.println(
               "<a href=\""
                   + convertContextPath(GetStatusServlet.CONTEXT_PATH)
@@ -300,13 +328,13 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
         }
       }
     } else {
+      String notFoundMsg =
+          BaseMessages.getString(
+              PKG, "SniffTransformServlet.Log.CoundNotFindSpecPipeline", pipelineName);
       if (useXML) {
-        out.println(
-            new WebResult(
-                    WebResult.STRING_ERROR,
-                    BaseMessages.getString(
-                        PKG, "SniffTransformServlet.Log.CoundNotFindSpecPipeline", pipelineName))
-                .getXml());
+        out.println(new WebResult(WebResult.STRING_ERROR, notFoundMsg).getXml());
+      } else if (useJson) {
+        out.println(new WebResult(WebResult.STRING_ERROR, notFoundMsg).getJson());
       } else {
         out.println(
             CONST_HEADER_START

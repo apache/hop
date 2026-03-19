@@ -19,6 +19,7 @@ package org.apache.hop.www;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMultimap;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -40,8 +41,15 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet
    */
   @Deprecated(since = "2.0")
   @Override
-  public void doGet(HttpServletRequest req, final HttpServletResponse resp) throws IOException {
-    service(req, resp);
+  public void doGet(HttpServletRequest req, final HttpServletResponse resp)
+      throws ServletException, IOException {
+    try {
+      service(req, resp);
+    } catch (IOException e) {
+      logError("I/O error servicing request for " + getContextPath(), e);
+      sendSafeError(
+          resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process server request.");
+    }
   }
 
   @Override
@@ -56,12 +64,6 @@ public abstract class BaseHopServerPlugin extends BaseHttpServlet
 
     handleRequest(new HopServerRequestImpl(req, resp));
   }
-
-  @Override
-  public abstract void handleRequest(IHopServerRequest request) throws IOException;
-
-  @Override
-  public abstract String getContextPath();
 
   @Override
   public String getService() {

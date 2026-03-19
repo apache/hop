@@ -56,8 +56,13 @@ import org.w3c.dom.Document;
  * a zip file. It ends up in a temporary file.
  *
  * <p>The servlet returns the name of the file stored.
+ *
+ * @deprecated Use {@link RegisterPackageServlet} ({@code /hop/registerPackage}) instead. The remote
+ *     pipeline and workflow engines call {@code registerPackage} for all export operations. This
+ *     endpoint will be removed in a future release.
  */
-@HopServerServlet(id = "addExport", name = "Upload a resources export file")
+@Deprecated(since = "2.18.0")
+@HopServerServlet(id = "addExport", name = "Upload a resources export file (deprecated)")
 public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugin {
   public static final String PARAMETER_LOAD = "load";
   public static final String PARAMETER_TYPE = "type";
@@ -84,7 +89,10 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
       logDebug("Addition of export requested");
     }
 
-    PrintWriter out = response.getWriter();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
     InputStream in = request.getInputStream(); // read from the client
     if (log.isDetailed()) {
       logDetailed("Encoding: " + request.getCharacterEncoding());

@@ -106,18 +106,12 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     boolean useJson = "Y".equalsIgnoreCase(request.getParameter("json"));
     boolean useLightTheme = "Y".equalsIgnoreCase(request.getParameter("useLightTheme"));
 
-    if (useXml) {
-      response.setContentType("text/xml");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-    }
-    if (useJson) {
-      response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-    } else {
-      response.setContentType("text/html;charset=UTF-8");
-    }
+    setResponseFormat(response, useXml, useJson);
 
-    PrintWriter out = response.getWriter();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
 
     List<HopServerObjectEntry> pipelineEntries = getPipelineMap().getPipelineObjects();
     List<HopServerObjectEntry> actions = getWorkflowMap().getWorkflowObjects();

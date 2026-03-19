@@ -85,6 +85,7 @@
                 <exclude>org.apache.kafka::jar</exclude>
                 <exclude>org.xerial.snappy:snappy-java:jar</exclude>
                 <exclude>org.eclipse.jetty::jar</exclude>
+                <exclude>org.eclipse.jetty.compression::jar</exclude>
                 <exclude>com.google.cloud:google-cloud-storage:jar</exclude>
                 <exclude>io.grpc::jar</exclude>
                 <exclude>com.google.cloud:google-cloud-core-grpc:jar</exclude>

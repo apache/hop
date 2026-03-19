@@ -53,7 +53,26 @@ public class HopServerServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    doGet(req, resp);
+    try {
+      doGet(req, resp);
+    } catch (Exception e) {
+      log.logError("Error handling HopServer POST request", e);
+      sendSafeError(
+          resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process server request.");
+    }
+  }
+
+  private void sendSafeError(HttpServletResponse response, int status, String message) {
+    if (response.isCommitted()) {
+      response.setStatus(status);
+      return;
+    }
+    try {
+      response.sendError(status, message);
+    } catch (IOException e) {
+      log.logError("Failed to send error response (" + status + "): " + message, e);
+      response.setStatus(status);
+    }
   }
 
   @Override

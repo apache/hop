@@ -95,7 +95,6 @@
         <jackson.version>2.21.1</jackson.version>
         <jakarta.version>3.1.0</jakarta.version>
         <javassist.version>3.30.2-GA</javassist.version>
-        <jetty-jaas.version>11.0.26</jetty-jaas.version>
         <jetty.version>12.1.7</jetty.version>
         <jna.version>5.18.1</jna.version>
         <joda-time.version>2.14.0</joda-time.version>
@@ -105,6 +104,7 @@
         <json-smart.version>2.6.0</json-smart.version>
         <json4s.version>3.7.0-M11</json4s.version>
         <jsoup.version>1.22.1</jsoup.version>
+        <jspecify.version>1.0.0</jspecify.version>
         <juniversalchardet.version>2.5.0</juniversalchardet.version>
         <kafka-avro-serializer.version>7.6.1</kafka-avro-serializer.version>
         <kafka-clients.version>3.9.2</kafka-clients.version>
@@ -674,8 +674,33 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-jaas</artifactId>
-                <version>${jetty-jaas.version}</version>
+                <artifactId>jetty-alpn-client</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-client</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.compression</groupId>
+                <artifactId>jetty-compression-common</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.compression</groupId>
+                <artifactId>jetty-compression-gzip</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-http</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-io</artifactId>
+                <version>${jetty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
@@ -711,6 +736,11 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-xml</artifactId>
                 <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>${jspecify.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.tyrus.bundles</groupId>

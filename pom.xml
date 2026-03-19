@@ -110,6 +110,7 @@
         <jandex.version>3.5.3</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
         <javadoc.failOnWarnings>false</javadoc.failOnWarnings>
+        <jetty.version>12.1.7</jetty.version>
         <junit.version>6.0.3</junit.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
@@ -165,6 +166,39 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Jetty: transitive deps (e.g. jersey-jetty-connector) can pull older patch lines (12.1.2).
+                 hop-libs already pins Jetty for modules that import it; root entries cover the rest of
+                 the reactor without importing hop-libs (would cycle: hop -> hop-libs -> parent hop). -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-alpn-client</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-client</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.compression</groupId>
+                <artifactId>jetty-compression-common</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.compression</groupId>
+                <artifactId>jetty-compression-gzip</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-http</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-io</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>

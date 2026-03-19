@@ -17,8 +17,10 @@
 
 package org.apache.hop.www;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Document;
@@ -64,6 +66,14 @@ public class WebResult {
     xml.append("</" + XML_TAG + ">").append(Const.CR);
 
     return xml.toString();
+  }
+
+  public String getJson() {
+    try {
+      return HopJson.newMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+    } catch (JsonProcessingException e) {
+      return "{\"result\":\"ERROR\",\"message\":\"Failed to serialize response to JSON\",\"id\":null}";
+    }
   }
 
   @Override

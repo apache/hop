@@ -24,7 +24,14 @@ Hop Server has a rich set of web services that can be used to query and manage t
 
 TIP: when specified, the id for a workflow or pipeline represents one execution of a workflow or pipeline on the server.
 
-== addExport
+== addExport _(deprecated)_
+
+[WARNING]
+====
+*Deprecated since 2.18.0.* Use `registerPackage` (`hop/registerPackage`) instead.
+The remote pipeline and workflow engines call `registerPackage` for all export operations.
+This endpoint will be removed in a future release.
+====
 
 name::
 addExport
@@ -32,6 +39,7 @@ addExport
 description::
 Upload a resources export file.
 Add a zipped pipeline or workflow to the body payload as a binary file.
+*Deprecated* — use `registerPackage` instead.
 
 endPoint::
 GET `hop/addExport`
@@ -56,13 +64,20 @@ A zip file with the export is created on the server's file system.
 </webresult>
 ----
 
-== addPipeline
+== addPipeline _(deprecated)_
+
+[WARNING]
+====
+*Deprecated since 2.18.0.* Use <<Register Pipeline,`registerPipeline`>> (`hop/registerPipeline`) instead.
+This endpoint is no longer used by the remote pipeline engine and will be removed in a future release.
+====
 
 name::
 addPipeline
 
 description::
-Add a pipeline for execution
+Add a pipeline for execution.
+*Deprecated* — use `registerPipeline` instead.
 
 endPoint::
 GET `hop/addPipeline`
@@ -75,15 +90,22 @@ example request::
 `+http://localhost:8081/hop/addPipeline/xml=Y+` with XML payload
 
 result::
-- 
+-
 
-== addWorkflow
+== addWorkflow _(deprecated)_
+
+[WARNING]
+====
+*Deprecated since 2.18.0.* Use <<Register Workflow,`registerWorkflow`>> (`hop/registerWorkflow`) instead.
+This endpoint is no longer used by the remote workflow engine and will be removed in a future release.
+====
 
 name::
 addWorkflow
 
 description::
-Add a workflow for execution
+Add a workflow for execution.
+*Deprecated* — use `registerWorkflow` instead.
 
 endPoint::
 GET `hop/addWorkflow`

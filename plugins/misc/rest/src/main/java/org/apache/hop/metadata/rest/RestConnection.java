@@ -60,6 +60,8 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
     documentationUrl = "/metadata-types/rest-connection.html",
     hopMetadataPropertyType = HopMetadataPropertyType.REST_CONNECTION,
     supportsGlobalReplace = true)
+// It is optional to disable SSL/TLS
+@SuppressWarnings({"java:S5527", "java:S4830", "java:S4423"})
 public class RestConnection extends HopMetadataBase implements IHopMetadata {
   public static final String BASIC = "Basic";
   public static final String API_KEY = "API Key";
@@ -241,7 +243,7 @@ public class RestConnection extends HopMetadataBase implements IHopMetadata {
     response.close();
   }
 
-  public void disconnect() throws HopException {
+  public void disconnect() {
     client.close();
   }
 

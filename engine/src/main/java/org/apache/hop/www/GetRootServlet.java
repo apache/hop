@@ -49,7 +49,10 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
     response.setContentType("text/html;charset=UTF-8");
     response.setStatus(HttpServletResponse.SC_OK);
 
-    PrintWriter out = response.getWriter();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
 
     out.println("<HTML>");
     out.println(

@@ -72,7 +72,15 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    this.doGet(request, response);
+    try {
+      doGet(request, response);
+    } catch (Exception e) {
+      logError("Error handling web service POST request", e);
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Unable to process web service request.");
+    }
   }
 
   @Override
