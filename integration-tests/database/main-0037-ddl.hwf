@@ -69,7 +69,7 @@ limitations under the License.
       <description/>
       <type>TABLE_EXISTS</type>
       <attributes/>
-      <connection>h2-db</connection>
+      <connection>unit-test-db</connection>
       <schemaname/>
       <tablename>DDLTEST</tablename>
       <parallel>N</parallel>

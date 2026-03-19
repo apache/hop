@@ -75,7 +75,10 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
 
   public ActionCheckDbConnections(ActionCheckDbConnections other) {
     super(other.getName(), other.getDescription(), other.getPluginId());
-    other.getConnections().forEach(c -> connections.add(new CDConnection(c)));
+    connections = new ArrayList<>();
+    if (other.getConnections() != null) {
+      other.getConnections().forEach(c -> connections.add(new CDConnection(c)));
+    }
   }
 
   @Override
@@ -227,6 +230,9 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
 
+    if (connections == null) {
+      return references;
+    }
     for (CDConnection connection : connections) {
       DatabaseMeta databaseMeta = loadDatabaseMeta(resolve(connection.getName()));
       if (databaseMeta != null) {
