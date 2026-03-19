@@ -822,6 +822,7 @@
                             <excludes>hop-ui-rcp/**.zip</excludes>
                             <excludes>hop-rest/**.zip</excludes>
                             <excludes>hop-ui/**.zip</excludes>
+                            <excludes>**/org.eclipse.tm4e.core/**</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>
