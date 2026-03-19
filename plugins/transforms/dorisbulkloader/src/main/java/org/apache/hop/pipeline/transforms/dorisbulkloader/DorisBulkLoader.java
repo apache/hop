@@ -191,14 +191,19 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
    *
    * @param responseContent
    */
-  private void updateLoadedRows(ResponseContent responseContent) {
+  private void updateLoadedRows(ResponseContent responseContent) throws DorisStreamLoadException {
+
+    if (!responseContent.getStatus().equalsIgnoreCase("Success")) {
+      setErrors(getLinesWritten() - getLinesOutput());
+      throw new DorisStreamLoadException(
+          responseContent.getStatus() + " - " + responseContent.getMessage());
+    }
     // Set Real Rows Loaded and Rejected
-    long total_rows = responseContent.getNumberTotalRows();
-    long loaded_rows = responseContent.getNumberLoadedRows();
-    long total_output_rows = getLinesOutput();
-    long total_rejected_rows = getLinesRejected();
-    setLinesOutput(total_output_rows + loaded_rows);
-    setLinesRejected(total_rejected_rows + total_rows - loaded_rows);
+    setLinesOutput(getLinesOutput() + responseContent.getNumberLoadedRows());
+    setLinesRejected(
+        getLinesRejected()
+            + responseContent.getNumberTotalRows()
+            - responseContent.getNumberLoadedRows());
   }
 
   /**
