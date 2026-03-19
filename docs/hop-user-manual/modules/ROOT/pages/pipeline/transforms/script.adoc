@@ -29,10 +29,11 @@ The Script transform allows you to write code in any language supported by the h
 
 By default, the Hop project ships with the following language support:
 
+* https://developer.mozilla.org/en-US/docs/Web/JavaScript[ECMAScript] (JavaScript via https://www.graalvm.org/javascript/[GraalVM JavaScript], JSR 223)
 * https://groovy-lang.org/[Groovy]
 * https://www.python.org/[Python] (https://www.jython.org/[Jython])
 
-WARNING: ECMAScript (JavaScript as part of the JVM) was removed from the JVM with Java 17. You can still add it in Apache Hop 2.10 and later as documented in the <<_adding_scripting_languages, Adding Scripting Languages>> section.
+On Java 17 and later, the JVM no longer includes an ECMAScript engine; Hop bundles GraalVM JavaScript so that the Script transform works without extra setup.
 
 
 |
@@ -252,9 +253,4 @@ For example, to add support for the Ruby scripting language you need to add the 
 * `jruby-stdlib-<version>.jar`
 * `jruby-core-<version>.jar`
 
-To add Javascript support, download the https://repo1.maven.org/maven2/org/openjdk/nashorn/nashorn-core/[Nashorn Core jar]
-
-* `nashorn-core-15.4.jar`
-
-
-After restarting the Apache Hop GUI you'll notice that there's a `ruby` or `Javascript` entry in the `Scripting Engine` dropdown box.
+After restarting the Apache Hop GUI you'll notice that there's a `ruby` entry in the `Scripting Engine` dropdown box.

@@ -51,6 +51,12 @@
                 <include>org.apache.groovy:groovy:jar</include>
                 <include>org.apache.groovy:groovy-jsr223:jar</include>
                 <include>org.python:jython-standalone:jar</include>
+                <include>org.graalvm.js:js-scriptengine:jar</include>
+                <include>org.graalvm.js:js:jar</include>
+                <include>org.graalvm.regex:regex:jar</include>
+                <include>org.graalvm.truffle:truffle-api:jar</include>
+                <include>org.graalvm.sdk:graal-sdk:jar</include>
+                <include>com.ibm.icu:icu4j:jar</include>
             </includes>
             <outputDirectory>plugins/transforms/script/lib</outputDirectory>
         </dependencySet>
