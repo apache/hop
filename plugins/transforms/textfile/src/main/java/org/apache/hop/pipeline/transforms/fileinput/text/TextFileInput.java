@@ -112,7 +112,7 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
     data.enclosure = resolve(meta.getContent().getEnclosure());
     data.escapeCharacter = resolve(meta.getContent().getEscapeCharacter());
     // CSV without separator defined
-    if (meta.getContent().getFileType().equalsIgnoreCase("CSV")
+    if (meta.getFileType().equalsIgnoreCase("CSV")
         && (Utils.isEmpty(meta.getContent().getSeparator()))) {
       logError(BaseMessages.getString(PKG, "TextFileInput.Exception.NoSeparator"));
       return false;

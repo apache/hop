@@ -95,10 +95,10 @@ public class TextFileInputMeta
   @Getter
   @Setter
   public static class Content {
-    // For some reason these 2 fields ended up in a separate file section in the XML
+    // Stored as file_type (not "type") so it does not clash with the transform's <type> plugin id
     /** Type of file: CSV or fixed */
     @HopMetadataProperty(
-        key = "type",
+        key = "file_type",
         injectionKey = "FILE_TYPE",
         injectionKeyDescription = "TextFileInput.Injection.")
     private String fileType;

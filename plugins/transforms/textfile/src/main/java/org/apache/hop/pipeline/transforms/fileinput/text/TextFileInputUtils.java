@@ -870,6 +870,10 @@ public class TextFileInputUtils {
           int fPos = field.getPosition();
           int fLength = field.getLength();
           int fPl = fPos + fLength;
+          if (fPos < 0 || fLength < 0 || fPl < fPos) {
+            strings[i] = "";
+            continue;
+          }
           if (charBased) {
             length = line.length();
             if (fPl <= length) {
@@ -890,7 +894,7 @@ public class TextFileInputUtils {
               strings[i] = new String(Arrays.copyOfRange(b, fPos, fPl), enc);
             } else {
               if (fPos < length) {
-                strings[i] = new String(Arrays.copyOfRange(b, fPos, length - 1), enc);
+                strings[i] = new String(Arrays.copyOfRange(b, fPos, length), enc);
               } else {
                 strings[i] = "";
               }
