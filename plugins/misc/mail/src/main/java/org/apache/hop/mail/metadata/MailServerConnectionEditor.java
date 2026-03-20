@@ -456,7 +456,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     connection.setProtocol(variables.resolve(wConnectionProtocol.getText()));
     connection.setServerHost(variables.resolve(wServerHost.getText()));
     connection.setServerPort(variables.resolve(wServerPort.getText()));
-    connection.setUseAuthentication(wUseSecureAuthentication.getSelection());
+    connection.setUseAuthentication(wUseAuthentication.getSelection());
     connection.setSecureConnectionType(wSecureConnectionType.getText());
     connection.setUseXOAuth2(wUseXOAuth2.getSelection());
     connection.setUsername(variables.resolve(wServerUsername.getText()));
@@ -466,15 +466,16 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     connection.setProxyUsername(variables.resolve(wProxyUsername.getText()));
 
     try {
-      if (connection.testConnection(connection.getSession(variables))) {
-        MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-        mb.setMessage(
-            BaseMessages.getString(
-                    PKG, "ActionGetPOP.Connected.OK", variables.resolve(wServerHost.getText()))
-                + Const.CR);
-        mb.setText(BaseMessages.getString(PKG, "ActionGetPOP.Connected.Title.Ok"));
-        mb.open();
-      }
+      connection.testConnection(connection.getSession(variables));
+      MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      mb.setMessage(
+          BaseMessages.getString(
+                  PKG,
+                  "MailServerConnectionDialog.Connected.OK",
+                  variables.resolve(wServerHost.getText()))
+              + Const.CR);
+      mb.setText(BaseMessages.getString(PKG, "MailServerConnectionDialog.Connected.Title.Ok"));
+      mb.open();
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error connecting mail server:", e);
     }

@@ -41,6 +41,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.mail.common.MailConst;
 import org.apache.hop.mail.metadata.MailServerConnection;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -228,7 +229,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     firstMails = null;
     delete = false;
     if (!StringUtils.isEmpty(getConnectionName())) {
-      protocol = MailServerConnection.PROTOCOL_STRING_POP3;
+      protocol = MailConst.PROTOCOL_STRING_POP3;
     } else {
       protocol = MailConnectionMeta.PROTOCOL_STRING_POP3;
     }
@@ -327,7 +328,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
       boolean usePOP3;
       if (connectionName != null) {
-        usePOP3 = getProtocol().equals(MailServerConnection.PROTOCOL_STRING_POP3);
+        usePOP3 = getProtocol().equals(MailConst.PROTOCOL_STRING_POP3);
       } else {
         usePOP3 = getProtocol().equals(MailConnectionMeta.PROTOCOL_STRING_POP3);
       }
@@ -343,7 +344,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       // Check destination folder
       String realMoveToIMAPFolder = resolve(getMoveToIMAPFolder());
       if (StringUtils.isEmpty(connectionName)) {
-        if (getProtocol().equals(MailServerConnection.PROTOCOL_STRING_IMAP)
+        if (getProtocol().equals(MailConst.PROTOCOL_STRING_IMAP)
                 && (getActionType() == MailServerConnection.ACTION_TYPE_MOVE)
             || (getActionType() == MailServerConnection.ACTION_TYPE_GET
                 && getAfterGetIMAP() == MailServerConnection.AFTER_GET_IMAP_MOVE)) {
@@ -508,7 +509,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       if (!Utils.isEmpty(realSearchReceipient)) {
         // apply TO
         if (connection != null) {
-          connection.setReceipientTerm(realSearchReceipient);
+          connection.setRecipientTerm(realSearchReceipient);
         } else {
           mailConn.setReceipientTerm(realSearchReceipient);
         }
@@ -788,7 +789,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                 "ActionGetMailsFromPOP.TotalMessagesFolder.Label",
                 "" + messagesCount,
                 (connection != null)
-                    ? Const.NVL(connection.getFolderName(), MailServerConnection.INBOX_FOLDER)
+                    ? Const.NVL(connection.getFolderName(), MailConst.INBOX_FOLDER)
                     : Const.NVL(mailConn.getFolderName(), MailConnectionMeta.INBOX_FOLDER)));
       }
 
