@@ -45,12 +45,67 @@ limitations under the License.
       <schedulerType>0</schedulerType>
       <weekDay>1</weekDay>
       <parallel>N</parallel>
-      <xloc>96</xloc>
-      <yloc>80</yloc>
+      <xloc>192</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0045-meta-inject</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0045-meta-inject.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>368</xloc>
+      <yloc>96</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Run Pipeline Unit Tests</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
+      <test_names>
+        <test_name>
+          <name>0045-meta-inject-valiate UNIT</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>576</xloc>
+      <yloc>96</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
+    <hop>
+      <from>Start</from>
+      <to>0045-meta-inject</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0045-meta-inject</from>
+      <to>Run Pipeline Unit Tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
   </hops>
   <notepads>
   </notepads>

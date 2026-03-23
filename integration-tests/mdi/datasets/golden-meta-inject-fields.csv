@@ -1,0 +1,3 @@
+source_output_field_name,source_output_field_type,source_output_field_length,source_output_field_precision
+f1,String,100,-1
+f2,Number,7,2

@@ -200,9 +200,6 @@ limitations under the License.
     <run_configuration>local</run_configuration>
     <source_output_fields>
 </source_output_fields>
-    <source_transform/>
-    <stream_source_transform/>
-    <stream_target_transform/>
     <target_file>${java.io.tmpdir}/meta-inject.hpl</target_file>
     <attributes/>
     <GUI>
@@ -505,9 +502,11 @@ limitations under the License.
     <IsAFile>N</IsAFile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
     <IsInFields>N</IsInFields>
+    <XmlField/>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <encoding>UTF-8</encoding>
+    <extensionFieldName/>
     <fields>
       <field>
         <currency/>
@@ -586,21 +585,36 @@ limitations under the License.
       </field>
     </fields>
     <file>
+      <exclude_filemask/>
       <file_required>N</file_required>
+      <filemask/>
       <include_subfolders>N</include_subfolders>
       <name>${PROJECT_HOME}/files/meta-inject.xml</name>
     </file>
     <file>
+      <exclude_filemask/>
       <file_required>N</file_required>
+      <filemask/>
       <include_subfolders>N</include_subfolders>
+      <name/>
     </file>
+    <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
     <include>N</include>
-    <limit>1</limit>
+    <include_field/>
+    <lastModificationTimeFieldName/>
+    <limit>0</limit>
     <loopxpath>/transform/mappings/mapping</loopxpath>
     <namespaceaware>N</namespaceaware>
+    <pathFieldName/>
+    <prunePath/>
     <readurl>N</readurl>
+    <rootUriNameFieldName/>
     <rownum>N</rownum>
+    <rownum_field/>
+    <shortFileFieldName/>
+    <sizeFieldName/>
+    <uriNameFieldName/>
     <usetoken>N</usetoken>
     <validating>N</validating>
     <attributes/>

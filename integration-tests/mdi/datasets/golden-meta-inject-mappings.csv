@@ -1,0 +1,39 @@
+target_transform_name,target_attribute_key,target_detail,source_transform,source_field
+JSON input,IGNORE_EMPTY_FILE,N,files/json-input.xml,IsIgnoreEmptyFile
+JSON input,FILE_PATH_FIELDNAME,N,files/json-input.xml,pathFieldName
+JSON input,FIELD_CURRENCY,Y,files/json-input.xml fields,currency
+JSON input,FILE_SHORT_FILE_FIELDNAME,N,files/json-input.xml,shortFileFieldName
+JSON input,FIELD_TYPE,Y,files/json-input.xml fields,type
+JSON input,FILEMASK,Y,files/json-input.xml files,filemask
+JSON input,DO_NOT_FAIL_IF_NO_FILE,N,files/json-input.xml,doNotFailIfNoFile
+JSON input,EXCLUDE_FILEMASK,Y,files/json-input.xml files,exclude_filemask
+JSON input,FIELD_PATH,Y,files/json-input.xml fields,path
+JSON input,FIELD_PRECISION,Y,files/json-input.xml fields,precision
+JSON input,FILE_HIDDEN_FIELDNAME,N,files/json-input.xml,hiddenFieldName
+JSON input,READ_SOURCE_AS_URL,N,files/json-input.xml,readurl
+JSON input,SOURCE_FIELD_NAME,N,files/json-input.xml,valueField
+JSON input,FIELD_FORMAT,Y,files/json-input.xml fields,format
+JSON input,FIELD_REPEAT,Y,files/json-input.xml fields,repeat
+JSON input,FIELD_GROUP,Y,files/json-input.xml fields,group
+JSON input,FILE_LAST_MODIFICATION_FIELDNAME,N,files/json-input.xml,lastModificationTimeFieldName
+JSON input,ROW_NUMBER_OUTPUT,N,files/json-input.xml,rownum
+JSON input,FILE_URI_FIELDNAME,N,files/json-input.xml,uriNameFieldName
+JSON input,FILE_ROOT_URI_FIELDNAME,N,files/json-input.xml,rootUriNameFieldName
+JSON input,FIELD_DECIMAL,Y,files/json-input.xml fields,decimal
+JSON input,FIELD_LENGTH,Y,files/json-input.xml fields,length
+JSON input,ROW_NUMBER_FIELDNAME,N,files/json-input.xml,rownum_field
+JSON input,SOURCE_FIELD_IS_FILENAME,N,files/json-input.xml,IsAFile
+JSON input,FIELD_TRIM_TYPE,Y,files/json-input.xml fields,trim_type
+JSON input,FILENAME,Y,files/json-input.xml files,name
+JSON input,FIELD_NAME,Y,files/json-input.xml fields,name
+JSON input,FILE_EXTENSION_FIELDNAME,N,files/json-input.xml,extensionFieldName
+JSON input,SOURCE_IN_FIELD,N,files/json-input.xml,IsInFields
+JSON input,INCLUDE_SUBFOLDERS,Y,files/json-input.xml files,include_subfolders
+JSON input,ADD_RESULT_FILE,N,files/json-input.xml,addresultfile
+JSON input,REMOVE_SOURCE_FIELDS,N,files/json-input.xml,removeSourceField
+JSON input,FILE_NAME_OUTPUT,N,files/json-input.xml,include
+JSON input,ROW_LIMIT,N,files/json-input.xml,limit
+JSON input,IGNORE_MISSING_PATH,N,files/json-input.xml,ignoreMissingPath
+JSON input,FILE_NAME_FIELDNAME,N,files/json-input.xml,include_field
+JSON input,FILE_SIZE_FIELDNAME,N,files/json-input.xml,sizeFieldName
+JSON input,FILE_REQUIRED,Y,files/json-input.xml files,file_required
