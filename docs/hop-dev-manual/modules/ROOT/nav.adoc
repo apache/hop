@@ -18,6 +18,8 @@ under the License.
 * xref:upgrading-to-20.adoc[Plugins Upgrades to 2.x]
 * xref:porting-kettle-plugins.adoc[Porting Kettle plugins]
 * xref:metadata-plugins.adoc[Metadata plugins]
+* xref:metadata-serialization.adoc[Metadata Serialization]
+* xref:metadata-injection.adoc[Metadata Injection]
 * xref:setup-dev-environment.adoc[Setting up your development environment]
 * xref:docker-build.adoc[Docker Build Script]
 * xref:integration-testing.adoc[Integration testing]
