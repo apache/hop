@@ -106,7 +106,9 @@ public @interface HopMetadataProperty {
    * A description of the field. Right now this is used only for metadata injection purposes
    *
    * @return The description of the property
+   * @deprecated Not used anywhere anymore.
    */
+  @Deprecated(since = "2.18.0")
   String description() default "";
 
   /**

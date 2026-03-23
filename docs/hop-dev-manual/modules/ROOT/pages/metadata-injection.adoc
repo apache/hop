@@ -42,4 +42,20 @@ The ETL Metadata Injection transform requires all keys in a single transform met
 
 Avoid giving a `File` object in a list of files a key or injectionKey value of `name` if you would do the same in a Field class in a list of fields.
 
+== Internationalization (i18n)
+
+To allow for meaningful descriptions of the injectable fields to show up in the ETL Metadata Injection transform dialog you an specify properties `injectionKeyDescription` and `injectionGroupDescription`.  The specified strings reference an entry to the message bundles in the transform, e.g. `messages_en_US.properties` and their localized variants.
+
+[TIP]
+You can list the values that are acceptable in the injection key description.
+
+== Data conversions
+
+The injection system will try to use the already specified methods for XML/JSON serialization but there are also these options:
+
+* `InjectionTypeConverter` specified by `injectionConverter`
+* `IIntCodeConverter` specified by `intCodeConverter`
+* `IStringObjectConverter` specified by `injectionStringObjectConverter`
+* `IStringEncoder` specified by `stringEncoder`
+
 

@@ -271,6 +271,7 @@ This will serialize `Apache Hop` to:
 }
 ----
 ====
+
 == Lists
 
 If you want to serialize List of objects, you can typically wrap them in a group. An example from `CsvInputMeta.java`:
@@ -317,6 +318,54 @@ Will serialize the content of the `CsvInputField` objects inside `<fields><field
   ]
 }
 ----
+====
+
+== Maps
+
+You can serialize Map fields to XML as well.
+
+[IMPORTANT]
+It's not possible to inject metadata into a Map data type so don't use these constructs for transform serialization.
+
+[source,java]
+----
+  @HopMetadataProperty(
+      key = "mapping",
+      groupKey = "mappings",
+      inline = true,
+      mapKeyClass = Key.class,
+      mapValueClass = Value.class)
+  private Map<Key, Value> mappings;
+----
+
+Serializes to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<mappings>
+  <mapping>
+    <key>
+      <keyProperty1>key1</keyProperty1>
+      <keyProperty2>key2</keyProperty2>
+    </key>
+    <value>
+      <valueProperty1>value1</keyProperty1>
+      <valueProperty2>value2</keyProperty2>
+      <valueProperty3>value3</keyProperty3>
+    </value>
+  </mapping>
+  ...
+</mappings>
+----
+====
+
+.JSON
+[%collapsible]
+====
+JSON serialization of Map objects is not supported yet.
 ====
 
 == Sub-elements
