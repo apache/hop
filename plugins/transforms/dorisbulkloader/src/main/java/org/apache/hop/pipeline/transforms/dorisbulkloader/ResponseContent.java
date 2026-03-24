@@ -105,6 +105,22 @@ public class ResponseContent {
     return ErrorURL;
   }
 
+  public long getNumberTotalRows() {
+    return NumberTotalRows;
+  }
+
+  public long getNumberLoadedRows() {
+    return NumberLoadedRows;
+  }
+
+  public int getNumberFilteredRows() {
+    return NumberFilteredRows;
+  }
+
+  public int getNumberUnselectedRows() {
+    return NumberUnselectedRows;
+  }
+
   @Override
   public String toString() {
     ObjectMapper mapper = HopJson.newMapper();

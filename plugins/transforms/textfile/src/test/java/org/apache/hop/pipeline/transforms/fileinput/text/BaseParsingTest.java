@@ -31,6 +31,7 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -43,14 +44,16 @@ import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 
 /** Base class for all tests for BaseFileInput transforms. */
 @Disabled("No tests in abstract base class")
 public abstract class BaseParsingTest<
-    Meta extends ITransformMeta, Data extends ITransformData, Transform extends BaseTransform> {
+    Meta extends ITransformMeta,
+    Data extends ITransformData,
+    Transform extends BaseTransform,
+    F extends ITextFileInputField> {
 
   protected ILogChannel log = new LogChannel("junit");
   protected FileSystemManager fs;
@@ -100,7 +103,7 @@ public abstract class BaseParsingTest<
   }
 
   /** Declare fields for test. */
-  protected abstract void setFields(BaseFileField... fields) throws Exception;
+  protected abstract void setFields(F... fields) throws Exception;
 
   /** Process all rows. */
   protected void process() throws Exception {

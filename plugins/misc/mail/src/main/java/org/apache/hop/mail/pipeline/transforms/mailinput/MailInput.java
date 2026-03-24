@@ -19,7 +19,7 @@ package org.apache.hop.mail.pipeline.transforms.mailinput;
 
 import jakarta.mail.Header;
 import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +33,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.mail.common.MailConst;
 import org.apache.hop.mail.metadata.MailServerConnection;
 import org.apache.hop.mail.workflow.actions.getpop.MailConnection;
 import org.apache.hop.mail.workflow.actions.getpop.MailConnectionMeta;
@@ -65,10 +66,9 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
 
   @Override
   public boolean processRow() throws HopException {
-
     Object[] outputRowData = getOneRow();
-
-    if (outputRowData == null) { // no more input to be expected...
+    // no more input to be expected...
+    if (outputRowData == null) {
 
       setOutputDone();
       return false;
@@ -107,7 +107,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
           folderslist =
               connection.getProtocol().equals(MailServerConnection.PROTOCOL_MBOX)
                   ? new String[] {""}
-                  : new String[] {Const.NVL(realIMAPFolder, MailServerConnection.INBOX_FOLDER)};
+                  : new String[] {Const.NVL(realIMAPFolder, MailConst.INBOX_FOLDER)};
         } else {
           // mstor's default folder has no name
           folderslist =
@@ -118,7 +118,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
       } else {
         folderslist = new String[folderslist0.length + 1];
         if (connection != null) {
-          folderslist[0] = Const.NVL(realIMAPFolder, MailServerConnection.INBOX_FOLDER);
+          folderslist[0] = Const.NVL(realIMAPFolder, MailConst.INBOX_FOLDER);
         } else {
           folderslist[0] = Const.NVL(realIMAPFolder, MailConnectionMeta.INBOX_FOLDER);
         }
@@ -131,7 +131,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
         folderslist =
             connection.getProtocol().equals(MailServerConnection.PROTOCOL_MBOX)
                 ? new String[] {""}
-                : new String[] {Const.NVL(realIMAPFolder, MailServerConnection.INBOX_FOLDER)};
+                : new String[] {Const.NVL(realIMAPFolder, MailConst.INBOX_FOLDER)};
       } else {
         folderslist =
             data.mailConn.getProtocol() == MailConnectionMeta.PROTOCOL_MBOX
@@ -158,7 +158,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
     if (!Utils.isEmpty(realSearchReceipient)) {
       // apply TO
       if (connection != null) {
-        connection.setReceipientTerm(realSearchReceipient);
+        connection.setRecipientTerm(realSearchReceipient);
       } else {
         data.mailConn.setReceipientTerm(realSearchReceipient);
       }
@@ -427,7 +427,11 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
         }
       } else {
         if (connection != null) {
-          connection.openFolder(false);
+          if (meta.getProtocol().equalsIgnoreCase(MailConst.PROTOCOL_STRING_IMAP)) {
+            connection.openFolder(data.folder, true);
+          } else {
+            connection.openFolder(false);
+          }
         } else {
           data.mailConn.openFolder(false);
         }
@@ -489,7 +493,6 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
 
   @Override
   public boolean init() {
-
     if (!super.init()) {
       return false;
     }
@@ -525,10 +528,10 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
             "Mail Server Connection " + meta.getConnectionName() + " could not be found");
       }
       try {
-        connection.getSession(variables);
-        connection.getStore().connect();
+        Session session = connection.getSession(variables);
+        connection.testConnection(session);
         connected = true;
-      } catch (MessagingException e) {
+      } catch (Exception e) {
         logError(
             "A connection to mail server connection '"
                 + meta.getConnectionName()
@@ -674,8 +677,8 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
 
   private int getReadFirst(String protocol) {
     if (connection != null) {
-      if (protocol.equals(MailServerConnection.PROTOCOL_STRING_IMAP)
-          || protocol.equals(MailServerConnection.PROTOCOL_STRING_POP3)) {
+      if (protocol.equals(MailConst.PROTOCOL_STRING_IMAP)
+          || protocol.equals(MailConst.PROTOCOL_STRING_POP3)) {
         return Const.toInt(meta.getFirstMails(), 0);
       }
     } else {

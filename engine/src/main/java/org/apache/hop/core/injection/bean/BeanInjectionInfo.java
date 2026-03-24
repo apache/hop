@@ -39,6 +39,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IStringObjectConverter;
 import org.apache.hop.metadata.util.ReflectionUtil;
+import org.jspecify.annotations.NonNull;
 
 /** Storage for bean annotations info for Metadata Injection and Load/Save. */
 public class BeanInjectionInfo<Meta extends Object> {
@@ -115,7 +116,7 @@ public class BeanInjectionInfo<Meta extends Object> {
 
     List<BeanLevelInfo> parentPath = Arrays.asList(classLevelInfo);
 
-    boolean hasChildren = extractMetadataProperties(rootGroup, parentPath, clazz);
+    boolean hasChildren = extractMetadataProperties(rootGroup, parentPath, clazz, null);
     if (!hasChildren) {
       throw new RuntimeException("Injection not supported in " + clazz);
     }
@@ -125,11 +126,17 @@ public class BeanInjectionInfo<Meta extends Object> {
   }
 
   private boolean extractMetadataProperties(
-      Group rootGroup, List<BeanLevelInfo> parentPath, Class<?> clazz) {
+      Group rootGroup,
+      List<BeanLevelInfo> parentPath,
+      Class<?> clazz,
+      HopMetadataProperty parentProperty) {
+
+    Set<String> childKeysToIgnore = getChildKeysToIgnore(parentProperty);
+
     Map<Field, HopMetadataProperty> propertyFields = new HashMap<>();
     for (Field field : ReflectionUtil.findAllFields(clazz)) {
       HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
-      if (property != null) {
+      if (property != null && !childKeysToIgnore.contains(property.key())) {
         propertyFields.put(field, property);
       }
     }
@@ -209,11 +216,11 @@ public class BeanInjectionInfo<Meta extends Object> {
           group.properties.add(p);
           properties.put(injectionKey, p);
         } else {
+          Set<String> ignoreKeys = new HashSet<>(Set.of(property.childKeysToIgnore()));
           for (Field childField : ReflectionUtil.findAllFields(fieldType)) {
             Class<?> childFieldType = childField.getType();
             HopMetadataProperty childProperty = childField.getAnnotation(HopMetadataProperty.class);
-            if (childProperty != null) {
-
+            if (childProperty != null && !ignoreKeys.contains(childProperty.key())) {
               String childInjectionKey = calculateInjectionKey(childField, childProperty);
               String childInjectionKeyDescription = calculateInjectionKeyDescription(childProperty);
 
@@ -245,7 +252,7 @@ public class BeanInjectionInfo<Meta extends Object> {
               } else {
                 // Extract properties of this child as well...
                 //
-                extractMetadataProperties(rootGroup, path, childFieldType);
+                extractMetadataProperties(rootGroup, path, childFieldType, childProperty);
               }
             }
           }
@@ -277,11 +284,19 @@ public class BeanInjectionInfo<Meta extends Object> {
           //
           List<BeanLevelInfo> path = new ArrayList<>(parentPath);
           path.add(fieldLevelInfo);
-          extractMetadataProperties(rootGroup, path, fieldType);
+          extractMetadataProperties(rootGroup, path, fieldType, property);
         }
       }
     }
     return true;
+  }
+
+  private static @NonNull Set<String> getChildKeysToIgnore(HopMetadataProperty property) {
+    Set<String> childKeysToIgnore = new HashSet<>();
+    if (property != null) {
+      childKeysToIgnore = new HashSet<>(Set.of(property.childKeysToIgnore()));
+    }
+    return childKeysToIgnore;
   }
 
   private boolean isChildlessClass(Class<?> fieldType, HopMetadataProperty property) {

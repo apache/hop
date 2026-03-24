@@ -75,8 +75,14 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
     //
     String locationName = StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_LOCATION));
 
-    PrintWriter out = response.getWriter();
-    BufferedReader in = request.getReader();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
+    BufferedReader in = getSafeReader(request, response);
+    if (in == null) {
+      return;
+    }
 
     response.setContentType("text/xml");
     out.print(XmlHandler.getXmlHeader());

@@ -17,7 +17,6 @@
 
 package org.apache.hop.www;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.xml.bind.DataBindingException;
@@ -76,8 +75,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
   }
 
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
@@ -91,7 +89,10 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
     response.setContentType("application/json");
     response.setCharacterEncoding(Const.XML_ENCODING);
 
-    PrintWriter out = response.getWriter();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
 
     // The type of information to request
     //
@@ -298,14 +299,18 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
         iLocation.close();
       }
     } catch (Exception e) {
-      String message = Const.getStackTracker(e);
+      logError("Execution info request failed", e);
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      String clientMessage =
+          e instanceof HopException
+              ? Const.NVL(e.getMessage(), "Request failed.")
+              : "Unable to retrieve execution information.";
       try {
-        HopJson.newMapper().writeValue(out, message);
+        HopJson.newMapper().writeValue(out, clientMessage);
       } catch (IOException | DataBindingException ex) {
-        throw new ServletException(
-            "Error writing execution state as JSON to servlet output stream", ex);
+        logError("Failed to write execution info error response as JSON", ex);
+        sendSafeError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, clientMessage);
       }
-      response.setStatus(500);
     }
   }
 

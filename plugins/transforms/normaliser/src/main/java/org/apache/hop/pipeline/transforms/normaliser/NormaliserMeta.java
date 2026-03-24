@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -47,7 +49,7 @@ DATE      PRODUCT    Sales   Number
 20030101  PRODUCT2     250       10
 20030101  PRODUCT3     150        4
 
---> we need a mapping of fields with occurances.  (PRODUCT1_NR --> "PRODUCT1", PRODUCT1_SL --> "PRODUCT1", ...)
+--> we need a mapping of fields with occurrences.  (PRODUCT1_NR --> "PRODUCT1", PRODUCT1_SL --> "PRODUCT1", ...)
 --> List of Fields with the type and the new fieldname to fill
 --> PRODUCT1_NR, "PRODUCT1", Number
 --> PRODUCT1_SL, "PRODUCT1", Sales
@@ -56,8 +58,8 @@ DATE      PRODUCT    Sales   Number
 --> PRODUCT3_NR, "PRODUCT3", Number
 --> PRODUCT3_SL, "PRODUCT3", Sales
 
---> To parse this, we loop over the occurances of type: "PRODUCT1", "PRODUCT2" and "PRODUCT3"
---> For each of the occurance, we insert a record.
+--> To parse this, we loop over the occurrences of type: "PRODUCT1", "PRODUCT2" and "PRODUCT3"
+--> For each of the occurrence, we insert a record.
 
 **/
 
@@ -69,6 +71,8 @@ DATE      PRODUCT    Sales   Number
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::NormaliserMeta.keyword",
     documentationUrl = "/pipeline/transforms/rownormaliser.html")
+@Getter
+@Setter
 public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData> {
   private static final Class<?> PKG = NormaliserMeta.class;
 
@@ -96,28 +100,6 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     for (NormaliserField field : meta.normaliserFields) {
       normaliserFields.add(new NormaliserField(field));
     }
-  }
-
-  /**
-   * @return Returns the typeField.
-   */
-  public String getTypeField() {
-    return typeField;
-  }
-
-  /**
-   * @param typeField The typeField to set.
-   */
-  public void setTypeField(String typeField) {
-    this.typeField = typeField;
-  }
-
-  public List<NormaliserField> getNormaliserFields() {
-    return normaliserFields;
-  }
-
-  public void setNormaliserFields(List<NormaliserField> normaliserFields) {
-    this.normaliserFields = normaliserFields;
   }
 
   public Set<String> getFieldNames() {

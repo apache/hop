@@ -1,0 +1,3 @@
+name,element_type,type,length,precision,trim_type
+File content,content,String,65535,-1,right
+File size,size,Integer,7,0,none

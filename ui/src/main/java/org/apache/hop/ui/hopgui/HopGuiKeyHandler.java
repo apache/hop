@@ -49,9 +49,6 @@ public class HopGuiKeyHandler extends KeyAdapter {
   /** Parent -> Control (e.g. shell) so we try that parent when focus is in its window. */
   private final Map<Object, Control> parentToControl = new HashMap<>();
 
-  private KeyboardShortcut lastShortcut;
-  private long lastShortcutTime;
-
   private HopGuiKeyHandler() {
     this.parentObjects = new HashSet<>();
   }

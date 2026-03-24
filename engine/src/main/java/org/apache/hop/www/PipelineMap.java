@@ -106,7 +106,11 @@ public class PipelineMap {
    * @return the pipeline configuration with the specified entry
    */
   public PipelineConfiguration getConfiguration(HopServerObjectEntry entry) {
-    return pipelineMap.get(entry).getConfiguration();
+    PipelineData pipelineData = pipelineMap.get(entry);
+    if (pipelineData != null) {
+      return pipelineData.getConfiguration();
+    }
+    return null;
   }
 
   /**

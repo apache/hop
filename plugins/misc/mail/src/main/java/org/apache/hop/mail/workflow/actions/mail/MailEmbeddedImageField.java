@@ -24,10 +24,17 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Getter
 @Setter
 public class MailEmbeddedImageField {
-
   @HopMetadataProperty(key = "image_name")
-  private String embeddedimage;
+  private String embeddedImage;
 
   @HopMetadataProperty(key = "content_id")
   private String contentId;
+
+  public MailEmbeddedImageField() {}
+
+  public MailEmbeddedImageField(MailEmbeddedImageField imageField) {
+    this();
+    this.contentId = imageField.contentId;
+    this.embeddedImage = imageField.embeddedImage;
+  }
 }

@@ -100,9 +100,10 @@ limitations under the License.
         <source_output_field_precision>-1</source_output_field_precision>
       </source_output_field>
     </source_output_fields>
-    <target_file/>
+    <target_file>/tmp/get-data-from-xml.hpl</target_file>
     <create_parent_folder>Y</create_parent_folder>
     <no_execution>N</no_execution>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
     <stream_source_transform/>
     <stream_target_transform/>
     <mappings>

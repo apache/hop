@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 class MailMetaTest implements IInitializer<ITransformMeta> {
-  LoadSaveTester loadSaveTester;
+  LoadSaveTester<MailMeta> loadSaveTester;
   Class<MailMeta> testMetaClass = MailMeta.class;
 
   @RegisterExtension
@@ -62,18 +62,18 @@ class MailMetaTest implements IInitializer<ITransformMeta> {
             "includeSubFolders",
             "zipFilenameDynamic",
             "filenameDynamic",
-            "dynamicFieldname",
+            "dynamicFieldName",
             "dynamicWildcard",
             "dynamicZipFilename",
-            "sourcefilefoldername",
-            "sourcewildcard",
+            "sourceFileFolderName",
+            "sourceWildCard",
             "contactPerson",
             "contactPhone",
             "comment",
             "includingFiles",
             "zipFiles",
             "zipFilename",
-            "ziplimitsize",
+            "zipLimitSize",
             "usingAuthentication",
             "authenticationUser",
             "authenticationPassword",
@@ -117,6 +117,7 @@ class MailMetaTest implements IInitializer<ITransformMeta> {
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
+    //noinspection rawtypes
     loadSaveTester =
         new LoadSaveTester(
             testMetaClass,
@@ -128,27 +129,26 @@ class MailMetaTest implements IInitializer<ITransformMeta> {
             this);
   }
 
-  public class ImageListLoadSaveValidator
+  public static class ImageListLoadSaveValidator
       implements IFieldLoadSaveValidator<MailEmbeddedImageField> {
 
     @Override
     public MailEmbeddedImageField getTestObject() {
       MailEmbeddedImageField mailEmbeddedImageField = new MailEmbeddedImageField();
       mailEmbeddedImageField.setContentId(UUID.randomUUID().toString());
-      mailEmbeddedImageField.setEmbeddedimage(UUID.randomUUID().toString());
+      mailEmbeddedImageField.setEmbeddedImage(UUID.randomUUID().toString());
       return mailEmbeddedImageField;
     }
 
     @Override
     public boolean validateTestObject(MailEmbeddedImageField testObject, Object actual) {
-      if (!(actual instanceof MailEmbeddedImageField)) {
+      if (!(actual instanceof MailEmbeddedImageField mailEmbeddedImageField)) {
         return false;
       }
 
-      MailEmbeddedImageField mailEmbeddedImageField = (MailEmbeddedImageField) actual;
       return new EqualsBuilder()
           .append(mailEmbeddedImageField.getContentId(), testObject.getContentId())
-          .append(mailEmbeddedImageField.getEmbeddedimage(), testObject.getEmbeddedimage())
+          .append(mailEmbeddedImageField.getEmbeddedImage(), testObject.getEmbeddedImage())
           .isEquals();
     }
   }
@@ -156,9 +156,7 @@ class MailMetaTest implements IInitializer<ITransformMeta> {
   // Call the allocate method on the LoadSaveTester meta class
   @Override
   public void modify(ITransformMeta someMeta) {
-    if (someMeta instanceof MailMeta) {
-      //      ((MailMeta) someMeta).allocate(5);
-    }
+    // Nothing to modify
   }
 
   @Test

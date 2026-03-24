@@ -607,7 +607,7 @@ public class JsonOutputDialog extends BaseTransformDialog {
     colinf =
         new ColumnInfo[] {
           new ColumnInfo(
-              BaseMessages.getString(PKG, "JsonOutputDialog.Fieldname.Column"),
+              BaseMessages.getString(PKG, "JsonOutputDialog.FieldName.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {""},
               false),
@@ -766,23 +766,23 @@ public class JsonOutputDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void getInfo(JsonOutputMeta jsometa) {
-    jsometa.setJsonBloc(wBlocName.getText());
-    jsometa.setNrRowsInBloc(wNrRowsInBloc.getText());
-    jsometa.setEncoding(wEncoding.getText());
-    jsometa.setOutputValue(wOutputValue.getText());
-    jsometa.setOperationType(JsonOutputMeta.operationDescType.get(wOperation.getText()));
-    jsometa.setCreateParentFolder(wCreateParentFolder.getSelection());
-    jsometa.setFileName(wFilename.getText());
-    jsometa.setExtension(wExtension.getText());
-    jsometa.setFileAppended(wAppend.getSelection());
+  private void getInfo(JsonOutputMeta meta) {
+    meta.setJsonBloc(wBlocName.getText());
+    meta.setNrRowsInBloc(wNrRowsInBloc.getText());
+    meta.setEncoding(wEncoding.getText());
+    meta.setOutputValue(wOutputValue.getText());
+    meta.setOperationType(JsonOutputMeta.operationDescType.get(wOperation.getText()));
+    meta.setCreateParentFolder(wCreateParentFolder.getSelection());
+    meta.setFileName(wFilename.getText());
+    meta.setExtension(wExtension.getText());
+    meta.setFileAppended(wAppend.getSelection());
 
-    jsometa.setDateInFilename(wAddDate.getSelection());
-    jsometa.setTimeInFilename(wAddTime.getSelection());
+    meta.setDateInFilename(wAddDate.getSelection());
+    meta.setTimeInFilename(wAddTime.getSelection());
 
-    jsometa.setEncoding(wEncoding.getText());
-    jsometa.setAddToResult(wAddToResult.getSelection());
-    jsometa.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
+    meta.setEncoding(wEncoding.getText());
+    meta.setAddToResult(wAddToResult.getSelection());
+    meta.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
 
     int nrFields = wFields.nrNonEmpty();
     input.getOutputFields().clear();
@@ -793,7 +793,7 @@ public class JsonOutputDialog extends BaseTransformDialog {
       TableItem item = wFields.getNonEmpty(i);
       field.setFieldName(item.getText(1));
       field.setElementName(item.getText(2));
-      jsometa.getOutputFields().add(field);
+      meta.getOutputFields().add(field);
     }
   }
 

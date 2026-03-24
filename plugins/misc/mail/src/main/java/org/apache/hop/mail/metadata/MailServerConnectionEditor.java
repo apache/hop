@@ -173,7 +173,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     FormData fdlUseAuthenticationLabel = new FormData();
     fdlUseAuthenticationLabel.top = new FormAttachment(lastControl, margin);
     fdlUseAuthenticationLabel.left = new FormAttachment(0, 0);
-    fdlUseAuthenticationLabel.right = new FormAttachment(middle, 0);
+    fdlUseAuthenticationLabel.right = new FormAttachment(middle, -margin);
     wlUseAuthenticationLabel.setLayoutData(fdlUseAuthenticationLabel);
     wUseAuthentication = new Button(composite, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wUseAuthentication);
@@ -275,7 +275,6 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     fdSecureConnectionType.left = new FormAttachment(middle, 0);
     fdSecureConnectionType.right = new FormAttachment(100, 0);
     wSecureConnectionType.setLayoutData(fdSecureConnectionType);
-    String[] secureConnectionType = new String[] {"SSL", "TLS", "TLS 1.2"};
     lastControl = wSecureConnectionType;
 
     // Use check server identity
@@ -285,8 +284,8 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     PropsUi.setLook(wlCheckServerIdentity);
     FormData fdlCheckServerIdentity = new FormData();
     fdlCheckServerIdentity.left = new FormAttachment(0, 0);
-    fdlCheckServerIdentity.top = new FormAttachment(lastControl, 0);
-    fdlCheckServerIdentity.right = new FormAttachment(middle, 0);
+    fdlCheckServerIdentity.top = new FormAttachment(lastControl, margin);
+    fdlCheckServerIdentity.right = new FormAttachment(middle, -margin);
     wlCheckServerIdentity.setLayoutData(fdlCheckServerIdentity);
     wCheckServerIdentity = new Button(composite, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wCheckServerIdentity);
@@ -302,7 +301,6 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
             setChanged();
           }
         });
-    lastControl = wCheckServerIdentity;
 
     // Trusted Hosts line
     wTrustedHosts =
@@ -369,7 +367,6 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     fdProxyPassword.left = new FormAttachment(middle, 0);
     fdProxyPassword.right = new FormAttachment(100, 0);
     wProxyPassword.setLayoutData(fdProxyPassword);
-    lastControl = wProxyPassword;
 
     setWidgetsContent();
 
@@ -456,7 +453,7 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     connection.setProtocol(variables.resolve(wConnectionProtocol.getText()));
     connection.setServerHost(variables.resolve(wServerHost.getText()));
     connection.setServerPort(variables.resolve(wServerPort.getText()));
-    connection.setUseAuthentication(wUseSecureAuthentication.getSelection());
+    connection.setUseAuthentication(wUseAuthentication.getSelection());
     connection.setSecureConnectionType(wSecureConnectionType.getText());
     connection.setUseXOAuth2(wUseXOAuth2.getSelection());
     connection.setUsername(variables.resolve(wServerUsername.getText()));
@@ -466,15 +463,16 @@ public class MailServerConnectionEditor extends MetadataEditor<MailServerConnect
     connection.setProxyUsername(variables.resolve(wProxyUsername.getText()));
 
     try {
-      if (connection.testConnection(connection.getSession(variables))) {
-        MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
-        mb.setMessage(
-            BaseMessages.getString(
-                    PKG, "ActionGetPOP.Connected.OK", variables.resolve(wServerHost.getText()))
-                + Const.CR);
-        mb.setText(BaseMessages.getString(PKG, "ActionGetPOP.Connected.Title.Ok"));
-        mb.open();
-      }
+      connection.testConnection(connection.getSession(variables));
+      MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      mb.setMessage(
+          BaseMessages.getString(
+                  PKG,
+                  "MailServerConnectionDialog.Connected.OK",
+                  variables.resolve(wServerHost.getText()))
+              + Const.CR);
+      mb.setText(BaseMessages.getString(PKG, "MailServerConnectionDialog.Connected.Title.Ok"));
+      mb.open();
     } catch (Exception e) {
       new ErrorDialog(hopGui.getShell(), "Error", "Error connecting mail server:", e);
     }

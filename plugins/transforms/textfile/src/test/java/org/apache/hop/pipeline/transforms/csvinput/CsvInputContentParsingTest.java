@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -37,9 +36,9 @@ class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init("default.csv");
 
     setFields(
-        new TextFileInputField("Field 1", -1, -1),
-        new TextFileInputField("Field 2", -1, -1),
-        new TextFileInputField("Field 3", -1, -1));
+        new CsvInputField("Field 1", -1, -1),
+        new CsvInputField("Field 2", -1, -1),
+        new CsvInputField("Field 3", -1, -1));
 
     process();
 
@@ -51,9 +50,9 @@ class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init("column_name_with_spaces.csv");
 
     setFields(
-        new TextFileInputField("Field 1", -1, -1),
-        new TextFileInputField("Field 2", -1, -1),
-        new TextFileInputField("Field 3", -1, -1));
+        new CsvInputField("Field 1", -1, -1),
+        new CsvInputField("Field 2", -1, -1),
+        new CsvInputField("Field 3", -1, -1));
 
     process();
 
@@ -66,9 +65,9 @@ class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init("semicolon.csv");
 
     setFields(
-        new TextFileInputField("Field 1", -1, -1),
-        new TextFileInputField("Field 2", -1, -1),
-        new TextFileInputField("Field 3", -1, -1));
+        new CsvInputField("Field 1", -1, -1),
+        new CsvInputField("Field 2", -1, -1),
+        new CsvInputField("Field 3", -1, -1));
 
     process();
 
@@ -87,9 +86,9 @@ class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init("multi_delim.csv");
 
     setFields(
-        new TextFileInputField("Field 1", -1, -1),
-        new TextFileInputField("Field 2", -1, -1),
-        new TextFileInputField("Field 3", -1, -1));
+        new CsvInputField("Field 1", -1, -1),
+        new CsvInputField("Field 2", -1, -1),
+        new CsvInputField("Field 3", -1, -1));
 
     process();
 
@@ -123,11 +122,11 @@ class CsvInputContentParsingTest extends BaseCsvParsingTest {
     init(file, true);
 
     setFields(
-        new TextFileInputField("Col 1", -1, -1),
-        new TextFileInputField("Col 2", -1, -1),
-        new TextFileInputField("Col 3", -1, -1),
-        new TextFileInputField("Col 4", -1, -1),
-        new TextFileInputField("Col 5", -1, -1));
+        new CsvInputField("Col 1", -1, -1),
+        new CsvInputField("Col 2", -1, -1),
+        new CsvInputField("Col 3", -1, -1),
+        new CsvInputField("Col 4", -1, -1),
+        new CsvInputField("Col 5", -1, -1));
 
     process();
 
@@ -152,7 +151,7 @@ class CsvInputContentParsingTest extends BaseCsvParsingTest {
     meta.setHeaderPresent(false);
     init("default.csv");
 
-    setFields(new TextFileInputField(), new TextFileInputField(), new TextFileInputField());
+    setFields(new CsvInputField(), new CsvInputField(), new CsvInputField());
 
     transform.setAllowEmptyFieldNamesAndTypes(false);
 

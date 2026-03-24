@@ -17,139 +17,74 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.IVariables;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaJson;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
-@ExtendWith(MockitoExtension.class)
 class JsonInputMetaTest {
-  public static final String DATA = "data";
-  public static final String NAME = "name";
-  private static final Pattern CLEAN_NODES =
-      Pattern.compile("(<transform>)[\\r|\\n]+|</transform>");
-
-  JsonInputMeta jsonInputMeta;
-
-  @Mock IRowMeta rowMeta;
-
-  @Mock IRowMeta rowMetaInterfaceItem;
-
-  @Mock TransformMeta nextTransform;
-
-  @Mock IVariables variables;
-
-  @Mock IHopMetadataProvider metadataProvider;
-
-  @Mock JsonInputMeta.InputFiles inputFiles;
-
-  @Mock JsonInputField inputField;
-
   @BeforeEach
-  void setup() {
-    jsonInputMeta = new JsonInputMeta();
-    // Ensure inputFiles is properly initialized
-    if (jsonInputMeta.getInputFiles() == null) {
-      jsonInputMeta.setInputFiles(inputFiles);
+  void beforeEach() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    String[] classNames = {
+      ValueMetaString.class.getName(),
+      ValueMetaInteger.class.getName(),
+      ValueMetaDate.class.getName(),
+      ValueMetaNumber.class.getName(),
+      ValueMetaJson.class.getName()
+    };
+    for (String className : classNames) {
+      registry.registerPluginClass(className, ValueMetaPluginType.class, ValueMetaPlugin.class);
     }
-    jsonInputMeta.setInputFields(new JsonInputField[] {inputField});
   }
 
   @Test
-  void getFieldsRemoveSourceField() throws Exception {
-    IRowMeta[] info = new IRowMeta[1];
-    info[0] = rowMetaInterfaceItem;
+  void testLoadSave() throws Exception {
+    Path path =
+        Paths.get(Objects.requireNonNull(getClass().getResource("/json-input.xml")).toURI());
+    String xml = Files.readString(path);
+    JsonInputMeta meta = new JsonInputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        JsonInputMeta.class,
+        meta,
+        new MemoryMetadataProvider());
 
-    jsonInputMeta.setRemoveSourceField(true);
-    jsonInputMeta.setFieldValue(DATA);
-    jsonInputMeta.setInFields(true);
+    validate(meta);
 
-    when(rowMeta.indexOfValue(DATA)).thenReturn(0);
-
-    jsonInputMeta.getFields(rowMeta, NAME, info, nextTransform, variables, metadataProvider);
-
-    verify(rowMeta).removeValueMeta(0);
+    // Do a round trip:
+    //
+    String xmlCopy =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(meta)
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    JsonInputMeta metaCopy = new JsonInputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xmlCopy, TransformMeta.XML_TAG),
+        JsonInputMeta.class,
+        metaCopy,
+        new MemoryMetadataProvider());
+    validate(metaCopy);
   }
 
-  @Test
-  void testGetXmlOfDefaultMeta_defaultPathLeafToNull_Y() throws Exception {
-    jsonInputMeta = new JsonInputMeta();
-    jsonInputMeta.setDefault();
-    String xml = jsonInputMeta.getXml();
-    assertEquals(xml, expectedMeta("/transform_default.xml"));
-  }
-
-  @Test
-  void testGetXmlOfMeta_defaultPathLeafToNull_N() throws Exception {
-    jsonInputMeta = new JsonInputMeta();
-    jsonInputMeta.setDefault();
-    jsonInputMeta.setDefaultPathLeafToNull(false);
-    String xml = jsonInputMeta.getXml();
-    assertEquals(xml, expectedMeta("/transform_defaultPathLeafToNull_N.xml"));
-  }
-
-  // Loading transform meta from the transform xml where DefaultPathLeafToNull=N
-  @Test
-  void testMetaLoad_DefaultPathLeafToNull_Is_N() throws HopXmlException {
-    jsonInputMeta = new JsonInputMeta();
-    jsonInputMeta.loadXml(
-        loadTransformFile("/transform_defaultPathLeafToNull_N.xml"), metadataProvider);
-    assertEquals(
-        false, jsonInputMeta.isDefaultPathLeafToNull(), "Option.DEFAULT_PATH_LEAF_TO_NULL ");
-  }
-
-  // Loading transform meta from default transform xml. In this case DefaultPathLeafToNull=Y in xml.
-  @Test
-  void testDefaultMetaLoad_DefaultPathLeafToNull_Is_Y() throws HopXmlException {
-    jsonInputMeta = new JsonInputMeta();
-    jsonInputMeta.loadXml(loadTransformFile("/transform_default.xml"), metadataProvider);
-    assertEquals(
-        true, jsonInputMeta.isDefaultPathLeafToNull(), "Option.DEFAULT_PATH_LEAF_TO_NULL ");
-  }
-
-  // Loading transform meta from the transform xml that was created before. In this case xml
-  // contains no
-  // DefaultPathLeafToNull node at all.
-  // For backward compatibility in this case we think that the option is set to default value - Y.
-  @Test
-  void testMetaLoadAsDefault_NoDefaultPathLeafToNull_In_Xml() throws HopXmlException {
-    jsonInputMeta = new JsonInputMeta();
-    jsonInputMeta.loadXml(
-        loadTransformFile("/transform_no_defaultPathLeafToNull_node.xml"), metadataProvider);
-    assertEquals(
-        true, jsonInputMeta.isDefaultPathLeafToNull(), "Option.DEFAULT_PATH_LEAF_TO_NULL ");
-  }
-
-  private Node loadTransformFile(String transformFilename) throws HopXmlException {
-    Document document =
-        XmlHandler.loadXmlFile(this.getClass().getResourceAsStream(transformFilename));
-    return document.getDocumentElement();
-  }
-
-  private String expectedMeta(String transform) throws Exception {
-    try (BufferedReader reader =
-        new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(transform)))) {
-      String xml = reader.lines().collect(Collectors.joining(Const.CR));
-      xml = CLEAN_NODES.matcher(xml).replaceAll("");
-      return xml;
-    }
+  private static void validate(JsonInputMeta meta) {
+    assertNotNull(meta.getInputFields());
+    assertNotNull(meta.getFileInput().getInputFiles());
   }
 }

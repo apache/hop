@@ -19,9 +19,13 @@ package org.apache.hop.pipeline.transforms.file;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.injection.InjectionDeep;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -29,128 +33,70 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.ResourceReference;
+import org.w3c.dom.Node;
 
 /** Base meta for file-based input transforms. */
+@Getter
+@Setter
 public abstract class BaseFileInputMeta<
-        Main extends ITransform,
-        Data extends ITransformData,
-        A extends BaseFileInputAdditionalField,
-        I extends BaseFileInputFiles,
-        F extends BaseFileField>
+        Main extends ITransform, Data extends ITransformData, I extends BaseFileInput>
     extends BaseTransformMeta<Main, Data> {
   private static final Class<?> PKG = BaseFileInputMeta.class;
 
-  public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
+  public static final String[] REQUIRED_FILES_CODE = new String[] {"N", "Y"};
 
   public static final String NO = "N";
 
   public static final String YES = "Y";
 
-  public static final String[] RequiredFilesDesc =
+  public static final String[] REQUIRED_FILES_DESC =
       new String[] {
         BaseMessages.getString(PKG, "System.Combo.No"),
         BaseMessages.getString(PKG, "System.Combo.Yes")
       };
 
-  @InjectionDeep public I inputFiles;
+  protected abstract I getFileInput();
 
-  /** The fields to import... */
-  @InjectionDeep public F[] inputFields;
+  protected abstract void setFileInput(I input);
 
-  /**
-   * @return the input fields.
-   */
-  public F[] getInputFields() {
-    return inputFields;
+  public BaseFileInputMeta() {}
+
+  public BaseFileInputMeta(BaseFileInputMeta<Main, Data, I> meta) {
+    this();
   }
-
-  @InjectionDeep public BaseFileErrorHandling errorHandling = new BaseFileErrorHandling();
-  @InjectionDeep public A additionalOutputFields;
 
   @Override
   public Object clone() {
-    BaseFileInputMeta<
-            BaseFileInputTransform,
-            BaseFileInputTransformData,
-            BaseFileInputAdditionalField,
-            BaseFileInputFiles,
-            BaseFileField>
-        retval =
-            (BaseFileInputMeta<
-                    BaseFileInputTransform,
-                    BaseFileInputTransformData,
-                    BaseFileInputAdditionalField,
-                    BaseFileInputFiles,
-                    BaseFileField>)
-                super.clone();
-
-    retval.inputFiles = (BaseFileInputFiles) inputFiles.clone();
-    retval.errorHandling = (BaseFileErrorHandling) errorHandling.clone();
-    retval.additionalOutputFields = (BaseFileInputAdditionalField) additionalOutputFields.clone();
-
+    BaseFileInputMeta<BaseFileInputTransform, BaseFileInputTransformData, BaseFileInput> retval =
+        (BaseFileInputMeta<BaseFileInputTransform, BaseFileInputTransformData, BaseFileInput>)
+            super.clone();
+    retval.setFileInput((BaseFileInput) getFileInput().clone());
     return retval;
   }
 
-  /**
-   * @param fileRequiredin The fileRequired to set.
-   */
-  public void inputFiles_fileRequired(String[] fileRequiredin) {
-    for (int i = 0; i < fileRequiredin.length; i++) {
-      inputFiles.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
-    }
-  }
-
-  public String[] inputFiles_includeSubFolders() {
-    return inputFiles.includeSubFolders;
-  }
-
-  public void inputFiles_includeSubFolders(String[] includeSubFoldersin) {
-    for (int i = 0; i < includeSubFoldersin.length; i++) {
-      inputFiles.includeSubFolders[i] = getRequiredFilesCode(includeSubFoldersin[i]);
-    }
-  }
-
-  public static String getRequiredFilesCode(String tt) {
-    if (tt == null) {
-      return RequiredFilesCode[0];
-    }
-    if (tt.equals(RequiredFilesDesc[1])) {
-      return RequiredFilesCode[1];
-    } else {
-      return RequiredFilesCode[0];
-    }
-  }
-
   public FileInputList getFileInputList(IVariables variables) {
-    inputFiles.normalizeAllocation(inputFiles.fileName.length);
-    return FileInputList.createFileList(
-        variables,
-        inputFiles.fileName,
-        inputFiles.fileMask,
-        inputFiles.excludeFileMask,
-        inputFiles.fileRequired,
-        inputFiles.includeSubFolderBoolean());
+    return FileInputList.createFileList(variables, getFileInput().getInputFiles());
   }
 
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, TransformMeta transformMeta) {
-    return inputFiles.getResourceDependencies(variables, transformMeta);
+    return getFileInput().getResourceDependencies(variables, transformMeta);
   }
 
   public abstract String getEncoding();
 
   public boolean isAcceptingFilenames() {
-    Preconditions.checkNotNull(inputFiles);
-    return inputFiles.acceptingFilenames;
+    Preconditions.checkNotNull(getFileInput());
+    return getFileInput().isAcceptingFilenames();
   }
 
   public String getAcceptingTransformName() {
-    return inputFiles == null ? null : inputFiles.acceptingTransformName;
+    return getFileInput() == null ? null : getFileInput().getAcceptingTransformName();
   }
 
   public String getAcceptingField() {
-    return inputFiles == null ? null : inputFiles.acceptingField;
+    return getFileInput() == null ? null : getFileInput().getAcceptingField();
   }
 
   public String[] getFilePaths(IVariables variables, final boolean showSamples) {
@@ -165,5 +111,31 @@ public abstract class BaseFileInputMeta<
       }
     }
     return new String[] {};
+  }
+
+  /** Convert old style inline file XML block contents */
+  public static void convertLegacyXml(List<InputFile> inputFiles, Node node) {
+    Node fileNode = XmlHandler.getSubNode(node, "file");
+    int count = XmlHandler.countNodes(fileNode, "name");
+    if (fileNode == null || count == 0) {
+      // This is already using the new files/file structure.
+      return;
+    }
+
+    inputFiles.clear();
+    for (int i = 0; i < count; i++) {
+      InputFile inputFile = new InputFile();
+      String fileName = XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "name", i));
+      String fileMask = XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "filemask", i));
+      String fileExcludeMask =
+          XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "exclude_filemask", i));
+      String fileRequired =
+          XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "file_required", i));
+      inputFile.setFileName(fileName);
+      inputFile.setFileMask(fileMask);
+      inputFile.setExcludeFileMask(fileExcludeMask);
+      inputFile.setFileRequired(Const.toBoolean(fileRequired));
+      inputFiles.add(inputFile);
+    }
   }
 }

@@ -37,6 +37,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.playlist.FilePlayListAll;
@@ -53,7 +54,6 @@ import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
-import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputTransformControl;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
@@ -299,8 +299,8 @@ class TextFileInputTest {
     final String virtualFile = createVirtualFile("pdi-2607.txt", content);
 
     TextFileInputMeta meta = createMetaObject(field("col1"), field("col2"));
-    meta.content.lineWrapped = true;
-    meta.content.nrWraps = 1;
+    meta.getContent().setLineWrapped(true);
+    meta.getContent().setNrWraps(1);
 
     TextFileInputData data = createDataObject(virtualFile, ";", "col1", "col2");
 
@@ -323,7 +323,7 @@ class TextFileInputTest {
   void readInputWithMissedValues() throws Exception {
     final String virtualFile = createVirtualFile("pdi-14172.txt", "1,1,1\n", "2,,2\n");
 
-    BaseFileField field2 = field("col2");
+    TextFileInputField field2 = field("col2");
     field2.setRepeated(true);
 
     TextFileInputMeta meta = createMetaObject(field("col1"), field2, field("col3"));
@@ -348,7 +348,7 @@ class TextFileInputTest {
   void readInputWithNonEmptyNullif() throws Exception {
     final String virtualFile = createVirtualFile("pdi-14358.txt", "-,-\n");
 
-    BaseFileField col2 = field("col2");
+    TextFileInputField col2 = field("col2");
     col2.setNullString("-");
 
     TextFileInputMeta meta = createMetaObject(field("col1"), col2);
@@ -373,7 +373,7 @@ class TextFileInputTest {
   void readInputWithDefaultValues() throws Exception {
     final String virtualFile = createVirtualFile("pdi-14832.txt", "1,\n");
 
-    BaseFileField col2 = field("col2");
+    TextFileInputField col2 = field("col2");
     col2.setIfNullValue("DEFAULT");
 
     TextFileInputMeta meta = createMetaObject(field("col1"), col2);
@@ -412,10 +412,10 @@ class TextFileInputTest {
 
     TextFileInputMeta meta = createMetaObject(field("col1"));
 
-    meta.inputFields[0].setType(1);
-    meta.content.lineWrapped = false;
-    meta.content.nrWraps = 1;
-    meta.errorHandling.errorIgnored = true;
+    meta.getInputFields().get(0).setType(1);
+    meta.getContent().setLineWrapped(false);
+    meta.getContent().setNrWraps(1);
+    meta.getErrorHandling().setErrorIgnored(true);
     TextFileInputData data = createDataObject(virtualFile, ";", "col1");
     data.dataErrorLineHandler = Mockito.mock(IFileErrorHandler.class);
 
@@ -443,9 +443,9 @@ class TextFileInputTest {
 
     TextFileInputMeta meta = createMetaObject(field("col1"));
 
-    meta.inputFields[0].setType(1);
-    meta.errorHandling.errorIgnored = true;
-    meta.errorHandling.skipBadFiles = true;
+    meta.getInputFields().getFirst().setType(1);
+    meta.getErrorHandling().setErrorIgnored(true);
+    meta.getErrorHandling().setSkipBadFiles(true);
 
     TextFileInputData data = createDataObject(virtualFile, ";", "col1");
     data.dataErrorLineHandler = Mockito.mock(IFileErrorHandler.class);
@@ -474,13 +474,13 @@ class TextFileInputTest {
   void test_PDI17117() throws Exception {
     final String virtualFile = createVirtualFile("pdi-14832.txt", "1,\n");
 
-    BaseFileField col2 = field("col2");
+    TextFileInputField col2 = field("col2");
     col2.setIfNullValue("DEFAULT");
 
     TextFileInputMeta meta = createMetaObject(field("col1"), col2);
 
-    meta.inputFiles.passingThruFields = true;
-    meta.inputFiles.acceptingFilenames = true;
+    meta.getFileInput().setPassingThruFields(true);
+    meta.getFileInput().setAcceptingFilenames(true);
     TextFileInputData data = createDataObject(virtualFile, ",", "col1", "col2");
 
     TextFileInput input =
@@ -523,8 +523,7 @@ class TextFileInputTest {
 
   @Test
   void testClose() throws Exception {
-
-    TextFileInputMeta mockTFIM = createMetaObject(null);
+    TextFileInputMeta mockTFIM = createMetaObject(new TextFileInputField("one"));
     String virtualFile = createVirtualFile("pdi-17267.txt", null);
     TextFileInputData mockTFID = createDataObject(virtualFile, ";", null);
     mockTFID.lineBuffer = new ArrayList<>();
@@ -553,16 +552,16 @@ class TextFileInputTest {
     assertEquals(0, mockTFID.lineBuffer.size());
   }
 
-  private TextFileInputMeta createMetaObject(BaseFileField... fields) {
+  private TextFileInputMeta createMetaObject(TextFileInputField... fields) {
     TextFileInputMeta meta = new TextFileInputMeta();
-    meta.content.fileCompression = "None";
-    meta.content.fileType = "CSV";
-    meta.content.header = false;
-    meta.content.nrHeaderLines = -1;
-    meta.content.footer = false;
-    meta.content.nrFooterLines = -1;
+    meta.getContent().setFileCompression("None");
+    meta.getContent().setFileType("CSV");
+    meta.getContent().setHeader(false);
+    meta.getContent().setNrHeaderLines(-1);
+    meta.getContent().setFooter(false);
+    meta.getContent().setNrFooterLines(-1);
 
-    meta.inputFields = fields;
+    meta.getInputFields().addAll(List.of(fields));
     return meta;
   }
 
@@ -583,7 +582,7 @@ class TextFileInputTest {
 
     data.dataErrorLineHandler = mock(IFileErrorHandler.class);
     data.fileFormatType = TextFileLineUtil.FILE_FORMAT_UNIX;
-    data.filterProcessor = new TextFileFilterProcessor(new TextFileFilter[0], new Variables());
+    data.filterProcessor = new TextFileFilterProcessor(List.of(), new Variables());
     data.filePlayList = new FilePlayListAll();
     return data;
   }
@@ -611,8 +610,8 @@ class TextFileInputTest {
     TestUtils.getFileObject(path).delete();
   }
 
-  private static BaseFileField field(String name) {
-    return new BaseFileField(name, -1, -1);
+  private static TextFileInputField field(String name) {
+    return new TextFileInputField(name, -1, -1);
   }
 
   public static class TestTextFileInput extends TextFileInput {

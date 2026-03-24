@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-user-defined-java-class-infos.csv",
+  "name": "golden-user-defined-java-class-infos",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "transform_description",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "transform_name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "transform_tag",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

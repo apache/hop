@@ -18,130 +18,108 @@
 package org.apache.hop.pipeline.transforms.metainject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.resource.IResourceNaming;
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.ResourceReference;
-import org.junit.jupiter.api.BeforeAll;
+import java.util.Set;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaJson;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metadata.inject.HopMetadataInjector;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 class MetaInjectMetaTest {
 
-  private static final String SOURCE_TRANSFORM_NAME = "SOURCE_TRANSFORM_NAME";
-
-  private static final String SOURCE_FIELD_NAME = "SOURCE_TRANSFORM_NAME";
-
-  private static final String TARGET_TRANSFORM_NAME = "TARGET_TRANSFORM_NAME";
-
-  private static final String TARGET_FIELD_NAME = "TARGET_TRANSFORM_NAME";
-
-  private static final String TEST_FILE_NAME = "TEST_FILE_NAME";
-
-  private static final String EXPORTED_FILE_NAME = TEST_FILE_NAME;
-
-  private static MetaInjectMeta metaInjectMeta;
-
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
-
-  @BeforeAll
-  static void SetUp() throws Exception {
-    if (!HopClientEnvironment.isInitialized()) {
-      HopClientEnvironment.init();
-    }
-    metaInjectMeta = new MetaInjectMeta();
-  }
-
   @BeforeEach
-  void before() {
-    metaInjectMeta = new MetaInjectMeta();
+  void beforeEach() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    String[] classNames = {
+      ValueMetaString.class.getName(),
+      ValueMetaInteger.class.getName(),
+      ValueMetaDate.class.getName(),
+      ValueMetaNumber.class.getName(),
+      ValueMetaJson.class.getName()
+    };
+    for (String className : classNames) {
+      registry.registerPluginClass(className, ValueMetaPluginType.class, ValueMetaPlugin.class);
+    }
   }
 
   @Test
-  void getResourceDependencies() {
-    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
-    TransformMeta transformMeta = mock(TransformMeta.class);
+  void testRoundTrip() throws Exception {
+    MetaInjectMeta meta =
+        TransformSerializationTestUtil.testSerialization("/meta-inject.xml", MetaInjectMeta.class);
+    assertNotNull(meta);
 
-    List<ResourceReference> actualResult =
-        metaInjectMeta.getResourceDependencies(new Variables(), transformMeta);
-    assertEquals(1, actualResult.size());
-    ResourceReference reference = actualResult.iterator().next();
-    assertEquals(0, reference.getEntries().size());
+    assertEquals("${PROJECT_HOME}/0038-json-input-template.hpl", meta.getTemplateFileName());
+    assertEquals("local", meta.getRunConfigurationName());
+    assertEquals("${java.io.tmpdir}/json-input.hpl", meta.getTargetFile());
+    assertTrue(meta.isCreateParentFolder());
+    assertTrue(meta.isNoExecution());
+    assertFalse(meta.isAllowEmptyStreamOnExecution());
+    assertEquals("sourceTransform", meta.getSourceTransformName());
+    assertEquals("targetTransform", meta.getStreamTargetTransformName());
+
+    // source output Fields
+    assertEquals(2, meta.getSourceOutputFields().size());
+    MetaInjectOutputField f = meta.getSourceOutputFields().getFirst();
+    assertEquals("f1", f.getName());
+    assertEquals(IValueMeta.TYPE_STRING, f.getType());
+    assertEquals(100, f.getLength());
+    assertEquals(-1, f.getPrecision());
+    f = meta.getSourceOutputFields().getLast();
+    assertEquals("f2", f.getName());
+    assertEquals(IValueMeta.TYPE_NUMBER, f.getType());
+    assertEquals(7, f.getLength());
+    assertEquals(2, f.getPrecision());
+
+    // Mappings
+    assertEquals(38, meta.getMappings().size());
+    // Let's test the first and the last only
+    //
+    MetaInjectMapping m = meta.getMappings().getFirst();
+    assertEquals("JSON input", m.getTargetTransformName());
+    assertEquals("IGNORE_EMPTY_FILE", m.getTargetAttributeKey());
+    assertFalse(m.isTargetDetail());
+    assertEquals("files/json-input.xml", m.getSourceTransformName());
+    assertEquals("IsIgnoreEmptyFile", m.getSourceField());
+
+    m = meta.getMappings().getLast();
+    assertEquals("JSON input", m.getTargetTransformName());
+    assertEquals("FILE_REQUIRED", m.getTargetAttributeKey());
+    assertTrue(m.isTargetDetail());
+    assertEquals("files/json-input.xml files", m.getSourceTransformName());
+    assertEquals("file_required", m.getSourceField());
   }
 
   @Test
-  void getResourceDependencies_with_defined_fileName() {
-    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
-    TransformMeta transformMeta = mock(TransformMeta.class);
-    metaInjectMeta.setFileName("FILE_NAME");
-    // doReturn("FILE_NAME_WITH_SUBSTITUTIONS").when(pipelineMeta).environmentSubstitute("FILE_NAME");
+  void testSampleMetaMapping() throws Exception {
+    Map<String, Set<String>> map = HopMetadataInjector.findInjectionGroupKeys(MetaInjectMeta.class);
+    assertNotNull(map);
+    assertEquals(2, map.size());
+    Set<String> fieldKeys = map.get("SOURCE_OUTPUT_FIELDS");
+    assertEquals(4, fieldKeys.size());
+    Set<String> mappingKeys = map.get("MAPPING_FIELDS");
+    assertEquals(5, mappingKeys.size());
 
-    List<ResourceReference> actualResult =
-        metaInjectMeta.getResourceDependencies(new Variables(), transformMeta);
-    assertEquals(1, actualResult.size());
-    ResourceReference reference = actualResult.iterator().next();
-    assertEquals(1, reference.getEntries().size());
-  }
-
-  @Test
-  void exportResources() throws HopException {
-    IVariables variables = mock(IVariables.class);
-    IResourceNaming resourceNamingInterface = mock(IResourceNaming.class);
-    IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
-
-    MetaInjectMeta injectMetaSpy = spy(metaInjectMeta);
-    PipelineMeta pipelineMeta = mock(PipelineMeta.class);
-    Map<String, ResourceDefinition> definitions = Collections.emptyMap();
-    doReturn(TEST_FILE_NAME)
-        .when(pipelineMeta)
-        .exportResources(variables, definitions, resourceNamingInterface, metadataProvider);
-    doReturn(pipelineMeta).when(injectMetaSpy).loadPipelineMeta(metadataProvider, variables);
-
-    String actualExportedFileName =
-        injectMetaSpy.exportResources(
-            variables, definitions, resourceNamingInterface, metadataProvider);
-    assertEquals(TEST_FILE_NAME, actualExportedFileName);
-    assertEquals(EXPORTED_FILE_NAME, injectMetaSpy.getFileName());
-    verify(pipelineMeta)
-        .exportResources(variables, definitions, resourceNamingInterface, metadataProvider);
-  }
-
-  @Test
-  void convertToMap() {
-    MetaInjectMapping metaInjectMapping = new MetaInjectMapping();
-    metaInjectMapping.setSourceTransform(SOURCE_TRANSFORM_NAME);
-    metaInjectMapping.setSourceField(SOURCE_FIELD_NAME);
-    metaInjectMapping.setTargetTransform(TARGET_TRANSFORM_NAME);
-    metaInjectMapping.setTargetField(TARGET_FIELD_NAME);
-
-    Map<TargetTransformAttribute, SourceTransformField> actualResult =
-        MetaInjectMeta.convertToMap(Collections.singletonList(metaInjectMapping));
-
-    assertEquals(1, actualResult.size());
-
-    TargetTransformAttribute targetTransformAttribute = actualResult.keySet().iterator().next();
-    assertEquals(TARGET_TRANSFORM_NAME, targetTransformAttribute.getTransformName());
-    assertEquals(TARGET_FIELD_NAME, targetTransformAttribute.getAttributeKey());
-
-    SourceTransformField sourceTransformField = actualResult.values().iterator().next();
-    assertEquals(SOURCE_TRANSFORM_NAME, sourceTransformField.getTransformName());
-    assertEquals(SOURCE_FIELD_NAME, sourceTransformField.getField());
+    assertTrue(fieldKeys.contains("SOURCE_OUTPUT_NAME"));
+    assertTrue(fieldKeys.contains("SOURCE_OUTPUT_TYPE"));
+    assertTrue(fieldKeys.contains("SOURCE_OUTPUT_LENGTH"));
+    assertTrue(fieldKeys.contains("SOURCE_OUTPUT_PRECISION"));
+    assertTrue(mappingKeys.contains("MAPPING_SOURCE_TRANSFORM"));
+    assertTrue(mappingKeys.contains("MAPPING_SOURCE_FIELD"));
+    assertTrue(mappingKeys.contains("MAPPING_TARGET_TRANSFORM"));
+    assertTrue(mappingKeys.contains("MAPPING_TARGET_FIELD"));
+    assertTrue(mappingKeys.contains("MAPPING_TARGET_DETAIL"));
   }
 }

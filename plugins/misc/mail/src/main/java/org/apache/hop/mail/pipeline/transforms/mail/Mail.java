@@ -121,7 +121,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       // Check Attached filenames when dynamic
-      if (meta.isFilenameDynamic() && Utils.isEmpty(meta.getDynamicFieldname())) {
+      if (meta.isFilenameDynamic() && Utils.isEmpty(meta.getDynamicFieldName())) {
         throw new HopException(BaseMessages.getString(PKG, "Mail.Log.DynamicFilenameFielddEmpty"));
       }
 
@@ -372,7 +372,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
                     PKG, "Mail.Exception.CouldnotSourceAttachedZipFilenameField", realZipFilename));
           }
         }
-        data.zipFileLimit = Const.toLong(resolve(meta.getZiplimitsize()), 0);
+        data.zipFileLimit = Const.toLong(resolve(meta.getZipLimitSize()), 0);
         if (data.zipFileLimit > 0) {
           data.zipFileLimit = data.zipFileLimit * 1048576; // Mo
         }
@@ -385,7 +385,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
         if (meta.isFilenameDynamic()) {
           // cache the position of the attached source filename field
           if (data.indexOfSourceFilename < 0) {
-            String realSourceattachedFilename = meta.getDynamicFieldname();
+            String realSourceattachedFilename = meta.getDynamicFieldName();
             data.indexOfSourceFilename =
                 data.previousRowMeta.indexOfValue(realSourceattachedFilename);
             if (data.indexOfSourceFilename < 0) {
@@ -398,7 +398,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
           }
 
           // cache the position of the attached wildcard field
-          if (!Utils.isEmpty(meta.getSourcewildcard()) && data.indexOfSourceWildcard < 0) {
+          if (!Utils.isEmpty(meta.getSourceWildCard()) && data.indexOfSourceWildcard < 0) {
             String realSourceattachedWildcard = meta.getDynamicWildcard();
             data.indexOfSourceWildcard =
                 data.previousRowMeta.indexOfValue(realSourceattachedWildcard);
@@ -412,8 +412,8 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
           }
         } else {
           // static attached filenames
-          data.realSourceFileFoldername = resolve(meta.getSourcefilefoldername());
-          data.realSourceWildcard = resolve(meta.getSourcewildcard());
+          data.realSourceFileFoldername = resolve(meta.getSourceFileFolderName());
+          data.realSourceWildcard = resolve(meta.getSourceWildCard());
         }
       }
 
@@ -423,7 +423,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
         data.embeddedMimePart = new HashSet<>();
         try {
           for (int i = 0; i < meta.getEmbeddedImages().size(); i++) {
-            String imageFile = resolve(meta.getEmbeddedImages().get(i).getEmbeddedimage());
+            String imageFile = resolve(meta.getEmbeddedImages().get(i).getEmbeddedImage());
             String contentID = resolve(meta.getEmbeddedImages().get(i).getContentId());
             image = HopVfs.getFileObject(imageFile, variables);
 
@@ -616,7 +616,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
       protocol = "smtp";
       if (meta.isUsingSecureAuthentication()) {
-        if (meta.isUsexoauth2()) {
+        if (meta.isUseXOAuth2()) {
           data.props.put("mail.smtp.ssl.enable", "true");
           data.props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
         }

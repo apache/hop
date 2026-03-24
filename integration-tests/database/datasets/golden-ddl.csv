@@ -1,7 +1,7 @@
 ddl
 "CREATE TABLE DDLTEST
 (
-  id INT
-, name VARCHAR(100)
+  id INTEGER
+, namefield VARCHAR(100)
 )
 ;"

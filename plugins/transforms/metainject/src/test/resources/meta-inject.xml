@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<transform>
+    <filename>${PROJECT_HOME}/0038-json-input-template.hpl</filename>
+    <run_configuration>local</run_configuration>
+    <source_transform>sourceTransform</source_transform>
+    <source_output_fields>
+        <source_output_field>
+            <source_output_field_name>f1</source_output_field_name>
+            <source_output_field_type>String</source_output_field_type>
+            <source_output_field_length>100</source_output_field_length>
+            <source_output_field_precision>-1</source_output_field_precision>
+        </source_output_field>
+        <source_output_field>
+            <source_output_field_name>f2</source_output_field_name>
+            <source_output_field_type>Number</source_output_field_type>
+            <source_output_field_length>7</source_output_field_length>
+            <source_output_field_precision>2</source_output_field_precision>
+        </source_output_field>
+    </source_output_fields>
+    <target_file>${java.io.tmpdir}/json-input.hpl</target_file>
+    <create_parent_folder>Y</create_parent_folder>
+    <no_execution>Y</no_execution>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
+    <stream_source_transform>sourceTransform</stream_source_transform>
+    <stream_target_transform>targetTransform</stream_target_transform>
+    <mappings>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>IGNORE_EMPTY_FILE</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>IsIgnoreEmptyFile</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_PATH_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>pathFieldName</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_CURRENCY</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>currency</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_SHORT_FILE_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>shortFileFieldName</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_TYPE</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>type</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILEMASK</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml files</source_transform>
+            <source_field>filemask</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>DO_NOT_FAIL_IF_NO_FILE</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>doNotFailIfNoFile</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>EXCLUDE_FILEMASK</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml files</source_transform>
+            <source_field>exclude_filemask</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_PATH</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>path</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_PRECISION</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>precision</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_HIDDEN_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>hiddenFieldName</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>READ_SOURCE_AS_URL</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>readurl</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>SOURCE_FIELD_NAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>valueField</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_FORMAT</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>format</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_REPEAT</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>repeat</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_GROUP</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>group</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_LAST_MODIFICATION_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>lastModificationTimeFieldName</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>ROW_NUMBER_OUTPUT</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>rownum</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_URI_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>uriNameFieldName</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_ROOT_URI_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>rootUriNameFieldName</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_DECIMAL</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>decimal</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_LENGTH</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>length</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>ROW_NUMBER_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>rownum_field</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>SOURCE_FIELD_IS_FILENAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>IsAFile</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_TRIM_TYPE</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>trim_type</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILENAME</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml files</source_transform>
+            <source_field>name</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FIELD_NAME</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml fields</source_transform>
+            <source_field>name</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_EXTENSION_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>extensionFieldName</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>SOURCE_IN_FIELD</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>IsInFields</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>INCLUDE_SUBFOLDERS</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml files</source_transform>
+            <source_field>include_subfolders</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>ADD_RESULT_FILE</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>addresultfile</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>REMOVE_SOURCE_FIELDS</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>removeSourceField</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_NAME_OUTPUT</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>include</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>ROW_LIMIT</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>limit</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>IGNORE_MISSING_PATH</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>ignoreMissingPath</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_NAME_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>include_field</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_SIZE_FIELDNAME</target_attribute_key>
+            <target_detail>N</target_detail>
+            <source_transform>files/json-input.xml</source_transform>
+            <source_field>sizeFieldName</source_field>
+        </mapping>
+        <mapping>
+            <target_transform_name>JSON input</target_transform_name>
+            <target_attribute_key>FILE_REQUIRED</target_attribute_key>
+            <target_detail>Y</target_detail>
+            <source_transform>files/json-input.xml files</source_transform>
+            <source_field>file_required</source_field>
+        </mapping>
+    </mappings>
+</transform>

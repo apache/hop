@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<transform>
+    <accept_filenames>Y</accept_filenames>
+    <passing_through_fields>Y</passing_through_fields>
+    <accept_field>acceptField</accept_field>
+    <accept_transform_name>acceptTransformName</accept_transform_name>
+    <separator>;</separator>
+    <enclosure>&#34;</enclosure>
+    <enclosure_breaks>Y</enclosure_breaks>
+    <escapechar>\</escapechar>
+    <header>Y</header>
+    <prependFileName>Y</prependFileName>
+    <nr_headerlines>2</nr_headerlines>
+    <footer>Y</footer>
+    <nr_footerlines>3</nr_footerlines>
+    <line_wrapped>Y</line_wrapped>
+    <nr_wraps>3</nr_wraps>
+    <layout_paged>Y</layout_paged>
+    <nr_lines_per_page>80</nr_lines_per_page>
+    <nr_lines_doc_header>3</nr_lines_doc_header>
+    <noempty>Y</noempty>
+    <include>Y</include>
+    <include_field>includeField</include_field>
+    <rownum>Y</rownum>
+    <rownumByFile>Y</rownumByFile>
+    <rownum_field>rowNumField</rownum_field>
+    <format>mixed</format>
+    <encoding>UTF-8</encoding>
+    <length>Characters</length>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <file>
+        <name>directory1</name>
+        <filemask>.*\.json</filemask>
+        <exclude_filemask/>
+        <file_required>N</file_required>
+        <include_subfolders>N</include_subfolders>
+        <name>folder2</name>
+        <filemask>.*\.json</filemask>
+        <exclude_filemask/>
+        <file_required>Y</file_required>
+        <include_subfolders>Y</include_subfolders>
+        <type>CSV</type>
+        <compression>None</compression>
+    </file>
+    <filters>
+        <filter>
+            <filter_string>Base64: ZmlsdGVyU3RyaW5n</filter_string>
+            <filter_position>23</filter_position>
+            <filter_is_last_line>Y</filter_is_last_line>
+            <filter_is_positive>Y</filter_is_positive>
+        </filter>
+    </filters>
+    <fields>
+        <field>
+            <name>f1</name>
+            <type>String</type>
+            <format/>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <ifnull/>
+            <position>-1</position>
+            <length>23</length>
+            <precision>-1</precision>
+            <trim_type>none</trim_type>
+            <repeat>N</repeat>
+        </field>
+        <field>
+            <name>f2</name>
+            <type>Integer</type>
+            <format>#</format>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <ifnull/>
+            <position>-1</position>
+            <length>9</length>
+            <precision>-1</precision>
+            <trim_type>left</trim_type>
+            <repeat>N</repeat>
+        </field>
+        <field>
+            <name>f3</name>
+            <type>Date</type>
+            <format>yyyy/MM/dd</format>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <ifnull/>
+            <position>-1</position>
+            <length>-1</length>
+            <precision>-1</precision>
+            <trim_type>right</trim_type>
+            <repeat>N</repeat>
+        </field>
+    </fields>
+    <limit>99999</limit>
+    <error_ignored>Y</error_ignored>
+    <skip_bad_files>Y</skip_bad_files>
+    <file_error_field>fileErrorField</file_error_field>
+    <file_error_message_field>fileErrorMessageField</file_error_message_field>
+    <error_line_skipped>Y</error_line_skipped>
+    <error_count_field>errorCountField</error_count_field>
+    <error_fields_field>errorFieldsField</error_fields_field>
+    <error_text_field>errorTextField</error_text_field>
+    <schema_definition>schemaDefinition</schema_definition>
+    <ignore_fields>Y</ignore_fields>
+    <bad_line_files_destination_directory>badLinesDir</bad_line_files_destination_directory>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <error_line_files_destination_directory>errorLinesFilesDestDir</error_line_files_destination_directory>
+    <error_line_files_extension>error</error_line_files_extension>
+    <line_number_files_destination_directory>lineNumberFilesDestDir</line_number_files_destination_directory>
+    <line_number_files_extension>line</line_number_files_extension>
+    <date_format_lenient>Y</date_format_lenient>
+    <date_format_locale>en_us</date_format_locale>
+    <shortFileFieldName>shortFilename</shortFileFieldName>
+    <pathFieldName>path</pathFieldName>
+    <hiddenFieldName>hidden</hiddenFieldName>
+    <lastModificationTimeFieldName>lastModification</lastModificationTimeFieldName>
+    <uriNameFieldName>uri</uriNameFieldName>
+    <rootUriNameFieldName>rootUri</rootUriNameFieldName>
+    <extensionFieldName>extension</extensionFieldName>
+    <sizeFieldName>size</sizeFieldName>
+</transform>
+

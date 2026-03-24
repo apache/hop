@@ -18,20 +18,32 @@
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.jupiter.api.BeforeAll;
@@ -167,24 +179,97 @@ class TextFileOutputMetaTest {
   }
 
   @Test
-  void testRoundTrip() throws HopException {
-    LoadSaveTester<TextFileOutputMeta> loadSaveTester =
-        new LoadSaveTester<>(
-            TextFileOutputMeta.class,
-            getMetaAttributes(),
-            getGetterMap(),
-            getSetterMap(),
-            getAttributeValidators(),
-            getTypeValidators());
+  void testLoadSave() throws Exception {
+    Path path =
+        Paths.get(Objects.requireNonNull(getClass().getResource("/text-file-output.xml")).toURI());
+    String xml = Files.readString(path);
+    TextFileOutputMeta meta = new TextFileOutputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
+        TextFileOutputMeta.class,
+        meta,
+        new MemoryMetadataProvider());
 
-    loadSaveTester.testSerialization();
+    validate(meta);
+
+    // Do a round trip:
+    //
+    String xmlCopy =
+        XmlHandler.openTag(TransformMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(meta)
+            + XmlHandler.closeTag(TransformMeta.XML_TAG);
+    TextFileOutputMeta metaCopy = new TextFileOutputMeta();
+    XmlMetadataUtil.deSerializeFromXml(
+        XmlHandler.loadXmlString(xmlCopy, TransformMeta.XML_TAG),
+        TextFileOutputMeta.class,
+        metaCopy,
+        new MemoryMetadataProvider());
+    validate(metaCopy);
+  }
+
+  private static void validate(TextFileOutputMeta meta) {
+    assertEquals("schemaDefinition", meta.getSchemaDefinition());
+    assertTrue(meta.isIgnoreFields());
+    assertEquals(";", meta.getSeparator());
+    assertEquals("\"", meta.getEnclosure());
+    assertTrue(meta.isEnclosureForced());
+    assertFalse(meta.isEnclosureFixDisabled());
+    assertTrue(meta.isHeaderEnabled());
+    assertTrue(meta.isFooterEnabled());
+    assertEquals("UNIX", meta.getFileFormat());
+    assertEquals("Snappy", meta.getFileCompression());
+    assertEquals("UTF-8", meta.getEncoding());
+    assertTrue(StringUtils.isEmpty(meta.getEndedLine()));
+    assertTrue(meta.isFileNameInField());
+    assertEquals("filenameField", meta.getFileNameField());
+    assertTrue(meta.isCreateParentFolder());
+
+    assertNotNull(meta.getFileSettings());
+    assertEquals("filename.txt", meta.getFileSettings().getFileName());
+    assertFalse(meta.getFileSettings().isServletOutput());
+    assertTrue(meta.getFileSettings().isDoNotOpenNewFileInit());
+    assertEquals("txt", meta.getFileSettings().getExtension());
+    assertTrue(meta.getFileSettings().isFileAppended());
+    assertFalse(meta.getFileSettings().isTransformNrInFilename());
+    assertFalse(meta.getFileSettings().isPartNrInFilename());
+    assertFalse(meta.getFileSettings().isDateInFilename());
+    assertFalse(meta.getFileSettings().isTimeInFilename());
+    assertFalse(meta.getFileSettings().isSpecifyingFormat());
+    assertTrue(StringUtils.isEmpty(meta.getFileSettings().getDateTimeFormat()));
+    assertTrue(meta.getFileSettings().isAddToResultFiles());
+    assertFalse(meta.getFileSettings().isPadded());
+    assertTrue(meta.getFileSettings().isFastDump());
+    assertEquals("0", meta.getFileSettings().getSplitEveryRows());
+
+    assertNotNull(meta.getOutputFields());
+    assertEquals(3, meta.getOutputFields().size());
+    TextFileField f1 = meta.getOutputFields().get(0);
+    assertEquals("f1", f1.getName());
+    assertEquals(IValueMeta.TYPE_STRING, f1.getType());
+    assertEquals(100, f1.getLength());
+    assertEquals(IValueMeta.TRIM_TYPE_NONE, f1.getTrimType());
+    assertEquals("half_even", f1.getRoundingType());
+
+    TextFileField f2 = meta.getOutputFields().get(1);
+    assertEquals("f2", f2.getName());
+    assertEquals(IValueMeta.TYPE_INTEGER, f2.getType());
+    assertEquals(7, f2.getLength());
+    assertEquals(IValueMeta.TRIM_TYPE_BOTH, f2.getTrimType());
+    assertEquals("half_even", f2.getRoundingType());
+
+    TextFileField f3 = meta.getOutputFields().get(2);
+    assertEquals("f3", f3.getName());
+    assertEquals(IValueMeta.TYPE_DATE, f3.getType());
+    assertEquals(-1, f3.getLength());
+    assertEquals(IValueMeta.TRIM_TYPE_RIGHT, f3.getTrimType());
+    assertEquals("half_even", f3.getRoundingType());
   }
 
   @Test
   void testVarReplaceSplit() {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setDefault();
-    meta.setSplitEveryRows("${splitVar}");
+    meta.getFileSettings().setSplitEveryRows("${splitVar}");
     IVariables varSpace = new Variables();
     assertEquals(0, meta.getSplitEvery(varSpace));
     String fileName =

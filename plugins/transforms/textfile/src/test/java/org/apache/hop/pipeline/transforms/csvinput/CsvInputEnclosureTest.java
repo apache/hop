@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.File;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -146,7 +145,7 @@ class CsvInputEnclosureTest extends CsvInputUnitTestBase {
     assertNull(output.getRowImmediate());
   }
 
-  private CsvInputMeta createMeta(File file, TextFileInputField[] fields, String enclosure) {
+  private CsvInputMeta createMeta(File file, CsvInputField[] fields, String enclosure) {
     CsvInputMeta meta = createMeta(file, fields);
     meta.setDelimiter(SEMICOLON);
     meta.setEnclosure(enclosure);

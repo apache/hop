@@ -25,7 +25,6 @@ import static org.mockito.Mockito.mock;
 import java.io.File;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
@@ -62,7 +61,7 @@ class CsvInputTest extends CsvInputUnitTestBase {
             null,
             csvInputMeta.getDelimiter(),
             csvInputMeta.getEnclosure(),
-            csvInputMeta.getEscapeCharacter());
+            null);
 
     assertNull(saData);
   }
@@ -70,7 +69,7 @@ class CsvInputTest extends CsvInputUnitTestBase {
   @Test
   void testFileIsReleasedAfterProcessing() throws Exception {
     // Create a file with some content to be processed
-    TextFileInputField[] inputFileFields = createInputFileFields("f1", "f2", "f3");
+    CsvInputField[] inputFileFields = createInputFileFields("f1", "f2", "f3");
     String fileContents = "Something" + DELIMITER + "" + DELIMITER + "The former was empty!";
     File tmpFile = createTestFile(ENCODING, fileContents);
 

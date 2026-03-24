@@ -82,7 +82,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
     fdSc.left = new FormAttachment(0, 0);
     fdSc.top = new FormAttachment(wSpacer, 0);
     fdSc.right = new FormAttachment(100, 0);
-    fdSc.bottom = new FormAttachment(wOk, -margin);
+    fdSc.bottom = new FormAttachment(wOk, 0);
     sc.setLayoutData(fdSc);
     sc.setLayout(new FillLayout());
 
@@ -144,7 +144,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
     FormData fdConnectTimeOut = new FormData();
     fdConnectTimeOut.left = new FormAttachment(middle, 0);
     fdConnectTimeOut.top = new FormAttachment(wURL, margin);
-    fdConnectTimeOut.right = new FormAttachment(100, -margin);
+    fdConnectTimeOut.right = new FormAttachment(100, 0);
     wConnectTimeOut.setLayoutData(fdConnectTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
@@ -170,7 +170,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog {
     FormData fdReadTimeOut = new FormData();
     fdReadTimeOut.left = new FormAttachment(middle, 0);
     fdReadTimeOut.top = new FormAttachment(wConnectTimeOut, margin);
-    fdReadTimeOut.right = new FormAttachment(100, -margin);
+    fdReadTimeOut.right = new FormAttachment(100, 0);
     wReadTimeOut.setLayoutData(fdReadTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:

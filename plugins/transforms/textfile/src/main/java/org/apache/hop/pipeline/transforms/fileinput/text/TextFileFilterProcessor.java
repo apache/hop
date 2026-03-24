@@ -17,32 +17,39 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 
 /** Processor of Filters. Kind of inversion principle, and to make unit testing easier. */
+@Getter
+@Setter
 public class TextFileFilterProcessor {
-
   /** The filters to process */
-  private TextFileFilter[] filters;
+  private List<TextFileFilter> filters;
 
-  private String[] filtersString;
+  private List<String> filtersStrings;
   private boolean stopProcessing;
+
+  private TextFileFilterProcessor() {
+    this.filters = new ArrayList<>();
+    this.filtersStrings = new ArrayList<>();
+    this.stopProcessing = false;
+  }
 
   /**
    * @param filters The filters to process
    */
-  public TextFileFilterProcessor(TextFileFilter[] filters, IVariables variables) {
+  public TextFileFilterProcessor(List<TextFileFilter> filters, IVariables variables) {
+    this();
     this.filters = filters;
-    this.stopProcessing = false;
 
-    if (filters.length == 0) {
-      // This makes processing faster in case there are no filters.
-      filters = null;
-    } else {
-      filtersString = new String[filters.length];
-      for (int f = 0; f < filters.length; f++) {
-        filtersString[f] = variables.resolve(filters[f].getFilterString());
+    if (!filters.isEmpty()) {
+      for (TextFileFilter filter : filters) {
+        filtersStrings.add(variables.resolve(filter.getFilterString()));
       }
     }
   }
@@ -60,9 +67,9 @@ public class TextFileFilterProcessor {
     // Negative filters will always take precedence, meaning that the line
     // is skipped if one of them is found
 
-    for (int f = 0; f < filters.length && filterOK; f++) {
-      TextFileFilter filter = filters[f];
-      String filterString = filtersString[f];
+    for (int i = 0; i < filters.size(); i++) {
+      TextFileFilter filter = filters.get(i);
+      String filterString = filtersStrings.get(i);
       if (filter.isFilterPositive()) {
         positiveMode = true;
       }
@@ -107,14 +114,5 @@ public class TextFileFilterProcessor {
     }
 
     return filterOK;
-  }
-
-  /**
-   * Was processing requested to be stopped. Can only be true when doFilters was false.
-   *
-   * @return == true: processing should stop, == false: processing should continue.
-   */
-  public boolean isStopProcessing() {
-    return stopProcessing;
   }
 }

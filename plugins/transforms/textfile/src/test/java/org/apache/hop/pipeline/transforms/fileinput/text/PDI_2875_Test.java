@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -59,15 +60,18 @@ class PDI_2875_Test {
 
   private TextFileInputMeta getMeta() {
     TextFileInputMeta meta = new TextFileInputMeta();
-    meta.allocateFiles(2);
-    meta.setFileName(new String[] {"file1.txt", "file2.txt"});
-    meta.inputFiles.includeSubFolders = new String[] {"n", "n"};
-    meta.setFilter(new TextFileFilter[0]);
-    meta.content.fileFormat = "unix";
-    meta.content.fileType = "CSV";
-    meta.errorHandling.lineNumberFilesDestinationDirectory = EXPRESSION;
-    meta.errorHandling.errorFilesDestinationDirectory = EXPRESSION;
-    meta.errorHandling.warningFilesDestinationDirectory = EXPRESSION;
+    InputFile f1 = new InputFile();
+    f1.setFileMask("file1.txt");
+    meta.getFileInput().getInputFiles().add(f1);
+    InputFile f2 = new InputFile();
+    f2.setFileMask("file2.txt");
+    meta.getFileInput().getInputFiles().add(f2);
+
+    meta.getContent().setFileFormat("unix");
+    meta.getContent().setFileType("CSV");
+    meta.getErrorHandling().setLineNumberFilesDestinationDirectory(EXPRESSION);
+    meta.getErrorHandling().setErrorFilesDestinationDirectory(EXPRESSION);
+    meta.getErrorHandling().setWarningFilesDestinationDirectory(EXPRESSION);
 
     return meta;
   }

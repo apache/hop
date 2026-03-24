@@ -61,6 +61,7 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.json.simple.JSONObject;
+import org.junit.jupiter.api.Test;
 
 class JsonOutputTest {
 
@@ -238,7 +239,8 @@ class JsonOutputTest {
     return jsonOutputTransform;
   }
 
-  public void test() throws Exception {
+  @Test
+  void test() throws Exception {
     HopEnvironment.init();
 
     // Create a new transformation...

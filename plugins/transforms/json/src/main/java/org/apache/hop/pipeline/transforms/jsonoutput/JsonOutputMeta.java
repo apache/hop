@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -45,6 +47,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n::JsonOutput.category",
     keywords = "i18n::JsonOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/jsonoutput.html")
+@Getter
+@Setter
 public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputData> {
   private static final Class<?> PKG = JsonOutputMeta.class;
 
@@ -82,18 +86,16 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.ENCODING")
   private String encoding;
 
-  /** The name value containing the resulting Json fragment */
+  /** The name value containing the resulting JSON fragment */
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.OUTPUT_VALUE")
   private String outputValue;
 
-  /** The name of the json bloc */
+  /** The name of the JSON bloc */
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.JSON_BLOC_NAME")
   private String jsonBloc;
 
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.NR_ROWS_IN_BLOC")
   private String nrRowsInBloc;
-
-  /* THE FIELD SPECIFICATIONS ... */
 
   /** The output fields */
   @HopMetadataProperty(
@@ -108,7 +110,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.ADD_TO_RESULT")
   private boolean addToResult;
 
-  /** Flag to indicate the we want to append to the end of an existing file (if it exists) */
+  /** Flag to indicate that we want to append to the end of an existing file (if it exists) */
   @HopMetadataProperty(injectionKeyDescription = "JsonOutput.Injection.APPEND")
   private boolean fileAppended;
 
@@ -120,118 +122,33 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   private boolean doNotOpenNewFileInit;
 
   public JsonOutputMeta() {
-    super(); // allocate BaseTransformMeta
-
+    super();
     outputFields = new ArrayList<>();
-  }
-
-  public boolean isDoNotOpenNewFileInit() {
-    return doNotOpenNewFileInit;
-  }
-
-  public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
-    this.doNotOpenNewFileInit = doNotOpenNewFileInit;
-  }
-
-  /**
-   * @return Returns the create parent folder flag.
-   */
-  public boolean isCreateParentFolder() {
-    return createParentFolder;
-  }
-
-  /**
-   * @param createparentfolder The create parent folder flag to set.
-   */
-  public void setCreateParentFolder(boolean createparentfolder) {
-    this.createParentFolder = createparentfolder;
-  }
-
-  /**
-   * @return Returns the fileAppended.
-   */
-  public boolean isFileAppended() {
-    return fileAppended;
-  }
-
-  /**
-   * @param fileAppended The fileAppended to set.
-   */
-  public void setFileAppended(boolean fileAppended) {
-    this.fileAppended = fileAppended;
-  }
-
-  /**
-   * @param dateInFilename The dateInFilename to set.
-   */
-  public void setDateInFilename(boolean dateInFilename) {
-    this.dateInFilename = dateInFilename;
-  }
-
-  /**
-   * @param timeInFilename The timeInFilename to set.
-   */
-  public void setTimeInFilename(boolean timeInFilename) {
-    this.timeInFilename = timeInFilename;
-  }
-
-  /**
-   * @return Returns the Add to result filesname flag.
-   */
-  public boolean isAddToResult() {
-    return addToResult;
-  }
-
-  public String getOperationType() {
-    return operationType;
-  }
-
-  public void setOperationType(String operationType) {
-    this.operationType = operationType;
-  }
-
-  /**
-   * @return Returns the outputFields.
-   */
-  public List<JsonOutputField> getOutputFields() {
-    return outputFields;
-  }
-
-  /**
-   * @param outputFields The outputFields to set.
-   */
-  public void setOutputFields(List<JsonOutputField> outputFields) {
-    this.outputFields = outputFields;
-  }
-
-  @Override
-  public Object clone() {
-    return super.clone();
-  }
-
-  /**
-   * @param addToResult The Add file to result to set.
-   */
-  public void setAddToResult(boolean addToResult) {
-    this.addToResult = addToResult;
-  }
-
-  @Override
-  public void setDefault() {
     encoding = Const.XML_ENCODING;
     outputValue = "outputValue";
     jsonBloc = "data";
     nrRowsInBloc = "0";
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
     doNotOpenNewFileInit = true;
-    int nrFields = 0;
+  }
 
-    for (int i = 0; i < nrFields; i++) {
-      JsonOutputField outputField = new JsonOutputField();
-      outputField.setFieldName("field" + i);
-      outputField.setElementName("field" + i);
-      outputFields.add(outputField);
-    }
+  public JsonOutputMeta(JsonOutputMeta m) {
+    this();
+    this.addToResult = m.addToResult;
+    this.createParentFolder = m.createParentFolder;
+    this.doNotOpenNewFileInit = m.doNotOpenNewFileInit;
+    this.encoding = m.encoding;
+    this.fileAppended = m.fileAppended;
+    this.jsonBloc = m.jsonBloc;
+    this.nrRowsInBloc = m.nrRowsInBloc;
+    this.operationType = m.operationType;
+    this.outputValue = m.outputValue;
+    m.outputFields.forEach(f -> outputFields.add(new JsonOutputField(f)));
+  }
+
+  @Override
+  public Object clone() {
+    return new JsonOutputMeta(this);
   }
 
   @Override
@@ -342,42 +259,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     remarks.add(cr);
   }
 
-  public String getEncoding() {
-    return encoding;
-  }
-
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  /**
-   * @return Returns the jsonBloc.
-   */
-  public String getJsonBloc() {
-    return jsonBloc;
-  }
-
-  /**
-   * @param jsonBloc The root node to set.
-   */
-  public void setJsonBloc(String jsonBloc) {
-    this.jsonBloc = jsonBloc;
-  }
-
-  /**
-   * @return Returns the jsonBloc.
-   */
-  public String getNrRowsInBloc() {
-    return nrRowsInBloc;
-  }
-
-  /**
-   * @param nrRowsInBloc The nrRowsInBloc.
-   */
-  public void setNrRowsInBloc(String nrRowsInBloc) {
-    this.nrRowsInBloc = nrRowsInBloc;
-  }
-
   @Override
   public int getSplitEvery() {
     try {
@@ -389,14 +270,6 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
   @Override
   public void setSplitEvery(int splitEvery) {
-    setNrRowsInBloc(splitEvery + "");
-  }
-
-  public String getOutputValue() {
-    return outputValue;
-  }
-
-  public void setOutputValue(String outputValue) {
-    this.outputValue = outputValue;
+    setNrRowsInBloc(Integer.toString(splitEvery));
   }
 }

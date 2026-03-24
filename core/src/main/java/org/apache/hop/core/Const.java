@@ -584,7 +584,7 @@ public class Const {
   @Variable(
       value = "5000",
       description =
-          "The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)")
+          "The maximum number of workflow trackers childrens to keep track of. Default value is 5000.")
   public static final String HOP_MAX_WORKFLOW_TRACKER_SIZE = "HOP_MAX_WORKFLOW_TRACKER_SIZE";
 
   /**
@@ -1886,6 +1886,27 @@ public class Const {
       return def;
     }
     return source;
+  }
+
+  /**
+   * Implements Oracle style NVL function. The first value of the ones provided, that isn't null or
+   * empty is returned.
+   *
+   * @param values The values to test for null/empty.
+   * @return null if no arguments given or null. Otherwise, returns the first value of the ones
+   *     provided, that isn't null or empty is returned.
+   */
+  public static String coalesce(String... values) {
+    if (values == null || values.length == 0) {
+      return null;
+    }
+    for (int i = 0; i < values.length - 1; i++) {
+      String value = values[i];
+      if (value != null && !value.isEmpty()) {
+        return value;
+      }
+    }
+    return values[values.length - 1];
   }
 
   /**

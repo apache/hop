@@ -21,10 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.MetadataRefactorUtil;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.server.HopServerMeta;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +40,16 @@ class MetadataRefactorUtilTest {
 
   @BeforeAll
   static void setup() throws Exception {
-    HopEnvironment.init();
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginClass(
+        DatabaseMeta.class.getName(), MetadataPluginType.class, HopMetadata.class);
+    registry.registerPluginClass(
+        PipelineRunConfiguration.class.getName(), MetadataPluginType.class, HopMetadata.class);
+    registry.registerPluginClass(
+        WorkflowRunConfiguration.class.getName(), MetadataPluginType.class, HopMetadata.class);
+    registry.registerPluginClass(
+        HopServerMeta.class.getName(), MetadataPluginType.class, HopMetadata.class);
+
     provider = new MemoryMetadataProvider();
   }
 

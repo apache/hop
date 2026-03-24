@@ -20,8 +20,8 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.util.List;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.RowAdapter;
@@ -320,14 +320,15 @@ class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   private CsvInputMeta createMeta(
-      File file, TextFileInputField[] fields, boolean headerPresent, String delimiter) {
+      File file, CsvInputField[] fields, boolean headerPresent, String delimiter) {
     CsvInputMeta meta = createMeta(file, fields);
 
     meta.setDelimiter(delimiter);
     meta.setEnclosure("\"");
 
     if (!headerPresent) {
-      meta.setInputFields(fields);
+      meta.getInputFields().clear();
+      meta.getInputFields().addAll(List.of(fields));
     }
 
     meta.setHeaderPresent(headerPresent);

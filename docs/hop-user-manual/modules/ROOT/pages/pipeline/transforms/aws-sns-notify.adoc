@@ -72,7 +72,7 @@ a| please choose whether a notifications should be send with:
 |SNS-Fields table
 a|**In the table only three rows** are valid (all others will be ignored an refused on save/load of transformation).
 
-All rows can be specified either from a field (`Field` column) or as a static value (`Static value` column). Toggle between field or static value with the `Value in Field?` option.
+All rows can be specified either from a field (`F` column) or as a static value (`Static value` column). Toggle between field or static value with the `Value in Field?` option.
 
 ** topicARN: the ARN for your SNS topic
 ** Subject: the subject for the notification you want to send

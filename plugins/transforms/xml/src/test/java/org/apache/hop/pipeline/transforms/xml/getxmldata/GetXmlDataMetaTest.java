@@ -22,11 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
+import org.apache.hop.metadata.inject.HopMetadataInjector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -343,5 +346,15 @@ class GetXmlDataMetaTest {
     assertNotNull(rowMeta.searchValueMeta("root_uri"));
     assertNotNull(rowMeta.searchValueMeta("ext"));
     assertNotNull(rowMeta.searchValueMeta("file_size"));
+  }
+
+  @Test
+  void testGroupMappings() throws Exception {
+    Map<String, Set<String>> map = HopMetadataInjector.findInjectionGroupKeys(GetXmlDataMeta.class);
+    assertEquals(2, map.size());
+    Set<String> fileKeys = map.get("files");
+    assertEquals(5, fileKeys.size());
+    Set<String> fieldKeys = map.get("fields");
+    assertEquals(13, fieldKeys.size());
   }
 }

@@ -26,7 +26,7 @@ import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.FileTypeFilter;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -204,8 +204,7 @@ class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
     @Override
     public FilterItem getTestObject() {
 
-      return new FilterItem(
-          FileInputList.FileTypeFilter.getByOrdinal(new Random().nextInt(3)).toString());
+      return new FilterItem(FileTypeFilter.getByOrdinal(new Random().nextInt(3)).toString());
     }
 
     @Override

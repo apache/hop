@@ -1086,7 +1086,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
           }
         });
 
-    final int FieldsRows = input.getOutputFields().length;
+    final int FieldsRows = input.getOutputFields().size();
 
     colinf =
         new ColumnInfo[] {
@@ -1460,10 +1460,8 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getFileName() != null) {
-      wFilename.setText(input.getFileName());
-    }
-    wServletOutput.setSelection(input.isServletOutput());
+    wFilename.setText(Const.NVL(input.getFileSettings().getFileName(), ""));
+    wServletOutput.setSelection(input.getFileSettings().isServletOutput());
     wSchemaDefinition.setText(Const.NVL(input.getSchemaDefinition(), ""));
     wIgnoreFields.setSelection(input.isIgnoreFields());
 
@@ -1476,9 +1474,9 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wMinWidth.setEnabled(!input.isIgnoreFields());
 
     setFlagsServletOption();
-    wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
+    wDoNotOpenNewFileInit.setSelection(input.getFileSettings().isDoNotOpenNewFileInit());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
-    wExtension.setText(Const.NVL(input.getExtension(), ""));
+    wExtension.setText(Const.NVL(input.getFileSettings().getExtension(), ""));
     wSeparator.setText(Const.NVL(input.getSeparator(), ""));
     wEnclosure.setText(Const.NVL(input.getEnclosure(), ""));
 
@@ -1492,81 +1490,52 @@ public class TextFileOutputDialog extends BaseTransformDialog {
         }
       }
     }
-    if (input.getFileCompression() != null) {
-      wCompression.setText(input.getFileCompression());
-    }
-    if (input.getEncoding() != null) {
-      wEncoding.setText(input.getEncoding());
-    }
-    if (input.getEndedLine() != null) {
-      wEndedLine.setText(input.getEndedLine());
-    }
-
+    wCompression.setText(Const.NVL(input.getFileCompression(), ""));
+    wEncoding.setText(Const.NVL(input.getEncoding(), ""));
+    wEndedLine.setText(Const.NVL(input.getEndedLine(), ""));
     wFileNameInField.setSelection(input.isFileNameInField());
-    if (input.getFileNameField() != null) {
-      wFileNameField.setText(input.getFileNameField());
-    }
-
-    wSplitEvery.setText(Const.NVL(input.getSplitEveryRows(), ""));
-
+    wFileNameField.setText(Const.NVL(input.getFileNameField(), ""));
+    wSplitEvery.setText(Const.NVL(input.getFileSettings().getSplitEveryRows(), ""));
     wEnclForced.setSelection(input.isEnclosureForced());
     wDisableEnclosureFix.setSelection(input.isEnclosureFixDisabled());
     wHeader.setSelection(input.isHeaderEnabled());
     wFooter.setSelection(input.isFooterEnabled());
-    wAddDate.setSelection(input.isDateInFilename());
-    wAddTime.setSelection(input.isTimeInFilename());
-    wDateTimeFormat.setText(Const.NVL(input.getDateTimeFormat(), ""));
-    wSpecifyFormat.setSelection(input.isSpecifyingFormat());
-
-    wAppend.setSelection(input.isFileAppended());
-    wAddTransformNr.setSelection(input.isTransformNrInFilename());
-    wAddPartnr.setSelection(input.isPartNrInFilename());
-    wPad.setSelection(input.isPadded());
-    wFastDump.setSelection(input.isFastDump());
-    wAddToResult.setSelection(input.isAddToResultFiles());
-
-    logDebug("getting fields info...");
+    wAddDate.setSelection(input.getFileSettings().isDateInFilename());
+    wAddTime.setSelection(input.getFileSettings().isTimeInFilename());
+    wDateTimeFormat.setText(Const.NVL(input.getFileSettings().getDateTimeFormat(), ""));
+    wSpecifyFormat.setSelection(input.getFileSettings().isSpecifyingFormat());
+    wAppend.setSelection(input.getFileSettings().isFileAppended());
+    wAddTransformNr.setSelection(input.getFileSettings().isTransformNrInFilename());
+    wAddPartnr.setSelection(input.getFileSettings().isPartNrInFilename());
+    wPad.setSelection(input.getFileSettings().isPadded());
+    wFastDump.setSelection(input.getFileSettings().isFastDump());
+    wAddToResult.setSelection(input.getFileSettings().isAddToResultFiles());
 
     // Only populate fields from metadata if NOT ignoring fields (will be filled from schema
     // instead)
     if (!input.isIgnoreFields()) {
-      for (int i = 0; i < input.getOutputFields().length; i++) {
-        TextFileField field = input.getOutputFields()[i];
+      for (int i = 0; i < input.getOutputFields().size(); i++) {
+        TextFileField field = input.getOutputFields().get(i);
 
         TableItem item = wFields.table.getItem(i);
-        if (field.getName() != null) {
-          item.setText(1, field.getName());
-        }
+        item.setText(1, Const.NVL(field.getName(), ""));
         item.setText(2, field.getTypeDesc());
-        if (field.getFormat() != null) {
-          item.setText(3, field.getFormat());
-        }
+        item.setText(3, Const.NVL(field.getFormat(), ""));
         if (field.getLength() >= 0) {
           item.setText(4, "" + field.getLength());
         }
         if (field.getPrecision() >= 0) {
           item.setText(5, "" + field.getPrecision());
         }
-        if (field.getCurrencySymbol() != null) {
-          item.setText(6, field.getCurrencySymbol());
-        }
-        if (field.getDecimalSymbol() != null) {
-          item.setText(7, field.getDecimalSymbol());
-        }
-        if (field.getGroupingSymbol() != null) {
-          item.setText(8, field.getGroupingSymbol());
-        }
+        item.setText(6, Const.NVL(field.getCurrencySymbol(), ""));
+        item.setText(7, Const.NVL(field.getDecimalSymbol(), ""));
+        item.setText(8, Const.NVL(field.getGroupingSymbol(), ""));
         String trim = field.getTrimTypeDesc();
-        if (trim != null) {
-          item.setText(9, trim);
-        }
-        if (field.getNullString() != null) {
-          item.setText(10, field.getNullString());
-        }
+        item.setText(9, Const.NVL(trim, ""));
+        item.setText(10, Const.NVL(field.getNullString(), ""));
+
         String roundingType = ValueMetaBase.getRoundingTypeDesc(field.getRoundingType());
-        if (roundingType != null) {
-          item.setText(11, roundingType);
-        }
+        item.setText(11, Const.NVL(roundingType, ""));
       }
     }
 
@@ -1582,19 +1551,19 @@ public class TextFileOutputDialog extends BaseTransformDialog {
   }
 
   protected void saveInfoInMeta(TextFileOutputMeta tfoi) {
-    tfoi.setFileName(wFilename.getText());
+    tfoi.getFileSettings().setFileName(wFilename.getText());
     tfoi.setSchemaDefinition(wSchemaDefinition.getText());
     tfoi.setIgnoreFields(wIgnoreFields.getSelection());
-    tfoi.setServletOutput(wServletOutput.getSelection());
+    tfoi.getFileSettings().setServletOutput(wServletOutput.getSelection());
     tfoi.setCreateParentFolder(wCreateParentFolder.getSelection());
-    tfoi.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
+    tfoi.getFileSettings().setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
     tfoi.setFileFormat(TextFileOutputMeta.formatMapperLineTerminator[wFormat.getSelectionIndex()]);
     tfoi.setFileCompression(wCompression.getText());
     tfoi.setEncoding(wEncoding.getText());
     tfoi.setSeparator(wSeparator.getText());
     tfoi.setEnclosure(wEnclosure.getText());
-    tfoi.setExtension(wExtension.getText());
-    tfoi.setSplitEveryRows(wSplitEvery.getText());
+    tfoi.getFileSettings().setExtension(wExtension.getText());
+    tfoi.getFileSettings().setSplitEveryRows(wSplitEvery.getText());
     tfoi.setEndedLine(wEndedLine.getText());
 
     tfoi.setFileNameField(wFileNameField.getText());
@@ -1604,27 +1573,20 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     tfoi.setEnclosureFixDisabled(wDisableEnclosureFix.getSelection());
     tfoi.setHeaderEnabled(wHeader.getSelection());
     tfoi.setFooterEnabled(wFooter.getSelection());
-    tfoi.setFileAppended(wAppend.getSelection());
-    tfoi.setTransformNrInFilename(wAddTransformNr.getSelection());
-    tfoi.setPartNrInFilename(wAddPartnr.getSelection());
-    tfoi.setDateInFilename(wAddDate.getSelection());
-    tfoi.setTimeInFilename(wAddTime.getSelection());
-    tfoi.setDateTimeFormat(wDateTimeFormat.getText());
-    tfoi.setSpecifyingFormat(wSpecifyFormat.getSelection());
-    tfoi.setPadded(wPad.getSelection());
-    tfoi.setAddToResultFiles(wAddToResult.getSelection());
-    tfoi.setFastDump(wFastDump.getSelection());
+    tfoi.getFileSettings().setFileAppended(wAppend.getSelection());
+    tfoi.getFileSettings().setTransformNrInFilename(wAddTransformNr.getSelection());
+    tfoi.getFileSettings().setPartNrInFilename(wAddPartnr.getSelection());
+    tfoi.getFileSettings().setDateInFilename(wAddDate.getSelection());
+    tfoi.getFileSettings().setTimeInFilename(wAddTime.getSelection());
+    tfoi.getFileSettings().setDateTimeFormat(wDateTimeFormat.getText());
+    tfoi.getFileSettings().setSpecifyingFormat(wSpecifyFormat.getSelection());
+    tfoi.getFileSettings().setPadded(wPad.getSelection());
+    tfoi.getFileSettings().setAddToResultFiles(wAddToResult.getSelection());
+    tfoi.getFileSettings().setFastDump(wFastDump.getSelection());
 
-    int i;
-
-    int nrFields = wFields.nrNonEmpty();
-
-    tfoi.allocate(nrFields);
-
-    for (i = 0; i < nrFields; i++) {
+    tfoi.getOutputFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
       TextFileField field = new TextFileField();
-
-      TableItem item = wFields.getNonEmpty(i);
       field.setName(item.getText(1));
       field.setType(item.getText(2));
       field.setFormat(item.getText(3));
@@ -1636,7 +1598,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
       field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(9)));
       field.setNullString(item.getText(10));
       field.setRoundingType(ValueMetaBase.getRoundingTypeCode(item.getText(11)));
-      tfoi.getOutputFields()[i] = field;
+      tfoi.getOutputFields().add(field);
     }
   }
 
@@ -1738,8 +1700,8 @@ public class TextFileOutputDialog extends BaseTransformDialog {
       }
     }
 
-    for (int i = 0; i < input.getOutputFields().length; i++) {
-      input.getOutputFields()[i].setTrimType(IValueMeta.TRIM_TYPE_BOTH);
+    for (TextFileField outputField : input.getOutputFields()) {
+      outputField.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
     }
 
     wFields.optWidth(true);

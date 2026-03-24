@@ -62,6 +62,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.mail.common.MailConst;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -81,63 +82,19 @@ import org.eclipse.angus.mail.pop3.POP3SSLStore;
     hopMetadataPropertyType = HopMetadataPropertyType.MAIL_SERVER_CONNECTION,
     supportsGlobalReplace = true)
 public class MailServerConnection extends HopMetadataBase implements IHopMetadata {
-
   private static final Class<?> PKG = MailServerConnection.class;
 
-  public static final String FOLDER_SEPARATOR = "/";
-
-  public static final int PROTOCOL_POP3 = 0;
-  public static final int PROTOCOL_IMAP = 1;
   public static final int PROTOCOL_MBOX = 2;
 
-  public static final String INBOX_FOLDER = "INBOX";
-  public static final String PROTOCOL_STRING_IMAP = "IMAP";
-  public static final String PROTOCOL_STRING_POP3 = "POP3";
-  public static final String[] protocolCodes = new String[] {"POP3", "IMAP", "MBOX"};
-  public static final String PROTOCOL_STRING_MBOX = protocolCodes[PROTOCOL_MBOX];
-
-  public static final int DEFAULT_IMAP_PORT = 110;
-  public static final int DEFAULT_POP3_PORT = 110;
-  public static final int DEFAULT_SSL_POP3_PORT = 995;
-  public static final int DEFAULT_SSL_IMAP_PORT = 993;
-
-  public static final String CONST_MAIL = "mail.";
-  private static final String CONST_POP3_UNSUPPORTED =
-      "MailConnection.Error.ReceivedDatePOP3Unsupported";
-
-  public static final String[] conditionDateCode =
-      new String[] {"ignore", "equal", "smaller", "greater", "between"};
-  public static final int CONDITION_DATE_IGNORE = 0;
   public static final int CONDITION_DATE_EQUAL = 1;
   public static final int CONDITION_DATE_SMALLER = 2;
   public static final int CONDITION_DATE_GREATER = 3;
   public static final int CONDITION_DATE_BETWEEN = 4;
 
-  public static final String[] actionTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionGetPOP.ActionType.GetMessages.Label"),
-        BaseMessages.getString(PKG, "ActionGetPOP.ActionType.MoveMessages.Label"),
-        BaseMessages.getString(PKG, "ActionGetPOP.ActionType.DeleteMessages.Label"),
-      };
-  public static final String[] actionTypeCode = new String[] {"get", "move", "delete"};
   public static final int ACTION_TYPE_GET = 0;
   public static final int ACTION_TYPE_MOVE = 1;
   public static final int ACTION_TYPE_DELETE = 2;
 
-  public static final String[] valueIMAPListCode =
-      new String[] {
-        "imaplistall",
-        "imaplistnew",
-        "imaplistold",
-        "imaplistread",
-        "imaplistunread",
-        "imaplistflagged",
-        "imaplistnotflagged",
-        "imaplistdraft",
-        "imaplistnotdraft",
-        "imaplistanswered",
-        "imaplistnotanswered"
-      };
   public static final int VALUE_IMAP_LIST_ALL = 0;
   public static final int VALUE_IMAP_LIST_NEW = 1;
   public static final int VALUE_IMAP_LIST_OLD = 2;
@@ -147,17 +104,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   public static final int VALUE_IMAP_LIST_NOT_FLAGGED = 6;
   public static final int VALUE_IMAP_LIST_DRAFT = 7;
   public static final int VALUE_IMAP_LIST_NOT_DRAFT = 8;
-  public static final int VALUE_IMAP_LIST_ANWERED = 9;
-  public static final int VALUE_IMAP_LIST_NOT_ANSWERED = 10;
 
-  public static final String[] afterGetIMAPDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionGetPOP.afterGetIMAP.Nothing.Label"),
-        BaseMessages.getString(PKG, "ActionGetPOP.afterGetIMAP.Delete.Label"),
-        BaseMessages.getString(PKG, "ActionGetPOP.afterGetIMAP.MoveTo.Label")
-      };
-  public static final String[] afterGetIMAPCode = new String[] {"nothing", "delete", "move"};
-  public static final int AFTER_GET_IMAP_NOTHING = 0;
   public static final int AFTER_GET_IMAP_DELETE = 1;
   public static final int AFTER_GET_IMAP_MOVE = 2;
 
@@ -235,102 +182,22 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   public Session getSession(IVariables variables) {
     this.variables = variables;
 
-    // SMTP
-    if (protocol.equals("SMTP")) {
-      // Send an e-mail...
-      // create some properties and get the default Session
-
-      protocol = "smtp";
-      if (useSecureAuthentication) {
-        if (useXOAuth2) {
-          props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
-        }
-        if (secureConnectionType.equals("TLS")) {
-          // Allow TLS authentication
-          props.put("mail.smtp.starttls.enable", "true");
-        } else if (secureConnectionType.equals("TLS 1.2")) {
-          // Allow TLS 1.2 authentication
-          props.put("mail.smtp.starttls.enable", "true");
-          props.put("mail.smtp.ssl.protocols", "TLSv1.2");
-        } else {
-          protocol = "smtps";
-          // required to get rid of a SSL exception :
-          // nested exception is:
-          // javax.net.ssl.SSLException: Unsupported record version Unknown
-          props.put("mail.smtps.quitwait", "false");
-        }
-        props.setProperty(
-            "mail.smtp.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
-        if (!Utils.isEmpty(trustedHosts)) {
-          props.put("mail.smtp.ssl.trust", variables.resolve(trustedHosts));
-        }
-      }
-
-      props.put(CONST_MAIL + protocol.toLowerCase() + ".host", variables.resolve(serverHost));
-      if (!Utils.isEmpty(serverPort)) {
-        props.put(CONST_MAIL + protocol.toLowerCase() + ".port", variables.resolve(serverPort));
-      }
-
-      if (useAuthentication) {
-        props.put(CONST_MAIL + protocol + ".auth", "true");
-      }
+    if (isSmtp()) {
+      buildSmtpProps();
     } else {
-      String protocolString = "";
-      if (isUseProxy()) {
-        // Need here to pass a proxy
-        // use SASL authentication
-        props.put("mail.imap.sasl.enable", "true");
-        props.put("mail.imap.sasl.authorizationid", proxyUsername);
-      }
-
-      if (protocol.equals("POP3")) {
-        props.setProperty("mail.pop3s.rsetbeforequit", "true");
-        props.setProperty("mail.pop3.rsetbeforequit", "true");
-      } else if (protocol.equals("MBOX")) {
-        props.setProperty("mstor.mbox.metadataStrategy", "none"); // none|xml|yaml
-        props.setProperty("mstor.cache.disabled", "true"); // prevent diskstore fail
-      }
-
-      protocolString =
-          (protocol.equals("POP3")) ? "pop3" : protocol.equals("MBOX") ? "mstor" : "imap";
-      if (useSecureAuthentication && !protocol.equals("MBOX")) {
-        // Supports IMAP/POP3 connection with SSL, the connection is established via SSL.
-        props.setProperty(
-            CONST_MAIL + protocolString + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        props.setProperty(CONST_MAIL + protocolString + ".socketFactory.fallback", "false");
-        props.setProperty(
-            CONST_MAIL + protocolString + ".port", "" + variables.resolve(serverPort));
-        props.setProperty(
-            CONST_MAIL + protocolString + ".socketFactory.port",
-            "" + variables.resolve(serverPort));
-        if (useXOAuth2) {
-          props.setProperty(CONST_MAIL + protocolString + ".ssl.enable", "true");
-          props.setProperty(CONST_MAIL + protocolString + ".auth.mechanisms", "XOAUTH2");
-        }
-      }
+      buildStoreProps();
     }
-    props.setProperty("mail.imap.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
-    props.setProperty(
-        "mail.imaps.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
-    props.setProperty("mail.pop3.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
-    props.setProperty(
-        "mail.pop3s.ssl.checkServerIdentity", String.valueOf(isCheckServerIdentity()));
-    if (!Utils.isEmpty(trustedHosts)) {
-      String resolvedTrusted = variables.resolve(trustedHosts);
-      props.setProperty("mail.imap.ssl.trust", resolvedTrusted);
-      props.setProperty("mail.imaps.ssl.trust", resolvedTrusted);
-      props.setProperty("mail.pop3.ssl.trust", resolvedTrusted);
-      props.setProperty("mail.pop3s.ssl.trust", resolvedTrusted);
-    }
+
+    applyCommonSecurity();
+    applyTrustConfig();
 
     session = Session.getInstance(props);
-
     return session;
   }
 
   // SMTP
   public Transport getTransport() throws MessagingException {
-    Transport transport = session.getTransport(protocol);
+    Transport transport = session.getTransport(protocol.toLowerCase());
     String authPass = getPassword(password);
 
     if (useAuthentication) {
@@ -355,10 +222,10 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
   // IMAP, POP, MBOX
   public Store getStore() throws MessagingException {
-    if (useSecureAuthentication && !protocol.equals("MBOX")) {
+    if (useSecureAuthentication && !protocol.equals(MailConst.PROTOCOL_MBOX)) {
       URLName url =
           new URLName(
-              protocol,
+              protocol.toLowerCase(),
               variables.resolve(serverHost),
               Integer.parseInt(variables.resolve(serverPort)),
               "",
@@ -366,28 +233,24 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
               variables.resolve(password));
 
       switch (protocol) {
-        case "POP3":
+        case MailConst.PROTOCOL_STRING_POP3:
           store = new POP3SSLStore(session, url);
           break;
-        case "IMAP":
+        case MailConst.PROTOCOL_STRING_IMAP:
           store = new IMAPSSLStore(session, url);
           break;
         default:
           break;
       }
     } else {
-      if (protocol.equals("MBOX")) {
-        this.store = this.session.getStore(new URLName(protocol + ":" + serverHost));
+      if (protocol.equalsIgnoreCase(MailConst.PROTOCOL_MBOX)) {
+        this.store = this.session.getStore(new URLName(MailConst.PROTOCOL_MSTOR + ":file:///"));
       } else {
-        this.store = this.session.getStore(protocol);
+        this.store = this.session.getStore(protocol.toLowerCase());
       }
     }
 
     return store;
-  }
-
-  public MailServerConnection(MailServerConnection connection) {
-    // no impementation
   }
 
   @Override
@@ -422,7 +285,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    */
   public void connect() throws HopException, NoSuchProviderException {
     try {
-      if (this.useSecureAuthentication || this.protocol.equals("MBOX")) {
+      if (this.useSecureAuthentication || this.protocol.equals(MailConst.PROTOCOL_MBOX)) {
         // Supports IMAP/POP3 connection with SSL,
         // the connection is established via SSL.
         this.store.connect();
@@ -447,17 +310,34 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
               "ActionGetMailsFromPOP.Error.Connecting",
               this.serverHost,
               this.username,
-              Const.NVL("" + this.serverPort, "")),
+              Const.NVL(this.serverPort, "")),
           e);
     }
   }
 
-  public boolean testConnection(Session session) {
+  public void testConnection(Session session) {
     try {
       this.session = session;
+
+      // mbox[mstor], Currently not supported.
+      if (protocol.equalsIgnoreCase(MailConst.PROTOCOL_MBOX)) {
+        return;
+      }
+
+      // send mail
+      if (protocol.equalsIgnoreCase(MailConst.PROTOCOL_SMTP)) {
+        getTransport();
+        return;
+      }
+
+      // receive mail
+      String host = variables.resolve(this.serverHost);
+      int port = Integer.parseInt(variables.resolve(Const.NVL(this.serverPort, "0")));
+      String user = variables.resolve(this.username);
+      String pwd = variables.resolve(this.password);
+
       Store theStore = getStore();
-      theStore.connect();
-      return true;
+      theStore.connect(host, port, user, pwd);
     } catch (MessagingException e) {
       throw new RuntimeException(e);
     }
@@ -470,19 +350,18 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Set destination folder
    *
-   * @param folderName destination foldername
+   * @param folderName destination folder name
    * @param createFolder flag create folder if needed
-   * @throws HopException
    */
   public void setDestinationFolder(String folderName, boolean createFolder) throws HopException {
     try {
-      String[] folderparts = folderName.split("/");
+      String[] folderParts = folderName.split("/");
       if (!store.isConnected()) {
         store.connect();
       }
       Folder f = store.getDefaultFolder();
       // Open destination folder
-      for (String folderpart : folderparts) {
+      for (String folderpart : folderParts) {
         f = f.getFolder(folderpart);
         if (!f.exists()) {
           if (createFolder) {
@@ -530,13 +409,13 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   }
 
   /**
-   * Set filter on receipient.
+   * Set filter on recipient.
    *
-   * @param receipient messages will be filtered on receipient
+   * @param recipient messages will be filtered on recipient
    */
-  public void setReceipientTerm(String receipient) {
-    if (!Utils.isEmpty(receipient)) {
-      addSearchTerm(new RecipientStringTerm(Message.RecipientType.TO, receipient));
+  public void setRecipientTerm(String recipient) {
+    if (!Utils.isEmpty(recipient)) {
+      addSearchTerm(new RecipientStringTerm(Message.RecipientType.TO, recipient));
     }
   }
 
@@ -557,17 +436,17 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   }
 
   /**
-   * Search all messages with body containing the word bodyfilter
+   * Search all messages with body containing the word body filter
    *
-   * @param bodyfilter
+   * @param bodyFilter bodyFilter
    * @param notTerm negate condition
    */
-  public void setBodyTerm(String bodyfilter, boolean notTerm) {
-    if (!Utils.isEmpty(bodyfilter)) {
+  public void setBodyTerm(String bodyFilter, boolean notTerm) {
+    if (!Utils.isEmpty(bodyFilter)) {
       if (notTerm) {
-        addSearchTerm(new NotTerm(new BodyTerm(bodyfilter)));
+        addSearchTerm(new NotTerm(new BodyTerm(bodyFilter)));
       } else {
-        addSearchTerm(new BodyTerm(bodyfilter));
+        addSearchTerm(new BodyTerm(bodyFilter));
       }
     }
   }
@@ -575,11 +454,11 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Set filter on message received date.
    *
-   * @param receiveddate messages will be filtered on receiveddate
+   * @param receivedDate messages will be filtered on received date
    */
-  public void setReceivedDateTermEQ(Date receiveddate) {
-    if (!this.protocol.equals("POP3")) {
-      addSearchTerm(new ReceivedDateTerm(ComparisonTerm.EQ, receiveddate));
+  public void setReceivedDateTermEQ(Date receivedDate) {
+    if (!this.protocol.equals(MailConst.PROTOCOL_STRING_POP3)) {
+      addSearchTerm(new ReceivedDateTerm(ComparisonTerm.EQ, receivedDate));
     }
   }
 
@@ -589,7 +468,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    * @param futureDate messages will be filtered on futureDate
    */
   public void setReceivedDateTermLT(Date futureDate) {
-    if (!this.protocol.equals("POP3")) {
+    if (!this.protocol.equals(MailConst.PROTOCOL_STRING_POP3)) {
       addSearchTerm(new ReceivedDateTerm(ComparisonTerm.LT, futureDate));
     }
   }
@@ -600,13 +479,13 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    * @param pastDate messages will be filtered on pastDate
    */
   public void setReceivedDateTermGT(Date pastDate) {
-    if (!this.protocol.equals("POP3")) {
+    if (!this.protocol.equals(MailConst.PROTOCOL_STRING_POP3)) {
       addSearchTerm(new ReceivedDateTerm(ComparisonTerm.GT, pastDate));
     }
   }
 
   public void setReceivedDateTermBetween(Date beginDate, Date endDate) {
-    if (!this.protocol.equals("POP3")) {
+    if (!this.protocol.equals(MailConst.PROTOCOL_STRING_POP3)) {
       addSearchTerm(
           new AndTerm(
               new ReceivedDateTerm(ComparisonTerm.LT, endDate),
@@ -672,9 +551,8 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    * @return sub folders
    */
   public String[] returnAllFolders(Folder folder) throws HopException {
-    HashSet<String> list = new HashSet<>();
-    list = returnSubfolders(folder);
-    return list.toArray(new String[list.size()]);
+    HashSet<String> list = returnSubfolders(folder);
+    return list.toArray(new String[0]);
   }
 
   /**
@@ -693,7 +571,6 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    * @return sub folders
    */
   public String[] returnAllFolders(String folder) throws HopException {
-
     Folder dfolder = null;
     String[] retval = null;
     try {
@@ -777,7 +654,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    * Disconnect from the server and close folder, connection.
    *
    * @param expunge expunge folder
-   * @throws HopException
+   * @throws HopException ex
    */
   public void disconnect(boolean expunge) throws HopException {
     try {
@@ -804,7 +681,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    * Close folder.
    *
    * @param expunge expunge folder
-   * @throws HopException
+   * @throws HopException ex
    */
   public void closeFolder(boolean expunge) throws HopException {
     try {
@@ -836,16 +713,16 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Disconnect from the server and close folder, connection.
    *
-   * @throws HopException
+   * @throws HopException ex
    */
   public void disconnect() throws HopException {
     disconnect(true);
   }
 
   /**
-   * Returns the foldername.
+   * Returns the folder name.
    *
-   * @return foldername
+   * @return folder name
    */
   public String getFolderName() {
     if (this.folder == null) {
@@ -893,25 +770,11 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       }
 
       if (defaultFolder) {
-        if (protocol.equals("MBOX")) {
-          this.folder = this.store.getDefaultFolder();
-        } else {
-          // get the default folder
-          this.folder = getRecursiveFolder(INBOX_FOLDER);
-        }
-
-        if (this.folder == null) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "ActionGetMailsFromPOP.InvalidDefaultFolder.Label"));
-        }
-
-        if ((folder.getType() & Folder.HOLDS_MESSAGES) == 0) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "MailConnection.DefaultFolderCanNotHoldMessage"));
-        }
+        this.folder = getDefaultFolder(protocol, this.store);
       } else {
         // Open specified Folder (for IMAP/MBOX)
-        if (this.protocol.equals("IMAP") || this.protocol.equals("MBOX")) {
+        if (this.protocol.equals(MailConst.PROTOCOL_STRING_IMAP)
+            || this.protocol.equals(MailConst.PROTOCOL_MBOX)) {
           this.folder = getRecursiveFolder(folderName);
         }
         if (this.folder == null || !this.folder.exists()) {
@@ -935,16 +798,38 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     }
   }
 
+  private Folder getDefaultFolder(String protocol, Store store)
+      throws HopException, MessagingException {
+    Folder defaultFolder;
+    if (protocol.equals(MailConst.PROTOCOL_MBOX)) {
+      defaultFolder = store.getDefaultFolder();
+    } else {
+      // get the default folder
+      defaultFolder = getRecursiveFolder(MailConst.INBOX_FOLDER);
+    }
+
+    if (defaultFolder == null) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "ActionGetMailsFromPOP.InvalidDefaultFolder.Label"));
+    }
+
+    if ((defaultFolder.getType() & Folder.HOLDS_MESSAGES) == 0) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "MailConnection.DefaultFolderCanNotHoldMessage"));
+    }
+    return defaultFolder;
+  }
+
   private Folder getRecursiveFolder(String folderName) throws MessagingException {
     Folder dfolder;
-    String[] folderparts = folderName.split("/");
+    String[] folderParts = folderName.split("/");
     if (!store.isConnected()) {
       store.connect();
     }
     dfolder = store.getDefaultFolder();
     // Open destination folder
-    for (String folderpart : folderparts) {
-      dfolder = dfolder.getFolder(folderpart);
+    for (String folderPart : folderParts) {
+      dfolder = dfolder.getFolder(folderPart);
     }
     return dfolder;
   }
@@ -952,7 +837,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Retrieve all messages from server
    *
-   * @throws HopException
+   * @throws HopException ex
    */
   public void retrieveMessages() throws HopException {
     try {
@@ -981,7 +866,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Get next message.
    *
-   * @throws HopException
+   * @throws HopException ex
    */
   public void fetchNext() throws HopException {
     updateMessageNr();
@@ -996,7 +881,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Delete current fetched message
    *
-   * @throws HopException
+   * @throws HopException ex
    */
   public void deleteMessage() throws HopException {
     try {
@@ -1013,7 +898,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Delete messages.
    *
-   * @throws HopException
+   * @throws HopException ex
    */
   public void deleteMessages(boolean setCounter) throws HopException {
     try {
@@ -1031,7 +916,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    * Move current message to a target folder. (IMAP) You must call setDestinationFolder before
    * calling this method
    *
-   * @throws HopException
+   * @throws HopException ex
    */
   public void moveMessage() throws HopException {
     try {
@@ -1054,7 +939,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Move messages to a folder. You must call setDestinationFolder before calling this method
    *
-   * @throws HopException
+   * @throws HopException ex
    */
   public void moveMessages() throws HopException {
     try {
@@ -1074,7 +959,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    *
    * @param filename the target filename
    * @param folderName the parent folder of filename
-   * @throws HopException
+   * @throws HopException ex
    */
   public void saveMessageContentToFile(String filename, String folderName) throws HopException {
     OutputStream os = null;
@@ -1103,9 +988,9 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
   /**
    * Save attached files to a folder.
    *
-   * @param folderName the target foldername
+   * @param folderName the target folder name
    * @param pattern regular expression to filter on files
-   * @throws HopException
+   * @throws HopException ex
    */
   public void saveAttachedFiles(String folderName, Pattern pattern) throws HopException {
     Object content = null;
@@ -1152,12 +1037,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
 
       if (disposition.equalsIgnoreCase(Part.ATTACHMENT)
           || disposition.equalsIgnoreCase(Part.INLINE)) {
-        String mimeText = null;
-        try {
-          mimeText = MimeUtility.decodeText(part.getFileName());
-        } catch (Exception e) {
-          // Ignore errors
-        }
+        String mimeText = decodeText(part);
         if (mimeText != null) {
           String filename = MimeUtility.decodeText(part.getFileName());
           if (isWildcardMatch(filename, pattern)) {
@@ -1199,11 +1079,13 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     } finally {
       if (bis != null) {
         IOUtils.closeQuietly(bis);
-        bis = null; // Help the GC
+        // Help the GC
+        bis = null;
       }
       if (bos != null) {
         IOUtils.closeQuietly(bos);
-        bos = null; // Help the GC
+        // Help the GC
+        bos = null;
         // Note - closing the BufferedOuputStream closes the underlying output stream according to
         // the Javadoc
       }
@@ -1225,8 +1107,9 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       throw new IllegalArgumentException("Cannot have null arguments to findValidTarget");
     }
     String fileNameRoot = FilenameUtils.getBaseName(fileName);
+    // only a "."
     String ext = "." + FilenameUtils.getExtension(fileName);
-    if ((ext.length() == 1)) { // only a "."
+    if ((ext.length() == 1)) {
       ext = "";
     }
     String rtn = "";
@@ -1236,7 +1119,8 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     int i = -1;
     do {
       i++;
-      build.setLength(baseSz); // bring string back to size
+      // bring string back to size
+      build.setLength(baseSz);
       build.append(i > 0 ? Integer.toString(i) : "").append(ext);
       rtn = build.toString();
     } while (HopVfs.fileExists(rtn));
@@ -1265,16 +1149,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     }
 
     if (p.isMimeType("multipart/alternative")) {
-      // prefer html text over plain text
-      Multipart mp = (Multipart) p.getContent();
-      String text = null;
-      for (int i = 0; i < mp.getCount(); i++) {
-        Part bp = mp.getBodyPart(i);
-        if (bp.isMimeType("text/plain") && text == null) {
-          text = getMessageBodyOrContentType(bp, returnContentType);
-        }
-      }
-      return text;
+      return multipartAlternative(p, returnContentType);
     } else if (p.isMimeType("multipart/*")) {
       Multipart mp = (Multipart) p.getContent();
       for (int i = 0; i < mp.getCount(); i++) {
@@ -1286,6 +1161,20 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
     }
 
     return null;
+  }
+
+  private String multipartAlternative(Part p, boolean returnContentType)
+      throws IOException, MessagingException {
+    // prefer html text over plain text
+    Multipart mp = (Multipart) p.getContent();
+    String text = null;
+    for (int i = 0; i < mp.getCount(); i++) {
+      Part bp = mp.getBodyPart(i);
+      if (bp.isMimeType("text/plain") && text == null) {
+        text = getMessageBodyOrContentType(bp, returnContentType);
+      }
+    }
+    return text;
   }
 
   public boolean isMessageDraft(Message msg) {
@@ -1368,7 +1257,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
    * Returns attached files count for the current message
    *
    * @param pattern (optional)
-   * @return true if message is Draft
+   * @return 1 if message is Draft
    */
   public int getAttachedFilesCount(Pattern pattern) throws HopException {
     return getAttachedFilesCount(getMessage(), pattern);
@@ -1387,12 +1276,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
           if ((disposition != null)
               && (disposition.equalsIgnoreCase(Part.ATTACHMENT)
                   || disposition.equalsIgnoreCase(Part.INLINE))) {
-            String mimeText = null;
-            try {
-              mimeText = MimeUtility.decodeText(part.getFileName());
-            } catch (Exception e) {
-              // Ignore errors
-            }
+            String mimeText = decodeText(part);
             if (mimeText != null) {
               String filename = MimeUtility.decodeText(part.getFileName());
               if (isWildcardMatch(filename, pattern)) {
@@ -1415,5 +1299,145 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       }
     }
     return retval;
+  }
+
+  /** builder smtp properties */
+  private void buildSmtpProps() {
+    String proto = protocol.toLowerCase();
+
+    if (useSecureAuthentication) {
+      applySmtpSecurity();
+    }
+
+    setHostPort(proto);
+    if (useAuthentication) {
+      props.put(mailKey(proto, "auth"), "true");
+    }
+  }
+
+  /** builder smtp security */
+  private void applySmtpSecurity() {
+    if (useXOAuth2) {
+      props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
+    }
+
+    if (MailConst.SSL_TLS.equals(secureConnectionType)) {
+      props.put("mail.smtp.starttls.enable", "true");
+    } else if (MailConst.SSL_TLS_12.equals(secureConnectionType)) {
+      props.put("mail.smtp.starttls.enable", "true");
+      props.put("mail.smtp.ssl.protocols", MailConst.SSL_TLS_V12);
+    } else {
+      protocol = MailConst.PROTOCOL_SSL_SMTP;
+      props.put("mail.smtps.quitwait", "false");
+    }
+
+    props.put("mail.smtp.ssl.checkServerIdentity", isCheckServerIdentity());
+    if (!Utils.isEmpty(trustedHosts)) {
+      props.put("mail.smtp.ssl.trust", variables.resolve(trustedHosts));
+    }
+  }
+
+  /** builder store properties */
+  private void buildStoreProps() {
+    String proto = resolveProtocol(protocol);
+
+    if (isUseProxy()) {
+      props.put("mail.imap.sasl.enable", "true");
+      props.put("mail.imap.sasl.authorizationid", proxyUsername);
+    }
+
+    handleSpecialProtocols();
+    if (useSecureAuthentication && !isMbox()) {
+      applyStoreSSL(proto);
+    }
+  }
+
+  /** put store ssl */
+  private void applyStoreSSL(String proto) {
+    props.put(mailKey(proto, "socketFactory.class"), "javax.net.ssl.SSLSocketFactory");
+    props.put(mailKey(proto, "socketFactory.fallback"), "false");
+    props.put(mailKey(proto, "port"), variables.resolve(serverPort));
+    props.put(mailKey(proto, "socketFactory.port"), variables.resolve(serverPort));
+
+    if (useXOAuth2) {
+      props.put(mailKey(proto, "ssl.enable"), "true");
+      props.put(mailKey(proto, "auth.mechanisms"), "XOAUTH2");
+    }
+  }
+
+  /** apply common security */
+  private void applyCommonSecurity() {
+    String[] protocols = {"imap", "imaps", "pop3", "pop3s"};
+
+    for (String p : protocols) {
+      props.put(
+          MailConst.MAIL_PREFIX + p + ".ssl.checkServerIdentity",
+          String.valueOf(isCheckServerIdentity()));
+    }
+  }
+
+  /** apply trust config */
+  private void applyTrustConfig() {
+    if (Utils.isEmpty(trustedHosts)) {
+      return;
+    }
+
+    String trusted = variables.resolve(trustedHosts);
+    String[] protocols = {"imap", "imaps", "pop3", "pop3s"};
+
+    for (String p : protocols) {
+      props.put(MailConst.MAIL_PREFIX + p + ".ssl.trust", trusted);
+    }
+  }
+
+  /** handler special protocol */
+  private void handleSpecialProtocols() {
+    if (MailConst.PROTOCOL_STRING_POP3.equals(protocol)) {
+      props.put("mail.pop3.rsetbeforequit", "true");
+      props.put("mail.pop3s.rsetbeforequit", "true");
+    } else if (MailConst.PROTOCOL_MBOX.equals(protocol)) {
+      props.put("mstor.mbox.metadataStrategy", "none");
+      props.put("mstor.cache.disabled", "true");
+    }
+  }
+
+  /** resolve protocol */
+  private String resolveProtocol(String protocol) {
+    if (MailConst.PROTOCOL_STRING_POP3.equals(protocol)) {
+      return MailConst.PROTOCOL_STRING_POP3.toLowerCase();
+    } else if (MailConst.PROTOCOL_MBOX.equals(protocol)) {
+      return MailConst.PROTOCOL_MSTOR;
+    } else {
+      return MailConst.PROTOCOL_STRING_IMAP.toLowerCase();
+    }
+  }
+
+  private void setHostPort(String proto) {
+    props.put(mailKey(proto, "host"), variables.resolve(serverHost));
+
+    if (!Utils.isEmpty(serverPort)) {
+      props.put(mailKey(proto, "port"), variables.resolve(serverPort));
+    }
+  }
+
+  private boolean isSmtp() {
+    return MailConst.PROTOCOL_SMTP.equalsIgnoreCase(protocol);
+  }
+
+  private boolean isMbox() {
+    return MailConst.PROTOCOL_MBOX.equalsIgnoreCase(protocol);
+  }
+
+  private String mailKey(String protocol, String key) {
+    return MailConst.MAIL_PREFIX + protocol + "." + key;
+  }
+
+  private String decodeText(Part part) {
+    try {
+      return MimeUtility.decodeText(part.getFileName());
+    } catch (Exception e) {
+      // Ignore errors
+    }
+    return null;
   }
 }

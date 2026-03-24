@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -130,12 +129,12 @@ class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
     meta.setEncoding(encoding);
     meta.setEnclosure("\"");
     meta.setBufferSize("50000");
-    meta.setInputFields(getInputFileFields());
+    meta.setFields(getInputFileFields());
     meta.setHeaderPresent(true);
     return meta;
   }
 
-  private TextFileInputField[] getInputFileFields() {
+  private CsvInputField[] getInputFileFields() {
     return createInputFileFields("Header1", "Header2");
   }
 }

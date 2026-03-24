@@ -16,9 +16,13 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 @SuppressWarnings("java:S1104")
+@Getter
+@Setter
 public class TransformDefinition implements Cloneable {
   public String tag;
   public String transformName;
@@ -32,8 +36,19 @@ public class TransformDefinition implements Cloneable {
     this.description = "";
   }
 
+  public TransformDefinition(TransformDefinition d) {
+    this();
+    this.tag = d.tag;
+    this.transformName = d.transformName;
+    if (d.transformMeta != null) {
+      this.transformMeta = (TransformMeta) d.transformMeta.clone();
+    }
+    this.description = d.description;
+  }
+
   public TransformDefinition(
       String tag, String transformName, TransformMeta transformMeta, String description) {
+    this();
     this.tag = tag;
     this.transformName = transformName;
     this.transformMeta = transformMeta;
@@ -41,12 +56,7 @@ public class TransformDefinition implements Cloneable {
   }
 
   @Override
-  public Object clone() throws CloneNotSupportedException {
-    TransformDefinition retval;
-    retval = (TransformDefinition) super.clone();
-    if (transformMeta != null) {
-      retval.transformMeta = (TransformMeta) transformMeta.clone();
-    }
-    return retval;
+  public Object clone() {
+    return new TransformDefinition(this);
   }
 }

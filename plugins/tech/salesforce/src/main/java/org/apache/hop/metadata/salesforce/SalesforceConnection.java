@@ -93,6 +93,9 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
   @HopMetadataProperty(key = "oauth_jwt_token_endpoint", injectionKey = "OAUTH_JWT_TOKEN_ENDPOINT")
   private String oauthJwtTokenEndpoint = "https://login.salesforce.com";
 
+  @HopMetadataProperty(key = "oauth_api_version", injectionKey = "OAUTH_API_VERSION")
+  private String oauthApiVersion = "64.0";
+
   public SalesforceConnection() {
     super();
   }
@@ -158,6 +161,8 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
         connection.setOauthRefreshToken(refreshToken);
       }
 
+      connection.setApiVersion(variables.resolve(this.oauthApiVersion));
+
       return connection;
     } else if (isOAuthJwtAuthentication()) {
       // Resolve OAuth JWT variables
@@ -167,8 +172,11 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
           org.apache.hop.core.util.Utils.resolvePassword(variables, this.oauthJwtPrivateKey);
       String jwtTokenEndpoint = variables.resolve(this.oauthJwtTokenEndpoint);
 
-      return org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection.createJwtConnection(
-          log, jwtUsername, jwtConsumerKey, jwtPrivateKey, jwtTokenEndpoint);
+      org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection jwtConnection =
+          org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection.createJwtConnection(
+              log, jwtUsername, jwtConsumerKey, jwtPrivateKey, jwtTokenEndpoint);
+      jwtConnection.setApiVersion(variables.resolve(this.oauthApiVersion));
+      return jwtConnection;
     } else {
       // Resolve username/password variables
       String url = variables.resolve(this.targetUrl);
@@ -335,6 +343,14 @@ public class SalesforceConnection extends HopMetadataBase implements IHopMetadat
 
   public void setOauthJwtTokenEndpoint(String oauthJwtTokenEndpoint) {
     this.oauthJwtTokenEndpoint = oauthJwtTokenEndpoint;
+  }
+
+  public String getOauthApiVersion() {
+    return oauthApiVersion;
+  }
+
+  public void setOauthApiVersion(String oauthApiVersion) {
+    this.oauthApiVersion = oauthApiVersion;
   }
 
   /**

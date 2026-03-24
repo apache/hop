@@ -17,87 +17,65 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
-import org.apache.hop.core.injection.Injection;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class ScriptValuesScript {
-
   public static final int NORMAL_SCRIPT = -1;
   public static final int TRANSFORM_SCRIPT = 0;
   public static final int START_SCRIPT = 1;
   public static final int END_SCRIPT = 2;
 
-  private int iScriptType;
-  private boolean bScriptActive;
+  @HopMetadataProperty(
+      key = "jsScript_type",
+      injectionKey = "SCRIPT_TYPE",
+      injectionKeyDescription = "ScriptValuesMod.Injection.SCRIPT_TYPE")
+  private int type;
 
-  @Injection(name = "SCRIPT_NAME", group = "SCRIPTS")
-  private String sScriptName;
+  @HopMetadataProperty(
+      key = "jsScript_name",
+      injectionKey = "SCRIPT_NAME",
+      injectionKeyDescription = "ScriptValuesMod.Injection.SCRIPT_NAME")
+  private String name;
 
-  @Injection(name = "SCRIPT", group = "SCRIPTS")
-  private String sScript;
+  @HopMetadataProperty(
+      key = "jsScript_script",
+      injectionKey = "SCRIPT",
+      injectionKeyDescription = "ScriptValuesMod.Injection.SCRIPT")
+  private String script;
 
   public ScriptValuesScript() {}
 
-  public ScriptValuesScript(int iScriptType, String sScriptName, String sScript) {
+  public ScriptValuesScript(ScriptValuesScript s) {
     super();
-    this.iScriptType = iScriptType;
-    this.sScriptName = sScriptName;
-    this.sScript = sScript;
-    bScriptActive = true;
+    this.type = s.type;
+    this.name = s.name;
+    this.script = s.script;
   }
 
-  public int getScriptType() {
-    return iScriptType;
-  }
-
-  public void setScriptType(int iScriptType) {
-    this.iScriptType = iScriptType;
-  }
-
-  public String getScript() {
-    return this.sScript;
-  }
-
-  public void setScript(String sScript) {
-    this.sScript = sScript;
-  }
-
-  public String getScriptName() {
-    return sScriptName;
-  }
-
-  public void setScriptName(String sScriptName) {
-    this.sScriptName = sScriptName;
+  public ScriptValuesScript(int type, String name, String script) {
+    this();
+    this.type = type;
+    this.name = name;
+    this.script = script;
   }
 
   public boolean isTransformScript() {
-    if (this.bScriptActive && this.iScriptType == TRANSFORM_SCRIPT) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.type == TRANSFORM_SCRIPT;
   }
 
   public boolean isStartScript() {
-    if (this.bScriptActive && this.iScriptType == START_SCRIPT) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.type == START_SCRIPT;
   }
 
   public boolean isEndScript() {
-    if (this.bScriptActive && this.iScriptType == END_SCRIPT) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public boolean isActive() {
-    return bScriptActive;
+    return this.type == END_SCRIPT;
   }
 
   public String toString() {
-    return String.format("ScriptValuesScript: (%d, %s, %s)", iScriptType, sScriptName, sScript);
+    return String.format("ScriptValuesScript: (%d, %s, %s)", type, name, script);
   }
 }

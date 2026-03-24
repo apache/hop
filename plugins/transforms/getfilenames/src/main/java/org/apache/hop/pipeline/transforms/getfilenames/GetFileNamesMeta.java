@@ -29,6 +29,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.FileTypeFilter;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -73,7 +74,7 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
 
   /** Filter indicating file filter */
-  private FileInputList.FileTypeFilter fileTypeFilter;
+  private FileTypeFilter fileTypeFilter;
 
   @HopMetadataProperty(
       key = "file",
@@ -178,7 +179,7 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   @Override
   public void setDefault() {
     doNotFailIfNoFile = false;
-    filterItemList.add(new FilterItem(FileInputList.FileTypeFilter.FILES_AND_FOLDERS.toString()));
+    filterItemList.add(new FilterItem(FileTypeFilter.FILES_AND_FOLDERS.toString()));
     addResultFile = true;
     fileField = false;
     includeRowNumber = false;
@@ -280,11 +281,10 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     }
   }
 
-  private FileInputList.FileTypeFilter[] buildFileTypeFiltersArray() {
-    FileInputList.FileTypeFilter[] filters = new FileInputList.FileTypeFilter[filesList.size()];
-    FileInputList.FileTypeFilter elementTypeToGet =
-        FileInputList.FileTypeFilter.getByName(
-            getFilterItemList().get(0).getFileTypeFilterSelection());
+  private FileTypeFilter[] buildFileTypeFiltersArray() {
+    FileTypeFilter[] filters = new FileTypeFilter[filesList.size()];
+    FileTypeFilter elementTypeToGet =
+        FileTypeFilter.getByName(getFilterItemList().get(0).getFileTypeFilterSelection());
 
     for (int i = 0; i < filesList.size(); i++) {
       filters[i] = elementTypeToGet;
@@ -295,12 +295,13 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   public String[] getFilePaths(IVariables variables) {
     return FileInputList.createFilePathList(
         variables,
-        buildFilenamesArray(),
-        buildMasksArray(),
-        buildExcludeMasksArray(),
-        buildFileRequiredArray(),
-        includeSubFolderBoolean(),
-        buildFileTypeFiltersArray());
+        FileInputList.buildInputFiles(
+            buildFilenamesArray(),
+            buildMasksArray(),
+            buildExcludeMasksArray(),
+            buildFileRequiredArray(),
+            includeSubFolderBoolean(),
+            buildFileTypeFiltersArray()));
   }
 
   public FileInputList getFileList(IVariables variables) {

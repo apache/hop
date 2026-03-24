@@ -59,3 +59,7 @@ integration-tests/mdi/files/excelwriter-mdi-test.xlsx
 integration-tests/spreadsheet/files/sample-file-append.xlsx
 
 assemblies/debug/audit
+
+# Monaco Editor files are downloaded at build time (see rap/pom.xml)
+rap/src/main/resources/org/apache/hop/ui/hopgui/monaco/vs/
+rap/src/main/resources/org/apache/hop/ui/hopgui/monaco/monaco-files.list

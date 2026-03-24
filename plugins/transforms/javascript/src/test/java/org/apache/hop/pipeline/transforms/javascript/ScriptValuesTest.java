@@ -58,20 +58,24 @@ class ScriptValuesTest {
     doReturn(new Object[] {BigDecimal.ONE, BigDecimal.ONE}).when(transform).getRow();
 
     ScriptValuesMeta meta = new ScriptValuesMeta();
-    meta.allocate(2);
-    meta.setFieldname(new String[] {"value_int", "value_double"});
-    meta.setType(new int[] {IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_BIGNUMBER});
-    meta.setReplace(new boolean[] {true, true});
+    ScriptValuesMeta.ScriptField f1 = new ScriptValuesMeta.ScriptField();
+    f1.setName("value_int");
+    f1.setType(IValueMeta.TYPE_BIGNUMBER);
+    f1.setReplace(true);
+    meta.getScriptFields().add(f1);
+    ScriptValuesMeta.ScriptField f2 = new ScriptValuesMeta.ScriptField();
+    f2.setName("value_double");
+    f2.setType(IValueMeta.TYPE_BIGNUMBER);
+    f2.setReplace(true);
+    meta.getScriptFields().add(f2);
 
-    meta.setJSScripts(
-        new ScriptValuesScript[] {
-          new ScriptValuesScript(
-              ScriptValuesScript.TRANSFORM_SCRIPT,
-              "script",
-              "value_int = 10.00;\nvalue_double = 10.50")
-        });
+    meta.getJsScripts()
+        .add(
+            new ScriptValuesScript(
+                ScriptValuesScript.TRANSFORM_SCRIPT,
+                "script",
+                "value_int = 10.00;\nvalue_double = 10.50"));
 
-    ScriptValuesData data = new ScriptValuesData();
     transform.init();
 
     Object[] expectedRow = {BigDecimal.TEN, new BigDecimal("10.5")};
@@ -94,20 +98,19 @@ class ScriptValuesTest {
     doReturn(new Object[] {""}).when(transform).getRow();
 
     ScriptValuesMeta meta = new ScriptValuesMeta();
-    meta.allocate(1);
-    meta.setFieldname(new String[] {"str"});
-    meta.setType(new int[] {IValueMeta.TYPE_STRING});
-    meta.setReplace(new boolean[] {true});
+    ScriptValuesMeta.ScriptField f1 = new ScriptValuesMeta.ScriptField();
+    f1.setName("str");
+    f1.setType(IValueMeta.TYPE_STRING);
+    f1.setReplace(true);
+    meta.getScriptFields().add(f1);
 
-    meta.setJSScripts(
-        new ScriptValuesScript[] {
-          new ScriptValuesScript(
-              ScriptValuesScript.TRANSFORM_SCRIPT,
-              "script",
-              "setVariable('temp', 'pass', 'r');\nstr = getVariable('temp', 'fail');")
-        });
+    meta.getJsScripts()
+        .add(
+            new ScriptValuesScript(
+                ScriptValuesScript.TRANSFORM_SCRIPT,
+                "script",
+                "setVariable('temp', 'pass', 'r');\nstr = getVariable('temp', 'fail');"));
 
-    ScriptValuesData data = new ScriptValuesData();
     transform.init();
 
     Object[] expectedRow = {"pass"};

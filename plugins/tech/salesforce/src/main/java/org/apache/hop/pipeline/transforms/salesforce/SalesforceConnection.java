@@ -95,6 +95,7 @@ public class SalesforceConnection {
   private String oauthRefreshToken;
   private String oauthInstanceUrl;
   private String oauthJwtPrivateKey;
+  private String apiVersion = "64.0";
   private String sql;
   private Date serverTimestamp;
   private QueryResult qr;
@@ -327,6 +328,11 @@ public class SalesforceConnection {
     this.useCompression = useCompression;
   }
 
+  private String getSoapApiPath() {
+    String v = Utils.isEmpty(apiVersion) ? "64.0" : apiVersion;
+    return "/services/Soap/u/" + v;
+  }
+
   public boolean isOAuthAuthentication() {
     return "OAUTH".equalsIgnoreCase(authenticationType);
   }
@@ -547,8 +553,8 @@ public class SalesforceConnection {
 
       // For OAuth, we need to create a proper SOAP binding with OAuth authentication
       ConnectorConfig config = new ConnectorConfig();
-      config.setAuthEndpoint(getOauthInstanceUrl() + SERVICES_SOAP_U_64_0);
-      config.setServiceEndpoint(getOauthInstanceUrl() + SERVICES_SOAP_U_64_0);
+      config.setAuthEndpoint(getOauthInstanceUrl() + getSoapApiPath());
+      config.setServiceEndpoint(getOauthInstanceUrl() + getSoapApiPath());
       config.setManualLogin(true);
 
       // Set OAuth session ID (access token) for authentication
@@ -601,8 +607,8 @@ public class SalesforceConnection {
 
       // Create SOAP binding with JWT-acquired access token
       ConnectorConfig config = new ConnectorConfig();
-      config.setAuthEndpoint(instanceUrl + SERVICES_SOAP_U_64_0);
-      config.setServiceEndpoint(instanceUrl + SERVICES_SOAP_U_64_0);
+      config.setAuthEndpoint(instanceUrl + getSoapApiPath());
+      config.setServiceEndpoint(instanceUrl + getSoapApiPath());
       config.setManualLogin(true);
       config.setSessionId(accessToken);
       config.setCompression(isUsingCompression());

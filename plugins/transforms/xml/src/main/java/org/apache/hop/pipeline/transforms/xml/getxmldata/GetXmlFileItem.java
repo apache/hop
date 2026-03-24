@@ -34,6 +34,7 @@ public class GetXmlFileItem {
   /** Array of filenames */
   @HopMetadataProperty(
       key = "name",
+      injectionKey = "filename",
       injectionKeyDescription = "GetXmlDataMeta.Injection.Filename.Label")
   private String fileName;
 

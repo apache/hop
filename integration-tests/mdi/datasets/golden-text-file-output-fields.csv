@@ -1,0 +1,4 @@
+name,type,format,currency,decimal,group,nullif,trim_type,roundingType,length,precision
+f1,String,,,,,,none,half_even,100,-1
+f2,Integer,"#",,,,,both,half_even,7,-1
+f3,Date,yyyy/MM/dd,,,,,right,half_even,-1,-1

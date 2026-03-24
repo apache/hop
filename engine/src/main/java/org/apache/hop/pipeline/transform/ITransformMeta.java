@@ -35,6 +35,7 @@ import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.ILegacyXml;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -126,7 +127,7 @@ import org.w3c.dom.Node;
  * </ul>
  */
 @HopMetadataObject(xmlKey = "type", objectFactory = ITransformMeta.TransformFactory.class)
-public interface ITransformMeta {
+public interface ITransformMeta extends ILegacyXml {
   /** Set default values */
   void setDefault();
 

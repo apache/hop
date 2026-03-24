@@ -41,6 +41,10 @@ import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
 
+/**
+ * @deprecated Since 2.18.0
+ */
+@Deprecated(since = "2.18.0")
 @Path("/carte/workflow")
 public class WorkflowResource {
 

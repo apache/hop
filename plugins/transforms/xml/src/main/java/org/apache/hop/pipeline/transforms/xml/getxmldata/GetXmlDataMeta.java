@@ -82,7 +82,7 @@ public class GetXmlDataMeta extends BaseTransformMeta<GetXmlData, GetXmlDataData
       injectionGroupKey = "files",
       injectionGroupDescription = "GetXmlDataMeta.Injection.Group.FileTab.Label",
       inlineListTags = {
-        "name",
+        "filename",
         "filemask",
         "exclude_filemask",
         "file_required",

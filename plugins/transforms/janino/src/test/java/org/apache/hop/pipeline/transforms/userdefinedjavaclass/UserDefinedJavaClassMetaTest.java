@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -25,7 +26,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -48,7 +58,6 @@ class UserDefinedJavaClassMetaTest {
     Mockito.when(userDefinedJavaClassDef.isTransformClass()).thenReturn(false);
     Mockito.when(userDefinedJavaClassDef.getSource()).thenReturn(wrongCode);
     Mockito.when(userDefinedJavaClassDef.getClassName()).thenReturn("MainClass");
-    Mockito.when(userDefinedJavaClassDef.isActive()).thenReturn(true);
 
     TransformMeta transformMeta = Mockito.mock(TransformMeta.class);
     Mockito.when(transformMeta.getName()).thenReturn("User Defined Java Class");
@@ -64,7 +73,7 @@ class UserDefinedJavaClassMetaTest {
       throw new RuntimeException(e);
     }
 
-    assertEquals(1, userDefinedJavaClassMeta.cookErrors.size());
+    assertEquals(1, userDefinedJavaClassMeta.getCookErrors().size());
   }
 
   @Test
@@ -161,5 +170,96 @@ class UserDefinedJavaClassMetaTest {
     assertEquals("C", orderDefs.get(2).getClassName());
     assertEquals("Process", orderDefs.get(3).getClassName());
     assertEquals("ProcessA", orderDefs.get(4).getClassName());
+  }
+
+  void minimalPluginPreparation() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    String[] classNames = {
+      ValueMetaString.class.getName(), ValueMetaInteger.class.getName(),
+      ValueMetaDate.class.getName(), ValueMetaNumber.class.getName()
+    };
+    for (String className : classNames) {
+      registry.registerPluginClass(className, ValueMetaPluginType.class, ValueMetaPlugin.class);
+    }
+  }
+
+  @Test
+  void testRoundTrip() throws Exception {
+    minimalPluginPreparation();
+    UserDefinedJavaClassMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/user-defined-java-class.xml", UserDefinedJavaClassMeta.class);
+    validate(meta);
+  }
+
+  private void validate(UserDefinedJavaClassMeta meta) {
+    assertFalse(meta.isClearingResultFields());
+
+    // Definitions
+    assertEquals(2, meta.getDefinitions().size());
+    UserDefinedJavaClassDef d = meta.getDefinitions().getFirst();
+    assertEquals(UserDefinedJavaClassDef.ClassType.NORMAL_CLASS, d.getClassType());
+    assertEquals("Processor2", d.getClassName());
+    assertEquals("processor2", d.getSource());
+
+    d = meta.getDefinitions().getLast();
+    assertEquals(UserDefinedJavaClassDef.ClassType.TRANSFORM_CLASS, d.getClassType());
+    assertEquals("Processor", d.getClassName());
+    assertEquals("processor1", d.getSource());
+
+    // Fields
+    assertEquals(3, meta.getFields().size());
+    UserDefinedJavaClassMeta.FieldInfo f = meta.getFields().getFirst();
+    assertEquals("f1", f.getName());
+    assertEquals(IValueMeta.TYPE_STRING, f.getType());
+    assertEquals(100, f.getLength());
+    assertEquals(-1, f.getPrecision());
+
+    f = meta.getFields().get(1);
+    assertEquals("f2", f.getName());
+    assertEquals(IValueMeta.TYPE_INTEGER, f.getType());
+    assertEquals(7, f.getLength());
+    assertEquals(-1, f.getPrecision());
+
+    f = meta.getFields().getLast();
+    assertEquals("f3", f.getName());
+    assertEquals(IValueMeta.TYPE_NUMBER, f.getType());
+    assertEquals(9, f.getLength());
+    assertEquals(2, f.getPrecision());
+
+    // Info transforms
+    assertEquals(2, meta.getInfoTransformDefinitions().size());
+    InfoTransformDefinition i = meta.getInfoTransformDefinitions().getFirst();
+    assertEquals("info1", i.getTag());
+    assertEquals("infoTransform1", i.getTransformName());
+    assertEquals("reads from transform1", i.getDescription());
+
+    i = meta.getInfoTransformDefinitions().getLast();
+    assertEquals("info2", i.getTag());
+    assertEquals("infoTransform2", i.getTransformName());
+    assertEquals("reads from transform2", i.getDescription());
+
+    assertEquals(2, meta.getTargetTransformDefinitions().size());
+    TargetTransformDefinition t = meta.getTargetTransformDefinitions().getFirst();
+    assertEquals("target1", t.getTag());
+    assertEquals("targetTransform1", t.getTransformName());
+    assertEquals("targets transform 1", t.getDescription());
+
+    t = meta.getTargetTransformDefinitions().getLast();
+    assertEquals("target2", t.getTag());
+    assertEquals("targetTransform2", t.getTransformName());
+    assertEquals("targets transform 2", t.getDescription());
+
+    // Parameters
+    assertEquals(2, meta.getUsageParameters().size());
+    UsageParameter p = meta.getUsageParameters().getFirst();
+    assertEquals("PARAM1", p.getTag());
+    assertEquals("parameterValue1", p.getValue());
+    assertEquals("parameterDescription1", p.getDescription());
+
+    p = meta.getUsageParameters().getLast();
+    assertEquals("PARAM2", p.getTag());
+    assertEquals("parameterValue2", p.getValue());
+    assertEquals("parameterDescription2", p.getDescription());
   }
 }

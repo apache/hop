@@ -80,6 +80,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
   private PasswordTextVar wOAuthRefreshToken;
   private Button wOAuthAuthorize;
   private Button wOAuthExchange;
+  private LabelTextVar wOAuthApiVersion;
 
   // OAuth JWT Group
   private Group wOAuthJwtGroup;
@@ -87,6 +88,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
   private TextVar wOAuthJwtConsumerKey;
   private PasswordTextVar wOAuthJwtPrivateKey;
   private TextVar wOAuthJwtTokenEndpoint;
+  private LabelTextVar wOAuthJwtApiVersion;
 
   // Test button
   private Button wTest;
@@ -392,6 +394,20 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     wOAuthExchange.setLayoutData(fdOAuthExchange);
     wOAuthExchange.addListener(SWT.Selection, e -> exchangeCodeForTokens());
 
+    // OAuth API Version
+    wOAuthApiVersion =
+        new LabelTextVar(
+            variables,
+            wOAuthGroup,
+            BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthApiVersion"),
+            BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthApiVersion.Tooltip"));
+    PropsUi.setLook(wOAuthApiVersion);
+    FormData fdOAuthApiVersion = new FormData();
+    fdOAuthApiVersion.left = new FormAttachment(0, 0);
+    fdOAuthApiVersion.top = new FormAttachment(wOAuthExchange, margin);
+    fdOAuthApiVersion.right = new FormAttachment(100, 0);
+    wOAuthApiVersion.setLayoutData(fdOAuthApiVersion);
+
     FormData fdOAuthGroup = new FormData();
     fdOAuthGroup.left = new FormAttachment(0, 0);
     fdOAuthGroup.right = new FormAttachment(100, 0);
@@ -524,6 +540,20 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     fdOAuthJwtTokenEndpoint.right = new FormAttachment(100, 0);
     wOAuthJwtTokenEndpoint.setLayoutData(fdOAuthJwtTokenEndpoint);
 
+    // OAuth JWT API Version
+    wOAuthJwtApiVersion =
+        new LabelTextVar(
+            variables,
+            wOAuthJwtGroup,
+            BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthApiVersion"),
+            BaseMessages.getString(PKG, "SalesforceConnectionEditor.OAuthApiVersion.Tooltip"));
+    PropsUi.setLook(wOAuthJwtApiVersion);
+    FormData fdOAuthJwtApiVersion = new FormData();
+    fdOAuthJwtApiVersion.left = new FormAttachment(0, 0);
+    fdOAuthJwtApiVersion.top = new FormAttachment(wOAuthJwtTokenEndpoint, margin);
+    fdOAuthJwtApiVersion.right = new FormAttachment(100, 0);
+    wOAuthJwtApiVersion.setLayoutData(fdOAuthJwtApiVersion);
+
     FormData fdOAuthJwtGroup = new FormData();
     fdOAuthJwtGroup.left = new FormAttachment(0, 0);
     fdOAuthJwtGroup.right = new FormAttachment(100, 0);
@@ -569,10 +599,12 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       wOAuthInstanceUrl.getTextWidget(),
       wOAuthAccessToken.getTextWidget(),
       wOAuthRefreshToken.getTextWidget(),
+      wOAuthApiVersion.getTextWidget(),
       wOAuthJwtUsername,
       wOAuthJwtConsumerKey,
       wOAuthJwtPrivateKey.getTextWidget(),
-      wOAuthJwtTokenEndpoint
+      wOAuthJwtTokenEndpoint,
+      wOAuthJwtApiVersion.getTextWidget()
     };
     for (Control control : controls) {
       control.addListener(SWT.Modify, e -> setChanged());
@@ -1157,6 +1189,10 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     wOAuthJwtTokenEndpoint.setText(
         Const.NVL(metadata.getOauthJwtTokenEndpoint(), "https://login.salesforce.com"));
 
+    String apiVersion = Const.NVL(metadata.getOauthApiVersion(), "64.0");
+    wOAuthApiVersion.setText(apiVersion);
+    wOAuthJwtApiVersion.setText(apiVersion);
+
     // Update UI and force layout refresh
     updateAuthenticationUI();
 
@@ -1181,8 +1217,10 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     int selectedIndex = wAuthType.getSelectionIndex();
     if (selectedIndex == 1) {
       connection.setAuthenticationType("OAUTH");
+      connection.setOauthApiVersion(wOAuthApiVersion.getText());
     } else if (selectedIndex == 2) {
       connection.setAuthenticationType("OAUTH_JWT");
+      connection.setOauthApiVersion(wOAuthJwtApiVersion.getText());
     } else {
       connection.setAuthenticationType("USERNAME_PASSWORD");
     }

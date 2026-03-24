@@ -60,19 +60,15 @@ public class RemovePipelineServlet extends BaseHttpServlet implements IHopServer
     String pipelineName = request.getParameter("name");
     String id = request.getParameter("id");
     boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
+    boolean useJson = isJsonRequest(request);
 
     response.setStatus(HttpServletResponse.SC_OK);
+    setResponseFormat(response, useXML, useJson);
 
-    if (useXML) {
-      response.setContentType("text/xml");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-    } else {
-      response.setContentType("text/html;charset=UTF-8");
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
     }
-
-    response.setCharacterEncoding("UTF-8");
-
-    PrintWriter out = response.getWriter();
 
     // ID is optional...
     //
@@ -101,13 +97,11 @@ public class RemovePipelineServlet extends BaseHttpServlet implements IHopServer
       getPipelineMap().removePipeline(entry);
 
       if (useXML) {
-        response.setContentType("text/xml");
-        response.setCharacterEncoding(Const.XML_ENCODING);
         out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
         out.print(WebResult.OK.getXml());
+      } else if (useJson) {
+        out.println(WebResult.OK.getJson());
       } else {
-        response.setContentType("text/html;charset=UTF-8");
-
         out.println("<HTML>");
         out.println("<HEAD>");
         out.println(
@@ -136,12 +130,13 @@ public class RemovePipelineServlet extends BaseHttpServlet implements IHopServer
         out.println("</HTML>");
       }
     } else {
+      String notFoundMsg =
+          BaseMessages.getString(
+              PKG, "PipelineStatusServlet.Log.CoundNotFindSpecPipeline", pipelineName);
       if (useXML) {
-        out.println(
-            new WebResult(
-                WebResult.STRING_ERROR,
-                BaseMessages.getString(
-                    PKG, "PipelineStatusServlet.Log.CoundNotFindSpecPipeline", pipelineName)));
+        out.println(new WebResult(WebResult.STRING_ERROR, notFoundMsg).getXml());
+      } else if (useJson) {
+        out.println(new WebResult(WebResult.STRING_ERROR, notFoundMsg).getJson());
       } else {
         out.println(
             "<H1>"

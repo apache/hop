@@ -23,59 +23,111 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.ITextFileInputField;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
-public class BaseFileField implements Cloneable, ITextFileInputField {
-  @Injection(name = "FIELD_NAME", group = "FIELDS")
-  private String name;
+@Getter
+@Setter
+public class BaseFileField implements ITextFileInputField {
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "FIELD_NAME",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_NAME")
+  protected String name;
 
-  @Injection(name = "FIELD_POSITION", group = "FIELDS")
-  private int position = -1;
+  @HopMetadataProperty(
+      key = "position",
+      injectionKey = "FIELD_POSITION",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_POSITION")
+  protected int position = -1;
 
-  @Injection(name = "FIELD_LENGTH", group = "FIELDS")
-  private int length = -1;
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "FIELD_LENGTH",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_LENGTH")
+  protected int length = -1;
 
-  private int type;
+  @HopMetadataProperty(
+      key = "type",
+      intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class,
+      injectionKey = "FIELD_TYPE",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_TYPE")
+  protected int type;
 
-  @Injection(name = "FIELD_IGNORE", group = "FIELDS")
-  private boolean ignore;
+  @HopMetadataProperty(
+      key = "ignore",
+      injectionKey = "FIELD_IGNORE",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_IGNORE")
+  protected boolean ignored;
 
-  @Injection(name = "FIELD_FORMAT", group = "FIELDS")
-  private String format;
+  @HopMetadataProperty(
+      key = "format",
+      injectionKey = "FIELD_FORMAT",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_FORMAT")
+  protected String format;
 
-  private int trimtype;
+  @HopMetadataProperty(
+      key = "trim_type",
+      intCodeConverter = ValueMetaBase.TrimTypeCodeConverter.class,
+      injectionKey = "FIELD_TRIM_TYPE",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_TRIM_TYPE")
+  protected int trimType;
 
-  @Injection(name = "FIELD_PRECISION", group = "FIELDS")
-  private int precision = -1;
+  @HopMetadataProperty(
+      key = "precision",
+      injectionKey = "FIELD_PRECISION",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_PRECISION")
+  protected int precision;
 
-  @Injection(name = "FIELD_CURRENCY", group = "FIELDS")
-  private String currencySymbol;
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKey = "FIELD_CURRENCY",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_CURRENCY")
+  protected String currencySymbol;
 
-  @Injection(name = "FIELD_DECIMAL", group = "FIELDS")
-  private String decimalSymbol;
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKey = "FIELD_DECIMAL",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_DECIMAL")
+  protected String decimalSymbol;
 
-  @Injection(name = "FIELD_GROUP", group = "FIELDS")
-  private String groupSymbol;
+  @HopMetadataProperty(
+      key = "group",
+      injectionKey = "FIELD_GROUP",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_GROUP")
+  protected String groupSymbol;
 
-  @Injection(name = "FIELD_REPEAT", group = "FIELDS")
-  private boolean repeat;
+  @HopMetadataProperty(
+      key = "repeat",
+      injectionKey = "FIELD_REPEAT",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_REPEAT")
+  protected boolean repeated;
 
-  @Injection(name = "FIELD_NULL_STRING", group = "FIELDS")
-  private String nullString;
+  @HopMetadataProperty(
+      key = "nullif",
+      injectionKey = "FIELD_NULL_STRING",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_NULL_STRING")
+  protected String nullString;
 
-  @Injection(name = "FIELD_IF_NULL", group = "FIELDS")
-  private String ifNullValue;
+  @HopMetadataProperty(
+      key = "ifnull",
+      injectionKey = "FIELD_IF_NULL",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_IF_NULL")
+  protected String ifNullValue;
 
-  private String[] samples;
+  protected String[] samples;
 
-  private static final String[] dateFormats =
+  protected static final String[] dateFormats =
       new String[] {
         "yyyy/MM/dd HH:mm:ss.SSS",
         "yyyy/MM/dd HH:mm:ss",
@@ -91,7 +143,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
         "d/M/yy",
       };
 
-  private static final String[] numberFormats =
+  protected static final String[] numberFormats =
       new String[] {
         "",
         "#",
@@ -103,30 +155,48 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
         "#####.###############%",
       };
 
-  public BaseFileField(String fieldname, int position, int length) {
-    this.name = fieldname;
-    this.position = position;
-    this.length = length;
+  public BaseFileField() {
     this.type = IValueMeta.TYPE_STRING;
-    this.ignore = false;
+    this.ignored = false;
     this.format = "";
-    this.trimtype = IValueMeta.TRIM_TYPE_NONE;
+    this.trimType = IValueMeta.TRIM_TYPE_NONE;
     this.groupSymbol = "";
     this.decimalSymbol = "";
     this.currencySymbol = "";
     this.precision = -1;
-    this.repeat = false;
+    this.repeated = false;
     this.nullString = "";
     this.ifNullValue = "";
   }
 
-  public BaseFileField() {
-    this(null, -1, -1);
+  public BaseFileField(String name, int position, int length) {
+    this();
+    this.name = name;
+    this.position = position;
+    this.length = length;
+  }
+
+  public BaseFileField(BaseFileField f) {
+    this();
+    this.currencySymbol = f.currencySymbol;
+    this.decimalSymbol = f.decimalSymbol;
+    this.format = f.format;
+    this.groupSymbol = f.groupSymbol;
+    this.ifNullValue = f.ifNullValue;
+    this.ignored = f.ignored;
+    this.length = f.length;
+    this.name = f.name;
+    this.nullString = f.nullString;
+    this.position = f.position;
+    this.precision = f.precision;
+    this.repeated = f.repeated;
+    this.samples = f.samples;
+    this.trimType = f.trimType;
+    this.type = f.type;
   }
 
   public int compare(Object obj) {
     BaseFileField field = (BaseFileField) obj;
-
     return position - field.getPosition();
   }
 
@@ -135,169 +205,40 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
     return position - field.getPosition();
   }
 
-  public boolean equal(Object obj) {
-    BaseFileField field = (BaseFileField) obj;
-
-    return (position == field.getPosition());
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof BaseFileField that)) return false;
+    return position == that.position;
   }
 
   @Override
-  public Object clone() {
-    try {
-      return super.clone();
-    } catch (CloneNotSupportedException ex) {
-      throw new IllegalArgumentException("Clone not supported for " + this.getClass().getName());
-    }
+  public int hashCode() {
+    return Objects.hashCode(position);
   }
 
   @Override
-  public int getPosition() {
-    return position;
-  }
-
-  public void setPosition(int position) {
-    this.position = position;
-  }
-
-  @Override
-  public int getLength() {
-    return length;
-  }
-
-  @Override
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String fieldname) {
-    this.name = fieldname;
-  }
-
-  public int getType() {
-    return type;
+  public BaseFileField clone() {
+    return new BaseFileField(this);
   }
 
   public String getTypeDesc() {
     return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType(int type) {
-    this.type = type;
-  }
-
-  @Injection(name = "FIELD_TYPE", group = "FIELDS")
-  public void setType(String value) {
-    this.type = ValueMetaFactory.getIdForValueMeta(value);
-  }
-
-  public boolean isIgnored() {
-    return ignore;
-  }
-
-  public void setIgnored(boolean ignore) {
-    this.ignore = ignore;
-  }
-
   public void flipIgnored() {
-    ignore = !ignore;
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public void setSamples(String[] samples) {
-    this.samples = samples;
-  }
-
-  public int getTrimType() {
-    return trimtype;
+    ignored = !ignored;
   }
 
   public String getTrimTypeCode() {
-    return ValueMetaString.getTrimTypeCode(trimtype);
+    return ValueMetaBase.getTrimTypeCode(trimType);
   }
 
   public String getTrimTypeDesc() {
-    return ValueMetaBase.getTrimTypeDesc(trimtype);
-  }
-
-  public void setTrimType(int trimtype) {
-    this.trimtype = trimtype;
-  }
-
-  @Injection(name = "FIELD_TRIM_TYPE", group = "FIELDS")
-  public void setTrimType(String value) {
-    this.trimtype = ValueMetaString.getTrimTypeByCode(value);
-  }
-
-  public String getGroupSymbol() {
-    return groupSymbol;
-  }
-
-  public void setGroupSymbol(String groupSymbol) {
-    this.groupSymbol = groupSymbol;
-  }
-
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
-  public boolean isRepeated() {
-    return repeat;
-  }
-
-  public void setRepeated(boolean repeat) {
-    this.repeat = repeat;
+    return ValueMetaBase.getTrimTypeDesc(trimType);
   }
 
   public void flipRepeated() {
-    repeat = !repeat;
-  }
-
-  public String getNullString() {
-    return nullString;
-  }
-
-  public void setNullString(String nullString) {
-    this.nullString = nullString;
-  }
-
-  public String getIfNullValue() {
-    return ifNullValue;
-  }
-
-  public void setIfNullValue(String ifNullValue) {
-    this.ifNullValue = ifNullValue;
+    repeated = !repeated;
   }
 
   @Override
@@ -321,13 +262,13 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
       samples[i] = Const.trim(samples[i]);
     }
 
-    trimtype = IValueMeta.TRIM_TYPE_NONE;
+    trimType = IValueMeta.TRIM_TYPE_NONE;
 
     if (spacesBefore) {
-      trimtype |= IValueMeta.TRIM_TYPE_LEFT;
+      trimType |= IValueMeta.TRIM_TYPE_LEFT;
     }
     if (spacesAfter) {
-      trimtype |= IValueMeta.TRIM_TYPE_RIGHT;
+      trimType |= IValueMeta.TRIM_TYPE_RIGHT;
     }
   }
 
@@ -592,7 +533,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
       }
     }
     if (!stop) {
-      ignore = true;
+      ignored = true;
       return;
     }
 
@@ -604,7 +545,7 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
       }
     }
     if (!stop) {
-      ignore = true;
+      ignored = true;
       return;
     }
 
@@ -616,13 +557,32 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
       }
     }
     if (!stop) {
-      ignore = true;
-      return;
+      ignored = true;
     }
   }
 
   @Override
   public ITextFileInputField createNewInstance(String newFieldname, int x, int newlength) {
     return new BaseFileField(newFieldname, x, newlength);
+  }
+
+  public IValueMeta toValueMeta(String fieldOriginTransformName, IVariables vspace)
+      throws HopPluginException {
+    int type = getType();
+    if (type == IValueMeta.TYPE_NONE) {
+      type = IValueMeta.TYPE_STRING;
+    }
+    IValueMeta v =
+        ValueMetaFactory.createValueMeta(
+            vspace != null ? vspace.resolve(getName()) : getName(), type);
+    v.setLength(getLength());
+    v.setPrecision(getPrecision());
+    v.setOrigin(fieldOriginTransformName);
+    v.setConversionMask(getFormat());
+    v.setDecimalSymbol(getDecimalSymbol());
+    v.setGroupingSymbol(getGroupSymbol());
+    v.setCurrencySymbol(getCurrencySymbol());
+    v.setTrimType(getTrimType());
+    return v;
   }
 }

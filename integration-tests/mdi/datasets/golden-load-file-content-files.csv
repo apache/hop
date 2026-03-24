@@ -1,0 +1,3 @@
+name,filemask,exclude_filemask,file_required,include_subfolders
+sample-file1.txt,mask1,excludeMask1,Y,Y
+sample-file2.txt,mask2,excludeMask2,Y,Y

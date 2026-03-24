@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<transform>
+    <include>Y</include>
+    <include_field>filenameField</include_field>
+    <rownum>Y</rownum>
+    <addresultfile>Y</addresultfile>
+    <readurl>N</readurl>
+    <removeSourceField>Y</removeSourceField>
+    <IsIgnoreEmptyFile>Y</IsIgnoreEmptyFile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <ignoreMissingPath>Y</ignoreMissingPath>
+    <defaultPathLeafToNull>Y</defaultPathLeafToNull>
+    <rownum_field>rowNumField</rownum_field>
+    <file>
+        <name>directory1</name>
+        <filemask>.*\.json</filemask>
+        <exclude_filemask/>
+        <file_required>N</file_required>
+        <include_subfolders>N</include_subfolders>
+        <name>folder2</name>
+        <filemask>.*\.json</filemask>
+        <exclude_filemask/>
+        <file_required>Y</file_required>
+        <include_subfolders>Y</include_subfolders>
+    </file>
+    <fields>
+        <field>
+            <name>f1</name>
+            <path>path1</path>
+            <type>String</type>
+            <format/>
+            <currency/>
+            <decimal/>
+            <group/>
+            <length>-1</length>
+            <precision>-1</precision>
+            <trim_type>none</trim_type>
+            <repeat>N</repeat>
+        </field>
+        <field>
+            <name>f2</name>
+            <path>path2</path>
+            <type>Integer</type>
+            <format>#</format>
+            <currency/>
+            <decimal/>
+            <group/>
+            <length>-1</length>
+            <precision>-1</precision>
+            <trim_type>none</trim_type>
+            <repeat>N</repeat>
+        </field>
+        <field>
+            <name>f3</name>
+            <path>path3</path>
+            <type>Date</type>
+            <format>yyyy/MM/dd</format>
+            <currency/>
+            <decimal/>
+            <group/>
+            <length>-1</length>
+            <precision>-1</precision>
+            <trim_type>none</trim_type>
+            <repeat>N</repeat>
+        </field>
+    </fields>
+    <limit>12345</limit>
+    <IsInFields>N</IsInFields>
+    <IsAFile>Y</IsAFile>
+    <valueField>sourceField</valueField>
+    <shortFileFieldName>shortFilename</shortFileFieldName>
+    <pathFieldName>path</pathFieldName>
+    <hiddenFieldName>hidden</hiddenFieldName>
+    <lastModificationTimeFieldName>lastModification</lastModificationTimeFieldName>
+    <uriNameFieldName>uri</uriNameFieldName>
+    <rootUriNameFieldName>uri</rootUriNameFieldName>
+    <extensionFieldName>extention</extensionFieldName>
+    <sizeFieldName>size</sizeFieldName>
+</transform>
+

@@ -136,7 +136,7 @@ public class HopServerSingleton {
                               Math.floor(
                                   (System.currentTimeMillis()
                                           - pipeline.getExecutionStartDate().getTime())
-                                      / 60000);
+                                      / 60000.0);
                       if (diffInMinutes >= objectTimeout) {
                         // Let's remove this from the pipeline map...
                         //
@@ -178,7 +178,7 @@ public class HopServerSingleton {
                               Math.floor(
                                   (System.currentTimeMillis()
                                           - workflow.getExecutionStartDate().getTime())
-                                      / 60000);
+                                      / 60000.0);
                       if (diffInMinutes >= objectTimeout) {
                         // Let's remove this from the workflow map...
                         //

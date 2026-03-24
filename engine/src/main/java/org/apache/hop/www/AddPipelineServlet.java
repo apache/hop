@@ -42,7 +42,13 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
-@HopServerServlet(id = "addPipeline", name = "Add a pipeline for execution")
+/**
+ * @deprecated Use {@link RegisterPipelineServlet} ({@code /hop/registerPipeline}) instead. This
+ *     endpoint is no longer called by the remote pipeline engine and will be removed in a future
+ *     release.
+ */
+@Deprecated(since = "2.18.0")
+@HopServerServlet(id = "addPipeline", name = "Add a pipeline for execution (deprecated)")
 public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   @Serial private static final long serialVersionUID = -6850701762586992604L;
 
@@ -67,8 +73,14 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
 
     boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
-    PrintWriter out = response.getWriter();
-    BufferedReader in = request.getReader();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
+    BufferedReader in = getSafeReader(request, response);
+    if (in == null) {
+      return;
+    }
     if (log.isDetailed()) {
       logDetailed("Encoding: " + request.getCharacterEncoding());
     }

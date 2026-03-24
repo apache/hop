@@ -1,0 +1,44 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "nr",
+          "data_set_field": "nr"
+        },
+        {
+          "transform_field": "avg",
+          "data_set_field": "avg"
+        },
+        {
+          "transform_field": "min",
+          "data_set_field": "min"
+        },
+        {
+          "transform_field": "max",
+          "data_set_field": "max"
+        },
+        {
+          "transform_field": "cnt",
+          "data_set_field": "cnt"
+        }
+      ],
+      "field_order": [
+        "nr"
+      ],
+      "data_set_name": "golden-javascript-basic",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0087-javascript-basics UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0087-javascript-basics.hpl"
+}

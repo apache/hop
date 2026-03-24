@@ -18,14 +18,17 @@
 package org.apache.hop.metadata.serializer.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.classes.Field;
 import org.apache.hop.metadata.serializer.xml.classes.Info;
 import org.apache.hop.metadata.serializer.xml.classes.MetaData;
 import org.apache.hop.metadata.serializer.xml.classes.TestEnum;
+import org.apache.hop.metadata.serializer.xml.classes.WithMap;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 
@@ -130,7 +133,8 @@ class XmlMetadataUtilTest {
     // Now load that object back in from XML...
     //
     Node node = XmlHandler.loadXmlString("<meta>" + xml + "</meta>", "meta");
-    MetaData metaData = XmlMetadataUtil.deSerializeFromXml(null, node, MetaData.class, null);
+    MetaData metaData =
+        XmlMetadataUtil.deSerializeFromXml(node, MetaData.class, new MemoryMetadataProvider());
 
     assertEquals(metaTest.getFilename(), metaData.getFilename());
     assertEquals(metaTest.getGroup(), metaData.getGroup());
@@ -146,6 +150,34 @@ class XmlMetadataUtilTest {
       String valueTest = metaTest.getValues().get(i);
       String valueData = metaData.getValues().get(i);
       assertEquals(valueTest, valueData);
+    }
+  }
+
+  @Test
+  void testMappingSerialization() throws Exception {
+    WithMap withMap = new WithMap();
+    WithMap.Key k1 = new WithMap.Key("k11", "k12");
+    WithMap.Value v1 = new WithMap.Value("v11", "v12");
+    withMap.getMappings().put(k1, v1);
+
+    WithMap.Key k2 = new WithMap.Key("k21", "k22");
+    WithMap.Value v2 = new WithMap.Value("v21", "v22");
+    withMap.getMappings().put(k2, v2);
+
+    WithMap.Key k3 = new WithMap.Key("k31", "k32");
+    WithMap.Value v3 = new WithMap.Value("v31", "v32");
+    withMap.getMappings().put(k3, v3);
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(withMap);
+    Node node = XmlHandler.loadXmlString(xml);
+    WithMap withCopy =
+        XmlMetadataUtil.deSerializeFromXml(node, WithMap.class, new MemoryMetadataProvider());
+    assertEquals(withCopy.getMappings().size(), withMap.getMappings().size());
+    for (WithMap.Key key : withMap.getMappings().keySet()) {
+      WithMap.Value value = withMap.getMappings().get(key);
+      WithMap.Value valueCopy = withCopy.getMappings().get(key);
+      assertTrue(withCopy.getMappings().containsKey(key));
+      assertEquals(value, valueCopy);
     }
   }
 }

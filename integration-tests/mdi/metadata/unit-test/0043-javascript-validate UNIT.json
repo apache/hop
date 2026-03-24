@@ -1,0 +1,82 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "optimizationLevel",
+          "data_set_field": "optimizationLevel"
+        }
+      ],
+      "field_order": [
+        "optimizationLevel"
+      ],
+      "data_set_name": "golden-javascript",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "jsScript_type",
+          "data_set_field": "jsScript_type"
+        },
+        {
+          "transform_field": "jsScript_name",
+          "data_set_field": "jsScript_name"
+        },
+        {
+          "transform_field": "jsScript_script",
+          "data_set_field": "jsScript_script"
+        }
+      ],
+      "field_order": [
+        "jsScript_name"
+      ],
+      "data_set_name": "golden-javascript-scripts",
+      "transform_name": "validate scripts"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "rename",
+          "data_set_field": "rename"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "length",
+          "data_set_field": "length"
+        },
+        {
+          "transform_field": "precision",
+          "data_set_field": "precision"
+        },
+        {
+          "transform_field": "replace",
+          "data_set_field": "replace"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-javascript-fields",
+      "transform_name": "validate fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0043-javascript-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0043-javascript-validate.hpl"
+}

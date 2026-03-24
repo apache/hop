@@ -1,0 +1,116 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "clear_result_fields",
+          "data_set_field": "clear_result_fields"
+        }
+      ],
+      "field_order": [
+        "clear_result_fields"
+      ],
+      "data_set_name": "golden-user-defined-java-class",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "class_name",
+          "data_set_field": "class_name"
+        },
+        {
+          "transform_field": "class_source",
+          "data_set_field": "class_source"
+        },
+        {
+          "transform_field": "class_type",
+          "data_set_field": "class_type"
+        }
+      ],
+      "field_order": [
+        "class_name"
+      ],
+      "data_set_name": "golden-user-defined-java-class-definitions",
+      "transform_name": "validate definitions"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "field_name",
+          "data_set_field": "field_name"
+        },
+        {
+          "transform_field": "field_type",
+          "data_set_field": "field_type"
+        },
+        {
+          "transform_field": "field_length",
+          "data_set_field": "field_length"
+        },
+        {
+          "transform_field": "field_precision",
+          "data_set_field": "field_precision"
+        }
+      ],
+      "field_order": [
+        "field_name"
+      ],
+      "data_set_name": "golden-user-defined-java-class-fields",
+      "transform_name": "validate fields"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "transform_description",
+          "data_set_field": "transform_description"
+        },
+        {
+          "transform_field": "transform_name",
+          "data_set_field": "transform_name"
+        },
+        {
+          "transform_field": "transform_tag",
+          "data_set_field": "transform_tag"
+        }
+      ],
+      "field_order": [
+        "transform_tag"
+      ],
+      "data_set_name": "golden-user-defined-java-class-infos",
+      "transform_name": "validate infos"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "transform_description",
+          "data_set_field": "transform_description"
+        },
+        {
+          "transform_field": "transform_name",
+          "data_set_field": "transform_name"
+        },
+        {
+          "transform_field": "transform_tag",
+          "data_set_field": "transform_tag"
+        }
+      ],
+      "field_order": [
+        "transform_tag"
+      ],
+      "data_set_name": "golden-user-defined-java-class-targets",
+      "transform_name": "validate targets"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0042-user-defined-java-class-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0042-user-defined-java-class-validate.hpl"
+}

@@ -73,17 +73,18 @@ public abstract class TransformClassBase {
 
       data.parameterMap = new HashMap<>();
       for (UsageParameter par : meta.getUsageParameters()) {
-        if (par.tag != null && par.value != null) {
-          data.parameterMap.put(par.tag, par.value);
+        if (par.getTag() != null && par.getValue() != null) {
+          data.parameterMap.put(par.getTag(), par.getValue());
         }
       }
 
       data.infoMap = new HashMap<>();
       for (InfoTransformDefinition transformDefinition : meta.getInfoTransformDefinitions()) {
-        if (transformDefinition.tag != null
+        if (transformDefinition.getTag() != null
             && transformDefinition.transformMeta != null
             && transformDefinition.transformMeta.getName() != null) {
-          data.infoMap.put(transformDefinition.tag, transformDefinition.transformMeta.getName());
+          data.infoMap.put(
+              transformDefinition.getTag(), transformDefinition.transformMeta.getName());
         }
       }
 
@@ -500,9 +501,9 @@ public abstract class TransformClassBase {
     }
     for (FieldInfo fi : (List<FieldInfo>) fields) {
       try {
-        IValueMeta v = ValueMetaFactory.createValueMeta(fi.name, fi.type);
-        v.setLength(fi.length);
-        v.setPrecision(fi.precision);
+        IValueMeta v = ValueMetaFactory.createValueMeta(fi.getName(), fi.getType());
+        v.setLength(fi.getLength());
+        v.setPrecision(fi.getPrecision());
         v.setOrigin(originTransformName);
         row.addValueMeta(v);
       } catch (Exception e) {
@@ -519,7 +520,7 @@ public abstract class TransformClassBase {
           new Stream(
               StreamType.INFO,
               transformDefinition.transformMeta,
-              transformDefinition.description,
+              transformDefinition.getDescription(),
               StreamIcon.INFO,
               null));
     }

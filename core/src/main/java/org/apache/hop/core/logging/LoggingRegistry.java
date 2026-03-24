@@ -253,11 +253,23 @@ public class LoggingRegistry {
     this.fileWriterBuffers.put(fileWriterBuffer.getLogChannelId(), fileWriterBuffer);
   }
 
+  /**
+   * Returns the file writer buffer for {@code id} or the nearest ancestor in the logging parent
+   * chain (innermost match wins).
+   */
   public LogChannelFileWriterBuffer getLogChannelFileWriterBuffer(String id) {
-    for (String bufferId : this.fileWriterBuffers.keySet()) {
-      if (getLogChannelChildren(bufferId).contains(id)) {
-        return this.fileWriterBuffers.get(bufferId);
+    String currentId = id;
+    while (currentId != null) {
+      LogChannelFileWriterBuffer buffer = this.fileWriterBuffers.get(currentId);
+      if (buffer != null) {
+        return buffer;
       }
+      ILoggingObject loggingObject = this.map.get(currentId);
+      if (loggingObject == null) {
+        break;
+      }
+      ILoggingObject parent = loggingObject.getParent();
+      currentId = parent != null ? parent.getLogChannelId() : null;
     }
     return null;
   }
@@ -276,14 +288,9 @@ public class LoggingRegistry {
     return ids;
   }
 
+  /** Removes the buffer registered for {@code id} only (not descendant buffers). */
   public void removeLogChannelFileWriterBuffer(String id) {
-    Set<String> bufferIds = this.fileWriterBuffers.keySet();
-
-    for (String bufferId : bufferIds) {
-      if (getLogChannelChildren(id).contains(bufferId)) {
-        this.fileWriterBuffers.remove(bufferId);
-      }
-    }
+    this.fileWriterBuffers.remove(id);
   }
 
   public void reset() {

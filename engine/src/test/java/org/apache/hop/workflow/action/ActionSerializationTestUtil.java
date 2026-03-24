@@ -20,7 +20,6 @@ package org.apache.hop.workflow.action;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.lang.reflect.InvocationTargetException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -30,23 +29,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class ActionSerializationTestUtil {
-  public static final <T extends IAction> T testSerialization(String filename, Class<T> clazz)
+  public static <T extends IAction> T testSerialization(String filename, Class<T> clazz)
       throws Exception {
     return testSerialization(filename, clazz, ActionMeta.XML_TAG, new MemoryMetadataProvider());
   }
 
-  public static final <T extends IAction> T testSerialization(
+  public static <T extends IAction> T testSerialization(
       String filename, Class<T> clazz, IHopMetadataProvider metadataProvider) throws Exception {
     return testSerialization(filename, clazz, ActionMeta.XML_TAG, metadataProvider);
   }
 
-  public static final <T extends IAction> T testSerialization(
+  public static <T extends IAction> T testSerialization(
       String filename, Class<T> clazz, String xmlTag, IHopMetadataProvider metadataProvider)
       throws Exception {
     Document document = XmlHandler.loadXmlFile(clazz.getResourceAsStream(filename));
     Node node = XmlHandler.getSubNode(document, xmlTag);
-    T meta = clazz.getConstructor().newInstance();
-    XmlMetadataUtil.deSerializeFromXml(null, node, clazz, meta, metadataProvider);
+    T meta = XmlMetadataUtil.deSerializeFromXml(node, clazz, metadataProvider);
     String xml = getXml(meta);
 
     testXmlStringSerialization(clazz, xmlTag, metadataProvider, xml, meta);
@@ -56,15 +54,10 @@ public class ActionSerializationTestUtil {
 
   public static <T extends IAction> void testXmlStringSerialization(
       Class<T> clazz, String xmlTag, IHopMetadataProvider metadataProvider, String xml, T meta)
-      throws HopXmlException,
-          InstantiationException,
-          IllegalAccessException,
-          InvocationTargetException,
-          NoSuchMethodException {
+      throws HopXmlException {
     Document copyDocument = XmlHandler.loadXmlString(xml);
     Node copyNode = XmlHandler.getSubNode(copyDocument, xmlTag);
-    T copy = clazz.getConstructor().newInstance();
-    XmlMetadataUtil.deSerializeFromXml(null, copyNode, clazz, copy, metadataProvider);
+    T copy = XmlMetadataUtil.deSerializeFromXml(copyNode, clazz, metadataProvider);
     assertEquals(meta.getXml(), copy.getXml());
   }
 

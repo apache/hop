@@ -73,7 +73,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
     ICompressionProvider provider =
         CompressionProviderFactory.getInstance()
-            .getCompressionProviderByName(meta.content.fileCompression);
+            .getCompressionProviderByName(meta.getContent().getFileCompression());
 
     if (log.isDetailed()) {
       log.logDetailed(
@@ -104,7 +104,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
   }
 
   protected void readInitial() throws Exception {
-    data.doneWithHeader = !meta.content.header;
+    data.doneWithHeader = !meta.getContent().isHeader();
     // /////////////////////////////////////////////////////////////////////////////
     // Read the first lines...
 
@@ -117,17 +117,20 @@ public class TextFileInputReader implements IBaseFileInputReader {
      * OK, read a number of lines in the buffer: The header rows The nr rows in the page : optional The footer rows
      */
     int bufferSize = 1;
-    bufferSize += meta.content.header ? meta.content.nrHeaderLines : 0;
+    bufferSize += meta.getContent().isHeader() ? meta.getContent().getNrHeaderLines() : 0;
     bufferSize +=
-        meta.content.layoutPaged
-            ? meta.content.nrLinesPerPage * (Math.max(0, meta.content.nrWraps) + 1)
-            : Math.max(0, meta.content.nrWraps); // it helps when we have wrapped input w/o header
+        meta.getContent().isLayoutPaged()
+            ? meta.getContent().getNrLinesPerPage()
+                * (Math.max(0, meta.getContent().getNrWraps()) + 1)
+            : Math.max(
+                0,
+                meta.getContent().getNrWraps()); // it helps when we have wrapped input w/o header
 
-    bufferSize += meta.content.footer ? meta.content.nrFooterLines : 0;
+    bufferSize += meta.getContent().isFooter() ? meta.getContent().getNrFooterLines() : 0;
 
     // See if we need to skip the document header lines...
-    if (meta.content.layoutPaged) {
-      for (int i = 0; i < meta.content.nrLinesDocHeader; i++) {
+    if (meta.getContent().isLayoutPaged()) {
+      for (int i = 0; i < meta.getContent().getNrLinesDocHeader(); i++) {
         // Just skip these...
         TextFileLineUtil.getLine(
             log,
@@ -147,7 +150,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
     for (int i = 0; i < bufferSize && !data.doneReading; i++) {
       boolean wasNotFiltered =
-          tryToReadLine(!meta.content.header || i >= meta.content.nrHeaderLines);
+          tryToReadLine(!meta.getContent().isHeader() || i >= meta.getContent().getNrHeaderLines());
       if (!wasNotFiltered) {
         // grab another line, this one got filtered
         bufferSize++;
@@ -168,13 +171,13 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
     if (!data.doneReading) {
       int repeats = 1;
-      if (meta.content.lineWrapped) {
-        repeats = meta.content.nrWraps > 0 ? meta.content.nrWraps : repeats;
+      if (meta.getContent().isLineWrapped()) {
+        repeats = meta.getContent().getNrWraps() > 0 ? meta.getContent().getNrWraps() : repeats;
       }
 
       if (!data.doneWithHeader && data.headerLinesRead == 0) {
         // We are just starting to read header lines, read them all
-        repeats += meta.content.nrHeaderLines + 1;
+        repeats += meta.getContent().getNrHeaderLines() + 1;
       }
 
       // Read a number of lines...
@@ -197,7 +200,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
     data.lineBuffer.remove(0);
 
-    if (meta.content.layoutPaged) {
+    if (meta.getContent().isLayoutPaged()) {
       /*
        * Different rules apply: on each page: a header a number of data lines a footer
        */
@@ -206,16 +209,16 @@ public class TextFileInputReader implements IBaseFileInputReader {
           log.logRowlevel("P-HEADER (" + data.headerLinesRead + ") : " + textLine.line);
         }
         data.headerLinesRead++;
-        if (data.headerLinesRead >= meta.content.nrHeaderLines) {
+        if (data.headerLinesRead >= meta.getContent().getNrHeaderLines()) {
           data.doneWithHeader = true;
         }
       } else {
         // data lines or footer on a page
 
-        if (data.pageLinesRead < meta.content.nrLinesPerPage) {
+        if (data.pageLinesRead < meta.getContent().getNrLinesPerPage()) {
           // See if we are dealing with wrapped lines:
-          if (meta.content.lineWrapped) {
-            for (int i = 0; i < meta.content.nrWraps; i++) {
+          if (meta.getContent().isLineWrapped()) {
+            for (int i = 0; i < meta.getContent().getNrWraps(); i++) {
               String extra = "";
               if (!data.lineBuffer.isEmpty()) {
                 extra = data.lineBuffer.get(0).line;
@@ -232,7 +235,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
           data.pageLinesRead++;
           lineInFile++;
           long useNumber =
-              meta.content.rowNumberByFile ? lineInFile : transform.getLinesWritten() + 1;
+              meta.getContent().isRowNumberByFile() ? lineInFile : transform.getLinesWritten() + 1;
           r =
               TextFileInputUtils.convertLineToRow(
                   log,
@@ -248,7 +251,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
                   data.enclosure,
                   data.escapeCharacter,
                   data.dataErrorLineHandler,
-                  meta.additionalOutputFields,
+                  meta.getAdditionalOutputFields(),
                   data.shortFilename,
                   data.path,
                   data.hidden,
@@ -265,7 +268,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
           // We need to reset these BEFORE the next header line is read, so that it
           // is treated as a header ... obviously, only if there is no footer, and we are
           // done reading data.
-          if (!meta.content.footer && (data.pageLinesRead == meta.content.nrLinesPerPage)) {
+          if (!meta.getContent().isFooter()
+              && (data.pageLinesRead == meta.getContent().getNrLinesPerPage())) {
             /*
              * OK, we are done reading the footer lines, start again on 'next page' with the header
              */
@@ -280,14 +284,16 @@ public class TextFileInputReader implements IBaseFileInputReader {
         } else {
           // done reading the data lines, skip the footer lines
 
-          if (meta.content.footer && data.footerLinesRead < meta.content.nrFooterLines) {
+          if (meta.getContent().isFooter()
+              && data.footerLinesRead < meta.getContent().getNrFooterLines()) {
             if (log.isRowLevel()) {
               log.logRowlevel("P-FOOTER: " + textLine.line);
             }
             data.footerLinesRead++;
           }
 
-          if (!meta.content.footer || data.footerLinesRead >= meta.content.nrFooterLines) {
+          if (!meta.getContent().isFooter()
+              || data.footerLinesRead >= meta.getContent().getNrFooterLines()) {
             /*
              * OK, we are done reading the footer lines, start again on 'next page' with the header
              */
@@ -307,7 +313,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
       if (!data.doneWithHeader) { // We are reading header lines
 
         data.headerLinesRead++;
-        if (data.headerLinesRead >= meta.content.nrHeaderLines) {
+        if (data.headerLinesRead >= meta.getContent().getNrHeaderLines()) {
           data.doneWithHeader = true;
         }
       } else {
@@ -316,15 +322,15 @@ public class TextFileInputReader implements IBaseFileInputReader {
          * of footer lines THEN we can remove the remaining rows from the buffer: they are all footer rows.
          */
         if (data.doneReading
-            && meta.content.footer
-            && data.lineBuffer.size() < meta.content.nrFooterLines) {
+            && meta.getContent().isFooter()
+            && data.lineBuffer.size() < meta.getContent().getNrFooterLines()) {
           data.lineBuffer.clear();
         } else {
           // Not yet a footer line: it's a normal data line.
 
           // See if we are dealing with wrapped lines:
-          if (meta.content.lineWrapped) {
-            for (int i = 0; i < meta.content.nrWraps; i++) {
+          if (meta.getContent().isLineWrapped()) {
+            for (int i = 0; i < meta.getContent().getNrWraps(); i++) {
               String extra = "";
               if (!data.lineBuffer.isEmpty()) {
                 extra = data.lineBuffer.get(0).line;
@@ -342,7 +348,9 @@ public class TextFileInputReader implements IBaseFileInputReader {
               textLine.file, textLine.lineNumber, AbstractFileErrorHandler.NO_PARTS)) {
             lineInFile++;
             long useNumber =
-                meta.content.rowNumberByFile ? lineInFile : transform.getLinesWritten() + 1;
+                meta.getContent().isRowNumberByFile()
+                    ? lineInFile
+                    : transform.getLinesWritten() + 1;
             r =
                 TextFileInputUtils.convertLineToRow(
                     log,
@@ -358,7 +366,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
                     data.enclosure,
                     data.escapeCharacter,
                     data.dataErrorLineHandler,
-                    meta.additionalOutputFields,
+                    meta.getAdditionalOutputFields(),
                     data.shortFilename,
                     data.path,
                     data.hidden,
@@ -387,8 +395,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
 
           data.previousRow = data.outputRowMeta.cloneRow(r);
         } else {
-          for (int i = 0; i < meta.inputFields.length; i++) {
-            if (meta.inputFields[i].isRepeated()) {
+          for (int i = 0; i < meta.getInputFields().size(); i++) {
+            if (meta.getInputFields().get(i).isRepeated()) {
               if (r[i] == null) {
                 // if it is empty: take the previous value!
 
@@ -408,7 +416,8 @@ public class TextFileInputReader implements IBaseFileInputReader {
       }
       transform.putRow(data.outputRowMeta, r);
 
-      if (transform.getLinesInput() >= meta.content.rowLimit && meta.content.rowLimit > 0) {
+      if (transform.getLinesInput() >= meta.getContent().getRowLimit()
+          && meta.getContent().getRowLimit() > 0) {
         close();
         return false;
       }
@@ -464,7 +473,10 @@ public class TextFileInputReader implements IBaseFileInputReader {
       String errorMsg =
           "Couldn't close file : " + data.file.getName().getFriendlyURI() + " --> " + e.toString();
       log.logError(errorMsg);
-      if (transform.failAfterBadFile(errorMsg)) {
+      if (transform.failAfterBadFile(
+          errorMsg,
+          meta.getErrorHandling().isErrorIgnored(),
+          meta.getErrorHandling().isSkipBadFiles())) {
         transform.stopAll();
       }
       transform.setErrors(transform.getErrors() + 1);
@@ -498,7 +510,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
         }
       } else { // don't checkFilterRow
 
-        if (!meta.content.noEmptyLines || !line.isEmpty()) {
+        if (!meta.getContent().isNoEmptyLines() || !line.isEmpty()) {
           data.lineBuffer.add(
               new TextFileLine(line, lineNumberInFile++, data.file)); // Store it in the line
           // buffer...
@@ -521,7 +533,7 @@ public class TextFileInputReader implements IBaseFileInputReader {
     boolean filterOK = true;
 
     // check for noEmptyLines
-    if (meta.content.noEmptyLines && line.isEmpty()) {
+    if (meta.getContent().isNoEmptyLines() && line.isEmpty()) {
       filterOK = false;
     } else {
       // check the filters

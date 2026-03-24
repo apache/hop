@@ -40,9 +40,8 @@ services:
 
   ssh:
     build:
-      context: .
-      dockerfile: ssh.Dockerfile
-    # No host port exposure needed; test container connects via service name "ssh"
+      context: ../../.
+      dockerfile: docker/integration-tests/ssh.Dockerfile
 
   postgres:
     image: postgres:latest

@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-json-enhanced-output-fields.csv",
+  "name": "golden-json-enhanced-output-fields",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "element",
+      "field_format": ""
+    },
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "json_fragment",
+      "field_format": ""
+    },
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "is_without_enclosing",
+      "field_format": ""
+    },
+    {
+      "field_comment": "Get data from XML",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "remove_if_blank",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

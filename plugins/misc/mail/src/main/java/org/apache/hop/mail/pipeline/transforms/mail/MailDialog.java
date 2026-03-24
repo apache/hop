@@ -19,7 +19,7 @@ package org.apache.hop.mail.pipeline.transforms.mail;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -60,6 +60,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
+import org.jspecify.annotations.NonNull;
 
 public class MailDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MailMeta.class;
@@ -111,10 +112,8 @@ public class MailDialog extends BaseTransformDialog {
 
   private Button wUseAuth;
 
-  private Label wlUseXOAUTH2;
-  private Button wUseXOAUTH2;
-
-  private Label wlUseSecAuth;
+  private Label wlUseXOAuth2;
+  private Button wUseXOAuth2;
 
   private Button wUseSecAuth;
 
@@ -143,10 +142,10 @@ public class MailDialog extends BaseTransformDialog {
 
   private CCombo wComment;
 
-  private Label wlSourceFileFoldername;
-  private Button wbFileFoldername;
+  private Label wlSourceFileFolderName;
+  private Button wbFileFolderName;
   private Button wbSourceFolder;
-  private TextVar wSourceFileFoldername;
+  private TextVar wSourceFileFolderName;
 
   private Button wIncludeSubFolders;
 
@@ -201,7 +200,7 @@ public class MailDialog extends BaseTransformDialog {
   private Label wlCheckServerIdentity;
   private LabelTextVar wTrustedHosts;
 
-  private MetaSelectionLine wConnectionLine;
+  private MetaSelectionLine<MailServerConnection> wConnectionLine;
 
   private boolean getPreviousFields = false;
 
@@ -227,10 +226,1564 @@ public class MailDialog extends BaseTransformDialog {
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
-    // ////////////////////////
-    // START OF GENERAL TAB ///
-    // ////////////////////////
+    addGeneralTab(wTabFolder, lsMod);
+    addServerTab(wTabFolder, lsMod);
+    addMessageTab(wTabFolder, lsMod);
+    addFilesTab(wTabFolder, lsMod);
+    addEmbeddedImagesTab(wTabFolder, lsMod);
 
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(wSpacer, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
+    wTabFolder.setLayoutData(fdTabFolder);
+
+    getData();
+
+    enableFields();
+
+    input.setChanged(changed);
+    wTabFolder.setSelection(0);
+    focusTransformName();
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+
+    return transformName;
+  }
+
+  private void enableFields() {
+    enableIsFileDynamic();
+    enableEncoding();
+    enableUsePriority();
+    enableDynamicZip();
+    enableZip();
+    enableOnSetUseAuth();
+    enableOnSetSecureConnectiontype();
+    enableIsAttachContentField();
+    enableMessageOutputField();
+  }
+
+  private void addEmbeddedImagesTab(CTabFolder wTabFolder, ModifyListener lsMod) {
+    CTabItem wEmbeddedTab = new CTabItem(wTabFolder, SWT.NONE);
+    wEmbeddedTab.setFont(GuiResource.getInstance().getFontDefault());
+    wEmbeddedTab.setText(BaseMessages.getString(PKG, "Mail.Tab.embeddedImages.Label"));
+
+    FormLayout embeddedLayout = new FormLayout();
+    embeddedLayout.marginWidth = 3;
+    embeddedLayout.marginHeight = 3;
+
+    Composite wEmbeddedComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wEmbeddedComp);
+    wEmbeddedComp.setLayout(embeddedLayout);
+
+    // ImageFilename line
+    wlImageFilename = new Label(wEmbeddedComp, SWT.RIGHT);
+    wlImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.ImageFilename.Label"));
+    PropsUi.setLook(wlImageFilename);
+    FormData fdlImageFilename = new FormData();
+    fdlImageFilename.left = new FormAttachment(0, 0);
+    fdlImageFilename.top = new FormAttachment(wSpacer, margin);
+    fdlImageFilename.right = new FormAttachment(middle, -margin);
+    wlImageFilename.setLayoutData(fdlImageFilename);
+
+    wbImageFilename = new Button(wEmbeddedComp, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbImageFilename);
+    wbImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.BrowseFiles.Label"));
+    wbImageFilename.setToolTipText(BaseMessages.getString(PKG, "MailDialog.BrowseFiles.Tooltip"));
+    FormData fdbImageFilename = new FormData();
+    fdbImageFilename.right = new FormAttachment(100, 0);
+    fdbImageFilename.top = new FormAttachment(wSpacer, margin);
+    fdbImageFilename.right = new FormAttachment(100, -margin);
+    wbImageFilename.setLayoutData(fdbImageFilename);
+
+    wbaImageFilename = new Button(wEmbeddedComp, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbaImageFilename);
+    wbaImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.ImageFilenameAdd.Button"));
+    wbaImageFilename.setToolTipText(
+        BaseMessages.getString(PKG, "MailDialog.ImageFilenameAdd.Tooltip"));
+    FormData fdbaImageFilename = new FormData();
+    fdbaImageFilename.right = new FormAttachment(wbImageFilename, -margin);
+    fdbaImageFilename.top = new FormAttachment(wSpacer, margin);
+    wbaImageFilename.setLayoutData(fdbaImageFilename);
+
+    wImageFilename = new TextVar(variables, wEmbeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wImageFilename);
+    wImageFilename.addModifyListener(lsMod);
+    FormData fdImageFilename = new FormData();
+    fdImageFilename.left = new FormAttachment(middle, 0);
+    fdImageFilename.top = new FormAttachment(wSpacer, margin);
+    fdImageFilename.right = new FormAttachment(wbaImageFilename, -margin);
+    wImageFilename.setLayoutData(fdImageFilename);
+
+    // Whenever something changes, set the tooltip to the expanded version:
+    wImageFilename.addModifyListener(
+        e -> wImageFilename.setToolTipText(variables.resolve(wImageFilename.getText())));
+
+    wbImageFilename.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wImageFilename,
+                variables,
+                new String[] {"*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*"},
+                IMAGES_FILE_TYPES,
+                true));
+
+    // ContentID
+    wlContentID = new Label(wEmbeddedComp, SWT.RIGHT);
+    wlContentID.setText(BaseMessages.getString(PKG, "MailDialog.ContentID.Label"));
+    PropsUi.setLook(wlContentID);
+    FormData fdlContentID = new FormData();
+    fdlContentID.left = new FormAttachment(0, 0);
+    fdlContentID.top = new FormAttachment(wImageFilename, margin);
+    fdlContentID.right = new FormAttachment(middle, -margin);
+    wlContentID.setLayoutData(fdlContentID);
+    wContentID =
+        new TextVar(
+            variables,
+            wEmbeddedComp,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "MailDialog.ContentID.Tooltip"));
+    PropsUi.setLook(wContentID);
+    wContentID.addModifyListener(lsMod);
+    FormData fdContentID = new FormData();
+    fdContentID.left = new FormAttachment(middle, 0);
+    fdContentID.top = new FormAttachment(wImageFilename, margin);
+    fdContentID.right = new FormAttachment(wbaImageFilename, -margin);
+    wContentID.setLayoutData(fdContentID);
+
+    // Buttons to the right of the screen...
+    wbdImageFilename = new Button(wEmbeddedComp, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbdImageFilename);
+    wbdImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.ImageFilenameDelete.Button"));
+    wbdImageFilename.setToolTipText(
+        BaseMessages.getString(PKG, "MailDialog.ImageFilenameDelete.Tooltip"));
+    FormData fdbdImageFilename = new FormData();
+    fdbdImageFilename.right = new FormAttachment(100, 0);
+    fdbdImageFilename.top = new FormAttachment(wContentID, 40);
+    wbdImageFilename.setLayoutData(fdbdImageFilename);
+
+    wbeImageFilename = new Button(wEmbeddedComp, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbeImageFilename);
+    wbeImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.ImageFilenameEdit.Button"));
+    wbeImageFilename.setToolTipText(
+        BaseMessages.getString(PKG, "MailDialog.ImageFilenameEdit.Tooltip"));
+    FormData fdbeImageFilename = new FormData();
+    fdbeImageFilename.right = new FormAttachment(100, 0);
+    fdbeImageFilename.left = new FormAttachment(wbdImageFilename, 0, SWT.LEFT);
+    fdbeImageFilename.top = new FormAttachment(wbdImageFilename, margin);
+    wbeImageFilename.setLayoutData(fdbeImageFilename);
+
+    wlFields = new Label(wEmbeddedComp, SWT.NONE);
+    wlFields.setText(BaseMessages.getString(PKG, "MailDialog.Fields.Label"));
+    PropsUi.setLook(wlFields);
+    FormData fdlFields = new FormData();
+    fdlFields.left = new FormAttachment(0, 0);
+    fdlFields.right = new FormAttachment(middle, -margin);
+    fdlFields.top = new FormAttachment(wContentID, margin);
+    wlFields.setLayoutData(fdlFields);
+
+    final int nrFieldsRows = input.getEmbeddedImages().size();
+
+    ColumnInfo[] columnInfos =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "MailDialog.Fields.Image.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "MailDialog.Fields.ContentID.Label"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+        };
+
+    columnInfos[0].setUsingVariables(true);
+    columnInfos[0].setToolTip(BaseMessages.getString(PKG, "MailDialog.Fields.Image.Tooltip"));
+    columnInfos[1].setUsingVariables(true);
+    columnInfos[1].setToolTip(BaseMessages.getString(PKG, "MailDialog.Fields.ContentID.Tooltip"));
+
+    wFields =
+        new TableView(
+            variables,
+            wEmbeddedComp,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            columnInfos,
+            nrFieldsRows,
+            lsMod,
+            props);
+
+    FormData fdFields = new FormData();
+    fdFields.left = new FormAttachment(0, 0);
+    fdFields.top = new FormAttachment(wlFields, margin);
+    fdFields.right = new FormAttachment(wbeImageFilename, -margin);
+    fdFields.bottom = new FormAttachment(100, -margin);
+    wFields.setLayoutData(fdFields);
+
+    // Add the file to the list of files...
+    SelectionAdapter selA =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            wFields.add(wImageFilename.getText(), wContentID.getText());
+            wImageFilename.setText("");
+            wContentID.setText("");
+            wFields.removeEmptyRows();
+            wFields.setRowNums();
+            wFields.optWidth(true);
+          }
+        };
+    wbaImageFilename.addSelectionListener(selA);
+    wImageFilename.addSelectionListener(selA);
+
+    // Delete files from the list of files...
+    wbdImageFilename.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            int[] idx = wFields.getSelectionIndices();
+            wFields.remove(idx);
+            wFields.removeEmptyRows();
+            wFields.setRowNums();
+          }
+        });
+
+    // Edit the selected file & remove from the list...
+    wbeImageFilename.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            int idx = wFields.getSelectionIndex();
+            if (idx >= 0) {
+              String[] string = wFields.getItem(idx);
+              wImageFilename.setText(string[0]);
+              wContentID.setText(string[1]);
+              wFields.remove(idx);
+            }
+            wFields.removeEmptyRows();
+            wFields.setRowNums();
+          }
+        });
+
+    FormData fdEmbeddedComp = new FormData();
+    fdEmbeddedComp.left = new FormAttachment(0, 0);
+    fdEmbeddedComp.top = new FormAttachment(0, 0);
+    fdEmbeddedComp.right = new FormAttachment(100, 0);
+    fdEmbeddedComp.bottom = new FormAttachment(100, 0);
+    wEmbeddedComp.setLayoutData(fdEmbeddedComp);
+
+    wEmbeddedComp.layout();
+    wEmbeddedTab.setControl(wEmbeddedComp);
+  }
+
+  private void addFilesTab(CTabFolder wTabFolder, ModifyListener lsMod) {
+    CTabItem wAttachedTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAttachedTab.setFont(GuiResource.getInstance().getFontDefault());
+    wAttachedTab.setText(BaseMessages.getString(PKG, "Mail.Tab.AttachedFiles.Label"));
+
+    FormLayout attachedLayout = new FormLayout();
+    attachedLayout.marginWidth = 3;
+    attachedLayout.marginHeight = 3;
+
+    Composite wAttachedComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wAttachedComp);
+    wAttachedComp.setLayout(attachedLayout);
+
+    // ///////////////////////////////
+    // START OF Attached files GROUP //
+    // ///////////////////////////////
+
+    Group wAttachedContent = new Group(wAttachedComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wAttachedContent);
+    wAttachedContent.setText(BaseMessages.getString(PKG, "MailDialog.AttachedContent.Label"));
+
+    FormLayout attachedContentgroupLayout = new FormLayout();
+    attachedContentgroupLayout.marginWidth = 3;
+    attachedContentgroupLayout.marginHeight = 3;
+    wAttachedContent.setLayout(attachedContentgroupLayout);
+
+    // Is Filename defined in a Field
+    Label wlIsAttachContentField = new Label(wAttachedContent, SWT.RIGHT);
+    wlIsAttachContentField.setText(
+        BaseMessages.getString(PKG, "MailDialog.isattachContentField.Label"));
+    PropsUi.setLook(wlIsAttachContentField);
+    FormData fdlIsAttachContentField = new FormData();
+    fdlIsAttachContentField.left = new FormAttachment(0, -margin);
+    fdlIsAttachContentField.top = new FormAttachment(0, margin);
+    fdlIsAttachContentField.right = new FormAttachment(middle, -margin);
+    wlIsAttachContentField.setLayoutData(fdlIsAttachContentField);
+    wIsAttachContentField = new Button(wAttachedContent, SWT.CHECK);
+    PropsUi.setLook(wIsAttachContentField);
+    wIsAttachContentField.setToolTipText(
+        BaseMessages.getString(PKG, "MailDialog.isattachContentField.Tooltip"));
+    FormData fdIsAttachContentField = new FormData();
+    fdIsAttachContentField.left = new FormAttachment(middle, 0);
+    fdIsAttachContentField.top = new FormAttachment(wlIsAttachContentField, 0, SWT.CENTER);
+    wIsAttachContentField.setLayoutData(fdIsAttachContentField);
+    SelectionAdapter lisattachContentField =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            enableIsAttachContentField();
+            input.setChanged();
+          }
+        };
+    wIsAttachContentField.addSelectionListener(lisattachContentField);
+
+    // attache file content field
+    wlAttachContentField = new Label(wAttachedContent, SWT.RIGHT);
+    wlAttachContentField.setText(
+        BaseMessages.getString(PKG, "MailDialog.attachContentField.Label"));
+    PropsUi.setLook(wlAttachContentField);
+    FormData fdlAttachContentField = new FormData();
+    fdlAttachContentField.left = new FormAttachment(0, -margin);
+    fdlAttachContentField.top = new FormAttachment(wIsAttachContentField, margin);
+    fdlAttachContentField.right = new FormAttachment(middle, -margin);
+    wlAttachContentField.setLayoutData(fdlAttachContentField);
+    wAttachContentField = new CCombo(wAttachedContent, SWT.BORDER | SWT.READ_ONLY);
+    wAttachContentField.setEditable(true);
+    PropsUi.setLook(wAttachContentField);
+    wAttachContentField.addModifyListener(lsMod);
+    FormData fdAttachContentField = new FormData();
+    fdAttachContentField.left = new FormAttachment(middle, 0);
+    fdAttachContentField.top = new FormAttachment(wIsAttachContentField, margin);
+    fdAttachContentField.right = new FormAttachment(100, -margin);
+    wAttachContentField.setLayoutData(fdAttachContentField);
+    wAttachContentField.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // attached content filename field
+    wlAttachContentFileNameField = new Label(wAttachedContent, SWT.RIGHT);
+    wlAttachContentFileNameField.setText(
+        BaseMessages.getString(PKG, "MailDialog.attachContentFileNameField.Label"));
+    PropsUi.setLook(wlAttachContentFileNameField);
+    FormData fdlAttachContentFileNameField = new FormData();
+    fdlAttachContentFileNameField.left = new FormAttachment(0, -margin);
+    fdlAttachContentFileNameField.top = new FormAttachment(wAttachContentField, margin);
+    fdlAttachContentFileNameField.right = new FormAttachment(middle, -margin);
+    wlAttachContentFileNameField.setLayoutData(fdlAttachContentFileNameField);
+    wAttachContentFileNameField = new CCombo(wAttachedContent, SWT.BORDER | SWT.READ_ONLY);
+    wAttachContentFileNameField.setEditable(true);
+    PropsUi.setLook(wAttachContentFileNameField);
+    wAttachContentFileNameField.addModifyListener(lsMod);
+    FormData fdAttachContentFileNameField = new FormData();
+    fdAttachContentFileNameField.left = new FormAttachment(middle, 0);
+    fdAttachContentFileNameField.top = new FormAttachment(wAttachContentField, margin);
+    fdAttachContentFileNameField.right = new FormAttachment(100, -margin);
+    wAttachContentFileNameField.setLayoutData(fdAttachContentFileNameField);
+    wAttachContentFileNameField.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    FormData fdAttachedContent = new FormData();
+    fdAttachedContent.left = new FormAttachment(0, margin);
+    fdAttachedContent.top = new FormAttachment(0, margin);
+    fdAttachedContent.right = new FormAttachment(100, -margin);
+    wAttachedContent.setLayoutData(fdAttachedContent);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF Attached files GROUP
+    // ///////////////////////////////////////////////////////////
+
+    // ///////////////////////////////
+    // START OF Origin files GROUP //
+    // ///////////////////////////////
+
+    wOriginFiles = new Group(wAttachedComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wOriginFiles);
+    wOriginFiles.setText(BaseMessages.getString(PKG, "MailDialog.OriginAttachedFiles.Label"));
+
+    FormLayout originFilesgroupLayout = new FormLayout();
+    originFilesgroupLayout.marginWidth = 10;
+    originFilesgroupLayout.marginHeight = 10;
+    wOriginFiles.setLayout(originFilesgroupLayout);
+
+    // Is Filename defined in a Field
+    Label wlAsFileDynamic = new Label(wOriginFiles, SWT.RIGHT);
+    wlAsFileDynamic.setText(BaseMessages.getString(PKG, "MailDialog.isFileDynamic.Label"));
+    PropsUi.setLook(wlAsFileDynamic);
+    FormData fdlIsFileDynamic = new FormData();
+    fdlIsFileDynamic.left = new FormAttachment(0, -margin);
+    fdlIsFileDynamic.top = new FormAttachment(wAttachedContent, margin);
+    fdlIsFileDynamic.right = new FormAttachment(middle, -margin);
+    wlAsFileDynamic.setLayoutData(fdlIsFileDynamic);
+    wIsFileDynamic = new Button(wOriginFiles, SWT.CHECK);
+    PropsUi.setLook(wIsFileDynamic);
+    wIsFileDynamic.setToolTipText(BaseMessages.getString(PKG, "MailDialog.isFileDynamic.Tooltip"));
+    FormData fdIsFileDynamic = new FormData();
+    fdIsFileDynamic.left = new FormAttachment(middle, 0);
+    fdIsFileDynamic.top = new FormAttachment(wlAsFileDynamic, 0, SWT.CENTER);
+    wIsFileDynamic.setLayoutData(fdIsFileDynamic);
+    SelectionAdapter lisFileDynamic =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            enableIsFileDynamic();
+            input.setChanged();
+          }
+        };
+    wIsFileDynamic.addSelectionListener(lisFileDynamic);
+
+    // Filename field
+    wlDynamicFilenameField = new Label(wOriginFiles, SWT.RIGHT);
+    wlDynamicFilenameField.setText(
+        BaseMessages.getString(PKG, "MailDialog.DynamicFilenameField.Label"));
+    PropsUi.setLook(wlDynamicFilenameField);
+    FormData fdlFilenameField = new FormData();
+    fdlFilenameField.left = new FormAttachment(0, -margin);
+    fdlFilenameField.top = new FormAttachment(wIsFileDynamic, margin);
+    fdlFilenameField.right = new FormAttachment(middle, -margin);
+    wlDynamicFilenameField.setLayoutData(fdlFilenameField);
+
+    wDynamicFilenameField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
+    wDynamicFilenameField.setEditable(true);
+    PropsUi.setLook(wDynamicFilenameField);
+    wDynamicFilenameField.addModifyListener(lsMod);
+    FormData fdFilenameField = new FormData();
+    fdFilenameField.left = new FormAttachment(middle, 0);
+    fdFilenameField.top = new FormAttachment(wIsFileDynamic, margin);
+    fdFilenameField.right = new FormAttachment(100, -margin);
+    wDynamicFilenameField.setLayoutData(fdFilenameField);
+    wDynamicFilenameField.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // Wildcard field
+    wlDynamicWildcardField = new Label(wOriginFiles, SWT.RIGHT);
+    wlDynamicWildcardField.setText(
+        BaseMessages.getString(PKG, "MailDialog.DynamicWildcardField.Label"));
+    PropsUi.setLook(wlDynamicWildcardField);
+    FormData fdlDynamicWildcardField = new FormData();
+    fdlDynamicWildcardField.left = new FormAttachment(0, -margin);
+    fdlDynamicWildcardField.top = new FormAttachment(wDynamicFilenameField, margin);
+    fdlDynamicWildcardField.right = new FormAttachment(middle, -margin);
+    wlDynamicWildcardField.setLayoutData(fdlDynamicWildcardField);
+
+    wDynamicWildcardField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
+    wDynamicWildcardField.setEditable(true);
+    PropsUi.setLook(wDynamicWildcardField);
+    wDynamicWildcardField.addModifyListener(lsMod);
+    FormData fdDynamicWildcardField = new FormData();
+    fdDynamicWildcardField.left = new FormAttachment(middle, 0);
+    fdDynamicWildcardField.top = new FormAttachment(wDynamicFilenameField, margin);
+    fdDynamicWildcardField.right = new FormAttachment(100, -margin);
+    wDynamicWildcardField.setLayoutData(fdDynamicWildcardField);
+    wDynamicWildcardField.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // FileFoldername line
+    wlSourceFileFolderName = new Label(wOriginFiles, SWT.RIGHT);
+    wlSourceFileFolderName.setText(BaseMessages.getString(PKG, "MailDialog.FileFoldername.Label"));
+    PropsUi.setLook(wlSourceFileFolderName);
+    FormData fdlSourceFileFoldername = new FormData();
+    fdlSourceFileFoldername.left = new FormAttachment(0, 0);
+    fdlSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, margin);
+    fdlSourceFileFoldername.right = new FormAttachment(middle, -margin);
+    wlSourceFileFolderName.setLayoutData(fdlSourceFileFoldername);
+
+    // Browse Destination folders button ...
+    wbSourceFolder = new Button(wOriginFiles, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSourceFolder);
+    wbSourceFolder.setText(BaseMessages.getString(PKG, "MailDialog.BrowseFolders.Label"));
+    FormData fdbSourceFolder = new FormData();
+    fdbSourceFolder.right = new FormAttachment(100, 0);
+    fdbSourceFolder.top = new FormAttachment(wDynamicWildcardField, margin);
+    wbSourceFolder.setLayoutData(fdbSourceFolder);
+    wbSourceFolder.addListener(
+        SWT.Selection,
+        e -> BaseDialog.presentDirectoryDialog(shell, wSourceFileFolderName, variables));
+
+    // Browse source file button ...
+    wbFileFolderName = new Button(wOriginFiles, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbFileFolderName);
+    wbFileFolderName.setText(BaseMessages.getString(PKG, "MailDialog.BrowseFiles.Label"));
+    FormData fdbSourceFileFolderName = new FormData();
+    fdbSourceFileFolderName.right = new FormAttachment(wbSourceFolder, -margin);
+    fdbSourceFileFolderName.top = new FormAttachment(wDynamicWildcardField, margin);
+    wbFileFolderName.setLayoutData(fdbSourceFileFolderName);
+
+    wSourceFileFolderName =
+        new TextVar(variables, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSourceFileFolderName);
+    wSourceFileFolderName.addModifyListener(lsMod);
+    FormData fdSourceFileFoldername = new FormData();
+    fdSourceFileFoldername.left = new FormAttachment(middle, 0);
+    fdSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, margin);
+    fdSourceFileFoldername.right = new FormAttachment(wbFileFolderName, -margin);
+    wSourceFileFolderName.setLayoutData(fdSourceFileFoldername);
+
+    // Whenever something changes, set the tooltip to the expanded version:
+    wSourceFileFolderName.addModifyListener(
+        e ->
+            wSourceFileFolderName.setToolTipText(
+                variables.resolve(wSourceFileFolderName.getText())));
+
+    wbFileFolderName.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell, wSourceFileFolderName, variables, new String[] {"*"}, FILETYPES, true));
+
+    // Include sub folders
+    Label wlIncludeSubFolders = new Label(wOriginFiles, SWT.RIGHT);
+    wlIncludeSubFolders.setText(BaseMessages.getString(PKG, "MailDialog.includeSubFolders.Label"));
+    PropsUi.setLook(wlIncludeSubFolders);
+    FormData fdlIncludeSubFolders = new FormData();
+    fdlIncludeSubFolders.left = new FormAttachment(0, 0);
+    fdlIncludeSubFolders.top = new FormAttachment(wSourceFileFolderName, margin);
+    fdlIncludeSubFolders.right = new FormAttachment(middle, -margin);
+    wlIncludeSubFolders.setLayoutData(fdlIncludeSubFolders);
+    wIncludeSubFolders = new Button(wOriginFiles, SWT.CHECK);
+    PropsUi.setLook(wIncludeSubFolders);
+    wIncludeSubFolders.setToolTipText(
+        BaseMessages.getString(PKG, "MailDialog.includeSubFolders.Tooltip"));
+    FormData fdIncludeSubFolders = new FormData();
+    fdIncludeSubFolders.left = new FormAttachment(middle, 0);
+    fdIncludeSubFolders.top = new FormAttachment(wlIncludeSubFolders, 0, SWT.CENTER);
+    fdIncludeSubFolders.right = new FormAttachment(100, 0);
+    wIncludeSubFolders.setLayoutData(fdIncludeSubFolders);
+    wIncludeSubFolders.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
+
+    // Wildcard
+    wlWildcard = new Label(wOriginFiles, SWT.RIGHT);
+    wlWildcard.setText(BaseMessages.getString(PKG, "MailDialog.Wildcard.Label"));
+    PropsUi.setLook(wlWildcard);
+    FormData fdlWildcard = new FormData();
+    fdlWildcard.left = new FormAttachment(0, 0);
+    fdlWildcard.top = new FormAttachment(wIncludeSubFolders, margin);
+    fdlWildcard.right = new FormAttachment(middle, -margin);
+    wlWildcard.setLayoutData(fdlWildcard);
+    wWildcard = new TextVar(variables, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wWildcard);
+    wWildcard.setToolTipText(BaseMessages.getString(PKG, "MailDialog.Wildcard.Tooltip"));
+    wWildcard.addModifyListener(lsMod);
+    FormData fdWildcard = new FormData();
+    fdWildcard.left = new FormAttachment(middle, 0);
+    fdWildcard.top = new FormAttachment(wIncludeSubFolders, margin);
+    fdWildcard.right = new FormAttachment(wbFileFolderName, -margin);
+    wWildcard.setLayoutData(fdWildcard);
+
+    // Whenever something changes, set the tooltip to the expanded version:
+    wWildcard.addModifyListener(
+        e -> wWildcard.setToolTipText(variables.resolve(wWildcard.getText())));
+    FormData fdOriginFiles = new FormData();
+    fdOriginFiles.left = new FormAttachment(0, margin);
+    fdOriginFiles.top = new FormAttachment(wAttachedContent, margin);
+    fdOriginFiles.right = new FormAttachment(100, -margin);
+    wOriginFiles.setLayoutData(fdOriginFiles);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF Origin files GROUP
+    // ///////////////////////////////////////////////////////////
+
+    // ///////////////////////////////
+    // START OF Zip Group files GROUP //
+    // ///////////////////////////////
+
+    wZipGroup = new Group(wAttachedComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wZipGroup);
+    wZipGroup.setText(BaseMessages.getString(PKG, "MailDialog.ZipGroup.Label"));
+
+    FormLayout zipGroupgroupLayout = new FormLayout();
+    zipGroupgroupLayout.marginWidth = 10;
+    zipGroupgroupLayout.marginHeight = 10;
+    wZipGroup.setLayout(zipGroupgroupLayout);
+
+    // Zip Files?
+    Label wlZipFiles = new Label(wZipGroup, SWT.RIGHT);
+    wlZipFiles.setText(BaseMessages.getString(PKG, "MailDialog.ZipFiles.Label"));
+    PropsUi.setLook(wlZipFiles);
+    FormData fdlZipFiles = new FormData();
+    fdlZipFiles.left = new FormAttachment(0, -margin);
+    fdlZipFiles.top = new FormAttachment(wOriginFiles, margin);
+    fdlZipFiles.right = new FormAttachment(middle, -margin);
+    wlZipFiles.setLayoutData(fdlZipFiles);
+    wZipFiles = new Button(wZipGroup, SWT.CHECK);
+    PropsUi.setLook(wZipFiles);
+    FormData fdZipFiles = new FormData();
+    fdZipFiles.left = new FormAttachment(middle, 0);
+    fdZipFiles.top = new FormAttachment(wlZipFiles, 0, SWT.CENTER);
+    fdZipFiles.right = new FormAttachment(100, -margin);
+    wZipFiles.setLayoutData(fdZipFiles);
+    wZipFiles.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            enableZip();
+          }
+        });
+
+    // is zipfilename is dynamic?
+    wlIsZipFileDynamic = new Label(wZipGroup, SWT.RIGHT);
+    wlIsZipFileDynamic.setText(BaseMessages.getString(PKG, "MailDialog.isZipFileDynamic.Label"));
+    PropsUi.setLook(wlIsZipFileDynamic);
+    FormData fdlIsZipFileDynamic = new FormData();
+    fdlIsZipFileDynamic.left = new FormAttachment(0, -margin);
+    fdlIsZipFileDynamic.top = new FormAttachment(wZipFiles, margin);
+    fdlIsZipFileDynamic.right = new FormAttachment(middle, -margin);
+    wlIsZipFileDynamic.setLayoutData(fdlIsZipFileDynamic);
+    wisZipFileDynamic = new Button(wZipGroup, SWT.CHECK);
+    PropsUi.setLook(wisZipFileDynamic);
+    FormData fdIsZipFileDynamic = new FormData();
+    fdIsZipFileDynamic.left = new FormAttachment(middle, 0);
+    fdIsZipFileDynamic.top = new FormAttachment(wlIsZipFileDynamic, 0, SWT.CENTER);
+    fdIsZipFileDynamic.right = new FormAttachment(100, -margin);
+    wisZipFileDynamic.setLayoutData(fdIsZipFileDynamic);
+    wisZipFileDynamic.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            enableDynamicZip();
+          }
+        });
+
+    // ZipFile field
+    wlDynamicZipFileField = new Label(wZipGroup, SWT.RIGHT);
+    wlDynamicZipFileField.setText(
+        BaseMessages.getString(PKG, "MailDialog.DynamicZipFileField.Label"));
+    PropsUi.setLook(wlDynamicZipFileField);
+    FormData fdlDynamicZipFileField = new FormData();
+    fdlDynamicZipFileField.left = new FormAttachment(0, -margin);
+    fdlDynamicZipFileField.top = new FormAttachment(wisZipFileDynamic, margin);
+    fdlDynamicZipFileField.right = new FormAttachment(middle, -margin);
+    wlDynamicZipFileField.setLayoutData(fdlDynamicZipFileField);
+
+    wDynamicZipFileField = new CCombo(wZipGroup, SWT.BORDER | SWT.READ_ONLY);
+    wDynamicZipFileField.setEditable(true);
+    PropsUi.setLook(wDynamicZipFileField);
+    wDynamicZipFileField.addModifyListener(lsMod);
+    FormData fdDynamicZipFileField = new FormData();
+    fdDynamicZipFileField.left = new FormAttachment(middle, 0);
+    fdDynamicZipFileField.top = new FormAttachment(wisZipFileDynamic, margin);
+    fdDynamicZipFileField.right = new FormAttachment(100, -margin);
+    wDynamicZipFileField.setLayoutData(fdDynamicZipFileField);
+    wDynamicZipFileField.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // ZipFilename line
+    wZipFilename =
+        new LabelTextVar(
+            variables,
+            wZipGroup,
+            BaseMessages.getString(PKG, "MailDialog.ZipFilename.Label"),
+            BaseMessages.getString(PKG, "MailDialog.ZipFilename.Tooltip"));
+    wZipFilename.addModifyListener(lsMod);
+    FormData fdZipFilename = new FormData();
+    fdZipFilename.left = new FormAttachment(0, 0);
+    fdZipFilename.top = new FormAttachment(wDynamicZipFileField, margin);
+    fdZipFilename.right = new FormAttachment(100, 0);
+    wZipFilename.setLayoutData(fdZipFilename);
+
+    // Zip files on condition?
+    wZipSizeCondition =
+        new LabelTextVar(
+            variables,
+            wZipGroup,
+            BaseMessages.getString(PKG, "MailDialog.ZipSizeCondition.Label"),
+            BaseMessages.getString(PKG, "MailDialog.ZipSizeCondition.Tooltip"));
+    wZipSizeCondition.addModifyListener(lsMod);
+    FormData fdZipSizeCondition = new FormData();
+    fdZipSizeCondition.left = new FormAttachment(0, 0);
+    fdZipSizeCondition.top = new FormAttachment(wZipFilename, margin);
+    fdZipSizeCondition.right = new FormAttachment(100, 0);
+    wZipSizeCondition.setLayoutData(fdZipSizeCondition);
+
+    FormData fdZipGroup = new FormData();
+    fdZipGroup.left = new FormAttachment(0, margin);
+    fdZipGroup.top = new FormAttachment(wOriginFiles, margin);
+    fdZipGroup.right = new FormAttachment(100, -margin);
+    wZipGroup.setLayoutData(fdZipGroup);
+
+    // ///////////////////////////////////////////////////////////
+    // / END OF Zip Group GROUP
+    // ///////////////////////////////////////////////////////////
+
+    FormData fdAttachedComp = new FormData();
+    fdAttachedComp.left = new FormAttachment(0, 0);
+    fdAttachedComp.top = new FormAttachment(0, 0);
+    fdAttachedComp.right = new FormAttachment(100, 0);
+    fdAttachedComp.bottom = new FormAttachment(100, 0);
+    wAttachedComp.setLayoutData(fdAttachedComp);
+
+    wAttachedComp.layout();
+    wAttachedTab.setControl(wAttachedComp);
+  }
+
+  private void addMessageTab(CTabFolder wTabFolder, ModifyListener lsMod) {
+    CTabItem wMessageTab = new CTabItem(wTabFolder, SWT.NONE);
+    wMessageTab.setFont(GuiResource.getInstance().getFontDefault());
+    wMessageTab.setText(BaseMessages.getString(PKG, "Mail.Tab.Message.Label"));
+
+    FormLayout messageLayout = new FormLayout();
+    messageLayout.marginWidth = 3;
+    messageLayout.marginHeight = 3;
+
+    Composite wMessageComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wMessageComp);
+    wMessageComp.setLayout(messageLayout);
+
+    // ////////////////////////////////////
+    // START OF MESSAGE SETTINGS GROUP
+    // ////////////////////////////////////
+
+    Group wMessageSettingsGroup = new Group(wMessageComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wMessageSettingsGroup);
+    wMessageSettingsGroup.setText(BaseMessages.getString(PKG, "Mail.Group.MessageSettings.Label"));
+
+    FormLayout messagesettingsgroupLayout = new FormLayout();
+    messagesettingsgroupLayout.marginWidth = 10;
+    messagesettingsgroupLayout.marginHeight = 10;
+    wMessageSettingsGroup.setLayout(messagesettingsgroupLayout);
+
+    // Add date to logfile name?
+    Label wlAddDate = new Label(wMessageSettingsGroup, SWT.RIGHT);
+    wlAddDate.setText(BaseMessages.getString(PKG, "Mail.IncludeDate.Label"));
+    PropsUi.setLook(wlAddDate);
+    FormData fdlAddDate = new FormData();
+    fdlAddDate.left = new FormAttachment(0, 0);
+    fdlAddDate.top = new FormAttachment(0, margin);
+    fdlAddDate.right = new FormAttachment(middle, -margin);
+    wlAddDate.setLayoutData(fdlAddDate);
+    wAddDate = new Button(wMessageSettingsGroup, SWT.CHECK);
+    PropsUi.setLook(wAddDate);
+    FormData fdAddDate = new FormData();
+    fdAddDate.left = new FormAttachment(middle, 0);
+    fdAddDate.top = new FormAttachment(wlAddDate, 0, SWT.CENTER);
+    fdAddDate.right = new FormAttachment(100, 0);
+    wAddDate.setLayoutData(fdAddDate);
+    wAddDate.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
+
+    // Only send the comment in the mail body
+    Label wlOnlyComment = new Label(wMessageSettingsGroup, SWT.RIGHT);
+    wlOnlyComment.setText(BaseMessages.getString(PKG, "Mail.OnlyCommentInBody.Label"));
+    PropsUi.setLook(wlOnlyComment);
+    FormData fdlOnlyComment = new FormData();
+    fdlOnlyComment.left = new FormAttachment(0, 0);
+    fdlOnlyComment.top = new FormAttachment(wAddDate, margin);
+    fdlOnlyComment.right = new FormAttachment(middle, -margin);
+    wlOnlyComment.setLayoutData(fdlOnlyComment);
+    wOnlyComment = new Button(wMessageSettingsGroup, SWT.CHECK);
+    PropsUi.setLook(wOnlyComment);
+    FormData fdOnlyComment = new FormData();
+    fdOnlyComment.left = new FormAttachment(middle, 0);
+    fdOnlyComment.top = new FormAttachment(wlOnlyComment, 0, SWT.CENTER);
+    fdOnlyComment.right = new FormAttachment(100, 0);
+    wOnlyComment.setLayoutData(fdOnlyComment);
+    wOnlyComment.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
+
+    // HTML format ?
+    Label wlUseHTML = new Label(wMessageSettingsGroup, SWT.RIGHT);
+    wlUseHTML.setText(BaseMessages.getString(PKG, "Mail.UseHTMLInBody.Label"));
+    PropsUi.setLook(wlUseHTML);
+    FormData fdlUseHTML = new FormData();
+    fdlUseHTML.left = new FormAttachment(0, 0);
+    fdlUseHTML.top = new FormAttachment(wOnlyComment, margin);
+    fdlUseHTML.right = new FormAttachment(middle, -margin);
+    wlUseHTML.setLayoutData(fdlUseHTML);
+    wUseHTML = new Button(wMessageSettingsGroup, SWT.CHECK);
+    PropsUi.setLook(wUseHTML);
+    FormData fdUseHTML = new FormData();
+    fdUseHTML.left = new FormAttachment(middle, 0);
+    fdUseHTML.top = new FormAttachment(wlUseHTML, 0, SWT.CENTER);
+    fdUseHTML.right = new FormAttachment(100, 0);
+    wUseHTML.setLayoutData(fdUseHTML);
+    wUseHTML.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            enableEncoding();
+            input.setChanged();
+          }
+        });
+
+    // Encoding
+    wlEncoding = new Label(wMessageSettingsGroup, SWT.RIGHT);
+    wlEncoding.setText(BaseMessages.getString(PKG, "Mail.Encoding.Label"));
+    PropsUi.setLook(wlEncoding);
+    FormData fdlEncoding = new FormData();
+    fdlEncoding.left = new FormAttachment(0, 0);
+    fdlEncoding.top = new FormAttachment(wUseHTML, margin);
+    fdlEncoding.right = new FormAttachment(middle, -margin);
+    wlEncoding.setLayoutData(fdlEncoding);
+    wEncoding = new CCombo(wMessageSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
+    wEncoding.setEditable(true);
+    PropsUi.setLook(wEncoding);
+    wEncoding.addModifyListener(lsMod);
+    FormData fdEncoding = new FormData();
+    fdEncoding.left = new FormAttachment(middle, 0);
+    fdEncoding.top = new FormAttachment(wUseHTML, margin);
+    fdEncoding.right = new FormAttachment(100, 0);
+    wEncoding.setLayoutData(fdEncoding);
+    wEncoding.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            setEncodings();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // Use Priority ?
+    Label wlUsePriority = new Label(wMessageSettingsGroup, SWT.RIGHT);
+    wlUsePriority.setText(BaseMessages.getString(PKG, "Mail.UsePriority.Label"));
+    PropsUi.setLook(wlUsePriority);
+    FormData fdlPriority = new FormData();
+    fdlPriority.left = new FormAttachment(0, 0);
+    fdlPriority.top = new FormAttachment(wEncoding, margin);
+    fdlPriority.right = new FormAttachment(middle, -margin);
+    wlUsePriority.setLayoutData(fdlPriority);
+    wUsePriority = new Button(wMessageSettingsGroup, SWT.CHECK);
+    wUsePriority.setToolTipText(BaseMessages.getString(PKG, "Mail.UsePriority.Tooltip"));
+    PropsUi.setLook(wUsePriority);
+    FormData fdUsePriority = new FormData();
+    fdUsePriority.left = new FormAttachment(middle, 0);
+    fdUsePriority.top = new FormAttachment(wlUsePriority, 0, SWT.CENTER);
+    fdUsePriority.right = new FormAttachment(100, 0);
+    wUsePriority.setLayoutData(fdUsePriority);
+    wUsePriority.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            enableUsePriority();
+            input.setChanged();
+          }
+        });
+
+    SelectionAdapter selChanged =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        };
+
+    // Priority
+    wlPriority = new Label(wMessageSettingsGroup, SWT.RIGHT);
+    wlPriority.setText(BaseMessages.getString(PKG, "Mail.Priority.Label"));
+    PropsUi.setLook(wlPriority);
+    fdlPriority = new FormData();
+    fdlPriority.left = new FormAttachment(0, 0);
+    fdlPriority.right = new FormAttachment(middle, -margin);
+    fdlPriority.top = new FormAttachment(wUsePriority, margin);
+    wlPriority.setLayoutData(fdlPriority);
+    wPriority = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wPriority.add(BaseMessages.getString(PKG, "Mail.Priority.Low.Label"));
+    wPriority.add(BaseMessages.getString(PKG, "Mail.Priority.Normal.Label"));
+    wPriority.add(BaseMessages.getString(PKG, "Mail.Priority.High.Label"));
+    wPriority.select(1); // +1: starts at -1
+    wPriority.addSelectionListener(selChanged);
+    PropsUi.setLook(wPriority);
+    FormData fdPriority = new FormData();
+    fdPriority.left = new FormAttachment(middle, 0);
+    fdPriority.top = new FormAttachment(wUsePriority, margin);
+    fdPriority.right = new FormAttachment(100, 0);
+    wPriority.setLayoutData(fdPriority);
+
+    // Importance
+    wlImportance = new Label(wMessageSettingsGroup, SWT.RIGHT);
+    wlImportance.setText(BaseMessages.getString(PKG, "Mail.Importance.Label"));
+    PropsUi.setLook(wlImportance);
+    FormData fdlImportance = new FormData();
+    fdlImportance.left = new FormAttachment(0, 0);
+    fdlImportance.right = new FormAttachment(middle, -margin);
+    fdlImportance.top = new FormAttachment(wPriority, margin);
+    wlImportance.setLayoutData(fdlImportance);
+    wImportance = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wImportance.add(BaseMessages.getString(PKG, "Mail.Priority.Low.Label"));
+    wImportance.add(BaseMessages.getString(PKG, "Mail.Priority.Normal.Label"));
+    wImportance.add(BaseMessages.getString(PKG, "Mail.Priority.High.Label"));
+
+    wImportance.select(1); // +1: starts at -1
+    wImportance.addSelectionListener(selChanged);
+
+    PropsUi.setLook(wImportance);
+    FormData fdImportance = new FormData();
+    fdImportance.left = new FormAttachment(middle, 0);
+    fdImportance.top = new FormAttachment(wPriority, margin);
+    fdImportance.right = new FormAttachment(100, 0);
+    wImportance.setLayoutData(fdImportance);
+
+    // Sensitivity
+    wlSensitivity = new Label(wMessageSettingsGroup, SWT.RIGHT);
+    wlSensitivity.setText(BaseMessages.getString(PKG, "Mail.Sensitivity.Label"));
+    PropsUi.setLook(wlSensitivity);
+    FormData fdlSensitivity = new FormData();
+    fdlSensitivity.left = new FormAttachment(0, 0);
+    fdlSensitivity.right = new FormAttachment(middle, -margin);
+    fdlSensitivity.top = new FormAttachment(wImportance, margin);
+    wlSensitivity.setLayoutData(fdlSensitivity);
+    wSensitivity = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wSensitivity.add(BaseMessages.getString(PKG, "Mail.Sensitivity.normal.Label"));
+    wSensitivity.add(BaseMessages.getString(PKG, "Mail.Sensitivity.personal.Label"));
+    wSensitivity.add(BaseMessages.getString(PKG, "Mail.Sensitivity.private.Label"));
+    wSensitivity.add(BaseMessages.getString(PKG, "Mail.Sensitivity.confidential.Label"));
+    wSensitivity.select(0);
+    wSensitivity.addSelectionListener(selChanged);
+
+    PropsUi.setLook(wSensitivity);
+    FormData fdSensitivity = new FormData();
+    fdSensitivity.left = new FormAttachment(middle, 0);
+    fdSensitivity.top = new FormAttachment(wImportance, margin);
+    fdSensitivity.right = new FormAttachment(100, 0);
+    wSensitivity.setLayoutData(fdSensitivity);
+
+    FormData fdMessageSettingsGroup = new FormData();
+    fdMessageSettingsGroup.left = new FormAttachment(0, margin);
+    fdMessageSettingsGroup.top = new FormAttachment(0, margin);
+    fdMessageSettingsGroup.right = new FormAttachment(100, -margin);
+    wMessageSettingsGroup.setLayoutData(fdMessageSettingsGroup);
+
+    // //////////////////////////////////////
+    // / END OF MESSAGE SETTINGS GROUP
+    // ///////////////////////////////////////
+
+    // ////////////////////////////////////
+    // START OF MESSAGE GROUP
+    // ////////////////////////////////////
+
+    Group wMessageGroup = new Group(wMessageComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wMessageGroup);
+    wMessageGroup.setText(BaseMessages.getString(PKG, "Mail.Group.Message.Label"));
+
+    FormLayout messagegroupLayout = new FormLayout();
+    messagegroupLayout.marginWidth = 10;
+    messagegroupLayout.marginHeight = 10;
+    wMessageGroup.setLayout(messagegroupLayout);
+
+    // Subject line
+    Label wlSubject = new Label(wMessageGroup, SWT.RIGHT);
+    wlSubject.setText(BaseMessages.getString(PKG, "Mail.Subject.Label"));
+    PropsUi.setLook(wlSubject);
+    FormData fdlSubject = new FormData();
+    fdlSubject.left = new FormAttachment(0, -margin);
+    fdlSubject.top = new FormAttachment(wMessageSettingsGroup, margin);
+    fdlSubject.right = new FormAttachment(middle, -margin);
+    wlSubject.setLayoutData(fdlSubject);
+
+    wSubject = new CCombo(wMessageGroup, SWT.BORDER | SWT.READ_ONLY);
+    wSubject.setEditable(true);
+    PropsUi.setLook(wSubject);
+    wSubject.addModifyListener(lsMod);
+    FormData fdSubject = new FormData();
+    fdSubject.left = new FormAttachment(middle, 0);
+    fdSubject.top = new FormAttachment(wMessageSettingsGroup, margin);
+    fdSubject.right = new FormAttachment(100, 0);
+    wSubject.setLayoutData(fdSubject);
+    wSubject.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+    // Comment line
+    Label wlComment = new Label(wMessageGroup, SWT.RIGHT);
+    wlComment.setText(BaseMessages.getString(PKG, "Mail.Comment.Label"));
+    PropsUi.setLook(wlComment);
+    FormData fdlComment = new FormData();
+    fdlComment.left = new FormAttachment(0, -margin);
+    fdlComment.top = new FormAttachment(wSubject, margin);
+    fdlComment.right = new FormAttachment(middle, -margin);
+    wlComment.setLayoutData(fdlComment);
+
+    wComment = new CCombo(wMessageGroup, SWT.BORDER | SWT.READ_ONLY);
+    wComment.setEditable(true);
+    PropsUi.setLook(wComment);
+    wComment.addModifyListener(lsMod);
+    FormData fdComment = new FormData();
+    fdComment.left = new FormAttachment(middle, 0);
+    fdComment.top = new FormAttachment(wSubject, margin);
+    fdComment.right = new FormAttachment(100, 0);
+    wComment.setLayoutData(fdComment);
+    wComment.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // Include message in output checkbox
+    Label wlIncludeMessageInOutput = new Label(wMessageGroup, SWT.RIGHT);
+    wlIncludeMessageInOutput.setText(BaseMessages.getString(PKG, "Mail.IncldueMessage.Label"));
+    PropsUi.setLook(wlIncludeMessageInOutput);
+    FormData fdlIncludeMessageInOutput = new FormData();
+    fdlIncludeMessageInOutput.left = new FormAttachment(0, -margin);
+    fdlIncludeMessageInOutput.top = new FormAttachment(wComment, margin);
+    fdlIncludeMessageInOutput.right = new FormAttachment(middle, -margin);
+    wlIncludeMessageInOutput.setLayoutData(fdlIncludeMessageInOutput);
+
+    wIncludeMessageInOutput = new Button(wMessageGroup, SWT.CHECK);
+    PropsUi.setLook(wIncludeMessageInOutput);
+    wIncludeMessageInOutput.setToolTipText(
+        BaseMessages.getString(PKG, "Mail.IncldueMessage.Tooltip"));
+    FormData fdIncludeMessageInOutput = new FormData();
+    fdIncludeMessageInOutput.left = new FormAttachment(middle, 0);
+    fdIncludeMessageInOutput.top = new FormAttachment(wlIncludeMessageInOutput, 0, SWT.CENTER);
+    fdIncludeMessageInOutput.right = new FormAttachment(100, 0);
+    wIncludeMessageInOutput.setLayoutData(fdIncludeMessageInOutput);
+    wIncludeMessageInOutput.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            enableMessageOutputField();
+          }
+        });
+
+    // OutputFieldName textvar
+    wlMessageOutputField = new Label(wMessageGroup, SWT.RIGHT);
+    wlMessageOutputField.setText(BaseMessages.getString(PKG, "Mail.IncldueMessageField.Label"));
+    PropsUi.setLook(wlMessageOutputField);
+    FormData fdlMessageOutputField = new FormData();
+    fdlMessageOutputField.left = new FormAttachment(0, 0);
+    fdlMessageOutputField.top = new FormAttachment(wIncludeMessageInOutput, margin);
+    fdlMessageOutputField.right = new FormAttachment(middle, -margin);
+    wlMessageOutputField.setLayoutData(fdlMessageOutputField);
+
+    wMessageOutputField = new TextVar(variables, wMessageGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wMessageOutputField);
+    wMessageOutputField.setToolTipText(
+        BaseMessages.getString(PKG, "Mail.IncldueMessageField.Tooltip"));
+    wMessageOutputField.addModifyListener(lsMod);
+    FormData fdMessageOutputField = new FormData();
+    fdMessageOutputField.left = new FormAttachment(middle, 0);
+    fdMessageOutputField.top = new FormAttachment(wlMessageOutputField, 0, SWT.CENTER);
+    fdMessageOutputField.right = new FormAttachment(100, 0);
+    wMessageOutputField.setLayoutData(fdMessageOutputField);
+
+    FormData fdMessageGroup = new FormData();
+    fdMessageGroup.left = new FormAttachment(0, margin);
+    fdMessageGroup.top = new FormAttachment(wMessageSettingsGroup, margin);
+    fdMessageGroup.bottom = new FormAttachment(100, -margin);
+    fdMessageGroup.right = new FormAttachment(100, -margin);
+    wMessageGroup.setLayoutData(fdMessageGroup);
+
+    // //////////////////////////////////////
+    // / END OF MESSAGE GROUP
+    // ///////////////////////////////////////
+
+    FormData fdMessageComp = new FormData();
+    fdMessageComp.left = new FormAttachment(0, 0);
+    fdMessageComp.top = new FormAttachment(0, 0);
+    fdMessageComp.right = new FormAttachment(100, 0);
+    fdMessageComp.bottom = new FormAttachment(100, 0);
+    wMessageComp.setLayoutData(fdMessageComp);
+
+    wMessageComp.layout();
+    wMessageTab.setControl(wMessageComp);
+  }
+
+  private void addServerTab(CTabFolder wTabFolder, ModifyListener lsMod) {
+    Label wlUseSecAuth;
+    CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
+    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
+    wContentTab.setText(BaseMessages.getString(PKG, "MailDialog.Server.Label"));
+
+    FormLayout contentLayout = new FormLayout();
+    contentLayout.marginWidth = 3;
+    contentLayout.marginHeight = 3;
+
+    Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wContentComp);
+    wContentComp.setLayout(contentLayout);
+
+    // ////////////////////////
+    // START OF CONNECTION LINE GROUP
+    // /////////////////////////
+
+    Group wConnectionGroup = new Group(wContentComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wConnectionGroup);
+    wConnectionGroup.setText(BaseMessages.getString(PKG, "MailDialog.Connection.Group.Label"));
+    FormLayout connectionGroupLayout = new FormLayout();
+    connectionGroupLayout.marginWidth = 10;
+    connectionGroupLayout.marginHeight = 10;
+    wConnectionGroup.setLayout(connectionGroupLayout);
+
+    wConnectionLine =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            MailServerConnection.class,
+            wConnectionGroup,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(PKG, "MailDialog.Connection.Label"),
+            BaseMessages.getString(PKG, "MailDialog.Connection.ToolTip"));
+    PropsUi.setLook(wConnectionLine);
+    FormData fdSelectionLine = new FormData();
+    fdSelectionLine.left = new FormAttachment(0, 0);
+    fdSelectionLine.top = new FormAttachment(0, 0);
+    fdSelectionLine.right = new FormAttachment(100, -margin);
+    wConnectionLine.setLayoutData(fdSelectionLine);
+    wConnectionLine.addListener(SWT.Selection, e -> input.setChanged(true));
+    try {
+      wConnectionLine.fillItems();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting list of Mail Server connections", e);
+    }
+
+    FormData fdConnectionGroup = new FormData();
+    fdConnectionGroup.left = new FormAttachment(0, 0);
+    fdConnectionGroup.top = new FormAttachment(wName, margin);
+    fdConnectionGroup.right = new FormAttachment(100, 0);
+    wConnectionGroup.setLayoutData(fdConnectionGroup);
+
+    // ////////////////////////
+    // START OF SERVER GROUP
+    // /////////////////////////
+
+    Group wServerGroup = new Group(wContentComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wServerGroup);
+    wServerGroup.setText(BaseMessages.getString(PKG, "Mail.Group.SMTPServer.Label"));
+
+    FormLayout servergroupLayout = new FormLayout();
+    servergroupLayout.marginWidth = 10;
+    servergroupLayout.marginHeight = 10;
+    wServerGroup.setLayout(servergroupLayout);
+
+    // Server
+    Label wlServer = new Label(wServerGroup, SWT.RIGHT);
+    wlServer.setText(BaseMessages.getString(PKG, "Mail.SMTPServer.Label"));
+    PropsUi.setLook(wlServer);
+    FormData fdlServer = new FormData();
+    fdlServer.left = new FormAttachment(0, 0);
+    fdlServer.top = new FormAttachment(wConnectionLine, margin);
+    fdlServer.right = new FormAttachment(middle, -margin);
+    wlServer.setLayoutData(fdlServer);
+
+    wServer = new CCombo(wServerGroup, SWT.BORDER | SWT.READ_ONLY);
+    wServer.setEditable(true);
+    PropsUi.setLook(wServer);
+    wServer.addModifyListener(lsMod);
+    FormData fdServer = new FormData();
+    fdServer.left = new FormAttachment(middle, 0);
+    fdServer.top = new FormAttachment(0, margin);
+    fdServer.right = new FormAttachment(100, 0);
+    wServer.setLayoutData(fdServer);
+    wServer.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // Port
+    Label wlPort = new Label(wServerGroup, SWT.RIGHT);
+    wlPort.setText(BaseMessages.getString(PKG, "Mail.Port.Label"));
+    PropsUi.setLook(wlPort);
+    FormData fdlPort = new FormData();
+    fdlPort.left = new FormAttachment(0, 0);
+    fdlPort.top = new FormAttachment(wServer, margin);
+    fdlPort.right = new FormAttachment(middle, -margin);
+    wlPort.setLayoutData(fdlPort);
+
+    wPort = new CCombo(wServerGroup, SWT.BORDER | SWT.READ_ONLY);
+    wPort.setEditable(true);
+    PropsUi.setLook(wPort);
+    wPort.addModifyListener(lsMod);
+    FormData fdPort = new FormData();
+    fdPort.left = new FormAttachment(middle, 0);
+    fdPort.top = new FormAttachment(wServer, margin);
+    fdPort.right = new FormAttachment(100, 0);
+    wPort.setLayoutData(fdPort);
+    wPort.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    FormData fdServerGroup = new FormData();
+    fdServerGroup.left = new FormAttachment(0, margin);
+    fdServerGroup.top = new FormAttachment(wConnectionGroup, margin);
+    fdServerGroup.right = new FormAttachment(100, -margin);
+    wServerGroup.setLayoutData(fdServerGroup);
+
+    // //////////////////////////////////////
+    // / END OF SERVER ADDRESS GROUP
+    // ///////////////////////////////////////
+
+    // ////////////////////////////////////
+    // START OF AUTHENTICATION GROUP
+    // ////////////////////////////////////
+
+    Group wAuthentificationGroup = new Group(wContentComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wAuthentificationGroup);
+    wAuthentificationGroup.setText(
+        BaseMessages.getString(PKG, "Mail.Group.Authentification.Label"));
+
+    FormLayout authentificationgroupLayout = new FormLayout();
+    authentificationgroupLayout.marginWidth = 10;
+    authentificationgroupLayout.marginHeight = 10;
+    wAuthentificationGroup.setLayout(authentificationgroupLayout);
+
+    // Authentication?
+    Label wlUseAuth = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlUseAuth.setText(BaseMessages.getString(PKG, "Mail.UseAuthentication.Label"));
+    PropsUi.setLook(wlUseAuth);
+    FormData fdlUseAuth = new FormData();
+    fdlUseAuth.left = new FormAttachment(0, 0);
+    fdlUseAuth.top = new FormAttachment(wServerGroup, margin);
+    fdlUseAuth.right = new FormAttachment(middle, -margin);
+    wlUseAuth.setLayoutData(fdlUseAuth);
+    wUseAuth = new Button(wAuthentificationGroup, SWT.CHECK);
+    PropsUi.setLook(wUseAuth);
+    FormData fdUseAuth = new FormData();
+    fdUseAuth.left = new FormAttachment(middle, 0);
+    fdUseAuth.top = new FormAttachment(wlUseAuth, 0, SWT.CENTER);
+    fdUseAuth.right = new FormAttachment(100, 0);
+    wUseAuth.setLayoutData(fdUseAuth);
+    wUseAuth.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            enableOnSetUseAuth();
+            input.setChanged();
+          }
+        });
+
+    // USE connection with XOAUTH2
+    wlUseXOAuth2 = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlUseXOAuth2.setText(BaseMessages.getString(PKG, "Mail.UseXOAUTH2Mails.Label"));
+    PropsUi.setLook(wlUseXOAuth2);
+    FormData fdlUseXOAUTH2 = new FormData();
+    fdlUseXOAUTH2.left = new FormAttachment(0, 0);
+    fdlUseXOAUTH2.top = new FormAttachment(wUseAuth, margin);
+    fdlUseXOAUTH2.right = new FormAttachment(middle, -margin);
+    wlUseXOAuth2.setLayoutData(fdlUseXOAUTH2);
+    wUseXOAuth2 = new Button(wAuthentificationGroup, SWT.CHECK);
+    PropsUi.setLook(wUseXOAuth2);
+    FormData fdUseXOAUTH2 = new FormData();
+    wUseXOAuth2.setToolTipText(BaseMessages.getString(PKG, "Mail.UseXOAUTH2Mails.Tooltip"));
+    fdUseXOAUTH2.left = new FormAttachment(middle, 0);
+    fdUseXOAUTH2.top = new FormAttachment(wUseAuth, margin);
+    fdUseXOAUTH2.right = new FormAttachment(100, 0);
+    wUseXOAuth2.setLayoutData(fdUseXOAUTH2);
+
+    // AuthUser line
+    wlAuthUser = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlAuthUser.setText(BaseMessages.getString(PKG, "Mail.AuthenticationUser.Label"));
+    PropsUi.setLook(wlAuthUser);
+    FormData fdlAuthUser = new FormData();
+    fdlAuthUser.left = new FormAttachment(0, 0);
+    fdlAuthUser.top = new FormAttachment(wUseXOAuth2, margin);
+    fdlAuthUser.right = new FormAttachment(middle, -margin);
+    wlAuthUser.setLayoutData(fdlAuthUser);
+
+    wAuthUser = new CCombo(wAuthentificationGroup, SWT.BORDER | SWT.READ_ONLY);
+    wAuthUser.setEditable(true);
+    PropsUi.setLook(wAuthUser);
+    wAuthUser.addModifyListener(lsMod);
+    FormData fdAuthUser = new FormData();
+    fdAuthUser.left = new FormAttachment(middle, 0);
+    fdAuthUser.top = new FormAttachment(wUseXOAuth2, margin);
+    fdAuthUser.right = new FormAttachment(100, 0);
+    wAuthUser.setLayoutData(fdAuthUser);
+    wAuthUser.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // AuthPass line
+    wlAuthPass = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlAuthPass.setText(BaseMessages.getString(PKG, "Mail.AuthenticationPassword.Label"));
+    PropsUi.setLook(wlAuthPass);
+    FormData fdlAuthPass = new FormData();
+    fdlAuthPass.left = new FormAttachment(0, 0);
+    fdlAuthPass.top = new FormAttachment(wAuthUser, margin);
+    fdlAuthPass.right = new FormAttachment(middle, -margin);
+    wlAuthPass.setLayoutData(fdlAuthPass);
+
+    wAuthPass = new CCombo(wAuthentificationGroup, SWT.BORDER | SWT.READ_ONLY);
+    wAuthPass.setEditable(true);
+    PropsUi.setLook(wAuthPass);
+    wAuthPass.addModifyListener(lsMod);
+    FormData fdAuthPass = new FormData();
+    fdAuthPass.left = new FormAttachment(middle, 0);
+    fdAuthPass.top = new FormAttachment(wAuthUser, margin);
+    fdAuthPass.right = new FormAttachment(100, 0);
+    wAuthPass.setLayoutData(fdAuthPass);
+    wAuthPass.addFocusListener(
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {
+            // Disable focuslostEvent
+          }
+
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getPreviousFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
+
+    // Use secure authentication?
+    wlUseSecAuth = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlUseSecAuth.setText(BaseMessages.getString(PKG, "Mail.UseSecAuthentication.Label"));
+    PropsUi.setLook(wlUseSecAuth);
+    FormData fdlUseSecAuth = new FormData();
+    fdlUseSecAuth.left = new FormAttachment(0, 0);
+    fdlUseSecAuth.top = new FormAttachment(wAuthPass, margin);
+    fdlUseSecAuth.right = new FormAttachment(middle, -margin);
+    wlUseSecAuth.setLayoutData(fdlUseSecAuth);
+    wUseSecAuth = new Button(wAuthentificationGroup, SWT.CHECK);
+    PropsUi.setLook(wUseSecAuth);
+    FormData fdUseSecAuth = new FormData();
+    fdUseSecAuth.left = new FormAttachment(middle, 0);
+    fdUseSecAuth.top = new FormAttachment(wAuthPass, margin);
+    fdUseSecAuth.right = new FormAttachment(100, 0);
+    wUseSecAuth.setLayoutData(fdUseSecAuth);
+    wUseSecAuth.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            enableOnSetSecureConnectiontype();
+            input.setChanged();
+          }
+        });
+
+    // SecureConnectionType
+    wlSecureConnectionType = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlSecureConnectionType.setText(BaseMessages.getString(PKG, "Mail.SecureConnectionType.Label"));
+    PropsUi.setLook(wlSecureConnectionType);
+    FormData fdlSecureConnectionType = new FormData();
+    fdlSecureConnectionType.left = new FormAttachment(0, 0);
+    fdlSecureConnectionType.top = new FormAttachment(wUseSecAuth, margin);
+    fdlSecureConnectionType.right = new FormAttachment(middle, -margin);
+    wlSecureConnectionType.setLayoutData(fdlSecureConnectionType);
+    wSecureConnectionType = new CCombo(wAuthentificationGroup, SWT.BORDER | SWT.READ_ONLY);
+    wSecureConnectionType.setEditable(true);
+    PropsUi.setLook(wSecureConnectionType);
+    wSecureConnectionType.addModifyListener(lsMod);
+    FormData fdSecureConnectionType = new FormData();
+    fdSecureConnectionType.left = new FormAttachment(middle, 0);
+    fdSecureConnectionType.top = new FormAttachment(wUseSecAuth, margin);
+    fdSecureConnectionType.right = new FormAttachment(100, 0);
+    wSecureConnectionType.setLayoutData(fdSecureConnectionType);
+    wSecureConnectionType.add("SSL");
+    wSecureConnectionType.add("TLS");
+    // Add support for TLS 1.2
+    wSecureConnectionType.add("TLS 1.2");
+    wSecureConnectionType.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            enableOnSetSecureConnectiontype();
+            input.setChanged();
+          }
+        });
+
+    // Use check server identity
+    wlCheckServerIdentity = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlCheckServerIdentity.setText(BaseMessages.getString(PKG, "Mail.CheckServerIdentity.Label"));
+    PropsUi.setLook(wlCheckServerIdentity);
+    FormData fdlCheckServerIdentity = new FormData();
+    fdlCheckServerIdentity.left = new FormAttachment(0, 0);
+    fdlCheckServerIdentity.top = new FormAttachment(wSecureConnectionType, margin);
+    fdlCheckServerIdentity.right = new FormAttachment(middle, -margin);
+    wlCheckServerIdentity.setLayoutData(fdlCheckServerIdentity);
+    wCheckServerIdentity = new Button(wAuthentificationGroup, SWT.CHECK);
+    PropsUi.setLook(wCheckServerIdentity);
+    FormData fdCheckServerIdentity = new FormData();
+    fdCheckServerIdentity.left = new FormAttachment(middle, margin);
+    fdCheckServerIdentity.top = new FormAttachment(wlCheckServerIdentity, 0, SWT.CENTER);
+    fdCheckServerIdentity.right = new FormAttachment(100, 0);
+    wCheckServerIdentity.setLayoutData(fdCheckServerIdentity);
+    wCheckServerIdentity.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            enableOnSetSecureConnectiontype();
+            input.setChanged();
+          }
+        });
+
+    // Trusted Hosts line
+    wTrustedHosts =
+        new LabelTextVar(
+            variables,
+            wAuthentificationGroup,
+            BaseMessages.getString(PKG, "Mail.TrustedHosts.Label"),
+            BaseMessages.getString(PKG, "Mail.TrustedHosts.Tooltip"));
+    wTrustedHosts.addModifyListener(lsMod);
+    FormData fdTrustedHosts = new FormData();
+    fdTrustedHosts.left = new FormAttachment(0, 0);
+    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, margin);
+    fdTrustedHosts.right = new FormAttachment(100, 0);
+    wTrustedHosts.setLayoutData(fdTrustedHosts);
+
+    FormData fdAuthentificationGroup = new FormData();
+    fdAuthentificationGroup.left = new FormAttachment(0, margin);
+    fdAuthentificationGroup.top = new FormAttachment(wServerGroup, margin);
+    fdAuthentificationGroup.right = new FormAttachment(100, -margin);
+    fdAuthentificationGroup.bottom = new FormAttachment(100, -margin);
+    wAuthentificationGroup.setLayoutData(fdAuthentificationGroup);
+
+    // //////////////////////////////////////
+    // / END OF AUTHENTIFICATION GROUP
+    // ///////////////////////////////////////
+
+    FormData fdContentComp = new FormData();
+    fdContentComp.left = new FormAttachment(0, 0);
+    fdContentComp.top = new FormAttachment(0, 0);
+    fdContentComp.right = new FormAttachment(100, 0);
+    fdContentComp.bottom = new FormAttachment(100, 0);
+    wContentComp.setLayoutData(fdContentComp);
+
+    wContentComp.layout();
+    wContentTab.setControl(wContentComp);
+  }
+
+  private void addGeneralTab(CTabFolder wTabFolder, ModifyListener lsMod) {
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
     wGeneralTab.setText(BaseMessages.getString(PKG, "Mail.Tab.General.Label"));
@@ -585,1822 +2138,106 @@ public class MailDialog extends BaseTransformDialog {
     wGeneralComp.layout();
     wGeneralTab.setControl(wGeneralComp);
     PropsUi.setLook(wGeneralComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF GENERAL TAB
-    // ///////////////////////////////////////////////////////////
-
-    // ////////////////////////////////////
-    // START OF SERVER TAB ///
-    // ///////////////////////////////////
-
-    CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
-    wContentTab.setFont(GuiResource.getInstance().getFontDefault());
-    wContentTab.setText(BaseMessages.getString(PKG, "MailDialog.Server.Label"));
-
-    FormLayout contentLayout = new FormLayout();
-    contentLayout.marginWidth = 3;
-    contentLayout.marginHeight = 3;
-
-    Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wContentComp);
-    wContentComp.setLayout(contentLayout);
-
-    // ////////////////////////
-    // START OF CONNECTION LINE GROUP
-    // /////////////////////////
-
-    Group wConnectionGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wConnectionGroup);
-    wConnectionGroup.setText(BaseMessages.getString(PKG, "MailDialog.Connection.Group.Label"));
-    FormLayout connectionGroupLayout = new FormLayout();
-    connectionGroupLayout.marginWidth = 10;
-    connectionGroupLayout.marginHeight = 10;
-    wConnectionGroup.setLayout(connectionGroupLayout);
-
-    wConnectionLine =
-        new MetaSelectionLine(
-            variables,
-            metadataProvider,
-            MailServerConnection.class,
-            wConnectionGroup,
-            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "MailDialog.Connection.Label"),
-            BaseMessages.getString(PKG, "MailDialog.Connection.ToolTip"));
-    PropsUi.setLook(wConnectionLine);
-    FormData fdSelectionLine = new FormData();
-    fdSelectionLine.left = new FormAttachment(0, 0);
-    fdSelectionLine.top = new FormAttachment(wGeneralComp, 0);
-    fdSelectionLine.right = new FormAttachment(100, -margin);
-    wConnectionLine.setLayoutData(fdSelectionLine);
-    wConnectionLine.addListener(SWT.Selection, e -> input.setChanged(true));
-    try {
-      wConnectionLine.fillItems();
-    } catch (Exception e) {
-      new ErrorDialog(shell, "Error", "Error getting list of Mail Server connections", e);
-    }
-
-    FormData fdConnectionGroup = new FormData();
-    fdConnectionGroup.left = new FormAttachment(0, 0);
-    fdConnectionGroup.top = new FormAttachment(wName, margin);
-    fdConnectionGroup.right = new FormAttachment(100, 0);
-    wConnectionGroup.setLayoutData(fdConnectionGroup);
-
-    // ////////////////////////
-    // START OF SERVER GROUP
-    // /////////////////////////
-
-    Group wServerGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wServerGroup);
-    wServerGroup.setText(BaseMessages.getString(PKG, "Mail.Group.SMTPServer.Label"));
-
-    FormLayout servergroupLayout = new FormLayout();
-    servergroupLayout.marginWidth = 10;
-    servergroupLayout.marginHeight = 10;
-    wServerGroup.setLayout(servergroupLayout);
-
-    // Server
-    Label wlServer = new Label(wServerGroup, SWT.RIGHT);
-    wlServer.setText(BaseMessages.getString(PKG, "Mail.SMTPServer.Label"));
-    PropsUi.setLook(wlServer);
-    FormData fdlServer = new FormData();
-    fdlServer.left = new FormAttachment(0, 0);
-    fdlServer.top = new FormAttachment(wConnectionLine, margin);
-    fdlServer.right = new FormAttachment(middle, -margin);
-    wlServer.setLayoutData(fdlServer);
-
-    wServer = new CCombo(wServerGroup, SWT.BORDER | SWT.READ_ONLY);
-    wServer.setEditable(true);
-    PropsUi.setLook(wServer);
-    wServer.addModifyListener(lsMod);
-    FormData fdServer = new FormData();
-    fdServer.left = new FormAttachment(middle, 0);
-    fdServer.top = new FormAttachment(0, margin);
-    fdServer.right = new FormAttachment(100, 0);
-    wServer.setLayoutData(fdServer);
-    wServer.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // Port
-    Label wlPort = new Label(wServerGroup, SWT.RIGHT);
-    wlPort.setText(BaseMessages.getString(PKG, "Mail.Port.Label"));
-    PropsUi.setLook(wlPort);
-    FormData fdlPort = new FormData();
-    fdlPort.left = new FormAttachment(0, 0);
-    fdlPort.top = new FormAttachment(wServer, margin);
-    fdlPort.right = new FormAttachment(middle, -margin);
-    wlPort.setLayoutData(fdlPort);
-
-    wPort = new CCombo(wServerGroup, SWT.BORDER | SWT.READ_ONLY);
-    wPort.setEditable(true);
-    PropsUi.setLook(wPort);
-    wPort.addModifyListener(lsMod);
-    FormData fdPort = new FormData();
-    fdPort.left = new FormAttachment(middle, 0);
-    fdPort.top = new FormAttachment(wServer, margin);
-    fdPort.right = new FormAttachment(100, 0);
-    wPort.setLayoutData(fdPort);
-    wPort.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    FormData fdServerGroup = new FormData();
-    fdServerGroup.left = new FormAttachment(0, margin);
-    fdServerGroup.top = new FormAttachment(wConnectionGroup, margin);
-    fdServerGroup.right = new FormAttachment(100, -margin);
-    wServerGroup.setLayoutData(fdServerGroup);
-
-    // //////////////////////////////////////
-    // / END OF SERVER ADDRESS GROUP
-    // ///////////////////////////////////////
-
-    // ////////////////////////////////////
-    // START OF AUTHENTICATION GROUP
-    // ////////////////////////////////////
-
-    Group wAuthentificationGroup = new Group(wContentComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wAuthentificationGroup);
-    wAuthentificationGroup.setText(
-        BaseMessages.getString(PKG, "Mail.Group.Authentification.Label"));
-
-    FormLayout authentificationgroupLayout = new FormLayout();
-    authentificationgroupLayout.marginWidth = 10;
-    authentificationgroupLayout.marginHeight = 10;
-    wAuthentificationGroup.setLayout(authentificationgroupLayout);
-
-    // Authentication?
-    Label wlUseAuth = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlUseAuth.setText(BaseMessages.getString(PKG, "Mail.UseAuthentication.Label"));
-    PropsUi.setLook(wlUseAuth);
-    FormData fdlUseAuth = new FormData();
-    fdlUseAuth.left = new FormAttachment(0, 0);
-    fdlUseAuth.top = new FormAttachment(wServerGroup, margin);
-    fdlUseAuth.right = new FormAttachment(middle, -margin);
-    wlUseAuth.setLayoutData(fdlUseAuth);
-    wUseAuth = new Button(wAuthentificationGroup, SWT.CHECK);
-    PropsUi.setLook(wUseAuth);
-    FormData fdUseAuth = new FormData();
-    fdUseAuth.left = new FormAttachment(middle, 0);
-    fdUseAuth.top = new FormAttachment(wlUseAuth, 0, SWT.CENTER);
-    fdUseAuth.right = new FormAttachment(100, 0);
-    wUseAuth.setLayoutData(fdUseAuth);
-    wUseAuth.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            onSetUseAuth();
-            input.setChanged();
-          }
-        });
-
-    // USE connection with XOAUTH2
-    wlUseXOAUTH2 = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlUseXOAUTH2.setText(BaseMessages.getString(PKG, "Mail.UseXOAUTH2Mails.Label"));
-    PropsUi.setLook(wlUseXOAUTH2);
-    FormData fdlUseXOAUTH2 = new FormData();
-    fdlUseXOAUTH2.left = new FormAttachment(0, 0);
-    fdlUseXOAUTH2.top = new FormAttachment(wUseAuth, margin);
-    fdlUseXOAUTH2.right = new FormAttachment(middle, -margin);
-    wlUseXOAUTH2.setLayoutData(fdlUseXOAUTH2);
-    wUseXOAUTH2 = new Button(wAuthentificationGroup, SWT.CHECK);
-    PropsUi.setLook(wUseXOAUTH2);
-    FormData fdUseXOAUTH2 = new FormData();
-    wUseXOAUTH2.setToolTipText(BaseMessages.getString(PKG, "Mail.UseXOAUTH2Mails.Tooltip"));
-    fdUseXOAUTH2.left = new FormAttachment(middle, 0);
-    fdUseXOAUTH2.top = new FormAttachment(wUseAuth, margin);
-    fdUseXOAUTH2.right = new FormAttachment(100, 0);
-    wUseXOAUTH2.setLayoutData(fdUseXOAUTH2);
-
-    // AuthUser line
-    wlAuthUser = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlAuthUser.setText(BaseMessages.getString(PKG, "Mail.AuthenticationUser.Label"));
-    PropsUi.setLook(wlAuthUser);
-    FormData fdlAuthUser = new FormData();
-    fdlAuthUser.left = new FormAttachment(0, 0);
-    fdlAuthUser.top = new FormAttachment(wUseXOAUTH2, margin);
-    fdlAuthUser.right = new FormAttachment(middle, -margin);
-    wlAuthUser.setLayoutData(fdlAuthUser);
-
-    wAuthUser = new CCombo(wAuthentificationGroup, SWT.BORDER | SWT.READ_ONLY);
-    wAuthUser.setEditable(true);
-    PropsUi.setLook(wAuthUser);
-    wAuthUser.addModifyListener(lsMod);
-    FormData fdAuthUser = new FormData();
-    fdAuthUser.left = new FormAttachment(middle, 0);
-    fdAuthUser.top = new FormAttachment(wUseXOAUTH2, margin);
-    fdAuthUser.right = new FormAttachment(100, 0);
-    wAuthUser.setLayoutData(fdAuthUser);
-    wAuthUser.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // AuthPass line
-    wlAuthPass = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlAuthPass.setText(BaseMessages.getString(PKG, "Mail.AuthenticationPassword.Label"));
-    PropsUi.setLook(wlAuthPass);
-    FormData fdlAuthPass = new FormData();
-    fdlAuthPass.left = new FormAttachment(0, 0);
-    fdlAuthPass.top = new FormAttachment(wAuthUser, margin);
-    fdlAuthPass.right = new FormAttachment(middle, -margin);
-    wlAuthPass.setLayoutData(fdlAuthPass);
-
-    wAuthPass = new CCombo(wAuthentificationGroup, SWT.BORDER | SWT.READ_ONLY);
-    wAuthPass.setEditable(true);
-    PropsUi.setLook(wAuthPass);
-    wAuthPass.addModifyListener(lsMod);
-    FormData fdAuthPass = new FormData();
-    fdAuthPass.left = new FormAttachment(middle, 0);
-    fdAuthPass.top = new FormAttachment(wAuthUser, margin);
-    fdAuthPass.right = new FormAttachment(100, 0);
-    wAuthPass.setLayoutData(fdAuthPass);
-    wAuthPass.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // Use secure authentication?
-    wlUseSecAuth = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlUseSecAuth.setText(BaseMessages.getString(PKG, "Mail.UseSecAuthentication.Label"));
-    PropsUi.setLook(wlUseSecAuth);
-    FormData fdlUseSecAuth = new FormData();
-    fdlUseSecAuth.left = new FormAttachment(0, 0);
-    fdlUseSecAuth.top = new FormAttachment(wAuthPass, margin);
-    fdlUseSecAuth.right = new FormAttachment(middle, -margin);
-    wlUseSecAuth.setLayoutData(fdlUseSecAuth);
-    wUseSecAuth = new Button(wAuthentificationGroup, SWT.CHECK);
-    PropsUi.setLook(wUseSecAuth);
-    FormData fdUseSecAuth = new FormData();
-    fdUseSecAuth.left = new FormAttachment(middle, 0);
-    fdUseSecAuth.top = new FormAttachment(wAuthPass, margin);
-    fdUseSecAuth.right = new FormAttachment(100, 0);
-    wUseSecAuth.setLayoutData(fdUseSecAuth);
-    wUseSecAuth.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            onSetSecureConnectiontype();
-            input.setChanged();
-          }
-        });
-
-    // SecureConnectionType
-    wlSecureConnectionType = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlSecureConnectionType.setText(BaseMessages.getString(PKG, "Mail.SecureConnectionType.Label"));
-    PropsUi.setLook(wlSecureConnectionType);
-    FormData fdlSecureConnectionType = new FormData();
-    fdlSecureConnectionType.left = new FormAttachment(0, 0);
-    fdlSecureConnectionType.top = new FormAttachment(wUseSecAuth, margin);
-    fdlSecureConnectionType.right = new FormAttachment(middle, -margin);
-    wlSecureConnectionType.setLayoutData(fdlSecureConnectionType);
-    wSecureConnectionType = new CCombo(wAuthentificationGroup, SWT.BORDER | SWT.READ_ONLY);
-    wSecureConnectionType.setEditable(true);
-    PropsUi.setLook(wSecureConnectionType);
-    wSecureConnectionType.addModifyListener(lsMod);
-    FormData fdSecureConnectionType = new FormData();
-    fdSecureConnectionType.left = new FormAttachment(middle, 0);
-    fdSecureConnectionType.top = new FormAttachment(wUseSecAuth, margin);
-    fdSecureConnectionType.right = new FormAttachment(100, 0);
-    wSecureConnectionType.setLayoutData(fdSecureConnectionType);
-    wSecureConnectionType.add("SSL");
-    wSecureConnectionType.add("TLS");
-    // Add support for TLS 1.2
-    wSecureConnectionType.add("TLS 1.2");
-    wSecureConnectionType.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            onSetSecureConnectiontype();
-            input.setChanged();
-          }
-        });
-
-    // Use check server identity
-    wlCheckServerIdentity = new Label(wAuthentificationGroup, SWT.RIGHT);
-    wlCheckServerIdentity.setText(BaseMessages.getString(PKG, "Mail.CheckServerIdentity.Label"));
-    PropsUi.setLook(wlCheckServerIdentity);
-    FormData fdlCheckServerIdentity = new FormData();
-    fdlCheckServerIdentity.left = new FormAttachment(0, 0);
-    fdlCheckServerIdentity.top = new FormAttachment(wSecureConnectionType, margin);
-    fdlCheckServerIdentity.right = new FormAttachment(middle, -margin);
-    wlCheckServerIdentity.setLayoutData(fdlCheckServerIdentity);
-    wCheckServerIdentity = new Button(wAuthentificationGroup, SWT.CHECK);
-    PropsUi.setLook(wCheckServerIdentity);
-    FormData fdCheckServerIdentity = new FormData();
-    fdCheckServerIdentity.left = new FormAttachment(middle, margin);
-    fdCheckServerIdentity.top = new FormAttachment(wlCheckServerIdentity, 0, SWT.CENTER);
-    fdCheckServerIdentity.right = new FormAttachment(100, 0);
-    wCheckServerIdentity.setLayoutData(fdCheckServerIdentity);
-    wCheckServerIdentity.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            onSetSecureConnectiontype();
-            input.setChanged();
-          }
-        });
-
-    // Trusted Hosts line
-    wTrustedHosts =
-        new LabelTextVar(
-            variables,
-            wAuthentificationGroup,
-            BaseMessages.getString(PKG, "Mail.TrustedHosts.Label"),
-            BaseMessages.getString(PKG, "Mail.TrustedHosts.Tooltip"));
-    wTrustedHosts.addModifyListener(lsMod);
-    FormData fdTrustedHosts = new FormData();
-    fdTrustedHosts.left = new FormAttachment(0, 0);
-    fdTrustedHosts.top = new FormAttachment(wlCheckServerIdentity, margin);
-    fdTrustedHosts.right = new FormAttachment(100, 0);
-    wTrustedHosts.setLayoutData(fdTrustedHosts);
-
-    FormData fdAuthentificationGroup = new FormData();
-    fdAuthentificationGroup.left = new FormAttachment(0, margin);
-    fdAuthentificationGroup.top = new FormAttachment(wServerGroup, margin);
-    fdAuthentificationGroup.right = new FormAttachment(100, -margin);
-    fdAuthentificationGroup.bottom = new FormAttachment(100, -margin);
-    wAuthentificationGroup.setLayoutData(fdAuthentificationGroup);
-
-    // //////////////////////////////////////
-    // / END OF AUTHENTIFICATION GROUP
-    // ///////////////////////////////////////
-
-    FormData fdContentComp = new FormData();
-    fdContentComp.left = new FormAttachment(0, 0);
-    fdContentComp.top = new FormAttachment(0, 0);
-    fdContentComp.right = new FormAttachment(100, 0);
-    fdContentComp.bottom = new FormAttachment(100, 0);
-    wContentComp.setLayoutData(wContentComp);
-
-    wContentComp.layout();
-    wContentTab.setControl(wContentComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF SERVER TAB
-    // ///////////////////////////////////////////////////////////
-
-    // ////////////////////////////////////
-    // START OF MESSAGE TAB ///
-    // ///////////////////////////////////
-
-    CTabItem wMessageTab = new CTabItem(wTabFolder, SWT.NONE);
-    wMessageTab.setFont(GuiResource.getInstance().getFontDefault());
-    wMessageTab.setText(BaseMessages.getString(PKG, "Mail.Tab.Message.Label"));
-
-    FormLayout messageLayout = new FormLayout();
-    messageLayout.marginWidth = 3;
-    messageLayout.marginHeight = 3;
-
-    Composite wMessageComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wMessageComp);
-    wMessageComp.setLayout(contentLayout);
-
-    // ////////////////////////////////////
-    // START OF MESSAGE SETTINGS GROUP
-    // ////////////////////////////////////
-
-    Group wMessageSettingsGroup = new Group(wMessageComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wMessageSettingsGroup);
-    wMessageSettingsGroup.setText(BaseMessages.getString(PKG, "Mail.Group.MessageSettings.Label"));
-
-    FormLayout messagesettingsgroupLayout = new FormLayout();
-    messagesettingsgroupLayout.marginWidth = 10;
-    messagesettingsgroupLayout.marginHeight = 10;
-    wMessageSettingsGroup.setLayout(messagesettingsgroupLayout);
-
-    // Add date to logfile name?
-    Label wlAddDate = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlAddDate.setText(BaseMessages.getString(PKG, "Mail.IncludeDate.Label"));
-    PropsUi.setLook(wlAddDate);
-    FormData fdlAddDate = new FormData();
-    fdlAddDate.left = new FormAttachment(0, 0);
-    fdlAddDate.top = new FormAttachment(0, margin);
-    fdlAddDate.right = new FormAttachment(middle, -margin);
-    wlAddDate.setLayoutData(fdlAddDate);
-    wAddDate = new Button(wMessageSettingsGroup, SWT.CHECK);
-    PropsUi.setLook(wAddDate);
-    FormData fdAddDate = new FormData();
-    fdAddDate.left = new FormAttachment(middle, 0);
-    fdAddDate.top = new FormAttachment(wlAddDate, 0, SWT.CENTER);
-    fdAddDate.right = new FormAttachment(100, 0);
-    wAddDate.setLayoutData(fdAddDate);
-    wAddDate.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
-
-    // Only send the comment in the mail body
-    Label wlOnlyComment = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlOnlyComment.setText(BaseMessages.getString(PKG, "Mail.OnlyCommentInBody.Label"));
-    PropsUi.setLook(wlOnlyComment);
-    FormData fdlOnlyComment = new FormData();
-    fdlOnlyComment.left = new FormAttachment(0, 0);
-    fdlOnlyComment.top = new FormAttachment(wAddDate, margin);
-    fdlOnlyComment.right = new FormAttachment(middle, -margin);
-    wlOnlyComment.setLayoutData(fdlOnlyComment);
-    wOnlyComment = new Button(wMessageSettingsGroup, SWT.CHECK);
-    PropsUi.setLook(wOnlyComment);
-    FormData fdOnlyComment = new FormData();
-    fdOnlyComment.left = new FormAttachment(middle, 0);
-    fdOnlyComment.top = new FormAttachment(wlOnlyComment, 0, SWT.CENTER);
-    fdOnlyComment.right = new FormAttachment(100, 0);
-    wOnlyComment.setLayoutData(fdOnlyComment);
-    wOnlyComment.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
-
-    // HTML format ?
-    Label wlUseHTML = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlUseHTML.setText(BaseMessages.getString(PKG, "Mail.UseHTMLInBody.Label"));
-    PropsUi.setLook(wlUseHTML);
-    FormData fdlUseHTML = new FormData();
-    fdlUseHTML.left = new FormAttachment(0, 0);
-    fdlUseHTML.top = new FormAttachment(wOnlyComment, margin);
-    fdlUseHTML.right = new FormAttachment(middle, -margin);
-    wlUseHTML.setLayoutData(fdlUseHTML);
-    wUseHTML = new Button(wMessageSettingsGroup, SWT.CHECK);
-    PropsUi.setLook(wUseHTML);
-    FormData fdUseHTML = new FormData();
-    fdUseHTML.left = new FormAttachment(middle, 0);
-    fdUseHTML.top = new FormAttachment(wlUseHTML, 0, SWT.CENTER);
-    fdUseHTML.right = new FormAttachment(100, 0);
-    wUseHTML.setLayoutData(fdUseHTML);
-    wUseHTML.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            setEnabledEncoding();
-            input.setChanged();
-          }
-        });
-
-    // Encoding
-    wlEncoding = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlEncoding.setText(BaseMessages.getString(PKG, "Mail.Encoding.Label"));
-    PropsUi.setLook(wlEncoding);
-    FormData fdlEncoding = new FormData();
-    fdlEncoding.left = new FormAttachment(0, 0);
-    fdlEncoding.top = new FormAttachment(wUseHTML, margin);
-    fdlEncoding.right = new FormAttachment(middle, -margin);
-    wlEncoding.setLayoutData(fdlEncoding);
-    wEncoding = new CCombo(wMessageSettingsGroup, SWT.BORDER | SWT.READ_ONLY);
-    wEncoding.setEditable(true);
-    PropsUi.setLook(wEncoding);
-    wEncoding.addModifyListener(lsMod);
-    FormData fdEncoding = new FormData();
-    fdEncoding.left = new FormAttachment(middle, 0);
-    fdEncoding.top = new FormAttachment(wUseHTML, margin);
-    fdEncoding.right = new FormAttachment(100, 0);
-    wEncoding.setLayoutData(fdEncoding);
-    wEncoding.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            setEncodings();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // Use Priority ?
-    Label wlUsePriority = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlUsePriority.setText(BaseMessages.getString(PKG, "Mail.UsePriority.Label"));
-    PropsUi.setLook(wlUsePriority);
-    FormData fdlPriority = new FormData();
-    fdlPriority.left = new FormAttachment(0, 0);
-    fdlPriority.top = new FormAttachment(wEncoding, margin);
-    fdlPriority.right = new FormAttachment(middle, -margin);
-    wlUsePriority.setLayoutData(fdlPriority);
-    wUsePriority = new Button(wMessageSettingsGroup, SWT.CHECK);
-    wUsePriority.setToolTipText(BaseMessages.getString(PKG, "Mail.UsePriority.Tooltip"));
-    PropsUi.setLook(wUsePriority);
-    FormData fdUsePriority = new FormData();
-    fdUsePriority.left = new FormAttachment(middle, 0);
-    fdUsePriority.top = new FormAttachment(wlUsePriority, 0, SWT.CENTER);
-    fdUsePriority.right = new FormAttachment(100, 0);
-    wUsePriority.setLayoutData(fdUsePriority);
-    wUsePriority.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            activateUsePriority();
-            input.setChanged();
-          }
-        });
-
-    SelectionAdapter selChanged =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        };
-
-    // Priority
-    wlPriority = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlPriority.setText(BaseMessages.getString(PKG, "Mail.Priority.Label"));
-    PropsUi.setLook(wlPriority);
-    fdlPriority = new FormData();
-    fdlPriority.left = new FormAttachment(0, 0);
-    fdlPriority.right = new FormAttachment(middle, -margin);
-    fdlPriority.top = new FormAttachment(wUsePriority, margin);
-    wlPriority.setLayoutData(fdlPriority);
-    wPriority = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wPriority.add(BaseMessages.getString(PKG, "Mail.Priority.Low.Label"));
-    wPriority.add(BaseMessages.getString(PKG, "Mail.Priority.Normal.Label"));
-    wPriority.add(BaseMessages.getString(PKG, "Mail.Priority.High.Label"));
-    wPriority.select(1); // +1: starts at -1
-    wPriority.addSelectionListener(selChanged);
-    PropsUi.setLook(wPriority);
-    FormData fdPriority = new FormData();
-    fdPriority.left = new FormAttachment(middle, 0);
-    fdPriority.top = new FormAttachment(wUsePriority, margin);
-    fdPriority.right = new FormAttachment(100, 0);
-    wPriority.setLayoutData(fdPriority);
-
-    // Importance
-    wlImportance = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlImportance.setText(BaseMessages.getString(PKG, "Mail.Importance.Label"));
-    PropsUi.setLook(wlImportance);
-    FormData fdlImportance = new FormData();
-    fdlImportance.left = new FormAttachment(0, 0);
-    fdlImportance.right = new FormAttachment(middle, -margin);
-    fdlImportance.top = new FormAttachment(wPriority, margin);
-    wlImportance.setLayoutData(fdlImportance);
-    wImportance = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wImportance.add(BaseMessages.getString(PKG, "Mail.Priority.Low.Label"));
-    wImportance.add(BaseMessages.getString(PKG, "Mail.Priority.Normal.Label"));
-    wImportance.add(BaseMessages.getString(PKG, "Mail.Priority.High.Label"));
-
-    wImportance.select(1); // +1: starts at -1
-    wImportance.addSelectionListener(selChanged);
-
-    PropsUi.setLook(wImportance);
-    FormData fdImportance = new FormData();
-    fdImportance.left = new FormAttachment(middle, 0);
-    fdImportance.top = new FormAttachment(wPriority, margin);
-    fdImportance.right = new FormAttachment(100, 0);
-    wImportance.setLayoutData(fdImportance);
-
-    // Sensitivity
-    wlSensitivity = new Label(wMessageSettingsGroup, SWT.RIGHT);
-    wlSensitivity.setText(BaseMessages.getString(PKG, "Mail.Sensitivity.Label"));
-    PropsUi.setLook(wlSensitivity);
-    FormData fdlSensitivity = new FormData();
-    fdlSensitivity.left = new FormAttachment(0, 0);
-    fdlSensitivity.right = new FormAttachment(middle, -margin);
-    fdlSensitivity.top = new FormAttachment(wImportance, margin);
-    wlSensitivity.setLayoutData(fdlSensitivity);
-    wSensitivity = new CCombo(wMessageSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wSensitivity.add(BaseMessages.getString(PKG, "Mail.Sensitivity.normal.Label"));
-    wSensitivity.add(BaseMessages.getString(PKG, "Mail.Sensitivity.personal.Label"));
-    wSensitivity.add(BaseMessages.getString(PKG, "Mail.Sensitivity.private.Label"));
-    wSensitivity.add(BaseMessages.getString(PKG, "Mail.Sensitivity.confidential.Label"));
-    wSensitivity.select(0);
-    wSensitivity.addSelectionListener(selChanged);
-
-    PropsUi.setLook(wSensitivity);
-    FormData fdSensitivity = new FormData();
-    fdSensitivity.left = new FormAttachment(middle, 0);
-    fdSensitivity.top = new FormAttachment(wImportance, margin);
-    fdSensitivity.right = new FormAttachment(100, 0);
-    wSensitivity.setLayoutData(fdSensitivity);
-
-    FormData fdMessageSettingsGroup = new FormData();
-    fdMessageSettingsGroup.left = new FormAttachment(0, margin);
-    fdMessageSettingsGroup.top = new FormAttachment(0, margin);
-    fdMessageSettingsGroup.right = new FormAttachment(100, -margin);
-    wMessageSettingsGroup.setLayoutData(fdMessageSettingsGroup);
-
-    // //////////////////////////////////////
-    // / END OF MESSAGE SETTINGS GROUP
-    // ///////////////////////////////////////
-
-    // ////////////////////////////////////
-    // START OF MESSAGE GROUP
-    // ////////////////////////////////////
-
-    Group wMessageGroup = new Group(wMessageComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wMessageGroup);
-    wMessageGroup.setText(BaseMessages.getString(PKG, "Mail.Group.Message.Label"));
-
-    FormLayout messagegroupLayout = new FormLayout();
-    messagegroupLayout.marginWidth = 10;
-    messagegroupLayout.marginHeight = 10;
-    wMessageGroup.setLayout(messagegroupLayout);
-
-    // Subject line
-    Label wlSubject = new Label(wMessageGroup, SWT.RIGHT);
-    wlSubject.setText(BaseMessages.getString(PKG, "Mail.Subject.Label"));
-    PropsUi.setLook(wlSubject);
-    FormData fdlSubject = new FormData();
-    fdlSubject.left = new FormAttachment(0, -margin);
-    fdlSubject.top = new FormAttachment(wMessageSettingsGroup, margin);
-    fdlSubject.right = new FormAttachment(middle, -margin);
-    wlSubject.setLayoutData(fdlSubject);
-
-    wSubject = new CCombo(wMessageGroup, SWT.BORDER | SWT.READ_ONLY);
-    wSubject.setEditable(true);
-    PropsUi.setLook(wSubject);
-    wSubject.addModifyListener(lsMod);
-    FormData fdSubject = new FormData();
-    fdSubject.left = new FormAttachment(middle, 0);
-    fdSubject.top = new FormAttachment(wMessageSettingsGroup, margin);
-    fdSubject.right = new FormAttachment(100, 0);
-    wSubject.setLayoutData(fdSubject);
-    wSubject.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-    // Comment line
-    Label wlComment = new Label(wMessageGroup, SWT.RIGHT);
-    wlComment.setText(BaseMessages.getString(PKG, "Mail.Comment.Label"));
-    PropsUi.setLook(wlComment);
-    FormData fdlComment = new FormData();
-    fdlComment.left = new FormAttachment(0, -margin);
-    fdlComment.top = new FormAttachment(wSubject, margin);
-    fdlComment.right = new FormAttachment(middle, -margin);
-    wlComment.setLayoutData(fdlComment);
-
-    wComment = new CCombo(wMessageGroup, SWT.BORDER | SWT.READ_ONLY);
-    wComment.setEditable(true);
-    PropsUi.setLook(wComment);
-    wComment.addModifyListener(lsMod);
-    FormData fdComment = new FormData();
-    fdComment.left = new FormAttachment(middle, 0);
-    fdComment.top = new FormAttachment(wSubject, margin);
-    fdComment.right = new FormAttachment(100, 0);
-    wComment.setLayoutData(fdComment);
-    wComment.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // Include message in output checkbox
-    Label wlIncludeMessageInOutput = new Label(wMessageGroup, SWT.RIGHT);
-    wlIncludeMessageInOutput.setText(BaseMessages.getString(PKG, "Mail.IncldueMessage.Label"));
-    PropsUi.setLook(wlIncludeMessageInOutput);
-    FormData fdlIncludeMessageInOutput = new FormData();
-    fdlIncludeMessageInOutput.left = new FormAttachment(0, -margin);
-    fdlIncludeMessageInOutput.top = new FormAttachment(wComment, margin);
-    fdlIncludeMessageInOutput.right = new FormAttachment(middle, -margin);
-    wlIncludeMessageInOutput.setLayoutData(fdlIncludeMessageInOutput);
-
-    wIncludeMessageInOutput = new Button(wMessageGroup, SWT.CHECK);
-    PropsUi.setLook(wIncludeMessageInOutput);
-    wIncludeMessageInOutput.setToolTipText(
-        BaseMessages.getString(PKG, "Mail.IncldueMessage.Tooltip"));
-    FormData fdIncludeMessageInOutput = new FormData();
-    fdIncludeMessageInOutput.left = new FormAttachment(middle, 0);
-    fdIncludeMessageInOutput.top = new FormAttachment(wlIncludeMessageInOutput, 0, SWT.CENTER);
-    fdIncludeMessageInOutput.right = new FormAttachment(100, 0);
-    wIncludeMessageInOutput.setLayoutData(fdIncludeMessageInOutput);
-    wIncludeMessageInOutput.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            setOutputMessage();
-          }
-        });
-
-    // OutputFieldName textvar
-    wlMessageOutputField = new Label(wMessageGroup, SWT.RIGHT);
-    wlMessageOutputField.setText(BaseMessages.getString(PKG, "Mail.IncldueMessageField.Label"));
-    PropsUi.setLook(wlMessageOutputField);
-    FormData fdlMessageOutputField = new FormData();
-    fdlMessageOutputField.left = new FormAttachment(0, 0);
-    fdlMessageOutputField.top = new FormAttachment(wIncludeMessageInOutput, margin);
-    fdlMessageOutputField.right = new FormAttachment(middle, -margin);
-    wlMessageOutputField.setLayoutData(fdlMessageOutputField);
-
-    wMessageOutputField = new TextVar(variables, wMessageGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wMessageOutputField);
-    wMessageOutputField.setToolTipText(
-        BaseMessages.getString(PKG, "Mail.IncldueMessageField.Tooltip"));
-    wMessageOutputField.addModifyListener(lsMod);
-    FormData fdMessageOutputField = new FormData();
-    fdMessageOutputField.left = new FormAttachment(middle, 0);
-    fdMessageOutputField.top = new FormAttachment(wlMessageOutputField, 0, SWT.CENTER);
-    fdMessageOutputField.right = new FormAttachment(100, 0);
-    wMessageOutputField.setLayoutData(fdMessageOutputField);
-
-    FormData fdMessageGroup = new FormData();
-    fdMessageGroup.left = new FormAttachment(0, margin);
-    fdMessageGroup.top = new FormAttachment(wMessageSettingsGroup, margin);
-    fdMessageGroup.bottom = new FormAttachment(100, -margin);
-    fdMessageGroup.right = new FormAttachment(100, -margin);
-    wMessageGroup.setLayoutData(fdMessageGroup);
-
-    // //////////////////////////////////////
-    // / END OF MESSAGE GROUP
-    // ///////////////////////////////////////
-
-    FormData fdMessageComp = new FormData();
-    fdMessageComp.left = new FormAttachment(0, 0);
-    fdMessageComp.top = new FormAttachment(0, 0);
-    fdMessageComp.right = new FormAttachment(100, 0);
-    fdMessageComp.bottom = new FormAttachment(100, 0);
-    wMessageComp.setLayoutData(wMessageComp);
-
-    wMessageComp.layout();
-    wMessageTab.setControl(wMessageComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF MESSAGE TAB
-    // ///////////////////////////////////////////////////////////
-
-    // ////////////////////////////////////
-    // START OF ATTACHED FILES TAB ///
-    // ///////////////////////////////////
-
-    CTabItem wAttachedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wAttachedTab.setFont(GuiResource.getInstance().getFontDefault());
-    wAttachedTab.setText(BaseMessages.getString(PKG, "Mail.Tab.AttachedFiles.Label"));
-
-    FormLayout attachedLayout = new FormLayout();
-    attachedLayout.marginWidth = 3;
-    attachedLayout.marginHeight = 3;
-
-    Composite wAttachedComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wAttachedComp);
-    wAttachedComp.setLayout(attachedLayout);
-
-    // ///////////////////////////////
-    // START OF Attached files GROUP //
-    // ///////////////////////////////
-
-    Group wAttachedContent = new Group(wAttachedComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wAttachedContent);
-    wAttachedContent.setText(BaseMessages.getString(PKG, "MailDialog.AttachedContent.Label"));
-
-    FormLayout attachedContentgroupLayout = new FormLayout();
-    attachedContentgroupLayout.marginWidth = 3;
-    attachedContentgroupLayout.marginHeight = 3;
-    wAttachedContent.setLayout(attachedContentgroupLayout);
-
-    // Is Filename defined in a Field
-    Label wlIsAttachContentField = new Label(wAttachedContent, SWT.RIGHT);
-    wlIsAttachContentField.setText(
-        BaseMessages.getString(PKG, "MailDialog.isattachContentField.Label"));
-    PropsUi.setLook(wlIsAttachContentField);
-    FormData fdlIsAttachContentField = new FormData();
-    fdlIsAttachContentField.left = new FormAttachment(0, -margin);
-    fdlIsAttachContentField.top = new FormAttachment(0, margin);
-    fdlIsAttachContentField.right = new FormAttachment(middle, -margin);
-    wlIsAttachContentField.setLayoutData(fdlIsAttachContentField);
-    wIsAttachContentField = new Button(wAttachedContent, SWT.CHECK);
-    PropsUi.setLook(wIsAttachContentField);
-    wIsAttachContentField.setToolTipText(
-        BaseMessages.getString(PKG, "MailDialog.isattachContentField.Tooltip"));
-    FormData fdIsAttachContentField = new FormData();
-    fdIsAttachContentField.left = new FormAttachment(middle, 0);
-    fdIsAttachContentField.top = new FormAttachment(wlIsAttachContentField, 0, SWT.CENTER);
-    wIsAttachContentField.setLayoutData(fdIsAttachContentField);
-    SelectionAdapter lisattachContentField =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            activateIsAttachContentField();
-            input.setChanged();
-          }
-        };
-    wIsAttachContentField.addSelectionListener(lisattachContentField);
-
-    // attache file content field
-    wlAttachContentField = new Label(wAttachedContent, SWT.RIGHT);
-    wlAttachContentField.setText(
-        BaseMessages.getString(PKG, "MailDialog.attachContentField.Label"));
-    PropsUi.setLook(wlAttachContentField);
-    FormData fdlAttachContentField = new FormData();
-    fdlAttachContentField.left = new FormAttachment(0, -margin);
-    fdlAttachContentField.top = new FormAttachment(wIsAttachContentField, margin);
-    fdlAttachContentField.right = new FormAttachment(middle, -margin);
-    wlAttachContentField.setLayoutData(fdlAttachContentField);
-    wAttachContentField = new CCombo(wAttachedContent, SWT.BORDER | SWT.READ_ONLY);
-    wAttachContentField.setEditable(true);
-    PropsUi.setLook(wAttachContentField);
-    wAttachContentField.addModifyListener(lsMod);
-    FormData fdAttachContentField = new FormData();
-    fdAttachContentField.left = new FormAttachment(middle, 0);
-    fdAttachContentField.top = new FormAttachment(wIsAttachContentField, margin);
-    fdAttachContentField.right = new FormAttachment(100, -margin);
-    wAttachContentField.setLayoutData(fdAttachContentField);
-    wAttachContentField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // attached content filename field
-    wlAttachContentFileNameField = new Label(wAttachedContent, SWT.RIGHT);
-    wlAttachContentFileNameField.setText(
-        BaseMessages.getString(PKG, "MailDialog.attachContentFileNameField.Label"));
-    PropsUi.setLook(wlAttachContentFileNameField);
-    FormData fdlAttachContentFileNameField = new FormData();
-    fdlAttachContentFileNameField.left = new FormAttachment(0, -margin);
-    fdlAttachContentFileNameField.top = new FormAttachment(wAttachContentField, margin);
-    fdlAttachContentFileNameField.right = new FormAttachment(middle, -margin);
-    wlAttachContentFileNameField.setLayoutData(fdlAttachContentFileNameField);
-    wAttachContentFileNameField = new CCombo(wAttachedContent, SWT.BORDER | SWT.READ_ONLY);
-    wAttachContentFileNameField.setEditable(true);
-    PropsUi.setLook(wAttachContentFileNameField);
-    wAttachContentFileNameField.addModifyListener(lsMod);
-    FormData fdAttachContentFileNameField = new FormData();
-    fdAttachContentFileNameField.left = new FormAttachment(middle, 0);
-    fdAttachContentFileNameField.top = new FormAttachment(wAttachContentField, margin);
-    fdAttachContentFileNameField.right = new FormAttachment(100, -margin);
-    wAttachContentFileNameField.setLayoutData(fdAttachContentFileNameField);
-    wAttachContentFileNameField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    FormData fdAttachedContent = new FormData();
-    fdAttachedContent.left = new FormAttachment(0, margin);
-    fdAttachedContent.top = new FormAttachment(0, margin);
-    fdAttachedContent.right = new FormAttachment(100, -margin);
-    wAttachedContent.setLayoutData(fdAttachedContent);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF Attached files GROUP
-    // ///////////////////////////////////////////////////////////
-
-    // ///////////////////////////////
-    // START OF Origin files GROUP //
-    // ///////////////////////////////
-
-    wOriginFiles = new Group(wAttachedComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wOriginFiles);
-    wOriginFiles.setText(BaseMessages.getString(PKG, "MailDialog.OriginAttachedFiles.Label"));
-
-    FormLayout originFilesgroupLayout = new FormLayout();
-    originFilesgroupLayout.marginWidth = 10;
-    originFilesgroupLayout.marginHeight = 10;
-    wOriginFiles.setLayout(originFilesgroupLayout);
-
-    // Is Filename defined in a Field
-    Label wlAsFileDynamic = new Label(wOriginFiles, SWT.RIGHT);
-    wlAsFileDynamic.setText(BaseMessages.getString(PKG, "MailDialog.isFileDynamic.Label"));
-    PropsUi.setLook(wlAsFileDynamic);
-    FormData fdlIsFileDynamic = new FormData();
-    fdlIsFileDynamic.left = new FormAttachment(0, -margin);
-    fdlIsFileDynamic.top = new FormAttachment(wAttachedContent, margin);
-    fdlIsFileDynamic.right = new FormAttachment(middle, -margin);
-    wlAsFileDynamic.setLayoutData(fdlIsFileDynamic);
-    wIsFileDynamic = new Button(wOriginFiles, SWT.CHECK);
-    PropsUi.setLook(wIsFileDynamic);
-    wIsFileDynamic.setToolTipText(BaseMessages.getString(PKG, "MailDialog.isFileDynamic.Tooltip"));
-    FormData fdIsFileDynamic = new FormData();
-    fdIsFileDynamic.left = new FormAttachment(middle, 0);
-    fdIsFileDynamic.top = new FormAttachment(wlAsFileDynamic, 0, SWT.CENTER);
-    wIsFileDynamic.setLayoutData(fdIsFileDynamic);
-    SelectionAdapter lisFileDynamic =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            activateIsFileDynamic();
-            input.setChanged();
-          }
-        };
-    wIsFileDynamic.addSelectionListener(lisFileDynamic);
-
-    // Filename field
-    wlDynamicFilenameField = new Label(wOriginFiles, SWT.RIGHT);
-    wlDynamicFilenameField.setText(
-        BaseMessages.getString(PKG, "MailDialog.DynamicFilenameField.Label"));
-    PropsUi.setLook(wlDynamicFilenameField);
-    FormData fdlFilenameField = new FormData();
-    fdlFilenameField.left = new FormAttachment(0, -margin);
-    fdlFilenameField.top = new FormAttachment(wIsFileDynamic, margin);
-    fdlFilenameField.right = new FormAttachment(middle, -margin);
-    wlDynamicFilenameField.setLayoutData(fdlFilenameField);
-
-    wDynamicFilenameField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
-    wDynamicFilenameField.setEditable(true);
-    PropsUi.setLook(wDynamicFilenameField);
-    wDynamicFilenameField.addModifyListener(lsMod);
-    FormData fdFilenameField = new FormData();
-    fdFilenameField.left = new FormAttachment(middle, 0);
-    fdFilenameField.top = new FormAttachment(wIsFileDynamic, margin);
-    fdFilenameField.right = new FormAttachment(100, -margin);
-    wDynamicFilenameField.setLayoutData(fdFilenameField);
-    wDynamicFilenameField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // Wildcard field
-    wlDynamicWildcardField = new Label(wOriginFiles, SWT.RIGHT);
-    wlDynamicWildcardField.setText(
-        BaseMessages.getString(PKG, "MailDialog.DynamicWildcardField.Label"));
-    PropsUi.setLook(wlDynamicWildcardField);
-    FormData fdlDynamicWildcardField = new FormData();
-    fdlDynamicWildcardField.left = new FormAttachment(0, -margin);
-    fdlDynamicWildcardField.top = new FormAttachment(wDynamicFilenameField, margin);
-    fdlDynamicWildcardField.right = new FormAttachment(middle, -margin);
-    wlDynamicWildcardField.setLayoutData(fdlDynamicWildcardField);
-
-    wDynamicWildcardField = new CCombo(wOriginFiles, SWT.BORDER | SWT.READ_ONLY);
-    wDynamicWildcardField.setEditable(true);
-    PropsUi.setLook(wDynamicWildcardField);
-    wDynamicWildcardField.addModifyListener(lsMod);
-    FormData fdDynamicWildcardField = new FormData();
-    fdDynamicWildcardField.left = new FormAttachment(middle, 0);
-    fdDynamicWildcardField.top = new FormAttachment(wDynamicFilenameField, margin);
-    fdDynamicWildcardField.right = new FormAttachment(100, -margin);
-    wDynamicWildcardField.setLayoutData(fdDynamicWildcardField);
-    wDynamicWildcardField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // FileFoldername line
-    wlSourceFileFoldername = new Label(wOriginFiles, SWT.RIGHT);
-    wlSourceFileFoldername.setText(BaseMessages.getString(PKG, "MailDialog.FileFoldername.Label"));
-    PropsUi.setLook(wlSourceFileFoldername);
-    FormData fdlSourceFileFoldername = new FormData();
-    fdlSourceFileFoldername.left = new FormAttachment(0, 0);
-    fdlSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, margin);
-    fdlSourceFileFoldername.right = new FormAttachment(middle, -margin);
-    wlSourceFileFoldername.setLayoutData(fdlSourceFileFoldername);
-
-    // Browse Destination folders button ...
-    wbSourceFolder = new Button(wOriginFiles, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbSourceFolder);
-    wbSourceFolder.setText(BaseMessages.getString(PKG, "MailDialog.BrowseFolders.Label"));
-    FormData fdbSourceFolder = new FormData();
-    fdbSourceFolder.right = new FormAttachment(100, 0);
-    fdbSourceFolder.top = new FormAttachment(wDynamicWildcardField, margin);
-    wbSourceFolder.setLayoutData(fdbSourceFolder);
-    wbSourceFolder.addListener(
-        SWT.Selection,
-        e -> {
-          BaseDialog.presentDirectoryDialog(shell, wSourceFileFoldername, variables);
-        });
-
-    // Browse source file button ...
-    wbFileFoldername = new Button(wOriginFiles, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbFileFoldername);
-    wbFileFoldername.setText(BaseMessages.getString(PKG, "MailDialog.BrowseFiles.Label"));
-    FormData fdbSourceFileFoldername = new FormData();
-    fdbSourceFileFoldername.right = new FormAttachment(wbSourceFolder, -margin);
-    fdbSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, margin);
-    wbFileFoldername.setLayoutData(fdbSourceFileFoldername);
-
-    wSourceFileFoldername =
-        new TextVar(variables, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wSourceFileFoldername);
-    wSourceFileFoldername.addModifyListener(lsMod);
-    FormData fdSourceFileFoldername = new FormData();
-    fdSourceFileFoldername.left = new FormAttachment(middle, 0);
-    fdSourceFileFoldername.top = new FormAttachment(wDynamicWildcardField, margin);
-    fdSourceFileFoldername.right = new FormAttachment(wbFileFoldername, -margin);
-    wSourceFileFoldername.setLayoutData(fdSourceFileFoldername);
-
-    // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFoldername.addModifyListener(
-        e ->
-            wSourceFileFoldername.setToolTipText(
-                variables.resolve(wSourceFileFoldername.getText())));
-
-    wbFileFoldername.addListener(
-        SWT.Selection,
-        e ->
-            BaseDialog.presentFileDialog(
-                shell, wSourceFileFoldername, variables, new String[] {"*"}, FILETYPES, true));
-
-    // Include sub folders
-    Label wlIncludeSubFolders = new Label(wOriginFiles, SWT.RIGHT);
-    wlIncludeSubFolders.setText(BaseMessages.getString(PKG, "MailDialog.includeSubFolders.Label"));
-    PropsUi.setLook(wlIncludeSubFolders);
-    FormData fdlIncludeSubFolders = new FormData();
-    fdlIncludeSubFolders.left = new FormAttachment(0, 0);
-    fdlIncludeSubFolders.top = new FormAttachment(wSourceFileFoldername, margin);
-    fdlIncludeSubFolders.right = new FormAttachment(middle, -margin);
-    wlIncludeSubFolders.setLayoutData(fdlIncludeSubFolders);
-    wIncludeSubFolders = new Button(wOriginFiles, SWT.CHECK);
-    PropsUi.setLook(wIncludeSubFolders);
-    wIncludeSubFolders.setToolTipText(
-        BaseMessages.getString(PKG, "MailDialog.includeSubFolders.Tooltip"));
-    FormData fdIncludeSubFolders = new FormData();
-    fdIncludeSubFolders.left = new FormAttachment(middle, 0);
-    fdIncludeSubFolders.top = new FormAttachment(wlIncludeSubFolders, 0, SWT.CENTER);
-    fdIncludeSubFolders.right = new FormAttachment(100, 0);
-    wIncludeSubFolders.setLayoutData(fdIncludeSubFolders);
-    wIncludeSubFolders.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
-
-    // Wildcard
-    wlWildcard = new Label(wOriginFiles, SWT.RIGHT);
-    wlWildcard.setText(BaseMessages.getString(PKG, "MailDialog.Wildcard.Label"));
-    PropsUi.setLook(wlWildcard);
-    FormData fdlWildcard = new FormData();
-    fdlWildcard.left = new FormAttachment(0, 0);
-    fdlWildcard.top = new FormAttachment(wIncludeSubFolders, margin);
-    fdlWildcard.right = new FormAttachment(middle, -margin);
-    wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard = new TextVar(variables, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wWildcard);
-    wWildcard.setToolTipText(BaseMessages.getString(PKG, "MailDialog.Wildcard.Tooltip"));
-    wWildcard.addModifyListener(lsMod);
-    FormData fdWildcard = new FormData();
-    fdWildcard.left = new FormAttachment(middle, 0);
-    fdWildcard.top = new FormAttachment(wIncludeSubFolders, margin);
-    fdWildcard.right = new FormAttachment(wbFileFoldername, -margin);
-    wWildcard.setLayoutData(fdWildcard);
-
-    // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener(
-        e -> wWildcard.setToolTipText(variables.resolve(wWildcard.getText())));
-    FormData fdOriginFiles = new FormData();
-    fdOriginFiles.left = new FormAttachment(0, margin);
-    fdOriginFiles.top = new FormAttachment(wAttachedContent, margin);
-    fdOriginFiles.right = new FormAttachment(100, -margin);
-    wOriginFiles.setLayoutData(fdOriginFiles);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF Origin files GROUP
-    // ///////////////////////////////////////////////////////////
-
-    // ///////////////////////////////
-    // START OF Zip Group files GROUP //
-    // ///////////////////////////////
-
-    wZipGroup = new Group(wAttachedComp, SWT.SHADOW_NONE);
-    PropsUi.setLook(wZipGroup);
-    wZipGroup.setText(BaseMessages.getString(PKG, "MailDialog.ZipGroup.Label"));
-
-    FormLayout zipGroupgroupLayout = new FormLayout();
-    zipGroupgroupLayout.marginWidth = 10;
-    zipGroupgroupLayout.marginHeight = 10;
-    wZipGroup.setLayout(zipGroupgroupLayout);
-
-    // Zip Files?
-    Label wlZipFiles = new Label(wZipGroup, SWT.RIGHT);
-    wlZipFiles.setText(BaseMessages.getString(PKG, "MailDialog.ZipFiles.Label"));
-    PropsUi.setLook(wlZipFiles);
-    FormData fdlZipFiles = new FormData();
-    fdlZipFiles.left = new FormAttachment(0, -margin);
-    fdlZipFiles.top = new FormAttachment(wOriginFiles, margin);
-    fdlZipFiles.right = new FormAttachment(middle, -margin);
-    wlZipFiles.setLayoutData(fdlZipFiles);
-    wZipFiles = new Button(wZipGroup, SWT.CHECK);
-    PropsUi.setLook(wZipFiles);
-    FormData fdZipFiles = new FormData();
-    fdZipFiles.left = new FormAttachment(middle, 0);
-    fdZipFiles.top = new FormAttachment(wlZipFiles, 0, SWT.CENTER);
-    fdZipFiles.right = new FormAttachment(100, -margin);
-    wZipFiles.setLayoutData(fdZipFiles);
-    wZipFiles.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            setZip();
-          }
-        });
-
-    // is zipfilename is dynamic?
-    wlIsZipFileDynamic = new Label(wZipGroup, SWT.RIGHT);
-    wlIsZipFileDynamic.setText(BaseMessages.getString(PKG, "MailDialog.isZipFileDynamic.Label"));
-    PropsUi.setLook(wlIsZipFileDynamic);
-    FormData fdlIsZipFileDynamic = new FormData();
-    fdlIsZipFileDynamic.left = new FormAttachment(0, -margin);
-    fdlIsZipFileDynamic.top = new FormAttachment(wZipFiles, margin);
-    fdlIsZipFileDynamic.right = new FormAttachment(middle, -margin);
-    wlIsZipFileDynamic.setLayoutData(fdlIsZipFileDynamic);
-    wisZipFileDynamic = new Button(wZipGroup, SWT.CHECK);
-    PropsUi.setLook(wisZipFileDynamic);
-    FormData fdIsZipFileDynamic = new FormData();
-    fdIsZipFileDynamic.left = new FormAttachment(middle, 0);
-    fdIsZipFileDynamic.top = new FormAttachment(wlIsZipFileDynamic, 0, SWT.CENTER);
-    fdIsZipFileDynamic.right = new FormAttachment(100, -margin);
-    wisZipFileDynamic.setLayoutData(fdIsZipFileDynamic);
-    wisZipFileDynamic.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            setDynamicZip();
-          }
-        });
-
-    // ZipFile field
-    wlDynamicZipFileField = new Label(wZipGroup, SWT.RIGHT);
-    wlDynamicZipFileField.setText(
-        BaseMessages.getString(PKG, "MailDialog.DynamicZipFileField.Label"));
-    PropsUi.setLook(wlDynamicZipFileField);
-    FormData fdlDynamicZipFileField = new FormData();
-    fdlDynamicZipFileField.left = new FormAttachment(0, -margin);
-    fdlDynamicZipFileField.top = new FormAttachment(wisZipFileDynamic, margin);
-    fdlDynamicZipFileField.right = new FormAttachment(middle, -margin);
-    wlDynamicZipFileField.setLayoutData(fdlDynamicZipFileField);
-
-    wDynamicZipFileField = new CCombo(wZipGroup, SWT.BORDER | SWT.READ_ONLY);
-    wDynamicZipFileField.setEditable(true);
-    PropsUi.setLook(wDynamicZipFileField);
-    wDynamicZipFileField.addModifyListener(lsMod);
-    FormData fdDynamicZipFileField = new FormData();
-    fdDynamicZipFileField.left = new FormAttachment(middle, 0);
-    fdDynamicZipFileField.top = new FormAttachment(wisZipFileDynamic, margin);
-    fdDynamicZipFileField.right = new FormAttachment(100, -margin);
-    wDynamicZipFileField.setLayoutData(fdDynamicZipFileField);
-    wDynamicZipFileField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Disable focuslostEvent
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            getPreviousFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // ZipFilename line
-    wZipFilename =
-        new LabelTextVar(
-            variables,
-            wZipGroup,
-            BaseMessages.getString(PKG, "MailDialog.ZipFilename.Label"),
-            BaseMessages.getString(PKG, "MailDialog.ZipFilename.Tooltip"));
-    wZipFilename.addModifyListener(lsMod);
-    FormData fdZipFilename = new FormData();
-    fdZipFilename.left = new FormAttachment(0, 0);
-    fdZipFilename.top = new FormAttachment(wDynamicZipFileField, margin);
-    fdZipFilename.right = new FormAttachment(100, 0);
-    wZipFilename.setLayoutData(fdZipFilename);
-
-    // Zip files on condition?
-    wZipSizeCondition =
-        new LabelTextVar(
-            variables,
-            wZipGroup,
-            BaseMessages.getString(PKG, "MailDialog.ZipSizeCondition.Label"),
-            BaseMessages.getString(PKG, "MailDialog.ZipSizeCondition.Tooltip"));
-    wZipSizeCondition.addModifyListener(lsMod);
-    FormData fdZipSizeCondition = new FormData();
-    fdZipSizeCondition.left = new FormAttachment(0, 0);
-    fdZipSizeCondition.top = new FormAttachment(wZipFilename, margin);
-    fdZipSizeCondition.right = new FormAttachment(100, 0);
-    wZipSizeCondition.setLayoutData(fdZipSizeCondition);
-
-    FormData fdZipGroup = new FormData();
-    fdZipGroup.left = new FormAttachment(0, margin);
-    fdZipGroup.top = new FormAttachment(wOriginFiles, margin);
-    fdZipGroup.right = new FormAttachment(100, -margin);
-    wZipGroup.setLayoutData(fdZipGroup);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF Zip Group GROUP
-    // ///////////////////////////////////////////////////////////
-
-    FormData fdAttachedComp = new FormData();
-    fdAttachedComp.left = new FormAttachment(0, 0);
-    fdAttachedComp.top = new FormAttachment(0, 0);
-    fdAttachedComp.right = new FormAttachment(100, 0);
-    fdAttachedComp.bottom = new FormAttachment(100, 0);
-    wAttachedComp.setLayoutData(wAttachedComp);
-
-    wAttachedComp.layout();
-    wAttachedTab.setControl(wAttachedComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF FILES TAB
-    // ///////////////////////////////////////////////////////////
-
-    // ////////////////////////////////////
-    // START OF embedded images TAB ///
-    // ///////////////////////////////////
-
-    CTabItem wEmbeddedTab = new CTabItem(wTabFolder, SWT.NONE);
-    wEmbeddedTab.setFont(GuiResource.getInstance().getFontDefault());
-    wEmbeddedTab.setText(BaseMessages.getString(PKG, "Mail.Tab.embeddedImages.Label"));
-
-    FormLayout embeddedLayout = new FormLayout();
-    embeddedLayout.marginWidth = 3;
-    embeddedLayout.marginHeight = 3;
-
-    Composite wembeddedComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wembeddedComp);
-    wembeddedComp.setLayout(embeddedLayout);
-
-    // ImageFilename line
-    wlImageFilename = new Label(wembeddedComp, SWT.RIGHT);
-    wlImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.ImageFilename.Label"));
-    PropsUi.setLook(wlImageFilename);
-    FormData fdlImageFilename = new FormData();
-    fdlImageFilename.left = new FormAttachment(0, 0);
-    fdlImageFilename.top = new FormAttachment(wSpacer, margin);
-    fdlImageFilename.right = new FormAttachment(middle, -margin);
-    wlImageFilename.setLayoutData(fdlImageFilename);
-
-    wbImageFilename = new Button(wembeddedComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbImageFilename);
-    wbImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.BrowseFiles.Label"));
-    wbImageFilename.setToolTipText(BaseMessages.getString(PKG, "MailDialog.BrowseFiles.Tooltip"));
-    FormData fdbImageFilename = new FormData();
-    fdbImageFilename.right = new FormAttachment(100, 0);
-    fdbImageFilename.top = new FormAttachment(wSpacer, margin);
-    fdbImageFilename.right = new FormAttachment(100, -margin);
-    wbImageFilename.setLayoutData(fdbImageFilename);
-
-    wbaImageFilename = new Button(wembeddedComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbaImageFilename);
-    wbaImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.ImageFilenameAdd.Button"));
-    wbaImageFilename.setToolTipText(
-        BaseMessages.getString(PKG, "MailDialog.ImageFilenameAdd.Tooltip"));
-    FormData fdbaImageFilename = new FormData();
-    fdbaImageFilename.right = new FormAttachment(wbImageFilename, -margin);
-    fdbaImageFilename.top = new FormAttachment(wSpacer, margin);
-    wbaImageFilename.setLayoutData(fdbaImageFilename);
-
-    wImageFilename = new TextVar(variables, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wImageFilename);
-    wImageFilename.addModifyListener(lsMod);
-    FormData fdImageFilename = new FormData();
-    fdImageFilename.left = new FormAttachment(middle, 0);
-    fdImageFilename.top = new FormAttachment(wSpacer, margin);
-    fdImageFilename.right = new FormAttachment(wbaImageFilename, -margin);
-    wImageFilename.setLayoutData(fdImageFilename);
-
-    // Whenever something changes, set the tooltip to the expanded version:
-    wImageFilename.addModifyListener(
-        e -> wImageFilename.setToolTipText(variables.resolve(wImageFilename.getText())));
-
-    wbImageFilename.addListener(
-        SWT.Selection,
-        e ->
-            BaseDialog.presentFileDialog(
-                shell,
-                wImageFilename,
-                variables,
-                new String[] {"*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*"},
-                IMAGES_FILE_TYPES,
-                true));
-
-    // ContentID
-    wlContentID = new Label(wembeddedComp, SWT.RIGHT);
-    wlContentID.setText(BaseMessages.getString(PKG, "MailDialog.ContentID.Label"));
-    PropsUi.setLook(wlContentID);
-    FormData fdlContentID = new FormData();
-    fdlContentID.left = new FormAttachment(0, 0);
-    fdlContentID.top = new FormAttachment(wImageFilename, margin);
-    fdlContentID.right = new FormAttachment(middle, -margin);
-    wlContentID.setLayoutData(fdlContentID);
-    wContentID =
-        new TextVar(
-            variables,
-            wembeddedComp,
-            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-            BaseMessages.getString(PKG, "MailDialog.ContentID.Tooltip"));
-    PropsUi.setLook(wContentID);
-    wContentID.addModifyListener(lsMod);
-    FormData fdContentID = new FormData();
-    fdContentID.left = new FormAttachment(middle, 0);
-    fdContentID.top = new FormAttachment(wImageFilename, margin);
-    fdContentID.right = new FormAttachment(wbaImageFilename, -margin);
-    wContentID.setLayoutData(fdContentID);
-
-    // Buttons to the right of the screen...
-    wbdImageFilename = new Button(wembeddedComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbdImageFilename);
-    wbdImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.ImageFilenameDelete.Button"));
-    wbdImageFilename.setToolTipText(
-        BaseMessages.getString(PKG, "MailDialog.ImageFilenameDelete.Tooltip"));
-    FormData fdbdImageFilename = new FormData();
-    fdbdImageFilename.right = new FormAttachment(100, 0);
-    fdbdImageFilename.top = new FormAttachment(wContentID, 40);
-    wbdImageFilename.setLayoutData(fdbdImageFilename);
-
-    wbeImageFilename = new Button(wembeddedComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbeImageFilename);
-    wbeImageFilename.setText(BaseMessages.getString(PKG, "MailDialog.ImageFilenameEdit.Button"));
-    wbeImageFilename.setToolTipText(
-        BaseMessages.getString(PKG, "MailDialog.ImageFilenameEdit.Tooltip"));
-    FormData fdbeImageFilename = new FormData();
-    fdbeImageFilename.right = new FormAttachment(100, 0);
-    fdbeImageFilename.left = new FormAttachment(wbdImageFilename, 0, SWT.LEFT);
-    fdbeImageFilename.top = new FormAttachment(wbdImageFilename, margin);
-    wbeImageFilename.setLayoutData(fdbeImageFilename);
-
-    wlFields = new Label(wembeddedComp, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(PKG, "MailDialog.Fields.Label"));
-    PropsUi.setLook(wlFields);
-    FormData fdlFields = new FormData();
-    fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wContentID, margin);
-    wlFields.setLayoutData(fdlFields);
-
-    int rows =
-        input.getEmbeddedImages() == null
-            ? 1
-            : (input.getEmbeddedImages().isEmpty() ? 0 : input.getEmbeddedImages().size());
-    final int FieldsRows = rows;
-
-    ColumnInfo[] colinf =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MailDialog.Fields.Image.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "MailDialog.Fields.ContentID.Label"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false),
-        };
-
-    colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(BaseMessages.getString(PKG, "MailDialog.Fields.Image.Tooltip"));
-    colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "MailDialog.Fields.ContentID.Tooltip"));
-
-    wFields =
-        new TableView(
-            variables,
-            wembeddedComp,
-            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
-            lsMod,
-            props);
-
-    FormData fdFields = new FormData();
-    fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(wlFields, margin);
-    fdFields.right = new FormAttachment(wbeImageFilename, -margin);
-    fdFields.bottom = new FormAttachment(100, -margin);
-    wFields.setLayoutData(fdFields);
-
-    // Add the file to the list of files...
-    SelectionAdapter selA =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            wFields.add(new String[] {wImageFilename.getText(), wContentID.getText()});
-            wImageFilename.setText("");
-            wContentID.setText("");
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-            wFields.optWidth(true);
-          }
-        };
-    wbaImageFilename.addSelectionListener(selA);
-    wImageFilename.addSelectionListener(selA);
-
-    // Delete files from the list of files...
-    wbdImageFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int[] idx = wFields.getSelectionIndices();
-            wFields.remove(idx);
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
-        });
-
-    // Edit the selected file & remove from the list...
-    wbeImageFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            int idx = wFields.getSelectionIndex();
-            if (idx >= 0) {
-              String[] string = wFields.getItem(idx);
-              wImageFilename.setText(string[0]);
-              wContentID.setText(string[1]);
-              wFields.remove(idx);
-            }
-            wFields.removeEmptyRows();
-            wFields.setRowNums();
-          }
-        });
-
-    FormData fdembeddedComp = new FormData();
-    fdembeddedComp.left = new FormAttachment(0, 0);
-    fdembeddedComp.top = new FormAttachment(0, 0);
-    fdembeddedComp.right = new FormAttachment(100, 0);
-    fdembeddedComp.bottom = new FormAttachment(100, 0);
-    wembeddedComp.setLayoutData(wembeddedComp);
-
-    wembeddedComp.layout();
-    wEmbeddedTab.setControl(wembeddedComp);
-
-    // ///////////////////////////////////////////////////////////
-    // / END OF embedded images TAB
-    // ///////////////////////////////////////////////////////////
-
-    FormData fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wSpacer, margin);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -margin);
-    wTabFolder.setLayoutData(fdTabFolder);
-
-    getData();
-    activateIsFileDynamic();
-    setEnabledEncoding();
-    activateUsePriority();
-    setDynamicZip();
-    setZip();
-    onSetUseAuth();
-    onSetSecureConnectiontype();
-    activateIsAttachContentField();
-    setOutputMessage();
-    input.setChanged(changed);
-    wTabFolder.setSelection(0);
-    focusTransformName();
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
-    return transformName;
   }
 
-  private void setDynamicZip() {
+  private void enableDynamicZip() {
     wDynamicZipFileField.setEnabled(wZipFiles.getSelection() && wisZipFileDynamic.getSelection());
     wlDynamicZipFileField.setEnabled(wZipFiles.getSelection() && wisZipFileDynamic.getSelection());
   }
 
-  private void setZip() {
+  private void enableZip() {
     wZipFilename.setEnabled(wZipFiles.getSelection());
     wZipSizeCondition.setEnabled(wZipFiles.getSelection());
     wlIsZipFileDynamic.setEnabled(wZipFiles.getSelection());
     wisZipFileDynamic.setEnabled(wZipFiles.getSelection());
-    setDynamicZip();
+    enableDynamicZip();
   }
 
-  private void activateIsFileDynamic() {
+  private void enableIsFileDynamic() {
     wlDynamicFilenameField.setEnabled(wIsFileDynamic.getSelection());
     wDynamicFilenameField.setEnabled(wIsFileDynamic.getSelection());
     wlDynamicWildcardField.setEnabled(wIsFileDynamic.getSelection());
     wDynamicWildcardField.setEnabled(wIsFileDynamic.getSelection());
     wWildcard.setEnabled(!wIsFileDynamic.getSelection());
     wlWildcard.setEnabled(!wIsFileDynamic.getSelection());
-    wSourceFileFoldername.setEnabled(!wIsFileDynamic.getSelection());
-    wlSourceFileFoldername.setEnabled(!wIsFileDynamic.getSelection());
-    wbFileFoldername.setEnabled(!wIsFileDynamic.getSelection());
+    wSourceFileFolderName.setEnabled(!wIsFileDynamic.getSelection());
+    wlSourceFileFolderName.setEnabled(!wIsFileDynamic.getSelection());
+    wbFileFolderName.setEnabled(!wIsFileDynamic.getSelection());
     wbSourceFolder.setEnabled(!wIsFileDynamic.getSelection());
   }
 
   private void getPreviousFields() {
+    List<CCombo> comboFields = getComboWidgets();
+    if (dialogIsNotReadyForCombos(comboFields)) {
+      return;
+    }
+
     try {
       if (!getPreviousFields) {
         getPreviousFields = true;
-        String destination = null;
-        if (wDestination != null) {
-          destination = wDestination.getText();
-        }
-        wDestination.removeAll();
 
-        String destinationcc = null;
-        if (wDestinationCc != null) {
-          destinationcc = wDestinationCc.getText();
-        }
-        wDestinationCc.removeAll();
-
-        String destinationbcc = null;
-        if (wDestinationBCc != null) {
-          destinationbcc = wDestinationBCc.getText();
-        }
-        wDestinationBCc.removeAll();
-
-        String replyToaddress = null;
-        if (wReplyToAddresses != null) {
-          replyToaddress = wReplyToAddresses.getText();
-        }
-        wReplyToAddresses.removeAll();
-
-        String replyname = null;
-        if (wReplyName != null) {
-          replyname = wReplyName.getText();
-        }
-        wReplyName.removeAll();
-
-        String replyaddress = null;
-        if (wReply != null) {
-          replyaddress = wReply.getText();
-        }
-        wReply.removeAll();
-
-        String person = null;
-        if (wPerson != null) {
-          person = wPerson.getText();
-        }
-        wPerson.removeAll();
-
-        String phone = null;
-        if (wPhone != null) {
-          phone = wPhone.getText();
-        }
-        wPhone.removeAll();
-
-        String servername = null;
-        if (wServer != null) {
-          servername = wServer.getText();
-        }
-        wServer.removeAll();
-
-        String port = null;
-        if (wPort != null) {
-          port = wPort.getText();
-        }
-        wPort.removeAll();
-
-        String authuser = null;
-        String authpass = null;
-
-        if (wAuthUser != null) {
-          authuser = wAuthUser.getText();
-        }
-        wAuthUser.removeAll();
-        if (wAuthPass != null) {
-          authpass = wAuthPass.getText();
-        }
-        wAuthPass.removeAll();
-
-        String subject = null;
-        if (wSubject != null) {
-          subject = wSubject.getText();
-        }
-        wSubject.removeAll();
-
-        String comment = null;
-        if (wComment != null) {
-          comment = wComment.getText();
-        }
-        wComment.removeAll();
-
-        String dynamFile = null;
-        String dynamWildcard = null;
-
-        if (wDynamicFilenameField != null) {
-          dynamFile = wDynamicFilenameField.getText();
-        }
-        wDynamicFilenameField.removeAll();
-        if (wDynamicWildcardField != null) {
-          dynamWildcard = wDynamicWildcardField.getText();
-        }
-        wDynamicWildcardField.removeAll();
-
-        String dynamZipFile = null;
-
-        if (wDynamicZipFileField != null) {
-          dynamZipFile = wDynamicZipFileField.getText();
-        }
-        wDynamicZipFileField.removeAll();
-
-        String attachcontent = null;
-        if (wAttachContentField != null) {
-          attachcontent = wAttachContentField.getText();
-        }
-        wAttachContentField.removeAll();
-
-        String attachcontentfilename = null;
-        if (wAttachContentFileNameField != null) {
-          attachcontentfilename = wAttachContentFileNameField.getText();
-        }
-        wAttachContentFileNameField.removeAll();
-
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          String[] fieldnames = r.getFieldNames();
-          wDestination.setItems(fieldnames);
-          wDestinationCc.setItems(fieldnames);
-          wDestinationBCc.setItems(fieldnames);
-          wReplyName.setItems(fieldnames);
-          wReply.setItems(fieldnames);
-          wPerson.setItems(fieldnames);
-          wPhone.setItems(fieldnames);
-          wServer.setItems(fieldnames);
-          wPort.setItems(fieldnames);
-          wAuthUser.setItems(fieldnames);
-          wAuthPass.setItems(fieldnames);
-          wSubject.setItems(fieldnames);
-          wComment.setItems(fieldnames);
-          wDynamicFilenameField.setItems(fieldnames);
-          wDynamicWildcardField.setItems(fieldnames);
-          wDynamicZipFileField.setItems(fieldnames);
-          wReplyToAddresses.setItems(fieldnames);
-          wAttachContentField.setItems(fieldnames);
-          wAttachContentFileNameField.setItems(fieldnames);
-        }
-        if (destination != null) {
-          wDestination.setText(destination);
-        }
-        if (destinationcc != null) {
-          wDestinationCc.setText(destinationcc);
-        }
-        if (destinationbcc != null) {
-          wDestinationBCc.setText(destinationbcc);
-        }
-        if (replyname != null) {
-          wReplyName.setText(replyname);
-        }
-        if (replyaddress != null) {
-          wReply.setText(replyaddress);
-        }
-        if (person != null) {
-          wPerson.setText(person);
-        }
-        if (phone != null) {
-          wPhone.setText(phone);
-        }
-        if (servername != null) {
-          wServer.setText(servername);
-        }
-        if (port != null) {
-          wPort.setText(port);
-        }
-        if (authuser != null) {
-          wAuthUser.setText(authuser);
-        }
-        if (authpass != null) {
-          wAuthPass.setText(authpass);
-        }
-        if (subject != null) {
-          wSubject.setText(subject);
-        }
-        if (comment != null) {
-          wComment.setText(comment);
-        }
-        if (dynamFile != null) {
-          wDynamicFilenameField.setText(dynamFile);
-        }
-        if (dynamWildcard != null) {
-          wDynamicWildcardField.setText(dynamWildcard);
-        }
-        if (dynamZipFile != null) {
-          wDynamicZipFileField.setText(dynamZipFile);
-        }
-        if (replyToaddress != null) {
-          wReplyToAddresses.setText(replyToaddress);
-        }
-        if (attachcontent != null) {
-          wAttachContentField.setText(attachcontent);
-        }
-        if (attachcontentfilename != null) {
-          wAttachContentFileNameField.setText(attachcontentfilename);
+        IRowMeta previousFieldsRowMeta =
+            pipelineMeta.getPrevTransformFields(variables, transformName);
+        if (previousFieldsRowMeta != null) {
+          String[] fieldNames = previousFieldsRowMeta.getFieldNames();
+          setFieldItemsOnCombos(fieldNames, comboFields);
         }
       }
-
     } catch (HopException ke) {
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "MailDialog.FailedToGetFields.DialogTitle"),
           BaseMessages.getString(PKG, "MailDialog.FailedToGetFields.DialogMessage"),
           ke);
+    } finally {
+      getPreviousFields = false;
     }
   }
 
-  private void activateUsePriority() {
+  private static void setFieldItemsOnCombos(String[] fieldNames, List<CCombo> comboFields) {
+    for (CCombo combo : comboFields) {
+      if (combo == null || combo.isDisposed()) {
+        return;
+      }
+      String text = combo.getText();
+      combo.setItems(fieldNames);
+      combo.setText(Const.NVL(text, ""));
+    }
+  }
+
+  private static boolean dialogIsNotReadyForCombos(List<CCombo> comboFields) {
+    for (CCombo combo : comboFields) {
+      if (combo == null || combo.isDisposed()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private @NonNull List<CCombo> getComboWidgets() {
+    return List.of(
+        wDestination,
+        wDestinationCc,
+        wDestinationBCc,
+        wReplyToAddresses,
+        wReplyToAddresses,
+        wReplyName,
+        wReply,
+        wPerson,
+        wPhone,
+        wServer,
+        wPort,
+        wAuthUser,
+        wSubject,
+        wComment,
+        wDynamicFilenameField,
+        wDynamicWildcardField,
+        wDynamicZipFileField,
+        wAttachContentField,
+        wAttachContentFileNameField);
+  }
+
+  private void enableUsePriority() {
     wlPriority.setEnabled(wUsePriority.getSelection());
     wPriority.setEnabled(wUsePriority.getSelection());
     wlImportance.setEnabled(wUsePriority.getSelection());
@@ -2409,7 +2246,7 @@ public class MailDialog extends BaseTransformDialog {
     wSensitivity.setEnabled(wUsePriority.getSelection());
   }
 
-  private void setEnabledEncoding() {
+  private void enableEncoding() {
     wEncoding.setEnabled(wUseHTML.getSelection());
     wlEncoding.setEnabled(wUseHTML.getSelection());
     wlImageFilename.setEnabled(wUseHTML.getSelection());
@@ -2425,7 +2262,7 @@ public class MailDialog extends BaseTransformDialog {
     wFields.setEnabled(wUseHTML.getSelection());
   }
 
-  protected void onSetSecureConnectiontype() {
+  protected void enableOnSetSecureConnectiontype() {
     wSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wlSecureConnectionType.setEnabled(wUseSecAuth.getSelection());
     wTrustedHosts.setEnabled(wUseSecAuth.getSelection());
@@ -2453,167 +2290,88 @@ public class MailDialog extends BaseTransformDialog {
     }
   }
 
-  protected void onSetUseAuth() {
+  protected void enableOnSetUseAuth() {
     wlAuthUser.setEnabled(wUseAuth.getSelection());
     wAuthUser.setEnabled(wUseAuth.getSelection());
     wlAuthPass.setEnabled(wUseAuth.getSelection());
     wAuthPass.setEnabled(wUseAuth.getSelection());
-    wlUseXOAUTH2.setEnabled(wUseAuth.getSelection());
-    wUseXOAUTH2.setEnabled(wUseAuth.getSelection());
+    wlUseXOAuth2.setEnabled(wUseAuth.getSelection());
+    wUseXOAuth2.setEnabled(wUseAuth.getSelection());
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-
-    if (!StringUtils.isEmpty(input.getConnectionName())) {
-      wConnectionLine.setText(input.getConnectionName());
-    }
-
+    wConnectionLine.setText(Const.NVL(input.getConnectionName(), ""));
     wIncludeMessageInOutput.setSelection(input.isAddMessageToOutput());
     wIsAttachContentField.setSelection(input.isAttachContentFromField());
-
-    if (input.getMessageOutputField() != null) {
-      wMessageOutputField.setText(input.getMessageOutputField());
-    }
-    if (input.getAttachContentField() != null) {
-      wAttachContentField.setText(input.getAttachContentField());
-    }
-    if (input.getAttachContentFileNameField() != null) {
-      wAttachContentFileNameField.setText(input.getAttachContentFileNameField());
-    }
-    if (input.getDestination() != null) {
-      wDestination.setText(input.getDestination());
-    }
-    if (input.getDestinationCc() != null) {
-      wDestinationCc.setText(input.getDestinationCc());
-    }
-    if (input.getDestinationBCc() != null) {
-      wDestinationBCc.setText(input.getDestinationBCc());
-    }
-    if (input.getServer() != null) {
-      wServer.setText(input.getServer());
-    }
-    if (input.getPort() != null) {
-      wPort.setText(input.getPort());
-    }
-    if (input.getReplyAddress() != null) {
-      wReply.setText(input.getReplyAddress());
-    }
-    if (input.getReplyName() != null) {
-      wReplyName.setText(input.getReplyName());
-    }
-    if (input.getSubject() != null) {
-      wSubject.setText(input.getSubject());
-    }
-    if (input.getContactPerson() != null) {
-      wPerson.setText(input.getContactPerson());
-    }
-    if (input.getContactPhone() != null) {
-      wPhone.setText(input.getContactPhone());
-    }
-    if (input.getComment() != null) {
-      wComment.setText(input.getComment());
-    }
-
+    wMessageOutputField.setText(Const.NVL(input.getMessageOutputField(), ""));
+    wAttachContentField.setText(Const.NVL(input.getAttachContentField(), ""));
+    wAttachContentFileNameField.setText(Const.NVL(input.getAttachContentFileNameField(), ""));
+    wDestination.setText(Const.NVL(input.getDestination(), ""));
+    wDestinationCc.setText(Const.NVL(input.getDestinationCc(), ""));
+    wDestinationBCc.setText(Const.NVL(input.getDestinationBCc(), ""));
+    wServer.setText(Const.NVL(input.getServer(), ""));
+    wPort.setText(Const.NVL(input.getPort(), ""));
+    wReply.setText(Const.NVL(input.getReplyAddress(), ""));
+    wReplyName.setText(Const.NVL(input.getReplyName(), ""));
+    wSubject.setText(Const.NVL(input.getSubject(), ""));
+    wPerson.setText(Const.NVL(input.getContactPerson(), ""));
+    wPhone.setText(Const.NVL(input.getContactPhone(), ""));
+    wComment.setText(Const.NVL(input.getComment(), ""));
     wAddDate.setSelection(input.isIncludeDate());
     wIsFileDynamic.setSelection(input.isFilenameDynamic());
-    if (input.getDynamicFieldname() != null) {
-      wDynamicFilenameField.setText(input.getDynamicFieldname());
-    }
-    if (input.getDynamicWildcard() != null) {
-      wDynamicWildcardField.setText(input.getDynamicWildcard());
-    }
-
-    if (input.getSourcefilefoldername() != null) {
-      wSourceFileFoldername.setText(input.getSourcefilefoldername());
-    }
-
-    if (input.getSourcewildcard() != null) {
-      wWildcard.setText(input.getSourcewildcard());
-    }
-
+    wDynamicFilenameField.setText(Const.NVL(input.getDynamicFieldName(), ""));
+    wDynamicWildcardField.setText(Const.NVL(input.getDynamicWildcard(), ""));
+    wSourceFileFolderName.setText(Const.NVL(input.getSourceFileFolderName(), ""));
+    wWildcard.setText(Const.NVL(input.getSourceWildCard(), ""));
     wIncludeSubFolders.setSelection(input.isIncludeSubFolders());
 
     wZipFiles.setSelection(input.isZipFiles());
-    if (input.getZipFilename() != null) {
-      wZipFilename.setText(input.getZipFilename());
-    }
-
-    if (input.getZiplimitsize() != null) {
-      wZipSizeCondition.setText(input.getZiplimitsize());
-    } else {
-      wZipSizeCondition.setText("0");
-    }
+    wZipFilename.setText(Const.NVL(input.getZipFilename(), ""));
+    wZipSizeCondition.setText(Const.NVL(input.getZipLimitSize(), "0"));
 
     wisZipFileDynamic.setSelection(input.isZipFilenameDynamic());
-    if (input.getDynamicZipFilename() != null) {
-      wDynamicZipFileField.setText(input.getDynamicZipFilename());
-    }
+    wDynamicZipFileField.setText(Const.NVL(input.getDynamicZipFilename(), ""));
 
     wUseAuth.setSelection(input.isUsingAuthentication());
     wCheckServerIdentity.setSelection(input.isCheckServerIdentity());
-    wUseXOAUTH2.setSelection(input.isUsexoauth2());
+    wUseXOAuth2.setSelection(input.isUseXOAuth2());
     wUseSecAuth.setSelection(input.isUsingSecureAuthentication());
-    if (input.getAuthenticationUser() != null) {
-      wAuthUser.setText(input.getAuthenticationUser());
-    }
-    if (input.getAuthenticationPassword() != null) {
-      wAuthPass.setText(input.getAuthenticationPassword());
-    }
-    if (!Utils.isEmpty(input.getTrustedHosts())) {
-      wTrustedHosts.setText(input.getTrustedHosts());
-    }
+    wAuthUser.setText(Const.NVL(input.getAuthenticationUser(), ""));
+    wAuthPass.setText(Const.NVL(input.getAuthenticationPassword(), ""));
+    wTrustedHosts.setText(Const.NVL(input.getTrustedHosts(), ""));
     wOnlyComment.setSelection(input.isOnlySendComment());
-
     wUseHTML.setSelection(input.isUseHTML());
+    wEncoding.setText(Const.NVL(input.getEncoding(), "UTF-8"));
 
-    if (input.getEncoding() != null) {
-      wEncoding.setText("" + input.getEncoding());
-    } else {
-      wEncoding.setText("UTF-8");
-    }
-
-    // Secure connection type
-    if (input.getSecureConnectionType() != null) {
-      wSecureConnectionType.setText(input.getSecureConnectionType());
-    } else {
-      wSecureConnectionType.setText("SSL");
-    }
+    wSecureConnectionType.setText(Const.NVL(input.getSecureConnectionType(), "SSL)"));
 
     wUsePriority.setSelection(input.isUsePriority());
+    wReplyToAddresses.setText(Const.NVL(input.getReplyToAddresses(), ""));
 
-    // Priority
+    getDataLowToHigh(input.getPriority(), wPriority);
+    getDataLowToHigh(input.getImportance(), wImportance);
+    getDataSensitivity();
+    getDataEmbeddedImages();
+  }
 
-    if (input.getPriority() != null) {
-      if (input.getPriority().equals("low")) {
-        wPriority.select(0); // Low
-      } else if (input.getPriority().equals(CONST_NORMAL)) {
-        wPriority.select(1); // Normal
-      } else {
-        wPriority.select(2); // Default High
+  private void getDataEmbeddedImages() {
+    if (input.getEmbeddedImages() != null) {
+      for (int i = 0; i < input.getEmbeddedImages().size(); i++) {
+        TableItem ti = wFields.table.getItem(i);
+        if (input.getEmbeddedImages().get(i) != null) {
+          ti.setText(1, input.getEmbeddedImages().get(i).getEmbeddedImage());
+        }
+        if (input.getEmbeddedImages().get(i).getContentId() != null) {
+          ti.setText(2, input.getEmbeddedImages().get(i).getContentId());
+        }
       }
-    } else {
-      wPriority.select(3); // Default High
+      wFields.setRowNums();
+      wFields.optWidth(true);
     }
+  }
 
-    // Importance
-    if (input.getImportance() != null) {
-      if (input.getImportance().equals("low")) {
-        wImportance.select(0); // Low
-      } else if (input.getImportance().equals(CONST_NORMAL)) {
-        wImportance.select(1); // Normal
-      } else {
-        wImportance.select(2); // Default High
-      }
-    } else {
-      wImportance.select(3); // Default High
-    }
-
-    if (input.getReplyToAddresses() != null) {
-      wReplyToAddresses.setText(input.getReplyToAddresses());
-    }
-
-    // Sensitivity
+  private void getDataSensitivity() {
     if (input.getSensitivity() != null) {
       switch (input.getSensitivity()) {
         case "personal" -> wSensitivity.select(1);
@@ -2624,19 +2382,19 @@ public class MailDialog extends BaseTransformDialog {
     } else {
       wSensitivity.select(0); // Default normal
     }
+  }
 
-    if (input.getEmbeddedImages() != null) {
-      for (int i = 0; i < input.getEmbeddedImages().size(); i++) {
-        TableItem ti = wFields.table.getItem(i);
-        if (input.getEmbeddedImages().get(i) != null) {
-          ti.setText(1, input.getEmbeddedImages().get(i).getEmbeddedimage());
-        }
-        if (input.getEmbeddedImages().get(i).getContentId() != null) {
-          ti.setText(2, input.getEmbeddedImages().get(i).getContentId());
-        }
+  private void getDataLowToHigh(String input, CCombo wPriority) {
+    if (input != null) {
+      if (input.equals("low")) {
+        wPriority.select(0); // Low
+      } else if (input.equals(CONST_NORMAL)) {
+        wPriority.select(1); // Normal
+      } else {
+        wPriority.select(2); // Default High
       }
-      wFields.setRowNums();
-      wFields.optWidth(true);
+    } else {
+      wPriority.select(3); // Default High
     }
   }
 
@@ -2650,117 +2408,124 @@ public class MailDialog extends BaseTransformDialog {
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
-    input.setConnectionName(wConnectionLine.getText());
-    input.setMessageOutputField(wMessageOutputField.getText());
-    input.setAddMessageToOutput(wIncludeMessageInOutput.getSelection());
     transformName = wTransformName.getText(); // return value
-    input.setAttachContentFromField(wIsAttachContentField.getSelection());
-    input.setAttachContentField(wAttachContentField.getText());
-    input.setAttachContentFileNameField(wAttachContentFileNameField.getText());
-    input.setDestination(wDestination.getText());
-    input.setDestinationCc(wDestinationCc.getText());
-    input.setDestinationBCc(wDestinationBCc.getText());
-    input.setServer(wServer.getText());
-    input.setPort(wPort.getText());
-    input.setReplyAddress(wReply.getText());
-    input.setReplyName(wReplyName.getText());
-    input.setSubject(wSubject.getText());
-    input.setContactPerson(wPerson.getText());
-    input.setContactPhone(wPhone.getText());
-    input.setComment(wComment.getText());
-
-    input.setIncludeSubFolders(wIncludeSubFolders.getSelection());
-    input.setIncludeDate(wAddDate.getSelection());
-    input.setFilenameDynamic(wIsFileDynamic.getSelection());
-    input.setDynamicFieldname(wDynamicFilenameField.getText());
-    input.setDynamicWildcard(wDynamicWildcardField.getText());
-
-    input.setDynamicZipFilename(wDynamicZipFileField.getText());
-
-    input.setSourcefilefoldername(wSourceFileFoldername.getText());
-    input.setSourcewildcard(wWildcard.getText());
-
-    input.setZiplimitsize(wZipSizeCondition.getText());
-
-    input.setZipFilenameDynamic(wisZipFileDynamic.getSelection());
-
-    input.setZipFilename(wZipFilename.getText());
-    input.setZipFiles(wZipFiles.getSelection());
-    input.setAuthenticationUser(wAuthUser.getText());
-    input.setUsexoauth2(wUseXOAUTH2.getSelection());
-    input.setAuthenticationPassword(wAuthPass.getText());
-    input.setUsingAuthentication(wUseAuth.getSelection());
-    input.setUsingSecureAuthentication(wUseSecAuth.getSelection());
-    input.setOnlySendComment(wOnlyComment.getSelection());
-    input.setUseHTML(wUseHTML.getSelection());
-    input.setUsePriority(wUsePriority.getSelection());
-    input.setCheckServerIdentity(wCheckServerIdentity.getSelection());
-    input.setTrustedHosts(wTrustedHosts.getText());
-
-    input.setEncoding(wEncoding.getText());
-    input.setPriority(wPriority.getText());
-
-    // Priority
-    if (wPriority.getSelectionIndex() == 0) {
-      input.setPriority("low");
-    } else if (wPriority.getSelectionIndex() == 1) {
-      input.setPriority(CONST_NORMAL);
-    } else {
-      input.setPriority("high");
-    }
-
-    // Importance
-    if (wImportance.getSelectionIndex() == 0) {
-      input.setImportance("low");
-    } else if (wImportance.getSelectionIndex() == 1) {
-      input.setImportance(CONST_NORMAL);
-    } else {
-      input.setImportance("high");
-    }
-
-    // Sensitivity
-    if (wSensitivity.getSelectionIndex() == 1) {
-      input.setSensitivity("personal");
-    } else if (wSensitivity.getSelectionIndex() == 2) {
-      input.setSensitivity("private");
-    } else if (wSensitivity.getSelectionIndex() == 3) {
-      input.setSensitivity("company-confidential");
-    } else {
-      input.setSensitivity(CONST_NORMAL); // default is normal
-    }
-
-    // Secure Connection type
-    input.setSecureConnectionType(wSecureConnectionType.getText());
-    input.setReplyToAddresses(wReplyToAddresses.getText());
-
-    int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (!Utils.isEmpty(arg)) {
-        nr++;
-      }
-    }
-
-    java.util.List<MailEmbeddedImageField> images = new ArrayList<>();
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      String id = wFields.getNonEmpty(i).getText(2);
-      if (!Utils.isEmpty(arg)) {
-        MailEmbeddedImageField image = new MailEmbeddedImageField();
-        image.setEmbeddedimage(arg);
-        image.setContentId(id);
-        images.add(image);
-      }
-      nr++;
-    }
-    input.setEmbeddedImages(images);
-
+    getInfo(input);
     dispose();
   }
 
-  private void activateIsAttachContentField() {
+  public void getInfo(MailMeta meta) {
+    meta.setConnectionName(wConnectionLine.getText());
+    meta.setMessageOutputField(wMessageOutputField.getText());
+    meta.setAddMessageToOutput(wIncludeMessageInOutput.getSelection());
+    meta.setAttachContentFromField(wIsAttachContentField.getSelection());
+    meta.setAttachContentField(wAttachContentField.getText());
+    meta.setAttachContentFileNameField(wAttachContentFileNameField.getText());
+    meta.setDestination(wDestination.getText());
+    meta.setDestinationCc(wDestinationCc.getText());
+    meta.setDestinationBCc(wDestinationBCc.getText());
+    meta.setServer(wServer.getText());
+    meta.setPort(wPort.getText());
+    meta.setReplyAddress(wReply.getText());
+    meta.setReplyName(wReplyName.getText());
+    meta.setSubject(wSubject.getText());
+    meta.setContactPerson(wPerson.getText());
+    meta.setContactPhone(wPhone.getText());
+    meta.setComment(wComment.getText());
+
+    meta.setIncludeSubFolders(wIncludeSubFolders.getSelection());
+    meta.setIncludeDate(wAddDate.getSelection());
+    meta.setFilenameDynamic(wIsFileDynamic.getSelection());
+    meta.setDynamicFieldName(wDynamicFilenameField.getText());
+    meta.setDynamicWildcard(wDynamicWildcardField.getText());
+
+    meta.setDynamicZipFilename(wDynamicZipFileField.getText());
+
+    meta.setSourceFileFolderName(wSourceFileFolderName.getText());
+    meta.setSourceWildCard(wWildcard.getText());
+
+    meta.setZipLimitSize(wZipSizeCondition.getText());
+
+    meta.setZipFilenameDynamic(wisZipFileDynamic.getSelection());
+
+    meta.setZipFilename(wZipFilename.getText());
+    meta.setZipFiles(wZipFiles.getSelection());
+    meta.setAuthenticationUser(wAuthUser.getText());
+    meta.setUseXOAuth2(wUseXOAuth2.getSelection());
+    meta.setAuthenticationPassword(wAuthPass.getText());
+    meta.setUsingAuthentication(wUseAuth.getSelection());
+    meta.setUsingSecureAuthentication(wUseSecAuth.getSelection());
+    meta.setOnlySendComment(wOnlyComment.getSelection());
+    meta.setUseHTML(wUseHTML.getSelection());
+    meta.setUsePriority(wUsePriority.getSelection());
+    meta.setCheckServerIdentity(wCheckServerIdentity.getSelection());
+    meta.setTrustedHosts(wTrustedHosts.getText());
+
+    meta.setEncoding(wEncoding.getText());
+
+    getInfoPriority(meta);
+
+    getInfoImportance(meta);
+    getInfoSensitivity(meta);
+
+    meta.setSecureConnectionType(wSecureConnectionType.getText());
+    meta.setReplyToAddresses(wReplyToAddresses.getText());
+
+    getInfoEmbeddedImages(meta);
+  }
+
+  private void getInfoPriority(MailMeta meta) {
+    // Priority
+    meta.setPriority(wPriority.getText());
+
+    if (wPriority.getSelectionIndex() == 0) {
+      meta.setPriority("low");
+    } else if (wPriority.getSelectionIndex() == 1) {
+      meta.setPriority(CONST_NORMAL);
+    } else {
+      meta.setPriority("high");
+    }
+  }
+
+  // Importance
+  private void getInfoImportance(MailMeta meta) {
+    if (wImportance.getSelectionIndex() == 0) {
+      meta.setImportance("low");
+    } else if (wImportance.getSelectionIndex() == 1) {
+      meta.setImportance(CONST_NORMAL);
+    } else {
+      meta.setImportance("high");
+    }
+  }
+
+  private void getInfoSensitivity(MailMeta meta) {
+    // Sensitivity
+    if (wSensitivity.getSelectionIndex() == 1) {
+      meta.setSensitivity("personal");
+    } else if (wSensitivity.getSelectionIndex() == 2) {
+      meta.setSensitivity("private");
+    } else if (wSensitivity.getSelectionIndex() == 3) {
+      meta.setSensitivity("company-confidential");
+    } else {
+      meta.setSensitivity(CONST_NORMAL); // default is normal
+    }
+  }
+
+  private void getInfoEmbeddedImages(MailMeta meta) {
+    meta.getEmbeddedImages().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      String arg = item.getText(1);
+      String id = item.getText(2);
+      if (!Utils.isEmpty(arg)) {
+        MailEmbeddedImageField imageField = new MailEmbeddedImageField();
+        meta.getEmbeddedImages().add(imageField);
+
+        imageField.setEmbeddedImage(arg);
+        imageField.setContentId(id);
+      }
+    }
+  }
+
+  private void enableIsAttachContentField() {
     wOriginFiles.setEnabled(!wIsAttachContentField.getSelection());
     wZipGroup.setEnabled(!wIsAttachContentField.getSelection());
     wlAttachContentField.setEnabled(wIsAttachContentField.getSelection());
@@ -2769,7 +2534,7 @@ public class MailDialog extends BaseTransformDialog {
     wAttachContentFileNameField.setEnabled(wIsAttachContentField.getSelection());
   }
 
-  private void setOutputMessage() {
+  private void enableMessageOutputField() {
     wMessageOutputField.setEnabled(wIncludeMessageInOutput.getSelection());
     wlMessageOutputField.setEnabled(wIncludeMessageInOutput.getSelection());
   }

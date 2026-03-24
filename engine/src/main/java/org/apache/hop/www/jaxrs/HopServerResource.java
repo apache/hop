@@ -31,6 +31,10 @@ import org.apache.hop.www.HopServerConfig;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
 
+/**
+ * @deprecated Since 2.18.0
+ */
+@Deprecated(since = "2.18.0")
 @Path("/carte")
 public class HopServerResource {
 

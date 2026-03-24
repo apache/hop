@@ -1,0 +1,107 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "addToResult",
+          "data_set_field": "addToResult"
+        },
+        {
+          "transform_field": "createParentFolder",
+          "data_set_field": "createParentFolder"
+        },
+        {
+          "transform_field": "dateInFilename",
+          "data_set_field": "dateInFilename"
+        },
+        {
+          "transform_field": "doNotOpenNewFileInit",
+          "data_set_field": "doNotOpenNewFileInit"
+        },
+        {
+          "transform_field": "encoding",
+          "data_set_field": "encoding"
+        },
+        {
+          "transform_field": "extension",
+          "data_set_field": "extension"
+        },
+        {
+          "transform_field": "fileAppended",
+          "data_set_field": "fileAppended"
+        },
+        {
+          "transform_field": "fileAsCommand",
+          "data_set_field": "fileAsCommand"
+        },
+        {
+          "transform_field": "fileName",
+          "data_set_field": "fileName"
+        },
+        {
+          "transform_field": "jsonBloc",
+          "data_set_field": "jsonBloc"
+        },
+        {
+          "transform_field": "nrRowsInBloc",
+          "data_set_field": "nrRowsInBloc"
+        },
+        {
+          "transform_field": "operation_type",
+          "data_set_field": "operation_type"
+        },
+        {
+          "transform_field": "outputValue",
+          "data_set_field": "outputValue"
+        },
+        {
+          "transform_field": "partNrInFilename",
+          "data_set_field": "partNrInFilename"
+        },
+        {
+          "transform_field": "specifyingFormat",
+          "data_set_field": "specifyingFormat"
+        },
+        {
+          "transform_field": "timeInFilename",
+          "data_set_field": "timeInFilename"
+        },
+        {
+          "transform_field": "transformNrInFilename",
+          "data_set_field": "transformNrInFilename"
+        }
+      ],
+      "field_order": [],
+      "data_set_name": "golden-json-output",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "element",
+          "data_set_field": "element"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-json-output-fields",
+      "transform_name": "validate fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0039-json-output-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0039-json-output-validate.hpl"
+}

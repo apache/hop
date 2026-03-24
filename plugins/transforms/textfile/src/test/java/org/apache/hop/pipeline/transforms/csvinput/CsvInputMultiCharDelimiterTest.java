@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.File;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -120,7 +119,7 @@ class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
   }
 
   @Override
-  CsvInputMeta createMeta(File file, TextFileInputField[] fields) {
+  CsvInputMeta createMeta(File file, CsvInputField[] fields) {
     CsvInputMeta meta = super.createMeta(file, fields);
     meta.setDelimiter("delimiter");
     return meta;

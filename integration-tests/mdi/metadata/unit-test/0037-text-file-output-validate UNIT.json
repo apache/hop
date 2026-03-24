@@ -1,0 +1,197 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "add_date",
+          "data_set_field": "add_date"
+        },
+        {
+          "transform_field": "add_time",
+          "data_set_field": "add_time"
+        },
+        {
+          "transform_field": "add_to_result_filenames",
+          "data_set_field": "add_to_result_filenames"
+        },
+        {
+          "transform_field": "append",
+          "data_set_field": "append"
+        },
+        {
+          "transform_field": "compression",
+          "data_set_field": "compression"
+        },
+        {
+          "transform_field": "create_parent_folder",
+          "data_set_field": "create_parent_folder"
+        },
+        {
+          "transform_field": "date_time_format",
+          "data_set_field": "date_time_format"
+        },
+        {
+          "transform_field": "do_not_open_new_file_init",
+          "data_set_field": "do_not_open_new_file_init"
+        },
+        {
+          "transform_field": "enclosure",
+          "data_set_field": "enclosure"
+        },
+        {
+          "transform_field": "enclosure_fix_disabled",
+          "data_set_field": "enclosure_fix_disabled"
+        },
+        {
+          "transform_field": "enclosure_forced",
+          "data_set_field": "enclosure_forced"
+        },
+        {
+          "transform_field": "encoding",
+          "data_set_field": "encoding"
+        },
+        {
+          "transform_field": "endedLine",
+          "data_set_field": "endedLine"
+        },
+        {
+          "transform_field": "extension",
+          "data_set_field": "extention"
+        },
+        {
+          "transform_field": "fast_dump",
+          "data_set_field": "fast_dump"
+        },
+        {
+          "transform_field": "fileNameField",
+          "data_set_field": "fileNameField"
+        },
+        {
+          "transform_field": "fileNameInField",
+          "data_set_field": "fileNameInField"
+        },
+        {
+          "transform_field": "footer",
+          "data_set_field": "footer"
+        },
+        {
+          "transform_field": "format",
+          "data_set_field": "format"
+        },
+        {
+          "transform_field": "haspartno",
+          "data_set_field": "haspartno"
+        },
+        {
+          "transform_field": "header",
+          "data_set_field": "header"
+        },
+        {
+          "transform_field": "ignore_fields",
+          "data_set_field": "ignore_fields"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "pad",
+          "data_set_field": "pad"
+        },
+        {
+          "transform_field": "schema_definition",
+          "data_set_field": "schema_definition"
+        },
+        {
+          "transform_field": "separator",
+          "data_set_field": "separator"
+        },
+        {
+          "transform_field": "servlet_output",
+          "data_set_field": "servlet_output"
+        },
+        {
+          "transform_field": "specifyFormat",
+          "data_set_field": "SpecifyFormat"
+        },
+        {
+          "transform_field": "split",
+          "data_set_field": "split"
+        },
+        {
+          "transform_field": "splitevery",
+          "data_set_field": "splitevery"
+        }
+      ],
+      "field_order": [
+        "schema_definition"
+      ],
+      "data_set_name": "golden-text-file-output-mdi",
+      "transform_name": "Validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "format",
+          "data_set_field": "format"
+        },
+        {
+          "transform_field": "length",
+          "data_set_field": "length"
+        },
+        {
+          "transform_field": "precision",
+          "data_set_field": "precision"
+        },
+        {
+          "transform_field": "trim_type",
+          "data_set_field": "trim_type"
+        },
+        {
+          "transform_field": "decimal",
+          "data_set_field": "decimal"
+        },
+        {
+          "transform_field": "group",
+          "data_set_field": "group"
+        },
+        {
+          "transform_field": "currency",
+          "data_set_field": "currency"
+        },
+        {
+          "transform_field": "nullif",
+          "data_set_field": "nullif"
+        },
+        {
+          "transform_field": "roundingType",
+          "data_set_field": "roundingType"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-text-file-output-fields",
+      "transform_name": "Validate fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0037-text-file-output-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0037-text-file-output-validate.hpl"
+}

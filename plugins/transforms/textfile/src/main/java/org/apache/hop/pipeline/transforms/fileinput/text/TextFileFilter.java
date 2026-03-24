@@ -17,23 +17,41 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import org.apache.hop.core.injection.Injection;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.Base64StringEncoder;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class TextFileFilter implements Cloneable {
   /** The position of the occurrence of the filter string to check at */
-  @Injection(name = "FILTER_POSITION", group = "FILTERS")
+  @HopMetadataProperty(
+      key = "filter_position",
+      injectionKey = "FILTER_POSITION",
+      injectionKeyDescription = "TextFileInput.Injection.FILTER_POSITION")
   private int filterPosition;
 
   /** The string to filter on */
-  @Injection(name = "FILTER_STRING", group = "FILTERS")
+  @HopMetadataProperty(
+      key = "filter_string",
+      stringEncoder = Base64StringEncoder.class,
+      injectionKey = "FILTER_STRING",
+      injectionKeyDescription = "TextFileInput.Injection.FILTER_STRING")
   private String filterString;
 
   /** True if we want to stop when we reach a filter line */
-  @Injection(name = "FILTER_LAST_LINE", group = "FILTERS")
+  @HopMetadataProperty(
+      key = "filter_is_last_line",
+      injectionKey = "FILTER_LAST_LINE",
+      injectionKeyDescription = "TextFileInput.Injection.FILTER_LAST_LINE")
   private boolean filterLastLine;
 
   /** True if we want to match only this lines */
-  @Injection(name = "FILTER_POSITIVE", group = "FILTERS")
+  @HopMetadataProperty(
+      key = "filter_is_positive",
+      injectionKey = "FILTER_POSITIVE",
+      injectionKeyDescription = "TextFileInput.Injection.FILTER_POSITIVE")
   private boolean filterPositive;
 
   /**
@@ -53,69 +71,15 @@ public class TextFileFilter implements Cloneable {
 
   public TextFileFilter() {}
 
+  public TextFileFilter(TextFileFilter f) {
+    this.filterPosition = f.filterPosition;
+    this.filterString = f.filterString;
+    this.filterLastLine = f.filterLastLine;
+    this.filterPositive = f.filterPositive;
+  }
+
   @Override
   public Object clone() {
-    try {
-      Object retval = super.clone();
-      return retval;
-    } catch (CloneNotSupportedException e) {
-      return null;
-    }
-  }
-
-  /**
-   * @return Returns the filterLastLine.
-   */
-  public boolean isFilterLastLine() {
-    return filterLastLine;
-  }
-
-  /**
-   * @param filterLastLine The filterLastLine to set.
-   */
-  public void setFilterLastLine(boolean filterLastLine) {
-    this.filterLastLine = filterLastLine;
-  }
-
-  /**
-   * @return Returns the filterPositive.
-   */
-  public boolean isFilterPositive() {
-    return filterPositive;
-  }
-
-  /**
-   * @param filterPositive The filterPositive to set.
-   */
-  public void setFilterPositive(boolean filterPositive) {
-    this.filterPositive = filterPositive;
-  }
-
-  /**
-   * @return Returns the filterPosition.
-   */
-  public int getFilterPosition() {
-    return filterPosition;
-  }
-
-  /**
-   * @param filterPosition The filterPosition to set.
-   */
-  public void setFilterPosition(int filterPosition) {
-    this.filterPosition = filterPosition;
-  }
-
-  /**
-   * @return Returns the filterString.
-   */
-  public String getFilterString() {
-    return filterString;
-  }
-
-  /**
-   * @param filterString The filterString to set.
-   */
-  public void setFilterString(String filterString) {
-    this.filterString = filterString;
+    return new TextFileFilter(this);
   }
 }

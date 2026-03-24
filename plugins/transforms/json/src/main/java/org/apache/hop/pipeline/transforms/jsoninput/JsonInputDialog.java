@@ -35,6 +35,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -197,8 +198,8 @@ public class JsonInputDialog extends BaseTransformDialog {
                 wFilename.getText(),
                 wFilemask.getText(),
                 wExcludeFilemask.getText(),
-                BaseFileInputMeta.RequiredFilesCode[0],
-                BaseFileInputMeta.RequiredFilesCode[0]);
+                BaseFileInputMeta.REQUIRED_FILES_CODE[0],
+                BaseFileInputMeta.REQUIRED_FILES_CODE[0]);
             wFilename.setText("");
             wFilemask.setText("");
             wExcludeFilemask.setText("");
@@ -245,35 +246,26 @@ public class JsonInputDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            try {
-              JsonInputMeta tfii = new JsonInputMeta();
-              getInfo(tfii);
-              FileInputList fileInputList = tfii.getFiles(variables);
-              String[] files = fileInputList.getFileStrings();
-              if (files != null && files.length > 0) {
-                EnterSelectionDialog esd =
-                    new EnterSelectionDialog(
-                        shell,
-                        files,
-                        BaseMessages.getString(
-                            PKG, "JsonInputDialog.FilesReadSelection.DialogTitle"),
-                        BaseMessages.getString(
-                            PKG, "JsonInputDialog.FilesReadSelection.DialogMessage"));
-                esd.setViewOnly();
-                esd.open();
-              } else {
-                MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-                mb.setMessage(
-                    BaseMessages.getString(PKG, "JsonInputDialog.NoFileFound.DialogMessage"));
-                mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
-                mb.open();
-              }
-            } catch (HopException ex) {
-              new ErrorDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "JsonInputDialog.ErrorParsingData.DialogTitle"),
-                  BaseMessages.getString(PKG, "JsonInputDialog.ErrorParsingData.DialogMessage"),
-                  ex);
+            JsonInputMeta tfii = new JsonInputMeta();
+            getInfo(tfii);
+            FileInputList fileInputList = tfii.getFiles(variables);
+            String[] files = fileInputList.getFileStrings();
+            if (files != null && files.length > 0) {
+              EnterSelectionDialog esd =
+                  new EnterSelectionDialog(
+                      shell,
+                      files,
+                      BaseMessages.getString(PKG, "JsonInputDialog.FilesReadSelection.DialogTitle"),
+                      BaseMessages.getString(
+                          PKG, "JsonInputDialog.FilesReadSelection.DialogMessage"));
+              esd.setViewOnly();
+              esd.open();
+            } else {
+              MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+              mb.setMessage(
+                  BaseMessages.getString(PKG, "JsonInputDialog.NoFileFound.DialogMessage"));
+              mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+              mb.open();
             }
           }
         });
@@ -351,9 +343,9 @@ public class JsonInputDialog extends BaseTransformDialog {
 
     setButtonPositions(new Button[] {wGet, wGetSnippet}, margin, null);
 
-    final int FieldsRows = input.getInputFields().length;
+    final int FieldsRows = input.getInputFields().size();
 
-    ColumnInfo[] colinf =
+    ColumnInfo[] colInfos =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "JsonInputDialog.FieldsTable.Name.Column"),
@@ -407,11 +399,11 @@ public class JsonInputDialog extends BaseTransformDialog {
               true),
         };
 
-    colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(
+    colInfos[0].setUsingVariables(true);
+    colInfos[0].setToolTip(
         BaseMessages.getString(PKG, "JsonInputDialog.FieldsTable.Name.Column.Tooltip"));
-    colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(
+    colInfos[1].setUsingVariables(true);
+    colInfos[1].setToolTip(
         BaseMessages.getString(PKG, "JsonInputDialog.FieldsTable.Path.Column.Tooltip"));
 
     wFields =
@@ -419,7 +411,7 @@ public class JsonInputDialog extends BaseTransformDialog {
             variables,
             wFieldsComp,
             SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
+            colInfos,
             FieldsRows,
             lsMod,
             props);
@@ -1201,31 +1193,25 @@ public class JsonInputDialog extends BaseTransformDialog {
    * @param in The TextFileInputMeta object to obtain the data from.
    */
   public void getData(JsonInputMeta in) {
-    if (in.getFileName() != null) {
-      wFilenameList.removeAll();
-
-      for (int i = 0; i < in.getFileName().length; i++) {
-        wFilenameList.add(
-            new String[] {
-              in.getFileName()[i],
-              in.getFileMask()[i],
-              in.getExcludeFileMask()[i],
-              in.getRequiredFilesDesc(in.getFileRequired()[i]),
-              in.getRequiredFilesDesc(in.getIncludeSubFolders()[i])
-            });
-      }
-
-      wFilenameList.removeEmptyRows();
-      wFilenameList.setRowNums();
-      wFilenameList.optWidth(true);
+    wFilenameList.removeAll();
+    for (int i = 0; i < in.getFileInput().getInputFiles().size(); i++) {
+      InputFile inputFile = in.getFileInput().getInputFiles().get(i);
+      wFilenameList.add(
+          inputFile.getFileName(),
+          inputFile.getFileMask(),
+          inputFile.getExcludeFileMask(),
+          inputFile.getFileRequiredDesc(),
+          inputFile.getIncludeSubFoldersDesc());
     }
+    wFilenameList.optimizeTableView();
+
     wInclFilename.setSelection(in.includeFilename());
     wInclRownum.setSelection(in.includeRowNumber());
     wAddResult.setSelection(in.addResultFile());
     wReadUrl.setSelection(in.isReadUrl());
-    wIgnoreEmptyFile.setSelection(in.isIgnoreEmptyFile());
+    wIgnoreEmptyFile.setSelection(in.isIgnoringEmptyFile());
     wDoNotFailIfNoFile.setSelection(in.isDoNotFailIfNoFile());
-    wIgnoreMissingPath.setSelection(in.isIgnoreMissingPath());
+    wIgnoreMissingPath.setSelection(in.isIgnoringMissingPath());
     wDefaultPathLeafToNull.setSelection(in.isDefaultPathLeafToNull());
     wRemoveSourceField.setSelection(in.isRemoveSourceField());
     wSourceStreamField.setSelection(in.isInFields());
@@ -1235,104 +1221,58 @@ public class JsonInputDialog extends BaseTransformDialog {
       wFieldValue.setText(in.getFieldValue());
     }
 
-    if (in.getFilenameField() != null) {
-      wInclFilenameField.setText(in.getFilenameField());
-    }
-    if (in.getRowNumberField() != null) {
-      wInclRownumField.setText(in.getRowNumberField());
-    }
+    wInclFilenameField.setText(Const.NVL(in.getFilenameField(), ""));
+    wInclRownumField.setText(Const.NVL(in.getRowNumberField(), ""));
     wLimit.setText("" + in.getRowLimit());
 
-    if (isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "JsonInputDialog.Log.GettingFieldsInfo"));
-    }
-    for (int i = 0; i < in.getInputFields().length; i++) {
-      JsonInputField field = in.getInputFields()[i];
+    for (int i = 0; i < in.getInputFields().size(); i++) {
+      JsonInputField field = in.getInputFields().get(i);
+      TableItem item = wFields.table.getItem(i);
+      String name = field.getName();
+      String xpath = field.getPath();
+      String type = field.getTypeDesc();
+      String format = field.getFormat();
+      String length = "" + field.getLength();
+      String prec = "" + field.getPrecision();
+      String curr = field.getCurrencySymbol();
+      String group = field.getGroupSymbol();
+      String decim = field.getDecimalSymbol();
+      String trim = field.getTrimTypeDesc();
+      String rep =
+          field.isRepeated()
+              ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
+              : BaseMessages.getString(PKG, "System.Combo.No");
 
-      if (field != null) {
-        TableItem item = wFields.table.getItem(i);
-        String name = field.getName();
-        String xpath = field.getPath();
-        String type = field.getTypeDesc();
-        String format = field.getFormat();
-        String length = "" + field.getLength();
-        String prec = "" + field.getPrecision();
-        String curr = field.getCurrencySymbol();
-        String group = field.getGroupSymbol();
-        String decim = field.getDecimalSymbol();
-        String trim = field.getTrimTypeDesc();
-        String rep =
-            field.isRepeated()
-                ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
-                : BaseMessages.getString(PKG, "System.Combo.No");
-
-        if (name != null) {
-          item.setText(1, name);
-        }
-        if (xpath != null) {
-          item.setText(2, xpath);
-        }
-        if (type != null) {
-          item.setText(3, type);
-        }
-        if (format != null) {
-          item.setText(4, format);
-        }
-        if (length != null && !"-1".equals(length)) {
-          item.setText(5, length);
-        }
-        if (prec != null && !"-1".equals(prec)) {
-          item.setText(6, prec);
-        }
-        if (curr != null) {
-          item.setText(7, curr);
-        }
-        if (decim != null) {
-          item.setText(8, decim);
-        }
-        if (group != null) {
-          item.setText(9, group);
-        }
-        if (trim != null) {
-          item.setText(10, trim);
-        }
-        if (rep != null) {
-          item.setText(11, rep);
-        }
+      item.setText(1, Const.NVL(name, ""));
+      item.setText(2, Const.NVL(xpath, ""));
+      item.setText(3, Const.NVL(type, ""));
+      item.setText(4, Const.NVL(format, ""));
+      if (!"-1".equals(length)) {
+        item.setText(5, length);
       }
+      if (!"-1".equals(prec)) {
+        item.setText(6, Const.NVL(prec, ""));
+      }
+      item.setText(7, Const.NVL(curr, ""));
+      item.setText(8, Const.NVL(decim, ""));
+      item.setText(9, Const.NVL(group, ""));
+      item.setText(10, Const.NVL(trim, ""));
+      item.setText(11, Const.NVL(rep, ""));
     }
 
     // Open the JSON input dialog and try to fetch the fields from the previous component.
     setSourceStreamField(true);
 
-    wFields.removeEmptyRows();
-    wFields.setRowNums();
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
 
-    if (in.getShortFileNameField() != null) {
-      wShortFileFieldName.setText(in.getShortFileNameField());
-    }
-    if (in.getPathField() != null) {
-      wPathFieldName.setText(in.getPathField());
-    }
-    if (in.isHiddenField() != null) {
-      wIsHiddenName.setText(in.isHiddenField());
-    }
-    if (in.getLastModificationDateField() != null) {
-      wLastModificationTimeName.setText(in.getLastModificationDateField());
-    }
-    if (in.getUriField() != null) {
-      wUriName.setText(in.getUriField());
-    }
-    if (in.getRootUriField() != null) {
-      wRootUriName.setText(in.getRootUriField());
-    }
-    if (in.getExtensionField() != null) {
-      wExtensionFieldName.setText(in.getExtensionField());
-    }
-    if (in.getSizeField() != null) {
-      wSizeFieldName.setText(in.getSizeField());
-    }
+    wShortFileFieldName.setText(Const.NVL(in.getShortFileNameField(), ""));
+    wPathFieldName.setText(Const.NVL(in.getPathField(), ""));
+    wIsHiddenName.setText(Const.NVL(in.isHiddenField(), ""));
+    wLastModificationTimeName.setText(Const.NVL(in.getLastModificationDateField(), ""));
+    wUriName.setText(Const.NVL(in.getUriField(), ""));
+    wRootUriName.setText(Const.NVL(in.getRootUriField(), ""));
+    wExtensionFieldName.setText(Const.NVL(in.getExtensionField(), ""));
+    wSizeFieldName.setText(Const.NVL(in.getSizeField(), ""));
   }
 
   private void cancel() {
@@ -1342,20 +1282,12 @@ public class JsonInputDialog extends BaseTransformDialog {
   }
 
   private void ok() {
-    try {
-      getInfo(input);
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "JsonInputDialog.ErrorParsingData.DialogTitle"),
-          BaseMessages.getString(PKG, "JsonInputDialog.ErrorParsingData.DialogMessage"),
-          e);
-    }
+    getInfo(input);
     dispose();
   }
 
   /** dialog -&gt; meta */
-  private void getInfo(JsonInputMeta in) throws HopException {
+  private void getInfo(JsonInputMeta in) {
     transformName = wTransformName.getText(); // return value
 
     in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
@@ -1365,29 +1297,29 @@ public class JsonInputDialog extends BaseTransformDialog {
     in.setIncludeFilename(wInclFilename.getSelection());
     in.setIncludeRowNumber(wInclRownum.getSelection());
     in.setReadUrl(wReadUrl.getSelection());
-    in.setIgnoreEmptyFile(wIgnoreEmptyFile.getSelection());
+    in.setIgnoringEmptyFile(wIgnoreEmptyFile.getSelection());
     in.setDoNotFailIfNoFile(wDoNotFailIfNoFile.getSelection());
-    in.setIgnoreMissingPath(wIgnoreMissingPath.getSelection());
+    in.setIgnoringMissingPath(wIgnoreMissingPath.getSelection());
     in.setDefaultPathLeafToNull(wDefaultPathLeafToNull.getSelection());
     in.setRemoveSourceField(wRemoveSourceField.getSelection());
     in.setInFields(wSourceStreamField.getSelection());
     in.setIsAFile(wSourceIsAFile.getSelection());
     in.setFieldValue(wFieldValue.getText());
 
-    int nrFiles = wFilenameList.getItemCount();
-    int nrFields = wFields.nrNonEmpty();
+    in.getFileInput().getInputFiles().clear();
+    for (TableItem item : wFilenameList.getNonEmptyItems()) {
+      InputFile inputFile = new InputFile();
+      inputFile.setFileName(item.getText(1));
+      inputFile.setFileMask(item.getText(2));
+      inputFile.setExcludeFileMask(item.getText(3));
+      inputFile.setFileRequired(CONST_SYSTEM_COMBO_YES.equalsIgnoreCase(item.getText(4)));
+      inputFile.setIncludeSubFolders(CONST_SYSTEM_COMBO_YES.equalsIgnoreCase(item.getText(5)));
+      in.getFileInput().getInputFiles().add(inputFile);
+    }
 
-    in.allocate(nrFiles, nrFields);
-    in.setFileName(wFilenameList.getItems(0));
-    in.setFileMask(wFilenameList.getItems(1));
-    in.setExcludeFileMask(wFilenameList.getItems(2));
-    in.setFileRequired(wFilenameList.getItems(3));
-    in.setIncludeSubFolders(wFilenameList.getItems(4));
-
-    for (int i = 0; i < nrFields; i++) {
+    in.getInputFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
       JsonInputField field = new JsonInputField();
-
-      TableItem item = wFields.getNonEmpty(i);
 
       field.setName(item.getText(1));
       field.setPath(item.getText(2));
@@ -1399,10 +1331,9 @@ public class JsonInputDialog extends BaseTransformDialog {
       field.setDecimalSymbol(item.getText(8));
       field.setGroupSymbol(item.getText(9));
       field.setTrimType(ValueMetaBase.getTrimTypeByDesc(item.getText(10)));
-      field.setRepeated(
-          BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(11)));
+      field.setRepeated(CONST_SYSTEM_COMBO_YES.equalsIgnoreCase(item.getText(11)));
 
-      in.getInputFields()[i] = field;
+      in.getInputFields().add(field);
     }
     in.setShortFileNameField(wShortFileFieldName.getText());
     in.setPathField(wPathFieldName.getText());
@@ -1458,37 +1389,37 @@ public class JsonInputDialog extends BaseTransformDialog {
     LinkedList<String> currentPath = new LinkedList<>();
 
     JsonFactory jsonFactory = new MappingJsonFactory();
-    JsonParser parser = jsonFactory.createParser(inputStream);
-
-    while (parser.nextToken() != null) {
-      JsonToken jsonToken = parser.currentToken();
-      String name = parser.currentName();
-      switch (jsonToken) {
-        case START_OBJECT:
-          currentPath.push(name);
-          break;
-        case END_OBJECT:
-          currentPath.pop();
-          break;
-        case START_ARRAY:
-          currentPath.push(name); // name : [
-          currentPath.push("*"); // path wildcard
-          break;
-        case END_ARRAY:
-          currentPath.pop(); // *
-          currentPath.pop(); // name
-          break;
-        case FIELD_NAME:
-          currentPath.push(name.contains(" ") ? "['" + name + "']" : name);
-          addToPaths(paths, currentPath);
-          currentPath.pop();
-          break;
-        default:
-          // Ignore the rest
-          break;
-      }
-      if (currentPath.size() > 100) {
-        throw new HopException("Path too long");
+    try (JsonParser parser = jsonFactory.createParser(inputStream)) {
+      while (parser.nextToken() != null) {
+        JsonToken jsonToken = parser.currentToken();
+        String name = parser.currentName();
+        switch (jsonToken) {
+          case START_OBJECT:
+            currentPath.push(name);
+            break;
+          case END_OBJECT:
+            currentPath.pop();
+            break;
+          case START_ARRAY:
+            currentPath.push(name); // name : [
+            currentPath.push("*"); // path wildcard
+            break;
+          case END_ARRAY:
+            currentPath.pop(); // *
+            currentPath.pop(); // name
+            break;
+          case FIELD_NAME:
+            currentPath.push(name.contains(" ") ? "['" + name + "']" : name);
+            addToPaths(paths, currentPath);
+            currentPath.pop();
+            break;
+          default:
+            // Ignore the rest
+            break;
+        }
+        if (currentPath.size() > 100) {
+          throw new HopException("Path too long");
+        }
       }
     }
 
@@ -1517,66 +1448,58 @@ public class JsonInputDialog extends BaseTransformDialog {
 
   // Preview the data
   private void preview() {
-    try {
-      JsonInputMeta oneMeta = new JsonInputMeta();
-      getInfo(oneMeta);
+    JsonInputMeta oneMeta = new JsonInputMeta();
+    getInfo(oneMeta);
 
-      EnterNumberDialog numberDialog =
-          new EnterNumberDialog(
+    EnterNumberDialog numberDialog =
+        new EnterNumberDialog(
+            shell,
+            props.getDefaultPreviewSize(),
+            BaseMessages.getString(PKG, "JsonInputDialog.NumberRows.DialogTitle"),
+            BaseMessages.getString(PKG, "JsonInputDialog.NumberRows.DialogMessage"));
+
+    int previewSize = numberDialog.open();
+    if (previewSize > 0) {
+      oneMeta.setRowLimit(previewSize);
+      PipelineMeta previewMeta =
+          PipelinePreviewFactory.generatePreviewPipeline(
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
+      PipelinePreviewProgressDialog progressDialog =
+          new PipelinePreviewProgressDialog(
               shell,
-              props.getDefaultPreviewSize(),
-              BaseMessages.getString(PKG, "JsonInputDialog.NumberRows.DialogTitle"),
-              BaseMessages.getString(PKG, "JsonInputDialog.NumberRows.DialogMessage"));
+              variables,
+              previewMeta,
+              new String[] {wTransformName.getText()},
+              new int[] {previewSize});
+      progressDialog.open();
 
-      int previewSize = numberDialog.open();
-      if (previewSize > 0) {
-        oneMeta.setRowLimit(previewSize);
-        PipelineMeta previewMeta =
-            PipelinePreviewFactory.generatePreviewPipeline(
-                pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+      if (!progressDialog.isCancelled()) {
+        Pipeline pipeline = progressDialog.getPipeline();
+        String loggingText = progressDialog.getLoggingText();
 
-        PipelinePreviewProgressDialog progressDialog =
-            new PipelinePreviewProgressDialog(
+        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
+          EnterTextDialog etd =
+              new EnterTextDialog(
+                  shell,
+                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                  loggingText,
+                  true);
+          etd.setReadOnly();
+          etd.open();
+        }
+        PreviewRowsDialog prd =
+            new PreviewRowsDialog(
                 shell,
                 variables,
-                previewMeta,
-                new String[] {wTransformName.getText()},
-                new int[] {previewSize});
-        progressDialog.open();
-
-        if (!progressDialog.isCancelled()) {
-          Pipeline pipeline = progressDialog.getPipeline();
-          String loggingText = progressDialog.getLoggingText();
-
-          if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-            EnterTextDialog etd =
-                new EnterTextDialog(
-                    shell,
-                    BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                    BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                    loggingText,
-                    true);
-            etd.setReadOnly();
-            etd.open();
-          }
-          PreviewRowsDialog prd =
-              new PreviewRowsDialog(
-                  shell,
-                  variables,
-                  SWT.NONE,
-                  wTransformName.getText(),
-                  progressDialog.getPreviewRowsMeta(wTransformName.getText()),
-                  progressDialog.getPreviewRows(wTransformName.getText()),
-                  loggingText);
-          prd.open();
-        }
+                SWT.NONE,
+                wTransformName.getText(),
+                progressDialog.getPreviewRowsMeta(wTransformName.getText()),
+                progressDialog.getPreviewRows(wTransformName.getText()),
+                loggingText);
+        prd.open();
       }
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "JsonInputDialog.ErrorPreviewingData.DialogTitle"),
-          BaseMessages.getString(PKG, "JsonInputDialog.ErrorPreviewingData.DialogMessage"),
-          e);
     }
   }
 

@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-javascript-basic.csv",
+  "name": "golden-javascript-basic",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "nr",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 1,
+      "field_precision": 2,
+      "field_name": "avg",
+      "field_format": "####0.0#########;-####0.0#########"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "min",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "max",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 7,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "cnt",
+      "field_format": "####0;-####0"
+    }
+  ],
+  "folder_name": ""
+}

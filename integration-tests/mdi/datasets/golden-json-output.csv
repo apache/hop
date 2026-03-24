@@ -1,0 +1,2 @@
+addToResult,createParentFolder,dateInFilename,doNotOpenNewFileInit,encoding,extension,fileAppended,fileAsCommand,fileName,jsonBloc,nrRowsInBloc,operation_type,outputValue,partNrInFilename,specifyingFormat,timeInFilename,transformNrInFilename
+Y,Y,N,Y,UTF-8,json,N,N,filename,jsonBlock,123,writetofile,outputValue,N,N,N,N

@@ -1,0 +1,2 @@
+include,include_field,rownum,addresultfile,readurl,removeSourceField,IsIgnoreEmptyFile,doNotFailIfNoFile,ignoreMissingPath,defaultPathLeafToNull,rownum_field,limit,IsInFields,IsAFile,valueField,shortFileFieldName,pathFieldName,hiddenFieldName,lastModificationTimeFieldName,uriNameFieldName,rootUriNameFieldName,extensionFieldName,sizeFieldName
+Y,filenameField,Y,Y,N,Y,Y,Y,Y,Y,rowNumField,12345,N,Y,sourceField,shortFilename,path,hidden,lastModification,uri,uri,extention,size

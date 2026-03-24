@@ -47,9 +47,10 @@ public class WebServiceAvailable
 
   @Override
   public boolean processRow() throws HopException {
-
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if (r == null) { // no more input to be expected...
+    // Get row from input rowset & set row busy!
+    Object[] r = getRow();
+    // no more input to be expected...
+    if (r == null) {
 
       setOutputDone();
       return false;
@@ -59,7 +60,7 @@ public class WebServiceAvailable
       first = false;
       // get the RowMeta
       data.previousRowMeta = getInputRowMeta().clone();
-      data.NrPrevFields = data.previousRowMeta.size();
+      data.nrPrevFields = data.previousRowMeta.size();
       data.outputRowMeta = data.previousRowMeta;
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
@@ -86,7 +87,6 @@ public class WebServiceAvailable
     } // End If first
 
     try {
-
       // get url
       String url = data.previousRowMeta.getString(r, data.indexOfURL);
 
@@ -99,7 +99,6 @@ public class WebServiceAvailable
       }
 
       boolean webServiceAvailable = false;
-
       InputStream in = null;
 
       try {
@@ -127,10 +126,9 @@ public class WebServiceAvailable
       }
 
       // addwebservice available to the row
+      // copy row to output rowset(s)
       putRow(
-          data.outputRowMeta,
-          RowDataUtil.addValueData(
-              r, data.NrPrevFields, webServiceAvailable)); // copy row to output rowset(s)
+          data.outputRowMeta, RowDataUtil.addValueData(r, data.nrPrevFields, webServiceAvailable));
 
       if (isRowLevel()) {
         logRowlevel(
@@ -152,7 +150,8 @@ public class WebServiceAvailable
                 + e.getMessage());
         setErrors(1);
         stopAll();
-        setOutputDone(); // signal end to receiver(s)
+        // signal end to receiver(s)
+        setOutputDone();
         return false;
       }
       if (sendToErrorRow) {

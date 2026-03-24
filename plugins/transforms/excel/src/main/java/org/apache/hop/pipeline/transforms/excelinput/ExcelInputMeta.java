@@ -553,11 +553,13 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
   public String[] getFilePaths(IVariables variables) {
     return FileInputList.createFilePathList(
         variables,
-        getFilesNames(),
-        getFilesMasks(),
-        getFilesExcludeMasks(),
-        getFilesRequired(),
-        getFilesIncludeSubFolders());
+        FileInputList.buildInputFiles(
+            getFilesNames(),
+            getFilesMasks(),
+            getFilesExcludeMasks(),
+            getFilesRequired(),
+            getFilesIncludeSubFolders(),
+            null));
   }
 
   public FileInputList getFileList(IVariables variables) {

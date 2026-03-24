@@ -20,18 +20,19 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.List;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 class TextFileInputUtilsTest {
   @Test
   void guessStringsFromLine() throws Exception {
-    TextFileInputMeta inputMeta = Mockito.mock(TextFileInputMeta.class);
-    inputMeta.content = new TextFileInputMeta.Content();
-    inputMeta.content.fileType = "CSV";
+    TextFileInputMeta inputMeta = new TextFileInputMeta();
+    inputMeta.setContent(new TextFileInputMeta.Content());
+    inputMeta.getContent().setFileType("CSV");
 
     String line =
         "\"\\\\valueA\"|\"valueB\\\\\"|\"val\\\\ueC\""; // "\\valueA"|"valueB\\"|"val\\ueC"
@@ -53,11 +54,15 @@ class TextFileInputUtilsTest {
 
   @Test
   void convertLineToStrings() throws Exception {
-    TextFileInputMeta inputMeta = Mockito.mock(TextFileInputMeta.class);
-    inputMeta.content = new TextFileInputMeta.Content();
-    inputMeta.content.fileType = "CSV";
-    inputMeta.inputFields = new BaseFileField[3];
-    inputMeta.content.escapeCharacter = "\\";
+    TextFileInputMeta inputMeta = new TextFileInputMeta();
+    inputMeta.setContent(new TextFileInputMeta.Content());
+    inputMeta.getContent().setFileType("CSV");
+    inputMeta.setInputFields(
+        List.of(
+            new TextFileInputField("one"),
+            new TextFileInputField("two"),
+            new TextFileInputField("three")));
+    inputMeta.getContent().setEscapeCharacter("\\");
 
     String line =
         "\"\\\\fie\\\\l\\dA\"|\"fieldB\\\\\"|\"fie\\\\ldC\""; // ""\\fie\\l\dA"|"fieldB\\"|"Fie\\ldC""
@@ -73,11 +78,11 @@ class TextFileInputUtilsTest {
 
   @Test
   void convertCSVLinesToStrings() throws Exception {
-    TextFileInputMeta inputMeta = Mockito.mock(TextFileInputMeta.class);
-    inputMeta.content = new TextFileInputMeta.Content();
-    inputMeta.content.fileType = "CSV";
-    inputMeta.inputFields = new BaseFileField[2];
-    inputMeta.content.escapeCharacter = "\\";
+    TextFileInputMeta inputMeta = new TextFileInputMeta();
+    inputMeta.setContent(new TextFileInputMeta.Content());
+    inputMeta.getContent().setFileType("CSV");
+    inputMeta.setInputFields(List.of(new TextFileInputField("one"), new TextFileInputField("two")));
+    inputMeta.getContent().setEscapeCharacter("\\");
 
     String line = "A\\\\,B"; // A\\,B
 
@@ -136,12 +141,12 @@ class TextFileInputUtilsTest {
 
   @Test
   void convertCSVLinesToStringsWithEnclosure() throws Exception {
-    TextFileInputMeta inputMeta = Mockito.mock(TextFileInputMeta.class);
-    inputMeta.content = new TextFileInputMeta.Content();
-    inputMeta.content.fileType = "CSV";
-    inputMeta.inputFields = new BaseFileField[2];
-    inputMeta.content.escapeCharacter = "\\";
-    inputMeta.content.enclosure = "\"";
+    TextFileInputMeta inputMeta = new TextFileInputMeta();
+    inputMeta.setContent(new TextFileInputMeta.Content());
+    inputMeta.getContent().setFileType("CSV");
+    inputMeta.setInputFields(List.of(new TextFileInputField("one"), new TextFileInputField("two")));
+    inputMeta.getContent().setEscapeCharacter("\\");
+    inputMeta.getContent().setEnclosure("\"");
 
     String line = "\"A\\\\\",\"B\""; // "A\\","B"
 

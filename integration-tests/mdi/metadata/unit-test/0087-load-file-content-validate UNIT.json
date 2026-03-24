@@ -1,0 +1,158 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "DynamicFilenameField",
+          "data_set_field": "DynamicFilenameField"
+        },
+        {
+          "transform_field": "IsIgnoreEmptyFile",
+          "data_set_field": "IsIgnoreEmptyFile"
+        },
+        {
+          "transform_field": "IsIgnoreMissingPath",
+          "data_set_field": "IsIgnoreMissingPath"
+        },
+        {
+          "transform_field": "IsInFields",
+          "data_set_field": "IsInFields"
+        },
+        {
+          "transform_field": "extensionFieldName",
+          "data_set_field": "extensionFieldName"
+        },
+        {
+          "transform_field": "hiddenFieldName",
+          "data_set_field": "hiddenFieldName"
+        },
+        {
+          "transform_field": "lastModificationTimeFieldName",
+          "data_set_field": "lastModificationTimeFieldName"
+        },
+        {
+          "transform_field": "pathFieldName",
+          "data_set_field": "pathFieldName"
+        },
+        {
+          "transform_field": "rootUriNameFieldName",
+          "data_set_field": "rootUriNameFieldName"
+        },
+        {
+          "transform_field": "shortFileFieldName",
+          "data_set_field": "shortFileFieldName"
+        },
+        {
+          "transform_field": "uriNameFieldName",
+          "data_set_field": "uriNameFieldName"
+        },
+        {
+          "transform_field": "addresultfile",
+          "data_set_field": "addresultfile"
+        },
+        {
+          "transform_field": "encoding",
+          "data_set_field": "encoding"
+        },
+        {
+          "transform_field": "include",
+          "data_set_field": "include"
+        },
+        {
+          "transform_field": "include_field",
+          "data_set_field": "include_field"
+        },
+        {
+          "transform_field": "limit",
+          "data_set_field": "limit"
+        },
+        {
+          "transform_field": "rownum",
+          "data_set_field": "rownum"
+        },
+        {
+          "transform_field": "rownum_field",
+          "data_set_field": "rownum_field"
+        }
+      ],
+      "field_order": [
+        "include"
+      ],
+      "data_set_name": "golden-load-file-content",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "exclude_filemask",
+          "data_set_field": "exclude_filemask"
+        },
+        {
+          "transform_field": "file_required",
+          "data_set_field": "file_required"
+        },
+        {
+          "transform_field": "filemask",
+          "data_set_field": "filemask"
+        },
+        {
+          "transform_field": "include_subfolders",
+          "data_set_field": "include_subfolders"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-load-file-content-files",
+      "transform_name": "validate files"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "element_type",
+          "data_set_field": "element_type"
+        },
+        {
+          "transform_field": "length",
+          "data_set_field": "length"
+        },
+        {
+          "transform_field": "precision",
+          "data_set_field": "precision"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "trim_type",
+          "data_set_field": "trim_type"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-load-file-content-fields",
+      "transform_name": "validate fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0087-load-file-content-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0087-load-file-content-validate.hpl"
+}

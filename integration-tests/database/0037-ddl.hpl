@@ -77,7 +77,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>h2-db</connection>
+    <connection>unit-test-db</connection>
     <ddlOutputField>ddl</ddlOutputField>
     <droppingTable>Y</droppingTable>
     <executingDdl>Y</executingDdl>
@@ -85,7 +85,6 @@ limitations under the License.
     <fieldNameField>name</fieldNameField>
     <fieldPrecisionField>precision</fieldPrecisionField>
     <fieldTypeField>hopType</fieldTypeField>
-    <schemaName/>
     <tableName>DDLTEST</tableName>
     <attributes/>
     <GUI>
@@ -112,7 +111,7 @@ limitations under the License.
         <item>0</item>
       </line>
       <line>
-        <item>name</item>
+        <item>namefield</item>
         <item>String</item>
         <item>100</item>
         <item>-1</item>

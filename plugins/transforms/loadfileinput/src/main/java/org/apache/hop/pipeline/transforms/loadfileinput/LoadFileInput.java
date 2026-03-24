@@ -17,12 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -58,8 +59,8 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private void addFileToResultFilesName(FileObject file) throws Exception {
-    if (meta.getAddResultFile()) {
+  private void addFileToResultFilesName(FileObject file) {
+    if (meta.isAddingResultFile()) {
       // Add this to the result file names...
       ResultFile resultFile =
           new ResultFile(
@@ -71,7 +72,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
   boolean openNextFile() {
     try {
-      if (meta.getFileInFields()) {
+      if (meta.isFileInField()) {
         data.readrow = getRow(); // Grab another row ...
 
         if (data.readrow == null) { // finished processing!
@@ -95,7 +96,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
           // after the processing.
           data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
 
-          if (meta.getFileInFields()) {
+          if (meta.isFileInField()) {
             // Check is filename field is provided
             if (Utils.isEmpty(meta.getDynamicFilenameField())) {
               logError(BaseMessages.getString(PKG, "LoadFileInput.Log.NoField"));
@@ -126,20 +127,16 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         } // end if first
 
         // get field value
-        String fieldvalue = data.inputRowMeta.getString(data.readrow, data.indexOfFilenameField);
+        String fieldValue = data.inputRowMeta.getString(data.readrow, data.indexOfFilenameField);
 
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "LoadFileInput.Log.Stream", meta.getDynamicFilenameField(), fieldvalue));
+                  PKG, "LoadFileInput.Log.Stream", meta.getDynamicFilenameField(), fieldValue));
         }
 
-        try {
-          // Source is a file.
-          data.file = HopVfs.getFileObject(fieldvalue, variables);
-        } catch (Exception e) {
-          throw new HopException(e);
-        }
+        // Source is a file.
+        data.file = HopVfs.getFileObject(fieldValue, variables);
       } else {
         if (data.filenr >= data.files.nrOfFiles()) {
           // finished processing!
@@ -181,26 +178,26 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         }
         data.filename = HopVfs.getFilename(data.file);
         // Add additional fields?
-        if (!Utils.isEmpty(meta.getShortFileNameField())) {
+        if (!Utils.isEmpty(meta.getAdditionalFields().getShortFilenameField())) {
           data.shortFilename = data.file.getName().getBaseName();
         }
-        if (!Utils.isEmpty(meta.getPathField())) {
+        if (!Utils.isEmpty(meta.getAdditionalFields().getPathField())) {
           data.path = HopVfs.getFilename(data.file.getParent());
         }
-        if (!Utils.isEmpty(meta.isHiddenField())) {
+        if (!Utils.isEmpty(meta.getAdditionalFields().getHiddenField())) {
           data.hidden = data.file.isHidden();
         }
-        if (!Utils.isEmpty(meta.getExtensionField())) {
+        if (!Utils.isEmpty(meta.getAdditionalFields().getExtensionField())) {
           data.extension = data.file.getName().getExtension();
         }
-        if (meta.getLastModificationDateField() != null
-            && !meta.getLastModificationDateField().isEmpty()) {
+        if (meta.getAdditionalFields().getLastModificationField() != null
+            && !meta.getAdditionalFields().getLastModificationField().isEmpty()) {
           data.lastModificationDateTime = new Date(data.file.getContent().getLastModifiedTime());
         }
-        if (!Utils.isEmpty(meta.getUriField())) {
+        if (!Utils.isEmpty(meta.getAdditionalFields().getUriField())) {
           data.uriName = data.file.getName().getURI();
         }
-        if (!Utils.isEmpty(meta.getRootUriField())) {
+        if (!Utils.isEmpty(meta.getAdditionalFields().getRootUriField())) {
           data.rootUriName = data.file.getName().getRootURI();
         }
         // get File content
@@ -286,38 +283,24 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
    *
    * @param vfsFilename the filename or URL to read from
    * @return The content of the file as a byte[]
-   * @throws HopException
+   * @throws HopException In case we couldn't load the binary content.
    */
   public static byte[] getFileBinaryContent(String vfsFilename, IVariables variables)
       throws HopException {
-    InputStream inputStream = null;
-
-    byte[] retval = null;
-    try {
-      inputStream = HopVfs.getInputStream(vfsFilename, variables);
-      retval = IOUtils.toByteArray(new BufferedInputStream(inputStream));
+    try (InputStream inputStream = HopVfs.getInputStream(vfsFilename, variables)) {
+      return IOUtils.toByteArray(new BufferedInputStream(inputStream));
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(
               PKG, "LoadFileInput.Error.GettingFileContent", vfsFilename, e.toString()));
-    } finally {
-      if (inputStream != null) {
-        try {
-          inputStream.close();
-        } catch (Exception e) {
-          /* Ignore */
-        }
-      }
     }
-
-    return retval;
   }
 
   private void handleMissingFiles() throws HopException {
-    List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
+    List<FileObject> nonExistentFiles = data.files.getNonExistentFiles();
 
-    if (!nonExistantFiles.isEmpty()) {
-      String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
+    if (!nonExistentFiles.isEmpty()) {
+      String message = FileInputList.getRequiredFilesDescription(nonExistentFiles);
       logError(
           BaseMessages.getString(PKG, "LoadFileInput.Log.RequiredFilesTitle"),
           BaseMessages.getString(PKG, "LoadFileInput.Log.RequiredFiles", message));
@@ -339,14 +322,13 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
   }
 
   /**
-   * Build an empty row based on the meta-data...
-   *
-   * @return
+   * @return an empty row based on the meta-data
    */
   private Object[] buildEmptyRow() {
     return RowDataUtil.allocateRowData(data.outputRowMeta.size());
   }
 
+  @VisibleForTesting
   Object[] getOneRow() throws HopException {
     if (!openNextFile()) {
       return null;
@@ -357,25 +339,25 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
     try {
       // Create new row or clone
-      if (meta.getFileInFields()) {
+      if (meta.isFileInField()) {
         outputRowData = copyOrCloneArrayFromLoadFile(outputRowData, data.readrow);
       }
 
       // Read fields...
       for (int i = 0; i < data.nrInputFields; i++) {
         // Get field
-        LoadFileInputField loadFileInputField = meta.getInputFields()[i];
+        LoadFileInputField loadFileInputField = meta.getInputFields().get(i);
 
-        Object o = null;
+        String o = null;
         int indexField = data.totalpreviousfields + i;
         IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(indexField);
         IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta(indexField);
 
         switch (loadFileInputField.getElementType()) {
-          case LoadFileInputField.ELEMENT_TYPE_FILECONTENT:
+          case LoadFileInputField.ElementType.FILE_CONTENT:
             if (targetValueMeta.getType() != IValueMeta.TYPE_BINARY) {
               // handle as a String
-              if (meta.getEncoding() != null) {
+              if (StringUtils.isNotEmpty(meta.getEncoding())) {
                 o = new String(data.filecontent, meta.getEncoding());
               } else {
                 o = new String(data.filecontent);
@@ -383,13 +365,13 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
               // convert string (processing type) to the target type
               outputRowData[indexField] =
                   targetValueMeta.convertData(
-                      sourceValueMeta, trimField(loadFileInputField.getTrimType(), (String) o));
+                      sourceValueMeta, trimField(loadFileInputField.getTrimType(), o));
             } else {
               // save as byte[] without any conversion
               outputRowData[indexField] = data.filecontent;
             }
             break;
-          case LoadFileInputField.ELEMENT_TYPE_FILESIZE:
+          case LoadFileInputField.ElementType.FILE_SIZE:
             o = String.valueOf(data.fileSize);
             outputRowData[indexField] = targetValueMeta.convertData(sourceValueMeta, o);
             break;
@@ -405,52 +387,52 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
       int rowIndex = data.totalpreviousfields + data.nrInputFields;
 
       // See if we need to add the filename to the row...
-      if (meta.getIncludeFilename()
+      if (meta.isIncludeFilename()
           && meta.getFilenameField() != null
           && !meta.getFilenameField().isEmpty()) {
         outputRowData[rowIndex++] = data.filename;
       }
 
       // See if we need to add the row number to the row...
-      if (meta.getIncludeRowNumber()
+      if (meta.isIncludeRowNumber()
           && meta.getRowNumberField() != null
           && !meta.getRowNumberField().isEmpty()) {
         outputRowData[rowIndex++] = data.rownr;
       }
       // Possibly add short filename...
-      if (!Utils.isEmpty(meta.getShortFileNameField())) {
+      if (!Utils.isEmpty(meta.getAdditionalFields().getShortFilenameField())) {
         outputRowData[rowIndex++] = data.shortFilename;
       }
       // Add Extension
-      if (!Utils.isEmpty(meta.getExtensionField())) {
+      if (!Utils.isEmpty(meta.getAdditionalFields().getExtensionField())) {
         outputRowData[rowIndex++] = data.extension;
       }
       // add path
-      if (!Utils.isEmpty(meta.getPathField())) {
+      if (!Utils.isEmpty(meta.getAdditionalFields().getPathField())) {
         outputRowData[rowIndex++] = data.path;
       }
 
       // add Hidden
-      if (!Utils.isEmpty(meta.isHiddenField())) {
+      if (!Utils.isEmpty(meta.getAdditionalFields().getHiddenField())) {
         outputRowData[rowIndex++] = data.hidden;
       }
       // Add modification date
-      if (meta.getLastModificationDateField() != null
-          && !meta.getLastModificationDateField().isEmpty()) {
+      if (meta.getAdditionalFields().getLastModificationField() != null
+          && !meta.getAdditionalFields().getLastModificationField().isEmpty()) {
         outputRowData[rowIndex++] = data.lastModificationDateTime;
       }
       // Add Uri
-      if (!Utils.isEmpty(meta.getUriField())) {
+      if (!Utils.isEmpty(meta.getAdditionalFields().getUriField())) {
         outputRowData[rowIndex++] = data.uriName;
       }
       // Add RootUri
-      if (!Utils.isEmpty(meta.getRootUriField())) {
-        outputRowData[rowIndex++] = data.rootUriName;
+      if (!Utils.isEmpty(meta.getAdditionalFields().getRootUriField())) {
+        outputRowData[rowIndex] = data.rootUriName;
       }
-      IRowMeta irow = getInputRowMeta();
+      IRowMeta iRowMeta = getInputRowMeta();
 
       data.previousRow =
-          irow == null ? outputRowData : irow.cloneRow(outputRowData); // copy it to make
+          iRowMeta == null ? outputRowData : iRowMeta.cloneRow(outputRowData); // copy it to make
       // surely the next transform doesn't change it in between...
 
       incrementLinesInput();
@@ -463,7 +445,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
     return outputRowData;
   }
 
-  private String trimField(int trimType, String o) throws UnsupportedEncodingException {
+  private String trimField(int trimType, String o) {
     // DO Trimming!
     switch (trimType) {
       case LoadFileInputField.TYPE_TRIM_LEFT:
@@ -486,7 +468,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
   public boolean init() {
 
     if (super.init()) {
-      if (!meta.getFileInFields()) {
+      if (!meta.isFileInField()) {
         try {
           data.files = meta.getFiles(this);
           handleMissingFiles();
@@ -503,7 +485,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
           // populated
 
           // Create convert meta-data objects that will contain Date & Number formatters
-          // All non binary content is handled as a String. It would be converted to the target type
+          // All non-binary content is handled as a String. It would be converted to the target type
           // after the processing.
           data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
         } catch (Exception e) {
@@ -513,7 +495,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
         }
       }
       data.rownr = 1L;
-      data.nrInputFields = meta.getInputFields().length;
+      data.nrInputFields = meta.getInputFields().size();
 
       return true;
     }

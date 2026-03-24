@@ -29,7 +29,7 @@ public class WebServiceAvailableData extends BaseTransformData implements ITrans
 
   public IRowMeta previousRowMeta;
   public IRowMeta outputRowMeta;
-  public int NrPrevFields;
+  public int nrPrevFields;
 
   public WebServiceAvailableData() {
     super();

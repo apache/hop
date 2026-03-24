@@ -198,7 +198,7 @@ The Classes folder indicates what classes have corresponding code block tabs in 
 **Code Snippits**
 
 The Code Snippits folder shows the internal Hop code related to the User Defined Java Class transform.
-These snippits are shown as reference for the code of your class.
+These snippets are shown as reference for the code of your class.
 
 **Input Fields**
 

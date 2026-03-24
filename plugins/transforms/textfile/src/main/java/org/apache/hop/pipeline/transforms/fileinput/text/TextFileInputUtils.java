@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -32,8 +33,8 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
-import org.apache.hop.pipeline.transforms.file.BaseFileField;
-import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalField;
+import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
+import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalFields;
 
 /** Some common methods for text file parsing. */
 public class TextFileInputUtils {
@@ -41,11 +42,11 @@ public class TextFileInputUtils {
   public static final String CONST_TEXT_FILE_INPUT_LOG_CONVERT_LINE_TO_ROW_TITLE =
       "TextFileInput.Log.ConvertLineToRowTitle";
 
-  public static final String[] guessStringsFromLine(
+  public static final <T extends ITextFileInputField> String[] guessStringsFromLine(
       IVariables variables,
       ILogChannel log,
       String line,
-      TextFileInputMeta inf,
+      ICsvInputAwareMeta<T> meta,
       String delimiter,
       String enclosure,
       String escapeCharacter)
@@ -56,11 +57,10 @@ public class TextFileInputUtils {
 
     try {
       if (line == null) {
-        return null;
+        return new String[0];
       }
 
-      if (inf.content.fileType.equalsIgnoreCase("CSV")) {
-
+      if ("CSV".equalsIgnoreCase(meta.getFileType())) {
         // Split string in pieces, only for CSV!
 
         int pos = 0;
@@ -264,8 +264,8 @@ public class TextFileInputUtils {
         }
       } else {
         // Fixed file format: Simply get the strings at the required positions...
-        for (int i = 0; i < inf.inputFields.length; i++) {
-          BaseFileField field = inf.inputFields[i];
+        for (int i = 0; i < meta.getInputFields().size(); i++) {
+          T field = meta.getInputFields().get(i);
 
           int length = line.length();
 
@@ -304,7 +304,7 @@ public class TextFileInputUtils {
       String enclosure,
       String escapeCharacter,
       IFileErrorHandler errorHandler,
-      BaseFileInputAdditionalField additionalOutputFields,
+      BaseFileInputAdditionalFields additionalOutputFields,
       String shortFilename,
       String path,
       boolean hidden,
@@ -346,10 +346,10 @@ public class TextFileInputUtils {
    *     lines from being parsed - this allows us to analyze fields, even if some field is
    *     mis-configured and causes a parsing error for the values of that field.
    */
-  public static final Object[] convertLineToRow(
+  public static final <T extends ITextFileInputField> Object[] convertLineToRow(
       ILogChannel log,
       TextFileLine textFileLine,
-      TextFileInputMeta info,
+      ICsvInputAwareMeta<T> info,
       Object[] passThruFields,
       int nrPassThruFields,
       IRowMeta outputRowMeta,
@@ -360,7 +360,7 @@ public class TextFileInputUtils {
       String enclosure,
       String escapeCharacter,
       IFileErrorHandler errorHandler,
-      BaseFileInputAdditionalField additionalOutputFields,
+      BaseFileInputAdditionalFields additionalOutputFields,
       String shortFilename,
       String path,
       boolean hidden,
@@ -380,26 +380,28 @@ public class TextFileInputUtils {
             outputRowMeta.size()); // over-allocate a bit in the row producing
     // transforms...
 
-    int nrFields = info.inputFields.length;
+    int nrFields = info.getInputFields().size();
     int fieldnr;
 
     Long errorCount = null;
-    if (info.errorHandling.errorIgnored
-        && info.getErrorCountField() != null
-        && !info.getErrorCountField().isEmpty()) {
-      errorCount = 0L;
-    }
     String errorFields = null;
-    if (info.errorHandling.errorIgnored
-        && info.getErrorFieldsField() != null
-        && !info.getErrorFieldsField().isEmpty()) {
-      errorFields = "";
-    }
     String errorText = null;
-    if (info.errorHandling.errorIgnored
-        && info.getErrorTextField() != null
-        && !info.getErrorTextField().isEmpty()) {
-      errorText = "";
+    if (info.getErrorHandling() != null) {
+      if (info.getErrorHandling().isErrorIgnored()
+          && info.getErrorCountField() != null
+          && !info.getErrorCountField().isEmpty()) {
+        errorCount = 0L;
+      }
+      if (info.getErrorHandling().isErrorIgnored()
+          && info.getErrorFieldsField() != null
+          && !info.getErrorFieldsField().isEmpty()) {
+        errorFields = "";
+      }
+      if (info.getErrorHandling().isErrorIgnored()
+          && info.getErrorTextField() != null
+          && !info.getErrorTextField().isEmpty()) {
+        errorText = "";
+      }
     }
 
     try {
@@ -407,24 +409,24 @@ public class TextFileInputUtils {
           convertLineToStrings(log, textFileLine.line, info, delimiter, enclosure, escapeCharacter);
       int shiftFields = (passThruFields == null ? 0 : nrPassThruFields);
       for (fieldnr = 0; fieldnr < nrFields; fieldnr++) {
-        BaseFileField f = info.inputFields[fieldnr];
-        int valuenr = shiftFields + fieldnr;
-        IValueMeta valueMeta = outputRowMeta.getValueMeta(valuenr);
-        IValueMeta convertMeta = convertRowMeta.getValueMeta(valuenr);
+        T f = info.getInputFields().get(fieldnr);
+        int valueIndex = shiftFields + fieldnr;
+        IValueMeta valueMeta = outputRowMeta.getValueMeta(valueIndex);
+        IValueMeta convertMeta = convertRowMeta.getValueMeta(valueIndex);
 
         Object value;
 
-        String nullif = fieldnr < nrFields ? f.getNullString() : "";
-        String ifnull = fieldnr < nrFields ? f.getIfNullValue() : "";
-        int trimType = fieldnr < nrFields ? f.getTrimType() : IValueMeta.TRIM_TYPE_NONE;
+        String nullif = f.getNullString();
+        String ifNull = f.getIfNullValue();
+        int trimType = f.getTrimType();
 
-        if (fieldnr < strings.length) {
+        if (strings != null && fieldnr < strings.length) {
           String pol = strings[fieldnr];
           try {
             if (valueMeta.isNull(pol) || !Utils.isEmpty(nullif) && nullif.equals(pol)) {
               pol = null;
             }
-            value = valueMeta.convertDataFromString(pol, convertMeta, nullif, ifnull, trimType);
+            value = valueMeta.convertDataFromString(pol, convertMeta, nullif, ifNull, trimType);
           } catch (Exception e) {
             // OK, give some feedback!
             // when getting fields, failOnParseError will be set to false, as we do not want one
@@ -440,7 +442,7 @@ public class TextFileInputUtils {
                       valueMeta.getConversionMask(),
                       "" + rowNr);
 
-              if (info.errorHandling.errorIgnored) {
+              if (info.getErrorHandling().isErrorIgnored()) {
                 log.logDetailed(
                     fname,
                     BaseMessages.getString(PKG, "TextFileInput.Log.Warning")
@@ -457,7 +459,7 @@ public class TextFileInputUtils {
                 if (errorFields != null) {
                   StringBuilder sb = new StringBuilder(errorFields);
                   if (!sb.isEmpty()) {
-                    sb.append("\t"); // TODO document this change
+                    sb.append("\t");
                   }
                   sb.append(valueMeta.getName());
                   errorFields = sb.toString();
@@ -486,13 +488,13 @@ public class TextFileInputUtils {
             }
           }
         } else {
-          // No data found: TRAILING NULLCOLS: add null value...
+          // No data found: TRAILING NULL COLS: add null value...
           value = null;
         }
 
         // Now add value to the row (if we're not skipping the row)
         if (r != null) {
-          r[valuenr] = value;
+          r[valueIndex] = value;
         }
       }
 
@@ -501,7 +503,7 @@ public class TextFileInputUtils {
         // Support for trailing nullcols!
         // Should be OK at allocation time, but it doesn't hurt :-)
         if (fieldnr < nrFields) {
-          for (int i = fieldnr; i < info.inputFields.length; i++) {
+          for (int i = fieldnr; i < info.getInputFields().size(); i++) {
             r[shiftFields + i] = null;
           }
         }
@@ -522,54 +524,54 @@ public class TextFileInputUtils {
         }
 
         // Possibly add a filename...
-        if (info.content.includeFilename) {
+        if (info.isIncludeFilename()) {
           r[index] = fname;
           index++;
         }
 
         // Possibly add a row number...
-        if (info.content.includeRowNumber) {
+        if (info.isIncludeRowNumber()) {
           r[index] = rowNr;
           index++;
         }
 
         // Possibly add short filename...
-        if (additionalOutputFields.shortFilenameField != null) {
+        if (additionalOutputFields.getShortFilenameField() != null) {
           r[index] = shortFilename;
           index++;
         }
         // Add Extension
-        if (additionalOutputFields.extensionField != null) {
+        if (additionalOutputFields.getExtensionField() != null) {
           r[index] = extension;
           index++;
         }
         // add path
-        if (additionalOutputFields.pathField != null) {
+        if (additionalOutputFields.getPathField() != null) {
           r[index] = path;
           index++;
         }
         // Add Size
-        if (additionalOutputFields.sizeField != null) {
+        if (additionalOutputFields.getSizeField() != null) {
           r[index] = size;
           index++;
         }
         // add Hidden
-        if (additionalOutputFields.hiddenField != null) {
+        if (additionalOutputFields.getHiddenField() != null) {
           r[index] = hidden;
           index++;
         }
         // Add modification date
-        if (additionalOutputFields.lastModificationField != null) {
+        if (additionalOutputFields.getLastModificationField() != null) {
           r[index] = modificationDateTime;
           index++;
         }
         // Add Uri
-        if (additionalOutputFields.uriField != null) {
+        if (additionalOutputFields.getUriField() != null) {
           r[index] = uri;
           index++;
         }
         // Add RootUri
-        if (additionalOutputFields.rootUriField != null) {
+        if (additionalOutputFields.getRootUriField() != null) {
           r[index] = rooturi;
           index++;
         }
@@ -589,15 +591,15 @@ public class TextFileInputUtils {
     return r;
   }
 
-  public static final String[] convertLineToStrings(
+  public static final <T extends ITextFileInputField> String[] convertLineToStrings(
       ILogChannel log,
       String line,
-      TextFileInputMeta inf,
+      ICsvInputAwareMeta<T> inf,
       String delimiter,
       String enclosure,
       String escapeCharacters)
       throws HopException {
-    String[] strings = new String[inf.inputFields.length];
+    String[] strings = new String[inf.getInputFields().size()];
     int fieldnr;
 
     String pol; // piece of line
@@ -607,7 +609,7 @@ public class TextFileInputUtils {
         return null;
       }
 
-      if (inf.content.fileType.equalsIgnoreCase("CSV")) {
+      if ("CSV".equalsIgnoreCase(inf.getFileType())) {
         // Split string in pieces, only for CSV!
 
         fieldnr = 0;
@@ -646,7 +648,7 @@ public class TextFileInputUtils {
             boolean isEscape =
                 lenEsc > 0
                     && p + lenEsc < length
-                    && line.substring(p, p + lenEsc).equalsIgnoreCase(inf.content.escapeCharacter);
+                    && line.substring(p, p + lenEsc).equalsIgnoreCase(inf.getEscapeCharacter());
 
             boolean enclosureAfter = false;
 
@@ -662,7 +664,7 @@ public class TextFileInputUtils {
                 if (isEscape) {
                   containsEscapedEnclosures = true;
                 }
-              } else if (strnext.equals(inf.content.escapeCharacter)) {
+              } else if (strnext.equals(inf.getEscapeCharacter())) {
                 p++;
                 // Remember to replace them later on!
                 if (isEscape) {
@@ -682,7 +684,7 @@ public class TextFileInputUtils {
               isEscape =
                   lenEsc > 0
                       && p + lenEsc < length
-                      && line.substring(p, p + lenEsc).equals(inf.content.escapeCharacter);
+                      && line.substring(p, p + lenEsc).equals(inf.getEscapeCharacter());
 
               // Is it really an enclosure? See if it's not repeated twice or escaped!
               if ((isEnclosure || isEscape) && p < length - 1) {
@@ -697,7 +699,7 @@ public class TextFileInputUtils {
                   if (isEscape) {
                     containsEscapedEnclosures = true; // remember
                   }
-                } else if (strnext.equals(inf.content.escapeCharacter)) {
+                } else if (strnext.equals(inf.getEscapeCharacter())) {
                   p++;
                   // Remember to replace them later on!
                   if (isEscape) {
@@ -729,14 +731,14 @@ public class TextFileInputUtils {
               if (lenEsc > 0 && next > 0) {
                 String before = line.substring(next - lenEsc, next);
 
-                if (inf.content.escapeCharacter.equals(before)) {
+                if (inf.getEscapeCharacter().equals(before)) {
                   int previousEscapes = 1;
 
                   int start = next - lenEsc - 1;
                   int end = next - 1;
 
                   while (start >= 0) {
-                    if (inf.content.escapeCharacter.equals(line.substring(start, end))) {
+                    if (inf.getEscapeCharacter().equals(line.substring(start, end))) {
                       previousEscapes++;
                       start--;
                       end--;
@@ -783,7 +785,7 @@ public class TextFileInputUtils {
             }
           }
 
-          if (dencl && Utils.isEmpty(inf.content.escapeCharacter)) {
+          if (dencl && Utils.isEmpty(inf.getEscapeCharacter())) {
             StringBuilder sbpol = new StringBuilder(pol);
             int idx = sbpol.indexOf(enclosure + enclosure);
             while (idx >= 0) {
@@ -795,7 +797,7 @@ public class TextFileInputUtils {
 
           // replace the escaped enclosures with enclosures...
           if (containsEscapedEnclosures) {
-            String replace = inf.content.escapeCharacter + enclosure;
+            String replace = inf.getEscapeCharacter() + enclosure;
             String replaceWith = enclosure;
 
             pol = Const.replace(pol, replace, replaceWith);
@@ -803,18 +805,17 @@ public class TextFileInputUtils {
 
           // replace the escaped separators with separators...
           if (containsEscapedSeparators) {
-            String replace = inf.content.escapeCharacter + delimiter;
+            String replace = inf.getEscapeCharacter() + delimiter;
             String replaceWith = delimiter;
 
             pol = Const.replace(pol, replace, replaceWith);
           }
 
           // replace the escaped escape with escape...
-          containsEscapedEscape =
-              pol.contains(inf.content.escapeCharacter + inf.content.escapeCharacter);
+          containsEscapedEscape = pol.contains(inf.getEscapeCharacter() + inf.getEscapeCharacter());
           if (containsEscapedEscape) {
-            String replace = inf.content.escapeCharacter + inf.content.escapeCharacter;
-            String replaceWith = inf.content.escapeCharacter;
+            String replace = inf.getEscapeCharacter() + inf.getEscapeCharacter();
+            String replaceWith = inf.getEscapeCharacter();
 
             pol = Const.replace(pol, replace, replaceWith);
           }
@@ -859,16 +860,20 @@ public class TextFileInputUtils {
         // content.length = "Bytes" and
         // the encoding is specified.
         boolean charBased =
-            (inf.content.length == null
-                || inf.content.length.equalsIgnoreCase("Characters")
+            (inf.getLength() == null
+                || inf.getLength().equalsIgnoreCase("Characters")
                 || inf.getEncoding() == null); // Default to classic behavior
-        for (int i = 0; i < inf.inputFields.length; i++) {
-          BaseFileField field = inf.inputFields[i];
+        for (int i = 0; i < inf.getInputFields().size(); i++) {
+          ITextFileInputField field = inf.getInputFields().get(i);
 
           int length;
           int fPos = field.getPosition();
           int fLength = field.getLength();
           int fPl = fPos + fLength;
+          if (fPos < 0 || fLength < 0 || fPl < fPos) {
+            strings[i] = "";
+            continue;
+          }
           if (charBased) {
             length = line.length();
             if (fPl <= length) {
@@ -889,7 +894,7 @@ public class TextFileInputUtils {
               strings[i] = new String(Arrays.copyOfRange(b, fPos, fPl), enc);
             } else {
               if (fPos < length) {
-                strings[i] = new String(Arrays.copyOfRange(b, fPos, length - 1), enc);
+                strings[i] = new String(Arrays.copyOfRange(b, fPos, length), enc);
               } else {
                 strings[i] = "";
               }

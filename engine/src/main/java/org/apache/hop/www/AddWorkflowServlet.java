@@ -42,7 +42,13 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
-@HopServerServlet(id = "addWorkflow", name = "Add a workflow to the server")
+/**
+ * @deprecated Use {@link RegisterWorkflowServlet} ({@code /hop/registerWorkflow}) instead. This
+ *     endpoint is no longer called by the remote workflow engine and will be removed in a future
+ *     release.
+ */
+@Deprecated(since = "2.18.0")
+@HopServerServlet(id = "addWorkflow", name = "Add a workflow to the server (deprecated)")
 public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
   @Serial private static final long serialVersionUID = -6850701762586992604L;
 
@@ -67,8 +73,14 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
     boolean useXML = "Y".equalsIgnoreCase(request.getParameter("xml"));
 
-    PrintWriter out = response.getWriter();
-    BufferedReader in = request.getReader(); // read from the client
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
+    BufferedReader in = getSafeReader(request, response);
+    if (in == null) {
+      return;
+    }
     if (log.isDetailed()) {
       logDetailed("Encoding: " + request.getCharacterEncoding());
     }
@@ -196,7 +208,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
   protected String[] getAllArgumentStrings(Map<String, String> arguments) {
     if (Utils.isEmpty(arguments)) {
-      return null;
+      return new String[0];
     }
 
     String[] argNames = arguments.keySet().toArray(new String[arguments.size()]);

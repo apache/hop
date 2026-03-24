@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.RandomAccess;
+import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.SingleRowRowSet;
@@ -52,23 +53,23 @@ public class FastJsonReader implements IJsonReader {
   private ReadContext jsonReadContext;
 
   /** used if the incoming value is a String */
-  private Configuration jsonConfiguration;
+  @Getter private Configuration jsonConfiguration;
 
   /** used if the incoming value is a JsonNode */
-  private Configuration jsonNodeConfiguration;
+  private final Configuration jsonNodeConfiguration;
 
   private boolean ignoreMissingPath;
-  private boolean defaultPathLeafToNull;
+  @Getter private boolean defaultPathLeafToNull;
 
   private JsonInputField[] fields;
   private JsonPath[] paths = null;
-  private ILogChannel log;
+  private final ILogChannel log;
 
   private static final Option[] DEFAULT_OPTIONS = {
     Option.SUPPRESS_EXCEPTIONS, Option.ALWAYS_RETURN_LIST, Option.DEFAULT_PATH_LEAF_TO_NULL
   };
 
-  protected FastJsonReader(ILogChannel log) throws HopException {
+  protected FastJsonReader(ILogChannel log) {
     this.ignoreMissingPath = false;
     this.defaultPathLeafToNull = true;
     this.jsonConfiguration = Configuration.defaultConfiguration().addOptions(DEFAULT_OPTIONS);
@@ -105,10 +106,6 @@ public class FastJsonReader implements IJsonReader {
         .build();
   }
 
-  public boolean isDefaultPathLeafToNull() {
-    return defaultPathLeafToNull;
-  }
-
   private Configuration deleteOptionFromConfiguration(Configuration config, Option option) {
     Configuration currentConf = config;
     if (currentConf != null) {
@@ -130,10 +127,6 @@ public class FastJsonReader implements IJsonReader {
               PKG, "JsonReader.Debug.Configuration.Options", currentConf.getOptions()));
     }
     return currentConf;
-  }
-
-  Configuration getJsonConfiguration() {
-    return jsonConfiguration;
   }
 
   @Override
@@ -236,17 +229,11 @@ public class FastJsonReader implements IJsonReader {
   }
 
   private static class TransposedRowSet extends SingleRowRowSet {
-    private List<List<?>> results;
+    private final List<List<?>> results;
     private final int rowCount;
     private int rowNbr;
 
-    /**
-     * if should skip null-only rows; size won't be exact if set. If HOP_JSON_INPUT_INCLUDE_NULLS is
-     * "Y" (default behavior) then nulls will be included otherwise they will not
-     */
-    private boolean cullNulls = true;
-
-    private boolean includeNulls =
+    private final boolean includeNulls =
         "Y"
             .equalsIgnoreCase(
                 System.getProperty(
@@ -260,7 +247,11 @@ public class FastJsonReader implements IJsonReader {
 
     @Override
     public Object[] getRow() {
-      boolean allNulls = cullNulls && rowCount > 1;
+      /*
+       * if should skip null-only rows; size won't be exact if set. If HOP_JSON_INPUT_INCLUDE_NULLS is
+       * "Y" (default behavior) then nulls will be included otherwise they will not
+       */
+      boolean allNulls = rowCount > 1;
       Object[] rowData = null;
       do {
         if (rowNbr >= rowCount) {

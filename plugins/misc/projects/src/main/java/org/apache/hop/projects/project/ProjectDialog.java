@@ -85,6 +85,7 @@ public class ProjectDialog extends Dialog {
   private Text wDescription;
   private Text wCompany;
   private Text wDepartment;
+  private Text wVersion;
 
   private TextVar wMetadataBaseFolder;
   private TextVar wUnitTestsBasePath;
@@ -317,6 +318,23 @@ public class ProjectDialog extends Dialog {
     fdDepartment.top = new FormAttachment(wlDepartment, 0, SWT.CENTER);
     wDepartment.setLayoutData(fdDepartment);
     lastControl = wDepartment;
+
+    Label wlVersion = new Label(comp, SWT.RIGHT);
+    PropsUi.setLook(wlVersion);
+    wlVersion.setText(BaseMessages.getString(PKG, "ProjectDialog.Label.Version"));
+    FormData fdlVersion = new FormData();
+    fdlVersion.left = new FormAttachment(0, 0);
+    fdlVersion.right = new FormAttachment(middle, 0);
+    fdlVersion.top = new FormAttachment(lastControl, margin);
+    wlVersion.setLayoutData(fdlVersion);
+    wVersion = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
+    PropsUi.setLook(wVersion);
+    FormData fdVersion = new FormData();
+    fdVersion.left = new FormAttachment(middle, margin);
+    fdVersion.right = new FormAttachment(99, 0);
+    fdVersion.top = new FormAttachment(wlVersion, 0, SWT.CENTER);
+    wVersion.setLayoutData(fdVersion);
+    lastControl = wVersion;
 
     Label wlMetadataBaseFolder = new Label(comp, SWT.RIGHT);
     PropsUi.setLook(wlMetadataBaseFolder);
@@ -702,6 +720,7 @@ public class ProjectDialog extends Dialog {
     wDescription.setText(Const.NVL(project.getDescription(), ""));
     wCompany.setText(Const.NVL(project.getCompany(), ""));
     wDepartment.setText(Const.NVL(project.getDepartment(), ""));
+    wVersion.setText(Const.NVL(project.getVersion(), ""));
     wMetadataBaseFolder.setText(Const.NVL(project.getMetadataBaseFolder(), ""));
     wUnitTestsBasePath.setText(Const.NVL(project.getUnitTestsBasePath(), ""));
     wDataSetCsvFolder.setText(Const.NVL(project.getDataSetsCsvFolder(), ""));
@@ -745,6 +764,7 @@ public class ProjectDialog extends Dialog {
     project.setDescription(wDescription.getText());
     project.setCompany(wCompany.getText());
     project.setDepartment(wDepartment.getText());
+    project.setVersion(wVersion.getText());
     project.setMetadataBaseFolder(wMetadataBaseFolder.getText());
     project.setUnitTestsBasePath(wUnitTestsBasePath.getText());
     project.setDataSetsCsvFolder(wDataSetCsvFolder.getText());

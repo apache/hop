@@ -75,11 +75,11 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
       processStreamLoad(rowString, first);
 
       if (checkFeedback(getLinesRead()) && isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "DorisBulkLoader.Log.LineNumber") + getLinesRead());
+        logDetailed(
+            BaseMessages.getString(PKG, "DorisBulkLoader.Log.LineNumber") + " : " + getLinesRead());
       }
 
       putRow(getInputRowMeta(), r);
-      incrementLinesOutput();
 
       if (first) {
         first = false;
@@ -138,6 +138,8 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
                 BaseMessages.getString(
                     PKG, "DorisBulkLoader.Log.StreamLoadResult", responseContent.toString()));
           }
+          // Set Real Rows Loaded and Rejected
+          updateLoadedRows(responseContent);
           // close doris http client
           data.dorisStreamLoad.close();
         }
@@ -165,6 +167,8 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
               BaseMessages.getString(
                   PKG, "DorisBulkLoader.Log.StreamLoadResult", responseContent.toString()));
         }
+        // Set Real Rows Loaded and Rejected
+        updateLoadedRows(responseContent);
         data.dorisStreamLoad.startWritingIntoBuffer();
         if (data.dorisStreamLoad.canWrite(record.length)) {
           data.dorisStreamLoad.writeRecord(record);
@@ -180,6 +184,26 @@ public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBul
         throw new DorisStreamLoadException(e);
       }
     }
+  }
+
+  /**
+   * Update Stats on Output/Rejected Rows
+   *
+   * @param responseContent
+   */
+  private void updateLoadedRows(ResponseContent responseContent) throws DorisStreamLoadException {
+
+    if (!responseContent.getStatus().equalsIgnoreCase("Success")) {
+      setErrors(getLinesWritten() - getLinesOutput());
+      throw new DorisStreamLoadException(
+          responseContent.getStatus() + " - " + responseContent.getMessage());
+    }
+    // Set Real Rows Loaded and Rejected
+    setLinesOutput(getLinesOutput() + responseContent.getNumberLoadedRows());
+    setLinesRejected(
+        getLinesRejected()
+            + responseContent.getNumberTotalRows()
+            - responseContent.getNumberLoadedRows());
   }
 
   /**

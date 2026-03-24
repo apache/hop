@@ -26,7 +26,7 @@ import org.mozilla.javascript.Scriptable;
 
 @SuppressWarnings("java:S1104")
 public class ScriptValuesData extends BaseTransformData implements ITransformData {
-  public Context cx;
+  public Context context;
   public Scriptable scope;
   public Script script;
 
@@ -37,7 +37,7 @@ public class ScriptValuesData extends BaseTransformData implements ITransformDat
 
   public ScriptValuesData() {
     super();
-    cx = null;
+    context = null;
     fieldsUsed = null;
   }
 

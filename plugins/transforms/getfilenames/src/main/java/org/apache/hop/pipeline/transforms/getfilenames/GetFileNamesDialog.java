@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.getfilenames;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.FileTypeFilter;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -470,8 +470,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
               esd.open();
             } else {
               String elementTypeToGet =
-                  FileInputList.FileTypeFilter.getByOrdinal(wFilterFileType.getSelectionIndex())
-                      .toString();
+                  FileTypeFilter.getByOrdinal(wFilterFileType.getSelectionIndex()).toString();
               MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
               mb.setMessage(
                   BaseMessages.getString(
@@ -946,9 +945,8 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     wFilenameList.setRowNums();
     wFilenameList.optWidth(true);
 
-    FileInputList.FileTypeFilter elementTypeToGet =
-        FileInputList.FileTypeFilter.getByName(
-            in.getFilterItemList().get(0).getFileTypeFilterSelection());
+    FileTypeFilter elementTypeToGet =
+        FileTypeFilter.getByName(in.getFilterItemList().get(0).getFileTypeFilterSelection());
     if (elementTypeToGet != null) {
       wFilterFileType.select(elementTypeToGet.ordinal());
     } else {
@@ -1012,8 +1010,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     in.getFilterItemList()
         .add(
             new FilterItem(
-                FileInputList.FileTypeFilter.getByOrdinal(wFilterFileType.getSelectionIndex())
-                    .toString()));
+                FileTypeFilter.getByOrdinal(wFilterFileType.getSelectionIndex()).toString()));
 
     in.setIncludeRowNumber(wInclRownum.getSelection());
     in.setAddResultFile(wAddResult.getSelection());

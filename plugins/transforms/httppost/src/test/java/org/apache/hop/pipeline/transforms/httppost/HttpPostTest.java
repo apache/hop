@@ -18,24 +18,48 @@
 package org.apache.hop.pipeline.transforms.httppost;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.apache.hop.core.exception.HopException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.message.BasicStatusLine;
 import org.junit.jupiter.api.Test;
 
 class HttpPostTest {
 
+  private HttpPost newTransform() {
+    TransformMeta transformMeta = new TransformMeta();
+    transformMeta.setName("HttpPostTest");
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName("HttpPostTest");
+    pipelineMeta.addTransform(transformMeta);
+    return new HttpPost(
+        transformMeta,
+        new HttpPostMeta(),
+        new HttpPostData(),
+        0,
+        pipelineMeta,
+        new LocalPipelineEngine());
+  }
+
   @Test
-  void getRequestBodyParametersAsStringWithNullEncoding() throws HopException {
-    HttpPost http = mock(HttpPost.class);
-    doCallRealMethod()
-        .when(http)
-        .getRequestBodyParamsAsStr(any(NameValuePair[].class), nullable(String.class));
+  void getRequestBodyParametersAsStringWithNullEncoding() {
+    HttpPost http = newTransform();
 
     NameValuePair[] pairs =
         new NameValuePair[] {
@@ -43,5 +67,136 @@ class HttpPostTest {
         };
 
     assertEquals("u=usr&p=pass", http.getRequestBodyParamsAsStr(pairs, null));
+  }
+
+  @Test
+  void getRequestBodyParametersAsStringWithEncodingEscapesContent() {
+    HttpPost http = newTransform();
+
+    NameValuePair[] pairs = {
+      new BasicNameValuePair("city", "Sao Paulo"), new BasicNameValuePair("q", "a+b")
+    };
+
+    assertEquals("city=Sao+Paulo&q=a%2Bb", http.getRequestBodyParamsAsStr(pairs, "UTF-8"));
+  }
+
+  @Test
+  void attachRawRequestEntityIfNeededSetsEntityWhenMissing() {
+    HttpPost http = newTransform();
+
+    org.apache.http.client.methods.HttpPost post =
+        new org.apache.http.client.methods.HttpPost("http://localhost");
+
+    http.attachRawRequestEntityIfNeeded(post, "payload".getBytes());
+
+    assertEquals(7, post.getEntity().getContentLength());
+  }
+
+  @Test
+  void attachRawRequestEntityIfNeededDoesNotOverrideExistingEntity() throws Exception {
+    HttpPost http = newTransform();
+
+    org.apache.http.client.methods.HttpPost post =
+        new org.apache.http.client.methods.HttpPost("http://localhost");
+    HttpEntity existing = new StringEntity("existing");
+    post.setEntity(existing);
+
+    http.attachRawRequestEntityIfNeeded(post, "payload".getBytes());
+
+    assertSame(existing, post.getEntity());
+  }
+
+  @Test
+  void collectRequestBytesCountsUnknownLengthEntity() {
+    HttpPost http = newTransform();
+
+    HttpEntity entity = new InputStreamEntity(new ByteArrayInputStream("payload".getBytes()), -1);
+
+    http.collectRequestBytes(entity);
+
+    assertEquals(7L, http.getTrackedDataVolumeOut());
+  }
+
+  @Test
+  void collectRequestBytesCountsKnownLengthEntity() {
+    HttpPost http = newTransform();
+
+    HttpEntity entity = new StringEntity("payload", StandardCharsets.UTF_8);
+
+    http.collectRequestBytes(entity);
+
+    assertEquals(7L, http.getTrackedDataVolumeOut());
+  }
+
+  @Test
+  void readResponseBodyTracksDataVolumeIn() throws Exception {
+    HttpPost http = newTransform();
+
+    String body =
+        (String)
+            invokePrivate(
+                http, "readResponseBody", new StringEntity("response", StandardCharsets.UTF_8));
+
+    assertEquals("response", body);
+    assertEquals(8L, getLongField(http, "dataVolumeIn"));
+  }
+
+  @Test
+  void openStreamWithEncodingReturnsReaderDecodedInThatEncoding() throws Exception {
+    HttpPost http = newTransform();
+    HttpResponse response = responseWithBody("hello");
+
+    try (InputStreamReader reader = http.openStream("UTF-8", response)) {
+      char[] buf = new char[5];
+      int read = reader.read(buf);
+      assertEquals(5, read);
+      assertEquals("hello", new String(buf));
+    }
+  }
+
+  @Test
+  void openStreamWithoutEncodingReturnsDefaultReader() throws Exception {
+    HttpPost http = newTransform();
+    HttpResponse response = responseWithBody("world");
+
+    try (InputStreamReader reader = http.openStream(null, response)) {
+      char[] buf = new char[5];
+      int read = reader.read(buf);
+      assertEquals(5, read);
+      assertEquals("world", new String(buf));
+    }
+  }
+
+  @Test
+  void openStreamWithEmptyEncodingReturnsDefaultReader() throws Exception {
+    HttpPost http = newTransform();
+    HttpResponse response = responseWithBody("hop");
+
+    try (InputStreamReader reader = http.openStream("", response)) {
+      char[] buf = new char[3];
+      int read = reader.read(buf);
+      assertEquals(3, read);
+      assertEquals("hop", new String(buf));
+    }
+  }
+
+  private static HttpResponse responseWithBody(String body) {
+    BasicHttpResponse response =
+        new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
+    response.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
+    return response;
+  }
+
+  private static Object invokePrivate(Object target, String methodName, Object... args)
+      throws Exception {
+    Method method = target.getClass().getDeclaredMethod(methodName, HttpEntity.class);
+    method.setAccessible(true);
+    return method.invoke(target, args);
+  }
+
+  private static Long getLongField(Object target, String fieldName) throws Exception {
+    Field field = BaseTransform.class.getDeclaredField(fieldName);
+    field.setAccessible(true);
+    return (Long) field.get(target);
   }
 }

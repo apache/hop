@@ -33,9 +33,12 @@ import java.util.stream.Collectors;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.AfterInjection;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.api.IIntCodeConverter;
+import org.apache.hop.metadata.api.IStringObjectConverter;
 
 /** Engine for get/set metadata injection properties from bean. */
 public class BeanInjector<Meta extends Object> {
@@ -184,12 +187,11 @@ public class BeanInjector<Meta extends Object> {
             setProperty(root, prop, i, data.get(i), dataName, dataValue);
           }
         } else {
-          for (int i = 0; ; i++) {
-            boolean found = setProperty(root, prop, i, null, null, dataValue);
-            if (!found) {
-              break;
-            }
-          }
+          boolean found;
+          int i = 0;
+          do {
+            found = setProperty(root, prop, i++, null, null, dataValue);
+          } while (found);
         }
       } catch (Exception ex) {
         throw new HopException(
@@ -328,7 +330,31 @@ public class BeanInjector<Meta extends Object> {
                 String string = data.getString(dataName, null);
                 value = s.stringObjectConverter.getObject(string);
               } else {
-                value = data.getAsJavaType(dataName, s.leafClass, s.converter);
+                // See if there are @HopMetadataProperty data type converters in play
+                //
+                HopMetadataProperty annotation =
+                    s.field == null ? null : s.field.getAnnotation(HopMetadataProperty.class);
+                if (annotation != null
+                    && !IIntCodeConverter.None.class.equals(annotation.intCodeConverter())) {
+                  // We have a way of converting the given String to an integer
+                  //
+                  Class<? extends IIntCodeConverter> converterClass = annotation.intCodeConverter();
+                  IIntCodeConverter converter =
+                      converterClass.getDeclaredConstructor().newInstance();
+                  value = converter.getType(data.getString(dataName, null));
+                } else if (annotation != null
+                    && !IStringObjectConverter.None.class.equals(
+                        annotation.injectionStringObjectConverter())) {
+                  Class<? extends IStringObjectConverter> converterClass =
+                      annotation.injectionStringObjectConverter();
+                  IStringObjectConverter converter =
+                      converterClass.getDeclaredConstructor().newInstance();
+                  value = converter.getObject(data.getString(dataName, null));
+                } else {
+                  // Try the default String-to-type conversions methods
+                  //
+                  value = data.getAsJavaType(dataName, s.leafClass, s.converter);
+                }
               }
             }
           } else {

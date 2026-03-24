@@ -895,4 +895,9 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return null;
   }
+
+  @Override
+  public void convertLegacyXml(Node node) throws HopException {
+    // Nothing by default
+  }
 }

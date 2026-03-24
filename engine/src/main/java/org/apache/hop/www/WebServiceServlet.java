@@ -72,7 +72,15 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    this.doGet(request, response);
+    try {
+      doGet(request, response);
+    } catch (Exception e) {
+      logError("Error handling web service POST request", e);
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Unable to process web service request.");
+    }
   }
 
   @Override
@@ -93,8 +101,11 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
 
     String webServiceName = request.getParameter("service");
     if (StringUtils.isEmpty(webServiceName)) {
-      throw new ServletException(
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
           "Please specify a service parameter pointing to the name of the web service object");
+      return;
     }
 
     String runConfigurationName = request.getParameter("runConfig");
@@ -274,7 +285,11 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       pipeline.waitUntilFinished();
 
     } catch (Exception e) {
-      throw new ServletException("Error producing web service output", e);
+      logError("Error producing web service output", e);
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Error producing web service output.");
     }
   }
 

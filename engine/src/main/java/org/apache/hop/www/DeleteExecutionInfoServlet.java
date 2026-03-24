@@ -34,7 +34,13 @@ import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 
-@HopServerServlet(id = "registerExecInfo", name = "Register execution information")
+/**
+ * @deprecated Execution deletion is now handled by {@link GetExecutionInfoServlet} ({@code
+ *     /hop/getExecInfo}) via its {@code DELETE} type parameter. This endpoint has no callers in the
+ *     application and will be removed in a future release.
+ */
+@Deprecated(since = "2.18.0")
+@HopServerServlet(id = "deleteExecInfo", name = "Delete execution information (deprecated)")
 public class DeleteExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
   @Serial private static final long serialVersionUID = -1901302231769020201L;
 
@@ -67,8 +73,14 @@ public class DeleteExecutionInfoServlet extends BaseHttpServlet implements IHopS
     //
     String locationName = StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_LOCATION));
 
-    PrintWriter out = response.getWriter();
-    BufferedReader in = request.getReader();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
+    BufferedReader in = getSafeReader(request, response);
+    if (in == null) {
+      return;
+    }
 
     response.setContentType("text/xml");
     out.print(XmlHandler.getXmlHeader());

@@ -1,0 +1,1078 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0036-text-file-output</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/03/13 16:35:05.491</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/03/13 16:35:05.491</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>files/textfile/text-file-output.xml - fields</from>
+      <to>inject into /tmp/text-file-output-mdi.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>files/textfile/text-file-output.xml - general</from>
+      <to>inject into /tmp/text-file-output-mdi.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>files/textfile/text-file-output.xml - fields</name>
+    <type>getXMLData</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <IsAFile>N</IsAFile>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <IsInFields>N</IsInFields>
+    <addresultfile>N</addresultfile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <encoding>UTF-8</encoding>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>name</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>name</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>type</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>type</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>format</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>format</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>currency</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>currency</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>decimal</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>decimal</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>group</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>group</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>nullif</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>nullif</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>trim_type</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>trim_type</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>roundingType</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>roundingType</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>length</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>Integer</type>
+        <xPath>length</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>precision</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>Integer</type>
+        <xPath>precision</xPath>
+      </field>
+    </fields>
+    <file>
+      <file_required>N</file_required>
+      <include_subfolders>N</include_subfolders>
+      <name>${PROJECT_HOME}/files/textfile/text-file-output.xml</name>
+    </file>
+    <ignorecomments>N</ignorecomments>
+    <include>N</include>
+    <limit>0</limit>
+    <loopxpath>/transform/fields/field</loopxpath>
+    <namespaceaware>N</namespaceaware>
+    <readurl>N</readurl>
+    <rownum>N</rownum>
+    <usetoken>N</usetoken>
+    <validating>N</validating>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>files/textfile/text-file-output.xml - general</name>
+    <type>getXMLData</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <IsAFile>N</IsAFile>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <IsInFields>N</IsInFields>
+    <XmlField/>
+    <addresultfile>N</addresultfile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <encoding>UTF-8</encoding>
+    <extensionFieldName/>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>schema_definition</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>schema_definition</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>ignore_fields</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>ignore_fields</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>separator</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>separator</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>enclosure</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>enclosure</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>enclosure_forced</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>enclosure_forced</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>enclosure_fix_disabled</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>enclosure_fix_disabled</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>header</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>header</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>footer</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>footer</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>format</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>format</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>compression</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>compression</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>encoding</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>encoding</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>endedLine</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>endedLine</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>fileNameInField</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>fileNameInField</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>fileNameField</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>fileNameField</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>create_parent_folder</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>create_parent_folder</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>name</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/name</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>servlet_output</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/servlet_output</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>do_not_open_new_file_init</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/do_not_open_new_file_init</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>extention</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/extention</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>append</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/append</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>split</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/split</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>haspartno</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/haspartno</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>add_date</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/add_date</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>add_time</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/add_time</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>SpecifyFormat</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/SpecifyFormat</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>date_time_format</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/date_time_format</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>add_to_result_filenames</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/add_to_result_filenames</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>pad</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/pad</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>fast_dump</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/fast_dump</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>splitevery</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>file/splitevery</xPath>
+      </field>
+    </fields>
+    <file>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <filemask/>
+      <include_subfolders>N</include_subfolders>
+      <name>${PROJECT_HOME}/files/textfile/text-file-output.xml</name>
+    </file>
+    <hiddenFieldName/>
+    <ignorecomments>N</ignorecomments>
+    <include>N</include>
+    <include_field/>
+    <lastModificationTimeFieldName/>
+    <limit>0</limit>
+    <loopxpath>/transform</loopxpath>
+    <namespaceaware>N</namespaceaware>
+    <pathFieldName/>
+    <prunePath/>
+    <readurl>N</readurl>
+    <rootUriNameFieldName/>
+    <rownum>N</rownum>
+    <rownum_field/>
+    <shortFileFieldName/>
+    <sizeFieldName/>
+    <uriNameFieldName/>
+    <usetoken>N</usetoken>
+    <validating>N</validating>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>inject into /tmp/text-file-output-mdi.hpl</name>
+    <type>MetaInject</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <filename>${PROJECT_HOME}/0037-text-file-output-template.hpl</filename>
+    <run_configuration>local</run_configuration>
+    <source_transform/>
+    <source_output_fields>    </source_output_fields>
+    <target_file>${java.io.tmpdir}/text-file-output-mdi.hpl</target_file>
+    <create_parent_folder>Y</create_parent_folder>
+    <no_execution>Y</no_execution>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <mappings>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_GROUP</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>group</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>FILENAME_IN_FIELD</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>fileNameInField</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>ADD_TO_RESULT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>add_to_result_filenames</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>FORCE_ENCLOSURE</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>enclosure_forced</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_FORMAT</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>format</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>RIGHT_PAD_FIELDS</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>pad</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>INC_TRANSFORMNR_IN_FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>haspartno</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_TRIM</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>trim_type</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>name</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>IGNORE_FIELDS</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>ignore_fields</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>CREATE_PARENT_FOLDER</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>create_parent_folder</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>FORMAT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>format</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>DATE_FORMAT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>date_time_format</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_PRECISION</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>precision</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>SPECIFY_DATE_FORMAT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>SpecifyFormat</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_FIELDNAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>name</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>HEADER</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>header</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>EXTENSION</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>extention</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>SPLIT_EVERY</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>splitevery</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_TYPE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>type</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>ENCODING</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>encoding</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>DO_NOT_CREATE_FILE_AT_STARTUP</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>do_not_open_new_file_init</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_CURRENCY</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>currency</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_NULL</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>nullif</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_LENGTH</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>length</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_ROUNDING</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>roundingType</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>FAST_DATA_DUMP</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>fast_dump</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>DISABLE_ENCLOSURE_FIX</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>enclosure_fix_disabled</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>PASS_TO_SERVLET</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>servlet_output</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>FILENAME_FIELD</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>fileNameField</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>INC_DATE_IN_FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>add_date</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>SEPARATOR</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>separator</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>SCHEMA_DEFINITION</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>schema_definition</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>ADD_ENDING_LINE</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>endedLine</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_DECIMAL</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - fields</source_transform>
+        <source_field>decimal</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>INC_TIME_IN_FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>add_time</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>ENCLOSURE</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>enclosure</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>APPEND</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>append</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>FOOTER</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>footer</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>COMPRESSION</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>compression</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>INC_PARTNR_IN_FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/textfile/text-file-output.xml - general</source_transform>
+        <source_field>split</source_field>
+      </mapping>
+    </mappings>
+    <attributes/>
+    <GUI>
+      <xloc>448</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

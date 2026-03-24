@@ -106,67 +106,64 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     boolean useJson = "Y".equalsIgnoreCase(request.getParameter("json"));
     boolean useLightTheme = "Y".equalsIgnoreCase(request.getParameter("useLightTheme"));
 
-    if (useXml) {
-      response.setContentType("text/xml");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-    }
-    if (useJson) {
-      response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
-    } else {
-      response.setContentType("text/html;charset=UTF-8");
-    }
+    setResponseFormat(response, useXml, useJson);
 
-    PrintWriter out = response.getWriter();
+    PrintWriter out = getSafeWriter(response);
+    if (out == null) {
+      return;
+    }
 
     List<HopServerObjectEntry> pipelineEntries = getPipelineMap().getPipelineObjects();
     List<HopServerObjectEntry> actions = getWorkflowMap().getWorkflowObjects();
 
     if (useXml || useJson) {
-      HopServerStatus serverStatus = new HopServerStatus();
-      serverStatus.setStatusDescription("Online");
+      try {
+        HopServerStatus serverStatus = new HopServerStatus();
+        serverStatus.setStatusDescription("Online");
 
-      getSystemInfo(serverStatus);
+        getSystemInfo(serverStatus);
 
-      for (HopServerObjectEntry entry : pipelineEntries) {
-        IPipelineEngine<PipelineMeta> pipeline = getPipelineMap().getPipeline(entry);
-        String statusDescription = pipeline.getStatusDescription();
+        for (HopServerObjectEntry entry : pipelineEntries) {
+          IPipelineEngine<PipelineMeta> pipeline = getPipelineMap().getPipeline(entry);
+          String statusDescription = pipeline.getStatusDescription();
 
-        HopServerPipelineStatus pipelineStatus =
-            new HopServerPipelineStatus(entry.getName(), entry.getId(), statusDescription);
-        pipelineStatus.setLogDate(new Date());
-        pipelineStatus.setExecutionStartDate(pipeline.getExecutionStartDate());
-        pipelineStatus.setExecutionEndDate(pipeline.getExecutionEndDate());
-        pipelineStatus.setPaused(pipeline.isPaused());
-        serverStatus.getPipelineStatusList().add(pipelineStatus);
-      }
+          HopServerPipelineStatus pipelineStatus =
+              new HopServerPipelineStatus(entry.getName(), entry.getId(), statusDescription);
+          pipelineStatus.setLogDate(new Date());
+          pipelineStatus.setExecutionStartDate(pipeline.getExecutionStartDate());
+          pipelineStatus.setExecutionEndDate(pipeline.getExecutionEndDate());
+          pipelineStatus.setPaused(pipeline.isPaused());
+          serverStatus.getPipelineStatusList().add(pipelineStatus);
+        }
 
-      for (HopServerObjectEntry entry : actions) {
-        IWorkflowEngine<WorkflowMeta> workflow = getWorkflowMap().getWorkflow(entry);
-        String status = workflow.getStatusDescription();
-        HopServerWorkflowStatus workflowStatus =
-            new HopServerWorkflowStatus(entry.getName(), entry.getId(), status);
-        workflowStatus.setLogDate(new Date());
-        workflowStatus.setExecutionStartDate(workflow.getExecutionStartDate());
-        workflowStatus.setExecutionEndDate(workflow.getExecutionEndDate());
-        serverStatus.getWorkflowStatusList().add(workflowStatus);
-      }
+        for (HopServerObjectEntry entry : actions) {
+          IWorkflowEngine<WorkflowMeta> workflow = getWorkflowMap().getWorkflow(entry);
+          String status = workflow.getStatusDescription();
+          HopServerWorkflowStatus workflowStatus =
+              new HopServerWorkflowStatus(entry.getName(), entry.getId(), status);
+          workflowStatus.setLogDate(new Date());
+          workflowStatus.setExecutionStartDate(workflow.getExecutionStartDate());
+          workflowStatus.setExecutionEndDate(workflow.getExecutionEndDate());
+          serverStatus.getWorkflowStatusList().add(workflowStatus);
+        }
 
-      if (useXml) {
-        // XML
-        try {
+        if (useXml) {
           out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
           out.println(serverStatus.getXml());
-        } catch (HopException e) {
-          throw new ServletException("Unable to get the server status in XML format", e);
+        } else {
+          ObjectMapper mapper = HopJson.newMapper();
+          String jsonString =
+              mapper.writerWithDefaultPrettyPrinter().writeValueAsString(serverStatus);
+          out.println(jsonString);
         }
-      } else {
-        // JSON
-        //
-        ObjectMapper mapper = HopJson.newMapper();
-        String jsonString =
-            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(serverStatus);
-        out.println(jsonString);
+      } catch (HopException | IOException e) {
+        writeXmlOrJsonApiError(
+            response,
+            out,
+            useXml,
+            useJson,
+            "Unable to get the server status in XML or JSON format",
+            e);
       }
     } else {
       out.println("<HTML>");
@@ -657,8 +654,9 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         out.print(CONST_DIV); // end div
 
       } catch (Exception ex) {
+        logError("Error rendering server status HTML page", ex);
         out.println("<pre>");
-        ex.printStackTrace(out);
+        out.println("Unable to display server status. See server log for details.");
         out.println("</pre>");
       }
 

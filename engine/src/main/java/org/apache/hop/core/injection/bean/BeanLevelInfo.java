@@ -41,7 +41,7 @@ public class BeanLevelInfo<Meta extends Object> {
     NONE,
     ARRAY,
     LIST,
-  };
+  }
 
   /** Parent transform or null for root. */
   public BeanLevelInfo parent;

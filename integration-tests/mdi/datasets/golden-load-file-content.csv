@@ -1,0 +1,2 @@
+include,include_field,rownum,addresultfile,IsIgnoreEmptyFile,IsIgnoreMissingPath,rownum_field,encoding,limit,IsInFields,DynamicFilenameField,shortFileFieldName,pathFieldName,hiddenFieldName,lastModificationTimeFieldName,uriNameFieldName,rootUriNameFieldName,extensionFieldName
+Y,filename,Y,Y,Y,Y,rowNum,UTF-8,999,Y,dynamicField,shortFile,path,hidden,lastUpd,uri,rootUri,extension

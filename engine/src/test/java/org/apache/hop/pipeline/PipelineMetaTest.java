@@ -247,7 +247,7 @@ class PipelineMetaTest {
 
     pipelineMeta.addTransform(0, transformMeta);
     assertEquals(2, pipelineMeta.transforms.size());
-    assertEquals(2, pipelineMeta.transformChangeListeners.size());
+    assertEquals(1, pipelineMeta.transformChangeListeners.size());
   }
 
   @Test

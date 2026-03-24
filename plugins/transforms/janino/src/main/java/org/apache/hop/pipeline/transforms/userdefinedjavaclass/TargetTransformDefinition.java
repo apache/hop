@@ -16,32 +16,46 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import org.apache.hop.core.injection.Injection;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class TargetTransformDefinition extends TransformDefinition {
-  @Injection(name = "TARGET_TAG", group = "TARGET_TRANSFORMS")
+  @HopMetadataProperty(
+      key = "transform_tag",
+      injectionKey = "TARGET_TAG",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.TARGET_TAG")
   public String tag = super.tag;
 
-  @Injection(name = "TARGET_TRANSFORM_NAME", group = "TARGET_TRANSFORMS")
+  @HopMetadataProperty(
+      key = "transform_name",
+      injectionKey = "TARGET_TRANSFORM_NAME",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.TARGET_TRANSFORM_NAME")
   public String transformName = super.transformName;
 
   public TransformMeta transformMeta = super.transformMeta;
 
-  @Injection(name = "TARGET_DESCRIPTION", group = "TARGET_TRANSFORMS")
+  @HopMetadataProperty(
+      key = "transform_description",
+      injectionKey = "TARGET_DESCRIPTION",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.TARGET_DESCRIPTION")
   public String description = super.description;
 
   public TargetTransformDefinition() {
     super();
   }
 
-  public TargetTransformDefinition(
-      String tag, String transformName, TransformMeta transformMeta, String description) {
-    super(tag, transformName, transformMeta, description);
+  public TargetTransformDefinition(TargetTransformDefinition d) {
+    super(d);
+    this.tag = d.tag;
+    this.transformName = d.transformName;
+    this.description = d.description;
+    if (d.transformMeta != null) {
+      this.transformMeta = (TransformMeta) d.transformMeta.clone();
+    }
   }
 
   @Override
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
+  public Object clone() {
+    return new TargetTransformDefinition(this);
   }
 }

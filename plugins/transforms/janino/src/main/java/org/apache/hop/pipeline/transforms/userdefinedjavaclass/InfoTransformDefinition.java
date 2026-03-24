@@ -16,32 +16,50 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import org.apache.hop.core.injection.Injection;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+@Getter
+@Setter
 public class InfoTransformDefinition extends TransformDefinition {
-  @Injection(name = "INFO_TAG", group = "INFO_TRANSFORMS")
-  public String tag = super.tag;
+  @HopMetadataProperty(
+      key = "transform_tag",
+      injectionKey = "INFO_TAG",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.INFO_TAG")
+  private String tag = super.tag;
 
-  @Injection(name = "INFO_TRANSFORM_NAME", group = "INFO_TRANSFORMS")
-  public String transformName = super.transformName;
+  @HopMetadataProperty(
+      key = "transform_name",
+      injectionKey = "INFO_TRANSFORM_NAME",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.INFO_TRANSFORM_NAME")
+  private String transformName = super.transformName;
+
+  @HopMetadataProperty(
+      key = "transform_description",
+      injectionKey = "INFO_DESCRIPTION",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.INFO_DESCRIPTION")
+  private String description = super.description;
 
   public TransformMeta transformMeta = super.transformMeta;
-
-  @Injection(name = "INFO_DESCRIPTION", group = "INFO_TRANSFORMS")
-  public String description = super.description;
 
   public InfoTransformDefinition() {
     super();
   }
 
-  public InfoTransformDefinition(
-      String tag, String transformName, TransformMeta transformMeta, String description) {
-    super(tag, transformName, transformMeta, description);
+  public InfoTransformDefinition(InfoTransformDefinition d) {
+    super(d);
+    this.tag = d.tag;
+    this.transformName = d.transformName;
+    this.description = d.description;
+    if (d.transformMeta != null) {
+      this.transformMeta = (TransformMeta) d.transformMeta.clone();
+    }
   }
 
   @Override
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
+  public Object clone() {
+    return new InfoTransformDefinition(this);
   }
 }

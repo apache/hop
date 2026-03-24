@@ -1,0 +1,4 @@
+name,rename,type,length,precision,replace
+f1,renamedF1,String,100,-1,Y
+f2,renamedF2,Integer,7,-1,Y
+f3,renamedF3,Number,9,2,Y

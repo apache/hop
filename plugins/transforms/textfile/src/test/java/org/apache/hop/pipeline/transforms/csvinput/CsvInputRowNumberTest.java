@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -84,7 +83,7 @@ class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   }
 
   @Override
-  CsvInputMeta createMeta(File file, TextFileInputField[] fields) {
+  CsvInputMeta createMeta(File file, CsvInputField[] fields) {
     CsvInputMeta meta = super.createMeta(file, fields);
     meta.setRowNumField("rownum");
     return meta;

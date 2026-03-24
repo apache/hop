@@ -18,264 +18,98 @@
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.YNLoadSaveValidator;
+import org.apache.hop.core.fileinput.InputFile;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaJson;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
-/** User: Dzmitry Stsiapanau Date: 12/17/13 Time: 3:11 PM */
-class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
-
-  LoadSaveTester loadSaveTester;
-
-  String xmlOrig =
-      "    "
-          + "<include>N</include>    <include_field/>    <rownum>N</rownum>   "
-          + " <addresultfile>Y</addresultfile>    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>   "
-          + " <IsIgnoreMissingPath>N</IsIgnoreMissingPath>    <rownum_field/>   "
-          + " <encoding/>    <file>      <name>D:\\DZMITRY</name>      <filemask>*/</filemask>     "
-          + " <exclude_filemask>/***</exclude_filemask>      <file_required>N</file_required>     "
-          + " <include_subfolders>N</include_subfolders>      </file>    <fields>      </fields>   "
-          + " <limit>0</limit>    <IsInFields>N</IsInFields>    <DynamicFilenameField/>   "
-          + " <shortFileFieldName/>    <pathFieldName/>    <hiddenFieldName/>    <lastModificationTimeFieldName/>   "
-          + " <uriNameFieldName/>    <rootUriNameFieldName/>    <extensionFieldName/>";
-
-  public LoadFileInputMeta createMeta() throws Exception {
-    LoadFileInputMeta meta = new LoadFileInputMeta();
-    meta.allocate(1, 0);
-    meta.setIncludeFilename(false);
-    meta.setFilenameField(null);
-    meta.setAddResultFile(true);
-    meta.setIgnoreEmptyFile(false);
-    meta.setIncludeRowNumber(false);
-    meta.setRowNumberField(null);
-    meta.setEncoding(null);
-    meta.setFileName(new String[] {"D:\\DZMITRY"});
-    meta.setFileMask(new String[] {"*/"});
-    meta.setExcludeFileMask(new String[] {"/***"});
-    meta.setFileRequired(new String[] {"N"});
-    meta.setIncludeSubFolders(new String[] {"N"});
-    meta.setRowLimit(0);
-    meta.setFileInFields(false);
-    meta.setDynamicFilenameField(null);
-    meta.setShortFileNameField(null);
-    meta.setPathField(null);
-    meta.setIsHiddenField(null);
-    meta.setLastModificationDateField(null);
-    meta.setUriField(null);
-    meta.setRootUriField(null);
-    meta.setExtensionField(null);
-    return meta;
-  }
-
-  @Test
-  void testGetXml() throws Exception {
-    LoadFileInputMeta testMeta = createMeta();
-    String xml = testMeta.getXml();
-    assertEquals(
-        xmlOrig.replaceAll("\n", "").replaceAll("\r", ""),
-        xml.replaceAll("\n", "").replaceAll("\r", ""));
-  }
-
-  @Test
-  void testLoadXml() throws Exception {
-    LoadFileInputMeta origMeta = createMeta();
-    LoadFileInputMeta testMeta = new LoadFileInputMeta();
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    DocumentBuilder db = dbf.newDocumentBuilder();
-    Document doc =
-        db.parse(new InputSource(new StringReader("<transform>" + xmlOrig + "</transform>")));
-    IHopMetadataProvider metadataProvider = null;
-    testMeta.loadXml(doc.getFirstChild(), metadataProvider);
-    assertEquals(origMeta, testMeta);
-  }
-
+class LoadFileInputMetaTest {
   @BeforeEach
-  void setUp() throws Exception {
-    List<String> attributes =
-        Arrays.asList(
-            "includeFilename",
-            "filenameField",
-            "includeRowNumber",
-            "rowNumberField",
-            "rowLimit",
-            "encoding",
-            "DynamicFilenameField",
-            "fileinfield",
-            "addresultfile",
-            "IsIgnoreEmptyFile",
-            "IsIgnoreMissingPath",
-            "shortFileFieldName",
-            "pathFieldName",
-            "hiddenFieldName",
-            "lastModificationTimeFieldName",
-            "uriNameFieldName",
-            "rootUriNameFieldName",
-            "extensionFieldName",
-            "includeSubFolders",
-            "fileName",
-            "fileMask",
-            "excludeFileMask",
-            "fileRequired",
-            "inputFields");
-
-    Map<String, String> getterMap =
-        new HashMap<>() {
-          {
-            put("includeFilename", "getIncludeFilename");
-            put("filenameField", "getFilenameField");
-            put("includeRowNumber", "getIncludeRowNumber");
-            put("rowNumberField", "getRowNumberField");
-            put("rowLimit", "getRowLimit");
-            put("encoding", "getEncoding");
-            put("DynamicFilenameField", "getDynamicFilenameField");
-            put("fileinfield", "getFileInFields");
-            put("addresultfile", "getAddResultFile");
-            put("IsIgnoreEmptyFile", "isIgnoreEmptyFile");
-            put("IsIgnoreMissingPath", "isIgnoreMissingPath");
-            put("shortFileFieldName", "getShortFileNameField");
-            put("pathFieldName", "getPathField");
-            put("hiddenFieldName", "isHiddenField");
-            put("lastModificationTimeFieldName", "getLastModificationDateField");
-            put("uriNameFieldName", "getUriField");
-            put("rootUriNameFieldName", "getRootUriField");
-            put("extensionFieldName", "getExtensionField");
-            put("includeSubFolders", "getIncludeSubFolders");
-            put("fileName", "getFileName");
-            put("fileMask", "getFileMask");
-            put("excludeFileMask", "getExcludeFileMask");
-            put("fileRequired", "getFileRequired");
-            put("inputFields", "getInputFields");
-          }
-        };
-
-    Map<String, String> setterMap =
-        new HashMap<>() {
-          {
-            put("includeFilename", "setIncludeFilename");
-            put("filenameField", "setFilenameField");
-            put("includeRowNumber", "setIncludeRowNumber");
-            put("rowNumberField", "setRowNumberField");
-            put("rowLimit", "setRowLimit");
-            put("encoding", "setEncoding");
-            put("DynamicFilenameField", "setDynamicFilenameField");
-            put("fileinfield", "setFileInFields");
-            put("addresultfile", "setAddResultFile");
-            put("IsIgnoreEmptyFile", "setIgnoreEmptyFile");
-            put("IsIgnoreMissingPath", "setIgnoreMissingPath");
-            put("shortFileFieldName", "setShortFileNameField");
-            put("pathFieldName", "setPathField");
-            put("hiddenFieldName", "setIsHiddenField");
-            put("lastModificationTimeFieldName", "setLastModificationDateField");
-            put("uriNameFieldName", "setUriField");
-            put("rootUriNameFieldName", "setRootUriField");
-            put("extensionFieldName", "setExtensionField");
-            put("includeSubFolders", "setIncludeSubFolders");
-            put("fileName", "setFileName");
-            put("fileMask", "setFileMask");
-            put("excludeFileMask", "setExcludeFileMask");
-            put("fileRequired", "setFileRequired");
-            put("inputFields", "setInputFields");
-          }
-        };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
-
-    IFieldLoadSaveValidator<LoadFileInputField[]> lfifArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new LoadFileInputFieldLoadSaveValidator(), 5);
-
-    IFieldLoadSaveValidator<String[]> YNArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new YNLoadSaveValidator(), 5);
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("includeSubFolders", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fileName", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fileMask", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("excludeFileMask", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fileRequired", YNArrayLoadSaveValidator);
-
-    attrValidatorMap.put("inputFields", lfifArrayLoadSaveValidator);
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            LoadFileInputMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(ITransformMeta someMeta) {
-    if (someMeta instanceof LoadFileInputMeta) {
-      ((LoadFileInputMeta) someMeta).allocate(5, 5);
+  void beforeEach() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    String[] classNames = {
+      ValueMetaString.class.getName(),
+      ValueMetaInteger.class.getName(),
+      ValueMetaDate.class.getName(),
+      ValueMetaNumber.class.getName(),
+      ValueMetaJson.class.getName()
+    };
+    for (String className : classNames) {
+      registry.registerPluginClass(className, ValueMetaPluginType.class, ValueMetaPlugin.class);
     }
   }
 
   @Test
-  void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
+  void testLoadSave() throws Exception {
+    LoadFileInputMeta meta =
+        TransformSerializationTestUtil.testSerialization("/transform.xml", LoadFileInputMeta.class);
+
+    validateTransformProperties(meta);
+    validateFilesProperties(meta);
+    validateFieldsProperties(meta);
   }
 
-  public class LoadFileInputFieldLoadSaveValidator
-      implements IFieldLoadSaveValidator<LoadFileInputField> {
-    final Random rand = new Random();
+  private static void validateTransformProperties(LoadFileInputMeta meta) {
+    assertTrue(meta.isIncludeFilename());
+    assertEquals("filename", meta.getFilenameField());
+    assertTrue(meta.isIncludeRowNumber());
+    assertEquals("rowNum", meta.getRowNumberField());
+    assertTrue(meta.isIgnoreEmptyFile());
+    assertTrue(meta.isIgnoreMissingPath());
+    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(999L, meta.getRowLimit());
+    assertTrue(meta.isFileInField());
+    assertEquals("dynamicField", meta.getDynamicFilenameField());
+    assertEquals("shortFile", meta.getAdditionalFields().getShortFilenameField());
+    assertEquals("path", meta.getAdditionalFields().getPathField());
+    assertEquals("hidden", meta.getAdditionalFields().getHiddenField());
+    assertEquals("lastUpd", meta.getAdditionalFields().getLastModificationField());
+    assertEquals("uri", meta.getAdditionalFields().getUriField());
+    assertEquals("rootUri", meta.getAdditionalFields().getRootUriField());
+    assertEquals("extension", meta.getAdditionalFields().getExtensionField());
+  }
 
-    @Override
-    public LoadFileInputField getTestObject() {
-      LoadFileInputField rtn = new LoadFileInputField();
-      rtn.setCurrencySymbol(UUID.randomUUID().toString());
-      rtn.setDecimalSymbol(UUID.randomUUID().toString());
-      rtn.setFormat(UUID.randomUUID().toString());
-      rtn.setGroupSymbol(UUID.randomUUID().toString());
-      rtn.setName(UUID.randomUUID().toString());
-      rtn.setElementType(rand.nextInt(2));
-      rtn.setTrimType(rand.nextInt(4));
-      rtn.setType(rand.nextInt(5));
-      rtn.setPrecision(rand.nextInt(9));
-      rtn.setRepeated(rand.nextBoolean());
-      rtn.setLength(rand.nextInt(50));
-      return rtn;
-    }
+  // Files
+  private static void validateFilesProperties(LoadFileInputMeta meta) {
+    assertEquals(2, meta.getInputFiles().size());
+    InputFile f = meta.getInputFiles().getFirst();
+    assertEquals("sample-file1.txt", f.getFileName());
+    assertEquals("mask1", f.getFileMask());
+    assertEquals("excludeMask1", f.getExcludeFileMask());
+    assertTrue(f.isFileRequired());
+    assertTrue(f.isIncludeSubFolders());
+    f = meta.getInputFiles().getLast();
+    assertEquals("sample-file2.txt", f.getFileName());
+    assertEquals("mask2", f.getFileMask());
+    assertEquals("excludeMask2", f.getExcludeFileMask());
+    assertTrue(f.isFileRequired());
+    assertTrue(f.isIncludeSubFolders());
+  }
 
-    @Override
-    public boolean validateTestObject(LoadFileInputField testObject, Object actualObj) {
-      if (!(actualObj instanceof LoadFileInputField)) {
-        return false;
-      }
-      LoadFileInputField actual = (LoadFileInputField) actualObj;
-      boolean tst1 = (actual.getXml().equals(testObject.getXml()));
-      LoadFileInputField aClone = (LoadFileInputField) testObject.clone();
-      boolean tst2 = (actual.getXml().equals(aClone.getXml()));
-      return (tst1 && tst2);
-    }
+  // Fields (We don't really care about the other fields)
+  private static void validateFieldsProperties(LoadFileInputMeta meta) {
+    assertEquals(2, meta.getInputFields().size());
+    LoadFileInputField field = meta.getInputFields().getFirst();
+    assertEquals("File content", field.getName());
+    assertEquals(LoadFileInputField.ElementType.FILE_CONTENT, field.getElementType());
+    assertEquals(IValueMeta.TYPE_STRING, field.getType());
+    assertEquals(65535, field.getLength());
+
+    field = meta.getInputFields().getLast();
+    assertEquals("File size", field.getName());
+    assertEquals(LoadFileInputField.ElementType.FILE_SIZE, field.getElementType());
+    assertEquals(IValueMeta.TYPE_INTEGER, field.getType());
+    assertEquals(6, field.getLength());
   }
 }

@@ -1,0 +1,4 @@
+name,path,type,format,currency,decimal,group,length,precision,trim_type,repeat
+f1,path1,String,,,,,-1,-1,none,N
+f2,path2,Integer,"#",,,,-1,-1,none,N
+f3,path3,Date,yyyy/MM/dd,,,,-1,-1,none,N

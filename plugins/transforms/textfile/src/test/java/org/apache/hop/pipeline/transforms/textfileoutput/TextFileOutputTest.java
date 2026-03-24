@@ -81,7 +81,7 @@ class TextFileOutputTest {
     PluginRegistry.init();
   }
 
-  class TextFileOutputTestHandler extends TextFileOutput<TextFileOutputMeta, TextFileOutputData> {
+  class TextFileOutputTestHandler extends TextFileOutput {
     public List<Throwable> errors = new ArrayList<>();
     private Object[] row;
 
@@ -155,13 +155,14 @@ class TextFileOutputTest {
           EMPTY_STRING,
           EMPTY_STRING,
           "floor");
-  private TextFileField[] textFileFields = new TextFileField[] {textFileField, textFileField2};
+  private List<TextFileField> textFileFields =
+      new ArrayList<>(List.of(textFileField, textFileField2));
   private Object[] row = new Object[] {"some data", "another data"};
   private Object[] row2 = new Object[] {"some data2", "another data2"};
   private List<Object[]> emptyRows = new ArrayList<>();
   private List<Object[]> rows = new ArrayList<>();
   private List<String> contents = new ArrayList<>();
-  private TextFileOutput<TextFileOutputMeta, TextFileOutputData> textFileOutput;
+  private TextFileOutput textFileOutput;
 
   {
     rows.add(row);
@@ -219,7 +220,7 @@ class TextFileOutputTest {
     Mockito.verify(transformMockHelper.pipeline, Mockito.never()).stopAll();
     Mockito.when(transformMockHelper.iTransformMeta.getSeparator()).thenReturn(" ");
     Mockito.when(transformMockHelper.iTransformMeta.getEnclosure()).thenReturn("\"");
-    Mockito.when(transformMockHelper.iTransformMeta.getNewline()).thenReturn("\n");
+    Mockito.when(transformMockHelper.iTransformMeta.getNewLine()).thenReturn("\n");
     // Mockito.when( transformMockHelper.pipelineMeta.listVariables() ).thenReturn( new String[ 0 ]
     // );
 
@@ -346,16 +347,17 @@ class TextFileOutputTest {
   void testNoOpenFileCall_IfRule_1() throws Exception {
 
     TextFileField tfFieldMock = Mockito.mock(TextFileField.class);
-    TextFileField[] textFileFields = {tfFieldMock};
+    List<TextFileField> mockFields = new ArrayList<>(List.of(tfFieldMock));
+    TextFileOutputMeta.FileSettings mockFileSettings =
+        Mockito.mock(TextFileOutputMeta.FileSettings.class);
+    Mockito.when(transformMockHelper.iTransformMeta.getFileSettings()).thenReturn(mockFileSettings);
+    Mockito.when(mockFileSettings.isDoNotOpenNewFileInit()).thenReturn(true);
+    Mockito.when(mockFileSettings.getFileName()).thenReturn(EMPTY_FILE_NAME);
 
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(EMPTY_STRING);
-    Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
-    Mockito.when(transformMockHelper.iTransformMeta.isDoNotOpenNewFileInit()).thenReturn(true);
-
+    Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(mockFields);
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(EMPTY_STRING);
-    Mockito.when(transformMockHelper.iTransformMeta.getFileName()).thenReturn(EMPTY_FILE_NAME);
-    Mockito.when(transformMockHelper.iTransformMeta.isDoNotOpenNewFileInit()).thenReturn(true);
-    Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
+    Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(mockFields);
 
     textFileOutput =
         new TextFileOutput(
@@ -443,7 +445,7 @@ class TextFileOutputTest {
   }
 
   private List<Throwable> doOutput(
-      TextFileField[] textFileField,
+      List<TextFileField> textFileFields,
       List<Object[]> rows,
       String pathToFile,
       String endedLine,
@@ -452,7 +454,7 @@ class TextFileOutputTest {
       Boolean append)
       throws HopException {
     TextFileOutputData textFileOutputData = new TextFileOutputData();
-    TextFileOutputTestHandler textFileOutput =
+    TextFileOutputTestHandler textFileOutputTestHandler =
         new TextFileOutputTestHandler(
             transformMockHelper.transformMeta,
             transformMockHelper.iTransformMeta,
@@ -462,12 +464,13 @@ class TextFileOutputTest {
             transformMockHelper.pipeline);
 
     // init transform meta and process transform meta should be the same in this case
-    Mockito.when(transformMockHelper.iTransformMeta.isDoNotOpenNewFileInit())
-        .thenReturn(isDoNotOpenNewFileInit);
-    Mockito.when(transformMockHelper.iTransformMeta.isFileAppended()).thenReturn(append);
-
+    TextFileOutputMeta.FileSettings fileSettings =
+        Mockito.mock(TextFileOutputMeta.FileSettings.class);
+    Mockito.when(fileSettings.isDoNotOpenNewFileInit()).thenReturn(isDoNotOpenNewFileInit);
+    Mockito.when(fileSettings.isFileAppended()).thenReturn(append);
+    Mockito.when(fileSettings.getFileName()).thenReturn(pathToFile);
+    Mockito.when(transformMockHelper.iTransformMeta.getFileSettings()).thenReturn(fileSettings);
     Mockito.when(transformMockHelper.iTransformMeta.isHeaderEnabled()).thenReturn(isHeaderEnabled);
-    Mockito.when(transformMockHelper.iTransformMeta.getFileName()).thenReturn(pathToFile);
     Mockito.when(
             transformMockHelper.iTransformMeta.buildFilename(
                 Mockito.anyString(),
@@ -483,42 +486,42 @@ class TextFileOutputTest {
                 Mockito.any(TextFileOutputMeta.class)))
         .thenReturn(pathToFile);
 
-    Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileField);
+    Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
 
-    textFileOutput.init();
+    textFileOutputTestHandler.init();
 
     // Process rows
 
     IRowSet rowSet = transformMockHelper.getMockInputRowSet(rows);
     IRowMeta inputRowMeta = Mockito.mock(IRowMeta.class);
-    textFileOutput.setInputRowMeta(inputRowMeta);
+    textFileOutputTestHandler.setInputRowMeta(inputRowMeta);
 
     Mockito.when(rowSet.getRowWait(Mockito.anyInt(), Mockito.any(TimeUnit.class)))
         .thenReturn(rows.isEmpty() ? null : rows.iterator().next());
     Mockito.when(rowSet.getRowMeta()).thenReturn(inputRowMeta);
     Mockito.when(inputRowMeta.clone()).thenReturn(inputRowMeta);
 
-    for (int i = 0; i < textFileField.length; i++) {
-      String name = textFileField[i].getName();
+    for (int i = 0; i < textFileFields.size(); i++) {
+      String name = textFileFields.get(i).getName();
       ValueMetaString valueMetaString = new ValueMetaString(name);
       Mockito.when(inputRowMeta.getValueMeta(i)).thenReturn(valueMetaString);
       Mockito.when(inputRowMeta.indexOfValue(name)).thenReturn(i);
     }
 
-    textFileOutput.addRowSetToInputRowSets(rowSet);
-    textFileOutput.addRowSetToOutputRowSets(rowSet);
+    textFileOutputTestHandler.addRowSetToInputRowSets(rowSet);
+    textFileOutputTestHandler.addRowSetToOutputRowSets(rowSet);
 
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(endedLine);
-    Mockito.when(transformMockHelper.iTransformMeta.isFastDump()).thenReturn(true);
+    Mockito.when(fileSettings.isFastDump()).thenReturn(true);
 
     for (Object[] objects : rows) {
-      textFileOutput.setRow(objects);
-      textFileOutput.processRow();
+      textFileOutputTestHandler.setRow(objects);
+      textFileOutputTestHandler.processRow();
     }
-    textFileOutput.setRow(null);
-    textFileOutput.processRow();
-    textFileOutput.dispose();
-    return textFileOutput.errors;
+    textFileOutputTestHandler.setRow(null);
+    textFileOutputTestHandler.processRow();
+    textFileOutputTestHandler.dispose();
+    return textFileOutputTestHandler.errors;
   }
 
   @Test
@@ -583,7 +586,8 @@ class TextFileOutputTest {
     data.writer = new ByteArrayOutputStream();
 
     if (field != null) {
-      meta.setOutputFields(new TextFileField[] {field});
+      meta.getOutputFields().clear();
+      meta.getOutputFields().add(field);
     }
 
     transform = Mockito.spy(transform);
@@ -602,23 +606,27 @@ class TextFileOutputTest {
     String filename = createTemplateFile().toString();
 
     TextFileField tfFieldMock = Mockito.mock(TextFileField.class);
-    TextFileField[] textFileFields = {tfFieldMock};
+    List<TextFileField> textFileFields = new ArrayList<>(List.of(tfFieldMock));
+    TextFileOutputMeta.FileSettings mockFileSettings =
+        Mockito.mock(TextFileOutputMeta.FileSettings.class);
+    Mockito.when(transformMockHelper.iTransformMeta.getFileSettings()).thenReturn(mockFileSettings);
 
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(EMPTY_STRING);
     Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
-    Mockito.when(transformMockHelper.iTransformMeta.isDoNotOpenNewFileInit()).thenReturn(true);
+    Mockito.when(mockFileSettings.isDoNotOpenNewFileInit()).thenReturn(true);
 
     Mockito.when(transformMockHelper.iTransformData.getFileStreamsCollection())
         .thenCallRealMethod();
+    Mockito.when(transformMockHelper.iTransformMeta.getFileSettings()).thenReturn(mockFileSettings);
 
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(EMPTY_STRING);
-    Mockito.when(transformMockHelper.iTransformMeta.getFileName()).thenReturn(filename);
-    Mockito.when(transformMockHelper.iTransformMeta.isFileAppended()).thenReturn(true);
+    Mockito.when(mockFileSettings.getFileName()).thenReturn(filename);
+    Mockito.when(mockFileSettings.isFileAppended()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.isHeaderEnabled()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
-    Mockito.when(transformMockHelper.iTransformMeta.isDoNotOpenNewFileInit()).thenReturn(true);
+    Mockito.when(mockFileSettings.isDoNotOpenNewFileInit()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.isFileNameInField()).thenReturn(false);
-    Mockito.when(transformMockHelper.iTransformMeta.isAddToResultFiles()).thenReturn(true);
+    Mockito.when(mockFileSettings.isAddToResultFiles()).thenReturn(true);
 
     Object[] rowData = new Object[] {"data text"};
     textFileOutput =
@@ -676,22 +684,25 @@ class TextFileOutputTest {
     String filename = createTemplateFile().toString();
 
     TextFileField tfFieldMock = Mockito.mock(TextFileField.class);
-    TextFileField[] textFileFields = {tfFieldMock};
+    List<TextFileField> textFileFields = new ArrayList<>(List.of(tfFieldMock));
+    TextFileOutputMeta.FileSettings mockFileSettings =
+        Mockito.mock(TextFileOutputMeta.FileSettings.class);
+    Mockito.when(transformMockHelper.iTransformMeta.getFileSettings()).thenReturn(mockFileSettings);
 
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(EMPTY_STRING);
     Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
-    Mockito.when(transformMockHelper.iTransformMeta.isDoNotOpenNewFileInit()).thenReturn(true);
+    Mockito.when(mockFileSettings.isDoNotOpenNewFileInit()).thenReturn(true);
 
     Mockito.when(transformMockHelper.iTransformData.getFileStreamsCollection())
         .thenCallRealMethod();
 
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(EMPTY_STRING);
-    Mockito.when(transformMockHelper.iTransformMeta.getFileName()).thenReturn(filename);
-    Mockito.when(transformMockHelper.iTransformMeta.isFileAppended()).thenReturn(true);
+    Mockito.when(mockFileSettings.getFileName()).thenReturn(filename);
+    Mockito.when(mockFileSettings.isFileAppended()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.isHeaderEnabled()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
-    Mockito.when(transformMockHelper.iTransformMeta.isDoNotOpenNewFileInit()).thenReturn(true);
-    Mockito.when(transformMockHelper.iTransformMeta.isAddToResultFiles()).thenReturn(true);
+    Mockito.when(mockFileSettings.isDoNotOpenNewFileInit()).thenReturn(true);
+    Mockito.when(mockFileSettings.isAddToResultFiles()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.isFileNameInField()).thenReturn(true);
 
     Object[] rowData = new Object[] {"data text"};
@@ -770,6 +781,8 @@ class TextFileOutputTest {
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
 
+    Mockito.when(transformMockHelper.iTransformMeta.getFileSettings())
+        .thenReturn(new TextFileOutputMeta.FileSettings());
     Mockito.doReturn(outputEncode).when(transformMockHelper.iTransformMeta).getEncoding();
     textFileOutput.getData().writer = Mockito.mock(BufferedOutputStream.class);
 

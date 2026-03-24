@@ -1,0 +1,2 @@
+outputValue,jsonBloc,operation_type,use_arrays_with_single_instance,use_single_item_per_group,json_prittified,encoding,addtoresult,name,split_output_after,extention,append,split,haspartno,add_date,add_time,create_parent_folder,json_size_field,doNotOpenNewFileInit
+outputValue,blockName,writetofile,Y,Y,Y,UTF-8,N,filename,100,json,N,N,N,N,N,Y,Y,Y

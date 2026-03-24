@@ -53,7 +53,26 @@ public class HopServerServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    doGet(req, resp);
+    try {
+      doGet(req, resp);
+    } catch (Exception e) {
+      log.logError("Error handling HopServer POST request", e);
+      sendSafeError(
+          resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process server request.");
+    }
+  }
+
+  private void sendSafeError(HttpServletResponse response, int status, String message) {
+    if (response.isCommitted()) {
+      response.setStatus(status);
+      return;
+    }
+    try {
+      response.sendError(status, message);
+    } catch (IOException e) {
+      log.logError("Failed to send error response (" + status + "): " + message, e);
+      response.setStatus(status);
+    }
   }
 
   @Override
@@ -68,15 +87,17 @@ public class HopServerServlet extends HttpServlet {
       try {
         plugin.doGet(req, resp);
       } catch (ServletException e) {
-        throw e;
+        log.logError("Hop server plugin request failed", e);
+        sendSafeError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Plugin request failed.");
       } catch (Exception e) {
-        throw new ServletException(e);
+        log.logError("Hop server plugin request failed", e);
+        sendSafeError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Plugin request failed.");
       }
     } else {
       if (log.isDebug()) {
         log.logDebug("Unable to find Hop Server Plugin for key: /hop" + req.getPathInfo());
       }
-      resp.sendError(404);
+      sendSafeError(resp, HttpServletResponse.SC_NOT_FOUND, "Not found.");
     }
   }
 

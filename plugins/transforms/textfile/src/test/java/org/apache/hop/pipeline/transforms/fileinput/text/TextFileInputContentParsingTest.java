@@ -17,9 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import java.util.List;
+import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -30,14 +31,14 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testDefaultOptions() throws Exception {
 
-    meta.content.fileFormat = "unix";
+    meta.getContent().setFileFormat("unix");
 
     initByFile("default.csv");
 
     setFields(
-        new BaseFileField("f1", -1, -1),
-        new BaseFileField("f2", -1, -1),
-        new BaseFileField("f2", -1, -1));
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f2", -1, -1));
 
     process();
 
@@ -47,16 +48,16 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testSeparator() throws Exception {
 
-    meta.content.separator = ",";
-    meta.content.fileFormat = "unix";
+    meta.getContent().setSeparator(",");
+    meta.getContent().setFileFormat("unix");
 
     initByFile("separator.csv");
 
     setFields(
-        new BaseFileField("f1", -1, -1),
-        new BaseFileField("f2", -1, -1),
-        new BaseFileField("f2", -1, -1));
-    meta.getInputFields()[2].setDecimalSymbol(".");
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f2", -1, -1));
+    meta.getInputFields().get(2).setDecimalSymbol(".");
 
     process();
 
@@ -69,15 +70,15 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testEscape() throws Exception {
 
-    meta.content.escapeCharacter = "\\";
-    meta.content.fileFormat = "unix";
+    meta.getContent().setEscapeCharacter("\\");
+    meta.getContent().setFileFormat("unix");
 
     initByFile("escape.csv");
 
     setFields(
-        new BaseFileField("f1", -1, -1),
-        new BaseFileField("f2", -1, -1),
-        new BaseFileField("f2", -1, -1));
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f2", -1, -1));
 
     process();
 
@@ -90,15 +91,15 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testHeader() throws Exception {
 
-    meta.content.header = false;
-    meta.content.fileFormat = "unix";
+    meta.getContent().setHeader(false);
+    meta.getContent().setFileFormat("unix");
 
     initByFile("default.csv");
 
     setFields(
-        new BaseFileField("f1", -1, -1),
-        new BaseFileField("f2", -1, -1),
-        new BaseFileField("f2", -1, -1));
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f2", -1, -1));
 
     process();
 
@@ -114,13 +115,13 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testGzipCompression() throws Exception {
 
-    meta.content.fileCompression = "GZip";
+    meta.getContent().setFileCompression("GZip");
     initByFile("default.csv.gz");
 
     setFields(
-        new BaseFileField("f1", -1, -1),
-        new BaseFileField("f2", -1, -1),
-        new BaseFileField("f2", -1, -1));
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f2", -1, -1));
 
     process();
 
@@ -130,14 +131,14 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testVfsGzipCompression() throws Exception {
 
-    meta.content.fileCompression = "None";
+    meta.getContent().setFileCompression("None");
     String url = "gz:" + this.getClass().getResource(inPrefix + "default.csv.gz");
     initByURL(url);
 
     setFields(
-        new BaseFileField("f1", -1, -1),
-        new BaseFileField("f2", -1, -1),
-        new BaseFileField("f2", -1, -1));
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f2", -1, -1));
 
     process();
 
@@ -147,14 +148,14 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testVfsBzip2Compression() throws Exception {
 
-    meta.content.fileCompression = "None";
+    meta.getContent().setFileCompression("None");
     String url = "bz2:" + this.getClass().getResource(inPrefix + "default.csv.bz2");
     initByURL(url);
 
     setFields(
-        new BaseFileField("f1", -1, -1),
-        new BaseFileField("f2", -1, -1),
-        new BaseFileField("f2", -1, -1));
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f2", -1, -1));
 
     process();
 
@@ -163,16 +164,15 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
 
   @Test
   void testFixedWidth() throws Exception {
-
-    meta.content.fileType = "Fixed";
-    meta.content.fileFormat = "unix";
+    meta.getContent().setFileType("Fixed");
+    meta.getContent().setFileFormat("unix");
 
     initByFile("fixed.csv");
 
     setFields(
-        new BaseFileField("f1", 0, 7),
-        new BaseFileField("f2", 8, 7),
-        new BaseFileField("f3", 16, 7));
+        new TextFileInputField("f1", 0, 7),
+        new TextFileInputField("f2", 8, 7),
+        new TextFileInputField("f3", 16, 7));
 
     process();
 
@@ -187,18 +187,18 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testFixedWidthBytes() throws Exception {
 
-    meta.content.header = false;
-    meta.content.fileType = "Fixed";
-    meta.content.fileFormat = "Unix";
-    meta.content.encoding = "Shift_JIS";
-    meta.content.length = "Bytes";
+    meta.getContent().setHeader(false);
+    meta.getContent().setFileType("Fixed");
+    meta.getContent().setFileFormat("Unix");
+    meta.getContent().setEncoding("Shift_JIS");
+    meta.getContent().setLength("Bytes");
     initByFile("test-fixed-length-bytes.txt");
 
     setFields(
-        new BaseFileField("f1", 0, 5),
-        new BaseFileField("f2", 5, 3),
-        new BaseFileField("f3", 8, 1),
-        new BaseFileField("f4", 9, 3));
+        new TextFileInputField("f1", 0, 5),
+        new TextFileInputField("f2", 5, 3),
+        new TextFileInputField("f3", 8, 1),
+        new TextFileInputField("f4", 9, 3));
 
     process();
 
@@ -207,20 +207,20 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
 
   @Test
   void testFixedWidthCharacters() throws Exception {
-    meta.content.header = false;
-    meta.content.fileType = "Fixed";
-    meta.content.fileFormat = "DOS";
-    meta.content.encoding = "ISO-8859-1";
-    meta.content.length = "Characters";
-    meta.content.fileFormat = "unix";
+    meta.getContent().setHeader(false);
+    meta.getContent().setFileType("Fixed");
+    meta.getContent().setFileFormat("DOS");
+    meta.getContent().setEncoding("ISO-8859-1");
+    meta.getContent().setLength("Characters");
+    meta.getContent().setFileFormat("unix");
 
     initByFile("test-fixed-length-characters.txt");
 
     setFields(
-        new BaseFileField("f1", 0, 3),
-        new BaseFileField("f2", 3, 2),
-        new BaseFileField("f3", 5, 2),
-        new BaseFileField("f4", 7, 4));
+        new TextFileInputField("f1", 0, 3),
+        new TextFileInputField("f2", 3, 2),
+        new TextFileInputField("f3", 5, 2),
+        new TextFileInputField("f4", 7, 4));
 
     process();
     check(new Object[][] {{"ABC", "DE", "FG", "HIJK"}, {"LmN", "oP", "qR", "sTuV"}});
@@ -228,14 +228,13 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
 
   @Test
   void testFilterEmptyBacklog5381() throws Exception {
-
-    meta.content.header = false;
-    meta.content.fileType = "Fixed";
-    meta.content.noEmptyLines = true;
-    meta.content.fileFormat = "mixed";
+    meta.getContent().setHeader(false);
+    meta.getContent().setFileType("Fixed");
+    meta.getContent().setNoEmptyLines(true);
+    meta.getContent().setFileFormat("mixed");
     initByFile("filterempty-BACKLOG-5381.csv");
 
-    setFields(new BaseFileField("f", 0, 100));
+    setFields(new TextFileInputField("f", 0, 100));
 
     process();
 
@@ -252,7 +251,7 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testFilterVariables() throws Exception {
 
-    meta.content.fileFormat = "unix";
+    meta.getContent().setFileFormat("unix");
 
     initByFile("default.csv");
 
@@ -260,11 +259,12 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
     vars.setVariable("VAR_TEST", "second");
     data.filterProcessor =
         new TextFileFilterProcessor(
-            new TextFileFilter[] {new TextFileFilter(0, "${VAR_TEST}", false, false)}, vars);
+            List.of(new TextFileFilter(0, "${VAR_TEST}", false, false)), vars);
+
     setFields(
-        new BaseFileField("f1", -1, -1),
-        new BaseFileField("f2", -1, -1),
-        new BaseFileField("f2", -1, -1));
+        new TextFileInputField("f1", -1, -1),
+        new TextFileInputField("f2", -1, -1),
+        new TextFileInputField("f2", -1, -1));
 
     process();
 
@@ -274,11 +274,11 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testBOM_UTF8() throws Exception {
 
-    meta.content.encoding = "UTF-32LE";
-    meta.content.header = false;
+    meta.getContent().setEncoding("UTF-32LE");
+    meta.getContent().setHeader(false);
     initByFile("test-BOM-UTF-8.txt");
 
-    setFields(new BaseFileField("f1", -1, -1), new BaseFileField("f2", -1, -1));
+    setFields(new TextFileInputField("f1", -1, -1), new TextFileInputField("f2", -1, -1));
 
     process();
 
@@ -288,11 +288,11 @@ class TextFileInputContentParsingTest extends BaseTextParsingTest {
   @Test
   void testBOM_UTF16BE() throws Exception {
 
-    meta.content.encoding = "UTF-32LE";
-    meta.content.header = false;
+    meta.getContent().setEncoding("UTF-32LE");
+    meta.getContent().setHeader(false);
     initByFile("test-BOM-UTF-16BE.txt");
 
-    setFields(new BaseFileField("f1", -1, -1), new BaseFileField("f2", -1, -1));
+    setFields(new TextFileInputField("f1", -1, -1), new TextFileInputField("f2", -1, -1));
 
     process();
 

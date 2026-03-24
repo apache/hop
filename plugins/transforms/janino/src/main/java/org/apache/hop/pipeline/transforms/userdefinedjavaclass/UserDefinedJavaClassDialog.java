@@ -17,10 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,8 +42,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Category;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
+import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippets.Category;
+import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippets.Snippet;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
@@ -59,7 +55,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.JavaStyledTextComp;
@@ -151,7 +146,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   private String strActiveScript;
 
   private UserDefinedJavaClassMeta input;
-  private UserDefinedJavaClassCodeSnippits snippitsHelper;
+  private UserDefinedJavaClassCodeSnippets snippitsHelper;
 
   private static final GuiResource guiResource = GuiResource.getInstance();
 
@@ -203,7 +198,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     }
 
     try {
-      snippitsHelper = UserDefinedJavaClassCodeSnippits.getSnippitsHelper();
+      snippitsHelper = UserDefinedJavaClassCodeSnippets.getSnippetsHelper();
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -504,55 +499,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     return transformName;
   }
 
-  protected boolean createPlugin() {
-
-    // Create a transform with the information in this dialog
-    UserDefinedJavaClassMeta udjcMeta = new UserDefinedJavaClassMeta();
-    getInfo(udjcMeta);
-
-    try {
-      String pluginName = "Processor";
-      for (UserDefinedJavaClassDef def : udjcMeta.getDefinitions()) {
-        if (def.isTransformClass()) {
-          pluginName = def.getClassName();
-        }
-      }
-      File pluginFile =
-          new File(String.format("plugins/transforms/%s/%s.transform.xml", pluginName, pluginName));
-      pluginFile.getParentFile().mkdirs();
-      PrintWriter pw = new PrintWriter(new FileWriter(pluginFile));
-      StringBuilder outXML = new StringBuilder("<transform>\n");
-      outXML.append(String.format("\t<name>%s</name>\n", transformName));
-      outXML.append("\t<type>UserDefinedJavaClass</type>\n");
-      outXML.append("\t<description/>\n\t");
-      outXML.append(udjcMeta.getXml());
-      outXML.append("</transform>");
-      pw.println(outXML.toString());
-      pw.flush();
-      pw.close();
-      ShowMessageDialog msgDialog =
-          new ShowMessageDialog(
-              shell,
-              SWT.ICON_INFORMATION | SWT.OK,
-              BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Plugin.CreateSuccess"),
-              BaseMessages.getString(
-                  PKG, "UserDefinedJavaClassDialog.Plugin.CreatedFile", pluginFile.getPath()),
-              false);
-      msgDialog.open();
-
-    } catch (IOException e) {
-      e.printStackTrace();
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Plugin.CreateErrorTitle"),
-          BaseMessages.getString(
-              PKG, "UserDefinedJavaClassDialog.Plugin.CreateErrorMessage", transformName),
-          e);
-    }
-
-    return true;
-  }
-
   private void addFieldsTab() {
     fieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     fieldsTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -585,7 +531,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     fdClearResultFields.top = new FormAttachment(0, 0);
     wClearResultFields.setLayoutData(fdClearResultFields);
 
-    final int fieldsRows = input.getFieldInfo().size();
+    final int fieldsRows = input.getFields().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -1034,16 +980,16 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     int i = 0;
-    for (FieldInfo fi : input.getFieldInfo()) {
+    for (FieldInfo fi : input.getFields()) {
       TableItem item = wFields.table.getItem(i);
       i++;
-      item.setText(1, fi.name);
-      item.setText(2, ValueMetaFactory.getValueMetaName(fi.type));
-      if (fi.length >= 0) {
-        item.setText(3, "" + fi.length);
+      item.setText(1, fi.getName());
+      item.setText(2, ValueMetaFactory.getValueMetaName(fi.getType()));
+      if (fi.getLength() >= 0) {
+        item.setText(3, "" + fi.getLength());
       }
-      if (fi.precision >= 0) {
-        item.setText(4, "" + fi.precision);
+      if (fi.getPrecision() >= 0) {
+        item.setText(4, "" + fi.getPrecision());
       }
     }
 
@@ -1057,7 +1003,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
             new UserDefinedJavaClassDef(
                 ClassType.TRANSFORM_CLASS,
                 "Processor",
-                UserDefinedJavaClassCodeSnippits.getSnippitsHelper().getDefaultCode()));
+                UserDefinedJavaClassCodeSnippets.getSnippetsHelper().getDefaultCode()));
         input.replaceDefinitions(definitions);
       } catch (HopXmlException e) {
         e.printStackTrace();
@@ -1088,13 +1034,13 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     for (InfoTransformDefinition transformDefinition : input.getInfoTransformDefinitions()) {
       TableItem item = wInfoTransforms.table.getItem(rowNr++);
       int colNr = 1;
-      item.setText(colNr++, Const.NVL(transformDefinition.tag, ""));
+      item.setText(colNr++, Const.NVL(transformDefinition.getTag(), ""));
       item.setText(
           colNr++,
           transformDefinition.transformMeta != null
               ? transformDefinition.transformMeta.getName()
               : "");
-      item.setText(colNr++, Const.NVL(transformDefinition.description, ""));
+      item.setText(colNr++, Const.NVL(transformDefinition.getDescription(), ""));
     }
     wInfoTransforms.setRowNums();
     wInfoTransforms.optWidth(true);
@@ -1118,9 +1064,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     for (UsageParameter usageParameter : input.getUsageParameters()) {
       TableItem item = wParameters.table.getItem(rowNr++);
       int colNr = 1;
-      item.setText(colNr++, Const.NVL(usageParameter.tag, ""));
-      item.setText(colNr++, Const.NVL(usageParameter.value, ""));
-      item.setText(colNr++, Const.NVL(usageParameter.description, ""));
+      item.setText(colNr++, Const.NVL(usageParameter.getTag(), ""));
+      item.setText(colNr++, Const.NVL(usageParameter.getValue(), ""));
+      item.setText(colNr++, Const.NVL(usageParameter.getDescription(), ""));
     }
     wParameters.setRowNums();
     wParameters.optWidth(true);
@@ -1221,11 +1167,11 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
       TableItem item = wInfoTransforms.getNonEmpty(i);
       InfoTransformDefinition transformDefinition = new InfoTransformDefinition();
       int colNr = 1;
-      transformDefinition.tag = item.getText(colNr++);
-      transformDefinition.transformName = item.getText(colNr++);
+      transformDefinition.setTag(item.getText(colNr++));
+      transformDefinition.setTransformName(item.getText(colNr++));
       transformDefinition.transformMeta =
-          pipelineMeta.findTransform(transformDefinition.transformName);
-      transformDefinition.description = item.getText(colNr++);
+          pipelineMeta.findTransform(transformDefinition.getTransformName());
+      transformDefinition.setDescription(item.getText(colNr++));
       meta.getInfoTransformDefinitions().add(transformDefinition);
     }
 
@@ -1249,9 +1195,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
       TableItem item = wParameters.getNonEmpty(i);
       UsageParameter usageParameter = new UsageParameter();
       int colNr = 1;
-      usageParameter.tag = item.getText(colNr++);
-      usageParameter.value = item.getText(colNr++);
-      usageParameter.description = item.getText(colNr++);
+      usageParameter.setTag(item.getText(colNr++));
+      usageParameter.setValue(item.getText(colNr++));
+      usageParameter.setDescription(item.getText(colNr++));
       meta.getUsageParameters().add(usageParameter);
     }
   }
@@ -1317,12 +1263,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
         new ErrorDialog(shell, "Error during class compilation", e.toString(), e);
       }
 
-      if (udjcMeta.cookErrors.size() == 1) {
-        Exception e = udjcMeta.cookErrors.get(0);
+      if (udjcMeta.getCookErrors().size() == 1) {
+        Exception e = udjcMeta.getCookErrors().get(0);
         new ErrorDialog(shell, "Error during class compilation", e.toString(), e);
         return false;
-      } else if (udjcMeta.cookErrors.size() > 1) {
-        Exception e = udjcMeta.cookErrors.get(0);
+      } else if (udjcMeta.getCookErrors().size() > 1) {
+        Exception e = udjcMeta.getCookErrors().get(0);
         new ErrorDialog(
             shell,
             "Errors during class compilation",
@@ -1507,13 +1453,13 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
       categoryTreeItems.put(cat, itemGroup);
     }
 
-    Collection<Snippit> snippits = snippitsHelper.getSnippits();
-    for (Snippit snippit : snippits) {
-      TreeItem itemGroup = categoryTreeItems.get(snippit.category);
+    Collection<Snippet> snippets = snippitsHelper.getSnippets();
+    for (UserDefinedJavaClassCodeSnippets.Snippet snippet : snippets) {
+      TreeItem itemGroup = categoryTreeItems.get(snippet.getCategory());
       TreeItem itemSnippit = new TreeItem(itemGroup, SWT.NULL);
-      itemSnippit.setText(snippit.name);
+      itemSnippit.setText(snippet.getName());
       itemSnippit.setImage(GuiResource.getInstance().getImageLabel());
-      itemSnippit.setData(snippit.code);
+      itemSnippit.setData(snippet.getCode());
     }
   }
 

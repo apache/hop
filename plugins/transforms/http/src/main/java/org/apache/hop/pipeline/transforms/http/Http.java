@@ -49,6 +49,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -217,16 +218,30 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       default:
         HttpEntity entity = httpResponse.getEntity();
         if (entity != null) {
-          body =
-              StringUtils.isEmpty(meta.getEncoding())
-                  ? EntityUtils.toString(entity)
-                  : EntityUtils.toString(entity, meta.getEncoding());
+          body = readResponseBody(entity);
         } else {
           body = "";
         }
         break;
     }
     return body;
+  }
+
+  private String readResponseBody(HttpEntity entity) throws IOException {
+    byte[] bodyBytes = EntityUtils.toByteArray(entity);
+    dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bodyBytes.length;
+
+    ByteArrayEntity countedEntity = new ByteArrayEntity(bodyBytes);
+    if (entity.getContentType() != null) {
+      countedEntity.setContentType(entity.getContentType());
+    }
+    if (entity.getContentEncoding() != null) {
+      countedEntity.setContentEncoding(entity.getContentEncoding());
+    }
+
+    return StringUtils.isEmpty(meta.getEncoding())
+        ? EntityUtils.toString(countedEntity)
+        : EntityUtils.toString(countedEntity, meta.getEncoding());
   }
 
   private static @NotNull HttpClientContext buildtHttpClientContext(HttpHost target) {

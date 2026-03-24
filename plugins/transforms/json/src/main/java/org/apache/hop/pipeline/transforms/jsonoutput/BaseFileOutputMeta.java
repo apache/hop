@@ -19,12 +19,16 @@ package org.apache.hop.pipeline.transforms.jsonoutput;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 
 /** A base implementation for all output file based metas. */
+@Getter
+@Setter
 public abstract class BaseFileOutputMeta<Main extends JsonOutput, Data extends JsonOutputData>
     extends BaseTransformMeta<Main, Data> {
 

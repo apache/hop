@@ -45,6 +45,10 @@ import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
 
+/**
+ * @deprecated Since 2.18.0
+ */
+@Deprecated(since = "2.18.0")
 @Path("/carte/pipeline")
 public class PipelineResource {
 

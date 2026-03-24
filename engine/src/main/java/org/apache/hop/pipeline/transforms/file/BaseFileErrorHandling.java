@@ -17,49 +17,97 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
-import org.apache.hop.core.injection.Injection;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Block for error handling settings. */
+@Getter
+@Setter
 public class BaseFileErrorHandling implements Cloneable {
-
   /** Ignore error : turn into warnings */
-  @Injection(name = "IGNORE_ERRORS")
-  public boolean errorIgnored;
+  @HopMetadataProperty(
+      key = "error_ignored",
+      injectionKey = "IGNORE_ERRORS",
+      injectionKeyDescription = "TextFileInput.Injection.IGNORE_ERRORS")
+  private boolean errorIgnored;
 
   /** File error field name. */
-  @Injection(name = "FILE_ERROR_FIELD")
-  public String fileErrorField;
+  @HopMetadataProperty(
+      key = "file_error_field",
+      injectionKey = "FILE_ERROR_FIELD",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_ERROR_FIELD")
+  private String fileErrorField;
 
   /** File error text field name. */
-  @Injection(name = "FILE_ERROR_MESSAGE_FIELD")
-  public String fileErrorMessageField;
+  @HopMetadataProperty(
+      key = "file_error_message_field",
+      injectionKey = "FILE_ERROR_MESSAGE_FIELD",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_ERROR_MESSAGE_FIELD")
+  private String fileErrorMessageField;
 
-  @Injection(name = "SKIP_BAD_FILES")
-  public boolean skipBadFiles;
+  @HopMetadataProperty(
+      key = "skip_bad_files",
+      injectionKey = "SKIP_BAD_FILES",
+      injectionKeyDescription = "TextFileInput.Injection.SKIP_BAD_FILES")
+  private boolean skipBadFiles;
 
   /** The directory that will contain warning files */
-  @Injection(name = "WARNING_FILES_TARGET_DIR")
-  public String warningFilesDestinationDirectory;
+  @HopMetadataProperty(
+      key = "bad_line_files_destination_directory",
+      injectionKey = "WARNING_FILES_TARGET_DIR",
+      injectionKeyDescription = "TextFileInput.Injection.WARNING_FILES_TARGET_DIR")
+  private String warningFilesDestinationDirectory;
 
   /** The extension of warning files */
-  @Injection(name = "WARNING_FILES_EXTENTION")
-  public String warningFilesExtension;
+  @HopMetadataProperty(
+      key = "bad_line_files_extension",
+      injectionKey = "WARNING_FILES_EXTENTION",
+      injectionKeyDescription = "TextFileInput.Injection.WARNING_FILES_EXTENTION")
+  private String warningFilesExtension;
 
   /** The directory that will contain error files */
-  @Injection(name = "ERROR_FILES_TARGET_DIR")
-  public String errorFilesDestinationDirectory;
+  @HopMetadataProperty(
+      key = "error_line_files_destination_directory",
+      injectionKey = "ERROR_FILES_TARGET_DIR",
+      injectionKeyDescription = "TextFileInput.Injection.ERROR_FILES_TARGET_DIR")
+  private String errorFilesDestinationDirectory;
 
   /** The extension of error files */
-  @Injection(name = "ERROR_FILES_EXTENTION")
-  public String errorFilesExtension;
+  @HopMetadataProperty(
+      key = "error_line_files_extension",
+      injectionKey = "ERROR_FILES_EXTENTION",
+      injectionKeyDescription = "TextFileInput.Injection.ERROR_FILES_EXTENTION")
+  private String errorFilesExtension;
 
   /** The directory that will contain line number files */
-  @Injection(name = "LINE_NR_FILES_TARGET_DIR")
-  public String lineNumberFilesDestinationDirectory;
+  @HopMetadataProperty(
+      key = "line_number_files_destination_directory",
+      injectionKey = "LINE_NR_FILES_TARGET_DIR",
+      injectionKeyDescription = "TextFileInput.Injection.LINE_NR_FILES_TARGET_DIR")
+  private String lineNumberFilesDestinationDirectory;
 
   /** The extension of line number files */
-  @Injection(name = "LINE_NR_FILES_EXTENTION")
-  public String lineNumberFilesExtension;
+  @HopMetadataProperty(
+      key = "line_number_files_extension",
+      injectionKey = "LINE_NR_FILES_EXTENTION",
+      injectionKeyDescription = "TextFileInput.Injection.LINE_NR_FILES_EXTENTION")
+  private String lineNumberFilesExtension;
+
+  public BaseFileErrorHandling() {}
+
+  public BaseFileErrorHandling(BaseFileErrorHandling b) {
+    this.errorFilesDestinationDirectory = b.errorFilesDestinationDirectory;
+    this.errorFilesExtension = b.errorFilesExtension;
+    this.errorIgnored = b.errorIgnored;
+    this.fileErrorField = b.fileErrorField;
+    this.fileErrorMessageField = b.fileErrorMessageField;
+    this.lineNumberFilesDestinationDirectory = b.lineNumberFilesDestinationDirectory;
+    this.lineNumberFilesExtension = b.lineNumberFilesExtension;
+    this.skipBadFiles = b.skipBadFiles;
+    this.warningFilesDestinationDirectory = b.warningFilesDestinationDirectory;
+    this.warningFilesExtension = b.warningFilesExtension;
+  }
 
   @Override
   public Object clone() {

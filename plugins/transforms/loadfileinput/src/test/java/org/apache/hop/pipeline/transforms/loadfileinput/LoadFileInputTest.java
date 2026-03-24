@@ -67,15 +67,10 @@ class LoadFileInputTest {
   private FileSystemManager fs;
   private String filesPath;
 
-  private String pipelineName;
-  private PipelineMeta pipelineMeta;
-  private Pipeline pipeline;
-
   private FileInputList fileInputList;
 
   private LoadFileInput loadFileInput;
   private LoadFileInputMeta loadFileInputMeta;
-  private LoadFileInputData loadFileInputData;
   private LoadFileInputField loadFileInputField;
   private static String wasEncoding;
 
@@ -113,10 +108,10 @@ class LoadFileInputTest {
     fs = VFS.getManager();
     filesPath = '/' + this.getClass().getPackage().getName().replace('.', '/') + "/files/";
 
-    pipelineName = "LoadFileInput";
-    pipelineMeta = new PipelineMeta();
+    String pipelineName = "LoadFileInput";
+    PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName(pipelineName);
-    pipeline = new LocalPipelineEngine(pipelineMeta);
+    Pipeline pipeline = new LocalPipelineEngine(pipelineMeta);
 
     loadFileInputMeta = spy(new LoadFileInputMeta());
     fileInputList = new FileInputList();
@@ -127,7 +122,7 @@ class LoadFileInputTest {
         new TransformMeta(transformId, "Load File Input", loadFileInputMeta);
     pipelineMeta.addTransform(transformMeta);
 
-    loadFileInputData = new LoadFileInputData();
+    LoadFileInputData loadFileInputData = new LoadFileInputData();
 
     int transformCopyNr = 0;
 
@@ -143,7 +138,7 @@ class LoadFileInputTest {
     assertSame(loadFileInputMeta, transformMeta.getTransform());
 
     loadFileInputField = new LoadFileInputField();
-    loadFileInputMeta.setInputFields(new LoadFileInputField[] {loadFileInputField});
+    loadFileInputMeta.getInputFields().add(loadFileInputField);
     loadFileInput.init();
   }
 
@@ -300,13 +295,13 @@ class LoadFileInputTest {
     loadFileInputMeta.setFilenameField("filename");
     loadFileInputMeta.setIncludeRowNumber(true);
     loadFileInputMeta.setRowNumberField("rownumber");
-    loadFileInputMeta.setShortFileNameField("shortname");
-    loadFileInputMeta.setExtensionField("extension");
-    loadFileInputMeta.setPathField("path");
-    loadFileInputMeta.setIsHiddenField("hidden");
-    loadFileInputMeta.setLastModificationDateField("lastmodified");
-    loadFileInputMeta.setUriField("uri");
-    loadFileInputMeta.setRootUriField("root uri");
+    loadFileInputMeta.getAdditionalFields().setShortFilenameField("shortname");
+    loadFileInputMeta.getAdditionalFields().setExtensionField("extension");
+    loadFileInputMeta.getAdditionalFields().setPathField("path");
+    loadFileInputMeta.getAdditionalFields().setHiddenField("hidden");
+    loadFileInputMeta.getAdditionalFields().setLastModificationField("lastmodified");
+    loadFileInputMeta.getAdditionalFields().setUriField("uri");
+    loadFileInputMeta.getAdditionalFields().setRootUriField("root uri");
 
     // string with UTF-8 encoding
     loadFileInputMeta.setEncoding("UTF-8");
@@ -377,7 +372,7 @@ class LoadFileInputTest {
     fileInputList.addFile(getFile("hop.jpg"));
     loadFileInputField = new LoadFileInputField();
     loadFileInputField.setType(IValueMeta.TYPE_BINARY);
-    loadFileInputMeta.setInputFields(new LoadFileInputField[] {loadFileInputField});
+    loadFileInputMeta.getInputFields().add(loadFileInputField);
 
     assertNotNull(loadFileInput.getOneRow());
     assertArrayEquals(
@@ -389,35 +384,38 @@ class LoadFileInputTest {
   void testCopyOrCloneArrayFromLoadFileWithSmallerSizedReadRowArray() {
     int size = 5;
     Object[] rowData = new Object[size];
-    Object[] readrow = new Object[size - 1];
-    LoadFileInput loadFileInput = mock(LoadFileInput.class);
+    Object[] readRow = new Object[size - 1];
+    LoadFileInput mockedTransform = mock(LoadFileInput.class);
 
-    Mockito.when(loadFileInput.copyOrCloneArrayFromLoadFile(rowData, readrow)).thenCallRealMethod();
+    Mockito.when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow))
+        .thenCallRealMethod();
 
-    assertEquals(5, loadFileInput.copyOrCloneArrayFromLoadFile(rowData, readrow).length);
+    assertEquals(5, mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow).length);
   }
 
   @Test
   void testCopyOrCloneArrayFromLoadFileWithBiggerSizedReadRowArray() {
     int size = 5;
     Object[] rowData = new Object[size];
-    Object[] readrow = new Object[size + 1];
-    LoadFileInput loadFileInput = mock(LoadFileInput.class);
+    Object[] readRow = new Object[size + 1];
+    LoadFileInput mockedTransform = mock(LoadFileInput.class);
 
-    Mockito.when(loadFileInput.copyOrCloneArrayFromLoadFile(rowData, readrow)).thenCallRealMethod();
+    Mockito.when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow))
+        .thenCallRealMethod();
 
-    assertEquals(6, loadFileInput.copyOrCloneArrayFromLoadFile(rowData, readrow).length);
+    assertEquals(6, mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow).length);
   }
 
   @Test
   void testCopyOrCloneArrayFromLoadFileWithSameSizedReadRowArray() {
     int size = 5;
     Object[] rowData = new Object[size];
-    Object[] readrow = new Object[size];
-    LoadFileInput loadFileInput = mock(LoadFileInput.class);
+    Object[] readRow = new Object[size];
+    LoadFileInput mockedTransform = mock(LoadFileInput.class);
 
-    Mockito.when(loadFileInput.copyOrCloneArrayFromLoadFile(rowData, readrow)).thenCallRealMethod();
+    Mockito.when(mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow))
+        .thenCallRealMethod();
 
-    assertEquals(5, loadFileInput.copyOrCloneArrayFromLoadFile(rowData, readrow).length);
+    assertEquals(5, mockedTransform.copyOrCloneArrayFromLoadFile(rowData, readRow).length);
   }
 }

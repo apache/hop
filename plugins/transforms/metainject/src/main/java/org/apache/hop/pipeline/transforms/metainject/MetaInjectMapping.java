@@ -17,55 +17,70 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
-import org.apache.hop.core.injection.Injection;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.core.Const;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class MetaInjectMapping {
+  @HopMetadataProperty(
+      key = "source_transform",
+      injectionKey = "MAPPING_SOURCE_TRANSFORM",
+      injectionKeyDescription = "MetaInject.Injection.MAPPING_SOURCE_TRANSFORM")
+  private String sourceTransformName;
 
-  @Injection(name = "MAPPING_SOURCE_TRANSFORM", group = "MAPPING_FIELDS")
-  private String sourceTransform;
-
-  @Injection(name = "MAPPING_SOURCE_FIELD", group = "MAPPING_FIELDS")
+  @HopMetadataProperty(
+      key = "source_field",
+      injectionKey = "MAPPING_SOURCE_FIELD",
+      injectionKeyDescription = "MetaInject.Injection.MAPPING_SOURCE_FIELD")
   private String sourceField;
 
-  @Injection(name = "MAPPING_TARGET_TRANSFORM", group = "MAPPING_FIELDS")
-  private String targetTransform;
+  @HopMetadataProperty(
+      key = "target_transform_name",
+      injectionKey = "MAPPING_TARGET_TRANSFORM",
+      injectionKeyDescription = "MetaInject.Injection.MAPPING_TARGET_TRANSFORM")
+  private String targetTransformName;
 
-  @Injection(name = "MAPPING_TARGET_FIELD", group = "MAPPING_FIELDS")
-  private String targetField;
+  @HopMetadataProperty(
+      key = "target_attribute_key",
+      injectionKey = "MAPPING_TARGET_FIELD",
+      injectionKeyDescription = "MetaInject.Injection.MAPPING_TARGET_FIELD")
+  private String targetAttributeKey;
 
-  public MetaInjectMapping() {
-    // Do nothing
+  @HopMetadataProperty(
+      key = "target_detail",
+      injectionKey = "MAPPING_TARGET_DETAIL",
+      injectionKeyDescription = "MetaInject.Injection.MAPPING_TARGET_DETAIL")
+  private boolean targetDetail;
+
+  public MetaInjectMapping() {}
+
+  public MetaInjectMapping(MetaInjectMapping m) {
+    this();
+    this.sourceField = m.sourceField;
+    this.sourceTransformName = m.sourceTransformName;
+    this.targetAttributeKey = m.targetAttributeKey;
+    this.targetDetail = m.targetDetail;
+    this.targetTransformName = m.targetTransformName;
   }
 
-  public String getSourceTransform() {
-    return sourceTransform;
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof MetaInjectMapping mapping)) {
+      return false;
+    }
+    return targetDetail == mapping.targetDetail
+        && Const.NVL(targetTransformName, "")
+            .equalsIgnoreCase(Const.NVL(mapping.targetTransformName, ""))
+        && Const.NVL(targetAttributeKey, "")
+            .equalsIgnoreCase(Const.NVL(mapping.targetAttributeKey, ""));
   }
 
-  public void setSourceTransform(String sourceTransform) {
-    this.sourceTransform = sourceTransform;
-  }
-
-  public String getSourceField() {
-    return sourceField;
-  }
-
-  public void setSourceField(String sourceField) {
-    this.sourceField = sourceField;
-  }
-
-  public String getTargetTransform() {
-    return targetTransform;
-  }
-
-  public void setTargetTransform(String targetTransform) {
-    this.targetTransform = targetTransform;
-  }
-
-  public String getTargetField() {
-    return targetField;
-  }
-
-  public void setTargetField(String targetField) {
-    this.targetField = targetField;
+  @Override
+  public int hashCode() {
+    return Objects.hash(targetTransformName, targetAttributeKey, targetDetail);
   }
 }

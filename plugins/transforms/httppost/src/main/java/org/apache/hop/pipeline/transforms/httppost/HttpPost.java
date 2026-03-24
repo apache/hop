@@ -21,6 +21,7 @@ import static org.apache.hop.pipeline.transforms.httppost.HttpPostMeta.DEFAULT_E
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -35,6 +36,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.StringUtil;
@@ -56,6 +58,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -86,7 +89,8 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  private Object[] callHttpPOST(Object[] rowData) throws HopException {
+  @VisibleForTesting
+  Object[] callHttpPOST(Object[] rowData) throws HopException {
     HttpClientManager.HttpClientBuilderFacade clientBuilder =
         HttpClientManager.getInstance().createBuilder();
 
@@ -135,8 +139,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       // BODY PARAMETERS
       addBodyParams(post, rowData, multipart);
       // Set request entity?
-      addBodyFileParam(rowData, multipart);
+      addBodyFileParam(post, rowData, multipart);
       addBodyParamsAfter(post, multipart);
+      collectRequestBytes(post.getEntity());
 
       // Execute request
       Object[] newRow = null;
@@ -196,7 +201,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
           default:
             HttpEntity entity = httpResponse.getEntity();
             if (entity != null) {
-              body = EntityUtils.toString(entity);
+              body = readResponseBody(entity);
             } else {
               body = "";
             }
@@ -257,6 +262,45 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       throw new HopException(
           BaseMessages.getString(PKG, "HTTPPOST.Error.CanNotReadURL", data.realUrl), e);
     }
+  }
+
+  void collectRequestBytes(HttpEntity entity) {
+    if (entity == null) {
+      return;
+    }
+
+    long contentLength = entity.getContentLength();
+    if (contentLength < 0) {
+      try (CountingOutputStream counting =
+          new CountingOutputStream(OutputStream.nullOutputStream())) {
+        entity.writeTo(counting);
+        contentLength = counting.getCount();
+      } catch (Exception e) {
+        if (isDebug()) {
+          logDebug("Unable to determine HTTP POST request size", e);
+        }
+        return;
+      }
+    }
+
+    if (contentLength > 0) {
+      dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + contentLength;
+    }
+  }
+
+  private String readResponseBody(HttpEntity entity) throws Exception {
+    byte[] bodyBytes = EntityUtils.toByteArray(entity);
+    dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bodyBytes.length;
+
+    ByteArrayEntity countedEntity = new ByteArrayEntity(bodyBytes);
+    if (entity.getContentType() != null) {
+      countedEntity.setContentType(entity.getContentType());
+    }
+    if (entity.getContentEncoding() != null) {
+      countedEntity.setContentEncoding(entity.getContentEncoding());
+    }
+
+    return EntityUtils.toString(countedEntity);
   }
 
   protected int requestStatusCode(HttpResponse httpResponse) {
@@ -604,7 +648,10 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
    *
    * @param rowData row data
    */
-  private void addBodyFileParam(Object[] rowData, MultipartEntityBuilder multipart)
+  private void addBodyFileParam(
+      org.apache.http.client.methods.HttpPost post,
+      Object[] rowData,
+      MultipartEntityBuilder multipart)
       throws UnsupportedEncodingException, HopFileException, HopValueException {
     if (data.indexOfRequestEntity < 0) {
       return;
@@ -635,7 +682,24 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
     if (meta.isMultipartupload()) {
       multipart.addBinaryBody("file", bytes);
+      return;
     }
+
+    attachRawRequestEntityIfNeeded(post, bytes);
+  }
+
+  @VisibleForTesting
+  void attachRawRequestEntityIfNeeded(org.apache.http.client.methods.HttpPost post, byte[] bytes) {
+    // In the non-multipart case the request entity field is the raw POST body when no other body
+    // has been configured.
+    if (post.getEntity() == null) {
+      post.setEntity(new ByteArrayEntity(bytes));
+    }
+  }
+
+  @VisibleForTesting
+  Long getTrackedDataVolumeOut() {
+    return dataVolumeOut;
   }
 
   /**

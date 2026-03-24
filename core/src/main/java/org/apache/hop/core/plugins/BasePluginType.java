@@ -106,7 +106,6 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   /** Let's put in code here to search for the transform plugins.. */
   @Override
   public void searchPlugins() throws HopPluginException {
-
     StopWatch watch = new StopWatch();
     if (log.isDebug()) {
       watch.start();

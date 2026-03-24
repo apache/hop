@@ -34,7 +34,7 @@ public interface IBaseFileInputTransformControl {
 
   long incrementLinesUpdated();
 
-  boolean failAfterBadFile(String errorMsg);
+  boolean failAfterBadFile(String errorMsg, boolean errorIgnored, boolean skipBadFiles);
 
   void stopAll();
 

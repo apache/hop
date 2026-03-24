@@ -18,6 +18,7 @@
 
 package org.apache.hop.pipeline.transforms.script;
 
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +27,17 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import org.apache.hop.core.exception.HopException;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 
 public class ScriptUtils {
+
+  static {
+    // Suppress GraalVM "interpreted mode only" warning when running on a standard JDK.
+    if (System.getProperty("polyglot.engine.WarnInterpreterOnly") == null) {
+      System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
+    }
+  }
 
   private static ScriptEngineManager scriptEngineManager;
 
@@ -61,8 +71,10 @@ public class ScriptUtils {
    * @return the desired ScriptEngine, or null if none can be found
    */
   private static ScriptEngine createNewScriptEngine(String engineName) {
-
     ScriptEngine scriptEngine = getScriptEngineManager().getEngineByName(engineName);
+    if (scriptEngine instanceof GraalJSScriptEngine) {
+      return createGraalJsEngine();
+    }
     if (scriptEngine == null) {
       // falls back to Groovy
       scriptEngine = scriptEngineManager.getEngineByName("groovy");
@@ -105,8 +117,6 @@ public class ScriptUtils {
       System.setProperty(
           "org.jruby.embed.localvariable.behavior",
           "persistent"); // required for JRuby, transparent
-      System.setProperty("nashorn.args", "--language=es6");
-      // for others
       scriptEngineManager = new ScriptEngineManager(ScriptUtils.class.getClassLoader());
     }
     return scriptEngineManager;
@@ -136,7 +146,23 @@ public class ScriptUtils {
     }
   }
 
-  public ScriptEngine getScriptEngineByName(String scriptLanguegeName) {
-    return scriptEngineManager.getEngineByName(scriptLanguegeName);
+  public ScriptEngine getScriptEngineByName(String scriptLanguageName) {
+    ScriptEngine engine = scriptEngineManager.getEngineByName(scriptLanguageName);
+    // GraalVM JS runs in a restricted sandbox by default when obtained through
+    // ScriptEngineManager. Re-create it with HostAccess.ALL so scripts can call
+    // methods on bound Java objects (e.g. transform.logBasic(...)), matching the
+    // behaviour of the Nashorn engine that was removed in Java 17.
+    if (engine instanceof GraalJSScriptEngine) {
+      return createGraalJsEngine();
+    }
+    return engine;
+  }
+
+  private static ScriptEngine createGraalJsEngine() {
+    return GraalJSScriptEngine.create(
+        null,
+        Context.newBuilder("js")
+            .allowHostAccess(HostAccess.ALL)
+            .allowHostClassLookup(className -> true));
   }
 }

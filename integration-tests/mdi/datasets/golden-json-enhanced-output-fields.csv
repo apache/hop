@@ -1,0 +1,4 @@
+name,element,json_fragment,is_without_enclosing,remove_if_blank
+f1,element1,Y,Y,Y
+f2,element2,Y,Y,Y
+f3,element3,Y,Y,Y

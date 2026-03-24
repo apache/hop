@@ -1552,7 +1552,7 @@ public class ActionMailDialog extends ActionDialog {
       for (int i = 0; i < action.embeddedimages.size(); i++) {
         TableItem ti = wFields.table.getItem(i);
         if (action.embeddedimages.get(i) != null) {
-          ti.setText(1, action.embeddedimages.get(i).getEmbeddedimage());
+          ti.setText(1, action.embeddedimages.get(i).getEmbeddedImage());
         }
         if (action.getEmbeddedimages().get(i).getContentId() != null) {
           ti.setText(2, action.getEmbeddedimages().get(i).getContentId());
@@ -1679,7 +1679,7 @@ public class ActionMailDialog extends ActionDialog {
       String wild = wFields.getNonEmpty(i).getText(2);
       if (!Utils.isEmpty(arg)) {
         MailEmbeddedImageField image = new MailEmbeddedImageField();
-        image.setEmbeddedimage(arg);
+        image.setEmbeddedImage(arg);
         image.setContentId(wild);
         images.add(image);
       }

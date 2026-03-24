@@ -20,6 +20,7 @@ package org.apache.hop.core.encryption;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
@@ -46,9 +47,11 @@ public class Encr {
     IPlugin plugin =
         registry.findPluginWithId(TwoWayPasswordEncoderPluginType.class, encoderPluginId);
     if (plugin == null) {
-      throw new HopException("Unable to find plugin with ID '" + encoderPluginId + "'");
+      LogChannel.GENERAL.logError("Unable to find plugin with ID '" + encoderPluginId + "'");
+      encoder = new HopTwoWayPasswordEncoder();
+    } else {
+      encoder = (ITwoWayPasswordEncoder) registry.loadClass(plugin);
     }
-    encoder = (ITwoWayPasswordEncoder) registry.loadClass(plugin);
 
     // Load encoder specific options...
     //

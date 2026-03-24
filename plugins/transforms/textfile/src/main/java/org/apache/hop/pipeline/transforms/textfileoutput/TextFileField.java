@@ -19,43 +19,85 @@ package org.apache.hop.pipeline.transforms.textfileoutput;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
 @Getter
 @Setter
 public class TextFileField implements Cloneable {
-  @Injection(name = "OUTPUT_FIELDNAME", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "OUTPUT_FIELDNAME",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_FIELDNAME")
   private String name;
 
+  @HopMetadataProperty(
+      key = "type",
+      intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class,
+      injectionKey = "OUTPUT_TYPE",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_TYPE")
   private int type;
 
-  @Injection(name = "OUTPUT_FORMAT", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "format",
+      injectionKey = "OUTPUT_FORMAT",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_FORMAT")
   private String format;
 
-  @Injection(name = "OUTPUT_LENGTH", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "OUTPUT_LENGTH",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_LENGTH")
   private int length = -1;
 
-  @Injection(name = "OUTPUT_PRECISION", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "precision",
+      injectionKey = "OUTPUT_PRECISION",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_PRECISION")
   private int precision = -1;
 
-  @Injection(name = "OUTPUT_CURRENCY", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKey = "OUTPUT_CURRENCY",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_CURRENCY")
   private String currencySymbol;
 
-  @Injection(name = "OUTPUT_DECIMAL", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKey = "OUTPUT_DECIMAL",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_DECIMAL")
   private String decimalSymbol;
 
-  @Injection(name = "OUTPUT_GROUP", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "group",
+      injectionKey = "OUTPUT_GROUP",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_GROUP")
   private String groupingSymbol;
 
-  @Injection(name = "OUTPUT_NULL", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "nullif",
+      injectionKey = "OUTPUT_NULL",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_NULL")
   private String nullString;
 
+  @HopMetadataProperty(
+      key = "trim_type",
+      intCodeConverter = ValueMetaBase.TrimTypeCodeConverter.class,
+      injectionKey = "OUTPUT_TRIM",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_TRIM")
   private int trimType;
 
-  @Getter @Setter private String roundingType;
+  @HopMetadataProperty(
+      key = "roundingType",
+      injectionKey = "OUTPUT_ROUNDING",
+      injectionKeyDescription = "TextFileOutput.Injection.OUTPUT_ROUNDING")
+  private String roundingType;
+
+  public TextFileField() {
+    roundingType = "half_even";
+  }
 
   public TextFileField(
       String name,
@@ -80,7 +122,20 @@ public class TextFileField implements Cloneable {
     this.roundingType = roundingType;
   }
 
-  public TextFileField() {}
+  public TextFileField(TextFileField f) {
+    this();
+    this.currencySymbol = f.currencySymbol;
+    this.decimalSymbol = f.decimalSymbol;
+    this.format = f.format;
+    this.groupingSymbol = f.groupingSymbol;
+    this.length = f.length;
+    this.name = f.name;
+    this.nullString = f.nullString;
+    this.precision = f.precision;
+    this.roundingType = f.roundingType;
+    this.trimType = f.trimType;
+    this.type = f.type;
+  }
 
   public int compare(Object obj) {
     TextFileField field = (TextFileField) obj;
@@ -96,12 +151,7 @@ public class TextFileField implements Cloneable {
 
   @Override
   public Object clone() {
-    try {
-      Object retval = super.clone();
-      return retval;
-    } catch (CloneNotSupportedException e) {
-      return null;
-    }
+    return new TextFileField(this);
   }
 
   public String getTypeDesc() {
@@ -112,7 +162,6 @@ public class TextFileField implements Cloneable {
     this.type = type;
   }
 
-  @Injection(name = "OUTPUT_TYPE", group = "OUTPUT_FIELDS")
   public void setType(String typeDesc) {
     this.type = ValueMetaFactory.getIdForValueMeta(typeDesc);
   }
@@ -122,7 +171,6 @@ public class TextFileField implements Cloneable {
     return name + ":" + getTypeDesc();
   }
 
-  @Injection(name = "OUTPUT_TRIM", group = "OUTPUT_FIELDS")
   public void setTrimTypeByDesc(String value) {
     this.trimType = ValueMetaBase.getTrimTypeByDesc(value);
   }

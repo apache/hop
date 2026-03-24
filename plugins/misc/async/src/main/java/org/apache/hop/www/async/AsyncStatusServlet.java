@@ -91,14 +91,20 @@ public class AsyncStatusServlet extends BaseHttpServlet implements IHopServerPlu
 
     String webServiceName = request.getParameter("service");
     if (StringUtils.isEmpty(webServiceName)) {
-      throw new ServletException(
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
           "Please specify a service parameter pointing to the name of the asynchronous webservice object");
+      return;
     }
 
     String serverObjectId = request.getParameter("id");
     if (StringUtils.isEmpty(serverObjectId)) {
-      throw new ServletException(
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
           "Please specify an id parameter pointing to the unique ID of the asynchronous webservice object");
+      return;
     }
 
     try {
@@ -161,7 +167,11 @@ public class AsyncStatusServlet extends BaseHttpServlet implements IHopServerPlu
       response.setStatus(HttpServletResponse.SC_OK);
 
     } catch (Exception e) {
-      throw new ServletException("Error getting asynchronous web service status", e);
+      logError("Error getting asynchronous web service status", e);
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Error getting asynchronous web service status.");
     }
   }
 

@@ -459,6 +459,10 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               }
 
             case IValueMeta.TYPE_INTEGER:
+              // Hop expects Long for TYPE_INTEGER; GraalVM JS can return Integer or other Number.
+              if (result instanceof Number) {
+                return Long.valueOf(((Number) result).longValue());
+              }
               if (classType.equalsIgnoreCase("java.lang.Byte")) {
                 return ((Byte) result).longValue();
               } else if (classType.equalsIgnoreCase("java.lang.Short")) {
@@ -672,6 +676,22 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     }
     previousRow = r;
     return bRC;
+  }
+
+  @Override
+  public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+    // GraalVM JS can produce java.lang.Integer for numeric values; Hop's TYPE_INTEGER
+    // expects Long (ValueMetaBase.getInteger does (Long) object). Normalize so golden
+    // validation and sorting don't get ClassCastException.
+    if (rowMeta != null && row != null) {
+      for (int i = 0; i < rowMeta.size() && i < row.length; i++) {
+        if (rowMeta.getValueMeta(i).getType() == IValueMeta.TYPE_INTEGER
+            && row[i] instanceof Integer) {
+          row[i] = Long.valueOf(((Integer) row[i]).longValue());
+        }
+      }
+    }
+    super.putRow(rowMeta, row);
   }
 
   @Override

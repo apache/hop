@@ -1,0 +1,402 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:description: How does Hop serialize pipeline and workflow metadata?
+[[metadata-serialization]]
+
+:toc:
+
+= XML and JSON serialization
+
+== The Basics
+
+To serialize fields to XML in the `*Meta` transform classes or the `Action*` action classes, or indeed to JSON for project metadata elements, you can use the `@HopMetadataProperty` annotation.  The serialization to XML or JSON will happen with the name of the field by default. For example:
+
+=== The default
+
+[source,java]
+----
+@HopMetadataProperty
+String filename;
+----
+
+This will serialize to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<filename>field-content</filename>
+----
+====
+
+.JSON
+[%collapsible]
+====
+[source,JSON]
+----
+{
+  "filename" : "field-content"
+}
+----
+====
+
+=== The key property
+
+If you want to use a different XML element name you can specify this with the `key` property of the annotation:
+
+[source,java]
+----
+@HopMetadataProperty(key="file-name")
+String filename;
+----
+
+This will serialize to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<file-name>field-content</file-name>
+----
+====
+
+.JSON
+[%collapsible]
+====
+[source,JSON]
+----
+{
+  "file-name" : "field-content"
+}
+----
+====
+
+=== Metadata references
+
+For fields of types that implement `IHopMetadata`, you can opt to store the name like this:
+
+[source,java]
+----
+@HopMetadataProperty(
+        key="connection",
+        storeWithName=true,
+        hopMetadataPropertyType=HopMetadataPropertyType.RDBMS_CONNECTION)
+DatabaseMeta databaseMeta;
+----
+
+This will serialize to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<connection>element-name</connection>
+----
+====
+
+.JSON
+[%collapsible]
+====
+[source,JSON]
+----
+{
+  "connection" : "element-name"
+}
+----
+====
+
+=== Enum fields
+
+Enumerations are stored by default using their name.
+Since it's used so often we also allow you to implement `IEnumHasCode` or even `IEnumHasCodeAndDescription`.  For enums that implement either you can opt to store the value by a chosen code.  This is useful for backward compatibility with older XML formats and to give you the flexibility needed.
+
+Example from `DimensionLookupMeta.java`:
+[source,java]
+----
+ @HopMetadataProperty(
+        key = "creation_method",
+        storeWithCode = true)
+    private TechnicalKeyCreationMethod creationMethod;
+----
+
+This will serialize to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<creation_method>autoinc</creation_method>
+<creation_method>sequence</creation_method>
+<creation_method>tablemax</creation_method>
+<creation_method>uuid</creation_method>
+<creation_method>field</creation_method>
+----
+One of these code values will be used depending on the enum chosen.
+====
+
+.JSON
+[%collapsible]
+====
+[source,JSON]
+----
+{
+  "creation_method" : "autoinc"
+}
+----
+====
+
+=== int codes
+
+If often happens in the codebase that field and trim types are stored as integers, typically something like `IValueMeta.TYPE_STRING` (2) or `IValueMeta.TRIM_TYPE_LEFT`.
+Since this isn't very meaningful, we offer the ability to specify an `IIntCodeConverter` to convert `2` into `String`.
+
+Example from `CsvInputField.java`:
+
+[source,java]
+----
+  @HopMetadataProperty(
+      key = "type",
+      intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class)
+  private int type;
+----
+
+This will serialize to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<type>String</type>
+----
+====
+
+.JSON
+[%collapsible]
+====
+[source,JSON]
+----
+{
+  "type" : "String"
+}
+----
+====
+
+In the same way there is a standard class for trim type: `ValueMetaBase.TrimTypeCodeConverter`.
+
+=== Passwords & secrets
+
+If you have sensitive information that you want to obfuscate or https://hop.apache.org//manual/latest/password/passwords/aespasswords.html[encrypt], you can use the `password` annotation property.
+
+[source,java]
+----
+  @HopMetadataProperty(password=true)
+  private String password;
+----
+
+This will serialize to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<password>Encrypted: SomeObfuscationGoingOn</password>
+<secret>AES2: SomeEncryptionGoingOn</secret>
+----
+====
+
+.JSON
+[%collapsible]
+====
+[source,JSON]
+----
+{
+  "password" : "Encrypted: SomeObfuscationGoingOn",
+  "secret": "AES2: SomeEncryptionGoingOn"
+}
+----
+====
+
+=== String encoder
+
+Sometimes you want to encode Strings to Base64 or other schemes to avoid having unsupported characters or even binary content in your serialized files.  You can use the `stringEncoder` property of the annotation for this.
+
+From `TextFileInputMeta.java`:
+[source,java]
+----
+  /** The string to filter on */
+  @HopMetadataProperty(
+      key = "filter_string",
+      stringEncoder = Base64StringEncoder.class)
+  private String filterString;
+----
+
+This will serialize `Apache Hop` to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<filter_string>QXBhY2hlIEhvcA==</filter_string>
+----
+====
+
+.JSON
+[%collapsible]
+====
+[source,JSON]
+----
+{
+ "filter_string" : "QXBhY2hlIEhvcA=="
+}
+----
+====
+
+== Lists
+
+If you want to serialize List of objects, you can typically wrap them in a group. An example from `CsvInputMeta.java`:
+
+[source,java]
+----
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields")
+  private List<CsvInputField> inputFields;
+----
+
+Will serialize the content of the `CsvInputField` objects inside `<fields><field>` wrappers:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<fields>
+  <field>
+    <name>fieldName</name>
+    <type>String</type>
+    ...
+  </field>
+  ...
+</fields>
+----
+====
+
+.JSON
+[%collapsible]
+====
+[source,JSON]
+----
+{
+  "fields": [
+    {
+      "name": "fieldName",
+      "type": "String",
+      ...
+    },
+    ...
+  ]
+}
+----
+====
+
+== Maps
+
+You can serialize Map fields to XML as well.
+
+[IMPORTANT]
+It's not possible to inject metadata into a Map data type so don't use these constructs for transform serialization.
+
+[source,java]
+----
+  @HopMetadataProperty(
+      key = "mapping",
+      groupKey = "mappings",
+      inline = true,
+      mapKeyClass = Key.class,
+      mapValueClass = Value.class)
+  private Map<Key, Value> mappings;
+----
+
+Serializes to:
+
+.XML
+[%collapsible]
+====
+[source,XML]
+----
+<mappings>
+  <mapping>
+    <key>
+      <keyProperty1>key1</keyProperty1>
+      <keyProperty2>key2</keyProperty2>
+    </key>
+    <value>
+      <valueProperty1>value1</keyProperty1>
+      <valueProperty2>value2</keyProperty2>
+      <valueProperty3>value3</keyProperty3>
+    </value>
+  </mapping>
+  ...
+</mappings>
+----
+====
+
+.JSON
+[%collapsible]
+====
+JSON serialization of Map objects is not supported yet.
+====
+
+== Sub-elements
+
+All elements you want to put in a different sub-element you can put in a different field and give it another key.
+
+== Serializing interfaces
+
+It's possible to serialize objects with only their interface.  You need to specify a `@HopMetadataObject` annotation on the interface in question.
+The following example is taken from `IValueMeta.java` where data types are plugins.  We want to read the type `String` and know to get object `ValueMetaString` by specifying an Object Factory like this:
+
+[source,java]
+----
+@HopMetadataObject(objectFactory = IValueMeta.ValueMetaHopMetadataObjectFactory.class)
+public interface IValueMeta {}
+----
+
+The way that this is done is with 2 simple methods.  One for creating a new object with an id, and one for getting an ID from an object interface.
+
+From `class ValueMetaHopMetadataObjectFactory`:
+[source,java]
+----
+    @Override
+    public Object createObject(String id, Object parentObject) throws HopException {
+      int type = ValueMetaFactory.getIdForValueMeta(id);
+      return ValueMetaFactory.getValueMetaName(type);
+    }
+
+    @Override
+    public String getObjectId(Object object) throws HopException {
+      return ((IValueMeta) object).getTypeDesc();
+    }
+----
+

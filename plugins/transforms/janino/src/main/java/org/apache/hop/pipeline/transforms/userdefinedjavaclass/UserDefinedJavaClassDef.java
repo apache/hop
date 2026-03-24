@@ -17,36 +17,57 @@
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import java.security.MessageDigest;
-import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.Injection;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class UserDefinedJavaClassDef implements Cloneable {
   public enum ClassType {
     NORMAL_CLASS,
     TRANSFORM_CLASS
   }
 
+  @HopMetadataProperty(
+      key = "class_type",
+      injectionKey = "CLASS_TYPE",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.CLASS_TYPE")
   private ClassType classType;
-  private boolean classActive;
 
-  @Injection(name = "CLASS_NAME", group = "JAVA_CLASSES")
+  @HopMetadataProperty(
+      key = "class_name",
+      injectionKey = "CLASS_NAME",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.CLASS_NAME")
   private String className;
 
-  @Injection(name = "CLASS_SOURCE", group = "JAVA_CLASSES")
+  @HopMetadataProperty(
+      key = "class_source",
+      injectionKey = "CLASS_SOURCE",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.CLASS_SOURCE")
   private String source;
 
+  public UserDefinedJavaClassDef() {}
+
+  public UserDefinedJavaClassDef(UserDefinedJavaClassDef d) {
+    this();
+    this.classType = d.classType;
+    this.className = d.className;
+    this.source = d.source;
+  }
+
   public UserDefinedJavaClassDef(ClassType classType, String className, String source) {
-    super();
+    this();
     this.classType = classType;
     this.className = className;
     this.source = source;
-    classActive = true;
   }
 
-  public int hashCode() {
-    return Objects.hash(className, source);
+  @Override
+  public Object clone() throws CloneNotSupportedException {
+    return new UserDefinedJavaClassDef(this);
   }
 
   public String getChecksum() throws HopTransformException {
@@ -60,31 +81,10 @@ public class UserDefinedJavaClassDef implements Cloneable {
     }
   }
 
-  public ClassType getClassType() {
-    return classType;
-  }
-
-  public void setClassType(ClassType classType) {
-    this.classType = classType;
-  }
-
-  public String getSource() {
-    return this.source;
-  }
-
-  @Override
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
-  }
-
   public String getTransformedSource() {
     StringBuilder sb = new StringBuilder(getSource());
     appendConstructor(sb);
     return sb.toString();
-  }
-
-  public void setSource(String source) {
-    this.source = source;
   }
 
   private static final String CONSTRUCTOR =
@@ -95,23 +95,7 @@ public class UserDefinedJavaClassDef implements Cloneable {
     sb.append(String.format(CONSTRUCTOR, className));
   }
 
-  public String getClassName() {
-    return className;
-  }
-
-  public void setClassName(String className) {
-    this.className = className;
-  }
-
   public boolean isTransformClass() {
-    return (this.classActive && this.classType == ClassType.TRANSFORM_CLASS);
-  }
-
-  public void setActive(boolean classActive) {
-    this.classActive = classActive;
-  }
-
-  public boolean isActive() {
-    return classActive;
+    return (this.classType == ClassType.TRANSFORM_CLASS);
   }
 }

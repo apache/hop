@@ -1,0 +1,94 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<transform>
+    <schema_definition>schemaDefinition</schema_definition>
+    <ignore_fields>Y</ignore_fields>
+    <separator>;</separator>
+    <enclosure>&#34;</enclosure>
+    <enclosure_forced>Y</enclosure_forced>
+    <enclosure_fix_disabled>N</enclosure_fix_disabled>
+    <header>Y</header>
+    <footer>Y</footer>
+    <format>UNIX</format>
+    <compression>Snappy</compression>
+    <encoding>UTF-8</encoding>
+    <endedLine/>
+    <fileNameInField>Y</fileNameInField>
+    <fileNameField>filenameField</fileNameField>
+    <create_parent_folder>Y</create_parent_folder>
+    <file>
+        <name>filename.txt</name>
+        <servlet_output>N</servlet_output>
+        <do_not_open_new_file_init>Y</do_not_open_new_file_init>
+        <extention>txt</extention>
+        <append>Y</append>
+        <split>N</split>
+        <haspartno>N</haspartno>
+        <add_date>N</add_date>
+        <add_time>N</add_time>
+        <SpecifyFormat>N</SpecifyFormat>
+        <date_time_format/>
+        <add_to_result_filenames>Y</add_to_result_filenames>
+        <pad>N</pad>
+        <fast_dump>Y</fast_dump>
+        <splitevery>0</splitevery>
+    </file>
+    <fields>
+        <field>
+            <name>f1</name>
+            <type>String</type>
+            <format/>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <trim_type>none</trim_type>
+            <roundingType>half_even</roundingType>
+            <length>100</length>
+            <precision>-1</precision>
+        </field>
+        <field>
+            <name>f2</name>
+            <type>Integer</type>
+            <format>#</format>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <trim_type>both</trim_type>
+            <roundingType>half_even</roundingType>
+            <length>7</length>
+            <precision>-1</precision>
+        </field>
+        <field>
+            <name>f3</name>
+            <type>Date</type>
+            <format>yyyy/MM/dd</format>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <trim_type>right</trim_type>
+            <roundingType>half_even</roundingType>
+            <length>-1</length>
+            <precision>-1</precision>
+        </field>
+    </fields>
+</transform>
+

@@ -1,0 +1,138 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "addToResult",
+          "data_set_field": "addtoresult"
+        },
+        {
+          "transform_field": "encoding",
+          "data_set_field": "encoding"
+        },
+        {
+          "transform_field": "add_date",
+          "data_set_field": "add_date"
+        },
+        {
+          "transform_field": "add_time",
+          "data_set_field": "add_time"
+        },
+        {
+          "transform_field": "append",
+          "data_set_field": "append"
+        },
+        {
+          "transform_field": "create_parent_folder",
+          "data_set_field": "create_parent_folder"
+        },
+        {
+          "transform_field": "doNotOpenNewFileInit",
+          "data_set_field": "doNotOpenNewFileInit"
+        },
+        {
+          "transform_field": "extension",
+          "data_set_field": "extention"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "split_output_after",
+          "data_set_field": "split_output_after"
+        },
+        {
+          "transform_field": "jsonBloc",
+          "data_set_field": "jsonBloc"
+        },
+        {
+          "transform_field": "json_prittified",
+          "data_set_field": "json_prittified"
+        },
+        {
+          "transform_field": "json_size_field",
+          "data_set_field": "json_size_field"
+        },
+        {
+          "transform_field": "operation_type",
+          "data_set_field": "operation_type"
+        },
+        {
+          "transform_field": "outputValue",
+          "data_set_field": "outputValue"
+        },
+        {
+          "transform_field": "use_arrays_with_single_instance",
+          "data_set_field": "use_arrays_with_single_instance"
+        },
+        {
+          "transform_field": "use_single_item_per_group",
+          "data_set_field": "use_single_item_per_group"
+        }
+      ],
+      "field_order": [
+        "addToResult"
+      ],
+      "data_set_name": "golden-json-enhanced-output",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "element",
+          "data_set_field": "element"
+        },
+        {
+          "transform_field": "is_without_enclosing",
+          "data_set_field": "is_without_enclosing"
+        },
+        {
+          "transform_field": "json_fragment",
+          "data_set_field": "json_fragment"
+        },
+        {
+          "transform_field": "remove_if_blank",
+          "data_set_field": "remove_if_blank"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-json-enhanced-output-fields",
+      "transform_name": "validate fields"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "key_field_element",
+          "data_set_field": "key_field_element"
+        },
+        {
+          "transform_field": "key_field_name",
+          "data_set_field": "key_field_name"
+        }
+      ],
+      "field_order": [
+        "key_field_name"
+      ],
+      "data_set_name": "golden-json-enhanced-output-keys",
+      "transform_name": "validate keys"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0041-json-enhanced-output-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0041-json-enhanced-output-validate.hpl"
+}

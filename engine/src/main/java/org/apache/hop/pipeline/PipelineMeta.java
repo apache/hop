@@ -378,14 +378,16 @@ public class PipelineMeta extends AbstractMeta
   public void addOrReplaceTransform(TransformMeta transformMeta) {
     int index = transforms.indexOf(transformMeta);
     if (index < 0) {
-      index = transforms.add(transformMeta) ? 0 : index;
+      transforms.add(transformMeta);
+      index = transforms.size() - 1;
     } else {
       TransformMeta previous = getTransform(index);
       previous.replaceMeta(transformMeta);
     }
     transformMeta.setParentPipelineMeta(this);
     ITransformMeta iface = transformMeta.getTransform();
-    if (index != -1 && iface instanceof ITransformMetaChangeListener iTransformMetaChangeListener) {
+
+    if (iface instanceof ITransformMetaChangeListener iTransformMetaChangeListener) {
       addTransformChangeListener(index, iTransformMetaChangeListener);
     }
     changedTransforms = true;
@@ -3656,37 +3658,20 @@ public class PipelineMeta extends AbstractMeta
   }
 
   public void addTransformChangeListener(int p, ITransformMetaChangeListener list) {
-    int indexListener = -1;
-    int indexListenerRemove = -1;
     TransformMeta rewriteTransform = transforms.get(p);
     ITransformMeta iface = rewriteTransform.getTransform();
     if (iface instanceof ITransformMetaChangeListener) {
-      for (ITransformMetaChangeListener listener : transformChangeListeners) {
-        indexListener++;
-        if (listener.equals(iface)) {
-          indexListenerRemove = indexListener;
-        }
-      }
-      if (indexListenerRemove >= 0) {
-        transformChangeListeners.add(indexListenerRemove, list);
-      } else if (transformChangeListeners.isEmpty() && p == 0) {
+      int index = transformChangeListeners.indexOf(iface);
+      if (index >= 0) {
+        transformChangeListeners.set(index, list);
+      } else {
         transformChangeListeners.add(list);
       }
     }
   }
 
   public void removeTransformChangeListener(ITransformMetaChangeListener list) {
-    int indexListener = -1;
-    int indexListenerRemove = -1;
-    for (ITransformMetaChangeListener listener : transformChangeListeners) {
-      indexListener++;
-      if (listener.equals(list)) {
-        indexListenerRemove = indexListener;
-      }
-    }
-    if (indexListenerRemove >= 0) {
-      transformChangeListeners.remove(indexListenerRemove);
-    }
+    transformChangeListeners.remove(list);
   }
 
   public void notifyAllListeners(TransformMeta oldMeta, TransformMeta newMeta) {

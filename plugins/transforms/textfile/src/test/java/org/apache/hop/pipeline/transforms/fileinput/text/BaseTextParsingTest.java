@@ -17,17 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import java.util.List;
+import org.apache.hop.core.file.TextFileInputField;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 
 /** Base class for all TextFileInput transform tests. */
 @Disabled("No tests in abstract base class")
 public abstract class BaseTextParsingTest
-    extends BaseParsingTest<TextFileInputMeta, TextFileInputData, TextFileInput> {
+    extends BaseParsingTest<
+        TextFileInputMeta, TextFileInputData, TextFileInput, TextFileInputField> {
   /** Initialize transform info. */
   @BeforeEach
   void before() {
@@ -46,25 +49,20 @@ public abstract class BaseTextParsingTest
 
   /** Initialize for processing specified file by URL. */
   protected void initByURL(String url) throws Exception {
-    meta.inputFiles.fileName = new String[] {url};
-    meta.inputFiles.fileMask = new String[] {null};
-    meta.inputFiles.excludeFileMask = new String[] {null};
-    meta.inputFiles.fileRequired = new String[] {"Y"};
-    meta.inputFiles.includeSubFolders = new String[] {"N"};
+    InputFile inputFile = new InputFile();
+    inputFile.setFileName(url);
+    inputFile.setFileRequired(true);
+    meta.getFileInput().getInputFiles().add(inputFile);
 
     transform = new TextFileInput(transformMeta, meta, data, 1, pipelineMeta, pipeline);
     transform.init();
     transform.addRowListener(rowListener);
   }
 
-  /**
-   * Declare fields for test.
-   *
-   * <p>TODO: move to BaseParsingTest after CSV moving to BaseFileInput
-   */
+  /** Declare fields for test. */
   @Override
-  protected void setFields(BaseFileField... fields) throws Exception {
-    meta.inputFields = fields;
+  protected void setFields(TextFileInputField... fields) throws Exception {
+    meta.getInputFields().addAll(List.of(fields));
     meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
     data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
   }

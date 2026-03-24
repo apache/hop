@@ -1,0 +1,337 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "accept_filenames",
+          "data_set_field": "accept_filenames"
+        },
+        {
+          "transform_field": "passing_through_fields",
+          "data_set_field": "passing_through_fields"
+        },
+        {
+          "transform_field": "accept_field",
+          "data_set_field": "accept_field"
+        },
+        {
+          "transform_field": "separator",
+          "data_set_field": "separator"
+        },
+        {
+          "transform_field": "enclosure",
+          "data_set_field": "enclosure"
+        },
+        {
+          "transform_field": "enclosure_breaks",
+          "data_set_field": "enclosure_breaks"
+        },
+        {
+          "transform_field": "escapechar",
+          "data_set_field": "escapechar"
+        },
+        {
+          "transform_field": "header",
+          "data_set_field": "header"
+        },
+        {
+          "transform_field": "prependFileName",
+          "data_set_field": "prependFileName"
+        },
+        {
+          "transform_field": "nr_headerlines",
+          "data_set_field": "nr_headerlines"
+        },
+        {
+          "transform_field": "footer",
+          "data_set_field": "footer"
+        },
+        {
+          "transform_field": "nr_footerlines",
+          "data_set_field": "nr_footerlines"
+        },
+        {
+          "transform_field": "line_wrapped",
+          "data_set_field": "line_wrapped"
+        },
+        {
+          "transform_field": "nr_wraps",
+          "data_set_field": "nr_wraps"
+        },
+        {
+          "transform_field": "layout_paged",
+          "data_set_field": "layout_paged"
+        },
+        {
+          "transform_field": "nr_lines_per_page",
+          "data_set_field": "nr_lines_per_page"
+        },
+        {
+          "transform_field": "nr_lines_doc_header",
+          "data_set_field": "nr_lines_doc_header"
+        },
+        {
+          "transform_field": "noempty",
+          "data_set_field": "noempty"
+        },
+        {
+          "transform_field": "include",
+          "data_set_field": "include"
+        },
+        {
+          "transform_field": "include_field",
+          "data_set_field": "include_field"
+        },
+        {
+          "transform_field": "rownum",
+          "data_set_field": "rownum"
+        },
+        {
+          "transform_field": "rownumByFile",
+          "data_set_field": "rownumByFile"
+        },
+        {
+          "transform_field": "rownum_field",
+          "data_set_field": "rownum_field"
+        },
+        {
+          "transform_field": "format",
+          "data_set_field": "format"
+        },
+        {
+          "transform_field": "encoding",
+          "data_set_field": "encoding"
+        },
+        {
+          "transform_field": "length",
+          "data_set_field": "length"
+        },
+        {
+          "transform_field": "add_to_result_filenames",
+          "data_set_field": "add_to_result_filenames"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "compression",
+          "data_set_field": "compression"
+        },
+        {
+          "transform_field": "limit",
+          "data_set_field": "limit"
+        },
+        {
+          "transform_field": "error_ignored",
+          "data_set_field": "error_ignored"
+        },
+        {
+          "transform_field": "skip_bad_files",
+          "data_set_field": "skip_bad_files"
+        },
+        {
+          "transform_field": "file_error_field",
+          "data_set_field": "file_error_field"
+        },
+        {
+          "transform_field": "file_error_message_field",
+          "data_set_field": "file_error_message_field"
+        },
+        {
+          "transform_field": "error_line_skipped",
+          "data_set_field": "error_line_skipped"
+        },
+        {
+          "transform_field": "error_count_field",
+          "data_set_field": "error_count_field"
+        },
+        {
+          "transform_field": "error_fields_field",
+          "data_set_field": "error_fields_field"
+        },
+        {
+          "transform_field": "error_text_field",
+          "data_set_field": "error_text_field"
+        },
+        {
+          "transform_field": "schema_definition",
+          "data_set_field": "schema_definition"
+        },
+        {
+          "transform_field": "ignore_fields",
+          "data_set_field": "ignore_fields"
+        },
+        {
+          "transform_field": "bad_line_files_destination_directory",
+          "data_set_field": "bad_line_files_destination_directory"
+        },
+        {
+          "transform_field": "bad_line_files_extension",
+          "data_set_field": "bad_line_files_extension"
+        },
+        {
+          "transform_field": "error_line_files_destination_directory",
+          "data_set_field": "error_line_files_destination_directory"
+        },
+        {
+          "transform_field": "error_line_files_extension",
+          "data_set_field": "error_line_files_extension"
+        },
+        {
+          "transform_field": "line_number_files_destination_directory",
+          "data_set_field": "line_number_files_destination_directory"
+        },
+        {
+          "transform_field": "line_number_files_extension",
+          "data_set_field": "line_number_files_extension"
+        },
+        {
+          "transform_field": "date_format_lenient",
+          "data_set_field": "date_format_lenient"
+        },
+        {
+          "transform_field": "date_format_locale",
+          "data_set_field": "date_format_locale"
+        },
+        {
+          "transform_field": "shortFileFieldName",
+          "data_set_field": "shortFileFieldName"
+        },
+        {
+          "transform_field": "pathFieldName",
+          "data_set_field": "pathFieldName"
+        },
+        {
+          "transform_field": "hiddenFieldName",
+          "data_set_field": "hiddenFieldName"
+        },
+        {
+          "transform_field": "lastModificationTimeFieldName",
+          "data_set_field": "lastModificationTimeFieldName"
+        },
+        {
+          "transform_field": "uriNameFieldName",
+          "data_set_field": "uriNameFieldName"
+        },
+        {
+          "transform_field": "rootUriNameFieldName",
+          "data_set_field": "rootUriNameFieldName"
+        },
+        {
+          "transform_field": "extensionFieldName",
+          "data_set_field": "extensionFieldName"
+        },
+        {
+          "transform_field": "sizeFieldName",
+          "data_set_field": "sizeFieldName"
+        }
+      ],
+      "field_order": [
+        "accept_filenames"
+      ],
+      "data_set_name": "golden-text-file-input-mdi",
+      "transform_name": "Validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "filemask",
+          "data_set_field": "filemask"
+        },
+        {
+          "transform_field": "include_subfolders",
+          "data_set_field": "include_subfolders"
+        },
+        {
+          "transform_field": "file_required",
+          "data_set_field": "file_required"
+        }
+      ],
+      "field_order": [
+        "name",
+        "filemask",
+        "file_required",
+        "include_subfolders"
+      ],
+      "data_set_name": "golden-text-file-input-files",
+      "transform_name": "Validate files"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "format",
+          "data_set_field": "format"
+        },
+        {
+          "transform_field": "currency",
+          "data_set_field": "currency"
+        },
+        {
+          "transform_field": "decimal",
+          "data_set_field": "decimal"
+        },
+        {
+          "transform_field": "group",
+          "data_set_field": "group"
+        },
+        {
+          "transform_field": "nullif",
+          "data_set_field": "nullif"
+        },
+        {
+          "transform_field": "ifnull",
+          "data_set_field": "ifnull"
+        },
+        {
+          "transform_field": "position",
+          "data_set_field": "position"
+        },
+        {
+          "transform_field": "length",
+          "data_set_field": "length"
+        },
+        {
+          "transform_field": "precision",
+          "data_set_field": "precision"
+        },
+        {
+          "transform_field": "trim_type",
+          "data_set_field": "trim_type"
+        },
+        {
+          "transform_field": "repeat",
+          "data_set_field": "repeat"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-text-file-input-fields",
+      "transform_name": "Validate fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0036-text-file-input-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0036-text-file-input-validate.hpl"
+}

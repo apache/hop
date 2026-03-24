@@ -96,10 +96,18 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
         out.write(svgStream.toByteArray());
       }
     } catch (Exception e) {
-      throw new IOException("Error building SVG image of pipleine", e);
+      logError("Error building SVG image of pipeline", e);
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Unable to generate pipeline image.");
     } finally {
       if (svgStream != null) {
-        svgStream.close();
+        try {
+          svgStream.close();
+        } catch (IOException e) {
+          logError("Failed to close pipeline SVG buffer stream", e);
+        }
       }
     }
   }

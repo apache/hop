@@ -33,7 +33,7 @@
         <replace_field>replace2</replace_field>
     </formula>
     <formula>
-        <field_name>f3<Get rows from result XML cleanup/field_name>
+        <field_name>f3</field_name>
         <formula_string>expression3</formula_string>
         <value_type>Number</value_type>
         <value_length>9</value_length>

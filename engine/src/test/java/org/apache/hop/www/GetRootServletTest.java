@@ -17,6 +17,8 @@
 
 package org.apache.hop.www;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +27,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -35,6 +39,22 @@ import org.junit.jupiter.api.Test;
 class GetRootServletTest {
 
   @Test
+  void testDoGetWritesHtmlForRootUri() throws ServletException, IOException {
+    GetRootServlet servlet = new GetRootServlet();
+    servlet.setJettyMode(true);
+    StringWriter body = new StringWriter();
+    HttpServletRequest request =
+        when(mock(HttpServletRequest.class).getRequestURI()).thenReturn("/").getMock();
+    HttpServletResponse response = mock(HttpServletResponse.class);
+    when(response.getWriter()).thenReturn(new PrintWriter(body));
+
+    servlet.doGet(request, response);
+
+    verify(response).setStatus(HttpServletResponse.SC_OK);
+    assertTrue(body.toString().contains("<HTML>"));
+  }
+
+  @Test
   void testDoGetReturn404StatusCode() throws ServletException, IOException {
     GetRootServlet servlet = new GetRootServlet();
     servlet.setJettyMode(true);
@@ -42,6 +62,6 @@ class GetRootServletTest {
         when(mock(HttpServletRequest.class).getRequestURI()).thenReturn("/wrong_path").getMock();
     HttpServletResponse response = mock(HttpServletResponse.class);
     servlet.doGet(request, response);
-    verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
+    verify(response).sendError(eq(HttpServletResponse.SC_NOT_FOUND), eq("Not found."));
   }
 }

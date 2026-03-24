@@ -624,7 +624,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       if (!Utils.isEmpty(embeddedimages)) {
         FileObject imageFile = null;
         for (MailEmbeddedImageField embeddedimage : embeddedimages) {
-          String realImageFile = resolve(embeddedimage.getEmbeddedimage());
+          String realImageFile = resolve(embeddedimage.getEmbeddedImage());
           String realcontenID = resolve(embeddedimage.getContentId());
           if (messageText.indexOf("cid:" + realcontenID) < 0) {
             if (isDebug()) {

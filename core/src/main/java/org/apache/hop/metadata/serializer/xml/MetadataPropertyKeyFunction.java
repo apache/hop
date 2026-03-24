@@ -30,6 +30,6 @@ public class MetadataPropertyKeyFunction implements Function<Field, String> {
     if (annotation == null) {
       return null;
     }
-    return Const.NVL(annotation.groupKey(), Const.NVL(annotation.key(), field.getName()));
+    return Const.coalesce(annotation.groupKey(), annotation.key(), field.getName());
   }
 }

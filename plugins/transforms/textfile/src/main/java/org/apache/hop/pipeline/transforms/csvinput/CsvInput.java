@@ -35,7 +35,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.file.EncodingType;
-import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -46,9 +45,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.fileinput.TextFileInput;
-import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
+import org.apache.hop.pipeline.transforms.fileinput.LineReader;
 import org.apache.hop.pipeline.transforms.fileinput.text.BOMDetector;
+import org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputMeta;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 
 /** Read a simple CSV file Just output Strings found in the file... */
@@ -98,12 +97,12 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       //
       data.filenameFieldIndex = -1;
       if (!Utils.isEmpty(meta.getFilenameField()) && meta.isIncludingFilename()) {
-        data.filenameFieldIndex = meta.getInputFields().length;
+        data.filenameFieldIndex = meta.getInputFields().size();
       }
 
       data.rownumFieldIndex = -1;
       if (!Utils.isEmpty(meta.getRowNumField())) {
-        data.rownumFieldIndex = meta.getInputFields().length;
+        data.rownumFieldIndex = meta.getInputFields().size();
         if (data.filenameFieldIndex >= 0) {
           data.rownumFieldIndex++;
         }
@@ -459,8 +458,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       String[] fieldNames = readFieldNamesFromFile(fileName, csvInputMeta);
       mapping = NamedFieldsMapping.mapping(fieldNames, fieldNames(csvInputMeta));
     } else {
-      int fieldsCount =
-          csvInputMeta.getInputFields() == null ? 0 : csvInputMeta.getInputFields().length;
+      int fieldsCount = csvInputMeta.getInputFields().size();
       mapping = UnnamedFieldsMapping.mapping(fieldsCount);
     }
     return mapping;
@@ -486,15 +484,14 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       }
       EncodingType encodingType = EncodingType.guessEncodingType(reader.getEncoding());
       String line =
-          TextFileInput.getLine(
+          LineReader.getLine(
               getLogChannel(),
               reader,
               encodingType,
               TextFileInputMeta.FILE_FORMAT_UNIX,
               new StringBuilder(1000));
       String[] fieldNames =
-          TextFileLineUtil.guessStringsFromLine(
-              getLogChannel(), line, delimiter, enclosure, csvInputMeta.getEscapeCharacter());
+          TextFileLineUtil.guessStringsFromLine(getLogChannel(), line, delimiter, enclosure, null);
       if (!Utils.isEmpty(csvInputMeta.getEnclosure())) {
         removeEnclosure(fieldNames, csvInputMeta.getEnclosure());
       }
@@ -507,12 +504,10 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
   }
 
   static String[] fieldNames(CsvInputMeta csvInputMeta) {
-    TextFileInputField[] fields = csvInputMeta.getInputFields();
-    String[] fieldNames = new String[fields.length];
-    for (int i = 0; i < fields.length; i++) {
-      // TODO: We need to sanitize field names because existing ktr files may contain field names
-      // with leading BOM
-      fieldNames[i] = fields[i].getName();
+    List<CsvInputField> fields = csvInputMeta.getInputFields();
+    String[] fieldNames = new String[fields.size()];
+    for (int i = 0; i < fields.size(); i++) {
+      fieldNames[i] = fields.get(i).getName();
     }
     return fieldNames;
   }
@@ -613,7 +608,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       //
       // Let's start by looking where we left off reading.
       //
-      while (!newLineFound && outputIndex < meta.getInputFields().length) {
+      while (!newLineFound && outputIndex < meta.getInputFields().size()) {
 
         if (data.resizeBufferIfNeeded()) {
           // Last row was being discarded if the last item is null and
@@ -798,7 +793,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         // do-while loop below) and possibly skipping a newline character. This can occur if there
         // is an
         // empty column at the end of the row (see the Jira case for details)
-        if ((!newLineFound && outputIndex < meta.getInputFields().length)
+        if ((!newLineFound && outputIndex < meta.getInputFields().size())
             || (newLineFound && doubleLineEnd)) {
 
           int i = 0;

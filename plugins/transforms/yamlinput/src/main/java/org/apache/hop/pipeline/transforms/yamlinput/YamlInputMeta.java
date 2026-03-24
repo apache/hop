@@ -262,6 +262,10 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
   public FileInputList getFiles(IVariables variables) {
     FileInputList list = new FileInputList();
     for (YamlFile file : yamlFiles) {}
+    return FileInputList.createFileList(
+        variables,
+        FileInputList.buildInputFiles(
+            fileName, fileMask, null, fileRequired, includeSubFolderBoolean(), null));
   }
 */
 
@@ -355,11 +359,6 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     }
   }
 
-  private FileInputList getFiles(IVariables variables) {
-    // TODO
-    return null;
-  }
-
   @Override
   public boolean supportsErrorHandling() {
     return true;
@@ -403,7 +402,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
               newFilenames.add(fileObject.getName().getPath());
             }
           }
-/*
+
           // Still here: set a new list of absolute filenames!
           //
           fileName = newFilenames.toArray(new String[newFilenames.size()]);
@@ -411,7 +410,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
           fileRequired = new String[newFilenames.size()]; // all null, turn to "Y" :
           for (int i = 0; i < newFilenames.size(); i++) {
             fileRequired[i] = "Y";
-          }*/
+          }
         }
       }
       return null;

@@ -17,195 +17,80 @@
 package org.apache.hop.pipeline.transforms.javascript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
-class ScriptValuesMetaTest implements IInitializer<ITransformMeta> {
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
-
-  LoadSaveTester loadSaveTester;
-  Class<ScriptValuesMeta> testMetaClass = ScriptValuesMeta.class;
-
-  @BeforeEach
-  void setUpLoadSave() throws Exception {
-    HopEnvironment.init();
-    PluginRegistry.init();
-    List<String> attributes =
-        Arrays.asList(
-            "fieldname",
-            "rename",
-            "type",
-            "length",
-            "precision",
-            "replace",
-            "jsScripts",
-            "optimizationLevel");
-
-    Map<String, String> getterMap =
-        new HashMap<>() {
-          {
-            put("fieldname", "getFieldname");
-            put("rename", "getRename");
-            put("type", "getType");
-            put("length", "getLength");
-            put("precision", "getPrecision");
-            put("replace", "getReplace");
-            //        put( "compatible", "isCompatible" );
-            put("optimizationLevel", "getOptimizationLevel");
-            put("jsScripts", "getJSScripts");
-          }
-        };
-    Map<String, String> setterMap =
-        new HashMap<>() {
-          {
-            put("fieldname", "setFieldname");
-            put("rename", "setRename");
-            put("type", "setType");
-            put("length", "setLength");
-            put("precision", "setPrecision");
-            put("replace", "setReplace");
-            //        put( "compatible", "setCompatible" );
-            put("optimizationLevel", "setOptimizationLevel");
-            put("jsScripts", "setJSScripts");
-          }
-        };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
-
-    IFieldLoadSaveValidator<ScriptValuesScript[]> svsArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new ScriptValuesScriptLoadSaveValidator(), 5);
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("fieldname", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("rename", stringArrayLoadSaveValidator);
-    attrValidatorMap.put(
-        "type", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(9), 5));
-    attrValidatorMap.put(
-        "length", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(100), 5));
-    attrValidatorMap.put(
-        "precision", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(6), 5));
-    attrValidatorMap.put(
-        "replace", new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 5));
-    attrValidatorMap.put("jsScripts", svsArrayLoadSaveValidator);
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass,
-            attributes,
-            getterMap,
-            setterMap,
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(ITransformMeta someMeta) {
-    if (someMeta instanceof ScriptValuesMeta) {
-      ((ScriptValuesMeta) someMeta).allocate(5);
-    }
-  }
-
-  public class ScriptValuesScriptLoadSaveValidator
-      implements IFieldLoadSaveValidator<ScriptValuesScript> {
-    final Random rand = new Random();
-
-    @Override
-    public ScriptValuesScript getTestObject() {
-      int scriptType = rand.nextInt(4);
-      if (scriptType == 3) {
-        scriptType = -1;
-      }
-      return new ScriptValuesScript(
-          scriptType, UUID.randomUUID().toString(), UUID.randomUUID().toString());
-    }
-
-    @Override
-    public boolean validateTestObject(ScriptValuesScript testObject, Object actual) {
-      if (!(actual instanceof ScriptValuesScript)) {
-        return false;
-      }
-      return (actual.toString().equals(testObject.toString()));
-    }
+class ScriptValuesMetaTest {
+  @BeforeAll
+  static void beforeAll() throws HopException {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginClass(
+        ValueMetaString.class.getName(), ValueMetaPluginType.class, ValueMetaPlugin.class);
+    registry.registerPluginClass(
+        ValueMetaInteger.class.getName(), ValueMetaPluginType.class, ValueMetaPlugin.class);
+    registry.registerPluginClass(
+        ValueMetaNumber.class.getName(), ValueMetaPluginType.class, ValueMetaPlugin.class);
+    registry.registerPluginClass(
+        ValueMetaDate.class.getName(), ValueMetaPluginType.class, ValueMetaPlugin.class);
   }
 
   @Test
-  void testExtend() {
-    ScriptValuesMeta meta = new ScriptValuesMeta();
-    int size = 1;
-    meta.extend(size);
+  void testXmlRoundTrip() throws Exception {
+    // Test XML->Meta->XML->Meta
+    ScriptValuesMeta meta =
+        TransformSerializationTestUtil.testSerialization("/javascript.xml", ScriptValuesMeta.class);
 
-    assertEquals(size, meta.getFieldname().length);
-    assertNull(meta.getFieldname()[0]);
-    assertEquals(size, meta.getRename().length);
-    assertNull(meta.getRename()[0]);
-    assertEquals(size, meta.getType().length);
-    assertEquals(-1, meta.getType()[0]);
-    assertEquals(size, meta.getLength().length);
-    assertEquals(-1, meta.getLength()[0]);
-    assertEquals(size, meta.getPrecision().length);
-    assertEquals(-1, meta.getPrecision()[0]);
-    assertEquals(size, meta.getReplace().length);
-    assertFalse(meta.getReplace()[0]);
+    // See if after all that we still have the correct data
+    //
+    assertEquals("2", meta.getOptimizationLevel());
 
-    meta = new ScriptValuesMeta();
+    // The scripts
+    assertEquals(3, meta.getJsScripts().size());
+    ScriptValuesScript s = meta.getJsScripts().getFirst();
+    assertEquals("startScript", s.getName());
+    assertEquals("startScript", s.getScript());
+    assertEquals(1, s.getType());
+    s = meta.getJsScripts().get(1);
+    assertEquals("transformScript", s.getName());
+    assertEquals("transformScript", s.getScript());
+    assertEquals(0, s.getType());
+    s = meta.getJsScripts().getLast();
+    assertEquals("endScript", s.getName());
+    assertEquals("endScript", s.getScript());
+    assertEquals(2, s.getType());
 
-    meta.extend(3);
-    validateExtended(meta);
-  }
+    // The fields
+    assertEquals(3, meta.getScriptFields().size());
+    ScriptValuesMeta.ScriptField f = meta.getScriptFields().getFirst();
+    assertEquals("f1", f.getName());
+    assertEquals("renamedF1", f.getRename());
+    assertEquals(100, f.getLength());
+    assertEquals(-1, f.getPrecision());
+    assertTrue(f.isReplace());
 
-  private void validateExtended(final ScriptValuesMeta meta) {
+    f = meta.getScriptFields().get(1);
+    assertEquals("f2", f.getName());
+    assertEquals("renamedF2", f.getRename());
+    assertEquals(7, f.getLength());
+    assertEquals(-1, f.getPrecision());
+    assertTrue(f.isReplace());
 
-    assertEquals(3, meta.getFieldname().length);
-    //    assertEquals("Field 1", meta.getFieldname()[0]);
-    //    assertEquals("Field 2", meta.getFieldname()[1]);
-    //    assertEquals("Field 3", meta.getFieldname()[2]);
-    //    assertEquals(3, meta.getRename().length);
-    //    assertEquals("Field 1 - new", meta.getRename()[0]);
-    //    assertNull(meta.getRename()[1]);
-    //    assertNull(meta.getRename()[2]);
-    //    assertEquals(3, meta.getType().length);
-    //    assertEquals(IValueMeta.TYPE_STRING, meta.getType()[0]);
-    //    assertEquals(IValueMeta.TYPE_INTEGER, meta.getType()[1]);
-    //    assertEquals(IValueMeta.TYPE_NUMBER, meta.getType()[2]);
-    //    assertEquals(3, meta.getLength().length);
-    //    assertEquals(-1, meta.getLength()[0]);
-    //    assertEquals(-1, meta.getLength()[1]);
-    //    assertEquals(-1, meta.getLength()[2]);
-    //    assertEquals(3, meta.getPrecision().length);
-    //    assertEquals(-1, meta.getPrecision()[0]);
-    //    assertEquals(-1, meta.getPrecision()[1]);
-    //    assertEquals(-1, meta.getPrecision()[2]);
-    //    assertEquals(3, meta.getReplace().length);
-    //    assertFalse(meta.getReplace()[0]);
-    //    assertFalse(meta.getReplace()[1]);
-    //    assertFalse(meta.getReplace()[2]);
+    f = meta.getScriptFields().getLast();
+    assertEquals("f3", f.getName());
+    assertEquals("renamedF3", f.getRename());
+    assertEquals(9, f.getLength());
+    assertEquals(2, f.getPrecision());
+    assertTrue(f.isReplace());
   }
 }

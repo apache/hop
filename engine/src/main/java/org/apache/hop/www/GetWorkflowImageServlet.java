@@ -80,8 +80,6 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
       workflow = getWorkflowMap().getWorkflow(entry);
     }
 
-    ByteArrayOutputStream svgStream = null;
-
     try {
       if (workflow != null) {
 
@@ -94,23 +92,21 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
         //
         String svgXml =
             WorkflowSvgPainter.generateWorkflowSvg(workflow.getWorkflowMeta(), 1.0f, variables);
-        svgStream = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream svgStream = new ByteArrayOutputStream()) {
           svgStream.write(svgXml.getBytes(StandardCharsets.UTF_8));
-        } finally {
           svgStream.flush();
-        }
-        response.setContentLength(svgStream.size());
+          response.setContentLength(svgStream.size());
 
-        OutputStream out = response.getOutputStream();
-        out.write(svgStream.toByteArray());
+          OutputStream out = response.getOutputStream();
+          out.write(svgStream.toByteArray());
+        }
       }
     } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      if (svgStream != null) {
-        svgStream.close();
-      }
+      logError("Error building SVG image of workflow", e);
+      sendSafeError(
+          response,
+          HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Unable to generate workflow image.");
     }
   }
 

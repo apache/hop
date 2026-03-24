@@ -29,13 +29,17 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Setter
 public class DataGridDataMeta implements Cloneable {
 
-  @HopMetadataProperty(key = "item")
+  @HopMetadataProperty(key = "item", isExcludedFromInjection = true)
   private List<String> datalines;
 
-  @HopMetadataProperty(injectionKeyDescription = "DataGrid.Injection.DataLine")
+  @HopMetadataProperty(
+      injectionKeyDescription = "DataGrid.Injection.DataLine",
+      isExcludedFromSerialization = true)
   private String injectionDatalines;
 
-  @HopMetadataProperty(injectionKeyDescription = "DataGrid.Injection.Splitter")
+  @HopMetadataProperty(
+      injectionKeyDescription = "DataGrid.Injection.Splitter",
+      isExcludedFromSerialization = true)
   private String splitter;
 
   public DataGridDataMeta() {

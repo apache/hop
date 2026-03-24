@@ -16,20 +16,42 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import org.apache.hop.core.injection.Injection;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
+@Getter
+@Setter
 public class UsageParameter implements Cloneable {
-  @Injection(name = "TAG", group = "PARAMETERS")
-  public String tag;
+  @HopMetadataProperty(
+      key = "parameter_tag",
+      injectionKey = "TAG",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.TAG")
+  private String tag;
 
-  @Injection(name = "VALUE", group = "PARAMETERS")
-  public String value;
+  @HopMetadataProperty(
+      key = "parameter_value",
+      injectionKey = "VALUE",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.VALUE")
+  private String value;
 
-  @Injection(name = "DESCRIPTION", group = "PARAMETERS")
-  public String description;
+  @HopMetadataProperty(
+      key = "parameter_description",
+      injectionKey = "DESCRIPTION",
+      injectionKeyDescription = "UserDefinedJavaClass.Injection.DESCRIPTION")
+  private String description;
+
+  public UsageParameter() {}
+
+  public UsageParameter(UsageParameter u) {
+    this();
+    this.tag = u.tag;
+    this.value = u.value;
+    this.description = u.description;
+  }
 
   @Override
-  public Object clone() throws CloneNotSupportedException {
-    return super.clone();
+  public UsageParameter clone() {
+    return new UsageParameter(this);
   }
 }

@@ -1,0 +1,3 @@
+name,filemask,exclude_filemask,file_required,include_subfolders
+directory,.*\.txt,,N,N
+folder2,.*\.txt,,Y,Y

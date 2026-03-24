@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<transform>
+    <outputValue>outputValue</outputValue>
+    <jsonBloc>blockName</jsonBloc>
+    <operation_type>writetofile</operation_type>
+    <use_arrays_with_single_instance>Y</use_arrays_with_single_instance>
+    <use_single_item_per_group>Y</use_single_item_per_group>
+    <json_prittified>Y</json_prittified>
+    <encoding>UTF-8</encoding>
+    <addtoresult>N</addtoresult>
+    <file>
+        <name>filename</name>
+        <split_output_after>100</split_output_after>
+        <extention>json</extention>
+        <append>N</append>
+        <split>N</split>
+        <haspartno>N</haspartno>
+        <add_date>N</add_date>
+        <add_time>N</add_time>
+        <create_parent_folder>Y</create_parent_folder>
+        <doNotOpenNewFileInit>Y</doNotOpenNewFileInit>
+    </file>
+    <additional_fields>
+        <json_size_field>jsonSizeField</json_size_field>
+    </additional_fields>
+    <key_fields>
+        <key_field>
+            <key_field_name>groupField1</key_field_name>
+            <key_field_element>groupElement1</key_field_element>
+        </key_field>
+        <key_field>
+            <key_field_name>groupField2</key_field_name>
+            <key_field_element>groupElement2</key_field_element>
+        </key_field>
+    </key_fields>
+    <fields>
+        <field>
+            <name>f1</name>
+            <element>element1</element>
+            <json_fragment>Y</json_fragment>
+            <is_without_enclosing>Y</is_without_enclosing>
+            <remove_if_blank>Y</remove_if_blank>
+        </field>
+        <field>
+            <name>f2</name>
+            <element>element2</element>
+            <json_fragment>Y</json_fragment>
+            <is_without_enclosing>Y</is_without_enclosing>
+            <remove_if_blank>Y</remove_if_blank>
+        </field>
+        <field>
+            <name>f3</name>
+            <element>element3</element>
+            <json_fragment>Y</json_fragment>
+            <is_without_enclosing>Y</is_without_enclosing>
+            <remove_if_blank>Y</remove_if_blank>
+        </field>
+    </fields>
+</transform>
+

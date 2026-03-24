@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 import org.apache.hop.core.exception.HopXmlException;
@@ -73,6 +74,16 @@ class WebResultTest {
     assertEquals(original.getResult(), copy.getResult());
     assertEquals(original.getMessage(), copy.getMessage());
     assertEquals(original.getId(), copy.getId());
+  }
+
+  @Test
+  void testGetJsonSerializesBeanFields() {
+    WebResult result = new WebResult(WebResult.STRING_ERROR, "msg", "id1");
+    String json = result.getJson();
+    assertTrue(json.contains("\"result\""));
+    assertTrue(json.contains(WebResult.STRING_ERROR));
+    assertTrue(json.contains("msg"));
+    assertTrue(json.contains("id1"));
   }
 
   @Test
