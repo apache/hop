@@ -44,13 +44,10 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
 
   @Override
   public boolean processRow() throws HopException {
+    String errorMessage;
 
-    boolean sendToErrorRow = false;
-    String errorMessage = null;
-
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if (r == null) { // no more input to be expected...
-
+    Object[] r = getRow();
+    if (r == null) {
       setOutputDone();
       return false;
     }
@@ -58,63 +55,15 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
     try {
       if (first) {
         first = false;
-        // get the RowMeta
-        data.previousRowMeta = getInputRowMeta().clone();
-        data.NrPrevFields = data.previousRowMeta.size();
-        data.outputRowMeta = data.previousRowMeta;
-        meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
-        // Check is stream data field is provided
-        if (Utils.isEmpty(meta.getStreamField())) {
-          throw new HopException(
-              BaseMessages.getString(PKG, "PGPEncryptStream.Error.DataStreamFieldMissing"));
-        }
-
-        if (meta.isKeynameInField()) {
-          // keyname will be extracted from a field
-          String keyField = meta.getKeynameFieldName();
-          if (Utils.isEmpty(keyField)) {
-            throw new HopException(
-                BaseMessages.getString(PKG, "PGPEncryptStream.Error.KeyNameFieldMissing"));
-          }
-          data.indexOfKeyName = data.previousRowMeta.indexOfValue(keyField);
-          if (data.indexOfKeyName < 0) {
-            // The field is unreachable !
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "PGPEncryptStream.Exception.CouldnotFindField", meta.getStreamField()));
-          }
-        } else {
-          // Check is keyname is provided
-          data.keyName = resolve(meta.getKeyName());
-
-          if (Utils.isEmpty(data.keyName)) {
-            throw new HopException(
-                BaseMessages.getString(PKG, "PGPEncryptStream.Error.KeyNameMissing"));
-          }
-        }
-
-        // cache the position of the field
-        if (data.indexOfField < 0) {
-          data.indexOfField = data.previousRowMeta.indexOfValue(meta.getStreamField());
-          if (data.indexOfField < 0) {
-            // The field is unreachable !
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "PGPEncryptStream.Exception.CouldnotFindField", meta.getStreamField()));
-          }
-        }
-      } // End If first
-
-      // allocate output row
-      Object[] outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-      for (int i = 0; i < data.NrPrevFields; i++) {
-        outputRow[i] = r[i];
+        processRowFirstCall();
       }
 
-      // get keyname if needed
-      if (meta.isKeynameInField()) {
-        // get keyname
+      // allocate output row
+      Object[] outputRow = RowDataUtil.createResizedCopy(r, data.outputRowMeta.size());
+
+      // get key name if needed
+      if (meta.isKeyNameInField()) {
+        // get key name
         data.keyName = data.previousRowMeta.getString(r, data.indexOfKeyName);
         if (Utils.isEmpty(data.keyName)) {
           throw new HopException(
@@ -126,7 +75,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
       String dataToEncrypt = data.previousRowMeta.getString(r, data.indexOfField);
 
       if (Utils.isEmpty(dataToEncrypt)) {
-        // no data..we can not continue with this row
+        // no data so we can not continue with this row
         throw new HopException(
             BaseMessages.getString(PKG, "PGPEncryptStream.Error.DataToEncryptEmpty"));
       }
@@ -135,7 +84,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
       String encryptedData = data.gpg.encrypt(dataToEncrypt, data.keyName);
 
       // Add encrypted data to input stream
-      outputRow[data.NrPrevFields] = encryptedData;
+      outputRow[data.outputRowMeta.size() - 1] = encryptedData;
 
       // add new values to the row.
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
@@ -149,7 +98,6 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
       }
     } catch (Exception e) {
       if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
         errorMessage = e.toString();
       } else {
         logError(
@@ -160,19 +108,60 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(
-            getInputRowMeta(),
-            r,
-            1,
-            errorMessage,
-            meta.getResultFieldName(),
-            "PGPEncryptStreamO01");
-      }
+      // Simply add this row to the error row
+      putError(
+          getInputRowMeta(), r, 1, errorMessage, meta.getResultFieldName(), "PGPEncryptStreamO01");
     }
 
     return true;
+  }
+
+  private void processRowFirstCall() throws HopException {
+    // get the RowMeta
+    data.previousRowMeta = getInputRowMeta().clone();
+    data.outputRowMeta = data.previousRowMeta;
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
+    // Check is stream data field is provided
+    if (Utils.isEmpty(meta.getStreamField())) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "PGPEncryptStream.Error.DataStreamFieldMissing"));
+    }
+
+    if (meta.isKeyNameInField()) {
+      // key name will be extracted from a field
+      String keyField = meta.getKeyNameFieldName();
+      if (Utils.isEmpty(keyField)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "PGPEncryptStream.Error.KeyNameFieldMissing"));
+      }
+      data.indexOfKeyName = data.previousRowMeta.indexOfValue(keyField);
+      if (data.indexOfKeyName < 0) {
+        // The field is unreachable !
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "PGPEncryptStream.Exception.CouldnotFindField", meta.getStreamField()));
+      }
+    } else {
+      // Check if key name is provided
+      data.keyName = resolve(meta.getKeyName());
+
+      if (Utils.isEmpty(data.keyName)) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "PGPEncryptStream.Error.KeyNameMissing"));
+      }
+    }
+
+    // cache the position of the field
+    if (data.indexOfField < 0) {
+      data.indexOfField = data.previousRowMeta.indexOfValue(meta.getStreamField());
+      if (data.indexOfField < 0) {
+        // The field is unreachable !
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "PGPEncryptStream.Exception.CouldnotFindField", meta.getStreamField()));
+      }
+    }
   }
 
   @Override
@@ -186,7 +175,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
 
       try {
         // initiate a new GPG encryptor
-        data.gpg = new GPG(resolve(meta.getGPGLocation()), getLogChannel(), variables);
+        data.gpg = new GPG(resolve(meta.getGpgLocation()), getLogChannel(), variables);
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "PGPEncryptStream.Init.Error"), e);
         return false;

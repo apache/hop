@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.pgpencryptstream;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -31,11 +32,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -44,6 +41,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -52,7 +50,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PGPEncryptStreamMeta.class;
   private boolean gotPreviousFields = false;
 
-  private TextVar wGPGLocation;
+  private TextVar wGpgLocation;
 
   private Label wlKeyName;
   private TextVar wKeyName;
@@ -106,83 +104,69 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     // START OF GPG Fields GROUP //
     // ///////////////////////////////
 
-    Group wGPGGroup = new Group(wContent, SWT.SHADOW_NONE);
-    PropsUi.setLook(wGPGGroup);
-    wGPGGroup.setText(BaseMessages.getString(PKG, "PGPEncryptStreamDialog.GPGGroup.Label"));
+    Group wGpgGroup = new Group(wContent, SWT.SHADOW_NONE);
+    PropsUi.setLook(wGpgGroup);
+    wGpgGroup.setText(BaseMessages.getString(PKG, "PGPEncryptStreamDialog.GPGGroup.Label"));
 
-    FormLayout gpggroupgrouplayout = new FormLayout();
-    gpggroupgrouplayout.marginWidth = 10;
-    gpggroupgrouplayout.marginHeight = 10;
-    wGPGGroup.setLayout(gpggroupgrouplayout);
+    FormLayout gpgGroupGroupLayout = new FormLayout();
+    gpgGroupGroupLayout.marginWidth = 10;
+    gpgGroupGroupLayout.marginHeight = 10;
+    wGpgGroup.setLayout(gpgGroupGroupLayout);
 
-    // GPGLocation fieldname ...
-    Label wlGPGLocation = new Label(wGPGGroup, SWT.RIGHT);
-    wlGPGLocation.setText(
+    // GPGLocation field name ...
+    Label wlGpgLocation = new Label(wGpgGroup, SWT.RIGHT);
+    wlGpgLocation.setText(
         BaseMessages.getString(PKG, "PGPEncryptStreamDialog.GPGLocationField.Label"));
-    PropsUi.setLook(wlGPGLocation);
-    FormData fdlGPGLocation = new FormData();
-    fdlGPGLocation.left = new FormAttachment(0, 0);
-    fdlGPGLocation.right = new FormAttachment(middle, -margin);
-    fdlGPGLocation.top = new FormAttachment(0, margin);
-    wlGPGLocation.setLayoutData(fdlGPGLocation);
+    PropsUi.setLook(wlGpgLocation);
+    FormData fdlGpgLocation = new FormData();
+    fdlGpgLocation.left = new FormAttachment(0, 0);
+    fdlGpgLocation.right = new FormAttachment(middle, -margin);
+    fdlGpgLocation.top = new FormAttachment(0, margin);
+    wlGpgLocation.setLayoutData(fdlGpgLocation);
 
     // Browse Source files button ...
-    Button wbbGpgExe = new Button(wGPGGroup, SWT.PUSH | SWT.CENTER);
+    Button wbbGpgExe = new Button(wGpgGroup, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbGpgExe);
     wbbGpgExe.setText(BaseMessages.getString(PKG, "PGPEncryptStreamDialog.BrowseFiles.Label"));
-    FormData fdbbGpgExe = new FormData();
-    fdbbGpgExe.right = new FormAttachment(100, -margin);
-    fdbbGpgExe.top = new FormAttachment(0, margin);
-    wbbGpgExe.setLayoutData(fdbbGpgExe);
+    FormData fdBbGpgExe = new FormData();
+    fdBbGpgExe.right = new FormAttachment(100, -margin);
+    fdBbGpgExe.top = new FormAttachment(0, margin);
+    wbbGpgExe.setLayoutData(fdBbGpgExe);
+    wbbGpgExe.addListener(SWT.Selection, this::browseForFiles);
 
-    if (wbbGpgExe != null) {
-      // Listen to the browse button next to the file name
-      //
-      wbbGpgExe.addListener(
-          SWT.Selection,
-          e ->
-              BaseDialog.presentFileDialog(
-                  shell,
-                  wGPGLocation,
-                  variables,
-                  new String[] {"*"},
-                  new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")},
-                  true));
-    }
-
-    wGPGLocation = new TextVar(variables, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wGPGLocation.setToolTipText(
+    wGpgLocation = new TextVar(variables, wGpgGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wGpgLocation.setToolTipText(
         BaseMessages.getString(PKG, "PGPEncryptStreamDialog.GPGLocationField.Tooltip"));
-    PropsUi.setLook(wGPGLocation);
-    wGPGLocation.addModifyListener(lsMod);
+    PropsUi.setLook(wGpgLocation);
+    wGpgLocation.addModifyListener(lsMod);
     FormData fdGPGLocation = new FormData();
     fdGPGLocation.left = new FormAttachment(middle, 0);
     fdGPGLocation.top = new FormAttachment(0, margin);
     fdGPGLocation.right = new FormAttachment(wbbGpgExe, -margin);
-    wGPGLocation.setLayoutData(fdGPGLocation);
+    wGpgLocation.setLayoutData(fdGPGLocation);
 
-    // KeyName fieldname ...
-    wlKeyName = new Label(wGPGGroup, SWT.RIGHT);
+    // KeyName field name ...
+    wlKeyName = new Label(wGpgGroup, SWT.RIGHT);
     wlKeyName.setText(BaseMessages.getString(PKG, "PGPEncryptStreamDialog.KeyNameField.Label"));
     PropsUi.setLook(wlKeyName);
     FormData fdlKeyName = new FormData();
     fdlKeyName.left = new FormAttachment(0, 0);
     fdlKeyName.right = new FormAttachment(middle, -margin);
-    fdlKeyName.top = new FormAttachment(wGPGLocation, margin);
+    fdlKeyName.top = new FormAttachment(wGpgLocation, margin);
     wlKeyName.setLayoutData(fdlKeyName);
 
-    wKeyName = new TextVar(variables, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wKeyName = new TextVar(variables, wGpgGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wKeyName.setToolTipText(
         BaseMessages.getString(PKG, "PGPEncryptStreamDialog.KeyNameField.Tooltip"));
     PropsUi.setLook(wKeyName);
     wKeyName.addModifyListener(lsMod);
     FormData fdKeyName = new FormData();
     fdKeyName.left = new FormAttachment(middle, 0);
-    fdKeyName.top = new FormAttachment(wGPGLocation, margin);
+    fdKeyName.top = new FormAttachment(wGpgLocation, margin);
     fdKeyName.right = new FormAttachment(100, 0);
     wKeyName.setLayoutData(fdKeyName);
 
-    Label wlKeyNameFromField = new Label(wGPGGroup, SWT.RIGHT);
+    Label wlKeyNameFromField = new Label(wGpgGroup, SWT.RIGHT);
     wlKeyNameFromField.setText(
         BaseMessages.getString(PKG, "PGPEncryptStreamDialog.KeyNameFromField.Label"));
     PropsUi.setLook(wlKeyNameFromField);
@@ -191,7 +175,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     fdlKeyNameFromField.top = new FormAttachment(wKeyName, margin);
     fdlKeyNameFromField.right = new FormAttachment(middle, -margin);
     wlKeyNameFromField.setLayoutData(fdlKeyNameFromField);
-    wKeyNameFromField = new Button(wGPGGroup, SWT.CHECK);
+    wKeyNameFromField = new Button(wGpgGroup, SWT.CHECK);
     PropsUi.setLook(wKeyNameFromField);
     wKeyNameFromField.setToolTipText(
         BaseMessages.getString(PKG, "PGPEncryptStreamDialog.KeyNameFromField.Tooltip"));
@@ -199,18 +183,15 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     fdKeyNameFromField.left = new FormAttachment(middle, 0);
     fdKeyNameFromField.top = new FormAttachment(wlKeyNameFromField, 0, SWT.CENTER);
     wKeyNameFromField.setLayoutData(fdKeyNameFromField);
-
-    wKeyNameFromField.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            keyNameFromField();
-            input.setChanged();
-          }
+    wKeyNameFromField.addListener(
+        SWT.Selection,
+        e -> {
+          enableKeyNameFromField();
+          input.setChanged();
         });
 
     // Stream field
-    wlKeyNameFieldName = new Label(wGPGGroup, SWT.RIGHT);
+    wlKeyNameFieldName = new Label(wGpgGroup, SWT.RIGHT);
     wlKeyNameFieldName.setText(
         BaseMessages.getString(PKG, "PGPEncryptStreamDialog.KeyNameFieldName.Label"));
     PropsUi.setLook(wlKeyNameFieldName);
@@ -220,7 +201,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     fdlKeyNameFieldName.top = new FormAttachment(wKeyNameFromField, margin);
     wlKeyNameFieldName.setLayoutData(fdlKeyNameFieldName);
 
-    wKeyNameFieldName = new CCombo(wGPGGroup, SWT.BORDER | SWT.READ_ONLY);
+    wKeyNameFieldName = new CCombo(wGpgGroup, SWT.BORDER | SWT.READ_ONLY);
     PropsUi.setLook(wKeyNameFieldName);
     wKeyNameFieldName.addModifyListener(lsMod);
     FormData fdKeyNameFieldName = new FormData();
@@ -228,28 +209,13 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     fdKeyNameFieldName.top = new FormAttachment(wKeyNameFromField, margin);
     fdKeyNameFieldName.right = new FormAttachment(100, -margin);
     wKeyNameFieldName.setLayoutData(fdKeyNameFieldName);
-    wKeyNameFieldName.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Do nothing
-          }
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            get();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
+    wKeyNameFieldName.addListener(SWT.FocusIn, e -> getPreviousFields());
 
     FormData fdGPGGroup = new FormData();
     fdGPGGroup.left = new FormAttachment(0, margin);
     fdGPGGroup.top = new FormAttachment(0, margin);
     fdGPGGroup.right = new FormAttachment(100, -margin);
-    wGPGGroup.setLayoutData(fdGPGGroup);
+    wGpgGroup.setLayoutData(fdGPGGroup);
 
     // ///////////////////////////////
     // END OF GPG GROUP //
@@ -263,7 +229,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     FormData fdlStreamFieldName = new FormData();
     fdlStreamFieldName.left = new FormAttachment(0, 0);
     fdlStreamFieldName.right = new FormAttachment(middle, -margin);
-    fdlStreamFieldName.top = new FormAttachment(wGPGGroup, margin);
+    fdlStreamFieldName.top = new FormAttachment(wGpgGroup, margin);
     wlStreamFieldName.setLayoutData(fdlStreamFieldName);
 
     wStreamFieldName = new CCombo(wContent, SWT.BORDER | SWT.READ_ONLY);
@@ -271,27 +237,12 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     wStreamFieldName.addModifyListener(lsMod);
     FormData fdStreamFieldName = new FormData();
     fdStreamFieldName.left = new FormAttachment(middle, 0);
-    fdStreamFieldName.top = new FormAttachment(wGPGGroup, margin);
+    fdStreamFieldName.top = new FormAttachment(wGpgGroup, margin);
     fdStreamFieldName.right = new FormAttachment(100, -margin);
     wStreamFieldName.setLayoutData(fdStreamFieldName);
-    wStreamFieldName.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {
-            // Do nothing
-          }
+    wStreamFieldName.addListener(SWT.FocusIn, e -> getPreviousFields());
 
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            get();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
-
-    // Result fieldname ...
+    // Result field name ...
     Label wlResult = new Label(wContent, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "PGPEncryptStreamDialog.ResultField.Label"));
     PropsUi.setLook(wlResult);
@@ -321,7 +272,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     scrolledComposite.setMinHeight(bounds.height);
 
     getData();
-    keyNameFromField();
+    enableKeyNameFromField();
     input.setChanged(changed);
     focusTransformName();
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -329,24 +280,24 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
     return transformName;
   }
 
+  private void browseForFiles(Event... e) {
+    BaseDialog.presentFileDialog(
+        shell,
+        wGpgLocation,
+        variables,
+        new String[] {"*"},
+        new String[] {BaseMessages.getString(PKG, "System.FileType.AllFiles")},
+        true);
+  }
+
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getGPGLocation() != null) {
-      wGPGLocation.setText(input.getGPGLocation());
-    }
-    if (input.getStreamField() != null) {
-      wStreamFieldName.setText(input.getStreamField());
-    }
-    if (input.getResultFieldName() != null) {
-      wResult.setText(input.getResultFieldName());
-    }
-    if (input.getKeyName() != null) {
-      wKeyName.setText(input.getKeyName());
-    }
-    wKeyNameFromField.setSelection(input.isKeynameInField());
-    if (input.getKeynameFieldName() != null) {
-      wKeyNameFieldName.setText(input.getKeynameFieldName());
-    }
+    wGpgLocation.setText(Const.NVL(input.getGpgLocation(), ""));
+    wStreamFieldName.setText(Const.NVL(input.getStreamField(), ""));
+    wResult.setText(Const.NVL(input.getResultFieldName(), ""));
+    wKeyName.setText(Const.NVL(input.getKeyName(), ""));
+    wKeyNameFromField.setSelection(input.isKeyNameInField());
+    wKeyNameFieldName.setText(Const.NVL(input.getKeyNameFieldName(), ""));
   }
 
   private void cancel() {
@@ -360,27 +311,31 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
       return;
     }
     input.setStreamField(wStreamFieldName.getText());
-    input.setGPGLocation(wGPGLocation.getText());
+    input.setGpgLocation(wGpgLocation.getText());
     input.setKeyName(wKeyName.getText());
     input.setResultFieldName(wResult.getText());
-    input.setKeynameInField(wKeyNameFromField.getSelection());
-    input.setKeynameFieldName(wKeyNameFieldName.getText());
-    transformName = wTransformName.getText(); // return value
+    input.setKeyNameInField(wKeyNameFromField.getSelection());
+    input.setKeyNameFieldName(wKeyNameFieldName.getText());
+
+    // return value
+    transformName = wTransformName.getText();
 
     dispose();
   }
 
-  private void keyNameFromField() {
+  private void enableKeyNameFromField() {
     wlKeyName.setEnabled(!wKeyNameFromField.getSelection());
     wKeyName.setEnabled(!wKeyNameFromField.getSelection());
     wlKeyNameFieldName.setEnabled(wKeyNameFromField.getSelection());
     wKeyNameFieldName.setEnabled(wKeyNameFromField.getSelection());
   }
 
-  private void get() {
+  private void getPreviousFields() {
     if (!gotPreviousFields) {
+      Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
       try {
-        String fieldvalue = wStreamFieldName.getText();
+        shell.setCursor(busy);
+        String fieldValue = wStreamFieldName.getText();
         wStreamFieldName.removeAll();
         String keyNameFieldNameText = wKeyNameFieldName.getText();
         wKeyNameFieldName.removeAll();
@@ -389,19 +344,23 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog {
           wStreamFieldName.setItems(r.getFieldNames());
           wKeyNameFieldName.setItems(r.getFieldNames());
         }
-        if (fieldvalue != null) {
-          wStreamFieldName.setText(fieldvalue);
+        if (fieldValue != null) {
+          wStreamFieldName.setText(fieldValue);
         }
         if (keyNameFieldNameText != null) {
           wKeyNameFieldName.setText(keyNameFieldNameText);
         }
         gotPreviousFields = true;
       } catch (HopException ke) {
+        shell.setCursor(null);
         new ErrorDialog(
             shell,
             BaseMessages.getString(PKG, "PGPEncryptStreamDialog.FailedToGetFields.DialogTitle"),
             BaseMessages.getString(PKG, "PGPEncryptStreamDialog.FailedToGetFields.DialogMessage"),
             ke);
+      } finally {
+        shell.setCursor(null);
+        busy.dispose();
       }
     }
   }
