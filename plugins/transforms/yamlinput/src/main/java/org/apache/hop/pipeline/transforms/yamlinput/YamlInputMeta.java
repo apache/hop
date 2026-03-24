@@ -20,19 +20,17 @@ package org.apache.hop.pipeline.transforms.yamlinput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.fileinput.InputFile;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -64,26 +62,19 @@ import org.w3c.dom.Node;
 public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
   private static final Class<?> PKG = YamlInputMeta.class;
 
-  private static final String YES = "Y";
-
-  public static final String[] RequiredFilesDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-  public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
-  public static final String CONST_FIELD = "field";
-
   @Getter
   @Setter
   public static class YamlFile {
-    @HopMetadataProperty(key="name", injectionKey = "filename")
+    @HopMetadataProperty(key = "name", injectionKey = "filename")
     private String filename;
-    @HopMetadataProperty(key="filemask")
+
+    @HopMetadataProperty(key = "filemask")
     private String fileMask;
-    @HopMetadataProperty(key="file_required")
+
+    @HopMetadataProperty(key = "file_required")
     private boolean fileRequired;
-    @HopMetadataProperty(key="include_subfolders")
+
+    @HopMetadataProperty(key = "include_subfolders")
     private boolean includingSubFolders;
 
     public YamlFile() {
@@ -101,64 +92,64 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     }
   }
 
-  @HopMetadataProperty(key="")
-  private List<YamlFile> yamlFiles;
-
   /** Flag indicating that we should include the filename in the output */
-  @HopMetadataProperty(key="include")
+  @HopMetadataProperty(key = "include")
   private boolean includeFilename;
 
   /** The name of the field in the output containing the filename */
-  @HopMetadataProperty(key="include_field")
+  @HopMetadataProperty(key = "include_field")
   private String filenameField;
 
   /** Flag indicating that a row number field should be included in the output */
-  @HopMetadataProperty(key="rownum")
+  @HopMetadataProperty(key = "rownum")
   private boolean includeRowNumber;
 
   /** The name of the field in the output containing the row number */
-  @HopMetadataProperty(key="rownum_field")
+  @HopMetadataProperty(key = "rownum_field")
   private String rowNumberField;
 
   /** The maximum number or lines to read */
-  @HopMetadataProperty(key="limit")
+  @HopMetadataProperty(key = "limit")
   private long rowLimit;
 
-  /** The fields to import... */
-  @HopMetadataProperty(key="field", groupKey="fields")
-  private List<YamlInputField> inputFields;
-
   /** The encoding to use for reading: null or empty string means system default encoding */
-  @HopMetadataProperty(key="encoding")
+  @HopMetadataProperty(key = "encoding")
   private String encoding;
 
   /** Is In fields */
-  @HopMetadataProperty(key="YamlField")
+  @HopMetadataProperty(key = "YamlField")
   private String yamlField;
 
   /** Is In fields */
-  @HopMetadataProperty(key="IsInFields")
+  @HopMetadataProperty(key = "IsInFields")
   private boolean inFields;
 
   /** Is a File */
-  @HopMetadataProperty(key="IsAFile")
+  @HopMetadataProperty(key = "IsAFile")
   private boolean sourceFile;
 
   /** Flag: add result filename */
-  @HopMetadataProperty(key="addresultfile")
+  @HopMetadataProperty(key = "addresultfile")
   private boolean addingResultFile;
 
   /** Flag: set XML Validating */
-  @HopMetadataProperty(key="validating")
+  @HopMetadataProperty(key = "validating")
   private boolean validating;
 
   /** Flag : do we ignore empty files */
-  @HopMetadataProperty(key="IsIgnoreEmptyFile")
+  @HopMetadataProperty(key = "IsIgnoreEmptyFile")
   private boolean ignoringEmptyFile;
 
-    /** Flag : do not fail if no file */
-  @HopMetadataProperty(key="doNotFailIfNoFile")
+  /** Flag : do not fail if no file */
+  @HopMetadataProperty(key = "doNotFailIfNoFile")
   private boolean doNotFailIfNoFile;
+
+  @HopMetadataProperty(key = "file", groupKey = "files")
+  private List<YamlFile> yamlFiles;
+
+  /** The fields to import... */
+  @HopMetadataProperty(key = "field", groupKey = "fields")
+  private List<YamlInputField> inputFields;
 
   public YamlInputMeta() {
     super();
@@ -187,25 +178,13 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     this.validating = m.validating;
     this.ignoringEmptyFile = m.ignoringEmptyFile;
     this.doNotFailIfNoFile = m.doNotFailIfNoFile;
-    m.yamlFiles.forEach(y->this.yamlFiles.add(new YamlFile(y)));
-    m.inputFields.forEach(f->this.inputFields.add(new YamlInputField(f)));
-
+    m.yamlFiles.forEach(y -> this.yamlFiles.add(new YamlFile(y)));
+    m.inputFields.forEach(f -> this.inputFields.add(new YamlInputField(f)));
   }
 
   @Override
   public YamlInputMeta clone() {
     return new YamlInputMeta(this);
-  }
-
-  public String getRequiredFilesDesc(String tt) {
-    if (Utils.isEmpty(tt)) {
-      return RequiredFilesDesc[0];
-    }
-    if (tt.equalsIgnoreCase(RequiredFilesCode[1])) {
-      return RequiredFilesDesc[1];
-    } else {
-      return RequiredFilesDesc[0];
-    }
   }
 
   @Override
@@ -258,30 +237,19 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     }
   }
 
-/*
   public FileInputList getFiles(IVariables variables) {
-    FileInputList list = new FileInputList();
-    for (YamlFile file : yamlFiles) {}
-    return FileInputList.createFileList(
-        variables,
-        FileInputList.buildInputFiles(
-            fileName, fileMask, null, fileRequired, includeSubFolderBoolean(), null));
-  }
-*/
-
-  //
-  //    return FileInputList.createFileList(
-  //        variables, , includeSubFolderBoolean());
-  //  }
-  /*
-  private boolean[] includeSubFolderBoolean() {
-    int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
-    for (int i = 0; i < len; i++) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase(includeSubFolders[i]);
+    List<InputFile> inputFiles = new ArrayList<>();
+    for (YamlFile file : yamlFiles) {
+      InputFile inputFile = new InputFile();
+      inputFile.setFileName(file.getFilename());
+      inputFile.setFileMask(file.getFileMask());
+      inputFile.setIncludeSubFolders(file.isIncludingSubFolders());
+      inputFile.setFileRequired(file.isFileRequired());
+      inputFile.setExcludeFileMask(null); // Not provided in this transform
+      inputFiles.add(inputFile);
     }
-    return includeSubFolderBoolean;
-  }*/
+    return FileInputList.createFileList(variables, inputFiles, null);
+  }
 
   @Override
   public void check(
@@ -388,7 +356,7 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       // So let's change the filename from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
-      List<String> newFilenames = new ArrayList<>();
+      List<YamlFile> newFiles = new ArrayList<>();
 
       if (!isInFields()) {
         FileInputList fileList = getFiles(variables);
@@ -399,23 +367,52 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
             if (fileObject.exists()) {
               // Convert to an absolute path and add it to the list.
               //
-              newFilenames.add(fileObject.getName().getPath());
+              YamlFile newFile = new YamlFile();
+              newFile.setFilename(fileObject.getName().getPath());
+              newFiles.add(newFile);
             }
           }
 
-          // Still here: set a new list of absolute filenames!
+          // Replace with the absolute paths
           //
-          fileName = newFilenames.toArray(new String[newFilenames.size()]);
-          fileMask = new String[newFilenames.size()]; // all null since converted to absolute path.
-          fileRequired = new String[newFilenames.size()]; // all null, turn to "Y" :
-          for (int i = 0; i < newFilenames.size(); i++) {
-            fileRequired[i] = "Y";
-          }
+          yamlFiles = newFiles;
         }
       }
       return null;
     } catch (Exception e) {
       throw new HopException(e);
+    }
+  }
+
+  @Override
+  public void convertLegacyXml(Node node) throws HopException {
+    Node fileNode = XmlHandler.getSubNode(node, "file");
+    int count = XmlHandler.countNodes(fileNode, "name");
+    if (fileNode == null || count == 0) {
+      // This is already using the new files/file structure.
+      return;
+    }
+
+    yamlFiles.clear();
+    for (int i = 0; i < count; i++) {
+      YamlFile inputFile = new YamlFile();
+      String fileName = XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "name", i));
+      String fileMask = XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "filemask", i));
+      boolean fileRequired =
+          "Y"
+              .equalsIgnoreCase(
+                  XmlHandler.getNodeValue(XmlHandler.getSubNodeByNr(fileNode, "file_required", i)));
+      boolean includeSubFolders =
+          "Y"
+              .equalsIgnoreCase(
+                  XmlHandler.getNodeValue(
+                      XmlHandler.getSubNodeByNr(fileNode, "include_subfolders", i)));
+
+      inputFile.setFilename(fileName);
+      inputFile.setFileMask(fileMask);
+      inputFile.setFileRequired(fileRequired);
+      inputFile.setIncludingSubFolders(includeSubFolders);
+      yamlFiles.add(inputFile);
     }
   }
 }

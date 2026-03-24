@@ -16,168 +16,91 @@
  */
 package org.apache.hop.pipeline.transforms.yamlinput;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaJson;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
-class YamlInputMetaTest implements IInitializer<YamlInputMeta> {
-  LoadSaveTester<YamlInputMeta> loadSaveTester;
-  Class<YamlInputMeta> testMetaClass = YamlInputMeta.class;
-
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
-
+class YamlInputMetaTest {
   @BeforeEach
-  void setUpLoadSave() throws Exception {
-    HopEnvironment.init();
-    PluginRegistry.init();
-    List<String> attributes =
-        Arrays.asList(
-            "includeFilename",
-            "filenameField",
-            "includeRowNumber",
-            "rowNumberField",
-            "rowLimit",
-            "encoding",
-            "yamlField",
-            "inFields",
-            "IsAFile",
-            "addResultFile",
-            "validating",
-            "IsIgnoreEmptyFile",
-            "doNotFailIfNoFile",
-            "fileName",
-            "fileMask",
-            "fileRequired",
-            "includeSubFolders",
-            "inputFields");
-
-    Map<String, String> getterMap =
-        new HashMap<>() {
-          {
-            put("includeFilename", "includeFilename");
-            put("filenameField", "getFilenameField");
-            put("includeRowNumber", "includeRowNumber");
-            put("rowNumberField", "getRowNumberField");
-            put("rowLimit", "getRowLimit");
-            put("encoding", "getEncoding");
-            put("yamlField", "getYamlField");
-            put("inFields", "isInFields");
-            put("IsAFile", "getIsAFile");
-            put("addResultFile", "addResultFile");
-            put("validating", "isValidating");
-            put("IsIgnoreEmptyFile", "isIgnoreEmptyFile");
-            put("doNotFailIfNoFile", "isdoNotFailIfNoFile");
-            put("fileName", "getFileName");
-            put("fileMask", "getFileMask");
-            put("fileRequired", "getFileRequired");
-            put("includeSubFolders", "getIncludeSubFolders");
-            put("inputFields", "getInputFields");
-          }
-        };
-    Map<String, String> setterMap =
-        new HashMap<>() {
-          {
-            put("includeFilename", "setIncludeFilename");
-            put("filenameField", "setFilenameField");
-            put("includeRowNumber", "setIncludeRowNumber");
-            put("rowNumberField", "setRowNumberField");
-            put("rowLimit", "setRowLimit");
-            put("encoding", "setEncoding");
-            put("yamlField", "setYamlField");
-            put("inFields", "setInFields");
-            put("IsAFile", "setIsAFile");
-            put("addResultFile", "setAddResultFile");
-            put("validating", "setValidating");
-            put("IsIgnoreEmptyFile", "setIgnoreEmptyFile");
-            put("doNotFailIfNoFile", "setdoNotFailIfNoFile");
-            put("fileName", "setFileName");
-            put("fileMask", "setFileMask");
-            put("fileRequired", "setFileRequired");
-            put("includeSubFolders", "setIncludeSubFolders");
-            put("inputFields", "setInputFields");
-          }
-        };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
-    IFieldLoadSaveValidator<YamlInputField[]> yamlInputFieldArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new YamlInputFieldLoadSaveValidator(), 5);
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("fileName", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fileRequired", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fileMask", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("includeSubFolders", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("inputFields", yamlInputFieldArrayLoadSaveValidator);
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass,
-            attributes,
-            getterMap,
-            setterMap,
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(YamlInputMeta someMeta) {
-    if (someMeta instanceof YamlInputMeta) {
-      ((YamlInputMeta) someMeta).allocate(5, 5);
+  void beforeEach() throws Exception {
+    PluginRegistry registry = PluginRegistry.getInstance();
+    String[] classNames = {
+      ValueMetaString.class.getName(),
+      ValueMetaInteger.class.getName(),
+      ValueMetaDate.class.getName(),
+      ValueMetaNumber.class.getName(),
+      ValueMetaJson.class.getName()
+    };
+    for (String className : classNames) {
+      registry.registerPluginClass(className, ValueMetaPluginType.class, ValueMetaPlugin.class);
     }
   }
 
   @Test
-  void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
+  void testSerializationRoundTrip() throws Exception {
+    YamlInputMeta meta =
+        TransformSerializationTestUtil.testSerialization("/yaml-input.xml", YamlInputMeta.class);
 
-  // YamlInputFieldLoadSaveValidator
-  public class YamlInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<YamlInputField> {
-    final Random rand = new Random();
+    assertTrue(meta.isIncludeFilename());
+    assertEquals("includeField", meta.getFilenameField());
+    assertTrue(meta.isIncludeRowNumber());
+    assertEquals("rowNumField", meta.getRowNumberField());
+    assertTrue(meta.isValidating());
+    assertTrue(meta.isAddingResultFile());
+    assertTrue(meta.isIgnoringEmptyFile());
+    assertTrue(meta.isDoNotFailIfNoFile());
+    assertEquals("rowNumField", meta.getRowNumberField());
+    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(999L, meta.getRowLimit());
+    assertTrue(meta.isSourceFile());
+    assertTrue(meta.isInFields());
+    assertEquals("filenameField", meta.getYamlField());
 
-    @Override
-    public YamlInputField getTestObject() {
-      YamlInputField rtn = new YamlInputField();
-      rtn.setCurrencySymbol(UUID.randomUUID().toString());
-      rtn.setDecimalSymbol(UUID.randomUUID().toString());
-      rtn.setFormat(UUID.randomUUID().toString());
-      rtn.setGroupSymbol(UUID.randomUUID().toString());
-      rtn.setName(UUID.randomUUID().toString());
-      rtn.setTrimType(rand.nextInt(4));
-      rtn.setPrecision(rand.nextInt(9));
-      rtn.setLength(rand.nextInt(50));
-      rtn.setPath(UUID.randomUUID().toString());
-      rtn.setType(rand.nextInt(8));
-      return rtn;
-    }
+    assertEquals(2, meta.getYamlFiles().size());
+    YamlInputMeta.YamlFile file = meta.getYamlFiles().getFirst();
+    assertEquals("folder1/", file.getFilename());
+    assertEquals(".*\\.yaml", file.getFileMask());
+    assertTrue(file.isFileRequired());
+    assertTrue(file.isIncludingSubFolders());
+    file = meta.getYamlFiles().get(1);
+    assertEquals("folder1/", file.getFilename());
+    assertEquals(".*\\.yml", file.getFileMask());
+    assertTrue(file.isFileRequired());
+    assertTrue(file.isIncludingSubFolders());
 
-    @Override
-    public boolean validateTestObject(YamlInputField testObject, Object actual) {
-      if (!(actual instanceof YamlInputField)) {
-        return false;
-      }
-      YamlInputField actualInput = (YamlInputField) actual;
-      return (testObject.getXml().equals(actualInput.getXml()));
-    }
+    assertEquals(3, meta.getInputFields().size());
+    YamlInputField field = meta.getInputFields().getFirst();
+    assertEquals("field1", field.getName());
+    assertEquals("key1", field.getPath());
+    assertEquals(IValueMeta.TYPE_STRING, field.getType());
+    assertEquals(100, field.getLength());
+    assertEquals(-1, field.getPrecision());
+    assertEquals(IValueMeta.TRIM_TYPE_LEFT, field.getTrimType());
+    field = meta.getInputFields().get(1);
+    assertEquals("field2", field.getName());
+    assertEquals("key2", field.getPath());
+    assertEquals(IValueMeta.TYPE_INTEGER, field.getType());
+    assertEquals(7, field.getLength());
+    assertEquals(0, field.getPrecision());
+    assertEquals(IValueMeta.TRIM_TYPE_RIGHT, field.getTrimType());
+    field = meta.getInputFields().getLast();
+    assertEquals("field3", field.getName());
+    assertEquals("key3", field.getPath());
+    assertEquals(IValueMeta.TYPE_NUMBER, field.getType());
+    assertEquals(9, field.getLength());
+    assertEquals(2, field.getPrecision());
+    assertEquals(IValueMeta.TRIM_TYPE_BOTH, field.getTrimType());
   }
 }

@@ -49,25 +49,36 @@ public class YamlInputField implements Cloneable {
   };
   public static final String CONST_SPACES = "        ";
 
-  @HopMetadataProperty(key="name")
+  @HopMetadataProperty(key = "name")
   private String name;
-  @HopMetadataProperty(key="path")
+
+  @HopMetadataProperty(key = "path")
   private String path;
-  @HopMetadataProperty(key="type", intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class)
+
+  @HopMetadataProperty(key = "type", intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class)
   private int type;
-  @HopMetadataProperty(key="length")
+
+  @HopMetadataProperty(key = "length")
   private int length;
-  @HopMetadataProperty(key="format")
+
+  @HopMetadataProperty(key = "format")
   private String format;
-  @HopMetadataProperty(key="trim_type", intCodeConverter = ValueMetaBase.TrimTypeCodeConverter.class)
+
+  @HopMetadataProperty(
+      key = "trim_type",
+      intCodeConverter = ValueMetaBase.TrimTypeCodeConverter.class)
   private int trimType;
-  @HopMetadataProperty(key="precision")
+
+  @HopMetadataProperty(key = "precision")
   private int precision;
-  @HopMetadataProperty(key="currency")
+
+  @HopMetadataProperty(key = "currency")
   private String currencySymbol;
-  @HopMetadataProperty(key="decimal")
+
+  @HopMetadataProperty(key = "decimal")
   private String decimalSymbol;
-  @HopMetadataProperty(key="group")
+
+  @HopMetadataProperty(key = "group")
   private String groupSymbol;
 
   public YamlInputField(String fieldName) {

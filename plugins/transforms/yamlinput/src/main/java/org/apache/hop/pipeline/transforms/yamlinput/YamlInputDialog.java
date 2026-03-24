@@ -74,6 +74,15 @@ public class YamlInputDialog extends BaseTransformDialog {
   public static final String CONST_YAML_INPUT_DIALOG_ERROR_PARSING_DATA_DIALOG_MESSAGE =
       "YamlInputDialog.ErrorParsingData.DialogMessage";
 
+  private static final String YES = "Y";
+
+  public static final String[] NO_YES_DEC =
+      new String[] {
+        BaseMessages.getString(PKG, "System.Combo.No"),
+        BaseMessages.getString(PKG, "System.Combo.Yes")
+      };
+  public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
+
   private Label wlFilename;
   private Label wlYamlIsAFile;
   private Button wbbFilename; // Browse: add file or directory
@@ -386,13 +395,13 @@ public class YamlInputDialog extends BaseTransformDialog {
         new ColumnInfo(
             BaseMessages.getString(PKG, "YamlInputDialog.Required.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            YamlInputMeta.RequiredFilesDesc);
+            NO_YES_DEC);
     colinfo[2].setToolTip(BaseMessages.getString(PKG, "YamlInputDialog.Required.Tooltip"));
     colinfo[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "YamlInputDialog.IncludeSubDirs.Column"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            YamlInputMeta.RequiredFilesDesc);
+            NO_YES_DEC);
     colinfo[3].setToolTip(BaseMessages.getString(PKG, "YamlInputDialog.IncludeSubDirs.Tooltip"));
 
     wFilenameList =
@@ -689,7 +698,7 @@ public class YamlInputDialog extends BaseTransformDialog {
     fdGet.bottom = new FormAttachment(100, 0);
     wGet.setLayoutData(fdGet);
 
-    final int FieldsRows = input.getInputFields().length;
+    final int FieldsRows = input.getInputFields().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -1051,97 +1060,56 @@ public class YamlInputDialog extends BaseTransformDialog {
    * @param in The TextFileInputMeta object to obtain the data from.
    */
   public void getData(YamlInputMeta in) {
-    if (in.getFileName() != null) {
-      wFilenameList.removeAll();
-
-      for (int i = 0; i < in.getFileName().length; i++) {
-        wFilenameList.add(
-            new String[] {
-              in.getFileName()[i],
-              in.getFileMask()[i],
-              in.getRequiredFilesDesc(in.getFileRequired()[i]),
-              in.getRequiredFilesDesc(in.getIncludeSubFolders()[i])
-            });
-      }
-      wFilenameList.removeEmptyRows();
-      wFilenameList.setRowNums();
-      wFilenameList.optWidth(true);
+    int index = 0;
+    for (YamlInputMeta.YamlFile file : in.getYamlFiles()) {
+      TableItem item = wFilenameList.table.getItem(index++);
+      item.setText(1, Const.NVL(file.getFilename(), ""));
+      item.setText(2, Const.NVL(file.getFileMask(), ""));
+      item.setText(3, file.isFileRequired() ? NO_YES_DEC[1] : NO_YES_DEC[0]);
+      item.setText(4, file.isIncludingSubFolders() ? NO_YES_DEC[1] : NO_YES_DEC[0]);
     }
-    wInclFilename.setSelection(in.includeFilename());
-    wInclRownum.setSelection(in.includeRowNumber());
-    wAddResult.setSelection(in.addResultFile());
-    wIgnoreEmptyFile.setSelection(in.isIgnoreEmptyFile());
-    wDoNotFailIfNoFile.setSelection(in.isdoNotFailIfNoFile());
+    wFilenameList.optimizeTableView();
+
+    wInclFilename.setSelection(in.isIncludeFilename());
+    wInclRownum.setSelection(in.isIncludeRowNumber());
+    wAddResult.setSelection(in.isAddingResultFile());
+    wIgnoreEmptyFile.setSelection(in.isIgnoringEmptyFile());
+    wDoNotFailIfNoFile.setSelection(in.isDoNotFailIfNoFile());
     wYAMLStreamField.setSelection(in.isInFields());
-    wYAMLIsAFile.setSelection(in.getIsAFile());
-
-    if (in.getYamlField() != null) {
-      wYAMLLField.setText(in.getYamlField());
-    }
-
-    if (in.getFilenameField() != null) {
-      wInclFilenameField.setText(in.getFilenameField());
-    }
-    if (in.getRowNumberField() != null) {
-      wInclRownumField.setText(in.getRowNumberField());
-    }
+    wYAMLIsAFile.setSelection(in.isSourceFile());
+    wYAMLLField.setText(Const.NVL(in.getYamlField(), ""));
+    wInclFilenameField.setText(Const.NVL(in.getFilenameField(), ""));
+    wInclRownumField.setText(Const.NVL(in.getRowNumberField(), ""));
     wLimit.setText("" + in.getRowLimit());
 
     if (isDebug()) {
       logDebug(BaseMessages.getString(PKG, "YamlInputDialog.Log.GettingFieldsInfo"));
     }
-    for (int i = 0; i < in.getInputFields().length; i++) {
-      YamlInputField field = in.getInputFields()[i];
+    for (int i = 0; i < in.getInputFields().size(); i++) {
+      YamlInputField field = in.getInputFields().get(i);
+      TableItem item = wFields.table.getItem(i);
+      String length = "" + field.getLength();
+      String prec = "" + field.getPrecision();
+      String decim = field.getDecimalSymbol();
 
-      if (field != null) {
-        TableItem item = wFields.table.getItem(i);
-        String name = field.getName();
-        String path = field.getPath();
-        String type = field.getTypeDesc();
-        String format = field.getFormat();
-        String length = "" + field.getLength();
-        String prec = "" + field.getPrecision();
-        String curr = field.getCurrencySymbol();
-        String group = field.getGroupSymbol();
-        String decim = field.getDecimalSymbol();
-        String trim = field.getTrimTypeDesc();
-
-        if (name != null) {
-          item.setText(1, name);
-        }
-        if (path != null) {
-          item.setText(2, path);
-        }
-        if (type != null) {
-          item.setText(3, type);
-        }
-        if (format != null) {
-          item.setText(4, format);
-        }
-        if (length != null && !"-1".equals(length)) {
-          item.setText(5, length);
-        }
-        if (prec != null && !"-1".equals(prec)) {
-          item.setText(6, prec);
-        }
-        if (curr != null) {
-          item.setText(7, curr);
-        }
-        if (decim != null) {
-          item.setText(8, decim);
-        }
-        if (group != null) {
-          item.setText(9, group);
-        }
-        if (trim != null) {
-          item.setText(10, trim);
-        }
+      item.setText(1, Const.NVL(field.getName(), ""));
+      item.setText(2, Const.NVL(field.getPath(), ""));
+      item.setText(3, Const.NVL(field.getTypeDesc(), ""));
+      item.setText(4, Const.NVL(field.getFormat(), ""));
+      if (!"-1".equals(length)) {
+        item.setText(5, length);
       }
+      if (!"-1".equals(prec)) {
+        item.setText(6, prec);
+      }
+      item.setText(7, Const.NVL(field.getCurrencySymbol(), ""));
+      if (decim != null) {
+        item.setText(8, decim);
+      }
+      item.setText(9, Const.NVL(field.getGroupSymbol(), ""));
+      item.setText(10, Const.NVL(field.getTrimTypeDesc(), ""));
     }
-
-    wFields.removeEmptyRows();
-    wFields.setRowNums();
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
   }
 
   private void cancel() {
@@ -1170,29 +1138,29 @@ public class YamlInputDialog extends BaseTransformDialog {
     in.setRowLimit(Const.toLong(wLimit.getText(), 0L));
     in.setFilenameField(wInclFilenameField.getText());
     in.setRowNumberField(wInclRownumField.getText());
-    in.setAddResultFile(wAddResult.getSelection());
+    in.setAddingResultFile(wAddResult.getSelection());
     in.setIncludeFilename(wInclFilename.getSelection());
     in.setIncludeRowNumber(wInclRownum.getSelection());
-    in.setIgnoreEmptyFile(wIgnoreEmptyFile.getSelection());
-    in.setdoNotFailIfNoFile(wDoNotFailIfNoFile.getSelection());
+    in.setIgnoringEmptyFile(wIgnoreEmptyFile.getSelection());
+    in.setDoNotFailIfNoFile(wDoNotFailIfNoFile.getSelection());
 
     in.setInFields(wYAMLStreamField.getSelection());
-    in.setIsAFile(wYAMLIsAFile.getSelection());
+    in.setSourceFile(wYAMLIsAFile.getSelection());
     in.setYamlField(wYAMLLField.getText());
 
-    int nrFiles = wFilenameList.getItemCount();
-    int nrFields = wFields.nrNonEmpty();
+    in.getYamlFiles().clear();
+    for (TableItem item : wFilenameList.getNonEmptyItems()) {
+      YamlInputMeta.YamlFile file = new YamlInputMeta.YamlFile();
+      file.setFilename(item.getText(1));
+      file.setFileMask(item.getText(2));
+      file.setFileRequired(NO_YES_DEC[1].equalsIgnoreCase(item.getText(3)));
+      file.setIncludingSubFolders(NO_YES_DEC[1].equalsIgnoreCase(item.getText(4)));
+      in.getYamlFiles().add(file);
+    }
 
-    in.allocate(nrFiles, nrFields);
-    in.setFileName(wFilenameList.getItems(0));
-    in.setFileMask(wFilenameList.getItems(1));
-    in.setFileRequired(wFilenameList.getItems(2));
-    in.setIncludeSubFolders(wFilenameList.getItems(3));
-
-    for (int i = 0; i < nrFields; i++) {
+    in.getInputFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
       YamlInputField field = new YamlInputField();
-
-      TableItem item = wFields.getNonEmpty(i);
 
       field.setName(item.getText(1));
       field.setPath(item.getText(2));
@@ -1205,7 +1173,7 @@ public class YamlInputDialog extends BaseTransformDialog {
       field.setGroupSymbol(item.getText(9));
       field.setTrimType(YamlInputField.getTrimTypeByDesc(item.getText(10)));
 
-      in.getInputFields()[i] = field;
+      in.getInputFields().add(field);
     }
   }
 
