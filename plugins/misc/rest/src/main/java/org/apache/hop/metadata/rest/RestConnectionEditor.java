@@ -94,6 +94,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
   private Group gAuth;
   private ScrolledComposite wsAuthComp;
+  private boolean loadingContent;
 
   public RestConnectionEditor(
       HopGui hopGui, MetadataManager<RestConnection> manager, RestConnection restConnection) {
@@ -156,6 +157,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wAuthType.addListener(
         SWT.Selection,
         e -> {
+          markChangedIfUserEdit();
           if (wAuthType.getText().equals("No Auth")) {
             addNoAuthFields();
           } else if (wAuthType.getText().equals("API Key")) {
@@ -223,7 +225,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdBaseUrl = new FormData();
     fdBaseUrl.top = new FormAttachment(0, 0);
     fdBaseUrl.left = new FormAttachment(middle, 0);
-    fdBaseUrl.right = new FormAttachment(95, 0);
+    fdBaseUrl.right = new FormAttachment(100, 0);
     wBaseUrl.setLayoutData(fdBaseUrl);
     lastControl = wBaseUrl;
 
@@ -240,14 +242,14 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdTestUrl = new FormData();
     fdTestUrl.top = new FormAttachment(wlTestUrl, 0, SWT.CENTER);
     fdTestUrl.left = new FormAttachment(middle, 0);
-    fdTestUrl.right = new FormAttachment(95, 0);
+    fdTestUrl.right = new FormAttachment(100, 0);
     wTestUrl.setLayoutData(fdTestUrl);
     lastControl = wTestUrl;
 
     FormData fdUrl = new FormData();
     fdUrl.top = new FormAttachment(gAuth, margin);
     fdUrl.left = new FormAttachment(0, 0);
-    fdUrl.right = new FormAttachment(95, 0);
+    fdUrl.right = new FormAttachment(100, 0);
     gUrl.setLayoutData(fdUrl);
     // end URL group
 
@@ -336,7 +338,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setChanged();
+            markChangedIfUserEdit();
             activateTrustoreFields();
           }
         });
@@ -516,8 +518,14 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       if (control == null || control.isDisposed()) {
         continue;
       }
-      control.addListener(SWT.Modify, e -> setChanged());
-      control.addListener(SWT.Selection, e -> setChanged());
+      control.addListener(SWT.Modify, e -> markChangedIfUserEdit());
+      control.addListener(SWT.Selection, e -> markChangedIfUserEdit());
+    }
+  }
+
+  private void markChangedIfUserEdit() {
+    if (!loadingContent) {
+      setChanged();
     }
   }
 
@@ -795,51 +803,56 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
   @Override
   public void setWidgetsContent() {
-    // backwards compatibility: if we have authorization header values but no Auth Type,
-    // consider this to be an API Key auth
-    if (!StringUtils.isEmpty(metadata.getAuthorizationHeaderName())
-        && !StringUtils.isEmpty(metadata.getAuthorizationHeaderValue())
-        && StringUtils.isEmpty(metadata.getAuthType())) {
-      metadata.setAuthType("API Key");
-    }
-
-    wName.setText(Const.NVL(metadata.getName(), ""));
-    wBaseUrl.setText(Const.NVL(metadata.getBaseUrl(), ""));
-    wTestUrl.setText(Const.NVL(metadata.getTestUrl(), ""));
-
-    wTrustStoreFile.setText(Const.NVL(metadata.getTrustStoreFile(), ""));
-    wTrustStorePassword.setText(Const.NVL(metadata.getTrustStorePassword(), ""));
-    wIgnoreSsl.setSelection(metadata.isIgnoreSsl());
-
-    wKeyStoreFile.setText(Const.NVL(metadata.getKeyStoreFile(), ""));
-    wKeyStorePassword.setText(Const.NVL(metadata.getKeyStorePassword(), ""));
-    wKeyStoreType.setText(Const.NVL(metadata.getKeyStoreType(), "PKCS12"));
-    wKeyPassword.setText(Const.NVL(metadata.getKeyPassword(), ""));
-    wCertificateAlias.setText(Const.NVL(metadata.getCertificateAlias(), ""));
-
-    if (StringUtils.isEmpty(metadata.getAuthType())) {
-      metadata.setAuthType("No Auth");
-      wAuthType.select(0);
-    } else {
-      wAuthType.select(Arrays.asList(authTypes).indexOf(metadata.getAuthType()));
-    }
-    switch (metadata.getAuthType()) {
-      case "Basic" -> {
-        addBasicAuthFields();
-        wUsername.setText(Const.NVL(metadata.getUsername(), ""));
-        wPassword.setText(Const.NVL(metadata.getPassword(), ""));
+    loadingContent = true;
+    try {
+      // backwards compatibility: if we have authorization header values but no Auth Type,
+      // consider this to be an API Key auth
+      if (!StringUtils.isEmpty(metadata.getAuthorizationHeaderName())
+          && !StringUtils.isEmpty(metadata.getAuthorizationHeaderValue())
+          && StringUtils.isEmpty(metadata.getAuthType())) {
+        metadata.setAuthType("API Key");
       }
-      case "Bearer" -> {
-        addBearerFields();
-        wBearerValue.setText(metadata.getBearerToken());
+
+      wName.setText(Const.NVL(metadata.getName(), ""));
+      wBaseUrl.setText(Const.NVL(metadata.getBaseUrl(), ""));
+      wTestUrl.setText(Const.NVL(metadata.getTestUrl(), ""));
+
+      wTrustStoreFile.setText(Const.NVL(metadata.getTrustStoreFile(), ""));
+      wTrustStorePassword.setText(Const.NVL(metadata.getTrustStorePassword(), ""));
+      wIgnoreSsl.setSelection(metadata.isIgnoreSsl());
+
+      wKeyStoreFile.setText(Const.NVL(metadata.getKeyStoreFile(), ""));
+      wKeyStorePassword.setText(Const.NVL(metadata.getKeyStorePassword(), ""));
+      wKeyStoreType.setText(Const.NVL(metadata.getKeyStoreType(), "PKCS12"));
+      wKeyPassword.setText(Const.NVL(metadata.getKeyPassword(), ""));
+      wCertificateAlias.setText(Const.NVL(metadata.getCertificateAlias(), ""));
+
+      if (StringUtils.isEmpty(metadata.getAuthType())) {
+        metadata.setAuthType("No Auth");
+        wAuthType.select(0);
+      } else {
+        wAuthType.select(Arrays.asList(authTypes).indexOf(metadata.getAuthType()));
       }
-      case "API Key" -> {
-        addApiKeyFields();
-        wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
-        wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
-        wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
+      switch (metadata.getAuthType()) {
+        case "Basic" -> {
+          addBasicAuthFields();
+          wUsername.setText(Const.NVL(metadata.getUsername(), ""));
+          wPassword.setText(Const.NVL(metadata.getPassword(), ""));
+        }
+        case "Bearer" -> {
+          addBearerFields();
+          wBearerValue.setText(metadata.getBearerToken());
+        }
+        case "API Key" -> {
+          addApiKeyFields();
+          wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
+          wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
+          wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
+        }
+        case "Certificate" -> addCertificateFields();
       }
-      case "Certificate" -> addCertificateFields();
+    } finally {
+      loadingContent = false;
     }
   }
 
