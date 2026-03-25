@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;

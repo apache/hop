@@ -32,7 +32,7 @@ import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookup
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;

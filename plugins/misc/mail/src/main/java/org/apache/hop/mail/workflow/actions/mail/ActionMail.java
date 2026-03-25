@@ -41,7 +41,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;

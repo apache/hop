@@ -26,7 +26,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.IConfigOptions;

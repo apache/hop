@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;

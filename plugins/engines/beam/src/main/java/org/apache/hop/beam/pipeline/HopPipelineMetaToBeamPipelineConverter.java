@@ -34,7 +34,7 @@ import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.transforms.Flatten;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.coder.HopRowCoder;
 import org.apache.hop.beam.core.util.HopBeamUtil;

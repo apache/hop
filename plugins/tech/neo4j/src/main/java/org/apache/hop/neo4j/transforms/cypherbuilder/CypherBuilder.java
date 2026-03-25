@@ -21,7 +21,7 @@ package org.apache.hop.neo4j.transforms.cypherbuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;

@@ -30,7 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.SingleRowRowSet;
 import org.apache.hop.core.exception.HopException;

@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLContext;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.encryption.Encr;

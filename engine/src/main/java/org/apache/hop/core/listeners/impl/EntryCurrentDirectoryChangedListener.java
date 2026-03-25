@@ -20,7 +20,7 @@ package org.apache.hop.core.listeners.impl;
 import com.google.common.base.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
 import org.apache.hop.core.variables.Variables;

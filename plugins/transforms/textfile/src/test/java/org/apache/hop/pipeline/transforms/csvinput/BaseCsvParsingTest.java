@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;

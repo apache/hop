@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.tablecompare;
 
 import java.sql.ResultSet;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;

@@ -21,7 +21,7 @@ import java.util.Arrays;
 import org.apache.beam.runners.flink.FlinkPipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.ExecutionMode;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.hop.beam.engines.BeamPipelineRunConfiguration;

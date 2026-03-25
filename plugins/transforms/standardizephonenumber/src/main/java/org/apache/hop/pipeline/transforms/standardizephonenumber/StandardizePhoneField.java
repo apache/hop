@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.standardizephonenumber;
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Contains the properties of the fields to standardize. */

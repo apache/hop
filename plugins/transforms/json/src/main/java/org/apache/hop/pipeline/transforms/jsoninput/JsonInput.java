@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.BitSet;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.QueueRowSet;

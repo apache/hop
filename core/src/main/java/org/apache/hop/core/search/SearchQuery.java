@@ -17,7 +17,7 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class SearchQuery implements ISearchQuery {
   private String searchString;

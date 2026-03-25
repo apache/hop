@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.filterrows;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;

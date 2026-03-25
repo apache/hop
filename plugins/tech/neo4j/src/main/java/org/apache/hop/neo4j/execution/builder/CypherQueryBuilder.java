@@ -19,7 +19,7 @@
 package org.apache.hop.neo4j.execution.builder;
 
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class CypherQueryBuilder extends BaseCypherBuilder {
 

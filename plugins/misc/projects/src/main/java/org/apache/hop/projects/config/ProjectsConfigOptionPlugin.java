@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;

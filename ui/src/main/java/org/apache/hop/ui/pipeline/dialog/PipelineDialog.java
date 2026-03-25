@@ -18,7 +18,7 @@
 package org.apache.hop.ui.pipeline.dialog;
 
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;

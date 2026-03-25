@@ -16,7 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.fake;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class FakeField {

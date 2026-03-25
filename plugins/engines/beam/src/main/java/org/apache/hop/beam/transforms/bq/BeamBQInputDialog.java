@@ -24,7 +24,7 @@ import com.google.cloud.bigquery.FieldList;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableDefinition;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.fn.BQSchemaAndRecordToHopFn;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;

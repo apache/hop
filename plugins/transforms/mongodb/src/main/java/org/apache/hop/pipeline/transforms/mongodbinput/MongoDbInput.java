@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.mongodbinput;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.AggregateIterable;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;

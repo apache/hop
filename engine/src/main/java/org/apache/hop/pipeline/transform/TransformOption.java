@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transform;
 
 import java.util.List;
-import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.util.StringUtil;

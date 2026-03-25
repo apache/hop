@@ -18,8 +18,8 @@
 package org.apache.hop.core.util;
 
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.hop.i18n.BaseMessages;
 
 /**

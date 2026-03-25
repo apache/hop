@@ -24,7 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -44,7 +49,13 @@ class MongoDbConnectionTest {
   private MongoDbConnection connection;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
+    PluginRegistry.init();
+    String passwordEncoderPluginID =
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
+
     MockitoAnnotations.openMocks(this);
     connection = new MongoDbConnection();
     when(variables.resolve(anyString())).thenAnswer(invocation -> invocation.getArgument(0));

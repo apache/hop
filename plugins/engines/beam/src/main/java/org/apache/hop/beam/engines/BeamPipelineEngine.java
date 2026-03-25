@@ -42,7 +42,7 @@ import org.apache.beam.sdk.metrics.MetricResult;
 import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
 import org.apache.beam.sdk.util.ThrowingSupplier;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
 import org.apache.hop.beam.util.BeamConst;

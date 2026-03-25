@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;

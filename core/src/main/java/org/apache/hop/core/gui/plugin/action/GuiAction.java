@@ -20,7 +20,7 @@ package org.apache.hop.core.gui.plugin.action;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.util.EnvUtil;

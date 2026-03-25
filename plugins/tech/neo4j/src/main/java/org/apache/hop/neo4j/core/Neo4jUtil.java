@@ -18,7 +18,7 @@
 
 package org.apache.hop.neo4j.core;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.apache.hop.core.row.IValueMeta;
 
 public class Neo4jUtil {

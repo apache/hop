@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.serverstatus;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;

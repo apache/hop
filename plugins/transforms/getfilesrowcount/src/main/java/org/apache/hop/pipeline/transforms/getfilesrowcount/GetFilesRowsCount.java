@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.getfilesrowcount;
 import static org.apache.hop.pipeline.transforms.getfilesrowcount.GetFilesRowsCountMeta.SeparatorFormat.CRLF;
 
 import java.io.InputStream;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;

@@ -20,7 +20,7 @@ package org.apache.hop.beam.transforms.pubsub;
 import java.util.List;
 import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamDefaults;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamSubscribeTransform;

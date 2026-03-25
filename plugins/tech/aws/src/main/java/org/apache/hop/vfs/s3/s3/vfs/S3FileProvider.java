@@ -17,7 +17,7 @@
 
 package org.apache.hop.vfs.s3.s3.vfs;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemOptions;

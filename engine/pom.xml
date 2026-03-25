@@ -56,6 +56,12 @@
                 <artifactId>mina-core</artifactId>
                 <version>${mina.core.version}</version>
             </dependency>
+            <!-- commons-validator transitives; 1.11.0+ addresses CVE-2025-48734 -->
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.11.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

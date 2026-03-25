@@ -44,12 +44,14 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -164,8 +166,10 @@ class ActionFtpPutTests {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void testExecuteSuccess() throws Exception {
-    Path tempFile = Files.createTempFile(Path.of(action.getLocalDirectory()), "file_", ".txt");
+    Path tempDir = Files.createTempDirectory("ftpTest");
+    Path tempFile = Files.createTempFile(tempDir, "file_", ".txt");
 
     try (MockedStatic<HopVfs> ignored = mockStatic(HopVfs.class)) {
       action = spy(new ActionFtpPut("Test FTP Action"));
@@ -173,9 +177,12 @@ class ActionFtpPutTests {
       action.setUserName("user");
       action.setPassword("pass");
       action.setRemoteDirectory("/remote");
+      IWorkflowEngine<WorkflowMeta> workflowEngine = mock(IWorkflowEngine.class);
+      when(workflowEngine.isStopped()).thenReturn(false);
+      when(workflowEngine.getLogLevel()).thenReturn(LogLevel.BASIC);
+      when(workflowEngine.getContainerId()).thenReturn("test-container");
+      action.setParentWorkflow(workflowEngine);
 
-      // /tmp/directory
-      Path tempDir = Files.createTempDirectory("ftpTest");
       action.setLocalDirectory(tempDir.toString());
 
       FTPClient mockFtp = mock(FTPClient.class);
@@ -196,12 +203,15 @@ class ActionFtpPutTests {
       assertEquals(0, result.getNrErrors());
     } finally {
       Files.deleteIfExists(tempFile);
+      Files.deleteIfExists(tempDir);
     }
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   void testExecuteFailure() throws Exception {
-    Path tempFile = Files.createTempFile(Path.of(action.getLocalDirectory()), "file_", ".txt");
+    Path tempDir = Files.createTempDirectory("ftpTest");
+    Path tempFile = Files.createTempFile(tempDir, "file_", ".txt");
 
     try (MockedStatic<HopVfs> ignored = mockStatic(HopVfs.class)) {
       action = spy(new ActionFtpPut("Test FTP Action"));
@@ -209,9 +219,12 @@ class ActionFtpPutTests {
       action.setUserName("user");
       action.setPassword("pass");
       action.setRemoteDirectory("/remote");
+      IWorkflowEngine<WorkflowMeta> workflowEngine = mock(IWorkflowEngine.class);
+      when(workflowEngine.isStopped()).thenReturn(false);
+      when(workflowEngine.getLogLevel()).thenReturn(LogLevel.BASIC);
+      when(workflowEngine.getContainerId()).thenReturn("test-container");
+      action.setParentWorkflow(workflowEngine);
 
-      // /tmp/directory
-      Path tempDir = Files.createTempDirectory("ftpTest");
       action.setLocalDirectory(tempDir.toString());
 
       FTPClient mockFtp = mock(FTPClient.class);
@@ -232,6 +245,7 @@ class ActionFtpPutTests {
       assertEquals(1, result.getNrErrors());
     } finally {
       Files.deleteIfExists(tempFile);
+      Files.deleteIfExists(tempDir);
     }
   }
 }

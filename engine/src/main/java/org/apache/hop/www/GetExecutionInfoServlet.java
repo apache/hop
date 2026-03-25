@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;

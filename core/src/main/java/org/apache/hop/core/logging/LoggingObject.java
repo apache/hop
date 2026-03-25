@@ -18,7 +18,7 @@
 package org.apache.hop.core.logging;
 
 import java.util.Date;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.util.Utils;
 
 public class LoggingObject implements ILoggingObject {

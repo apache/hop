@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;

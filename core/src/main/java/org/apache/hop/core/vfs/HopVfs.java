@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.CacheStrategy;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;

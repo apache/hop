@@ -28,7 +28,7 @@ import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
 import org.apache.hop.core.exception.HopException;

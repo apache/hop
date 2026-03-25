@@ -19,7 +19,7 @@ package org.apache.hop.www;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class ServletTestUtils {
   public static final char[] BAD_CHARACTERS_TO_ESCAPE = {'<', '>', '\'', '\"'};

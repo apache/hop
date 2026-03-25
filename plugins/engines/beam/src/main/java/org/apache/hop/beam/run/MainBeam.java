@@ -21,7 +21,7 @@ package org.apache.hop.beam.run;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
