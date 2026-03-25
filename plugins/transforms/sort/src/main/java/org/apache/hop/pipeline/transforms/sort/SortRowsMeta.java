@@ -24,6 +24,8 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -47,6 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SortRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/sort.html")
+@Getter
+@Setter
 public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     implements Serializable {
   @Serial private static final long serialVersionUID = -9075883720765645655L;
@@ -56,7 +60,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   private static final String CONST_FIELD = "field";
 
   @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS")
-  private List<SortRowsField> sortFields = new ArrayList<>();
+  private List<SortRowsField> sortFields;
 
   /** Directory to store the temp files */
   @HopMetadataProperty(key = "directory", injectionKey = "SORT_DIRECTORY")
@@ -92,57 +96,9 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   @HopMetadataProperty(key = "compress_variables", injectionKey = "COMPRESS_VARIABLE")
   private String compressFilesVariable;
 
-  private List<SortRowsField> groupFields;
-
   public SortRowsMeta() {
-    super(); // allocate BaseTransformMeta
-  }
-
-  /**
-   * @return Returns the directory.
-   */
-  public String getDirectory() {
-    return directory;
-  }
-
-  /**
-   * @param directory The directory to set.
-   */
-  public void setDirectory(String directory) {
-    this.directory = directory;
-  }
-
-  /**
-   * @return Returns the prefix.
-   */
-  public String getPrefix() {
-    return prefix;
-  }
-
-  /**
-   * @param prefix The prefix to set.
-   */
-  public void setPrefix(String prefix) {
-    this.prefix = prefix;
-  }
-
-  public List<SortRowsField> getSortFields() {
-    return sortFields;
-  }
-
-  public void setSortFields(List<SortRowsField> sortFields) {
-    this.sortFields = sortFields;
-  }
-
-  @Override
-  public Object clone() {
-    SortRowsMeta retval = (SortRowsMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
-  public void setDefault() {
+    super();
+    sortFields = new ArrayList<>();
     directory = "${java.io.tmpdir}";
     prefix = "out";
     sortSize = "1000000";
@@ -150,18 +106,29 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     compressFiles = false;
     compressFilesVariable = null;
     onlyPassingUniqueRows = false;
-
-    int nrFields = 0;
   }
 
-  // Returns the default collation strength based on the users' default locale.
-  // Package protected for testing purposes
-  int getDefaultCollationStrength() {
-    return getDefaultCollationStrength(Locale.getDefault());
+  public SortRowsMeta(SortRowsMeta m) {
+    this();
+    this.directory = m.directory;
+    this.prefix = m.prefix;
+    this.sortSize = m.sortSize;
+    this.freeMemoryLimit = m.freeMemoryLimit;
+    this.onlyPassingUniqueRows = m.onlyPassingUniqueRows;
+    this.compressFiles = m.compressFiles;
+    this.compressFilesVariable = m.compressFilesVariable;
+    m.sortFields.forEach(f -> sortFields.add(new SortRowsField(f)));
   }
 
-  // Returns the collation strength based on the passed in locale.
-  // Package protected for testing purposes
+  @Override
+  public Object clone() {
+    return new SortRowsMeta(this);
+  }
+
+  /**
+   * Returns the collation strength based on the passed in locale. Package protected for testing
+   * purposes
+   */
   int getDefaultCollationStrength(Locale aLocale) {
     int defaultStrength = Collator.IDENTICAL;
     if (aLocale != null) {
@@ -195,6 +162,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
         valueMeta.setCaseInsensitive(!field.isCaseSensitive());
         valueMeta.setCollatorDisabled(!field.isCollatorEnabled());
         valueMeta.setCollatorStrength(field.getCollatorStrength());
+
         // Also see if lazy conversion is active on these key fields.
         // If so we want to automatically convert them to the normal storage type.
         // This will improve performance
@@ -319,98 +287,5 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  /**
-   * @return Returns the sortSize.
-   */
-  public String getSortSize() {
-    return sortSize;
-  }
-
-  /**
-   * @param sortSize The sortSize to set.
-   */
-  public void setSortSize(String sortSize) {
-    this.sortSize = sortSize;
-  }
-
-  /**
-   * @return Returns whether temporary files should be compressed
-   */
-  public boolean isCompressFiles() {
-    return compressFiles;
-  }
-
-  /**
-   * @param compressFiles Whether to compress temporary files created during sorting
-   */
-  public void setCompressFiles(boolean compressFiles) {
-    this.compressFiles = compressFiles;
-  }
-
-  /**
-   * @return the onlyPassingUniqueRows
-   */
-  public boolean isOnlyPassingUniqueRows() {
-    return onlyPassingUniqueRows;
-  }
-
-  /**
-   * @param onlyPassingUniqueRows the onlyPassingUniqueRows to set
-   */
-  public void setOnlyPassingUniqueRows(boolean onlyPassingUniqueRows) {
-    this.onlyPassingUniqueRows = onlyPassingUniqueRows;
-  }
-
-  /**
-   * @return the compressFilesVariable
-   */
-  public String getCompressFilesVariable() {
-    return compressFilesVariable;
-  }
-
-  /**
-   * @param compressFilesVariable the compressFilesVariable to set
-   */
-  public void setCompressFilesVariable(String compressFilesVariable) {
-    this.compressFilesVariable = compressFilesVariable;
-  }
-
-  /**
-   * @return the freeMemoryLimit
-   */
-  public String getFreeMemoryLimit() {
-    return freeMemoryLimit;
-  }
-
-  /**
-   * @param freeMemoryLimit the freeMemoryLimit to set
-   */
-  public void setFreeMemoryLimit(String freeMemoryLimit) {
-    this.freeMemoryLimit = freeMemoryLimit;
-  }
-
-  public boolean isGroupSortEnabled() {
-    return this.getSortFields() != null;
-  }
-
-  public void setGroupFields(List<SortRowsField> groupFields) {
-    this.groupFields = groupFields;
-  }
-
-  public List<SortRowsField> getGroupFields() {
-    if (this.groupFields == null) {
-      groupFields = new ArrayList<>();
-      for (int i = 0; i < getSortFields().size(); i++) {
-        if (getSortFields().get(i).isPreSortedField()) {
-          //          if (groupFields == null) {
-          //            groupFields = new ArrayList<>();
-          //          }
-          groupFields.add(getSortFields().get(i));
-        }
-      }
-    }
-    return groupFields;
   }
 }

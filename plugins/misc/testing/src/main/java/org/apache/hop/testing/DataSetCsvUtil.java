@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -196,12 +195,10 @@ public class DataSetCsvUtil {
         return new ArrayList<>();
       }
 
-      if (!sortFields.isEmpty()) {
-
+      if (!sortFields.isEmpty() && StringUtils.isNotEmpty(sortFields.getFirst())) {
         // Sort the rows...
         //
-        Collections.sort(
-            rows,
+        rows.sort(
             (o1, o2) -> {
               try {
                 return outputRowMeta.compare(o1, o2, sortIndexes);

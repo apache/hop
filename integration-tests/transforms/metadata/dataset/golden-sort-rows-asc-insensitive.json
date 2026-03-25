@@ -1,0 +1,24 @@
+{
+  "base_filename": "golden-sort-rows-asc-insensitive.csv",
+  "name": "golden-sort-rows-asc-insensitive",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 3,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "id",
+      "field_format": "#"
+    },
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "name",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
