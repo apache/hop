@@ -1,0 +1,4 @@
+name,rename,default,type
+returnValue1,value1,,String
+returnValue2,value2,123,Integer
+returnValue3,value3,true,Boolean

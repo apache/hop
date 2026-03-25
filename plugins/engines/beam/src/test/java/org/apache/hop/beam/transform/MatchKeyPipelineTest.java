@@ -21,7 +21,7 @@ import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.jupiter.api.Test;
 
-class StreamLookupPipelineTest extends PipelineTestBase {
+class MatchKeyPipelineTest extends PipelineTestBase {
 
   @Test
   void testStreamLookupPipeline() throws Exception {
