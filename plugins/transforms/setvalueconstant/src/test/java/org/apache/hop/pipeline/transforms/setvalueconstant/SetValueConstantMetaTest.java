@@ -16,100 +16,33 @@
  */
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
-class SetValueConstantMetaTest implements IInitializer<ITransformMeta> {
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
-
-  LoadSaveTester loadSaveTester;
-  Class<SetValueConstantMeta> testMetaClass = SetValueConstantMeta.class;
-
-  @BeforeEach
-  void setUpLoadSave() throws Exception {
-    HopEnvironment.init();
-    PluginRegistry.init();
-    List<String> attributes = Arrays.asList("fields", "usevar");
-
-    Map<String, String> getterMap =
-        new HashMap<>() {
-          {
-            put("fields", "getFields");
-            put("usevar", "isUseVars");
-          }
-        };
-    Map<String, String> setterMap =
-        new HashMap<>() {
-          {
-            put("fields", "setFields");
-            put("usevar", "setUseVars");
-          }
-        };
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put(
-        "fields", new ListLoadSaveValidator<>(new SetValueConstantMetaFieldLoadSaveValidator(), 5));
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass,
-            attributes,
-            getterMap,
-            setterMap,
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  @Override
-  public void modify(ITransformMeta someMeta) {
-    // Do nothing
-  }
-
+class SetValueConstantMetaTest {
   @Test
-  void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
+  void testSerializationRoundTrip() throws Exception {
+    SetValueConstantMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/set-constant-values.xml", SetValueConstantMeta.class);
 
-  public class SetValueConstantMetaFieldLoadSaveValidator
-      implements IFieldLoadSaveValidator<SetValueConstantMeta.Field> {
-    final Random rand = new Random();
-
-    @Override
-    public SetValueConstantMeta.Field getTestObject() {
-      SetValueConstantMeta.Field field = new SetValueConstantMeta.Field();
-      field.setReplaceMask(UUID.randomUUID().toString());
-      field.setReplaceValue(UUID.randomUUID().toString());
-      field.setEmptyString(rand.nextBoolean());
-      field.setFieldName(UUID.randomUUID().toString());
-      return field;
-    }
-
-    @Override
-    public boolean validateTestObject(SetValueConstantMeta.Field testObject, Object actual) {
-      if (!(actual instanceof SetValueConstantMeta.Field)) {
-        return false;
-      }
-      SetValueConstantMeta.Field actualInput = (SetValueConstantMeta.Field) actual;
-      return (actualInput.equals(testObject));
-    }
+    Assertions.assertTrue(meta.isUsingVariables());
+    Assertions.assertEquals(3, meta.getFields().size());
+    SetValueConstantMeta.Field f = meta.getFields().getFirst();
+    Assertions.assertEquals("f1", f.getFieldName());
+    Assertions.assertEquals("const1", f.getReplaceValue());
+    Assertions.assertFalse(f.isEmptyString());
+    f = meta.getFields().get(1);
+    Assertions.assertEquals("f2", f.getFieldName());
+    Assertions.assertEquals("2026/03/25", f.getReplaceValue());
+    Assertions.assertEquals("yyyy/MM/dd", f.getReplaceMask());
+    Assertions.assertFalse(f.isEmptyString());
+    f = meta.getFields().getLast();
+    Assertions.assertEquals("f3", f.getFieldName());
+    Assertions.assertTrue(StringUtils.isEmpty(f.getReplaceValue()));
+    Assertions.assertTrue(StringUtils.isEmpty(f.getReplaceMask()));
+    Assertions.assertTrue(f.isEmptyString());
   }
 }

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0046-set-constant-values</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/03/25 12:52:28.576</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/03/25 12:52:28.576</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>use-variables</from>
+      <to>0046-set-contant-values-template.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get data from XML</from>
+      <to>0046-set-contant-values-template.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>0046-set-contant-values-template.hpl</name>
+    <type>MetaInject</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
+    <create_parent_folder>Y</create_parent_folder>
+    <filename>${PROJECT_HOME}/0046-set-contant-values-template.hpl</filename>
+    <mappings>
+      <mapping>
+        <source_field>use-variables</source_field>
+        <source_transform>use-variables</source_transform>
+        <target_attribute_key>USE_VARIABLE</target_attribute_key>
+        <target_detail>N</target_detail>
+        <target_transform_name>Set field value to a constant</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>mask</source_field>
+        <source_transform>Get data from XML</source_transform>
+        <target_attribute_key>REPLACE_MASK</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>Set field value to a constant</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>name</source_field>
+        <source_transform>Get data from XML</source_transform>
+        <target_attribute_key>FIELD_NAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>Set field value to a constant</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>set_empty_string</source_field>
+        <source_transform>Get data from XML</source_transform>
+        <target_attribute_key>EMPTY_STRING</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>Set field value to a constant</target_transform_name>
+      </mapping>
+      <mapping>
+        <source_field>value</source_field>
+        <source_transform>Get data from XML</source_transform>
+        <target_attribute_key>REPLACE_VALUE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <target_transform_name>Set field value to a constant</target_transform_name>
+      </mapping>
+    </mappings>
+    <no_execution>Y</no_execution>
+    <run_configuration>local</run_configuration>
+    <source_output_fields>
+</source_output_fields>
+    <source_transform/>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <target_file>${java.io.tmpdir}/set-constant-values.hpl</target_file>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>use-variables</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>true</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>use-variables</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>Boolean</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Get data from XML</name>
+    <type>getXMLData</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <IsAFile>N</IsAFile>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <IsInFields>N</IsInFields>
+    <XmlField/>
+    <addresultfile>N</addresultfile>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <encoding>UTF-8</encoding>
+    <extensionFieldName/>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>mask</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>mask</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>name</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>name</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>set_empty_string</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>set_empty_string</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>value</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>value</xPath>
+      </field>
+    </fields>
+    <file>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <filemask/>
+      <include_subfolders>N</include_subfolders>
+      <name>${PROJECT_HOME}/files/set-constant-values.xml</name>
+    </file>
+    <hiddenFieldName/>
+    <ignorecomments>N</ignorecomments>
+    <include>N</include>
+    <include_field/>
+    <lastModificationTimeFieldName/>
+    <limit>0</limit>
+    <loopxpath>/transform/fields/field</loopxpath>
+    <namespaceaware>N</namespaceaware>
+    <pathFieldName/>
+    <prunePath/>
+    <readurl>N</readurl>
+    <rootUriNameFieldName/>
+    <rownum>N</rownum>
+    <rownum_field/>
+    <shortFileFieldName/>
+    <sizeFieldName/>
+    <uriNameFieldName/>
+    <usetoken>N</usetoken>
+    <validating>N</validating>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
