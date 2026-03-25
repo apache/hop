@@ -48,16 +48,15 @@ public class SortRowsField {
   @HopMetadataProperty(key = "presorted", injectionKey = "PRESORTED")
   private boolean preSortedField = false;
 
-  public SortRowsField() {
-  }
+  public SortRowsField() {}
 
   public SortRowsField(
-          String fieldName,
-          boolean ascending,
-          boolean caseSensitive,
-          boolean collatorEnabled,
-          int collatorStrength,
-          boolean preSortedField) {
+      String fieldName,
+      boolean ascending,
+      boolean caseSensitive,
+      boolean collatorEnabled,
+      int collatorStrength,
+      boolean preSortedField) {
     this.fieldName = fieldName;
     this.ascending = ascending;
     this.caseSensitive = caseSensitive;
