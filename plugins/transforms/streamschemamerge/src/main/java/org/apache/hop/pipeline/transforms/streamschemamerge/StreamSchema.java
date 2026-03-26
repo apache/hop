@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
@@ -38,10 +40,9 @@ import org.apache.hop.pipeline.transform.stream.IStream;
  *
  * <p>Because this transform combines multiple streams with different RowMetas together, it is
  * deemed "not safe" and will fail if you try to run the pipeline with the "Enable Safe Mode
- * checked". Therefore it disables safe mode
+ * checked". Therefor it disables safe mode
  */
 public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaData> {
-
   /**
    * The constructor should simply pass on its arguments to the parent class.
    *
@@ -63,17 +64,6 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
   }
 
   /**
-   * Initialize data structures that we have information for at init time
-   *
-   * @return true if initialization completed successfully, false if there was an error
-   */
-  @Override
-  public boolean init() {
-
-    return super.init();
-  }
-
-  /**
    * For each row, create a new output row in the model of the master output row and copy the data
    * values in to the appropriate indexes
    *
@@ -82,47 +72,17 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
    */
   @Override
   public boolean processRow() throws HopException {
-
     /*
      * Code in first method is responsible for finishing the initialization that we couldn't do earlier
      */
     if (first) {
       first = false;
-
-      List<String> tNames = new ArrayList<>();
-      List<IStream> streams = new ArrayList<>();
-      List<IRowMeta> rowMetas = new ArrayList<>();
-      data.rowSets = new ArrayList<>();
-
-      int inputStreamsNum = meta.getTransformIOMeta().getInfoStreams().size();
-
-      for (int i = 0; i < inputStreamsNum; i++) {
-        IStream s = meta.getTransformIOMeta().getInfoStreams().get(i);
-        IRowSet r = findInputRowSet(s.getTransformName());
-        streams.add(s);
-        tNames.add(r.getName());
-        data.rowSets.add(r);
-        rowMetas.add(getPipelineMeta().getTransformFields(this, s.getTransformName()));
-      }
-
-      data.infoStreams = streams;
-      data.numTransforms = inputStreamsNum;
-      data.transformNames = tNames.toArray(new String[0]);
-      data.rowMetas = rowMetas.toArray(new IRowMeta[0]);
-      // creates mapping and master output row
-      data.schemaMapping = new SchemaMapper(data.rowMetas);
-      data.mapping = data.schemaMapping.getMapping();
-      data.outputRowMeta = data.schemaMapping.getRowMeta();
-      // set the order of the inputrowsets to match the order we've defined
-      setInputRowSets(data.rowSets);
-      if (isDetailed()) {
-        logDetailed("Finished generating mapping");
-      }
+      processRowFirstCall();
     }
 
     Object[] incomingRow = getRow(); // get the next available row
 
-    // if no more rows are expected, indicate transform is finished and processRow() should not be
+    // If no more rows are expected, indicate transform is finished and processRow() should not be
     // called again
     if (incomingRow == null) {
       setOutputDone();
@@ -167,6 +127,38 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 
     // indicate that processRow() should be called again
     return true;
+  }
+
+  private void processRowFirstCall() throws HopTransformException, HopPluginException {
+    List<String> tNames = new ArrayList<>();
+    List<IStream> streams = new ArrayList<>();
+    List<IRowMeta> rowMetas = new ArrayList<>();
+    data.rowSets = new ArrayList<>();
+
+    int inputStreamsNum = meta.getTransformIOMeta().getInfoStreams().size();
+
+    for (int i = 0; i < inputStreamsNum; i++) {
+      IStream s = meta.getTransformIOMeta().getInfoStreams().get(i);
+      IRowSet r = findInputRowSet(s.getTransformName());
+      streams.add(s);
+      tNames.add(r.getName());
+      data.rowSets.add(r);
+      rowMetas.add(getPipelineMeta().getTransformFields(this, s.getTransformName()));
+    }
+
+    data.infoStreams = streams;
+    data.numTransforms = inputStreamsNum;
+    data.transformNames = tNames.toArray(new String[0]);
+    data.rowMetas = rowMetas.toArray(new IRowMeta[0]);
+    // creates mapping and master output row
+    data.schemaMapping = new SchemaMapper(data.rowMetas);
+    data.mapping = data.schemaMapping.getMapping();
+    data.outputRowMeta = data.schemaMapping.getRowMeta();
+    // set the order of the inputrowsets to match the order we've defined
+    setInputRowSets(data.rowSets);
+    if (isDetailed()) {
+      logDetailed("Finished generating mapping");
+    }
   }
 
   /** Clear transforms from transform data */
