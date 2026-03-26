@@ -18,25 +18,24 @@
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "XSLT",
@@ -46,260 +45,63 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n::XSLT.category",
     keywords = "i18n::XsltMeta.keyword",
     documentationUrl = "/pipeline/transforms/xslt.html")
+@Getter
+@Setter
 public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
   private static final Class<?> PKG = XsltMeta.class;
 
-  public static final String[] outputProperties =
-      new String[] {
-        "method",
-        "version",
-        "encoding",
-        "standalone",
-        "indent",
-        "omit-xml-declaration",
-        "doctype-public",
-        "doctype-system",
-        "media-type"
-      };
-  public static final String CONST_SPACES = "        ";
-
+  @HopMetadataProperty(key = "xslfilename")
   private String xslFilename;
+
+  @HopMetadataProperty(key = "fieldname")
   private String fieldName;
-  private String resultFieldname;
+
+  @HopMetadataProperty(key = "resultfieldname")
+  private String resultFieldName;
+
+  @HopMetadataProperty(key = "xslfilefield")
   private String xslFileField;
+
+  @HopMetadataProperty(key = "xslfilefielduse")
   private boolean xslFileFieldUse;
+
+  @HopMetadataProperty(key = "xslfieldisafile")
   private boolean xslFieldIsAFile;
+
+  @HopMetadataProperty(key = "xslfactory")
   private String xslFactory;
 
-  /** output property name */
-  private String[] outputPropertyName;
+  @HopMetadataProperty(key = "outputproperty", groupKey = "outputproperties")
+  private List<OutputProperty> outputProperties;
 
-  /** output property value */
-  private String[] outputPropertyValue;
-
-  /** parameter name */
-  private String[] parameterName;
-
-  /** parameter field */
-  private String[] parameterField;
+  @HopMetadataProperty(key = "parameter", groupKey = "parameters")
+  private List<Parameter> parameters;
 
   public XsltMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    resultFieldName = "result";
+    xslFactory = "JAXP";
+    xslFieldIsAFile = true;
+    outputProperties = new ArrayList<>();
+    parameters = new ArrayList<>();
   }
 
-  /**
-   * @return Returns the parameterName.
-   */
-  public String[] getParameterName() {
-    return parameterName;
-  }
-
-  /**
-   * @param argumentDirection The parameterName to set.
-   */
-  public void setParameterName(String[] argumentDirection) {
-    this.parameterName = argumentDirection;
-  }
-
-  /**
-   * @return Returns the parameterField.
-   */
-  public String[] getParameterField() {
-    return parameterField;
-  }
-
-  /**
-   * @param argumentDirection The parameterField to set.
-   */
-  public void setParameterField(String[] argumentDirection) {
-    this.parameterField = argumentDirection;
-  }
-
-  /**
-   * @return Returns the XSL filename.
-   */
-  public String getXslFilename() {
-    return xslFilename;
-  }
-
-  /**
-   * @return Returns the OutputPropertyName.
-   */
-  public String[] getOutputPropertyName() {
-    return outputPropertyName;
-  }
-
-  /**
-   * @param argumentDirection The OutputPropertyName to set.
-   */
-  public void setOutputPropertyName(String[] argumentDirection) {
-    this.outputPropertyName = argumentDirection;
-  }
-
-  /**
-   * @return Returns the OutputPropertyField.
-   */
-  public String[] getOutputPropertyValue() {
-    return outputPropertyValue;
-  }
-
-  /**
-   * @param argumentDirection The outputPropertyValue to set.
-   */
-  public void setOutputPropertyValue(String[] argumentDirection) {
-    this.outputPropertyValue = argumentDirection;
-  }
-
-  public void setXSLFileField(String xslfilefieldin) {
-    xslFileField = xslfilefieldin;
-  }
-
-  public void setXSLFactory(String xslfactoryin) {
-    xslFactory = xslfactoryin;
-  }
-
-  /**
-   * @return Returns the XSL factory type.
-   */
-  public String getXSLFactory() {
-    return xslFactory;
-  }
-
-  public String getXSLFileField() {
-    return xslFileField;
-  }
-
-  public String getResultfieldname() {
-    return resultFieldname;
-  }
-
-  public String getFieldname() {
-    return fieldName;
-  }
-
-  /**
-   * @param xslFilename The Xsl filename to set.
-   */
-  public void setXslFilename(String xslFilename) {
-    this.xslFilename = xslFilename;
-  }
-
-  public void setResultfieldname(String resultfield) {
-    this.resultFieldname = resultfield;
-  }
-
-  public void setFieldname(String fieldnamein) {
-    this.fieldName = fieldnamein;
-  }
-
-  public void allocate(int nrParameters, int outputProps) {
-    parameterName = new String[nrParameters];
-    parameterField = new String[nrParameters];
-
-    outputPropertyName = new String[outputProps];
-    outputPropertyValue = new String[outputProps];
+  public XsltMeta(XsltMeta m) {
+    this();
+    this.fieldName = m.fieldName;
+    this.resultFieldName = m.resultFieldName;
+    this.xslFactory = m.xslFactory;
+    this.xslFieldIsAFile = m.xslFieldIsAFile;
+    this.xslFileField = m.xslFileField;
+    this.xslFileFieldUse = m.xslFileFieldUse;
+    this.xslFilename = m.xslFilename;
+    m.outputProperties.forEach(p -> this.outputProperties.add(new OutputProperty(p)));
+    m.parameters.forEach(p -> this.parameters.add(new Parameter(p)));
   }
 
   @Override
   public Object clone() {
-    XsltMeta retval = (XsltMeta) super.clone();
-    int nrparams = parameterName.length;
-    int nroutputprops = outputPropertyName.length;
-    retval.allocate(nrparams, nroutputprops);
-
-    for (int i = 0; i < nrparams; i++) {
-      retval.parameterName[i] = parameterName[i];
-      retval.parameterField[i] = parameterField[i];
-    }
-    for (int i = 0; i < nroutputprops; i++) {
-      retval.outputPropertyName[i] = outputPropertyName[i];
-      retval.outputPropertyValue[i] = outputPropertyValue[i];
-    }
-
-    return retval;
-  }
-
-  public boolean useXSLField() {
-    return xslFileFieldUse;
-  }
-
-  public void setXSLField(boolean value) {
-    this.xslFileFieldUse = value;
-  }
-
-  public void setXSLFieldIsAFile(boolean xslFieldisAFile) {
-    this.xslFieldIsAFile = xslFieldisAFile;
-  }
-
-  public boolean isXSLFieldIsAFile() {
-    return xslFieldIsAFile;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      xslFilename = XmlHandler.getTagValue(transformNode, "xslfilename");
-      fieldName = XmlHandler.getTagValue(transformNode, "fieldname");
-      resultFieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
-      xslFileField = XmlHandler.getTagValue(transformNode, "xslfilefield");
-      xslFileFieldUse =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "xslfilefielduse"));
-      String isAFile = XmlHandler.getTagValue(transformNode, "xslfieldisafile");
-      if (xslFileFieldUse && Utils.isEmpty(isAFile)) {
-        xslFieldIsAFile = true;
-      } else {
-        xslFieldIsAFile = "Y".equalsIgnoreCase(isAFile);
-      }
-
-      xslFactory = XmlHandler.getTagValue(transformNode, "xslfactory");
-
-      Node parametersNode = XmlHandler.getSubNode(transformNode, "parameters");
-      int nrparams = XmlHandler.countNodes(parametersNode, "parameter");
-
-      Node parametersOutputProps = XmlHandler.getSubNode(transformNode, "outputproperties");
-      int nroutputprops = XmlHandler.countNodes(parametersOutputProps, "outputproperty");
-      allocate(nrparams, nroutputprops);
-
-      for (int i = 0; i < nrparams; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(parametersNode, "parameter", i);
-        parameterField[i] = XmlHandler.getTagValue(anode, "field");
-        parameterName[i] = XmlHandler.getTagValue(anode, "name");
-      }
-      for (int i = 0; i < nroutputprops; i++) {
-        Node anode = XmlHandler.getSubNodeByNr(parametersOutputProps, "outputproperty", i);
-        outputPropertyName[i] = XmlHandler.getTagValue(anode, "name");
-        outputPropertyValue[i] = XmlHandler.getTagValue(anode, "value");
-      }
-
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "XsltMeta.Exception.UnableToLoadTransformInfoFromXML"), e);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    xslFilename = null;
-    fieldName = null;
-    resultFieldname = "result";
-    xslFactory = "JAXP";
-    xslFileField = null;
-    xslFileFieldUse = false;
-    xslFieldIsAFile = true;
-
-    int nrparams = 0;
-    int nroutputproperties = 0;
-    allocate(nrparams, nroutputproperties);
-
-    for (int i = 0; i < nrparams; i++) {
-      parameterField[i] = "param" + i;
-      parameterName[i] = "param";
-    }
-    for (int i = 0; i < nroutputproperties; i++) {
-      outputPropertyName[i] = "outputprop" + i;
-      outputPropertyValue[i] = "outputprop";
-    }
+    return new XsltMeta(this);
   }
 
   @Override
@@ -312,44 +114,9 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // Output field (String)
-    IValueMeta v = new ValueMetaString(variables.resolve(getResultfieldname()));
+    IValueMeta v = new ValueMetaString(variables.resolve(getResultFieldName()));
     v.setOrigin(name);
     inputRowMeta.addValueMeta(v);
-  }
-
-  @Override
-  public String getXml() {
-    StringBuffer retval = new StringBuffer();
-
-    retval.append("    " + XmlHandler.addTagValue("xslfilename", xslFilename));
-    retval.append("    " + XmlHandler.addTagValue("fieldname", fieldName));
-    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultFieldname));
-    retval.append("    " + XmlHandler.addTagValue("xslfilefield", xslFileField));
-    retval.append("    " + XmlHandler.addTagValue("xslfilefielduse", xslFileFieldUse));
-    retval.append("    " + XmlHandler.addTagValue("xslfieldisafile", xslFieldIsAFile));
-
-    retval.append("    " + XmlHandler.addTagValue("xslfactory", xslFactory));
-    retval.append("    <parameters>").append(Const.CR);
-
-    for (int i = 0; i < parameterName.length; i++) {
-      retval.append("      <parameter>").append(Const.CR);
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("field", parameterField[i]));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", parameterName[i]));
-      retval.append("      </parameter>").append(Const.CR);
-    }
-
-    retval.append("    </parameters>").append(Const.CR);
-    retval.append("    <outputproperties>").append(Const.CR);
-
-    for (int i = 0; i < outputPropertyName.length; i++) {
-      retval.append("      <outputproperty>").append(Const.CR);
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", outputPropertyName[i]));
-      retval.append(CONST_SPACES).append(XmlHandler.addTagValue("value", outputPropertyValue[i]));
-      retval.append("      </outputproperty>").append(Const.CR);
-    }
-
-    retval.append("    </outputproperties>").append(Const.CR);
-    return retval.toString();
   }
 
   @Override
@@ -399,7 +166,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
     }
 
     // Check if The result field is given
-    if (getResultfieldname() == null) {
+    if (getResultFieldName() == null) {
       // Result Field is missing !
       cr =
           new CheckResult(
@@ -411,7 +178,7 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
 
     // Check if XSL Filename field is provided
     if (xslFileFieldUse) {
-      if (getXSLFileField() == null) {
+      if (getXslFileField() == null) {
         // Result Field is missing !
         cr =
             new CheckResult(
@@ -475,5 +242,43 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  @Getter
+  @Setter
+  public static class OutputProperty {
+    @HopMetadataProperty(key = "name", injectionKey = "PROPERTY_NAME")
+    private String outputPropertyName;
+
+    @HopMetadataProperty(key = "value", injectionKey = "PROPERTY_VALUE")
+    private String outputPropertyValue;
+
+    public OutputProperty() {}
+
+    public OutputProperty(OutputProperty p) {
+      this();
+      this.outputPropertyName = p.outputPropertyName;
+      this.outputPropertyValue = p.outputPropertyValue;
+    }
+  }
+
+  @Getter
+  @Setter
+  public static class Parameter {
+    /** parameter name */
+    @HopMetadataProperty(key = "name", injectionKey = "PARAMETER_NAME")
+    private String parameterName;
+
+    /** parameter field */
+    @HopMetadataProperty(key = "field", injectionKey = "PARAMETER_FIELD")
+    private String parameterField;
+
+    public Parameter() {}
+
+    public Parameter(Parameter p) {
+      this();
+      this.parameterField = p.parameterField;
+      this.parameterName = p.parameterName;
+    }
   }
 }

@@ -341,13 +341,13 @@ class XsltTest {
     fields[2].setGroupSymbol("");
     fields[2].setTrimType(IValueMeta.TRIM_TYPE_NONE);
 
-    xm.setFieldname(xmlFieldname);
-    xm.setResultfieldname(resultFieldname);
-    xm.setXSLField(xslInField);
-    xm.setXSLFileField(xslFileField);
-    xm.setXSLFieldIsAFile(xslFileInField);
+    xm.setFieldName(xmlFieldname);
+    xm.setResultFieldName(resultFieldname);
+    xm.setXslFileFieldUse(xslInField);
+    xm.setXslFileField(xslFileField);
+    xm.setXslFieldIsAFile(xslFileInField);
     xm.setXslFilename(xslFilename);
-    xm.setXSLFactory(xslFactory);
+    xm.setXslFactory(xslFactory);
 
     PipelineHopMeta hi = new PipelineHopMeta(injectorTransform, xsltTransform);
     pipelineMeta.addPipelineHop(hi);

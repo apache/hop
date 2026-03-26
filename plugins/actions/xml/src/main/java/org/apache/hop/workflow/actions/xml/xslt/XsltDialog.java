@@ -22,7 +22,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transforms.xml.xslt.XsltMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -53,6 +52,18 @@ import org.eclipse.swt.widgets.TableItem;
 /** This dialog allows you to edit the XSLT job entry settings. */
 public class XsltDialog extends ActionDialog {
   private static final Class<?> PKG = Xslt.class;
+
+  protected static final String[] OUTPUT_PROPERTIES = {
+    "method",
+    "version",
+    "encoding",
+    "standalone",
+    "indent",
+    "omit-xml-declaration",
+    "doctype-public",
+    "doctype-system",
+    "media-type"
+  };
 
   private static final String[] FILETYPES_XML =
       new String[] {
@@ -444,7 +455,7 @@ public class XsltDialog extends ActionDialog {
               ColumnInfo.COLUMN_TYPE_TEXT,
               false),
         };
-    colinf[0].setComboValues(XsltMeta.outputProperties);
+    colinf[0].setComboValues(OUTPUT_PROPERTIES);
     colinf[1].setUsingVariables(true);
 
     wOutputProperties =
