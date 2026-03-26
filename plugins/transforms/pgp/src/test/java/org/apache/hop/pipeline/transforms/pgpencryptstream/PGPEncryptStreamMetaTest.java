@@ -18,7 +18,6 @@ package org.apache.hop.pipeline.transforms.pgpencryptstream;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
