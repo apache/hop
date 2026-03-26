@@ -29,9 +29,6 @@ class PGPEncryptStreamMetaTest {
     HopClientEnvironment.init();
   }
 
-  @AfterEach
-  void tearDown() throws Exception {}
-
   @Test
   void testSerializationRoundTrip() throws Exception {
     PGPEncryptStreamMeta meta =
