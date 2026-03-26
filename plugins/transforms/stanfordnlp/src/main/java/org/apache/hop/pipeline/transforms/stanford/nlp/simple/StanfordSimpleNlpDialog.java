@@ -27,20 +27,19 @@ import static org.eclipse.swt.SWT.READ_ONLY;
 import static org.eclipse.swt.SWT.RIGHT;
 import static org.eclipse.swt.SWT.SINGLE;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -59,18 +58,19 @@ public class StanfordSimpleNlpDialog extends BaseTransformDialog implements ITra
   private CCombo wCorpusFieldName;
   private Button wIncludePartOfSpeech;
   private Button wParallelism;
-  private Label wlOutputFieldNamePrefix;
-  private FormData fdlOutputFieldNamePrefix, fdOutputFieldNamePrefix;
   private Text wOutputFieldNamePrefix;
 
   public StanfordSimpleNlpDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
+    super(parent, variables, (StanfordSimpleNlpMeta) in, pipelineMeta, sname);
     input = (StanfordSimpleNlpMeta) in;
   }
 
   @Override
   public String open() {
+    FormData fdOutputFieldNamePrefix;
+    FormData fdlOutputFieldNamePrefix;
+    Label wlOutputFieldNamePrefix;
     createShell(BaseMessages.getString(PKG, "StanfordSimpleNlpDialog.Shell.Title"));
 
     buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
@@ -96,19 +96,14 @@ public class StanfordSimpleNlpDialog extends BaseTransformDialog implements ITra
     fdCorpusFieldName.top = new FormAttachment(wSpacer, margin);
     fdCorpusFieldName.right = new FormAttachment(100, -margin);
     wCorpusFieldName.setLayoutData(fdCorpusFieldName);
-    wCorpusFieldName.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), CURSOR_WAIT);
-            shell.setCursor(busy);
-            get();
-            shell.setCursor(null);
-            busy.dispose();
-          }
+    wCorpusFieldName.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), CURSOR_WAIT);
+          shell.setCursor(busy);
+          getPreviousFields();
+          shell.setCursor(null);
+          busy.dispose();
         });
 
     // OutputFieldNamePrefix field
@@ -122,7 +117,7 @@ public class StanfordSimpleNlpDialog extends BaseTransformDialog implements ITra
     fdlOutputFieldNamePrefix.top = new FormAttachment(wCorpusFieldName, margin);
     wlOutputFieldNamePrefix.setLayoutData(fdlOutputFieldNamePrefix);
     wOutputFieldNamePrefix = new Text(shell, SINGLE | LEFT | BORDER);
-    wOutputFieldNamePrefix.setText("" + input.getOutputFieldNamePrefix());
+    wOutputFieldNamePrefix.setText(Const.NVL(input.getOutputFieldNamePrefix(), ""));
     PropsUi.setLook(wOutputFieldNamePrefix);
     wOutputFieldNamePrefix.addModifyListener(lsMod);
     fdOutputFieldNamePrefix = new FormData();
@@ -197,19 +192,10 @@ public class StanfordSimpleNlpDialog extends BaseTransformDialog implements ITra
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getCorpusField() != null) {
-      wCorpusFieldName.setText(input.getCorpusField());
-    }
-    if (input.isIncludePartOfSpeech()) {
-      wIncludePartOfSpeech.setEnabled(input.isIncludePartOfSpeech());
-    }
-    if (input.isParallelism()) {
-      wParallelism.setEnabled(input.isParallelism());
-    }
-
-    if (input.getOutputFieldNamePrefix() != null) {
-      wOutputFieldNamePrefix.setText(input.getOutputFieldNamePrefix());
-    }
+    wCorpusFieldName.setText(Const.NVL(input.getCorpusField(), ""));
+    wIncludePartOfSpeech.setEnabled(input.isIncludePartOfSpeech());
+    wParallelism.setEnabled(input.isParallelism());
+    wOutputFieldNamePrefix.setText(Const.NVL(input.getOutputFieldNamePrefix(), ""));
   }
 
   private void cancel() {
@@ -233,7 +219,7 @@ public class StanfordSimpleNlpDialog extends BaseTransformDialog implements ITra
     dispose();
   }
 
-  private void get() {
+  private void getPreviousFields() {
     if (!gotPreviousFields) {
       try {
         String corpusField = null;
