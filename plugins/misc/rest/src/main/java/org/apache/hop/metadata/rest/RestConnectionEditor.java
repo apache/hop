@@ -47,16 +47,27 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+/**
+ * UI editor for {@link RestConnection} metadata.
+ *
+ * <p>This editor builds dynamic authentication sections (No Auth, API Key, Basic, Bearer and
+ * Certificate), and maps widget state to/from the metadata model.
+ */
 public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private static final Class<?> PKG = RestConnectionEditor.class;
+  public static final String CERTIFICATE = "Certificate";
+  public static final String API_KEY = "API Key";
+  public static final String NO_AUTH = "No Auth";
+  public static final String BASIC = "Basic";
+  public static final String BEARER = "Bearer";
+  public static final String EMPTY_TAG = "<empty>";
 
   private Text wName;
 
   private TextVar wBaseUrl;
   private TextVar wTestUrl;
   private ComboVar wAuthType;
-  private static String[] authTypes =
-      new String[] {"No Auth", "API Key", "Basic", "Bearer", "Certificate"};
+  private static final String[] AUTH_TYPES = {NO_AUTH, API_KEY, BASIC, BEARER, CERTIFICATE};
 
   private Composite wAuthComp;
 
@@ -80,13 +91,11 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
   // Client Certificate / KeyStore
   private TextVar wKeyStoreFile;
-  private Button wbKeyStoreFile;
   private PasswordTextVar wKeyStorePassword;
   private ComboVar wKeyStoreType;
   private PasswordTextVar wKeyPassword;
   private TextVar wCertificateAlias;
 
-  private PropsUi props;
   private int middle;
   private int margin;
   private IVariables variables;
@@ -95,15 +104,23 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   private Group gAuth;
   private ScrolledComposite wsAuthComp;
 
+  /**
+   * Guard flag used while metadata is copied into widgets.
+   *
+   * <p>When true, widget listeners must not call {@link #setChanged()} because modifications are
+   * triggered by UI refresh/rebuild, not by user edits.
+   */
+  private boolean loadingContent;
+
   public RestConnectionEditor(
       HopGui hopGui, MetadataManager<RestConnection> manager, RestConnection restConnection) {
     super(hopGui, manager, restConnection);
-    props = PropsUi.getInstance();
 
-    middle = props.getMiddlePct();
-    margin = props.getMargin();
+    middle = PropsUi.getInstance().getMiddlePct();
+    margin = PropsUi.getMargin();
   }
 
+  /** Builds the editor UI, wires listeners, then loads metadata values into widgets. */
   @Override
   public void createControl(Composite composite) {
 
@@ -152,25 +169,26 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdAuthType.right = new FormAttachment(95, 0);
     wAuthType.setLayoutData(fdAuthType);
 
-    wAuthType.setItems(authTypes);
+    wAuthType.setItems(AUTH_TYPES);
     wAuthType.addListener(
         SWT.Selection,
         e -> {
-          if (wAuthType.getText().equals("No Auth")) {
+          markChangedIfUserEdit();
+          if (wAuthType.getText().equals(NO_AUTH)) {
             addNoAuthFields();
-          } else if (wAuthType.getText().equals("API Key")) {
+          } else if (wAuthType.getText().equals(API_KEY)) {
             addApiKeyFields();
-          } else if (wAuthType.getText().equals("Basic")) {
+          } else if (wAuthType.getText().equals(BASIC)) {
             addBasicAuthFields();
-          } else if (wAuthType.getText().equals("Bearer")) {
+          } else if (wAuthType.getText().equals(BEARER)) {
             addBearerFields();
-          } else if (wAuthType.getText().equals("Certificate")) {
+          } else if (wAuthType.getText().equals(CERTIFICATE)) {
             addCertificateFields();
           }
         });
 
     wsAuthComp = new ScrolledComposite(gAuth, SWT.V_SCROLL | SWT.H_SCROLL);
-    props.setLook(wsAuthComp);
+    PropsUi.setLook(wsAuthComp);
     FormData fdAuthSComp = new FormData();
     fdAuthSComp.top = new FormAttachment(wAuthType, margin);
     fdAuthSComp.left = new FormAttachment(0, 0);
@@ -223,7 +241,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdBaseUrl = new FormData();
     fdBaseUrl.top = new FormAttachment(0, 0);
     fdBaseUrl.left = new FormAttachment(middle, 0);
-    fdBaseUrl.right = new FormAttachment(95, 0);
+    fdBaseUrl.right = new FormAttachment(100, 0);
     wBaseUrl.setLayoutData(fdBaseUrl);
     lastControl = wBaseUrl;
 
@@ -240,14 +258,14 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     FormData fdTestUrl = new FormData();
     fdTestUrl.top = new FormAttachment(wlTestUrl, 0, SWT.CENTER);
     fdTestUrl.left = new FormAttachment(middle, 0);
-    fdTestUrl.right = new FormAttachment(95, 0);
+    fdTestUrl.right = new FormAttachment(100, 0);
     wTestUrl.setLayoutData(fdTestUrl);
     lastControl = wTestUrl;
 
     FormData fdUrl = new FormData();
     fdUrl.top = new FormAttachment(gAuth, margin);
     fdUrl.left = new FormAttachment(0, 0);
-    fdUrl.right = new FormAttachment(95, 0);
+    fdUrl.right = new FormAttachment(100, 0);
     gUrl.setLayoutData(fdUrl);
     // end URL group
 
@@ -275,7 +293,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wbTrustStoreFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbTrustStoreFile = new FormData();
     fdbTrustStoreFile.right = new FormAttachment(100, 0);
-    fdbTrustStoreFile.top = new FormAttachment(0, 0);
+    fdbTrustStoreFile.top = new FormAttachment(0, margin);
     wbTrustStoreFile.setLayoutData(fdbTrustStoreFile);
 
     wbTrustStoreFile.addListener(
@@ -291,7 +309,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
     wTrustStoreFile = new TextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTrustStoreFile);
-    //    wTrustStoreFile.addModifyListener(lsMod);
     FormData fdTrustStoreFile = new FormData();
     fdTrustStoreFile.left = new FormAttachment(middle, 0);
     fdTrustStoreFile.top = new FormAttachment(0, margin);
@@ -310,7 +327,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wTrustStorePassword =
         new PasswordTextVar(variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTrustStorePassword);
-    //    wTrustStorePassword.addModifyListener(lsMod);
     FormData fdTrustStorePassword = new FormData();
     fdTrustStorePassword.left = new FormAttachment(middle, 0);
     fdTrustStorePassword.top = new FormAttachment(wbTrustStoreFile, margin);
@@ -336,8 +352,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setChanged();
-            activateTrustoreFields();
+            markChangedIfUserEdit();
+            activateTrustStoreFields();
           }
         });
 
@@ -369,7 +385,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlKeyStoreFile.right = new FormAttachment(middle, -margin);
     wlKeyStoreFile.setLayoutData(fdlKeyStoreFile);
 
-    wbKeyStoreFile = new Button(gSSLTrustStore, SWT.PUSH | SWT.CENTER);
+    Button wbKeyStoreFile = new Button(gSSLTrustStore, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbKeyStoreFile);
     wbKeyStoreFile.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
     FormData fdbKeyStoreFile = new FormData();
@@ -516,8 +532,15 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
       if (control == null || control.isDisposed()) {
         continue;
       }
-      control.addListener(SWT.Modify, e -> setChanged());
-      control.addListener(SWT.Selection, e -> setChanged());
+      control.addListener(SWT.Modify, e -> markChangedIfUserEdit());
+      control.addListener(SWT.Selection, e -> markChangedIfUserEdit());
+    }
+  }
+
+  /** Marks the editor as changed only for user-driven edits. */
+  private void markChangedIfUserEdit() {
+    if (!loadingContent) {
+      setChanged();
     }
   }
 
@@ -537,7 +560,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     clearAuthComp();
 
     Label wlUsername = new Label(wAuthComp, SWT.RIGHT);
-    props.setLook(wlUsername);
+    PropsUi.setLook(wlUsername);
     wlUsername.setText(BaseMessages.getString(PKG, "RestConnectionEditor.Basic.Username"));
     FormData fdlUsername = new FormData();
     fdlUsername.top = new FormAttachment(0, margin);
@@ -546,7 +569,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wlUsername.setLayoutData(fdlUsername);
 
     wUsername = new TextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wUsername);
+    PropsUi.setLook(wUsername);
     FormData fdUsername = new FormData();
     fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
     fdUsername.left = new FormAttachment(middle, 0);
@@ -563,7 +586,7 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     wlPassword.setLayoutData(fdlPassword);
 
     wPassword = new PasswordTextVar(variables, wAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wPassword);
+    PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
     fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
     fdPassword.left = new FormAttachment(middle, 0);
@@ -594,8 +617,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdBearer.left = new FormAttachment(middle, 0);
     fdBearer.right = new FormAttachment(95, 0);
     wBearerValue.setLayoutData(fdBearer);
-
-    // wAuthComp.pack();
 
     Control[] controls = {wBearerValue};
     enableControls(controls);
@@ -661,8 +682,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdAuthorizationValue.right = new FormAttachment(95, 0);
     wAuthorizationValue.setLayoutData(fdAuthorizationValue);
 
-    // wAuthComp.pack();
-
     Control[] controls = {wAuthorizationName, wAuthorizationPrefix, wAuthorizationValue};
     enableControls(controls);
     refreshAuthLayout();
@@ -680,8 +699,6 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     fdlInfo.right = new FormAttachment(100, 0);
     wlInfo.setLayoutData(fdlInfo);
 
-    // wAuthComp.pack();
-    // wAuthComp.redraw();
     refreshAuthLayout();
   }
 
@@ -695,8 +712,8 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
   }
 
   private void test() {
-    IVariables variables = hopGui.getVariables();
-    RestConnection restConnection = new RestConnection(variables);
+    IVariables vars = hopGui.getVariables();
+    RestConnection restConnection = new RestConnection(vars);
     restConnection.setName(wName.getText());
     if (StringUtils.isEmpty(wTestUrl.getText())) {
       restConnection.setTestUrl(wBaseUrl.getText());
@@ -717,23 +734,21 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
 
     // Authentication configuration
     restConnection.setAuthType(wAuthType.getText());
-    if (wAuthType.getText().equals("No Auth")) {
+    if (wAuthType.getText().equals(NO_AUTH)) {
       // nothing required
-    } else if (wAuthType.getText().equals("Basic")) {
+    } else if (wAuthType.getText().equals(BASIC)) {
       restConnection.setUsername(wUsername.getText());
       restConnection.setPassword(wPassword.getText());
-    } else if (wAuthType.getText().equals("Bearer")) {
+    } else if (wAuthType.getText().equals(BEARER)) {
       restConnection.setBearerToken(wBearerValue.getText());
-    } else if (wAuthType.getText().equals("API Key")) {
+    } else if (wAuthType.getText().equals(API_KEY)) {
       restConnection.setAuthorizationHeaderName(wAuthorizationName.getText());
       restConnection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
       restConnection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
-    } else if (wAuthType.getText().equals("Certificate")) {
-      // Certificate fields already set in SSL section above
     }
 
-    // TODO: remove this temporary debug dialog when the SSL configuration issue is resolved.
-    String resolvedTestUrl = variables.resolve(restConnection.getTestUrl());
+    // remove this temporary debug dialog when the SSL configuration issue is resolved.
+    String resolvedTestUrl = vars.resolve(restConnection.getTestUrl());
     String responsePreview;
     try {
       responsePreview = restConnection.getResponse(resolvedTestUrl);
@@ -748,23 +763,23 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
         "ignoreSsl = "
             + restConnection.isIgnoreSsl()
             + "\ntrustStore (raw) = "
-            + Const.NVL(restConnection.getTrustStoreFile(), "<empty>")
+            + Const.NVL(restConnection.getTrustStoreFile(), EMPTY_TAG)
             + "\ntrustStore (resolved) = "
             + (StringUtils.isEmpty(restConnection.getTrustStoreFile())
-                ? "<empty>"
-                : variables.resolve(restConnection.getTrustStoreFile()))
+                ? EMPTY_TAG
+                : vars.resolve(restConnection.getTrustStoreFile()))
             + "\nkeyStore (raw) = "
-            + Const.NVL(restConnection.getKeyStoreFile(), "<empty>")
+            + Const.NVL(restConnection.getKeyStoreFile(), EMPTY_TAG)
             + "\nkeyStore (resolved) = "
             + (StringUtils.isEmpty(restConnection.getKeyStoreFile())
-                ? "<empty>"
-                : variables.resolve(restConnection.getKeyStoreFile()))
+                ? EMPTY_TAG
+                : vars.resolve(restConnection.getKeyStoreFile()))
             + "\nkeyStore type = "
-            + Const.NVL(restConnection.getKeyStoreType(), "<empty>")
+            + Const.NVL(restConnection.getKeyStoreType(), EMPTY_TAG)
             + "\nkey password set = "
             + (!StringUtils.isEmpty(restConnection.getKeyPassword()))
             + "\nauthType = "
-            + Const.NVL(restConnection.getAuthType(), "<empty>")
+            + Const.NVL(restConnection.getAuthType(), EMPTY_TAG)
             + "\ntest URL (resolved) = "
             + resolvedTestUrl
             + "\nresponse preview = "
@@ -790,59 +805,66 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     }
   }
 
-  @Override
-  public void dispose() {}
-
+  /** Copies metadata values to widgets and rebuilds auth-specific controls as needed. */
   @Override
   public void setWidgetsContent() {
-    // backwards compatibility: if we have authorization header values but no Auth Type,
-    // consider this to be an API Key auth
-    if (!StringUtils.isEmpty(metadata.getAuthorizationHeaderName())
-        && !StringUtils.isEmpty(metadata.getAuthorizationHeaderValue())
-        && StringUtils.isEmpty(metadata.getAuthType())) {
-      metadata.setAuthType("API Key");
-    }
-
-    wName.setText(Const.NVL(metadata.getName(), ""));
-    wBaseUrl.setText(Const.NVL(metadata.getBaseUrl(), ""));
-    wTestUrl.setText(Const.NVL(metadata.getTestUrl(), ""));
-
-    wTrustStoreFile.setText(Const.NVL(metadata.getTrustStoreFile(), ""));
-    wTrustStorePassword.setText(Const.NVL(metadata.getTrustStorePassword(), ""));
-    wIgnoreSsl.setSelection(metadata.isIgnoreSsl());
-
-    wKeyStoreFile.setText(Const.NVL(metadata.getKeyStoreFile(), ""));
-    wKeyStorePassword.setText(Const.NVL(metadata.getKeyStorePassword(), ""));
-    wKeyStoreType.setText(Const.NVL(metadata.getKeyStoreType(), "PKCS12"));
-    wKeyPassword.setText(Const.NVL(metadata.getKeyPassword(), ""));
-    wCertificateAlias.setText(Const.NVL(metadata.getCertificateAlias(), ""));
-
-    if (StringUtils.isEmpty(metadata.getAuthType())) {
-      metadata.setAuthType("No Auth");
-      wAuthType.select(0);
-    } else {
-      wAuthType.select(Arrays.asList(authTypes).indexOf(metadata.getAuthType()));
-    }
-    switch (metadata.getAuthType()) {
-      case "Basic" -> {
-        addBasicAuthFields();
-        wUsername.setText(Const.NVL(metadata.getUsername(), ""));
-        wPassword.setText(Const.NVL(metadata.getPassword(), ""));
+    loadingContent = true;
+    try {
+      // backwards compatibility: if we have authorization header values but no Auth Type,
+      // consider this to be an API Key auth
+      if (!StringUtils.isEmpty(metadata.getAuthorizationHeaderName())
+          && !StringUtils.isEmpty(metadata.getAuthorizationHeaderValue())
+          && StringUtils.isEmpty(metadata.getAuthType())) {
+        metadata.setAuthType(API_KEY);
       }
-      case "Bearer" -> {
-        addBearerFields();
-        wBearerValue.setText(metadata.getBearerToken());
+
+      wName.setText(Const.NVL(metadata.getName(), ""));
+      wBaseUrl.setText(Const.NVL(metadata.getBaseUrl(), ""));
+      wTestUrl.setText(Const.NVL(metadata.getTestUrl(), ""));
+
+      wTrustStoreFile.setText(Const.NVL(metadata.getTrustStoreFile(), ""));
+      wTrustStorePassword.setText(Const.NVL(metadata.getTrustStorePassword(), ""));
+      wIgnoreSsl.setSelection(metadata.isIgnoreSsl());
+
+      wKeyStoreFile.setText(Const.NVL(metadata.getKeyStoreFile(), ""));
+      wKeyStorePassword.setText(Const.NVL(metadata.getKeyStorePassword(), ""));
+      wKeyStoreType.setText(Const.NVL(metadata.getKeyStoreType(), "PKCS12"));
+      wKeyPassword.setText(Const.NVL(metadata.getKeyPassword(), ""));
+      wCertificateAlias.setText(Const.NVL(metadata.getCertificateAlias(), ""));
+
+      if (StringUtils.isEmpty(metadata.getAuthType())) {
+        metadata.setAuthType(NO_AUTH);
+        wAuthType.select(0);
+      } else {
+        wAuthType.select(Arrays.asList(AUTH_TYPES).indexOf(metadata.getAuthType()));
       }
-      case "API Key" -> {
-        addApiKeyFields();
-        wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
-        wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
-        wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
+      switch (metadata.getAuthType()) {
+        case BASIC -> {
+          addBasicAuthFields();
+          wUsername.setText(Const.NVL(metadata.getUsername(), ""));
+          wPassword.setText(Const.NVL(metadata.getPassword(), ""));
+        }
+        case BEARER -> {
+          addBearerFields();
+          wBearerValue.setText(metadata.getBearerToken());
+        }
+        case API_KEY -> {
+          addApiKeyFields();
+          wAuthorizationName.setText(Const.NVL(metadata.getAuthorizationHeaderName(), ""));
+          wAuthorizationPrefix.setText(Const.NVL(metadata.getAuthorizationPrefix(), ""));
+          wAuthorizationValue.setText(Const.NVL(metadata.getAuthorizationHeaderValue(), ""));
+        }
+        case CERTIFICATE -> addCertificateFields();
+        default -> {
+          // ignore
+        }
       }
-      case "Certificate" -> addCertificateFields();
+    } finally {
+      loadingContent = false;
     }
   }
 
+  /** Copies current widget values back into the given metadata object. */
   @Override
   public void getWidgetsContent(RestConnection connection) {
     connection.setName(wName.getText());
@@ -860,12 +882,12 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     connection.setCertificateAlias(wCertificateAlias.getText());
 
     connection.setAuthType(wAuthType.getText());
-    if (wAuthType.getText().equals("Basic")) {
+    if (wAuthType.getText().equals(BASIC)) {
       connection.setUsername(wUsername.getText());
       connection.setPassword(wPassword.getText());
-    } else if (wAuthType.getText().equals("Bearer")) {
+    } else if (wAuthType.getText().equals(BEARER)) {
       connection.setBearerToken(wBearerValue.getText());
-    } else if (wAuthType.getText().equals("API Key")) {
+    } else if (wAuthType.getText().equals(API_KEY)) {
       connection.setAuthorizationHeaderName(wAuthorizationName.getText());
       connection.setAuthorizationPrefix(wAuthorizationPrefix.getText());
       connection.setAuthorizationHeaderValue(wAuthorizationValue.getText());
@@ -881,12 +903,13 @@ public class RestConnectionEditor extends MetadataEditor<RestConnection> {
     return wName.setFocus();
   }
 
-  private void activateTrustoreFields() {
+  private void activateTrustStoreFields() {
     wTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
     wbTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
     wTrustStorePassword.setEnabled(!wIgnoreSsl.getSelection());
   }
 
+  /** Reflows the dynamic auth area and updates parent layouts after auth UI changes. */
   private void refreshAuthLayout() {
     wAuthComp.layout(true, true);
     wAuthComp.pack(true);

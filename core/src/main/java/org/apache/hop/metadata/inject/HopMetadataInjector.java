@@ -209,7 +209,8 @@ public class HopMetadataInjector {
         injectList(metadataProvider, object, groupKeyMap, field, objectClass, groupKey);
       } else if (!fieldClass.isEnum()
           && !fieldClass.isPrimitive()
-          && !fieldClass.equals(String.class)) {
+          && !fieldClass.equals(String.class)
+          && !fieldClass.isArray()) {
         // Typically this is an inline object or one with a group element around it.
         // The class is organized like that to facilitate "correct" XML generation and parsing.
         // In this scenario we simply navigate into the object given by the field getter.
