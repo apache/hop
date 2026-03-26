@@ -16,11 +16,18 @@
  */
 package org.apache.hop.pipeline.transforms.pgpdecryptstream;
 
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class PGPDecryptStreamMetaTest {
+  @BeforeEach
+  void setUp() throws Exception {
+    HopClientEnvironment.init();
+  }
+
   @Test
   void testSerializationRoundTrip() throws Exception {
     PGPDecryptStreamMeta meta =
