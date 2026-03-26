@@ -66,16 +66,18 @@ public class UserDefinedJavaClassMeta
 
   static {
     IVariables vs = new Variables();
-    vs.initializeFrom(null); // sets up the default variables
+    // sets up the default variables
+    vs.initializeFrom(null);
     String maxSizeStr = vs.getVariable(UserDefinedJavaClass.HOP_DEFAULT_CLASS_CACHE_SIZE, "100");
-    int maxCacheSize = -1;
+    int maxCacheSize;
     try {
       maxCacheSize = Integer.parseInt(maxSizeStr);
     } catch (Exception ignored) {
-      maxCacheSize = 100; // default to 100 if property not set
+      // default to 100 if property not set
+      maxCacheSize = 100;
     }
     // Initialize Class ICache
-    classCache = CacheBuilder.newBuilder().maximumSize(maxCacheSize).build();
+    CLASS_CACHE = CacheBuilder.newBuilder().maximumSize(maxCacheSize).build();
   }
 
   @Getter
@@ -134,8 +136,8 @@ public class UserDefinedJavaClassMeta
   //
   private Class<TransformClassBase> cookedTransformClass;
   private List<Exception> cookErrors;
-  private static final Cache<String, Class<?>> classCache;
-  private boolean changed;
+  private static final Cache<String, Class<?>> CLASS_CACHE;
+  private boolean hasChanged;
 
   @HopMetadataProperty(
       key = "field",
@@ -180,7 +182,7 @@ public class UserDefinedJavaClassMeta
 
   public UserDefinedJavaClassMeta() {
     super();
-    changed = true;
+    hasChanged = true;
     cookErrors = new ArrayList<>();
     infoTransformDefinitions = new ArrayList<>();
     targetTransformDefinitions = new ArrayList<>();
@@ -201,11 +203,11 @@ public class UserDefinedJavaClassMeta
   }
 
   @VisibleForTesting
-  Class<?> cookClass(UserDefinedJavaClassDef def, ClassLoader clsloader)
-      throws CompileException, IOException, RuntimeException, HopTransformException {
+  Class<?> cookClass(UserDefinedJavaClassDef def, ClassLoader clsLoader)
+      throws CompileException, IOException, HopTransformException {
 
     String checksum = def.getChecksum();
-    Class<?> rtn = UserDefinedJavaClassMeta.classCache.getIfPresent(checksum);
+    Class<?> rtn = UserDefinedJavaClassMeta.CLASS_CACHE.getIfPresent(checksum);
     if (rtn != null) {
       return rtn;
     }
@@ -215,10 +217,10 @@ public class UserDefinedJavaClassMeta
     }
 
     ClassBodyEvaluator cbe = new ClassBodyEvaluator();
-    if (clsloader == null) {
+    if (clsLoader == null) {
       cbe.setParentClassLoader(Thread.currentThread().getContextClassLoader());
     } else {
-      cbe.setParentClassLoader(clsloader);
+      cbe.setParentClassLoader(clsLoader);
     }
 
     cbe.setClassName(def.getClassName());
@@ -232,23 +234,21 @@ public class UserDefinedJavaClassMeta
     }
 
     cbe.setDefaultImports(
-        new String[] {
-          "org.apache.hop.pipeline.transforms.userdefinedjavaclass.*",
-          "org.apache.hop.pipeline.transform.*",
-          "org.apache.hop.core.row.*",
-          "org.apache.hop.core.*",
-          "org.apache.hop.core.exception.*",
-          "org.apache.hop.pipeline.*",
-          "org.apache.hop.workflow.*",
-          "org.apache.hop.workflow.action.*",
-          "org.apache.hop.core.plugins.*",
-          "org.apache.hop.core.variables.*",
-          "java.util.*",
-        });
+        "org.apache.hop.pipeline.transforms.userdefinedjavaclass.*",
+        "org.apache.hop.pipeline.transform.*",
+        "org.apache.hop.core.row.*",
+        "org.apache.hop.core.*",
+        "org.apache.hop.core.exception.*",
+        "org.apache.hop.pipeline.*",
+        "org.apache.hop.workflow.*",
+        "org.apache.hop.workflow.action.*",
+        "org.apache.hop.core.plugins.*",
+        "org.apache.hop.core.variables.*",
+        "java.util.*");
 
     cbe.cook(new Scanner(null, sr));
     rtn = cbe.getClazz();
-    UserDefinedJavaClassMeta.classCache.put(checksum, rtn);
+    UserDefinedJavaClassMeta.CLASS_CACHE.put(checksum, rtn);
     return rtn;
   }
 
@@ -275,7 +275,7 @@ public class UserDefinedJavaClassMeta
         cookErrors.add(exception);
       }
     }
-    changed = false;
+    hasChanged = false;
   }
 
   public TransformClassBase newChildInstance(
@@ -310,7 +310,7 @@ public class UserDefinedJavaClassMeta
 
   public void replaceFields(List<FieldInfo> fields) {
     this.fields = fields;
-    changed = true;
+    hasChanged = true;
   }
 
   /**
@@ -345,7 +345,7 @@ public class UserDefinedJavaClassMeta
   public void replaceDefinitions(List<UserDefinedJavaClassDef> definitions) {
     this.definitions.clear();
     this.definitions = orderDefinitions(definitions);
-    changed = true;
+    hasChanged = true;
   }
 
   @Override
@@ -355,7 +355,7 @@ public class UserDefinedJavaClassMeta
 
   private boolean checkClassCooked(ILogChannel logChannel) {
     boolean ok = cookedTransformClass != null && cookErrors.isEmpty();
-    if (changed) {
+    if (hasChanged) {
       try {
         cookClasses();
       } catch (HopException e) {
@@ -383,9 +383,9 @@ public class UserDefinedJavaClassMeta
     }
 
     try {
-      Method getTransformIOMeta =
+      Method getTransformIoMeta =
           cookedTransformClass.getMethod("getTransformIOMeta", UserDefinedJavaClassMeta.class);
-      ITransformIOMeta transformIoMeta = (ITransformIOMeta) getTransformIOMeta.invoke(null, this);
+      ITransformIOMeta transformIoMeta = (ITransformIOMeta) getTransformIoMeta.invoke(null, this);
       if (transformIoMeta == null) {
         return super.getTransformIOMeta();
       } else {
@@ -455,7 +455,7 @@ public class UserDefinedJavaClassMeta
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
-      TransformMeta transforminfo,
+      TransformMeta transformInfo,
       IRowMeta prev,
       String[] input,
       String[] output,
@@ -471,14 +471,14 @@ public class UserDefinedJavaClassMeta
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "UserDefinedJavaClassMeta.CheckResult.ConnectedTransformOK2"),
-              transforminfo);
+              transformInfo);
       remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "UserDefinedJavaClassMeta.CheckResult.NoInputReceived"),
-              transforminfo);
+              transformInfo);
       remarks.add(cr);
     }
   }
