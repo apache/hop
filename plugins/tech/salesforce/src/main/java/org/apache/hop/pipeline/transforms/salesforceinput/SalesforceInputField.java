@@ -120,7 +120,7 @@ public class SalesforceInputField implements Cloneable {
       injectionKeyDescription = "SalesforceInputMeta.Injection.ISIDLOOKUP")
   private boolean idLookup;
 
-  @HopMetadataProperty(key = "samples")
+  @HopMetadataProperty(key = "samples", isExcludedFromInjection = true)
   private String[] samples;
 
   public SalesforceInputField(String fieldname) {

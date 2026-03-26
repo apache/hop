@@ -611,41 +611,38 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     }
   }
 
+  private void processEndOfStream() {
+    try {
+      if (bindings != null) {
+        // Checking for EndScript
+        if (!Utils.isEmpty(strEndScript)) {
+          data.engine.eval(strEndScript, bindings);
+          if (isDetailed()) {
+            logDetailed(("End Script found!"));
+          }
+        } else {
+          if (isDetailed()) {
+            logDetailed(("No end Script found!"));
+          }
+        }
+      }
+    } catch (Exception e) {
+      logError(BaseMessages.getString(PKG, "Script.Log.UnexpectedError") + " : " + e);
+      logError(
+          BaseMessages.getString(PKG, "Script.Log.ErrorStackTrace")
+              + Const.CR
+              + Const.getStackTracker(e));
+      setErrors(1);
+      stopAll();
+    }
+  }
+
   @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow();
-    if (r == null && !first) {
-      // Modification for Additional End Function
-      try {
-        if (data.engine != null) {
-
-          // Run the start and transformation scripts once if there are no incoming rows
-
-          // Checking for EndScript
-          if (!Utils.isEmpty(strEndScript)) {
-            data.engine.eval(strEndScript, bindings);
-            if (isDetailed()) {
-              logDetailed(("End Script found!"));
-            }
-          } else {
-            if (isDetailed()) {
-              logDetailed(("No end Script found!"));
-            }
-          }
-        }
-      } catch (Exception e) {
-        logError(BaseMessages.getString(PKG, "Script.Log.UnexpectedError") + " : " + e);
-        logError(
-            BaseMessages.getString(PKG, "Script.Log.ErrorStackTrace")
-                + Const.CR
-                + Const.getStackTracker(e));
-        setErrors(1);
-        stopAll();
-      }
-
-      if (data.engine != null) {
-        setOutputDone();
-      }
+    if (r == null) {
+      processEndOfStream();
+      setOutputDone();
       return false;
     }
 
