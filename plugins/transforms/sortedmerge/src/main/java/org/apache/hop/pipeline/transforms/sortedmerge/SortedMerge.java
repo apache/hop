@@ -146,28 +146,28 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
             data.fieldIndices[f] = data.rowMeta.indexOfValue(mergeField.getFieldName());
             if (data.fieldIndices[f] < 0) {
               throw new HopTransformException(
-                      "Unable to find fieldname ["
-                              + mergeField.getFieldName()
-                              + "] in row : "
-                              + data.rowMeta);
+                  "Unable to find fieldname ["
+                      + mergeField.getFieldName()
+                      + "] in row : "
+                      + data.rowMeta);
             }
 
             data.rowMeta
-                    .getValueMeta(data.fieldIndices[f])
-                    .setSortedDescending(!mergeField.isAscending());
+                .getValueMeta(data.fieldIndices[f])
+                .setSortedDescending(!mergeField.isAscending());
           }
         }
       }
 
       data.comparator =
-              (o1, o2) -> {
-                try {
-                  return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
-                } catch (HopValueException e) {
-                  return 0; // TODO see if we should fire off alarms over here... Perhaps throw a
-                  // RuntimeException.
-                }
-              };
+          (o1, o2) -> {
+            try {
+              return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
+            } catch (HopValueException e) {
+              return 0; // TODO see if we should fire off alarms over here... Perhaps throw a
+              // RuntimeException.
+            }
+          };
 
       // Now sort the sortedBuffer for the first time.
       //

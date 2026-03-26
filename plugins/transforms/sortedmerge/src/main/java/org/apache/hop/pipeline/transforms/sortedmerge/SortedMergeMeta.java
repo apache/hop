@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -52,7 +51,11 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
   private static final Class<?> PKG = SortedMergeMeta.class;
   public static final String CONST_FIELD = "field";
 
-  @HopMetadataProperty(key="field", groupKey = "fields", injectionGroupKey = "FIELDS", injectionGroupDescription = "SortedMerge.Injection.FIELDS")
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "SortedMerge.Injection.FIELDS")
   private List<MergeField> mergeFields;
 
   public SortedMergeMeta() {
@@ -61,7 +64,7 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
 
   public SortedMergeMeta(SortedMergeMeta m) {
     this();
-    m.mergeFields.forEach(f->this.mergeFields.add(new MergeField(f)));
+    m.mergeFields.forEach(f -> this.mergeFields.add(new MergeField(f)));
   }
 
   @Override
@@ -182,13 +185,19 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
   @Getter
   @Setter
   public static class MergeField {
-    @HopMetadataProperty(key="name", injectionKey = "FIELD_NAME", injectionKeyDescription = "SortedMerge.Injection.FIELD_NAME")
+    @HopMetadataProperty(
+        key = "name",
+        injectionKey = "FIELD_NAME",
+        injectionKeyDescription = "SortedMerge.Injection.FIELD_NAME")
     private String fieldName;
-    @HopMetadataProperty(key="ascending", injectionKey = "ASCENDING", injectionKeyDescription = "SortedMerge.Injection.ASCENDING")
+
+    @HopMetadataProperty(
+        key = "ascending",
+        injectionKey = "ASCENDING",
+        injectionKeyDescription = "SortedMerge.Injection.ASCENDING")
     private boolean ascending;
 
-    public MergeField() {
-    }
+    public MergeField() {}
 
     public MergeField(MergeField f) {
       this();

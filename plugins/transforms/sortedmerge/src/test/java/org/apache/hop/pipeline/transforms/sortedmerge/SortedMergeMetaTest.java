@@ -33,8 +33,8 @@ class SortedMergeMetaTest {
 
     assertEquals(2, meta.getMergeFields().size());
     assertEquals("field1", meta.getMergeFields().getFirst().getFieldName());
-    assertTrue( meta.getMergeFields().getFirst().isAscending());
+    assertTrue(meta.getMergeFields().getFirst().isAscending());
     assertEquals("field2", meta.getMergeFields().getLast().getFieldName());
-    assertFalse( meta.getMergeFields().getLast().isAscending());
+    assertFalse(meta.getMergeFields().getLast().isAscending());
   }
 }

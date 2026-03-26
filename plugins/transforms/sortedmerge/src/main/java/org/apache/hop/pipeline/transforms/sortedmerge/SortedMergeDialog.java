@@ -176,7 +176,7 @@ public class SortedMergeDialog extends BaseTransformDialog {
       SortedMergeMeta.MergeField field = new SortedMergeMeta.MergeField();
       input.getMergeFields().add(field);
 
-      field.setFieldName( ti.getText(1) );
+      field.setFieldName(ti.getText(1));
       field.setAscending(
           !BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO).equalsIgnoreCase(ti.getText(2)));
     }
