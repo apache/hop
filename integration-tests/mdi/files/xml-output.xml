@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<transform>
+    <encoding>UTF-8</encoding>
+    <name_space>namespace</name_space>
+    <xml_main_element>Rows</xml_main_element>
+    <xml_repeat_element>Row</xml_repeat_element>
+    <file>
+        <name>filename</name>
+        <extention>xml</extention>
+        <do_not_open_newfile_init>Y</do_not_open_newfile_init>
+        <split>Y</split>
+        <add_date>N</add_date>
+        <add_time>N</add_time>
+        <SpecifyFormat>N</SpecifyFormat>
+        <omit_null_values>Y</omit_null_values>
+        <date_time_format>date-format</date_time_format>
+        <add_to_result_filenames>Y</add_to_result_filenames>
+        <zipped>Y</zipped>
+        <splitevery>123</splitevery>
+    </file>
+    <fields>
+        <field>
+            <content_type>Element</content_type>
+            <name>f1</name>
+            <element>element1</element>
+            <type>String</type>
+            <format/>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <length>100</length>
+            <precision>-1</precision>
+        </field>
+        <field>
+            <content_type>Attribute</content_type>
+            <name>f2</name>
+            <element>element2</element>
+            <type>Integer</type>
+            <format>#</format>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <length>7</length>
+            <precision>0</precision>
+        </field>
+        <field>
+            <content_type>Element</content_type>
+            <name>f3</name>
+            <element>element3</element>
+            <type>Number</type>
+            <format>#.#</format>
+            <currency/>
+            <decimal/>
+            <group/>
+            <nullif/>
+            <length>9</length>
+            <precision>2</precision>
+        </field>
+    </fields>
+</transform>

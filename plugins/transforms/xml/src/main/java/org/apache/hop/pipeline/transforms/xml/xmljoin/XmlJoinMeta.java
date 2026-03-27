@@ -58,17 +58,15 @@ import org.apache.hop.pipeline.transform.stream.StreamIcon;
 public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   private static final Class<?> PKG = XmlJoinMeta.class;
 
-  /** The base name of the output file */
-
   /** Flag: execute complex join */
   @HopMetadataProperty(injectionKey = "COMPLEX_JOIN")
   private boolean complexJoin;
 
-  /** What transform holds the xml string to join into */
+  /** What transform holds the XML string to join into */
   @HopMetadataProperty(injectionKey = "TARGET_XML_TRANSFORM")
   private String targetXmlTransform;
 
-  /** What field holds the xml string to join into */
+  /** What field holds the XML string to join into */
   @HopMetadataProperty(injectionKey = "TARGET_XML_FIELD")
   private String targetXmlField;
 
@@ -84,7 +82,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   @HopMetadataProperty(injectionKey = "TARGET_XPATH")
   private String targetXPath;
 
-  /** What transform holds the xml strings to join */
+  /** What transform holds the XML strings to join */
   @HopMetadataProperty(injectionKey = "SOURCE_XML_TRANSFORM")
   private String sourceXmlTransform;
 
@@ -105,18 +103,28 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   private boolean omitNullValues;
 
   public XmlJoinMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    encoding = Const.XML_ENCODING;
+  }
+
+  public XmlJoinMeta(XmlJoinMeta m) {
+    this();
+    this.complexJoin = m.complexJoin;
+    this.encoding = m.encoding;
+    this.joinCompareField = m.joinCompareField;
+    this.omitNullValues = m.omitNullValues;
+    this.omitXmlHeader = m.omitXmlHeader;
+    this.sourceXmlField = m.sourceXmlField;
+    this.sourceXmlTransform = m.sourceXmlTransform;
+    this.targetXmlField = m.targetXmlField;
+    this.targetXmlTransform = m.targetXmlTransform;
+    this.targetXPath = m.targetXPath;
+    this.valueXmlField = m.valueXmlField;
   }
 
   @Override
   public Object clone() {
-    XmlJoinMeta retval = (XmlJoinMeta) super.clone();
-    return retval;
-  }
-
-  @Override
-  public void setDefault() {
-    encoding = Const.XML_ENCODING;
+    return new XmlJoinMeta(this);
   }
 
   @Override
@@ -133,11 +141,11 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     v.setOrigin(name);
 
     try {
-      // Row should only include fields from the target and not the source. During the preview table
-      // generation
-      // the fields from all previous transforms (source and target) are included in the row so lets
-      // remove the
-      // source fields.
+      /*
+         Row should only include fields from the target and not the source. During the preview table
+         generation the fields from all previous transforms (source and target) are included in the row so let's
+         remove the source fields.
+      */
       List<String> targetFieldNames = null;
       IRowMeta targetRowMeta = info[0];
       if (targetRowMeta != null) {
@@ -326,9 +334,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   public ITransformIOMeta getTransformIOMeta() {
     ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta == null) {
-
       ioMeta = new TransformIOMeta(true, true, false, false, false, false);
-
       ioMeta.addStream(
           new Stream(
               IStream.StreamType.INFO,
@@ -353,8 +359,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     for (IStream stream : infoStreams) {
-      stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
+      stream.setTransformMeta(TransformMeta.findTransform(transforms, stream.getSubject()));
     }
   }
 

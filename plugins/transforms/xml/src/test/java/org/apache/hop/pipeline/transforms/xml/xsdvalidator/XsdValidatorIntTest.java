@@ -48,14 +48,14 @@ import org.junit.jupiter.api.Test;
 
 class XsdValidatorIntTest {
 
-  private static final String RAMDIR = "ram://" + XsdValidatorIntTest.class.getSimpleName();
+  private static final String RAM_DIR = "ram://" + XsdValidatorIntTest.class.getSimpleName();
   private static final String TEST_FILES_DIR = "src/test/resources/xsdvalidator/";
 
   private static FileObject schemaRamFile = null;
   private static FileObject dataRamFile = null;
 
   @BeforeEach
-  public void init() throws Exception {
+  void init() throws Exception {
     HopClientEnvironment.init();
   }
 
@@ -80,22 +80,17 @@ class XsdValidatorIntTest {
 
   @Test
   void testVfsInputFiles() throws Exception {
+    testVfsFileTypes(getDataRamFile().getURL().toString(), getSchemaRamFile().getURL().toString());
     testVfsFileTypes(
-        getDataRamFile().getURL().toString(), getSchemaRamFile().getURL().toString(), true);
+        getDataRamFile().getURL().toString(), getSchemaFileUrl(TEST_FILES_DIR + "schema.xsd"));
     testVfsFileTypes(
-        getDataRamFile().getURL().toString(),
-        getSchemaFileUrl(TEST_FILES_DIR + "schema.xsd"),
-        true);
-    testVfsFileTypes(
-        getDataFileUrl(TEST_FILES_DIR + "data.xml"), getSchemaRamFile().getURL().toString(), true);
+        getDataFileUrl(TEST_FILES_DIR + "data.xml"), getSchemaRamFile().getURL().toString());
     testVfsFileTypes(
         getDataFileUrl(TEST_FILES_DIR + "data.xml"),
-        getSchemaFileUrl(TEST_FILES_DIR + "schema.xsd"),
-        true);
+        getSchemaFileUrl(TEST_FILES_DIR + "schema.xsd"));
     testVfsFileTypes(
         getDataFileUrl(TEST_FILES_DIR + "xsd_issue/bad.xml"),
-        getSchemaFileUrl(TEST_FILES_DIR + "xsd_issue/cbc-xml-schema-v1.0/CbcXML_v1.0.xsd"),
-        true);
+        getSchemaFileUrl(TEST_FILES_DIR + "xsd_issue/cbc-xml-schema-v1.0/CbcXML_v1.0.xsd"));
   }
 
   private FileObject getSchemaRamFile() throws Exception {
@@ -135,18 +130,17 @@ class XsdValidatorIntTest {
   }
 
   private FileObject loadRamFile(String filename) throws Exception {
-    String targetUrl = RAMDIR + "/" + filename;
+    String targetUrl = RAM_DIR + "/" + filename;
     try (InputStream source = getFileInputStream(filename)) {
       FileObject fileObject = HopVfs.getFileObject(targetUrl, new Variables());
       try (OutputStream targetStream = fileObject.getContent().getOutputStream()) {
-        copy(source, targetStream, -1);
+        copy(source, targetStream);
       }
       return fileObject;
     }
   }
 
-  private void testVfsFileTypes(String dataFilename, String schemaFilename, boolean expected)
-      throws Exception {
+  private void testVfsFileTypes(String dataFilename, String schemaFilename) throws Exception {
     assertNotNull(dataFilename);
     assertNotNull(schemaFilename);
     assertTrue(HopVfs.getFileObject(dataFilename, new Variables()).exists());
@@ -158,23 +152,23 @@ class XsdValidatorIntTest {
     List<RowMetaAndData> inputData = new ArrayList<>();
     inputData.add(new RowMetaAndData(inputRowMeta, new Object[] {dataFilename, schemaFilename}));
 
-    String TransformName = "XSD Validator";
+    String transformName = "XSD Validator";
     XsdValidatorMeta meta = new XsdValidatorMeta();
     meta.setDefault();
-    meta.setXMLSourceFile(true);
-    meta.setXMLStream("DataFile");
-    meta.setXSDSource(meta.SPECIFY_FIELDNAME);
-    meta.setXSDDefinedField("SchemaFile");
+    meta.setXmlSourceFile(true);
+    meta.setXmlStream("DataFile");
+    meta.setXsdSource(XsdValidatorMeta.SPECIFY_FIELDNAME);
+    meta.setXsdDefinedField("SchemaFile");
     meta.setAddValidationMessage(true);
     PipelineMeta pipelineMeta =
-        PipelineTestFactory.generateTestTransformation(null, meta, TransformName);
+        PipelineTestFactory.generateTestTransformation(null, meta, transformName);
 
     List<RowMetaAndData> result = null;
     result =
         PipelineTestFactory.executeTestTransformation(
             pipelineMeta,
             PipelineTestFactory.INJECTOR_TRANSFORMNAME,
-            TransformName,
+            transformName,
             PipelineTestFactory.DUMMY_TRANSFORMNAME,
             inputData);
 
@@ -192,24 +186,18 @@ class XsdValidatorIntTest {
     // Check result
     assertEquals(dataFilename, result.get(0).getString(0, "default"));
     assertEquals(schemaFilename, result.get(0).getString(1, "default"));
-    assertEquals(expected, result.get(0).getBoolean(2, !expected));
+    assertTrue(result.get(0).getBoolean(2, false));
   }
 
-  private static long copy(InputStream inp, OutputStream out, long limit) throws IOException {
+  private static void copy(InputStream inp, OutputStream out) throws IOException {
     final byte[] buff = new byte[4096];
-    long totalCount = 0;
     int readBytes = -1;
     do {
-      int todoBytes = (int) ((limit < 0) ? buff.length : Math.min(limit - totalCount, buff.length));
-      if (todoBytes > 0) {
-        readBytes = inp.read(buff, 0, todoBytes);
-        if (readBytes > 0) {
-          out.write(buff, 0, readBytes);
-          totalCount += readBytes;
-        }
+      int todoBytes = buff.length;
+      readBytes = inp.read(buff, 0, todoBytes);
+      if (readBytes > 0) {
+        out.write(buff, 0, readBytes);
       }
-    } while (readBytes >= 0 && (limit == -1 || totalCount < limit));
-
-    return totalCount;
+    } while (readBytes >= 0);
   }
 }

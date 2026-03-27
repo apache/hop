@@ -89,7 +89,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
   private Button wSpecifyFormat;
   private Label wlDateTimeFormat;
   private CCombo wDateTimeFormat;
-  private ColumnInfo[] colinf;
+  private ColumnInfo[] columnInfos;
   private final List<String> inputFields = new ArrayList<>();
 
   public XmlOutputDialog(
@@ -598,9 +598,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
 
     setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
-    final int FieldsRows = input.getOutputFields().length;
-
-    colinf =
+    columnInfos =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "XMLOutputDialog.Fieldname.Column"),
@@ -657,8 +655,8 @@ public class XmlOutputDialog extends BaseTransformDialog {
             variables,
             wFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columnInfos,
+            1,
             lsMod,
             props);
 
@@ -787,144 +785,79 @@ public class XmlOutputDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getFileName() != null) {
-      wFilename.setText(input.getFileName());
-    }
-    if (input.getExtension() != null) {
-      wExtension.setText(input.getExtension());
-    }
-    wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
+    wFilename.setText(Const.NVL(input.getFileDetails().getFileName(), ""));
+    wExtension.setText(Const.NVL(input.getFileDetails().getExtension(), ""));
+    wDoNotOpenNewFileInit.setSelection(input.getFileDetails().isDoNotOpenNewFileInit());
 
-    if (input.getEncoding() != null) {
-      wEncoding.setText(input.getEncoding());
-    }
-    if (input.getNameSpace() != null) {
-      wNameSpace.setText(input.getNameSpace());
-    }
-    if (input.getMainElement() != null) {
-      wMainElement.setText(input.getMainElement());
-    }
-    if (input.getRepeatElement() != null) {
-      wRepeatElement.setText(input.getRepeatElement());
-    }
+    wEncoding.setText(Const.NVL(input.getEncoding(), ""));
+    wNameSpace.setText(Const.NVL(input.getNameSpace(), ""));
+    wMainElement.setText(Const.NVL(input.getMainElement(), ""));
+    wRepeatElement.setText(Const.NVL(input.getRepeatElement(), ""));
 
-    wSplitEvery.setText("" + input.getSplitEvery());
+    wSplitEvery.setText("" + input.getFileDetails().getSplitEvery());
 
-    wZipped.setSelection(input.isZipped());
-    wOmitNullValues.setSelection(input.isOmitNullValues());
-    wAddDate.setSelection(input.isDateInFilename());
-    wAddTime.setSelection(input.isTimeInFilename());
-    wAddTransformnr.setSelection(input.isTransformNrInFilename());
+    wZipped.setSelection(input.getFileDetails().isZipped());
+    wOmitNullValues.setSelection(input.getFileDetails().isOmitNullValues());
+    wAddDate.setSelection(input.getFileDetails().isDateInFilename());
+    wAddTime.setSelection(input.getFileDetails().isTimeInFilename());
+    wAddTransformnr.setSelection(input.getFileDetails().isTransformNrInFilename());
 
-    wAddToResult.setSelection(input.isAddToResultFiles());
+    wAddToResult.setSelection(input.getFileDetails().isAddToResultFilenames());
 
-    if (input.getDateTimeFormat() != null) {
-      wDateTimeFormat.setText(input.getDateTimeFormat());
-    }
-    wSpecifyFormat.setSelection(input.isSpecifyFormat());
+    wDateTimeFormat.setText(Const.NVL(input.getFileDetails().getDateTimeFormat(), ""));
+    wSpecifyFormat.setSelection(input.getFileDetails().isSpecifyFormat());
 
-    if (isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "XMLOutputDialog.Log.GettingFieldsInfo"));
-    }
-
-    for (int i = 0; i < input.getOutputFields().length; i++) {
-      XmlField field = input.getOutputFields()[i];
-
-      TableItem item = wFields.table.getItem(i);
+    for (XmlField field : input.getOutputFields()) {
+      TableItem item = new TableItem(wFields.table, SWT.NONE);
       int index = 1;
 
-      if (field.getFieldName() != null) {
-        item.setText(index++, field.getFieldName());
-      }
-      if (field.getElementName() != null) {
-        item.setText(index++, field.getElementName());
-      } else {
-        // Fixup for defect. Make it the same functionality
-        // as the loading of the original XML file.
-        if (field.getFieldName() != null) {
-          item.setText(index++, field.getFieldName());
-        } else {
-          index++;
-        }
-      }
+      item.setText(index++, Const.NVL(field.getFieldName(), ""));
+      item.setText(index++, Const.NVL(field.getElementName(), ""));
+
       item.setText(index++, field.getContentType().name());
       item.setText(index++, field.getTypeDesc());
-      if (field.getFormat() != null) {
-        item.setText(index++, field.getFormat());
-      } else {
-        index++;
-      }
-      if (field.getLength() >= 0) {
-        item.setText(index++, "" + field.getLength());
-      } else {
-        index++;
-      }
-      if (field.getPrecision() >= 0) {
-        item.setText(index++, "" + field.getPrecision());
-      } else {
-        index++;
-      }
-      if (field.getCurrencySymbol() != null) {
-        item.setText(index++, field.getCurrencySymbol());
-      } else {
-        index++;
-      }
-      if (field.getDecimalSymbol() != null) {
-        item.setText(index++, field.getDecimalSymbol());
-      } else {
-        index++;
-      }
-      if (field.getGroupingSymbol() != null) {
-        item.setText(index++, field.getGroupingSymbol());
-      } else {
-        index++;
-      }
-      if (field.getNullString() != null) {
-        item.setText(index++, field.getNullString());
-      } else {
-        index++;
-      }
+      item.setText(index++, Const.NVL(field.getFormat(), ""));
+      item.setText(index++, field.getLength() > 0 ? Integer.toString(field.getLength()) : "");
+      item.setText(index++, field.getPrecision() > 0 ? Integer.toString(field.getPrecision()) : "");
+      item.setText(index++, Const.NVL(field.getCurrencySymbol(), ""));
+      item.setText(index++, Const.NVL(field.getDecimalSymbol(), ""));
+      item.setText(index++, Const.NVL(field.getGroupingSymbol(), ""));
+      item.setText(index, Const.NVL(field.getNullString(), ""));
     }
-
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
   }
 
   private void cancel() {
     transformName = null;
-
     input.setChanged(backupChanged);
-
     dispose();
   }
 
   private void getInfo(XmlOutputMeta xmlOutputMeta) {
-    xmlOutputMeta.setFileName(wFilename.getText());
+    xmlOutputMeta.getFileDetails().setFileName(wFilename.getText());
     xmlOutputMeta.setEncoding(wEncoding.getText());
     xmlOutputMeta.setNameSpace(wNameSpace.getText());
     xmlOutputMeta.setMainElement(wMainElement.getText());
     xmlOutputMeta.setRepeatElement(wRepeatElement.getText());
-    xmlOutputMeta.setExtension(wExtension.getText());
-    xmlOutputMeta.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
-    xmlOutputMeta.setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
+    xmlOutputMeta.getFileDetails().setExtension(wExtension.getText());
+    xmlOutputMeta.getFileDetails().setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
+    xmlOutputMeta.getFileDetails().setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
 
-    xmlOutputMeta.setDateTimeFormat(wDateTimeFormat.getText());
-    xmlOutputMeta.setSpecifyFormat(wSpecifyFormat.getSelection());
+    xmlOutputMeta.getFileDetails().setDateTimeFormat(wDateTimeFormat.getText());
+    xmlOutputMeta.getFileDetails().setSpecifyFormat(wSpecifyFormat.getSelection());
 
-    xmlOutputMeta.setTransformNrInFilename(wAddTransformnr.getSelection());
-    xmlOutputMeta.setDateInFilename(wAddDate.getSelection());
-    xmlOutputMeta.setTimeInFilename(wAddTime.getSelection());
-    xmlOutputMeta.setAddToResultFiles(wAddToResult.getSelection());
-    xmlOutputMeta.setZipped(wZipped.getSelection());
-    xmlOutputMeta.setOmitNullValues(wOmitNullValues.getSelection());
+    xmlOutputMeta.getFileDetails().setTransformNrInFilename(wAddTransformnr.getSelection());
+    xmlOutputMeta.getFileDetails().setDateInFilename(wAddDate.getSelection());
+    xmlOutputMeta.getFileDetails().setTimeInFilename(wAddTime.getSelection());
+    xmlOutputMeta.getFileDetails().setAddToResultFilenames(wAddToResult.getSelection());
+    xmlOutputMeta.getFileDetails().setZipped(wZipped.getSelection());
+    xmlOutputMeta.getFileDetails().setOmitNullValues(wOmitNullValues.getSelection());
 
-    int nrFields = wFields.nrNonEmpty();
-
-    xmlOutputMeta.allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
+    xmlOutputMeta.getOutputFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
       XmlField field = new XmlField();
+      xmlOutputMeta.getOutputFields().add(field);
 
-      TableItem item = wFields.getNonEmpty(i);
       int index = 1;
       field.setFieldName(item.getText(index++));
       field.setElementName(item.getText(index++));
@@ -932,7 +865,7 @@ public class XmlOutputDialog extends BaseTransformDialog {
         field.setElementName("");
       }
       field.setContentType(XmlField.ContentType.getIfPresent(item.getText(index++)));
-      field.setType(item.getText(index++));
+      field.setTypeWithDescription(item.getText(index++));
       field.setFormat(item.getText(index++));
       field.setLength(Const.toInt(item.getText(index++), -1));
       field.setPrecision(Const.toInt(item.getText(index++), -1));
@@ -940,8 +873,6 @@ public class XmlOutputDialog extends BaseTransformDialog {
       field.setDecimalSymbol(item.getText(index++));
       field.setGroupingSymbol(item.getText(index++));
       field.setNullString(item.getText(index++));
-
-      xmlOutputMeta.getOutputFields()[i] = field;
     }
   }
 
@@ -972,17 +903,13 @@ public class XmlOutputDialog extends BaseTransformDialog {
                   pr = 0;
                 }
 
-                String mask = " ";
-                for (int m = 0; m < le - pr; m++) {
-                  mask += "0";
-                }
+                StringBuilder mask = new StringBuilder(" ");
+                mask.append("0".repeat(Math.max(0, le - pr)));
                 if (pr > 0) {
-                  mask += ".";
+                  mask.append(".");
                 }
-                for (int m = 0; m < pr; m++) {
-                  mask += "0";
-                }
-                tableItem.setText(4, mask);
+                mask.append("0".repeat(Math.max(0, pr)));
+                tableItem.setText(4, mask.toString());
               }
               return true;
             };
@@ -1031,6 +958,6 @@ public class XmlOutputDialog extends BaseTransformDialog {
     // Something was changed in the row.
     //
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
-    colinf[0].setComboValues(fieldNames);
+    columnInfos[0].setComboValues(fieldNames);
   }
 }

@@ -17,61 +17,27 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class XsdValidatorMetaTest {
-
   @Test
-  void testRoundTrip() {
-    List<String> attributes =
-        Arrays.asList(
-            "xdsfilename",
-            "xmlstream",
-            "resultfieldname",
-            "addvalidationmsg",
-            "validationmsgfield",
-            "ifxmlunvalid",
-            "ifxmlvalid",
-            "outputstringfield",
-            "xmlsourcefile",
-            "xsddefinedfield",
-            "xsdsource");
+  void testSerializationRoundTrip() throws Exception {
+    XsdValidatorMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/xsd-validator.xml", XsdValidatorMeta.class);
 
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("xdsfilename", "getXSDFilename");
-    getterMap.put("xmlstream", "getXMLStream");
-    getterMap.put("resultfieldname", "getResultfieldname");
-    getterMap.put("addvalidationmsg", "useAddValidationMessage");
-    getterMap.put("validationmsgfield", "getValidationMessageField");
-    getterMap.put("ifxmlunvalid", "getIfXmlInvalid");
-    getterMap.put("ifxmlvalid", "getIfXmlValid");
-    getterMap.put("outputstringfield", "getOutputStringField");
-    getterMap.put("xmlsourcefile", "getXMLSourceFile");
-    getterMap.put("xsddefinedfield", "getXSDDefinedField");
-    getterMap.put("xsdsource", "getXSDSource");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("xdsfilename", "setXSDfilename");
-    setterMap.put("xmlstream", "setXMLStream");
-    setterMap.put("resultfieldname", "setResultfieldname");
-    setterMap.put("addvalidationmsg", "setAddValidationMessage");
-    setterMap.put("validationmsgfield", "setValidationMessageField");
-    setterMap.put("ifxmlunvalid", "setIfXmlInvalid");
-    setterMap.put("ifxmlvalid", "setIfXMLValid");
-    setterMap.put("outputstringfield", "setOutputStringField");
-    setterMap.put("xmlsourcefile", "setXMLSourceFile");
-    setterMap.put("xsddefinedfield", "setXSDDefinedField");
-    setterMap.put("xsdsource", "setXSDSource");
-
-    //    TransformLoadSaveTester loadSaveTester =
-    //        new TransformLoadSaveTester( XsdValidatorMeta.class, attributes, getterMap, setterMap,
-    //            new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String,
-    // IFieldLoadSaveValidator<?>>() );
-    //
-    //    loadSaveTester.testXmlRoundTrip();
+    Assertions.assertEquals("xsd-filename", meta.getXsdFilename());
+    Assertions.assertEquals("xml-field", meta.getXmlStream());
+    Assertions.assertEquals("result", meta.getResultFieldName());
+    Assertions.assertTrue(meta.isAddValidationMessage());
+    Assertions.assertEquals("ValidationMsgField", meta.getValidationMessageField());
+    Assertions.assertEquals("invalid-field", meta.getIfXmlInvalid());
+    Assertions.assertTrue(meta.isOutputStringField());
+    Assertions.assertTrue(meta.isXmlSourceFile());
+    Assertions.assertEquals("xsd-defined-field", meta.getXsdDefinedField());
+    Assertions.assertEquals("filename", meta.getXsdSource());
+    Assertions.assertTrue(meta.isAllowExternalEntities());
   }
 }

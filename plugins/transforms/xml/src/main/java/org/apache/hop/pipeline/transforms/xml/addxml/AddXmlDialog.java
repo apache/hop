@@ -81,7 +81,7 @@ public class AddXmlDialog extends BaseTransformDialog {
 
   private boolean gotEncodings = false;
 
-  private ColumnInfo[] colinf;
+  private ColumnInfo[] columnInfos;
 
   private final Map<String, Integer> inputFields;
 
@@ -273,9 +273,7 @@ public class AddXmlDialog extends BaseTransformDialog {
 
     setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
-    final int FieldsRows = input.getOutputFields().length;
-
-    colinf =
+    columnInfos =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "AddXMLDialog.Fieldname.Column"),
@@ -336,8 +334,8 @@ public class AddXmlDialog extends BaseTransformDialog {
             variables,
             wFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columnInfos,
+            1,
             lsMod,
             props);
 
@@ -350,25 +348,7 @@ public class AddXmlDialog extends BaseTransformDialog {
 
     //
     // Search the fields in the background
-
-    final Runnable runnable =
-        () -> {
-          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-          if (transformMeta != null) {
-            try {
-              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
-              }
-              setComboBoxes();
-            } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-            }
-          }
-        };
-    new Thread(runnable).start();
+    new Thread(this::getPreviousFields).start();
 
     FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);
@@ -388,7 +368,7 @@ public class AddXmlDialog extends BaseTransformDialog {
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Add listeners
-    wGet.addListener(SWT.Selection, e -> get());
+    wGet.addListener(SWT.Selection, e -> getFields());
     wMinWidth.addListener(SWT.Selection, e -> setMinimalWidth());
 
     lsResize =
@@ -410,6 +390,23 @@ public class AddXmlDialog extends BaseTransformDialog {
     return transformName;
   }
 
+  private void getPreviousFields() {
+    TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+    if (transformMeta != null) {
+      try {
+        IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+        // Remember these fields...
+        for (int i = 0; i < row.size(); i++) {
+          inputFields.put(row.getValueMeta(i).getName(), i);
+        }
+        setComboBoxes();
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+      }
+    }
+  }
+
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
@@ -424,7 +421,7 @@ public class AddXmlDialog extends BaseTransformDialog {
     String[] fieldNames = entries.toArray(new String[entries.size()]);
 
     Const.sortStrings(fieldNames);
-    colinf[0].setComboValues(fieldNames);
+    columnInfos[0].setComboValues(fieldNames);
   }
 
   private void setEncodings() {
@@ -461,88 +458,60 @@ public class AddXmlDialog extends BaseTransformDialog {
       wRepeatElement.setText(input.getRootNode());
     }
 
-    wOmitXMLHeader.setSelection(input.isOmitXMLheader());
-    wOmitNullValues.setSelection(input.isOmitNullValues());
+    wOmitXMLHeader.setSelection(input.getOmitDetails().isOmittingXmlHeader());
+    wOmitNullValues.setSelection(input.getOmitDetails().isOmittingNullValues());
 
     logDebug(BaseMessages.getString(PKG, "AddXMLDialog.Log.GettingFieldsInfo"));
 
-    for (int i = 0; i < input.getOutputFields().length; i++) {
-      XmlField field = input.getOutputFields()[i];
-
-      TableItem item = wFields.table.getItem(i);
-      if (field.getFieldName() != null) {
-        item.setText(1, field.getFieldName());
-      }
-      if (field.getElementName() != null) {
-        item.setText(2, field.getElementName());
-      }
-      item.setText(3, field.getTypeDesc());
-      if (field.getFormat() != null) {
-        item.setText(4, field.getFormat());
-      }
-      if (field.getLength() >= 0) {
-        item.setText(5, "" + field.getLength());
-      }
+    for (XmlField field : input.getOutputFields()) {
+      TableItem item = new TableItem(wFields.table, SWT.NONE);
+      item.setText(1, Const.NVL(field.getFieldName(), ""));
+      item.setText(2, Const.NVL(field.getElementName(), ""));
+      item.setText(3, Const.NVL(field.getTypeDesc(), ""));
+      item.setText(4, Const.NVL(field.getFormat(), ""));
+      item.setText(5, "" + field.getLength());
       if (field.getPrecision() >= 0) {
         item.setText(6, "" + field.getPrecision());
       }
-      if (field.getCurrencySymbol() != null) {
-        item.setText(7, field.getCurrencySymbol());
-      }
-      if (field.getDecimalSymbol() != null) {
-        item.setText(8, field.getDecimalSymbol());
-      }
-      if (field.getGroupingSymbol() != null) {
-        item.setText(9, field.getGroupingSymbol());
-      }
-      if (field.getNullString() != null) {
-        item.setText(10, field.getNullString());
-      }
+      item.setText(7, Const.NVL(field.getCurrencySymbol(), ""));
+      item.setText(8, Const.NVL(field.getDecimalSymbol(), ""));
+      item.setText(9, Const.NVL(field.getGroupingSymbol(), ""));
+      item.setText(10, Const.NVL(field.getNullString(), ""));
       item.setText(
           11,
           field.isAttribute()
               ? BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES)
               : BaseMessages.getString(PKG, "System.Combo.No"));
-      if (field.getAttributeParentName() != null) {
-        item.setText(12, field.getAttributeParentName());
-      }
+      item.setText(12, Const.NVL(field.getAttributeParentName(), ""));
     }
-
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
   }
 
   private void cancel() {
     transformName = null;
-
     input.setChanged(backupChanged);
-
     dispose();
   }
 
-  private void getInfo(AddXmlMeta tfoi) {
-    tfoi.setEncoding(wEncoding.getText());
-    tfoi.setValueName(wOutputValue.getText());
-    tfoi.setRootNode(wRepeatElement.getText());
+  private void getInfo(AddXmlMeta meta) {
+    meta.setEncoding(wEncoding.getText());
+    meta.setValueName(wOutputValue.getText());
+    meta.setRootNode(wRepeatElement.getText());
 
-    tfoi.setOmitXMLheader(wOmitXMLHeader.getSelection());
-    tfoi.setOmitNullValues(wOmitNullValues.getSelection());
+    meta.getOmitDetails().setOmittingXmlHeader(wOmitXMLHeader.getSelection());
+    meta.getOmitDetails().setOmittingNullValues(wOmitNullValues.getSelection());
 
-    int nrFields = wFields.nrNonEmpty();
-
-    tfoi.allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
+    meta.getOutputFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
       XmlField field = new XmlField();
+      meta.getOutputFields().add(field);
 
-      TableItem item = wFields.getNonEmpty(i);
       field.setFieldName(item.getText(1));
       field.setElementName(item.getText(2));
-
       if (field.getFieldName().equals(field.getElementName())) {
         field.setElementName("");
       }
-
-      field.setType(item.getText(3));
+      field.setTypeWithDescription(item.getText(3));
       field.setFormat(item.getText(4));
       field.setLength(Const.toInt(item.getText(5), -1));
       field.setPrecision(Const.toInt(item.getText(6), -1));
@@ -553,8 +522,6 @@ public class AddXmlDialog extends BaseTransformDialog {
       field.setAttribute(
           BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_YES).equals(item.getText(11)));
       field.setAttributeParentName(item.getText(12));
-
-      tfoi.getOutputFields()[i] = field;
     }
   }
 
@@ -570,7 +537,7 @@ public class AddXmlDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void get() {
+  private void getFields() {
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null) {

@@ -1,0 +1,105 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "encoding",
+          "data_set_field": "encoding"
+        },
+        {
+          "transform_field": "omitNullValues",
+          "data_set_field": "omitNullValues"
+        },
+        {
+          "transform_field": "omitXMLheader",
+          "data_set_field": "omitXMLheader"
+        },
+        {
+          "transform_field": "valueName",
+          "data_set_field": "valueName"
+        },
+        {
+          "transform_field": "xml_repeat_element",
+          "data_set_field": "xml_repeat_element"
+        }
+      ],
+      "field_order": [
+        "encoding",
+        "omitNullValues",
+        "omitXMLheader",
+        "valueName",
+        "xml_repeat_element"
+      ],
+      "data_set_name": "golden-add-xml",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "attribute",
+          "data_set_field": "attribute"
+        },
+        {
+          "transform_field": "attributeParentName",
+          "data_set_field": "attributeParentName"
+        },
+        {
+          "transform_field": "currency",
+          "data_set_field": "currency"
+        },
+        {
+          "transform_field": "decimal",
+          "data_set_field": "decimal"
+        },
+        {
+          "transform_field": "element",
+          "data_set_field": "element"
+        },
+        {
+          "transform_field": "format",
+          "data_set_field": "format"
+        },
+        {
+          "transform_field": "group",
+          "data_set_field": "group"
+        },
+        {
+          "transform_field": "length",
+          "data_set_field": "length"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "nullif",
+          "data_set_field": "nullif"
+        },
+        {
+          "transform_field": "precision",
+          "data_set_field": "precision"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-add-xml-fields",
+      "transform_name": "validate 2"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0052-add-xml-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0052-add-xml-validate.hpl"
+}

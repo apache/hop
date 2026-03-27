@@ -17,29 +17,25 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 /** This class knows how to handle the MetaData for the XML output transform */
 @Transform(
@@ -50,172 +46,95 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n::AddXML.category",
     keywords = "i18n::AddXmlMeta.keyword",
     documentationUrl = "/pipeline/transforms/addxml.html")
-@InjectionSupported(
-    localizationPrefix = "AddXMLMeta.Injection.",
-    groups = {"OUTPUT_FIELDS"})
+@Getter
+@Setter
 public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
   private static final Class<?> PKG = AddXmlMeta.class;
   public static final String CONST_FIELD = "field";
   public static final String CONST_SPACES = "        ";
 
   /** The base name of the output file */
+  @Getter
+  @Setter
+  public static class OmitDetails {
+    /** Flag: omit the XML Header */
+    @HopMetadataProperty(
+        key = "omitXMLheader",
+        injectionKey = "OMIT_XML_HEADER",
+        injectionKeyDescription = "AddXMLMeta.Injection.OMIT_XML_HEADER")
+    private boolean omittingXmlHeader;
 
-  /** Flag: ommit the XML Header */
-  @Injection(name = "OMIT_XML_HEADER")
-  private boolean omitXMLheader;
+    /** Flag: omit null elements from the xml result */
+    @HopMetadataProperty(
+        key = "omitNullValues",
+        injectionKey = "OMIT_NULL_VALUES",
+        injectionKeyDescription = "AddXMLMeta.Injection.OMIT_NULL_VALUES")
+    private boolean omittingNullValues;
 
-  /** Flag: omit null elements from the xml result */
-  @Injection(name = "OMIT_NULL_VALUES")
-  private boolean omitNullValues;
+    public OmitDetails() {
+      omittingXmlHeader = true;
+    }
+
+    public OmitDetails(OmitDetails o) {
+      this();
+      this.omittingNullValues = o.omittingNullValues;
+      this.omittingXmlHeader = o.omittingXmlHeader;
+    }
+  }
+
+  @HopMetadataProperty(key = "file")
+  private OmitDetails omitDetails;
 
   /** The encoding to use for reading: null or empty string means system default encoding */
-  @Injection(name = "ENCODING")
+  @HopMetadataProperty(
+      key = "encoding",
+      injectionKey = "ENCODING",
+      injectionKeyDescription = "AddXMLMeta.Injection.ENCODING")
   private String encoding;
 
   /** The name value containing the resulting XML fragment */
-  @Injection(name = "VALUE_NAME")
+  @HopMetadataProperty(
+      key = "valueName",
+      injectionKey = "VALUE_NAME",
+      injectionKeyDescription = "AddXMLMeta.Injection.VALUE_NAME")
   private String valueName;
 
   /** The name of the repeating row XML element */
-  @Injection(name = "ROOT_NODE")
+  @HopMetadataProperty(
+      key = "xml_repeat_element",
+      injectionKey = "ROOT_NODE",
+      injectionKeyDescription = "AddXMLMeta.Injection.ROOT_NODE")
   private String rootNode;
 
-  /* THE FIELD SPECIFICATIONS ... */
-
   /** The output fields */
-  @InjectionDeep private XmlField[] outputFields;
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupKey = "OUTPUT_FIELDS",
+      injectionGroupDescription = "AddXMLMeta.Injection.OUTPUT_FIELDS")
+  private List<XmlField> outputFields;
 
   public AddXmlMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    encoding = Const.XML_ENCODING;
+    valueName = "xmlvaluename";
+    rootNode = "Row";
+    omitDetails = new OmitDetails();
+    outputFields = new ArrayList<>();
   }
 
-  /**
-   * @return Returns the zipped.
-   */
-  public boolean isOmitXMLheader() {
-    return omitXMLheader;
-  }
-
-  /**
-   * @param omitXMLheader The omit XML header flag to set.
-   */
-  public void setOmitXMLheader(boolean omitXMLheader) {
-    this.omitXMLheader = omitXMLheader;
-  }
-
-  public void setOmitNullValues(boolean omitNullValues) {
-
-    this.omitNullValues = omitNullValues;
-  }
-
-  public boolean isOmitNullValues() {
-
-    return omitNullValues;
-  }
-
-  /**
-   * @return Returns the outputFields.
-   */
-  public XmlField[] getOutputFields() {
-    return outputFields;
-  }
-
-  /**
-   * @param outputFields The outputFields to set.
-   */
-  public void setOutputFields(XmlField[] outputFields) {
-    this.outputFields = outputFields;
-  }
-
-  public void allocate(int nrFields) {
-    outputFields = new XmlField[nrFields];
+  public AddXmlMeta(AddXmlMeta m) {
+    this();
+    this.encoding = m.encoding;
+    this.omitDetails = new OmitDetails(m.omitDetails);
+    this.rootNode = m.rootNode;
+    this.valueName = m.valueName;
+    m.outputFields.forEach(f -> outputFields.add(new XmlField(f)));
   }
 
   @Override
   public Object clone() {
-    AddXmlMeta retval = (AddXmlMeta) super.clone();
-    int nrFields = outputFields.length;
-
-    retval.allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      retval.outputFields[i] = (XmlField) outputFields[i].clone();
-    }
-
-    return retval;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      encoding = XmlHandler.getTagValue(transformNode, "encoding");
-      valueName = XmlHandler.getTagValue(transformNode, "valueName");
-      rootNode = XmlHandler.getTagValue(transformNode, "xml_repeat_element");
-
-      omitXMLheader =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "omitXMLheader"));
-      omitNullValues =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "omitNullValues"));
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-
-        outputFields[i] = new XmlField();
-        outputFields[i].setFieldName(XmlHandler.getTagValue(fnode, "name"));
-        outputFields[i].setElementName(XmlHandler.getTagValue(fnode, "element"));
-        outputFields[i].setType(XmlHandler.getTagValue(fnode, "type"));
-        outputFields[i].setFormat(XmlHandler.getTagValue(fnode, "format"));
-        outputFields[i].setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
-        outputFields[i].setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
-        outputFields[i].setGroupingSymbol(XmlHandler.getTagValue(fnode, "group"));
-        outputFields[i].setNullString(XmlHandler.getTagValue(fnode, "nullif"));
-        outputFields[i].setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-        outputFields[i].setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-        outputFields[i].setAttribute(
-            "Y".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "attribute")));
-        outputFields[i].setAttributeParentName(
-            XmlHandler.getTagValue(fnode, "attributeParentName"));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    omitXMLheader = true;
-    omitNullValues = false;
-    encoding = Const.XML_ENCODING;
-
-    valueName = "xmlvaluename";
-    rootNode = "Row";
-
-    int nrFields = 0;
-
-    allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      outputFields[i] = new XmlField();
-
-      outputFields[i].setFieldName(CONST_FIELD + i);
-      outputFields[i].setElementName(CONST_FIELD + i);
-      outputFields[i].setType("Number");
-      outputFields[i].setFormat(" 0,000,000.00;-0,000,000.00");
-      outputFields[i].setCurrencySymbol("");
-      outputFields[i].setDecimalSymbol(",");
-      outputFields[i].setGroupingSymbol(".");
-      outputFields[i].setNullString("");
-      outputFields[i].setLength(-1);
-      outputFields[i].setPrecision(-1);
-      outputFields[i].setAttribute(false);
-      outputFields[i].setElementName(CONST_FIELD + i);
-    }
+    return new AddXmlMeta(this);
   }
 
   @Override
@@ -231,45 +150,6 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     IValueMeta v = new ValueMetaString(this.getValueName());
     v.setOrigin(name);
     row.addValueMeta(v);
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuffer xml = new StringBuffer(500);
-
-    xml.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
-    xml.append("    ").append(XmlHandler.addTagValue("valueName", valueName));
-    xml.append("    ").append(XmlHandler.addTagValue("xml_repeat_element", rootNode));
-
-    xml.append("    <file>").append(Const.CR);
-    xml.append("      ").append(XmlHandler.addTagValue("omitXMLheader", omitXMLheader));
-    xml.append("      ").append(XmlHandler.addTagValue("omitNullValues", omitNullValues));
-    xml.append("    </file>").append(Const.CR);
-    xml.append("    <fields>").append(Const.CR);
-    for (XmlField field : outputFields) {
-      if (!Utils.isEmpty(field.getFieldName())) {
-        xml.append("      <field>").append(Const.CR);
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("name", field.getFieldName()));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("element", field.getElementName()));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("type", field.getTypeDesc()));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("format", field.getFormat()));
-        xml.append(CONST_SPACES)
-            .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
-        xml.append(CONST_SPACES)
-            .append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("group", field.getGroupingSymbol()));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("nullif", field.getNullString()));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("length", field.getLength()));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", field.getPrecision()));
-        xml.append(CONST_SPACES).append(XmlHandler.addTagValue("attribute", field.isAttribute()));
-        xml.append(CONST_SPACES)
-            .append(XmlHandler.addTagValue("attributeParentName", field.getAttributeParentName()));
-        xml.append("        </field>").append(Const.CR);
-      }
-    }
-    xml.append("    </fields>" + Const.CR);
-
-    return xml.toString();
   }
 
   @Override
@@ -345,35 +225,5 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
             BaseMessages.getString(PKG, "AddXMLMeta.CheckResult.FilesNotChecked"),
             transformMeta);
     remarks.add(cr);
-  }
-
-  public String getEncoding() {
-    return encoding;
-  }
-
-  public void setEncoding(String encoding) {
-    this.encoding = encoding;
-  }
-
-  /**
-   * @return Returns the rootNode.
-   */
-  public String getRootNode() {
-    return rootNode;
-  }
-
-  /**
-   * @param rootNode The root node to set.
-   */
-  public void setRootNode(String rootNode) {
-    this.rootNode = rootNode;
-  }
-
-  public String getValueName() {
-    return valueName;
-  }
-
-  public void setValueName(String valueName) {
-    this.valueName = valueName;
   }
 }

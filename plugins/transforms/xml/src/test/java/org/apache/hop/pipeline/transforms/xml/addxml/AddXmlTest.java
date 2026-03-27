@@ -23,6 +23,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -52,7 +54,10 @@ class AddXmlTest {
         .create(any(), any(ILoggingObject.class));
 
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
-    when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(new XmlField[] {field});
+    when(transformMockHelper.iTransformMeta.getOutputFields())
+        .thenReturn(new ArrayList<>(List.of(field)));
+    when(transformMockHelper.iTransformMeta.getOmitDetails())
+        .thenReturn(new AddXmlMeta.OmitDetails());
     when(transformMockHelper.iTransformMeta.getRootNode()).thenReturn("ADDXML_TEST");
   }
 

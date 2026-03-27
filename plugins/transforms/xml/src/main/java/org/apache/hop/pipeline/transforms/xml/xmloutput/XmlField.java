@@ -18,12 +18,16 @@
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
 import com.google.common.base.Enums;
-import org.apache.hop.core.injection.Injection;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.value.ValueMetaBase;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in an XML output file */
+@Getter
+@Setter
 public class XmlField implements Cloneable {
-
   @SuppressWarnings("java:S115")
   public enum ContentType {
     Element,
@@ -34,7 +38,7 @@ public class XmlField implements Cloneable {
      * the GUI side if a user leaves the field empty, it will enforce a default value. This allows
      * the object to be saved, loaded, and cloned as necessary.
      *
-     * @param contentType
+     * @param contentType The content type name
      * @return ContentType
      */
     public static ContentType getIfPresent(String contentType) {
@@ -42,36 +46,71 @@ public class XmlField implements Cloneable {
     }
   }
 
-  @Injection(name = "OUTPUT_FIELDNAME", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "OUTPUT_FIELDNAME",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_FIELDNAME")
   private String fieldName;
 
-  @Injection(name = "OUTPUT_ELEMENTNAME", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "element",
+      injectionKey = "OUTPUT_ELEMENTNAME",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_ELEMENTNAME")
   private String elementName;
 
+  @HopMetadataProperty(
+      key = "type",
+      intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class,
+      injectionKey = "OUTPUT_TYPE",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_TYPE")
   private int type;
 
-  @Injection(name = "OUTPUT_FORMAT", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "format",
+      injectionKey = "OUTPUT_FORMAT",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_FORMAT")
   private String format;
 
-  @Injection(name = "OUTPUT_LENGTH", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "OUTPUT_LENGTH",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_LENGTH")
   private int length;
 
-  @Injection(name = "OUTPUT_PRECISION", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "precision",
+      injectionKey = "OUTPUT_PRECISION",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_PRECISION")
   private int precision;
 
-  @Injection(name = "OUTPUT_CURRENCY", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKey = "OUTPUT_CURRENCY",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_CURRENCY")
   private String currencySymbol;
 
-  @Injection(name = "OUTPUT_DECIMAL", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKey = "OUTPUT_DECIMAL",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_DECIMAL")
   private String decimalSymbol;
 
-  @Injection(name = "OUTPUT_GROUP", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "group",
+      injectionKey = "OUTPUT_GROUP",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_GROUP")
   private String groupingSymbol;
 
-  @Injection(name = "OUTPUT_NULL", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "nullif",
+      injectionKey = "OUTPUT_NULL",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_NULL")
   private String nullString;
 
-  @Injection(name = "OUTPUT_CONTENT_TYPE", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "content_type",
+      injectionKey = "OUTPUT_CONTENT_TYPE",
+      injectionKeyDescription = "XMLOutput.Injection.OUTPUT_CONTENT_TYPE")
   private ContentType contentType;
 
   public XmlField(
@@ -79,162 +118,67 @@ public class XmlField implements Cloneable {
       String fieldName,
       String elementName,
       int type,
-      String format,
       int length,
-      int precision,
-      String currencySymbol,
-      String decimalSymbol,
-      String groupSymbol,
-      String nullString) {
+      int precision) {
+    this();
     this.contentType = contentType;
     this.fieldName = fieldName;
     this.elementName = elementName;
     this.type = type;
-    this.format = format;
     this.length = length;
     this.precision = precision;
-    this.currencySymbol = currencySymbol;
-    this.decimalSymbol = decimalSymbol;
-    this.groupingSymbol = groupSymbol;
-    this.nullString = nullString;
   }
 
   public XmlField() {
     contentType = ContentType.Element;
   }
 
-  public int compare(Object obj) {
-    XmlField field = (XmlField) obj;
-
-    return fieldName.compareTo(field.getFieldName());
-  }
-
-  public boolean equal(Object obj) {
-    XmlField field = (XmlField) obj;
-
-    return fieldName.equals(field.getFieldName());
+  public XmlField(XmlField f) {
+    this.contentType = f.contentType;
+    this.currencySymbol = f.currencySymbol;
+    this.decimalSymbol = f.decimalSymbol;
+    this.elementName = f.elementName;
+    this.fieldName = f.fieldName;
+    this.format = f.format;
+    this.groupingSymbol = f.groupingSymbol;
+    this.length = f.length;
+    this.nullString = f.nullString;
+    this.precision = f.precision;
+    this.type = f.type;
   }
 
   @Override
   public Object clone() {
-    try {
-      Object retval = super.clone();
-      return retval;
-    } catch (CloneNotSupportedException e) {
-      return null;
+    return new XmlField(this);
+  }
+
+  public int compare(Object obj) {
+    XmlField field = (XmlField) obj;
+    return fieldName.compareTo(field.getFieldName());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof XmlField xmlField)) {
+      return false;
     }
+    return Objects.equals(fieldName, xmlField.fieldName);
   }
 
-  public int getLength() {
-    return length;
-  }
-
-  public void setLength(int length) {
-    this.length = length;
-  }
-
-  public String getFieldName() {
-    return fieldName;
-  }
-
-  public void setFieldName(String fieldname) {
-    this.fieldName = fieldname;
-  }
-
-  public int getType() {
-    return type;
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(fieldName);
   }
 
   public String getTypeDesc() {
     return ValueMetaBase.getTypeDesc(type);
   }
 
-  public void setType(int type) {
-    this.type = type;
-  }
-
-  @Injection(name = "OUTPUT_TYPE", group = "OUTPUT_FIELDS")
-  public void setType(String typeDesc) {
+  public void setTypeWithDescription(String typeDesc) {
     this.type = ValueMetaBase.getType(typeDesc);
-  }
-
-  public String getFormat() {
-    return format;
-  }
-
-  public void setFormat(String format) {
-    this.format = format;
-  }
-
-  public String getGroupingSymbol() {
-    return groupingSymbol;
-  }
-
-  public void setGroupingSymbol(String groupSymbol) {
-    this.groupingSymbol = groupSymbol;
-  }
-
-  public String getDecimalSymbol() {
-    return decimalSymbol;
-  }
-
-  public void setDecimalSymbol(String decimalSymbol) {
-    this.decimalSymbol = decimalSymbol;
-  }
-
-  public String getCurrencySymbol() {
-    return currencySymbol;
-  }
-
-  public void setCurrencySymbol(String currencySymbol) {
-    this.currencySymbol = currencySymbol;
-  }
-
-  public int getPrecision() {
-    return precision;
-  }
-
-  public void setPrecision(int precision) {
-    this.precision = precision;
-  }
-
-  public String getNullString() {
-    return nullString;
-  }
-
-  public void setNullString(String nullString) {
-    this.nullString = nullString;
   }
 
   public String toString() {
     return fieldName + ":" + getTypeDesc() + ":" + elementName;
-  }
-
-  /**
-   * @return Returns the elementName.
-   */
-  public String getElementName() {
-    return elementName;
-  }
-
-  /**
-   * @param elementName The elementName to set.
-   */
-  public void setElementName(String elementName) {
-    this.elementName = elementName;
-  }
-
-  /**
-   * @return the contentType
-   */
-  public ContentType getContentType() {
-    return contentType;
-  }
-
-  /**
-   * @param contentType the contentType to set
-   */
-  public void setContentType(ContentType contentType) {
-    this.contentType = contentType;
   }
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<transform>
+    <sourceFromInput>Y</sourceFromInput>
+    <sourceFieldName>sourceFieldName</sourceFieldName>
+    <filename>filename.xml</filename>
+    <addResultFile>Y</addResultFile>
+    <nrRowsToSkip>123</nrRowsToSkip>
+    <rowLimit>456</rowLimit>
+    <defaultStringLen>2048</defaultStringLen>
+    <encoding>UTF-8</encoding>
+    <enableNamespaces>Y</enableNamespaces>
+    <enableTrim>Y</enableTrim>
+    <includeFilenameField>Y</includeFilenameField>
+    <filenameField>xml_filename</filenameField>
+    <includeRowNumberField>Y</includeRowNumberField>
+    <rowNumberField>xml_row_number</rowNumberField>
+    <includeDataTypeNumericField>Y</includeDataTypeNumericField>
+    <dataTypeNumericField>xml_data_type_numeric</dataTypeNumericField>
+    <includeDataTypeDescriptionField>Y</includeDataTypeDescriptionField>
+    <dataTypeDescriptionField>xml_data_type_description</dataTypeDescriptionField>
+    <includeXmlLocationLineField>Y</includeXmlLocationLineField>
+    <xmlLocationLineField>xml_location_line</xmlLocationLineField>
+    <includeXmlLocationColumnField>Y</includeXmlLocationColumnField>
+    <xmlLocationColumnField>xml_location_column</xmlLocationColumnField>
+    <includeXmlElementIDField>Y</includeXmlElementIDField>
+    <xmlElementIDField>xml_element_id</xmlElementIDField>
+    <includeXmlParentElementIDField>Y</includeXmlParentElementIDField>
+    <xmlParentElementIDField>xml_parent_element_id</xmlParentElementIDField>
+    <includeXmlElementLevelField>Y</includeXmlElementLevelField>
+    <xmlElementLevelField>xml_element_level</xmlElementLevelField>
+    <includeXmlPathField>Y</includeXmlPathField>
+    <xmlPathField>xml_path</xmlPathField>
+    <includeXmlParentPathField>Y</includeXmlParentPathField>
+    <xmlParentPathField>xml_parent_path</xmlParentPathField>
+    <includeXmlDataNameField>Y</includeXmlDataNameField>
+    <xmlDataNameField>xml_data_name</xmlDataNameField>
+    <includeXmlDataValueField>Y</includeXmlDataValueField>
+    <xmlDataValueField>xml_data_value</xmlDataValueField>
+</transform>
+

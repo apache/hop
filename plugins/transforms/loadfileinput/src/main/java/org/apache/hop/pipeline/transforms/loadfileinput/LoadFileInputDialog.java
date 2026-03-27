@@ -1236,19 +1236,11 @@ public class LoadFileInputDialog extends BaseTransformDialog {
   }
 
   private void ok() {
-    try {
-      getInfo(input);
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "LoadFileInputDialog.ErrorParsingData.DialogTitle"),
-          BaseMessages.getString(PKG, "LoadFileInputDialog.ErrorParsingData.DialogMessage"),
-          e);
-    }
+    getInfo(input);
     dispose();
   }
 
-  private void getInfo(LoadFileInputMeta in) throws HopException {
+  private void getInfo(LoadFileInputMeta in) {
     transformName = wTransformName.getText(); // return value
 
     // copy info to TextFileInputMeta class (input)
@@ -1265,6 +1257,18 @@ public class LoadFileInputDialog extends BaseTransformDialog {
 
     in.setFileInField(wFilenameInField.getSelection());
     in.setDynamicFilenameField(wFilenameField.getText());
+
+    in.getInputFiles().clear();
+    for (TableItem item : wFilenameList.getNonEmptyItems()) {
+      InputFile file = new InputFile();
+      in.getInputFiles().add(file);
+
+      file.setFileName(item.getText(1));
+      file.setFileMask(item.getText(2));
+      file.setExcludeFileMask(item.getText(3));
+      file.setFileRequired(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(4)));
+      file.setIncludeSubFolders(YES_NO_COMBO[1].equalsIgnoreCase(item.getText(5)));
+    }
 
     in.getInputFields().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {
@@ -1295,68 +1299,60 @@ public class LoadFileInputDialog extends BaseTransformDialog {
 
   // Preview the data
   private void preview() {
-    try {
-      // Create the XML input transform
-      LoadFileInputMeta oneMeta = new LoadFileInputMeta();
-      getInfo(oneMeta);
+    // Create the XML input transform
+    LoadFileInputMeta oneMeta = new LoadFileInputMeta();
+    getInfo(oneMeta);
 
-      EnterNumberDialog numberDialog =
-          new EnterNumberDialog(
+    EnterNumberDialog numberDialog =
+        new EnterNumberDialog(
+            shell,
+            props.getDefaultPreviewSize(),
+            BaseMessages.getString(PKG, "LoadFileInputDialog.NumberRows.DialogTitle"),
+            BaseMessages.getString(PKG, "LoadFileInputDialog.NumberRows.DialogMessage"));
+
+    int previewSize = numberDialog.open();
+    if (previewSize > 0) {
+      oneMeta.setRowLimit(previewSize);
+      PipelineMeta previewMeta =
+          PipelinePreviewFactory.generatePreviewPipeline(
+              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
+      PipelinePreviewProgressDialog progressDialog =
+          new PipelinePreviewProgressDialog(
               shell,
-              props.getDefaultPreviewSize(),
-              BaseMessages.getString(PKG, "LoadFileInputDialog.NumberRows.DialogTitle"),
-              BaseMessages.getString(PKG, "LoadFileInputDialog.NumberRows.DialogMessage"));
+              variables,
+              previewMeta,
+              new String[] {wTransformName.getText()},
+              new int[] {previewSize});
+      progressDialog.open();
 
-      int previewSize = numberDialog.open();
-      if (previewSize > 0) {
-        oneMeta.setRowLimit(previewSize);
-        PipelineMeta previewMeta =
-            PipelinePreviewFactory.generatePreviewPipeline(
-                pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+      if (!progressDialog.isCancelled()) {
+        Pipeline pipeline = progressDialog.getPipeline();
+        String loggingText = progressDialog.getLoggingText();
 
-        PipelinePreviewProgressDialog progressDialog =
-            new PipelinePreviewProgressDialog(
+        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
+          EnterTextDialog etd =
+              new EnterTextDialog(
+                  shell,
+                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                  loggingText,
+                  true);
+          etd.setReadOnly();
+          etd.open();
+        }
+
+        PreviewRowsDialog prd =
+            new PreviewRowsDialog(
                 shell,
                 variables,
-                previewMeta,
-                new String[] {wTransformName.getText()},
-                new int[] {previewSize});
-        progressDialog.open();
-
-        if (!progressDialog.isCancelled()) {
-          Pipeline pipeline = progressDialog.getPipeline();
-          String loggingText = progressDialog.getLoggingText();
-
-          if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-            EnterTextDialog etd =
-                new EnterTextDialog(
-                    shell,
-                    BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                    BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                    loggingText,
-                    true);
-            etd.setReadOnly();
-            etd.open();
-          }
-
-          PreviewRowsDialog prd =
-              new PreviewRowsDialog(
-                  shell,
-                  variables,
-                  SWT.NONE,
-                  wTransformName.getText(),
-                  progressDialog.getPreviewRowsMeta(wTransformName.getText()),
-                  progressDialog.getPreviewRows(wTransformName.getText()),
-                  loggingText);
-          prd.open();
-        }
+                SWT.NONE,
+                wTransformName.getText(),
+                progressDialog.getPreviewRowsMeta(wTransformName.getText()),
+                progressDialog.getPreviewRows(wTransformName.getText()),
+                loggingText);
+        prd.open();
       }
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "LoadFileInputDialog.ErrorPreviewingData.DialogTitle"),
-          BaseMessages.getString(PKG, "LoadFileInputDialog.ErrorPreviewingData.DialogMessage"),
-          e);
     }
   }
 

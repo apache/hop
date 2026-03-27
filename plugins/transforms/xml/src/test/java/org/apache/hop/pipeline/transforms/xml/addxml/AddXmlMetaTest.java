@@ -17,56 +17,61 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class AddXmlMetaTest {
-
-  @Test
-  void loadSaveTest() throws HopException {
-    List<String> attributes =
-        Arrays.asList(
-            "omitXMLheader", "omitNullValues", "encoding", "valueName", "rootNode", "outputFields");
-
-    XmlField xmlField = new XmlField();
-    xmlField.setFieldName("TEST_FIELD");
-    xmlField.setType(0);
-
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<>();
-    fieldLoadSaveValidatorTypeMap.put(
-        XmlField[].class.getCanonicalName(),
-        new ArrayLoadSaveValidator<>(new XMLFieldLoadSaveValidator(xmlField), 1));
-
-    //    TransformLoadSaveTester tester = new TransformLoadSaveTester( AddXmlMeta.class,
-    // attributes, new HashMap<String, String>(), new HashMap<String, String>(),
-    //        new HashMap<String, IFieldLoadSaveValidator<?>>(), fieldLoadSaveValidatorTypeMap );
-
-    //    tester.testXmlRoundTrip();
+  @BeforeEach
+  void beforeEach() throws Exception {
+    HopClientEnvironment.init();
   }
 
-  public static class XMLFieldLoadSaveValidator implements IFieldLoadSaveValidator<XmlField> {
+  @Test
+  void testSerializationRoundTrip() throws Exception {
+    AddXmlMeta meta =
+        TransformSerializationTestUtil.testSerialization("/add-xml.xml", AddXmlMeta.class);
 
-    private final XmlField defaultValue;
+    Assertions.assertEquals("UTF-8", meta.getEncoding());
+    Assertions.assertEquals("xmlValueName", meta.getValueName());
+    Assertions.assertEquals("Row", meta.getRootNode());
+    Assertions.assertTrue(meta.getOmitDetails().isOmittingNullValues());
+    Assertions.assertTrue(meta.getOmitDetails().isOmittingXmlHeader());
+    validateFields(meta);
+  }
 
-    public XMLFieldLoadSaveValidator(XmlField defaultValue) {
-      this.defaultValue = defaultValue;
-    }
+  private static void validateFields(AddXmlMeta meta) {
+    Assertions.assertEquals(3, meta.getOutputFields().size());
+    XmlField f = meta.getOutputFields().getFirst();
+    Assertions.assertEquals("f1", f.getFieldName());
+    Assertions.assertEquals(IValueMeta.TYPE_STRING, f.getType());
+    Assertions.assertEquals("element1", f.getElementName());
+    Assertions.assertEquals("parent1", f.getAttributeParentName());
+    Assertions.assertFalse(f.isAttribute());
+    Assertions.assertEquals(100, f.getLength());
+    Assertions.assertEquals(-1, f.getPrecision());
 
-    @Override
-    public XmlField getTestObject() {
-      return defaultValue;
-    }
+    f = meta.getOutputFields().get(1);
+    Assertions.assertEquals("f2", f.getFieldName());
+    Assertions.assertEquals(IValueMeta.TYPE_INTEGER, f.getType());
+    Assertions.assertEquals("element2", f.getElementName());
+    Assertions.assertEquals("parent2", f.getAttributeParentName());
+    Assertions.assertEquals("#", f.getFormat());
+    Assertions.assertTrue(f.isAttribute());
+    Assertions.assertEquals(7, f.getLength());
+    Assertions.assertEquals(0, f.getPrecision());
 
-    @Override
-    public boolean validateTestObject(XmlField testObject, Object actual) {
-      return EqualsBuilder.reflectionEquals(testObject, actual);
-    }
+    f = meta.getOutputFields().getLast();
+    Assertions.assertEquals("f3", f.getFieldName());
+    Assertions.assertEquals(IValueMeta.TYPE_NUMBER, f.getType());
+    Assertions.assertEquals("element3", f.getElementName());
+    Assertions.assertEquals("parent3", f.getAttributeParentName());
+    Assertions.assertEquals("#.#", f.getFormat());
+    Assertions.assertTrue(f.isAttribute());
+    Assertions.assertEquals(9, f.getLength());
+    Assertions.assertEquals(2, f.getPrecision());
   }
 }

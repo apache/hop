@@ -1,0 +1,4 @@
+attribute,attributeParentName,currency,decimal,element,format,group,length,name,nullif,precision,type
+N,parent1,,,element1,,,100,f1,,-1,String
+Y,parent2,,,element2,"#",,7,f2,,0,Integer
+Y,parent3,,,element3,"#.#",,9,f3,,2,Number

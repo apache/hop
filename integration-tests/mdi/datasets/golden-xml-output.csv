@@ -1,0 +1,2 @@
+encoding,SpecifyFormat,add_date,add_time,add_to_result_filenames,date_time_format,do_not_open_newfile_init,extension,name,omit_null_values,split,splitevery,zipped,name_space,xml_main_element,xml_repeat_element
+UTF-8,N,N,N,Y,date-format,Y,xml,filename,Y,Y,123,Y,namespace,Rows,Row
