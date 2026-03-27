@@ -45,17 +45,13 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
 
   @Override
   public boolean processRow() throws HopException {
-
     Object[] row = getRow();
-
-    if (row == null) { // no more input to be expected...
-
+    if (row == null) {
       setOutputDone();
       return false;
     }
 
     if (first) { // we just got started
-
       first = false;
 
       // get the RowMeta
@@ -65,7 +61,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
 
       // Let's check that Result Field is given
       if (Utils.isEmpty(resolve(meta.getResultFieldName()))) {
-        if (!meta.isAllowCaptureGroupsFlagSet()) {
+        if (!meta.isAllowingCaptureGroups()) {
           // Result field is missing !
           logError(BaseMessages.getString(PKG, "RegexEval.Log.ErrorResultFieldMissing"));
           throw new HopTransformException(
@@ -73,7 +69,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
         }
         data.indexOfResultField = -1;
       } else {
-        if (meta.isReplacefields()) {
+        if (meta.isReplacingFields()) {
           data.indexOfResultField = getInputRowMeta().indexOfValue(meta.getResultFieldName());
         }
         if (data.indexOfResultField < 0) {
@@ -105,15 +101,15 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
       }
 
       // ICache the position of the CaptureGroups
-      if (meta.isAllowCaptureGroupsFlagSet()) {
-        data.positions = new int[meta.getFieldName().length];
-        String[] fieldName = meta.getFieldName();
-        for (int i = 0; i < fieldName.length; i++) {
-          if (Utils.isEmpty(fieldName[i])) {
+      if (meta.isAllowingCaptureGroups()) {
+        data.positions = new int[meta.getRegexFields().size()];
+        for (int i = 0; i < meta.getRegexFields().size(); i++) {
+          RegexEvalMeta.RegexField field = meta.getRegexFields().get(i);
+          if (Utils.isEmpty(field.getFieldName())) {
             continue;
           }
-          if (meta.isReplacefields()) {
-            data.positions[i] = data.outputRowMeta.indexOfValue(fieldName[i]);
+          if (meta.isReplacingFields()) {
+            data.positions[i] = data.outputRowMeta.indexOfValue(field.getFieldName());
           } else {
             data.positions[i] = captureIndex;
             captureIndex++;
@@ -147,7 +143,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
         Matcher m = data.pattern.matcher(fieldValue);
         isMatch = m.matches();
 
-        if (meta.isAllowCaptureGroupsFlagSet() && data.positions.length != m.groupCount()) {
+        if (meta.isAllowingCaptureGroups() && data.positions.length != m.groupCount()) {
           // Runtime exception case. The number of capture groups in the
           // regex doesn't match the number of fields.
           logError(
@@ -165,6 +161,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
         }
 
         for (int i = 0; i < data.positions.length; i++) {
+          RegexEvalMeta.RegexField field = meta.getRegexFields().get(i);
           int index = data.positions[i];
           String value;
           if (isMatch) {
@@ -189,9 +186,9 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
               valueMeta.convertDataFromString(
                   value,
                   conversionValueMeta,
-                  meta.getFieldNullIf()[i],
-                  meta.getFieldIfNull()[i],
-                  meta.getFieldTrimType()[i]);
+                  field.getFieldNullIf(),
+                  field.getFieldIfNull(),
+                  field.getFieldTrimType());
 
           outputRow[index] = convertedValue;
         }
@@ -212,21 +209,13 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
       //
       putRow(data.outputRowMeta, outputRow);
     } catch (HopException e) {
-      boolean sendToErrorRow = false;
-      String errorMessage = null;
-
-      if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
-        errorMessage = e.toString();
-      } else {
+      if (!getTransformMeta().isDoingErrorHandling()) {
         throw new HopTransformException(
             BaseMessages.getString(PKG, "RegexEval.Log.ErrorInTransform"), e);
       }
 
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(getInputRowMeta(), outputRow, 1, errorMessage, null, "REGEX001");
-      }
+      // Simply add this row to the error row
+      putError(getInputRowMeta(), outputRow, 1, e.toString(), null, "REGEX001");
     }
     return true;
   }
@@ -240,7 +229,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
 
       // Regular expression
       String regularexpression = meta.getScript();
-      if (meta.isUseVariableInterpolationFlagSet()) {
+      if (meta.isUsingVariables()) {
         regularexpression = resolve(meta.getScript());
       }
       if (isDetailed()) {
@@ -251,7 +240,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
                 + regularexpression);
       }
 
-      if (meta.isCanonicalEqualityFlagSet()) {
+      if (meta.isCanonicalEqualityEnabled()) {
         data.pattern = Pattern.compile(options + regularexpression, Pattern.CANON_EQ);
       } else {
         data.pattern = Pattern.compile(options + regularexpression);

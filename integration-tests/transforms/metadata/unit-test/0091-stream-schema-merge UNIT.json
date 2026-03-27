@@ -1,0 +1,48 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "f1",
+          "data_set_field": "f1"
+        },
+        {
+          "transform_field": "source",
+          "data_set_field": "source"
+        },
+        {
+          "transform_field": "f2",
+          "data_set_field": "f2"
+        },
+        {
+          "transform_field": "f3",
+          "data_set_field": "f3"
+        },
+        {
+          "transform_field": "f4",
+          "data_set_field": "f4"
+        }
+      ],
+      "field_order": [
+        "f1",
+        "source",
+        "f2",
+        "f3",
+        "f4"
+      ],
+      "data_set_name": "golden-stream-schema-merge",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0091-stream-schema-merge UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0091-stream-schema-merge.hpl"
+}

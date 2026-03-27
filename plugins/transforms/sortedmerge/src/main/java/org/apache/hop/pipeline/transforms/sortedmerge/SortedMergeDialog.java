@@ -41,7 +41,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 public class SortedMergeDialog extends BaseTransformDialog {
@@ -85,35 +84,23 @@ public class SortedMergeDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(wSpacer, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsCols = 2;
-    final int FieldsRows = input.getFieldName().length;
-
-    colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "SortedMergeDialog.Fieldname.Column"),
-            ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {""},
-            false);
-    colinf[1] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "SortedMergeDialog.Ascending.Column"),
-            ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {
+    colinf =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "SortedMergeDialog.Fieldname.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {""},
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "SortedMergeDialog.Ascending.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
               BaseMessages.getString(PKG, "System.Combo.Yes"),
-              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO)
-            });
+              BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO))
+        };
 
     wFields =
         new TableView(
-            variables,
-            shell,
-            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
-            lsMod,
-            props);
-
+            variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props);
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
     fdFields.top = new FormAttachment(wlFields, margin);
@@ -123,25 +110,7 @@ public class SortedMergeDialog extends BaseTransformDialog {
 
     //
     // Search the fields in the background
-
-    final Runnable runnable =
-        () -> {
-          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-          if (transformMeta != null) {
-            try {
-              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                inputFields.add(row.getValueMeta(i).getName());
-              }
-              setComboBoxes();
-            } catch (HopException e) {
-              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-            }
-          }
-        };
-    new Thread(runnable).start();
+    new Thread(this::searchPreviousFields).start();
 
     getData();
     input.setChanged(changed);
@@ -149,6 +118,23 @@ public class SortedMergeDialog extends BaseTransformDialog {
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
+  }
+
+  private void searchPreviousFields() {
+    TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+    if (transformMeta != null) {
+      try {
+        IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+
+        // Remember these fields...
+        for (int i = 0; i < row.size(); i++) {
+          inputFields.add(row.getValueMeta(i).getName());
+        }
+        setComboBoxes();
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+      }
+    }
   }
 
   protected void setComboBoxes() {
@@ -160,23 +146,16 @@ public class SortedMergeDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    Table table = wFields.table;
-    if (input.getFieldName().length > 0) {
-      table.removeAll();
-    }
-    for (int i = 0; i < input.getFieldName().length; i++) {
-      TableItem ti = new TableItem(table, SWT.NONE);
-      ti.setText(0, "" + (i + 1));
-      ti.setText(1, input.getFieldName()[i]);
+    for (SortedMergeMeta.MergeField field : input.getMergeFields()) {
+      TableItem ti = new TableItem(wFields.table, SWT.NONE);
+      ti.setText(1, Const.NVL(field.getFieldName(), ""));
       ti.setText(
           2,
-          input.getAscending()[i]
+          field.isAscending()
               ? BaseMessages.getString(PKG, "System.Combo.Yes")
               : BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO));
     }
-
-    wFields.setRowNums();
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
   }
 
   private void cancel() {
@@ -192,15 +171,14 @@ public class SortedMergeDialog extends BaseTransformDialog {
 
     transformName = wTransformName.getText(); // return value
 
-    int nrFields = wFields.nrNonEmpty();
+    input.getMergeFields().clear();
+    for (TableItem ti : wFields.getNonEmptyItems()) {
+      SortedMergeMeta.MergeField field = new SortedMergeMeta.MergeField();
+      input.getMergeFields().add(field);
 
-    input.allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      TableItem ti = wFields.getNonEmpty(i);
-      input.getFieldName()[i] = ti.getText(1);
-      input.getAscending()[i] =
-          !BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO).equalsIgnoreCase(ti.getText(2));
+      field.setFieldName(ti.getText(1));
+      field.setAscending(
+          !BaseMessages.getString(PKG, CONST_SYSTEM_COMBO_NO).equalsIgnoreCase(ti.getText(2)));
     }
 
     // Show a warning (optional)

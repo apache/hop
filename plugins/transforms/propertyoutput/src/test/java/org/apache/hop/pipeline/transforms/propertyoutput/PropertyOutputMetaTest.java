@@ -17,46 +17,54 @@
 
 package org.apache.hop.pipeline.transforms.propertyoutput;
 
-import java.util.Arrays;
-import java.util.List;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 class PropertyOutputMetaTest {
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
+  @Test
+  void testXmlRoundTrip() throws Exception {
+    PropertyOutputMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/properties-output.xml", PropertyOutputMeta.class);
+
+    Assertions.assertEquals("key-field", meta.getKeyField());
+    Assertions.assertEquals("value-field", meta.getValueField());
+    Assertions.assertEquals("This is a comment", meta.getComment());
+    Assertions.assertEquals("filename-field", meta.getFileNameField());
+    Assertions.assertFalse(meta.isFileNameInField());
+    Assertions.assertEquals("filename", meta.getFileDetails().getFileName());
+    Assertions.assertEquals("properties", meta.getFileDetails().getExtension());
+    Assertions.assertTrue(meta.getFileDetails().isTransformNrInFilename());
+    Assertions.assertFalse(meta.getFileDetails().isPartitionIdInFilename());
+    Assertions.assertTrue(meta.getFileDetails().isDateInFilename());
+    Assertions.assertTrue(meta.getFileDetails().isTimeInFilename());
+    Assertions.assertTrue(meta.getFileDetails().isCreateParentFolder());
+    Assertions.assertTrue(meta.getFileDetails().isAddToResult());
+    Assertions.assertTrue(meta.getFileDetails().isAppending());
+  }
 
   @Test
-  void testSerialization() throws HopException {
-    List<String> attributes =
-        Arrays.asList(
-            "KeyField",
-            "ValueField",
-            "Comment",
-            "FileNameInField",
-            "FileNameField",
-            "FileName",
-            "Extension",
-            "TransformNrInFilename",
-            //
-            // Note - "partNrInFilename" not included above because while it seems to be
-            // serialized/deserialized in the meta,
-            // there are no getters/setters and it's a private variable. Also, it's not included in
-            // the dialog. So it is
-            // always serialized/deserialized as "false" (N).
-            // MB - 5/2016
-            "DateInFilename",
-            "TimeInFilename",
-            "CreateParentFolder",
-            "AddToResult",
-            "Append");
+  void testLegacyXmlRoundTrip() throws Exception {
+    PropertyOutputMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/properties-output-legacy.xml", PropertyOutputMeta.class);
 
-    LoadSaveTester<PropertyOutputMeta> tester =
-        new LoadSaveTester<>(PropertyOutputMeta.class, attributes);
-
-    tester.testSerialization();
+    Assertions.assertEquals("propertyName", meta.getKeyField());
+    Assertions.assertEquals("propertyValue", meta.getValueField());
+    Assertions.assertTrue(StringUtils.isEmpty(meta.getComment()));
+    Assertions.assertTrue(StringUtils.isEmpty(meta.getFileNameField()));
+    Assertions.assertFalse(meta.isFileNameInField());
+    Assertions.assertEquals(
+        "${Internal.Entry.Current.Directory}\\propertyOutput", meta.getFileDetails().getFileName());
+    Assertions.assertEquals("properties", meta.getFileDetails().getExtension());
+    Assertions.assertFalse(meta.getFileDetails().isTransformNrInFilename());
+    Assertions.assertFalse(meta.getFileDetails().isPartitionIdInFilename());
+    Assertions.assertFalse(meta.getFileDetails().isDateInFilename());
+    Assertions.assertFalse(meta.getFileDetails().isTimeInFilename());
+    Assertions.assertFalse(meta.getFileDetails().isCreateParentFolder());
+    Assertions.assertFalse(meta.getFileDetails().isAddToResult());
+    Assertions.assertTrue(meta.getFileDetails().isAppending());
   }
 }

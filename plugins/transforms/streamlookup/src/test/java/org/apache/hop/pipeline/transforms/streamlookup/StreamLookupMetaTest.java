@@ -17,129 +17,57 @@
 package org.apache.hop.pipeline.transforms.streamlookup;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
-class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
-  LoadSaveTester loadSaveTester;
-  Class<StreamLookupMeta> testMetaClass = StreamLookupMeta.class;
-
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
-
+class StreamLookupMetaTest {
   @BeforeEach
-  void setUpLoadSave() throws Exception {
-    HopEnvironment.init();
-    PluginRegistry.init();
-    List<String> attributes =
-        Arrays.asList(
-            "inputSorted",
-            "memoryPreservationActive",
-            "usingSortedList",
-            "usingIntegerPair",
-            "keystream",
-            "keylookup",
-            "value",
-            "valueName",
-            "valueDefault",
-            "valueDefaultType");
-
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("keystream", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("keylookup", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("value", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("valueName", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("valueDefault", stringArrayLoadSaveValidator);
-    attrValidatorMap.put(
-        "valueDefaultType", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(7), 5));
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass,
-            attributes,
-            new HashMap<>(),
-            new HashMap<>(),
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(ITransformMeta someMeta) {
-    if (someMeta instanceof StreamLookupMeta) {
-      ((StreamLookupMeta) someMeta).allocate(5, 5);
-    }
+  void beforeEach() throws Exception {
+    ValueMetaPluginType.getInstance().searchPlugins();
   }
 
   @Test
-  void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
+  void testSerializationRoundTrip() throws Exception {
+    StreamLookupMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/stream-lookup.xml", StreamLookupMeta.class);
 
-  @Test
-  void testCloneInfoTransforms() {
-    StreamLookupMeta meta = new StreamLookupMeta();
-    meta.setDefault();
+    assertTrue(meta.isMemoryPreservationActive());
+    assertTrue(meta.isUsingIntegerPair());
+    assertTrue(meta.isUsingSortedList());
 
-    final String transformName = UUID.randomUUID().toString();
-    TransformMeta infoTransform = mock(TransformMeta.class);
-    when(infoTransform.getName()).thenReturn(transformName);
-    meta.getTransformIOMeta().getInfoStreams().get(0).setTransformMeta(infoTransform);
+    assertEquals(2, meta.getLookup().getMatchKeys().size());
+    StreamLookupMeta.MatchKey k = meta.getLookup().getMatchKeys().getFirst();
+    assertEquals("keyStream1", k.getKeyStream());
+    assertEquals("keyLookup1", k.getKeyLookup());
 
-    StreamLookupMeta cloned = (StreamLookupMeta) meta.clone();
-    assertEquals(
-        transformName, cloned.getTransformIOMeta().getInfoStreams().get(0).getTransformName());
-    assertNotSame(
-        meta.getTransformIOMeta().getInfoStreams().get(0),
-        cloned.getTransformIOMeta().getInfoStreams().get(0));
-  }
+    k = meta.getLookup().getMatchKeys().getLast();
+    assertEquals("keyStream2", k.getKeyStream());
+    assertEquals("keyLookup2", k.getKeyLookup());
 
-  @Test
-  void testGetXml() {
-    StreamLookupMeta streamLookupMeta = new StreamLookupMeta();
-    streamLookupMeta.setKeystream(new String[] {"testKeyStreamValue"});
-    streamLookupMeta.setKeylookup(new String[] {"testKeyLookupValue"});
-    streamLookupMeta.setValue(new String[] {"testValue"});
-    streamLookupMeta.setValueName(new String[] {});
-    streamLookupMeta.setValueDefault(new String[] {});
-    streamLookupMeta.setValueDefaultType(new int[] {});
+    assertEquals(3, meta.getLookup().getReturnValues().size());
+    StreamLookupMeta.ReturnValue v = meta.getLookup().getReturnValues().getFirst();
+    assertEquals("returnValue1", v.getValue());
+    assertEquals("value1", v.getValueName());
+    assertTrue(StringUtils.isEmpty(v.getValueDefault()));
+    assertEquals(IValueMeta.TYPE_STRING, v.getValueDefaultType());
 
-    // run without exception
-    streamLookupMeta.afterInjectionSynchronization();
-    streamLookupMeta.getXml();
+    v = meta.getLookup().getReturnValues().get(1);
+    assertEquals("returnValue2", v.getValue());
+    assertEquals("value2", v.getValueName());
+    assertEquals("123", v.getValueDefault());
+    assertEquals(IValueMeta.TYPE_INTEGER, v.getValueDefaultType());
 
-    assertEquals(streamLookupMeta.getKeystream().length, streamLookupMeta.getValueName().length);
-    assertEquals(streamLookupMeta.getKeystream().length, streamLookupMeta.getValueDefault().length);
-    assertEquals(
-        streamLookupMeta.getKeystream().length, streamLookupMeta.getValueDefaultType().length);
+    v = meta.getLookup().getReturnValues().getLast();
+    assertEquals("returnValue3", v.getValue());
+    assertEquals("value3", v.getValueName());
+    assertEquals("true", v.getValueDefault());
+    assertEquals(IValueMeta.TYPE_BOOLEAN, v.getValueDefaultType());
   }
 }

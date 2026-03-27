@@ -15,19 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.hop.pipeline.transforms.propertyoutput;
+package org.apache.hop.beam.transform;
 
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.TransformPluginType;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.hop.beam.util.BeamPipelineMetaUtil;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.junit.jupiter.api.Test;
 
-public class PropertyOutputIT {
+class MatchKeyPipelineTest extends PipelineTestBase {
 
-  @BeforeEach
-  void setUp() throws Exception {
-    HopClientEnvironment.init();
-    PluginRegistry.addPluginType(TransformPluginType.getInstance());
-    PluginRegistry.init();
+  @Test
+  void testStreamLookupPipeline() throws Exception {
+
+    PipelineMeta pipelineMeta =
+        BeamPipelineMetaUtil.generateStreamLookupPipelineMeta(
+            "io-stream-lookup-output", "INPUT", "OUTPUT", metadataProvider);
+
+    try {
+      createRunPipeline(variables, pipelineMeta);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
 }

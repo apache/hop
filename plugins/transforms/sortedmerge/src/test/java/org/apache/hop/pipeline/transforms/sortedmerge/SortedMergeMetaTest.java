@@ -18,78 +18,23 @@
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 class SortedMergeMetaTest {
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
-
   @Test
-  void testRoundTrips() throws HopException {
-    List<String> attributes = Arrays.asList("name", "ascending");
+  void testSerializationRoundTrip() throws Exception {
+    SortedMergeMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/sorted-merge.xml", SortedMergeMeta.class);
 
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("name", "getFieldName");
-    getterMap.put("ascending", "getAscending");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("name", "setFieldName");
-    setterMap.put("ascending", "setAscending");
-
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
-    IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
-        new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 25);
-
-    fieldLoadSaveValidatorAttributeMap.put("name", stringArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("ascending", booleanArrayLoadSaveValidator);
-
-    LoadSaveTester loadSaveTester =
-        new LoadSaveTester(
-            SortedMergeMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            fieldLoadSaveValidatorAttributeMap,
-            new HashMap<>());
-
-    loadSaveTester.testSerialization();
-  }
-
-  @Test
-  void testPDI16559() throws Exception {
-    SortedMergeMeta sortedMerge = new SortedMergeMeta();
-    sortedMerge.setFieldName(new String[] {"field1", "field2", "field3", "field4", "field5"});
-    sortedMerge.setAscending(new boolean[] {false, true});
-
-    try {
-      String badXml = sortedMerge.getXml();
-      fail("Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB");
-    } catch (Exception expected) {
-      // Do Nothing
-    }
-    sortedMerge.afterInjectionSynchronization();
-    // run without a exception
-    String ktrXml = sortedMerge.getXml();
-
-    int targetSz = sortedMerge.getFieldName().length;
-
-    assertEquals(targetSz, sortedMerge.getAscending().length);
+    assertEquals(2, meta.getMergeFields().size());
+    assertEquals("field1", meta.getMergeFields().getFirst().getFieldName());
+    assertTrue(meta.getMergeFields().getFirst().isAscending());
+    assertEquals("field2", meta.getMergeFields().getLast().getFieldName());
+    assertFalse(meta.getMergeFields().getLast().isAscending());
   }
 }

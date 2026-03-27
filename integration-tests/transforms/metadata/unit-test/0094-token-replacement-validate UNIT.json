@@ -1,0 +1,36 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "input",
+          "data_set_field": "input"
+        },
+        {
+          "transform_field": "tokenValue",
+          "data_set_field": "tokenValue"
+        },
+        {
+          "transform_field": "output",
+          "data_set_field": "output"
+        }
+      ],
+      "field_order": [
+        "input"
+      ],
+      "data_set_name": "golden-token-replacement",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0094-token-replacement-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0094-token-replacement-validate.hpl"
+}

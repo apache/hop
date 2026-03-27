@@ -17,14 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.streamschemamerge;
 
-import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.stream.IStream;
-import org.apache.hop.pipeline.transform.stream.Stream;
-import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -72,7 +68,11 @@ public class StreamSchemaDialog extends BaseTransformDialog {
   public String open() {
     createShell(BaseMessages.getString(PKG, "StreamSchemaTransform.Shell.Title"));
 
-    buildButtonBar().ok(e -> ok()).get(e -> get()).cancel(e -> cancel()).build();
+    buildButtonBar()
+        .ok(e -> ok())
+        .get(e -> getSourceTransformNames())
+        .cancel(e -> cancel())
+        .build();
 
     // Save the value of the changed flag on the meta object. If the user cancels
     // the dialog, it will be restored to this saved value.
@@ -93,26 +93,24 @@ public class StreamSchemaDialog extends BaseTransformDialog {
     fdlTransforms.top = new FormAttachment(wSpacer, margin);
     wlTransforms.setLayoutData(fdlTransforms);
 
-    final int FieldsCols = 1;
-    final int FieldsRows = meta.getNumberOfTransforms();
-
     previousTransforms = pipelineMeta.getPrevTransformNames(transformName);
 
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "StreamSchemaTransformDialog.TransformName.Column"),
-            ColumnInfo.COLUMN_TYPE_CCOMBO,
-            previousTransforms,
-            false);
+    ColumnInfo[] columnInfos =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "StreamSchemaTransformDialog.TransformName.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              previousTransforms,
+              false)
+        };
 
     wTransforms =
         new TableView(
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columnInfos,
+            1,
             lsMod,
             props);
 
@@ -144,37 +142,23 @@ public class StreamSchemaDialog extends BaseTransformDialog {
    * the dialog controls.
    */
   private void populateDialog() {
-    Table table = wTransforms.table;
-    if (meta.getNumberOfTransforms() > 0) {
-      table.removeAll();
+    for (StreamSchemaMeta.TransformToMerge transformToMerge : meta.getTransformsToMerge()) {
+      TableItem ti = new TableItem(wTransforms.table, SWT.NONE);
+      ti.setText(1, Const.NVL(transformToMerge.getName(), ""));
     }
-    String[] transformNames = meta.getTransformsToMerge();
-    for (int i = 0; i < transformNames.length; i++) {
-      TableItem ti = new TableItem(table, SWT.NONE);
-      ti.setText(0, "" + (i + 1));
-      if (transformNames[i] != null) {
-        ti.setText(1, transformNames[i]);
-      }
-    }
-
-    wTransforms.removeEmptyRows();
-    wTransforms.setRowNums();
-    wTransforms.optWidth(true);
+    wTransforms.optimizeTableView();
   }
 
   /** Populates the table with a list of fields that have incoming hops */
-  private void get() {
+  private void getSourceTransformNames() {
     wTransforms.removeAll();
     Table table = wTransforms.table;
 
-    for (int i = 0; i < previousTransforms.length; i++) {
+    for (String previousTransform : previousTransforms) {
       TableItem ti = new TableItem(table, SWT.NONE);
-      ti.setText(0, "" + (i + 1));
-      ti.setText(1, previousTransforms[i]);
+      ti.setText(1, previousTransform);
     }
-    wTransforms.removeEmptyRows();
-    wTransforms.setRowNums();
-    wTransforms.optWidth(true);
+    wTransforms.optimizeTableView();
   }
 
   /** Called when the user cancels the dialog. */
@@ -188,42 +172,6 @@ public class StreamSchemaDialog extends BaseTransformDialog {
     dispose();
   }
 
-  /**
-   * Helping method to update meta information when ok is selected
-   *
-   * @param inputTransforms Names of the transforms that are being merged together
-   */
-  private void getMeta(String[] inputTransforms) {
-    List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
-
-    if (infoStreams.isEmpty() || inputTransforms.length < infoStreams.size()) {
-      if (inputTransforms.length != 0) {
-        for (String inputTransform : inputTransforms) {
-          meta.getTransformIOMeta()
-              .addStream(new Stream(IStream.StreamType.INFO, null, "", StreamIcon.INFO, null));
-        }
-        infoStreams = meta.getTransformIOMeta().getInfoStreams();
-      }
-    } else if (infoStreams.size() < inputTransforms.length) {
-      int requiredStreams = inputTransforms.length - infoStreams.size();
-
-      for (int i = 0; i < requiredStreams; i++) {
-        meta.getTransformIOMeta()
-            .addStream(new Stream(IStream.StreamType.INFO, null, "", StreamIcon.INFO, null));
-      }
-      infoStreams = meta.getTransformIOMeta().getInfoStreams();
-    }
-    int streamCount = infoStreams.size();
-
-    String[] transformsToMerge = meta.getTransformsToMerge();
-    for (int i = 0; i < streamCount; i++) {
-      String transform = transformsToMerge[i];
-      IStream infoStream = infoStreams.get(i);
-      infoStream.setTransformMeta(pipelineMeta.findTransform(transform));
-      infoStream.setSubject(transform);
-    }
-  }
-
   /** Called when the user confirms the dialog */
   private void ok() {
     // The "TransformName" variable will be the return value for the open() method.
@@ -231,17 +179,13 @@ public class StreamSchemaDialog extends BaseTransformDialog {
     transformName = wTransformName.getText();
     // set output field name
 
-    int nrtransforms = wTransforms.nrNonEmpty();
-    String[] transformNames = new String[nrtransforms];
-    for (int i = 0; i < nrtransforms; i++) {
-      TableItem ti = wTransforms.getNonEmpty(i);
-      TransformMeta tm = pipelineMeta.findTransform(ti.getText(1));
-      if (tm != null) {
-        transformNames[i] = tm.getName();
-      }
+    meta.getTransformsToMerge().clear();
+    for (TableItem item : wTransforms.getNonEmptyItems()) {
+      StreamSchemaMeta.TransformToMerge transformToMerge = new StreamSchemaMeta.TransformToMerge();
+      transformToMerge.setName(item.getText(1));
+      meta.getTransformsToMerge().add(transformToMerge);
     }
-    meta.setTransformsToMerge(transformNames);
-    getMeta(transformNames);
+    meta.resetTransformIoMeta();
 
     // close the SWT dialog window
     dispose();

@@ -1,0 +1,32 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "ascending",
+          "data_set_field": "ascending"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-sorted-merge",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0050-sorted-merge-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0050-sorted-merge-validate.hpl"
+}

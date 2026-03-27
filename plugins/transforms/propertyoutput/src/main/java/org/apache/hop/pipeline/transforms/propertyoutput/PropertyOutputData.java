@@ -21,6 +21,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -37,12 +38,12 @@ public class PropertyOutputData extends BaseTransformData implements ITransformD
   public int indexOfKeyField;
   public int indexOfValueField;
 
-  public int indexOfFieldfilename;
-  public HashSet<String> KeySet;
+  public int indexOfFieldFileName;
+  public Set<String> keySet;
   public FileObject file;
   public String filename;
 
-  public Properties pro;
+  public Properties properties;
 
   public String previousFileName;
 
@@ -54,10 +55,10 @@ public class PropertyOutputData extends BaseTransformData implements ITransformD
     indexOfKeyField = -1;
     indexOfValueField = -1;
 
-    indexOfFieldfilename = -1;
+    indexOfFieldFileName = -1;
     file = null;
     previousFileName = "";
-    KeySet = new HashSet<>();
+    keySet = new HashSet<>();
     filename = null;
   }
 }

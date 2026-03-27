@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,26 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.hop.beam.transform;
+package org.apache.hop.pipeline.transforms.tokenreplacement;
 
-import org.apache.hop.beam.util.BeamPipelineMetaUtil;
-import org.apache.hop.pipeline.PipelineMeta;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
-class StreamLookupPipelineTest extends PipelineTestBase {
-
+class TokenReplacementMetaTest {
   @Test
-  void testStreamLookupPipeline() throws Exception {
+  void testSerializationRoundTrip() throws Exception {
+    TokenReplacementMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/token-replacement.xml", TokenReplacementMeta.class);
 
-    PipelineMeta pipelineMeta =
-        BeamPipelineMetaUtil.generateStreamLookupPipelineMeta(
-            "io-stream-lookup-output", "INPUT", "OUTPUT", metadataProvider);
-
-    try {
-      createRunPipeline(variables, pipelineMeta);
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw e;
-    }
+    assertEquals(3, meta.getTokenReplacementFields().size());
   }
 }

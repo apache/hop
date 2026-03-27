@@ -17,77 +17,51 @@
 
 package org.apache.hop.pipeline.transforms.tokenreplacement;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.injection.Injection;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
+@Getter
+@Setter
 public class TokenReplacementField implements Cloneable {
-  @Injection(name = "TOKEN_FIELDNAME", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "field_name",
+      injectionKey = "TOKEN_FIELDNAME",
+      injectionKeyDescription = "TokenReplacement.Injection.TOKEN_FIELDNAME")
   private String name;
 
-  @Injection(name = "TOKEN_NAME", group = "OUTPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "token_name",
+      injectionKey = "TOKEN_NAME",
+      injectionKeyDescription = "TokenReplacement.Injection.TOKEN_NAME")
   private String tokenName;
-
-  public TokenReplacementField(String name, String tokenName) {
-    this.name = name;
-    this.tokenName = tokenName;
-  }
 
   public TokenReplacementField() {}
 
-  public boolean equals(Object obj) {
-    if (obj instanceof TokenReplacementField field) {
-      return name.equals(field.getName()) && tokenName.equals(field.tokenName);
-    }
-    return false;
+  public TokenReplacementField(TokenReplacementField f) {
+    this();
+    this.name = f.name;
+    this.tokenName = f.tokenName;
   }
 
   @Override
-  public Object clone() {
-    try {
-      return super.clone();
-    } catch (CloneNotSupportedException e) {
-      return null;
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    TokenReplacementField that = (TokenReplacementField) o;
+    return Objects.equals(name, that.name) && Objects.equals(tokenName, that.tokenName);
   }
 
-  /**
-   * Get the stream field name.
-   *
-   * @return name
-   */
-  public String getName() {
-    return name;
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, tokenName);
   }
 
-  /**
-   * Set the stream field name.
-   *
-   * @param fieldname the name of the field
-   */
-  public void setName(String fieldname) {
-    this.name = fieldname;
-  }
-
-  /**
-   * Get the name of the token If the token name is null returns the stream field name
-   *
-   * @return tokenName
-   */
-  public String getTokenName() {
-    return Const.NVL(tokenName, name);
-  }
-
-  /**
-   * Set the name of the token
-   *
-   * @param tokenName the name of the token
-   */
-  public void setTokenName(String tokenName) {
-    this.tokenName = tokenName;
-  }
-
-  public String toString() {
-    return name;
+  @Override
+  public TokenReplacementField clone() {
+    return new TokenReplacementField(this);
   }
 }

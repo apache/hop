@@ -343,8 +343,6 @@ public class BeamPipelineMetaUtil {
     beamInputTransformMeta.setTransformPluginId(BeamConst.STRING_BEAM_INPUT_PLUGIN_ID);
     pipelineMeta.addTransform(beamInputTransformMeta);
 
-    TransformMeta lookupBeamInputTransformMeta = beamInputTransformMeta;
-
     // Add a Memory Group By transform which will
     MemoryGroupByMeta memoryGroupByMeta = new MemoryGroupByMeta();
     memoryGroupByMeta.setGroups(List.of(new GGroup("stateCode")));
@@ -355,23 +353,27 @@ public class BeamPipelineMetaUtil {
     TransformMeta memoryGroupByTransformMeta = new TransformMeta("rowsPerState", memoryGroupByMeta);
     pipelineMeta.addTransform(memoryGroupByTransformMeta);
     pipelineMeta.addPipelineHop(
-        new PipelineHopMeta(lookupBeamInputTransformMeta, memoryGroupByTransformMeta));
+        new PipelineHopMeta(beamInputTransformMeta, memoryGroupByTransformMeta));
 
     // Add a Stream Lookup transform ...
     //
     StreamLookupMeta streamLookupMeta = new StreamLookupMeta();
-    streamLookupMeta.allocate(1, 1);
-    streamLookupMeta.getKeystream()[0] = "stateCode";
-    streamLookupMeta.getKeylookup()[0] = "stateCode";
-    streamLookupMeta.getValue()[0] = "rowsPerState";
-    streamLookupMeta.getValueName()[0] = "nrPerState";
-    streamLookupMeta.getValueDefault()[0] = null;
-    streamLookupMeta.getValueDefaultType()[0] = IValueMeta.TYPE_INTEGER;
+    StreamLookupMeta.MatchKey matchKey = new StreamLookupMeta.MatchKey();
+    matchKey.setKeyStream("stateCode");
+    matchKey.setKeyLookup("stateCode");
+    streamLookupMeta.getLookup().getMatchKeys().add(matchKey);
+
+    StreamLookupMeta.ReturnValue returnValue = new StreamLookupMeta.ReturnValue();
+    returnValue.setValue("rowsPerState");
+    returnValue.setValueName("nrPerState");
+    returnValue.setValueDefaultType(IValueMeta.TYPE_INTEGER);
+    streamLookupMeta.getLookup().getReturnValues().add(returnValue);
+
     streamLookupMeta.setMemoryPreservationActive(false);
     streamLookupMeta
         .getTransformIOMeta()
         .getInfoStreams()
-        .get(0)
+        .getFirst()
         .setTransformMeta(memoryGroupByTransformMeta); // Read from Mem.GroupBy
     TransformMeta streamLookupTransformMeta = new TransformMeta("Stream Lookup", streamLookupMeta);
     pipelineMeta.addTransform(streamLookupTransformMeta);

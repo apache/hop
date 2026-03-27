@@ -34,12 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Output rows to Properties file and create a file. */
 public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOutputData> {
-
   private static final Class<?> PKG = PropertyOutputMeta.class;
-  public static final String CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD =
-      "PropertyOutput.Log.ErrorFindingField";
-  public static final String CONST_PROPERTY_OUTPUT_LOG_CAN_NOT_CREATE_PARENT_FOLDER =
-      "PropertyOutput.Log.CanNotCreateParentFolder";
 
   public PropertyOutput(
       TransformMeta transformMeta,
@@ -53,7 +48,6 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
 
   @Override
   public boolean processRow() throws HopException {
-
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
 
     if (r == null) { // no more input to be expected...
@@ -63,70 +57,16 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
 
     if (first) {
       first = false;
-      data.inputRowMeta = getInputRowMeta();
-      data.outputRowMeta = data.inputRowMeta.clone();
-      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
-      // Let's take the index of Key field ...
-      data.indexOfKeyField = data.inputRowMeta.indexOfValue(meta.getKeyField());
-      if (data.indexOfKeyField < 0) {
-        // The field is unreachable !
-        logError(
-            BaseMessages.getString(
-                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getKeyField()));
-        throw new HopException(
-            BaseMessages.getString(
-                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getKeyField()));
-      }
-
-      // Let's take the index of Key field ...
-      data.indexOfValueField = data.inputRowMeta.indexOfValue(meta.getValueField());
-      if (data.indexOfValueField < 0) {
-        // The field is unreachable !
-        logError(
-            BaseMessages.getString(
-                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
-        throw new HopException(
-            BaseMessages.getString(
-                PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
-      }
-
-      if (meta.isFileNameInField()) {
-        String realFieldName = resolve(meta.getFileNameField());
-        if (Utils.isEmpty(realFieldName)) {
-          logError(BaseMessages.getString(PKG, "PropertyOutput.Log.FilenameInFieldEmpty"));
-          throw new HopException(
-              BaseMessages.getString(PKG, "PropertyOutput.Log.FilenameInFieldEmpty"));
-        }
-        data.indexOfFieldfilename = data.inputRowMeta.indexOfValue(realFieldName);
-        if (data.indexOfFieldfilename < 0) {
-          // The field is unreachable !
-          logError(
-              BaseMessages.getString(
-                  PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
-          throw new HopException(
-              BaseMessages.getString(
-                  PKG, CONST_PROPERTY_OUTPUT_LOG_ERROR_FINDING_FIELD, meta.getValueField()));
-        }
-      } else {
-        // Let's check for filename...
-        data.filename = buildFilename();
-        // Check if filename is empty..
-        if (Utils.isEmpty(data.filename)) {
-          logError(BaseMessages.getString(PKG, "PropertyOutput.Log.FilenameEmpty"));
-          throw new HopException(BaseMessages.getString(PKG, "PropertyOutput.Log.FilenameEmpty"));
-        }
-        openNewFile();
-      }
-    } // end first
+      processRowFirstCall();
+    }
 
     // Get value field
-    String propkey = data.inputRowMeta.getString(r, data.indexOfKeyField);
-    String propvalue = data.inputRowMeta.getString(r, data.indexOfValueField);
+    String propKey = data.inputRowMeta.getString(r, data.indexOfKeyField);
+    String propValue = data.inputRowMeta.getString(r, data.indexOfValueField);
 
     try {
       if (meta.isFileNameInField()) {
-        data.filename = data.inputRowMeta.getString(r, data.indexOfFieldfilename);
+        data.filename = data.inputRowMeta.getString(r, data.indexOfFieldFileName);
         if (Utils.isEmpty(data.filename)) {
           throw new HopException(
               BaseMessages.getString(PKG, "PropertyOutputMeta.Log.FileNameEmty"));
@@ -139,28 +79,20 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         }
       }
 
-      if (!data.KeySet.contains(propkey)) {
+      if (!data.keySet.contains(propKey)) {
         if (isDetailed()) {
-          logDetailed(BaseMessages.getString(PKG, "PropertyOutput.Log.Key", propkey));
-          logDetailed(BaseMessages.getString(PKG, "PropertyOutput.Log.Value", propvalue));
+          logDetailed(BaseMessages.getString(PKG, "PropertyOutput.Log.Key", propKey));
+          logDetailed(BaseMessages.getString(PKG, "PropertyOutput.Log.Value", propValue));
         }
         // Update property
-        data.pro.setProperty(propkey, propvalue);
+        data.properties.setProperty(propKey, propValue);
         putRow(data.outputRowMeta, r); // in case we want it to go further...
         incrementLinesOutput();
 
-        if (checkFeedback(getLinesRead()) && isBasic()) {
-          logBasic("linenr " + getLinesRead());
-        }
-        data.KeySet.add(propkey);
+        data.keySet.add(propKey);
       }
     } catch (HopTransformException e) {
-      boolean sendToErrorRow = false;
-      String errorMessage = null;
-      if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
-        errorMessage = e.toString();
-      } else {
+      if (!getTransformMeta().isDoingErrorHandling()) {
         logError(
             BaseMessages.getString(PKG, "PropertyOutputMeta.Log.ErrorInTransform")
                 + e.getMessage());
@@ -169,11 +101,65 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if (sendToErrorRow) {
-        putError(data.outputRowMeta, r, 1L, errorMessage, null, "PROPSOUTPUTO001");
-      }
+      putError(data.outputRowMeta, r, 1L, e.toString(), null, "PROPSOUTPUTO001");
     }
     return true;
+  }
+
+  private void processRowFirstCall() throws HopException {
+    data.inputRowMeta = getInputRowMeta();
+    data.outputRowMeta = data.inputRowMeta.clone();
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
+    // Let's take the index of Key field ...
+    data.indexOfKeyField = data.inputRowMeta.indexOfValue(meta.getKeyField());
+    if (data.indexOfKeyField < 0) {
+      // The field is unreachable !
+      logError(
+          BaseMessages.getString(PKG, "PropertyOutput.Log.ErrorFindingField", meta.getKeyField()));
+      throw new HopException(
+          BaseMessages.getString(PKG, "PropertyOutput.Log.ErrorFindingField", meta.getKeyField()));
+    }
+
+    // Let's take the index of Key field ...
+    data.indexOfValueField = data.inputRowMeta.indexOfValue(meta.getValueField());
+    if (data.indexOfValueField < 0) {
+      // The field is unreachable !
+      logError(
+          BaseMessages.getString(
+              PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+    }
+
+    if (meta.isFileNameInField()) {
+      String realFieldName = resolve(meta.getFileNameField());
+      if (Utils.isEmpty(realFieldName)) {
+        logError(BaseMessages.getString(PKG, "PropertyOutput.Log.FilenameInFieldEmpty"));
+        throw new HopException(
+            BaseMessages.getString(PKG, "PropertyOutput.Log.FilenameInFieldEmpty"));
+      }
+      data.indexOfFieldFileName = data.inputRowMeta.indexOfValue(realFieldName);
+      if (data.indexOfFieldFileName < 0) {
+        // The field is unreachable !
+        logError(
+            BaseMessages.getString(
+                PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "PropertyOutput.Log.ErrorFindingField", meta.getValueField()));
+      }
+    } else {
+      // Let's check for filename...
+      data.filename = buildFilename();
+      // Check if filename is empty..
+      if (Utils.isEmpty(data.filename)) {
+        logError(BaseMessages.getString(PKG, "PropertyOutput.Log.FilenameEmpty"));
+        throw new HopException(BaseMessages.getString(PKG, "PropertyOutput.Log.FilenameEmpty"));
+      }
+      openNewFile();
+    }
   }
 
   public boolean checkSameFile() {
@@ -182,12 +168,12 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
 
   private void openNewFile() throws HopException {
     try (FileObject newFile = HopVfs.getFileObject(data.filename, variables)) {
-      data.pro = new Properties();
-      data.KeySet.clear();
+      data.properties = new Properties();
+      data.keySet.clear();
 
       data.file = newFile;
-      if (meta.isAppend() && data.file.exists()) {
-        data.pro.load(HopVfs.getInputStream(data.file));
+      if (meta.getFileDetails().isAppending() && data.file.exists()) {
+        data.properties.load(HopVfs.getInputStream(data.file));
       }
       // Create parent folder if needed...
       createParentFolder();
@@ -199,66 +185,54 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
   }
 
   private void createParentFolder() throws HopException {
-    if (meta.isCreateParentFolder()) {
-      FileObject parentfolder = null;
-      try {
-        // Do we need to create parent folder ?
-
-        // Check for parent folder
-        // Get parent folder
-        parentfolder = data.file.getParent();
-        if (!parentfolder.exists()) {
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "PropertyOutput.Log.ParentFolderExists",
-                    parentfolder.getName().toString()));
-          }
-          parentfolder.createFolder();
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    CONST_PROPERTY_OUTPUT_LOG_CAN_NOT_CREATE_PARENT_FOLDER,
-                    parentfolder.getName().toString()));
-          }
+    if (!meta.getFileDetails().isCreateParentFolder()) {
+      return;
+    }
+    try (FileObject parentFolder = data.file.getParent()) {
+      // Do we need to create parent folder ?
+      // Check for parent folder
+      // Get parent folder
+      //
+      if (!parentFolder.exists()) {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "PropertyOutput.Log.ParentFolderExists", parentFolder.getName().toString()));
         }
-      } catch (Exception e) {
-        logError(
-            BaseMessages.getString(
-                PKG,
-                CONST_PROPERTY_OUTPUT_LOG_CAN_NOT_CREATE_PARENT_FOLDER,
-                parentfolder.getName().toString()));
-        throw new HopException(
-            BaseMessages.getString(
-                PKG,
-                CONST_PROPERTY_OUTPUT_LOG_CAN_NOT_CREATE_PARENT_FOLDER,
-                parentfolder.getName().toString()));
-      } finally {
-        if (parentfolder != null) {
-          try {
-            parentfolder.close();
-          } catch (Exception ex) {
-            /* Ignore */
-          }
+        parentFolder.createFolder();
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG,
+                  "PropertyOutput.Log.ParentFolderCreated",
+                  parentFolder.getName().toString()));
         }
       }
+    } catch (Exception e) {
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "PropertyOutput.Log.ParentFolderCouldNotBeCreated",
+              data.file.getName().toString()));
+      throw new HopException(
+          BaseMessages.getString(
+              PKG,
+              "PropertyOutput.Log.ParentFolderCouldNotBeCreated",
+              data.file.getName().toString()));
     }
   }
 
-  private boolean closeFile() {
+  private void closeFile() {
     if (data.file == null) {
-      return true;
+      return;
     }
-    boolean retval = false;
     try (OutputStream raw = HopVfs.getOutputStream(data.file, false);
         CountingOutputStream propsFile = new CountingOutputStream(raw)) {
-      data.pro.store(propsFile, resolve(meta.getComment()));
+      data.properties.store(propsFile, resolve(meta.getComment()));
 
       dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + propsFile.getCount();
 
-      if (meta.isAddToResult()) {
+      if (meta.getFileDetails().isAddToResult()) {
         // Add this to the result file names...
         ResultFile resultFile =
             new ResultFile(
@@ -269,8 +243,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
         resultFile.setComment(BaseMessages.getString(PKG, "PropertyOutput.Log.FileAddedResult"));
         addResultFile(resultFile);
       }
-      data.KeySet.clear();
-      retval = true;
+      data.keySet.clear();
     } catch (Exception e) {
       logError("Exception trying to close file [" + data.file.getName() + "]! :" + e.toString());
       setErrors(1);
@@ -284,11 +257,10 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
           logDetailed("Exception trying to close file [" + data.file.getName() + "]! :", e);
         }
       }
-      if (data.pro != null) {
-        data.pro = null;
+      if (data.properties != null) {
+        data.properties = null;
       }
     }
-    return retval;
   }
 
   public String buildFilename() {
@@ -296,19 +268,8 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
   }
 
   @Override
-  public boolean init() {
-
-    if (super.init()) {
-      return true;
-    }
-    return false;
-  }
-
-  @Override
   public void dispose() {
-
     closeFile();
-
     setOutputDone();
     super.dispose();
   }

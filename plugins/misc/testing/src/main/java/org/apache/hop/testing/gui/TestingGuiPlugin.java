@@ -19,6 +19,7 @@ package org.apache.hop.testing.gui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -398,7 +399,7 @@ public class TestingGuiPlugin {
       EnterSelectionDialog esd =
           new EnterSelectionDialog(
               hopGui.getShell(),
-              setNames.toArray(new String[setNames.size()]),
+              setNames.toArray(new String[0]),
               BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Header"),
               BaseMessages.getString(
                   PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Message"));
@@ -476,6 +477,17 @@ public class TestingGuiPlugin {
     List<Object[]> orderMappings = orderDialog.open();
     if (orderMappings == null) {
       return false;
+    }
+
+    // Remove empty values
+    //
+    Iterator<Object[]> orderMappingsIterator = orderMappings.iterator();
+    if (orderMappingsIterator.hasNext()) {
+      Object[] orderFieldLine = orderMappingsIterator.next();
+      String orderField = sortMeta.getString(orderFieldLine, 0);
+      if (StringUtils.isEmpty(orderField)) {
+        orderMappingsIterator.remove();
+      }
     }
 
     // Modify the test

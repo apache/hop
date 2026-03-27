@@ -82,14 +82,21 @@ class RegexEval_EmptyStringVsNull_Test {
 
   private void executeAndAssertResults(List<Object[]> expected) throws Exception {
     RegexEvalMeta meta = new RegexEvalMeta();
-    meta.allocate(2);
-    meta.getFieldName()[0] = "string";
-    meta.getFieldName()[1] = "matcher";
-    meta.setFieldType(new int[] {IValueMeta.TYPE_STRING, IValueMeta.TYPE_STRING});
+
+    RegexEvalMeta.RegexField f1 = new RegexEvalMeta.RegexField();
+    f1.setFieldName("string");
+    f1.setFieldTrimType(IValueMeta.TYPE_STRING);
+    meta.getRegexFields().add(f1);
+
+    RegexEvalMeta.RegexField f2 = new RegexEvalMeta.RegexField();
+    f2.setFieldName("matcher");
+    f2.setFieldTrimType(IValueMeta.TYPE_STRING);
+    meta.getRegexFields().add(f2);
+
     meta.setResultFieldName("string");
-    meta.setReplacefields(true);
+    meta.setReplacingFields(true);
     meta.setMatcher("matcher");
-    meta.setAllowCaptureGroupsFlag(true);
+    meta.setAllowingCaptureGroups(true);
 
     RegexEvalData data = new RegexEvalData();
     RegexEval transform = createAndInitTransform(meta, data);

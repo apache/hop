@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.streamlookup;
 
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -87,7 +88,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
         .get(e -> get())
         .custom(
             BaseMessages.getString(PKG, "StreamLookupDialog.GetLookupFields.Button"),
-            e -> getlookup())
+            e -> getLookup())
         .build();
 
     ModifyListener lsMod = e -> input.setChanged();
@@ -134,7 +135,6 @@ public class StreamLookupDialog extends BaseTransformDialog {
     wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 2;
-    int nrKeyRows = (input.getKeystream() != null ? input.getKeystream().length : 1);
 
     ciKey = new ColumnInfo[nrKeyCols];
     ciKey[0] =
@@ -156,7 +156,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciKey,
-            nrKeyRows,
+            1,
             lsMod,
             props);
 
@@ -240,7 +240,6 @@ public class StreamLookupDialog extends BaseTransformDialog {
     wlReturn.setLayoutData(fdlReturn);
 
     int upInsCols = 4;
-    int upInsRows = (input.getValue() != null ? input.getValue().length : 1);
 
     ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
@@ -272,7 +271,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
-            upInsRows,
+            1,
             lsMod,
             props);
 
@@ -360,37 +359,26 @@ public class StreamLookupDialog extends BaseTransformDialog {
       logDebug(BaseMessages.getString(PKG, "StreamLookupDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getKeystream() != null) {
-      for (int i = 0; i < input.getKeystream().length; i++) {
-        TableItem item = wKey.table.getItem(i);
-        if (input.getKeystream()[i] != null) {
-          item.setText(1, input.getKeystream()[i]);
-        }
-        if (input.getKeylookup()[i] != null) {
-          item.setText(2, input.getKeylookup()[i]);
-        }
-      }
+    for (StreamLookupMeta.MatchKey matchKey : input.getLookup().getMatchKeys()) {
+      TableItem item = new TableItem(wKey.table, SWT.NONE);
+      item.setText(1, Const.NVL(matchKey.getKeyStream(), ""));
+      item.setText(2, Const.NVL(matchKey.getKeyLookup(), ""));
     }
+    wKey.optimizeTableView();
 
-    if (input.getValue() != null) {
-      for (int i = 0; i < input.getValue().length; i++) {
-        TableItem item = wReturn.table.getItem(i);
-        if (input.getValue()[i] != null) {
-          item.setText(1, input.getValue()[i]);
-        }
-        if (input.getValueName()[i] != null
-            && !input.getValueName()[i].equals(input.getValue()[i])) {
-          item.setText(2, input.getValueName()[i]);
-        }
-        if (input.getValueDefault()[i] != null) {
-          item.setText(3, input.getValueDefault()[i]);
-        }
-        item.setText(4, ValueMetaFactory.getValueMetaName(input.getValueDefaultType()[i]));
+    for (StreamLookupMeta.ReturnValue returnValue : input.getLookup().getReturnValues()) {
+      TableItem item = new TableItem(wReturn.table, SWT.NONE);
+      item.setText(1, Const.NVL(returnValue.getValue(), ""));
+      if (StringUtils.isNotEmpty(returnValue.getValueName())
+          && !returnValue.getValueName().equalsIgnoreCase(returnValue.getValue())) {
+        item.setText(2, returnValue.getValueName());
       }
+      item.setText(3, Const.NVL(returnValue.getValueDefault(), ""));
+      item.setText(4, ValueMetaFactory.getValueMetaName(returnValue.getValueDefaultType()));
     }
+    wReturn.optimizeTableView();
 
-    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get(0);
-    wTransform.setText(Const.NVL(infoStream.getTransformName(), ""));
+    wTransform.setText(Const.NVL(input.getSourceTransformName(), ""));
 
     boolean isPreserveMemory = input.isMemoryPreservationActive();
     wPreserveMemory.setSelection(isPreserveMemory);
@@ -403,11 +391,6 @@ public class StreamLookupDialog extends BaseTransformDialog {
     // but user will be forced to choose only one option later.
     wSortedList.setSelection(input.isUsingSortedList());
     wIntegerPair.setSelection(input.isUsingIntegerPair());
-
-    wKey.setRowNums();
-    wKey.optWidth(true);
-    wReturn.setRowNums();
-    wReturn.optWidth(true);
   }
 
   private void cancel() {
@@ -421,40 +404,36 @@ public class StreamLookupDialog extends BaseTransformDialog {
       return;
     }
 
-    int nrkeys = wKey.nrNonEmpty();
-    int nrvalues = wReturn.nrNonEmpty();
-    input.allocate(nrkeys, nrvalues);
     input.setMemoryPreservationActive(wPreserveMemory.getSelection());
     input.setUsingSortedList(wSortedList.getSelection());
     input.setUsingIntegerPair(wIntegerPair.getSelection());
+    StreamLookupMeta.Lookup lookup = input.getLookup();
+    lookup.getMatchKeys().clear();
+    for (TableItem item : wKey.getNonEmptyItems()) {
+      StreamLookupMeta.MatchKey matchKey = new StreamLookupMeta.MatchKey();
+      lookup.getMatchKeys().add(matchKey);
 
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "StreamLookupDialog.Log.FoundKeys", nrkeys + ""));
+      matchKey.setKeyStream(item.getText(1));
+      matchKey.setKeyLookup(item.getText(2));
     }
 
-    for (int i = 0; i < nrkeys; i++) {
-      TableItem item = wKey.getNonEmpty(i);
-      input.getKeystream()[i] = item.getText(1);
-      input.getKeylookup()[i] = item.getText(2);
-    }
+    lookup.getReturnValues().clear();
+    for (TableItem item : wReturn.getNonEmptyItems()) {
+      StreamLookupMeta.ReturnValue returnValue = new StreamLookupMeta.ReturnValue();
+      lookup.getReturnValues().add(returnValue);
 
-    if (log.isDebug()) {
-      logDebug(BaseMessages.getString(PKG, "StreamLookupDialog.Log.FoundFields", nrvalues + ""));
-    }
-
-    for (int i = 0; i < nrvalues; i++) {
-      TableItem item = wReturn.getNonEmpty(i);
-      input.getValue()[i] = item.getText(1);
-      input.getValueName()[i] = item.getText(2);
-      if (Utils.isEmpty(input.getValueName()[i])) {
-        input.getValueName()[i] = input.getValue()[i];
+      returnValue.setValue(item.getText(1));
+      returnValue.setValueName(item.getText(2));
+      if (Utils.isEmpty(returnValue.getValueName())) {
+        returnValue.setValueName(returnValue.getValue());
       }
-      input.getValueDefault()[i] = item.getText(3);
-      input.getValueDefaultType()[i] = ValueMetaFactory.getIdForValueMeta(item.getText(4));
+      returnValue.setValueDefault(item.getText(3));
+      returnValue.setValueDefaultType(ValueMetaFactory.getIdForValueMeta(item.getText(4)));
     }
 
-    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get(0);
-    infoStream.setTransformMeta(pipelineMeta.findTransform(wTransform.getText()));
+    input.setSourceTransformName(wTransform.getText());
+    input.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
+    IStream infoStream = input.getTransformIOMeta().getInfoStreams().getFirst();
     if (infoStream.getTransformMeta() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       if (Utils.isEmpty(wTransform.getText())) {
@@ -533,7 +512,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
     }
   }
 
-  private void getlookup() {
+  private void getLookup() {
     try {
       String transformFrom = wTransform.getText();
       if (!Utils.isEmpty(transformFrom)) {

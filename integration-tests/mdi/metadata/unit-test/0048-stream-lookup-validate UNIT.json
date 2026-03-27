@@ -1,0 +1,90 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "from",
+          "data_set_field": "from"
+        },
+        {
+          "transform_field": "input_sorted",
+          "data_set_field": "input_sorted"
+        },
+        {
+          "transform_field": "integer_pair",
+          "data_set_field": "integer_pair"
+        },
+        {
+          "transform_field": "preserve_memory",
+          "data_set_field": "preserve_memory"
+        },
+        {
+          "transform_field": "sorted_list",
+          "data_set_field": "sorted_list"
+        }
+      ],
+      "field_order": [
+        "from",
+        "input_sorted",
+        "preserve_memory",
+        "sorted_list",
+        "integer_pair"
+      ],
+      "data_set_name": "golden-stream-lookup",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "field",
+          "data_set_field": "field"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-stream-lookup-keys",
+      "transform_name": "validate keys"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "default",
+          "data_set_field": "default"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "rename",
+          "data_set_field": "rename"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        }
+      ],
+      "field_order": [
+        "name"
+      ],
+      "data_set_name": "golden-stream-lookup-values",
+      "transform_name": "validate values"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0048-stream-lookup-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0048-stream-lookup-validate.hpl"
+}
