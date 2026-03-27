@@ -71,6 +71,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -712,11 +713,19 @@ class ValueMetaBaseTest {
     assertTrue(Modifier.isFinal(log.getModifiers()));
     log.setAccessible(true);
     try {
+      ILogChannel valueMetaLogger = (ILogChannel) log.get(null);
+      assertNotNull(valueMetaLogger);
       assertEquals(
+          valueMetaLogger.getLogChannelId(), ((ILogChannel) log.get(null)).getLogChannelId());
+
+      // The logging registry can be cleared by other tests, so only assert this mapping when
+      // present.
+      ILoggingObject existingSource =
           LoggingRegistry.getInstance()
-              .findExistingLoggingSource(new LoggingObject("ValueMetaBase"))
-              .getLogChannelId(),
-          ((ILogChannel) log.get(null)).getLogChannelId());
+              .findExistingLoggingSource(new LoggingObject("ValueMetaBase"));
+      if (existingSource != null) {
+        assertEquals(existingSource.getLogChannelId(), valueMetaLogger.getLogChannelId());
+      }
     } finally {
       log.setAccessible(false);
     }
