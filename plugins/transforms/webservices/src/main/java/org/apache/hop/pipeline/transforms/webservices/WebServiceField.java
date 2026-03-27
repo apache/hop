@@ -17,54 +17,41 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.XsdType;
 
+@Getter
+@Setter
 public class WebServiceField implements Cloneable {
+  @HopMetadataProperty(key = "name")
   private String name;
 
+  @HopMetadataProperty(key = "wsName")
   private String wsName;
 
+  @HopMetadataProperty(key = "xsdType")
   private String xsdType;
+
+  public WebServiceField() {}
+
+  public WebServiceField(WebServiceField f) {
+    this();
+    this.name = f.name;
+    this.wsName = f.wsName;
+    this.xsdType = f.xsdType;
+  }
 
   @Override
   public WebServiceField clone() {
-    try {
-      return (WebServiceField) super.clone();
-    } catch (CloneNotSupportedException e) {
-      e.printStackTrace();
-      return null;
-    }
+    return new WebServiceField(this);
   }
 
   @Override
   public String toString() {
-
     return name != null ? name : super.toString();
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getWsName() {
-    return wsName;
-  }
-
-  public void setWsName(String wsName) {
-    this.wsName = wsName;
-  }
-
-  public String getXsdType() {
-    return xsdType;
-  }
-
-  public void setXsdType(String xsdType) {
-    this.xsdType = xsdType;
   }
 
   public int getType() {
@@ -75,7 +62,7 @@ public class WebServiceField implements Cloneable {
    * We consider a field to be complex if it's a type we don't recognize. In that case, we will give
    * back XML as a string.
    *
-   * @return
+   * @return true if the field is complex
    */
   public boolean isComplex() {
     return getType() == IValueMeta.TYPE_NONE;
