@@ -71,8 +71,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.json.HopJson;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.util.EnvUtil;
@@ -253,8 +252,6 @@ public class ValueMetaBase implements IValueMeta {
   protected boolean ignoreWhitespace;
 
   protected final Comparator<Object> comparator;
-
-  private static final ILogChannel log = HopLogStore.getLogChannelFactory().create("ValueMetaBase");
 
   /** The trim type codes */
   public static final String[] trimTypeCode = {"none", "left", "right", "both"};
@@ -5780,11 +5777,13 @@ public class ValueMetaBase implements IValueMeta {
               // Take the last maxlen characters of the string...
               int begin = Math.max(len - maxlen, 0);
               if (begin > 0) {
-                // Truncate if logging result if it exceeds database maximum string field length
-                log.logMinimal(
-                    String.format(
-                        "Truncating %d symbols of original message in '%s' field",
-                        begin, getName()));
+                // Truncate string if it exceeds database maximum string field length
+                if (LogChannel.GENERAL.isDetailed()) {
+                  LogChannel.GENERAL.logDetailed(
+                      String.format(
+                          "Truncating %d symbols of original message in '%s' field",
+                          begin, getName()));
+                }
                 string = string.substring(begin);
               }
 
