@@ -16,28 +16,40 @@
  */
 package org.apache.hop.base;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.w3c.dom.Node;
 
 /**
  * This class defines a base hop from one action copy to another, or from one transform to another.
  */
+@Getter
+@Setter
 public abstract class BaseHopMeta<T> {
   public static final String XML_HOP_TAG = "hop";
   public static final String XML_FROM_TAG = "from";
   public static final String XML_TO_TAG = "to";
   public static final String XML_ENABLED_TAG = "enabled";
 
-  public boolean split = false;
+  protected boolean split = false;
+
+  @HopMetadataProperty(key = "from", storeWithName = true, lookupInList = "transforms")
   protected T from;
+
+  @HopMetadataProperty(key = "to", storeWithName = true, lookupInList = "transforms")
   protected T to;
+
+  @HopMetadataProperty(key = "enabled")
   protected boolean enabled;
+
   protected boolean changed;
   private boolean errorHop;
 
-  public BaseHopMeta() {}
+  protected BaseHopMeta() {}
 
-  public BaseHopMeta(
+  protected BaseHopMeta(
       boolean split, T from, T to, boolean enabled, boolean changed, boolean errorHop) {
     this.split = split;
     this.from = from;
@@ -63,39 +75,11 @@ public abstract class BaseHopMeta<T> {
     setEnabled(true);
   }
 
-  public boolean isEnabled() {
-    return enabled;
-  }
-
   public void setEnabled(boolean en) {
     if (enabled != en) {
       setChanged();
       enabled = en;
     }
-  }
-
-  public boolean isErrorHop() {
-    return errorHop;
-  }
-
-  public void setErrorHop(boolean errorHop) {
-    this.errorHop = errorHop;
-  }
-
-  /**
-   * Gets split
-   *
-   * @return value of split
-   */
-  public boolean isSplit() {
-    return split;
-  }
-
-  /**
-   * @param split The split to set
-   */
-  public void setSplit(boolean split) {
-    this.split = split;
   }
 
   protected boolean getTagValueAsBoolean(

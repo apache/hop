@@ -1240,6 +1240,10 @@ public class XmlHandler {
       throw new HopException("Error reading license file : " + realLicenseFile, e);
     }
   }
+
+  public static String aroundTag(String tag, String xml) {
+    return openTag(tag) + xml + closeTag(tag);
+  }
 }
 
 /** Handle external references and return an empty dummy document. */

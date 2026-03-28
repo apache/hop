@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -623,9 +624,9 @@ public class GuiCompositeWidgets {
     // Instantiate the class...
     //
     try {
-      return typeFilenameClass.newInstance();
+      return typeFilenameClass.getConstructor().newInstance();
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error instantiating class "
               + typeFilenameClass.getName()
               + " for GUI elements "

@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -28,7 +30,10 @@ import org.apache.hop.metadata.serializer.xml.classes.Field;
 import org.apache.hop.metadata.serializer.xml.classes.Info;
 import org.apache.hop.metadata.serializer.xml.classes.MetaData;
 import org.apache.hop.metadata.serializer.xml.classes.TestEnum;
+import org.apache.hop.metadata.serializer.xml.classes.WithListReference;
 import org.apache.hop.metadata.serializer.xml.classes.WithMap;
+import org.apache.hop.metadata.serializer.xml.classes.WithMapAsList;
+import org.apache.hop.metadata.serializer.xml.classes.WithMapMap;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 
@@ -154,7 +159,7 @@ class XmlMetadataUtilTest {
   }
 
   @Test
-  void testMappingSerialization() throws Exception {
+  void testMapSerialization() throws Exception {
     WithMap withMap = new WithMap();
     WithMap.Key k1 = new WithMap.Key("k11", "k12");
     WithMap.Value v1 = new WithMap.Value("v11", "v12");
@@ -169,7 +174,7 @@ class XmlMetadataUtilTest {
     withMap.getMappings().put(k3, v3);
 
     String xml = XmlMetadataUtil.serializeObjectToXml(withMap);
-    Node node = XmlHandler.loadXmlString(xml);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
     WithMap withCopy =
         XmlMetadataUtil.deSerializeFromXml(node, WithMap.class, new MemoryMetadataProvider());
     assertEquals(withCopy.getMappings().size(), withMap.getMappings().size());
@@ -179,5 +184,67 @@ class XmlMetadataUtilTest {
       assertTrue(withCopy.getMappings().containsKey(key));
       assertEquals(value, valueCopy);
     }
+  }
+
+  @Test
+  void testMapMapSerialization() throws Exception {
+    WithMapMap mapMap = new WithMapMap();
+
+    String[] groupNames = {"group1", "group2", "group3"};
+    for (String groupName : groupNames) {
+      Map<String, String> groupMap = new HashMap<>();
+      for (int a = 1; a <= 5; a++) {
+        groupMap.put("key-" + groupName + "-" + a, "value-" + groupName + "-" + a);
+      }
+      mapMap.getAttributesMap().put(groupName, groupMap);
+    }
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(mapMap);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
+    WithMapMap withCopy =
+        XmlMetadataUtil.deSerializeFromXml(node, WithMapMap.class, new MemoryMetadataProvider());
+    assertEquals(withCopy.getAttributesMap().size(), mapMap.getAttributesMap().size());
+  }
+
+  @Test
+  void testMapAsListSerialization() throws Exception {
+    WithMapAsList mapList = new WithMapAsList();
+    String[] groupNames = {"k1", "k2", "k3"};
+    for (String groupName : groupNames) {
+      WithMapAsList.Value value = new WithMapAsList.Value();
+      value.setK(groupName);
+      value.setV1("v1-of-" + groupName);
+      value.setV2("v2-of-" + groupName);
+      mapList.getMappings().put(groupName, value);
+    }
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(mapList);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
+    WithMapAsList withCopy =
+        XmlMetadataUtil.deSerializeFromXml(node, WithMapAsList.class, new MemoryMetadataProvider());
+
+    assertEquals(withCopy.getMappings().size(), mapList.getMappings().size());
+  }
+
+  @Test
+  void testListRefenceSerialization() throws Exception {
+    WithListReference listRef = new WithListReference();
+    WithListReference.Step step1 = new WithListReference.Step("S1", "Description1", true);
+    listRef.getSteps().add(step1);
+    WithListReference.Step step2 = new WithListReference.Step("S2", "Description2", true);
+    listRef.getSteps().add(step2);
+    WithListReference.Step step3 = new WithListReference.Step("S3", "Description3", true);
+    listRef.getSteps().add(step3);
+    listRef.getHops().add(new WithListReference.Hop(step1, step2));
+    listRef.getHops().add(new WithListReference.Hop(step2, step3));
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(listRef);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
+    WithListReference withCopy =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, WithListReference.class, new MemoryMetadataProvider());
+
+    assertEquals(withCopy.getSteps().size(), listRef.getSteps().size());
+    assertEquals(withCopy.getHops().size(), listRef.getHops().size());
   }
 }

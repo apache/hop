@@ -562,4 +562,9 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
     }
     return strJSNames;
   }
+
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
+  }
 }

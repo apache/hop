@@ -13,34 +13,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.core.parameters;
+package org.apache.hop.metadata.serializer.xml.classes;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
-/** Target class for the parameter keys. */
 @Getter
 @Setter
-public class NamedParameter {
-  /** key of this parameter */
-  @HopMetadataProperty(key = "key")
-  protected String key;
+public class WithMapMap {
+  @HopMetadataProperty(
+      key = "group",
+      groupKey = "attributes",
+      mapKeyWrapper = "name",
+      mapValueWrapper = "attribute",
+      mapKeyClass = String.class,
+      mapValueClass = HashMap.class)
+  private Map<String, Map<String, String>> attributesMap;
 
-  /** Description of the parameter */
-  @HopMetadataProperty(key = "description")
-  protected String description;
-
-  /** Default value for this parameter */
-  @HopMetadataProperty(key = "default_value")
-  protected String defaultValue;
-
-  /** Actual value of the parameter. */
-  protected String value;
-
-  public NamedParameter() {
-    // Nothing specific to initialize.
+  public WithMapMap() {
+    attributesMap = new HashMap<>();
   }
 }

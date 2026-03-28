@@ -26,16 +26,19 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.w3c.dom.Node;
 
 @PartitionerPlugin(id = "ModPartitioner", name = "Remainder of division", description = "Mod")
 public class ModPartitioner extends BasePartitioner {
-
+  @HopMetadataProperty(key = "field_name")
   private String fieldName;
+
   protected int partitionColumnIndex = -1;
 
   public ModPartitioner() {
     super();
+    setId("ModPartitioner");
   }
 
   @Override

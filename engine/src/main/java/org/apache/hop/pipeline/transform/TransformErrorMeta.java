@@ -18,8 +18,10 @@
 package org.apache.hop.pipeline.transform;
 
 import java.util.List;
-import org.apache.hop.core.Const;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.changed.ChangedFlag;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -28,55 +30,69 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.w3c.dom.Node;
 
 /** This class contains the metadata to handle proper error handling on a transform level. */
+@Getter
+@Setter
 public class TransformErrorMeta extends ChangedFlag implements Cloneable {
   public static final String XML_ERROR_TAG = "error";
   public static final String XML_SOURCE_TRANSFORM_TAG = "source_transform";
   public static final String XML_TARGET_TRANSFORM_TAG = "target_transform";
-  private static final String CONST_SPACE = "        ";
 
   /** The source transform that can send the error rows */
+  @HopMetadataProperty(key = "source_transform", storeWithName = true, lookupInList = "transforms")
   private TransformMeta sourceTransform;
 
   /** The target transform to send the error rows to */
+  @HopMetadataProperty(key = "target_transform", storeWithName = true, lookupInList = "transforms")
   private TransformMeta targetTransform;
 
   /** Is the error handling enabled? */
+  @HopMetadataProperty(key = "is_enabled")
   private boolean enabled;
 
   /**
    * the name of the field value to contain the number of errors (null or empty means it's not
    * needed)
    */
-  private String nrErrorsValuename;
+  @HopMetadataProperty(key = "nr_valuename")
+  private String nrErrorsValueName;
 
   /**
    * the name of the field value to contain the error description(s) (null or empty means it's not
    * needed)
    */
-  private String errorDescriptionsValuename;
+  @HopMetadataProperty(key = "descriptions_valuename")
+  private String errorDescriptionsValueName;
 
   /**
    * the name of the field value to contain the fields for which the error(s) occured (null or empty
    * means it's not needed)
    */
-  private String errorFieldsValuename;
+  @HopMetadataProperty(key = "fields_valuename")
+  private String errorFieldsValueName;
 
   /**
    * the name of the field value to contain the error code(s) (null or empty means it's not needed)
    */
-  private String errorCodesValuename;
+  @HopMetadataProperty(key = "codes_valuename")
+  private String errorCodesValueName;
 
   /** The maximum number of errors allowed before we stop processing with a hard error */
+  @HopMetadataProperty(key = "max_errors")
   private String maxErrors = "";
 
   /** The maximum percent of errors allowed before we stop processing with a hard error */
+  @HopMetadataProperty(key = "max_pct_errors")
   private String maxPercentErrors = "";
 
   /** The minimum number of rows to read before the percentage evaluation takes place */
+  @HopMetadataProperty(key = "min_pct_rows")
   private String minPercentRows = "";
+
+  public TransformErrorMeta() {}
 
   /**
    * Create a new transform error handling metadata object
@@ -105,29 +121,29 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
    *
    * @param sourceTransform The source transform that can send the error rows
    * @param targetTransform The target transform to send the error rows to
-   * @param nrErrorsValuename the name of the field value to contain the number of errors (null or
+   * @param nrErrorsValueName the name of the field value to contain the number of errors (null or
    *     empty means it's not needed)
-   * @param errorDescriptionsValuename the name of the field value to contain the error
+   * @param errorDescriptionsValueName the name of the field value to contain the error
    *     description(s) (null or empty means it's not needed)
-   * @param errorFieldsValuename the name of the field value to contain the fields for which the
+   * @param errorFieldsValueName the name of the field value to contain the fields for which the
    *     error(s) occured (null or empty means it's not needed)
-   * @param errorCodesValuename the name of the field value to contain the error code(s) (null or
+   * @param errorCodesValueName the name of the field value to contain the error code(s) (null or
    *     empty means it's not needed)
    */
   public TransformErrorMeta(
       TransformMeta sourceTransform,
       TransformMeta targetTransform,
-      String nrErrorsValuename,
-      String errorDescriptionsValuename,
-      String errorFieldsValuename,
-      String errorCodesValuename) {
+      String nrErrorsValueName,
+      String errorDescriptionsValueName,
+      String errorFieldsValueName,
+      String errorCodesValueName) {
     this.sourceTransform = sourceTransform;
     this.targetTransform = targetTransform;
     this.enabled = false;
-    this.nrErrorsValuename = nrErrorsValuename;
-    this.errorDescriptionsValuename = errorDescriptionsValuename;
-    this.errorFieldsValuename = errorFieldsValuename;
-    this.errorCodesValuename = errorCodesValuename;
+    this.nrErrorsValueName = nrErrorsValueName;
+    this.errorDescriptionsValueName = errorDescriptionsValueName;
+    this.errorFieldsValueName = errorFieldsValueName;
+    this.errorCodesValueName = errorCodesValueName;
   }
 
   @Override
@@ -135,42 +151,27 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
     try {
       return (TransformErrorMeta) super.clone();
     } catch (CloneNotSupportedException e) {
-      return null;
+      throw new HopRuntimeException("Error cloning transform error metadata", e);
     }
   }
 
   public String getXml() {
-
-    return "      "
-        + XmlHandler.openTag(TransformErrorMeta.XML_ERROR_TAG)
-        + Const.CR
-        + CONST_SPACE
+    return XmlHandler.openTag(TransformErrorMeta.XML_ERROR_TAG)
         + XmlHandler.addTagValue(
             TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG,
             sourceTransform != null ? sourceTransform.getName() : "")
-        + CONST_SPACE
         + XmlHandler.addTagValue(
             TransformErrorMeta.XML_TARGET_TRANSFORM_TAG,
             targetTransform != null ? targetTransform.getName() : "")
-        + CONST_SPACE
         + XmlHandler.addTagValue("is_enabled", enabled)
-        + CONST_SPACE
-        + XmlHandler.addTagValue("nr_valuename", nrErrorsValuename)
-        + CONST_SPACE
-        + XmlHandler.addTagValue("descriptions_valuename", errorDescriptionsValuename)
-        + CONST_SPACE
-        + XmlHandler.addTagValue("fields_valuename", errorFieldsValuename)
-        + CONST_SPACE
-        + XmlHandler.addTagValue("codes_valuename", errorCodesValuename)
-        + CONST_SPACE
+        + XmlHandler.addTagValue("nr_valuename", nrErrorsValueName)
+        + XmlHandler.addTagValue("descriptions_valuename", errorDescriptionsValueName)
+        + XmlHandler.addTagValue("fields_valuename", errorFieldsValueName)
+        + XmlHandler.addTagValue("codes_valuename", errorCodesValueName)
         + XmlHandler.addTagValue("max_errors", maxErrors)
-        + CONST_SPACE
         + XmlHandler.addTagValue("max_pct_errors", maxPercentErrors)
-        + CONST_SPACE
         + XmlHandler.addTagValue("min_pct_rows", minPercentRows)
-        + "      "
-        + XmlHandler.closeTag(TransformErrorMeta.XML_ERROR_TAG)
-        + Const.CR;
+        + XmlHandler.closeTag(TransformErrorMeta.XML_ERROR_TAG);
   }
 
   public TransformErrorMeta(Node node, List<TransformMeta> transforms) {
@@ -181,138 +182,39 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
         TransformMeta.findTransform(
             transforms, XmlHandler.getTagValue(node, TransformErrorMeta.XML_TARGET_TRANSFORM_TAG));
     enabled = "Y".equals(XmlHandler.getTagValue(node, "is_enabled"));
-    nrErrorsValuename = XmlHandler.getTagValue(node, "nr_valuename");
-    errorDescriptionsValuename = XmlHandler.getTagValue(node, "descriptions_valuename");
-    errorFieldsValuename = XmlHandler.getTagValue(node, "fields_valuename");
-    errorCodesValuename = XmlHandler.getTagValue(node, "codes_valuename");
+    nrErrorsValueName = XmlHandler.getTagValue(node, "nr_valuename");
+    errorDescriptionsValueName = XmlHandler.getTagValue(node, "descriptions_valuename");
+    errorFieldsValueName = XmlHandler.getTagValue(node, "fields_valuename");
+    errorCodesValueName = XmlHandler.getTagValue(node, "codes_valuename");
     maxErrors = XmlHandler.getTagValue(node, "max_errors");
     maxPercentErrors = XmlHandler.getTagValue(node, "max_pct_errors");
     minPercentRows = XmlHandler.getTagValue(node, "min_pct_rows");
   }
 
-  /**
-   * @return the error codes valuename
-   */
-  public String getErrorCodesValuename() {
-    return errorCodesValuename;
-  }
-
-  /**
-   * @param errorCodesValuename the error codes valuename to set
-   */
-  public void setErrorCodesValuename(String errorCodesValuename) {
-    this.errorCodesValuename = errorCodesValuename;
-  }
-
-  /**
-   * @return the error descriptions valuename
-   */
-  public String getErrorDescriptionsValuename() {
-    return errorDescriptionsValuename;
-  }
-
-  /**
-   * @param errorDescriptionsValuename the error descriptions valuename to set
-   */
-  public void setErrorDescriptionsValuename(String errorDescriptionsValuename) {
-    this.errorDescriptionsValuename = errorDescriptionsValuename;
-  }
-
-  /**
-   * @return the error fields valuename
-   */
-  public String getErrorFieldsValuename() {
-    return errorFieldsValuename;
-  }
-
-  /**
-   * @param errorFieldsValuename the error fields valuename to set
-   */
-  public void setErrorFieldsValuename(String errorFieldsValuename) {
-    this.errorFieldsValuename = errorFieldsValuename;
-  }
-
-  /**
-   * @return the nr errors valuename
-   */
-  public String getNrErrorsValuename() {
-    return nrErrorsValuename;
-  }
-
-  /**
-   * @param nrErrorsValuename the nr errors valuename to set
-   */
-  public void setNrErrorsValuename(String nrErrorsValuename) {
-    this.nrErrorsValuename = nrErrorsValuename;
-  }
-
-  /**
-   * @return the target transform
-   */
-  public TransformMeta getTargetTransform() {
-    return targetTransform;
-  }
-
-  /**
-   * @param targetTransform the target transform to set
-   */
-  public void setTargetTransform(TransformMeta targetTransform) {
-    this.targetTransform = targetTransform;
-  }
-
-  /**
-   * @return The source transform can send the error rows
-   */
-  public TransformMeta getSourceTransform() {
-    return sourceTransform;
-  }
-
-  /**
-   * @param sourceTransform The source transform can send the error rows
-   */
-  public void setSourceTransform(TransformMeta sourceTransform) {
-    this.sourceTransform = sourceTransform;
-  }
-
-  /**
-   * @return the enabled flag: Is the error handling enabled?
-   */
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  /**
-   * @param enabled the enabled flag to set: Is the error handling enabled?
-   */
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
   public IRowMeta getErrorRowMeta(IVariables variables) {
     IRowMeta row = new RowMeta();
 
-    String nrErr = variables.resolve(getNrErrorsValuename());
+    String nrErr = variables.resolve(getNrErrorsValueName());
     if (!Utils.isEmpty(nrErr)) {
       IValueMeta v = new ValueMetaInteger(nrErr);
       v.setLength(3);
       row.addValueMeta(v);
     }
-    String errDesc = variables.resolve(getErrorDescriptionsValuename());
+    String errDesc = variables.resolve(getErrorDescriptionsValueName());
     if (!Utils.isEmpty(errDesc)) {
       IValueMeta v = new ValueMetaString(errDesc);
       row.addValueMeta(v);
     }
-    String errFields = variables.resolve(getErrorFieldsValuename());
+    String errFields = variables.resolve(getErrorFieldsValueName());
     if (!Utils.isEmpty(errFields)) {
       IValueMeta v = new ValueMetaString(errFields);
       row.addValueMeta(v);
     }
-    String errCodes = variables.resolve(getErrorCodesValuename());
+    String errCodes = variables.resolve(getErrorCodesValueName());
     if (!Utils.isEmpty(errCodes)) {
       IValueMeta v = new ValueMetaString(errCodes);
       row.addValueMeta(v);
     }
-
     return row;
   }
 
@@ -326,66 +228,24 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
       String errorCodes) {
     int index = startIndex;
 
-    String nrErr = variables.resolve(getNrErrorsValuename());
+    String nrErr = variables.resolve(getNrErrorsValueName());
     if (!Utils.isEmpty(nrErr)) {
       row[index] = nrErrors;
       index++;
     }
-    String errDesc = variables.resolve(getErrorDescriptionsValuename());
+    String errDesc = variables.resolve(getErrorDescriptionsValueName());
     if (!Utils.isEmpty(errDesc)) {
       row[index] = errorDescriptions;
       index++;
     }
-    String errFields = variables.resolve(getErrorFieldsValuename());
+    String errFields = variables.resolve(getErrorFieldsValueName());
     if (!Utils.isEmpty(errFields)) {
       row[index] = fieldNames;
       index++;
     }
-    String errCodes = variables.resolve(getErrorCodesValuename());
+    String errCodes = variables.resolve(getErrorCodesValueName());
     if (!Utils.isEmpty(errCodes)) {
       row[index] = errorCodes;
     }
-  }
-
-  /**
-   * @return the maxErrors
-   */
-  public String getMaxErrors() {
-    return maxErrors;
-  }
-
-  /**
-   * @param maxErrors the maxErrors to set
-   */
-  public void setMaxErrors(String maxErrors) {
-    this.maxErrors = maxErrors;
-  }
-
-  /**
-   * @return the maxPercentErrors
-   */
-  public String getMaxPercentErrors() {
-    return maxPercentErrors;
-  }
-
-  /**
-   * @param maxPercentErrors the maxPercentErrors to set
-   */
-  public void setMaxPercentErrors(String maxPercentErrors) {
-    this.maxPercentErrors = maxPercentErrors;
-  }
-
-  /**
-   * @return the minRowsForPercent
-   */
-  public String getMinPercentRows() {
-    return minPercentRows;
-  }
-
-  /**
-   * @param minRowsForPercent the minRowsForPercent to set
-   */
-  public void setMinPercentRows(String minRowsForPercent) {
-    this.minPercentRows = minRowsForPercent;
   }
 }

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -49,6 +51,7 @@ import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.reflection.StringSearchResult;
@@ -126,6 +129,8 @@ public class WorkflowMeta extends AbstractMeta
 
   private List<MissingAction> missingActions;
 
+  @Getter @Setter protected INamedParameters namedParameters;
+
   /** Instantiates a new workflow meta. */
   public WorkflowMeta() {
     clear();
@@ -192,7 +197,7 @@ public class WorkflowMeta extends AbstractMeta
   public void clear() {
     workflowActions = new ArrayList<>();
     workflowHops = new ArrayList<>();
-    namedParams = new NamedParameters();
+    namedParameters = new NamedParameters();
 
     info = new WorkflowMetaInfo();
     arguments = null;
@@ -306,7 +311,7 @@ public class WorkflowMeta extends AbstractMeta
         workflowMeta.workflowActions = new ArrayList<>();
         workflowMeta.workflowHops = new ArrayList<>();
         workflowMeta.notes = new ArrayList<>();
-        workflowMeta.namedParams = new NamedParameters();
+        workflowMeta.namedParameters = new NamedParameters();
       }
 
       for (ActionMeta action : workflowActions) {

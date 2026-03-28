@@ -44,7 +44,7 @@ public class FakeRowDistribution implements IRowDistribution {
       Object[] paramArrayOfObject,
       ITransform paramTransformInterface)
       throws HopTransformException {
-    // TODO: Implement some distribution for test cases
+    // Implement some distribution for test cases
   }
 
   @Override

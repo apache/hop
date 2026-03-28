@@ -125,10 +125,10 @@ public class PipelineTestFactory {
     TransformErrorMeta errMeta = new TransformErrorMeta(one, err);
     errMeta.setEnabled(true);
 
-    errMeta.setNrErrorsValuename(NUMBER_ERRORS_FIELD);
-    errMeta.setErrorDescriptionsValuename(ERROR_DESC_FIELD);
-    errMeta.setErrorFieldsValuename(ERROR_FIELD_VALUE);
-    errMeta.setErrorCodesValuename(ERROR_CODE_VALUE);
+    errMeta.setNrErrorsValueName(NUMBER_ERRORS_FIELD);
+    errMeta.setErrorDescriptionsValueName(ERROR_DESC_FIELD);
+    errMeta.setErrorFieldsValueName(ERROR_FIELD_VALUE);
+    errMeta.setErrorCodesValueName(ERROR_CODE_VALUE);
 
     one.setTransformErrorMeta(errMeta);
     PipelineHopMeta oneErr = new PipelineHopMeta(one, err);

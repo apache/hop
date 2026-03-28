@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transform;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
@@ -39,6 +41,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHasName;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -52,6 +55,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /** This class contains everything that is needed to define a transform. */
+@Getter
+@Setter
 public class TransformMeta
     implements Cloneable,
         Comparable<TransformMeta>,
@@ -60,7 +65,8 @@ public class TransformMeta
         IResourceExport,
         IResourceHolder,
         IAttributes,
-        IBaseMeta {
+        IBaseMeta,
+        IHasName {
   private static final Class<?> PKG = TransformMeta.class;
 
   public static final String XML_TAG = "transform";
@@ -80,14 +86,16 @@ public class TransformMeta
   @HopMetadataProperty(inline = true)
   private ITransformMeta transform;
 
-  @HopMetadataProperty private boolean selected;
+  private boolean selected;
 
-  @HopMetadataProperty private boolean distributes;
+  @HopMetadataProperty(key = "distribute")
+  private boolean distributes;
 
   private boolean isDeprecated;
 
   private String suggestion = "";
 
+  @HopMetadataProperty(key = "custom_distribution")
   private IRowDistribution rowDistribution;
 
   @HopMetadataProperty(key = "copies")
@@ -106,6 +114,9 @@ public class TransformMeta
   @HopMetadataProperty(key = CONST_TARGET_TRANSFORM_PARTITIONING)
   private TransformPartitioningMeta targetTransformPartitioningMeta;
 
+  // This information is serialized at the PipelineMeta level and passed to this method.
+  // The reason for this is that there are references to transforms in the error metadata.
+  //
   private TransformErrorMeta transformErrorMeta;
 
   private PipelineMeta parentPipelineMeta;
@@ -113,6 +124,12 @@ public class TransformMeta
   private Integer copiesCache = null;
 
   /** protected for easy access by subclasses */
+  @HopMetadataProperty(
+      key = "group",
+      groupKey = "attributes",
+      mapKeyWrapper = "name",
+      mapValueWrapper = "attribute",
+      mapValueClass = HashMap.class)
   protected Map<String, Map<String, String>> attributesMap;
 
   /**
@@ -125,6 +142,11 @@ public class TransformMeta
     if (this.transformPluginId == null) {
       this.transformPluginId = transformId;
     }
+    attributesMap = new HashMap<>();
+    transformPartitioningMeta = new TransformPartitioningMeta();
+    distributes = true;
+    copiesString = "1";
+    location = new Point(0, 0);
   }
 
   /**
@@ -229,16 +251,14 @@ public class TransformMeta
         }
 
         // Load the specifics from XML...
-        if (transform != null) {
-          transform.loadXml(transformNode, metadataProvider);
-        }
+        transform.loadXml(transformNode, metadataProvider);
 
         /* Handle info general to all transform types... */
         description = XmlHandler.getTagValue(transformNode, "description");
         copiesString = XmlHandler.getTagValue(transformNode, "copies");
-        String sdistri = XmlHandler.getTagValue(transformNode, "distribute");
-        distributes = "Y".equalsIgnoreCase(sdistri);
-        if (sdistri == null) {
+        String stringDistribute = XmlHandler.getTagValue(transformNode, "distribute");
+        distributes = "Y".equalsIgnoreCase(stringDistribute);
+        if (stringDistribute == null) {
           distributes = true; // default=distribute
         }
 
@@ -473,33 +493,6 @@ public class TransformMeta
     }
   }
 
-  public String getTransformPluginId() {
-    return transformPluginId;
-  }
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String sname) {
-    name = sname;
-  }
-
-  @Override
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  @Override
-  public void setSelected(boolean sel) {
-    selected = sel;
-  }
-
   public void flipSelected() {
     selected = !selected;
   }
@@ -523,8 +516,8 @@ public class TransformMeta
 
   @Override
   public void setLocation(int x, int y) {
-    int nx = (x >= 0 ? x : 0);
-    int ny = (y >= 0 ? y : 0);
+    int nx = Math.max(x, 0);
+    int ny = Math.max(y, 0);
 
     Point loc = new Point(nx, ny);
     if (!loc.equals(location)) {
@@ -539,11 +532,6 @@ public class TransformMeta
       setChanged();
     }
     location = loc;
-  }
-
-  @Override
-  public Point getLocation() {
-    return location;
   }
 
   public void check(
@@ -583,27 +571,6 @@ public class TransformMeta
   }
 
   /**
-   * @return the transformPartitioningMeta
-   */
-  public TransformPartitioningMeta getTransformPartitioningMeta() {
-    return transformPartitioningMeta;
-  }
-
-  /**
-   * @param transformPartitioningMeta the transformPartitioningMeta to set
-   */
-  public void setTransformPartitioningMeta(TransformPartitioningMeta transformPartitioningMeta) {
-    this.transformPartitioningMeta = transformPartitioningMeta;
-  }
-
-  /**
-   * @return the distributes
-   */
-  public boolean isDistributes() {
-    return distributes;
-  }
-
-  /**
    * @param distributes the distributes to set
    */
   public void setDistributes(boolean distributes) {
@@ -614,28 +581,13 @@ public class TransformMeta
   }
 
   /**
-   * @return the TransformErrorMeta error handling metadata for this transform
-   */
-  public TransformErrorMeta getTransformErrorMeta() {
-    return transformErrorMeta;
-  }
-
-  /**
-   * @param transformErrorMeta the error handling metadata for this transform
-   */
-  public void setTransformErrorMeta(TransformErrorMeta transformErrorMeta) {
-    this.transformErrorMeta = transformErrorMeta;
-  }
-
-  /**
    * Find a transform with its name in a given ArrayList of transforms
    *
    * @param transforms The List of transforms to search
    * @param transformName The name of the transform
    * @return The transform if it was found, null if nothing was found
    */
-  public static final TransformMeta findTransform(
-      List<TransformMeta> transforms, String transformName) {
+  public static TransformMeta findTransform(List<TransformMeta> transforms, String transformName) {
     if (transforms == null) {
       return null;
     }
@@ -740,21 +692,6 @@ public class TransformMeta
     return transform.exportResources(variables, definitions, iResourceNaming, metadataProvider);
   }
 
-  /**
-   * @return the targetTransformPartitioningMeta
-   */
-  public TransformPartitioningMeta getTargetTransformPartitioningMeta() {
-    return targetTransformPartitioningMeta;
-  }
-
-  /**
-   * @param targetTransformPartitioningMeta the targetTransformPartitioningMeta to set
-   */
-  public void setTargetTransformPartitioningMeta(
-      TransformPartitioningMeta targetTransformPartitioningMeta) {
-    this.targetTransformPartitioningMeta = targetTransformPartitioningMeta;
-  }
-
   public boolean isRepartitioning() {
     if (!isPartitioned() && isTargetPartitioned()) {
       return true;
@@ -764,40 +701,12 @@ public class TransformMeta
         && !transformPartitioningMeta.equals(targetTransformPartitioningMeta);
   }
 
-  /**
-   * Set the plugin transform id (code)
-   *
-   * @param transformPluginId
-   */
-  public void setTransformPluginId(String transformPluginId) {
-    this.transformPluginId = transformPluginId;
-  }
-
-  public void setParentPipelineMeta(PipelineMeta parentPipelineMeta) {
-    this.parentPipelineMeta = parentPipelineMeta;
-  }
-
-  public PipelineMeta getParentPipelineMeta() {
-    return parentPipelineMeta;
-  }
-
-  public IRowDistribution getRowDistribution() {
-    return rowDistribution;
-  }
-
   public void setRowDistribution(IRowDistribution rowDistribution) {
     this.rowDistribution = rowDistribution;
     if (rowDistribution != null) {
       setDistributes(true);
     }
     setChanged();
-  }
-
-  /**
-   * @return the copiesString
-   */
-  public String getCopiesString() {
-    return copiesString;
   }
 
   /**
@@ -849,13 +758,5 @@ public class TransformMeta
 
   public boolean isMissing() {
     return this.transform instanceof Missing;
-  }
-
-  public boolean isDeprecated() {
-    return isDeprecated;
-  }
-
-  public String getSuggestion() {
-    return suggestion;
   }
 }
