@@ -50,7 +50,9 @@ public class DialogBoxWithButtons {
     this.message = message;
     this.buttonLabels = buttonLabels;
 
-    choice = new AtomicInteger();
+    // Default: -1. No button has been clicked; mainly used to distinguish from the index positions
+    // of other buttons, e.g., [0. Add new, 1. Add all, 2. Clear and add all, 3. Cancel].
+    choice = new AtomicInteger(-1);
   }
 
   public int open() {
@@ -110,11 +112,12 @@ public class DialogBoxWithButtons {
     return choice.get();
   }
 
-  private void close() {
-    choice.set(0xFF);
-  }
-
   private void dispose() {
+    // mark close,similar to choice = 3 (Cancel action)
+    if (choice.get() == -1) {
+      choice.set(0xFF);
+    }
+
     props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
