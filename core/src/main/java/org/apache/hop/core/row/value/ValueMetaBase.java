@@ -1920,17 +1920,17 @@ public class ValueMetaBase implements IValueMeta {
     if (storageType == STORAGE_TYPE_NORMAL) {
       switch (getType()) {
         case IValueMeta.TYPE_STRING,
-            IValueMeta.TYPE_NUMBER,
-            IValueMeta.TYPE_INTEGER,
-            IValueMeta.TYPE_BOOLEAN,
-            IValueMeta.TYPE_BIGNUMBER:
+        IValueMeta.TYPE_NUMBER,
+        IValueMeta.TYPE_INTEGER,
+        IValueMeta.TYPE_BOOLEAN,
+        IValueMeta.TYPE_BIGNUMBER:
           // primitive data types: we can only
           // overwrite these, not change them
           return object;
 
         case IValueMeta.TYPE_DATE:
           return new Date(((Date) object).getTime()); // just to make sure: very
-          // inexpensive too.
+        // inexpensive too.
 
         case IValueMeta.TYPE_BINARY:
           byte[] originByte = (byte[]) object;
@@ -3373,7 +3373,7 @@ public class ValueMetaBase implements IValueMeta {
 
         case STORAGE_TYPE_INDEXED:
           return readSmallInteger(inputStream); // just an index: 4-bytes should
-          // be enough.
+        // be enough.
 
         default:
           throw new HopFileException(this + MSG_UNKNOWN_STORAGE_TYPE + getStorageType());
@@ -5694,7 +5694,7 @@ public class ValueMetaBase implements IValueMeta {
             data = resultSet.getTimestamp(index + 1);
             break; // Timestamp extends java.util.Date
           } else if (iDatabase.isNetezzaVariant()) {
-            // workaround for IBM netezza jdbc 'special' implementation
+            // workaround for IBM Netezza jdbc 'special' implementation
             data = getNetezzaDateValueWorkaround(iDatabase, resultSet, index + 1);
             break;
           } else {
@@ -5771,19 +5771,17 @@ public class ValueMetaBase implements IValueMeta {
             } else {
               String string = getString(data);
 
-              int maxlen = databaseMeta.getMaxTextFieldLength();
+              int maxFieldLength = databaseMeta.getMaxTextFieldLength();
               int len = string.length();
 
-              // Take the last maxlen characters of the string...
-              int begin = Math.max(len - maxlen, 0);
+              // Take the last maximum length in characters of the string.
+              int begin = Math.max(len - maxFieldLength, 0);
               if (begin > 0) {
                 // Truncate string if it exceeds database maximum string field length
-                if (LogChannel.GENERAL.isDetailed()) {
-                  LogChannel.GENERAL.logDetailed(
-                      String.format(
-                          "Truncating %d symbols of original message in '%s' field",
-                          begin, getName()));
-                }
+                LogChannel.GENERAL.logMinimal(
+                    String.format(
+                        "Truncating %d symbols of original message in '%s' field",
+                        begin, getName()));
                 string = string.substring(begin);
               }
 

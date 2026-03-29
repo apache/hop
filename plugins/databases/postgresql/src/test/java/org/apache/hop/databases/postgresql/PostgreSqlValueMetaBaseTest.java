@@ -167,7 +167,7 @@ class PostgreSqlValueMetaBaseTest {
     // check that truncated string was logged
     assertEquals(1, events.size());
     assertEquals(
-        "ValueMetaBase - Truncating 1024 symbols of original message in 'LOG_FIELD' field",
+        "General - Truncating 1024 symbols of original message in 'LOG_FIELD' field",
         events.get(0).getMessage().toString());
   }
 
