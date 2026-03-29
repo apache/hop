@@ -18,12 +18,13 @@
 package org.apache.hop.metadata.serializer.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.classes.Field;
@@ -39,7 +40,6 @@ import org.w3c.dom.Node;
 
 /** Unit test for {@link XmlMetadataUtil} */
 class XmlMetadataUtilTest {
-
   @Test
   void testMetaXml() throws Exception {
     MetaData metaTest = new MetaData();
@@ -56,88 +56,14 @@ class XmlMetadataUtilTest {
     metaTest.setInfo(new Info("aValue", "bValue"));
 
     String xml = XmlMetadataUtil.serializeObjectToXml(metaTest);
-    assertEquals(
-        "<field_separator>,</field_separator>"
-            + Const.CR
-            + "<fields>"
-            + Const.CR
-            + "<field>"
-            + Const.CR
-            + "<length>50</length>"
-            + Const.CR
-            + "<name>a</name>"
-            + Const.CR
-            + "<ott>ONE</ott>"
-            + Const.CR
-            + "<precision>-1</precision>"
-            + Const.CR
-            + "<test_code>NONE</test_code>"
-            + Const.CR
-            + "<type>String</type>"
-            + Const.CR
-            + "</field>"
-            + Const.CR
-            + "<field>"
-            + Const.CR
-            + "<format>#;-#</format>"
-            + Const.CR
-            + "<length>10</length>"
-            + Const.CR
-            + "<name>b</name>"
-            + Const.CR
-            + "<precision>0</precision>"
-            + Const.CR
-            + "<test_code>TWO</test_code>"
-            + Const.CR
-            + "<type>Integer</type>"
-            + Const.CR
-            + "</field>"
-            + Const.CR
-            + "<field>"
-            + Const.CR
-            + "<format>yyyy/MM/dd HH:mm:ss</format>"
-            + Const.CR
-            + "<length>-1</length>"
-            + Const.CR
-            + "<name>c</name>"
-            + Const.CR
-            + "<ott>THREE</ott>"
-            + Const.CR
-            + "<precision>-1</precision>"
-            + Const.CR
-            + "<test_code>THREE</test_code>"
-            + Const.CR
-            + "<type>Date</type>"
-            + Const.CR
-            + "</field>"
-            + Const.CR
-            + "</fields>"
-            + Const.CR
-            + "<filename>filename.csv</filename>"
-            + Const.CR
-            + "<grouping_symbol>&#34;</grouping_symbol>"
-            + Const.CR
-            + "<a>aValue</a>"
-            + Const.CR
-            + "<b>bValue</b>"
-            + Const.CR
-            + "<test_enum>TWO</test_enum>"
-            + Const.CR
-            + "<values>"
-            + Const.CR
-            + "<value>v1</value>"
-            + Const.CR
-            + "<value>v2</value>"
-            + Const.CR
-            + "<value>v3</value>"
-            + Const.CR
-            + "</values>"
-            + Const.CR,
-        xml);
+    Node node = XmlHandler.loadXmlString(XmlHandler.aroundTag("meta", xml), "meta");
+
+    // validate the raw XML DOM:
+    //
+    validateXmlDom(node);
 
     // Now load that object back in from XML...
     //
-    Node node = XmlHandler.loadXmlString("<meta>" + xml + "</meta>", "meta");
     MetaData metaData =
         XmlMetadataUtil.deSerializeFromXml(node, MetaData.class, new MemoryMetadataProvider());
 
@@ -156,6 +82,46 @@ class XmlMetadataUtilTest {
       String valueData = metaData.getValues().get(i);
       assertEquals(valueTest, valueData);
     }
+  }
+
+  private static void validateXmlDom(Node node) {
+    assertEquals(",", XmlHandler.getTagValue(node, "field_separator"));
+    assertEquals("filename.csv", XmlHandler.getTagValue(node, "filename"));
+    assertEquals("\"", XmlHandler.getTagValue(node, "grouping_symbol"));
+    assertEquals("aValue", XmlHandler.getTagValue(node, "a"));
+    assertEquals("bValue", XmlHandler.getTagValue(node, "b"));
+    assertEquals("TWO", XmlHandler.getTagValue(node, "test_enum"));
+    Node fieldsNode = XmlHandler.getSubNode(node, "fields");
+    List<Node> fieldNodes = XmlHandler.getNodes(fieldsNode, "field");
+    assertEquals(3, fieldNodes.size());
+    Node fieldNode = fieldNodes.get(0);
+    assertEquals("a", XmlHandler.getTagValue(fieldNode, "name"));
+    assertEquals("String", XmlHandler.getTagValue(fieldNode, "type"));
+    assertEquals("50", XmlHandler.getTagValue(fieldNode, "length"));
+    assertEquals("-1", XmlHandler.getTagValue(fieldNode, "precision"));
+    assertNull(XmlHandler.getTagValue(fieldNode, "format"));
+    assertEquals("NONE", XmlHandler.getTagValue(fieldNode, "test_code"));
+    fieldNode = fieldNodes.get(1);
+    assertEquals("b", XmlHandler.getTagValue(fieldNode, "name"));
+    assertEquals("Integer", XmlHandler.getTagValue(fieldNode, "type"));
+    assertEquals("10", XmlHandler.getTagValue(fieldNode, "length"));
+    assertEquals("0", XmlHandler.getTagValue(fieldNode, "precision"));
+    assertEquals("#;-#", XmlHandler.getTagValue(fieldNode, "format"));
+    assertEquals("TWO", XmlHandler.getTagValue(fieldNode, "test_code"));
+    fieldNode = fieldNodes.get(2);
+    assertEquals("c", XmlHandler.getTagValue(fieldNode, "name"));
+    assertEquals("Date", XmlHandler.getTagValue(fieldNode, "type"));
+    assertEquals("-1", XmlHandler.getTagValue(fieldNode, "length"));
+    assertEquals("-1", XmlHandler.getTagValue(fieldNode, "precision"));
+    assertEquals("yyyy/MM/dd HH:mm:ss", XmlHandler.getTagValue(fieldNode, "format"));
+    assertEquals("THREE", XmlHandler.getTagValue(fieldNode, "test_code"));
+
+    Node valuesNode = XmlHandler.getSubNode(node, "values");
+    List<Node> valueNodes = XmlHandler.getNodes(valuesNode, "value");
+    assertEquals(3, valueNodes.size());
+    assertEquals("v1", XmlHandler.getNodeValue(valueNodes.get(0)));
+    assertEquals("v2", XmlHandler.getNodeValue(valueNodes.get(1)));
+    assertEquals("v3", XmlHandler.getNodeValue(valueNodes.get(2)));
   }
 
   @Test
