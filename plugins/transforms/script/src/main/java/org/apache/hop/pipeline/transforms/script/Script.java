@@ -640,7 +640,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
   @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow();
-    if (r == null) {
+    if (r == null && !first) {
       processEndOfStream();
       setOutputDone();
       return false;
@@ -682,9 +682,10 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     // validation and sorting don't get ClassCastException.
     if (rowMeta != null && row != null) {
       for (int i = 0; i < rowMeta.size() && i < row.length; i++) {
-        if (rowMeta.getValueMeta(i).getType() == IValueMeta.TYPE_INTEGER
-            && row[i] instanceof Integer) {
-          row[i] = Long.valueOf(((Integer) row[i]).longValue());
+        if ((rowMeta.getValueMeta(i).getType() == IValueMeta.TYPE_INTEGER)
+            && (row[i] instanceof Integer intRow)) {
+            //noinspection UnnecessaryBoxing
+            row[i] = Long.valueOf(intRow.longValue());
         }
       }
     }
