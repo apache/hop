@@ -213,11 +213,11 @@ public class ReflectionUtil {
    * <p>This means that it's possible to inherit from other classes during serialization.
    *
    * @param clazz The class to investigate.
-   * @param sortFunction the function to extract the key to sort on. If the function returns null
-   *     the field is not included.
-   * @return A sorted list of fields.
+   * @param prefix If you specify a non-null value only the methods starting with this prefix will
+   *     be returned.
+   * @return The list of methods with the given prefix.
    */
-  public static List<Method> findAllMethods(Class<?> clazz, String prefix) throws HopException {
+  public static List<Method> findAllMethods(Class<?> clazz, String prefix) {
     Set<Method> methodSet = new HashSet<>();
 
     // Find the methods from the root class

@@ -684,8 +684,8 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
       for (int i = 0; i < rowMeta.size() && i < row.length; i++) {
         if ((rowMeta.getValueMeta(i).getType() == IValueMeta.TYPE_INTEGER)
             && (row[i] instanceof Integer intRow)) {
-            //noinspection UnnecessaryBoxing
-            row[i] = Long.valueOf(intRow.longValue());
+          //noinspection UnnecessaryBoxing
+          row[i] = Long.valueOf(intRow.longValue());
         }
       }
     }
