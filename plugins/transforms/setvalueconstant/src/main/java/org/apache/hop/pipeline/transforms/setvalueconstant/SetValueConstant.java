@@ -30,7 +30,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Replace Field value by a constant value. */
 public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData> {
-
   private static final Class<?> PKG = SetValueConstantMeta.class;
 
   public SetValueConstant(
@@ -45,7 +44,6 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
 
   @Override
   public boolean processRow() throws HopException {
-
     Object[] r = getRow(); // get row, set busy!
     if (r == null) { // no more input to be expected...
 
@@ -84,27 +82,26 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
             }
           }
 
-          data.getFieldnrs()[i] =
-              data.getOutputRowMeta().indexOfValue(meta.getField(i).getFieldName());
+          data.getFieldnrs()[i] = data.getOutputRowMeta().indexOfValue(check.getFieldName());
 
           if (data.getFieldnrs()[i] < 0) {
             logError(
                 BaseMessages.getString(
-                    PKG, "SetValueConstant.Log.CanNotFindField", meta.getField(i).getFieldName()));
+                    PKG, "SetValueConstant.Log.CanNotFindField", check.getFieldName()));
             throw new HopException(
                 BaseMessages.getString(
-                    PKG, "SetValueConstant.Log.CanNotFindField", meta.getField(i).getFieldName()));
+                    PKG, "SetValueConstant.Log.CanNotFindField", check.getFieldName()));
           }
 
-          if (meta.getField(i).isEmptyString()) {
+          if (check.isEmptyString()) {
             // Just set empty string
             data.getRealReplaceByValues()[i] = StringUtil.EMPTY_STRING;
           } else {
             // set specified value
-            if (meta.isUseVars()) {
-              data.getRealReplaceByValues()[i] = resolve(meta.getField(i).getReplaceValue());
+            if (meta.isUsingVariables()) {
+              data.getRealReplaceByValues()[i] = resolve(check.getReplaceValue());
             } else {
-              data.getRealReplaceByValues()[i] = meta.getField(i).getReplaceValue();
+              data.getRealReplaceByValues()[i] = check.getReplaceValue();
             }
           }
         }
@@ -138,13 +135,14 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
   private void updateField(Object[] r) throws Exception {
     // Loop through fields
     for (int i = 0; i < data.getFieldnr(); i++) {
+      SetValueConstantMeta.Field field = meta.getFields().get(i);
       // DO CONVERSION OF THE DEFAULT VALUE ...
       // Entered by user
       IValueMeta targetValueMeta = data.getOutputRowMeta().getValueMeta(data.getFieldnrs()[i]);
       IValueMeta sourceValueMeta = data.getConvertRowMeta().getValueMeta(data.getFieldnrs()[i]);
 
-      if (!Utils.isEmpty(meta.getField(i).getReplaceMask())) {
-        sourceValueMeta.setConversionMask(meta.getField(i).getReplaceMask());
+      if (!Utils.isEmpty(field.getReplaceMask())) {
+        sourceValueMeta.setConversionMask(field.getReplaceMask());
       }
 
       sourceValueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
@@ -152,11 +150,5 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
           targetValueMeta.convertData(sourceValueMeta, data.getRealReplaceByValues()[i]);
       targetValueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
     }
-  }
-
-  @Override
-  public boolean init() {
-
-    return super.init();
   }
 }

@@ -21,13 +21,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -35,6 +36,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -51,216 +53,114 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::PropertyOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/propertyoutput.html")
+@Getter
+@Setter
 public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, PropertyOutputData> {
   private static final Class<?> PKG = PropertyOutputMeta.class;
   public static final String CONST_SPACES_LONG = "      ";
   public static final String CONST_SPACES = "    ";
 
-  private String keyfield;
-  private String valuefield;
+  @Getter
+  @Setter
+  public static class FileDetails {
+    @HopMetadataProperty(key = "name")
+    private String fileName;
 
-  private boolean addToResult;
+    /** The file extension in case of a generated filename */
+    @HopMetadataProperty(key = "extension")
+    private String extension;
 
-  /** The base name of the output file */
-  private String fileName;
+    /** Flag: add the transform copy number in the filename */
+    @HopMetadataProperty(key = "split")
+    private boolean transformNrInFilename;
 
-  /* Specification if file name is in field */
+    /** Flag: add the partition ID in the filename */
+    @HopMetadataProperty(key = "haspartno")
+    private boolean partitionIdInFilename;
 
-  private boolean fileNameInField;
+    /** Flag: add the date in the filename */
+    @HopMetadataProperty(key = "add_date")
+    private boolean dateInFilename;
 
-  private String fileNameField;
+    /** Flag: add the time in the filename */
+    @HopMetadataProperty(key = "add_time")
+    private boolean timeInFilename;
 
-  /** The file extention in case of a generated filename */
-  private String extension;
+    /** Flag: create parent folder if needed */
+    @HopMetadataProperty(key = "create_parent_folder")
+    private boolean createParentFolder;
 
-  /** Flag: add the transformnr in the filename */
-  private boolean transformNrInFilename;
+    /** Flag append in file */
+    @HopMetadataProperty(key = "append")
+    private boolean appending;
 
-  /** Flag: add the partition number in the filename */
-  private boolean partNrInFilename;
+    @HopMetadataProperty(key = "addtoresult")
+    private boolean addToResult;
 
-  /** Flag: add the date in the filename */
-  private boolean dateInFilename;
+    public FileDetails() {}
 
-  /** Flag: add the time in the filename */
-  private boolean timeInFilename;
+    public FileDetails(FileDetails f) {
+      this();
+      this.appending = f.appending;
+      this.createParentFolder = f.createParentFolder;
+      this.dateInFilename = f.dateInFilename;
+      this.extension = f.extension;
+      this.fileName = f.fileName;
+      this.partitionIdInFilename = f.partitionIdInFilename;
+      this.timeInFilename = f.timeInFilename;
+      this.transformNrInFilename = f.transformNrInFilename;
+      this.addToResult = f.addToResult;
+    }
+  }
 
-  /** Flag: create parent folder if needed */
-  private boolean createparentfolder;
+  @HopMetadataProperty(key = "keyfield")
+  private String keyField;
+
+  @HopMetadataProperty(key = "valuefield")
+  private String valueField;
 
   /** Comment to add in file */
+  @HopMetadataProperty(key = "comment")
   private String comment;
 
-  /** Flag append in file */
-  private boolean append;
+  /** Specification if file name is in field */
+  @HopMetadataProperty(key = "fileNameInField")
+  private boolean fileNameInField;
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
+  @HopMetadataProperty(key = "fileNameField")
+  private String fileNameField;
+
+  @HopMetadataProperty(key = "file")
+  private FileDetails fileDetails;
+
+  public PropertyOutputMeta() {
+    this.fileDetails = new FileDetails();
+  }
+
+  public PropertyOutputMeta(PropertyOutputMeta m) {
+    this();
+    this.comment = m.comment;
+    this.keyField = m.keyField;
+    this.valueField = m.valueField;
+    this.fileNameInField = m.fileNameInField;
+    this.fileNameField = m.fileNameField;
+    this.fileDetails = new FileDetails(m.fileDetails);
   }
 
   @Override
   public Object clone() {
-
-    PropertyOutputMeta retval = (PropertyOutputMeta) super.clone();
-    return retval;
-  }
-
-  /**
-   * @return Returns the extension.
-   */
-  public String getExtension() {
-    return extension;
-  }
-
-  /**
-   * @param extension The extension to set.
-   */
-  public void setExtension(String extension) {
-    this.extension = extension;
-  }
-
-  /**
-   * @return Returns the fileName.
-   */
-  public String getFileName() {
-    return fileName;
-  }
-
-  /**
-   * @return Is the file name coded in a field?
-   */
-  public boolean isFileNameInField() {
-    return fileNameInField;
-  }
-
-  /**
-   * @param fileNameInField Is the file name coded in a field?
-   */
-  public void setFileNameInField(boolean fileNameInField) {
-    this.fileNameInField = fileNameInField;
-  }
-
-  /**
-   * @return The field name that contains the output file name.
-   */
-  public String getFileNameField() {
-    return fileNameField;
-  }
-
-  /**
-   * @param fileNameField Name of the field that contains the file name
-   */
-  public void setFileNameField(String fileNameField) {
-    this.fileNameField = fileNameField;
-  }
-
-  /**
-   * @return Returns the transformNrInFilename.
-   */
-  public boolean isTransformNrInFilename() {
-    return transformNrInFilename;
-  }
-
-  /**
-   * @param transformNrInFilename The transformNrInFilename to set.
-   */
-  public void setTransformNrInFilename(boolean transformNrInFilename) {
-    this.transformNrInFilename = transformNrInFilename;
-  }
-
-  /**
-   * @return Returns the timeInFilename.
-   */
-  public boolean isTimeInFilename() {
-    return timeInFilename;
-  }
-
-  /**
-   * @return Returns the dateInFilename.
-   */
-  public boolean isDateInFilename() {
-    return dateInFilename;
-  }
-
-  /**
-   * @param dateInFilename The dateInFilename to set.
-   */
-  public void setDateInFilename(boolean dateInFilename) {
-    this.dateInFilename = dateInFilename;
-  }
-
-  /**
-   * @param timeInFilename The timeInFilename to set.
-   */
-  public void setTimeInFilename(boolean timeInFilename) {
-    this.timeInFilename = timeInFilename;
-  }
-
-  /**
-   * @param fileName The fileName to set.
-   */
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
-  public boolean isAddToResult() {
-    return addToResult;
-  }
-
-  /**
-   * @param addToResult The Add file to result to set.
-   */
-  public void setAddToResult(boolean addToResult) {
-    this.addToResult = addToResult;
-  }
-
-  /**
-   * @return Returns the create parent folder flag.
-   */
-  public boolean isCreateParentFolder() {
-    return createparentfolder;
-  }
-
-  /**
-   * @param createparentfolder The create parent folder flag to set.
-   */
-  public void setCreateParentFolder(boolean createparentfolder) {
-    this.createparentfolder = createparentfolder;
-  }
-
-  /**
-   * @return Returns the append flag.
-   */
-  public boolean isAppend() {
-    return append;
-  }
-
-  /**
-   * @param append The append to set.
-   */
-  public void setAppend(boolean append) {
-    this.append = append;
-  }
-
-  public String getComment() {
-    return comment;
-  }
-
-  public void setComment(String commentin) {
-    this.comment = commentin;
+    return new PropertyOutputMeta(this);
   }
 
   public String[] getFiles(IVariables variables) {
     int copies = 1;
     int parts = 1;
 
-    if (transformNrInFilename) {
+    if (fileDetails.transformNrInFilename) {
       copies = 3;
     }
 
-    if (partNrInFilename) {
+    if (fileDetails.partitionIdInFilename) {
       parts = 3;
     }
 
@@ -269,129 +169,50 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
       nr++;
     }
 
-    String[] retval = new String[nr];
+    String[] fileNames = new String[nr];
 
     int i = 0;
     for (int copy = 0; copy < copies; copy++) {
       for (int part = 0; part < parts; part++) {
 
-        retval[i] = buildFilename(variables, copy);
+        fileNames[i] = buildFilename(variables, copy);
         i++;
       }
     }
     if (i < nr) {
-      retval[i] = "...";
+      fileNames[i] = "...";
     }
 
-    return retval;
+    return fileNames;
   }
 
-  public String buildFilename(IVariables variables, int transformnr) {
-
+  public String buildFilename(IVariables variables, int copyNr) {
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = variables.resolve(fileName);
+    String retval = variables.resolve(fileDetails.fileName);
 
     Date now = new Date();
 
-    if (dateInFilename) {
+    if (fileDetails.dateInFilename) {
       daf.applyPattern("yyyMMdd");
       String d = daf.format(now);
       retval += "_" + d;
     }
-    if (timeInFilename) {
+    if (fileDetails.timeInFilename) {
       daf.applyPattern("HHmmss");
       String t = daf.format(now);
       retval += "_" + t;
     }
-    if (transformNrInFilename) {
-      retval += "_" + transformnr;
+    if (fileDetails.transformNrInFilename) {
+      retval += "_" + copyNr;
     }
 
-    if (!Utils.isEmpty(extension)) {
-      retval += "." + extension;
+    if (!Utils.isEmpty(fileDetails.extension)) {
+      retval += "." + fileDetails.extension;
     }
 
     return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-
-      keyfield = XmlHandler.getTagValue(transformNode, "keyfield");
-      valuefield = XmlHandler.getTagValue(transformNode, "valuefield");
-      comment = XmlHandler.getTagValue(transformNode, "comment");
-
-      fileName = XmlHandler.getTagValue(transformNode, "file", "name");
-
-      createparentfolder =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformNode, "file", "create_parent_folder"));
-      extension =
-          Const.NVL(
-              XmlHandler.getTagValue(transformNode, "file", "extention"),
-              XmlHandler.getTagValue(transformNode, "file", "extension"));
-      transformNrInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "split"));
-      partNrInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "haspartno"));
-      dateInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "add_date"));
-      timeInFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "add_time"));
-      addToResult =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "AddToResult"));
-      append = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "file", "append"));
-      fileName = XmlHandler.getTagValue(transformNode, "file", "name");
-      fileNameInField =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "fileNameInField"));
-      fileNameField = XmlHandler.getTagValue(transformNode, "fileNameField");
-
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    append = false;
-    createparentfolder = false;
-    // Items ...
-    keyfield = null;
-    valuefield = null;
-    comment = null;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    // Items ...
-
-    retval.append(CONST_SPACES + XmlHandler.addTagValue("keyfield", keyfield));
-    retval.append(CONST_SPACES + XmlHandler.addTagValue("valuefield", valuefield));
-    retval.append(CONST_SPACES + XmlHandler.addTagValue("comment", comment));
-
-    retval.append(CONST_SPACES + XmlHandler.addTagValue("fileNameInField", fileNameInField));
-    retval.append(CONST_SPACES + XmlHandler.addTagValue("fileNameField", fileNameField));
-    retval.append("    <file>" + Const.CR);
-
-    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("name", fileName));
-    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("extention", extension));
-    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("split", transformNrInFilename));
-    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("haspartno", partNrInFilename));
-    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append(CONST_SPACES_LONG + XmlHandler.addTagValue("add_time", timeInFilename));
-
-    retval.append(
-        CONST_SPACES_LONG + XmlHandler.addTagValue("create_parent_folder", createparentfolder));
-    retval.append(CONST_SPACES + XmlHandler.addTagValue("addtoresult", addToResult));
-    retval.append(CONST_SPACES + XmlHandler.addTagValue("append", append));
-    retval.append("      </file>" + Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -443,7 +264,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     }
 
     // Check if filename is given
-    if (!Utils.isEmpty(fileName)) {
+    if (!Utils.isEmpty(fileDetails.fileName)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
@@ -461,7 +282,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
 
     // Check for Key field
 
-    IValueMeta v = prev.searchValueMeta(keyfield);
+    IValueMeta v = prev.searchValueMeta(keyField);
     if (v == null) {
       cr =
           new CheckResult(
@@ -480,7 +301,7 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
 
     // Check for Value field
 
-    v = prev.searchValueMeta(valuefield);
+    v = prev.searchValueMeta(valueField);
     if (v == null) {
       cr =
           new CheckResult(
@@ -498,34 +319,6 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     }
   }
 
-  /**
-   * @return the keyfield
-   */
-  public String getKeyField() {
-    return keyfield;
-  }
-
-  /**
-   * @return the valuefield
-   */
-  public String getValueField() {
-    return valuefield;
-  }
-
-  /**
-   * @param keyField the keyfield to set
-   */
-  public void setKeyField(String keyField) {
-    this.keyfield = keyField;
-  }
-
-  /**
-   * @param valuefield the valuefield to set
-   */
-  public void setValueField(String valuefield) {
-    this.valuefield = valuefield;
-  }
-
   @Override
   public boolean supportsErrorHandling() {
     return true;
@@ -538,8 +331,8 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
    * pray that the file is on a shared drive or something like that.
    *
    * @param variables the variable variables to use
-   * @param definitions
-   * @param iResourceNaming
+   * @param definitions The definitions to use.
+   * @param iResourceNaming The way to rename resources.
    * @param metadataProvider the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
@@ -559,20 +352,33 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
       //
       // In case the name of the file comes from previous transforms, forget about this!
       if (!fileNameInField) {
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName));
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileDetails.fileName));
 
         // If the file doesn't exist, forget about this effort too!
         //
         if (fileObject.exists()) {
           // Convert to an absolute path...
           //
-          fileName = iResourceNaming.nameResource(fileObject, variables, true);
-          return fileName;
+          fileDetails.fileName = iResourceNaming.nameResource(fileObject, variables, true);
+          return fileDetails.fileName;
         }
       }
       return null;
     } catch (Exception e) {
       throw new HopException(e);
     }
+  }
+
+  /**
+   * This is used to provide backward compatibility with older XML files.
+   *
+   * @param node The node containing the transform properties
+   */
+  @Override
+  public void convertLegacyXml(Node node) {
+    fileDetails.extension =
+        Const.NVL(
+            XmlHandler.getTagValue(node, "file", "extention"),
+            XmlHandler.getTagValue(node, "file", "extension"));
   }
 }

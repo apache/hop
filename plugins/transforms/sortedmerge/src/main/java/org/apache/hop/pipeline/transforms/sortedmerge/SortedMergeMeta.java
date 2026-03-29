@@ -17,32 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-@InjectionSupported(
-    localizationPrefix = "SortedMerge.Injection.",
-    groups = {"FIELDS"})
 @Transform(
     id = "SortedMerge",
     image = "sortedmerge.svg",
@@ -51,90 +45,31 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SortedMergeMeta.keyword",
     documentationUrl = "/pipeline/transforms/sortedmerge.html")
+@Getter
+@Setter
 public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeData> {
   private static final Class<?> PKG = SortedMergeMeta.class;
   public static final String CONST_FIELD = "field";
 
-  /** order by which fields? */
-  @Injection(name = "FIELD_NAME", group = "FIELDS")
-  private String[] fieldName;
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "SortedMerge.Injection.FIELDS")
+  private List<MergeField> mergeFields;
 
-  /** false : descending, true=ascending */
-  @Injection(name = "ASCENDING", group = "FIELDS")
-  private boolean[] ascending;
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
+  public SortedMergeMeta() {
+    mergeFields = new ArrayList<>();
   }
 
-  public void allocate(int nrFields) {
-    fieldName = new String[nrFields]; // order by
-    ascending = new boolean[nrFields];
-  }
-
-  @Override
-  public void setDefault() {
-    int nrFields = 0;
-
-    allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      fieldName[i] = CONST_FIELD + i;
-    }
+  public SortedMergeMeta(SortedMergeMeta m) {
+    this();
+    m.mergeFields.forEach(f -> this.mergeFields.add(new MergeField(f)));
   }
 
   @Override
   public Object clone() {
-    SortedMergeMeta retval = (SortedMergeMeta) super.clone();
-
-    int nrFields = fieldName.length;
-
-    retval.allocate(nrFields);
-    System.arraycopy(fieldName, 0, retval.fieldName, 0, nrFields);
-    System.arraycopy(ascending, 0, retval.ascending, 0, nrFields);
-
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-
-        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
-        String asc = XmlHandler.getTagValue(fnode, "ascending");
-        if (asc.equalsIgnoreCase("Y")) {
-          ascending[i] = true;
-        } else {
-          ascending[i] = false;
-        }
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    <fields>" + Const.CR);
-    for (int i = 0; i < fieldName.length; i++) {
-      retval.append("      <field>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", fieldName[i]));
-      retval.append("        " + XmlHandler.addTagValue("ascending", ascending[i]));
-      retval.append("        </field>" + Const.CR);
-    }
-    retval.append("      </fields>" + Const.CR);
-
-    return retval.toString();
+    return new SortedMergeMeta(this);
   }
 
   @Override
@@ -147,13 +82,11 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // Set the sorted properties: ascending/descending
-    for (int i = 0; i < fieldName.length; i++) {
-      int idx = inputRowMeta.indexOfValue(fieldName[i]);
+    for (MergeField field : mergeFields) {
+      int idx = inputRowMeta.indexOfValue(field.getFieldName());
       if (idx >= 0) {
         IValueMeta valueMeta = inputRowMeta.getValueMeta(idx);
-        valueMeta.setSortedDescending(!ascending[i]);
-
-        // TODO: add case insensivity
+        valueMeta.setSortedDescending(field.isAscending());
       }
     }
   }
@@ -184,10 +117,10 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (String s : fieldName) {
-        int idx = prev.indexOfValue(s);
+      for (MergeField field : mergeFields) {
+        int idx = prev.indexOfValue(field.getFieldName());
         if (idx < 0) {
-          errorMessage += "\t\t" + s + Const.CR;
+          errorMessage += "\t\t" + field.getFieldName() + Const.CR;
           errorFound = true;
         }
       }
@@ -199,7 +132,7 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
-        if (fieldName.length > 0) {
+        if (!mergeFields.isEmpty()) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -242,34 +175,6 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
     }
   }
 
-  /**
-   * @return the ascending
-   */
-  public boolean[] getAscending() {
-    return ascending;
-  }
-
-  /**
-   * @param ascending the ascending to set
-   */
-  public void setAscending(boolean[] ascending) {
-    this.ascending = ascending;
-  }
-
-  /**
-   * @return the fieldName
-   */
-  public String[] getFieldName() {
-    return fieldName;
-  }
-
-  /**
-   * @param fieldName the fieldName to set
-   */
-  public void setFieldName(String[] fieldName) {
-    this.fieldName = fieldName;
-  }
-
   @Override
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
@@ -277,17 +182,33 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
     };
   }
 
-  /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for
-   * consistency behavior with UI
-   */
-  @AfterInjection
-  public void afterInjectionSynchronization() {
-    int nrFields = (fieldName == null) ? -1 : fieldName.length;
-    if (nrFields <= 0) {
-      return;
+  @Getter
+  @Setter
+  public static class MergeField {
+    @HopMetadataProperty(
+        key = "name",
+        injectionKey = "FIELD_NAME",
+        injectionKeyDescription = "SortedMerge.Injection.FIELD_NAME")
+    private String fieldName;
+
+    @HopMetadataProperty(
+        key = "ascending",
+        injectionKey = "ASCENDING",
+        injectionKeyDescription = "SortedMerge.Injection.ASCENDING")
+    private boolean ascending;
+
+    public MergeField() {}
+
+    public MergeField(MergeField f) {
+      this();
+      this.ascending = f.ascending;
+      this.fieldName = f.fieldName;
     }
-    boolean[][] rtn = Utils.normalizeArrays(nrFields, ascending);
-    ascending = rtn[0];
+
+    public MergeField(String fieldName, boolean ascending) {
+      this();
+      this.ascending = ascending;
+      this.fieldName = fieldName;
+    }
   }
 }

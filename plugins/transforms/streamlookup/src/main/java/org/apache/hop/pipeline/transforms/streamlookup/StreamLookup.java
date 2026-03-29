@@ -58,15 +58,14 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
   }
 
   private void handleNullIf() {
-    data.nullIf = new Object[meta.getValue().length];
-
-    for (int i = 0; i < meta.getValue().length; i++) {
-      if (meta.getValueDefaultType()[i] < 0) {
-
-        meta.getValueDefaultType()[i] = IValueMeta.TYPE_STRING;
+    data.nullIf = new Object[meta.getLookup().getReturnValues().size()];
+    for (int i = 0; i < data.nullIf.length; i++) {
+      StreamLookupMeta.ReturnValue returnValue = meta.getLookup().getReturnValues().get(i);
+      if (returnValue.getValueDefaultType() < 0) {
+        returnValue.setValueDefaultType(IValueMeta.TYPE_STRING);
       }
       data.nullIf[i] = null;
-      switch (meta.getValueDefaultType()[i]) {
+      switch (returnValue.getValueDefaultType()) {
         case IValueMeta.TYPE_STRING:
           if (Utils.isEmpty(data.valueDefault[i])) {
             data.nullIf[i] = null;
@@ -116,7 +115,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
             throw new RuntimeException(
                 BaseMessages.getString(PKG, "StreamLookup.Exception.ConversionNotImplemented")
                     + " "
-                    + ValueMetaFactory.getValueMetaName(meta.getValueDefaultType()[i]));
+                    + ValueMetaFactory.getValueMetaName(returnValue.getValueDefaultType()));
           } else {
             // no default value given: just set it to null
             data.nullIf[i] = null;
@@ -127,7 +126,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
   }
 
   private boolean readLookupValues() throws HopException {
-    data.infoStream = meta.getTransformIOMeta().getInfoStreams().get(0);
+    data.infoStream = meta.getTransformIOMeta().getInfoStreams().getFirst();
     if (data.infoStream.getTransformMeta() == null) {
       logError(BaseMessages.getString(PKG, "StreamLookup.Log.NoLookupTransformSpecified"));
       return false;
@@ -139,8 +138,8 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
               + "]");
     }
 
-    int[] keyNrs = new int[meta.getKeylookup().length];
-    int[] valueNrs = new int[meta.getValue().length];
+    int[] keyNrs = new int[meta.getLookup().getMatchKeys().size()];
+    int[] valueNrs = new int[meta.getLookup().getReturnValues().size()];
     boolean firstRun = true;
 
     // Which row set do we read from?
@@ -163,12 +162,13 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
         IRowMeta cacheValueMeta = new RowMeta();
 
         // Look up the keys in the source rows
-        for (int i = 0; i < meta.getKeylookup().length; i++) {
-          keyNrs[i] = rowSet.getRowMeta().indexOfValue(meta.getKeylookup()[i]);
+        for (int i = 0; i < meta.getLookup().getMatchKeys().size(); i++) {
+          StreamLookupMeta.MatchKey matchKey = meta.getLookup().getMatchKeys().get(i);
+          keyNrs[i] = rowSet.getRowMeta().indexOfValue(matchKey.getKeyLookup());
           if (keyNrs[i] < 0) {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "StreamLookup.Exception.UnableToFindField", meta.getKeylookup()[i]));
+                    PKG, "StreamLookup.Exception.UnableToFindField", matchKey.getKeyLookup()));
           }
           cacheKeyMeta.addValueMeta(rowSet.getRowMeta().getValueMeta(keyNrs[i]));
         }
@@ -182,12 +182,13 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
           cacheKeyMeta.getValueMeta(i).setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
         }
 
-        for (int v = 0; v < meta.getValue().length; v++) {
-          valueNrs[v] = rowSet.getRowMeta().indexOfValue(meta.getValue()[v]);
+        for (int v = 0; v < meta.getLookup().getReturnValues().size(); v++) {
+          StreamLookupMeta.ReturnValue returnValue = meta.getLookup().getReturnValues().get(v);
+          valueNrs[v] = rowSet.getRowMeta().indexOfValue(returnValue.getValue());
           if (valueNrs[v] < 0) {
             throw new HopTransformException(
                 BaseMessages.getString(
-                    PKG, "StreamLookup.Exception.UnableToFindField", meta.getValue()[v]));
+                    PKG, "StreamLookup.Exception.UnableToFindField", returnValue.getValue()));
           }
           cacheValueMeta.addValueMeta(rowSet.getRowMeta().getValueMeta(valueNrs[v]));
         }
@@ -274,7 +275,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
 
     if (data.hasLookupRows) {
       try {
-        if (meta.getKeystream().length > 0) {
+        if (!meta.getLookup().getMatchKeys().isEmpty()) {
           add = getFromCache(data.cacheKeyMeta, lu);
         } else {
           // Just take the first element in the hashtable...
@@ -379,7 +380,6 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
 
   @Override
   public boolean processRow() throws HopException {
-
     if (data.readLookupValues) {
       data.readLookupValues = false;
 
@@ -391,15 +391,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
         return false;
       }
 
-      // Calculate the default values by doing variable replacement.
-      //
-      data.valueDefault = new String[meta.getValueDefault().length];
-      for (int i = 0; i < data.valueDefault.length; i++) {
-        // We want to do this variable replacement only once since it's a relatively slow operation.
-        //
-        data.valueDefault[i] = resolve(meta.getValueDefault()[i]);
-      }
-
+      calculateDefaultValues();
       return true;
     }
 
@@ -418,66 +410,17 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
 
     if (first) {
       first = false;
-
-      // read the lookup values!
-      data.keynrs = new int[meta.getKeystream().length];
-      data.lookupMeta = new RowMeta();
-      data.convertKeysToNative = new boolean[meta.getKeystream().length];
-
-      for (int i = 0; i < meta.getKeystream().length; i++) {
-        // Find the keynr in the row (only once)
-        data.keynrs[i] = getInputRowMeta().indexOfValue(meta.getKeystream()[i]);
-        if (data.keynrs[i] < 0) {
-          throw new HopTransformException(
-              BaseMessages.getString(
-                  PKG,
-                  "StreamLookup.Log.FieldNotFound",
-                  meta.getKeystream()[i],
-                  "" + getInputRowMeta().getString(r)));
-        } else {
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "StreamLookup.Log.FieldInfo",
-                    meta.getKeystream()[i],
-                    "" + data.keynrs[i]));
-          }
-        }
-
-        data.lookupMeta.addValueMeta(getInputRowMeta().getValueMeta(data.keynrs[i]).clone());
-
-        // If we have binary storage data coming in, we convert it to normal data storage.
-        // The storage in the lookup data store is also normal data storage. TODO: enforce normal
-        // data storage??
-        //
-        data.convertKeysToNative[i] =
-            getInputRowMeta().getValueMeta(data.keynrs[i]).isStorageBinaryString();
-      }
-
-      data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields(
-          data.outputRowMeta,
-          getTransformName(),
-          new IRowMeta[] {data.infoMeta},
-          null,
-          this,
-          metadataProvider);
-
-      // Handle the NULL values (not found...)
-      handleNullIf();
+      processRowFirstCall(r);
     }
 
     Object[] outputRow =
         lookupValues(getInputRowMeta(), r); // Do the actual lookup in the hastable.
     if (outputRow == null) {
       setOutputDone(); // signal end to receiver(s)
-
       return false;
     }
 
     putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
-
     if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "StreamLookup.Log.LineNumber") + getLinesRead());
     }
@@ -485,15 +428,73 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
     return true;
   }
 
-  @Override
-  public boolean init() {
+  private void processRowFirstCall(Object[] r) throws HopTransformException, HopValueException {
+    // read the lookup values!
+    data.keynrs = new int[meta.getLookup().getMatchKeys().size()];
+    data.lookupMeta = new RowMeta();
+    data.convertKeysToNative = new boolean[meta.getLookup().getMatchKeys().size()];
 
-    if (super.init()) {
-      data.readLookupValues = true;
+    for (int i = 0; i < meta.getLookup().getMatchKeys().size(); i++) {
+      StreamLookupMeta.MatchKey key = meta.getLookup().getMatchKeys().get(i);
 
-      return true;
+      // Find the keynr in the row (only once)
+      data.keynrs[i] = getInputRowMeta().indexOfValue(key.getKeyStream());
+      if (data.keynrs[i] < 0) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG,
+                "StreamLookup.Log.FieldNotFound",
+                key.getKeyStream(),
+                getInputRowMeta().getString(r)));
+      } else {
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "StreamLookup.Log.FieldInfo", key.getKeyStream(), "" + data.keynrs[i]));
+        }
+      }
+
+      data.lookupMeta.addValueMeta(getInputRowMeta().getValueMeta(data.keynrs[i]).clone());
+
+      // If we have binary storage data coming in, we convert it to normal data storage.
+      // The storage in the lookup data store is also normal data storage.
+      //
+      data.convertKeysToNative[i] =
+          getInputRowMeta().getValueMeta(data.keynrs[i]).isStorageBinaryString();
     }
 
+    data.outputRowMeta = getInputRowMeta().clone();
+    meta.getFields(
+        data.outputRowMeta,
+        getTransformName(),
+        new IRowMeta[] {data.infoMeta},
+        null,
+        this,
+        metadataProvider);
+
+    // Handle the NULL values (not found...)
+    handleNullIf();
+  }
+
+  private void calculateDefaultValues() {
+    // Calculate the default values by doing variable replacement.
+    //
+    data.valueDefault = new String[meta.getLookup().getReturnValues().size()];
+    for (int i = 0; i < data.valueDefault.length; i++) {
+      StreamLookupMeta.ReturnValue returnValue = meta.getLookup().getReturnValues().get(i);
+
+      // We want to do this variable replacement only once since it's a relatively slow operation.
+      //
+      data.valueDefault[i] = resolve(returnValue.getValueDefault());
+    }
+  }
+
+  @Override
+  public boolean init() {
+    if (super.init()) {
+      data.readLookupValues = true;
+      return true;
+    }
     return false;
   }
 

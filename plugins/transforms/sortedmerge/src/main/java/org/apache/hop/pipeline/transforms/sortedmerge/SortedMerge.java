@@ -57,70 +57,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
     if (first) {
       first = false;
 
-      // Read one row from all rowsets...
-      //
-      data.sortedBuffer = new ArrayList<>();
-      data.rowMeta = null;
-
-      // If one of the inputRowSets holds a null row (the input yields
-      // 0 rows), then the null rowSet is removed from the InputRowSet buffer..
-      // (BaseTransform.getRowFrom())
-      // which throws this loop off by one (the next set never gets processed).
-      // Instead of modifying BaseTransform, I figure reversing the loop here would
-      // effect change in less areas. If the reverse loop causes a problem, please
-      List<IRowSet> inputRowSets = getInputRowSets();
-      for (int i = inputRowSets.size() - 1; i >= 0 && !isStopped(); i--) {
-
-        IRowSet rowSet = inputRowSets.get(i);
-        Object[] row = getRowFrom(rowSet);
-        if (row != null) {
-          // Add this row to the sortedBuffer...
-          // Which is not yet sorted, we'll get to that later.
-          //
-          data.sortedBuffer.add(new RowSetRow(rowSet, rowSet.getRowMeta(), row));
-          if (data.rowMeta == null) {
-            data.rowMeta = rowSet.getRowMeta().clone();
-          }
-
-          // What fields do we compare on and in what order?
-
-          // Better cache the location of the partitioning column
-          // First time operation only
-          //
-          if (data.fieldIndices == null) {
-            // Get the indexes of the specified sort fields...
-            data.fieldIndices = new int[meta.getFieldName().length];
-            for (int f = 0; f < data.fieldIndices.length; f++) {
-              data.fieldIndices[f] = data.rowMeta.indexOfValue(meta.getFieldName()[f]);
-              if (data.fieldIndices[f] < 0) {
-                throw new HopTransformException(
-                    "Unable to find fieldname ["
-                        + meta.getFieldName()[f]
-                        + "] in row : "
-                        + data.rowMeta);
-              }
-
-              data.rowMeta
-                  .getValueMeta(data.fieldIndices[f])
-                  .setSortedDescending(!meta.getAscending()[f]);
-            }
-          }
-        }
-
-        data.comparator =
-            (o1, o2) -> {
-              try {
-                return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
-              } catch (HopValueException e) {
-                return 0; // TODO see if we should fire off alarms over here... Perhaps throw a
-                // RuntimeException.
-              }
-            };
-
-        // Now sort the sortedBuffer for the first time.
-        //
-        Collections.sort(data.sortedBuffer, data.comparator);
-      }
+      getRowSortedFirstCall();
     }
 
     // If our sorted buffer is empty, it means we're done...
@@ -170,33 +107,87 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
     return outputRowData;
   }
 
+  private void getRowSortedFirstCall() throws HopTransformException {
+    // Read one row from all rowsets...
+    //
+    data.sortedBuffer = new ArrayList<>();
+    data.rowMeta = null;
+
+    // If one of the inputRowSets holds a null row (the input yields
+    // 0 rows), then the null rowSet is removed from the InputRowSet buffer..
+    // (BaseTransform.getRowFrom())
+    // which throws this loop off by one (the next set never gets processed).
+    // Instead of modifying BaseTransform, I figure reversing the loop here would
+    // effect change in less areas. If the reverse loop causes a problem, please
+    List<IRowSet> inputRowSets = getInputRowSets();
+    for (int i = inputRowSets.size() - 1; i >= 0 && !isStopped(); i--) {
+
+      IRowSet rowSet = inputRowSets.get(i);
+      Object[] row = getRowFrom(rowSet);
+      if (row != null) {
+        // Add this row to the sortedBuffer...
+        // Which is not yet sorted, we'll get to that later.
+        //
+        data.sortedBuffer.add(new RowSetRow(rowSet, rowSet.getRowMeta(), row));
+        if (data.rowMeta == null) {
+          data.rowMeta = rowSet.getRowMeta().clone();
+        }
+
+        // What fields do we compare on and in what order?
+
+        // Better cache the location of the partitioning column
+        // First time operation only
+        //
+        if (data.fieldIndices == null) {
+          // Get the indexes of the specified sort fields...
+          data.fieldIndices = new int[meta.getMergeFields().size()];
+          for (int f = 0; f < data.fieldIndices.length; f++) {
+            SortedMergeMeta.MergeField mergeField = meta.getMergeFields().get(i);
+            data.fieldIndices[f] = data.rowMeta.indexOfValue(mergeField.getFieldName());
+            if (data.fieldIndices[f] < 0) {
+              throw new HopTransformException(
+                  "Unable to find fieldname ["
+                      + mergeField.getFieldName()
+                      + "] in row : "
+                      + data.rowMeta);
+            }
+
+            data.rowMeta
+                .getValueMeta(data.fieldIndices[f])
+                .setSortedDescending(!mergeField.isAscending());
+          }
+        }
+      }
+
+      data.comparator =
+          (o1, o2) -> {
+            try {
+              return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
+            } catch (HopValueException e) {
+              return 0; // TODO see if we should fire off alarms over here... Perhaps throw a
+              // RuntimeException.
+            }
+          };
+
+      // Now sort the sortedBuffer for the first time.
+      //
+      data.sortedBuffer.sort(data.comparator);
+    }
+  }
+
   @Override
   public boolean processRow() throws HopException {
-
     Object[] row = getRowSorted(); // get row, sorted
     if (row == null) { // no more input to be expected...
-
       setOutputDone();
       return false;
     }
 
     putRow(data.rowMeta, row); // copy row to possible alternate rowset(s).
-
     if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic(BaseMessages.getString(PKG, "SortedMerge.Log.LineNumber") + getLinesRead());
     }
 
     return true;
-  }
-
-  @Override
-  public boolean init() {
-
-    if (super.init()) {
-
-      // Add init code here.
-      return true;
-    }
-    return false;
   }
 }

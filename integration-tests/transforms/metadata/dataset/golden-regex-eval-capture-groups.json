@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-regex-eval-capture-groups.csv",
+  "name": "golden-regex-eval-capture-groups",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "string",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "matches",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "prefix",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "suffix",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

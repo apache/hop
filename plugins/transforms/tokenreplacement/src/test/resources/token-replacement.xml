@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<transform>
+    <input_type>file</input_type>
+    <input_text>text-to-replace</input_text>
+    <input_field_name/>
+    <input_filename>input-filename.txt</input_filename>
+    <input_filename_in_field>Y</input_filename_in_field>
+    <input_filename_field>input-filename-field</input_filename_field>
+    <add_input_filename_to_result>Y</add_input_filename_to_result>
+    <output_type>file</output_type>
+    <output_field_name>output-field-name</output_field_name>
+    <output_filename>output-filename.txt</output_filename>
+    <output_filename_in_field>N</output_filename_in_field>
+    <output_filename_field>output-filename-field</output_filename_field>
+    <append_output_filename>Y</append_output_filename>
+    <create_parent_folder>Y</create_parent_folder>
+    <output_file_format>CR</output_file_format>
+    <output_file_encoding>UTF-8</output_file_encoding>
+    <output_split_every>1234</output_split_every>
+    <include_transform_nr_in_output_filename>Y</include_transform_nr_in_output_filename>
+    <include_part_nr_in_output_filename>Y</include_part_nr_in_output_filename>
+    <include_date_in_output_filename>Y</include_date_in_output_filename>
+    <include_time_in_output_filename>Y</include_time_in_output_filename>
+    <specify_date_format_output_filename>Y</specify_date_format_output_filename>
+    <date_format_output_filename>yyyy-MM-dd&#39;T&#39;HH:mm:ssX</date_format_output_filename>
+    <add_output_filename_to_result>Y</add_output_filename_to_result>
+    <token_start_string>start-string</token_start_string>
+    <token_end_string>end-string</token_end_string>
+    <fields>
+        <field>
+            <field_name>stream-field-1</field_name>
+            <token_name>token-name-1</token_name>
+        </field>
+        <field>
+            <field_name>stream-field-2</field_name>
+            <token_name>token-name-2</token_name>
+        </field>
+        <field>
+            <field_name>stream-field-3</field_name>
+            <token_name>token-name-3</token_name>
+        </field>
+    </fields>
+</transform>

@@ -18,29 +18,26 @@
 package org.apache.hop.pipeline.transforms.tokenreplacement;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "TokenReplacementPlugin",
@@ -50,9 +47,8 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::TokenReplacementMeta.keyword",
     documentationUrl = "/pipeline/transforms/tokenreplacement.html")
-@InjectionSupported(
-    localizationPrefix = "TokenReplacement.Injection.",
-    groups = {"OUTPUT_FIELDS"})
+@Getter
+@Setter
 public class TokenReplacementMeta
     extends BaseTransformMeta<TokenReplacement, TokenReplacementData> {
   private static final Class<?> PKG = TokenReplacementMeta.class;
@@ -105,206 +101,215 @@ public class TokenReplacementMeta
   public static final String CONST_FILE_ENCODING = "file.encoding";
   public static final String CONST_UTF_8 = "UTF-8";
 
-  @Injection(name = "INPUT_TYPE")
+  @HopMetadataProperty(
+      key = "input_type",
+      injectionKey = "INPUT_TYPE",
+      injectionKeyDescription = "TokenReplacement.Injection.INPUT_TYPE")
   private String inputType;
 
-  @Injection(name = "INPUT_TEXT")
+  @HopMetadataProperty(
+      key = "input_text",
+      injectionKey = "INPUT_TEXT",
+      injectionKeyDescription = "TokenReplacement.Injection.INPUT_TEXT")
   private String inputText;
 
-  @Injection(name = "INPUT_FIELD")
+  @HopMetadataProperty(
+      key = "input_field_name",
+      injectionKey = "INPUT_FIELD",
+      injectionKeyDescription = "TokenReplacement.Injection.INPUT_FIELD")
   private String inputFieldName;
 
-  @Injection(name = "INPUT_FILENAME")
+  @HopMetadataProperty(
+      key = "input_filename",
+      injectionKey = "INPUT_FILENAME",
+      injectionKeyDescription = "TokenReplacement.Injection.INPUT_FILENAME")
   private String inputFileName;
 
-  @Injection(name = "INPUT_FILENAME_IN_FIELD")
+  @HopMetadataProperty(
+      key = "input_filename_in_field",
+      injectionKey = "INPUT_FILENAME_IN_FIELD",
+      injectionKeyDescription = "TokenReplacement.Injection.INPUT_FILENAME_IN_FIELD")
   private boolean inputFileNameInField;
 
-  @Injection(name = "INPUT_FILENAME_FIELD")
+  @HopMetadataProperty(
+      key = "input_filename_field",
+      injectionKey = "INPUT_FILENAME_FIELD",
+      injectionKeyDescription = "TokenReplacement.Injection.INPUT_FILENAME_FIELD")
   private String inputFileNameField;
 
-  @Injection(name = "ADD_INPUT_FILENAME_TO_RESULT")
+  @HopMetadataProperty(
+      key = "add_input_filename_to_result",
+      injectionKey = "ADD_INPUT_FILENAME_TO_RESULT",
+      injectionKeyDescription = "TokenReplacement.Injection.ADD_INPUT_FILENAME_TO_RESULT")
   private boolean addInputFileNameToResult;
 
-  @Injection(name = "OUTPUT_TYPE")
+  @HopMetadataProperty(
+      key = "output_type",
+      injectionKey = "OUTPUT_TYPE",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_TYPE")
   private String outputType;
 
-  @Injection(name = "OUTPUT_FIELD")
+  @HopMetadataProperty(
+      key = "output_field_name",
+      injectionKey = "OUTPUT_FIELD",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_FIELD")
   private String outputFieldName;
 
-  @Injection(name = "OUTPUT_FILENAME")
+  @HopMetadataProperty(
+      key = "output_filename",
+      injectionKey = "OUTPUT_FILENAME",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_FILENAME")
   private String outputFileName;
 
-  @Injection(name = "OUTPUT_FILENAME_IN_FIELD")
+  @HopMetadataProperty(
+      key = "output_filename_in_field",
+      injectionKey = "OUTPUT_FILENAME_IN_FIELD",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_FILENAME_IN_FIELD")
   private boolean outputFileNameInField;
 
-  @Injection(name = "OUTPUT_FILENAME_FIELD")
+  @HopMetadataProperty(
+      key = "output_filename_field",
+      injectionKey = "OUTPUT_FILENAME_FIELD",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_FILENAME_FIELD")
   private String outputFileNameField;
 
-  @Injection(name = "APPEND_OUTPUT_FILE")
+  @HopMetadataProperty(
+      key = "append_output_filename",
+      injectionKey = "APPEND_OUTPUT_FILE",
+      injectionKeyDescription = "TokenReplacement.Injection.APPEND_OUTPUT_FILE")
   private boolean appendOutputFileName;
 
-  @Injection(name = "CREATE_PARENT_FOLDER")
+  @HopMetadataProperty(
+      key = "create_parent_folder",
+      injectionKey = "CREATE_PARENT_FOLDER",
+      injectionKeyDescription = "TokenReplacement.Injection.CREATE_PARENT_FOLDER")
   private boolean createParentFolder;
 
-  @Injection(name = "OUTPUT_FORMAT")
+  @HopMetadataProperty(
+      key = "output_file_format",
+      injectionKey = "OUTPUT_FORMAT",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_FORMAT")
   private String outputFileFormat;
 
-  @Injection(name = "OUTPUT_ENCODING")
+  @HopMetadataProperty(
+      key = "output_file_encoding",
+      injectionKey = "OUTPUT_ENCODING",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_ENCODING")
   private String outputFileEncoding;
 
-  @Injection(name = "OUTPUT_SPLIT_EVERY")
+  @HopMetadataProperty(
+      key = "output_split_every",
+      injectionKey = "OUTPUT_SPLIT_EVERY",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_SPLIT_EVERY")
   private int splitEvery;
 
-  @Injection(name = "OUTPUT_INCLUDE_TRANSFORMNR")
+  @HopMetadataProperty(
+      key = "include_transform_nr_in_output_filename",
+      injectionKey = "OUTPUT_INCLUDE_TRANSFORMNR",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_INCLUDE_TRANSFORMNR")
   private boolean includeTransformNrInOutputFileName;
 
-  @Injection(name = "OUTPUT_INCLUDE_PARTNR")
+  @HopMetadataProperty(
+      key = "include_part_nr_in_output_filename",
+      injectionKey = "OUTPUT_INCLUDE_PARTNR",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_INCLUDE_PARTNR")
   private boolean includePartNrInOutputFileName;
 
-  @Injection(name = "OUTPUT_INCLUDE_DATE")
+  @HopMetadataProperty(
+      key = "include_date_in_output_filename",
+      injectionKey = "OUTPUT_INCLUDE_DATE",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_INCLUDE_DATE")
   private boolean includeDateInOutputFileName;
 
-  @Injection(name = "OUTPUT_INCLUDE_TIME")
+  @HopMetadataProperty(
+      key = "include_time_in_output_filename",
+      injectionKey = "OUTPUT_INCLUDE_TIME",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_INCLUDE_TIME")
   private boolean includeTimeInOutputFileName;
 
-  @Injection(name = "OUTPUT_SPECIFY_DATE_FORMAT")
+  @HopMetadataProperty(
+      key = "specify_date_format_output_filename",
+      injectionKey = "OUTPUT_SPECIFY_DATE_FORMAT",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_SPECIFY_DATE_FORMAT")
   private boolean specifyDateFormatOutputFileName;
 
-  @Injection(name = "OUTPUT_DATE_FORMAT")
+  @HopMetadataProperty(
+      key = "date_format_output_filename",
+      injectionKey = "OUTPUT_DATE_FORMAT",
+      injectionKeyDescription = "TokenReplacement.Injection.OUTPUT_DATE_FORMAT")
   private String dateFormatOutputFileName;
 
-  @Injection(name = "ADD_OUTPUT_FILENAME_TO_RESULT")
+  @HopMetadataProperty(
+      key = "add_output_filename_to_result",
+      injectionKey = "ADD_OUTPUT_FILENAME_TO_RESULT",
+      injectionKeyDescription = "TokenReplacement.Injection.ADD_OUTPUT_FILENAME_TO_RESULT")
   private boolean addOutputFileNameToResult;
 
-  @Injection(name = "TOKEN_START_STRING")
+  @HopMetadataProperty(
+      key = "token_start_string",
+      injectionKey = "TOKEN_START_STRING",
+      injectionKeyDescription = "TokenReplacement.Injection.TOKEN_START_STRING")
   private String tokenStartString;
 
-  @Injection(name = "TOKEN_END_STRING")
+  @HopMetadataProperty(
+      key = "token_end_string",
+      injectionKey = "TOKEN_END_STRING",
+      injectionKeyDescription = "TokenReplacement.Injection.TOKEN_END_STRING")
   private String tokenEndString;
 
-  @InjectionDeep private TokenReplacementField[] tokenReplacementFields;
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupKey = "OUTPUT_FIELDS",
+      injectionGroupDescription = "TokenReplacement.Injection.OUTPUT_FIELDS")
+  private List<TokenReplacementField> tokenReplacementFields;
 
   public TokenReplacementMeta() {
-    super(); // allocate BaseTransformMeta
-    allocate(0);
+    super();
+    tokenReplacementFields = new ArrayList<>();
+    inputType = "Text";
+    outputType = "Field";
+    outputFileEncoding = Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8);
+    outputFileFormat = Const.isWindows() ? "DOS" : "UNIX";
+    splitEvery = 0;
+    tokenStartString = "${";
+    tokenEndString = "}";
   }
 
-  public String getInputType() {
-    return inputType;
-  }
-
-  public void setInputType(String inputType) {
-    this.inputType = inputType;
-  }
-
-  public String getInputText() {
-    return inputText;
-  }
-
-  public void setInputText(String inputText) {
-    this.inputText = inputText;
-  }
-
-  public String getInputFieldName() {
-    return inputFieldName;
-  }
-
-  public void setInputFieldName(String inputFieldName) {
-    this.inputFieldName = inputFieldName;
-  }
-
-  public String getInputFileName() {
-    return inputFileName;
-  }
-
-  public void setInputFileName(String inputFileName) {
-    this.inputFileName = inputFileName;
-  }
-
-  public boolean isInputFileNameInField() {
-    return inputFileNameInField;
-  }
-
-  public void setInputFileNameInField(boolean inputFileNameInField) {
-    this.inputFileNameInField = inputFileNameInField;
-  }
-
-  public String getInputFileNameField() {
-    return inputFileNameField;
-  }
-
-  public void setInputFileNameField(String inputFileNameField) {
-    this.inputFileNameField = inputFileNameField;
-  }
-
-  public boolean isAddInputFileNameToResult() {
-    return addInputFileNameToResult;
-  }
-
-  public void setAddInputFileNameToResult(boolean addInputFileNameToResult) {
-    this.addInputFileNameToResult = addInputFileNameToResult;
-  }
-
-  public String getOutputType() {
-    return outputType;
-  }
-
-  public void setOutputType(String outputType) {
-    this.outputType = outputType;
-  }
-
-  public String getOutputFieldName() {
-    return outputFieldName;
-  }
-
-  public void setOutputFieldName(String outputFieldName) {
-    this.outputFieldName = outputFieldName;
-  }
-
-  public String getOutputFileName() {
-    return outputFileName;
-  }
-
-  public void setOutputFileName(String outputFileName) {
-    this.outputFileName = outputFileName;
-  }
-
-  public boolean isOutputFileNameInField() {
-    return outputFileNameInField;
-  }
-
-  public void setOutputFileNameInField(boolean outputFileNameInField) {
-    this.outputFileNameInField = outputFileNameInField;
-  }
-
-  public String getOutputFileNameField() {
-    return outputFileNameField;
-  }
-
-  public void setOutputFileNameField(String outputFileNameField) {
-    this.outputFileNameField = outputFileNameField;
-  }
-
-  public boolean isCreateParentFolder() {
-    return createParentFolder;
-  }
-
-  public void setCreateParentFolder(boolean createParentFolder) {
-    this.createParentFolder = createParentFolder;
+  public TokenReplacementMeta(TokenReplacementMeta m) {
+    this();
+    this.inputType = m.inputType;
+    this.inputText = m.inputText;
+    this.inputFieldName = m.inputFieldName;
+    this.inputFileName = m.inputFileName;
+    this.inputFileNameInField = m.inputFileNameInField;
+    this.inputFileNameField = m.inputFileNameField;
+    this.addInputFileNameToResult = m.addInputFileNameToResult;
+    this.outputType = m.outputType;
+    this.outputFieldName = m.outputFieldName;
+    this.outputFileName = m.outputFileName;
+    this.outputFileNameInField = m.outputFileNameInField;
+    this.outputFileNameField = m.outputFileNameField;
+    this.appendOutputFileName = m.appendOutputFileName;
+    this.createParentFolder = m.createParentFolder;
+    this.outputFileFormat = m.outputFileFormat;
+    this.outputFileEncoding = m.outputFileEncoding;
+    this.splitEvery = m.splitEvery;
+    this.includeTransformNrInOutputFileName = m.includeTransformNrInOutputFileName;
+    this.includePartNrInOutputFileName = m.includePartNrInOutputFileName;
+    this.includeDateInOutputFileName = m.includeDateInOutputFileName;
+    this.includeTimeInOutputFileName = m.includeTimeInOutputFileName;
+    this.specifyDateFormatOutputFileName = m.specifyDateFormatOutputFileName;
+    this.dateFormatOutputFileName = m.dateFormatOutputFileName;
+    this.addOutputFileNameToResult = m.addOutputFileNameToResult;
+    this.tokenStartString = m.tokenStartString;
+    this.tokenEndString = m.tokenEndString;
+    m.tokenReplacementFields.forEach(f -> tokenReplacementFields.add(new TokenReplacementField(f)));
   }
 
   public String getOutputFileEncoding() {
     return Const.NVL(
         outputFileEncoding, Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8));
-  }
-
-  public void setOutputFileEncoding(String outputFileEncoding) {
-    this.outputFileEncoding = outputFileEncoding;
-  }
-
-  public String getOutputFileFormat() {
-    return outputFileFormat;
   }
 
   public String getOutputFileFormatString() {
@@ -316,308 +321,9 @@ public class TokenReplacementMeta
     };
   }
 
-  public void setOutputFileFormat(String outputFileFormat) {
-    this.outputFileFormat = outputFileFormat;
-  }
-
-  public int getSplitEvery() {
-    return splitEvery;
-  }
-
-  public void setSplitEvery(int splitEvery) {
-    this.splitEvery = splitEvery;
-  }
-
-  public boolean isIncludeTransformNrInOutputFileName() {
-    return includeTransformNrInOutputFileName;
-  }
-
-  public void setIncludeTransformNrInOutputFileName(boolean includeTransformNrInOutputFileName) {
-    this.includeTransformNrInOutputFileName = includeTransformNrInOutputFileName;
-  }
-
-  public boolean isIncludePartNrInOutputFileName() {
-    return includePartNrInOutputFileName;
-  }
-
-  public void setIncludePartNrInOutputFileName(boolean includePartNrInOutputFileName) {
-    this.includePartNrInOutputFileName = includePartNrInOutputFileName;
-  }
-
-  public boolean isIncludeDateInOutputFileName() {
-    return includeDateInOutputFileName;
-  }
-
-  public void setIncludeDateInOutputFileName(boolean includeDateInOutputFileName) {
-    this.includeDateInOutputFileName = includeDateInOutputFileName;
-  }
-
-  public boolean isIncludeTimeInOutputFileName() {
-    return includeTimeInOutputFileName;
-  }
-
-  public void setIncludeTimeInOutputFileName(boolean includeTimeInOutputFileName) {
-    this.includeTimeInOutputFileName = includeTimeInOutputFileName;
-  }
-
-  public boolean isSpecifyDateFormatOutputFileName() {
-    return specifyDateFormatOutputFileName;
-  }
-
-  public void setSpecifyDateFormatOutputFileName(boolean specifyDateFormatOutputFileName) {
-    this.specifyDateFormatOutputFileName = specifyDateFormatOutputFileName;
-  }
-
-  public String getDateFormatOutputFileName() {
-    return dateFormatOutputFileName;
-  }
-
-  public void setDateFormatOutputFileName(String dateFormatOutputFileName) {
-    this.dateFormatOutputFileName = dateFormatOutputFileName;
-  }
-
-  public boolean isAddOutputFileNameToResult() {
-    return addOutputFileNameToResult;
-  }
-
-  public void setAddOutputFileNameToResult(boolean addOutputFileNameToResult) {
-    this.addOutputFileNameToResult = addOutputFileNameToResult;
-  }
-
-  public String getTokenStartString() {
-    return tokenStartString;
-  }
-
-  public void setTokenStartString(String tokenStartString) {
-    this.tokenStartString = tokenStartString;
-  }
-
-  public String getTokenEndString() {
-    return tokenEndString;
-  }
-
-  public void setTokenEndString(String tokenEndString) {
-    this.tokenEndString = tokenEndString;
-  }
-
-  public TokenReplacementField[] getTokenReplacementFields() {
-    return tokenReplacementFields;
-  }
-
-  public void setTokenReplacementFields(TokenReplacementField[] tokenReplacementFields) {
-    this.tokenReplacementFields = tokenReplacementFields;
-  }
-
-  public boolean isAppendOutputFileName() {
-    return appendOutputFileName;
-  }
-
-  public void setAppendOutputFileName(boolean appendOutputFileName) {
-    this.appendOutputFileName = appendOutputFileName;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-
-      inputType = XmlHandler.getTagValue(transformNode, INPUT_TYPE);
-      inputText = XmlHandler.getTagValue(transformNode, INPUT_TEXT);
-      inputFieldName = XmlHandler.getTagValue(transformNode, INPUT_FIELD_NAME);
-      inputFileName = XmlHandler.getTagValue(transformNode, INPUT_FILENAME);
-      inputFileNameInField =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(XmlHandler.getTagValue(transformNode, INPUT_FILENAME_IN_FIELD), ""));
-      inputFileNameField = XmlHandler.getTagValue(transformNode, INPUT_FILENAME_FIELD);
-      addInputFileNameToResult =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(
-                      XmlHandler.getTagValue(transformNode, ADD_INPUT_FILENAME_TO_RESULT), ""));
-
-      outputType = XmlHandler.getTagValue(transformNode, OUTPUT_TYPE);
-      outputFieldName = XmlHandler.getTagValue(transformNode, OUTPUT_FIELD_NAME);
-      outputFileName = XmlHandler.getTagValue(transformNode, OUTPUT_FILENAME);
-      outputFileNameInField =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(XmlHandler.getTagValue(transformNode, OUTPUT_FILENAME_IN_FIELD), ""));
-      outputFileNameField = XmlHandler.getTagValue(transformNode, OUTPUT_FILENAME_FIELD);
-      appendOutputFileName =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(XmlHandler.getTagValue(transformNode, APPEND_OUTPUT_FILENAME), ""));
-      outputFileFormat = XmlHandler.getTagValue(transformNode, OUTPUT_FILE_FORMAT);
-      outputFileEncoding =
-          Const.NVL(
-              XmlHandler.getTagValue(transformNode, OUTPUT_FILE_ENCODING),
-              Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8));
-      splitEvery = Const.toInt(XmlHandler.getTagValue(transformNode, OUTPUT_SPLIT_EVERY), 0);
-      createParentFolder =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(XmlHandler.getTagValue(transformNode, CREATE_PARENT_FOLDER), ""));
-      includeTransformNrInOutputFileName =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(
-                      XmlHandler.getTagValue(
-                          transformNode, INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME),
-                      ""));
-      includePartNrInOutputFileName =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(
-                      XmlHandler.getTagValue(transformNode, INCLUDE_PART_NR_IN_OUTPUT_FILENAME),
-                      ""));
-      includeDateInOutputFileName =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(
-                      XmlHandler.getTagValue(transformNode, INCLUDE_DATE_IN_OUTPUT_FILENAME), ""));
-      includeTimeInOutputFileName =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(
-                      XmlHandler.getTagValue(transformNode, INCLUDE_TIME_IN_OUTPUT_FILENAME), ""));
-      specifyDateFormatOutputFileName =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(
-                      XmlHandler.getTagValue(transformNode, SPECIFY_DATE_FORMAT_OUTPUT_FILENAME),
-                      ""));
-      dateFormatOutputFileName = XmlHandler.getTagValue(transformNode, DATE_FORMAT_OUTPUT_FILENAME);
-      addOutputFileNameToResult =
-          "Y"
-              .equalsIgnoreCase(
-                  Const.NVL(
-                      XmlHandler.getTagValue(transformNode, ADD_OUTPUT_FILENAME_TO_RESULT), ""));
-
-      tokenStartString = XmlHandler.getTagValue(transformNode, TOKEN_START_STRING);
-      tokenEndString = XmlHandler.getTagValue(transformNode, TOKEN_END_STRING);
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrfields = XmlHandler.countNodes(fields, CONST_FIELD);
-
-      allocate(nrfields);
-
-      for (int i = 0; i < nrfields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-
-        tokenReplacementFields[i] = new TokenReplacementField();
-        tokenReplacementFields[i].setName(XmlHandler.getTagValue(fnode, FIELD_NAME));
-        tokenReplacementFields[i].setTokenName(XmlHandler.getTagValue(fnode, TOKEN_NAME));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "BaseTransformMeta.Exception.ErrorLoadingTransformMeta"), e);
-    }
-  }
-
-  public void allocate(int nrfields) {
-    tokenReplacementFields = new TokenReplacementField[nrfields];
-  }
-
   @Override
   public Object clone() {
-    TokenReplacementMeta retval = (TokenReplacementMeta) super.clone();
-    int nrfields = tokenReplacementFields.length;
-
-    retval.allocate(nrfields);
-
-    for (int i = 0; i < nrfields; i++) {
-      retval.tokenReplacementFields[i] = (TokenReplacementField) tokenReplacementFields[i].clone();
-    }
-
-    return retval;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(800);
-
-    retval.append("    " + XmlHandler.addTagValue(INPUT_TYPE, inputType));
-    retval.append("    " + XmlHandler.addTagValue(INPUT_TEXT, inputText));
-    retval.append("    " + XmlHandler.addTagValue(INPUT_FIELD_NAME, inputFieldName));
-    retval.append("    " + XmlHandler.addTagValue(INPUT_FILENAME, inputFileName));
-    retval.append("    " + XmlHandler.addTagValue(INPUT_FILENAME_IN_FIELD, inputFileNameInField));
-    retval.append("    " + XmlHandler.addTagValue(INPUT_FILENAME_FIELD, inputFileNameField));
-    retval.append(
-        "    " + XmlHandler.addTagValue(ADD_INPUT_FILENAME_TO_RESULT, addInputFileNameToResult));
-    retval.append("    " + XmlHandler.addTagValue(OUTPUT_TYPE, outputType));
-    retval.append("    " + XmlHandler.addTagValue(OUTPUT_FIELD_NAME, outputFieldName));
-    retval.append("    " + XmlHandler.addTagValue(OUTPUT_FILENAME, outputFileName));
-    retval.append("    " + XmlHandler.addTagValue(OUTPUT_FILENAME_IN_FIELD, outputFileNameInField));
-    retval.append("    " + XmlHandler.addTagValue(OUTPUT_FILENAME_FIELD, outputFileNameField));
-    retval.append("    " + XmlHandler.addTagValue(APPEND_OUTPUT_FILENAME, appendOutputFileName));
-    retval.append("    " + XmlHandler.addTagValue(CREATE_PARENT_FOLDER, createParentFolder));
-    retval.append("    " + XmlHandler.addTagValue(OUTPUT_FILE_FORMAT, outputFileFormat));
-    retval.append("    " + XmlHandler.addTagValue(OUTPUT_FILE_ENCODING, outputFileEncoding));
-    retval.append("    " + XmlHandler.addTagValue(OUTPUT_SPLIT_EVERY, splitEvery));
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(
-                INCLUDE_TRANSFORM_NR_IN_OUTPUT_FILENAME, includeTransformNrInOutputFileName));
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(
-                INCLUDE_PART_NR_IN_OUTPUT_FILENAME, includePartNrInOutputFileName));
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(INCLUDE_DATE_IN_OUTPUT_FILENAME, includeDateInOutputFileName));
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(INCLUDE_TIME_IN_OUTPUT_FILENAME, includeTimeInOutputFileName));
-    retval.append(
-        "    "
-            + XmlHandler.addTagValue(
-                SPECIFY_DATE_FORMAT_OUTPUT_FILENAME, specifyDateFormatOutputFileName));
-    retval.append(
-        "    " + XmlHandler.addTagValue(DATE_FORMAT_OUTPUT_FILENAME, dateFormatOutputFileName));
-    retval.append(
-        "    " + XmlHandler.addTagValue(ADD_OUTPUT_FILENAME_TO_RESULT, addOutputFileNameToResult));
-
-    retval.append("    " + XmlHandler.addTagValue(TOKEN_START_STRING, tokenStartString));
-    retval.append("    " + XmlHandler.addTagValue(TOKEN_END_STRING, tokenEndString));
-
-    retval.append("    <fields>").append(Const.CR);
-    for (TokenReplacementField field : tokenReplacementFields) {
-      if (!Utils.isEmpty(field.getName())) {
-        retval.append("      <field>").append(Const.CR);
-        retval.append("        ").append(XmlHandler.addTagValue(FIELD_NAME, field.getName()));
-        retval.append("        ").append(XmlHandler.addTagValue(TOKEN_NAME, field.getTokenName()));
-        retval.append("      </field>").append(Const.CR);
-      }
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
-  public void setDefault() {
-
-    inputType = "Text";
-    inputFileNameInField = false;
-    addInputFileNameToResult = false;
-
-    outputType = "Field";
-    outputFileNameInField = false;
-    appendOutputFileName = false;
-    createParentFolder = false;
-    includeTransformNrInOutputFileName = false;
-    includePartNrInOutputFileName = false;
-    includeDateInOutputFileName = false;
-    includeTimeInOutputFileName = false;
-    specifyDateFormatOutputFileName = false;
-    addOutputFileNameToResult = false;
-    outputFileEncoding = Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8);
-    outputFileFormat = Const.isWindows() ? "DOS" : "UNIX";
-    splitEvery = 0;
-
-    tokenStartString = "${";
-    tokenEndString = "}";
+    return new TokenReplacementMeta(this);
   }
 
   public String buildFilename(
@@ -628,9 +334,9 @@ public class TokenReplacementMeta
   public String buildFilename(
       String filename,
       IVariables variables,
-      int transformnr,
-      String partnr,
-      int splitnr,
+      int copyNr,
+      String partitionId,
+      int splitNr,
       TokenReplacementMeta meta) {
     SimpleDateFormat daf = new SimpleDateFormat();
 
@@ -665,14 +371,14 @@ public class TokenReplacementMeta
       }
     }
     if (meta.isIncludeTransformNrInOutputFileName()) {
-      retval += "_" + transformnr;
+      retval += "_" + copyNr;
     }
     if (meta.isIncludePartNrInOutputFileName()) {
-      retval += "_" + partnr;
+      retval += "_" + partitionId;
     }
 
     if (meta.getSplitEvery() > 0) {
-      retval += "_" + splitnr;
+      retval += "_" + splitNr;
     }
 
     if (!Utils.isEmpty(extension)) {
@@ -782,9 +488,8 @@ public class TokenReplacementMeta
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
-    // change the case insensitive flag too
+      IHopMetadataProvider metadataProvider) {
+    // change the case-insensitive flag too
 
     if (outputType.equalsIgnoreCase(CONST_FIELD)) {
       IValueMeta v = new ValueMetaString(variables.resolve(outputFieldName));

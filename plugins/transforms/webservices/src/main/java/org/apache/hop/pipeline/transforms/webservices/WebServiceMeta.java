@@ -19,23 +19,22 @@ package org.apache.hop.pipeline.transforms.webservices;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "WebServiceLookup",
@@ -45,6 +44,8 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::WebServiceMeta.keyword",
     documentationUrl = "/pipeline/transforms/webservices.html")
+@Getter
+@Setter
 public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData> {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
@@ -55,70 +56,112 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
   public static final String CONST_FIELD = "field";
 
   /** The input web service fields */
+  @HopMetadataProperty(key = "field", groupKey = "fieldsIn")
   private List<WebServiceField> fieldsIn;
 
   /** The output web service fields */
+  @HopMetadataProperty(key = "field", groupKey = "fieldsOut")
   private List<WebServiceField> fieldsOut;
 
   /** Web service URL */
+  @HopMetadataProperty(key = "wsURL")
   private String url;
 
   /** Name of the web service operation to use */
+  @HopMetadataProperty(key = "wsOperation")
   private String operationName;
 
   /** Name of the operation request name: optional, can be different from the operation name */
+  @HopMetadataProperty(key = "wsOperationRequest")
   private String operationRequestName;
 
   /** The name-variables of the operation */
+  @HopMetadataProperty(key = "wsOperationNamespace")
   private String operationNamespace;
 
   /**
    * The name of the object that encapsulates the input fields in case we're dealing with a table
    */
+  @HopMetadataProperty(key = "wsInFieldContainer")
   private String inFieldContainerName;
 
   /** Name of the input object */
+  @HopMetadataProperty(key = "wsInFieldArgument")
   private String inFieldArgumentName;
 
   /** Name of the object that encapsulates the output fields in case we're dealing with a table */
+  @HopMetadataProperty(key = "wsOutFieldContainer")
   private String outFieldContainerName;
 
   /** Name of the output object */
+  @HopMetadataProperty(key = "wsOutFieldArgument")
   private String outFieldArgumentName;
 
+  @HopMetadataProperty(key = "proxyHost")
   private String proxyHost;
 
+  @HopMetadataProperty(key = "proxyPort")
   private String proxyPort;
 
+  @HopMetadataProperty(key = "httpLogin")
   private String httpLogin;
 
+  @HopMetadataProperty(key = "httpPassword", password = true)
   private String httpPassword;
 
   /** Flag to allow input data to pass to the output */
+  @HopMetadataProperty(key = "passingInputData")
   private boolean passingInputData;
 
   /** The number of rows to send with each call */
-  private int callTransform = DEFAULT_TRANSFORM;
+  @HopMetadataProperty(key = "callTransform")
+  private int callTransform;
 
   /** Use the 2.5/3.0 parsing logic (available for compatibility reasons) */
+  @HopMetadataProperty(key = "compatible")
   private boolean compatible;
 
   /** The name of the repeating element name. Empty = a single row return */
+  @HopMetadataProperty(key = "repeating_element")
   private String repeatingElementName;
 
   /** Is this transform giving back the complete reply from the service as an XML string? */
+  @HopMetadataProperty(key = "reply_as_string")
   private boolean returningReplyAsString;
 
   public WebServiceMeta() {
     super();
+    callTransform = DEFAULT_TRANSFORM;
     fieldsIn = new ArrayList<>();
     fieldsOut = new ArrayList<>();
   }
 
-  public WebServiceMeta(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
+  public WebServiceMeta(WebServiceMeta m) {
     this();
-    loadXml(transformNode, metadataProvider);
+    this.callTransform = m.callTransform;
+    this.compatible = m.compatible;
+    this.httpLogin = m.httpLogin;
+    this.httpPassword = m.httpPassword;
+    this.inFieldArgumentName = m.inFieldArgumentName;
+    this.inFieldContainerName = m.inFieldContainerName;
+    this.operationName = m.operationName;
+    this.operationNamespace = m.operationNamespace;
+    this.operationRequestName = m.operationRequestName;
+    this.outFieldArgumentName = m.outFieldArgumentName;
+    this.outFieldContainerName = m.outFieldContainerName;
+    this.passingInputData = m.passingInputData;
+    this.proxyHost = m.proxyHost;
+    this.proxyPort = m.proxyPort;
+    this.repeatingElementName = m.repeatingElementName;
+    this.returningReplyAsString = m.returningReplyAsString;
+    this.url = m.url;
+    m.fieldsIn.forEach(field -> fieldsIn.add(new WebServiceField(field)));
+    m.fieldsOut.forEach(field -> fieldsOut.add(new WebServiceField(field)));
+  }
+
+  @Override
+  public WebServiceMeta clone() {
+    return new WebServiceMeta(this);
   }
 
   @Override
@@ -155,20 +198,6 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
         throw new HopTransformException(e);
       }
     }
-  }
-
-  @Override
-  public WebServiceMeta clone() {
-    WebServiceMeta retval = (WebServiceMeta) super.clone();
-    retval.fieldsIn = new ArrayList<>();
-    for (WebServiceField field : fieldsIn) {
-      retval.fieldsIn.add(field.clone());
-    }
-    retval.fieldsOut = new ArrayList<>();
-    for (WebServiceField field : fieldsOut) {
-      retval.fieldsOut.add(field.clone());
-    }
-    return retval;
   }
 
   @Override
@@ -222,138 +251,6 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     }
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    // Store the WebService URL
-    //
-    retval.append("    " + XmlHandler.addTagValue("wsURL", getUrl()));
-
-    // Store the operation
-    //
-    retval.append("    " + XmlHandler.addTagValue("wsOperation", getOperationName()));
-    retval.append("    " + XmlHandler.addTagValue("wsOperationRequest", getOperationRequestName()));
-    retval.append("    " + XmlHandler.addTagValue("wsOperationNamespace", getOperationNamespace()));
-    retval.append("    " + XmlHandler.addTagValue("wsInFieldContainer", getInFieldContainerName()));
-    retval.append("    " + XmlHandler.addTagValue("wsInFieldArgument", getInFieldArgumentName()));
-    retval.append(
-        "    " + XmlHandler.addTagValue("wsOutFieldContainer", getOutFieldContainerName()));
-    retval.append("    " + XmlHandler.addTagValue("wsOutFieldArgument", getOutFieldArgumentName()));
-    retval.append("    " + XmlHandler.addTagValue("proxyHost", getProxyHost()));
-    retval.append("    " + XmlHandler.addTagValue("proxyPort", getProxyPort()));
-    retval.append("    " + XmlHandler.addTagValue("httpLogin", getHttpLogin()));
-    retval.append("    " + XmlHandler.addTagValue("httpPassword", getHttpPassword()));
-    retval.append("    " + XmlHandler.addTagValue("callTransform", getCallTransform()));
-    retval.append("    " + XmlHandler.addTagValue("passingInputData", isPassingInputData()));
-    retval.append("    " + XmlHandler.addTagValue("compatible", isCompatible()));
-    retval.append("    " + XmlHandler.addTagValue("repeating_element", getRepeatingElementName()));
-    retval.append("    " + XmlHandler.addTagValue("reply_as_string", isReturningReplyAsString()));
-
-    // Store the field parameters
-    //
-
-    // Store the link between the input fields and the WebService input
-    //
-    retval.append("    <fieldsIn>" + Const.CR);
-    for (int i = 0; i < getFieldsIn().size(); i++) {
-      WebServiceField vField = getFieldsIn().get(i);
-      retval.append("    <field>" + Const.CR);
-      retval.append(CONST_SPACES + XmlHandler.addTagValue("name", vField.getName()));
-      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_WS_NAME, vField.getWsName()));
-      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_XSD_TYPE, vField.getXsdType()));
-      retval.append("    </field>" + Const.CR);
-    }
-    retval.append("      </fieldsIn>" + Const.CR);
-
-    // Store the link between the input fields and the WebService output
-    //
-    retval.append("    <fieldsOut>" + Const.CR);
-    for (int i = 0; i < getFieldsOut().size(); i++) {
-      WebServiceField vField = getFieldsOut().get(i);
-      retval.append("    <field>" + Const.CR);
-      retval.append(CONST_SPACES + XmlHandler.addTagValue("name", vField.getName()));
-      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_WS_NAME, vField.getWsName()));
-      retval.append(CONST_SPACES + XmlHandler.addTagValue(CONST_XSD_TYPE, vField.getXsdType()));
-      retval.append("    </field>" + Const.CR);
-    }
-    retval.append("      </fieldsOut>" + Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    // Load the URL
-    //
-    setUrl(XmlHandler.getTagValue(transformNode, "wsURL"));
-
-    // Load the operation
-    //
-    setOperationName(XmlHandler.getTagValue(transformNode, "wsOperation"));
-    setOperationRequestName(XmlHandler.getTagValue(transformNode, "wsOperationRequest"));
-    setOperationNamespace(XmlHandler.getTagValue(transformNode, "wsOperationNamespace"));
-    setInFieldContainerName(XmlHandler.getTagValue(transformNode, "wsInFieldContainer"));
-    setInFieldArgumentName(XmlHandler.getTagValue(transformNode, "wsInFieldArgument"));
-    setOutFieldContainerName(XmlHandler.getTagValue(transformNode, "wsOutFieldContainer"));
-    setOutFieldArgumentName(XmlHandler.getTagValue(transformNode, "wsOutFieldArgument"));
-    setProxyHost(XmlHandler.getTagValue(transformNode, "proxyHost"));
-    setProxyPort(XmlHandler.getTagValue(transformNode, "proxyPort"));
-    setHttpLogin(XmlHandler.getTagValue(transformNode, "httpLogin"));
-    setHttpPassword(XmlHandler.getTagValue(transformNode, "httpPassword"));
-    setCallTransform(
-        Const.toInt(XmlHandler.getTagValue(transformNode, "callTransform"), DEFAULT_TRANSFORM));
-    setPassingInputData(
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "passingInputData")));
-    String compat = XmlHandler.getTagValue(transformNode, "compatible");
-    setCompatible(Utils.isEmpty(compat) || "Y".equalsIgnoreCase(compat));
-    setRepeatingElementName(XmlHandler.getTagValue(transformNode, "repeating_element"));
-    setReturningReplyAsString(
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "reply_as_string")));
-
-    // Load the input fields mapping
-    //
-    getFieldsIn().clear();
-    Node fields = XmlHandler.getSubNode(transformNode, "fieldsIn");
-    int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-
-    for (int i = 0; i < nrFields; ++i) {
-      Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-
-      WebServiceField field = new WebServiceField();
-      field.setName(XmlHandler.getTagValue(fnode, "name"));
-      field.setWsName(XmlHandler.getTagValue(fnode, CONST_WS_NAME));
-      field.setXsdType(XmlHandler.getTagValue(fnode, CONST_XSD_TYPE));
-      getFieldsIn().add(field);
-    }
-
-    // Load the output fields mapping
-    //
-    getFieldsOut().clear();
-
-    fields = XmlHandler.getSubNode(transformNode, "fieldsOut");
-    nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
-
-    for (int i = 0; i < nrFields; ++i) {
-      Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
-
-      WebServiceField field = new WebServiceField();
-      field.setName(XmlHandler.getTagValue(fnode, "name"));
-      field.setWsName(XmlHandler.getTagValue(fnode, CONST_WS_NAME));
-      field.setXsdType(XmlHandler.getTagValue(fnode, CONST_XSD_TYPE));
-      getFieldsOut().add(field);
-    }
-  }
-
-  public String getOperationName() {
-    return operationName;
-  }
-
-  public void setOperationName(String operationName) {
-    this.operationName = operationName;
-  }
-
   public WebServiceField getFieldInFromName(String name) {
     WebServiceField param = null;
     for (WebServiceField paramCour : getFieldsIn()) {
@@ -371,7 +268,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
    * @param wsName The name of the WebServiceField to return
    * @param ignoreWsNsPrefix If true the lookup of the cache of WebServiceFields will not include
    *     the target namespace prefix.
-   * @return
+   * @return The field for the given web service
    */
   public WebServiceField getFieldOutFromWsName(String wsName, boolean ignoreWsNsPrefix) {
     WebServiceField param = null;
@@ -398,14 +295,6 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     return param;
   }
 
-  public List<WebServiceField> getFieldsIn() {
-    return fieldsIn;
-  }
-
-  public void setFieldsIn(List<WebServiceField> fieldsIn) {
-    this.fieldsIn = fieldsIn;
-  }
-
   public boolean hasFieldsIn() {
     return !Utils.isEmpty(fieldsIn);
   }
@@ -414,174 +303,7 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     fieldsIn.add(field);
   }
 
-  public List<WebServiceField> getFieldsOut() {
-    return fieldsOut;
-  }
-
-  public void setFieldsOut(List<WebServiceField> fieldsOut) {
-    this.fieldsOut = fieldsOut;
-  }
-
   public void addFieldOut(WebServiceField field) {
     fieldsOut.add(field);
-  }
-
-  public String getInFieldArgumentName() {
-    return inFieldArgumentName;
-  }
-
-  public void setInFieldArgumentName(String inFieldArgumentName) {
-    this.inFieldArgumentName = inFieldArgumentName;
-  }
-
-  public String getOutFieldArgumentName() {
-    return outFieldArgumentName;
-  }
-
-  public void setOutFieldArgumentName(String outFieldArgumentName) {
-    this.outFieldArgumentName = outFieldArgumentName;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public int getCallTransform() {
-    return callTransform;
-  }
-
-  public void setCallTransform(int callTransform) {
-    this.callTransform = callTransform;
-  }
-
-  public String getOperationNamespace() {
-    return operationNamespace;
-  }
-
-  public void setOperationNamespace(String operationNamespace) {
-    this.operationNamespace = operationNamespace;
-  }
-
-  public String getHttpLogin() {
-    return httpLogin;
-  }
-
-  public void setHttpLogin(String httpLogin) {
-    this.httpLogin = httpLogin;
-  }
-
-  public String getHttpPassword() {
-    return httpPassword;
-  }
-
-  public void setHttpPassword(String httpPassword) {
-    this.httpPassword = httpPassword;
-  }
-
-  public String getProxyHost() {
-    return proxyHost;
-  }
-
-  public void setProxyHost(String proxyHost) {
-    this.proxyHost = proxyHost;
-  }
-
-  public String getProxyPort() {
-    return proxyPort;
-  }
-
-  public void setProxyPort(String proxyPort) {
-    this.proxyPort = proxyPort;
-  }
-
-  public String getInFieldContainerName() {
-    return inFieldContainerName;
-  }
-
-  public void setInFieldContainerName(String inFieldContainerName) {
-    this.inFieldContainerName = inFieldContainerName;
-  }
-
-  public String getOutFieldContainerName() {
-    return outFieldContainerName;
-  }
-
-  public void setOutFieldContainerName(String outFieldContainerName) {
-    this.outFieldContainerName = outFieldContainerName;
-  }
-
-  /**
-   * @return the passingInputData
-   */
-  public boolean isPassingInputData() {
-    return passingInputData;
-  }
-
-  /**
-   * @param passingInputData the passingInputData to set
-   */
-  public void setPassingInputData(boolean passingInputData) {
-    this.passingInputData = passingInputData;
-  }
-
-  /**
-   * @return the compatible
-   */
-  public boolean isCompatible() {
-    return compatible;
-  }
-
-  /**
-   * @param compatible the compatible to set
-   */
-  public void setCompatible(boolean compatible) {
-    this.compatible = compatible;
-  }
-
-  /**
-   * @return the repeatingElementName
-   */
-  public String getRepeatingElementName() {
-    return repeatingElementName;
-  }
-
-  /**
-   * @param repeatingElementName the repeatingElementName to set
-   */
-  public void setRepeatingElementName(String repeatingElementName) {
-    this.repeatingElementName = repeatingElementName;
-  }
-
-  /**
-   * @return true if the reply from the service is simply passed on as a String, mostly in XML
-   */
-  public boolean isReturningReplyAsString() {
-    return returningReplyAsString;
-  }
-
-  /**
-   * @param returningReplyAsString true if the reply from the service is simply passed on as a
-   *     String, mostly in XML
-   */
-  public void setReturningReplyAsString(boolean returningReplyAsString) {
-    this.returningReplyAsString = returningReplyAsString;
-  }
-
-  /**
-   * @return the operationRequestName
-   */
-  public String getOperationRequestName() {
-    return operationRequestName;
-  }
-
-  /**
-   * @param operationRequestName the operationRequestName to set
-   */
-  public void setOperationRequestName(String operationRequestName) {
-    this.operationRequestName = operationRequestName;
   }
 }

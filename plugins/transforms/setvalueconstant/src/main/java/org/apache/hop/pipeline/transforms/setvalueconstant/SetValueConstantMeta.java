@@ -19,28 +19,23 @@ package org.apache.hop.pipeline.transforms.setvalueconstant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-@InjectionSupported(
-    localizationPrefix = "SetValueConstant.Injection.",
-    groups = {"FIELDS", "OPTIONS"})
 @Transform(
     id = "SetValueConstant",
     image = "setvalueconstant.svg",
@@ -49,93 +44,28 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SetValueConstantMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvalueconstant.html")
+@Getter
+@Setter
 public class SetValueConstantMeta
     extends BaseTransformMeta<SetValueConstant, SetValueConstantData> {
   private static final Class<?> PKG = SetValueConstantMeta.class;
-  public static final String CONST_SPACES = "        ";
 
-  @InjectionDeep private List<Field> fields = new ArrayList<>();
+  @HopMetadataProperty(
+      key = "field",
+      groupKey = "fields",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "SetValueConstant.Injection.FIELDS")
+  private List<Field> fields;
 
-  public Field getField(int i) {
-    return fields.get(i);
-  }
-
-  public List<Field> getFields() {
-    return fields;
-  }
-
-  public void setFields(List<Field> fields) {
-    this.fields = fields;
-  }
-
-  @Injection(name = "USE_VARIABLE", group = "OPTIONS")
-  private boolean usevar;
+  @HopMetadataProperty(
+      key = "usevar",
+      injectionKey = "USE_VARIABLE",
+      injectionKeyDescription = "SetValueConstant.Injection.USE_VARIABLE")
+  private boolean usingVariables;
 
   public SetValueConstantMeta() {
-    super(); // allocate BaseTransformMeta
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  public void setUseVars(boolean usevar) {
-    this.usevar = usevar;
-  }
-
-  public boolean isUseVars() {
-    return usevar;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      usevar = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usevar"));
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      List<Field> fieldList = new ArrayList<>();
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        Field field = new Field();
-        field.setFieldName(XmlHandler.getTagValue(fnode, "name"));
-        field.setReplaceValue(XmlHandler.getTagValue(fnode, "value"));
-        field.setReplaceMask(XmlHandler.getTagValue(fnode, "mask"));
-        String emptyString = XmlHandler.getTagValue(fnode, "set_empty_string");
-        field.setEmptyString(!Utils.isEmpty(emptyString) && "Y".equalsIgnoreCase(emptyString));
-        fieldList.add(field);
-      }
-      setFields(fieldList);
-    } catch (Exception e) {
-      throw new HopXmlException(
-          "It was not possible to load the metadata for this transform from XML", e);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval.append("   " + XmlHandler.addTagValue("usevar", usevar));
-    retval.append("    <fields>" + Const.CR);
-    fields.forEach(
-        field -> {
-          retval.append("      <field>" + Const.CR);
-          retval.append(CONST_SPACES + XmlHandler.addTagValue("name", field.getFieldName()));
-          retval.append(CONST_SPACES + XmlHandler.addTagValue("value", field.getReplaceValue()));
-          retval.append(CONST_SPACES + XmlHandler.addTagValue("mask", field.getReplaceMask()));
-          retval.append(
-              CONST_SPACES + XmlHandler.addTagValue("set_empty_string", field.isEmptyString()));
-          retval.append("        </field>" + Const.CR);
-        });
-    retval.append("      </fields>" + Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
-  public void setDefault() {
-    usevar = false;
+    super();
+    this.fields = new ArrayList<>();
   }
 
   @Override
@@ -226,58 +156,58 @@ public class SetValueConstantMeta
     return true;
   }
 
+  @Getter
+  @Setter
   public static class Field {
-
-    @Injection(name = "FIELD_NAME", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "name",
+        injectionKey = "FIELD_NAME",
+        injectionKeyDescription = "SetValueConstant.Injection.FIELD_NAME")
     private String fieldName;
 
-    @Injection(name = "REPLACE_VALUE", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "value",
+        injectionKey = "REPLACE_VALUE",
+        injectionKeyDescription = "SetValueConstant.Injection.REPLACE_VALUE")
     private String replaceValue;
 
-    @Injection(name = "REPLACE_MASK", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "mask",
+        injectionKey = "REPLACE_MASK",
+        injectionKeyDescription = "SetValueConstant.Injection.REPLACE_MASK")
     private String replaceMask;
 
-    @Injection(name = "EMPTY_STRING", group = "FIELDS")
-    private boolean setEmptyString;
+    @HopMetadataProperty(
+        key = "set_empty_string",
+        injectionKey = "EMPTY_STRING",
+        injectionKeyDescription = "SetValueConstant.Injection.EMPTY_STRING")
+    private boolean emptyString;
 
-    public String getFieldName() {
-      return fieldName;
-    }
+    public Field() {}
 
-    public void setFieldName(String fieldName) {
-      this.fieldName = fieldName;
-    }
-
-    public String getReplaceValue() {
-      return replaceValue;
-    }
-
-    public void setReplaceValue(String replaceValue) {
-      this.replaceValue = replaceValue;
-    }
-
-    public String getReplaceMask() {
-      return replaceMask;
-    }
-
-    public void setReplaceMask(String replaceMask) {
-      this.replaceMask = replaceMask;
-    }
-
-    public boolean isEmptyString() {
-      return setEmptyString;
-    }
-
-    public void setEmptyString(boolean setEmptyString) {
-      this.setEmptyString = setEmptyString;
+    public Field(Field f) {
+      this();
+      this.fieldName = f.fieldName;
+      this.replaceValue = f.replaceValue;
+      this.replaceMask = f.replaceMask;
+      this.emptyString = f.emptyString;
     }
 
     @Override
-    public boolean equals(Object obj) {
-      return fieldName.equals(((Field) obj).getFieldName())
-          && replaceValue.equals(((Field) obj).getReplaceValue())
-          && replaceMask.equals(((Field) obj).getReplaceMask())
-          && setEmptyString == ((Field) obj).isEmptyString();
+    public boolean equals(Object o) {
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      Field field = (Field) o;
+      return emptyString == field.emptyString
+          && Objects.equals(fieldName, field.fieldName)
+          && Objects.equals(replaceValue, field.replaceValue)
+          && Objects.equals(replaceMask, field.replaceMask);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(fieldName, replaceValue, replaceMask, emptyString);
     }
   }
 }

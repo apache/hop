@@ -18,44 +18,29 @@
 package org.apache.hop.pipeline.transforms.regexeval;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 
-class RegexEvalMetaTest implements IInitializer<ITransform> {
+class RegexEvalMetaTest {
   IRowMeta mockInputRowMeta;
   IVariables mockVariableSpace;
-  LoadSaveTester loadSaveTester;
-  Class<RegexEvalMeta> testMetaClass = RegexEvalMeta.class;
 
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
@@ -82,7 +67,7 @@ class RegexEvalMetaTest implements IInitializer<ITransform> {
     String mockName = "MOCK_NAME";
     when(mockValueMeta.getName()).thenReturn(mockName);
     when(mockInputRowMeta.getValueMeta(0)).thenReturn(mockValueMeta);
-    regexEvalMeta.setReplacefields(true);
+    regexEvalMeta.setReplacingFields(true);
     regexEvalMeta.getFields(mockInputRowMeta, name, null, null, mockVariableSpace, null);
     ArgumentCaptor<IValueMeta> captor = ArgumentCaptor.forClass(IValueMeta.class);
     verify(mockInputRowMeta).setValueMeta(eq(0), captor.capture());
@@ -100,7 +85,7 @@ class RegexEvalMetaTest implements IInitializer<ITransform> {
     String mockName = "MOCK_NAME";
     when(mockVariableSpace.resolve(resultField)).thenReturn(mockName);
     when(mockInputRowMeta.getValueMeta(0)).thenReturn(mockValueMeta);
-    regexEvalMeta.setReplacefields(true);
+    regexEvalMeta.setReplacingFields(true);
     regexEvalMeta.getFields(mockInputRowMeta, name, null, null, mockVariableSpace, null);
     ArgumentCaptor<IValueMeta> captor = ArgumentCaptor.forClass(IValueMeta.class);
     verify(mockInputRowMeta).addValueMeta(captor.capture());
@@ -108,175 +93,44 @@ class RegexEvalMetaTest implements IInitializer<ITransform> {
   }
 
   @Test
-  void testGetFieldsReplacesFieldIfItExists() throws HopTransformException {
-    RegexEvalMeta regexEvalMeta = new RegexEvalMeta();
-    String name = "TEST_NAME";
-    regexEvalMeta.allocate(1);
-    String fieldName = "fieldname";
+  void testSerializationRoundTrip() throws Exception {
+    RegexEvalMeta meta =
+        TransformSerializationTestUtil.testSerialization("/regex-eval.xml", RegexEvalMeta.class);
 
-    regexEvalMeta.getFieldName()[0] = fieldName;
-    when(mockInputRowMeta.indexOfValue(fieldName)).thenReturn(0);
-    IValueMeta mockValueMeta = mock(IValueMeta.class);
-    String mockName = "MOCK_NAME";
-    when(mockValueMeta.getName()).thenReturn(mockName);
-    when(mockInputRowMeta.getValueMeta(0)).thenReturn(mockValueMeta);
-    regexEvalMeta.setReplacefields(true);
-    regexEvalMeta.setAllowCaptureGroupsFlag(true);
-    regexEvalMeta.getFields(mockInputRowMeta, name, null, null, mockVariableSpace, null);
-    ArgumentCaptor<IValueMeta> captor = ArgumentCaptor.forClass(IValueMeta.class);
-    verify(mockInputRowMeta).setValueMeta(eq(0), captor.capture());
-    assertEquals(mockName, captor.getValue().getName());
-  }
+    assertEquals("regular-expression", meta.getScript());
+    assertEquals("regex-field", meta.getMatcher());
+    assertEquals("result", meta.getResultFieldName());
+    assertTrue(meta.isUsingVariables());
+    assertTrue(meta.isAllowingCaptureGroups());
+    assertTrue(meta.isReplacingFields());
+    assertTrue(meta.isCanonicalEqualityEnabled());
+    assertTrue(meta.isCaseInsensitive());
+    assertTrue(meta.isCommentingEnabled());
+    assertTrue(meta.isDotAllEnabled());
+    assertTrue(meta.isMultiLine());
+    assertTrue(meta.isUnicode());
+    assertTrue(meta.isUnixLineEndings());
+    assertEquals(3, meta.getRegexFields().size());
 
-  @Test
-  void testGetFieldsAddsFieldIfDoesntExist() throws HopTransformException {
-    RegexEvalMeta regexEvalMeta = new RegexEvalMeta();
-    String name = "TEST_NAME";
-    regexEvalMeta.allocate(1);
-    String fieldName = "fieldname";
-    regexEvalMeta.getFieldName()[0] = fieldName;
-    when(mockInputRowMeta.indexOfValue(fieldName)).thenReturn(-1);
-    IValueMeta mockValueMeta = mock(IValueMeta.class);
-    String mockName = "MOCK_NAME";
-    when(mockVariableSpace.resolve(fieldName)).thenReturn(mockName);
-    when(mockInputRowMeta.getValueMeta(0)).thenReturn(mockValueMeta);
-    regexEvalMeta.setReplacefields(true);
-    regexEvalMeta.setAllowCaptureGroupsFlag(true);
-    regexEvalMeta.getFields(mockInputRowMeta, name, null, null, mockVariableSpace, null);
-    ArgumentCaptor<IValueMeta> captor = ArgumentCaptor.forClass(IValueMeta.class);
-    verify(mockInputRowMeta).addValueMeta(captor.capture());
-    assertEquals(fieldName, captor.getValue().getName());
-  }
+    RegexEvalMeta.RegexField f = meta.getRegexFields().getFirst();
+    assertEquals("field1", f.getFieldName());
+    assertEquals(IValueMeta.TYPE_STRING, f.getFieldType());
+    assertEquals(100, f.getFieldLength());
+    assertEquals(-1, f.getFieldPrecision());
+    assertEquals(IValueMeta.TRIM_TYPE_LEFT, f.getFieldTrimType());
 
-  @BeforeEach
-  void setUpLoadSave() throws Exception {
-    HopEnvironment.init();
-    PluginRegistry.init();
-    List<String> attributes =
-        Arrays.asList(
-            "script",
-            "matcher",
-            "resultfieldname",
-            "usevar",
-            "allowcapturegroups",
-            "replacefields",
-            "canoneq",
-            "caseinsensitive",
-            "comment",
-            "dotall",
-            "multiline",
-            "unicode",
-            "unix",
-            "fieldName",
-            "fieldFormat",
-            "fieldGroup",
-            "fieldDecimal",
-            "fieldCurrency",
-            "fieldNullIf",
-            "fieldIfNull",
-            "fieldTrimType",
-            "fieldLength",
-            "fieldPrecision",
-            "fieldType");
+    f = meta.getRegexFields().get(1);
+    assertEquals("field2", f.getFieldName());
+    assertEquals(IValueMeta.TYPE_INTEGER, f.getFieldType());
+    assertEquals(7, f.getFieldLength());
+    assertEquals(0, f.getFieldPrecision());
+    assertEquals(IValueMeta.TRIM_TYPE_RIGHT, f.getFieldTrimType());
 
-    Map<String, String> getterMap =
-        new HashMap<>() {
-          {
-            put("script", "getScript");
-            put("matcher", "getMatcher");
-            put("resultfieldname", "getResultFieldName");
-            put("usevar", "isUseVariableInterpolationFlagSet");
-            put("allowcapturegroups", "isAllowCaptureGroupsFlagSet");
-            put("replacefields", "isReplacefields");
-            put("canoneq", "isCanonicalEqualityFlagSet");
-            put("caseinsensitive", "isCaseInsensitiveFlagSet");
-            put("comment", "isCommentFlagSet");
-            put("dotall", "isDotAllFlagSet");
-            put("multiline", "isMultilineFlagSet");
-            put("unicode", "isUnicodeFlagSet");
-            put("unix", "isUnixLineEndingsFlagSet");
-            put("fieldName", "getFieldName");
-            put("fieldFormat", "getFieldFormat");
-            put("fieldGroup", "getFieldGroup");
-            put("fieldDecimal", "getFieldDecimal");
-            put("fieldCurrency", "getFieldCurrency");
-            put("fieldNullIf", "getFieldNullIf");
-            put("fieldIfNull", "getFieldIfNull");
-            put("fieldTrimType", "getFieldTrimType");
-            put("fieldLength", "getFieldLength");
-            put("fieldPrecision", "getFieldPrecision");
-            put("fieldType", "getFieldType");
-          }
-        };
-    Map<String, String> setterMap =
-        new HashMap<>() {
-          {
-            put("script", "setScript");
-            put("matcher", "setMatcher");
-            put("resultfieldname", "setResultFieldName");
-            put("usevar", "setUseVariableInterpolationFlag");
-            put("allowcapturegroups", "setAllowCaptureGroupsFlag");
-            put("replacefields", "setReplacefields");
-            put("canoneq", "setCanonicalEqualityFlag");
-            put("caseinsensitive", "setCaseInsensitiveFlag");
-            put("comment", "setCommentFlag");
-            put("dotall", "setDotAllFlag");
-            put("multiline", "setMultilineFlag");
-            put("unicode", "setUnicodeFlag");
-            put("unix", "setUnixLineEndingsFlag");
-            put("fieldName", "setFieldName");
-            put("fieldFormat", "setFieldFormat");
-            put("fieldGroup", "setFieldGroup");
-            put("fieldDecimal", "setFieldDecimal");
-            put("fieldCurrency", "setFieldCurrency");
-            put("fieldNullIf", "setFieldNullIf");
-            put("fieldIfNull", "setFieldIfNull");
-            put("fieldTrimType", "setFieldTrimType");
-            put("fieldLength", "setFieldLength");
-            put("fieldPrecision", "setFieldPrecision");
-            put("fieldType", "setFieldType");
-          }
-        };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 5);
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put("fieldName", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fieldFormat", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fieldGroup", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fieldDecimal", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fieldCurrency", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fieldNullIf", stringArrayLoadSaveValidator);
-    attrValidatorMap.put("fieldIfNull", stringArrayLoadSaveValidator);
-    attrValidatorMap.put(
-        "fieldTrimType",
-        new PrimitiveIntArrayLoadSaveValidator(
-            new IntLoadSaveValidator(ValueMetaBase.getTrimTypeCodes().length), 5));
-    attrValidatorMap.put(
-        "fieldLength", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(100), 5));
-    attrValidatorMap.put(
-        "fieldPrecision", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(9), 5));
-    attrValidatorMap.put(
-        "fieldType", new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(9), 5));
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass,
-            attributes,
-            getterMap,
-            setterMap,
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(ITransform someMeta) {
-    if (someMeta instanceof RegexEvalMeta) {
-      ((RegexEvalMeta) someMeta).allocate(5);
-    }
+    f = meta.getRegexFields().getLast();
+    assertEquals("field3", f.getFieldName());
+    assertEquals(IValueMeta.TYPE_NUMBER, f.getFieldType());
+    assertEquals(9, f.getFieldLength());
+    assertEquals(2, f.getFieldPrecision());
+    assertEquals(IValueMeta.TRIM_TYPE_BOTH, f.getFieldTrimType());
   }
 }

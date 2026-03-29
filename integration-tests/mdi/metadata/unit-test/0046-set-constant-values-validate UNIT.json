@@ -1,0 +1,56 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "usevar",
+          "data_set_field": "usevar"
+        }
+      ],
+      "field_order": [
+        "usevar"
+      ],
+      "data_set_name": "golden-set-constant-values",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "mask",
+          "data_set_field": "mask"
+        },
+        {
+          "transform_field": "set_empty_string",
+          "data_set_field": "set_empty_string"
+        }
+      ],
+      "field_order": [
+        "name",
+        "value",
+        "mask",
+        "set_empty_string"
+      ],
+      "data_set_name": "golden-set-constant-values-fields",
+      "transform_name": "validate fields"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0046-set-constant-values-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0046-set-constant-values-validate.hpl"
+}

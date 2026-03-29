@@ -17,25 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.stanford.nlp.simple;
 
-import java.util.Arrays;
-import java.util.List;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 class StanfordSimpleNlpMetaTest {
-  @RegisterExtension
-  static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
-
   @Test
-  void testLoadSave() throws HopException {
-    List<String> attributes = Arrays.asList("CorpusField", "IncludePartOfSpeech");
-
-    LoadSaveTester<StanfordSimpleNlpMeta> loadSaveTester =
-        new LoadSaveTester<>(StanfordSimpleNlpMeta.class, attributes);
-
-    loadSaveTester.testSerialization();
+  void testSerializationRoundTrip() throws Exception {
+    StanfordSimpleNlpMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/stanford-simple-nlp.xml", StanfordSimpleNlpMeta.class);
+    Assertions.assertEquals("corpusField", meta.getCorpusField());
+    Assertions.assertTrue(meta.isIncludePartOfSpeech());
+    Assertions.assertTrue(meta.isParallelism());
+    Assertions.assertEquals("sentence_", meta.getOutputFieldNamePrefix());
   }
 }

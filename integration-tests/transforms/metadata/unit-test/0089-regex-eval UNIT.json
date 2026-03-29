@@ -1,0 +1,61 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "string",
+          "data_set_field": "string"
+        },
+        {
+          "transform_field": "matches",
+          "data_set_field": "matches"
+        }
+      ],
+      "field_order": [
+        "string",
+        "matches"
+      ],
+      "data_set_name": "golden-regex-eval",
+      "transform_name": "Validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "string",
+          "data_set_field": "string"
+        },
+        {
+          "transform_field": "matches",
+          "data_set_field": "matches"
+        },
+        {
+          "transform_field": "prefix",
+          "data_set_field": "prefix"
+        },
+        {
+          "transform_field": "suffix",
+          "data_set_field": "suffix"
+        }
+      ],
+      "field_order": [
+        "string",
+        "matches",
+        "prefix",
+        "suffix"
+      ],
+      "data_set_name": "golden-regex-eval-capture-groups",
+      "transform_name": "Validate capture groups"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0089-regex-eval UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0089-regex-eval.hpl"
+}

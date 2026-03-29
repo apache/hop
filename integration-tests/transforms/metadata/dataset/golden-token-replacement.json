@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-token-replacement.csv",
+  "name": "golden-token-replacement",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "input",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "tokenValue",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "output",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

@@ -17,14 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
+import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -32,13 +33,12 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "RegexEval",
@@ -48,495 +48,245 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::RegexEvalMeta.keyword",
     documentationUrl = "/pipeline/transforms/regexeval.html")
+@Getter
+@Setter
 public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
   private static final Class<?> PKG = RegexEvalMeta.class;
   public static final String CONST_SPACES = "        ";
 
+  @Getter
+  @Setter
+  public static class RegexField {
+    @HopMetadataProperty(key = "name")
+    private String fieldName;
+
+    @HopMetadataProperty(
+        key = "type",
+        intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class)
+    private int fieldType;
+
+    @HopMetadataProperty(key = "format")
+    private String fieldFormat;
+
+    @HopMetadataProperty(key = "group")
+    private String fieldGroup;
+
+    @HopMetadataProperty(key = "decimal")
+    private String fieldDecimal;
+
+    @HopMetadataProperty(key = "currency")
+    private String fieldCurrency;
+
+    @HopMetadataProperty(key = "length")
+    private int fieldLength;
+
+    @HopMetadataProperty(key = "precision")
+    private int fieldPrecision;
+
+    @HopMetadataProperty(key = "nullif")
+    private String fieldNullIf;
+
+    @HopMetadataProperty(key = "ifnull")
+    private String fieldIfNull;
+
+    @HopMetadataProperty(
+        key = "trimtype",
+        intCodeConverter = ValueMetaBase.TrimTypeCodeConverter.class)
+    private int fieldTrimType;
+
+    public RegexField() {}
+
+    public RegexField(RegexField f) {
+      this();
+      this.fieldName = f.fieldName;
+      this.fieldType = f.fieldType;
+      this.fieldFormat = f.fieldFormat;
+      this.fieldGroup = f.fieldGroup;
+      this.fieldDecimal = f.fieldDecimal;
+      this.fieldCurrency = f.fieldCurrency;
+      this.fieldLength = f.fieldLength;
+      this.fieldPrecision = f.fieldPrecision;
+      this.fieldNullIf = f.fieldNullIf;
+      this.fieldIfNull = f.fieldIfNull;
+      this.fieldTrimType = f.fieldTrimType;
+    }
+
+    private IValueMeta constructValueMeta(IValueMeta sourceValueMeta, String name)
+        throws HopPluginException {
+      int type = fieldType;
+      if (type == IValueMeta.TYPE_NONE) {
+        type = IValueMeta.TYPE_STRING;
+      }
+      IValueMeta v;
+      if (sourceValueMeta == null) {
+        v = ValueMetaFactory.createValueMeta(fieldName, type);
+      } else {
+        v = ValueMetaFactory.cloneValueMeta(sourceValueMeta, type);
+      }
+      v.setLength(fieldLength);
+      v.setPrecision(fieldPrecision);
+      v.setOrigin(name);
+      v.setConversionMask(fieldFormat);
+      v.setDecimalSymbol(fieldDecimal);
+      v.setGroupingSymbol(fieldGroup);
+      v.setCurrencySymbol(fieldCurrency);
+      v.setTrimType(fieldTrimType);
+
+      return v;
+    }
+  }
+
+  @HopMetadataProperty(key = "script")
   private String script;
+
+  @HopMetadataProperty(key = "matcher")
   private String matcher;
-  private String resultfieldname;
-  private boolean usevar;
 
-  private boolean allowcapturegroups;
-  private boolean replacefields;
+  @HopMetadataProperty(key = "resultfieldname")
+  private String resultFieldName;
 
-  private boolean canoneq;
-  private boolean caseinsensitive;
-  private boolean comment;
-  private boolean dotall;
-  private boolean multiline;
+  @HopMetadataProperty(key = "usevar")
+  private boolean usingVariables;
+
+  @HopMetadataProperty(key = "allowcapturegroups")
+  private boolean allowingCaptureGroups;
+
+  @HopMetadataProperty(key = "replacefields")
+  private boolean replacingFields;
+
+  @HopMetadataProperty(key = "canoneq")
+  private boolean canonicalEqualityEnabled;
+
+  @HopMetadataProperty(key = "caseinsensitive")
+  private boolean caseInsensitive;
+
+  @HopMetadataProperty(key = "comment")
+  private boolean commentingEnabled;
+
+  @HopMetadataProperty(key = "dotall")
+  private boolean dotAllEnabled;
+
+  @HopMetadataProperty(key = "multiline")
+  private boolean multiLine;
+
+  @HopMetadataProperty(key = "unicode")
   private boolean unicode;
-  private boolean unix;
 
-  private String[] fieldName;
-  private int[] fieldType;
-  private String[] fieldFormat;
-  private String[] fieldGroup;
-  private String[] fieldDecimal;
-  private String[] fieldCurrency;
-  private int[] fieldLength;
-  private int[] fieldPrecision;
-  private String[] fieldNullIf;
-  private String[] fieldIfNull;
-  private int[] fieldTrimType;
+  @HopMetadataProperty(key = "unix")
+  private boolean unixLineEndings;
+
+  @HopMetadataProperty(key = "field", groupKey = "fields")
+  private List<RegexField> regexFields;
 
   public RegexEvalMeta() {
     super();
+    script = "";
+    matcher = "";
+    replacingFields = true;
+    regexFields = new ArrayList<>();
+  }
+
+  public RegexEvalMeta(RegexEvalMeta m) {
+    this();
+    this.script = m.script;
+    this.matcher = m.matcher;
+    this.resultFieldName = m.resultFieldName;
+    this.usingVariables = m.usingVariables;
+    this.allowingCaptureGroups = m.allowingCaptureGroups;
+    this.replacingFields = m.replacingFields;
+    this.canonicalEqualityEnabled = m.canonicalEqualityEnabled;
+    this.caseInsensitive = m.caseInsensitive;
+    this.commentingEnabled = m.commentingEnabled;
+    this.dotAllEnabled = m.dotAllEnabled;
+    this.multiLine = m.multiLine;
+    this.unicode = m.unicode;
+    this.unixLineEndings = m.unixLineEndings;
+    m.regexFields.forEach(field -> this.regexFields.add(new RegexField(field)));
   }
 
   @Override
-  public Object clone() {
-    RegexEvalMeta retval = (RegexEvalMeta) super.clone();
-
-    int nrFields = fieldName.length;
-
-    retval.allocate(nrFields);
-    System.arraycopy(fieldName, 0, retval.fieldName, 0, nrFields);
-    System.arraycopy(fieldType, 0, retval.fieldType, 0, nrFields);
-    System.arraycopy(fieldLength, 0, retval.fieldLength, 0, nrFields);
-    System.arraycopy(fieldPrecision, 0, retval.fieldPrecision, 0, nrFields);
-    System.arraycopy(fieldFormat, 0, retval.fieldFormat, 0, nrFields);
-    System.arraycopy(fieldGroup, 0, retval.fieldGroup, 0, nrFields);
-    System.arraycopy(fieldDecimal, 0, retval.fieldDecimal, 0, nrFields);
-    System.arraycopy(fieldCurrency, 0, retval.fieldCurrency, 0, nrFields);
-    System.arraycopy(fieldNullIf, 0, retval.fieldNullIf, 0, nrFields);
-    System.arraycopy(fieldIfNull, 0, retval.fieldIfNull, 0, nrFields);
-    System.arraycopy(fieldTrimType, 0, retval.fieldTrimType, 0, nrFields);
-
-    return retval;
-  }
-
-  public void allocate(int nrFields) {
-    fieldName = new String[nrFields];
-    fieldType = new int[nrFields];
-    fieldFormat = new String[nrFields];
-    fieldGroup = new String[nrFields];
-    fieldDecimal = new String[nrFields];
-    fieldCurrency = new String[nrFields];
-    fieldLength = new int[nrFields];
-    fieldPrecision = new int[nrFields];
-    fieldNullIf = new String[nrFields];
-    fieldIfNull = new String[nrFields];
-    fieldTrimType = new int[nrFields];
-  }
-
-  public String getScript() {
-    return script;
+  public RegexEvalMeta clone() {
+    return new RegexEvalMeta(this);
   }
 
   public String getRegexOptions() {
     StringBuilder options = new StringBuilder();
 
-    if (isCaseInsensitiveFlagSet()) {
+    if (isCaseInsensitive()) {
       options.append("(?i)");
     }
-    if (isCommentFlagSet()) {
+    if (isCommentingEnabled()) {
       options.append("(?x)");
     }
-    if (isDotAllFlagSet()) {
+    if (isDotAllEnabled()) {
       options.append("(?s)");
     }
-    if (isMultilineFlagSet()) {
+    if (isMultiLine()) {
       options.append("(?m)");
     }
-    if (isUnicodeFlagSet()) {
+    if (isUnicode()) {
       options.append("(?u)");
     }
-    if (isUnixLineEndingsFlagSet()) {
+    if (isUnixLineEndings()) {
       options.append("(?d)");
     }
     return options.toString();
   }
 
-  public void setScript(String script) {
-    this.script = script;
-  }
-
-  public String getMatcher() {
-    return matcher;
-  }
-
-  public void setMatcher(String matcher) {
-    this.matcher = matcher;
-  }
-
-  public String getResultFieldName() {
-    return resultfieldname;
-  }
-
-  public void setResultFieldName(String resultfieldname) {
-    this.resultfieldname = resultfieldname;
-  }
-
-  public boolean isUseVariableInterpolationFlagSet() {
-    return usevar;
-  }
-
-  public void setUseVariableInterpolationFlag(boolean usevar) {
-    this.usevar = usevar;
-  }
-
-  public boolean isAllowCaptureGroupsFlagSet() {
-    return allowcapturegroups;
-  }
-
-  public void setAllowCaptureGroupsFlag(boolean allowcapturegroups) {
-    this.allowcapturegroups = allowcapturegroups;
-  }
-
-  public boolean isReplacefields() {
-    return replacefields;
-  }
-
-  public void setReplacefields(boolean replacefields) {
-    this.replacefields = replacefields;
-  }
-
-  public boolean isCanonicalEqualityFlagSet() {
-    return canoneq;
-  }
-
-  public void setCanonicalEqualityFlag(boolean canoneq) {
-    this.canoneq = canoneq;
-  }
-
-  public boolean isCaseInsensitiveFlagSet() {
-    return caseinsensitive;
-  }
-
-  public void setCaseInsensitiveFlag(boolean caseinsensitive) {
-    this.caseinsensitive = caseinsensitive;
-  }
-
-  public boolean isCommentFlagSet() {
-    return comment;
-  }
-
-  public void setCommentFlag(boolean comment) {
-    this.comment = comment;
-  }
-
-  public boolean isDotAllFlagSet() {
-    return dotall;
-  }
-
-  public void setDotAllFlag(boolean dotall) {
-    this.dotall = dotall;
-  }
-
-  public boolean isMultilineFlagSet() {
-    return multiline;
-  }
-
-  public void setMultilineFlag(boolean multiline) {
-    this.multiline = multiline;
-  }
-
-  public boolean isUnicodeFlagSet() {
-    return unicode;
-  }
-
-  public void setUnicodeFlag(boolean unicode) {
-    this.unicode = unicode;
-  }
-
-  public boolean isUnixLineEndingsFlagSet() {
-    return unix;
-  }
-
-  public void setUnixLineEndingsFlag(boolean unix) {
-    this.unix = unix;
-  }
-
-  public String[] getFieldName() {
-    return fieldName;
-  }
-
-  public void setFieldName(String[] value) {
-    this.fieldName = value;
-  }
-
-  public int[] getFieldType() {
-    return fieldType;
-  }
-
-  public void setFieldType(int[] fieldType) {
-    this.fieldType = fieldType;
-  }
-
-  public String[] getFieldFormat() {
-    return fieldFormat;
-  }
-
-  public void setFieldFormat(String[] fieldFormat) {
-    this.fieldFormat = fieldFormat;
-  }
-
-  public String[] getFieldGroup() {
-    return fieldGroup;
-  }
-
-  public void setFieldGroup(String[] fieldGroup) {
-    this.fieldGroup = fieldGroup;
-  }
-
-  public String[] getFieldDecimal() {
-    return fieldDecimal;
-  }
-
-  public void setFieldDecimal(String[] fieldDecimal) {
-    this.fieldDecimal = fieldDecimal;
-  }
-
-  public String[] getFieldCurrency() {
-    return fieldCurrency;
-  }
-
-  public void setFieldCurrency(String[] fieldCurrency) {
-    this.fieldCurrency = fieldCurrency;
-  }
-
-  public int[] getFieldLength() {
-    return fieldLength;
-  }
-
-  public void setFieldLength(int[] fieldLength) {
-    this.fieldLength = fieldLength;
-  }
-
-  public int[] getFieldPrecision() {
-    return fieldPrecision;
-  }
-
-  public void setFieldPrecision(int[] fieldPrecision) {
-    this.fieldPrecision = fieldPrecision;
-  }
-
-  public String[] getFieldNullIf() {
-    return fieldNullIf;
-  }
-
-  public void setFieldNullIf(final String[] fieldNullIf) {
-    this.fieldNullIf = fieldNullIf;
-  }
-
-  public String[] getFieldIfNull() {
-    return fieldIfNull;
-  }
-
-  public void setFieldIfNull(final String[] fieldIfNull) {
-    this.fieldIfNull = fieldIfNull;
-  }
-
-  public int[] getFieldTrimType() {
-    return fieldTrimType;
-  }
-
-  public void setFieldTrimType(final int[] fieldTrimType) {
-    this.fieldTrimType = fieldTrimType;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      script = XmlHandler.getTagValue(transformNode, "script");
-      matcher = XmlHandler.getTagValue(transformNode, "matcher");
-      resultfieldname = XmlHandler.getTagValue(transformNode, "resultfieldname");
-      usevar = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "usevar"));
-      allowcapturegroups =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "allowcapturegroups"));
-      replacefields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "replacefields"));
-      canoneq = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "canoneq"));
-      caseinsensitive =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "caseinsensitive"));
-      comment = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "comment"));
-      dotall = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "dotall"));
-      multiline = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "multiline"));
-      unicode = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "unicode"));
-      unix = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "unix"));
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
-        final String stype = XmlHandler.getTagValue(fnode, "type");
-        fieldFormat[i] = XmlHandler.getTagValue(fnode, "format");
-        fieldGroup[i] = XmlHandler.getTagValue(fnode, "group");
-        fieldDecimal[i] = XmlHandler.getTagValue(fnode, "decimal");
-        fieldCurrency[i] = XmlHandler.getTagValue(fnode, "currency");
-        final String slen = XmlHandler.getTagValue(fnode, "length");
-        final String sprc = XmlHandler.getTagValue(fnode, "precision");
-        fieldNullIf[i] = XmlHandler.getTagValue(fnode, "nullif");
-        fieldIfNull[i] = XmlHandler.getTagValue(fnode, "ifnull");
-        final String trim = XmlHandler.getTagValue(fnode, "trimtype");
-        fieldType[i] = ValueMetaFactory.getIdForValueMeta(stype);
-        fieldLength[i] = Const.toInt(slen, -1);
-        fieldPrecision[i] = Const.toInt(sprc, -1);
-        fieldTrimType[i] = ValueMetaBase.getTrimTypeByCode(trim);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "RegexEvalMeta.Exception.UnableToLoadTransformMetaFromXML"),
-          e);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    script = "";
-    matcher = "";
-    resultfieldname = "result";
-    usevar = false;
-    allowcapturegroups = false;
-    replacefields = true;
-    canoneq = false;
-    caseinsensitive = false;
-    comment = false;
-    dotall = false;
-    multiline = false;
-    unicode = false;
-    unix = false;
-
-    allocate(0);
-  }
-
   @Override
   public void getFields(
       IRowMeta inputRowMeta,
-      String name,
+      String transformName,
       IRowMeta[] infos,
       TransformMeta nextTransforms,
       IVariables variables,
       IHopMetadataProvider metadataProviders)
       throws HopTransformException {
     try {
-      if (!Utils.isEmpty(resultfieldname)) {
-        if (replacefields) {
-          int replaceIndex = inputRowMeta.indexOfValue(resultfieldname);
+      if (!Utils.isEmpty(resultFieldName)) {
+        if (replacingFields) {
+          int replaceIndex = inputRowMeta.indexOfValue(resultFieldName);
           if (replaceIndex < 0) {
-            IValueMeta v = new ValueMetaBoolean(variables.resolve(resultfieldname));
-            v.setOrigin(name);
+            IValueMeta v = new ValueMetaBoolean(variables.resolve(resultFieldName));
+            v.setOrigin(transformName);
             inputRowMeta.addValueMeta(v);
           } else {
             IValueMeta valueMeta = inputRowMeta.getValueMeta(replaceIndex);
             IValueMeta replaceMeta =
                 ValueMetaFactory.cloneValueMeta(valueMeta, IValueMeta.TYPE_BOOLEAN);
-            replaceMeta.setOrigin(name);
+            replaceMeta.setOrigin(transformName);
             inputRowMeta.setValueMeta(replaceIndex, replaceMeta);
           }
         } else {
-          IValueMeta v = new ValueMetaBoolean(variables.resolve(resultfieldname));
-          v.setOrigin(name);
+          IValueMeta v = new ValueMetaBoolean(variables.resolve(resultFieldName));
+          v.setOrigin(transformName);
           inputRowMeta.addValueMeta(v);
         }
       }
 
-      if (allowcapturegroups) {
-        for (int i = 0; i < fieldName.length; i++) {
-          if (Utils.isEmpty(fieldName[i])) {
+      if (allowingCaptureGroups) {
+        for (RegexField field : regexFields) {
+          if (Utils.isEmpty(field.fieldName)) {
             continue;
           }
 
-          if (replacefields) {
-            int replaceIndex = inputRowMeta.indexOfValue(fieldName[i]);
+          if (replacingFields) {
+            int replaceIndex = inputRowMeta.indexOfValue(field.fieldName);
             if (replaceIndex < 0) {
-              inputRowMeta.addValueMeta(constructValueMeta(null, fieldName[i], i, name));
+              inputRowMeta.addValueMeta(field.constructValueMeta(null, transformName));
             } else {
               IValueMeta valueMeta = inputRowMeta.getValueMeta(replaceIndex);
-              IValueMeta replaceMeta = constructValueMeta(valueMeta, fieldName[i], i, name);
+              IValueMeta replaceMeta = field.constructValueMeta(valueMeta, transformName);
               inputRowMeta.setValueMeta(replaceIndex, replaceMeta);
             }
           } else {
-            inputRowMeta.addValueMeta(constructValueMeta(null, fieldName[i], i, name));
+            inputRowMeta.addValueMeta(field.constructValueMeta(null, transformName));
           }
         }
       }
     } catch (Exception e) {
       throw new HopTransformException(e);
     }
-  }
-
-  private IValueMeta constructValueMeta(
-      IValueMeta sourceValueMeta, String fieldName, int i, String name) throws HopPluginException {
-    int type = fieldType[i];
-    if (type == IValueMeta.TYPE_NONE) {
-      type = IValueMeta.TYPE_STRING;
-    }
-    IValueMeta v;
-    if (sourceValueMeta == null) {
-      v = ValueMetaFactory.createValueMeta(fieldName, type);
-    } else {
-      v = ValueMetaFactory.cloneValueMeta(sourceValueMeta, type);
-    }
-    v.setLength(fieldLength[i]);
-    v.setPrecision(fieldPrecision[i]);
-    v.setOrigin(name);
-    v.setConversionMask(fieldFormat[i]);
-    v.setDecimalSymbol(fieldDecimal[i]);
-    v.setGroupingSymbol(fieldGroup[i]);
-    v.setCurrencySymbol(fieldCurrency[i]);
-    v.setTrimType(fieldTrimType[i]);
-
-    return v;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("    " + XmlHandler.addTagValue("script", script));
-    retval.append("    " + XmlHandler.addTagValue("matcher", matcher));
-    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultfieldname));
-    retval.append("    " + XmlHandler.addTagValue("usevar", usevar));
-    retval.append("    " + XmlHandler.addTagValue("allowcapturegroups", allowcapturegroups));
-    retval.append("    " + XmlHandler.addTagValue("replacefields", replacefields));
-    retval.append("    " + XmlHandler.addTagValue("canoneq", canoneq));
-    retval.append("    " + XmlHandler.addTagValue("caseinsensitive", caseinsensitive));
-    retval.append("    " + XmlHandler.addTagValue("comment", comment));
-    retval.append("    " + XmlHandler.addTagValue("dotall", dotall));
-    retval.append("    " + XmlHandler.addTagValue("multiline", multiline));
-    retval.append("    " + XmlHandler.addTagValue("unicode", unicode));
-    retval.append("    " + XmlHandler.addTagValue("unix", unix));
-
-    retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < fieldName.length; i++) {
-      if (!Utils.isEmpty(fieldName[i])) {
-        retval.append("      <field>").append(Const.CR);
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("name", fieldName[i]));
-        retval
-            .append(CONST_SPACES)
-            .append(
-                XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(fieldType[i])));
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("format", fieldFormat[i]));
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("group", fieldGroup[i]));
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("decimal", fieldDecimal[i]));
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("length", fieldLength[i]));
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("precision", fieldPrecision[i]));
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("nullif", fieldNullIf[i]));
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("ifnull", fieldIfNull[i]));
-        retval
-            .append(CONST_SPACES)
-            .append(
-                XmlHandler.addTagValue(
-                    "trimtype", ValueMetaBase.getTrimTypeCode(fieldTrimType[i])));
-        retval.append(CONST_SPACES).append(XmlHandler.addTagValue("currency", fieldCurrency[i]));
-        retval.append("      </field>").append(Const.CR);
-      }
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -590,7 +340,7 @@ public class RegexEvalMeta extends BaseTransformMeta<RegexEval, RegexEvalData> {
     }
 
     // Check Result Field name
-    if (!Utils.isEmpty(resultfieldname)) {
+    if (!Utils.isEmpty(resultFieldName)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,

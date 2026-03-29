@@ -1,0 +1,81 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        ""
+      ],
+      "data_set_name": "golden-sort-rows-asc-insensitive",
+      "transform_name": "validate ASC i"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        ""
+      ],
+      "data_set_name": "golden-sort-rows-asc-sensitive",
+      "transform_name": "validate ASC s"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        ""
+      ],
+      "data_set_name": "golden-sort-rows-desc-insensitive",
+      "transform_name": "validate DESC i"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [],
+      "data_set_name": "golden-sort-rows-desc-sensitive",
+      "transform_name": "validate DESC s"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0090-sort-rows UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0090-sort-rows.hpl"
+}

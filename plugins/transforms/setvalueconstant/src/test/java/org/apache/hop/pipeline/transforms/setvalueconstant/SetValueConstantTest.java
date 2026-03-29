@@ -79,7 +79,6 @@ class SetValueConstantTest {
     field.setReplaceValue("Replace Value");
 
     doReturn(Collections.singletonList(field)).when(smh.iTransformMeta).getFields();
-    doReturn(field).when(smh.iTransformMeta).getField(0);
     doReturn(rowMeta).when(smh.iTransformData).getConvertRowMeta();
     doReturn(rowMeta).when(smh.iTransformData).getOutputRowMeta();
     doReturn(1).when(smh.iTransformData).getFieldnr();

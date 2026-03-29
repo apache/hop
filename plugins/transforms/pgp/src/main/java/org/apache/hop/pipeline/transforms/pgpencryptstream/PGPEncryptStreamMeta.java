@@ -18,23 +18,23 @@
 package org.apache.hop.pipeline.transforms.pgpencryptstream;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "PGPEncryptStream",
@@ -45,131 +45,54 @@ import org.w3c.dom.Node;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
     keywords = "i18n::PGPEncryptStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/pgpencryptstream.html")
+@Getter
+@Setter
 public class PGPEncryptStreamMeta
     extends BaseTransformMeta<PGPEncryptStream, PGPEncryptStreamData> {
   private static final Class<?> PKG = PGPEncryptStreamMeta.class;
 
   /** GPG location */
+  @HopMetadataProperty(key = "gpglocation")
   private String gpgLocation;
 
   /** Key name */
-  private String keyname;
+  @HopMetadataProperty(key = "keyname")
+  private String keyName;
 
   /** dynamic stream filed */
-  private String streamfield;
+  @HopMetadataProperty(key = "streamfield")
+  private String streamField;
 
   /** function result: new value name */
+  @HopMetadataProperty(key = "resultfieldname")
   private String resultFieldName;
 
   /** Flag: keyname is dynamic */
-  private boolean keynameInField;
+  @HopMetadataProperty(key = "keynameInField")
+  private boolean keyNameInField;
 
   /** keyname fieldname */
-  private String keynameFieldName;
+  @HopMetadataProperty(key = "keynameFieldName")
+  private String keyNameFieldName;
 
   public PGPEncryptStreamMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.resultFieldName = "result";
   }
 
-  public void setGPGLocation(String value) {
-    this.gpgLocation = value;
-  }
-
-  public String getGPGLocation() {
-    return gpgLocation;
-  }
-
-  /**
-   * @return Returns the streamfield.
-   */
-  public String getStreamField() {
-    return streamfield;
-  }
-
-  /**
-   * @param streamfield The streamfield to set.
-   */
-  public void setStreamField(String streamfield) {
-    this.streamfield = streamfield;
-  }
-
-  /**
-   * @return Returns the keynameFieldName.
-   */
-  public String getKeynameFieldName() {
-    return keynameFieldName;
-  }
-
-  /**
-   * @param keynameFieldName The keynameFieldName to set.
-   */
-  public void setKeynameFieldName(String keynameFieldName) {
-    this.keynameFieldName = keynameFieldName;
-  }
-
-  /**
-   * @return Returns the keynameInField.
-   */
-  public boolean isKeynameInField() {
-    return keynameInField;
-  }
-
-  /**
-   * @param keynameInField The keynameInField to set.
-   */
-  public void setKeynameInField(boolean keynameInField) {
-    this.keynameInField = keynameInField;
-  }
-
-  /**
-   * @return Returns the resultName.
-   */
-  public String getResultFieldName() {
-    return resultFieldName;
-  }
-
-  /**
-   * @param resultFieldName The resultfieldname to set.
-   */
-  public void setResultFieldName(String resultFieldName) {
-    this.resultFieldName = resultFieldName;
-  }
-
-  /**
-   * @return Returns the keyname.
-   */
-  public String getKeyName() {
-    return keyname;
-  }
-
-  /**
-   * @param keyname The keyname to set.
-   */
-  public void setKeyName(String keyname) {
-    this.keyname = keyname;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
+  public PGPEncryptStreamMeta(PGPEncryptStreamMeta m) {
+    this();
+    this.gpgLocation = m.gpgLocation;
+    this.keyName = m.keyName;
+    this.keyNameFieldName = m.keyNameFieldName;
+    this.keyNameInField = m.keyNameInField;
+    this.resultFieldName = m.resultFieldName;
+    this.streamField = m.streamField;
   }
 
   @Override
   public Object clone() {
-    PGPEncryptStreamMeta retval = (PGPEncryptStreamMeta) super.clone();
-
-    return retval;
-  }
-
-  @Override
-  public void setDefault() {
-    resultFieldName = "result";
-    streamfield = null;
-    keyname = null;
-    gpgLocation = null;
-    keynameInField = false;
-    keynameFieldName = null;
+    return new PGPEncryptStreamMeta(this);
   }
 
   @Override
@@ -186,36 +109,6 @@ public class PGPEncryptStreamMeta
       IValueMeta v = new ValueMetaString(variables.resolve(resultFieldName));
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval.append("    " + XmlHandler.addTagValue("gpglocation", gpgLocation));
-    retval.append("    " + XmlHandler.addTagValue("keyname", keyname));
-    retval.append("    " + XmlHandler.addTagValue("keynameInField", keynameInField));
-    retval.append("    " + XmlHandler.addTagValue("keynameFieldName", keynameFieldName));
-    retval.append("    " + XmlHandler.addTagValue("streamfield", streamfield));
-    retval.append("    " + XmlHandler.addTagValue("resultfieldname", resultFieldName));
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      gpgLocation = XmlHandler.getTagValue(transformNode, "gpglocation");
-      keyname = XmlHandler.getTagValue(transformNode, "keyname");
-
-      keynameInField =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "keynameInField"));
-      keynameFieldName = XmlHandler.getTagValue(transformNode, "keynameFieldName");
-      streamfield = XmlHandler.getTagValue(transformNode, "streamfield");
-      resultFieldName = XmlHandler.getTagValue(transformNode, "resultfieldname");
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "PGPEncryptStreamMeta.Exception.UnableToReadTransformMeta"),
-          e);
     }
   }
 
@@ -242,8 +135,8 @@ public class PGPEncryptStreamMeta
       errorMessage = BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.GPGLocationOK");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
     }
-    if (!isKeynameInField()) {
-      if (Utils.isEmpty(keyname)) {
+    if (!isKeyNameInField()) {
+      if (Utils.isEmpty(keyName)) {
         errorMessage =
             BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.KeyNameMissing");
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
@@ -263,7 +156,7 @@ public class PGPEncryptStreamMeta
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
     }
-    if (Utils.isEmpty(streamfield)) {
+    if (Utils.isEmpty(streamField)) {
       errorMessage =
           BaseMessages.getString(PKG, "PGPEncryptStreamMeta.CheckResult.StreamFieldMissing");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);

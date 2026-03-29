@@ -18,28 +18,27 @@
 package org.apache.hop.pipeline.transforms.streamschemamerge;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "StreamSchema",
@@ -49,12 +48,27 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::StreamSchemaMeta.keyword",
     documentationUrl = "/pipeline/transforms/streamschemamerge.html")
+@Getter
+@Setter
 public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSchemaData> {
-
   private static final Class<?> PKG = StreamSchemaMeta.class;
 
+  @Getter
+  @Setter
+  public static class TransformToMerge {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    public TransformToMerge() {}
+
+    public TransformToMerge(TransformToMerge m) {
+      this.name = m.name;
+    }
+  }
+
   /** Stores the names of the transforms to merge into the output */
-  private ArrayList<String> transformsToMerge = new ArrayList<>();
+  @HopMetadataProperty(key = "transform", groupKey = "transforms")
+  private List<TransformToMerge> transformsToMerge;
 
   /**
    * Constructor should call super() to make sure the base class has a chance to initialize
@@ -62,63 +76,12 @@ public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSche
    */
   public StreamSchemaMeta() {
     super();
-  }
-
-  /**
-   * Prevents error box from popping up when sending in different row formats. Note you will still
-   * get an error if you try to run the pipeline in safe mode.
-   *
-   * @return true
-   */
-  @Override
-  public boolean excludeFromRowLayoutVerification() {
-    return true;
-  }
-
-  /**
-   * This method is called every time a new transform is created and should allocate/set the
-   * transform configuration to sensible defaults. The values set here will be used by Spoon when a
-   * new transform is created.
-   */
-  @Override
-  public void setDefault() {
-    // intentionally empty
-  }
-
-  /**
-   * Getter for the fields that should be merged
-   *
-   * @return array of field names
-   */
-  public String[] getTransformsToMerge() {
-    if (transformsToMerge == null) {
-      return new String[0];
-    } else {
-      return transformsToMerge.toArray(new String[transformsToMerge.size()]);
-    }
-  }
-
-  /**
-   * Determine the number of transforms we're planning to merge
-   *
-   * @return number of items to merge, 0 if none
-   */
-  public int getNumberOfTransforms() {
-    if (transformsToMerge == null) {
-      return 0;
-    } else {
-      return transformsToMerge.size();
-    }
-  }
-
-  /**
-   * Set transforms to merge
-   *
-   * @param arrayOfTransforms Names of transforms to merge
-   */
-  public void setTransformsToMerge(String[] arrayOfTransforms) {
     transformsToMerge = new ArrayList<>();
-    Collections.addAll(transformsToMerge, arrayOfTransforms);
+  }
+
+  public StreamSchemaMeta(StreamSchemaMeta m) {
+    this();
+    m.transformsToMerge.forEach(t -> this.transformsToMerge.add(new TransformToMerge(t)));
   }
 
   /**
@@ -131,80 +94,19 @@ public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSche
    * @return a deep copy of this
    */
   @Override
-  public Object clone() {
-    Object retval = super.clone();
-    return retval;
+  public StreamSchemaMeta clone() {
+    return new StreamSchemaMeta(this);
   }
 
   /**
-   * This method is called by Hop Gui when a transform needs to serialize its configuration to XML.
-   * The expected return value is an XML fragment consisting of one or more XML tags.
+   * Prevents error box from popping up when sending in different row formats. Note you will still
+   * get an error if you try to run the pipeline in safe mode.
    *
-   * <p>Please use XmlHandler to conveniently generate the XML.
-   *
-   * @return a string containing the XML serialization of this transform
+   * @return true
    */
   @Override
-  public String getXml() throws HopValueException {
-    StringBuilder xml = new StringBuilder();
-    xml.append("    <transforms>" + Const.CR);
-    for (String transformName : transformsToMerge) {
-      xml.append("      <transform>" + Const.CR);
-      xml.append("        " + XmlHandler.addTagValue("name", transformName));
-      xml.append("        </transform>" + Const.CR);
-    }
-    xml.append("      </transforms>" + Const.CR);
-    return xml.toString();
-  }
-
-  /**
-   * This method is called by Hop when a transform needs to load its configuration from XML.
-   *
-   * <p>Please use XmlHandler to conveniently read from the XML node passed in.
-   *
-   * @param transformNode the XML node containing the configuration
-   * @param metadataProvider the metadataProvider to optionally read from
-   */
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    readData(transformNode);
-  }
-
-  /**
-   * Helper methods to read in the XML
-   *
-   * @param transformNode XML node for the transform
-   * @throws HopXmlException If there is an error reading the configuration
-   */
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      Node transforms = XmlHandler.getSubNode(transformNode, "transforms");
-      int nrtransforms = XmlHandler.countNodes(transforms, "transform");
-
-      transformsToMerge.clear();
-
-      // we need to add a stream for each transform we want to merge to ensure it gets treated as an
-      // info
-      // stream
-      for (int i = 0; i < nrtransforms; i++) {
-        getTransformIOMeta()
-            .addStream(
-                new Stream(
-                    IStream.StreamType.INFO, null, "Streams to Merge", StreamIcon.INFO, null));
-      }
-
-      List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-      for (int i = 0; i < nrtransforms; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(transforms, "transform", i);
-        String name = XmlHandler.getTagValue(fnode, "name");
-        transformsToMerge.add(name);
-        infoStreams.get(i).setSubject(name);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
+  public boolean excludeFromRowLayoutVerification() {
+    return true;
   }
 
   /**
@@ -231,7 +133,7 @@ public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSche
       throws HopTransformException {
 
     /*
-     * We don't have any input fields so we ingore inputRowMeta
+     * We don't have any input fields so we ignore inputRowMeta
      */
     try {
       SchemaMapper schemaMapping =
@@ -304,13 +206,28 @@ public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSche
 
   @Override
   public void resetTransformIoMeta() {
-    // Do nothing, don't reset as there is no need to do this.
+    setTransformIOMeta(null);
   }
 
-  /** Has original function of resetTransformIoMeta, but we only want to call it when appropriate */
-  /*
-  	public void wipeTransformIoMeta() {
-  		ioMeta = null;
-  	}
-  */
+  @Override
+  public ITransformIOMeta getTransformIOMeta() {
+    ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
+    if (ioMeta == null) {
+      ioMeta = new TransformIOMeta(true, true, false, false, false, false);
+
+      for (TransformToMerge transformToMerge : transformsToMerge) {
+        ioMeta.addStream(
+            new Stream(
+                IStream.StreamType.INFO,
+                null,
+                BaseMessages.getString(
+                    PKG, "StreamSchemaMeta.InfoStream.Description", transformToMerge.name),
+                StreamIcon.INFO,
+                transformToMerge.name));
+      }
+      setTransformIOMeta(ioMeta);
+    }
+
+    return ioMeta;
+  }
 }

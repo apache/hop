@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-set-constant-values.csv",
+  "name": "golden-set-constant-values",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "usevar",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
