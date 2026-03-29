@@ -26,7 +26,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @Setter
 public class NamedParameter {
   /** key of this parameter */
-  @HopMetadataProperty(key = "key")
+  @HopMetadataProperty(key = "name")
   protected String key;
 
   /** Description of the parameter */

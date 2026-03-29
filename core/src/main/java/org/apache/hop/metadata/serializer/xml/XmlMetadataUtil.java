@@ -559,7 +559,9 @@ public class XmlMetadataUtil {
       }
     }
 
-    HopMetadataWrapper wrapper = clazz.getAnnotation(HopMetadataWrapper.class);
+    // Warning: in case we call a factory, the interface class turns into an object class.
+    //
+    HopMetadataWrapper wrapper = object.getClass().getAnnotation(HopMetadataWrapper.class);
     if (wrapper != null) {
       node = XmlHandler.getSubNode(node, wrapper.tag());
     }

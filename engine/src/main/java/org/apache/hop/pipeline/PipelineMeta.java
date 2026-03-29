@@ -1646,15 +1646,15 @@ public class PipelineMeta extends AbstractMeta
   }
 
   public void loadXml(
-      String fname, IHopMetadataProvider metadataProvider, IVariables parentVariableSpace)
+      String filename, IHopMetadataProvider metadataProvider, IVariables parentVariableSpace)
       throws HopXmlException, HopMissingPluginsException {
     // OK, try to load using the VFS stuff...
     Document doc;
     try {
-      final FileObject pipelineFile = HopVfs.getFileObject(fname);
+      final FileObject pipelineFile = HopVfs.getFileObject(filename);
       if (!pipelineFile.exists()) {
         throw new HopXmlException(
-            BaseMessages.getString(PKG, "PipelineMeta.Exception.InvalidXMLPath", fname));
+            BaseMessages.getString(PKG, "PipelineMeta.Exception.InvalidXMLPath", filename));
       }
       doc = XmlHandler.loadXmlFile(pipelineFile);
     } catch (HopXmlException ke) {
@@ -1662,7 +1662,7 @@ public class PipelineMeta extends AbstractMeta
       throw ke;
     } catch (HopException | FileSystemException e) {
       throw new HopXmlException(
-          BaseMessages.getString(PKG, CONST_ERROR_OPENING_OR_VALIDATING, fname), e);
+          BaseMessages.getString(PKG, CONST_ERROR_OPENING_OR_VALIDATING, filename), e);
     }
 
     if (doc != null) {
@@ -1671,15 +1671,15 @@ public class PipelineMeta extends AbstractMeta
 
       if (pipelineNode == null) {
         throw new HopXmlException(
-            BaseMessages.getString(PKG, "PipelineMeta.Exception.NotValidPipelineXML", fname));
+            BaseMessages.getString(PKG, "PipelineMeta.Exception.NotValidPipelineXML", filename));
       }
 
       // Load from this node...
-      loadXml(pipelineNode, fname, metadataProvider, parentVariableSpace);
+      loadXml(pipelineNode, filename, metadataProvider, parentVariableSpace);
 
     } else {
       throw new HopXmlException(
-          BaseMessages.getString(PKG, CONST_ERROR_OPENING_OR_VALIDATING, fname));
+          BaseMessages.getString(PKG, CONST_ERROR_OPENING_OR_VALIDATING, filename));
     }
   }
 
@@ -1739,6 +1739,12 @@ public class PipelineMeta extends AbstractMeta
 
     try {
       deSerializeXml(pipelineNode, filename, metadataProvider, variables);
+
+      // Search info and target transforms.
+      for (TransformMeta transformMeta : transforms) {
+        ITransformMeta iTransform = transformMeta.getTransform();
+        iTransform.searchInfoAndTargetTransforms(transforms);
+      }
     } catch (Exception e) {
       // See if we have missing plugins to report, those take precedence!
       //

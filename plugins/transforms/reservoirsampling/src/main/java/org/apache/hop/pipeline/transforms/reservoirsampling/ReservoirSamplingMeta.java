@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -40,10 +42,10 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::ReservoirSamplingMeta.keyword",
     documentationUrl = "/pipeline/transforms/reservoirsampling.html")
 @HopMetadataWrapper(tag = "reservoir_sampling")
+@Getter
+@Setter
 public class ReservoirSamplingMeta
     extends BaseTransformMeta<ReservoirSampling, ReservoirSamplingData> {
-
-  public static final String XML_TAG = "reservoir_sampling";
 
   // Size of the sample to output
   @HopMetadataProperty(key = "sample_size")
@@ -139,41 +141,5 @@ public class ReservoirSamplingMeta
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  /**
-   * Get the sample size to generate.
-   *
-   * @return the sample size
-   */
-  public String getSampleSize() {
-    return sampleSize;
-  }
-
-  /**
-   * Set the size of the sample to generate
-   *
-   * @param sampleSize the size of the sample
-   */
-  public void setSampleSize(String sampleSize) {
-    this.sampleSize = sampleSize;
-  }
-
-  /**
-   * Get the random seed
-   *
-   * @return the random seed
-   */
-  public String getSeed() {
-    return seed;
-  }
-
-  /**
-   * Set the seed value for the random number generator
-   *
-   * @param seed the seed value
-   */
-  public void setSeed(String seed) {
-    this.seed = seed;
   }
 }

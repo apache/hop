@@ -23,8 +23,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -348,5 +350,19 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
     }
 
     return false;
+  }
+
+  @Override
+  public void convertLegacyXml(Node node) throws HopException {
+    // Get the number of input transforms
+    int numberOfInput = Const.toInt(XmlHandler.getTagValue(node, "number_input"), -1);
+    if (numberOfInput < 0) {
+      return;
+    }
+    inputTransforms.clear();
+    for (int i = 0; i < numberOfInput; i++) {
+      String inputTransform = XmlHandler.getTagValue(node, "transform" + i);
+      inputTransforms.add(inputTransform);
+    }
   }
 }
