@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -38,6 +40,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  *
  * <p>This view will allow us to see immediately where a certain value is being manipulated.<br>
  */
+@Getter
+@Setter
 public class PipelineDataLineage {
   private PipelineMeta pipelineMeta;
 
@@ -48,28 +52,6 @@ public class PipelineDataLineage {
   public PipelineDataLineage(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
     this.valueLineages = new ArrayList<>();
-  }
-
-  public PipelineMeta getPipelineMeta() {
-    return pipelineMeta;
-  }
-
-  public void setPipelineMeta(PipelineMeta pipelineMeta) {
-    this.pipelineMeta = pipelineMeta;
-  }
-
-  /**
-   * @return the valueLineages
-   */
-  public List<ValueLineage> getValueLineages() {
-    return valueLineages;
-  }
-
-  /**
-   * @param valueLineages the valueLineages to set
-   */
-  public void setValueLineages(List<ValueLineage> valueLineages) {
-    this.valueLineages = valueLineages;
   }
 
   /**
@@ -86,7 +68,7 @@ public class PipelineDataLineage {
     final Map<TransformMeta, Map<TransformMeta, Boolean>> transformMap =
         pipelineMeta.sortTransformsNatural();
 
-    // However, the we need a sorted list of previous transforms per transform, not a map.
+    // However, we need a sorted list of previous transforms per transform, not a map.
     // So lets sort the maps, turn them into lists...
     //
     Map<TransformMeta, List<TransformMeta>> previousTransformListMap = new HashMap<>();

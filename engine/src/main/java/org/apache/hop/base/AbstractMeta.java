@@ -1065,6 +1065,17 @@ public abstract class AbstractMeta
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof AbstractMeta other)) {
+      return false;
+    }
+    return compare(this, other) == 0;
+  }
+
+  @Override
   public int hashCode() {
     return Objects.hash(filename, getName());
   }

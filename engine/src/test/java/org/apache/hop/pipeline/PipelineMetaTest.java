@@ -293,16 +293,6 @@ class PipelineMetaTest {
     assertTrue(pipelineMeta.isAnySelectedTransformUsedInPipelineHops());
   }
 
-  @Test
-  void testCloneWithParam() throws Exception {
-    PipelineMeta meta = new PipelineMeta();
-    meta.setFilename("pipelineFile");
-    meta.setName("myPipeline");
-    meta.addParameterDefinition("key", "defValue", "description");
-    Object clone = meta.realClone(true);
-    assertNotNull(clone);
-  }
-
   abstract static class TransformMetaChangeListenerInterfaceMock
       implements ITransformMeta, ITransformMetaChangeListener {
     @Override

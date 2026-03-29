@@ -25,16 +25,9 @@ class MatchKeyPipelineTest extends PipelineTestBase {
 
   @Test
   void testStreamLookupPipeline() throws Exception {
-
     PipelineMeta pipelineMeta =
         BeamPipelineMetaUtil.generateStreamLookupPipelineMeta(
             "io-stream-lookup-output", "INPUT", "OUTPUT", metadataProvider);
-
-    try {
-      createRunPipeline(variables, pipelineMeta);
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw e;
-    }
+    createRunPipeline(variables, pipelineMeta);
   }
 }
