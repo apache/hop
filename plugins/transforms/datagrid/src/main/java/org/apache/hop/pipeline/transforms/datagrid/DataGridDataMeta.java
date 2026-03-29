@@ -60,7 +60,9 @@ public class DataGridDataMeta implements Cloneable {
   }
 
   public void setSplitter(String splitter) {
-    this.datalines = Arrays.asList(injectionDatalines.split(Const.NVL(splitter, ",")));
+    if (injectionDatalines != null) {
+      this.datalines = Arrays.asList(injectionDatalines.split(Const.NVL(splitter, ",")));
+    }
     this.splitter = splitter;
   }
 }

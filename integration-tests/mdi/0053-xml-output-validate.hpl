@@ -63,11 +63,9 @@ limitations under the License.
     <IsAFile>N</IsAFile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
     <IsInFields>N</IsInFields>
-    <XmlField/>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <encoding>UTF-8</encoding>
-    <extensionFieldName/>
     <fields>
       <field>
         <currency/>
@@ -311,51 +309,22 @@ limitations under the License.
       </field>
     </fields>
     <file>
-      <exclude_filemask/>
       <file_required>N</file_required>
-      <filemask/>
       <include_subfolders>N</include_subfolders>
       <name>${java.io.tmpdir}/xml-output.hpl</name>
     </file>
-    <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
     <include>N</include>
-    <include_field/>
-    <lastModificationTimeFieldName/>
     <limit>0</limit>
     <loopxpath>/pipeline/transform</loopxpath>
     <namespaceaware>N</namespaceaware>
-    <pathFieldName/>
-    <prunePath/>
     <readurl>N</readurl>
-    <rootUriNameFieldName/>
     <rownum>N</rownum>
-    <rownum_field/>
-    <shortFileFieldName/>
-    <sizeFieldName/>
-    <uriNameFieldName/>
     <usetoken>N</usetoken>
     <validating>N</validating>
     <attributes/>
     <GUI>
       <xloc>144</xloc>
-      <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>validate</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>352</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>
@@ -392,7 +361,7 @@ limitations under the License.
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>contentType</xPath>
+        <xPath>content_type</xPath>
       </field>
       <field>
         <currency/>
@@ -401,13 +370,13 @@ limitations under the License.
         <format/>
         <group/>
         <length>-1</length>
-        <name>currencySymbol</name>
+        <name>name</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>currencySymbol</xPath>
+        <xPath>name</xPath>
       </field>
       <field>
         <currency/>
@@ -416,13 +385,13 @@ limitations under the License.
         <format/>
         <group/>
         <length>-1</length>
-        <name>decimalSymbol</name>
+        <name>element</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>decimalSymbol</xPath>
+        <xPath>element</xPath>
       </field>
       <field>
         <currency/>
@@ -431,28 +400,13 @@ limitations under the License.
         <format/>
         <group/>
         <length>-1</length>
-        <name>elementName</name>
+        <name>type</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>elementName</xPath>
-      </field>
-      <field>
-        <currency/>
-        <decimal/>
-        <element_type>Node</element_type>
-        <format/>
-        <group/>
-        <length>-1</length>
-        <name>fieldName</name>
-        <precision>-1</precision>
-        <repeat>N</repeat>
-        <result_type>valueof</result_type>
-        <trim_type>none</trim_type>
-        <type>String</type>
-        <xPath>fieldName</xPath>
+        <xPath>type</xPath>
       </field>
       <field>
         <currency/>
@@ -476,13 +430,58 @@ limitations under the License.
         <format/>
         <group/>
         <length>-1</length>
-        <name>groupingSymbol</name>
+        <name>currency</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>groupingSymbol</xPath>
+        <xPath>currency</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>decimal</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>decimal</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>group</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>group</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>nullif</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>nullif</xPath>
       </field>
       <field>
         <currency/>
@@ -506,21 +505,6 @@ limitations under the License.
         <format/>
         <group/>
         <length>-1</length>
-        <name>nullString</name>
-        <precision>-1</precision>
-        <repeat>N</repeat>
-        <result_type>valueof</result_type>
-        <trim_type>none</trim_type>
-        <type>String</type>
-        <xPath>nullString</xPath>
-      </field>
-      <field>
-        <currency/>
-        <decimal/>
-        <element_type>Node</element_type>
-        <format/>
-        <group/>
-        <length>-1</length>
         <name>precision</name>
         <precision>-1</precision>
         <repeat>N</repeat>
@@ -528,21 +512,6 @@ limitations under the License.
         <trim_type>none</trim_type>
         <type>Integer</type>
         <xPath>precision</xPath>
-      </field>
-      <field>
-        <currency/>
-        <decimal/>
-        <element_type>Node</element_type>
-        <format/>
-        <group/>
-        <length>-1</length>
-        <name>type</name>
-        <precision>-1</precision>
-        <repeat>N</repeat>
-        <result_type>valueof</result_type>
-        <trim_type>none</trim_type>
-        <type>String</type>
-        <xPath>type</xPath>
       </field>
     </fields>
     <file>
@@ -575,6 +544,23 @@ limitations under the License.
     <GUI>
       <xloc>144</xloc>
       <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>validate</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform>

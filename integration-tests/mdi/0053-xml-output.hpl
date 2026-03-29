@@ -60,208 +60,207 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
-    <create_parent_folder>Y</create_parent_folder>
     <filename>${PROJECT_HOME}/0053-xml-output-template.hpl</filename>
-    <mappings>
-      <mapping>
-        <source_field>encoding</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>ENCODING</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>name_space</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>NAMESPACE</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>xml_main_element</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>MAIN_ELEMENT</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>xml_repeat_element</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>REPEAT_ELEMENT</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>name</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>FILENAME</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>extention</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>EXTENSION</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>do_not_open_newfile_init</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>DO_NOT_CREATE_FILE_AT_STARTUP</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>split</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>INC_TRANSFORMNR_IN_FILENAME</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>add_date</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>INC_DATE_IN_FILENAME</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>add_time</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>INC_TIME_IN_FILENAME</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>SpecifyFormat</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>SPEFICY_FORMAT</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>omit_null_values</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>OMIT_NULL_VALUES</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>date_time_format</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>DATE_FORMAT</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>add_to_result_filenames</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>ADD_TO_RESULT</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>zipped</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>ZIPPED</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>splitevery</source_field>
-        <source_transform>files/xml-output.xml</source_transform>
-        <target_attribute_key>SPLIT_EVERY</target_attribute_key>
-        <target_detail>N</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>content_type</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_CONTENT_TYPE</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>name</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_FIELDNAME</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>element</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_ELEMENTNAME</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>type</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_TYPE</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>format</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_FORMAT</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>currency</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_CURRENCY</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>decimal</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_DECIMAL</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>group</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_GROUP</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>nullif</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_NULL</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>length</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_LENGTH</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-      <mapping>
-        <source_field>precision</source_field>
-        <source_transform>files/xml-output.xml fields</source_transform>
-        <target_attribute_key>OUTPUT_PRECISION</target_attribute_key>
-        <target_detail>Y</target_detail>
-        <target_transform_name>XML output</target_transform_name>
-      </mapping>
-    </mappings>
-    <no_execution>Y</no_execution>
     <run_configuration>local</run_configuration>
-    <source_output_fields>
-</source_output_fields>
     <source_transform/>
+    <source_output_fields>    </source_output_fields>
+    <target_file>${java.io.tmpdir}/xml-output.hpl</target_file>
+    <create_parent_folder>Y</create_parent_folder>
+    <no_execution>Y</no_execution>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
     <stream_source_transform/>
     <stream_target_transform/>
-    <target_file>${java.io.tmpdir}/xml-output.hpl</target_file>
+    <mappings>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_FIELDNAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>name</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_PRECISION</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>precision</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>EXTENSION</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>extention</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>SPLIT_EVERY</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>splitevery</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_TYPE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>type</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>DATE_FORMAT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>date_time_format</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>NAMESPACE</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>name_space</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>name</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>MAIN_ELEMENT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>xml_main_element</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_ELEMENTNAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>element</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>ADD_TO_RESULT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>add_to_result_filenames</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_GROUP</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>group</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_FORMAT</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>format</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>INC_TRANSFORMNR_IN_FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>split</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_CONTENT_TYPE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>content_type</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>INC_TIME_IN_FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>add_time</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OMIT_NULL_VALUES</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>omit_null_values</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>INC_DATE_IN_FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>add_date</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_DECIMAL</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>decimal</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>REPEAT_ELEMENT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>xml_repeat_element</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>SPEFICY_FORMAT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>SpecifyFormat</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>DO_NOT_CREATE_FILE_AT_STARTUP</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>do_not_open_newfile_init</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_CURRENCY</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>currency</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_NULL</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>nullif</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>ENCODING</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>encoding</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>ZIPPED</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/xml-output.xml</source_transform>
+        <source_field>zipped</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>XML output</target_transform_name>
+        <target_attribute_key>OUTPUT_LENGTH</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/xml-output.xml fields</source_transform>
+        <source_field>length</source_field>
+      </mapping>
+    </mappings>
     <attributes/>
     <GUI>
       <xloc>432</xloc>
@@ -282,11 +281,9 @@ limitations under the License.
     <IsAFile>N</IsAFile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
     <IsInFields>N</IsInFields>
-    <XmlField/>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <encoding>UTF-8</encoding>
-    <extensionFieldName/>
     <fields>
       <field>
         <currency/>
@@ -530,29 +527,17 @@ limitations under the License.
       </field>
     </fields>
     <file>
-      <exclude_filemask/>
       <file_required>N</file_required>
-      <filemask/>
       <include_subfolders>N</include_subfolders>
       <name>${PROJECT_HOME}/files/xml-output.xml</name>
     </file>
-    <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
     <include>N</include>
-    <include_field/>
-    <lastModificationTimeFieldName/>
     <limit>0</limit>
     <loopxpath>/transform</loopxpath>
     <namespaceaware>N</namespaceaware>
-    <pathFieldName/>
-    <prunePath/>
     <readurl>N</readurl>
-    <rootUriNameFieldName/>
     <rownum>N</rownum>
-    <rownum_field/>
-    <shortFileFieldName/>
-    <sizeFieldName/>
-    <uriNameFieldName/>
     <usetoken>N</usetoken>
     <validating>N</validating>
     <attributes/>
@@ -575,11 +560,9 @@ limitations under the License.
     <IsAFile>N</IsAFile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
     <IsInFields>N</IsInFields>
-    <XmlField/>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <encoding>UTF-8</encoding>
-    <extensionFieldName/>
     <fields>
       <field>
         <currency/>
@@ -748,29 +731,17 @@ limitations under the License.
       </field>
     </fields>
     <file>
-      <exclude_filemask/>
       <file_required>N</file_required>
-      <filemask/>
       <include_subfolders>N</include_subfolders>
       <name>${PROJECT_HOME}/files/xml-output.xml</name>
     </file>
-    <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
     <include>N</include>
-    <include_field/>
-    <lastModificationTimeFieldName/>
     <limit>0</limit>
     <loopxpath>/transform/fields/field</loopxpath>
     <namespaceaware>N</namespaceaware>
-    <pathFieldName/>
-    <prunePath/>
     <readurl>N</readurl>
-    <rootUriNameFieldName/>
     <rownum>N</rownum>
-    <rownum_field/>
-    <shortFileFieldName/>
-    <sizeFieldName/>
-    <uriNameFieldName/>
     <usetoken>N</usetoken>
     <validating>N</validating>
     <attributes/>

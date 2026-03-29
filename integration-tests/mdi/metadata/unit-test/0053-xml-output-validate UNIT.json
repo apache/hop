@@ -87,27 +87,31 @@
           "data_set_field": "contentType"
         },
         {
-          "transform_field": "currencySymbol",
-          "data_set_field": "currencySymbol"
+          "transform_field": "name",
+          "data_set_field": "fieldName"
         },
         {
-          "transform_field": "decimalSymbol",
-          "data_set_field": "decimalSymbol"
-        },
-        {
-          "transform_field": "elementName",
+          "transform_field": "element",
           "data_set_field": "elementName"
         },
         {
-          "transform_field": "fieldName",
-          "data_set_field": "fieldName"
+          "transform_field": "type",
+          "data_set_field": "type"
         },
         {
           "transform_field": "format",
           "data_set_field": "format"
         },
         {
-          "transform_field": "groupingSymbol",
+          "transform_field": "currency",
+          "data_set_field": "currencySymbol"
+        },
+        {
+          "transform_field": "decimal",
+          "data_set_field": "decimalSymbol"
+        },
+        {
+          "transform_field": "group",
           "data_set_field": "groupingSymbol"
         },
         {
@@ -115,16 +119,12 @@
           "data_set_field": "length"
         },
         {
-          "transform_field": "nullString",
+          "transform_field": "nullif",
           "data_set_field": "nullString"
         },
         {
           "transform_field": "precision",
           "data_set_field": "precision"
-        },
-        {
-          "transform_field": "type",
-          "data_set_field": "type"
         }
       ],
       "field_order": [
