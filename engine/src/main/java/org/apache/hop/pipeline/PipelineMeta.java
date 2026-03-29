@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
@@ -2179,12 +2178,13 @@ public class PipelineMeta extends AbstractMeta
 
     // Figure out all the previous transforms as well, they all need to go in there...
     //
-    List<TransformMeta> prevTransforms = previousCache.get(previousTransformMeta);
-    if (prevTransforms == null) {
-      prevTransforms = findPreviousTransforms(previousTransformMeta);
-      prevCount++;
-      previousCache.put(previousTransformMeta, prevTransforms);
-    }
+    List<TransformMeta> prevTransforms =
+        previousCache.computeIfAbsent(
+            previousTransformMeta,
+            e -> {
+              prevCount++;
+              return findPreviousTransforms(previousTransformMeta);
+            });
 
     // Now, get the previous transforms for transformMeta recursively...
     // We only do this when the beforeMap is not known yet...
@@ -2348,10 +2348,10 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Get the Sql statements (needed to run this pipeline) as a single String.
+   * Get the SQL statements (needed to run this pipeline) as a single String.
    *
-   * @return the Sql statements needed to run this pipeline
-   * @throws HopTransformException if any errors occur during Sql statement generation
+   * @return the SQL statements needed to run this pipeline
+   * @throws HopTransformException if any errors occur during SQL statement generation
    */
   public String getSqlStatementsString(IVariables variables) throws HopTransformException {
     StringBuilder sql = new StringBuilder();
@@ -2366,11 +2366,11 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Checks all the transforms and fills a List of (CheckResult) remarks.
+   * Checks all the transforms and fills a List with CheckResult remarks.
    *
    * @param remarks The remarks list to add to.
    * @param onlySelected true to check only the selected transforms, false for all transforms
-   * @param monitor a progress monitor listener to be updated as the Sql statements are generated
+   * @param monitor a progress monitor listener to be updated as the SQL statements are generated
    */
   public void checkTransforms(
       List<ICheckResult> remarks,
@@ -2388,9 +2388,10 @@ public class PipelineMeta extends AbstractMeta
 
       Map<IValueMeta, String> values = new Hashtable<>();
 
-      List<TransformMeta> transforms = (onlySelected) ? getSelectedTransforms() : getTransforms();
+      List<TransformMeta> transformsToCheck =
+          (onlySelected) ? getSelectedTransforms() : getTransforms();
 
-      TransformMeta[] transformArray = transforms.toArray(new TransformMeta[0]);
+      TransformMeta[] transformArray = transformsToCheck.toArray(new TransformMeta[0]);
 
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL,
@@ -2402,10 +2403,10 @@ public class PipelineMeta extends AbstractMeta
 
       monitor.beginTask(
           BaseMessages.getString(PKG, "PipelineMeta.Monitor.VerifyingThisPipelineTask.Title"),
-          transforms.size());
+          transformsToCheck.size());
 
       int worked = 1;
-      for (TransformMeta transformMeta : transforms) {
+      for (TransformMeta transformMeta : transformsToCheck) {
 
         if (stopChecking) {
           break;
@@ -2438,18 +2439,17 @@ public class PipelineMeta extends AbstractMeta
                   transformMeta));
         }
 
-        int nrinfo = findNrInfoTransforms(transformMeta);
+        int nrInfoTransforms = findNrInfoTransforms(transformMeta);
         TransformMeta[] infoTransform = null;
-        if (nrinfo > 0) {
+        if (nrInfoTransforms > 0) {
           infoTransform = getInfoTransform(transformMeta);
         }
 
-        IRowMeta info = null;
+        IRowMeta infoRowMeta = null;
         if (infoTransform != null) {
           try {
-            info = getTransformFields(variables, infoTransform);
+            infoRowMeta = getTransformFields(variables, infoTransform);
           } catch (HopTransformException kse) {
-            info = null;
             CheckResult cr =
                 new CheckResult(
                     ICheckResult.TYPE_RESULT_ERROR,
@@ -2463,7 +2463,7 @@ public class PipelineMeta extends AbstractMeta
           }
         }
 
-        // The previous fields from non-informative transforms:
+        // The previous fields from non-informative transformsToCheck:
         IRowMeta prev = null;
         try {
           prev = getPrevTransformFields(variables, transformMeta);
@@ -2486,7 +2486,7 @@ public class PipelineMeta extends AbstractMeta
         }
 
         if (isTransformUsedInPipelineHops(transformMeta) || getTransforms().size() == 1) {
-          // Get the input & output transforms!
+          // Get the input & output transformsToCheck!
           // Copy to arrays:
           String[] input = getPrevTransformNames(transformMeta);
           String[] output = getNextTransformNames(transformMeta);
@@ -2499,7 +2499,7 @@ public class PipelineMeta extends AbstractMeta
               new CheckTransformsExtension(
                   remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
           transformMeta.check(
-              remarks, this, prev, input, output, info, variables, metadataProvider);
+              remarks, this, prev, input, output, infoRowMeta, variables, metadataProvider);
           ExtensionPointHandler.callExtensionPoint(
               LogChannel.GENERAL,
               variables,
@@ -2544,7 +2544,7 @@ public class PipelineMeta extends AbstractMeta
               }
             }
 
-            // Check if 2 transforms with the same name are entering the transform...
+            // Check if 2 transformsToCheck with the same name are entering the transform...
             if (prev.size() > 1) {
               String[] fieldNames = prev.getFieldNames();
               String[] sortedNames = Const.sortStrings(fieldNames);
@@ -2611,8 +2611,9 @@ public class PipelineMeta extends AbstractMeta
               "PipelineMeta.Monitor.CheckingForDatabaseUnfriendlyCharactersInFieldNamesTask.Title"));
 
       if (!values.isEmpty()) {
-        for (IValueMeta valueMeta : values.keySet()) {
-          String message = values.get(valueMeta);
+        for (Map.Entry<IValueMeta, String> entry : values.entrySet()) {
+          IValueMeta valueMeta = entry.getKey();
+          String message = entry.getValue();
           CheckResult cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_WARNING, message, findTransform(valueMeta.getOrigin()));
@@ -2635,7 +2636,7 @@ public class PipelineMeta extends AbstractMeta
 
       monitor.done();
     } catch (Exception e) {
-      throw new RuntimeException("Error checking pipeline", e);
+      throw new HopRuntimeException("Error checking pipeline", e);
     }
   }
 
@@ -2960,91 +2961,6 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Finds the mapping input transform with the specified name. If no mapping input transform is
-   * found, null is returned
-   *
-   * @param transformName the name to search for
-   * @return the transform meta-data corresponding to the desired mapping input transform, or null
-   *     if no transform was found
-   * @throws HopTransformException if any errors occur during the search
-   */
-  public TransformMeta findMappingInputTransform(String transformName)
-      throws HopTransformException {
-    if (!Utils.isEmpty(transformName)) {
-      TransformMeta transformMeta =
-          findTransform(transformName); // TODO verify that it's a mapping input!!
-      if (transformMeta == null) {
-        throw new HopTransformException(
-            BaseMessages.getString(
-                PKG, "PipelineMeta.Exception.TransformNameNotFound", transformName));
-      }
-      return transformMeta;
-    } else {
-      // Find the first mapping input transform that fits the bill.
-      TransformMeta transformMeta = null;
-      for (TransformMeta mappingTransform : transforms) {
-        if (mappingTransform.getTransformPluginId().equals("MappingInput")) {
-          if (transformMeta == null) {
-            transformMeta = mappingTransform;
-          } else if (transformMeta != null) {
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG, "PipelineMeta.Exception.OnlyOneMappingInputTransformAllowed", "2"));
-          }
-        }
-      }
-      if (transformMeta == null) {
-        throw new HopTransformException(
-            BaseMessages.getString(PKG, "PipelineMeta.Exception.OneMappingInputTransformRequired"));
-      }
-      return transformMeta;
-    }
-  }
-
-  /**
-   * Finds the mapping output transform with the specified name. If no mapping output transform is
-   * found, null is returned.
-   *
-   * @param transformName the name to search for
-   * @return the transform meta-data corresponding to the desired mapping input transform, or null
-   *     if no transform was found
-   * @throws HopTransformException if any errors occur during the search
-   */
-  public TransformMeta findMappingOutputTransform(String transformName)
-      throws HopTransformException {
-    if (!Utils.isEmpty(transformName)) {
-      TransformMeta transformMeta =
-          findTransform(transformName); // TODO verify that it's a mapping output transform.
-      if (transformMeta == null) {
-        throw new HopTransformException(
-            BaseMessages.getString(
-                PKG, "PipelineMeta.Exception.TransformNameNotFound", transformName));
-      }
-      return transformMeta;
-    } else {
-      // Find the first mapping output transform that fits the bill.
-      TransformMeta transformMeta = null;
-      for (TransformMeta mappingTransform : transforms) {
-        if (mappingTransform.getTransformPluginId().equals("MappingOutput")) {
-          if (transformMeta == null) {
-            transformMeta = mappingTransform;
-          } else if (transformMeta != null) {
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG, "PipelineMeta.Exception.OnlyOneMappingOutputTransformAllowed", "2"));
-          }
-        }
-      }
-      if (transformMeta == null) {
-        throw new HopTransformException(
-            BaseMessages.getString(
-                PKG, "PipelineMeta.Exception.OneMappingOutputTransformRequired"));
-      }
-      return transformMeta;
-    }
-  }
-
-  /**
    * Gets a list of the resource dependencies.
    *
    * @return a list of ResourceReferences
@@ -3054,7 +2970,7 @@ public class PipelineMeta extends AbstractMeta
         .flatMap(
             (TransformMeta transformMeta) ->
                 transformMeta.getResourceDependencies(variables).stream())
-        .collect(Collectors.toList());
+        .toList();
   }
 
   /**
@@ -3252,15 +3168,16 @@ public class PipelineMeta extends AbstractMeta
     transformChangeListeners.add(listener);
   }
 
-  public void addTransformChangeListener(int p, ITransformMetaChangeListener list) {
-    TransformMeta rewriteTransform = transforms.get(p);
-    ITransformMeta iface = rewriteTransform.getTransform();
-    if (iface instanceof ITransformMetaChangeListener) {
-      int index = transformChangeListeners.indexOf(iface);
+  public void addTransformChangeListener(
+      int transformIndex, ITransformMetaChangeListener listener) {
+    TransformMeta rewriteTransform = transforms.get(transformIndex);
+    ITransformMeta iTransformMeta = rewriteTransform.getTransform();
+    if (iTransformMeta instanceof ITransformMetaChangeListener changeListener) {
+      int index = transformChangeListeners.indexOf(changeListener);
       if (index >= 0) {
-        transformChangeListeners.set(index, list);
+        transformChangeListeners.set(index, listener);
       } else {
-        transformChangeListeners.add(list);
+        transformChangeListeners.add(listener);
       }
     }
   }

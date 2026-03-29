@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -42,6 +43,7 @@ import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.input.MappingInputMeta;
+import org.apache.hop.pipeline.transforms.output.MappingOutputMeta;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -145,8 +147,8 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
     // What is this mapping input transform?
     //
-    TransformMeta mappingInputTransform = mappingPipelineMeta.findMappingInputTransform(null);
-    TransformMeta mappingOutputTransform = mappingPipelineMeta.findMappingOutputTransform(null);
+    TransformMeta mappingInputTransform = findMappingInputTransform(mappingPipelineMeta, null);
+    TransformMeta mappingOutputTransform = findMappingOutputTransform(mappingPipelineMeta, null);
 
     // We're certain of these classes at least
     //
@@ -391,5 +393,100 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
   @Override
   public boolean supportsDrillDown() {
     return true;
+  }
+
+  /**
+   * Finds the mapping input transform with the specified name. If no mapping input transform is
+   * found, null is returned
+   *
+   * @param pipelineMeta The pipeline to search
+   * @param transformName the name to search for
+   * @return the transform meta-data corresponding to the desired mapping input transform, or null
+   *     if no transform was found
+   * @throws HopTransformException if any errors occur during the search
+   */
+  public static TransformMeta findMappingInputTransform(
+      PipelineMeta pipelineMeta, String transformName) throws HopTransformException {
+    if (!Utils.isEmpty(transformName)) {
+      TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+      if (transformMeta == null) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "PipelineMeta.Exception.TransformNameNotFound", transformName));
+      }
+      if (!(transformMeta.getTransform() instanceof MappingInputMeta)) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "PipelineMeta.Exception.TransformIsNotAMappingInput", transformName));
+      }
+      return transformMeta;
+    } else {
+      // Find the first mapping input transform that fits the bill.
+      TransformMeta transformMeta = null;
+      for (TransformMeta mappingTransform : pipelineMeta.getTransforms()) {
+        if (mappingTransform.getTransform() instanceof MappingInputMeta) {
+          if (transformMeta == null) {
+            transformMeta = mappingTransform;
+          } else {
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG, "PipelineMeta.Exception.OnlyOneMappingInputTransformAllowed", "2"));
+          }
+        }
+      }
+      if (transformMeta == null) {
+        throw new HopTransformException(
+            BaseMessages.getString(PKG, "PipelineMeta.Exception.OneMappingInputTransformRequired"));
+      }
+      return transformMeta;
+    }
+  }
+
+  /**
+   * Finds the mapping output transform with the specified name. If no mapping output transform is
+   * found, null is returned.
+   *
+   * @param pipelineMeta The pipeline metadata to search
+   * @param transformName the name to search for
+   * @return the transform meta-data corresponding to the desired mapping input transform, or null
+   *     if no transform was found
+   * @throws HopTransformException if any errors occur during the search
+   */
+  public static TransformMeta findMappingOutputTransform(
+      PipelineMeta pipelineMeta, String transformName) throws HopTransformException {
+    if (!Utils.isEmpty(transformName)) {
+      TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+      if (transformMeta == null) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "PipelineMeta.Exception.TransformNameNotFound", transformName));
+      }
+      if (!(transformMeta.getTransform() instanceof MappingOutputMeta)) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "PipelineMeta.Exception.TransformIsNotAMappingOutput", transformName));
+      }
+      return transformMeta;
+    } else {
+      // Find the first mapping output transform that fits the bill.
+      TransformMeta transformMeta = null;
+      for (TransformMeta mappingTransform : pipelineMeta.getTransforms()) {
+        if (mappingTransform.getTransform() instanceof MappingOutputMeta) {
+          if (transformMeta == null) {
+            transformMeta = mappingTransform;
+          } else {
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG, "PipelineMeta.Exception.OnlyOneMappingOutputTransformAllowed", "2"));
+          }
+        }
+      }
+      if (transformMeta == null) {
+        throw new HopTransformException(
+            BaseMessages.getString(
+                PKG, "PipelineMeta.Exception.OneMappingOutputTransformRequired"));
+      }
+      return transformMeta;
+    }
   }
 }
