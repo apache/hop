@@ -35,4 +35,12 @@ public @interface HopMetadataObject {
    *     appropriate class instance of type with the provided object factory.
    */
   String xmlKey() default "";
+
+  /**
+   * If the object key is not found in the XML, we can simply return a null object if this flag is
+   * set to true.
+   *
+   * @return true if the creation of an object is optional.
+   */
+  boolean optionalValue() default false;
 }

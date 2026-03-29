@@ -13,34 +13,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.hop.core.parameters;
+package org.apache.hop.pipeline.transform.transforms;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 
-/** Target class for the parameter keys. */
 @Getter
 @Setter
-public class NamedParameter {
-  /** key of this parameter */
-  @HopMetadataProperty(key = "name")
-  protected String key;
+@Transform(id = "fake", name = "Fake")
+@SuppressWarnings("rawtypes")
+public class FakeMeta extends BaseTransformMeta implements ITransformMeta {
+  @HopMetadataProperty private String fake;
 
-  /** Description of the parameter */
-  @HopMetadataProperty(key = "description")
-  protected String description;
+  public FakeMeta() {
+    // For testing only
+  }
 
-  /** Default value for this parameter */
-  @HopMetadataProperty(key = "default_value")
-  protected String defaultValue;
-
-  /** Actual value of the parameter. */
-  protected String value;
-
-  public NamedParameter() {
-    // Nothing specific to initialize.
+  @Override
+  public boolean supportsErrorHandling() {
+    return true;
   }
 }

@@ -1703,11 +1703,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             && pipelineMeta.findPipelineHop(hi.getFromTransform(), selectedTransform) == null) {
           splitHop = true;
           lastHopSplit = hi;
-          hi.split = true;
+          hi.setSplit(true);
         }
       } else {
         if (lastHopSplit != null) {
-          lastHopSplit.split = false;
+          lastHopSplit.setSplit(false);
           lastHopSplit = null;
           splitHop = false;
         }

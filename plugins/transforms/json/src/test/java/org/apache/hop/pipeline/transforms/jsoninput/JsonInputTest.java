@@ -1188,7 +1188,7 @@ class JsonInputTest {
         createJsonInput("json", meta, new Object[] {input1}, new Object[] {input2});
     TransformErrorMeta errMeta = new TransformErrorMeta(helper.transformMeta);
     errMeta.setEnabled(true);
-    errMeta.setErrorFieldsValuename("err field");
+    errMeta.setErrorFieldsValueName("err field");
     when(helper.transformMeta.getTransformErrorMeta()).thenReturn(errMeta);
     final List<Object[]> errorLines = new ArrayList<>();
     jsonInput.addRowListener(

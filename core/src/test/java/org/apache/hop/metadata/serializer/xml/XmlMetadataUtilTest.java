@@ -18,23 +18,28 @@
 package org.apache.hop.metadata.serializer.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-import org.apache.hop.core.Const;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.classes.Field;
 import org.apache.hop.metadata.serializer.xml.classes.Info;
 import org.apache.hop.metadata.serializer.xml.classes.MetaData;
 import org.apache.hop.metadata.serializer.xml.classes.TestEnum;
+import org.apache.hop.metadata.serializer.xml.classes.WithListReference;
 import org.apache.hop.metadata.serializer.xml.classes.WithMap;
+import org.apache.hop.metadata.serializer.xml.classes.WithMapAsList;
+import org.apache.hop.metadata.serializer.xml.classes.WithMapMap;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Node;
 
 /** Unit test for {@link XmlMetadataUtil} */
 class XmlMetadataUtilTest {
-
   @Test
   void testMetaXml() throws Exception {
     MetaData metaTest = new MetaData();
@@ -51,88 +56,14 @@ class XmlMetadataUtilTest {
     metaTest.setInfo(new Info("aValue", "bValue"));
 
     String xml = XmlMetadataUtil.serializeObjectToXml(metaTest);
-    assertEquals(
-        "<field_separator>,</field_separator>"
-            + Const.CR
-            + "<fields>"
-            + Const.CR
-            + "<field>"
-            + Const.CR
-            + "<length>50</length>"
-            + Const.CR
-            + "<name>a</name>"
-            + Const.CR
-            + "<ott>ONE</ott>"
-            + Const.CR
-            + "<precision>-1</precision>"
-            + Const.CR
-            + "<test_code>NONE</test_code>"
-            + Const.CR
-            + "<type>String</type>"
-            + Const.CR
-            + "</field>"
-            + Const.CR
-            + "<field>"
-            + Const.CR
-            + "<format>#;-#</format>"
-            + Const.CR
-            + "<length>10</length>"
-            + Const.CR
-            + "<name>b</name>"
-            + Const.CR
-            + "<precision>0</precision>"
-            + Const.CR
-            + "<test_code>TWO</test_code>"
-            + Const.CR
-            + "<type>Integer</type>"
-            + Const.CR
-            + "</field>"
-            + Const.CR
-            + "<field>"
-            + Const.CR
-            + "<format>yyyy/MM/dd HH:mm:ss</format>"
-            + Const.CR
-            + "<length>-1</length>"
-            + Const.CR
-            + "<name>c</name>"
-            + Const.CR
-            + "<ott>THREE</ott>"
-            + Const.CR
-            + "<precision>-1</precision>"
-            + Const.CR
-            + "<test_code>THREE</test_code>"
-            + Const.CR
-            + "<type>Date</type>"
-            + Const.CR
-            + "</field>"
-            + Const.CR
-            + "</fields>"
-            + Const.CR
-            + "<filename>filename.csv</filename>"
-            + Const.CR
-            + "<grouping_symbol>&#34;</grouping_symbol>"
-            + Const.CR
-            + "<a>aValue</a>"
-            + Const.CR
-            + "<b>bValue</b>"
-            + Const.CR
-            + "<test_enum>TWO</test_enum>"
-            + Const.CR
-            + "<values>"
-            + Const.CR
-            + "<value>v1</value>"
-            + Const.CR
-            + "<value>v2</value>"
-            + Const.CR
-            + "<value>v3</value>"
-            + Const.CR
-            + "</values>"
-            + Const.CR,
-        xml);
+    Node node = XmlHandler.loadXmlString(XmlHandler.aroundTag("meta", xml), "meta");
+
+    // validate the raw XML DOM:
+    //
+    validateXmlDom(node);
 
     // Now load that object back in from XML...
     //
-    Node node = XmlHandler.loadXmlString("<meta>" + xml + "</meta>", "meta");
     MetaData metaData =
         XmlMetadataUtil.deSerializeFromXml(node, MetaData.class, new MemoryMetadataProvider());
 
@@ -153,8 +84,48 @@ class XmlMetadataUtilTest {
     }
   }
 
+  private static void validateXmlDom(Node node) {
+    assertEquals(",", XmlHandler.getTagValue(node, "field_separator"));
+    assertEquals("filename.csv", XmlHandler.getTagValue(node, "filename"));
+    assertEquals("\"", XmlHandler.getTagValue(node, "grouping_symbol"));
+    assertEquals("aValue", XmlHandler.getTagValue(node, "a"));
+    assertEquals("bValue", XmlHandler.getTagValue(node, "b"));
+    assertEquals("TWO", XmlHandler.getTagValue(node, "test_enum"));
+    Node fieldsNode = XmlHandler.getSubNode(node, "fields");
+    List<Node> fieldNodes = XmlHandler.getNodes(fieldsNode, "field");
+    assertEquals(3, fieldNodes.size());
+    Node fieldNode = fieldNodes.get(0);
+    assertEquals("a", XmlHandler.getTagValue(fieldNode, "name"));
+    assertEquals("String", XmlHandler.getTagValue(fieldNode, "type"));
+    assertEquals("50", XmlHandler.getTagValue(fieldNode, "length"));
+    assertEquals("-1", XmlHandler.getTagValue(fieldNode, "precision"));
+    assertNull(XmlHandler.getTagValue(fieldNode, "format"));
+    assertEquals("NONE", XmlHandler.getTagValue(fieldNode, "test_code"));
+    fieldNode = fieldNodes.get(1);
+    assertEquals("b", XmlHandler.getTagValue(fieldNode, "name"));
+    assertEquals("Integer", XmlHandler.getTagValue(fieldNode, "type"));
+    assertEquals("10", XmlHandler.getTagValue(fieldNode, "length"));
+    assertEquals("0", XmlHandler.getTagValue(fieldNode, "precision"));
+    assertEquals("#;-#", XmlHandler.getTagValue(fieldNode, "format"));
+    assertEquals("TWO", XmlHandler.getTagValue(fieldNode, "test_code"));
+    fieldNode = fieldNodes.get(2);
+    assertEquals("c", XmlHandler.getTagValue(fieldNode, "name"));
+    assertEquals("Date", XmlHandler.getTagValue(fieldNode, "type"));
+    assertEquals("-1", XmlHandler.getTagValue(fieldNode, "length"));
+    assertEquals("-1", XmlHandler.getTagValue(fieldNode, "precision"));
+    assertEquals("yyyy/MM/dd HH:mm:ss", XmlHandler.getTagValue(fieldNode, "format"));
+    assertEquals("THREE", XmlHandler.getTagValue(fieldNode, "test_code"));
+
+    Node valuesNode = XmlHandler.getSubNode(node, "values");
+    List<Node> valueNodes = XmlHandler.getNodes(valuesNode, "value");
+    assertEquals(3, valueNodes.size());
+    assertEquals("v1", XmlHandler.getNodeValue(valueNodes.get(0)));
+    assertEquals("v2", XmlHandler.getNodeValue(valueNodes.get(1)));
+    assertEquals("v3", XmlHandler.getNodeValue(valueNodes.get(2)));
+  }
+
   @Test
-  void testMappingSerialization() throws Exception {
+  void testMapSerialization() throws Exception {
     WithMap withMap = new WithMap();
     WithMap.Key k1 = new WithMap.Key("k11", "k12");
     WithMap.Value v1 = new WithMap.Value("v11", "v12");
@@ -169,7 +140,7 @@ class XmlMetadataUtilTest {
     withMap.getMappings().put(k3, v3);
 
     String xml = XmlMetadataUtil.serializeObjectToXml(withMap);
-    Node node = XmlHandler.loadXmlString(xml);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
     WithMap withCopy =
         XmlMetadataUtil.deSerializeFromXml(node, WithMap.class, new MemoryMetadataProvider());
     assertEquals(withCopy.getMappings().size(), withMap.getMappings().size());
@@ -179,5 +150,67 @@ class XmlMetadataUtilTest {
       assertTrue(withCopy.getMappings().containsKey(key));
       assertEquals(value, valueCopy);
     }
+  }
+
+  @Test
+  void testMapMapSerialization() throws Exception {
+    WithMapMap mapMap = new WithMapMap();
+
+    String[] groupNames = {"group1", "group2", "group3"};
+    for (String groupName : groupNames) {
+      Map<String, String> groupMap = new HashMap<>();
+      for (int a = 1; a <= 5; a++) {
+        groupMap.put("key-" + groupName + "-" + a, "value-" + groupName + "-" + a);
+      }
+      mapMap.getAttributesMap().put(groupName, groupMap);
+    }
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(mapMap);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
+    WithMapMap withCopy =
+        XmlMetadataUtil.deSerializeFromXml(node, WithMapMap.class, new MemoryMetadataProvider());
+    assertEquals(withCopy.getAttributesMap().size(), mapMap.getAttributesMap().size());
+  }
+
+  @Test
+  void testMapAsListSerialization() throws Exception {
+    WithMapAsList mapList = new WithMapAsList();
+    String[] groupNames = {"k1", "k2", "k3"};
+    for (String groupName : groupNames) {
+      WithMapAsList.Value value = new WithMapAsList.Value();
+      value.setK(groupName);
+      value.setV1("v1-of-" + groupName);
+      value.setV2("v2-of-" + groupName);
+      mapList.getMappings().put(groupName, value);
+    }
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(mapList);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
+    WithMapAsList withCopy =
+        XmlMetadataUtil.deSerializeFromXml(node, WithMapAsList.class, new MemoryMetadataProvider());
+
+    assertEquals(withCopy.getMappings().size(), mapList.getMappings().size());
+  }
+
+  @Test
+  void testListRefenceSerialization() throws Exception {
+    WithListReference listRef = new WithListReference();
+    WithListReference.Step step1 = new WithListReference.Step("S1", "Description1", true);
+    listRef.getSteps().add(step1);
+    WithListReference.Step step2 = new WithListReference.Step("S2", "Description2", true);
+    listRef.getSteps().add(step2);
+    WithListReference.Step step3 = new WithListReference.Step("S3", "Description3", true);
+    listRef.getSteps().add(step3);
+    listRef.getHops().add(new WithListReference.Hop(step1, step2));
+    listRef.getHops().add(new WithListReference.Hop(step2, step3));
+
+    String xml = XmlMetadataUtil.serializeObjectToXml(listRef);
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
+    WithListReference withCopy =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, WithListReference.class, new MemoryMetadataProvider());
+
+    assertEquals(withCopy.getSteps().size(), listRef.getSteps().size());
+    assertEquals(withCopy.getHops().size(), listRef.getHops().size());
   }
 }

@@ -22,6 +22,7 @@ import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -37,15 +38,21 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.IContentChangedListener;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -53,11 +60,17 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
+import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMetaChangeListener;
+import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.apache.hop.pipeline.transform.transforms.FakeMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,10 +93,14 @@ class PipelineMetaTest {
   private IHopMetadataProvider metadataProvider;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     pipelineMeta = new PipelineMeta();
     variables = new Variables();
     metadataProvider = new MemoryMetadataProvider();
+
+    PluginRegistry registry = PluginRegistry.getInstance();
+    registry.registerPluginClass(
+        FakeMeta.class.getName(), TransformPluginType.class, Transform.class);
   }
 
   @Test
@@ -507,5 +524,217 @@ class PipelineMetaTest {
         new PipelineMeta(XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG), metadataProvider);
 
     assertEquals(xml, copy.getXml(variables));
+  }
+
+  @Test
+  void testAttributesMapSerialization() throws Exception {
+    Map<String, Map<String, String>> map = pipelineMeta.getAttributesMap();
+    Map<String, String> groupMap = map.computeIfAbsent("group1", f -> new HashMap<>());
+    groupMap.put("attribute11", "value11");
+    groupMap = map.computeIfAbsent("group2", f -> new HashMap<>());
+    groupMap.put("attribute21", "value21");
+    groupMap.put("attribute22", "value22");
+    groupMap = map.computeIfAbsent("group3", f -> new HashMap<>());
+    groupMap.put("attribute31", "value31");
+    groupMap.put("attribute32", "value32");
+    groupMap.put("attribute33", "value33");
+
+    String xml =
+        XmlHandler.openTag(PipelineMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(pipelineMeta)
+            + XmlHandler.closeTag(PipelineMeta.XML_TAG);
+
+    Node node = XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG);
+    PipelineMeta copy =
+        XmlMetadataUtil.deSerializeFromXml(node, PipelineMeta.class, metadataProvider);
+    Map<String, Map<String, String>> copyMap = copy.getAttributesMap();
+
+    assertEquals(map.size(), copyMap.size());
+    assertEquals(map.get("group1").size(), copyMap.get("group1").size());
+    assertEquals(map.get("group2").size(), copyMap.get("group2").size());
+    assertEquals(map.get("group3").size(), copyMap.get("group3").size());
+  }
+
+  @Test
+  void testNamedParametersSerialization() throws Exception {
+    INamedParameters namedParameters = pipelineMeta.getNamedParameters();
+    namedParameters.addParameterDefinition("PARAM1", "Default1", "Description1");
+    namedParameters.addParameterDefinition("PARAM2", "Default2", "Description2");
+    namedParameters.addParameterDefinition("PARAM3", "Default3", "Description3");
+
+    String xml =
+        XmlHandler.openTag(PipelineMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(pipelineMeta)
+            + XmlHandler.closeTag(PipelineMeta.XML_TAG);
+
+    Node node = XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG);
+    PipelineMeta copy =
+        XmlMetadataUtil.deSerializeFromXml(node, PipelineMeta.class, metadataProvider);
+
+    INamedParameters copyParameters = copy.getNamedParameters();
+
+    assertEquals(namedParameters.listParameters().length, copyParameters.listParameters().length);
+    assertEquals("Default1", copyParameters.getParameterDefault("PARAM1"));
+    assertEquals(
+        namedParameters.getParameterDefault("PARAM1"),
+        copyParameters.getParameterDefault("PARAM1"));
+    assertEquals("Description1", copyParameters.getParameterDescription("PARAM1"));
+    assertEquals(
+        namedParameters.getParameterDescription("PARAM1"),
+        copyParameters.getParameterDescription("PARAM1"));
+
+    assertEquals("Default2", copyParameters.getParameterDefault("PARAM2"));
+    assertEquals(
+        namedParameters.getParameterDefault("PARAM2"),
+        copyParameters.getParameterDefault("PARAM2"));
+    assertEquals("Description2", copyParameters.getParameterDescription("PARAM2"));
+    assertEquals(
+        namedParameters.getParameterDescription("PARAM2"),
+        copyParameters.getParameterDescription("PARAM2"));
+
+    assertEquals("Default3", copyParameters.getParameterDefault("PARAM3"));
+    assertEquals(
+        namedParameters.getParameterDefault("PARAM3"),
+        copyParameters.getParameterDefault("PARAM3"));
+    assertEquals("Description3", copyParameters.getParameterDescription("PARAM3"));
+    assertEquals(
+        namedParameters.getParameterDescription("PARAM3"),
+        copyParameters.getParameterDescription("PARAM3"));
+  }
+
+  @Test
+  void testNotePadSerialization() throws Exception {
+    NotePadMeta note = new NotePadMeta();
+    note.setNote("Test-note");
+    note.setBackGroundColorRed(253);
+    note.setBackGroundColorGreen(254);
+    note.setBackGroundColorBlue(255);
+    note.setFontColorRed(1);
+    note.setFontColorGreen(2);
+    note.setFontColorBlue(2);
+    note.setFontName("Arial");
+    note.setFontSize(16);
+    note.setFontBold(true);
+    note.setFontItalic(true);
+    note.setLocation(101, 102);
+    note.setWidth(200);
+    note.setHeight(150);
+
+    pipelineMeta.addNote(note);
+
+    String xml =
+        XmlHandler.openTag(PipelineMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(pipelineMeta)
+            + XmlHandler.closeTag(PipelineMeta.XML_TAG);
+
+    Node node = XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG);
+    PipelineMeta copy =
+        XmlMetadataUtil.deSerializeFromXml(node, PipelineMeta.class, metadataProvider);
+
+    assertEquals(1, copy.nrNotes());
+    NotePadMeta noteCopy = copy.getNotes().getFirst();
+    assertEquals(noteCopy.getNote(), note.getNote());
+  }
+
+  @Test
+  void testHopSerialization() throws Exception {
+    TransformMeta t1 = new TransformMeta("T1", new DummyMeta());
+    pipelineMeta.addTransform(t1);
+    TransformMeta t2 = new TransformMeta("T2", new DummyMeta());
+    pipelineMeta.addTransform(t2);
+    TransformMeta t3 = new TransformMeta("T3", new DummyMeta());
+    pipelineMeta.addTransform(t3);
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(t1, t2));
+    pipelineMeta.addPipelineHop(new PipelineHopMeta(t2, t3));
+
+    String xml =
+        XmlHandler.openTag(PipelineMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(pipelineMeta)
+            + XmlHandler.closeTag(PipelineMeta.XML_TAG);
+
+    Node node = XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG);
+    PipelineMeta copy =
+        XmlMetadataUtil.deSerializeFromXml(node, PipelineMeta.class, metadataProvider);
+
+    assertEquals(3, copy.nrTransforms());
+    assertEquals(2, copy.nrPipelineHops());
+    assertEquals("T1", copy.findTransform("T1").getName());
+    assertEquals("T2", copy.findTransform("T2").getName());
+    assertEquals("T3", copy.findTransform("T3").getName());
+    assertEquals(pipelineMeta.getTransform(0), pipelineMeta.getPipelineHop(0).getFromTransform());
+    assertEquals(pipelineMeta.getTransform(1), pipelineMeta.getPipelineHop(0).getToTransform());
+    assertEquals(pipelineMeta.getTransform(1), pipelineMeta.getPipelineHop(1).getFromTransform());
+    assertEquals(pipelineMeta.getTransform(2), pipelineMeta.getPipelineHop(1).getToTransform());
+    for (PipelineHopMeta hop : copy.getPipelineHops()) {
+      assertNotNull(hop.getFromTransform());
+      assertNotNull(hop.getToTransform());
+    }
+  }
+
+  @Test
+  void testErrorHandlingSerialization() throws Exception {
+    TransformMeta t1 = new TransformMeta("T1", new FakeMeta());
+    pipelineMeta.addTransform(t1);
+    TransformMeta t2 = new TransformMeta("T2", new FakeMeta());
+    pipelineMeta.addTransform(t2);
+
+    TransformErrorMeta errorMeta =
+        new TransformErrorMeta(t1, t2, "nrErrors", "errorDescription", "errorFields", "errorCodes");
+    errorMeta.setMaxErrors("75");
+    errorMeta.setMaxPercentErrors("15");
+    errorMeta.setMinPercentRows("50");
+    t1.setTransformErrorMeta(errorMeta);
+
+    String xml =
+        XmlHandler.openTag(PipelineMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(pipelineMeta)
+            + XmlHandler.closeTag(PipelineMeta.XML_TAG);
+
+    Node node = XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG);
+    PipelineMeta copy =
+        XmlMetadataUtil.deSerializeFromXml(node, PipelineMeta.class, metadataProvider);
+
+    assertNotNull(copy.findTransform("T1"));
+    assertNotNull(copy.findTransform("T1").getTransformErrorMeta());
+  }
+
+  @Test
+  void testPartitioningSerialization() throws Exception {
+    IHopMetadataSerializer<PartitionSchema> schemaSerializer =
+        metadataProvider.getSerializer(PartitionSchema.class);
+    PartitionSchema four = new PartitionSchema();
+    four.setName("four");
+    four.setDynamicallyDefined(true);
+    four.setNumberOfPartitions("4");
+    schemaSerializer.save(four);
+
+    TransformMeta t1 = new TransformMeta("T1", new FakeMeta());
+    pipelineMeta.addTransform(t1);
+
+    TransformPartitioningMeta transformPartitioningMeta = new TransformPartitioningMeta();
+    transformPartitioningMeta.setPartitionSchema(four);
+    ModPartitioner modPartitioner = new ModPartitioner();
+    modPartitioner.setFieldName("field-name");
+
+    transformPartitioningMeta.setMethod("ModPartitioner");
+    transformPartitioningMeta.setPartitioner(modPartitioner);
+    t1.setTransformPartitioningMeta(transformPartitioningMeta);
+
+    String xml =
+        XmlHandler.openTag(PipelineMeta.XML_TAG)
+            + XmlMetadataUtil.serializeObjectToXml(pipelineMeta)
+            + XmlHandler.closeTag(PipelineMeta.XML_TAG);
+
+    Node node = XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG);
+    PipelineMeta copy =
+        XmlMetadataUtil.deSerializeFromXml(node, PipelineMeta.class, metadataProvider);
+
+    TransformMeta copyT1 = copy.findTransform("T1");
+    assertNotNull(copyT1);
+    TransformPartitioningMeta copyPartMeta = copyT1.getTransformPartitioningMeta();
+    assertNotNull(copyPartMeta);
+    assertInstanceOf(ModPartitioner.class, copyPartMeta.getPartitioner());
+    ModPartitioner copyModPart = (ModPartitioner) copyPartMeta.getPartitioner();
+    assertEquals("field-name", copyModPart.getFieldName());
   }
 }

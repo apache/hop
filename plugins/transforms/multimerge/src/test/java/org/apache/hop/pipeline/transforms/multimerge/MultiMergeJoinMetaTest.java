@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -144,5 +146,16 @@ class MultiMergeJoinMetaTest {
     // Assert: Verify nothing was changed
     assertFalse(changed, "cleanAfterHopToRemove should return false when transform is null");
     assertEquals(1, meta.getInputTransforms().size(), "Should still have 1 input transform");
+  }
+
+  @Test
+  void testSerializationRoundTrip() throws Exception {
+    MultiMergeJoinMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/multi-merge-join.xml", MultiMergeJoinMeta.class);
+
+    Assertions.assertNotNull(meta);
+    assertEquals(2, meta.getInputTransforms().size());
+    assertEquals(2, meta.getKeyFields().size());
   }
 }

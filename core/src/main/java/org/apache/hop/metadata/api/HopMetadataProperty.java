@@ -26,7 +26,7 @@ import org.apache.hop.core.injection.InjectionTypeConverter;
 
 /** A field which is painted with this annotation is picked up by the Hop Metadata serializers */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface HopMetadataProperty {
   /**
    * The optional key to store this metadata property under. By the default the name of the field is
@@ -43,8 +43,9 @@ public @interface HopMetadataProperty {
   boolean password() default false;
 
   /**
-   * @return true if this field should be stored as a name reference because it is a HopMetadata
-   *     class
+   * @return true if this object should be stored as a name reference because it is a HopMetadata
+   *     class or implements IHasName. For the IHasName scenario, make sure to provide the name of
+   *     the list to look up the actual value in when de-serializing.
    */
   boolean storeWithName() default false;
 
@@ -181,7 +182,36 @@ public @interface HopMetadataProperty {
    */
   String[] childKeysToIgnore() default {};
 
-  Class<?> mapKeyClass() default Object.class;
+  String mapKeyWrapper() default "";
 
+  String mapValueWrapper() default "";
+
+  /**
+   * @return The class to use when de-serializing map keys.
+   */
+  Class<?> mapKeyClass() default String.class;
+
+  /**
+   * @return The class to use when de-serializing map values.
+   */
   Class<?> mapValueClass() default Object.class;
+
+  /**
+   * To store a map as a list, we need to indicate which one of the fields in the value class can
+   * serve as the key for the map.
+   *
+   * @return The name of the field to use as the key in the map.
+   */
+  String storeMapAsList() default "";
+
+  /**
+   * @return The name of the List field to look up the value(s) in matching the name. See also:
+   *     storeWithName()
+   */
+  String lookupInList() default "";
+
+  /**
+   * @return You can specify the list class for annotated setter methods that accept a list.
+   */
+  Class<?> listItemClass() default Object.class;
 }

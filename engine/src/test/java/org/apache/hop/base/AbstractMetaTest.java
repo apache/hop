@@ -46,6 +46,8 @@ import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.core.listeners.ICurrentDirectoryChangedListener;
 import org.apache.hop.core.listeners.IFilenameChangedListener;
 import org.apache.hop.core.listeners.INameChangedListener;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.variables.IVariables;
@@ -330,6 +332,11 @@ class AbstractMetaTest {
    * unit tests for proper child classes.
    */
   static class AbstractMetaStub extends AbstractMeta {
+
+    @Override
+    protected INamedParameters getNamedParameters() {
+      return new NamedParameters();
+    }
 
     @Override
     protected String getExtension() {

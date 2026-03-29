@@ -18,6 +18,7 @@
 package org.apache.hop.metadata.serializer.xml;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataWrapper;
 import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
+import org.apache.hop.metadata.api.IHasName;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -99,7 +101,7 @@ public class XmlMetadataUtil {
     // Serialize them to XML.
     //
     List<Field> fields =
-        ReflectionUtil.findAllFields(objectClass, new MetadataPropertyKeyFunction());
+        ReflectionUtil.findAllFields(objectClass, new MetadataPropertyKeyFunction(), false);
     for (Field field : fields) {
       // Is this field appropriate to be considered for serialization?
       // We check it with the method below.
@@ -125,6 +127,27 @@ public class XmlMetadataUtil {
       }
     }
 
+    // Also find methods annotated, starting with "get"
+    //
+    for (Method getter : ReflectionUtil.findAllMethods(objectClass, "get")) {
+      HopMetadataProperty methodProperty = getter.getAnnotation(HopMetadataProperty.class);
+      if (methodProperty == null) {
+        continue;
+      }
+      // What do we get from this method?
+      //
+      Object object;
+      try {
+        object = getter.invoke(parentObject);
+      } catch (Exception e) {
+        throw new HopException(
+            "Error getting a value from annotated method " + getter.getName(), e);
+      }
+      xml.append(
+          serializeObjectToXml(
+              object, methodProperty, methodProperty.groupKey(), methodProperty.key()));
+    }
+
     if (wrapper != null) {
       xml.append(XmlHandler.closeTag(wrapper.tag()));
     }
@@ -148,125 +171,274 @@ public class XmlMetadataUtil {
       // We only serialize non-null values to save space and performance.
       //
       if (property.storeWithName()) {
-        xml.append(XmlHandler.addTagValue(tag, ((IHopMetadata) value).getName()));
+        if (value instanceof IHasName hasName) {
+          xml.append(XmlHandler.addTagValue(tag, hasName.getName()));
+        } else {
+          throw new HopException(
+              "If you want to store an object with its name, make sure the class implements IHasName");
+        }
       } else {
         xml.append(serializeObjectToXml(value, property, groupKey, tag));
       }
     }
   }
 
+  private static Class<? extends IIntCodeConverter> getIntCodeConverter(
+      HopMetadataProperty property) {
+    if (property == null) {
+      return IIntCodeConverter.None.class;
+    }
+    return property.intCodeConverter();
+  }
+
+  private static Class<? extends IStringEncoder> getStringEncoderClass(
+      HopMetadataProperty property) {
+    if (property == null) {
+      return EmptyStringEncoder.class;
+    }
+    return property.stringEncoder();
+  }
+
   private static String serializeObjectToXml(
       Object parentObject, HopMetadataProperty parentProperty, String groupKey, String tag)
       throws HopException {
-    boolean password = parentProperty.password();
-    boolean storeWithCode = parentProperty.storeWithCode();
-    Class<? extends IIntCodeConverter> intCodeConverterClass = parentProperty.intCodeConverter();
-    Class<? extends IStringEncoder> stringEncoderClass = parentProperty.stringEncoder();
+
+    boolean password = parentProperty != null && parentProperty.password();
+    boolean storeWithCode = parentProperty != null && parentProperty.storeWithCode();
+    Class<? extends IIntCodeConverter> intCodeConverterClass = getIntCodeConverter(parentProperty);
+    Class<? extends IStringEncoder> stringEncoderClass = getStringEncoderClass(parentProperty);
 
     StringBuilder xml = new StringBuilder();
 
     if (parentObject == null) {
-      xml.append(XmlHandler.addTagValue(tag, (String) null));
-    } else {
-      if (parentObject instanceof String string) {
-        // Hang on, is this a password?
-        //
-        if (password) {
-          xml.append(XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables(string)));
-        } else if (!stringEncoderClass.equals(EmptyStringEncoder.class)) {
-          // We need to encode the string
-          try {
-            IStringEncoder encoder = stringEncoderClass.getConstructor().newInstance();
-            xml.append(XmlHandler.addTagValue(tag, encoder.encode(string)));
-          } catch (Exception e) {
-            throw new HopException(
-                "Error encoding string with class " + stringEncoderClass.getName(), e);
-          }
-        } else {
-          xml.append(XmlHandler.addTagValue(tag, string));
-        }
-      } else if (parentObject instanceof Boolean bool) {
-        xml.append(XmlHandler.addTagValue(tag, bool));
-      } else if (parentObject instanceof Integer integer) {
-        if (intCodeConverterClass.equals(IIntCodeConverter.None.class)) {
-          xml.append(XmlHandler.addTagValue(tag, integer));
-        } else {
-          try {
-            IIntCodeConverter converter = intCodeConverterClass.getConstructor().newInstance();
-            xml.append(XmlHandler.addTagValue(tag, converter.getCode((int) parentObject)));
-          } catch (Exception e) {
-            throw new HopException(
-                "Error converting int to String code using converter class "
-                    + intCodeConverterClass,
-                e);
-          }
-        }
-      } else if (parentObject instanceof Long longValue) {
-        xml.append(XmlHandler.addTagValue(tag, longValue));
-      } else if (parentObject instanceof Double doubleValue) {
-        xml.append(XmlHandler.addTagValue(tag, doubleValue));
-      } else if (parentObject instanceof Date date) {
-        xml.append(XmlHandler.addTagValue(tag, date));
-      } else if (parentObject.getClass().isEnum()) {
-        if (storeWithCode) {
-          xml.append(XmlHandler.addTagValue(tag, ((IEnumHasCode) parentObject).getCode()));
-        } else {
-          xml.append(XmlHandler.addTagValue(tag, ((Enum) parentObject).name()));
-        }
-      } else if (parentObject instanceof java.util.List listItems) {
-        // Serialize a list of values
-        // Use the key on the annotation to open a new block
-        // Store the items in that block
-        //
-        if (StringUtils.isNotEmpty(groupKey)) {
-          xml.append(XmlHandler.openTag(groupKey)).append(Const.CR);
-        }
-
-        // Add the elements...
-        //
-        for (Object listItem : listItems) {
-          xml.append(serializeObjectToXml(listItem, parentProperty, groupKey, tag));
-        }
-
-        if (StringUtils.isNotEmpty(groupKey)) {
-          xml.append(XmlHandler.closeTag(groupKey)).append(Const.CR);
-        }
-      } else //noinspection rawtypes
-      if (parentObject instanceof java.util.Map map) {
-        // For Map we loop over all the keys and get the values.
-        // We serialize this way:
-        // <groupKey>
-        //   <key> key-and-value-elements </key>
-        //   <key> key-and-value-elements </key>
-        //   ...
-        // </groupKey>
-
-        xml.append(XmlHandler.openTag(parentProperty.groupKey())).append(Const.CR);
-        Set<Map.Entry<Object, Object>> entrySet = map.entrySet();
-        for (Map.Entry<Object, Object> entry : entrySet) {
-          xml.append(XmlHandler.openTag(parentProperty.key())).append(Const.CR);
-          Object keyObject = entry.getKey();
-          Object valueObject = entry.getValue();
-          xml.append(serializeObjectToXml(keyObject, parentProperty, groupKey, tag));
-          xml.append(serializeObjectToXml(valueObject, parentProperty, groupKey, tag));
-          xml.append(XmlHandler.closeTag(parentProperty.key())).append(Const.CR);
-        }
-        xml.append(XmlHandler.closeTag(parentProperty.groupKey())).append(Const.CR);
+      return XmlHandler.addTagValue(tag, (String) null);
+    }
+    if (parentObject instanceof String string) {
+      serializeStringToXml(tag, string, password, xml, stringEncoderClass);
+    } else if (parentObject instanceof Boolean bool) {
+      xml.append(XmlHandler.addTagValue(tag, bool));
+    } else if (parentObject instanceof Integer integer) {
+      serializeIntToXml((int) parentObject, tag, integer, intCodeConverterClass, xml);
+    } else if (parentObject instanceof Long longValue) {
+      xml.append(XmlHandler.addTagValue(tag, longValue));
+    } else if (parentObject instanceof Double doubleValue) {
+      xml.append(XmlHandler.addTagValue(tag, doubleValue));
+    } else if (parentObject instanceof Date date) {
+      xml.append(XmlHandler.addTagValue(tag, date));
+    } else if (parentObject.getClass().isEnum()) {
+      serializeEnumToXMl(parentObject, tag, storeWithCode, xml);
+    } else if (parentObject instanceof java.util.List<?> listItems) {
+      serializeListToXml(parentProperty, groupKey, tag, listItems, xml);
+    } else if (parentObject instanceof java.util.Map<?, ?> map) {
+      if (parentProperty == null || StringUtils.isEmpty(parentProperty.storeMapAsList())) {
+        serializeMapToXml(
+            groupKey,
+            tag,
+            parentProperty == null ? "" : parentProperty.mapKeyWrapper(),
+            parentProperty == null ? "" : parentProperty.mapValueWrapper(),
+            map,
+            xml);
       } else {
-        // POJO : serialize to XML...
-        // We only take the fields of the POJO class that are annotated
-        // We wrap the POJO properties in the provided tag
-        //
-        if (!parentProperty.inline()) {
-          xml.append(XmlHandler.openTag(tag)).append(Const.CR);
-        }
-        xml.append(serializeObjectToXml(parentObject, parentProperty));
-        if (!parentProperty.inline()) {
-          xml.append(XmlHandler.closeTag(tag)).append(Const.CR);
-        }
+        serializeMapAsListToXml(
+            groupKey,
+            tag,
+            parentProperty.storeMapAsList(),
+            parentProperty.mapKeyWrapper(),
+            parentProperty.mapValueWrapper(),
+            map,
+            xml);
       }
+    } else {
+      serializePojoToXml(parentObject, parentProperty, tag, xml);
     }
     return xml.toString();
+  }
+
+  private static void serializeMapAsListToXml(
+      String groupKey, String tag, String s, String s1, String s2, Map<?, ?> map, StringBuilder xml)
+      throws HopException {
+    openTag(groupKey, xml);
+    for (Map.Entry<?, ?> entry : map.entrySet()) {
+      Object value = entry.getValue();
+      openTag(tag, xml);
+      xml.append(serializeObjectToXml(value, null, "", ""));
+      closeTag(tag, xml);
+    }
+    closeTag(groupKey, xml);
+  }
+
+  private static void openTag(String groupKey, StringBuilder xml) {
+    if (StringUtils.isNotEmpty(groupKey)) {
+      xml.append(XmlHandler.openTag(groupKey));
+    }
+  }
+
+  private static void closeTag(String groupKey, StringBuilder xml) {
+    if (StringUtils.isNotEmpty(groupKey)) {
+      xml.append(XmlHandler.closeTag(groupKey));
+    }
+  }
+
+  private static void serializePojoToXml(
+      Object parentObject, HopMetadataProperty parentProperty, String tag, StringBuilder xml)
+      throws HopException {
+    // POJO : serialize to XML...
+    // We only take the fields of the POJO class that are annotated
+    // We wrap the POJO properties in the provided tag
+    //
+    if (parentProperty != null && !parentProperty.inline()) {
+      xml.append(XmlHandler.openTag(tag)).append(Const.CR);
+    }
+    xml.append(serializeObjectToXml(parentObject, parentProperty));
+    if (parentProperty != null && !parentProperty.inline()) {
+      xml.append(XmlHandler.closeTag(tag)).append(Const.CR);
+    }
+  }
+
+  private static void serializeMapToXml(
+      String groupKey, String tag, String keyTag, String valueTag, Map<?, ?> map, StringBuilder xml)
+      throws HopException {
+    // For Map we loop over all the keys and get the values.
+    // We serialize this way:
+    // <groupKey>
+    //   <key> key-and-value-elements </key>
+    //   <key> key-and-value-elements </key>
+    //   ...
+    // </groupKey>
+
+    if (StringUtils.isNotEmpty(groupKey)) {
+      xml.append(XmlHandler.openTag(groupKey)).append(Const.CR);
+    }
+    Set<? extends Map.Entry<?, ?>> entrySet = map.entrySet();
+    for (Map.Entry<?, ?> entry : entrySet) {
+      if (StringUtils.isNotEmpty(tag)) {
+        xml.append(XmlHandler.openTag(tag)).append(Const.CR);
+      }
+
+      serializeMapKeyToXml(xml, keyTag, entry);
+      serializeMapValueToXml(xml, valueTag, entry);
+
+      if (StringUtils.isNotEmpty(tag)) {
+        xml.append(XmlHandler.closeTag(tag)).append(Const.CR);
+      }
+    }
+    if (StringUtils.isNotEmpty(groupKey)) {
+      xml.append(XmlHandler.closeTag(groupKey)).append(Const.CR);
+    }
+  }
+
+  private static void serializeMapKeyToXml(StringBuilder xml, String keyTag, Map.Entry<?, ?> entry)
+      throws HopException {
+    Object keyObject = entry.getKey();
+    Class<?> keyClass = keyObject.getClass();
+    HopMetadataProperty keyProperty = keyClass.getAnnotation(HopMetadataProperty.class);
+    String keyTagKey = Const.NVL(keyTag, "key");
+    String keyTagGroup = "";
+    if (keyProperty != null) {
+      keyTagKey = Const.NVL(keyProperty.key(), keyTagKey);
+    }
+    xml.append(serializeObjectToXml(keyObject, keyProperty, keyTagGroup, keyTagKey));
+  }
+
+  private static void serializeMapValueToXml(
+      StringBuilder xml, String valueTag, Map.Entry<?, ?> entry) throws HopException {
+    Object valueObject = entry.getValue();
+    Class<?> valueClass = valueObject.getClass();
+    HopMetadataProperty keyProperty = valueClass.getAnnotation(HopMetadataProperty.class);
+    String valueTagKey = Const.NVL(valueTag, "value");
+    String valueTagGroup = "";
+    if (keyProperty != null) {
+      valueTagKey = Const.NVL(keyProperty.key(), valueTagKey);
+    }
+    if (valueObject instanceof Map<?, ?> map) {
+      // This is typically Map<String, Map<String, String>>
+      // We don't have any more values to give names to the underlying map so let's pick key/value
+      //
+      serializeMapToXml("", valueTagKey, "key", "value", map, xml);
+    } else {
+      xml.append(serializeObjectToXml(valueObject, keyProperty, valueTagGroup, valueTagKey));
+    }
+  }
+
+  private static void serializeListToXml(
+      HopMetadataProperty parentProperty,
+      String groupKey,
+      String tag,
+      List<?> listItems,
+      StringBuilder xml)
+      throws HopException {
+    // Serialize a list of values
+    // Use the key on the annotation to open a new block
+    // Store the items in that block
+    //
+    if (StringUtils.isNotEmpty(groupKey)) {
+      xml.append(XmlHandler.openTag(groupKey)).append(Const.CR);
+    }
+
+    // Add the elements...
+    //
+    for (Object listItem : listItems) {
+      xml.append(serializeObjectToXml(listItem, parentProperty, groupKey, tag));
+    }
+
+    if (StringUtils.isNotEmpty(groupKey)) {
+      xml.append(XmlHandler.closeTag(groupKey)).append(Const.CR);
+    }
+  }
+
+  private static void serializeEnumToXMl(
+      Object parentObject, String tag, boolean storeWithCode, StringBuilder xml) {
+    if (storeWithCode) {
+      xml.append(XmlHandler.addTagValue(tag, ((IEnumHasCode) parentObject).getCode()));
+    } else {
+      xml.append(XmlHandler.addTagValue(tag, ((Enum) parentObject).name()));
+    }
+  }
+
+  private static void serializeIntToXml(
+      int parentObject,
+      String tag,
+      Integer integer,
+      Class<? extends IIntCodeConverter> intCodeConverterClass,
+      StringBuilder xml)
+      throws HopException {
+    if (intCodeConverterClass.equals(IIntCodeConverter.None.class)) {
+      xml.append(XmlHandler.addTagValue(tag, integer));
+    } else {
+      try {
+        IIntCodeConverter converter = intCodeConverterClass.getConstructor().newInstance();
+        xml.append(XmlHandler.addTagValue(tag, converter.getCode(parentObject)));
+      } catch (Exception e) {
+        throw new HopException(
+            "Error converting int to String code using converter class " + intCodeConverterClass,
+            e);
+      }
+    }
+  }
+
+  private static void serializeStringToXml(
+      String tag,
+      String string,
+      boolean password,
+      StringBuilder xml,
+      Class<? extends IStringEncoder> stringEncoderClass)
+      throws HopException {
+    // Hang on, is this a password?
+    //
+    if (password) {
+      xml.append(XmlHandler.addTagValue(tag, Encr.encryptPasswordIfNotUsingVariables(string)));
+    } else if (!stringEncoderClass.equals(EmptyStringEncoder.class)) {
+      // We need to encode the string
+      try {
+        IStringEncoder encoder = stringEncoderClass.getConstructor().newInstance();
+        xml.append(XmlHandler.addTagValue(tag, encoder.encode(string)));
+      } catch (Exception e) {
+        throw new HopException(
+            "Error encoding string with class " + stringEncoderClass.getName(), e);
+      }
+    } else {
+      xml.append(XmlHandler.addTagValue(tag, string));
+    }
   }
 
   /**
@@ -346,14 +518,16 @@ public class XmlMetadataUtil {
    * Load the metadata in the provided XML node into the given object. It does this by looking at
    * the HopMetadataProperty annotations of the fields in the object's class.
    *
-   * @param parentObject An optional parent object to allow factories to retrieve extra information.
+   * @param parentObject An optional parent object to allow factories to retrieve extra information
+   *     (or null).
+   * @param parentProperty The parent property (or null)
    * @param node The metadata to read
    * @param clazz the class to de-serialize
    * @param object The object to load into. If null: create a new object.
    * @param metadataProvider to load name references from
    * @throws HopXmlException In case there was an error inflating the XML
    */
-  private static <T> T deSerializeFromXml(
+  public static <T> T deSerializeFromXml(
       Object parentObject,
       HopMetadataProperty parentProperty,
       Node node,
@@ -378,9 +552,16 @@ public class XmlMetadataUtil {
 
     if (object == null) {
       object = createNewObject(parentObject, node, clazz);
+
+      // In case the object is marked as optional we can stop here
+      if (object == null) {
+        return null;
+      }
     }
 
-    HopMetadataWrapper wrapper = clazz.getAnnotation(HopMetadataWrapper.class);
+    // Warning: in case we call a factory, the interface class turns into an object class.
+    //
+    HopMetadataWrapper wrapper = object.getClass().getAnnotation(HopMetadataWrapper.class);
     if (wrapper != null) {
       node = XmlHandler.getSubNode(node, wrapper.tag());
     }
@@ -389,7 +570,7 @@ public class XmlMetadataUtil {
     // The fields are sorted by name to get a stable XML output when serialized.
     //
     List<Field> fields =
-        ReflectionUtil.findAllFields(object.getClass(), new MetadataPropertyKeyFunction());
+        ReflectionUtil.findAllFields(object.getClass(), new MetadataPropertyKeyFunction(), false);
     for (Field field : fields) {
       // Is this field appropriate to be considered for serialization?
       // We check it with the method below.
@@ -397,31 +578,50 @@ public class XmlMetadataUtil {
       HopMetadataProperty property =
           getValidFieldAnnotation(field, serializeOnly, childKeysToIgnore);
       if (property != null) {
+        Class<?> fieldType = field.getType();
+        Class<?> genericClass = property.listItemClass();
+        if (genericClass.equals(Object.class)
+            && (field.getGenericType() instanceof ParameterizedType parameterizedType)) {
+          if (parameterizedType.getActualTypeArguments().length > 0) {
+            genericClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+          }
+        }
+
+        // Get the tag & tagNode
         String tag = property.key();
-        String groupKey = property.groupKey();
         if (StringUtils.isEmpty(tag)) {
           tag = field.getName();
         }
-        Class<?> fieldType = field.getType();
-        boolean storeWithCode = property.storeWithCode();
-        String[] inlineListTags = property.inlineListTags();
-
         Node tagNode;
         if (property.inline()) {
           tagNode = node;
         } else {
           tagNode = XmlHandler.getSubNode(node, tag);
         }
+
+        // Get the groupKey & groupNode
+        String groupKey = property.groupKey();
         Node groupNode;
         if (StringUtils.isEmpty(groupKey)) {
           groupNode = node;
         } else {
           groupNode = XmlHandler.getSubNode(node, groupKey);
         }
-        Object value =
-            deSerializeFromXml(
-                object, property, fieldType, groupNode, tagNode, tag, field, metadataProvider);
-
+        Object value;
+        if (property.storeWithName() && StringUtils.isNotEmpty(property.lookupInList())) {
+          value = deSerializeXmlUsingNamedList(parentObject, node, tag, property);
+        } else {
+          value =
+              deSerializeFromXml(
+                  object,
+                  property,
+                  fieldType,
+                  groupNode,
+                  tagNode,
+                  tag,
+                  genericClass,
+                  metadataProvider);
+        }
         try {
           // Only set a value if we have something to set.
           // Empty strings and such will still go through but not null values for int/long/...
@@ -442,6 +642,68 @@ public class XmlMetadataUtil {
       }
     }
 
+    // Also find methods annotated, starting with "get"
+    //
+    try {
+      for (Method setter : ReflectionUtil.findAllMethods(clazz, "set")) {
+        HopMetadataProperty property = setter.getAnnotation(HopMetadataProperty.class);
+        if (property == null) {
+          continue;
+        }
+
+        // Get the tag & tagNode
+        String tag = property.key();
+        Node tagNode;
+        if (property.inline()) {
+          tagNode = node;
+        } else {
+          tagNode = XmlHandler.getSubNode(node, tag);
+        }
+
+        // Get the groupKey & groupNode
+        String groupKey = property.groupKey();
+        Node groupNode;
+        if (StringUtils.isEmpty(groupKey)) {
+          groupNode = node;
+        } else {
+          groupNode = XmlHandler.getSubNode(node, groupKey);
+        }
+
+        // Find the single argument of the setter
+        //
+        Class<?>[] parameterTypes = setter.getParameterTypes();
+        if (parameterTypes.length != 1) {
+          throw new HopException(
+              "Annotated setter method "
+                  + setter.getName()
+                  + " in class "
+                  + clazz.getName()
+                  + " needs to have exactly one argument, the de-serialized object.");
+        }
+        Class<?> parameterClass = parameterTypes[0];
+        Object parameterObject = createNewObject(parameterClass, node, parameterClass);
+        Class<?> listItemClass = property.listItemClass();
+
+        parameterObject =
+            deSerializeFromXml(
+                object,
+                property,
+                parameterClass,
+                groupNode,
+                tagNode,
+                tag,
+                listItemClass,
+                metadataProvider);
+
+        // Pass along the inflated data
+        //
+        setter.invoke(object, parameterObject);
+      }
+
+    } catch (Exception e) {
+      throw new HopXmlException("Error calling setter method on class " + clazz.getName(), e);
+    }
+
     if (object instanceof ILegacyXml legacyXml) {
       try {
         legacyXml.convertLegacyXml(node);
@@ -451,6 +713,53 @@ public class XmlMetadataUtil {
     }
 
     return object;
+  }
+
+  private static Object deSerializeXmlUsingNamedList(
+      Object parentObject, Node node, String tag, HopMetadataProperty property)
+      throws HopXmlException {
+    Object value;
+    // What is the name of the object to reference?
+    //
+    String name = XmlHandler.getTagValue(node, tag);
+
+    // We need the list to look up the name with.
+    //
+    String listName = property.lookupInList();
+    Class<?> objectClass = parentObject.getClass();
+    Field listField;
+    try {
+      listField = objectClass.getDeclaredField(listName);
+    } catch (NoSuchFieldException e) {
+      throw new HopXmlException(
+          "List name " + listName + " was not found in class " + objectClass, e);
+    }
+
+    Method getter;
+    try {
+      getter = ReflectionUtil.findGetter(objectClass, listField);
+    } catch (Exception e) {
+      throw new HopXmlException("Error finding getter method for field " + listField, e);
+    }
+    List<IHasName> lookupList;
+    try {
+      lookupList = (List<IHasName>) getter.invoke(parentObject);
+    } catch (Exception e) {
+      throw new HopXmlException("Error getting lookup list with method " + getter.getName(), e);
+    }
+    // Now we can look up the value
+    //
+    value = null;
+    for (IHasName lookup : lookupList) {
+      if (name.equalsIgnoreCase(lookup.getName())) {
+        value = lookup;
+        break;
+      }
+    }
+    if (value == null) {
+      throw new HopXmlException("Unable to find object with name " + name + " in list " + listName);
+    }
+    return value;
   }
 
   private static HopMetadataProperty getValidFieldAnnotation(
@@ -488,18 +797,27 @@ public class XmlMetadataUtil {
         }
         String objectId = XmlHandler.getNodeValue(XmlHandler.getSubNode(node, xmlKey));
         if (StringUtils.isEmpty(objectId)) {
-          throw new HopXmlException(
-              "XML attribute "
-                  + xmlKey
-                  + " is needed to instantiate type "
-                  + clazz
-                  + " but it wasn't provided");
+          if (metadataObject.optionalValue()) {
+            object = null;
+          } else {
+            throw new HopXmlException(
+                "XML attribute "
+                    + xmlKey
+                    + " is needed to instantiate type "
+                    + clazz
+                    + " but it wasn't provided");
+          }
+        } else {
+          IHopMetadataObjectFactory factory =
+              metadataObject.objectFactory().getConstructor().newInstance();
+          object = (T) factory.createObject(objectId, parentObject);
         }
-        IHopMetadataObjectFactory factory =
-            metadataObject.objectFactory().getConstructor().newInstance();
-        object = (T) factory.createObject(objectId, parentObject);
       } else {
-        object = clazz.getDeclaredConstructor().newInstance();
+        if (clazz.equals(List.class)) {
+          object = (T) new ArrayList<>();
+        } else {
+          object = clazz.getDeclaredConstructor().newInstance();
+        }
       }
     } catch (Exception e) {
       throw new HopXmlException(
@@ -518,16 +836,17 @@ public class XmlMetadataUtil {
       Node groupNode,
       Node elementNode,
       String tag,
-      Field field,
+      Class<?> itemClass,
       IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     String elementString = XmlHandler.getNodeValue(elementNode);
 
-    boolean defaultBoolean = parentProperty.defaultBoolean();
-    boolean storeWithName = parentProperty.storeWithName();
-    boolean storeWithCode = parentProperty.storeWithCode();
-    String[] inlineListTags = parentProperty.inlineListTags();
-    Class<? extends IIntCodeConverter> intCodeConverterClass = parentProperty.intCodeConverter();
+    boolean defaultBoolean = parentProperty != null && parentProperty.defaultBoolean();
+    boolean storeWithName = parentProperty != null && parentProperty.storeWithName();
+    boolean storeWithCode = parentProperty != null && parentProperty.storeWithCode();
+    String[] inlineListTags =
+        parentProperty != null ? parentProperty.inlineListTags() : new String[0];
+    Class<? extends IIntCodeConverter> intCodeConverterClass = getIntCodeConverter(parentProperty);
 
     if (storeWithName) {
       // No name: return null
@@ -575,13 +894,37 @@ public class XmlMetadataUtil {
         return defaultBoolean;
       }
     } else if (fieldType.isEnum()) {
-      Object value = deSerializeEnum(field, elementString, storeWithCode);
-      if (value != null) return value;
+      return deSerializeEnum(fieldType, parentProperty, elementString, storeWithCode);
     } else if (fieldType.equals(java.util.List.class)) {
+      // What is the generic type, the list item class?
+      //
       return deSerializeList(
-          parentObject, parentProperty, groupNode, tag, field, metadataProvider, inlineListTags);
+          parentObject,
+          parentProperty,
+          groupNode,
+          tag,
+          itemClass,
+          metadataProvider,
+          inlineListTags);
     } else if (fieldType.equals(java.util.Map.class)) {
-      return deSerializeMap(parentObject, parentProperty, groupNode, tag, metadataProvider);
+      Class<?> mapKeyClass = parentProperty != null ? parentProperty.mapKeyClass() : String.class;
+      Class<?> mapValueClass =
+          parentProperty != null ? parentProperty.mapValueClass() : String.class;
+      String keyWrapper = parentProperty != null ? parentProperty.mapKeyWrapper() : "key";
+      String valueWrapper = parentProperty != null ? parentProperty.mapValueWrapper() : "value";
+
+      if (parentProperty == null || StringUtils.isEmpty(parentProperty.storeMapAsList())) {
+        return deSerializeMap(
+            groupNode, tag, keyWrapper, valueWrapper, metadataProvider, mapKeyClass, mapValueClass);
+      } else {
+        return deSerializeMapFromList(
+            groupNode,
+            tag,
+            parentProperty.storeMapAsList(),
+            metadataProvider,
+            mapKeyClass,
+            mapValueClass);
+      }
     } else {
       // Load the metadata for this node...
       //
@@ -651,9 +994,13 @@ public class XmlMetadataUtil {
     }
   }
 
-  private static Object deSerializeEnum(Field field, String elementString, boolean storeWithCode)
+  private static Object deSerializeEnum(
+      Class<?> fieldClass,
+      HopMetadataProperty fieldAnnotation,
+      String elementString,
+      boolean storeWithCode)
       throws HopXmlException {
-    final Class<? extends Enum> enumerationClass = (Class<? extends Enum>) field.getType();
+    final Class<? extends Enum> enumerationClass = (Class<? extends Enum>) fieldClass;
     if (StringUtils.isNotEmpty(elementString)) {
       if (storeWithCode) {
         try {
@@ -682,8 +1029,7 @@ public class XmlMetadataUtil {
         try {
           return Enum.valueOf(enumerationClass, elementString);
         } catch (IllegalArgumentException e) {
-          String nameNotFound =
-              field.getAnnotation(HopMetadataProperty.class).enumNameWhenNotFound();
+          String nameNotFound = fieldAnnotation.enumNameWhenNotFound();
           if (StringUtils.isEmpty(nameNotFound)) {
             throw e;
           } else {
@@ -700,7 +1046,7 @@ public class XmlMetadataUtil {
       HopMetadataProperty parentProperty,
       Node groupNode,
       String tag,
-      Field field,
+      Class<?> itemClass,
       IHopMetadataProvider metadataProvider,
       String[] inlineListTags)
       throws HopXmlException {
@@ -733,18 +1079,16 @@ public class XmlMetadataUtil {
       // We assume that the constructor of the parent class created the List object
       // so that we can simply add items to the list here.
       //
-      ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
-      Class<?> listClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
       try {
         Object newItem =
             deSerializeFromXml(
                 parentObject,
                 parentProperty,
-                listClass,
+                itemClass,
                 null,
                 itemNode,
                 null,
-                null,
+                itemClass,
                 metadataProvider);
 
         // Add it to the list
@@ -753,7 +1097,7 @@ public class XmlMetadataUtil {
       } catch (Exception e) {
         throw new HopXmlException(
             "Unable to instantiate a new instance of class "
-                + listClass.getName()
+                + itemClass.getName()
                 + ": make sure there is an empty public constructor available to allow XML de-serialization",
             e);
       }
@@ -765,11 +1109,13 @@ public class XmlMetadataUtil {
   }
 
   private static Map<Object, Object> deSerializeMap(
-      Object parentObject,
-      HopMetadataProperty parentProperty,
       Node groupNode,
       String tag,
-      IHopMetadataProvider metadataProvider)
+      String keyWrapper,
+      String valueWrapper,
+      IHopMetadataProvider metadataProvider,
+      Class<?> keyClass,
+      Class<?> valueClass)
       throws HopXmlException {
     // For the map we're looking at the following pattern:
     //
@@ -785,33 +1131,134 @@ public class XmlMetadataUtil {
       // This item node contains all items of both the key and value classes.
       // So we can feed this node into both
       //
-      Class<?> keyClass = parentProperty.mapKeyClass();
-      Class<?> valueClass = parentProperty.mapValueClass();
-      Object key;
-      Object value;
-      try {
-        // Instantiate the key object
-        key = deSerializeFromXml(itemNode, keyClass, metadataProvider);
-      } catch (Exception e) {
-        throw new HopXmlException(
-            "Unable to instantiate a new instance of map key class "
-                + keyClass.getName()
-                + ": make sure there is an empty public constructor available to allow XML de-serialization",
-            e);
-      }
-      try {
-        value = deSerializeFromXml(itemNode, valueClass, metadataProvider);
-      } catch (Exception e) {
-        throw new HopXmlException(
-            "Unable to instantiate a new instance of map value class "
-                + keyClass.getName()
-                + ": make sure there is an empty public constructor available to allow XML de-serialization",
-            e);
-      }
+      Object key = deSerializeMapKey(metadataProvider, keyClass, itemNode, keyWrapper);
+      Object value = deSerializeMapValue(metadataProvider, valueClass, itemNode, valueWrapper);
+
       // Now we can simply add key and value to the map
       //
       map.put(key, value);
     }
     return map;
+  }
+
+  private static Map<Object, Object> deSerializeMapFromList(
+      Node groupNode,
+      String tag,
+      String keyFieldName,
+      IHopMetadataProvider metadataProvider,
+      Class<?> keyClass,
+      Class<?> valueClass)
+      throws HopXmlException {
+    // For the map we're looking at the following pattern:
+    //
+    // <groupKey>
+    //   <key> key-and-value-elements </key>
+    //   <key> key-and-value-elements </key>
+    //   ...
+    // </groupKey>
+    //
+    Map<Object, Object> map = new HashMap<>();
+    List<Node> itemNodes = XmlHandler.getNodes(groupNode, tag);
+    for (Node itemNode : itemNodes) {
+      // This item node contains only value items.
+      // So we can feed this node into both
+      //
+      Object value = deSerializeFromXml(itemNode, valueClass, metadataProvider);
+
+      // Find field k
+      Field keyField;
+      try {
+        keyField = valueClass.getDeclaredField(keyFieldName);
+      } catch (NoSuchFieldException e) {
+        throw new HopXmlException(
+            "Specified field '" + keyFieldName + "' with storeMapAsList() was not found");
+      }
+      Method getter;
+      try {
+        getter = ReflectionUtil.findGetter(valueClass, keyField);
+      } catch (NoSuchMethodException e) {
+        throw new HopXmlException(
+            "Getter method for field "
+                + keyFieldName
+                + " was not found in class "
+                + valueClass.getName());
+      }
+      Object key;
+      try {
+        key = getter.invoke(value);
+      } catch (Exception e) {
+        throw new HopXmlException(
+            "Unable to invoke getter for field "
+                + keyFieldName
+                + " in class "
+                + valueClass.getName(),
+            e);
+      }
+
+      // Now we can add key and value to the map
+      //
+      map.put(key, value);
+    }
+    return map;
+  }
+
+  private static Object deSerializeMapValue(
+      IHopMetadataProvider metadataProvider,
+      Class<?> valueClass,
+      Node itemNode,
+      String valueWrapper)
+      throws HopXmlException {
+    Object value;
+
+    // This is the Map<?, Map<?,?>> scenario
+    //
+    if (valueClass.equals(HashMap.class)) {
+      // What are the Map values?
+      //
+      Map<Object, Object> childMap = new HashMap<>();
+      List<Node> valueNodes = XmlHandler.getNodes(itemNode, valueWrapper);
+      for (Node valueNode : valueNodes) {
+        Object childKey = deSerializeMapKey(metadataProvider, String.class, valueNode, "key");
+        Object childValue = deSerializeMapKey(metadataProvider, String.class, valueNode, "value");
+        childMap.put(childKey, childValue);
+      }
+      return childMap;
+    }
+
+    try {
+      value = deSerializeFromXml(itemNode, valueClass, metadataProvider);
+    } catch (Exception e) {
+      throw new HopXmlException(
+          "Unable to instantiate a new instance of map value class "
+              + valueClass.getName()
+              + ": make sure there is an empty public constructor available to allow XML de-serialization",
+          e);
+    }
+    return value;
+  }
+
+  private static Object deSerializeMapKey(
+      IHopMetadataProvider metadataProvider, Class<?> keyClass, Node itemNode, String keyWrapper)
+      throws HopXmlException {
+    Object key;
+
+    Node keyNode = XmlHandler.getSubNode(itemNode, keyWrapper);
+    if (keyNode != null && keyClass.equals(String.class)) {
+      return XmlHandler.getNodeValue(keyNode);
+    }
+    if (keyNode == null) {
+      keyNode = itemNode;
+    }
+    try {
+      // Instantiate the key object
+      key = deSerializeFromXml(keyNode, keyClass, metadataProvider);
+    } catch (Exception e) {
+      throw new HopXmlException(
+          "Unable to instantiate a new instance of map key class "
+              + keyClass.getName()
+              + ": make sure there is an empty public constructor available to allow XML de-serialization",
+          e);
+    }
+    return key;
   }
 }

@@ -20,10 +20,11 @@ package org.apache.hop.pipeline;
 import java.util.List;
 import java.util.Objects;
 import org.apache.hop.base.BaseHopMeta;
-import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
@@ -102,7 +103,9 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
   }
 
   public boolean equals(Object obj) {
-    PipelineHopMeta other = (PipelineHopMeta) obj;
+    if (!(obj instanceof PipelineHopMeta other)) {
+      return false;
+    }
     if (this.from == null || this.to == null) {
       return false;
     }
@@ -131,17 +134,7 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
     return strFrom + " --> " + strTo + " (" + (enabled ? "enabled" : "disabled") + ")";
   }
 
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(200);
-
-    if (this.from != null && this.to != null) {
-      xml.append("    ").append(XmlHandler.openTag(XML_HOP_TAG)).append(Const.CR);
-      xml.append(CONST_SPACES).append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
-      xml.append(CONST_SPACES).append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
-      xml.append(CONST_SPACES).append(XmlHandler.addTagValue(XML_ENABLED_TAG, enabled));
-      xml.append("    ").append(XmlHandler.closeTag(XML_HOP_TAG)).append(Const.CR);
-    }
-
-    return xml.toString();
+  public String getXml() throws HopException {
+    return XmlHandler.aroundTag(XML_HOP_TAG, XmlMetadataUtil.serializeObjectToXml(this));
   }
 }

@@ -51,7 +51,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Sort the rows in the input-streams based on certain criteria */
 public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
-
   private static final Class<?> PKG = SortRows.class;
 
   public SortRows(
@@ -401,28 +400,10 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       return false;
     }
 
-    if (data.newBatch) {
-      data.newBatch = false;
-      setPrevious(r);
-      // this enables Sort stuff to initialize its state.
-      this.addBuffer(getInputRowMeta(), r);
-    } else {
-      if (this.sameGroup(data.previous, r)) {
-        // this performs normal row collection functionality.
-        this.addBuffer(getInputRowMeta(), r);
-      } else {
-        this.preSortBeforeFlush();
-
-        // flush sorted block to next transform:
-        this.passBuffer();
-
-        // new sorted block beginning
-        setPrevious(r);
-        data.newBatch = true;
-
-        this.addBuffer(getInputRowMeta(), r);
-      }
-    }
+    // Add the row to the buffer in memory.
+    // Serialize to disk if too many rows are in memory.
+    //
+    this.addBuffer(getInputRowMeta(), r);
 
     if (checkFeedback(getLinesRead()) && isBasic()) {
       logBasic("Linenr " + getLinesRead());
@@ -648,23 +629,6 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     } else {
       // sort in memory
       quickSort(data.buffer);
-    }
-  }
-
-  /*
-   * Group Fields Implementation heroic
-   */
-  // Is the row r of the same group as previous?
-  private boolean sameGroup(Object[] previous, Object[] r) throws HopValueException {
-    if (r == null) {
-      return false;
-    }
-    return getInputRowMeta().compare(previous, r, data.groupnrs) == 0;
-  }
-
-  private void setPrevious(Object[] r) throws HopException {
-    if (r != null) {
-      this.data.previous = getInputRowMeta().cloneRow(r);
     }
   }
 

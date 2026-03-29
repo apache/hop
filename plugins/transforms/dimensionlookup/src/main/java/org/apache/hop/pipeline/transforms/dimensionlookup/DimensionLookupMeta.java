@@ -895,7 +895,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     // Verify the absolute basic settings like having a database, table, input fields, technical
     // key, ...
     //
-    validateBasicSettings(variables, pipelineMeta, previousRowMeta);
+    validateBasicSettings(variables, metadataProvider, previousRowMeta);
 
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
 
@@ -986,11 +986,20 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   }
 
   private void validateBasicSettings(
-      IVariables variables, PipelineMeta pipelineMeta, IRowMeta previousRowMeta)
+      IVariables variables, IHopMetadataProvider metadataProvider, IRowMeta previousRowMeta)
       throws HopTransformException {
 
     // Raise an exception in case connection is missing
-    pipelineMeta.findDatabase(connection, variables, true);
+    try {
+      String databaseName = variables.resolve(connection);
+      if (!metadataProvider.getSerializer(DatabaseMeta.class).exists(databaseName)) {
+        throw new HopTransformException(
+            "Database connection '" + databaseName + "' does not exist");
+      }
+    } catch (Exception e) {
+      throw new HopTransformException(
+          "Error found validating database connection " + connection, e);
+    }
 
     if (fields.keys.isEmpty()) {
       throw new HopTransformException(

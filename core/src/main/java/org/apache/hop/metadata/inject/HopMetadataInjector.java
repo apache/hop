@@ -237,7 +237,7 @@ public class HopMetadataInjector {
           HopException {
     // Grab the value of this field and inject into this object
     //
-    Object fieldObject = findGetter(objectClass, field).invoke(object);
+    Object fieldObject = ReflectionUtil.findGetter(objectClass, field).invoke(object);
     if (fieldObject == null) {
       throw new HopException(
           "Make sure that field "
@@ -469,7 +469,8 @@ public class HopMetadataInjector {
     try {
       // What is the list?
       //
-      List<Object> list = (List<Object>) findGetter(objectClass, field).invoke(object);
+      List<Object> list =
+          (List<Object>) ReflectionUtil.findGetter(objectClass, field).invoke(object);
       list.clear();
 
       // Which class is being listed?
@@ -538,7 +539,7 @@ public class HopMetadataInjector {
       if (valueToSet == null) {
         return;
       }
-      Method setter = findSetter(object.getClass(), field);
+      Method setter = ReflectionUtil.findSetter(object.getClass(), field);
       setter.invoke(object, valueToSet);
     } catch (Exception e) {
       throw new HopException(
@@ -553,23 +554,5 @@ public class HopMetadataInjector {
               + ")",
           e);
     }
-  }
-
-  private static Method findGetter(Class<?> clazz, Field field) throws NoSuchMethodException {
-    String name = field.getName();
-    String methodName;
-    if (field.getGenericType().equals(Boolean.class)
-        || field.getGenericType().equals(boolean.class)) {
-      methodName = "is" + StringUtils.capitalize(name);
-    } else {
-      methodName = "get" + StringUtils.capitalize(name);
-    }
-    return clazz.getMethod(methodName);
-  }
-
-  private static Method findSetter(Class<?> clazz, Field field) throws NoSuchMethodException {
-    String name = field.getName();
-    String methodName = "set" + StringUtils.capitalize(name);
-    return clazz.getMethod(methodName, field.getType());
   }
 }

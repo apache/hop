@@ -17,10 +17,13 @@
 
 package org.apache.hop.pipeline.transform;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -29,12 +32,15 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.IPartitioner;
 import org.w3c.dom.Node;
 
+@Getter
+@Setter
 public class TransformPartitioningMeta implements Cloneable {
   public static final int PARTITIONING_METHOD_NONE = 0;
   public static final int PARTITIONING_METHOD_MIRROR = 1;
@@ -51,10 +57,14 @@ public class TransformPartitioningMeta implements Cloneable {
 
   @HopMetadataProperty private String method;
 
-  @HopMetadataProperty(storeWithName = true)
+  @HopMetadataProperty(
+      key = "schema_name",
+      storeWithName = true,
+      hopMetadataPropertyType = HopMetadataPropertyType.PARTITION_SCHEMA)
   private PartitionSchema partitionSchema;
 
-  @HopMetadataProperty private IPartitioner partitioner;
+  @HopMetadataProperty(inline = true)
+  private IPartitioner partitioner;
 
   private boolean hasChanged = false;
 
@@ -66,8 +76,8 @@ public class TransformPartitioningMeta implements Cloneable {
   }
 
   /**
-   * @param method
-   * @param partitionSchema
+   * @param method The partitioning method
+   * @param partitionSchema The partition schema
    */
   public TransformPartitioningMeta(String method, PartitionSchema partitionSchema)
       throws HopPluginException {
@@ -86,7 +96,7 @@ public class TransformPartitioningMeta implements Cloneable {
       transformPartitioningMeta.setPartitioner(partitioner == null ? null : partitioner.clone());
       return transformPartitioningMeta;
     } catch (HopPluginException e) {
-      throw new RuntimeException("Unable to load partitioning plugin", e);
+      throw new HopRuntimeException("Unable to load partitioning plugin", e);
     }
   }
 
@@ -98,15 +108,13 @@ public class TransformPartitioningMeta implements Cloneable {
     if (obj == null) {
       return false;
     }
+    if (!(obj instanceof TransformPartitioningMeta meta)) {
+      return false;
+    }
     if (partitionSchema == null) {
       return false;
     }
-    TransformPartitioningMeta meta = (TransformPartitioningMeta) obj;
-    if (partitionSchema == null && meta.partitionSchema == null) {
-      return true;
-    }
-    if (partitionSchema != null && meta.partitionSchema == null
-        || partitionSchema == null && meta.partitionSchema != null) {
+    if (meta.partitionSchema == null) {
       return false;
     }
     String schemaName = partitionSchema.getName();
@@ -115,7 +123,7 @@ public class TransformPartitioningMeta implements Cloneable {
     if (schemaName == null && otherName == null) {
       return true;
     }
-    if (schemaName != null && otherName == null || schemaName == null && otherName != null) {
+    if (schemaName == null || otherName == null) {
       return false;
     }
     return schemaName.equalsIgnoreCase(otherName);
@@ -128,9 +136,7 @@ public class TransformPartitioningMeta implements Cloneable {
 
   @Override
   public String toString() {
-
     String description;
-
     if (partitioner != null) {
       description = partitioner.getDescription();
     } else {
@@ -139,15 +145,7 @@ public class TransformPartitioningMeta implements Cloneable {
     if (partitionSchema != null) {
       description += " / " + partitionSchema.toString();
     }
-
     return description;
-  }
-
-  /**
-   * @return the partitioningMethod
-   */
-  public int getMethodType() {
-    return methodType;
   }
 
   /**
@@ -161,6 +159,7 @@ public class TransformPartitioningMeta implements Cloneable {
     }
   }
 
+  @Deprecated(since = "2.18.0")
   public String getXml() throws HopException {
     StringBuilder xml = new StringBuilder(150);
 
@@ -178,6 +177,7 @@ public class TransformPartitioningMeta implements Cloneable {
     return xml.toString();
   }
 
+  @Deprecated(since = "2.18.0")
   public TransformPartitioningMeta(
       Node partitioningMethodNode, IHopMetadataProvider metadataProvider) throws HopException {
     this();
@@ -220,11 +220,7 @@ public class TransformPartitioningMeta implements Cloneable {
     }
   }
 
-  public String getMethod() {
-    return method;
-  }
-
-  public static final String getMethod(String name) {
+  public static String getMethod(String name) {
     if (Utils.isEmpty(name)) {
       return methodCodes[PARTITIONING_METHOD_NONE];
     }
@@ -254,7 +250,7 @@ public class TransformPartitioningMeta implements Cloneable {
     return methodCodes[PARTITIONING_METHOD_NONE];
   }
 
-  public static final int getMethodType(String description) {
+  public static int getMethodType(String description) {
     for (int i = 0; i < methodDescriptions.length; i++) {
       if (methodDescriptions[i].equalsIgnoreCase(description)) {
         return i;
@@ -277,13 +273,6 @@ public class TransformPartitioningMeta implements Cloneable {
 
   public boolean isPartitioned() {
     return methodType != PARTITIONING_METHOD_NONE;
-  }
-
-  /**
-   * @return the partitionSchema
-   */
-  public PartitionSchema getPartitionSchema() {
-    return partitionSchema;
   }
 
   /**
@@ -326,12 +315,14 @@ public class TransformPartitioningMeta implements Cloneable {
     return 0;
   }
 
-  public IPartitioner getPartitioner() {
-    return partitioner;
-  }
-
   public void setPartitioner(IPartitioner partitioner) {
     this.partitioner = partitioner;
+
+    // Also leave a link to this object
+    //
+    if (partitioner != null) {
+      partitioner.setMeta(this);
+    }
   }
 
   public boolean hasChanged() {
@@ -340,9 +331,5 @@ public class TransformPartitioningMeta implements Cloneable {
 
   public void hasChanged(boolean hasChanged) {
     this.hasChanged = hasChanged;
-  }
-
-  public void setMethodType(int methodType) {
-    this.methodType = methodType;
   }
 }

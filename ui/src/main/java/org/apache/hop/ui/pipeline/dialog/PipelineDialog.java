@@ -680,7 +680,7 @@ public class PipelineDialog extends Dialog {
     wPipelineDescription.setText(Const.NVL(pipelineMeta.getDescription(), ""));
     wExtendedDescription.setText(Const.NVL(pipelineMeta.getExtendedDescription(), ""));
     wPipelineVersion.setText(Const.NVL(pipelineMeta.getPipelineVersion(), ""));
-    wPipelineStatus.select(pipelineMeta.getPipelineStatus() - 1);
+    wPipelineStatus.select(pipelineMeta.getInfo().getPipelineStatus() - 1);
 
     if (pipelineMeta.getCreatedUser() != null) {
       wCreateUser.setText(pipelineMeta.getCreatedUser());
@@ -759,9 +759,9 @@ public class PipelineDialog extends Dialog {
     pipelineMeta.setPipelineVersion(wPipelineVersion.getText());
 
     if (wPipelineStatus.getSelectionIndex() != 2) {
-      pipelineMeta.setPipelineStatus(wPipelineStatus.getSelectionIndex() + 1);
+      pipelineMeta.getInfo().setPipelineStatus(wPipelineStatus.getSelectionIndex() + 1);
     } else {
-      pipelineMeta.setPipelineStatus(-1);
+      pipelineMeta.getInfo().setPipelineStatus(-1);
     }
 
     // Clear and add parameters
