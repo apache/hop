@@ -1740,10 +1740,15 @@ public class PipelineMeta extends AbstractMeta
     try {
       deSerializeXml(pipelineNode, filename, metadataProvider, variables);
 
-      // Search info and target transforms.
       for (TransformMeta transformMeta : transforms) {
         ITransformMeta iTransform = transformMeta.getTransform();
+
+        // Search info and target transforms.
         iTransform.searchInfoAndTargetTransforms(transforms);
+
+        // Also set the parent pipeline to which this transform belongs.
+        // This is rarely used, for example in getTableFields.getTableFields()
+        transformMeta.setParentPipelineMeta(this);
       }
     } catch (Exception e) {
       // See if we have missing plugins to report, those take precedence!

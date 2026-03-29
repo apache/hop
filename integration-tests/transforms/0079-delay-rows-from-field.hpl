@@ -17,254 +17,244 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 -->
-<pipeline>
-  <info>
-    <name>delay-rows-from-field</name>
-    <name_sync_with_filename>Y</name_sync_with_filename>
-    <description/>
-    <extended_description/>
-    <pipeline_version/>
-    <pipeline_type>Normal</pipeline_type>
-    <parameters>
-    </parameters>
-    <capture_transform_performance>N</capture_transform_performance>
-    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
-    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
-    <created_user>-</created_user>
-    <created_date>2025/11/07 10:42:34.704</created_date>
-    <modified_user>-</modified_user>
-    <modified_date>2025/11/07 10:42:34.704</modified_date>
-  </info>
-  <notepads>
-  </notepads>
-  <order>
-    <hop>
-      <from>generate 10 rows</from>
-      <to>add counter</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>counter = 5?</from>
-      <to>Delay row</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>counter = 5?</from>
-      <to>5 -> null</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>5 -> null</from>
-      <to>Delay row</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>add counter</from>
-      <to>add time scales</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>add time scales</from>
-      <to>counter = 5?</to>
-      <enabled>Y</enabled>
-    </hop>
-  </order>
-  <transform>
-    <name>add counter</name>
-    <type>Sequence</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <connection/>
-    <counter_name/>
-    <increment_by>1</increment_by>
-    <max_value>999999999</max_value>
-    <schema/>
-    <seqname>SEQ_</seqname>
-    <start_at>1</start_at>
-    <use_counter>Y</use_counter>
-    <use_database>N</use_database>
-    <valuename>counter</valuename>
-    <attributes/>
-    <GUI>
-      <xloc>320</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Delay row</name>
-    <type>Delay</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <scaletime>seconds</scaletime>
-    <scaletime_field>scale</scaletime_field>
-    <scaletime_from_field>Y</scaletime_from_field>
-    <timeout_field>counter</timeout_field>
-    <attributes/>
-    <GUI>
-      <xloc>736</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>generate 10 rows</name>
-    <type>RowGenerator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
+<pipeline><info>
+<name>delay-rows-from-field</name>
+<modified_date>2025/11/07 10:42:34.704</modified_date>
+<created_user>-</created_user>
+<created_date>2025/11/07 10:42:34.704</created_date>
+<transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+<parameters>
+</parameters>
+<pipeline_status>0</pipeline_status>
+<transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+<name_sync_with_filename>Y</name_sync_with_filename>
+<modified_user>-</modified_user>
+<capture_transform_performance>N</capture_transform_performance>
+<pipeline_type>Normal</pipeline_type>
+</info>
+<transform>
+<type>Sequence</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>80</yloc>
+<xloc>256</xloc>
+</GUI>
+<copies>1</copies>
+<name>add counter</name>
+<distribute>Y</distribute>
+<valuename>counter</valuename>
+<use_counter>Y</use_counter>
+<increment_by>1</increment_by>
+<max_value>999999999</max_value>
+<seqname>SEQ_</seqname>
+<use_database>N</use_database>
+<start_at>1</start_at>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<transform>
+<type>Delay</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>80</yloc>
+<xloc>672</xloc>
+</GUI>
+<copies>1</copies>
+<name>Delay row</name>
+<distribute>Y</distribute>
+<timeout_field>counter</timeout_field>
+<scaletime_field>scale</scaletime_field>
+<scaletime>seconds</scaletime>
+<scaletime_from_field>Y</scaletime_from_field>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<transform>
+<type>RowGenerator</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>80</yloc>
+<xloc>96</xloc>
+</GUI>
+<copies>1</copies>
+<name>generate 10 rows</name>
+<distribute>Y</distribute>
+<limit>10</limit>
+<interval_in_ms>5000</interval_in_ms>
+<fields>
 </fields>
-    <interval_in_ms>5000</interval_in_ms>
-    <last_time_field>FiveSecondsAgo</last_time_field>
-    <limit>10</limit>
-    <never_ending>N</never_ending>
-    <row_time_field>now</row_time_field>
-    <attributes/>
-    <GUI>
-      <xloc>160</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>5 -> null</name>
-    <type>NullIf</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>counter</name>
-        <value>5</value>
-      </field>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>608</xloc>
-      <yloc>352</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>add time scales</name>
-    <type>ValueMapper</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <field_to_use>counter</field_to_use>
-    <fields>
-      <field>
-        <source_value>1</source_value>
-        <target_value>s</target_value>
-      </field>
-      <field>
-        <source_value>2</source_value>
-        <target_value>second</target_value>
-      </field>
-      <field>
-        <source_value>3</source_value>
-        <target_value>seconds</target_value>
-      </field>
-      <field>
-        <source_value>4</source_value>
-        <target_value>ms</target_value>
-      </field>
-      <field>
-        <source_value>5</source_value>
-        <target_value>milliseconds</target_value>
-      </field>
-      <field>
-        <source_value>6</source_value>
-        <target_value>MS</target_value>
-      </field>
-      <field>
-        <source_value>7</source_value>
-        <target_value>Second</target_value>
-      </field>
-      <field>
-        <source_value>8</source_value>
-        <target_value>minutes</target_value>
-      </field>
-      <field>
-        <source_value>9</source_value>
-        <target_value>sec</target_value>
-      </field>
-      <field>
-        <source_value>10</source_value>
-        <target_value>seconds</target_value>
-      </field>
-    </fields>
-    <non_match_default/>
-    <target_field>scale</target_field>
-    <attributes/>
-    <GUI>
-      <xloc>480</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>counter = 5?</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compare>
-      <condition>
-        <conditions>
+<never_ending>N</never_ending>
+<last_time_field>FiveSecondsAgo</last_time_field>
+<row_time_field>now</row_time_field>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<transform>
+<type>NullIf</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>176</yloc>
+<xloc>544</xloc>
+</GUI>
+<copies>1</copies>
+<name>5 -&gt; null</name>
+<distribute>Y</distribute>
+<fields>
+<field>
+<value>5</value>
+<name>counter</name>
+</field>
+</fields>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<transform>
+<type>ValueMapper</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>80</yloc>
+<xloc>416</xloc>
+</GUI>
+<copies>1</copies>
+<name>add time scales</name>
+<distribute>Y</distribute>
+<target_field>scale</target_field>
+<non_match_default/>
+<field_to_use>counter</field_to_use>
+<fields>
+<field>
+<target_value>s</target_value>
+<source_value>1</source_value>
+</field>
+<field>
+<target_value>second</target_value>
+<source_value>2</source_value>
+</field>
+<field>
+<target_value>seconds</target_value>
+<source_value>3</source_value>
+</field>
+<field>
+<target_value>ms</target_value>
+<source_value>4</source_value>
+</field>
+<field>
+<target_value>milliseconds</target_value>
+<source_value>5</source_value>
+</field>
+<field>
+<target_value>MS</target_value>
+<source_value>6</source_value>
+</field>
+<field>
+<target_value>Second</target_value>
+<source_value>7</source_value>
+</field>
+<field>
+<target_value>SECONDS</target_value>
+<source_value>8</source_value>
+</field>
+<field>
+<target_value>sec</target_value>
+<source_value>9</source_value>
+</field>
+<field>
+<target_value>seconds</target_value>
+<source_value>10</source_value>
+</field>
+</fields>
+<target_type/>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<transform>
+<type>FilterRows</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>80</yloc>
+<xloc>544</xloc>
+</GUI>
+<copies>1</copies>
+<name>counter = 5?</name>
+<distribute>Y</distribute>
+<send_true_to>5 -&gt; null</send_true_to>
+<compare>
+<condition>
+<leftvalue>counter</leftvalue>
+<operator>-</operator>
+<negated>N</negated>
+<conditions>
 </conditions>
-        <function>=</function>
-        <leftvalue>counter</leftvalue>
-        <negated>N</negated>
-        <operator>-</operator>
-        <value>
-          <isnull>N</isnull>
-          <length>-1</length>
-          <mask>####0;-####0</mask>
-          <name>constant</name>
-          <precision>0</precision>
-          <text>5</text>
-          <type>Integer</type>
-        </value>
-      </condition>
-    </compare>
-    <send_false_to>Delay row</send_false_to>
-    <send_true_to>5 -> null</send_true_to>
-    <attributes/>
-    <GUI>
-      <xloc>608</xloc>
-      <yloc>256</yloc>
-    </GUI>
-  </transform>
-  <transform_error_handling>
-  </transform_error_handling>
-  <attributes/>
+<function>=</function>
+<value>
+<name>constant</name>
+<length>-1</length>
+<text>5</text>
+<isnull>N</isnull>
+<type>Integer</type>
+<mask>####0;-####0</mask>
+<precision>0</precision>
+</value>
+</condition>
+</compare>
+<send_false_to>Delay row</send_false_to>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<notepads>
+</notepads>
+<order>
+<hop>
+<to>add counter</to>
+<from>generate 10 rows</from>
+<enabled>Y</enabled>
+</hop>
+<hop>
+<to>Delay row</to>
+<from>counter = 5?</from>
+<enabled>Y</enabled>
+</hop>
+<hop>
+<to>5 -&gt; null</to>
+<from>counter = 5?</from>
+<enabled>Y</enabled>
+</hop>
+<hop>
+<to>Delay row</to>
+<from>5 -&gt; null</from>
+<enabled>Y</enabled>
+</hop>
+<hop>
+<to>add time scales</to>
+<from>add counter</from>
+<enabled>Y</enabled>
+</hop>
+<hop>
+<to>counter = 5?</to>
+<from>add time scales</from>
+<enabled>Y</enabled>
+</hop>
+</order>
+<attributes>
+</attributes>
+<transform_error_handling>
+</transform_error_handling>
 </pipeline>

@@ -35,22 +35,55 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
-      <DayOfMonth>1</DayOfMonth>
       <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
-      <hour>12</hour>
-      <intervalMinutes>60</intervalMinutes>
       <intervalSeconds>0</intervalSeconds>
-      <minutes>0</minutes>
-      <repeat>N</repeat>
       <schedulerType>0</schedulerType>
+      <intervalMinutes>60</intervalMinutes>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <repeat>N</repeat>
       <weekDay>1</weekDay>
+      <minutes>0</minutes>
       <parallel>N</parallel>
       <xloc>80</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>0091-stream-schema-merge</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <clear_files>N</clear_files>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <filename>${PROJECT_HOME}/0091-stream-schema-merge.hpl</filename>
+      <set_append_logfile>N</set_append_logfile>
+      <loglevel>Basic</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <clear_rows>N</clear_rows>
+      <params_from_previous>N</params_from_previous>
+      <add_time>N</add_time>
+      <add_date>N</add_date>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <parallel>N</parallel>
+      <xloc>256</xloc>
+      <yloc>80</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
+    <hop>
+      <from>Start</from>
+      <to>0091-stream-schema-merge</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
   </hops>
   <notepads>
   </notepads>
