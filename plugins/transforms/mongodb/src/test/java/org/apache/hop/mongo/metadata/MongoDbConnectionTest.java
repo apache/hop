@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.mongo.MongoDbException;
@@ -44,10 +46,11 @@ class MongoDbConnectionTest {
   private MongoDbConnection connection;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws HopException {
     MockitoAnnotations.openMocks(this);
     connection = new MongoDbConnection();
     when(variables.resolve(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+    HopClientEnvironment.init();
   }
 
   @Test
