@@ -30,7 +30,7 @@ import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.gvt.GraphicsNode;
 import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;

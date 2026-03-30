@@ -27,7 +27,7 @@ import com.datastax.oss.driver.api.core.type.DataType;
 import java.util.Iterator;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;

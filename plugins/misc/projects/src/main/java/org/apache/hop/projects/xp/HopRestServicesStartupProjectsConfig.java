@@ -18,7 +18,7 @@
 package org.apache.hop.projects.xp;
 
 import java.util.Properties;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.config.IRestServicesProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;

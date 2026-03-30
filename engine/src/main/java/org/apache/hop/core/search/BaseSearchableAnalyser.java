@@ -19,7 +19,7 @@ package org.apache.hop.core.search;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
 

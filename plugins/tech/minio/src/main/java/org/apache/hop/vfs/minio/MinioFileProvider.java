@@ -19,7 +19,7 @@
 package org.apache.hop.vfs.minio;
 
 import java.util.Collection;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystem;

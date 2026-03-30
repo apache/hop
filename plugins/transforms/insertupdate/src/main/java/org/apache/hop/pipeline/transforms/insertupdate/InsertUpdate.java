@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.insertupdate;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;

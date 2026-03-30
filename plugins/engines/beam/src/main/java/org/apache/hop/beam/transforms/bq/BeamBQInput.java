@@ -27,7 +27,7 @@ import com.google.cloud.bigquery.TableResult;
 import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;

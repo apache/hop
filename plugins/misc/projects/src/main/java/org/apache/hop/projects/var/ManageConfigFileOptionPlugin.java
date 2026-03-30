@@ -17,7 +17,7 @@
 
 package org.apache.hop.projects.var;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;

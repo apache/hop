@@ -18,7 +18,7 @@
 package org.apache.hop.beam.config;
 
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.gui.HopBeamGuiPlugin;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
 import org.apache.hop.core.config.plugin.ConfigPlugin;

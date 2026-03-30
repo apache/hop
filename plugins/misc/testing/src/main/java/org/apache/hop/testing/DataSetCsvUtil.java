@@ -31,7 +31,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.csv.QuoteMode;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;

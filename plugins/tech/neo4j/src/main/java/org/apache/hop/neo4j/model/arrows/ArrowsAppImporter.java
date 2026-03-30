@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.model.GraphNode;

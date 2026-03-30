@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;

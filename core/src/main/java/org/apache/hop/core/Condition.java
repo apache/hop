@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;

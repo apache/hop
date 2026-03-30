@@ -31,7 +31,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.base.AbstractMeta;

@@ -20,7 +20,7 @@ package org.apache.hop.testing.xp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;

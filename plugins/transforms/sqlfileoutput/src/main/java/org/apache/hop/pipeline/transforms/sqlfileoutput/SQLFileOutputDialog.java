@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.sqlfileoutput;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
@@ -694,13 +694,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
           }
         });
 
-    FormData fdContentComp = new FormData();
-    fdContentComp.left = new FormAttachment(0, 0);
-    fdContentComp.top = new FormAttachment(0, 0);
-    fdContentComp.right = new FormAttachment(100, 0);
-    fdContentComp.bottom = new FormAttachment(100, 0);
     wContentComp.setLayoutData(wContentComp);
-
     wContentComp.layout();
     wContentTab.setControl(wContentComp);
 
@@ -898,20 +892,23 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
   private void sql() {
     try {
       SQLFileOutputMeta info = new SQLFileOutputMeta();
+      // set default value
+      info.setDefault();
+
       getInfo(info);
       IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
 
       TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(transformMeta.getName(), variables);
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(info.getConnection(), variables);
 
       SqlStatement sql =
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
-          SqlEditor sqledit =
+          SqlEditor editor =
               new SqlEditor(
                   shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
-          sqledit.open();
+          editor.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(BaseMessages.getString(PKG, "SQLFileOutputDialog.NoSQL.DialogMessage"));

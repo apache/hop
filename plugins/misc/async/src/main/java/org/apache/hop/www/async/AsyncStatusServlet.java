@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.encryption.Encr;

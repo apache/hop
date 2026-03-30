@@ -22,6 +22,14 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.jupiter.api.Test;
 
 class AddXmlMetaTest {

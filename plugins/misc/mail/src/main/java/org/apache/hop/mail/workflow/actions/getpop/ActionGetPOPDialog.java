@@ -20,7 +20,7 @@ package org.apache.hop.mail.workflow.actions.getpop;
 import jakarta.mail.Folder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.logging.LogChannel;

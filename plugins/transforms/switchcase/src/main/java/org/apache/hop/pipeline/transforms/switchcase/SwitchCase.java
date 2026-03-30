@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.transforms.switchcase;
 
 import java.util.Arrays;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;

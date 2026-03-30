@@ -33,7 +33,7 @@ import org.apache.batik.dom.util.DOMUtilities;
 import org.apache.batik.ext.awt.image.codec.png.PNGRegistryEntry;
 import org.apache.batik.ext.awt.image.spi.ImageTagRegistry;
 import org.apache.batik.gvt.GraphicsNode;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.graphics.Device;

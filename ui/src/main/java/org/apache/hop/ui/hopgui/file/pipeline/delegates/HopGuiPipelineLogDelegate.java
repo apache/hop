@@ -20,7 +20,7 @@ package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 import java.util.ArrayList;
 import java.util.Map;
 import lombok.Getter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;

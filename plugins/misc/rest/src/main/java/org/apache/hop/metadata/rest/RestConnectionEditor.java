@@ -18,7 +18,7 @@
 package org.apache.hop.metadata.rest;
 
 import java.util.Arrays;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;

@@ -24,7 +24,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.compress.utils.FileNameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;

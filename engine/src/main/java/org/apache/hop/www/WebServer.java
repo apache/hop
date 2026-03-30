@@ -282,6 +282,10 @@ public class WebServer {
 
       ServletContextHandler servletContext =
           new ServletContextHandler(getContextPath(servlet), ServletContextHandler.SESSIONS);
+      // Without this setting, Jetty may issue a 301 redirect when the request URL
+      // does not exactly match the servlet context path (e.g. missing trailing "/")
+      // servlet as /hop/foo -> /hop/foo/ (see Jetty ContextHandler#setAllowNullPathInContext).
+      servletContext.setAllowNullPathInContext(true);
       contexts.addHandler(servletContext);
       ServletHolder servletHolder = new ServletHolder((Servlet) servlet);
       servletContext.addServlet(servletHolder, "/*");

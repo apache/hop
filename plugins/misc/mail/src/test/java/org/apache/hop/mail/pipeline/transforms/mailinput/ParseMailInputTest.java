@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.RowDataUtil;

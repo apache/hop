@@ -25,7 +25,7 @@ import java.io.PrintWriter;
 import java.io.Serial;
 import java.util.Enumeration;
 import java.util.UUID;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.HopServerServlet;

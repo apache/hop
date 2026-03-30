@@ -24,8 +24,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serial;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
@@ -67,11 +67,11 @@ public class DeleteExecutionInfoServlet extends BaseHttpServlet implements IHopS
 
     // The ID of the execution to delete
     //
-    String id = StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_ID));
+    String id = StringEscapeUtils.escapeHtml4(request.getParameter(PARAMETER_ID));
 
     // The name of the location is also in a parameter
     //
-    String locationName = StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_LOCATION));
+    String locationName = StringEscapeUtils.escapeHtml4(request.getParameter(PARAMETER_LOCATION));
 
     PrintWriter out = getSafeWriter(response);
     if (out == null) {

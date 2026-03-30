@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;

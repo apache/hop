@@ -20,7 +20,7 @@ package org.apache.hop.workflow.actions.util;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;

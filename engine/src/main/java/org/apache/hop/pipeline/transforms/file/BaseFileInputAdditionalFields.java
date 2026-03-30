@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.transforms.file;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;

@@ -49,11 +49,11 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang.text.StrBuilder;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.text.StrBuilder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.EnvUtil;
@@ -2732,7 +2732,7 @@ public class Const {
     if (Utils.isEmpty(content)) {
       return content;
     }
-    return StringEscapeUtils.escapeHtml(content);
+    return StringEscapeUtils.escapeHtml4(content);
   }
 
   /**
@@ -2745,7 +2745,7 @@ public class Const {
     if (Utils.isEmpty(content)) {
       return content;
     }
-    return StringEscapeUtils.unescapeHtml(content);
+    return StringEscapeUtils.unescapeHtml4(content);
   }
 
   /**
@@ -2771,7 +2771,7 @@ public class Const {
     if (Utils.isEmpty(content)) {
       return content;
     }
-    return StringEscapeUtils.escapeSql(content);
+    return content.replace("'", "''");
   }
 
   /**
@@ -2968,7 +2968,7 @@ public class Const {
     if (Utils.isEmpty(content)) {
       return content;
     }
-    return StringEscapeUtils.escapeXml(content);
+    return StringEscapeUtils.escapeXml10(content);
   }
 
   /**

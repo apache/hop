@@ -19,7 +19,7 @@ package org.apache.hop.core.util;
 
 import java.io.Serial;
 import java.util.prefs.Preferences;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 

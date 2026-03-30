@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;

@@ -19,7 +19,7 @@ package org.apache.hop.projects.environment;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;

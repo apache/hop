@@ -28,7 +28,7 @@ import java.util.TimerTask;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.TupleTag;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;

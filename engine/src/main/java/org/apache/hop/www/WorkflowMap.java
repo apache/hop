@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;

@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;

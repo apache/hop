@@ -20,7 +20,7 @@ package org.apache.hop.reflection.pipeline.xp;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;

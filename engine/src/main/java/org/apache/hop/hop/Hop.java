@@ -20,7 +20,7 @@ package org.apache.hop.hop;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.config.plugin.ConfigPluginType;

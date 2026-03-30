@@ -17,7 +17,7 @@
 
 package org.apache.hop.workflow.actions.mssqlbulkload;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;

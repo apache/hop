@@ -19,7 +19,7 @@ package org.apache.hop.workflow.action.validator;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.hop.core.CheckResult;

@@ -28,7 +28,7 @@ import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
 import org.apache.commons.codec.language.Soundex;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;

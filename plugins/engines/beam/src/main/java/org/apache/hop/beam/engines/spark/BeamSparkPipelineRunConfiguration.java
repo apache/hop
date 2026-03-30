@@ -39,7 +39,7 @@ import org.apache.beam.runners.spark.SparkPipelineOptions;
 import org.apache.beam.sdk.io.azure.options.BlobstoreOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.engines.BeamPipelineRunConfiguration;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
 import org.apache.hop.beam.metadata.RunnerType;

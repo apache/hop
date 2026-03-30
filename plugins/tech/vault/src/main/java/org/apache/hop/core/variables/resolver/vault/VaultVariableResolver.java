@@ -28,7 +28,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;

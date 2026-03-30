@@ -35,7 +35,7 @@ import org.apache.beam.sdk.values.PCollectionTuple;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TupleTag;
 import org.apache.beam.sdk.values.TupleTagList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.shared.VariableValue;

@@ -17,7 +17,7 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;

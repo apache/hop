@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.rowgenerator;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;

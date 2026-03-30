@@ -18,7 +18,7 @@
 package org.apache.hop.core.database;
 
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 

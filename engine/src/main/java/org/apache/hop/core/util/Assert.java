@@ -21,7 +21,7 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Map;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public final class Assert { // NOPMD
 

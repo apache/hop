@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.util.UUID;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.LoggingObjectType;
@@ -95,9 +95,9 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
 
     boolean isWorkflow =
         TYPE_WORKFLOW.equalsIgnoreCase(
-            StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_TYPE)));
+            StringEscapeUtils.escapeHtml4(request.getParameter(PARAMETER_TYPE)));
     String load =
-        StringEscapeUtils.escapeHtml(request.getParameter(PARAMETER_LOAD)); // the resource to load
+        StringEscapeUtils.escapeHtml4(request.getParameter(PARAMETER_LOAD)); // the resource to load
 
     response.setContentType("text/xml");
     response.setStatus(HttpServletResponse.SC_OK);

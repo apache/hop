@@ -24,7 +24,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Transform;

@@ -19,7 +19,7 @@ package org.apache.hop.pipeline.transforms.streamlookup;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;

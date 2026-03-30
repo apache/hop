@@ -22,7 +22,7 @@ import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.transforms.windowing.IntervalWindow;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.row.IRowMeta;

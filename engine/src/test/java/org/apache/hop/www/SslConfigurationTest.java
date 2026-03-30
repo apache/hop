@@ -22,9 +22,25 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.EnvUtil;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class SslConfigurationTest {
+
+  @BeforeAll
+  static void initEncryption() throws HopException {
+    PluginRegistry.addPluginType(TwoWayPasswordEncoderPluginType.getInstance());
+    PluginRegistry.init();
+    String passwordEncoderPluginID =
+        Const.NVL(EnvUtil.getSystemProperty(Const.HOP_PASSWORD_ENCODER_PLUGIN), "Hop");
+    Encr.init(passwordEncoderPluginID);
+  }
 
   @Test
   void defaultConstructorSetsKeyStoreType() {
@@ -45,7 +61,7 @@ class SslConfigurationTest {
   @Test
   void setKeyStoreRequiresNonEmpty() {
     SslConfiguration ssl = new SslConfiguration();
-    assertThrows(IllegalArgumentException.class, () -> ssl.setKeyStore(null));
+    assertThrows(NullPointerException.class, () -> ssl.setKeyStore(null));
     assertThrows(IllegalArgumentException.class, () -> ssl.setKeyStore(""));
     ssl.setKeyStore("/path/ks.p12");
     assertEquals("/path/ks.p12", ssl.getKeyStore());
@@ -55,7 +71,7 @@ class SslConfigurationTest {
   void setKeyStorePasswordRequiresNonEmpty() {
     SslConfiguration ssl = new SslConfiguration();
     ssl.setKeyStore("/ks");
-    assertThrows(IllegalArgumentException.class, () -> ssl.setKeyStorePassword(null));
+    assertThrows(NullPointerException.class, () -> ssl.setKeyStorePassword(null));
     assertThrows(IllegalArgumentException.class, () -> ssl.setKeyStorePassword(""));
     ssl.setKeyStorePassword("secret");
     assertEquals("secret", ssl.getKeyStorePassword());

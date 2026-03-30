@@ -65,7 +65,6 @@
                 <include>org.apache.xmlbeans:*</include>
                 <include>com.github.virtuald:*</include>
                 <include>commons-codec:commons-codec:jar</include>
-                <include>commons-lang:commons-lang:jar</include>
                 <include>commons-logging:commons-logging:jar</include>
                 <include>org.apache.commons:commons-lang3:jar</include>
                 <include>org.apache.commons:commons-csv</include>

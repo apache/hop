@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
 import org.apache.hop.core.Const;

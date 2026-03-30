@@ -20,7 +20,7 @@ package org.apache.hop.pipeline.transforms.repeatfields;
 
 import com.google.common.primitives.Ints;
 import java.util.ArrayList;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
