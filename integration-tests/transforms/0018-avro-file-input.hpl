@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>00018-avro-file-input</name>
+    <name>0018-avro-file-input</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -34,8 +34,6 @@ limitations under the License.
     <created_date>2021/05/28 10:59:00.237</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/05/28 10:59:00.237</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -82,97 +80,66 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <ignore_missing>Y</ignore_missing>
-    <source_field>avro</source_field>
     <fields>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>birthdate</source_field>
         <target_field_name>birthdate</target_field_name>
         <target_format>M/d/yyyy</target_format>
-        <target_length/>
-        <target_precision/>
         <target_type>Date</target_type>
       </field>
       <field>
         <source_avro_type>Union</source_avro_type>
         <source_field>cc</source_field>
         <target_field_name>cc</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>comments</source_field>
         <target_field_name>comments</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>country</source_field>
         <target_field_name>country</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>email</source_field>
         <target_field_name>email</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>first_name</source_field>
         <target_field_name>first_name</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>gender</source_field>
         <target_field_name>gender</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_avro_type>Long</source_avro_type>
         <source_field>id</source_field>
         <target_field_name>id</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>Integer</target_type>
       </field>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>ip_address</source_field>
         <target_field_name>ip_address</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>Internet Address</target_type>
       </field>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>last_name</source_field>
         <target_field_name>last_name</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
@@ -180,29 +147,24 @@ limitations under the License.
         <source_field>registration_dttm</source_field>
         <target_field_name>registration_dttm</target_field_name>
         <target_format>yyyy-MM-dd'T'HH:mm:ssXXX</target_format>
-        <target_length/>
-        <target_precision/>
         <target_type>Date</target_type>
       </field>
       <field>
         <source_avro_type>Union</source_avro_type>
         <source_field>salary</source_field>
         <target_field_name>salary</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
-        <target_type>String</target_type>
+        <target_type>Number</target_type>
       </field>
       <field>
         <source_avro_type>String</source_avro_type>
         <source_field>title</source_field>
         <target_field_name>title</target_field_name>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
     </fields>
+    <ignore_missing>Y</ignore_missing>
+    <remove_source_field>N</remove_source_field>
+    <source_field>avro</source_field>
     <attributes/>
     <GUI>
       <xloc>560</xloc>
@@ -241,109 +203,106 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <length>-2</length>
         <name>birthdate</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>cc</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>comments</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>country</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>email</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>first_name</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>gender</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>id</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>ip_address</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>last_name</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>registration_dttm</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>salary</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
       <field>
+        <length>-2</length>
         <name>title</name>
+        <precision>-2</precision>
+        <rename/>
       </field>
+      <meta>
+        <conversion_mask>#.##</conversion_mask>
+        <currency_symbol/>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <decimal_symbol>.</decimal_symbol>
+        <encoding/>
+        <grouping_symbol>,</grouping_symbol>
+        <length>-2</length>
+        <lenient_string_to_number>N</lenient_string_to_number>
+        <name>salary</name>
+        <precision>-2</precision>
+        <rename>salary</rename>
+        <roundingType>half_even</roundingType>
+        <storage_type/>
+        <type>String</type>
+      </meta>
       <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
     <GUI>
       <xloc>688</xloc>
-      <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>filename only</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>filename</name>
-      </field>
-      <select_unspecified>N</select_unspecified>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>272</xloc>
-      <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>files/userdata1.avro</name>
-    <type>GetFileNames</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <filter>
-      <filterfiletype>all_files</filterfiletype>
-    </filter>
-    <doNotFailIfNoFile>N</doNotFailIfNoFile>
-    <rownum>N</rownum>
-    <isaddresult>Y</isaddresult>
-    <filefield>N</filefield>
-    <rownum_field/>
-    <filename_Field/>
-    <wildcard_Field/>
-    <exclude_wildcard_Field/>
-    <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <limit>0</limit>
-    <file>
-      <name>${PROJECT_HOME}/files/</name>
-      <filemask>userdata1.avro</filemask>
-      <exclude_filemask/>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-    </file>
-    <attributes/>
-    <GUI>
-      <xloc>128</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>
@@ -382,6 +341,64 @@ limitations under the License.
     <attributes/>
     <GUI>
       <xloc>944</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>filename only</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-2</length>
+        <name>filename</name>
+        <precision>-2</precision>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>files/userdata1.avro</name>
+    <type>GetFileNames</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <doNotFailIfNoFile>N</doNotFailIfNoFile>
+    <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <file>
+      <file_required>N</file_required>
+      <filemask>userdata1.avro</filemask>
+      <include_subfolders>N</include_subfolders>
+      <name>${PROJECT_HOME}/files/</name>
+    </file>
+    <filefield>N</filefield>
+    <filter>
+      <filterfiletype>all_files</filterfiletype>
+    </filter>
+    <isaddresult>Y</isaddresult>
+    <limit>0</limit>
+    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <rownum>N</rownum>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
       <yloc>96</yloc>
     </GUI>
   </transform>
