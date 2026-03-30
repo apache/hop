@@ -319,17 +319,86 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco-maven-plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*Dialog*</exclude>
+                        <exclude>**/dialog/**</exclude>
+                        <exclude>**/*Gui*Graph*</exclude>
+                        <exclude>**/*Editor*</exclude>
+                        <exclude>**/org/apache/hop/neo4j/perspective/HopNeo4jPerspective*</exclude>
+                        <exclude>**/org/apache/hop/neo4j/execution/path/**</exclude>
+                        <exclude>**/org/apache/hop/neo4j/execution/NeoExecutionInfoLocation*</exclude>
+                        <exclude>**/org/apache/hop/neo4j/logging/util/LoggingCore*</exclude>
+                        <exclude>**/org/apache/hop/git/GitGuiPlugin*</exclude>
+                        <exclude>**/org/apache/hop/git/info/GitInfoExplorerFileTypeHandler*</exclude>
+                        <exclude>**/org/apache/hop/git/info/DiffStyledTextComp*</exclude>
+                        <exclude>**/org/apache/hop/git/config/GitConfigOptionPlugin*</exclude>
+                        <exclude>**/org/apache/hop/git/model/VCS*</exclude>
+                        <exclude>**/org/apache/hop/projects/gui/**</exclude>
+                        <exclude>**/org/apache/hop/projects/xp/HopGuiStartProjectLoad*</exclude>
+                        <exclude>**/org/apache/hop/projects/config/ProjectsConfigOptionPlugin*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/perspective/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/terminal/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/welcome/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/shared/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/partition/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/file/**/delegates/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/delegates/**</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/context/GuiContextUtil*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/file/pipeline/HopGuiLogBrowser*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopGui</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopGui$$*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopGuiKeyHandler*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/ContentEditorFacade*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/ToolbarFacade*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopGuiEnvironment*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/TextSizeUtilFacade*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/CanvasListener*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/CanvasFacade*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/widget/**</exclude>
+                        <exclude>**/org/apache/hop/ui/core/gui/**</exclude>
+                        <exclude>**/org/apache/hop/ui/core/vfs/**</exclude>
+                        <exclude>**/org/apache/hop/ui/core/metadata/**</exclude>
+                        <exclude>**/org/apache/hop/ui/core/PropsUi*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/WidgetUtils*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/ConstUi*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/FormDataBuilder*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/GetFieldsDialogOperation*</exclude>
+                        <exclude>**/org/apache/hop/ui/core/SimpleFileSelection*</exclude>
+                        <exclude>**/org/apache/hop/ui/util/Swt*</exclude>
+                        <exclude>**/org/apache/hop/ui/util/EnvironmentUtils*</exclude>
+                        <exclude>**/org/apache/hop/ui/util/HelpUtils*</exclude>
+                        <exclude>**/org/apache/hop/ui/www/**</exclude>
+                        <exclude>**/org/apache/hop/core/SwtUniversalImageSvg*</exclude>
+                        <exclude>**/*FacadeImpl*</exclude>
+                        <exclude>**/HopGuiImpl*</exclude>
+                        <exclude>**/GuiContextUtilImpl*</exclude>
+                        <exclude>**/CanvasListenerImpl*</exclude>
+                        <exclude>**/SvgLabelListenerImpl*</exclude>
+                        <exclude>**/GuiResourceImpl*</exclude>
+                        <exclude>**/ToolBarToolbarContainer*</exclude>
+                        <exclude>**/RuleBasedSourceViewerConfiguration*</exclude>
+                        <exclude>**/ContentEditorTm4eSupport*</exclude>
+                        <exclude>**/SafeCTabFolderRenderer*</exclude>
+                        <exclude>**/PrintSpool*</exclude>
+                        <exclude>**/WebToolbarContainer*</exclude>
+                        <exclude>**/CanvasZoomHandler*</exclude>
+                        <exclude>**/RapHopWebUrlUpdater*</exclude>
+                        <exclude>**/RapClientOsProvider*</exclude>
+                        <exclude>**/HopWebEntryPoint*</exclude>
+                        <exclude>**/HopWebServletContextListener*</exclude>
+                        <exclude>**/HopWebAuditManagerProvider*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopWeb</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/HopWeb$$*</exclude>
+                        <exclude>**/org/apache/hop/ui/hopgui/Clipboard*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>coverage-initialize</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*Dialog*</exclude>
-                            </excludes>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>coverage-report</id>
@@ -337,11 +406,6 @@
                             <goal>report</goal>
                         </goals>
                         <phase>post-integration-test</phase>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/*Dialog*</exclude>
-                            </excludes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
