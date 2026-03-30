@@ -32,12 +32,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transforms.calculator.CalculatorMeta;
+import org.apache.hop.pipeline.transforms.checksum.CheckSumMeta;
+import org.apache.hop.pipeline.transforms.csvinput.CsvInputMeta;
+import org.apache.hop.pipeline.transforms.selectvalues.SelectValuesMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +54,19 @@ class HopDiffTest {
   @BeforeEach
   void setUp() throws HopException {
     HopClientEnvironment.getInstance().setClient(HopClientEnvironment.ClientType.OTHER);
-    HopEnvironment.init();
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            CsvInputMeta.class.getName(), TransformPluginType.class, Transform.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            SelectValuesMeta.class.getName(), TransformPluginType.class, Transform.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            CalculatorMeta.class.getName(), TransformPluginType.class, Transform.class);
+    PluginRegistry.getInstance()
+        .registerPluginClass(
+            CheckSumMeta.class.getName(), TransformPluginType.class, Transform.class);
+    // HopEnvironment.init();
     metadataProvider = new MemoryMetadataProvider();
   }
 
@@ -56,7 +74,7 @@ class HopDiffTest {
   void diffPipelineTest() throws Exception {
     File file = new File("src/test/resources/r1.hpl");
     InputStream xmlStream = new FileInputStream(file);
-    PipelineMeta pipelineMeta =
+    PipelineMeta pipelineMeta1 =
         new PipelineMeta(xmlStream, metadataProvider, Variables.getADefaultVariableSpace());
 
     File file2 = new File("src/test/resources/r2.hpl");
@@ -64,12 +82,12 @@ class HopDiffTest {
     PipelineMeta pipelineMeta2 =
         new PipelineMeta(xmlStream2, metadataProvider, Variables.getADefaultVariableSpace());
 
-    pipelineMeta = compareTransforms(pipelineMeta, pipelineMeta2, true);
-    pipelineMeta2 = compareTransforms(pipelineMeta2, pipelineMeta, false);
-    assertEquals(UNCHANGED, pipelineMeta.getTransform(0).getAttribute(ATTR_GIT, ATTR_STATUS));
-    assertEquals(CHANGED, pipelineMeta.getTransform(1).getAttribute(ATTR_GIT, ATTR_STATUS));
-    assertEquals(REMOVED, pipelineMeta.getTransform(2).getAttribute(ATTR_GIT, ATTR_STATUS));
-    assertEquals(ADDED, pipelineMeta2.getTransform(2).getAttribute(ATTR_GIT, ATTR_STATUS));
+    PipelineMeta resultForward = compareTransforms(pipelineMeta1, pipelineMeta2, true);
+    PipelineMeta resultBackward = compareTransforms(pipelineMeta2, pipelineMeta1, false);
+    assertEquals(CHANGED, resultForward.getTransform(0).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(UNCHANGED, resultForward.getTransform(1).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(REMOVED, resultForward.getTransform(2).getAttribute(ATTR_GIT, ATTR_STATUS));
+    assertEquals(ADDED, resultBackward.getTransform(2).getAttribute(ATTR_GIT, ATTR_STATUS));
   }
 
   @Test

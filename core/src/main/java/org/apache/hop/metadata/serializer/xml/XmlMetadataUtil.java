@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopMissingPluginsException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.EmptyStringEncoder;
@@ -808,9 +809,19 @@ public class XmlMetadataUtil {
                     + " but it wasn't provided");
           }
         } else {
-          IHopMetadataObjectFactory factory =
-              metadataObject.objectFactory().getConstructor().newInstance();
-          object = (T) factory.createObject(objectId, parentObject);
+          try {
+            IHopMetadataObjectFactory factory =
+                metadataObject.objectFactory().getConstructor().newInstance();
+            object = (T) factory.createObject(objectId, parentObject);
+          } catch (HopMissingPluginsException e) {
+            throw new HopXmlException(
+                "The plugin for class "
+                    + clazz.getName()
+                    + " with object ID "
+                    + objectId
+                    + " is missing",
+                e);
+          }
         }
       } else {
         if (clazz.equals(List.class)) {

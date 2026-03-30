@@ -49,6 +49,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
@@ -101,37 +102,72 @@ public class KafkaConsumerInputMeta
   public static final String TYPE_ATTRIBUTE = "type";
   public static final String AUTO_COMMIT = "AUTO_COMMIT";
 
-  @Injection(name = PIPELINE_PATH)
+  @HopMetadataProperty(
+      key = "pipelinePath",
+      injectionKey = "pipelinePath",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.PIPELINE_PATH")
   protected String filename = "";
 
-  @Injection(name = EXECUTION_INFORMATION_LOCATION)
+  @HopMetadataProperty(
+      key = "executionInformationLocation",
+      injectionKey = "executionInformationLocation",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.EXECUTION_INFORMATION_LOCATION")
   protected String executionInformationLocation = "";
 
-  @Injection(name = EXECUTION_DATA_PROFILE)
+  @HopMetadataProperty(
+      key = "executionInformationLocation",
+      injectionKey = "executionInformationLocation",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.EXECUTION_DATA_PROFILE")
   protected String executionDataProfile = "";
 
-  @Injection(name = NUM_MESSAGES)
+  @HopMetadataProperty(
+      key = "batchSize",
+      injectionKey = "numMessages",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.NUM_MESSAGES")
   protected String batchSize = "1000";
 
-  @Injection(name = DURATION)
+  @HopMetadataProperty(
+      key = "batchDuration",
+      injectionKey = "duration",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.BATCH_DURATION")
   protected String batchDuration = "1000";
 
-  @Injection(name = SUB_TRANSFORM)
+  @HopMetadataProperty(
+      key = "subTransform",
+      injectionKey = "subTransform",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.SUB_TRANSFORM")
   protected String subTransform = "";
 
-  @Injection(name = "DIRECT_BOOTSTRAP_SERVERS")
+  @HopMetadataProperty(
+      key = "directBootstrapServers",
+      injectionKey = "DIRECT_BOOTSTRAP_SERVERS",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.DIRECT_BOOTSTRAP_SERVERS")
   private String directBootstrapServers;
 
-  @Injection(name = "TOPICS")
+  @HopMetadataProperty(
+      key = "topic",
+      injectionKey = "TOPICS",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.TOPICS")
   private List<String> topics;
 
-  @Injection(name = "CONSUMER_GROUP")
+  @HopMetadataProperty(
+      key = "consumerGroup",
+      injectionKey = CONSUMER_GROUP,
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.CONSUMER_GROUP")
   private String consumerGroup;
 
   @InjectionDeep(prefix = "KEY")
+  @HopMetadataProperty(
+      key = "",
+      injectionKey = "",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
   private KafkaConsumerField keyField;
 
   @InjectionDeep(prefix = "MESSAGE")
+  @HopMetadataProperty(
+      key = "",
+      injectionKey = "",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
   private KafkaConsumerField messageField;
 
   @Injection(name = "NAMES", group = "CONFIGURATION_PROPERTIES")
@@ -143,20 +179,40 @@ public class KafkaConsumerInputMeta
   protected transient List<String> injectedConfigValues;
 
   @Injection(name = AUTO_COMMIT)
+  @HopMetadataProperty(
+      key = "",
+      injectionKey = "",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
   private boolean autoCommit = true;
 
   private Map<String, String> config = new LinkedHashMap<>();
 
   @Injection(name = TOPIC_FIELD_NAME)
+  @HopMetadataProperty(
+      key = "",
+      injectionKey = "",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
   private KafkaConsumerField topicField;
 
   @Injection(name = OFFSET_FIELD_NAME)
+  @HopMetadataProperty(
+      key = "",
+      injectionKey = "",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
   private KafkaConsumerField offsetField;
 
   @Injection(name = PARTITION_FIELD_NAME)
+  @HopMetadataProperty(
+      key = "",
+      injectionKey = "",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
   private KafkaConsumerField partitionField;
 
   @Injection(name = TIMESTAMP_FIELD_NAME)
+  @HopMetadataProperty(
+      key = "",
+      injectionKey = "",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
   private KafkaConsumerField timestampField;
 
   // Describe the standard way of retrieving mappings

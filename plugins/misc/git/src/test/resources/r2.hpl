@@ -1,147 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-Licensed to the Apache Software Foundation (ASF) under one or more
-contributor license agreements.  See the NOTICE file distributed with
-this work for additional information regarding copyright ownership.
-The ASF licenses this file to You under the Apache License, Version 2.0
-(the "License"); you may not use this file except in compliance with
-the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
--->
-<pipeline>
-  <info>
-    <name>r2</name>
-    <description />
-    <extended_description />
-    <trans_version />
-    <trans_type>Normal</trans_type>
-    <trans_status>0</trans_status>
-    <directory>/</directory>
-    <parameters>
-    </parameters>
-    <size_rowset>10000</size_rowset>
-    <sleep_time_empty>50</sleep_time_empty>
-    <sleep_time_full>50</sleep_time_full>
-    <unique_connections>N</unique_connections>
-    <feedback_shown>Y</feedback_shown>
-    <feedback_size>50000</feedback_size>
-    <using_thread_priorities>Y</using_thread_priorities>
-    <capture_transform_performance>N</capture_transform_performance>
-    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
-    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
-    <created_user>-</created_user>
-    <created_date>2017/06/30 09:53:18.088</created_date>
-    <modified_user>-</modified_user>
-    <modified_date>2017/06/30 09:53:18.088</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
-  </info>
-  <notepads>
-  </notepads>
-  <order>
-    <hop>
-      <from>CSV file input</from>
-      <to>Add a checksum</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Add a checksum</from>
-      <to>Select values</to>
-      <enabled>Y</enabled>
-    </hop>
-  </order>
-  <transform>
-    <name>Add a checksum</name>
-    <type>CheckSum</type>
-    <description />
-    <distribute>Y</distribute>
-    <custom_distribution />
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name />
-    </partitioning>
-    <checksumtype>CRC32</checksumtype>
-    <resultfieldName />
-    <resultType>hexadecimal</resultType>
-    <compatibilityMode>N</compatibilityMode>
-    <fields>
-    </fields>
-    <GUI>
-      <xloc>344</xloc>
-      <yloc>128</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>CSV file input</name>
-    <type>CsvInput</type>
-    <description />
-    <distribute>Y</distribute>
-    <custom_distribution />
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name />
-    </partitioning>
-    <filename />
-    <filename_field />
-    <rownum_field />
-    <include_filename>N</include_filename>
-    <separator>,</separator>
-    <enclosure>"</enclosure>
-    <header>Y</header>
-    <buffer_size>50000</buffer_size>
-    <lazy_conversion>Y</lazy_conversion>
-    <add_filename_result>N</add_filename_result>
-    <parallel>N</parallel>
-    <newline_possible>N</newline_possible>
-    <encoding />
-    <fields>
-      <field>
-        <name>field</name>
-        <type>String</type>
-        <format />
-        <currency />
-        <decimal />
-        <group />
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-      </field>
-    </fields>
-    <GUI>
-      <xloc>144</xloc>
-      <yloc>64</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Select values</name>
-    <type>SelectValues</type>
-    <description />
-    <distribute>Y</distribute>
-    <custom_distribution />
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name />
-    </partitioning>
-    <fields>
-      <select_unspecified>N</select_unspecified>
-    </fields>
-    <GUI>
-      <xloc>544</xloc>
-      <yloc>128</yloc>
-    </GUI>
-  </transform>
-  <transform_error_handling>
-  </transform_error_handling>
+<pipeline><info>
+<name>r2</name>
+<modified_date>2017/06/30 09:53:18.088</modified_date>
+<created_user>-</created_user>
+<created_date>2017/06/30 09:53:18.088</created_date>
+<transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+<parameters>
+</parameters>
+<pipeline_status>0</pipeline_status>
+<transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+<name_sync_with_filename>N</name_sync_with_filename>
+<modified_user>-</modified_user>
+<capture_transform_performance>N</capture_transform_performance>
+<pipeline_type>Normal</pipeline_type>
+</info>
+<transform>
+<type>CheckSum</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>128</yloc>
+<xloc>344</xloc>
+</GUI>
+<copies>1</copies>
+<name>Add a checksum</name>
+<distribute>Y</distribute>
+<fields>
+</fields>
+<resultType>hexadecimal</resultType>
+<checksumtype>CRC32</checksumtype>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<transform>
+<type>CSVInput</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>80</yloc>
+<xloc>144</xloc>
+</GUI>
+<copies>1</copies>
+<name>CSV file input</name>
+<distribute>Y</distribute>
+<header>Y</header>
+<ignoreFields>N</ignoreFields>
+<parallel>N</parallel>
+<enclosure>&#34;</enclosure>
+<separator>,</separator>
+<fields>
+<field>
+<precision>-1</precision>
+<decimal/>
+<group/>
+<trim_type>none</trim_type>
+<type>String</type>
+<name>field</name>
+<length>-1</length>
+<format/>
+<currency/>
+</field>
+</fields>
+<include_filename>N</include_filename>
+<newline_possible>N</newline_possible>
+<buffer_size>50000</buffer_size>
+<lazy_conversion>Y</lazy_conversion>
+<add_filename_result>N</add_filename_result>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<transform>
+<type>SelectValues</type>
+<attributes>
+</attributes>
+<GUI>
+<yloc>128</yloc>
+<xloc>544</xloc>
+</GUI>
+<copies>1</copies>
+<name>Select values</name>
+<distribute>Y</distribute>
+<fields>
+<select_unspecified>N</select_unspecified>
+</fields>
+<partitioning>
+<method>none</method>
+<schema_name/>
+</partitioning>
+</transform>
+<notepads>
+</notepads>
+<order>
+<hop>
+<to>Add a checksum</to>
+<from>CSV file input</from>
+<enabled>Y</enabled>
+</hop>
+<hop>
+<to>Select values</to>
+<from>Add a checksum</from>
+<enabled>Y</enabled>
+</hop>
+</order>
+<attributes>
+</attributes>
+<transform_error_handling>
+</transform_error_handling>
 </pipeline>
