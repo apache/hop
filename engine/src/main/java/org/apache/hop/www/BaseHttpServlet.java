@@ -29,13 +29,13 @@ import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.http.entity.ContentType;
 
 public class BaseHttpServlet extends HttpServlet {
   @Serial protected static final long serialVersionUID = -1348342810327662788L;

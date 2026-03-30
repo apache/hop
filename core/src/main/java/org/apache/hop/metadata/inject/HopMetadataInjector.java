@@ -67,6 +67,51 @@ public class HopMetadataInjector {
   }
 
   /**
+   * Returns true if {@code targetKey} maps to a {@link HopMetadataProperty} that is injected via
+   * the simple key map (not via a list / {@link HopMetadataProperty#injectionGroupKey()}). Such
+   * keys are not present in {@link #findInjectionGroupKeys(Class)}.
+   *
+   * @param objectClass class annotated with HopMetadataProperty (e.g. a transform meta class)
+   * @param targetKey injection key to test (e.g. from MetaInject mapping)
+   */
+  public static boolean isTopLevelInjectionKey(Class<?> objectClass, String targetKey)
+      throws HopException {
+    if (objectClass == null || StringUtils.isEmpty(targetKey)) {
+      return false;
+    }
+    List<Field> fields =
+        ReflectionUtil.findAllFields(objectClass, new MetadataPropertyKeyFunction());
+    for (Field field : fields) {
+      HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
+      if (property == null || property.isExcludedFromInjection()) {
+        continue;
+      }
+      Class<?> fieldClass = field.getType();
+      String injectionGroup = Const.NVL(property.injectionGroupKey(), property.groupKey());
+      if (StringUtils.isNotEmpty(injectionGroup)) {
+        continue;
+      }
+      if (fieldClass.equals(List.class)) {
+        continue;
+      }
+      String injectionKey =
+          Const.coalesce(property.injectionKey(), property.key(), field.getName());
+      if (targetKey.equals(injectionKey)) {
+        return true;
+      }
+      if (!fieldClass.isEnum()
+          && !fieldClass.isPrimitive()
+          && !fieldClass.equals(String.class)
+          && !fieldClass.isArray()) {
+        if (isTopLevelInjectionKey(fieldClass, targetKey)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    * For the given object we retrieve the mappings between injection keys and the group to which
    * they belong.
    *

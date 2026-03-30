@@ -352,7 +352,8 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
           groupRowMetaMap,
           groupSourceMap,
           injectionGroupData,
-          injectionKeyData);
+          injectionKeyData,
+          targetTransformMeta.getClass());
     }
 
     // Now all source rows are mapped and we can construct the group data map
@@ -387,8 +388,9 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       Map<String, IRowMeta> groupRowMetaMap,
       Map<String, String> groupSourceMap,
       Map<String, RowBuffer> injectionGroupData,
-      Map<String, Object> injectionKeyData)
-      throws HopTransformException, HopValueException {
+      Map<String, Object> injectionKeyData,
+      Class<?> targetMetaClass)
+      throws HopException {
     if (!targetTransformName.equalsIgnoreCase(mapping.getTargetTransformName())) {
       // Covered elsewhere.
       return;
@@ -398,16 +400,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     // To which group does this belong?
     //
     String groupKey = lookupGroupKey(injectionKeyGroupMap, mapping.getTargetAttributeKey());
-    if (mapping.isTargetDetail() || groupKey != null) {
-      // If it's a detail and not part of a group, we have a configuration error.
-      //
-      if (groupKey == null) {
-        throw new HopTransformException(
-            "The injection group key for target key '"
-                + mapping.getTargetAttributeKey()
-                + "' was not found.");
-      }
-
+    if (groupKey != null) {
       if (sourceRows != null && !sourceRows.isEmpty()) {
         // We need to collect the data for the mapping
         //
@@ -419,6 +412,19 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
         if (StringUtils.isEmpty(mapping.getSourceTransformName())) {
           addConstantToGroupData(mapping, injectionGroupData, groupKey);
         }
+      }
+    } else if (mapping.isTargetDetail()) {
+      // Detail flag is often used for grouped (list) keys. Scalar HopMetadataProperty keys (e.g.
+      // ExecSqlRow UPDATE_STATS) are not part of any injection group; treat them as simple keys.
+      //
+      if (HopMetadataInjector.isTopLevelInjectionKey(
+          targetMetaClass, mapping.getTargetAttributeKey())) {
+        collectInjectionKeyValue(mapping, sourceRows, injectionKeyData);
+      } else {
+        throw new HopTransformException(
+            "The injection group key for target key '"
+                + mapping.getTargetAttributeKey()
+                + "' was not found.");
       }
     } else {
       // A simple property from the first row.

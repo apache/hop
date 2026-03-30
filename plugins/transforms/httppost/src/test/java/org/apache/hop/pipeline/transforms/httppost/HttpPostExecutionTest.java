@@ -29,6 +29,8 @@ import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
@@ -37,7 +39,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -204,7 +205,7 @@ class HttpPostExecutionTest {
     data.useBodyParameters = true;
     data.body_parameters_nrs = new int[] {0};
     data.bodyParameters =
-        new org.apache.http.NameValuePair[] {
+        new NameValuePair[] {
           new BasicNameValuePair("city", "") // name fixed; value comes from row
         };
     RowMeta rowMeta = new RowMeta();
@@ -226,7 +227,7 @@ class HttpPostExecutionTest {
     HttpPostData data = minimalData(baseUrl() + "/echo");
     data.useQueryParameters = true;
     data.query_parameters_nrs = new int[] {0};
-    data.queryParameters = new org.apache.http.NameValuePair[] {new BasicNameValuePair("q", "")};
+    data.queryParameters = new NameValuePair[] {new BasicNameValuePair("q", "")};
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta(new ValueMetaString("qField"));
     data.inputRowMeta = rowMeta;

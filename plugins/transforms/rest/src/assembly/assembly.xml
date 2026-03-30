@@ -52,7 +52,7 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>org.glassfish.jersey.connectors:jersey-apache-connector:jar</include>
+                <include>org.glassfish.jersey.connectors:jersey-apache5-connector:jar</include>
             </includes>
             <outputDirectory>plugins/transforms/rest/lib</outputDirectory>
         </dependencySet>
