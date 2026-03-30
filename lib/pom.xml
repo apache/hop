@@ -143,7 +143,7 @@
         <woodstox.version>7.1.1</woodstox.version>
         <xerces.version>2.12.2</xerces.version>
         <xml-apis-ext.version>1.3.04</xml-apis-ext.version>
-        <xmlunit.version>1.6</xmlunit.version>
+        <xmlunit.version>2.11.0</xmlunit.version>
         <xstream.version>1.4.21</xstream.version>
         <zstd-jni.version>1.5.7-7</zstd-jni.version>
     </properties>
@@ -817,9 +817,10 @@
                 <version>${xml-apis-ext.version}</version>
             </dependency>
             <dependency>
-                <groupId>xmlunit</groupId>
-                <artifactId>xmlunit</artifactId>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-core</artifactId>
                 <version>${xmlunit.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
