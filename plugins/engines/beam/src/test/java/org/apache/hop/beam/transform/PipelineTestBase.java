@@ -202,6 +202,10 @@ public class PipelineTestBase {
 
   @Disabled("This test needs to be reviewed")
   public void createRunPipeline(IVariables variables, PipelineMeta pipelineMeta) throws Exception {
+    // For safely, look up info and target transforms, if this is not yet done.
+    // It doesn't hurt to run it again.
+    //
+    pipelineMeta.lookupReferencesAfterLoading();
 
     IPipelineEngine<PipelineMeta> hopPipeline =
         PipelineEngineFactory.createPipelineEngine(

@@ -358,6 +358,7 @@ public class BeamPipelineMetaUtil {
     // Add a Stream Lookup transform ...
     //
     StreamLookupMeta streamLookupMeta = new StreamLookupMeta();
+    streamLookupMeta.setSourceTransformName(memoryGroupByTransformMeta.getName());
     StreamLookupMeta.MatchKey matchKey = new StreamLookupMeta.MatchKey();
     matchKey.setKeyStream("stateCode");
     matchKey.setKeyLookup("stateCode");
@@ -370,11 +371,7 @@ public class BeamPipelineMetaUtil {
     streamLookupMeta.getLookup().getReturnValues().add(returnValue);
 
     streamLookupMeta.setMemoryPreservationActive(false);
-    streamLookupMeta
-        .getTransformIOMeta()
-        .getInfoStreams()
-        .getFirst()
-        .setTransformMeta(memoryGroupByTransformMeta); // Read from Mem.GroupBy
+    // Read from Mem.GroupBy
     TransformMeta streamLookupTransformMeta = new TransformMeta("Stream Lookup", streamLookupMeta);
     pipelineMeta.addTransform(streamLookupTransformMeta);
     pipelineMeta.addPipelineHop(

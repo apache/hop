@@ -323,8 +323,8 @@ public class TransformFn extends TransformBaseFn {
     }
 
     // If we are sending execution information to a location, see if we have any extra data
-    // samplers
-    // The data samplers list is composed of those in the data profile along with the set from
+    // samplers.  The data samplers list is composed of those in the data profile along with the set
+    // from
     // the extra ones in the parent pipeline.
     //
     lookupExecutionInformation(variables, metadataProvider);

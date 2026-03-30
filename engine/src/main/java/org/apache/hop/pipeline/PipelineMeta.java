@@ -1602,16 +1602,7 @@ public class PipelineMeta extends AbstractMeta
       XmlMetadataUtil.deSerializeFromXml(
           null, null, pipelineNode, PipelineMeta.class, this, metadataProvider);
 
-      for (TransformMeta transformMeta : transforms) {
-        ITransformMeta iTransform = transformMeta.getTransform();
-
-        // Search info and target transforms.
-        iTransform.searchInfoAndTargetTransforms(transforms);
-
-        // Also set the parent pipeline to which this transform belongs.
-        // This is rarely used, for example in getTableFields.getTableFields()
-        transformMeta.setParentPipelineMeta(this);
-      }
+      lookupReferencesAfterLoading();
     } catch (HopXmlException xe) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "PipelineMeta.Exception.ErrorReadingPipeline"), xe);
@@ -1620,6 +1611,23 @@ public class PipelineMeta extends AbstractMeta
     } finally {
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.PipelineMetaLoaded.id, this);
+    }
+  }
+
+  /**
+   * After loading there can still be some references to other transforms or indeed this pipeline
+   * that need to be set. This is happening here.
+   */
+  public void lookupReferencesAfterLoading() {
+    for (TransformMeta transformMeta : transforms) {
+      ITransformMeta iTransform = transformMeta.getTransform();
+
+      // Search info and target transforms.
+      iTransform.searchInfoAndTargetTransforms(transforms);
+
+      // Also set the parent pipeline to which this transform belongs.
+      // This is rarely used, for example in getTableFields.getTableFields()
+      transformMeta.setParentPipelineMeta(this);
     }
   }
 
