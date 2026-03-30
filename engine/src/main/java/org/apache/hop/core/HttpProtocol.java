@@ -19,13 +19,17 @@ package org.apache.hop.core;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import org.apache.hc.client5.http.auth.AuthenticationException;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hop.core.util.HttpClientManager;
+import org.apache.hop.core.util.HttpClientUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.auth.AuthenticationException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 
 /**
  * HTTP
@@ -70,16 +74,25 @@ public class HttpProtocol {
 
     HttpClient httpClient;
     HttpGet getMethod = new HttpGet(urlAsString);
+    HttpClientContext clientContext = HttpClientContext.create();
     if (!Utils.isEmpty(username)) {
       HttpClientManager.HttpClientBuilderFacade clientBuilder =
           HttpClientManager.getInstance().createBuilder();
       clientBuilder.setCredentials(username, password);
       httpClient = clientBuilder.build();
+      HttpHost origin = HttpHost.create(URI.create(urlAsString));
+      HttpClientContext preemptive =
+          HttpClientUtil.createPreemptiveBasicAuthentication(
+              origin.getHostName(), origin.getPort(), username, password, origin.getSchemeName());
+      if (preemptive != null) {
+        clientContext = preemptive;
+      }
     } else {
       httpClient = HttpClientManager.getInstance().createDefaultClient();
     }
-    HttpResponse httpResponse = httpClient.execute(getMethod);
-    int statusCode = httpResponse.getStatusLine().getStatusCode();
+    ClassicHttpResponse httpResponse =
+        (ClassicHttpResponse) httpClient.execute(getMethod, clientContext);
+    int statusCode = httpResponse.getCode();
     StringBuilder bodyBuffer = new StringBuilder();
 
     if (statusCode != -1) {

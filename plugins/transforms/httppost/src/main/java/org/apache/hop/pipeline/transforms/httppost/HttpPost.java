@@ -31,6 +31,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.hc.core5.net.URLEncodedUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -47,26 +68,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 
 /** Make a HTTP Post call */
@@ -123,8 +124,8 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       }
       URIBuilder uriBuilder = new URIBuilder(data.realUrl);
       URI uri = uriBuilder.build();
-      org.apache.http.client.methods.HttpPost post =
-          new org.apache.http.client.methods.HttpPost(uri);
+      org.apache.hc.client5.http.classic.methods.HttpPost post =
+          new org.apache.hc.client5.http.classic.methods.HttpPost(uri);
 
       MultipartEntityBuilder multipart = null;
       boolean useMultipart = meta.isPostAFile() || meta.isMultipartupload();
@@ -153,21 +154,20 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         // used for calculating the responseTime
         long startTime = System.currentTimeMillis();
 
-        // Execute the POST method
-        HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
-        if (StringUtils.isNotBlank(data.realProxyHost)) {
-          target = new HttpHost(data.realProxyHost, data.realProxyPort, "http");
-        }
+        // Origin host for routing + preemptive Basic auth cache (proxy is on the client, not here).
+        HttpHost target = HttpHost.create(uri);
 
-        // Create AuthCache instance
-        AuthCache authCache = new BasicAuthCache();
-        // Generate BASIC scheme object and add it to the local
-        // auth cache
-        BasicScheme basicAuth = new BasicScheme();
-        authCache.put(target, basicAuth);
-        // Add AuthCache to the execution context
         HttpClientContext localContext = HttpClientContext.create();
-        localContext.setAuthCache(authCache);
+        if (StringUtils.isNotBlank(data.realHttpLogin)) {
+          AuthCache authCache = new BasicAuthCache();
+          BasicScheme basicAuth = new BasicScheme();
+          char[] passwordChars =
+              data.realHttpPassword != null ? data.realHttpPassword.toCharArray() : new char[0];
+          basicAuth.initPreemptive(
+              new UsernamePasswordCredentials(data.realHttpLogin, passwordChars));
+          authCache.put(target, basicAuth);
+          localContext.setAuthCache(authCache);
+        }
 
         httpResponse = httpClient.execute(target, post, localContext);
 
@@ -248,8 +248,6 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
           newRow = RowDataUtil.addValueData(newRow, returnFieldsOffset, headerString);
         }
       } finally {
-        // Release current connection to the connection pool once you are done
-        post.releaseConnection();
         if (httpResponse != null) {
           httpResponse.close();
         }
@@ -292,22 +290,20 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     byte[] bodyBytes = EntityUtils.toByteArray(entity);
     dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bodyBytes.length;
 
-    ByteArrayEntity countedEntity = new ByteArrayEntity(bodyBytes);
-    if (entity.getContentType() != null) {
-      countedEntity.setContentType(entity.getContentType());
+    ByteArrayEntity countedEntity =
+        new ByteArrayEntity(bodyBytes, ContentType.APPLICATION_OCTET_STREAM);
+    try {
+      return EntityUtils.toString(countedEntity);
+    } catch (ParseException e) {
+      throw new HopException("Unable to parse HTTP response body", e);
     }
-    if (entity.getContentEncoding() != null) {
-      countedEntity.setContentEncoding(entity.getContentEncoding());
-    }
-
-    return EntityUtils.toString(countedEntity);
   }
 
-  protected int requestStatusCode(HttpResponse httpResponse) {
-    return httpResponse.getStatusLine().getStatusCode();
+  protected int requestStatusCode(CloseableHttpResponse httpResponse) {
+    return httpResponse.getCode();
   }
 
-  protected InputStreamReader openStream(String encoding, HttpResponse httpResponse)
+  protected InputStreamReader openStream(String encoding, CloseableHttpResponse httpResponse)
       throws Exception {
     if (!Utils.isEmpty(encoding)) {
       return new InputStreamReader(httpResponse.getEntity().getContent(), encoding);
@@ -316,8 +312,8 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     }
   }
 
-  protected Header[] searchForHeaders(HttpResponse response) {
-    return response.getAllHeaders();
+  protected Header[] searchForHeaders(CloseableHttpResponse response) {
+    return response.getHeaders();
   }
 
   @Override
@@ -519,7 +515,8 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
    *
    * @param post the HTTP POST request to which the multipart entity will be attached
    */
-  private void addHttpHeaders(org.apache.http.client.methods.HttpPost post, Object[] rowData)
+  private void addHttpHeaders(
+      org.apache.hc.client5.http.classic.methods.HttpPost post, Object[] rowData)
       throws HopValueException {
     // add HttpPost header ContentType
     addHeadersContentType(post);
@@ -549,7 +546,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
    *
    * @param post the HTTP POST request to which the multipart entity will be attached
    */
-  private void addHeadersContentType(org.apache.http.client.methods.HttpPost post) {
+  private void addHeadersContentType(org.apache.hc.client5.http.classic.methods.HttpPost post) {
     // Specify content type and encoding
     // If content encoding is not explicitly specified
     // ISO-8859-1 is assumed by the POSTMethod
@@ -581,7 +578,8 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
    * @param post the HTTP POST request to which the multipart entity will be attached
    * @param rowData row data
    */
-  private void addQueryParams(org.apache.http.client.methods.HttpPost post, Object[] rowData)
+  private void addQueryParams(
+      org.apache.hc.client5.http.classic.methods.HttpPost post, Object[] rowData)
       throws HopValueException, UnsupportedEncodingException {
     if (!data.useQueryParameters) {
       return;
@@ -608,7 +606,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
    * @param rowData row data
    */
   private void addBodyParams(
-      org.apache.http.client.methods.HttpPost post,
+      org.apache.hc.client5.http.classic.methods.HttpPost post,
       Object[] rowData,
       MultipartEntityBuilder multipart)
       throws HopException {
@@ -649,7 +647,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
    * @param rowData row data
    */
   private void addBodyFileParam(
-      org.apache.http.client.methods.HttpPost post,
+      org.apache.hc.client5.http.classic.methods.HttpPost post,
       Object[] rowData,
       MultipartEntityBuilder multipart)
       throws UnsupportedEncodingException, HopFileException, HopValueException {
@@ -689,11 +687,12 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
   }
 
   @VisibleForTesting
-  void attachRawRequestEntityIfNeeded(org.apache.http.client.methods.HttpPost post, byte[] bytes) {
+  void attachRawRequestEntityIfNeeded(
+      org.apache.hc.client5.http.classic.methods.HttpPost post, byte[] bytes) {
     // In the non-multipart case the request entity field is the raw POST body when no other body
     // has been configured.
     if (post.getEntity() == null) {
-      post.setEntity(new ByteArrayEntity(bytes));
+      post.setEntity(new ByteArrayEntity(bytes, ContentType.APPLICATION_OCTET_STREAM));
     }
   }
 
@@ -709,7 +708,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
    * @param multipart if {@code null}, no entity will be set on the request
    */
   private void addBodyParamsAfter(
-      org.apache.http.client.methods.HttpPost post, MultipartEntityBuilder multipart) {
+      org.apache.hc.client5.http.classic.methods.HttpPost post, MultipartEntityBuilder multipart) {
     if (multipart != null) {
       post.setEntity(multipart.build());
     }

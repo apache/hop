@@ -59,7 +59,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rest.common.RestConst;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.apache5.connector.Apache5ConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -633,7 +633,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
     if (data.config == null) {
       // Use ApacheHttpClient for supporting proxy authentication.
       data.config = new ClientConfig();
-      data.config.connectorProvider(new ApacheConnectorProvider());
+      data.config.connectorProvider(new Apache5ConnectorProvider());
       data.config.property(
           ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
       data.config.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);

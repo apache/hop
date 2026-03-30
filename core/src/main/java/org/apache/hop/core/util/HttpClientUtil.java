@@ -22,22 +22,20 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 /**
  * Utility class contained useful methods while working with {@link
- * org.apache.http.client.HttpClient HttpClient}
+ * org.apache.hc.client5.http.classic.HttpClient HttpClient}
  */
 public class HttpClientUtil {
 
@@ -48,7 +46,7 @@ public class HttpClientUtil {
    * @return HttpEntity in String representation using "UTF-8" encoding
    * @throws IOException
    */
-  public static String responseToString(HttpResponse response) throws IOException {
+  public static String responseToString(ClassicHttpResponse response) throws IOException {
     return responseToString(response, Charset.forName(StandardCharsets.UTF_8.name()));
   }
 
@@ -58,7 +56,8 @@ public class HttpClientUtil {
    * @return HttpEntity in decoded String representation using provided charset
    * @throws IOException
    */
-  public static String responseToString(HttpResponse response, Charset charset) throws IOException {
+  public static String responseToString(ClassicHttpResponse response, Charset charset)
+      throws IOException {
     return responseToString(response, charset, false);
   }
 
@@ -69,10 +68,15 @@ public class HttpClientUtil {
    * @return HttpEntity in String representation using provided charset
    * @throws IOException
    */
-  public static String responseToString(HttpResponse response, Charset charset, boolean decode)
-      throws IOException {
+  public static String responseToString(
+      ClassicHttpResponse response, Charset charset, boolean decode) throws IOException {
     HttpEntity entity = response.getEntity();
-    String result = EntityUtils.toString(entity, charset);
+    String result;
+    try {
+      result = EntityUtils.toString(entity, charset);
+    } catch (ParseException e) {
+      throw new IOException("Unable to parse HTTP response entity", e);
+    }
     EntityUtils.consume(entity);
     if (decode) {
       result = URLDecoder.decode(result, StandardCharsets.UTF_8.name());
@@ -80,11 +84,11 @@ public class HttpClientUtil {
     return result;
   }
 
-  public static InputStream responseToInputStream(HttpResponse response) throws IOException {
+  public static InputStream responseToInputStream(ClassicHttpResponse response) throws IOException {
     return response.getEntity().getContent();
   }
 
-  public static byte[] responseToByteArray(HttpResponse response) throws IOException {
+  public static byte[] responseToByteArray(ClassicHttpResponse response) throws IOException {
     return EntityUtils.toByteArray(response.getEntity());
   }
 
@@ -96,23 +100,17 @@ public class HttpClientUtil {
    * @param user
    * @param password
    * @param schema
-   * @return {@link org.apache.http.client.protocol.HttpClientContext HttpClientContext}
+   * @return {@link org.apache.hc.client5.http.protocol.HttpClientContext HttpClientContext}
    */
   public static HttpClientContext createPreemptiveBasicAuthentication(
       String host, int port, String user, String password, String schema) {
     HttpClientContext localContext = null;
     try {
-      HttpHost target = new HttpHost(host, port, schema);
-      CredentialsProvider credsProvider = new BasicCredentialsProvider();
-      credsProvider.setCredentials(
-          new AuthScope(target.getHostName(), target.getPort()),
-          new UsernamePasswordCredentials(user, password));
-
-      // Create AuthCache instance
+      HttpHost target = new HttpHost(schema, host, port);
+      char[] passwordChars = password != null ? password.toCharArray() : new char[0];
       AuthCache authCache = new BasicAuthCache();
-      // Generate BASIC scheme object and add it to the local
-      // auth cache
       BasicScheme basicAuth = new BasicScheme();
+      basicAuth.initPreemptive(new UsernamePasswordCredentials(user, passwordChars));
       authCache.put(target, basicAuth);
 
       // Add AuthCache to the execution context
@@ -131,7 +129,7 @@ public class HttpClientUtil {
    * @param port
    * @param user
    * @param password
-   * @return {@link org.apache.http.client.protocol.HttpClientContext HttpClientContext}
+   * @return {@link org.apache.hc.client5.http.protocol.HttpClientContext HttpClientContext}
    */
   public static HttpClientContext createPreemptiveBasicAuthentication(
       String host, int port, String user, String password) {

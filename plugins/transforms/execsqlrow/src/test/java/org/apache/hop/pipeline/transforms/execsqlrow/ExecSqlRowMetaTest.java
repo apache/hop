@@ -16,14 +16,18 @@
  */
 package org.apache.hop.pipeline.transforms.execsqlrow;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
+import org.apache.hop.metadata.inject.HopMetadataInjector;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,5 +65,20 @@ class ExecSqlRowMetaTest {
   @Test
   void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
+  }
+
+  /**
+   * Scalar stats fields (e.g. UPDATE_STATS) are not under any {@link
+   * HopMetadataProperty#injectionGroupKey()}; they only appear in {@link
+   * HopMetadataInjector#findInjectionGroupKeys(Class)} when part of a list group. MetaInject maps
+   * such keys as simple properties even when the UI marks target_detail=true.
+   */
+  @Test
+  void updateStatsIsNotInAnyInjectionGroup() throws Exception {
+    Map<String, Set<String>> groupKeys =
+        HopMetadataInjector.findInjectionGroupKeys(ExecSqlRowMeta.class);
+    assertFalse(
+        groupKeys.values().stream()
+            .anyMatch(keys -> keys != null && keys.contains("UPDATE_STATS")));
   }
 }

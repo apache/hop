@@ -36,6 +36,30 @@ import javax.net.ssl.SSLContext;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.TrustStrategy;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.encryption.Encr;
@@ -71,34 +95,6 @@ import org.apache.hop.www.StartWorkflowServlet;
 import org.apache.hop.www.StopPipelineServlet;
 import org.apache.hop.www.StopWorkflowServlet;
 import org.apache.hop.www.WebResult;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.ssl.SSLContexts;
 import org.w3c.dom.Node;
 
 @Getter
@@ -387,13 +383,14 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     return result;
   }
 
-  HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String service) {
+  org.apache.hc.client5.http.classic.methods.HttpPost buildSendXmlMethod(
+      IVariables variables, byte[] content, String service) {
     String encoding = Const.XML_ENCODING;
     return buildSendMethod(variables, content, encoding, service, "text/xml");
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  HttpPost buildSendMethod(
+  org.apache.hc.client5.http.classic.methods.HttpPost buildSendMethod(
       IVariables variables, byte[] content, String encoding, String service, String contentType) {
     // Prepare HTTP put
     //
@@ -401,11 +398,12 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     if (log.isDebug()) {
       log.logDebug(BaseMessages.getString(PKG, "HopServer.DEBUG_ConnectingTo", urlString));
     }
-    HttpPost postMethod = new HttpPost(urlString);
+    org.apache.hc.client5.http.classic.methods.HttpPost postMethod =
+        new org.apache.hc.client5.http.classic.methods.HttpPost(urlString);
 
     // Request content will be retrieved directly from the input stream
     //
-    HttpEntity entity = new ByteArrayEntity(content);
+    HttpEntity entity = new ByteArrayEntity(content, ContentType.APPLICATION_OCTET_STREAM);
 
     postMethod.setEntity(entity);
     postMethod.addHeader(new BasicHeader("Accept", contentType + ";charset=" + encoding));
@@ -415,13 +413,11 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
 
   public String sendXml(IVariables variables, String xml, String service) throws Exception {
     String encoding = getXmlEncoding(xml);
-    HttpPost method =
+    org.apache.hc.client5.http.classic.methods.HttpPost method =
         buildSendMethod(variables, xml.getBytes(encoding), encoding, service, "text/xml");
     try {
       return executeAuth(variables, method);
     } finally {
-      // Release current connection to the connection pool once you are done
-      method.releaseConnection();
       if (log.isDetailed()) {
         log.logDetailed(
             BaseMessages.getString(
@@ -432,13 +428,11 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
 
   public String sendJson(IVariables variables, String json, String service) throws Exception {
     String encoding = Const.XML_ENCODING;
-    HttpPost method =
+    org.apache.hc.client5.http.classic.methods.HttpPost method =
         buildSendMethod(variables, json.getBytes(encoding), encoding, service, "application/json");
     try {
       return executeAuth(variables, method);
     } finally {
-      // Release current connection to the connection pool once you are done
-      method.releaseConnection();
       if (log.isDetailed()) {
         log.logDetailed(
             BaseMessages.getString(
@@ -459,7 +453,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
 
   /** Throws if not ok */
   private void handleStatus(
-      IVariables variables, HttpUriRequest method, StatusLine statusLine, int status)
+      IVariables variables, ClassicHttpRequest method, ClassicHttpResponse response, int status)
       throws HopException {
     if (status >= 300) {
       String message;
@@ -475,14 +469,15 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
         message =
             String.format(
                 "HTTP Status %d - %s - %s",
-                status, method.getURI().toString(), statusLine.getReasonPhrase());
+                status, method.getRequestUri(), response.getReasonPhrase());
       }
       throw new HopException(message);
     }
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  HttpPost buildSendExportMethod(IVariables variables, String type, String load, InputStream is) {
+  org.apache.hc.client5.http.classic.methods.HttpPost buildSendExportMethod(
+      IVariables variables, String type, String load, InputStream is) {
     String serviceUrl = RegisterPackageServlet.CONTEXT_PATH;
     if (type != null && load != null) {
       serviceUrl +=
@@ -501,8 +496,9 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
       log.logDebug(BaseMessages.getString(PKG, "HopServer.DEBUG_ConnectingTo", urlString));
     }
 
-    HttpPost method = new HttpPost(urlString);
-    method.setEntity(new InputStreamEntity(is));
+    org.apache.hc.client5.http.classic.methods.HttpPost method =
+        new org.apache.hc.client5.http.classic.methods.HttpPost(urlString);
+    method.setEntity(new InputStreamEntity(is, ContentType.APPLICATION_OCTET_STREAM));
     method.addHeader(new BasicHeader("Content-Type", "binary/zip"));
 
     return method;
@@ -522,12 +518,11 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     // Request content will be retrieved directly from the input stream
     try (InputStream is = HopVfs.getInputStream(HopVfs.getFileObject(filename))) {
       // Execute request
-      HttpPost method = buildSendExportMethod(variables, type, load, is);
+      org.apache.hc.client5.http.classic.methods.HttpPost method =
+          buildSendExportMethod(variables, type, load, is);
       try {
         return executeAuth(variables, method);
       } finally {
-        // Release current connection to the connection pool once you are done
-        method.releaseConnection();
         if (log.isDetailed()) {
           log.logDetailed(
               BaseMessages.getString(
@@ -549,16 +544,17 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
    * @throws ClientProtocolException
    * @throws HopException if response not ok
    */
-  private String executeAuth(IVariables variables, HttpUriRequest method)
+  private String executeAuth(IVariables variables, ClassicHttpRequest method)
       throws IOException, HopException {
-    HttpResponse httpResponse = getHttpClient().execute(method, getAuthContext(variables));
+    ClassicHttpResponse httpResponse =
+        (ClassicHttpResponse) getHttpClient().execute(method, getAuthContext(variables));
     return getResponse(variables, method, httpResponse);
   }
 
-  private String getResponse(IVariables variables, HttpUriRequest method, HttpResponse httpResponse)
+  private String getResponse(
+      IVariables variables, ClassicHttpRequest method, ClassicHttpResponse httpResponse)
       throws IOException, HopException {
-    StatusLine statusLine = httpResponse.getStatusLine();
-    int statusCode = statusLine.getStatusCode();
+    int statusCode = httpResponse.getCode();
     // The status code
     if (log.isDebug()) {
       log.logDebug(
@@ -572,7 +568,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     }
 
     // throw if not ok
-    handleStatus(variables, method, statusLine, statusCode);
+    handleStatus(variables, method, httpResponse, statusCode);
 
     return responseBody;
   }
@@ -585,17 +581,20 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     String password = Encr.decryptPasswordOptionallyEncrypted(variables.resolve(this.password));
     String proxyHost = variables.resolve(proxyHostname);
 
-    CredentialsProvider provider = new BasicCredentialsProvider();
-    UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(userName, password);
+    BasicCredentialsProvider provider = new BasicCredentialsProvider();
+    char[] passwordChars = password != null ? password.toCharArray() : new char[0];
+    UsernamePasswordCredentials credentials =
+        new UsernamePasswordCredentials(userName, passwordChars);
     if (!Utils.isEmpty(proxyHost) && host.equals("localhost")) {
       host = "127.0.0.1";
     }
     provider.setCredentials(new AuthScope(host, port), credentials);
     context.setCredentialsProvider(provider);
     // Generate BASIC scheme object and add it to the local auth cache
-    HttpHost target = new HttpHost(host, port, isSslMode() ? HTTPS : HTTP);
+    HttpHost target = new HttpHost(isSslMode() ? HTTPS : HTTP, host, port);
     AuthCache authCache = new BasicAuthCache();
     BasicScheme basicAuth = new BasicScheme();
+    basicAuth.initPreemptive(credentials);
     authCache.put(target, basicAuth);
     context.setAuthCache(authCache);
   }
@@ -613,7 +612,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
     if (!Utils.isEmpty(nonProxyHosts) && hostName.matches(nonProxyHosts)) {
       return;
     }
-    HttpHost httpHost = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
+    HttpHost httpHost = new HttpHost(HTTP, proxyHost, Integer.parseInt(proxyPort));
 
     RequestConfig requestConfig = RequestConfig.custom().setProxy(httpHost).build();
 
@@ -687,9 +686,10 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  HttpGet buildExecuteServiceMethod(
+  org.apache.hc.client5.http.classic.methods.HttpGet buildExecuteServiceMethod(
       IVariables variables, String service, Map<String, String> headerValues) {
-    HttpGet method = new HttpGet(constructUrl(variables, service));
+    org.apache.hc.client5.http.classic.methods.HttpGet method =
+        new org.apache.hc.client5.http.classic.methods.HttpGet(constructUrl(variables, service));
 
     for (String key : headerValues.keySet()) {
       method.setHeader(key, headerValues.get(key));
@@ -700,12 +700,13 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
   public String execService(IVariables variables, String service, Map<String, String> headerValues)
       throws Exception {
     // Prepare HTTP get
-    HttpGet method = buildExecuteServiceMethod(variables, service, headerValues);
+    org.apache.hc.client5.http.classic.methods.HttpGet method =
+        buildExecuteServiceMethod(variables, service, headerValues);
     // Execute request
     try {
-      HttpResponse httpResponse = getHttpClient().execute(method, getAuthContext(variables));
-      StatusLine statusLine = httpResponse.getStatusLine();
-      int statusCode = statusLine.getStatusCode();
+      ClassicHttpResponse httpResponse =
+          (ClassicHttpResponse) getHttpClient().execute(method, getAuthContext(variables));
+      int statusCode = httpResponse.getCode();
 
       // The status code
       if (log.isDebug()) {
@@ -731,13 +732,11 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
         throw new HopException(
             String.format(
                 "HTTP Status %d - %s - %s",
-                statusCode, method.getURI().toString(), statusLine.getReasonPhrase()));
+                statusCode, method.getRequestUri(), httpResponse.getReasonPhrase()));
       }
 
       return responseBody;
     } finally {
-      // Release current connection to the connection pool once you are done
-      method.releaseConnection();
       if (log.isDetailed()) {
         log.logDetailed(
             BaseMessages.getString(PKG, "HopServer.DETAILED_ExecutedService", service, hostname));
@@ -757,7 +756,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
 
         SSLConnectionSocketFactory socketFactory =
             new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
-        return HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+        return HttpClients.custom().setConnectionManagerShared(true).build();
       } else {
         // Connect using a regular HTTP connection
         //

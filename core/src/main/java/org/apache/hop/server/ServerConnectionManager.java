@@ -23,9 +23,9 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 
 /**
  * Encapsulates the Apache commons HTTP connection manager with a singleton. We can use this to
@@ -69,12 +69,12 @@ public class ServerConnectionManager {
     return serverConnectionManager;
   }
 
-  public HttpClient createHttpClient() {
+  public CloseableHttpClient createHttpClient() {
     return HttpClients.custom().setConnectionManager(manager).build();
   }
 
   public void shutdown() {
-    manager.shutdown();
+    manager.close();
   }
 
   private static X509TrustManager getDefaultTrustManager() {

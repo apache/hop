@@ -86,7 +86,6 @@
         <guava.version>33.3.1-jre</guava.version>
         <hive.version>2.3.9</hive.version>
         <httpccore.version>4.4.15</httpccore.version>
-        <httpclient.version>4.5.14</httpclient.version>
         <httpclient5.version>5.6</httpclient5.version>
         <jackcess.version>4.0.4</jackcess.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
@@ -608,11 +607,6 @@
                 <groupId>org.apache.hop</groupId>
                 <artifactId>hop-ui</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>${httpclient.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>

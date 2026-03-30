@@ -933,6 +933,26 @@ public class MetaInjectDialog extends BaseTransformDialog {
    * @param metaInterface The transform ITransformMeta
    * @return true if there was at least one used key
    */
+  /**
+   * Match a tree row to a saved mapping by target transform and injection key only. {@link
+   * MetaInjectMapping#equals} also compares {@code targetDetail}; older pipelines may store {@code
+   * target_detail=Y} for scalar {@link org.apache.hop.metadata.api.HopMetadataProperty} keys that
+   * the UI places in the root group ({@code targetDetail=N}), which would otherwise hide sources in
+   * the tree.
+   */
+  private static MetaInjectMapping findMappingForTargetKey(
+      List<MetaInjectMapping> mappings, MetaInjectMapping template) {
+    for (MetaInjectMapping m : mappings) {
+      if (Const.NVL(m.getTargetTransformName(), "")
+              .equalsIgnoreCase(Const.NVL(template.getTargetTransformName(), ""))
+          && Const.NVL(m.getTargetAttributeKey(), "")
+              .equalsIgnoreCase(Const.NVL(template.getTargetAttributeKey(), ""))) {
+        return m;
+      }
+    }
+    return null;
+  }
+
   private boolean processMDIDescription(
       TransformMeta transformMeta, TreeItem transformItem, ITransformMeta metaInterface) {
     boolean hasUsedKeys = false;
@@ -973,11 +993,9 @@ public class MetaInjectDialog extends BaseTransformDialog {
 
           treeItemTargetMap.put(treeItem, targetMapping);
 
-          // Equals only works on the target fields
-          int index = targetMappings.indexOf(targetMapping);
-          if (index >= 0) {
-            MetaInjectMapping mapping = targetMappings.get(index);
-            // Update with source mapping information
+          MetaInjectMapping mapping = findMappingForTargetKey(targetMappings, targetMapping);
+          if (mapping != null) {
+            mapping.setTargetDetail(targetMapping.isTargetDetail());
             treeItemTargetMap.put(treeItem, mapping);
             hasUsedKeys = true;
             treeItem.setText(

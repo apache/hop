@@ -25,19 +25,15 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.NameValuePair;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.message.BasicStatusLine;
 import org.junit.jupiter.api.Test;
 
 class HttpPostTest {
@@ -84,8 +80,8 @@ class HttpPostTest {
   void attachRawRequestEntityIfNeededSetsEntityWhenMissing() {
     HttpPost http = newTransform();
 
-    org.apache.http.client.methods.HttpPost post =
-        new org.apache.http.client.methods.HttpPost("http://localhost");
+    org.apache.hc.client5.http.classic.methods.HttpPost post =
+        new org.apache.hc.client5.http.classic.methods.HttpPost("http://localhost");
 
     http.attachRawRequestEntityIfNeeded(post, "payload".getBytes());
 
@@ -96,9 +92,9 @@ class HttpPostTest {
   void attachRawRequestEntityIfNeededDoesNotOverrideExistingEntity() throws Exception {
     HttpPost http = newTransform();
 
-    org.apache.http.client.methods.HttpPost post =
-        new org.apache.http.client.methods.HttpPost("http://localhost");
-    HttpEntity existing = new StringEntity("existing");
+    org.apache.hc.client5.http.classic.methods.HttpPost post =
+        new org.apache.hc.client5.http.classic.methods.HttpPost("http://localhost");
+    org.apache.hc.core5.http.HttpEntity existing = new StringEntity("existing");
     post.setEntity(existing);
 
     http.attachRawRequestEntityIfNeeded(post, "payload".getBytes());
@@ -110,7 +106,8 @@ class HttpPostTest {
   void collectRequestBytesCountsUnknownLengthEntity() {
     HttpPost http = newTransform();
 
-    HttpEntity entity = new InputStreamEntity(new ByteArrayInputStream("payload".getBytes()), -1);
+    org.apache.hc.core5.http.HttpEntity entity =
+        new InputStreamEntity(new ByteArrayInputStream("payload".getBytes()), -1, null);
 
     http.collectRequestBytes(entity);
 
@@ -121,7 +118,8 @@ class HttpPostTest {
   void collectRequestBytesCountsKnownLengthEntity() {
     HttpPost http = newTransform();
 
-    HttpEntity entity = new StringEntity("payload", StandardCharsets.UTF_8);
+    org.apache.hc.core5.http.HttpEntity entity =
+        new StringEntity("payload", StandardCharsets.UTF_8);
 
     http.collectRequestBytes(entity);
 
@@ -144,7 +142,7 @@ class HttpPostTest {
   @Test
   void openStreamWithEncodingReturnsReaderDecodedInThatEncoding() throws Exception {
     HttpPost http = newTransform();
-    HttpResponse response = responseWithBody("hello");
+    CloseableHttpResponse response = responseWithBody("hello");
 
     try (InputStreamReader reader = http.openStream("UTF-8", response)) {
       char[] buf = new char[5];
@@ -157,7 +155,7 @@ class HttpPostTest {
   @Test
   void openStreamWithoutEncodingReturnsDefaultReader() throws Exception {
     HttpPost http = newTransform();
-    HttpResponse response = responseWithBody("world");
+    CloseableHttpResponse response = responseWithBody("world");
 
     try (InputStreamReader reader = http.openStream(null, response)) {
       char[] buf = new char[5];
@@ -170,7 +168,7 @@ class HttpPostTest {
   @Test
   void openStreamWithEmptyEncodingReturnsDefaultReader() throws Exception {
     HttpPost http = newTransform();
-    HttpResponse response = responseWithBody("hop");
+    CloseableHttpResponse response = responseWithBody("hop");
 
     try (InputStreamReader reader = http.openStream("", response)) {
       char[] buf = new char[3];
@@ -180,16 +178,17 @@ class HttpPostTest {
     }
   }
 
-  private static HttpResponse responseWithBody(String body) {
-    BasicHttpResponse response =
-        new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
-    response.setEntity(new StringEntity(body, StandardCharsets.UTF_8));
+  private static CloseableHttpResponse responseWithBody(String body) {
+    CloseableHttpResponse response = org.mockito.Mockito.mock(CloseableHttpResponse.class);
+    org.mockito.Mockito.when(response.getEntity())
+        .thenReturn(new StringEntity(body, StandardCharsets.UTF_8));
     return response;
   }
 
   private static Object invokePrivate(Object target, String methodName, Object... args)
       throws Exception {
-    Method method = target.getClass().getDeclaredMethod(methodName, HttpEntity.class);
+    Method method =
+        target.getClass().getDeclaredMethod(methodName, org.apache.hc.core5.http.HttpEntity.class);
     method.setAccessible(true);
     return method.invoke(target, args);
   }

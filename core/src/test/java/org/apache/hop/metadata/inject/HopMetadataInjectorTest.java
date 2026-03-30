@@ -19,6 +19,7 @@
 package org.apache.hop.metadata.inject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -107,6 +108,12 @@ class HopMetadataInjectorTest {
     assertEquals(2, keys.size());
     assertTrue(keys.contains("FIRST_NAME"));
     assertTrue(keys.contains("LAST_NAME"));
+  }
+
+  @Test
+  void testTopLevelInjectionKey() throws Exception {
+    assertTrue(HopMetadataInjector.isTopLevelInjectionKey(Company.class, "NAME"));
+    assertFalse(HopMetadataInjector.isTopLevelInjectionKey(Company.class, "FIRST_NAME"));
   }
 
   @Test

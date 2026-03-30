@@ -464,6 +464,23 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         toConvert.add(data.fieldnrs[i]);
       }
     }
+    // Batch boundaries for "group sort" (merge-join style): only fields marked presorted in the
+    // meta participate. When none are presorted, groupnrs is empty and sameGroup() is always true
+    // so all rows accumulate for one global sort (see commit 36af1f6f regression when this used all
+    // sort keys).
+    List<Integer> groupIndices = new ArrayList<>();
+    for (SortRowsField sortField : meta.getSortFields()) {
+      if (sortField.isPreSortedField()) {
+        int idx = inputRowMeta.indexOfValue(sortField.getFieldName());
+        if (idx < 0) {
+          throw new HopException(
+              BaseMessages.getString(
+                  PKG, "SortRows.Error.PresortedFieldNotFound", sortField.getFieldName()));
+        }
+        groupIndices.add(idx);
+      }
+    }
+    data.groupnrs = groupIndices.stream().mapToInt(Integer::intValue).toArray();
 
     data.convertKeysToNative = toConvert.isEmpty() ? null : new int[toConvert.size()];
     int i = 0;
@@ -472,6 +489,8 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       i++;
     }
     data.rowComparator = new RowObjectArrayComparator(data.outputRowMeta, data.fieldnrs);
+    // Ensure first incoming row initializes "previous" before sameGroup() is evaluated.
+    data.newBatch = true;
     return false;
   }
 
@@ -656,10 +675,11 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
    */
   // Is the row r of the same group as previous?
   private boolean sameGroup(Object[] previous, Object[] r) throws HopValueException {
-    if (r == null) {
+    if (previous == null || r == null) {
       return false;
     }
-    return getInputRowMeta().compare(previous, r, data.groupnrs) == 0;
+    int[] groupFields = data.groupnrs != null ? data.groupnrs : data.fieldnrs;
+    return groupFields != null && getInputRowMeta().compare(previous, r, groupFields) == 0;
   }
 
   private void setPrevious(Object[] r) throws HopException {

@@ -30,33 +30,34 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.protocol.RedirectStrategy;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.TrustStrategy;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.RedirectStrategy;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContexts;
-import org.apache.http.ssl.TrustStrategy;
 
 /**
- * Single entry point for all {@link org.apache.http.client.HttpClient HttpClient instances} usages
- * in Hop projects. Contains {@link org.apache.http.impl.conn.PoolingHttpClientConnectionManager
- * Connection pool} of 200 connections. Maximum connections per one route is 100. Provides inner
- * builder class for creating {@link org.apache.http.client.HttpClient HttpClients}.
+ * Single entry point for all {@link org.apache.hc.client5.http.classic.HttpClient HttpClient
+ * instances} usages in Hop projects. Contains {@link
+ * org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager Connection pool} of 200
+ * connections. Maximum connections per one route is 100. Provides inner builder class for creating
+ * {@link org.apache.hc.client5.http.classic.HttpClient HttpClients}.
  */
 public class HttpClientManager {
   private static final int CONNECTIONS_PER_ROUTE = 100;
@@ -88,7 +89,7 @@ public class HttpClientManager {
 
   public class HttpClientBuilderFacade {
     private RedirectStrategy redirectStrategy;
-    private CredentialsProvider provider;
+    private BasicCredentialsProvider provider;
     private int connectionTimeout;
     private int socketTimeout;
     private HttpHost proxy;
@@ -106,15 +107,17 @@ public class HttpClientManager {
 
     public HttpClientBuilderFacade setCredentials(
         String user, String password, AuthScope authScope) {
-      CredentialsProvider provider = new BasicCredentialsProvider();
-      UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(user, password);
+      BasicCredentialsProvider provider = new BasicCredentialsProvider();
+      char[] passwordChars = password != null ? password.toCharArray() : new char[0];
+      UsernamePasswordCredentials credentials =
+          new UsernamePasswordCredentials(user, passwordChars);
       provider.setCredentials(authScope, credentials);
       this.provider = provider;
       return this;
     }
 
     public HttpClientBuilderFacade setCredentials(String user, String password) {
-      return setCredentials(user, password, AuthScope.ANY);
+      return setCredentials(user, password, new AuthScope(null, null, -1, null, null));
     }
 
     public HttpClientBuilderFacade setProxy(String proxyHost, int proxyPort) {
@@ -123,7 +126,7 @@ public class HttpClientManager {
     }
 
     public HttpClientBuilderFacade setProxy(String proxyHost, int proxyPort, String scheme) {
-      this.proxy = new HttpHost(proxyHost, proxyPort, scheme);
+      this.proxy = new HttpHost(scheme, proxyHost, proxyPort);
       return this;
     }
 
@@ -157,7 +160,7 @@ public class HttpClientManager {
       BasicHttpClientConnectionManager connectionManager =
           new BasicHttpClientConnectionManager(socketFactoryRegistry);
 
-      httpClientBuilder.setSSLSocketFactory(sslsf).setConnectionManager(connectionManager);
+      httpClientBuilder.setConnectionManager(connectionManager);
     }
 
     public CloseableHttpClient build() {
@@ -166,10 +169,10 @@ public class HttpClientManager {
 
       RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
       if (socketTimeout > 0) {
-        requestConfigBuilder.setSocketTimeout(socketTimeout);
+        requestConfigBuilder.setResponseTimeout(Timeout.ofMilliseconds(socketTimeout));
       }
       if (connectionTimeout > 0) {
-        requestConfigBuilder.setConnectTimeout(socketTimeout);
+        requestConfigBuilder.setConnectTimeout(Timeout.ofMilliseconds(connectionTimeout));
       }
       if (proxy != null) {
         requestConfigBuilder.setProxy(proxy);
