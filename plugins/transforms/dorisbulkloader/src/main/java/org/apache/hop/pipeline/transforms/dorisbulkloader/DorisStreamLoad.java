@@ -24,17 +24,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.entity.GzipCompressingEntity;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.json.HopJson;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.entity.GzipCompressingEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 
 public class DorisStreamLoad {
   private static final byte[] JSON_ARRAY_START =
@@ -168,8 +169,11 @@ public class DorisStreamLoad {
     }
     httpHeaders.forEach(put::setHeader);
 
-    InputStreamEntity entity = new InputStreamEntity(recordStream, recordStream.getWriteLength());
-    entity.setChunked(false);
+    InputStreamEntity entity =
+        new InputStreamEntity(
+            recordStream,
+            recordStream.getWriteLength(),
+            org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM);
 
     if (LoadConstants.JSON.equals(format)) {
       put.setEntity(entity);
@@ -183,23 +187,23 @@ public class DorisStreamLoad {
           HttpClients.custom()
               .setRedirectStrategy(
                   new DefaultRedirectStrategy() {
-                    @Override
-                    protected boolean isRedirectable(String method) {
-                      // If the connection target is FE, you need to deal with 307 redirect。
-                      return true;
-                    }
+                    // If the connection target is FE, you need to deal with 307 redirect.
                   })
               .build();
     }
 
     CloseableHttpResponse response = httpClient.execute(put);
-    final int statusCode = response.getStatusLine().getStatusCode();
+    final int statusCode = response.getCode();
     if (statusCode == 200 && response.getEntity() != null) {
-      String loadResult = EntityUtils.toString(response.getEntity());
+      String loadResult;
+      try {
+        loadResult = EntityUtils.toString(response.getEntity());
+      } catch (ParseException e) {
+        throw new IOException("Unable to parse Doris stream load response", e);
+      }
       return OBJECT_MAPPER.readValue(loadResult, ResponseContent.class);
     } else {
-      throw new DorisStreamLoadException(
-          "stream load error: " + response.getStatusLine().toString());
+      throw new DorisStreamLoadException("stream load error: " + response.getReasonPhrase());
     }
   }
 

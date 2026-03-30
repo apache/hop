@@ -25,6 +25,23 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.client5.http.auth.AuthCache;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.auth.BasicAuthCache;
+import org.apache.hc.client5.http.impl.auth.BasicScheme;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -39,22 +56,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 
@@ -126,13 +127,16 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         // used for calculating the responseTime
         long startTime = System.currentTimeMillis();
 
-        // Preemptive authentication
-        HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
-        if (StringUtils.isNotBlank(data.realProxyHost)) {
-          target = new HttpHost(data.realProxyHost, data.realProxyPort, "http");
-        }
+        // Preemptive Basic auth: AuthCache must be keyed to the origin host (same as the request
+        // target). Proxy routing is configured on the client via RequestConfig — do not pass the
+        // proxy as HttpHost here (breaks credentials + preemptive cache matching in HttpClient 5).
+        HttpHost target = HttpHost.create(uri);
 
-        httpResponse = httpClient.execute(target, method, buildtHttpClientContext(target));
+        httpResponse =
+            httpClient.execute(
+                target,
+                method,
+                buildHttpClientContext(target, data.realHttpLogin, data.realHttpPassword));
 
         // calculate the responseTime
         long responseTime = System.currentTimeMillis() - startTime;
@@ -171,8 +175,6 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         if (httpResponse != null) {
           httpResponse.close();
         }
-        // Release current connection to the connection pool once you are done
-        method.releaseConnection();
       }
       return newRow;
     } catch (UnknownHostException uhe) {
@@ -231,28 +233,31 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
     byte[] bodyBytes = EntityUtils.toByteArray(entity);
     dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + bodyBytes.length;
 
-    ByteArrayEntity countedEntity = new ByteArrayEntity(bodyBytes);
-    if (entity.getContentType() != null) {
-      countedEntity.setContentType(entity.getContentType());
-    }
-    if (entity.getContentEncoding() != null) {
-      countedEntity.setContentEncoding(entity.getContentEncoding());
-    }
+    ByteArrayEntity countedEntity =
+        new ByteArrayEntity(
+            bodyBytes, org.apache.hc.core5.http.ContentType.APPLICATION_OCTET_STREAM);
 
-    return StringUtils.isEmpty(meta.getEncoding())
-        ? EntityUtils.toString(countedEntity)
-        : EntityUtils.toString(countedEntity, meta.getEncoding());
+    try {
+      return StringUtils.isEmpty(meta.getEncoding())
+          ? EntityUtils.toString(countedEntity)
+          : EntityUtils.toString(countedEntity, meta.getEncoding());
+    } catch (ParseException e) {
+      throw new IOException("Unable to parse HTTP response body", e);
+    }
   }
 
-  private static @NotNull HttpClientContext buildtHttpClientContext(HttpHost target) {
-    // Create AuthCache instance
-    AuthCache authCache = new BasicAuthCache();
-    // Generate BASIC scheme object and add it to the local
-    // auth cache
-    BasicScheme basicAuth = new BasicScheme();
-    authCache.put(target, basicAuth);
-    // Add AuthCache to the execution context
+  /** HttpClient 5 requires {@link BasicScheme#initPreemptive} for preemptive Basic auth. */
+  private static @NotNull HttpClientContext buildHttpClientContext(
+      HttpHost target, String httpLogin, String httpPassword) {
     HttpClientContext localContext = HttpClientContext.create();
+    if (StringUtils.isBlank(httpLogin)) {
+      return localContext;
+    }
+    AuthCache authCache = new BasicAuthCache();
+    BasicScheme basicAuth = new BasicScheme();
+    char[] passwordChars = httpPassword != null ? httpPassword.toCharArray() : new char[0];
+    basicAuth.initPreemptive(new UsernamePasswordCredentials(httpLogin, passwordChars));
+    authCache.put(target, basicAuth);
     localContext.setAuthCache(authCache);
     return localContext;
   }
@@ -326,12 +331,12 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
     return uriBuilder;
   }
 
-  protected int requestStatusCode(HttpResponse httpResponse) {
-    return httpResponse.getStatusLine().getStatusCode();
+  protected int requestStatusCode(CloseableHttpResponse httpResponse) {
+    return httpResponse.getCode();
   }
 
   protected Header[] searchForHeaders(CloseableHttpResponse response) {
-    return response.getAllHeaders();
+    return response.getHeaders();
   }
 
   @Override

@@ -26,6 +26,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -49,7 +50,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.server.HopServerMeta;
 import org.apache.hop.www.GetExecutionInfoServlet;
 import org.apache.hop.www.RegisterExecutionInfoServlet;
-import org.apache.http.client.utils.URIBuilder;
 
 @GuiPlugin(description = "File execution information location GUI elements")
 @ExecutionInfoLocationPlugin(
