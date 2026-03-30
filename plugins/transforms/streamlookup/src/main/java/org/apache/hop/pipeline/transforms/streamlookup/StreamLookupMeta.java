@@ -67,7 +67,7 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
   /** Indicate that the input is considered sorted! */
   @HopMetadataProperty(
       key = "input_sorted",
-      injectionKey = "INPUT_SOstream.getSubject()RTED",
+      injectionKey = "INPUT_SORTED",
       injectionKeyDescription = "StreamLookupMeta.Injection.INPUT_SORTED")
   private boolean inputSorted;
 
