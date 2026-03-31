@@ -20,6 +20,7 @@ package org.apache.hop.metadata.serializer;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -54,7 +55,7 @@ public class BaseMetadataProvider {
       }
       return classes;
     } catch (Exception e) {
-      throw new RuntimeException("Error listing metadata plugin classes (setup issue?)", e);
+      throw new HopRuntimeException("Error listing metadata plugin classes (setup issue?)", e);
     }
   }
 

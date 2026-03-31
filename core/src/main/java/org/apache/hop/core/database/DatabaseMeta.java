@@ -33,6 +33,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -286,7 +287,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     try {
       iDatabase = getIDatabase(type);
     } catch (HopDatabaseException kde) {
-      throw new RuntimeException("Database type not found!", kde);
+      throw new HopRuntimeException("Database type not found!", kde);
     }
 
     setName(name);
@@ -306,7 +307,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     try {
       iDatabase = getIDatabase(type);
     } catch (HopDatabaseException kde) {
-      throw new RuntimeException("Database type [" + type + "] not found!", kde);
+      throw new HopRuntimeException("Database type [" + type + "] not found!", kde);
     }
 
     setAccessType(oldInterface.getAccessType());
@@ -931,10 +932,10 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       clearDatabaseInterfacesMap();
       // doCreate() above doesn't declare any exceptions so anything that comes out SHOULD be a
       // runtime exception
-      if (e instanceof RuntimeException runtimeException) {
+      if (e instanceof HopRuntimeException runtimeException) {
         throw runtimeException;
       } else {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
   }

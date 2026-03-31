@@ -54,6 +54,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.ValueDataUtil;
@@ -1606,7 +1607,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
                 mb.setText("alert");
                 int answer = mb.open();
                 if ((answer & SWT.CANCEL) != 0) {
-                  throw new RuntimeException("Alert dialog cancelled by user.");
+                  throw new HopRuntimeException("Alert dialog cancelled by user.");
                 }
               });
     }

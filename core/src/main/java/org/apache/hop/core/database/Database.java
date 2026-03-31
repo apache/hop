@@ -60,6 +60,7 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -173,7 +174,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
               // Reverse the sort list
               (Integer.valueOf(o1.getType()).compareTo(o2.getType())) * -1);
     } catch (Exception e) {
-      throw new RuntimeException("Unable to get list of instantiated value meta plugin classes", e);
+      throw new HopRuntimeException(
+          "Unable to get list of instantiated value meta plugin classes", e);
     }
   }
 
@@ -210,7 +212,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       ExtensionPointHandler.callExtensionPoint(
           log, variables, HopExtensionPoint.DatabaseCreated.id, this);
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error calling extension point while creating database connection", e);
     }
 

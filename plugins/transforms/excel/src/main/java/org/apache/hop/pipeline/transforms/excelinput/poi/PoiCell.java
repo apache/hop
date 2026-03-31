@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.excelinput.poi;
 
 import java.sql.Date;
 import java.util.TimeZone;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.poi.ss.usermodel.Cell;
@@ -96,7 +97,7 @@ public class PoiCell implements IKCell {
           return null;
       }
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to get value of cell (" + cell.getColumnIndex() + ", " + cell.getRowIndex() + ")",
           e);
     }
@@ -111,7 +112,7 @@ public class PoiCell implements IKCell {
       }
       return value.toString();
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to get string content of cell ("
               + cell.getColumnIndex()
               + ", "

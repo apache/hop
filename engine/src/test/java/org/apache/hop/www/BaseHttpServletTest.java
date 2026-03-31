@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -137,7 +138,7 @@ class BaseHttpServletTest {
     PrintWriter writer = new PrintWriter(sw);
 
     servlet.writeXmlOrJsonApiError(
-        response, writer, false, true, "unit test json", new RuntimeException("x"));
+        response, writer, false, true, "unit test json", new HopRuntimeException("x"));
     writer.flush();
 
     verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

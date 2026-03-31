@@ -29,6 +29,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.StringToHopFn;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +86,7 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in beam input transform", e);
-      throw new RuntimeException("Error in beam input transform", e);
+      throw new HopRuntimeException("Error in beam input transform", e);
     }
   }
 }

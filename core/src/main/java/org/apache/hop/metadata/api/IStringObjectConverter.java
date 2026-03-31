@@ -19,6 +19,7 @@
 package org.apache.hop.metadata.api;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 /**
  * The class that implements this interface can convert between an object and it's serialization in
@@ -32,12 +33,12 @@ public interface IStringObjectConverter {
   class None implements IStringObjectConverter {
     @Override
     public String getString(Object object) {
-      throw new RuntimeException("This is not intended to be used");
+      throw new HopRuntimeException("This is not intended to be used");
     }
 
     @Override
     public Object getObject(String string) {
-      throw new RuntimeException("This is not intended to be used");
+      throw new HopRuntimeException("This is not intended to be used");
     }
   }
 }

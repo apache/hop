@@ -618,7 +618,7 @@ public class GuiCompositeWidgets {
   public ITypeFilename instantiateTypeFilename(GuiElements guiElements) {
     Class<? extends ITypeFilename> typeFilenameClass = guiElements.getTypeFilename();
     if (typeFilenameClass == null) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Please specify a ITypeFilename class to use for widget " + guiElements.getId());
     }
     // Instantiate the class...

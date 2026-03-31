@@ -32,6 +32,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -136,7 +137,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
     // For now only String data type is supported
     //
     if (!"String".equalsIgnoreCase(dataType)) {
-      throw new RuntimeException("Only String messages are supported at this time");
+      throw new HopRuntimeException("Only String messages are supported at this time");
     }
   }
 
@@ -232,7 +233,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in Kafka input transform", e);
-      throw new RuntimeException("Error in Kafka input transform", e);
+      throw new HopRuntimeException("Error in Kafka input transform", e);
     }
   }
 
@@ -268,7 +269,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in setup of KV<String,String> to Hop Row conversion function", e);
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error in setup of KV<String,String> to Hop Row conversion function", e);
       }
     }
@@ -288,7 +289,8 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in KV<String,String> to Hop Row conversion function", e);
-        throw new RuntimeException("Error in KV<String,String> to Hop Row conversion function", e);
+        throw new HopRuntimeException(
+            "Error in KV<String,String> to Hop Row conversion function", e);
       }
     }
   }
@@ -326,7 +328,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in setup of KV<String,GenericRecord> to Hop Row conversion function", e);
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error in setup of KV<String,GenericRecord> to Hop Row conversion function", e);
       }
     }
@@ -346,7 +348,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in KV<String,GenericRecord> to Hop Row conversion function", e);
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error in KV<String,GenericRecord> to Hop Row conversion function", e);
       }
     }

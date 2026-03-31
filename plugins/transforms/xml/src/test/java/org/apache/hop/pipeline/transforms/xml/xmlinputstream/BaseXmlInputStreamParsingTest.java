@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +49,6 @@ class BaseXmlInputStreamParsingTest
   /** For BaseFileInput fields. */
   @Override
   protected void setFields(BaseFileField... fields) throws Exception {
-    throw new RuntimeException("Not implemented");
+    throw new HopRuntimeException("Not implemented");
   }
 }

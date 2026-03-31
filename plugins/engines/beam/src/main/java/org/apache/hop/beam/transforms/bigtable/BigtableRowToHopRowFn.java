@@ -32,6 +32,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -109,7 +110,8 @@ public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.info("Parse error on setup of Bigtable Row to HopRow function : " + e.getMessage());
-      throw new RuntimeException("Error on setup of Bigtable Row to HopRow function function", e);
+      throw new HopRuntimeException(
+          "Error on setup of Bigtable Row to HopRow function function", e);
     }
   }
 
@@ -165,7 +167,7 @@ public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.info("Conversion error Bigtable Row to HopRow: " + e.getMessage());
-      throw new RuntimeException("Error converting Bigtable Row to HopRow: ", e);
+      throw new HopRuntimeException("Error converting Bigtable Row to HopRow: ", e);
     }
   }
 }

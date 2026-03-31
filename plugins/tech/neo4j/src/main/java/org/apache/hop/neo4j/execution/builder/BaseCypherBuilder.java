@@ -28,6 +28,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.json.HopJson;
 
 public abstract class BaseCypherBuilder implements ICypherBuilder {
@@ -84,7 +85,7 @@ public abstract class BaseCypherBuilder implements ICypherBuilder {
       try {
         result = HopJson.newMapper().writeValueAsString(value);
       } catch (JsonProcessingException e) {
-        throw new RuntimeException("Error converting Map to a JSON String", e);
+        throw new HopRuntimeException("Error converting Map to a JSON String", e);
       }
     }
     if (value instanceof JsonNode node) {

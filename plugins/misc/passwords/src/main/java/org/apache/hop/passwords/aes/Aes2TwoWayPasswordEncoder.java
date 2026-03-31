@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.Variables;
 
@@ -98,7 +99,7 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
         return encodeInternal(password);
       }
     } catch (Exception e) {
-      throw new RuntimeException("Error encoding password using AES", e);
+      throw new HopRuntimeException("Error encoding password using AES", e);
     }
   }
 
@@ -172,7 +173,7 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
       try {
         encryptedPassword = AES_PREFIX + encodeInternal(password);
       } catch (Exception e) {
-        throw new RuntimeException("Error encoding password using AES", e);
+        throw new HopRuntimeException("Error encoding password using AES", e);
       }
     } else {
       encryptedPassword = password;
@@ -198,7 +199,7 @@ public class Aes2TwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
       // Decrypt the ciphertext and return as a String
       return new String(cipher.doFinal(ciphertext));
     } catch (Exception e) {
-      throw new RuntimeException("Error decoding password using AES", e);
+      throw new HopRuntimeException("Error decoding password using AES", e);
     }
   }
 

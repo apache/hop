@@ -28,6 +28,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -315,7 +316,7 @@ public class GetLoggingInfo extends BaseTransform<GetLoggingInfoMeta, GetLogging
           try {
             return getResultDate(result, "startDate");
           } catch (ParseException e) {
-            throw new RuntimeException("Unable to get start date with cypher : " + cypher, e);
+            throw new HopRuntimeException("Unable to get start date with cypher : " + cypher, e);
           }
         });
   }

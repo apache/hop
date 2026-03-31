@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 /**
  * This event handler contains event listeners per event ID and GUI ID. Suggestions for event IDs
@@ -44,16 +45,16 @@ public class HopGuiEventsHandler {
   public <T> void addEventListener(
       String guiId, IHopGuiEventListener<T> listener, String... eventIds) {
     if (StringUtils.isEmpty(guiId)) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Please provide a GUI id to allow you to remove the listener when you're no longer need it");
     }
     if (eventIds == null || eventIds.length == 0) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Please provide an event ID so we know what to be on the lookout for");
     }
     for (String eventId : eventIds) {
       if (StringUtils.isEmpty(eventId)) {
-        throw new RuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
+        throw new HopRuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
       }
     }
 
@@ -80,15 +81,15 @@ public class HopGuiEventsHandler {
    */
   public void removeEventListener(String guiId, String... eventIds) {
     if (StringUtils.isEmpty(guiId)) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Please provide a GUI ID of the component you're done with being informed about.");
     }
     if (eventIds == null || eventIds.length == 0) {
-      throw new RuntimeException("Please provide the event IDs of the listeners to remove.");
+      throw new HopRuntimeException("Please provide the event IDs of the listeners to remove.");
     }
     for (String eventId : eventIds) {
       if (StringUtils.isEmpty(eventId)) {
-        throw new RuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
+        throw new HopRuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
       }
     }
 
@@ -119,7 +120,7 @@ public class HopGuiEventsHandler {
    */
   public void removeEventListeners(String guiId) {
     if (StringUtils.isEmpty(guiId)) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Please provide a GUI ID of the component you're done with being informed about.");
     }
 
@@ -140,11 +141,11 @@ public class HopGuiEventsHandler {
    */
   public <T> void fire(T eventSubject, boolean all, String... eventIds) throws HopException {
     if (eventIds == null || eventIds.length == 0) {
-      throw new RuntimeException("Please provide the IDs of the events you want to fire");
+      throw new HopRuntimeException("Please provide the IDs of the events you want to fire");
     }
     for (String eventId : eventIds) {
       if (StringUtils.isEmpty(eventId)) {
-        throw new RuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
+        throw new HopRuntimeException(CONST_PLEASE_ONLY_USE_EVENT_IDS_WHICH_ARE_NOT_NULL_OR_EMPTY);
       }
     }
 

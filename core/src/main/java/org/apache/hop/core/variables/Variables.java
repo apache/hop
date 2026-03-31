@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -274,7 +275,7 @@ public class Variables implements IVariables {
         // Where do we continue?
         startIndex = before.length() + resolvedArgument.length();
       } catch (HopException e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error resolving variable '" + input + "' with variable resolver metadata", e);
       }
     }

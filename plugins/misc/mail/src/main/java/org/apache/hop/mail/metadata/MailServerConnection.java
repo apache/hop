@@ -58,6 +58,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -339,7 +340,7 @@ public class MailServerConnection extends HopMetadataBase implements IHopMetadat
       Store theStore = getStore();
       theStore.connect(host, port, user, pwd);
     } catch (MessagingException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 

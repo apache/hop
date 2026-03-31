@@ -33,6 +33,7 @@ import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
@@ -342,7 +343,7 @@ public abstract class ActionBase
     try {
       xml.append(XmlMetadataUtil.serializeObjectToXml(this));
     } catch (HopException e) {
-      throw new RuntimeException("Error serializing action metadata to XML", e);
+      throw new HopRuntimeException("Error serializing action metadata to XML", e);
     }
     return xml.toString();
   }

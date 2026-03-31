@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.wsdl.xml.WSDLLocator;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.xml.sax.InputSource;
 
 /**
@@ -92,7 +93,7 @@ public final class ControlWsdlLocator implements WSDLLocator {
       // not fatal keep trying
     } catch (IOException e) {
       // fatal - abort
-      throw new RuntimeException("Cannot load WSDL file: " + _wsdlName, e);
+      throw new HopRuntimeException("Cannot load WSDL file: " + _wsdlName, e);
     }
 
     if (wsdlStream == null) {
@@ -104,7 +105,7 @@ public final class ControlWsdlLocator implements WSDLLocator {
     }
 
     if (wsdlStream == null) {
-      throw new RuntimeException("Cannot find WSDL file: " + _wsdlName, null);
+      throw new HopRuntimeException("Cannot find WSDL file: " + _wsdlName, null);
     }
 
     OpenStreams.add(wsdlStream);

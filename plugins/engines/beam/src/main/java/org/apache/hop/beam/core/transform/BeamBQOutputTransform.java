@@ -35,6 +35,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.HopToBQTableRowFn;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -126,7 +127,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
             schemaField.setType("TIMESTAMP");
             break;
           default:
-            throw new RuntimeException(
+            throw new HopRuntimeException(
                 "Conversion from Hop value "
                     + valueMeta.toString()
                     + " to BigQuery TableRow isn't supported yet");
@@ -175,7 +176,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in Beam BigQuery output transform", e);
-      throw new RuntimeException("Error in Beam BigQuery output transform", e);
+      throw new HopRuntimeException("Error in Beam BigQuery output transform", e);
     }
   }
 

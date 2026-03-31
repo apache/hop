@@ -44,6 +44,7 @@ import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.xml.XmlHandler;
@@ -77,7 +78,7 @@ public final class Wsdl implements java.io.Serializable {
     try {
       wsdlDefinition = parse(wsdlURI, username, password);
     } catch (WSDLException | HopException e) {
-      throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
+      throw new HopRuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     }
     if (serviceQName == null) {
       service = (Service) wsdlDefinition.getServices().values().iterator().next();
@@ -146,7 +147,7 @@ public final class Wsdl implements java.io.Serializable {
     try {
       wsdlDefinition = parse(wsdlLocator, username, password);
     } catch (WSDLException | HopException e) {
-      throw new RuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
+      throw new HopRuntimeException(CONST_COULD_NOT_LOAD_WSDL_FILE + e.getMessage(), e);
     }
 
     service = wsdlDefinition.getService(serviceQName);

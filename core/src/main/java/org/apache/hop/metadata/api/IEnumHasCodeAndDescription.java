@@ -17,6 +17,8 @@
 
 package org.apache.hop.metadata.api;
 
+import org.apache.hop.core.exception.HopRuntimeException;
+
 public interface IEnumHasCodeAndDescription extends IEnumHasCode {
   String getDescription();
 
@@ -27,7 +29,7 @@ public interface IEnumHasCodeAndDescription extends IEnumHasCode {
         return i;
       }
     }
-    throw new RuntimeException("Impossible enum found: " + getCode());
+    throw new HopRuntimeException("Impossible enum found: " + getCode());
   }
 
   static <E extends IEnumHasCodeAndDescription> String[] getDescriptions(Class<E> clazz) {

@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -297,7 +298,7 @@ class JavaScriptUtilsTest {
 
   @Test
   void jsToBigNumber_UnknownClass() {
-    assertThrows(RuntimeException.class, () -> JavaScriptUtils.jsToBigNumber("1", "qwerty"));
+    assertThrows(HopRuntimeException.class, () -> JavaScriptUtils.jsToBigNumber("1", "qwerty"));
   }
 
   // convertFromJs tests

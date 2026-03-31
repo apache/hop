@@ -32,6 +32,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -359,7 +360,7 @@ public class UserDefinedJavaClassMeta
       try {
         cookClasses();
       } catch (HopException e) {
-        throw new RuntimeException("Error cooking class", e);
+        throw new HopRuntimeException("Error cooking class", e);
       }
 
       if (cookedTransformClass == null) {
@@ -392,7 +393,7 @@ public class UserDefinedJavaClassMeta
         return transformIoMeta;
       }
     } catch (Exception e) {
-      throw new RuntimeException("Error getting transform IO meta for UserDefinedJavaClass", e);
+      throw new HopRuntimeException("Error getting transform IO meta for UserDefinedJavaClass", e);
     }
   }
 

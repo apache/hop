@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -46,11 +47,11 @@ public class WorkflowMap {
       WorkflowConfiguration workflowConfiguration) {
     synchronized (workflowMap) {
       if (StringUtils.isEmpty(workflowName)) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "API usage error: to add a workflow on a server we always need its name.");
       }
       if (serverObjectId == null) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "API usage error: to add a workflow on a server we always need a server object ID to uniquely identify it.");
       }
 

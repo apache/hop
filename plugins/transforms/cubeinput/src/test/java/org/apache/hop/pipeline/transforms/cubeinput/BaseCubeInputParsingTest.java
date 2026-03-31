@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.cubeinput;
 
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ class BaseCubeInputParsingTest extends BaseParsingTest<CubeInputMeta, CubeInputD
   /** For BaseFileInput fields. */
   @Override
   protected void setFields(BaseFileField... fields) throws Exception {
-    throw new RuntimeException("Not implemented");
+    throw new HopRuntimeException("Not implemented");
   }
 
   /** CSV input transform produces byte arrays instead strings. */

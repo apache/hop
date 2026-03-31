@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
 import org.apache.hop.core.row.IValueMeta;
@@ -179,7 +180,7 @@ public abstract class BaseMetadataInjectionTestJunit5<Meta extends ITransformMet
   protected void checkStringToInt(String propertyName, IIntGetter getter, String[] codes, int[] ids)
       throws HopException {
     if (codes.length != ids.length) {
-      throw new RuntimeException("Wrong codes/ids sizes");
+      throw new HopRuntimeException("Wrong codes/ids sizes");
     }
     IValueMeta valueMetaString = new ValueMetaString("f");
 

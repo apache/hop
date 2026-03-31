@@ -24,6 +24,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -106,7 +107,7 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error setup of splitting row into key and value", e);
-      throw new RuntimeException("Unable to setup of split row into key and value", e);
+      throw new HopRuntimeException("Unable to setup of split row into key and value", e);
     }
   }
 
@@ -142,7 +143,7 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error splitting row into key and value", e);
-      throw new RuntimeException("Unable to split row into key and value", e);
+      throw new HopRuntimeException("Unable to split row into key and value", e);
     }
   }
 

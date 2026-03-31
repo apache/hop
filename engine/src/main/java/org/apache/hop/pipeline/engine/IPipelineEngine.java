@@ -24,6 +24,7 @@ import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
@@ -440,7 +441,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    * @param toTransformName
    * @param toTransformCopy
    * @return The rowset if one was found.
-   * @throws RuntimeException in case the engine doesn't support this operation.
+   * @throws HopRuntimeException in case the engine doesn't support this operation.
    */
   IRowSet findRowSet(
       String fromTransformName, int fromTransformCopy, String toTransformName, int toTransformCopy);

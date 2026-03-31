@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.junit.jupiter.api.Test;
 
 /** Test class for the basic functionality of StringUtil. */
@@ -95,7 +96,7 @@ class StringUtilTest {
     try {
       StringUtil.substitute("|${recursive_all}|", map, "${", "}", 0);
       fail("recursive check is failing");
-    } catch (RuntimeException rex) {
+    } catch (HopRuntimeException rex) {
       // ignore
     }
 
@@ -111,7 +112,7 @@ class StringUtilTest {
     try {
       StringUtil.substitute("|%%recursive_all%%|", map, "%%", "%%");
       fail("recursive check is failing");
-    } catch (RuntimeException rex) {
+    } catch (HopRuntimeException rex) {
       // ignore
     }
 
@@ -126,7 +127,7 @@ class StringUtilTest {
     try {
       StringUtil.environmentSubstitute("|%%recursive_all%%|", map);
       fail("recursive check is failing");
-    } catch (RuntimeException rex) {
+    } catch (HopRuntimeException rex) {
       // ignore
     }
   }

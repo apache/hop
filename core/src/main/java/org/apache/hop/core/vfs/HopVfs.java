@@ -45,6 +45,7 @@ import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
@@ -70,7 +71,7 @@ public class HopVfs {
           fsm = createFileSystemManager();
           fsm.init();
         } catch (Exception e) {
-          throw new RuntimeException("Error initializing file system manager : ", e);
+          throw new HopRuntimeException("Error initializing file system manager : ", e);
         }
       }
       return fsm;
@@ -111,7 +112,7 @@ public class HopVfs {
 
           extendedFsm.init();
         } catch (Exception e) {
-          throw new RuntimeException("Error initializing file system manager : ", e);
+          throw new HopRuntimeException("Error initializing file system manager : ", e);
         }
       }
       return extendedFsm;

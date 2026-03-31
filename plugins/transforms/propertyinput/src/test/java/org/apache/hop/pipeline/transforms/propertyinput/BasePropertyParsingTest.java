@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.propertyinput;
 
 import java.util.Arrays;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
@@ -61,6 +62,6 @@ class BasePropertyParsingTest
   /** For BaseFileInput fields. */
   @Override
   protected void setFields(BaseFileField... fields) throws Exception {
-    throw new RuntimeException("Not implemented");
+    throw new HopRuntimeException("Not implemented");
   }
 }

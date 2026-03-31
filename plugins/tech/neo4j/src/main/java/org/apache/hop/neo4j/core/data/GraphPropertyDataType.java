@@ -19,6 +19,7 @@ package org.apache.hop.neo4j.core.data;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
@@ -122,7 +123,7 @@ public enum GraphPropertyDataType {
       return Duration;
     }
 
-    throw new RuntimeException("Unsupported object with class: " + object.getClass().getName());
+    throw new HopRuntimeException("Unsupported object with class: " + object.getClass().getName());
   }
 
   /**

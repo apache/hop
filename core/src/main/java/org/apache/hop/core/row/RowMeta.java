@@ -46,6 +46,7 @@ import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -115,7 +116,7 @@ public class RowMeta implements IRowMeta {
     try {
       return new RowMeta(this, null);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     } finally {
       lock.readLock().unlock();
     }
@@ -1207,7 +1208,7 @@ public class RowMeta implements IRowMeta {
       byteArrayOutputStream.close();
       return byteArrayOutputStream.toByteArray();
     } catch (Exception e) {
-      throw new RuntimeException("Error serializing row to byte array", e);
+      throw new HopRuntimeException("Error serializing row to byte array", e);
     }
   }
 
@@ -1224,7 +1225,7 @@ public class RowMeta implements IRowMeta {
       DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
       return metadata.readData(dataInputStream);
     } catch (Exception e) {
-      throw new RuntimeException("Error de-serializing row of data from byte array", e);
+      throw new HopRuntimeException("Error de-serializing row of data from byte array", e);
     }
   }
 

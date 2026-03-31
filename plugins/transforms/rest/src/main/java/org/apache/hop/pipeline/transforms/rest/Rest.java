@@ -49,6 +49,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.Utils;
@@ -253,7 +254,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
                   return executeRequest(
                       finalInvocationBuilder, finalEntityString, finalContentType);
                 } catch (HopException e) {
-                  throw new RuntimeException(e);
+                  throw new HopRuntimeException(e);
                 }
               });
 
@@ -881,7 +882,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
           baseUrl = resolve(connection.getBaseUrl());
 
         } catch (Exception e) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "REST connection " + meta.getConnectionName() + " could not be found");
         }
       }

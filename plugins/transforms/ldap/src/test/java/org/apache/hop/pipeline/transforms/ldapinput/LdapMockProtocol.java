@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.ldapinput;
 import java.util.Collection;
 import javax.naming.ldap.InitialLdapContext;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.mockito.Mockito;
@@ -49,14 +50,14 @@ public class LdapMockProtocol extends LdapProtocol {
   @Override
   protected void doConnect(String username, String password) throws HopException {
     if (mockContext == null) {
-      throw new RuntimeException("LDAP Mock Connection was not setup");
+      throw new HopRuntimeException("LDAP Mock Connection was not setup");
     }
   }
 
   @Override
   public InitialLdapContext getCtx() {
     if (mockContext == null) {
-      throw new RuntimeException("LDAP Mock Connection was not setup");
+      throw new HopRuntimeException("LDAP Mock Connection was not setup");
     } else {
       return mockContext;
     }

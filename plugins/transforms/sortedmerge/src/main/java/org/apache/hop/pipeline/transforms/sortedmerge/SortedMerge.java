@@ -165,7 +165,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
               return o1.getRowMeta().compare(o1.getRowData(), o2.getRowData(), data.fieldIndices);
             } catch (HopValueException e) {
               return 0; // TODO see if we should fire off alarms over here... Perhaps throw a
-              // RuntimeException.
+              // HopRuntimeException.
             }
           };
 

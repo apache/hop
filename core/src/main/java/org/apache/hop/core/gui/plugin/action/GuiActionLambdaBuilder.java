@@ -19,6 +19,7 @@ package org.apache.hop.core.gui.plugin.action;
 
 import java.lang.reflect.Method;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 
@@ -38,7 +39,7 @@ public class GuiActionLambdaBuilder<T> {
    */
   public GuiAction createLambda(GuiAction guiAction, T methodParameter, IGuiRefresher refresher) {
     if (guiAction.getGuiPluginMethodName() == null) {
-      throw new RuntimeException("We need a method to execute this action");
+      throw new HopRuntimeException("We need a method to execute this action");
     }
     // Create a copy to make sure we're not doing anything stupid
     //
@@ -82,7 +83,7 @@ public class GuiActionLambdaBuilder<T> {
       Method method =
           guiPluginClass.getMethod(action.getGuiPluginMethodName(), methodParameter.getClass());
       if (method == null) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Unable to find method "
                 + action.getGuiPluginMethodName()
                 + " with parameter "
@@ -99,7 +100,7 @@ public class GuiActionLambdaBuilder<T> {
                 refresher.updateGui();
               }
             } catch (Exception e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Error executing method : "
                       + action.getGuiPluginMethodName()
                       + " in class "
@@ -110,7 +111,7 @@ public class GuiActionLambdaBuilder<T> {
       action.setActionLambda(actionLambda);
       return action;
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error creating action function for action : "
               + toString()
               + ". Probably you need to provide a static getInstance() method in class "

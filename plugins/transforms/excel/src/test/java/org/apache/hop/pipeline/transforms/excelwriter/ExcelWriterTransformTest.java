@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -564,7 +565,7 @@ class ExcelWriterTransformTest {
   private static class DefaultAnswerThrowsException implements Answer<Object> {
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "This method (" + invocation.getMethod() + ") shouldn't have been called.");
     }
   }

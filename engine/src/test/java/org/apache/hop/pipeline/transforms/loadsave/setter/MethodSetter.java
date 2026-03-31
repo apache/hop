@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.loadsave.setter;
 
 import java.lang.reflect.Method;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 public class MethodSetter<T> implements ISetter<T> {
   private final Method method;
@@ -31,7 +32,7 @@ public class MethodSetter<T> implements ISetter<T> {
     try {
       method.invoke(obj, value);
     } catch (Exception e) {
-      throw new RuntimeException("Error invoking " + method + " on " + obj, e);
+      throw new HopRuntimeException("Error invoking " + method + " on " + obj, e);
     }
   }
 }

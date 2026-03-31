@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -133,7 +134,7 @@ class HopServerWorkflowStatusTest {
       try {
         return HttpUtil.encodeBase64ZippedString(UUID.randomUUID().toString());
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
 
@@ -142,7 +143,7 @@ class HopServerWorkflowStatusTest {
       try {
         return HttpUtil.decodeBase64ZippedString(testObject).equals(actual);
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
   }

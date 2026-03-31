@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
@@ -79,7 +80,7 @@ public class RowBuffer {
             return false;
           }
         } catch (HopValueException e) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "Error comparing 2 values in a row buffer row: " + valueMeta.getName(), e);
         }
       }

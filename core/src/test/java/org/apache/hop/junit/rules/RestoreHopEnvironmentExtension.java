@@ -29,6 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPointMap;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
@@ -130,7 +131,7 @@ public class RestoreHopEnvironmentExtension implements BeforeAllCallback, AfterA
     try {
       defaultInit();
     } catch (Throwable e) {
-      throw new RuntimeException("Failed to initialize Hop environment", e);
+      throw new HopRuntimeException("Failed to initialize Hop environment", e);
     }
   }
 

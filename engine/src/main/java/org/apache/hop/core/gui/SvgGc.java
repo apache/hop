@@ -32,6 +32,7 @@ import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -464,7 +465,7 @@ public class SvgGc implements IGc {
               new float[] {
                 6, 2,
               };
-          default -> throw new RuntimeException("Unhandled line style!");
+          default -> throw new HopRuntimeException("Unhandled line style!");
         };
     return new BasicStroke(lineWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 2, dash, 0);
   }

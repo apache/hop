@@ -35,6 +35,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
@@ -1715,7 +1716,7 @@ public class TableView extends Composite {
             try {
               return conversionRowMeta.compare(r1, r2, sortIndex);
             } catch (HopValueException e) {
-              throw new RuntimeException("Error comparing rows", e);
+              throw new HopRuntimeException("Error comparing rows", e);
             }
           });
 

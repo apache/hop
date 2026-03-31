@@ -30,6 +30,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.PublishMessagesFn;
 import org.apache.hop.beam.core.fn.PublishStringsFn;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -91,7 +92,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
 
         fieldIndex = rowMeta.indexOfValue(messageField);
         if (fieldIndex < 0) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "Field '"
                   + messageField
                   + "' couldn't be found in the input row: "
@@ -119,12 +120,12 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
         return PubsubIO.writeMessages().to(topic).expand(messagesPCollection);
       }
 
-      throw new RuntimeException("Message type '" + messageType + "' is not yet supported");
+      throw new HopRuntimeException("Message type '" + messageType + "' is not yet supported");
 
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error in beam publish transform", e);
-      throw new RuntimeException("Error in beam publish transform", e);
+      throw new HopRuntimeException("Error in beam publish transform", e);
     }
   }
 

@@ -25,6 +25,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -86,7 +87,7 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error setup of grouping by ", e);
-      throw new RuntimeException("Unable setup of group by ", e);
+      throw new HopRuntimeException("Unable setup of group by ", e);
     }
   }
 
@@ -263,7 +264,7 @@ public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error grouping by ", e);
-      throw new RuntimeException("Unable to split row into group and subject ", e);
+      throw new HopRuntimeException("Unable to split row into group and subject ", e);
     }
   }
 

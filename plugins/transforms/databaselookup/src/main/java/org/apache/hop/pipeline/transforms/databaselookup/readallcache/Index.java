@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 import java.util.Arrays;
 import java.util.Comparator;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -69,7 +70,7 @@ abstract class Index {
     try {
       doApply(context, lookupMeta, lookupValue);
     } catch (HopException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 
@@ -114,7 +115,7 @@ abstract class Index {
       try {
         c = meta.compare(o1.key, o2.key);
       } catch (HopValueException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
 
       return (c == 0) ? Integer.compare(o1.row, o2.row) : c;

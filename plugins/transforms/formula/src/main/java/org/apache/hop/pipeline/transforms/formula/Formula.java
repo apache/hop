@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -89,7 +90,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         data.outputRowMeta = getInputRowMeta().clone();
         meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
       } catch (HopTransformException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
 
       data.returnType = new int[meta.getFormulas().size()];

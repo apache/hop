@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.junit.jupiter.api.Test;
 
 class AuthContextTest {
@@ -49,7 +50,7 @@ class AuthContextTest {
   @Test
   void testDoPrivalegedActionExceptionThrowsAsCurrentUser() throws Exception {
     PrivilegedExceptionAction<Object> privExcAction = mock(PrivilegedExceptionAction.class);
-    Exception mock = mock(RuntimeException.class);
+    Exception mock = mock(HopRuntimeException.class);
     doThrow(mock).when(privExcAction).run();
     AuthContext authContext = new AuthContext(null);
     try {

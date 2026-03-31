@@ -19,12 +19,22 @@
 package org.apache.hop.core.exception;
 
 public class HopRuntimeException extends RuntimeException {
+  @java.io.Serial private static final long serialVersionUID = 1L;
+
   public HopRuntimeException() {
     super();
   }
 
   public HopRuntimeException(String s) {
     super(s);
+  }
+
+  public HopRuntimeException(Throwable cause) {
+    super(cause);
+  }
+
+  public HopRuntimeException(String message, Throwable cause) {
+    super(message, cause);
   }
 
   public HopRuntimeException(String s, Exception e) {

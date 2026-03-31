@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.io.CountingInputStream;
 import org.apache.hop.core.row.IRowMeta;
@@ -160,7 +161,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
                 } catch (Exception e) {
                   // catch the HopException or others and forward to caller, e.g. when applyXPath()
                   // has a problem
-                  throw new RuntimeException(e);
+                  throw new HopRuntimeException(e);
                 }
                 // prune the tree
                 row.detach();

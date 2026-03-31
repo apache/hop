@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionTypeConverter;
@@ -107,11 +108,11 @@ public class BeanLevelInfo<Meta extends Object> {
       TypeVariable<?>[] tps = clazz.getTypeParameters();
       if (tps.length > 0) {
         if (pt == null) {
-          throw new RuntimeException("Can't introspect class with parameters on the high level");
+          throw new HopRuntimeException("Can't introspect class with parameters on the high level");
         }
         Type[] args = pt.getActualTypeArguments();
         if (tps.length != args.length) {
-          throw new RuntimeException("Wrong generics declaration");
+          throw new HopRuntimeException("Wrong generics declaration");
         }
         Map<String, Type> prevGenerics = genericsInfo;
         genericsInfo = new TreeMap<>();
@@ -120,7 +121,7 @@ public class BeanLevelInfo<Meta extends Object> {
             TypeVariable<?> argsi = (TypeVariable<?>) args[i];
             Type prev = prevGenerics.get(argsi.getName());
             if (prev == null) {
-              throw new RuntimeException("Generic '" + args[i] + "' was not declared yet");
+              throw new HopRuntimeException("Generic '" + args[i] + "' was not declared yet");
             }
             genericsInfo.put(tps[i].getName(), prev);
           } else {
@@ -149,11 +150,11 @@ public class BeanLevelInfo<Meta extends Object> {
       }
       if (annotationInjection != null && annotationInjectionDeep != null) {
         // both annotations exist - wrong
-        throw new RuntimeException("Field can't be annotated twice for injection " + f);
+        throw new HopRuntimeException("Field can't be annotated twice for injection " + f);
       }
       if (f.isSynthetic() || f.isEnumConstant() || Modifier.isStatic(f.getModifiers())) {
         // fields can't contain real data with such modifier
-        throw new RuntimeException("Wrong modifier for annotated field " + f);
+        throw new HopRuntimeException("Wrong modifier for annotated field " + f);
       }
       BeanLevelInfo leaf = new BeanLevelInfo();
       leaf.parent = this;
@@ -174,7 +175,7 @@ public class BeanLevelInfo<Meta extends Object> {
         try {
           t = resolveGenericType(listType, genericsInfo);
         } catch (Throwable ex) {
-          throw new RuntimeException("Can't retrieve type from List for " + f, ex);
+          throw new HopRuntimeException("Can't retrieve type from List for " + f, ex);
         }
       } else {
         leaf.dim = DIMENSION.NONE;
@@ -189,7 +190,7 @@ public class BeanLevelInfo<Meta extends Object> {
         try {
           leaf.converter = annotationInjection.converter().getConstructor().newInstance();
         } catch (Exception ex) {
-          throw new RuntimeException("Error instantiate converter for " + f, ex);
+          throw new HopRuntimeException("Error instantiate converter for " + f, ex);
         }
         leaf.convertEmpty = annotationInjection.convertEmpty();
         info.addInjectionProperty(annotationInjection, leaf);
@@ -212,18 +213,18 @@ public class BeanLevelInfo<Meta extends Object> {
       }
       if (annotationInjection != null && annotationInjectionDeep != null) {
         // both annotations exist - wrong
-        throw new RuntimeException("Method can't be annotated twice for injection " + m);
+        throw new HopRuntimeException("Method can't be annotated twice for injection " + m);
       }
       if (m.isSynthetic() || Modifier.isStatic(m.getModifiers())) {
         // method is static
-        throw new RuntimeException("Wrong modifier for anotated method " + m);
+        throw new HopRuntimeException("Wrong modifier for anotated method " + m);
       }
       BeanLevelInfo leaf = new BeanLevelInfo();
       leaf.parent = this;
       if (annotationInjectionDeep != null) {
         Type getterClass = isGetter(m);
         if (getterClass == null) {
-          throw new RuntimeException("Method should be getter: " + m);
+          throw new HopRuntimeException("Method should be getter: " + m);
         }
         if (m.getReturnType() != null && List.class.equals(m.getReturnType())) {
           // returns list
@@ -233,7 +234,7 @@ public class BeanLevelInfo<Meta extends Object> {
         }
         Class<?> getter = (Class<?>) resolveGenericType(getterClass, genericsInfo);
         if (getter.isArray()) {
-          throw new RuntimeException("Method should be getter: " + m);
+          throw new HopRuntimeException("Method should be getter: " + m);
         }
         leaf.getter = m;
         leaf.leafClass = getter;
@@ -245,14 +246,14 @@ public class BeanLevelInfo<Meta extends Object> {
       } else {
         Class<?> setterClass = isSetter(m);
         if (setterClass == null || setterClass.isArray()) {
-          throw new RuntimeException("Method should be setter: " + m);
+          throw new HopRuntimeException("Method should be setter: " + m);
         }
         leaf.setter = m;
         leaf.leafClass = setterClass;
         try {
           leaf.converter = annotationInjection.converter().getConstructor().newInstance();
         } catch (Exception ex) {
-          throw new RuntimeException("Error instantiate converter for " + m, ex);
+          throw new HopRuntimeException("Error instantiate converter for " + m, ex);
         }
         leaf.convertEmpty = annotationInjection.convertEmpty();
         info.addInjectionProperty(annotationInjection, leaf);
@@ -278,7 +279,7 @@ public class BeanLevelInfo<Meta extends Object> {
       String name = ((TypeVariable<?>) type).getName();
       type = genericsInfo.get(name);
       if (type == null) {
-        throw new RuntimeException("Unknown generics for '" + name + "'");
+        throw new HopRuntimeException("Unknown generics for '" + name + "'");
       }
     }
     return type;

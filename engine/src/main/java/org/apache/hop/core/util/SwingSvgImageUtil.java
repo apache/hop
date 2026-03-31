@@ -27,6 +27,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.SwingUniversalImage;
 import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.vfs.HopVfs;
 
@@ -96,7 +97,7 @@ public class SwingSvgImageUtil {
   public static SwingUniversalImageSvg getUniversalImage(ClassLoader classLoader, String filename) {
 
     if (StringUtils.isBlank(filename)) {
-      throw new RuntimeException("Filename not provided");
+      throw new HopRuntimeException("Filename not provided");
     }
 
     SwingUniversalImageSvg result = null;
@@ -197,13 +198,13 @@ public class SwingSvgImageUtil {
   /** Load image from InputStream as bitmap image, or SVG image conversion to bitmap image. */
   private static SwingUniversalImageSvg loadImage(InputStream in, String filename) {
     if (!SvgSupport.isSvgName(filename)) {
-      throw new RuntimeException("Only SVG images are supported, not : '" + filename + "'");
+      throw new HopRuntimeException("Only SVG images are supported, not : '" + filename + "'");
     } else {
       // svg image
       try {
         return new SwingUniversalImageSvg(SvgSupport.loadSvgImage(in));
       } catch (Exception ex) {
-        throw new RuntimeException(ex);
+        throw new HopRuntimeException(ex);
       }
     }
   }

@@ -18,6 +18,8 @@
 
 package org.apache.hop.metadata.api;
 
+import org.apache.hop.core.exception.HopRuntimeException;
+
 /**
  * The class that implements this interface can convert between an integer and a code string. This
  * is used to convert from old-style integer codes to their string code equivalent. We can use it
@@ -31,12 +33,12 @@ public interface IIntCodeConverter {
   class None implements IIntCodeConverter {
     @Override
     public String getCode(int type) {
-      throw new RuntimeException("This is not intended to be used");
+      throw new HopRuntimeException("This is not intended to be used");
     }
 
     @Override
     public int getType(String code) {
-      throw new RuntimeException("This is not intended to be used");
+      throw new HopRuntimeException("This is not intended to be used");
     }
   }
 }

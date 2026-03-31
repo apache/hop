@@ -35,6 +35,7 @@ import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.logging.LogChannel;
@@ -222,7 +223,8 @@ public class HopWeb implements ApplicationConfiguration {
             String svgXml = XmlHandler.getXmlString(cacheEntry.getSvgDocument(), false, false);
             return new ByteArrayInputStream(svgXml.getBytes(StandardCharsets.UTF_8));
           } catch (Exception e) {
-            throw new RuntimeException("Error loading SVG resource filename: " + imageFilename, e);
+            throw new HopRuntimeException(
+                "Error loading SVG resource filename: " + imageFilename, e);
           }
         };
     application.addResource(imageFilename, loader);
@@ -235,7 +237,7 @@ public class HopWeb implements ApplicationConfiguration {
       InputStream inputStream = classLoader.getResourceAsStream(resourceName);
       try (inputStream) {
         if (inputStream == null) {
-          throw new RuntimeException("Resource not found: " + resourceName);
+          throw new HopRuntimeException("Resource not found: " + resourceName);
         }
         BufferedReader reader =
             new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -249,7 +251,7 @@ public class HopWeb implements ApplicationConfiguration {
         result = stringBuilder.toString();
       }
     } catch (IOException e) {
-      throw new RuntimeException("Failed to read text from resource: " + resourceName);
+      throw new HopRuntimeException("Failed to read text from resource: " + resourceName);
     }
     return result;
   }

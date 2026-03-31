@@ -26,6 +26,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 /**
  * XML formatting for better VCS diff.
@@ -139,7 +140,7 @@ public class XmlFormatter {
             wr.writeEndDocument();
             break;
           default:
-            throw new RuntimeException("Unknown XML event: " + event);
+            throw new HopRuntimeException("Unknown XML event: " + event);
         }
       }
 
@@ -147,7 +148,7 @@ public class XmlFormatter {
 
       return result.toString();
     } catch (XMLStreamException ex) {
-      throw new RuntimeException(ex);
+      throw new HopRuntimeException(ex);
     } finally {
       try {
         if (wr != null) {

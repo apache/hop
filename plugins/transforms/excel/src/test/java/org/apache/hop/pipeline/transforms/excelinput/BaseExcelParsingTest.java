@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.excelinput;
 
 import java.util.Arrays;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
@@ -73,6 +74,6 @@ class BaseExcelParsingTest extends BaseParsingTest<ExcelInputMeta, ExcelInputDat
   /** For BaseFileInput fields. */
   @Override
   protected void setFields(BaseFileField... fields) throws Exception {
-    throw new RuntimeException("Not implemented");
+    throw new HopRuntimeException("Not implemented");
   }
 }

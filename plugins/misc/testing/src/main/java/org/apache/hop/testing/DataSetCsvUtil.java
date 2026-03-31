@@ -34,6 +34,7 @@ import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -203,7 +204,7 @@ public class DataSetCsvUtil {
               try {
                 return outputRowMeta.compare(o1, o2, sortIndexes);
               } catch (HopValueException e) {
-                throw new RuntimeException("Unable to compare 2 rows", e);
+                throw new HopRuntimeException("Unable to compare 2 rows", e);
               }
             });
       }

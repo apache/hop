@@ -69,6 +69,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
@@ -3327,7 +3328,7 @@ public class ValueMetaBase implements IValueMeta {
         }
       }
     } catch (ClassCastException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           this
               + MSG_DATA_TYPE_ERROR
               + object.getClass().getName()
@@ -3576,7 +3577,7 @@ public class ValueMetaBase implements IValueMeta {
                             + getType());
                 }
               } catch (ClassCastException e) {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     this
                         + MSG_DATA_TYPE_ERROR
                         + o.getClass().getName()
@@ -3850,7 +3851,7 @@ public class ValueMetaBase implements IValueMeta {
                           + getType());
               }
             } catch (ClassCastException e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   this
                       + MSG_DATA_TYPE_ERROR
                       + o.getClass().getName()
@@ -3961,7 +3962,7 @@ public class ValueMetaBase implements IValueMeta {
             throw new IOException(this + MSG_UNKNOWN_STORAGE_TYPE + getStorageType());
         }
       } catch (ClassCastException e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             this
                 + MSG_DATA_TYPE_ERROR
                 + object.getClass().getName()
@@ -3972,7 +3973,7 @@ public class ValueMetaBase implements IValueMeta {
                 + "]",
             e);
       } catch (Exception e) {
-        throw new RuntimeException(this + " : there was a value XML encoding error", e);
+        throw new HopRuntimeException(this + " : there was a value XML encoding error", e);
       }
     } else {
       // If the object is null: give an empty string
@@ -4168,7 +4169,7 @@ public class ValueMetaBase implements IValueMeta {
       // We tried everything else so we assume this value is not null.
       //
     } catch (ClassCastException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to verify if [" + this + "] is null or not because of an error:" + e, e);
     }
   }

@@ -29,6 +29,7 @@ import javax.script.SimpleScriptContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -575,7 +576,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               } else if (classType.equalsIgnoreCase("java.lang.String")) {
                 return new BigDecimal(Long.parseLong((String) result));
               } else {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     "JavaScript conversion to BigNumber not implemented for " + classType);
               }
 
@@ -585,14 +586,14 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
               }
             case IValueMeta.TYPE_NONE:
               {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     "No data output data type was specified for new field ["
                         + field.getName()
                         + "]");
               }
             default:
               {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     "JavaScript conversion not implemented for type "
                         + field.getHopType()
                         + " ("

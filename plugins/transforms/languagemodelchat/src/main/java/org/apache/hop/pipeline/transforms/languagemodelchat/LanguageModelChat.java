@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -86,7 +87,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          throw new HopRuntimeException(e);
         }
       }
     }
@@ -180,7 +181,7 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
         try {
           lock.wait();
         } catch (InterruptedException e) {
-          throw new RuntimeException(e);
+          throw new HopRuntimeException(e);
         }
       }
     }

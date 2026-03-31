@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -99,7 +100,7 @@ class MongoClientWrapperImplTest {
   @Mock private DefaultMongoClientFactory mongoClientFactory;
   @Mock private MongoDatabase mockDB;
   @Mock private MongoCollection<Document> collection;
-  @Mock private RuntimeException runtimeException;
+  @Mock private HopRuntimeException runtimeException;
   @Captor private ArgumentCaptor<List<ServerAddress>> serverAddresses;
   @Captor private ArgumentCaptor<List<MongoCredential>> mongoCredentials;
 

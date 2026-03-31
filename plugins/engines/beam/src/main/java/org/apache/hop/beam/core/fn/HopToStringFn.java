@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -76,7 +77,7 @@ public class HopToStringFn extends DoFn<HopRow, String> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.info("Parse error on setup of Hop data to string lines : " + e.getMessage());
-      throw new RuntimeException("Error on setup of converting Hop data to string lines", e);
+      throw new HopRuntimeException("Error on setup of converting Hop data to string lines", e);
     }
   }
 
@@ -137,7 +138,7 @@ public class HopToStringFn extends DoFn<HopRow, String> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.info("Parse error on " + processContext.element() + ", " + e.getMessage());
-      throw new RuntimeException("Error converting Hop data to string lines", e);
+      throw new HopRuntimeException("Error converting Hop data to string lines", e);
     }
   }
 }

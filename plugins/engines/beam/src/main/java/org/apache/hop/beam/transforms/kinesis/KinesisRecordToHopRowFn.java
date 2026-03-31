@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.StringToHopRowFn;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -86,7 +87,7 @@ public class KinesisRecordToHopRowFn extends DoFn<KinesisRecord, HopRow> {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in setup of KinesisRecord to HopRow conversion function", e);
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error in setup of KinesisRecord to HopRow conversion function", e);
     }
   }
@@ -146,7 +147,7 @@ public class KinesisRecordToHopRowFn extends DoFn<KinesisRecord, HopRow> {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in KinesisRecord to HopRow conversion function", e);
-      throw new RuntimeException("Error in KinesisRecord to HopRow conversion function", e);
+      throw new HopRuntimeException("Error in KinesisRecord to HopRow conversion function", e);
     }
   }
 }

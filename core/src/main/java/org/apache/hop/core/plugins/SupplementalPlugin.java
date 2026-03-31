@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 /** This is a holder of Plugin Class mappings which supplement those of the stock Plugin. */
 public class SupplementalPlugin extends Plugin implements IClassLoadingPlugin {
@@ -59,7 +60,7 @@ public class SupplementalPlugin extends Plugin implements IClassLoadingPlugin {
     try {
       return (T) factoryMap.get(pluginClass).call();
     } catch (Exception e) {
-      throw new RuntimeException(new HopPluginException("Error creating plugin class", e));
+      throw new HopRuntimeException(new HopPluginException("Error creating plugin class", e));
     }
   }
 

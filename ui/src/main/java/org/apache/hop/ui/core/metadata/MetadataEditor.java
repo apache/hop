@@ -24,6 +24,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.plugins.IPlugin;
@@ -201,7 +202,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
       try {
         hopGui.getEventsHandler().fire(HopGuiEvents.MetadataChanged.name());
       } catch (HopException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
   }

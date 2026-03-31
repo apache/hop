@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Parameter;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Property;
@@ -80,7 +81,7 @@ public class BaseOperation implements IOperation {
 
   @Override
   public boolean needsWriteTransaction() {
-    throw new RuntimeException(
+    throw new HopRuntimeException(
         "Write transaction information is not provided for operation type " + operationType);
   }
 

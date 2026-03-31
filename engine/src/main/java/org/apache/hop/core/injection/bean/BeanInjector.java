@@ -32,6 +32,7 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -53,7 +54,7 @@ public class BeanInjector<Meta extends Object> {
   public Object getObject(Object root, String propName) throws Exception {
     BeanInjectionInfo<Meta>.Property prop = info.getProperties().get(propName);
     if (prop == null) {
-      throw new RuntimeException("Property not found");
+      throw new HopRuntimeException("Property not found");
     }
     BeanLevelInfo<Meta> beanLevelInfo = prop.path.get(1);
     return beanLevelInfo.field.get(root);
@@ -100,7 +101,7 @@ public class BeanInjector<Meta extends Object> {
     try {
       return beanLevelInfo.field == null ? null : beanLevelInfo.field.get(obj);
     } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 
@@ -109,7 +110,7 @@ public class BeanInjector<Meta extends Object> {
 
     BeanInjectionInfo<Meta>.Property prop = info.getProperties().get(propName);
     if (prop == null) {
-      throw new RuntimeException("Property not found");
+      throw new HopRuntimeException("Property not found");
     }
 
     Object obj = root;
@@ -485,12 +486,12 @@ public class BeanInjector<Meta extends Object> {
       }
       if (m.isSynthetic() || Modifier.isStatic(m.getModifiers())) {
         // method is static
-        throw new RuntimeException("Wrong modifier for annotated method " + m);
+        throw new HopRuntimeException("Wrong modifier for annotated method " + m);
       }
       try {
         m.invoke(object);
       } catch (Exception e) {
-        throw new RuntimeException("Can not invoke after injection method " + m, e);
+        throw new HopRuntimeException("Can not invoke after injection method " + m, e);
       }
     }
   }

@@ -50,6 +50,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -421,7 +422,7 @@ class DatabaseLookupUTest {
       try {
         return createVirtualDb(meta);
       } catch (Exception ex) {
-        throw new RuntimeException(ex);
+        throw new HopRuntimeException(ex);
       }
     }
   }

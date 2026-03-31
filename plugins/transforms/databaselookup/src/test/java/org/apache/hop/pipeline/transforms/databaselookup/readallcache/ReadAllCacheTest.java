@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -166,7 +167,7 @@ class ReadAllCacheTest {
       String operator = tokenizer.nextToken();
       int index = operators.indexOf(operator);
       if (index == -1) {
-        throw new RuntimeException(conditions + " -- " + operator);
+        throw new HopRuntimeException(conditions + " -- " + operator);
       }
       transformData.conditions[conditionIndex] = index;
       conditionIndex++;

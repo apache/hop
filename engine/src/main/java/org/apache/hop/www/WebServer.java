@@ -32,6 +32,7 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
@@ -502,7 +503,7 @@ public class WebServer {
       try {
         socket = new ServerSocket(shutdownPort, 1, InetAddress.getByName(hostname));
       } catch (Exception e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
 
@@ -517,7 +518,7 @@ public class WebServer {
         accept.close();
         socket.close();
       } catch (Exception e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
   }

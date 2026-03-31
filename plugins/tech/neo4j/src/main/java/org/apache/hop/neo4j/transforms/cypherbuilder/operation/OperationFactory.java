@@ -19,6 +19,7 @@
 package org.apache.hop.neo4j.transforms.cypherbuilder.operation;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 
 public class OperationFactory implements IHopMetadataObjectFactory {
@@ -36,7 +37,7 @@ public class OperationFactory implements IHopMetadataObjectFactory {
       case EDGE_CREATE -> new EdgeCreateOperation();
       case EDGE_MERGE -> new EdgeMergeOperation();
       default ->
-          throw new RuntimeException("Operation type " + operationType + " is not supported");
+          throw new HopRuntimeException("Operation type " + operationType + " is not supported");
     };
   }
 

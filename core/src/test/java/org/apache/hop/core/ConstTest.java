@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.Assertions;
@@ -3831,7 +3832,7 @@ class ConstTest {
     Throwable throwable =
         new HopException(
             "Message1",
-            new HopException("Cause1", new RuntimeException("Cause2", new Exception("Cause3"))));
+            new HopException("Cause1", new HopRuntimeException("Cause2", new Exception("Cause3"))));
     String simpleStackTrace = Const.getSimpleStackTrace(throwable);
     assertFalse(simpleStackTrace.contains(".java"));
     assertTrue(simpleStackTrace.contains("Message1"));

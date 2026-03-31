@@ -25,6 +25,7 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
@@ -59,7 +60,7 @@ public class UserDefinedJavaClass
       try {
         meta.cookClasses();
       } catch (HopException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
 

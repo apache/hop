@@ -32,6 +32,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
@@ -111,8 +112,8 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
               });
       return constructor.newInstance(
           new Object[] {transformMeta, this, data, copyNr, pipelineMeta, pipeline});
-    } catch (RuntimeException | ReflectiveOperationException e) {
-      throw new RuntimeException(
+    } catch (HopRuntimeException | ReflectiveOperationException e) {
+      throw new HopRuntimeException(
           "Error create instance of transform: " + getClass().getCanonicalName(), e);
     }
   }
@@ -128,8 +129,8 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       if (dataClass.isInterface()) return null;
 
       return dataClass.getDeclaredConstructor().newInstance();
-    } catch (RuntimeException | ReflectiveOperationException e) {
-      throw new RuntimeException(
+    } catch (HopRuntimeException | ReflectiveOperationException e) {
+      throw new HopRuntimeException(
           "Error create instance of transform data: " + getClass().getCanonicalName(), e);
     }
   }

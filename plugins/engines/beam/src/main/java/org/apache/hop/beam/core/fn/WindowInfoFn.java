@@ -25,6 +25,7 @@ import org.apache.beam.sdk.transforms.windowing.IntervalWindow;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -83,7 +84,7 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error in setup of adding window information to rows : " + e.getMessage());
-      throw new RuntimeException("Error in setup of adding window information to rows", e);
+      throw new HopRuntimeException("Error in setup of adding window information to rows", e);
     }
   }
 
@@ -145,7 +146,7 @@ public class WindowInfoFn extends DoFn<HopRow, HopRow> {
               + processContext.element()
               + ", "
               + e.getMessage());
-      throw new RuntimeException("Error adding window information to rows", e);
+      throw new HopRuntimeException("Error adding window information to rows", e);
     }
   }
 }

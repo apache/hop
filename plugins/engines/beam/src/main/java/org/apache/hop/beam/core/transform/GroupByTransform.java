@@ -28,6 +28,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.GroupByFn;
 import org.apache.hop.beam.core.fn.HopKeyValueFn;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -116,7 +117,7 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in group by transform", e);
-      throw new RuntimeException("Error in group by transform", e);
+      throw new HopRuntimeException("Error in group by transform", e);
     }
   }
 

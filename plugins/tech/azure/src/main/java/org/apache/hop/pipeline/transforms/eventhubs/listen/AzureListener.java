@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -272,7 +273,7 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
                       eventProcessor.startWait();
                       eventProcessor.doOneIteration();
                     } catch (Exception e) {
-                      throw new RuntimeException(
+                      throw new HopRuntimeException(
                           "Error in batch iteration when max wait time was exceeded", e);
                     } finally {
                       eventProcessor.endWait();
@@ -288,7 +289,7 @@ public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListene
         // Check ten times per second
         //
         timer.schedule(timerTask, 100, 100);
-      } catch (RuntimeException e) {
+      } catch (HopRuntimeException e) {
         throw new HopTransformException(
             "Error in batch iteration when max wait time was exceeded", e);
       }

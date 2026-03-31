@@ -23,6 +23,7 @@ import java.util.TimerTask;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
@@ -153,7 +154,7 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
                     executeLoggingPipeline(
                         workflowLog, "interval", loggingPipelineFilename, workflow, variables);
                   } catch (Exception e) {
-                    throw new RuntimeException(
+                    throw new HopRuntimeException(
                         "Unable to do interval logging for Workflow Log object '"
                             + workflowLog.getName()
                             + "'",

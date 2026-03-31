@@ -44,6 +44,7 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.HopRowToKVStringStringFn;
 import org.apache.hop.beam.transforms.kafka.ConfigOption;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -134,7 +135,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
               case Double -> Double.valueOf(optionValue);
               case Boolean -> Boolean.valueOf(optionValue);
               default ->
-                  throw new RuntimeException(
+                  throw new HopRuntimeException(
                       "Config option parameter "
                           + configOption.getParameter()
                           + " uses unsupported type "
@@ -189,7 +190,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in Beam Kafka output transform", e);
-      throw new RuntimeException("Error in Beam Kafka output transform", e);
+      throw new HopRuntimeException("Error in Beam Kafka output transform", e);
     }
   }
 
@@ -253,7 +254,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in setup of HopRow to KV<String,GenericRecord> function", e);
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error in setup of HopRow to KV<String,GenericRecord> function", e);
       }
     }
@@ -273,7 +274,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in HopRow to KV<String,GenericRecord> function", e);
-        throw new RuntimeException("Error in HopRow to KV<String,GenericRecord> function", e);
+        throw new HopRuntimeException("Error in HopRow to KV<String,GenericRecord> function", e);
       }
     }
   }

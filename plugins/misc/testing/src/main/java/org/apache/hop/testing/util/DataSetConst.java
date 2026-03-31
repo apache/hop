@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -236,10 +237,10 @@ public class DataSetConst {
                       try {
                         return resultRowMeta.compare(row1, row2, resultFieldIndexes);
                       } catch (HopValueException e) {
-                        throw new RuntimeException("Error comparing golden data result rows", e);
+                        throw new HopRuntimeException("Error comparing golden data result rows", e);
                       }
                     });
-          } catch (RuntimeException e) {
+          } catch (HopRuntimeException e) {
             throw new HopException(
                 "Error sorting result rows for golden data set '" + location.getDataSetName() + "'",
                 e);
@@ -279,10 +280,10 @@ public class DataSetConst {
                   try {
                     return goldenRowMeta.compare(row1, row2, goldenFieldIndexes);
                   } catch (HopValueException e) {
-                    throw new RuntimeException("Error comparing golden data set rows", e);
+                    throw new HopRuntimeException("Error comparing golden data set rows", e);
                   }
                 });
-          } catch (RuntimeException e) {
+          } catch (HopRuntimeException e) {
             throw new HopException(
                 "Error sorting golden data rows for golden data set '"
                     + location.getDataSetName()

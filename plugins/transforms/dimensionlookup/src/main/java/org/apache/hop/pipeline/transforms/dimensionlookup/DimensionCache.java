@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 
@@ -168,7 +169,7 @@ public class DimensionCache implements Comparator<Object[]> {
         }
       }
       return index;
-    } catch (RuntimeException e) {
+    } catch (HopRuntimeException e) {
       throw new HopException(e);
     }
   }
@@ -225,7 +226,7 @@ public class DimensionCache implements Comparator<Object[]> {
       }
       return fromCmpLookup;
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 

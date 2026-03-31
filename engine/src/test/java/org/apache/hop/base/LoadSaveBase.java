@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -167,7 +168,8 @@ public abstract class LoadSaveBase<T> {
       }
       return meta;
     } catch (Exception e) {
-      throw new RuntimeException("Unable to create meta of class " + clazz.getCanonicalName(), e);
+      throw new HopRuntimeException(
+          "Unable to create meta of class " + clazz.getCanonicalName(), e);
     }
   }
 
@@ -189,7 +191,7 @@ public abstract class LoadSaveBase<T> {
           addDatabase((DatabaseMeta[]) testValue);
         }
       } catch (Exception e) {
-        throw new RuntimeException("Unable to invoke setter for " + attribute, e);
+        throw new HopRuntimeException("Unable to invoke setter for " + attribute, e);
       }
       validatorMap.put(attribute, validator);
     }
@@ -222,7 +224,7 @@ public abstract class LoadSaveBase<T> {
           }
         }
         if (validatorMethod == null) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "Couldn't find proper validateTestObject method on "
                   + validator.getClass().getCanonicalName());
         }
@@ -236,7 +238,7 @@ public abstract class LoadSaveBase<T> {
                   + value);
         }
       } catch (Exception e) {
-        throw new RuntimeException("Error validating attribute: " + attribute, e);
+        throw new HopRuntimeException("Error validating attribute: " + attribute, e);
       }
     }
   }
@@ -252,7 +254,7 @@ public abstract class LoadSaveBase<T> {
     try {
       metadataProvider.getSerializer(DatabaseMeta.class).save(db);
     } catch (HopException e) {
-      throw new RuntimeException("Error adding database to the test metadata", e);
+      throw new HopRuntimeException("Error adding database to the test metadata", e);
     }
   }
 

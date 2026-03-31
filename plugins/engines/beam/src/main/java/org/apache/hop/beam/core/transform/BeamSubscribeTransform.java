@@ -32,6 +32,7 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.PubsubMessageToHopRowFn;
 import org.apache.hop.beam.core.fn.StringToHopRowFn;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -124,14 +125,14 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
                 transformName, ParDo.of(new PubsubMessageToHopRowFn(transformName, rowMetaJson)));
 
       } else {
-        throw new RuntimeException("Unsupported message type: " + messageType);
+        throw new HopRuntimeException("Unsupported message type: " + messageType);
       }
 
       return output;
     } catch (Exception e) {
       Metrics.counter(Pipeline.METRIC_NAME_ERROR, transformName).inc();
       LOG.error("Error in beam subscribe transform", e);
-      throw new RuntimeException("Error in beam subscribe transform", e);
+      throw new HopRuntimeException("Error in beam subscribe transform", e);
     }
   }
 

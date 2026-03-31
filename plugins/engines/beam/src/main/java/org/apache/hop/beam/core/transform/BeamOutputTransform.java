@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.HopToStringFn;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.slf4j.Logger;
@@ -126,7 +127,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in beam output transform", e);
-      throw new RuntimeException("Error in beam output transform", e);
+      throw new HopRuntimeException("Error in beam output transform", e);
     }
   }
 

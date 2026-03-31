@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.model.GraphNode;
 import org.apache.hop.neo4j.model.GraphPresentation;
@@ -170,7 +171,7 @@ public class SolutionsWorkbenchImporter {
     if (obj instanceof Long longValue) {
       return longValue.doubleValue();
     }
-    throw new RuntimeException("Unrecognized data type for value " + obj.toString());
+    throw new HopRuntimeException("Unrecognized data type for value " + obj.toString());
   }
 
   private static List<GraphProperty> importProperties(JSONObject j, String propertiesKey) {

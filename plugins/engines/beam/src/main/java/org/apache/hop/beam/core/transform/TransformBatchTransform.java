@@ -42,6 +42,7 @@ import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
@@ -188,7 +189,7 @@ public class TransformBatchTransform extends TransformTransform {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error transforming data in transform '" + transformName + "'", e);
-      throw new RuntimeException("Error transforming data in transform", e);
+      throw new HopRuntimeException("Error transforming data in transform", e);
     }
   }
 
@@ -302,7 +303,7 @@ public class TransformBatchTransform extends TransformTransform {
       } catch (Exception e) {
         numErrors.inc();
         LOG.info("Transform '" + transformName + "' : setup error :" + e.getMessage());
-        throw new RuntimeException("Unable to set up transform " + transformName, e);
+        throw new HopRuntimeException("Unable to set up transform " + transformName, e);
       }
     }
 
@@ -325,7 +326,7 @@ public class TransformBatchTransform extends TransformTransform {
           }
         }
       } catch (Exception e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error cleaning up single threaded pipeline executor in Beam transform "
                 + transformName,
             e);
@@ -648,7 +649,7 @@ public class TransformBatchTransform extends TransformTransform {
                         try {
                           emptyRowBuffer(new TransformProcessContext(context));
                         } catch (Exception e) {
-                          throw new RuntimeException(
+                          throw new HopRuntimeException(
                               "Unable to flush row buffer when it got stale after "
                                   + difference
                                   + " ms",
@@ -691,7 +692,7 @@ public class TransformBatchTransform extends TransformTransform {
       } catch (Exception e) {
         numErrors.inc();
         LOG.info("Transform execution error :" + e.getMessage());
-        throw new RuntimeException("Error executing TransformBatchFn", e);
+        throw new HopRuntimeException("Error executing TransformBatchFn", e);
       }
     }
 
@@ -706,7 +707,7 @@ public class TransformBatchTransform extends TransformTransform {
       } catch (Exception e) {
         numErrors.inc();
         LOG.info("Transform finishing bundle error :" + e.getMessage());
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error finalizing bundle of transform '" + transformName + "'", e);
       }
     }
@@ -837,7 +838,7 @@ public class TransformBatchTransform extends TransformTransform {
           return combi;
         }
       }
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Configuration error, transform '" + transformName + "' not found in transformation");
     }
   }

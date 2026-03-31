@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.closure;
 
 import java.util.HashMap;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -111,7 +112,7 @@ public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, Closur
   private void recurseParents(Object key, long distance) {
     // catch infinite loop - change at will
     if (distance > 50) {
-      throw new RuntimeException("infinite loop detected:" + key);
+      throw new HopRuntimeException("infinite loop detected:" + key);
     }
     Object parent = data.map.get(key);
 

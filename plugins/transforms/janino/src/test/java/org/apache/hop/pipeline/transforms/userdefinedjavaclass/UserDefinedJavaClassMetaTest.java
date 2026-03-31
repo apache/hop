@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -70,7 +71,7 @@ class UserDefinedJavaClassMetaTest {
     try {
       userDefinedJavaClassMetaSpy.cookClasses();
     } catch (HopException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
 
     assertEquals(1, userDefinedJavaClassMeta.getCookErrors().size());

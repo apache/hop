@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.gui;
 
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 
 /**
@@ -47,7 +48,7 @@ public class HopNamespace {
   public static final String getNamespace() {
     String namespace = getInstance().namespace;
     if (Utils.isEmpty(namespace)) {
-      throw new RuntimeException("Please set a namespace before using one");
+      throw new HopRuntimeException("Please set a namespace before using one");
     }
     return getInstance().namespace;
   }

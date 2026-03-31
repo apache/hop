@@ -29,6 +29,7 @@ import org.apache.commons.collections4.iterators.ArrayIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -524,7 +525,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
                 .getSerializer(MailServerConnection.class)
                 .load(meta.getConnectionName());
       } catch (HopException e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Mail Server Connection " + meta.getConnectionName() + " could not be found");
       }
       try {

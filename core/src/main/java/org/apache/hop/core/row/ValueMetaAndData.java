@@ -20,6 +20,7 @@ package org.apache.hop.core.row;
 import java.math.BigDecimal;
 import java.util.Date;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -77,7 +78,7 @@ public class ValueMetaAndData {
       this.valueMeta = v.valueMeta.clone();
       this.valueData = v.valueMeta.cloneValueData(v.getValueData());
     } catch (Exception e) {
-      throw new RuntimeException("Error creating copy of value and metadata", e);
+      throw new HopRuntimeException("Error creating copy of value and metadata", e);
     }
   }
 
@@ -87,7 +88,7 @@ public class ValueMetaAndData {
     try {
       vmad.valueData = valueMeta.cloneValueData(valueData);
     } catch (HopValueException e) {
-      throw new RuntimeException("Error cloning value data", e);
+      throw new HopRuntimeException("Error cloning value data", e);
     }
     vmad.valueMeta = valueMeta.clone();
 

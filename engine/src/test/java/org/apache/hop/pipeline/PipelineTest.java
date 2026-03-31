@@ -30,6 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -193,7 +194,7 @@ class PipelineTest {
       try {
         start.await();
       } catch (InterruptedException e) {
-        throw new RuntimeException();
+        throw new HopRuntimeException();
       }
       while (!isStopped()) {
         pipeline.stopAll();
@@ -211,7 +212,7 @@ class PipelineTest {
       try {
         start.await();
       } catch (InterruptedException e) {
-        throw new RuntimeException();
+        throw new HopRuntimeException();
       }
       while (!isStopped()) {
         pipeline.addExecutionStoppedListener(pipelineStoppedListener);
@@ -229,7 +230,7 @@ class PipelineTest {
       try {
         start.await();
       } catch (InterruptedException e) {
-        throw new RuntimeException();
+        throw new HopRuntimeException();
       }
       // run
       while (!isStopped()) {
@@ -248,7 +249,7 @@ class PipelineTest {
       try {
         start.await();
       } catch (InterruptedException e) {
-        throw new RuntimeException();
+        throw new HopRuntimeException();
       }
       // run
       while (!isStopped()) {
@@ -257,7 +258,7 @@ class PipelineTest {
           // clean array blocking queue
           pipeline.waitUntilFinished();
         } catch (HopException e) {
-          throw new RuntimeException();
+          throw new HopRuntimeException();
         }
       }
     }
@@ -273,14 +274,14 @@ class PipelineTest {
       try {
         start.await();
       } catch (InterruptedException e) {
-        throw new RuntimeException();
+        throw new HopRuntimeException();
       }
       // run
       while (!isStopped()) {
         try {
           pipeline.fireExecutionStartedListeners();
         } catch (HopException e) {
-          throw new RuntimeException();
+          throw new HopRuntimeException();
         }
       }
     }

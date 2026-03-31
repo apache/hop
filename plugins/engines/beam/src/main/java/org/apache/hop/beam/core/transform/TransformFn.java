@@ -36,6 +36,7 @@ import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.apache.hop.beam.engines.HopPipelineExecutionOptions;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -176,7 +177,7 @@ public class TransformFn extends TransformBaseFn {
         executor.startBundle();
       }
     } catch (HopException e) {
-      throw new RuntimeException("Error at start of bundle!", e);
+      throw new HopRuntimeException("Error at start of bundle!", e);
     }
   }
 
@@ -197,7 +198,7 @@ public class TransformFn extends TransformBaseFn {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Transform execution error :" + e.getMessage());
-      throw new RuntimeException("Error executing TransformFn", e);
+      throw new HopRuntimeException("Error executing TransformFn", e);
     }
   }
 
@@ -572,7 +573,7 @@ public class TransformFn extends TransformBaseFn {
         return combi;
       }
     }
-    throw new RuntimeException(
+    throw new HopRuntimeException(
         "Configuration error, transform '" + transformName + "' not found in transformation");
   }
 
@@ -622,7 +623,8 @@ public class TransformFn extends TransformBaseFn {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Transform finishing bundle error :" + e.getMessage());
-      throw new RuntimeException("Error finalizing bundle of transform '" + transformName + "'", e);
+      throw new HopRuntimeException(
+          "Error finalizing bundle of transform '" + transformName + "'", e);
     }
   }
 

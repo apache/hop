@@ -44,6 +44,7 @@ import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -1782,7 +1783,7 @@ public class WorkflowMeta extends AbstractMeta
 
       monitor.done();
     } catch (Exception e) {
-      throw new RuntimeException("Error checking workflow", e);
+      throw new HopRuntimeException("Error checking workflow", e);
     }
   }
 

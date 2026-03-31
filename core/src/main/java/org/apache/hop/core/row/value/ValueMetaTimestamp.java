@@ -38,6 +38,7 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
@@ -582,7 +583,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
         }
       }
     } catch (ClassCastException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           this
               + " : There was a data type error: the data type of "
               + object.getClass().getName()

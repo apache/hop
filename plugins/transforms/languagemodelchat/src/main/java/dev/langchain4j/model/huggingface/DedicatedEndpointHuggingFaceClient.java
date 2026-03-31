@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import okhttp3.OkHttpClient;
+import org.apache.hop.core.exception.HopRuntimeException;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -80,7 +81,7 @@ class DedicatedEndpointHuggingFaceClient implements HuggingFaceClient {
         throw toException(retrofitResponse);
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 
@@ -90,7 +91,7 @@ class DedicatedEndpointHuggingFaceClient implements HuggingFaceClient {
     if (responses != null && responses.size() == 1) {
       return responses.get(0);
     } else {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Expected only one generated_text, but was: "
               + (responses == null ? 0 : responses.size()));
     }
@@ -106,16 +107,17 @@ class DedicatedEndpointHuggingFaceClient implements HuggingFaceClient {
         throw toException(retrofitResponse);
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 
-  private static RuntimeException toException(retrofit2.Response<?> response) throws IOException {
+  private static HopRuntimeException toException(retrofit2.Response<?> response)
+      throws IOException {
 
     int code = response.code();
     String body = response.errorBody().string();
 
     String errorMessage = String.format("status code: %s; body: %s", code, body);
-    return new RuntimeException(errorMessage);
+    return new HopRuntimeException(errorMessage);
   }
 }

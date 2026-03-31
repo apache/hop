@@ -30,6 +30,7 @@ import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.attributes.AttributesUtil;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginLoaderException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
@@ -325,7 +326,7 @@ public class TransformMeta
       Node transformNode = XmlHandler.getSubNode(doc, XML_TAG);
       return new TransformMeta(transformNode, null);
     } catch (HopXmlException | HopPluginLoaderException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 

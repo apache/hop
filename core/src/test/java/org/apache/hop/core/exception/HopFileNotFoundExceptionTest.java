@@ -28,7 +28,7 @@ class HopFileNotFoundExceptionTest {
   private final String expectedNullMessage = Const.CR + "null" + Const.CR;
   private final String errorMessage = "error message";
   private final String causeExceptionMessage = "Cause exception";
-  private final Throwable cause = new RuntimeException(causeExceptionMessage);
+  private final Throwable cause = new HopRuntimeException(causeExceptionMessage);
 
   @Test
   void testConstructor() {
@@ -77,7 +77,7 @@ class HopFileNotFoundExceptionTest {
 
   @Test
   void testConstructorMessageAndThrowable() {
-    Throwable throwable = new RuntimeException(causeExceptionMessage);
+    Throwable throwable = new HopRuntimeException(causeExceptionMessage);
     try {
       throw new HopFileNotFoundException(errorMessage, throwable);
     } catch (HopFileNotFoundException e) {

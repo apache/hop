@@ -62,6 +62,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPipelineException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -1258,7 +1259,7 @@ public abstract class Pipeline
             ExtensionPointHandler.callExtensionPoint(
                 log, this, HopExtensionPoint.PipelineFinish.id, pipeline);
           } catch (HopException e) {
-            throw new RuntimeException("Error calling extension point at end of pipeline", e);
+            throw new HopRuntimeException("Error calling extension point at end of pipeline", e);
           }
 
           // First of all, stop the performance snapshot timer if there is is
@@ -1304,7 +1305,7 @@ public abstract class Pipeline
                   ExtensionPointHandler.callExtensionPoint(
                       log, this, HopExtensionPoint.TransformFinished.id, combi);
                 } catch (HopException e) {
-                  throw new RuntimeException(
+                  throw new HopRuntimeException(
                       "Unexpected error in calling extension point upon transform finish", e);
                 }
               });
@@ -1522,7 +1523,7 @@ public abstract class Pipeline
         }
       }
     } catch (InterruptedException e) {
-      throw new RuntimeException("Waiting for pipeline to be finished interrupted!", e);
+      throw new HopRuntimeException("Waiting for pipeline to be finished interrupted!", e);
     }
   }
 

@@ -25,6 +25,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.UUID;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
@@ -135,7 +136,7 @@ public class WorkflowResource {
               .replaceWorkflow(workflow, newWorkflow, workflowConfiguration);
           workflow = newWorkflow;
         } catch (Exception e) {
-          throw new RuntimeException("Unable to instantiate new workflow", e);
+          throw new HopRuntimeException("Unable to instantiate new workflow", e);
         }
       }
     }

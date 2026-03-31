@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.logging.ILogChannel;
@@ -69,7 +70,7 @@ public class BeanInjectionInfo<Meta extends Object> {
       this.clazz = clazz;
       clazzAnnotation = clazz.getAnnotation(InjectionSupported.class);
       if (!isInjectionSupported(clazz)) {
-        throw new RuntimeException("Injection not supported in " + clazz);
+        throw new HopRuntimeException("Injection not supported in " + clazz);
       }
 
       if (clazzAnnotation == null) {
@@ -118,7 +119,7 @@ public class BeanInjectionInfo<Meta extends Object> {
 
     boolean hasChildren = extractMetadataProperties(rootGroup, parentPath, clazz, null);
     if (!hasChildren) {
-      throw new RuntimeException("Injection not supported in " + clazz);
+      throw new HopRuntimeException("Injection not supported in " + clazz);
     }
 
     properties = Collections.unmodifiableMap(properties);
@@ -323,7 +324,7 @@ public class BeanInjectionInfo<Meta extends Object> {
       try {
         fieldLevelInfo.converter = property.injectionConverter().getConstructor().newInstance();
       } catch (Exception e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Unable to instantiate injection metadata converter class "
                 + property.injectionConverter().getName(),
             e);
@@ -335,7 +336,7 @@ public class BeanInjectionInfo<Meta extends Object> {
           fieldLevelInfo.stringObjectConverter =
               property.injectionStringObjectConverter().getConstructor().newInstance();
         } catch (Exception e) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "Unable to instantiate injection string-to-object converter class "
                   + property.injectionStringObjectConverter().getName(),
               e);
@@ -354,7 +355,7 @@ public class BeanInjectionInfo<Meta extends Object> {
         fieldLevelInfo.getter =
             parentClass.getMethod(ReflectionUtil.getGetterMethodName(field.getName(), isBoolean));
       } catch (Exception e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Unable to find getter for field "
                 + field.getName()
                 + " in class "
@@ -365,7 +366,7 @@ public class BeanInjectionInfo<Meta extends Object> {
         fieldLevelInfo.setter =
             parentClass.getMethod(ReflectionUtil.getSetterMethodName(field.getName()), fieldType);
       } catch (Exception e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Unable to find setter for field "
                 + field.getName()
                 + " in class "
@@ -462,12 +463,12 @@ public class BeanInjectionInfo<Meta extends Object> {
 
   protected void addInjectionProperty(Injection metaInj, BeanLevelInfo leaf) {
     if (StringUtils.isBlank(metaInj.name())) {
-      throw new RuntimeException("Property name shouldn't be blank in the " + clazz);
+      throw new HopRuntimeException("Property name shouldn't be blank in the " + clazz);
     }
 
     String propertyName = calcPropertyName(metaInj, leaf);
     if (properties.containsKey(propertyName)) {
-      throw new RuntimeException("Property '" + propertyName + "' already defined for " + clazz);
+      throw new HopRuntimeException("Property '" + propertyName + "' already defined for " + clazz);
     }
 
     // probably hidden
@@ -483,7 +484,7 @@ public class BeanInjectionInfo<Meta extends Object> {
     properties.put(prop.key, prop);
     Group gr = groupsMap.get(metaInj.group());
     if (gr == null) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Group '"
               + metaInj.group()
               + "' for property '"
@@ -535,7 +536,7 @@ public class BeanInjectionInfo<Meta extends Object> {
     }
     if (!name.toString().equals(metaInj.name()) && !metaInj.group().isEmpty()) {
       // group exist with prefix
-      throw new RuntimeException("Group shouldn't be declared with prefix in " + clazz);
+      throw new HopRuntimeException("Group shouldn't be declared with prefix in " + clazz);
     }
     return name.toString();
   }

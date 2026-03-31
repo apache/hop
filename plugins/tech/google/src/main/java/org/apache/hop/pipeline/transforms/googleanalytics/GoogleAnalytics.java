@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -106,7 +107,7 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
         }
       } catch (IOException e) {
         e.printStackTrace();
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
       return true;
     }
@@ -230,7 +231,7 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
       inputStream.close();
     } catch (IOException e) {
       e.printStackTrace();
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
     analyticsData.close();
     super.dispose();

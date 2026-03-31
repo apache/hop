@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 import java.util.BitSet;
 import java.util.Comparator;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
 
 class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
@@ -102,7 +103,7 @@ class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
         return isMatchingNull ? c : -c;
       }
     } catch (HopException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 }

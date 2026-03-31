@@ -28,6 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.xml.XmlHandler;
@@ -368,7 +369,7 @@ public class Result implements Cloneable {
 
       return xml.toString();
     } catch (IOException e) {
-      throw new RuntimeException("Unexpected error encoding workflow result as XML", e);
+      throw new HopRuntimeException("Unexpected error encoding workflow result as XML", e);
     }
   }
 

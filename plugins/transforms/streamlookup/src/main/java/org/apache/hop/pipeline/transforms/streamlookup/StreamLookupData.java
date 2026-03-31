@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.hash.ByteArrayHashIndex;
 import org.apache.hop.core.hash.LongHashIndex;
@@ -97,7 +98,7 @@ public class StreamLookupData extends BaseTransformData implements ITransformDat
           try {
             return cacheKeyMeta.compare(k1.getKey(), k2.getKey());
           } catch (HopValueException e) {
-            throw new RuntimeException("Stream Lookup comparator error", e);
+            throw new HopRuntimeException("Stream Lookup comparator error", e);
           }
         };
   }

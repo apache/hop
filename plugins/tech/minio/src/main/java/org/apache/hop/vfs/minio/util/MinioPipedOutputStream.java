@@ -24,6 +24,7 @@ import java.io.PipedOutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.vfs.minio.MinioFileSystem;
@@ -113,7 +114,7 @@ public class MinioPipedOutputStream extends PipedOutputStream {
                 .build();
         fileSystem.getClient().putObject(args);
       } catch (Exception e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error writing to MinIO bucket " + bucketName + ", object " + key, e);
       } finally {
         // We're done here.

@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -78,7 +79,7 @@ public class CurrentDirectoryResolver {
         tmpSpace.setVariable(Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, fileDir.getURI());
         tmpSpace.setVariable(Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, fileDir.getURI());
       } catch (Exception e) {
-        throw new RuntimeException("Unable to figure out the current directory", e);
+        throw new HopRuntimeException("Unable to figure out the current directory", e);
       }
     }
     return tmpSpace;

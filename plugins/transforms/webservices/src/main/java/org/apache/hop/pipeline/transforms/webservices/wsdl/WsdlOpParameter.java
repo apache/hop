@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.webservices.wsdl;
 import java.io.Serial;
 import java.util.Objects;
 import javax.xml.namespace.QName;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.w3c.dom.Element;
 
 /** WSDL operation parameter abstraction. */
@@ -103,7 +104,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
       setName(e.getAttribute(WsdlUtils.NAME_ATTR), wsdlTypes);
       xmlType = getElementType(e, wsdlTypes);
     } else {
-      throw new RuntimeException("invalid element: " + e.getNodeName());
+      throw new HopRuntimeException("invalid element: " + e.getNodeName());
     }
 
     // check to see if the xml type of this element is an array type

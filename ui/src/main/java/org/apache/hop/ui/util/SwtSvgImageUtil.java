@@ -27,6 +27,7 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.SwtUniversalImageBitmap;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.svg.SvgCache;
@@ -108,7 +109,7 @@ public class SwtSvgImageUtil {
   /** Load image from several sources. */
   public static SwtUniversalImage getImageAsResource(Display display, String location) {
     if (location == null) {
-      throw new RuntimeException("No location given to load image resource");
+      throw new HopRuntimeException("No location given to load image resource");
     }
     SwtUniversalImage result = null;
     if (result == null && SvgSupport.isSvgEnabled()) {
@@ -245,7 +246,7 @@ public class SwtSvgImageUtil {
       }
     } catch (FileSystemException ex) {
       return null;
-    } catch (RuntimeException ex) {
+    } catch (HopRuntimeException ex) {
       // e.g. NPE when VFS files-cache is not set (AbstractFileSystem.getFilesCache())
       log.logDebug(
           "VFS-based image load failed for [" + location + "], will try other loaders", ex);
@@ -281,7 +282,7 @@ public class SwtSvgImageUtil {
       try {
         return new SwtUniversalImageSvg(SvgSupport.loadSvgImage(in));
       } catch (Exception ex) {
-        throw new RuntimeException("Error loading file " + filename, ex);
+        throw new HopRuntimeException("Error loading file " + filename, ex);
       }
     }
   }

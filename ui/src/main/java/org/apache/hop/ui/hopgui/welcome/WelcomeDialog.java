@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.Map;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiElements;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -184,7 +185,7 @@ public class WelcomeDialog {
 
       wPluginsComp.layout(true, true);
     } catch (Exception ex) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to invoke welcome method with the parent Composite as the argument", ex);
     }
   }

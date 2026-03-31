@@ -50,6 +50,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
@@ -401,7 +402,7 @@ public abstract class BeamPipelineEngine extends Variables
                       ExecutorUtil.cleanup(refreshTimer);
                     }
                   } catch (Exception e) {
-                    throw new RuntimeException("Error post-processing a beam pipeline", e);
+                    throw new HopRuntimeException("Error post-processing a beam pipeline", e);
                   }
                 })
             .start();
@@ -678,7 +679,8 @@ public abstract class BeamPipelineEngine extends Variables
         evaluatePipelineStatus();
       }
     } catch (Exception e) {
-      throw new RuntimeException("Stopping of pipeline '" + pipelineMeta.getName() + "' failed", e);
+      throw new HopRuntimeException(
+          "Stopping of pipeline '" + pipelineMeta.getName() + "' failed", e);
     }
   }
 
@@ -1149,7 +1151,7 @@ public abstract class BeamPipelineEngine extends Variables
             try {
               updatePipelineState(iLocation);
             } catch (Exception e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Error registering execution info (data and state) at location "
                       + executionInfoLocation.getName(),
                   e);
@@ -1899,7 +1901,7 @@ public abstract class BeamPipelineEngine extends Variables
     } catch (UnsupportedOperationException e) {
       logChannel.logBasic(e.getMessage());
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
     return defaultValue;
   }

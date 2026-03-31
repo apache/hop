@@ -28,6 +28,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -761,7 +762,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
 
       return url.toString();
     } catch (Exception e) {
-      throw new RuntimeException("Failed to build authorization URL: " + e.getMessage(), e);
+      throw new HopRuntimeException("Failed to build authorization URL: " + e.getMessage(), e);
     }
   }
 
@@ -779,7 +780,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
 
     } catch (Exception e) {
-      throw new RuntimeException("Failed to generate PKCE parameters: " + e.getMessage(), e);
+      throw new HopRuntimeException("Failed to generate PKCE parameters: " + e.getMessage(), e);
     }
   }
 

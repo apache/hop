@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -80,7 +81,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
       if (!getTimestamp && StringUtils.isNotEmpty(fieldName)) {
         fieldIndex = inputRowMeta.indexOfValue(fieldName);
         if (fieldIndex < 0) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "Field '" + fieldName + "' couldn't be found in put : " + inputRowMeta.toString());
         }
         fieldValueMeta = inputRowMeta.getValueMeta(fieldIndex);
@@ -90,7 +91,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error in setup of adding timestamp to rows : " + e.getMessage());
-      throw new RuntimeException("Error setup of adding timestamp to rows", e);
+      throw new HopRuntimeException("Error setup of adding timestamp to rows", e);
     }
   }
 
@@ -148,7 +149,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
       errorCounter.inc();
       LOG.error(
           "Error adding timestamp to rows : " + processContext.element() + ", " + e.getMessage());
-      throw new RuntimeException("Error adding timestamp to rows", e);
+      throw new HopRuntimeException("Error adding timestamp to rows", e);
     }
   }
 

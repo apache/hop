@@ -38,6 +38,7 @@ import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.wsdl.extensions.soap12.SOAP12Header;
 import javax.wsdl.extensions.soap12.SOAP12Operation;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 /** Utilities for getting extensibility elements. */
 final class WsdlUtils {
@@ -118,7 +119,7 @@ final class WsdlUtils {
    * @param binding A WSDL Binding instance.
    * @param operationName The name of the operation.
    * @return Either 'literal' or 'encoded'.
-   * @throws RuntimeException If the use type cannot be determined.
+   * @throws HopRuntimeException If the use type cannot be determined.
    */
   protected static String getSOAPBindingUse(Binding binding, String operationName) {
 
@@ -158,7 +159,7 @@ final class WsdlUtils {
       }
     }
 
-    throw new RuntimeException("Unable to determine SOAP use for operation: " + operationName);
+    throw new HopRuntimeException("Unable to determine SOAP use for operation: " + operationName);
   }
 
   /**

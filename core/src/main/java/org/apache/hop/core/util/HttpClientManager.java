@@ -50,6 +50,7 @@ import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.ssl.TrustStrategy;
 import org.apache.hc.core5.util.Timeout;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 
 /**
@@ -145,7 +146,7 @@ public class HttpClientManager {
       try {
         sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
       } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
 
       SSLConnectionSocketFactory sslsf =

@@ -23,6 +23,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.values.KV;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
@@ -62,7 +63,7 @@ public class KVLongStringToHopRowFn extends DoFn<KV<Long, String>, HopRow> {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in setup of KV<Long,String> to Hop Row conversion function", e);
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error in setup of KV<Long,String> to Hop Row conversion function", e);
     }
   }
@@ -84,7 +85,7 @@ public class KVLongStringToHopRowFn extends DoFn<KV<Long, String>, HopRow> {
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in KV<Long,String> to Hop Row conversion function", e);
-      throw new RuntimeException("Error in KV<Long,String> to Hop Row conversion function", e);
+      throw new HopRuntimeException("Error in KV<Long,String> to Hop Row conversion function", e);
     }
   }
 }

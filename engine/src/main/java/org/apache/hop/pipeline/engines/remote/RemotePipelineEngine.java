@@ -34,6 +34,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.json.HopJson;
@@ -500,7 +501,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     }
   }
 
-  private synchronized void getPipelineStatus() throws RuntimeException {
+  private synchronized void getPipelineStatus() throws HopRuntimeException {
     try {
       HopServerPipelineStatus pipelineStatus =
           hopServer.getPipelineStatus(this, subject.getName(), containerId, lastLogLineNr);
@@ -595,7 +596,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error getting the status of pipeline '"
               + subject.getName()
               + "' on hop server '"
@@ -665,7 +666,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       hopServer.stopPipeline(this, subject.getName(), containerId);
       getPipelineStatus();
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Stopping of pipeline '" + subject.getName() + "' with ID " + containerId + " failed", e);
     }
   }
@@ -681,7 +682,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       hopServer.pauseResumePipeline(this, subject.getName(), containerId);
       getPipelineStatus();
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Pause/Resume of pipeline '" + subject.getName() + "' with ID " + containerId + " failed",
           e);
     }
@@ -831,7 +832,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
                 rowsReceived.rowsReceived(RemotePipelineEngine.this, rowBuffer);
               }
             } catch (Exception e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Unable to get output rows from transform '"
                       + componentName
                       + "' in pipeline '"

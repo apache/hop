@@ -31,6 +31,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.map.DatabaseConnectionMap;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.util.ExecutorUtil;
@@ -330,7 +331,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
                 lastLogLineNr.set(executionState.getLastLogLineNr());
               }
             } catch (Exception e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Error registering execution info data from transforms at location "
                       + executionInfoLocation.getName(),
                   e);

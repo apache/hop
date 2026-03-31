@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -164,7 +165,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in Beam Kinesis Produce transform", e);
-      throw new RuntimeException("Error in Beam Kinesis Produce transform", e);
+      throw new HopRuntimeException("Error in Beam Kinesis Produce transform", e);
     }
   }
 
@@ -207,7 +208,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
         Metrics.counter(Pipeline.METRIC_NAME_INIT, transformName).inc();
       } catch (Exception e) {
         LOG.error("Error in setup of HopRow to kinesis message conversion function", e);
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error in setup of HopRow to kinesis message conversion function", e);
       }
     }
@@ -236,7 +237,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
         processContext.output(KV.of(partitionKeyValue, message));
         outputCounter.inc();
       } catch (Exception e) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Error converting message to a binary form, value nr "
                 + messageIndex
                 + " ("

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 
@@ -178,7 +179,7 @@ public class StringUtil {
             // for safety: avoid recursive
             if (recursion > 50) {
               // endless loops with stack overflow
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Endless loop detected for substitution of variable: " + value);
             }
             value = substitute((String) value, variablesValues, open, close, ++recursion);

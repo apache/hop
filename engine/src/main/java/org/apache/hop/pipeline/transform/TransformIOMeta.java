@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transform;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
 public class TransformIOMeta implements ITransformIOMeta, Cloneable {
@@ -201,7 +202,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     }
     for (int i = 0; i < infoTransforms.length; i++) {
       if (i >= list.size()) {
-        throw new RuntimeException("We expect all possible info streams to be pre-populated!");
+        throw new HopRuntimeException("We expect all possible info streams to be pre-populated!");
       }
       streams.get(i).setTransformMeta(infoTransforms[i]);
     }

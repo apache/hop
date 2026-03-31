@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.engine;
 import java.util.Date;
 import java.util.Objects;
 import lombok.Setter;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
@@ -184,13 +185,13 @@ public class EngineComponent implements IEngineComponent {
 
   @Override
   public void addRowListener(IRowListener rowListener) {
-    throw new RuntimeException(
+    throw new HopRuntimeException(
         "Adding a row listener to this transform is not possible as it's not part of a running engine");
   }
 
   @Override
   public void removeRowListener(IRowListener rowListener) {
-    throw new RuntimeException(
+    throw new HopRuntimeException(
         "Removing a row listener to this transform is not possible as it's not part of a running engine");
   }
 

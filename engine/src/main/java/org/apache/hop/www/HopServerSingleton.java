@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -234,7 +235,7 @@ public class HopServerSingleton {
         return hopServerSingleton;
       }
     } catch (HopException ke) {
-      throw new RuntimeException(ke);
+      throw new HopRuntimeException(ke);
     }
   }
 

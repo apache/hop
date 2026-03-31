@@ -37,6 +37,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -453,14 +454,14 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
           connection =
               getMetadataProvider().getSerializer(MailServerConnection.class).load(connectionName);
         } catch (HopException e) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "Mail server connection '" + connectionName + "' could not be found", e);
         }
         try {
           connection.getSession(getVariables());
           connection.getStore().connect();
         } catch (Exception e) {
-          throw new RuntimeException(
+          throw new HopRuntimeException(
               "A connection to mail server connection '"
                   + connectionName
                   + "' could not be established",

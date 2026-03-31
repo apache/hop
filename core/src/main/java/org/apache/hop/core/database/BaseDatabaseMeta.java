@@ -36,6 +36,7 @@ import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -453,7 +454,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
         retval.attributes.put(key, attributes.get(key));
       }
     } catch (CloneNotSupportedException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
     return retval;
   }

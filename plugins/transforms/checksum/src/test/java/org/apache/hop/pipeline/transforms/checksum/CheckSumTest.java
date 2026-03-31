@@ -28,6 +28,7 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -377,7 +378,7 @@ class CheckSumTest {
     try {
       return VFS.getManager().resolveFile(this.getClass().getResource(filepath));
     } catch (Exception e) {
-      throw new RuntimeException("fail. " + e.getMessage(), e);
+      throw new HopRuntimeException("fail. " + e.getMessage(), e);
     }
   }
 }

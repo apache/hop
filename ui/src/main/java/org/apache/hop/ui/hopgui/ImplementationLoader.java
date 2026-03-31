@@ -18,6 +18,7 @@
 package org.apache.hop.ui.hopgui;
 
 import java.text.MessageFormat;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 public class ImplementationLoader {
   public static Object newInstance(final Class<?> type) {
@@ -32,7 +33,7 @@ public class ImplementationLoader {
     } catch (Throwable throwable) {
       String txt = "Could not load implementation for {0}";
       String msg = MessageFormat.format(txt, name);
-      throw new RuntimeException(msg, throwable);
+      throw new HopRuntimeException(msg, throwable);
     }
     return result;
   }

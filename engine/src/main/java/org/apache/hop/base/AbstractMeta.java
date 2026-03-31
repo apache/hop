@@ -38,6 +38,7 @@ import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.changed.IHopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.IContentChangedListener;
@@ -230,7 +231,7 @@ public abstract class AbstractMeta
     try {
       return metadataProvider.getSerializer(DatabaseMeta.class).load(name);
     } catch (HopException e) {
-      throw new RuntimeException(CONST_UNABLE_TO_LOAD + name + CONST_FROM_METADATA, e);
+      throw new HopRuntimeException(CONST_UNABLE_TO_LOAD + name + CONST_FROM_METADATA, e);
     }
   }
 
@@ -261,7 +262,7 @@ public abstract class AbstractMeta
       DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(name));
       if (databaseMeta == null && haltOnMissingMeta) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             CONST_UNABLE_TO_LOAD
                 + variables.resolve(name)
                 + "' from the metadata. Please verify that the case of the connection name is correct because that could be an issue!");
@@ -269,7 +270,7 @@ public abstract class AbstractMeta
 
       return databaseMeta;
     } catch (HopException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           CONST_UNABLE_TO_LOAD + variables.resolve(name) + CONST_FROM_METADATA, e);
     }
   }
@@ -278,7 +279,7 @@ public abstract class AbstractMeta
     try {
       return metadataProvider.getSerializer(DatabaseMeta.class).listObjectNames().size();
     } catch (HopException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to count the number of RDBMS connections in the metadata", e);
     }
   }
@@ -439,7 +440,7 @@ public abstract class AbstractMeta
     try {
       return metadataProvider.getSerializer(HopServerMeta.class).load(getName());
     } catch (HopException e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Unable to load hop server with name '" + getName() + CONST_FROM_METADATA, e);
     }
   }
@@ -455,7 +456,7 @@ public abstract class AbstractMeta
       Collections.sort(names);
       return names.toArray(new String[0]);
     } catch (HopException e) {
-      throw new RuntimeException("Unable to get hop server names from the metadata", e);
+      throw new HopRuntimeException("Unable to get hop server names from the metadata", e);
     }
   }
 
@@ -869,7 +870,7 @@ public abstract class AbstractMeta
     try {
       return metadataProvider.getSerializer(DatabaseMeta.class).loadAll();
     } catch (HopException e) {
-      throw new RuntimeException("Unable to load databases from the metadata", e);
+      throw new HopRuntimeException("Unable to load databases from the metadata", e);
     }
   }
 
@@ -884,7 +885,7 @@ public abstract class AbstractMeta
       Collections.sort(names);
       return names.toArray(new String[0]);
     } catch (HopException e) {
-      throw new RuntimeException("Unable to get database names from the metadata", e);
+      throw new HopRuntimeException("Unable to get database names from the metadata", e);
     }
   }
 

@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.memgroupby;
 
 import java.util.HashMap;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -43,7 +44,7 @@ public class MemoryGroupByData extends BaseTransformData implements ITransformDa
       try {
         return groupMeta.compare(groupData, entry.groupData) == 0;
       } catch (HopValueException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
 
@@ -51,7 +52,7 @@ public class MemoryGroupByData extends BaseTransformData implements ITransformDa
       try {
         return groupMeta.hashCode(getHashValue());
       } catch (HopValueException e) {
-        throw new RuntimeException(e);
+        throw new HopRuntimeException(e);
       }
     }
 

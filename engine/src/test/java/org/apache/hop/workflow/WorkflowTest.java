@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import java.util.concurrent.CountDownLatch;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -51,7 +52,7 @@ class WorkflowTest {
       try {
         start.await();
       } catch (InterruptedException e) {
-        throw new RuntimeException();
+        throw new HopRuntimeException();
       }
     }
 

@@ -35,6 +35,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
@@ -470,7 +471,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw new RuntimeException("Error registering new Execution in Neo4j", e);
+      throw new HopRuntimeException("Error registering new Execution in Neo4j", e);
     }
   }
 
@@ -818,7 +819,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw new RuntimeException("Error updating the state of an execution in Neo4j", e);
+      throw new HopRuntimeException("Error updating the state of an execution in Neo4j", e);
     } finally {
       // Update the cache
       NeoLocationCache.store(state);
@@ -1178,7 +1179,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
       return true;
     } catch (Exception e) {
       // Transaction is automatically rolled back by executeWrite on exception
-      throw new RuntimeException("Error registering execution data to Neo4j", e);
+      throw new HopRuntimeException("Error registering execution data to Neo4j", e);
     }
   }
 
@@ -1341,7 +1342,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 .withCreate("s", "r", R_HAS_ROW));
       }
     } catch (Exception e) {
-      throw new RuntimeException("Error saving rows and their metadata in Neo4j", e);
+      throw new HopRuntimeException("Error saving rows and their metadata in Neo4j", e);
     }
   }
 
@@ -1819,7 +1820,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       return objectMapper.readValue(jsonString, typeRef);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException("Error reading converting JSON String to a Map: " + jsonString, e);
+      throw new HopRuntimeException(
+          "Error reading converting JSON String to a Map: " + jsonString, e);
     }
   }
 

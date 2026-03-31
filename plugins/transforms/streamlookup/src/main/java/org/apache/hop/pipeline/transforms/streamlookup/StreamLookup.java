@@ -23,6 +23,7 @@ import java.util.Collections;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.hash.ByteArrayHashIndex;
@@ -112,7 +113,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
         default:
           // if a default value is given and no conversion is implemented throw an error
           if (data.valueDefault[i] != null && !data.valueDefault[i].trim().isEmpty()) {
-            throw new RuntimeException(
+            throw new HopRuntimeException(
                 BaseMessages.getString(PKG, "StreamLookup.Exception.ConversionNotImplemented")
                     + " "
                     + ValueMetaFactory.getValueMetaName(returnValue.getValueDefaultType()));
@@ -369,7 +370,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
             return RowMeta.getRow(data.cacheValueMeta, value);
           } catch (Exception e) {
             logError("Oops", e);
-            throw new RuntimeException(e);
+            throw new HopRuntimeException(e);
           }
         }
       }

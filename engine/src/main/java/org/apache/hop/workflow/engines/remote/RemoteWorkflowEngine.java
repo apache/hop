@@ -32,6 +32,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -366,7 +367,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
       fireExecutionStoppedListeners();
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Stopping of workflow '"
               + workflowMeta.getName()
               + "' with ID "

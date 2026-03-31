@@ -19,6 +19,7 @@
 package org.apache.hop.core.gui.plugin.callback;
 
 import java.lang.reflect.Method;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 public class GuiCallbackMethod {
   private String callbackId;
@@ -37,7 +38,7 @@ public class GuiCallbackMethod {
       Object singleton = getInstanceMethod.invoke(null);
       callbackMethod.invoke(singleton);
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new HopRuntimeException(
           "Error calling callback method with ID "
               + callbackId
               + " in class "

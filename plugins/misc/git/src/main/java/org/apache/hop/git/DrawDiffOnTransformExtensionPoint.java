@@ -25,6 +25,7 @@ import static org.apache.hop.git.HopDiff.CHANGED;
 import static org.apache.hop.git.HopDiff.REMOVED;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.DPoint;
@@ -90,7 +91,7 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
                         gc.getMagnification(),
                         0);
                   } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new HopRuntimeException(e);
                   }
                 } else {
                   transform.getAttributesMap().remove(ATTR_GIT);

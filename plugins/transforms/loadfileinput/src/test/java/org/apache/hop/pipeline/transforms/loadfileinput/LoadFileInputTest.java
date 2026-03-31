@@ -40,6 +40,7 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
@@ -146,7 +147,7 @@ class LoadFileInputTest {
     try {
       return fs.resolveFile(this.getClass().getResource(filesPath + filename));
     } catch (Exception e) {
-      throw new RuntimeException("fail. " + e.getMessage(), e);
+      throw new HopRuntimeException("fail. " + e.getMessage(), e);
     }
   }
 

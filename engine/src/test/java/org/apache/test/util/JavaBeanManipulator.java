@@ -20,6 +20,7 @@ package org.apache.test.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.pipeline.transforms.loadsave.getter.FieldGetter;
 import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 import org.apache.hop.pipeline.transforms.loadsave.getter.MethodGetter;
@@ -82,7 +83,7 @@ public class JavaBeanManipulator<T> {
         }
         getterMethodMap.put(attribute, getter);
       } catch (Exception e) {
-        throw new RuntimeException("Unable to find getter for " + attribute, e);
+        throw new HopRuntimeException("Unable to find getter for " + attribute, e);
       }
     }
   }
@@ -109,7 +110,7 @@ public class JavaBeanManipulator<T> {
         }
         setterMethodMap.put(attribute, setter);
       } catch (Exception e) {
-        throw new RuntimeException("Unable to find setter for " + attribute, e);
+        throw new HopRuntimeException("Unable to find setter for " + attribute, e);
       }
     }
   }

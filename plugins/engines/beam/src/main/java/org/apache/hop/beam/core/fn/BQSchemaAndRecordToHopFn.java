@@ -30,6 +30,7 @@ import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
@@ -93,7 +94,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
               AvroType avroType = AvroType.valueOf(avroTypeString);
               valueTypes[index] = avroType.getHopType();
             } catch (IllegalArgumentException e) {
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Unable to recognize data type '" + avroTypeString + "'", e);
             }
           }
@@ -104,7 +105,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
         for (int i = 0; i < rowMeta.size(); i++) {
           if (valueTypes[i] == 0) {
             IValueMeta valueMeta = rowMeta.getValueMeta(i);
-            throw new RuntimeException("Unable to find field '" + valueMeta.getName() + "'");
+            throw new HopRuntimeException("Unable to find field '" + valueMeta.getName() + "'");
           }
         }
 
@@ -152,7 +153,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
               row[index] = new Timestamp((Long) srcData / 1000);
               break;
             default:
-              throw new RuntimeException(
+              throw new HopRuntimeException(
                   "Conversion from Avro JSON to Hop is not yet supported for Hop data type '"
                       + valueMeta.getTypeDesc()
                       + "'");
@@ -168,7 +169,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
     } catch (Exception e) {
       errorCounter.inc();
       LOG.error("Error converting BQ Avro data into Hop rows : " + e.getMessage());
-      throw new RuntimeException("Error converting BQ Avro data into Hop rows", e);
+      throw new HopRuntimeException("Error converting BQ Avro data into Hop rows", e);
     }
   }
 

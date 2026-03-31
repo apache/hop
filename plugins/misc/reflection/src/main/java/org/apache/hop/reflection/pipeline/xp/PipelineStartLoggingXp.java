@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
@@ -167,7 +168,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
                 executeLoggingPipeline(
                     pipelineLog, "stop", loggingPipelineFilename, pipeline, variables);
               } catch (Exception e) {
-                throw new RuntimeException(
+                throw new HopRuntimeException(
                     "Unable to do interval logging for Pipeline Log object '"
                         + pipelineLog.getName()
                         + "'",
@@ -189,7 +190,7 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
                     executeLoggingPipeline(
                         pipelineLog, "interval", loggingPipelineFilename, pipeline, variables);
                   } catch (Exception e) {
-                    throw new RuntimeException(
+                    throw new HopRuntimeException(
                         "Unable to do interval logging for Pipeline Log object '"
                             + pipelineLog.getName()
                             + "'",

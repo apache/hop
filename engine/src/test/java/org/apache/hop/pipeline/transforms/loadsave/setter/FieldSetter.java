@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.loadsave.setter;
 
 import java.lang.reflect.Field;
+import org.apache.hop.core.exception.HopRuntimeException;
 
 public class FieldSetter<T> implements ISetter<T> {
   private final Field field;
@@ -31,7 +32,7 @@ public class FieldSetter<T> implements ISetter<T> {
     try {
       field.set(obj, value);
     } catch (Exception e) {
-      throw new RuntimeException("Error getting " + field + " on " + obj, e);
+      throw new HopRuntimeException("Error getting " + field + " on " + obj, e);
     }
   }
 }

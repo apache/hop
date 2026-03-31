@@ -35,6 +35,7 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.injection.Injection;
@@ -510,7 +511,7 @@ public class KafkaConsumerInputMeta
                         .getFields(
                             rowMeta, origin, info, nextTransform, variables, metadataProvider);
                   } catch (HopTransformException e) {
-                    throw new RuntimeException(e);
+                    throw new HopRuntimeException(e);
                   }
                 });
       }

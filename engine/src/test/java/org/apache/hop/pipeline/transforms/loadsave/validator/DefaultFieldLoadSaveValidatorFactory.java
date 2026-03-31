@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 
 public class DefaultFieldLoadSaveValidatorFactory implements IFieldLoadSaveValidatorFactory {
@@ -85,15 +86,15 @@ public class DefaultFieldLoadSaveValidatorFactory implements IFieldLoadSaveValid
         validatorClass = typeMap.get(getName(type));
       }
       if (validatorClass == null) {
-        throw new RuntimeException(
+        throw new HopRuntimeException(
             "Unable to find validator for " + getter.getGenericType() + " or " + getter);
       }
       return (IFieldLoadSaveValidator<T>) validatorClass;
     } catch (Exception e) {
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException) e;
+      if (e instanceof HopRuntimeException) {
+        throw (HopRuntimeException) e;
       }
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
   }
 

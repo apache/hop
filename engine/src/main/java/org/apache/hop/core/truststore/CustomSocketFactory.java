@@ -26,6 +26,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -62,7 +63,7 @@ public class CustomSocketFactory extends SSLSocketFactory {
       ctx = SSLContext.getInstance("TLS");
       ctx.init(null, trustManagers, null);
     } catch (KeyManagementException | NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
+      throw new HopRuntimeException(e);
     }
     return new CustomSocketFactory(ctx.getSocketFactory());
   }
