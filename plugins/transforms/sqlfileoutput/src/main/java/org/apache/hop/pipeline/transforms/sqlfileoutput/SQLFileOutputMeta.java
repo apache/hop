@@ -34,7 +34,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -100,23 +99,17 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
   @HopMetadataProperty(key = "StartNewLine")
   private boolean startNewLine;
 
-  /**
-   * @deprecated keep for backwards compatibility
-   * @param transformNode the XML of the transform node
-   * @param metadataProvider the metadata provider
-   * @throws HopXmlException when unable to parse the XML
-   */
+  /** Added for backwards compatibility with older XML using "extention". */
   @Override
-  @Deprecated(since = "2.13")
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      super.loadXml(transformNode, metadataProvider);
+  public void convertLegacyXml(Node node) throws HopException {
+    if (node == null) {
+      return;
+    }
 
-      // Rename from extention to extension
-      file.extension = XmlHandler.getTagValue(transformNode, "file", "extention");
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
+    // Rename from legacy "extention" to "extension", but don't overwrite modern XML values.
+    String legacyExtension = XmlHandler.getTagValue(node, "file", "extention");
+    if (file != null && !Utils.isEmpty(legacyExtension)) {
+      file.extension = legacyExtension;
     }
   }
 

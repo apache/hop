@@ -42,6 +42,8 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.inject.company.Company;
 import org.apache.hop.metadata.inject.company.Employee;
 import org.apache.hop.metadata.inject.sample.Field;
@@ -221,5 +223,51 @@ class HopMetadataInjectorTest {
     assertTrue(moreFields.contains("FIELD_LENGTH"));
     assertTrue(moreFields.contains("FIELD_PRECISION"));
     assertTrue(moreFields.contains("FIELD_TRIM_TYPE"));
+  }
+
+  @Test
+  void testStoreWithCodeEnumInjectionWithDescription() throws Exception {
+    Map<String, Object> injectionKeyMap = new HashMap<>();
+    injectionKeyMap.put("TYPE", "Number of Distinct Values (N)");
+
+    DescriptionEnumMeta meta = new DescriptionEnumMeta();
+    HopMetadataInjector.inject(new MemoryMetadataProvider(), meta, injectionKeyMap, Map.of());
+
+    assertEquals(DescriptionEnum.COUNT_DISTINCT, meta.getType());
+  }
+
+  private static class DescriptionEnumMeta {
+    @HopMetadataProperty(injectionKey = "TYPE", storeWithCode = true)
+    private DescriptionEnum type;
+
+    public DescriptionEnum getType() {
+      return type;
+    }
+
+    public void setType(DescriptionEnum type) {
+      this.type = type;
+    }
+  }
+
+  private enum DescriptionEnum implements IEnumHasCodeAndDescription {
+    COUNT_DISTINCT("COUNT_DISTINCT", "Number of Distinct Values (N)");
+
+    private final String code;
+    private final String description;
+
+    DescriptionEnum(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
   }
 }

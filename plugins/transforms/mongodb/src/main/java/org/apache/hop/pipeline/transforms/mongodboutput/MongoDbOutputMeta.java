@@ -28,7 +28,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -286,23 +285,6 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     batchInsertSize = "100";
   }
 
-  /**
-   * Added for backwards compatibility
-   *
-   * @param transformNode XML Node of the transform
-   * @param metadataProvider metadata provider
-   * @throws HopXmlException when unable to load from XML
-   */
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-    String tempCollection = XmlHandler.getTagValue(transformNode, "mongo_collection");
-    if (!Utils.isEmpty(tempCollection)) {
-      setCollection(tempCollection);
-    }
-  }
-
   @Override
   public void check(
       List<ICheckResult> remarks,
@@ -374,7 +356,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
   }
 
   @Override
-  public void convertLegacyXml(Node transformNode) throws HopException {
+  public void convertLegacyXml(Node transformNode) {
     collection = Const.NVL(collection, XmlHandler.getTagValue(transformNode, "mongo_collection"));
   }
 }

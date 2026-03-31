@@ -28,7 +28,6 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -89,42 +88,6 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
     super();
     this.keyFields = new ArrayList<>();
     this.inputTransforms = new ArrayList<>();
-  }
-
-  /**
-   * keep loadXml to load old style xml information for the transform
-   *
-   * @deprecated
-   * @param transformNode the XML node from the pipeline
-   * @param metadataProvider metadata provider to resolve things
-   * @throws HopXmlException when we can't read the XML correctly
-   */
-  @Override
-  @Deprecated(since = "2.17")
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-    // keep for backwards compatibility
-    readData(transformNode);
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      String numInputStreamsStr = XmlHandler.getTagValue(transformNode, "number_input");
-
-      // Skip if number_input doesn't exist (null or empty)
-      if (numInputStreamsStr == null || numInputStreamsStr.trim().isEmpty()) {
-        return;
-      }
-
-      int nInputStreams = Integer.parseInt(numInputStreamsStr);
-      for (int i = 0; i < nInputStreams; i++) {
-        inputTransforms.add(XmlHandler.getTagValue(transformNode, "transform" + i));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "MultiMergeJoinMeta.Exception.UnableToLoadTransformMeta"), e);
-    }
   }
 
   @Override
@@ -354,10 +317,17 @@ public class MultiMergeJoinMeta extends BaseTransformMeta<MultiMergeJoin, MultiM
 
   @Override
   public void convertLegacyXml(Node node) throws HopException {
+    if (node == null) {
+      return;
+    }
+
     // Get the number of input transforms
     int numberOfInput = Const.toInt(XmlHandler.getTagValue(node, "number_input"), -1);
     if (numberOfInput < 0) {
       return;
+    }
+    if (inputTransforms == null) {
+      inputTransforms = new ArrayList<>();
     }
     inputTransforms.clear();
     for (int i = 0; i < numberOfInput; i++) {

@@ -723,6 +723,9 @@ public class XmlMetadataUtil {
     // What is the name of the object to reference?
     //
     String name = XmlHandler.getTagValue(node, tag);
+    if (StringUtils.isEmpty(name)) {
+      return null;
+    }
 
     // We need the list to look up the name with.
     //

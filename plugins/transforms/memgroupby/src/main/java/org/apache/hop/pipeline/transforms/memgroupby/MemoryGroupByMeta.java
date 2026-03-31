@@ -42,7 +42,7 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -323,7 +323,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
   }
 
   @SuppressWarnings("java:S115")
-  public enum GroupType implements IEnumHasCode {
+  public enum GroupType implements IEnumHasCodeAndDescription {
     None("-", "-"),
     Sum("SUM", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.SUM")),
     Average("AVERAGE", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.AVERAGE")),
