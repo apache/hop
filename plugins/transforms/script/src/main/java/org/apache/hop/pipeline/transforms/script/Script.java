@@ -640,7 +640,11 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
   @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow();
-    if (r == null && !first) {
+
+    // If this transform receives input, we stop if there are no more rows.
+    // If this transform doesn't receive input we probably want to generate rows.
+    //
+    if (r == null && (!first || data.hasPreviousTransforms)) {
       processEndOfStream();
       setOutputDone();
       return false;
@@ -697,6 +701,9 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
     if (!super.init()) {
       return false;
     }
+
+    TransformMeta[] prevTransforms = getPipelineMeta().getPrevTransforms(getTransformMeta());
+    data.hasPreviousTransforms = (prevTransforms != null) && (prevTransforms.length > 0);
 
     // Add init code here.
     // Get the actual Scripts from our MetaData

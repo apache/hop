@@ -38,6 +38,7 @@ public class ScriptData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;
   public int[] replaceIndex;
+  public boolean hasPreviousTransforms;
 
   /** */
   public ScriptData() {
