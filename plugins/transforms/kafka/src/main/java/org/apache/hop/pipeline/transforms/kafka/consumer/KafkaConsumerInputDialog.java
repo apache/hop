@@ -22,7 +22,6 @@ import static java.util.Optional.ofNullable;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +35,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -43,6 +43,7 @@ import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaDialogHelper;
 import org.apache.hop.pipeline.transforms.kafka.shared.KafkaFactory;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -183,7 +184,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     wbFilename.addListener(
         SWT.Selection,
         e -> {
-          HopPipelineFileType pipelineFileType = new HopPipelineFileType();
+          HopPipelineFileType<?> pipelineFileType = new HopPipelineFileType<>();
           BaseDialog.presentFileDialog(
               shell,
               wFilename,
@@ -501,16 +502,14 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   private void buildOptionsTable(Composite parentWidget) {
     ColumnInfo[] columns = getOptionsColumns();
 
-    if (meta.getConfig().isEmpty()) {
-      // inital call
+    if (meta.getOptions().isEmpty()) {
+      // initial call
       List<String> list = KafkaDialogHelper.getConsumerAdvancedConfigOptionNames();
-      Map<String, String> advancedConfig = new LinkedHashMap<>();
       for (String item : list) {
-        advancedConfig.put(item, DEFAULT_OPTION_VALUES.getOrDefault(item, ""));
+        meta.getOptions().add(new KafkaOption(item, ""));
       }
-      meta.setConfig(advancedConfig);
     }
-    int fieldCount = meta.getConfig().size();
+    int fieldCount = meta.getOptions().size();
 
     optionsTable =
         new TableView(
@@ -691,10 +690,12 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     type.setDisabledListener(
         rowNumber -> {
           String ref = fieldsTable.getTable().getItem(rowNumber).getText(1);
-          KafkaConsumerField.Name refName = KafkaConsumerField.Name.valueOf(ref.toUpperCase());
+          KafkaConsumerField.Name refName =
+              IEnumHasCode.lookupCode(KafkaConsumerField.Name.class, ref, null);
 
-          return !(refName == KafkaConsumerField.Name.KEY
-              || refName == KafkaConsumerField.Name.MESSAGE);
+          return refName != null
+              && !(refName == KafkaConsumerField.Name.KEY
+                  || refName == KafkaConsumerField.Name.MESSAGE);
         });
 
     return new ColumnInfo[] {referenceName, name, type};
@@ -726,18 +727,22 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     for (KafkaConsumerField field : fieldDefinitions) {
       TableItem key = fieldsTable.getTable().getItem(rowIndex++);
 
-      key.setText(1, Const.NVL(field.getKafkaName().toString(), ""));
+      if (field.getKafkaName() != null) {
+        key.setText(1, Const.NVL(field.getKafkaName().getCode(), ""));
+      }
       key.setText(2, Const.NVL(field.getOutputName(), ""));
-      key.setText(3, Const.NVL(field.getOutputType().toString(), ""));
+      if (field.getOutputType() != null) {
+        key.setText(3, Const.NVL(field.getOutputType().toString(), ""));
+      }
     }
   }
 
   private void populateOptionsData() {
     int rowIndex = 0;
-    for (Map.Entry<String, String> entry : meta.getConfig().entrySet()) {
+    for (KafkaOption option : meta.getOptions()) {
       TableItem key = optionsTable.getTable().getItem(rowIndex++);
-      key.setText(1, entry.getKey());
-      key.setText(2, entry.getValue());
+      key.setText(1, Const.NVL(option.getProperty(), ""));
+      key.setText(2, Const.NVL(option.getValue(), ""));
     }
   }
 
@@ -849,7 +854,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
         KafkaConsumerField.Name ref = KafkaConsumerField.Name.valueOf(kafkaName.toUpperCase());
         KafkaConsumerField field =
             new KafkaConsumerField(ref, outputName, KafkaConsumerField.Type.valueOf(outputType));
-        meta.setField(field);
+        // meta.setField(field); TODO FIXME
       } catch (IllegalArgumentException e) {
         if (isDebug()) {
           logDebug(e.getMessage(), e);
@@ -864,7 +869,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     for (int rowIndex = 0; rowIndex < itemCount; rowIndex++) {
       TableItem row = topicsTable.getTable().getItem(rowIndex);
       String topic = row.getText(1);
-      if (!"".equals(topic) && tableTopics.indexOf(topic) == -1) {
+      if (!"".equals(topic) && !tableTopics.contains(topic)) {
         tableTopics.add(topic);
       }
     }
@@ -872,7 +877,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
   }
 
   private void setOptionsFromTable() {
-    meta.setConfig(KafkaDialogHelper.getConfig(optionsTable));
+    meta.setOptions(KafkaDialogHelper.getConfig(optionsTable));
   }
 
   protected String[] getFieldNames() {

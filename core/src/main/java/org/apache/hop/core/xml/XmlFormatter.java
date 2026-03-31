@@ -30,7 +30,7 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * XML formatting for better VCS diff.
  *
- * <p>It preserve formatting only in cases: 1) inside one tag if there are only characters, 2) in
+ * <p>It preserves formatting only in cases: 1) inside one tag if there are only characters, 2) in
  * comments, 3) if there are some characters outside tags
  */
 public class XmlFormatter {

@@ -43,6 +43,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -222,10 +223,10 @@ public class KafkaConsumerInput
 
     // Set all the configuration options...
     //
-    for (String option : meta.getConfig().keySet()) {
-      String value = variables.resolve(meta.getConfig().get(option));
+    for (KafkaOption option : meta.getOptions()) {
+      String value = variables.resolve(option.getValue());
       if (StringUtils.isNotEmpty(value)) {
-        config.put(option, variables.resolve(value));
+        config.put(option.getProperty(), variables.resolve(value));
       }
     }
 

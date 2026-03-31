@@ -17,9 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
-import org.apache.hop.core.injection.Injection;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.DoubleDeserializer;
@@ -29,16 +31,16 @@ import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+@Getter
+@Setter
 public class KafkaConsumerField {
   private static final Class<?> PKG = KafkaConsumerField.class;
 
-  private Name kafkaName;
+  protected Name kafkaName;
 
-  @Injection(name = "OUTPUT_NAME")
-  private String outputName;
+  protected String outputName;
 
-  @Injection(name = "TYPE")
-  private Type outputType = Type.String;
+  protected Type outputType = Type.String;
 
   public KafkaConsumerField() {}
 
@@ -58,32 +60,8 @@ public class KafkaConsumerField {
     this.outputType = outputType;
   }
 
-  public Name getKafkaName() {
-    return kafkaName;
-  }
-
-  public void setKafkaName(Name kafkaName) {
-    this.kafkaName = kafkaName;
-  }
-
-  public String getOutputName() {
-    return outputName;
-  }
-
-  public void setOutputName(String outputName) {
-    this.outputName = outputName;
-  }
-
-  public Type getOutputType() {
-    return outputType;
-  }
-
-  public void setOutputType(Type outputType) {
-    this.outputType = outputType;
-  }
-
-  @SuppressWarnings("java:S115")
-  public enum Type {
+  @Getter
+  public enum Type implements IEnumHasCode {
     String(
         "String",
         IValueMeta.TYPE_STRING,
@@ -111,46 +89,30 @@ public class KafkaConsumerField {
         "io.confluent.kafka.serializers.KafkaAvroDeserializer");
 
     private final String value;
-    private final int valueMetaInterfaceType;
-    private String kafkaSerializerClass;
-    private String kafkaDeserializerClass;
+    private final int valueMetaType;
+    private final String kafkaSerializerClass;
+    private final String kafkaDeserializerClass;
 
     Type(
         String value,
-        int valueMetaInterfaceType,
+        int valueMetaType,
         String kafkaSerializerClass,
         String kafkaDeserializerClass) {
       this.value = value;
-      this.valueMetaInterfaceType = valueMetaInterfaceType;
+      this.valueMetaType = valueMetaType;
       this.kafkaSerializerClass = kafkaSerializerClass;
       this.kafkaDeserializerClass = kafkaDeserializerClass;
     }
 
     @Override
-    public String toString() {
+    public String getCode() {
       return value;
-    }
-
-    boolean isEqual(String value) {
-      return this.value.equals(value);
-    }
-
-    public int getIValueMetaType() {
-      return valueMetaInterfaceType;
-    }
-
-    public String getKafkaSerializerClass() {
-      return kafkaSerializerClass;
-    }
-
-    public String getKafkaDeserializerClass() {
-      return kafkaDeserializerClass;
     }
 
     public static Type fromValueMeta(IValueMeta vmi) {
       if (vmi != null) {
         for (Type t : Type.values()) {
-          if (vmi.getType() == t.getIValueMetaType()) {
+          if (vmi.getType() == t.getValueMetaType()) {
             return t;
           }
         }
@@ -166,91 +128,19 @@ public class KafkaConsumerField {
     }
   }
 
-  public enum Name {
-    KEY("key") {
-      @Override
-      public void setFieldOnMeta(KafkaConsumerInputMeta meta, KafkaConsumerField field) {
-        meta.setKeyField(field);
-      }
+  @Getter
+  public enum Name implements IEnumHasCode {
+    KEY("key"),
+    MESSAGE("message"),
+    TOPIC("topic"),
+    PARTITION("partition"),
+    OFFSET("offset"),
+    TIMESTAMP("timestamp");
 
-      @Override
-      public KafkaConsumerField getFieldFromMeta(KafkaConsumerInputMeta meta) {
-        return meta.getKeyField();
-      }
-    },
-    MESSAGE("message") {
-      @Override
-      public void setFieldOnMeta(KafkaConsumerInputMeta meta, KafkaConsumerField field) {
-        meta.setMessageField(field);
-      }
+    private final String code;
 
-      @Override
-      public KafkaConsumerField getFieldFromMeta(KafkaConsumerInputMeta meta) {
-        return meta.getMessageField();
-      }
-    },
-    TOPIC("topic") {
-      @Override
-      public void setFieldOnMeta(KafkaConsumerInputMeta meta, KafkaConsumerField field) {
-        meta.setTopicField(field);
-      }
-
-      @Override
-      public KafkaConsumerField getFieldFromMeta(KafkaConsumerInputMeta meta) {
-        return meta.getTopicField();
-      }
-    },
-    PARTITION("partition") {
-      @Override
-      public void setFieldOnMeta(KafkaConsumerInputMeta meta, KafkaConsumerField field) {
-        meta.setPartitionField(field);
-      }
-
-      @Override
-      public KafkaConsumerField getFieldFromMeta(KafkaConsumerInputMeta meta) {
-        return meta.getPartitionField();
-      }
-    },
-    OFFSET("offset") {
-      @Override
-      public void setFieldOnMeta(KafkaConsumerInputMeta meta, KafkaConsumerField field) {
-        meta.setOffsetField(field);
-      }
-
-      @Override
-      public KafkaConsumerField getFieldFromMeta(KafkaConsumerInputMeta meta) {
-        return meta.getOffsetField();
-      }
-    },
-    TIMESTAMP("timestamp") {
-      @Override
-      public void setFieldOnMeta(KafkaConsumerInputMeta meta, KafkaConsumerField field) {
-        meta.setTimestampField(field);
-      }
-
-      @Override
-      public KafkaConsumerField getFieldFromMeta(KafkaConsumerInputMeta meta) {
-        return meta.getTimestampField();
-      }
-    };
-
-    private final String name;
-
-    Name(String name) {
-      this.name = name;
+    Name(String code) {
+      this.code = code;
     }
-
-    @Override
-    public String toString() {
-      return name;
-    }
-
-    boolean isEqual(String name) {
-      return this.name.equals(name);
-    }
-
-    public abstract void setFieldOnMeta(KafkaConsumerInputMeta meta, KafkaConsumerField field);
-
-    public abstract KafkaConsumerField getFieldFromMeta(KafkaConsumerInputMeta meta);
   }
 }

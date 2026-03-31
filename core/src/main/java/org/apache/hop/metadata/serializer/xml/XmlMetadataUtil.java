@@ -288,11 +288,11 @@ public class XmlMetadataUtil {
     // We wrap the POJO properties in the provided tag
     //
     if (parentProperty != null && !parentProperty.inline()) {
-      xml.append(XmlHandler.openTag(tag)).append(Const.CR);
+      xml.append(XmlHandler.openTag(tag));
     }
     xml.append(serializeObjectToXml(parentObject, parentProperty));
     if (parentProperty != null && !parentProperty.inline()) {
-      xml.append(XmlHandler.closeTag(tag)).append(Const.CR);
+      xml.append(XmlHandler.closeTag(tag));
     }
   }
 
@@ -308,23 +308,23 @@ public class XmlMetadataUtil {
     // </groupKey>
 
     if (StringUtils.isNotEmpty(groupKey)) {
-      xml.append(XmlHandler.openTag(groupKey)).append(Const.CR);
+      xml.append(XmlHandler.openTag(groupKey));
     }
     Set<? extends Map.Entry<?, ?>> entrySet = map.entrySet();
     for (Map.Entry<?, ?> entry : entrySet) {
       if (StringUtils.isNotEmpty(tag)) {
-        xml.append(XmlHandler.openTag(tag)).append(Const.CR);
+        xml.append(XmlHandler.openTag(tag));
       }
 
       serializeMapKeyToXml(xml, keyTag, entry);
       serializeMapValueToXml(xml, valueTag, entry);
 
       if (StringUtils.isNotEmpty(tag)) {
-        xml.append(XmlHandler.closeTag(tag)).append(Const.CR);
+        xml.append(XmlHandler.closeTag(tag));
       }
     }
     if (StringUtils.isNotEmpty(groupKey)) {
-      xml.append(XmlHandler.closeTag(groupKey)).append(Const.CR);
+      xml.append(XmlHandler.closeTag(groupKey));
     }
   }
 
@@ -373,7 +373,7 @@ public class XmlMetadataUtil {
     // Store the items in that block
     //
     if (StringUtils.isNotEmpty(groupKey)) {
-      xml.append(XmlHandler.openTag(groupKey)).append(Const.CR);
+      xml.append(XmlHandler.openTag(groupKey));
     }
 
     // Add the elements...
@@ -383,7 +383,7 @@ public class XmlMetadataUtil {
     }
 
     if (StringUtils.isNotEmpty(groupKey)) {
-      xml.append(XmlHandler.closeTag(groupKey)).append(Const.CR);
+      xml.append(XmlHandler.closeTag(groupKey));
     }
   }
 

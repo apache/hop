@@ -136,7 +136,9 @@ public class BeanInjectionInfo<Meta extends Object> {
     Map<Field, HopMetadataProperty> propertyFields = new HashMap<>();
     for (Field field : ReflectionUtil.findAllFields(clazz)) {
       HopMetadataProperty property = field.getAnnotation(HopMetadataProperty.class);
-      if (property != null && !childKeysToIgnore.contains(property.key())) {
+      if (property != null
+          && !property.isExcludedFromInjection()
+          && !childKeysToIgnore.contains(property.key())) {
         propertyFields.put(field, property);
       }
     }

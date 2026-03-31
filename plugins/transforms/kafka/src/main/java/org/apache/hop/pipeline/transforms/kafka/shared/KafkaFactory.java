@@ -72,11 +72,11 @@ public class KafkaFactory {
         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
         keyDeserializerType.getKafkaDeserializerClass());
     kafkaConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit());
-    meta.getConfig()
-        .entrySet()
-        .forEach(
-            (entry -> kafkaConfig.put(entry.getKey(), variableNonNull.apply(entry.getValue()))));
-
+    /*meta.getConfig()
+            .entrySet()
+            .forEach(
+                (entry -> kafkaConfig.put(entry.getKey(), variableNonNull.apply(entry.getValue()))));
+    */
     return consumerFunction.apply(kafkaConfig);
   }
 
@@ -104,10 +104,10 @@ public class KafkaFactory {
         ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, msgSerializerType.getKafkaSerializerClass());
     kafkaConfig.put(
         ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializerType.getKafkaSerializerClass());
-    meta.getConfig()
-        .entrySet()
+    meta.getOptions()
         .forEach(
-            (entry -> kafkaConfig.put(entry.getKey(), variableNonNull.apply(entry.getValue()))));
+            (entry ->
+                kafkaConfig.put(entry.getProperty(), variableNonNull.apply(entry.getValue()))));
 
     return producerFunction.apply(kafkaConfig);
   }

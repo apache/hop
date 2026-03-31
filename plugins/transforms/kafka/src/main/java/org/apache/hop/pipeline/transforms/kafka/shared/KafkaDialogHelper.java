@@ -17,17 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.kafka.shared;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
@@ -45,18 +40,17 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.SslConfigs;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 
 public class KafkaDialogHelper {
-  private IVariables variables;
-  private KafkaFactory kafkaFactory;
-  private ComboVar wTopic;
-  private TextVar wBootstrapServers;
-  private TableView optionsTable;
-  private TransformMeta parentMeta;
+  private final IVariables variables;
+  private final KafkaFactory kafkaFactory;
+  private final ComboVar wTopic;
+  private final TextVar wBootstrapServers;
+  private final TableView optionsTable;
+  private final TransformMeta parentMeta;
 
   public KafkaDialogHelper(
       IVariables variables,
@@ -79,8 +73,8 @@ public class KafkaDialogHelper {
       return;
     }
     String directBootstrapServers = wBootstrapServers.getText();
-    Map<String, String> config = getConfig(optionsTable);
-    CompletableFuture.supplyAsync(() -> listTopics(directBootstrapServers, config))
+    List<KafkaOption> options = getConfig(optionsTable);
+    CompletableFuture.supplyAsync(() -> listTopics(directBootstrapServers, options))
         .thenAccept(
             topicMap ->
                 HopGui.getInstance()
@@ -107,17 +101,17 @@ public class KafkaDialogHelper {
   }
 
   private Map<String, List<PartitionInfo>> listTopics(
-      final String directBootstrapServers, Map<String, String> config) {
+      final String directBootstrapServers, List<KafkaOption> options) {
     Consumer kafkaConsumer = null;
     try {
       KafkaConsumerInputMeta localMeta = new KafkaConsumerInputMeta();
       localMeta.setDirectBootstrapServers(directBootstrapServers);
-      localMeta.setConfig(config);
+      localMeta.setOptions(options);
       localMeta.setParentTransformMeta(parentMeta);
       kafkaConsumer = kafkaFactory.consumer(localMeta, variables::resolve);
       return kafkaConsumer.listTopics();
     } catch (Exception e) {
-      e.printStackTrace();
+      LogChannel.GENERAL.logError("Error getting list of topics", e);
       return Collections.emptyMap();
     } finally {
       if (kafkaConsumer != null) {
@@ -143,28 +137,6 @@ public class KafkaDialogHelper {
     }
   }
 
-  public static List<String> getConsumerConfigOptionNames() {
-    List<String> optionNames = getConfigOptionNames(ConsumerConfig.class);
-    Stream.of(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-            ConsumerConfig.GROUP_ID_CONFIG,
-            ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG)
-        .forEach(optionNames::remove);
-    return optionNames;
-  }
-
-  public static List<String> getProducerConfigOptionNames() {
-    List<String> optionNames = getConfigOptionNames(ProducerConfig.class);
-    Stream.of(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-            ProducerConfig.CLIENT_ID_CONFIG,
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG)
-        .forEach(optionNames::remove);
-    return optionNames;
-  }
-
   public static List<String> getConsumerAdvancedConfigOptionNames() {
     return Arrays.asList(
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
@@ -185,43 +157,12 @@ public class KafkaDialogHelper {
         SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG);
   }
 
-  private static List<String> getConfigOptionNames(Class cl) {
-    return getStaticField(cl, "CONFIG")
-        .map(
-            config ->
-                ((ConfigDef) config)
-                    .configKeys().keySet().stream().sorted().collect(Collectors.toList()))
-        .orElse(new ArrayList<>());
-  }
-
-  private static Optional<Object> getStaticField(Class cl, String fieldName) {
-    Field field = null;
-    boolean isAccessible = false;
-    try {
-      field = cl.getDeclaredField(fieldName);
-      isAccessible = field.isAccessible();
-      field.setAccessible(true);
-      return Optional.ofNullable(field.get(null));
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      return Optional.empty();
-    } finally {
-      if (field != null) {
-        field.setAccessible(isAccessible);
-      }
-    }
-  }
-
-  public static Map<String, String> getConfig(TableView optionsTable) {
-    int itemCount = optionsTable.getItemCount();
-    Map<String, String> advancedConfig = new LinkedHashMap<>();
-
-    for (int rowIndex = 0; rowIndex < itemCount; rowIndex++) {
-      TableItem row = optionsTable.getTable().getItem(rowIndex);
-      String config = row.getText(1);
-      String value = row.getText(2);
-      if (!StringUtils.isBlank(config) && !advancedConfig.containsKey(config)) {
-        advancedConfig.put(config, value);
-      }
+  public static List<KafkaOption> getConfig(TableView optionsTable) {
+    List<KafkaOption> advancedConfig = new ArrayList<>();
+    for (TableItem item : optionsTable.getNonEmptyItems()) {
+      String config = item.getText(1);
+      String value = item.getText(2);
+      advancedConfig.add(new KafkaOption(config, value));
     }
     return advancedConfig;
   }

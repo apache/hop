@@ -20,10 +20,11 @@ package org.apache.hop.metadata.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
@@ -52,24 +53,31 @@ public class ReflectionUtil {
    * @return A set of fields.
    */
   public static List<Field> findAllFields(Class<?> clazz) {
-    Set<Field> fieldsSet = new HashSet<>();
+    Map<String, Field> fieldsSet = new HashMap<>();
 
     // Find the fields from the root class
     //
-    Collections.addAll(fieldsSet, clazz.getDeclaredFields());
+    for (Field field : clazz.getDeclaredFields()) {
+      fieldsSet.put(field.getName(), field);
+    }
 
     // If this class has a parent class, grab the fields
     //
     Class<?> superClass = clazz.getSuperclass();
     while (superClass != null) {
-      Collections.addAll(fieldsSet, superClass.getDeclaredFields());
+      Field[] parentFields = superClass.getDeclaredFields();
+      for (Field parentField : parentFields) {
+        if (!fieldsSet.containsKey(parentField.getName())) {
+          fieldsSet.put(parentField.getName(), parentField);
+        }
+      }
 
       // Repeat this process until we have no more super class
       //
       superClass = superClass.getSuperclass();
     }
 
-    List<Field> fields = new ArrayList<>(fieldsSet);
+    List<Field> fields = new ArrayList<>(fieldsSet.values());
 
     // Sort the fields by name
     fields.sort(Comparator.comparing(Field::getName));
@@ -105,14 +113,14 @@ public class ReflectionUtil {
    */
   public static List<Field> findAllFields(
       Class<?> clazz, Function<Field, String> sortFunction, boolean sortFields) {
-    Set<Field> fieldsSet = new HashSet<>();
+    Map<String, Field> fieldsSet = new HashMap<>();
 
     // Find the fields from the root class
     //
     for (Field classField : clazz.getDeclaredFields()) {
       String keyField = sortFunction.apply(classField);
       if (keyField != null) {
-        fieldsSet.add(classField);
+        fieldsSet.put(classField.getName(), classField);
       }
     }
     // If this class has a parent class, grab the fields
@@ -121,8 +129,8 @@ public class ReflectionUtil {
     while (superClass != null) {
       for (Field superClassField : superClass.getDeclaredFields()) {
         String keyField = sortFunction.apply(superClassField);
-        if (keyField != null) {
-          fieldsSet.add(superClassField);
+        if (keyField != null && !fieldsSet.containsKey(superClassField.getName())) {
+          fieldsSet.put(superClassField.getName(), superClassField);
         }
       }
 
@@ -131,7 +139,7 @@ public class ReflectionUtil {
       superClass = superClass.getSuperclass();
     }
 
-    List<Field> fields = new ArrayList<>(fieldsSet);
+    List<Field> fields = new ArrayList<>(fieldsSet.values());
 
     // Sort the fields by name
     if (sortFields) {

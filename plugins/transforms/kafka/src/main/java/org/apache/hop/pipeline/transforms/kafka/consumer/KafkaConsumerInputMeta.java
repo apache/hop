@@ -17,15 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -37,9 +31,6 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -50,11 +41,13 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.kafka.shared.KafkaOption;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.w3c.dom.Node;
 
@@ -67,9 +60,6 @@ import org.w3c.dom.Node;
     keywords = "i18n::KafkaConsumerInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/kafkaconsumer.html",
     actionTransformTypes = {ActionTransformType.HOP_FILE, ActionTransformType.HOP_PIPELINE})
-@InjectionSupported(
-    localizationPrefix = "KafkaConsumerInputMeta.Injection.",
-    groups = {"CONFIGURATION_PROPERTIES"})
 @Getter
 @Setter
 public class KafkaConsumerInputMeta
@@ -102,41 +92,53 @@ public class KafkaConsumerInputMeta
   public static final String TYPE_ATTRIBUTE = "type";
   public static final String AUTO_COMMIT = "AUTO_COMMIT";
 
+  @HopMetadataProperty private KeyConsumerField keyField;
+
+  @HopMetadataProperty private MessageConsumerField messageField;
+
+  @HopMetadataProperty private TopicConsumerField topicField;
+
+  @HopMetadataProperty private OffsetConsumerField offsetField;
+
+  @HopMetadataProperty private PartitionConsumerField partitionField;
+
+  @HopMetadataProperty private TimestampConsumerField timestampField;
+
   @HopMetadataProperty(
       key = "pipelinePath",
       injectionKey = "pipelinePath",
       injectionKeyDescription = "KafkaConsumerInputMeta.Injection.PIPELINE_PATH")
-  protected String filename = "";
+  protected String filename;
 
   @HopMetadataProperty(
       key = "executionInformationLocation",
       injectionKey = "executionInformationLocation",
       injectionKeyDescription = "KafkaConsumerInputMeta.Injection.EXECUTION_INFORMATION_LOCATION")
-  protected String executionInformationLocation = "";
+  protected String executionInformationLocation;
 
   @HopMetadataProperty(
-      key = "executionInformationLocation",
-      injectionKey = "executionInformationLocation",
+      key = "executionDataProfile",
+      injectionKey = "executionDataProfile",
       injectionKeyDescription = "KafkaConsumerInputMeta.Injection.EXECUTION_DATA_PROFILE")
-  protected String executionDataProfile = "";
+  protected String executionDataProfile;
 
   @HopMetadataProperty(
       key = "batchSize",
       injectionKey = "numMessages",
       injectionKeyDescription = "KafkaConsumerInputMeta.Injection.NUM_MESSAGES")
-  protected String batchSize = "1000";
+  protected String batchSize;
 
   @HopMetadataProperty(
       key = "batchDuration",
       injectionKey = "duration",
       injectionKeyDescription = "KafkaConsumerInputMeta.Injection.BATCH_DURATION")
-  protected String batchDuration = "1000";
+  protected String batchDuration;
 
   @HopMetadataProperty(
       key = "subTransform",
       injectionKey = "subTransform",
       injectionKeyDescription = "KafkaConsumerInputMeta.Injection.SUB_TRANSFORM")
-  protected String subTransform = "";
+  protected String subTransform;
 
   @HopMetadataProperty(
       key = "directBootstrapServers",
@@ -146,6 +148,8 @@ public class KafkaConsumerInputMeta
 
   @HopMetadataProperty(
       key = "topic",
+      injectionGroupKey = "TOPICS_LIST",
+      injectionGroupDescription = "KafkaConsumerInputMeta.Injection.TOPICS_LIST",
       injectionKey = "TOPICS",
       injectionKeyDescription = "KafkaConsumerInputMeta.Injection.TOPICS")
   private List<String> topics;
@@ -156,64 +160,18 @@ public class KafkaConsumerInputMeta
       injectionKeyDescription = "KafkaConsumerInputMeta.Injection.CONSUMER_GROUP")
   private String consumerGroup;
 
-  @InjectionDeep(prefix = "KEY")
   @HopMetadataProperty(
-      key = "",
-      injectionKey = "",
-      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
-  private KafkaConsumerField keyField;
-
-  @InjectionDeep(prefix = "MESSAGE")
-  @HopMetadataProperty(
-      key = "",
-      injectionKey = "",
-      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
-  private KafkaConsumerField messageField;
-
-  @Injection(name = "NAMES", group = "CONFIGURATION_PROPERTIES")
-  @SuppressWarnings("java:S2065") // disable sonar warning on transient
-  protected transient List<String> injectedConfigNames;
-
-  @Injection(name = "VALUES", group = "CONFIGURATION_PROPERTIES")
-  @SuppressWarnings("java:S2065") // disable sonar warning on transient
-  protected transient List<String> injectedConfigValues;
-
-  @Injection(name = AUTO_COMMIT)
-  @HopMetadataProperty(
-      key = "",
-      injectionKey = "",
-      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
+      key = "AUTO_COMMIT",
+      injectionKey = "AUTO_COMMIT",
+      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.AUTO_COMMIT")
   private boolean autoCommit = true;
 
-  private Map<String, String> config = new LinkedHashMap<>();
-
-  @Injection(name = TOPIC_FIELD_NAME)
   @HopMetadataProperty(
-      key = "",
-      injectionKey = "",
-      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
-  private KafkaConsumerField topicField;
-
-  @Injection(name = OFFSET_FIELD_NAME)
-  @HopMetadataProperty(
-      key = "",
-      injectionKey = "",
-      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
-  private KafkaConsumerField offsetField;
-
-  @Injection(name = PARTITION_FIELD_NAME)
-  @HopMetadataProperty(
-      key = "",
-      injectionKey = "",
-      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
-  private KafkaConsumerField partitionField;
-
-  @Injection(name = TIMESTAMP_FIELD_NAME)
-  @HopMetadataProperty(
-      key = "",
-      injectionKey = "",
-      injectionKeyDescription = "KafkaConsumerInputMeta.Injection.")
-  private KafkaConsumerField timestampField;
+      groupKey = "options",
+      key = "option",
+      injectionGroupKey = "CONFIGURATION_PROPERTIES",
+      injectionGroupDescription = "KafkaConsumerInputMeta.Injection.CONFIGURATION_PROPERTIES")
+  private List<KafkaOption> options;
 
   // Describe the standard way of retrieving mappings
   //
@@ -229,117 +187,64 @@ public class KafkaConsumerInputMeta
   MappingMetaRetriever mappingMetaRetriever = PipelineExecutorMeta::loadMappingMeta;
 
   public KafkaConsumerInputMeta() {
-    super(); // allocate BaseTransformMeta
-
-    topics = new ArrayList<>();
-
-    keyField =
-        new KafkaConsumerField(
-            KafkaConsumerField.Name.KEY,
-            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.KeyField"));
-
-    messageField =
-        new KafkaConsumerField(
-            KafkaConsumerField.Name.MESSAGE,
-            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.MessageField"));
-
-    topicField =
-        new KafkaConsumerField(
-            KafkaConsumerField.Name.TOPIC,
-            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TopicField"));
-
-    partitionField =
-        new KafkaConsumerField(
-            KafkaConsumerField.Name.PARTITION,
-            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.PartitionField"),
-            KafkaConsumerField.Type.Integer);
-
-    offsetField =
-        new KafkaConsumerField(
-            KafkaConsumerField.Name.OFFSET,
-            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.OffsetField"),
-            KafkaConsumerField.Type.Integer);
-
-    timestampField =
-        new KafkaConsumerField(
-            KafkaConsumerField.Name.TIMESTAMP,
-            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TimestampField"),
-            KafkaConsumerField.Type.Integer);
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider) {
-
-    setFilename(XmlHandler.getTagValue(transformNode, PIPELINE_PATH));
-    setExecutionInformationLocation(
-        XmlHandler.getTagValue(transformNode, EXECUTION_INFORMATION_LOCATION));
-    setExecutionDataProfile(XmlHandler.getTagValue(transformNode, EXECUTION_DATA_PROFILE));
-
-    topics = new ArrayList<>();
-    List<Node> topicsNode = XmlHandler.getNodes(transformNode, TOPIC);
-    topicsNode.forEach(
-        node -> {
-          String displayName = XmlHandler.getNodeValue(node);
-          topics.add(displayName);
-        });
-
-    setConsumerGroup(XmlHandler.getTagValue(transformNode, CONSUMER_GROUP));
-    String subTransformTag = XmlHandler.getTagValue(transformNode, SUB_TRANSFORM);
-    if (!StringUtils.isEmpty(subTransformTag)) {
-      setSubTransform(subTransformTag);
-    }
-    setBatchSize(XmlHandler.getTagValue(transformNode, BATCH_SIZE));
-    setBatchDuration(XmlHandler.getTagValue(transformNode, BATCH_DURATION));
-    setDirectBootstrapServers(XmlHandler.getTagValue(transformNode, DIRECT_BOOTSTRAP_SERVERS));
-
-    String autoCommitValue = XmlHandler.getTagValue(transformNode, AUTO_COMMIT);
-    setAutoCommit("Y".equals(autoCommitValue) || StringUtils.isEmpty(autoCommitValue));
-
-    List<Node> ofNode = XmlHandler.getNodes(transformNode, OUTPUT_FIELD_TAG_NAME);
-
-    ofNode.forEach(
-        node -> {
-          String displayName = XmlHandler.getNodeValue(node);
-          String kafkaName = XmlHandler.getTagAttribute(node, KAFKA_NAME_ATTRIBUTE);
-          String type = XmlHandler.getTagAttribute(node, TYPE_ATTRIBUTE);
-          KafkaConsumerField field =
-              new KafkaConsumerField(
-                  KafkaConsumerField.Name.valueOf(kafkaName.toUpperCase()),
-                  displayName,
-                  KafkaConsumerField.Type.valueOf(type));
-
-          setField(field);
-        });
-
-    config = new LinkedHashMap<>();
-
-    Optional.ofNullable(XmlHandler.getSubNode(transformNode, ADVANCED_CONFIG))
-        .map(Node::getChildNodes)
-        .ifPresent(
-            nodes ->
-                IntStream.range(0, nodes.getLength())
-                    .mapToObj(nodes::item)
-                    .filter(node -> node.getNodeType() == Node.ELEMENT_NODE)
-                    .forEach(
-                        node -> {
-                          if (CONFIG_OPTION.equals(node.getNodeName())) {
-                            config.put(
-                                node.getAttributes().getNamedItem(OPTION_PROPERTY).getTextContent(),
-                                node.getAttributes().getNamedItem(OPTION_VALUE).getTextContent());
-                          } else {
-                            config.put(node.getNodeName(), node.getTextContent());
-                          }
-                        }));
-  }
-
-  protected void setField(KafkaConsumerField field) {
-    field.getKafkaName().setFieldOnMeta(this, field);
-  }
-
-  @Override
-  public void setDefault() {
+    super();
+    filename = "";
+    executionInformationLocation = "";
+    executionDataProfile = "";
     batchSize = "1000";
     batchDuration = "1000";
+    subTransform = "";
+    topics = new ArrayList<>();
+    options = new ArrayList<>();
+
+    keyField = new KeyConsumerField();
+    keyField.setKafkaName(KafkaConsumerField.Name.KEY);
+    keyField.setOutputType(KafkaConsumerField.Type.String);
+    keyField.setOutputName(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.KeyField"));
+
+    messageField = new MessageConsumerField();
+    messageField.setKafkaName(KafkaConsumerField.Name.MESSAGE);
+    messageField.setOutputType(KafkaConsumerField.Type.String);
+    messageField.setOutputName(
+        BaseMessages.getString(PKG, "KafkaConsumerInputDialog.MessageField"));
+
+    topicField =
+        new TopicConsumerField(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TopicField"));
+
+    partitionField =
+        new PartitionConsumerField(
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.PartitionField"));
+
+    offsetField =
+        new OffsetConsumerField(
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.OffsetField"));
+
+    timestampField =
+        new TimestampConsumerField(
+            BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TimestampField"));
+  }
+
+  public KafkaConsumerInputMeta(KafkaConsumerInputMeta m) {
+    super(m);
+    this.keyField = new KeyConsumerField(m.keyField);
+    this.messageField = new MessageConsumerField(m.messageField);
+    this.topicField = new TopicConsumerField(m.topicField);
+    this.offsetField = new OffsetConsumerField(m.offsetField);
+    this.partitionField = new PartitionConsumerField(m.partitionField);
+    this.timestampField = new TimestampConsumerField(m.timestampField);
+    this.filename = m.filename;
+    this.executionInformationLocation = m.executionInformationLocation;
+    this.executionDataProfile = m.executionDataProfile;
+    this.batchSize = m.batchSize;
+    this.batchDuration = m.batchDuration;
+    this.subTransform = m.subTransform;
+    this.directBootstrapServers = m.directBootstrapServers;
+    this.topics = new ArrayList<>(m.topics);
+    this.consumerGroup = m.consumerGroup;
+    this.autoCommit = m.autoCommit;
+    this.mappingMetaRetriever = m.mappingMetaRetriever;
+    this.options = new ArrayList<>();
+    m.options.forEach(o -> this.options.add(new KafkaOption(o)));
   }
 
   public RowMeta getRowMeta(String origin, IVariables variables) throws HopTransformException {
@@ -360,7 +265,7 @@ public class KafkaConsumerInputMeta
       try {
         String value = variables.resolve(field.getOutputName());
         IValueMeta v =
-            ValueMetaFactory.createValueMeta(value, field.getOutputType().getIValueMetaType());
+            ValueMetaFactory.createValueMeta(value, field.getOutputType().getValueMetaType());
         v.setOrigin(origin);
         rowMeta.addValueMeta(v);
       } catch (Exception e) {
@@ -370,52 +275,6 @@ public class KafkaConsumerInputMeta
             e);
       }
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-
-    getTopics().forEach(topic -> xml.append("    ").append(XmlHandler.addTagValue(TOPIC, topic)));
-
-    xml.append("    ").append(XmlHandler.addTagValue(CONSUMER_GROUP, consumerGroup));
-    xml.append("    ").append(XmlHandler.addTagValue(PIPELINE_PATH, filename));
-    xml.append("    ")
-        .append(
-            XmlHandler.addTagValue(EXECUTION_INFORMATION_LOCATION, executionInformationLocation));
-    xml.append("    ").append(XmlHandler.addTagValue(EXECUTION_DATA_PROFILE, executionDataProfile));
-    xml.append("    ").append(XmlHandler.addTagValue(SUB_TRANSFORM, getSubTransform()));
-    xml.append("    ").append(XmlHandler.addTagValue(BATCH_SIZE, batchSize));
-    xml.append("    ").append(XmlHandler.addTagValue(BATCH_DURATION, batchDuration));
-    xml.append("    ")
-        .append(XmlHandler.addTagValue(DIRECT_BOOTSTRAP_SERVERS, directBootstrapServers));
-    xml.append("    ").append(XmlHandler.addTagValue(AUTO_COMMIT, autoCommit));
-
-    getFieldDefinitions()
-        .forEach(
-            field ->
-                xml.append("    ")
-                    .append(
-                        XmlHandler.addTagValue(
-                            OUTPUT_FIELD_TAG_NAME,
-                            field.getOutputName(),
-                            true,
-                            KAFKA_NAME_ATTRIBUTE,
-                            field.getKafkaName().toString(),
-                            TYPE_ATTRIBUTE,
-                            field.getOutputType().toString())));
-
-    xml.append("    ").append(XmlHandler.openTag(ADVANCED_CONFIG)).append(Const.CR);
-    getConfig()
-        .forEach(
-            (key, value) ->
-                xml.append("        ")
-                    .append(
-                        XmlHandler.addTagValue(
-                            CONFIG_OPTION, "", true, OPTION_PROPERTY, key, OPTION_VALUE, value)));
-    xml.append("    ").append(XmlHandler.closeTag(ADVANCED_CONFIG)).append(Const.CR);
-
-    return xml.toString();
   }
 
   public List<KafkaConsumerField> getFieldDefinitions() {
@@ -429,60 +288,9 @@ public class KafkaConsumerInputMeta
             getTimestampField()));
   }
 
-  public void setConfig(Map<String, String> config) {
-    this.config = config;
-  }
-
-  public Map<String, String> getConfig() {
-    applyInjectedProperties();
-    return config;
-  }
-
-  protected void applyInjectedProperties() {
-    if (injectedConfigNames != null || injectedConfigValues != null) {
-      Preconditions.checkState(injectedConfigNames != null, "Options names were not injected");
-      Preconditions.checkState(injectedConfigValues != null, "Options values were not injected");
-      Preconditions.checkState(
-          injectedConfigNames.size() == injectedConfigValues.size(),
-          "Injected different number of options names and value");
-
-      setConfig(
-          IntStream.range(0, injectedConfigNames.size())
-              .boxed()
-              .collect(
-                  Collectors.toMap(
-                      injectedConfigNames::get,
-                      injectedConfigValues::get,
-                      (v1, v2) -> v1,
-                      LinkedHashMap::new)));
-
-      injectedConfigNames = null;
-      injectedConfigValues = null;
-    }
-  }
-
   @Override
   public KafkaConsumerInputMeta clone() {
-    return copyObject();
-  }
-
-  public KafkaConsumerInputMeta copyObject() {
-    KafkaConsumerInputMeta newClone = (KafkaConsumerInputMeta) super.clone();
-    newClone.topics = new ArrayList<>(this.topics);
-    newClone.keyField = new KafkaConsumerField(this.keyField);
-    newClone.messageField = new KafkaConsumerField(this.messageField);
-    if (null != this.injectedConfigNames) {
-      newClone.injectedConfigNames = new ArrayList<>(this.injectedConfigNames);
-    }
-    if (null != this.injectedConfigValues) {
-      newClone.injectedConfigValues = new ArrayList<>(this.injectedConfigValues);
-    }
-    newClone.config = new LinkedHashMap<>(this.config);
-    newClone.topicField = new KafkaConsumerField(this.topicField);
-    newClone.offsetField = new KafkaConsumerField(this.offsetField);
-    newClone.partitionField = new KafkaConsumerField(this.partitionField);
-    newClone.timestampField = new KafkaConsumerField(this.timestampField);
-    return newClone;
+    return new KafkaConsumerInputMeta(this);
   }
 
   @Override
@@ -620,5 +428,213 @@ public class KafkaConsumerInputMeta
   @Override
   public boolean supportsDrillDown() {
     return true;
+  }
+
+  @Override
+  public void convertLegacyXml(Node transformNode) throws HopException {
+    // Read the old options format:
+    //
+    Node advancedNode = XmlHandler.getSubNode(transformNode, ADVANCED_CONFIG);
+    if (advancedNode != null) {
+      List<Node> configNodes = XmlHandler.getNodes(advancedNode, CONFIG_OPTION);
+      for (Node configNode : configNodes) {
+        String property = XmlHandler.getTagAttribute(configNode, OPTION_PROPERTY);
+        String value = Const.NVL(XmlHandler.getTagAttribute(configNode, OPTION_VALUE), null);
+        options.add(new KafkaOption(property, value));
+      }
+    }
+
+    // Read the old fields
+    //
+    List<Node> outputNodes = XmlHandler.getNodes(transformNode, OUTPUT_FIELD_TAG_NAME);
+    for (Node outputNode : outputNodes) {
+      String nameString = XmlHandler.getTagAttribute(outputNode, KAFKA_NAME_ATTRIBUTE);
+      KafkaConsumerField.Name name =
+          IEnumHasCode.lookupCode(KafkaConsumerField.Name.class, nameString, null);
+      String typeString = XmlHandler.getTagAttribute(outputNode, TYPE_ATTRIBUTE);
+      KafkaConsumerField.Type type =
+          IEnumHasCode.lookupCode(
+              KafkaConsumerField.Type.class, typeString, KafkaConsumerField.Type.String);
+      String outputName = XmlHandler.getNodeValue(outputNode);
+      KafkaConsumerField field =
+          switch (name) {
+            case KEY -> keyField;
+            case MESSAGE -> messageField;
+            case TOPIC -> topicField;
+            case PARTITION -> partitionField;
+            case OFFSET -> offsetField;
+            case TIMESTAMP -> timestampField;
+          };
+      field.setKafkaName(name);
+      field.setOutputType(type);
+      field.setOutputName(outputName);
+    }
+  }
+
+  @Getter
+  @Setter
+  public static class KeyConsumerField extends KafkaConsumerField {
+    @HopMetadataProperty(
+        key = "outputName",
+        injectionKey = "KEY.OUTPUT_NAME",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.KEY.OUTPUT_NAME")
+    protected String outputName;
+
+    @HopMetadataProperty(
+        key = "type",
+        storeWithCode = true,
+        injectionKey = "KEY.TYPE",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.KEY.TYPE")
+    protected Type outputType;
+
+    public KeyConsumerField() {
+      super();
+      this.outputName = BaseMessages.getString(PKG, "KafkaConsumerInputDialog.KeyField");
+      super.kafkaName = Name.KEY;
+      this.outputType = Type.String;
+    }
+
+    public KeyConsumerField(KeyConsumerField f) {
+      this.outputName = f.outputName;
+      this.outputType = f.outputType;
+      this.kafkaName = f.kafkaName;
+    }
+  }
+
+  @Getter
+  @Setter
+  public static class MessageConsumerField extends KafkaConsumerField {
+    @HopMetadataProperty(
+        key = "outputName",
+        injectionKey = "MESSAGE.OUTPUT_NAME",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.MESSAGE.OUTPUT_NAME")
+    protected String outputName;
+
+    @HopMetadataProperty(
+        key = "type",
+        storeWithCode = true,
+        injectionKey = "MESSAGE.TYPE",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.MESSAGE.TYPE")
+    protected Type outputType;
+
+    public MessageConsumerField() {
+      super();
+      this.outputName = BaseMessages.getString(PKG, "KafkaConsumerInputDialog.MessageField");
+      super.kafkaName = Name.MESSAGE;
+      this.outputType = Type.String;
+    }
+
+    public MessageConsumerField(MessageConsumerField f) {
+      this.outputName = f.outputName;
+      this.outputType = f.outputType;
+      this.kafkaName = f.kafkaName;
+    }
+  }
+
+  @Getter
+  @Setter
+  public static class TopicConsumerField extends KafkaConsumerField {
+    @HopMetadataProperty(
+        key = "outputName",
+        injectionKey = "TOPIC.OUTPUT_NAME",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.TOPIC.OUTPUT_NAME")
+    protected String outputName;
+
+    public TopicConsumerField() {
+      super();
+      this.outputName = BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TopicField");
+      super.outputType = Type.String;
+      super.kafkaName = Name.TOPIC;
+    }
+
+    public TopicConsumerField(TopicConsumerField f) {
+      super(f.kafkaName, f.outputName, f.outputType);
+      this.outputName = f.outputName;
+    }
+
+    public TopicConsumerField(String outputName) {
+      this();
+      this.outputName = outputName;
+    }
+  }
+
+  @Getter
+  @Setter
+  public static class OffsetConsumerField extends KafkaConsumerField {
+    @HopMetadataProperty(
+        injectionKey = "OFFSET.OUTPUT_NAME",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.OFFSET.OUTPUT_NAME")
+    protected String outputName;
+
+    public OffsetConsumerField() {
+      super();
+      this.outputName = BaseMessages.getString(PKG, "KafkaConsumerInputDialog.OffsetField");
+      super.outputType = Type.Integer;
+      super.kafkaName = Name.OFFSET;
+    }
+
+    public OffsetConsumerField(OffsetConsumerField f) {
+      super(f.kafkaName, f.outputName, f.outputType);
+      this.outputName = f.outputName;
+    }
+
+    public OffsetConsumerField(String outputName) {
+      this();
+      this.outputName = outputName;
+    }
+  }
+
+  @Getter
+  @Setter
+  public static class PartitionConsumerField extends KafkaConsumerField {
+    @HopMetadataProperty(
+        injectionKey = "PARTITION.OUTPUT_NAME",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.PARTITION.OUTPUT_NAME")
+    protected String outputName;
+
+    public PartitionConsumerField() {
+      super();
+      this.outputName = BaseMessages.getString(PKG, "KafkaConsumerInputDialog.PartitionField");
+      super.outputType = Type.Integer;
+      super.kafkaName = Name.PARTITION;
+    }
+
+    public PartitionConsumerField(PartitionConsumerField f) {
+      this.outputName = f.outputName;
+      this.outputType = f.outputType;
+      this.kafkaName = f.kafkaName;
+    }
+
+    public PartitionConsumerField(String outputName) {
+      this();
+      this.outputName = outputName;
+    }
+  }
+
+  @Getter
+  @Setter
+  public static class TimestampConsumerField extends KafkaConsumerField {
+    @HopMetadataProperty(
+        injectionKey = "TIMESTAMP.OUTPUT_NAME",
+        injectionKeyDescription = "KafkaConsumerInputMeta.Injection.TIMESTAMP.OUTPUT_NAME")
+    protected String outputName;
+
+    public TimestampConsumerField() {
+      super();
+      this.outputName = BaseMessages.getString(PKG, "KafkaConsumerInputDialog.TimestampField");
+      super.outputType = Type.Integer;
+      super.kafkaName = Name.TIMESTAMP;
+    }
+
+    public TimestampConsumerField(TimestampConsumerField f) {
+      this.outputName = f.outputName;
+      this.outputType = f.outputType;
+      this.kafkaName = f.kafkaName;
+    }
+
+    public TimestampConsumerField(String outputName) {
+      this();
+      this.outputName = outputName;
+    }
   }
 }
