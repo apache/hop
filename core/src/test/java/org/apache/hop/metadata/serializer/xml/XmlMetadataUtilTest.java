@@ -213,4 +213,26 @@ class XmlMetadataUtilTest {
     assertEquals(withCopy.getSteps().size(), listRef.getSteps().size());
     assertEquals(withCopy.getHops().size(), listRef.getHops().size());
   }
+
+  @Test
+  void testListReferenceSerializationWithEmptyReference() throws Exception {
+    String xml =
+        """
+        <steps>
+          <step><name>S1</name><description>Description1</description><enabled>Y</enabled></step>
+        </steps>
+        <order>
+          <hop><from>S1</from><to/></hop>
+        </order>
+        """;
+    Node node = XmlHandler.loadXmlString("<hop>" + xml + "</hop>", "hop");
+    WithListReference withCopy =
+        XmlMetadataUtil.deSerializeFromXml(
+            node, WithListReference.class, new MemoryMetadataProvider());
+
+    assertEquals(1, withCopy.getSteps().size());
+    assertEquals(1, withCopy.getHops().size());
+    assertEquals("S1", withCopy.getHops().get(0).getFrom().getName());
+    assertNull(withCopy.getHops().get(0).getTo());
+  }
 }

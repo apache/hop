@@ -19,6 +19,7 @@ package org.apache.hop.mongo.wrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -69,6 +70,13 @@ class MongoFieldTest {
 
     mongoField.fieldPath = "$.parent.child";
     assertEquals("parent.child", mongoField.getPath());
+  }
+
+  @Test
+  void testIndexedValuesDefaultInitialized() {
+    MongoField mongoField = new MongoField();
+    assertNotNull(mongoField.indexedValues);
+    assertTrue(mongoField.indexedValues.isEmpty());
   }
 
   // "Number", "String", "Date", "Boolean", "Integer", "BigNumber", "Serializable",

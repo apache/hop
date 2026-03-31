@@ -57,7 +57,7 @@ public class MongoField implements Comparable<MongoField> {
 
   /** User-defined indexed values for String types */
   @HopMetadataProperty(key = "indexed_vals", injectionKey = "FIELD_INDEXED")
-  public List<String> indexedValues;
+  public List<String> indexedValues = new ArrayList<>();
 
   /**
    * Temporary variable to hold the min:max array index info for fields determined when sampling

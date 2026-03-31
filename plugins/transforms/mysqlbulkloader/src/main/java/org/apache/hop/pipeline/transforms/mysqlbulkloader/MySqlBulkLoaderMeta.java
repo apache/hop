@@ -29,7 +29,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -118,32 +117,28 @@ public class MySqlBulkLoaderMeta extends BaseTransformMeta<MySqlBulkLoader, MySq
   @HopMetadataProperty(key = "bulk_size")
   private String bulkSize;
 
-  /**
-   * @deprecated Keep for backwards compatibility
-   * @param transformNode xml transform node
-   * @param metadataProvider metadata provider
-   * @throws HopXmlException thrown when unable to read XML
-   */
+  /** Added for backwards compatibility with older XML "mapping" blocks. */
   @Override
-  @Deprecated(since = "2.13")
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-    try {
-      int nrvalues = XmlHandler.countNodes(transformNode, "mapping");
-      for (int i = 0; i < nrvalues; i++) {
-        Node vnode = XmlHandler.getSubNodeByNr(transformNode, "mapping", i);
-        Field field = new Field();
-        field.setFieldStream(XmlHandler.getTagValue(vnode, "field_name"));
-        field.setFieldTable(XmlHandler.getTagValue(vnode, "stream_name"));
-        field.setFieldFormatType(XmlHandler.getTagValue(vnode, "field_format_ok"));
-        fields.add(field);
+  public void convertLegacyXml(Node node) throws HopException {
+    if (node == null) {
+      return;
+    }
+
+    if (fields == null) {
+      fields = new java.util.ArrayList<>();
+    }
+
+    int nrvalues = XmlHandler.countNodes(node, "mapping");
+    for (int i = 0; i < nrvalues; i++) {
+      Node vnode = XmlHandler.getSubNodeByNr(node, "mapping", i);
+      if (vnode == null) {
+        continue;
       }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "MySqlBulkLoaderMeta.Exception.UnableToReadTransformInfoFromXML"),
-          e);
+      Field field = new Field();
+      field.setFieldStream(XmlHandler.getTagValue(vnode, "field_name"));
+      field.setFieldTable(XmlHandler.getTagValue(vnode, "stream_name"));
+      field.setFieldFormatType(XmlHandler.getTagValue(vnode, "field_format_ok"));
+      fields.add(field);
     }
   }
 

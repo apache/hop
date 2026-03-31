@@ -70,6 +70,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.IXml;
+import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -1442,7 +1443,8 @@ public class PipelineMeta extends AbstractMeta
   @Override
   public String getXml(IVariables variables) throws HopException {
     return XmlHandler.getLicenseHeader(variables)
-        + XmlHandler.aroundTag(XML_TAG, XmlMetadataUtil.serializeObjectToXml(this));
+        + XmlFormatter.format(
+            XmlHandler.aroundTag(XML_TAG, XmlMetadataUtil.serializeObjectToXml(this)));
   }
 
   /**

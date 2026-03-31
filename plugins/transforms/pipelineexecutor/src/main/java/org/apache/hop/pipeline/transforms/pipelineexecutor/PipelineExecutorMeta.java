@@ -29,7 +29,6 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -235,31 +234,21 @@ public class PipelineExecutorMeta
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @deprecated Added for backwards compatibility for old parameter style
-   * @param transformNode Transform node XML
-   * @param metadataProvider Metadata provider
-   * @throws HopXmlException when unable to parse XML
-   */
+  /** Added for backwards compatibility with older parameter style XML. */
   @Override
-  @Deprecated(since = "2.13")
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-    try {
-      // Load inherit_all_vars
-      //
-      String value =
-          XmlHandler.getTagValue(
-              XmlHandler.getSubNode(transformNode, "parameters"), "inherit_all_vars");
-      if (value != null) {
-        setInheritingAllVariables("Y".equalsIgnoreCase(value));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "PipelineExecutorMeta.Exception.ErrorLoadingPipelineExecutorDetailsFromXML"),
-          e);
+  public void convertLegacyXml(Node node) throws HopException {
+    if (node == null) {
+      return;
+    }
+
+    // Load inherit_all_vars from the old nested location under <parameters>
+    Node parametersNode = XmlHandler.getSubNode(node, "parameters");
+    if (parametersNode == null) {
+      return;
+    }
+    String value = XmlHandler.getTagValue(parametersNode, "inherit_all_vars");
+    if (value != null) {
+      setInheritingAllVariables("Y".equalsIgnoreCase(value));
     }
   }
 

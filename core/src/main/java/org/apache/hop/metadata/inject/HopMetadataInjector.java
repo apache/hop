@@ -37,6 +37,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -474,6 +475,11 @@ public class HopMetadataInjector {
     final Class<? extends IEnumHasCode> enumerationClass =
         (Class<? extends IEnumHasCode>) field.getType();
     fieldValue = IEnumHasCode.lookupCode(enumerationClass, code, null);
+    if (fieldValue == null && IEnumHasCodeAndDescription.class.isAssignableFrom(enumerationClass)) {
+      fieldValue =
+          IEnumHasCodeAndDescription.lookupDescription(
+              (Class<? extends IEnumHasCodeAndDescription>) enumerationClass, code, null);
+    }
     if (fieldValue == null) {
       // For backward compatibility, retry with the name as well
       //

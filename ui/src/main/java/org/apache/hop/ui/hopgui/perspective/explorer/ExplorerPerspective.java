@@ -2901,17 +2901,30 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
       // Sort by full path ascending
       Arrays.sort(children, Comparator.comparing(Object::toString));
 
+      String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
+      String metadataFolderName = null;
+      if (!Utils.isEmpty(metadataFolder)) {
+        String resolvedMetadataFolder = hopGui.getVariables().resolve(metadataFolder);
+        if (!Utils.isEmpty(resolvedMetadataFolder)) {
+          String normalizedMetadataFolder = resolvedMetadataFolder.replace('\\', '/');
+          int lastSlashIndex = normalizedMetadataFolder.lastIndexOf('/');
+          metadataFolderName =
+              (lastSlashIndex >= 0)
+                  ? normalizedMetadataFolder.substring(lastSlashIndex + 1)
+                  : normalizedMetadataFolder;
+        }
+      }
+
       for (boolean folder : new boolean[] {true, false}) {
         for (FileObject child : children) {
 
           String childName = child.getName().getBaseName();
-          String metadataFolder = hopGui.getVariables().getVariable(Const.HOP_METADATA_FOLDER);
+          boolean isMetadataFolderMatch =
+              !Utils.isEmpty(metadataFolderName) && metadataFolderName.equals(childName);
 
           // Skip hidden files or folders
           if (!showingHiddenFiles
-              && (child.isHidden()
-                  || childName.startsWith(".")
-                  || child.toString().contains(metadataFolder))) {
+              && (child.isHidden() || childName.startsWith(".") || isMetadataFolderMatch)) {
             continue;
           }
 

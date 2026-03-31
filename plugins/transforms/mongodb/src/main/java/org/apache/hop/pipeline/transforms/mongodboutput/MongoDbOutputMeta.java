@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -285,17 +285,13 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
   }
 
   /**
-   * Added for backwards compatibility
+   * Added for backwards compatibility with older XML stubs using {@code mongo_collection}.
    *
-   * @param transformNode XML Node of the transform
-   * @param metadataProvider metadata provider
-   * @throws HopXmlException when unable to load from XML
+   * @param node XML node of the transform
    */
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    super.loadXml(transformNode, metadataProvider);
-    String tempCollection = XmlHandler.getTagValue(transformNode, "mongo_collection");
+  public void convertLegacyXml(Node node) throws HopException {
+    String tempCollection = XmlHandler.getTagValue(node, "mongo_collection");
     if (!Utils.isEmpty(tempCollection)) {
       setCollection(tempCollection);
     }
