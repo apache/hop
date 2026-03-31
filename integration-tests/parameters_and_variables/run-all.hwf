@@ -35,18 +35,16 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
-      <start>Y</start>
-      <dummy>N</dummy>
-      <repeat>N</repeat>
-      <schedulerType>0</schedulerType>
+      <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <intervalSeconds>0</intervalSeconds>
+      <schedulerType>0</schedulerType>
       <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
-      <weekDay>1</weekDay>
       <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <repeat>N</repeat>
+      <weekDay>1</weekDay>
+      <minutes>0</minutes>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>80</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -56,57 +54,47 @@ limitations under the License.
       <description/>
       <type>WORKFLOW</type>
       <attributes/>
-      <run_configuration>local</run_configuration>
-      <filename>${PROJECT_HOME}/main-0001-workflow-set-get-variable.hwf</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <add_date>N</add_date>
+      <params_from_previous>N</params_from_previous>
+      <add_time>N</add_time>
+      <set_logfile>N</set_logfile>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/main-0001-workflow-set-get-variable.hwf</filename>
       <set_append_logfile>N</set_append_logfile>
+      <run_configuration>local</run_configuration>
+      <create_parent_folder>N</create_parent_folder>
+      <loglevel>Nothing</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>256</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>main-0002-pipeline-job-executor.hwf</name>
+      <name>main-0002-pipeline-workflow-executor.hwf</name>
       <description/>
       <type>WORKFLOW</type>
       <attributes/>
-      <run_configuration>local</run_configuration>
-      <filename>${PROJECT_HOME}/main-0002-pipeline-job-executor.hwf</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
       <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <add_date>N</add_date>
+      <params_from_previous>N</params_from_previous>
+      <logfile/>
+      <add_time>N</add_time>
+      <set_logfile>N</set_logfile>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/main-0002-pipeline-workflow-executor.hwf</filename>
       <set_append_logfile>N</set_append_logfile>
+      <run_configuration>local</run_configuration>
+      <create_parent_folder>N</create_parent_folder>
+      <loglevel>Nothing</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>528</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -116,27 +104,21 @@ limitations under the License.
       <description/>
       <type>WORKFLOW</type>
       <attributes/>
-      <run_configuration>local</run_configuration>
-      <filename>${PROJECT_HOME}/main-0003-pipeline-pipeline-executor.hwf</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <add_date>N</add_date>
+      <params_from_previous>N</params_from_previous>
+      <add_time>N</add_time>
+      <set_logfile>N</set_logfile>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/main-0003-pipeline-pipeline-executor.hwf</filename>
       <set_append_logfile>N</set_append_logfile>
+      <run_configuration>local</run_configuration>
+      <create_parent_folder>N</create_parent_folder>
+      <loglevel>Nothing</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>816</xloc>
       <yloc>80</yloc>
       <attributes_hac/>
@@ -146,27 +128,21 @@ limitations under the License.
       <description/>
       <type>WORKFLOW</type>
       <attributes/>
-      <run_configuration>local</run_configuration>
-      <filename>${PROJECT_HOME}/main-0004-pass-variables-and-parameters.hwf</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <add_date>N</add_date>
+      <params_from_previous>N</params_from_previous>
+      <add_time>N</add_time>
+      <set_logfile>N</set_logfile>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/main-0004-pass-variables-and-parameters.hwf</filename>
       <set_append_logfile>N</set_append_logfile>
+      <run_configuration>local</run_configuration>
+      <create_parent_folder>N</create_parent_folder>
+      <loglevel>Nothing</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>254</xloc>
       <yloc>194</yloc>
       <attributes_hac/>
@@ -176,27 +152,21 @@ limitations under the License.
       <description/>
       <type>WORKFLOW</type>
       <attributes/>
-      <run_configuration>local</run_configuration>
-      <filename>${PROJECT_HOME}/main-0005-mappings.hwf</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <add_date>N</add_date>
+      <params_from_previous>N</params_from_previous>
+      <add_time>N</add_time>
+      <set_logfile>N</set_logfile>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/main-0005-mappings.hwf</filename>
       <set_append_logfile>N</set_append_logfile>
+      <run_configuration>local</run_configuration>
+      <create_parent_folder>N</create_parent_folder>
+      <loglevel>Nothing</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <nr>0</nr>
       <xloc>528</xloc>
       <yloc>192</yloc>
       <attributes_hac/>
@@ -206,26 +176,20 @@ limitations under the License.
     <hop>
       <from>START</from>
       <to>main-0001-workflow-set-get-variable.hwf</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
       <from>main-0001-workflow-set-get-variable.hwf</from>
-      <to>main-0002-pipeline-job-executor.hwf</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
+      <to>main-0002-pipeline-workflow-executor.hwf</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>main-0002-pipeline-job-executor.hwf</from>
+      <from>main-0002-pipeline-workflow-executor.hwf</from>
       <to>main-0003-pipeline-pipeline-executor.hwf</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -233,8 +197,6 @@ limitations under the License.
     <hop>
       <from>main-0003-pipeline-pipeline-executor.hwf</from>
       <to>main-0004-pass-variables-and-parameters.hwf</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -242,8 +204,6 @@ limitations under the License.
     <hop>
       <from>main-0004-pass-variables-and-parameters.hwf</from>
       <to>main-0005-mappings.hwf</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
