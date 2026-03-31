@@ -24,8 +24,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -369,5 +371,10 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  @Override
+  public void convertLegacyXml(Node transformNode) throws HopException {
+    collection = Const.NVL(collection, XmlHandler.getTagValue(transformNode, "mongo_collection"));
   }
 }
