@@ -638,8 +638,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       id = TOOLBAR_ITEM_FORCE_REFRESH,
       toolTip = "i18n::ExecutionPerspective.ToolbarElement.ForceRefresh.Tooltip",
       image = "ui/images/force-refresh.svg")
-  @GuiKeyboardShortcut(key = SWT.F5)
-  @GuiOsxKeyboardShortcut(key = SWT.F5)
+  @GuiKeyboardShortcut(key = SWT.F6)
+  @GuiOsxKeyboardShortcut(key = SWT.F6)
   public void forcedRefresh() {
     // This is a manual refresh button push.
     // As such we consider this a forced refresh.
