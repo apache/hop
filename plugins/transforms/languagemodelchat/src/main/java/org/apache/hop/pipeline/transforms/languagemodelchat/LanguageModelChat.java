@@ -27,7 +27,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trim;
-import static org.apache.commons.lang3.exception.ExceptionUtils.getRootCauseMessage;
 import static org.apache.hop.core.util.Utils.isEmpty;
 import static org.apache.hop.pipeline.transforms.languagemodelchat.internals.ui.i18nUtil.i18n;
 
@@ -192,40 +191,38 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
         () -> {
           try {
             processSync(inputRow, message);
+          } catch (Exception e) {
+            try {
+              if (getTransformMeta().isDoingErrorHandling()) {
+                String errorMessage = e.toString();
+                putError(
+                    getInputRowMeta(),
+                    inputRow,
+                    1L,
+                    errorMessage,
+                    meta.getInputField(),
+                    "LanguageModelChat001");
+              } else {
+                logError(i18n("LanguageModelChat.ErrorInTransformRunning") + e.getMessage(), e);
+                setErrors(1L);
+                stopAll();
+              }
+            } catch (HopTransformException ex) {
+              logError(e.getMessage(), e);
+              logError(ex.getMessage(), ex);
+              if (!getTransformMeta().isDoingErrorHandling()) {
+                setErrors(1L);
+                stopAll();
+              }
+            }
+          } finally {
             jobs.decrementAndGet();
             synchronized (lock) {
               lock.notifyAll();
             }
-          } catch (Exception e) {
-            try {
-              processError(inputRow, e);
-            } catch (HopTransformException ex) {
-              logError(e.getMessage(), e);
-              logError(ex.getMessage(), ex);
-            }
           }
         });
     jobs.incrementAndGet();
-  }
-
-  private void processError(Object[] inputRow, Exception e) throws HopTransformException {
-    logError(e.getMessage(), e);
-    int newFields = 8;
-    Object[] outputRow = new Object[inputRow.length + newFields + OVER_ALLOCATE_SIZE];
-    arraycopy(inputRow, 0, outputRow, 0, inputRow.length);
-
-    LanguageModel model = new LanguageModel(meta);
-
-    outputRow[data.indexOfModelType] = model.getType().code();
-    outputRow[data.indexOfModelName] = model.getName();
-    outputRow[data.indexOfFinishReason] = "error";
-    outputRow[data.indexOfInputTokenCount] = null;
-    outputRow[data.indexOfOutputTokenCount] = null;
-    outputRow[data.indexOfTotalTokenCount] = null;
-    outputRow[data.indexOfInferenceTime] = null;
-    outputRow[data.indexOfOutput] = getRootCauseMessage(e);
-
-    putRow(data.outputRowMeta, outputRow);
   }
 
   private void processSync(Object[] inputRow, String message)
@@ -385,6 +382,20 @@ public class LanguageModelChat extends BaseTransform<LanguageModelChatMeta, Lang
   public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
     synchronized (this) {
       super.putRow(rowMeta, row);
+    }
+  }
+
+  @Override
+  public void putError(
+      IRowMeta rowMeta,
+      Object[] row,
+      long nrErrors,
+      String errorDescriptions,
+      String fieldNames,
+      String errorCodes)
+      throws HopTransformException {
+    synchronized (this) {
+      super.putError(rowMeta, row, nrErrors, errorDescriptions, fieldNames, errorCodes);
     }
   }
 }
