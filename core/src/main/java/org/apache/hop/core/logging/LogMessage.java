@@ -142,7 +142,8 @@ public class LogMessage implements ILogMessage {
   @Override
   public String getMessage() {
     String formatted = message;
-    if (arguments != null) {
+    // Skip MessageFormat when there are no substitution arguments
+    if (arguments != null && arguments.length > 0) {
       // get all "tokens" enclosed by curly brackets within the message
       final List<String> tokens = new ArrayList<>();
       StringUtil.getUsedVariables(formatted, "{", "}", tokens, true);
