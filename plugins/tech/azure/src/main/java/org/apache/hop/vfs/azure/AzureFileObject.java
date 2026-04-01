@@ -536,16 +536,20 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   public boolean delete() throws FileSystemException {
-    if (dataLakeFileClient.exists()) {
-      try {
-        doDelete();
-        return true;
-      } catch (Exception e) {
-        return false;
-        // TODO log an error
-      }
+    // dataLakeFileClient is only set for some attach paths (e.g. imaginary targets stay null).
+    if (dataLakeFileClient == null) {
+      return false;
     }
-    return false;
+    try {
+      if (!dataLakeFileClient.exists()) {
+        return false;
+      }
+      doDelete();
+      return true;
+    } catch (Exception e) {
+      return false;
+      // TODO log an error
+    }
   }
 
   private static String removeTrailingSlash(String itemPath) {
