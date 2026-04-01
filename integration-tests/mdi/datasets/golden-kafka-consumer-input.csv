@@ -1,0 +1,2 @@
+messageOutputName,messageType,keyOutputName,keyType,topicOutputName,partitionOutputName,offsetOutputName,timestampOutputName,batchDuration,subTransform,executionInformationLocation,pipelinePath,directBootstrapServers,batchSize,AUTO_COMMIT,consumerGroup,executionDataProfile
+theMessage,Avro,theKey,String,theTopic,thePartition,theOffset,theTimestamp,10000,OUTPUT,tmp-executions,${PROJECT_HOME}/kafka-consumer-child.hpl,${KAFKA_SERVER},10,Y,consumerGroup,first-last

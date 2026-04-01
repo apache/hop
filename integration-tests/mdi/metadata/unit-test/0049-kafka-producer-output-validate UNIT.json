@@ -1,0 +1,76 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "messageField",
+          "data_set_field": "messageField"
+        },
+        {
+          "transform_field": "keyField",
+          "data_set_field": "keyField"
+        },
+        {
+          "transform_field": "clientId",
+          "data_set_field": "clientId"
+        },
+        {
+          "transform_field": "directBootstrapServers",
+          "data_set_field": "directBootstrapServers"
+        },
+        {
+          "transform_field": "topic",
+          "data_set_field": "topic"
+        },
+        {
+          "transform_field": "schema_name",
+          "data_set_field": "schema_name"
+        },
+        {
+          "transform_field": "method",
+          "data_set_field": "method"
+        }
+      ],
+      "field_order": [
+        "messageField",
+        "keyField",
+        "clientId",
+        "directBootstrapServers",
+        "topic",
+        "schema_name",
+        "method"
+      ],
+      "data_set_name": "golden-kafka-producer-output",
+      "transform_name": "validate"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "property",
+          "data_set_field": "property"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "property",
+        "value"
+      ],
+      "data_set_name": "golden-kafka-producer-output-options",
+      "transform_name": "validate options"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0049-kafka-producer-output-validate UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0049-kafka-producer-output-validate.hpl"
+}

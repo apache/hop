@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -42,19 +41,11 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     keywords = "i18n::KafkaProducerOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/kafkaproducer.html")
-@InjectionSupported(
-    localizationPrefix = "KafkaProducerOutputMeta.Injection.",
-    groups = {"CONFIGURATION_PROPERTIES"})
 @Getter
 @Setter
 public class KafkaProducerOutputMeta
     extends BaseTransformMeta<KafkaProducerOutput, KafkaProducerOutputData> {
 
-  public static final String DIRECT_BOOTSTRAP_SERVERS = "directBootstrapServers";
-  public static final String CLIENT_ID = "clientId";
-  public static final String TOPIC = "topic";
-  public static final String KEY_FIELD = "keyField";
-  public static final String MESSAGE_FIELD = "messageField";
   public static final String ADVANCED_CONFIG = "advancedConfig";
   public static final String CONFIG_OPTION = "option";
   public static final String OPTION_PROPERTY = "property";
@@ -99,6 +90,17 @@ public class KafkaProducerOutputMeta
 
   public KafkaProducerOutputMeta() {
     super();
+    this.options = new ArrayList<>();
+  }
+
+  public KafkaProducerOutputMeta(KafkaProducerOutputMeta m) {
+    this();
+    this.directBootstrapServers = m.directBootstrapServers;
+    this.clientId = m.clientId;
+    this.topic = m.topic;
+    this.keyField = m.keyField;
+    this.messageField = m.messageField;
+    m.options.forEach(option -> this.options.add(new KafkaOption(option)));
   }
 
   @Override
@@ -113,7 +115,7 @@ public class KafkaProducerOutputMeta
   }
 
   @Override
-  public void convertLegacyXml(Node transformNode) throws HopException {
+  public void convertLegacyXml(Node transformNode) {
     // Read the old options format:
     //
     Node advancedNode = XmlHandler.getSubNode(transformNode, ADVANCED_CONFIG);

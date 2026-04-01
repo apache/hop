@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <notepads/>
+  <transform>
+    <create_parent_folder>Y</create_parent_folder>
+    <mappings>
+      <mapping>
+        <source_field>directBootstrapServers</source_field>
+        <target_transform_name>Kafka Producer</target_transform_name>
+        <target_attribute_key>DIRECT_BOOTSTRAP_SERVERS</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/kafka-producer-output.xml</source_transform>
+      </mapping>
+      <mapping>
+        <source_field>topic</source_field>
+        <target_transform_name>Kafka Producer</target_transform_name>
+        <target_attribute_key>TOPIC</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/kafka-producer-output.xml</source_transform>
+      </mapping>
+      <mapping>
+        <source_field>clientId</source_field>
+        <target_transform_name>Kafka Producer</target_transform_name>
+        <target_attribute_key>CLIENT_ID</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/kafka-producer-output.xml</source_transform>
+      </mapping>
+      <mapping>
+        <source_field>keyField</source_field>
+        <target_transform_name>Kafka Producer</target_transform_name>
+        <target_attribute_key>KEY_FIELD</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/kafka-producer-output.xml</source_transform>
+      </mapping>
+      <mapping>
+        <source_field>messageField</source_field>
+        <target_transform_name>Kafka Producer</target_transform_name>
+        <target_attribute_key>MESSAGE_FIELD</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>files/kafka-producer-output.xml</source_transform>
+      </mapping>
+      <mapping>
+        <source_field>property</source_field>
+        <target_transform_name>Kafka Producer</target_transform_name>
+        <target_attribute_key>property</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/kafka-producer-output.xml options</source_transform>
+      </mapping>
+      <mapping>
+        <source_field>value</source_field>
+        <target_transform_name>Kafka Producer</target_transform_name>
+        <target_attribute_key>value</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>files/kafka-producer-output.xml options</source_transform>
+      </mapping>
+    </mappings>
+    <target_file>${java.io.tmpdir}/kafka-producer-output.hpl</target_file>
+    <source_output_fields/>
+    <stream_source_transform/>
+    <filename>${PROJECT_HOME}/0049-kafka-producer-output-template.hpl</filename>
+    <run_configuration>local</run_configuration>
+    <allow_empty_stream_on_execution>N</allow_empty_stream_on_execution>
+    <stream_target_transform/>
+    <source_transform/>
+    <no_execution>Y</no_execution>
+    <partitioning>
+      <schema_name/>
+      <method>none</method>
+    </partitioning>
+    <name>0049-kafka-producer-output-template.hpl</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>96</yloc>
+    </GUI>
+    <attributes/>
+    <type>MetaInject</type>
+  </transform>
+  <transform>
+    <rownum>N</rownum>
+    <IsAFile>N</IsAFile>
+    <loopxpath>/transform</loopxpath>
+    <XmlField/>
+    <limit>0</limit>
+    <uriNameFieldName/>
+    <extensionFieldName/>
+    <IsInFields>N</IsInFields>
+    <fields>
+      <field>
+        <decimal/>
+        <precision>-1</precision>
+        <length>-1</length>
+        <format/>
+        <currency/>
+        <type>String</type>
+        <group/>
+        <repeat>N</repeat>
+        <name>directBootstrapServers</name>
+        <xPath>directBootstrapServers</xPath>
+        <element_type>Node</element_type>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <decimal/>
+        <precision>-1</precision>
+        <length>-1</length>
+        <format/>
+        <currency/>
+        <type>String</type>
+        <group/>
+        <repeat>N</repeat>
+        <name>topic</name>
+        <xPath>topic</xPath>
+        <element_type>Node</element_type>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <decimal/>
+        <precision>-1</precision>
+        <length>-1</length>
+        <format/>
+        <currency/>
+        <type>String</type>
+        <group/>
+        <repeat>N</repeat>
+        <name>clientId</name>
+        <xPath>clientId</xPath>
+        <element_type>Node</element_type>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <decimal/>
+        <precision>-1</precision>
+        <length>-1</length>
+        <format/>
+        <currency/>
+        <type>String</type>
+        <group/>
+        <repeat>N</repeat>
+        <name>keyField</name>
+        <xPath>keyField</xPath>
+        <element_type>Node</element_type>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <decimal/>
+        <precision>-1</precision>
+        <length>-1</length>
+        <format/>
+        <currency/>
+        <type>String</type>
+        <group/>
+        <repeat>N</repeat>
+        <name>messageField</name>
+        <xPath>messageField</xPath>
+        <element_type>Node</element_type>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+      </field>
+    </fields>
+    <rownum_field/>
+    <shortFileFieldName/>
+    <hiddenFieldName/>
+    <readurl>N</readurl>
+    <include_field/>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <include>N</include>
+    <rootUriNameFieldName/>
+    <lastModificationTimeFieldName/>
+    <file>
+      <name>${PROJECT_HOME}/files/kafka-producer-output.xml</name>
+      <include_subfolders>N</include_subfolders>
+      <file_required>N</file_required>
+      <exclude_filemask/>
+      <filemask/>
+    </file>
+    <encoding>UTF-8</encoding>
+    <sizeFieldName/>
+    <addresultfile>N</addresultfile>
+    <usetoken>N</usetoken>
+    <ignorecomments>N</ignorecomments>
+    <pathFieldName/>
+    <namespaceaware>N</namespaceaware>
+    <validating>N</validating>
+    <prunePath/>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <partitioning>
+      <schema_name/>
+      <method>none</method>
+    </partitioning>
+    <name>files/kafka-producer-output.xml</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>96</yloc>
+    </GUI>
+    <attributes/>
+    <type>getXMLData</type>
+  </transform>
+  <transform>
+    <rownum>N</rownum>
+    <IsAFile>N</IsAFile>
+    <loopxpath>/transform/advancedConfig/option</loopxpath>
+    <XmlField/>
+    <limit>0</limit>
+    <uriNameFieldName/>
+    <extensionFieldName/>
+    <IsInFields>N</IsInFields>
+    <fields>
+      <field>
+        <decimal/>
+        <precision>-1</precision>
+        <length>-1</length>
+        <format/>
+        <currency/>
+        <type>String</type>
+        <group/>
+        <repeat>N</repeat>
+        <name>property</name>
+        <xPath>property</xPath>
+        <element_type>Attribute</element_type>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+      </field>
+      <field>
+        <decimal/>
+        <precision>-1</precision>
+        <length>-1</length>
+        <format/>
+        <currency/>
+        <type>String</type>
+        <group/>
+        <repeat>N</repeat>
+        <name>value</name>
+        <xPath>value</xPath>
+        <element_type>Attribute</element_type>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+      </field>
+    </fields>
+    <rownum_field/>
+    <shortFileFieldName/>
+    <hiddenFieldName/>
+    <readurl>N</readurl>
+    <include_field/>
+    <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
+    <include>N</include>
+    <rootUriNameFieldName/>
+    <lastModificationTimeFieldName/>
+    <file>
+      <name>${PROJECT_HOME}/files/kafka-producer-output.xml</name>
+      <include_subfolders>N</include_subfolders>
+      <file_required>N</file_required>
+      <exclude_filemask/>
+      <filemask/>
+    </file>
+    <encoding>UTF-8</encoding>
+    <sizeFieldName/>
+    <addresultfile>N</addresultfile>
+    <usetoken>N</usetoken>
+    <ignorecomments>N</ignorecomments>
+    <pathFieldName/>
+    <namespaceaware>N</namespaceaware>
+    <validating>N</validating>
+    <prunePath/>
+    <doNotFailIfNoFile>Y</doNotFailIfNoFile>
+    <partitioning>
+      <schema_name/>
+      <method>none</method>
+    </partitioning>
+    <name>files/kafka-producer-output.xml options</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>192</yloc>
+    </GUI>
+    <attributes/>
+    <type>getXMLData</type>
+  </transform>
+  <order>
+    <hop>
+      <from>files/kafka-producer-output.xml</from>
+      <to>0049-kafka-producer-output-template.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>files/kafka-producer-output.xml options</from>
+      <to>0049-kafka-producer-output-template.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <attributes/>
+  <info>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <modified_user>-</modified_user>
+    <parameters/>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_date>2026/04/01 11:36:56.205</created_date>
+    <name>New pipeline</name>
+    <modified_date>2026/04/01 11:36:56.205</modified_date>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <pipeline_status>-1</pipeline_status>
+    <pipeline_type>Normal</pipeline_type>
+    <created_user>-</created_user>
+    <capture_transform_performance>N</capture_transform_performance>
+  </info>
+  <transform_error_handling/>
+</pipeline>

@@ -1,0 +1,2 @@
+messageField,keyField,clientId,directBootstrapServers,topic,schema_name,method
+json,id,Hop,${KAFKA_SERVER},${KAFKA_TOPIC},,none
