@@ -19,7 +19,6 @@ package org.apache.hop.ui.core.widget;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -100,6 +99,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.jspecify.annotations.NonNull;
 
 /** Widget to display or modify data, displayed in a Table format. */
 @GuiPlugin
@@ -1628,89 +1628,18 @@ public class TableView extends Composite {
     try {
       // First, get all info and put it in a Vector of Rows...
       TableItem[] items = table.getItems();
-      List<Object[]> v = new ArrayList<>();
 
       // First create the row metadata for the grid
       //
-      final IRowMeta rowMeta = new RowMeta();
-
-      // First values are the color name + value!
-      rowMeta.addValueMeta(new ValueMetaString("colorname"));
-      rowMeta.addValueMeta(new ValueMetaInteger("color"));
-      for (int j = 0; j < table.getColumnCount(); j++) {
-        ColumnInfo colInfo;
-        if (j > 0) {
-          colInfo = columns[j - 1];
-        } else {
-          colInfo = numberColumn;
-        }
-
-        IValueMeta valueMeta = colInfo.getValueMeta();
-        if (j == sortField) {
-          valueMeta.setSortedDescending(sortingDescending);
-        }
-
-        rowMeta.addValueMeta(valueMeta);
-      }
-
-      final IRowMeta sourceRowMeta = rowMeta.cloneToType(IValueMeta.TYPE_STRING);
+      final IRowMeta rowMeta = getSortRowMeta(sortField, sortingDescending);
       final IRowMeta conversionRowMeta = rowMeta.clone();
-
-      // Set it all to string...
-      // Also set the storage value metadata: this will allow us to convert back
-      // and forth without a problem.
-      //
-      for (int i = 0; i < sourceRowMeta.size(); i++) {
-        IValueMeta sourceValueMeta = sourceRowMeta.getValueMeta(i);
-        sourceValueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-
-        IValueMeta conversionMetaData = conversionRowMeta.getValueMeta(i);
-        conversionMetaData.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
-
-        // Meaning: this string comes from an Integer/Number/Date/etc.
-        //
-        sourceRowMeta.getValueMeta(i).setConversionMetadata(conversionMetaData);
-      }
-
-      // Now populate a list of data rows...
-      //
-      for (TableItem item : items) {
-        Object[] r = new Object[table.getColumnCount() + 2];
-
-        // First values are the color name + value!
-        Color bg = item.getBackground();
-        if (!bg.equals(defaultBackgroundColor)) {
-          String colorName = "bg " + bg.toString();
-          r[0] = colorName;
-          r[1] = (long) ((bg.getRed() << 16) + (bg.getGreen() << 8) + (bg.getBlue()));
-          // Save it in the used colors map!
-          usedColors.put(colorName, bg);
-        }
-
-        for (int j = 0; j < table.getColumnCount(); j++) {
-          String data = item.getText(j);
-          if (GuiResource.getInstance().getColorBlue().equals(item.getForeground(j))) {
-            data = null;
-          }
-          IValueMeta sourceValueMeta = sourceRowMeta.getValueMeta(j + 2);
-          try {
-            r[j + 2] = sourceValueMeta.convertDataUsingConversionMetaData(data);
-          } catch (Exception e) {
-            if (isShowingConversionErrorsInline()) {
-              r[j + 2] = Const.getStackTracker(e);
-            } else {
-              throw e;
-            }
-          }
-        }
-        v.add(r);
-      }
+      final IRowMeta sourceRowMeta = buildTableSourceRowMeta(rowMeta, conversionRowMeta);
+      List<Object[]> v = getTableItemsAsRows(items, sourceRowMeta);
 
       final int[] sortIndex = new int[] {sortField + 2};
 
       // Sort the vector!
-      Collections.sort(
-          v,
+      v.sort(
           (r1, r2) -> {
             try {
               return conversionRowMeta.compare(r1, r2, sortIndex);
@@ -1762,6 +1691,92 @@ public class TableView extends Composite {
           BaseMessages.getString(PKG, "TableView.ErrorDialog.description"),
           e);
     }
+  }
+
+  public List<Object[]> getTableItemsAsRows(TableItem[] items, IRowMeta sourceRowMeta)
+      throws HopValueException {
+    List<Object[]> v = new ArrayList<>();
+
+    // Now populate a list of data rows...
+    //
+    for (TableItem item : items) {
+      Object[] r = new Object[table.getColumnCount() + 2];
+
+      // First values are the color name + value!
+      Color bg = item.getBackground();
+      if (!bg.equals(defaultBackgroundColor)) {
+        String colorName = "bg " + bg.toString();
+        r[0] = colorName;
+        r[1] = (long) ((bg.getRed() << 16) + (bg.getGreen() << 8) + (bg.getBlue()));
+        // Save it in the used colors map!
+        usedColors.put(colorName, bg);
+      }
+
+      for (int j = 0; j < table.getColumnCount(); j++) {
+        String data = item.getText(j);
+        if (GuiResource.getInstance().getColorBlue().equals(item.getForeground(j))) {
+          data = null;
+        }
+        IValueMeta sourceValueMeta = sourceRowMeta.getValueMeta(j + 2);
+        try {
+          r[j + 2] = sourceValueMeta.convertDataUsingConversionMetaData(data);
+        } catch (Exception e) {
+          if (isShowingConversionErrorsInline()) {
+            r[j + 2] = Const.getStackTracker(e);
+          } else {
+            throw e;
+          }
+        }
+      }
+      v.add(r);
+    }
+    return v;
+  }
+
+  public static @NonNull IRowMeta buildTableSourceRowMeta(
+      IRowMeta rowMeta, IRowMeta conversionRowMeta) throws HopValueException {
+    final IRowMeta sourceRowMeta = rowMeta.cloneToType(IValueMeta.TYPE_STRING);
+
+    // Set it all to string...
+    // Also set the storage value metadata: this will allow us to convert back
+    // and forth without a problem.
+    //
+    for (int i = 0; i < sourceRowMeta.size(); i++) {
+      IValueMeta sourceValueMeta = sourceRowMeta.getValueMeta(i);
+      sourceValueMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+
+      IValueMeta conversionMetaData = conversionRowMeta.getValueMeta(i);
+      conversionMetaData.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+
+      // Meaning: this string comes from an Integer/Number/Date/etc.
+      //
+      sourceRowMeta.getValueMeta(i).setConversionMetadata(conversionMetaData);
+    }
+    return sourceRowMeta;
+  }
+
+  public @NonNull IRowMeta getSortRowMeta(int sortField, boolean sortingDescending) {
+    final IRowMeta rowMeta = new RowMeta();
+
+    // First values are the color name + value!
+    rowMeta.addValueMeta(new ValueMetaString("colorname"));
+    rowMeta.addValueMeta(new ValueMetaInteger("color"));
+    for (int j = 0; j < table.getColumnCount(); j++) {
+      ColumnInfo colInfo;
+      if (j > 0) {
+        colInfo = columns[j - 1];
+      } else {
+        colInfo = numberColumn;
+      }
+
+      IValueMeta valueMeta = colInfo.getValueMeta();
+      if (j == sortField) {
+        valueMeta.setSortedDescending(sortingDescending);
+      }
+
+      rowMeta.addValueMeta(valueMeta);
+    }
+    return rowMeta;
   }
 
   private void selectRows(int from, int to) {

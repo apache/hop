@@ -48,8 +48,7 @@ import org.apache.hop.core.vfs.HopVfs;
  * file defined by the tableName in the data set
  */
 public class DataSetCsvUtil {
-
-  private static void setValueFormats(IRowMeta rowMeta) {
+  public static void setValueFormats(IRowMeta rowMeta) {
     for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
       if (StringUtils.isEmpty(valueMeta.getConversionMask())) {
         switch (valueMeta.getType()) {

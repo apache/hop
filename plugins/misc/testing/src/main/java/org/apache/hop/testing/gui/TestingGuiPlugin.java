@@ -46,36 +46,50 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
+import org.apache.hop.testing.DataSetCsvUtil;
 import org.apache.hop.testing.DataSetField;
 import org.apache.hop.testing.PipelineTweak;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.PipelineUnitTestTweak;
+import org.apache.hop.testing.actions.runtests.RunPipelineTests;
+import org.apache.hop.testing.actions.runtests.RunPipelineTestsField;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.testing.xp.PipelineMetaModifier;
 import org.apache.hop.testing.xp.WriteToDataSetExtensionPoint;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
 import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
+import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
+import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.ui.testing.EditRowsDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 @GuiPlugin
 public class TestingGuiPlugin {
@@ -110,6 +124,9 @@ public class TestingGuiPlugin {
       "HopGuiPipelineGraph-ToolBar-20000-unit-tests-label";
   public static final String ID_TOOLBAR_UNIT_TESTS_COMBO =
       "HopGuiPipelineGraph-ToolBar-20010-unit-tests-combo";
+
+  public static final String ACTION_ID_PIPELINE_GRAPH_COPY_TEST_ACTION_CLIPBOARD =
+      "pipeline-graph-transform-10400-copy-pipeline-action";
 
   private static TestingGuiPlugin instance = null;
 
@@ -1556,5 +1573,158 @@ public class TestingGuiPlugin {
           exception);
     }
     return tests;
+  }
+
+  /** We set an input data set */
+  @GuiContextAction(
+      id = ACTION_ID_PIPELINE_GRAPH_COPY_TEST_ACTION_CLIPBOARD,
+      parentId = HopGuiPipelineContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::TestingGuiPlugin.ContextAction.CopyTestActionToClipboard.Name",
+      tooltip = "i18n::TestingGuiPlugin.ContextAction.CopyTestActionToClipboard.Tooltip",
+      image = "Test_tube_icon.svg",
+      category = "Basic",
+      categoryOrder = "1")
+  public void copyRunTestActionToClipboard(HopGuiPipelineContext context) {
+    HopGuiPipelineGraph pipelineGraph = context.getPipelineGraph();
+    PipelineMeta pipelineMeta = context.getPipelineMeta();
+    if (pipelineGraph == null || pipelineMeta == null) {
+      return;
+    }
+    PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
+    if (unitTest == null) {
+      return;
+    }
+    RunPipelineTests runPipelineTests = new RunPipelineTests();
+    RunPipelineTestsField field = new RunPipelineTestsField();
+    field.setTestName(unitTest.getName());
+    runPipelineTests.getTestNames().add(field);
+
+    ActionMeta actionMeta = new ActionMeta(runPipelineTests);
+    actionMeta.setName(unitTest.getName());
+
+    StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
+    xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
+        .append(Const.CR);
+    xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_ACTIONS)).append(Const.CR);
+    xml.append(actionMeta.getXml());
+    xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_ACTIONS)).append(Const.CR);
+    xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
+        .append(Const.CR);
+
+    pipelineGraph.pipelineClipboardDelegate.toClipboard(xml.toString());
+  }
+
+  private static final String ID_TOOLBAR_EXPORT_EXCEL = "tableview-toolbar-40000-save-to-dataset";
+
+  @GuiToolbarElement(
+      root = TableView.ID_TOOLBAR,
+      id = ID_TOOLBAR_EXPORT_EXCEL,
+      toolTip = "i18n::TestingGuiPlugin.ContextAction.WriteRowsToDataSet.Tooltip",
+      separator = false,
+      image = "dataset.svg")
+  public static void saveToDataSet(TableView tableView) {
+    Shell shell = tableView.getShell();
+    try {
+      HopGui hopGui = HopGui.getInstance();
+      IVariables variables = hopGui.getVariables();
+      IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
+
+      if (tableView.getColumns().length == 0) {
+        return;
+      }
+
+      // We want to create a dataset. Ask for the name.
+      //
+      EnterStringDialog stringDialog =
+          new EnterStringDialog(
+              shell, "dataset-name", "Enter the name for the new dataset:", "Create dataset");
+      String dataSetName = stringDialog.open();
+      if (StringUtils.isEmpty(dataSetName)) {
+        return;
+      }
+
+      // Check if it already exists
+      //
+      IHopMetadataSerializer<DataSet> setSerializer = metadataProvider.getSerializer(DataSet.class);
+      if (setSerializer.exists(dataSetName)) {
+        MessageBox messageBox = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        messageBox.setText("Dataset already exists");
+        messageBox.setMessage("A dataset with name '" + dataSetName + "' already exists.");
+        messageBox.open();
+        return;
+      }
+
+      // Create the dataset.
+      //
+      DataSet dataSet = new DataSet();
+      dataSet.setName(dataSetName);
+      dataSet.setBaseFilename(dataSetName + ".csv");
+      IRowMeta rowMeta = new RowMeta();
+      for (int i = 0; i < tableView.getColumns().length; i++) {
+        ColumnInfo columnInfo = tableView.getColumns()[i];
+        IValueMeta valueMeta = columnInfo.getValueMeta().clone();
+        rowMeta.addValueMeta(valueMeta);
+
+        // Add this field metadata in the dataset
+        //
+        DataSetField field =
+            new DataSetField(
+                valueMeta.getName(),
+                valueMeta.getType(),
+                valueMeta.getLength(),
+                valueMeta.getPrecision(),
+                valueMeta.getComments(),
+                valueMeta.getConversionMask());
+        dataSet.getFields().add(field);
+      }
+
+      // Build a list of rows for the dataset
+      //
+      // First create the row metadata for the grid
+      //
+      final IRowMeta sortRowMeta = tableView.getSortRowMeta(-1, false);
+      final IRowMeta conversionRowMeta = sortRowMeta.clone();
+      final IRowMeta sourceRowMeta =
+          TableView.buildTableSourceRowMeta(sortRowMeta, conversionRowMeta);
+      List<TableItem> items = tableView.getNonEmptyItems();
+      List<Object[]> coloredRows =
+          tableView.getTableItemsAsRows(items.toArray(new TableItem[0]), sourceRowMeta);
+
+      // Remove color information and the row number
+      //
+      List<Object[]> rows = new ArrayList<>();
+      for (Object[] coloredRow : coloredRows) {
+        Object[] row = RowDataUtil.allocateRowData(rowMeta.size());
+        for (int i = 0; i < rowMeta.size(); i++) {
+          row[i] = coloredRow[i + 3];
+        }
+        rows.add(row);
+      }
+
+      // Save the dataset
+      //
+      setSerializer.save(dataSet);
+
+      // Save the rows in the dataset
+      //
+      DataSetCsvUtil.writeDataSetData(variables, dataSet, rowMeta, rows);
+
+      MessageBox messageBox = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      messageBox.setText("Open dataset?");
+      messageBox.setMessage(
+          "Do you want to open dataset '" + dataSetName + "' in the metadata perspective?");
+      int answer = messageBox.open();
+      if ((answer & SWT.YES) != 0) {
+        // Open the dataset?
+        //
+        MetadataPerspective mp = MetadataPerspective.getInstance();
+        mp.activate();
+        mp.refresh(); // pick up the new dataset
+        mp.goToElement(DataSet.class, dataSetName);
+      }
+    } catch (Throwable e) {
+      new ErrorDialog(shell, "Error", "Error saving the view into a dataset", e);
+    }
   }
 }
