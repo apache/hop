@@ -85,6 +85,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
 
   public int actionType;
 
+  @HopMetadataProperty(key = "conditionreceiveddate")
   public int conditionReceivedDate;
 
   public int valueIMAPList;

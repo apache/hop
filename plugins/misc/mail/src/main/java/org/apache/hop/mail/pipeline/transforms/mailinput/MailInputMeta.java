@@ -18,7 +18,6 @@
 package org.apache.hop.mail.pipeline.transforms.mailinput;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -55,8 +54,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/emailinput.html")
 public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   private static final Class<?> PKG = MailInputMeta.class;
-  private static final String CONST_SPACE = "      ";
-  private static final String CONST_FIELD = "field";
 
   public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
   public static final int DEFAULT_BATCH_SIZE = 500;
@@ -67,33 +64,35 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   public int conditionReceivedDate;
 
   public Map<String, String> valueImaps =
-      new HashMap<>() {
-        {
-          put("imaplistall", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetAll.Label"));
-          put("imaplistnew", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNew.Label"));
-          put("imaplistold", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetOld.Label"));
-          put("imaplistread", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetRead.Label"));
-          put(
+      Map.ofEntries(
+          Map.entry(
+              "imaplistall", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetAll.Label")),
+          Map.entry(
+              "imaplistnew", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNew.Label")),
+          Map.entry(
+              "imaplistold", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetOld.Label")),
+          Map.entry(
+              "imaplistread", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetRead.Label")),
+          Map.entry(
               "imaplistunread",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetUnread.Label"));
-          put(
+              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetUnread.Label")),
+          Map.entry(
               "imaplistflagged",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetFlagged.Label"));
-          put(
+              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetFlagged.Label")),
+          Map.entry(
               "imaplistnotflagged",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotFlagged.Label"));
-          put("imaplistdraft", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetDraft.Label"));
-          put(
+              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotFlagged.Label")),
+          Map.entry(
+              "imaplistdraft", BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetDraft.Label")),
+          Map.entry(
               "imaplistnotdraft",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotDraft.Label"));
-          put(
+              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotDraft.Label")),
+          Map.entry(
               "imaplistanswered",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetAnswered.Label"));
-          put(
+              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetAnswered.Label")),
+          Map.entry(
               "imaplistnotanswered",
-              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotAnswered.Label"));
-        }
-      };
+              BaseMessages.getString(PKG, "ActionGetPOP.IMAPListGetNotAnswered.Label")));
 
   private int valueImapList;
 
@@ -201,13 +200,10 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   @Override
   public Object clone() {
     MailInputMeta retval = (MailInputMeta) super.clone();
-    int nrFields = inputFields.size();
-    //    retval.allocate(nrFields);
     List<MailInputField> retvalFields = new ArrayList<>();
     for (MailInputField inputField : inputFields) {
       if (inputField != null) {
         retvalFields.add((MailInputField) inputField.clone());
-        //        retval.inputFields.set(i) = (MailInputField) inputFields.get(i).clone();
       }
     }
     retval.setInputFields(retvalFields);
@@ -253,17 +249,7 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     end = null;
     stopOnError = true;
 
-    int nrFields = 0;
-
     inputFields = new ArrayList<>();
-  }
-
-  private static final class Tags {
-    static final String USE_BATCH = "useBatch";
-    static final String BATCH_SIZE = "batchSize";
-    static final String START_MSG = "startMsg";
-    static final String END_MSG = "endMsg";
-    static final String STOP_ON_ERROR = "stopOnError";
   }
 
   @Override
@@ -347,6 +333,10 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   }
 
   public int getConditionReceivedDate() {
+    if (conditionReceivedDate > 0) {
+      return conditionReceivedDate;
+    }
+
     return MailConnectionMeta.getConditionDateByDesc(conditionReceivedDateStr);
   }
 }
