@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.hop.core.Condition;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -91,6 +92,20 @@ public class PipelineDebugMeta {
                           //
                           transformDebugMeta.setRowBufferMeta(rowMeta);
                           transformDebugMeta.getRowBuffer().add(rowMeta.cloneRow(row));
+
+                          // "Retrieve first rows" and "pause on breakpoint" can both be enabled;
+                          // the
+                          // former used to hide this branch behind if/else so the condition never
+                          // ran until the preview buffer was full.
+                          if (transformDebugMeta.isPausingOnBreakPoint()) {
+                            Condition condition = transformDebugMeta.getCondition();
+                            if (condition != null
+                                && !condition.isEmpty()
+                                && condition.evaluate(rowMeta, row)) {
+                              pipeline.pauseExecution();
+                              transformDebugMeta.fireBreakPointListeners(PipelineDebugMeta.this);
+                            }
+                          }
                         } else {
                           // pause the pipeline...
                           //
@@ -104,7 +119,8 @@ public class PipelineDebugMeta {
                           transformDebugMeta.fireBreakPointListeners(PipelineDebugMeta.this);
                         }
                       } else if (transformDebugMeta.isPausingOnBreakPoint()
-                          && transformDebugMeta.getCondition() != null) {
+                          && transformDebugMeta.getCondition() != null
+                          && !transformDebugMeta.getCondition().isEmpty()) {
                         // A break-point is set
                         // Verify the condition and pause if required
                         // Before we do that, see if a row count is set.

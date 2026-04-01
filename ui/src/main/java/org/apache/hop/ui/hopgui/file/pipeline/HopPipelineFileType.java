@@ -89,7 +89,6 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     capabilities.setProperty(IHopFileType.CAPABILITY_EXPORT_TO_SVG, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_PAUSE, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_PREVIEW, "true");
-    capabilities.setProperty(IHopFileType.CAPABILITY_DEBUG, "true");
 
     capabilities.setProperty(IHopFileType.CAPABILITY_SELECT, "true");
     capabilities.setProperty(IHopFileType.CAPABILITY_COPY, "true");

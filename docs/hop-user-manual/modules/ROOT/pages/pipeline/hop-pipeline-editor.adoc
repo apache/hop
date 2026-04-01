@@ -35,8 +35,7 @@ image::getting-started/getting-started-pipeline-toolbar.png[Hop - Pipeline Toolb
 |pause|image:getting-started/icons/pause.svg[Pause,25px,align="bottom"]|pause the execution of the pipeline
 |stop|image:getting-started/icons/stop.svg[Stop,25px,align="bottom"]|stop the execution of the pipeline
 |||
-|preview|image:getting-started/icons/view.svg[Preview,25px,align="bottom"]|preview the pipeline
-|debug|image:getting-started/icons/debug.svg[Debug,25px,align="bottom"]|debug the pipeline
+|preview & debug|image:getting-started/icons/view.svg[Preview,25px,align="bottom"]|preview the pipeline and optionally pause on a row condition (same dialog)
 |print|image:getting-started/icons/print.png[Print,25px,align="bottom"]|print the pipeline
 |||
 |undo|image:getting-started/icons/Antu_edit-undo.svg[Undo,25px,align="bottom"]|undo an operation

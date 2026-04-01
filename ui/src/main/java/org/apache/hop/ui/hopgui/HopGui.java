@@ -208,7 +208,6 @@ public class HopGui
   public static final String ID_MAIN_MENU_RUN_RESUME = "30035-menu-run-resume";
   public static final String ID_MAIN_MENU_RUN_STOP = "30040-menu-run-stop";
   public static final String ID_MAIN_MENU_RUN_PREVIEW = "30050-menu-run-preview";
-  public static final String ID_MAIN_MENU_RUN_DEBUG = "30060-menu-run-debug";
 
   public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
   public static final String ID_MAIN_MENU_TOOLS_DATABASE_CLEAR_CACHE =
@@ -1568,16 +1567,6 @@ public class HopGui
 
   @GuiMenuElement(
       root = ID_MAIN_MENU,
-      id = ID_MAIN_MENU_RUN_DEBUG,
-      label = "i18n::HopGui.Menu.Run.Debug",
-      image = "ui/images/debug.svg",
-      parentId = ID_MAIN_MENU_RUN_PARENT_ID)
-  public void menuRunDebug() {
-    getActiveFileTypeHandler().debug();
-  }
-
-  @GuiMenuElement(
-      root = ID_MAIN_MENU,
       id = ID_MAIN_MENU_TOOLS_PARENT_ID,
       label = "i18n::HopGui.Menu.Tools",
       parentId = ID_MAIN_MENU)
@@ -1903,8 +1892,6 @@ public class HopGui
         fileType, handler, ID_MAIN_MENU_RUN_RESUME, IHopFileType.CAPABILITY_PAUSE, paused);
     mainMenuWidgets.enableMenuItem(
         fileType, handler, ID_MAIN_MENU_RUN_PREVIEW, IHopFileType.CAPABILITY_PREVIEW);
-    mainMenuWidgets.enableMenuItem(
-        fileType, handler, ID_MAIN_MENU_RUN_DEBUG, IHopFileType.CAPABILITY_DEBUG);
 
     mainMenuWidgets.enableMenuItem(
         fileType,

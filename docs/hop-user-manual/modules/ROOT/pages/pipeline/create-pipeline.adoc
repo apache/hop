@@ -96,8 +96,7 @@ image::hop-gui/pipeline/transforms.png[Hop - transforms,75%,align="left"]
 |Copy transform to clipboard|Copies selected items to clipboard.
 |Create hop| Creates a new hop between two transforms.
 |Set the number of transforms|Starts several instances of a transform in parallel.
-|Preview output| Allows you to preview the results of the transform.
-|Debug output|
+|Preview & debug output| Run the pipeline to preview rows from this transform and optionally pause when a breakpoint condition matches.
 |Show the fields entering this transform|Shows metadata, like the field name and type for fields coming into the transform.
 |Show the fields exiting this transform|Shows metadata, like the field name and type for fields coming out of the transform.
 |Distribute rows|In case of more than one hop the data is distributed between the next transforms.

@@ -236,7 +236,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String TOOLBAR_ITEM_PAUSE = "HopGuiPipelineGraph-ToolBar-10020-Pause";
   public static final String TOOLBAR_ITEM_CHECK = "HopGuiPipelineGraph-ToolBar-10040-Check";
   public static final String TOOLBAR_ITEM_PREVIEW = "HopGuiPipelineGraph-ToolBar-10050-Preview";
-  public static final String TOOLBAR_ITEM_DEBUG = "HopGuiPipelineGraph-ToolBar-10060-Debug";
 
   public static final String TOOLBAR_ITEM_UNDO_ID = "HopGuiPipelineGraph-ToolBar-10100-Undo";
   public static final String TOOLBAR_ITEM_REDO_ID = "HopGuiPipelineGraph-ToolBar-10110-Redo";
@@ -774,6 +773,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             // candidate hop, but we need to ignore this click to not start a drag operation.
             if (candidate != null) {
               addCandidateAsHop(event.x, event.y);
+              // Single-stream hop completes on mouseDown and clears startHopTransform; without
+              // this,
+              // the following mouseUp would look like a plain transform click and open the action
+              // dialog.
+              if (startHopTransform == null) {
+                avoidContextDialog = true;
+              }
             }
           } else if (event.button == 1 && alt && currentTransform.supportsErrorHandling()) {
             // ALT-Click: edit error handling
@@ -3867,8 +3873,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           hopGui.getLog(),
           pipelineMeta,
           true,
-          false,
-          pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel());
+          pipelineRunDelegate.getPipelinePreviewDebugExecutionConfiguration().getLogLevel());
     } catch (Exception e) {
       new ErrorDialog(hopShell(), CONST_ERROR, CONST_ERROR_PREVIEWING_PIPELINE, e);
     }
@@ -3883,7 +3888,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       image = "ui/images/preview.svg",
       category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Preview.Text",
       categoryOrder = "3")
-  // Preview a single transform
   public void preview(HopGuiPipelineTransformContext context) {
     try {
       context.getPipelineMeta().unselectAll();
@@ -3892,56 +3896,19 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           hopGui.getLog(),
           pipelineMeta,
           true,
-          false,
-          pipelineRunDelegate.getPipelinePreviewExecutionConfiguration().getLogLevel());
+          pipelineRunDelegate.getPipelinePreviewDebugExecutionConfiguration().getLogLevel());
     } catch (Exception e) {
       new ErrorDialog(hopShell(), CONST_ERROR, CONST_ERROR_PREVIEWING_PIPELINE, e);
     }
   }
 
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_DEBUG,
-      // label = "Debug",
-      toolTip = "i18n::PipelineGraph.Toolbar.Debug.Tooltip",
-      image = "ui/images/debug.svg")
   @Override
   public void debug() {
-    try {
-      pipelineRunDelegate.executePipeline(
-          hopGui.getLog(),
-          pipelineMeta,
-          false,
-          true,
-          pipelineRunDelegate.getPipelineDebugExecutionConfiguration().getLogLevel());
-    } catch (Exception e) {
-      new ErrorDialog(hopShell(), CONST_ERROR, "Error debugging pipeline", e);
-    }
+    preview();
   }
 
-  @GuiContextAction(
-      id = "pipeline-graph-transform-10150-debug-output",
-      parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
-      type = GuiActionType.Info,
-      name = "i18n::HopGuiPipelineGraph.PipelineAction.DebugOutput.Name",
-      tooltip = "i18n::HopGuiPipelineGraph.PipelineAction.DebugOutput.Tooltip",
-      image = "ui/images/debug.svg",
-      category = "i18n::HopGuiPipelineGraph.ContextualAction.Category.Preview.Text",
-      categoryOrder = "3")
-  // Debug a single transform
   public void debug(HopGuiPipelineTransformContext context) {
-    try {
-      context.getPipelineMeta().unselectAll();
-      context.getTransformMeta().setSelected(true);
-      pipelineRunDelegate.executePipeline(
-          hopGui.getLog(),
-          pipelineMeta,
-          false,
-          true,
-          pipelineRunDelegate.getPipelineDebugExecutionConfiguration().getLogLevel());
-    } catch (Exception e) {
-      new ErrorDialog(hopShell(), CONST_ERROR, CONST_ERROR_PREVIEWING_PIPELINE, e);
-    }
+    preview(context);
   }
 
   public void newProps() {
@@ -4217,7 +4184,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                                 pauseResume();
                               } else {
                                 pipelineRunDelegate.executePipeline(
-                                    hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC);
+                                    hopGui.getLog(), pipelineMeta, false, LogLevel.BASIC);
                                 ServerPushSessionFacade.stop();
                               }
                             } catch (Throwable e) {
