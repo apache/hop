@@ -1727,4 +1727,24 @@ public class TestingGuiPlugin {
       new ErrorDialog(shell, "Error", "Error saving the view into a dataset", e);
     }
   }
+
+  /**
+   * We only want to show the copy
+   *
+   * @param contextActionId
+   * @param context
+   * @return
+   */
+  @GuiContextActionFilter(parentId = HopGuiPipelineContext.CONTEXT_ID)
+  public boolean filterTestingPipeline(String contextActionId, HopGuiPipelineContext context) {
+    if (ACTION_ID_PIPELINE_GRAPH_COPY_TEST_ACTION_CLIPBOARD.equals(contextActionId)) {
+      PipelineMeta pipelineMeta = context.getPipelineMeta();
+      if (pipelineMeta == null) {
+        return false;
+      }
+      PipelineUnitTest unitTest = getCurrentUnitTest(pipelineMeta);
+      return unitTest != null;
+    }
+    return true;
+  }
 }
