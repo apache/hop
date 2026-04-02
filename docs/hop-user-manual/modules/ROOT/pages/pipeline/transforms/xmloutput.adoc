@@ -50,7 +50,6 @@ The file tab is where you set general properties for the XML output file format.
 |Transform name|Name of the transform.
 |Filename|Specifies the file name and location of the output text file.
 |Do not create file at start|Enable to avoid empty files when no rows are getting processed.
-|Pass output to servlet|Enable this option to return the data via a web service instead writing into a file (see Hop data over web service).
 |Extension|Adds a period and the extension to the end of the file name (.xml).
 |Include transformnr in filename|If you run the transform in multiple copies (see also Launching Several Copies of a transform), the copy number is included in the file name, before the extension (_0).
 |Include date in filename|Includes the system date in the file name (_20041231).

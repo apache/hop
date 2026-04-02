@@ -26,8 +26,6 @@ import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.PREPARING;
 import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.RUNNING;
 import static org.apache.hop.pipeline.Pipeline.BitMaskStatus.STOPPED;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -44,7 +42,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.BlockingBatchingRowSet;
@@ -348,10 +345,6 @@ public abstract class Pipeline
 
   /** The command line arguments for the pipeline. */
   protected String[] arguments;
-
-  @Getter private HttpServletResponse servletResponse;
-
-  @Setter @Getter private HttpServletRequest servletRequest;
 
   private final Map<String, Object> extensionDataMap;
 
@@ -2983,30 +2976,6 @@ public abstract class Pipeline
     if (pipelineMeta != null) {
       pipelineMeta.setMetadataProvider(metadataProvider);
     }
-  }
-
-  /**
-   * Sets encoding of HttpServletResponse according to System encoding.Check if system encoding is
-   * null or an empty and set it to HttpServletResponse when not and writes error to log if null.
-   * Throw IllegalArgumentException if input parameter is null.
-   *
-   * @param response the HttpServletResponse to set encoding, mayn't be null
-   */
-  public void setServletReponse(HttpServletResponse response) {
-    if (response == null) {
-      throw new IllegalArgumentException("HttpServletResponse cannot be null ");
-    }
-    String encoding = System.getProperty(Const.HOP_DEFAULT_SERVLET_ENCODING, null);
-    // true if encoding is null or an empty (also for the next kin of strings: " ")
-    if (!StringUtils.isBlank(encoding)) {
-      try {
-        response.setCharacterEncoding(encoding.trim());
-        response.setContentType("text/html; charset=" + encoding);
-      } catch (Exception ex) {
-        LogChannel.GENERAL.logError("Unable to encode data with encoding : '" + encoding + "'", ex);
-      }
-    }
-    this.servletResponse = response;
   }
 
   public synchronized void doTopologySortOfTransforms() {

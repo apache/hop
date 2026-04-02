@@ -80,8 +80,6 @@ public class TextFileOutputDialog extends BaseTransformDialog {
   private Button wbFilename;
   private TextVar wFilename;
 
-  protected Button wServletOutput;
-
   private Label wlExtension;
   private TextVar wExtension;
 
@@ -232,35 +230,6 @@ public class TextFileOutputDialog extends BaseTransformDialog {
 
     Control topControl = addAdditionalComponentIfNeed(middle, margin, wFileComp, wFilename);
 
-    // Output to servlet (browser, ws)
-    //
-    Label wlServletOutput = new Label(wFileComp, SWT.RIGHT);
-    wlServletOutput.setText(
-        BaseMessages.getString(PKG, "TextFileOutputDialog.ServletOutput.Label"));
-    PropsUi.setLook(wlServletOutput);
-    FormData fdlServletOutput = new FormData();
-    fdlServletOutput.left = new FormAttachment(0, 0);
-    fdlServletOutput.top = new FormAttachment(topControl, margin);
-    fdlServletOutput.right = new FormAttachment(middle, -margin);
-    wlServletOutput.setLayoutData(fdlServletOutput);
-    wServletOutput = new Button(wFileComp, SWT.CHECK);
-    wServletOutput.setToolTipText(
-        BaseMessages.getString(PKG, "TextFileOutputDialog.ServletOutput.Tooltip"));
-    PropsUi.setLook(wServletOutput);
-    FormData fdServletOutput = new FormData();
-    fdServletOutput.left = new FormAttachment(middle, 0);
-    fdServletOutput.top = new FormAttachment(wlServletOutput, 0, SWT.CENTER);
-    fdServletOutput.right = new FormAttachment(100, 0);
-    wServletOutput.setLayoutData(fdServletOutput);
-    wServletOutput.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            setFlagsServletOption();
-          }
-        });
-
     // Create Parent Folder
     wlCreateParentFolder = new Label(wFileComp, SWT.RIGHT);
     wlCreateParentFolder.setText(
@@ -268,7 +237,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     PropsUi.setLook(wlCreateParentFolder);
     FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment(0, 0);
-    fdlCreateParentFolder.top = new FormAttachment(wServletOutput, margin);
+    fdlCreateParentFolder.top = new FormAttachment(topControl, margin);
     fdlCreateParentFolder.right = new FormAttachment(middle, -margin);
     wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
     wCreateParentFolder = new Button(wFileComp, SWT.CHECK);
@@ -1321,39 +1290,6 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     return topComp;
   }
 
-  protected void setFlagsServletOption() {
-    boolean enableFilename = !wServletOutput.getSelection();
-    wlFilename.setEnabled(enableFilename);
-    wFilename.setEnabled(enableFilename);
-    wlDoNotOpenNewFileInit.setEnabled(enableFilename);
-    wDoNotOpenNewFileInit.setEnabled(enableFilename);
-    wlCreateParentFolder.setEnabled(enableFilename);
-    wCreateParentFolder.setEnabled(enableFilename);
-    wlFileNameField.setEnabled(enableFilename);
-    wFileNameField.setEnabled(enableFilename);
-    wlExtension.setEnabled(enableFilename);
-    wExtension.setEnabled(enableFilename);
-    wlSplitEvery.setEnabled(enableFilename);
-    wSplitEvery.setEnabled(enableFilename);
-    wlAddDate.setEnabled(enableFilename);
-    wAddDate.setEnabled(enableFilename);
-    wlAddTime.setEnabled(enableFilename);
-    wAddTime.setEnabled(enableFilename);
-    wlDateTimeFormat.setEnabled(enableFilename);
-    wDateTimeFormat.setEnabled(enableFilename);
-    wlSpecifyFormat.setEnabled(enableFilename);
-    wSpecifyFormat.setEnabled(enableFilename);
-    wlAppend.setEnabled(enableFilename);
-    wAppend.setEnabled(enableFilename);
-    wlAddTransformNr.setEnabled(enableFilename);
-    wAddTransformNr.setEnabled(enableFilename);
-    wlAddPartnr.setEnabled(enableFilename);
-    wAddPartnr.setEnabled(enableFilename);
-    wbShowFiles.setEnabled(enableFilename);
-    wlAddToResult.setEnabled(enableFilename);
-    wAddToResult.setEnabled(enableFilename);
-  }
-
   private void activeFileNameField() {
     wlFileNameField.setEnabled(wFileNameInField.getSelection());
     wFileNameField.setEnabled(wFileNameInField.getSelection());
@@ -1461,7 +1397,6 @@ public class TextFileOutputDialog extends BaseTransformDialog {
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wFilename.setText(Const.NVL(input.getFileSettings().getFileName(), ""));
-    wServletOutput.setSelection(input.getFileSettings().isServletOutput());
     wSchemaDefinition.setText(Const.NVL(input.getSchemaDefinition(), ""));
     wIgnoreFields.setSelection(input.isIgnoreFields());
 
@@ -1473,7 +1408,6 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     wGet.setEnabled(!input.isIgnoreFields());
     wMinWidth.setEnabled(!input.isIgnoreFields());
 
-    setFlagsServletOption();
     wDoNotOpenNewFileInit.setSelection(input.getFileSettings().isDoNotOpenNewFileInit());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
     wExtension.setText(Const.NVL(input.getFileSettings().getExtension(), ""));
@@ -1554,7 +1488,6 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     tfoi.getFileSettings().setFileName(wFilename.getText());
     tfoi.setSchemaDefinition(wSchemaDefinition.getText());
     tfoi.setIgnoreFields(wIgnoreFields.getSelection());
-    tfoi.getFileSettings().setServletOutput(wServletOutput.getSelection());
     tfoi.setCreateParentFolder(wCreateParentFolder.getSelection());
     tfoi.getFileSettings().setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
     tfoi.setFileFormat(TextFileOutputMeta.formatMapperLineTerminator[wFormat.getSelectionIndex()]);

@@ -58,7 +58,6 @@ The File tab is where you define basic properties about the file being created, 
 |Option|Description
 |Transform name|Name of the transform. This name has to be unique in a single pipeline.
 |Filename|Specifies the filename and location of the output text file. Click Browse to select a location.
-|Pass output to servlet|Enable this to return the data via a web service instead writing into a file.
 |Create parent folder|Enable this to create the parent folder when the file is created. Otherwise the folder must already exist or the write fails.
 |Do not create file at start|Enable this to avoid empty files when no rows are getting processed. Otherwise the file is created before any data is processed, and might produce an empty file.
 |Accept file name from field?|Enable this to specify the file name(s) in a field in the input stream

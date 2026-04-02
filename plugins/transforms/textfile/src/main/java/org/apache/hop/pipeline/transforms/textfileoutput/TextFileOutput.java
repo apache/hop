@@ -1005,14 +1005,12 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   }
 
   protected void close() throws IOException {
-    if (!meta.getFileSettings().isServletOutput()) {
-      TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
-      if (coll != null) {
-        coll.forEachOpenStream(this::collectDataVolumeOut);
-        coll.flushOpenFiles(true);
-      }
-      data.writer = null;
+    TextFileOutputData.IFileStreamsCollection coll = data.getFileStreamsCollection();
+    if (coll != null) {
+      coll.forEachOpenStream(this::collectDataVolumeOut);
+      coll.flushOpenFiles(true);
     }
+    data.writer = null;
   }
 
   @Override

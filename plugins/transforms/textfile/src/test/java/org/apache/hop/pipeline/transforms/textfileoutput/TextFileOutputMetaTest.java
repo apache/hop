@@ -75,7 +75,6 @@ class TextFileOutputMetaTest {
         "fileNameField",
         "create_parent_folder",
         "fileName",
-        "servlet_output",
         "do_not_open_new_file_init",
         "extention",
         "append",
@@ -110,7 +109,6 @@ class TextFileOutputMetaTest {
     getterMap.put("fileNameField", "getFileNameField");
     getterMap.put("create_parent_folder", "isCreateParentFolder");
     getterMap.put("fileName", "getFileName");
-    getterMap.put("servlet_output", "isServletOutput");
     getterMap.put("do_not_open_new_file_init", "isDoNotOpenNewFileInit");
     getterMap.put("extention", "getExtension");
     getterMap.put("append", "isFileAppended");
@@ -146,7 +144,6 @@ class TextFileOutputMetaTest {
     setterMap.put("fileNameField", "setFileNameField");
     setterMap.put("create_parent_folder", "setCreateParentFolder");
     setterMap.put("fileName", "setFileName");
-    setterMap.put("servlet_output", "setServletOutput");
     setterMap.put("do_not_open_new_file_init", "setDoNotOpenNewFileInit");
     setterMap.put("extention", "setExtension");
     setterMap.put("append", "setFileAppended");
@@ -226,7 +223,6 @@ class TextFileOutputMetaTest {
 
     assertNotNull(meta.getFileSettings());
     assertEquals("filename.txt", meta.getFileSettings().getFileName());
-    assertFalse(meta.getFileSettings().isServletOutput());
     assertTrue(meta.getFileSettings().isDoNotOpenNewFileInit());
     assertEquals("txt", meta.getFileSettings().getExtension());
     assertTrue(meta.getFileSettings().isFileAppended());

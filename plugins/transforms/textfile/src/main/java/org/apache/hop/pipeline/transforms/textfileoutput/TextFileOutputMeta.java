@@ -86,16 +86,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         injectionKeyDescription = "TextFileOutput.Injection.FILENAME")
     protected String fileName;
 
-    /**
-     * Whether to push the output into the output of a servlet with the executePipeline
-     * HopServer/DI-Server servlet
-     */
-    @HopMetadataProperty(
-        key = "servlet_output",
-        injectionKey = "PASS_TO_SERVLET",
-        injectionKeyDescription = "TextFileOutput.Injection.PASS_TO_SERVLET")
-    private boolean servletOutput;
-
     /** Flag : Do not open new file when pipeline start */
     @HopMetadataProperty(
         key = "do_not_open_new_file_init",
@@ -194,7 +184,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       setSpecifyingFormat(false);
       setDateTimeFormat(null);
       fileName = "";
-      servletOutput = false;
       doNotOpenNewFileInit = true;
       extension = "";
       transformNrInFilename = false;
@@ -219,7 +208,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       this.fileName = f.fileName;
       this.padded = f.padded;
       this.partNrInFilename = f.partNrInFilename;
-      this.servletOutput = f.servletOutput;
       this.specifyingFormat = f.specifyingFormat;
       this.splitEveryRows = f.splitEveryRows;
       this.timeInFilename = f.timeInFilename;
@@ -617,12 +605,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
     } catch (Exception e) {
       throw new HopException(e);
     }
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public boolean passDataToServletOutput() {
-    return fileSettings.servletOutput;
   }
 
   public String[] getFiles(final IVariables variables) {
