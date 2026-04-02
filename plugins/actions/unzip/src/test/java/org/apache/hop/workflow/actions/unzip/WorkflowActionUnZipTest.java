@@ -16,11 +16,16 @@
  */
 package org.apache.hop.workflow.actions.unzip;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.Result;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.jupiter.api.Test;
@@ -50,21 +55,38 @@ class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUn
         jobEntryUnZip
             .getClass()
             .getDeclaredMethod(
-                "doUnzipPostProcessing", FileObject.class, FileObject.class, String.class);
+                "doUnzipPostProcessing",
+                FileObject.class,
+                FileObject.class,
+                String.class,
+                Result.class);
     unzipPostprocessingMethod.setAccessible(true);
-    FileObject sourceFileObject = Mockito.mock(FileObject.class);
-    Mockito.doReturn(Mockito.mock(FileName.class)).when(sourceFileObject).getName();
+    FileObject movetodir = Mockito.mock(FileObject.class);
+    Mockito.when(movetodir.toString()).thenReturn("file:///dest");
 
     // delete
+    FileObject sourceForDelete = Mockito.mock(FileObject.class);
+    Mockito.doReturn(Mockito.mock(FileName.class)).when(sourceForDelete).getName();
     jobEntryUnZip.afterUnzip = 1;
-    unzipPostprocessingMethod.invoke(
-        jobEntryUnZip, sourceFileObject, Mockito.mock(FileObject.class), "");
-    Mockito.verify(sourceFileObject, Mockito.times(1)).delete();
+    unzipPostprocessingMethod.invoke(jobEntryUnZip, sourceForDelete, movetodir, "", new Result());
+    Mockito.verify(sourceForDelete, Mockito.times(1)).delete();
 
-    // move
+    // move (bytes written for moved archive size)
+    FileObject sourceForMove = Mockito.mock(FileObject.class);
+    FileName moveName = Mockito.mock(FileName.class);
+    Mockito.when(moveName.getBaseName()).thenReturn("archive.zip");
+    Mockito.when(sourceForMove.getName()).thenReturn(moveName);
+    FileType moveType = Mockito.mock(FileType.class);
+    Mockito.when(sourceForMove.getType()).thenReturn(moveType);
+    Mockito.when(moveType.hasContent()).thenReturn(true);
+    FileContent moveContent = Mockito.mock(FileContent.class);
+    Mockito.when(sourceForMove.getContent()).thenReturn(moveContent);
+    Mockito.when(moveContent.getSize()).thenReturn(77L);
+
     jobEntryUnZip.afterUnzip = 2;
-    unzipPostprocessingMethod.invoke(
-        jobEntryUnZip, sourceFileObject, Mockito.mock(FileObject.class), "");
-    Mockito.verify(sourceFileObject, Mockito.times(1)).moveTo(Mockito.any());
+    Result moveResult = new Result();
+    unzipPostprocessingMethod.invoke(jobEntryUnZip, sourceForMove, movetodir, "", moveResult);
+    Mockito.verify(sourceForMove, Mockito.times(1)).moveTo(Mockito.any());
+    assertEquals(77L, moveResult.getBytesWrittenThisAction());
   }
 }

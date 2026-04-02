@@ -480,7 +480,9 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           if (!children[i].getType().equals(FileType.FOLDER)) {
             boolean unzip = true;
 
-            String filename = children[i].getName().getPath();
+            // Match RegExp against the file name only (like other file actions). getPath() is the
+            // full path from the FS root, so patterns such as "daily_.*\\.zip" never matched.
+            String sourceMatchName = children[i].getName().getBaseName();
 
             Pattern patternSource = null;
 
@@ -490,7 +492,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
             // First see if the file matches the regular expression!
             if (patternSource != null) {
-              Matcher matcher = patternSource.matcher(filename);
+              Matcher matcher = patternSource.matcher(sourceMatchName);
               unzip = matcher.matches();
             }
             if (unzip) {
@@ -781,7 +783,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
       // Unzip done...
       if (afterUnzip > 0) {
-        doUnzipPostProcessing(sourceFileObject, movetodir, realMovetodirectory);
+        doUnzipPostProcessing(sourceFileObject, movetodir, realMovetodirectory, result);
       }
       retval = true;
     } catch (Exception e) {
@@ -797,7 +799,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
   /** Moving or deleting source file. */
   private void doUnzipPostProcessing(
-      FileObject sourceFileObject, FileObject movetodir, String realMovetodirectory)
+      FileObject sourceFileObject, FileObject movetodir, String realMovetodirectory, Result result)
       throws FileSystemException {
     if (afterUnzip == 1) {
       // delete zip file
@@ -822,7 +824,23 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             movetodir + Const.FILE_SEPARATOR + sourceFileObject.getName().getBaseName();
         destFile = HopVfs.getFileObject(destinationFilename, getVariables());
 
+        long archiveSize = 0;
+        try {
+          if (sourceFileObject.getType().hasContent()) {
+            long sz = sourceFileObject.getContent().getSize();
+            if (sz > 0) {
+              archiveSize = sz;
+            }
+          }
+        } catch (Exception ignored) {
+          // best-effort for metrics only
+        }
+
         sourceFileObject.moveTo(destFile);
+
+        if (archiveSize > 0) {
+          result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + archiveSize);
+        }
 
         // File moved
         if (isDetailed()) {

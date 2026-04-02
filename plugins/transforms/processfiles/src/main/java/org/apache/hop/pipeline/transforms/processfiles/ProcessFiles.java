@@ -17,12 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.processfiles;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.io.CountingInputStream;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -33,6 +39,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesData> {
   private static final Class<?> PKG = ProcessFilesMeta.class;
+
+  private static final int COPY_BUFFER_SIZE = 8192;
 
   public ProcessFiles(
       TransformMeta transformMeta,
@@ -90,7 +98,6 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
       }
 
       if (meta.simulate && isBasic()) {
-
         logBasic(BaseMessages.getString(PKG, "ProcessFiles.Log.SimulationModeON"));
       }
     } // End If first
@@ -129,7 +136,8 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         if (data.targetFile.exists()) {
           if (isDetailed()) {
             logDetailed(
-                BaseMessages.getString(PKG, "ProcessFiles.Log.TargetFileExists", targetFilename));
+                BaseMessages.getString(
+                    PKG, "ProcessFiles.Log.TargetFileExists", friendlyPath(targetFilename)));
           }
           // check if target is really a file otherwise it could overwrite a complete folder by copy
           // or move operations
@@ -154,6 +162,13 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
                       parentFolder.toString()));
             } else {
               parentFolder.createFolder();
+              if (isDetailed()) {
+                logDetailed(
+                    BaseMessages.getString(
+                        PKG,
+                        "ProcessFiles.Log.Detail.ParentFolderCreated",
+                        friendlyPath(parentFolder.toString())));
+              }
             }
           }
           if (parentFolder != null) {
@@ -162,77 +177,29 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         }
       }
 
+      if (isDetailed()) {
+        String targetForLog =
+            meta.getOperationType() == ProcessFilesMeta.OPERATION_TYPE_DELETE
+                ? "-"
+                : friendlyPath(targetFilename);
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.RowHeader",
+                operationTypeLabel(),
+                friendlyPath(sourceFilename),
+                targetForLog));
+      }
+
       switch (meta.getOperationType()) {
         case ProcessFilesMeta.OPERATION_TYPE_COPY:
-          if (((meta.isOverwriteTargetFile() && data.targetFile.exists())
-                  || !data.targetFile.exists())
-              && !meta.simulate) {
-            if (meta.isOverwriteTargetFile() && data.targetFile.exists())
-              if (isBasic()) {
-                logBasic(
-                    BaseMessages.getString(
-                        PKG,
-                        "ProcessFiles.Log.SourceFileCopied.TargetOverwritten",
-                        targetFilename));
-              }
-
-            // Better to delete the file before because. sometime, it's not properly overwritten
-            data.targetFile.delete();
-            data.targetFile.copyFrom(data.sourceFile, new TextOneToOneFileSelector());
-
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG, "ProcessFiles.Log.SourceFileCopied", sourceFilename, targetFilename));
-            }
-          } else {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ProcessFiles.Log.TargetNotOverwritten",
-                      sourceFilename,
-                      targetFilename));
-            }
-          }
+          processCopyOperation(sourceFilename, targetFilename);
           break;
         case ProcessFilesMeta.OPERATION_TYPE_MOVE:
-          if (((meta.isOverwriteTargetFile() && data.targetFile.exists())
-                  || !data.targetFile.exists())
-              && !meta.simulate) {
-            if (meta.isOverwriteTargetFile() && data.targetFile.exists())
-              if (isBasic()) {
-                logBasic(
-                    BaseMessages.getString(
-                        PKG, "ProcessFiles.Log.SourceFileMoved.TargetOverwritten", targetFilename));
-              }
-            data.sourceFile.moveTo(HopVfs.getFileObject(targetFilename, variables));
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG, "ProcessFiles.Log.SourceFileMoved", sourceFilename, targetFilename));
-            }
-          } else {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ProcessFiles.Log.TargetNotOverwritten",
-                      sourceFilename,
-                      targetFilename));
-            }
-          }
+          processMoveOperation(sourceFilename, targetFilename);
           break;
         case ProcessFilesMeta.OPERATION_TYPE_DELETE:
-          if (!meta.simulate && !data.sourceFile.delete()) {
-            throw new HopException(
-                BaseMessages.getString(
-                    PKG, "ProcessFiles.Error.CanNotDeleteFile", data.sourceFile.toString()));
-          }
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "ProcessFiles.Log.SourceFileDeleted", sourceFilename));
-          }
+          processDeleteOperation(sourceFilename);
           break;
         default:
           break;
@@ -255,14 +222,17 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         if (isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ProcessFiles.Log.FilenameAddResult", data.targetFile.toString()));
+                  PKG,
+                  "ProcessFiles.Log.FilenameAddResult",
+                  friendlyPath(data.targetFile.toString())));
         }
       }
 
       putRow(getInputRowMeta(), r); // copy row to possible alternate rowset(s).
 
       if (checkFeedback(getLinesRead()) && isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "ProcessFiles.LineNumber") + getLinesRead());
+        logBasic(
+            BaseMessages.getString(PKG, "ProcessFiles.LineNumber", Long.toString(getLinesRead())));
       }
     } catch (Exception e) {
       boolean sendToErrorRow = false;
@@ -273,7 +243,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         errorMessage = e.toString();
       } else {
         logError(
-            BaseMessages.getString(PKG, "ProcessFiles.ErrorInTransformRunning") + e.getMessage());
+            BaseMessages.getString(PKG, "ProcessFiles.ErrorInTransformRunning", e.getMessage()), e);
         setErrors(1);
         stopAll();
         setOutputDone(); // signal end to receiver(s)
@@ -286,6 +256,248 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
     }
 
     return true;
+  }
+
+  private String operationTypeLabel() {
+    switch (meta.getOperationType()) {
+      case ProcessFilesMeta.OPERATION_TYPE_COPY:
+        return BaseMessages.getString(PKG, "ProcessFilesMeta.operationType.Copy");
+      case ProcessFilesMeta.OPERATION_TYPE_MOVE:
+        return BaseMessages.getString(PKG, "ProcessFilesMeta.operationType.Move");
+      case ProcessFilesMeta.OPERATION_TYPE_DELETE:
+        return BaseMessages.getString(PKG, "ProcessFilesMeta.operationType.Delete");
+      default:
+        return "?";
+    }
+  }
+
+  /** Friendly URI for log lines (variables resolved). */
+  private String friendlyPath(String path) {
+    if (Utils.isEmpty(path)) {
+      return "";
+    }
+    try {
+      return HopVfs.getFriendlyURI(path, variables);
+    } catch (Exception e) {
+      return path;
+    }
+  }
+
+  private void processCopyOperation(String sourceFilename, String targetFilename) throws Exception {
+    boolean targetFileExists =
+        data.targetFile.exists() && data.targetFile.getType() == FileType.FILE;
+    boolean shouldPerform =
+        !data.targetFile.exists() || (meta.isOverwriteTargetFile() && targetFileExists);
+
+    if (meta.simulate) {
+      if (shouldPerform && isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.WouldCopy",
+                friendlyPath(sourceFilename),
+                friendlyPath(targetFilename)));
+      }
+      if (!shouldPerform && isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.SimulateSkipCopyExists",
+                friendlyPath(targetFilename),
+                friendlyPath(sourceFilename)));
+      }
+      return;
+    }
+
+    if (shouldPerform) {
+      if (meta.isOverwriteTargetFile() && data.targetFile.exists() && isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                PKG, "ProcessFiles.Log.Basic.OverwriteWarningCopy", friendlyPath(targetFilename)));
+      }
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.CopyStarted",
+                friendlyPath(sourceFilename),
+                friendlyPath(targetFilename)));
+      }
+      // Delete target first; some providers do not truncate correctly on overwrite.
+      data.targetFile.delete();
+      if (isDataVolumeMetricEnabled()) {
+        copyFileTrackingVolume(data.sourceFile, data.targetFile);
+      } else {
+        data.targetFile.copyFrom(data.sourceFile, new TextOneToOneFileSelector());
+      }
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Basic.FileCopied",
+                friendlyPath(sourceFilename),
+                friendlyPath(targetFilename)));
+      }
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.FileCopied",
+                friendlyPath(sourceFilename),
+                friendlyPath(targetFilename)));
+      }
+    } else if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "ProcessFiles.Log.Detail.SkippedCopyExistsNoOverwrite",
+              friendlyPath(targetFilename),
+              friendlyPath(sourceFilename)));
+    }
+  }
+
+  private void processMoveOperation(String sourceFilename, String targetFilename) throws Exception {
+    boolean targetFileExists =
+        data.targetFile.exists() && data.targetFile.getType() == FileType.FILE;
+    boolean shouldPerform =
+        !data.targetFile.exists() || (meta.isOverwriteTargetFile() && targetFileExists);
+
+    if (meta.simulate) {
+      if (shouldPerform && isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.WouldMove",
+                friendlyPath(sourceFilename),
+                friendlyPath(targetFilename)));
+      }
+      if (!shouldPerform && isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.SimulateSkipMoveExists",
+                friendlyPath(targetFilename),
+                friendlyPath(sourceFilename)));
+      }
+      return;
+    }
+
+    if (shouldPerform) {
+      if (meta.isOverwriteTargetFile() && data.targetFile.exists() && isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                PKG, "ProcessFiles.Log.Basic.OverwriteWarningMove", friendlyPath(targetFilename)));
+      }
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.MoveStarted",
+                friendlyPath(sourceFilename),
+                friendlyPath(targetFilename)));
+      }
+      long movedBytes = 0;
+      if (isDataVolumeMetricEnabled()) {
+        movedBytes = safeContentSize(data.sourceFile);
+      }
+      data.sourceFile.moveTo(HopVfs.getFileObject(targetFilename, variables));
+      if (movedBytes > 0) {
+        dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + movedBytes;
+        dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + movedBytes;
+      }
+      if (isBasic()) {
+        logBasic(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Basic.FileMoved",
+                friendlyPath(sourceFilename),
+                friendlyPath(targetFilename)));
+      }
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ProcessFiles.Log.Detail.FileMoved",
+                friendlyPath(sourceFilename),
+                friendlyPath(targetFilename)));
+      }
+    } else if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "ProcessFiles.Log.Detail.SkippedMoveExistsNoOverwrite",
+              friendlyPath(targetFilename),
+              friendlyPath(sourceFilename)));
+    }
+  }
+
+  private void processDeleteOperation(String sourceFilename) throws Exception {
+    if (meta.simulate) {
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG, "ProcessFiles.Log.Detail.WouldDelete", friendlyPath(sourceFilename)));
+      }
+      return;
+    }
+    if (!data.sourceFile.delete()) {
+      throw new HopException(
+          BaseMessages.getString(
+              PKG, "ProcessFiles.Error.CanNotDeleteFile", data.sourceFile.toString()));
+    }
+    if (isBasic()) {
+      logBasic(
+          BaseMessages.getString(
+              PKG, "ProcessFiles.Log.Basic.FileDeleted", friendlyPath(sourceFilename)));
+    }
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "ProcessFiles.Log.Detail.FileDeleted", friendlyPath(sourceFilename)));
+    }
+  }
+
+  private boolean isDataVolumeMetricEnabled() {
+    return getPipeline() != null
+        && Const.toBoolean(getPipeline().getVariable(Const.HOP_METRIC_DATA_VOLUME, "N"));
+  }
+
+  private void copyFileTrackingVolume(FileObject source, FileObject destination)
+      throws IOException {
+    FileObject parent = destination.getParent();
+    if (parent != null && !parent.exists()) {
+      parent.createFolder();
+    }
+    long read;
+    long written;
+    try (InputStream rawIn = HopVfs.getInputStream(source);
+        CountingInputStream in = new CountingInputStream(rawIn);
+        OutputStream rawOut = HopVfs.getOutputStream(destination, false);
+        CountingOutputStream out = new CountingOutputStream(rawOut)) {
+      byte[] buffer = new byte[COPY_BUFFER_SIZE];
+      int len;
+      while ((len = in.read(buffer)) != -1) {
+        if (len > 0) {
+          out.write(buffer, 0, len);
+        }
+      }
+      out.flush();
+      read = in.getCount();
+      written = out.getCount();
+    }
+    dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + read;
+    dataVolumeOut = (dataVolumeOut != null ? dataVolumeOut : 0L) + written;
+  }
+
+  private static long safeContentSize(FileObject file) {
+    try {
+      if (file != null && file.getType().hasContent()) {
+        return Math.max(0L, file.getContent().getSize());
+      }
+    } catch (Exception ignored) {
+      // metrics only
+    }
+    return 0L;
   }
 
   private class TextOneToOneFileSelector implements FileSelector {
