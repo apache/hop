@@ -20,15 +20,15 @@ package org.apache.hop.workflow.actions.copyfiles;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.vfs2.FileFilterSelector;
-import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -43,16 +43,15 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.xml.ILegacyXml;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
@@ -61,7 +60,8 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
 /** This defines a 'copy files' action. */
-@SuppressWarnings("java:S1104")
+@Getter
+@Setter
 @Action(
     id = "COPY_FILES",
     name = "i18n::ActionCopyFiles.Name",
@@ -70,204 +70,154 @@ import org.w3c.dom.Node;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
     keywords = "i18n::ActionCopyFiles.keyword",
     documentationUrl = "/workflow/actions/copyfiles.html")
-public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
+public class ActionCopyFiles extends ActionBase implements ILegacyXml {
   private static final Class<?> PKG = ActionCopyFiles.class;
 
-  public static final String SOURCE_CONFIGURATION_NAME = "source_configuration_name";
-  public static final String SOURCE_FILE_FOLDER = "source_filefolder";
-
-  public static final String DESTINATION_CONFIGURATION_NAME = "destination_configuration_name";
-  public static final String DESTINATION_FILE_FOLDER = "destination_filefolder";
-
-  public static final String LOCAL_SOURCE_FILE = "LOCAL-SOURCE-FILE-";
-  public static final String LOCAL_DEST_FILE = "LOCAL-DEST-FILE-";
-
-  public static final String STATIC_SOURCE_FILE = "STATIC-SOURCE-FILE-";
-  public static final String STATIC_DEST_FILE = "STATIC-DEST-FILE-";
-
+  /** Legacy wizard prefix on source paths (stripped on load, no longer written). */
   public static final String DEST_URL = "EMPTY_DEST_URL-";
+
   public static final String SOURCE_URL = "EMPTY_SOURCE_URL-";
 
-  private static final String CONST_SPACE = "          ";
   private static final String CONST_SPACE_SHORT = "      ";
   private static final String CONST_FILE_COPIED = "ActionCopyFiles.Log.FileCopied";
   private static final String CONST_COPY_PROCESS = "ActionCopyFiles.Error.Exception.CopyProcess";
   private static final String CONST_FILE_EXISTS = "ActionCopyFiles.Log.FileExists";
+  private static final String CONST_FILE_EXISTS_SKIP_COPY =
+      "ActionCopyFiles.Log.FileExistsSkippingCopy";
+  private static final String CONST_FOLDER_EXISTS = "ActionCopyFiles.Log.FolderExists";
+  private static final String CONST_FOLDER_EXISTS_SKIP_COPY =
+      "ActionCopyFiles.Log.FolderExistsSkippingCopy";
+  private static final String CONST_FILE_OVERWRITE = "ActionCopyFiles.Log.FileOverwrite";
 
-  public boolean copyEmptyFolders;
-  public boolean argFromPrevious;
-  public boolean overwriteFiles;
-  public boolean includeSubFolders;
-  public boolean addResultFilenames;
-  public boolean removeSourceFiles;
-  public boolean destinationIsAFile;
-  public boolean createDestinationFolder;
-  public String[] sourceFileFolder;
-  public String[] destinationFileFolder;
-  public String[] wildcard;
+  /** Destination parent folder exists or was created successfully. */
+  private static final int DESTINATION_FOLDER_READY = 1;
 
+  /** Destination parent folder is missing and "Create destination folder" is off. */
+  private static final int DESTINATION_FOLDER_NOT_AVAILABLE = 0;
+
+  /** Creating the destination folder failed (already logged). */
+  private static final int DESTINATION_FOLDER_FAILED = -1;
+
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private HashSet<String> listFilesRemove = new HashSet<>();
-  private HashSet<String> listAddResult = new HashSet<>();
-  private int nbrFail = 0;
 
-  private Map<String, String> configurationMappings = new HashMap<>();
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private HashSet<String> listAddResult = new HashSet<>();
+
+  @HopMetadataProperty(key = "copy_empty_folders")
+  private boolean copyEmptyFolders = true;
+
+  @HopMetadataProperty(key = "arg_from_previous")
+  private boolean argFromPrevious;
+
+  @HopMetadataProperty(key = "overwrite_files")
+  private boolean overwriteFiles;
+
+  @HopMetadataProperty(key = "include_subfolders")
+  private boolean includeSubFolders;
+
+  @HopMetadataProperty(key = "remove_source_files")
+  private boolean removeSourceFiles;
+
+  @HopMetadataProperty(key = "add_result_filesname")
+  private boolean addResultFilenames;
+
+  @HopMetadataProperty(key = "destination_is_a_file")
+  private boolean destinationIsAFile;
+
+  @HopMetadataProperty(key = "create_destination_folder")
+  private boolean createDestinationFolder;
+
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<CopyFilesItem> fileRows = new ArrayList<>();
 
   public ActionCopyFiles(String n) {
     super(n, "");
-    copyEmptyFolders = true;
-    argFromPrevious = false;
-    sourceFileFolder = null;
-    removeSourceFiles = false;
-    destinationFileFolder = null;
-    wildcard = null;
-    overwriteFiles = false;
-    includeSubFolders = false;
-    addResultFilenames = false;
-    destinationIsAFile = false;
-    createDestinationFolder = false;
   }
 
   public ActionCopyFiles() {
     this("");
   }
 
-  public void allocate(int nrFields) {
-    sourceFileFolder = new String[nrFields];
-    destinationFileFolder = new String[nrFields];
-    wildcard = new String[nrFields];
+  public ActionCopyFiles(ActionCopyFiles other) {
+    super(other.getName(), other.getDescription(), other.getPluginId());
+    this.copyEmptyFolders = other.copyEmptyFolders;
+    this.argFromPrevious = other.argFromPrevious;
+    this.overwriteFiles = other.overwriteFiles;
+    this.includeSubFolders = other.includeSubFolders;
+    this.removeSourceFiles = other.removeSourceFiles;
+    this.addResultFilenames = other.addResultFilenames;
+    this.destinationIsAFile = other.destinationIsAFile;
+    this.createDestinationFolder = other.createDestinationFolder;
+    this.fileRows = new ArrayList<>();
+    if (other.fileRows != null) {
+      for (CopyFilesItem row : other.fileRows) {
+        this.fileRows.add(
+            new CopyFilesItem(
+                row.getSourceFileFolder(), row.getDestinationFileFolder(), row.getWildcard()));
+      }
+    }
   }
 
   @Override
   public Object clone() {
-    ActionCopyFiles je = (ActionCopyFiles) super.clone();
-    if (sourceFileFolder != null) {
-      int nrFields = sourceFileFolder.length;
-      je.allocate(nrFields);
-      System.arraycopy(sourceFileFolder, 0, je.sourceFileFolder, 0, nrFields);
-      System.arraycopy(destinationFileFolder, 0, je.destinationFileFolder, 0, nrFields);
-      System.arraycopy(wildcard, 0, je.wildcard, 0, nrFields);
+    ActionCopyFiles copy = (ActionCopyFiles) super.clone();
+    copy.listFilesRemove = new HashSet<>();
+    copy.listAddResult = new HashSet<>();
+    copy.fileRows = new ArrayList<>();
+    if (fileRows != null) {
+      for (CopyFilesItem row : fileRows) {
+        copy.fileRows.add(
+            new CopyFilesItem(
+                row.getSourceFileFolder(), row.getDestinationFileFolder(), row.getWildcard()));
+      }
     }
-    return je;
+    return copy;
   }
 
   @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(300);
-
-    xml.append(super.getXml());
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("copy_empty_folders", copyEmptyFolders));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("overwrite_files", overwriteFiles));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("remove_source_files", removeSourceFiles));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("add_result_filesname", addResultFilenames));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("destination_is_a_file", destinationIsAFile));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("create_destination_folder", createDestinationFolder));
-
-    xml.append("      <fields>").append(Const.CR);
-
-    // Get source and destination files, also wildcard
-    if (sourceFileFolder != null) {
-      for (int i = 0; i < sourceFileFolder.length; i++) {
-        xml.append("        <field>").append(Const.CR);
-        saveSource(xml, sourceFileFolder[i]);
-        saveDestination(xml, destinationFileFolder[i]);
-        xml.append(CONST_SPACE).append(XmlHandler.addTagValue("wildcard", wildcard[i]));
-        xml.append("        </field>").append(Const.CR);
-      }
-    }
-    xml.append("      </fields>").append(Const.CR);
-
-    return xml.toString();
+  public boolean equals(Object obj) {
+    return super.equals(obj);
   }
 
   @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      copyEmptyFolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "copy_empty_folders"));
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      overwriteFiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "overwrite_files"));
-      includeSubFolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-      removeSourceFiles =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "remove_source_files"));
-      addResultFilenames =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_result_filesname"));
-      destinationIsAFile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "destination_is_a_file"));
-      createDestinationFolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "create_destination_folder"));
+  public int hashCode() {
+    return super.hashCode();
+  }
 
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
+  @Override
+  public void convertLegacyXml(Node node) throws HopException {
+    normalizeLegacyVfsPaths();
+  }
 
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      allocate(nrFields);
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        sourceFileFolder[i] = loadSource(fnode);
-        destinationFileFolder[i] = loadDestination(fnode);
-        wildcard[i] = XmlHandler.getTagValue(fnode, "wildcard");
-      }
-    } catch (HopXmlException xe) {
-
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionCopyFiles.Error.Exception.UnableLoadXML"), xe);
+  /**
+   * Strips legacy per-row URL prefixes ({@link #SOURCE_URL}{i}-, {@link #DEST_URL}{i}-) left over
+   * from older Hop GUI storage. New saves write plain VFS paths only.
+   */
+  void normalizeLegacyVfsPaths() {
+    if (fileRows == null) {
+      fileRows = new ArrayList<>();
+      return;
     }
-  }
-
-  protected String loadSource(Node fnode) {
-    String sourceFileFolder = XmlHandler.getTagValue(fnode, SOURCE_FILE_FOLDER);
-    String ncName = XmlHandler.getTagValue(fnode, SOURCE_CONFIGURATION_NAME);
-    return loadURL(sourceFileFolder, ncName, getMetadataProvider(), configurationMappings);
-  }
-
-  protected String loadDestination(Node fnode) {
-    String destinationFileFolder = XmlHandler.getTagValue(fnode, DESTINATION_FILE_FOLDER);
-    String ncName = XmlHandler.getTagValue(fnode, DESTINATION_CONFIGURATION_NAME);
-    return loadURL(destinationFileFolder, ncName, getMetadataProvider(), configurationMappings);
-  }
-
-  protected void saveSource(StringBuilder retval, String source) {
-    String namedCluster = configurationMappings.get(source);
-    retval.append(CONST_SPACE).append(XmlHandler.addTagValue(SOURCE_FILE_FOLDER, source));
-    retval
-        .append(CONST_SPACE)
-        .append(XmlHandler.addTagValue(SOURCE_CONFIGURATION_NAME, namedCluster));
-  }
-
-  protected void saveDestination(StringBuilder retval, String destination) {
-    String namedCluster = configurationMappings.get(destination);
-    retval.append(CONST_SPACE).append(XmlHandler.addTagValue(DESTINATION_FILE_FOLDER, destination));
-    retval
-        .append(CONST_SPACE)
-        .append(XmlHandler.addTagValue(DESTINATION_CONFIGURATION_NAME, namedCluster));
-  }
-
-  String[] preprocessfilefilder(String[] folders) {
-    List<String> nfolders = new ArrayList<>();
-    if (folders != null) {
-      for (int i = 0; i < folders.length; i++) {
-        nfolders.add(
-            folders[i]
-                .replace(ActionCopyFiles.SOURCE_URL + i + "-", "")
-                .replace(ActionCopyFiles.DEST_URL + i + "-", ""));
-      }
+    List<CopyFilesItem> normalized = new ArrayList<>(fileRows.size());
+    for (int i = 0; i < fileRows.size(); i++) {
+      CopyFilesItem row = fileRows.get(i);
+      normalized.add(
+          new CopyFilesItem(
+              stripLegacyRowPrefix(row.getSourceFileFolder(), SOURCE_URL, i),
+              stripLegacyRowPrefix(row.getDestinationFileFolder(), DEST_URL, i),
+              row.getWildcard()));
     }
-    return nfolders.toArray(new String[nfolders.size()]);
+    fileRows = normalized;
+  }
+
+  private static String stripLegacyRowPrefix(String path, String prefix, int index) {
+    if (path == null) {
+      return null;
+    }
+    return path.replace(prefix + index + "-", "");
   }
 
   @Override
@@ -275,128 +225,125 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
 
     List<RowMetaAndData> rows = result.getRows();
-    RowMetaAndData resultRow = null;
 
     int nbrFail = 0;
-
-    nbrFail = 0;
 
     if (isBasic()) {
       logBasic(BaseMessages.getString(PKG, "ActionCopyFiles.Log.Starting"));
     }
 
-    try {
-      // Get source and destination files, also wildcard
-      String[] vSourceFileFolder = preprocessfilefilder(sourceFileFolder);
-      String[] vDestinationFileFolder = preprocessfilefilder(destinationFileFolder);
-      String[] vwildcard = wildcard;
+    result.setResult(false);
+    result.setNrErrors(1);
 
-      result.setResult(false);
-      result.setNrErrors(1);
-
-      if (argFromPrevious && isDetailed()) {
-        logDetailed(
-            BaseMessages.getString(
-                PKG,
-                "ActionCopyFiles.Log.ArgFromPrevious.Found",
-                (rows != null ? rows.size() : 0) + ""));
-      }
-
-      if (argFromPrevious && rows != null) { // Copy the input row to the (command line) arguments
-        for (int iteration = 0;
-            iteration < rows.size() && !parentWorkflow.isStopped();
-            iteration++) {
-          resultRow = rows.get(iteration);
-
-          // Get source and destination file names, also wildcard
-          String vSourceFileFolderPrevious = resultRow.getString(0, null);
-          String vDestinationFileFolderPrevious = resultRow.getString(1, null);
-          String vWildcardPrevious = resultRow.getString(2, null);
-
-          if (!Utils.isEmpty(vSourceFileFolderPrevious)
-              && !Utils.isEmpty(vDestinationFileFolderPrevious)) {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionCopyFiles.Log.ProcessingRow",
-                      HopVfs.getFriendlyURI(resolve(vSourceFileFolderPrevious), getVariables()),
-                      HopVfs.getFriendlyURI(
-                          resolve(vDestinationFileFolderPrevious), getVariables()),
-                      resolve(vWildcardPrevious)));
-            }
-
-            if (!processFileFolder(
-                vSourceFileFolderPrevious,
-                vDestinationFileFolderPrevious,
-                vWildcardPrevious,
-                parentWorkflow,
-                result)) {
-              // The copy process fail
-              nbrFail++;
-            }
-          } else {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionCopyFiles.Log.IgnoringRow",
-                      HopVfs.getFriendlyURI(resolve(vSourceFileFolder[iteration]), getVariables()),
-                      HopVfs.getFriendlyURI(
-                          resolve(vDestinationFileFolder[iteration]), getVariables()),
-                      vwildcard[iteration]));
-            }
-          }
-        }
-      } else if (vSourceFileFolder != null && vDestinationFileFolder != null) {
-        for (int i = 0; i < vSourceFileFolder.length && !parentWorkflow.isStopped(); i++) {
-          if (!Utils.isEmpty(vSourceFileFolder[i]) && !Utils.isEmpty(vDestinationFileFolder[i])) {
-
-            // ok we can process this file/folder
-
-            if (isBasic()) {
-              logBasic(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionCopyFiles.Log.ProcessingRow",
-                      HopVfs.getFriendlyURI(resolve(vSourceFileFolder[i]), getVariables()),
-                      HopVfs.getFriendlyURI(resolve(vDestinationFileFolder[i]), getVariables()),
-                      resolve(vwildcard[i])));
-            }
-
-            if (!processFileFolder(
-                vSourceFileFolder[i],
-                vDestinationFileFolder[i],
-                vwildcard[i],
-                parentWorkflow,
-                result)) {
-              // The copy process fail
-              nbrFail++;
-            }
-          } else {
-            if (isDetailed()) {
-              logDetailed(
-                  BaseMessages.getString(
-                      PKG,
-                      "ActionCopyFiles.Log.IgnoringRow",
-                      HopVfs.getFriendlyURI(resolve(vSourceFileFolder[i]), getVariables()),
-                      HopVfs.getFriendlyURI(resolve(vDestinationFileFolder[i]), getVariables()),
-                      vwildcard[i]));
-            }
-          }
-        }
-      }
-    } finally {
-      listAddResult = null;
-      listFilesRemove = null;
+    if (argFromPrevious && isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG,
+              "ActionCopyFiles.Log.ArgFromPrevious.Found",
+              (rows != null ? rows.size() : 0) + ""));
     }
 
-    // Check if all files was process with success
+    if (argFromPrevious && rows != null) {
+      for (int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++) {
+        RowMetaAndData resultRow = rows.get(iteration);
+
+        String vSourceFileFolderPrevious = resultRow.getString(0, null);
+        String vDestinationFileFolderPrevious = resultRow.getString(1, null);
+        String vWildcardPrevious = resultRow.getString(2, null);
+
+        if (!Utils.isEmpty(vSourceFileFolderPrevious)
+            && !Utils.isEmpty(vDestinationFileFolderPrevious)) {
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionCopyFiles.Log.ProcessingRow",
+                    HopVfs.getFriendlyURI(resolve(vSourceFileFolderPrevious), getVariables()),
+                    HopVfs.getFriendlyURI(resolve(vDestinationFileFolderPrevious), getVariables()),
+                    resolve(vWildcardPrevious)));
+          }
+
+          if (!processFileFolder(
+              vSourceFileFolderPrevious,
+              vDestinationFileFolderPrevious,
+              vWildcardPrevious,
+              parentWorkflow,
+              result)) {
+            nbrFail++;
+          }
+        } else {
+          if (isDetailed()) {
+            String srcHint = "";
+            String destHint = "";
+            String wildHint = "";
+            if (fileRows != null && iteration < fileRows.size()) {
+              CopyFilesItem item = fileRows.get(iteration);
+              srcHint =
+                  item.getSourceFileFolder() != null
+                      ? HopVfs.getFriendlyURI(resolve(item.getSourceFileFolder()), getVariables())
+                      : "";
+              destHint =
+                  item.getDestinationFileFolder() != null
+                      ? HopVfs.getFriendlyURI(
+                          resolve(item.getDestinationFileFolder()), getVariables())
+                      : "";
+              wildHint = item.getWildcard() != null ? item.getWildcard() : "";
+            }
+            logDetailed(
+                BaseMessages.getString(
+                    PKG, "ActionCopyFiles.Log.IgnoringRow", srcHint, destHint, wildHint));
+          }
+        }
+      }
+    } else if (fileRows != null) {
+      for (int i = 0; i < fileRows.size() && !parentWorkflow.isStopped(); i++) {
+        CopyFilesItem row = fileRows.get(i);
+        String src = row.getSourceFileFolder();
+        String dst = row.getDestinationFileFolder();
+        String wild = row.getWildcard();
+        if (!Utils.isEmpty(src) && !Utils.isEmpty(dst)) {
+          if (isBasic()) {
+            logBasic(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionCopyFiles.Log.ProcessingRow",
+                    HopVfs.getFriendlyURI(resolve(src), getVariables()),
+                    HopVfs.getFriendlyURI(resolve(dst), getVariables()),
+                    resolve(wild)));
+          }
+
+          if (!processFileFolder(src, dst, wild, parentWorkflow, result)) {
+            nbrFail++;
+          }
+        } else {
+          if (isDetailed()) {
+            logDetailed(
+                BaseMessages.getString(
+                    PKG,
+                    "ActionCopyFiles.Log.IgnoringRow",
+                    HopVfs.getFriendlyURI(resolve(Const.NVL(src, "")), getVariables()),
+                    HopVfs.getFriendlyURI(resolve(Const.NVL(dst, "")), getVariables()),
+                    Const.NVL(wild, "")));
+          }
+        }
+      }
+    }
+
     if (nbrFail == 0) {
       result.setResult(true);
       result.setNrErrors(0);
     } else {
       result.setNrErrors(nbrFail);
+    }
+
+    if (isBasic()) {
+      if (nbrFail == 0) {
+        logBasic(BaseMessages.getString(PKG, "ActionCopyFiles.Log.FinishedSuccess"));
+      } else {
+        logBasic(
+            BaseMessages.getString(
+                PKG, "ActionCopyFiles.Log.FinishedWithErrors", Integer.toString(nbrFail)));
+      }
     }
 
     return result;
@@ -426,12 +373,23 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       sourceFileFolder = HopVfs.getFileObject(realSourceFileFolderName, getVariables());
       destinationFileFolder = HopVfs.getFileObject(realDestinationFileFolderName, getVariables());
 
+      if (isDebug()) {
+        logDebug(
+            BaseMessages.getString(
+                PKG,
+                "ActionCopyFiles.Log.Debug.ResolvedPaths",
+                HopVfs.getFriendlyURI(realSourceFileFolderName, getVariables()),
+                HopVfs.getFriendlyURI(realDestinationFileFolderName, getVariables()),
+                Const.NVL(realWildcard, "")));
+      }
+
       if (sourceFileFolder.exists()) {
 
         // Check if destination folder/parent folder exists !
         // If user wanted and if destination folder does not exist
         // Apache Hop will create it
-        if (createDestinationFolder(destinationFileFolder)) {
+        int destinationStatus = ensureDestinationFolder(destinationFileFolder);
+        if (destinationStatus == DESTINATION_FOLDER_READY) {
 
           // Basic Tests
           if (sourceFileFolder.getType().equals(FileType.FOLDER) && destinationIsAFile) {
@@ -444,8 +402,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                     "ActionCopyFiles.Log.CanNotCopyFolderToFile",
                     HopVfs.getFriendlyURI(realSourceFileFolderName, getVariables()),
                     HopVfs.getFriendlyURI(realDestinationFileFolderName, getVariables())));
-
-            nbrFail++;
 
           } else {
 
@@ -475,41 +431,28 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               // Source is a file, destination is a file
 
               destinationFileFolder.copyFrom(
-                  sourceFileFolder, new TextOneToOneFileSelector(destinationFileFolder));
-
-              trackBytesCopied(sourceFileFolder, result);
+                  sourceFileFolder, new TextOneToOneFileSelector(destinationFileFolder, result));
             } else {
               // Both source and destination are folders
               if (isDetailed()) {
-                logDetailed("  ");
                 logDetailed(
                     BaseMessages.getString(
                         PKG,
-                        "ActionCopyFiles.Log.FetchFolder",
+                        "ActionCopyFiles.Log.ScanningSourceFolder",
                         HopVfs.getFriendlyURI(sourceFileFolder)));
               }
 
               TextFileSelector textFileSelector =
                   new TextFileSelector(
-                      sourceFileFolder, destinationFileFolder, realWildcard, parentWorkflow);
+                      sourceFileFolder,
+                      destinationFileFolder,
+                      realWildcard,
+                      parentWorkflow,
+                      result);
               try {
                 destinationFileFolder.copyFrom(sourceFileFolder, textFileSelector);
               } finally {
                 textFileSelector.shutdown();
-              }
-            }
-
-            // Track bytes for folder-to-folder copies via listAddResult
-            for (String copiedFile : listAddResult) {
-              try {
-                FileObject fo = HopVfs.getFileObject(copiedFile, getVariables());
-                if (fo.getType() == FileType.FILE && fo.getType().hasContent()) {
-                  long size = fo.getContent().getSize();
-                  result.setBytesReadThisAction(result.getBytesReadThisAction() + size);
-                  result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + size);
-                }
-              } catch (Exception e) {
-                logDebug("Could not get size of copied file: " + copiedFile);
               }
             }
 
@@ -601,10 +544,10 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                 }
               }
             }
+
+            entrystatus = true;
           }
-          entrystatus = true;
-        } else {
-          // Destination Folder or Parent folder is missing
+        } else if (destinationStatus == DESTINATION_FOLDER_NOT_AVAILABLE) {
           logError(
               BaseMessages.getString(
                   PKG,
@@ -664,15 +607,32 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
         result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + size);
       }
     } catch (Exception e) {
-      logDebug("Could not get size of source file: " + sourceFile);
+      logDebug(
+          BaseMessages.getString(
+              PKG,
+              "ActionCopyFiles.Log.Debug.CouldNotGetFileSize",
+              String.valueOf(sourceFile),
+              e.getMessage()));
+    }
+  }
+
+  /** Used by file selectors when recording bytes; isolates {@link FileSystemException} from VFS. */
+  private void trackBytesIfSourceIsFile(FileObject sourceFile, Result copyResult) {
+    try {
+      if (sourceFile.getType() == FileType.FILE) {
+        trackBytesCopied(sourceFile, copyResult);
+      }
+    } catch (FileSystemException ignored) {
+      // ignore
     }
   }
 
   private class TextOneToOneFileSelector implements FileSelector {
     FileObject destfile = null;
+    private final Result copyResult;
 
-    public TextOneToOneFileSelector(FileObject destinationfile) {
-
+    public TextOneToOneFileSelector(FileObject destinationfile, Result result) {
+      this.copyResult = result;
       if (destinationfile != null) {
         destfile = destinationfile;
       }
@@ -691,7 +651,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
             logDetailed(
                 CONST_SPACE_SHORT
                     + BaseMessages.getString(
-                        PKG, CONST_FILE_EXISTS, HopVfs.getFriendlyURI(destfile)));
+                        PKG,
+                        overwriteFiles ? CONST_FILE_EXISTS : CONST_FILE_EXISTS_SKIP_COPY,
+                        HopVfs.getFriendlyURI(destfile)));
           }
 
           if (overwriteFiles) {
@@ -700,7 +662,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                   CONST_SPACE_SHORT
                       + BaseMessages.getString(
                           PKG,
-                          "ActionCopyFiles.Log.FileOverwrite",
+                          CONST_FILE_OVERWRITE,
+                          HopVfs.getFriendlyURI(info.getFile()),
                           HopVfs.getFriendlyURI(destfile)));
             }
 
@@ -732,6 +695,10 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           listAddResult.add(destfile.toString());
         }
 
+        if (resultat) {
+          trackBytesIfSourceIsFile(info.getFile(), copyResult);
+        }
+
       } catch (Exception e) {
 
         logError(
@@ -752,32 +719,49 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  private boolean createDestinationFolder(FileObject filefolder) {
+  /**
+   * Ensures the destination folder (or the parent when destination is a file) exists or can be
+   * created.
+   *
+   * @return {@link #DESTINATION_FOLDER_READY} if ready, {@link #DESTINATION_FOLDER_NOT_AVAILABLE}
+   *     if missing and create is disabled, or {@link #DESTINATION_FOLDER_FAILED} on error (already
+   *     logged)
+   */
+  private void createMissingDestinationParent(FileObject folder) throws FileSystemException {
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "ActionCopyFiles.Log.FolderParentWillCreate", HopVfs.getFriendlyURI(folder)));
+    }
+    folder.createFolder();
+    if (isDetailed()) {
+      logDetailed(
+          BaseMessages.getString(
+              PKG, "ActionCopyFiles.Log.FolderParentCreated", HopVfs.getFriendlyURI(folder)));
+    }
+  }
+
+  private int ensureDestinationFolder(FileObject filefolder) {
     FileObject folder = null;
     try {
-      if (destinationIsAFile) {
-        folder = filefolder.getParent();
-      } else {
-        folder = filefolder;
-      }
+      folder = destinationIsAFile ? filefolder.getParent() : filefolder;
 
       if (!folder.exists()) {
         if (createDestinationFolder) {
-          if (isDetailed()) {
-            logDetailed("Folder  " + HopVfs.getFriendlyURI(folder) + " does not exist !");
-          }
-          folder.createFolder();
-          if (isDetailed()) {
-            logDetailed("Folder parent was created.");
-          }
+          createMissingDestinationParent(folder);
         } else {
-          logError("Folder  " + HopVfs.getFriendlyURI(folder) + " does not exist !");
-          return false;
+          return DESTINATION_FOLDER_NOT_AVAILABLE;
         }
       }
-      return true;
+      return DESTINATION_FOLDER_READY;
     } catch (Exception e) {
-      logError("Couldn't created parent folder " + HopVfs.getFriendlyURI(folder), e);
+      logError(
+          BaseMessages.getString(
+              PKG,
+              "ActionCopyFiles.Error.FolderParentCreateFailed",
+              folder != null ? HopVfs.getFriendlyURI(folder) : HopVfs.getFriendlyURI(filefolder)),
+          e);
+      return DESTINATION_FOLDER_FAILED;
     } finally {
       if (folder != null) {
         try {
@@ -788,7 +772,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
         }
       }
     }
-    return false;
   }
 
   private class TextFileSelector implements FileSelector {
@@ -801,6 +784,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
     // Store connection to destination source for improved performance to remote hosts
     FileObject destinationFolderObject = null;
+
+    private final Result copyResult;
 
     /**
      * @param selectedfile
@@ -820,8 +805,10 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
         FileObject sourcefolderin,
         FileObject destinationfolderin,
         String filewildcard,
-        IWorkflowEngine<WorkflowMeta> parentWorkflow) {
+        IWorkflowEngine<WorkflowMeta> parentWorkflow,
+        Result result) {
 
+      this.copyResult = result;
       if (sourcefolderin != null) {
         sourceFolder = sourcefolderin.toString();
       }
@@ -882,7 +869,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                           CONST_SPACE_SHORT
                               + BaseMessages.getString(
                                   PKG,
-                                  "ActionCopyFiles.Log.FolderExists",
+                                  overwriteFiles
+                                      ? CONST_FOLDER_EXISTS
+                                      : CONST_FOLDER_EXISTS_SKIP_COPY,
                                   HopVfs.getFriendlyURI(filename)));
                     }
                     if (overwriteFiles) {
@@ -919,15 +908,17 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                       logDetailed(
                           CONST_SPACE_SHORT
                               + BaseMessages.getString(
-                                  PKG, CONST_FILE_EXISTS, HopVfs.getFriendlyURI(filename)));
+                                  PKG,
+                                  overwriteFiles ? CONST_FILE_EXISTS : CONST_FILE_EXISTS_SKIP_COPY,
+                                  HopVfs.getFriendlyURI(filename)));
                     }
                     if (overwriteFiles) {
                       if (isDetailed()) {
                         logDetailed(
-                            "       "
+                            CONST_SPACE_SHORT
                                 + BaseMessages.getString(
                                     PKG,
-                                    CONST_FILE_EXISTS,
+                                    CONST_FILE_OVERWRITE,
                                     HopVfs.getFriendlyURI(info.getFile()),
                                     HopVfs.getFriendlyURI(filename)));
                       }
@@ -961,7 +952,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                         CONST_SPACE_SHORT
                             + BaseMessages.getString(
                                 PKG,
-                                "ActionCopyFiles.Log.FolderExists",
+                                overwriteFiles
+                                    ? CONST_FOLDER_EXISTS
+                                    : CONST_FOLDER_EXISTS_SKIP_COPY,
                                 HopVfs.getFriendlyURI(filename)));
                   }
                   if (overwriteFiles) {
@@ -1003,19 +996,20 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                     logDetailed(
                         CONST_SPACE_SHORT
                             + BaseMessages.getString(
-                                PKG, CONST_FILE_EXISTS, HopVfs.getFriendlyURI(filename)));
+                                PKG,
+                                overwriteFiles ? CONST_FILE_EXISTS : CONST_FILE_EXISTS_SKIP_COPY,
+                                HopVfs.getFriendlyURI(filename)));
                   }
 
                   if (overwriteFiles) {
                     if (isDetailed()) {
                       logDetailed(
                           CONST_SPACE_SHORT
-                              + BaseMessages.getString(PKG, "ActionCopyFiles.Log.FileExistsInfos"),
-                          BaseMessages.getString(
-                              PKG,
-                              CONST_FILE_EXISTS,
-                              HopVfs.getFriendlyURI(info.getFile()),
-                              HopVfs.getFriendlyURI(filename)));
+                              + BaseMessages.getString(
+                                  PKG,
+                                  CONST_FILE_OVERWRITE,
+                                  HopVfs.getFriendlyURI(info.getFile()),
+                                  HopVfs.getFriendlyURI(filename)));
                     }
 
                     returncode = true;
@@ -1062,6 +1056,10 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
             addFileNameString); // was a NPE before with the file_name=null above in the finally
       }
 
+      if (returncode) {
+        trackBytesIfSourceIsFile(info.getFile(), copyResult);
+      }
+
       return returncode;
     }
 
@@ -1082,109 +1080,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  private class TextOneFileSelector implements FileSelector {
-    String filename = null;
-    String folderName = null;
-    String destfolder = null;
-    private int traverseCount;
-
-    public TextOneFileSelector(
-        String sourcefolderin, String sourcefilenamein, String destfolderin) {
-      if (!Utils.isEmpty(sourcefilenamein)) {
-        filename = sourcefilenamein;
-      }
-
-      if (!Utils.isEmpty(sourcefolderin)) {
-        folderName = sourcefolderin;
-      }
-      if (!Utils.isEmpty(destfolderin)) {
-        destfolder = destfolderin;
-      }
-    }
-
-    @Override
-    public boolean includeFile(FileSelectInfo info) {
-      boolean resultat = false;
-      String filename = null;
-
-      try {
-        if (info.getFile().getType() == FileType.FILE) {
-          if (info.getFile().getName().getBaseName().equals(filename)
-              && (info.getFile().getParent().toString().equals(folderName))) {
-            // check if the file exists
-            filename = destfolder + Const.FILE_SEPARATOR + filename;
-
-            if (HopVfs.getFileObject(filename, getVariables()).exists()) {
-              if (isDetailed()) {
-                logDetailed(
-                    CONST_SPACE_SHORT
-                        + BaseMessages.getString(
-                            PKG,
-                            CONST_FILE_EXISTS,
-                            HopVfs.getFriendlyURI(filename, getVariables())));
-              }
-
-              if (overwriteFiles) {
-                if (isDetailed()) {
-                  logDetailed(
-                      CONST_SPACE_SHORT
-                          + BaseMessages.getString(
-                              PKG,
-                              "ActionCopyFiles.Log.FileOverwrite",
-                              HopVfs.getFriendlyURI(info.getFile()),
-                              HopVfs.getFriendlyURI(filename, getVariables())));
-                }
-
-                resultat = true;
-              }
-            } else {
-              if (isDetailed()) {
-                logDetailed(
-                    CONST_SPACE_SHORT
-                        + BaseMessages.getString(
-                            PKG,
-                            CONST_FILE_COPIED,
-                            HopVfs.getFriendlyURI(info.getFile()),
-                            HopVfs.getFriendlyURI(filename, getVariables())));
-              }
-
-              resultat = true;
-            }
-          }
-
-          if (resultat && removeSourceFiles) {
-            // add this folder/file to remove files
-            // This list will be fetched and all entries files
-            // will be removed
-            listFilesRemove.add(info.getFile().toString());
-          }
-
-          if (resultat && addResultFilenames) {
-            // add this folder/file to result files name
-            listAddResult.add(HopVfs.getFileObject(filename, getVariables()).toString());
-          }
-        }
-      } catch (Exception e) {
-        logError(
-            BaseMessages.getString(
-                PKG,
-                CONST_COPY_PROCESS,
-                HopVfs.getFriendlyURI(info.getFile()),
-                HopVfs.getFriendlyURI(filename, getVariables()),
-                e.getMessage()));
-
-        resultat = false;
-      }
-
-      return resultat;
-    }
-
-    @Override
-    public boolean traverseDescendents(FileSelectInfo info) {
-      return (traverseCount++ == 0 || includeSubFolders);
-    }
-  }
-
   @Override
   public void check(
       List<ICheckResult> remarks,
@@ -1195,7 +1090,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
         ActionValidatorUtils.andValidator()
             .validate(
                 this,
-                "arguments",
+                "fileRows",
                 remarks,
                 AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 
@@ -1208,278 +1103,16 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
 
-    for (int i = 0; i < sourceFileFolder.length; i++) {
-      ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
+    if (fileRows != null) {
+      for (int i = 0; i < fileRows.size(); i++) {
+        ActionValidatorUtils.andValidator()
+            .validate(this, "fileRows[" + i + "].sourceFileFolder", remarks, ctx);
+      }
     }
   }
 
   @Override
   public boolean isEvaluation() {
     return true;
-  }
-
-  public String loadURL(
-      String url,
-      String ncName,
-      IHopMetadataProvider metadataProvider,
-      Map<String, String> mappings) {
-    if (!Utils.isEmpty(ncName) && !Utils.isEmpty(url)) {
-      mappings.put(url, ncName);
-    }
-    return url;
-  }
-
-  public void setConfigurationMappings(Map<String, String> mappings) {
-    this.configurationMappings = mappings;
-  }
-
-  public String getConfigurationBy(String url) {
-    return this.configurationMappings.get(url);
-  }
-
-  public String getUrlPath(String incomingURL) {
-    String path = null;
-    try {
-      String noVariablesURL = incomingURL.replaceAll("[${}]", "/");
-      FileName fileName = HopVfs.getFileSystemManager(getVariables()).resolveURI(noVariablesURL);
-      String root = fileName.getRootURI();
-      path = incomingURL.substring(root.length() - 1);
-    } catch (FileSystemException e) {
-      path = null;
-    }
-    return path;
-  }
-
-  /**
-   * Gets copyEmptyFolders
-   *
-   * @return value of copyEmptyFolders
-   */
-  public boolean isCopyEmptyFolders() {
-    return copyEmptyFolders;
-  }
-
-  /**
-   * @param copyEmptyFolders The copyEmptyFolders to set
-   */
-  public void setCopyEmptyFolders(boolean copyEmptyFolders) {
-    this.copyEmptyFolders = copyEmptyFolders;
-  }
-
-  /**
-   * Gets argFromPrevious
-   *
-   * @return value of argFromPrevious
-   */
-  public boolean isArgFromPrevious() {
-    return argFromPrevious;
-  }
-
-  /**
-   * @param argFromPrevious The argFromPrevious to set
-   */
-  public void setArgFromPrevious(boolean argFromPrevious) {
-    this.argFromPrevious = argFromPrevious;
-  }
-
-  /**
-   * Gets overwriteFiles
-   *
-   * @return value of overwriteFiles
-   */
-  public boolean isOverwriteFiles() {
-    return overwriteFiles;
-  }
-
-  /**
-   * @param overwriteFiles The overwriteFiles to set
-   */
-  public void setOverwriteFiles(boolean overwriteFiles) {
-    this.overwriteFiles = overwriteFiles;
-  }
-
-  /**
-   * Gets includeSubFolders
-   *
-   * @return value of includeSubFolders
-   */
-  public boolean isIncludeSubFolders() {
-    return includeSubFolders;
-  }
-
-  /**
-   * @param includeSubFolders The includeSubFolders to set
-   */
-  public void setIncludeSubFolders(boolean includeSubFolders) {
-    this.includeSubFolders = includeSubFolders;
-  }
-
-  /**
-   * Gets addResultFilenames
-   *
-   * @return value of addResultFilenames
-   */
-  public boolean isAddResultFilenames() {
-    return addResultFilenames;
-  }
-
-  /**
-   * @param addResultFilenames The addResultFilenames to set
-   */
-  public void setAddResultFilenames(boolean addResultFilenames) {
-    this.addResultFilenames = addResultFilenames;
-  }
-
-  /**
-   * Gets removeSourceFiles
-   *
-   * @return value of removeSourceFiles
-   */
-  public boolean isRemoveSourceFiles() {
-    return removeSourceFiles;
-  }
-
-  /**
-   * @param removeSourceFiles The removeSourceFiles to set
-   */
-  public void setRemoveSourceFiles(boolean removeSourceFiles) {
-    this.removeSourceFiles = removeSourceFiles;
-  }
-
-  /**
-   * Gets destinationIsAFile
-   *
-   * @return value of destinationIsAFile
-   */
-  public boolean isDestinationIsAFile() {
-    return destinationIsAFile;
-  }
-
-  /**
-   * @param destinationIsAFile The destinationIsAFile to set
-   */
-  public void setDestinationIsAFile(boolean destinationIsAFile) {
-    this.destinationIsAFile = destinationIsAFile;
-  }
-
-  /**
-   * Gets createDestinationFolder
-   *
-   * @return value of createDestinationFolder
-   */
-  public boolean isCreateDestinationFolder() {
-    return createDestinationFolder;
-  }
-
-  /**
-   * @param createDestinationFolder The createDestinationFolder to set
-   */
-  public void setCreateDestinationFolder(boolean createDestinationFolder) {
-    this.createDestinationFolder = createDestinationFolder;
-  }
-
-  /**
-   * Gets sourceFileFolder
-   *
-   * @return value of sourceFileFolder
-   */
-  public String[] getSourceFileFolder() {
-    return sourceFileFolder;
-  }
-
-  /**
-   * @param sourceFileFolder The sourceFileFolder to set
-   */
-  public void setSourceFileFolder(String[] sourceFileFolder) {
-    this.sourceFileFolder = sourceFileFolder;
-  }
-
-  /**
-   * Gets destinationFileFolder
-   *
-   * @return value of destinationFileFolder
-   */
-  public String[] getDestinationFileFolder() {
-    return destinationFileFolder;
-  }
-
-  /**
-   * @param destinationFileFolder The destinationFileFolder to set
-   */
-  public void setDestinationFileFolder(String[] destinationFileFolder) {
-    this.destinationFileFolder = destinationFileFolder;
-  }
-
-  /**
-   * Gets wildcard
-   *
-   * @return value of wildcard
-   */
-  public String[] getWildcard() {
-    return wildcard;
-  }
-
-  /**
-   * @param wildcard The wildcard to set
-   */
-  public void setWildcard(String[] wildcard) {
-    this.wildcard = wildcard;
-  }
-
-  /**
-   * Gets listFilesRemove
-   *
-   * @return value of listFilesRemove
-   */
-  public HashSet<String> getListFilesRemove() {
-    return listFilesRemove;
-  }
-
-  /**
-   * @param listFilesRemove The listFilesRemove to set
-   */
-  public void setListFilesRemove(HashSet<String> listFilesRemove) {
-    this.listFilesRemove = listFilesRemove;
-  }
-
-  /**
-   * Gets listAddResult
-   *
-   * @return value of listAddResult
-   */
-  public HashSet<String> getListAddResult() {
-    return listAddResult;
-  }
-
-  /**
-   * @param listAddResult The listAddResult to set
-   */
-  public void setListAddResult(HashSet<String> listAddResult) {
-    this.listAddResult = listAddResult;
-  }
-
-  /**
-   * Gets nbrFail
-   *
-   * @return value of nbrFail
-   */
-  public int getNbrFail() {
-    return nbrFail;
-  }
-
-  /**
-   * @param nbrFail The nbrFail to set
-   */
-  public void setNbrFail(int nbrFail) {
-    this.nbrFail = nbrFail;
-  }
-
-  /**
-   * Gets configurationMappings
-   *
-   * @return value of configurationMappings
-   */
-  public Map<String, String> getConfigurationMappings() {
-    return configurationMappings;
   }
 }
