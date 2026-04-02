@@ -214,7 +214,8 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         InputStream is = HopVfs.getInputStream(file);
         CountingInputStream countingIs = new CountingInputStream(is);
         try {
-          data.document = reader.read(countingIs, encoding);
+          reader.setEncoding(encoding);
+          data.document = reader.read(countingIs);
           dataVolumeIn = (dataVolumeIn != null ? dataVolumeIn : 0L) + countingIs.getCount();
         } finally {
           BaseTransform.closeQuietly(countingIs);

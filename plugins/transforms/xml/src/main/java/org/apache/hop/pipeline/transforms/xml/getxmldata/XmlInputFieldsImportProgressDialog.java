@@ -175,7 +175,8 @@ public class XmlInputFieldsImportProgressDialog {
       Document document = null;
       if (!Utils.isEmpty(filename)) {
         is = HopVfs.getInputStream(filename, variables);
-        document = reader.read(is, encoding);
+        reader.setEncoding(encoding);
+        document = reader.read(is);
       } else {
         if (!Utils.isEmpty(xml)) {
           document = reader.read(new StringReader(xml));
