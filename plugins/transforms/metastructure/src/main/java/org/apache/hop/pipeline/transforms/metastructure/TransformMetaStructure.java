@@ -91,7 +91,7 @@ public class TransformMetaStructure
                   outputRow, pos++, vPosition.convertDataCompatible(vPosition, (long) (i + 1)));
         }
 
-        if (meta.isIncludeFieldnameField()) {
+        if (meta.isIncludeFieldNameField()) {
           outputRow = RowDataUtil.addValueData(outputRow, pos++, v.getName());
         }
 

@@ -25,8 +25,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 public class TransformMetaStructureData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;
-  public IRowMeta inputRowMeta;
-
   public int rowCount;
 
   /** Default constructor. */
