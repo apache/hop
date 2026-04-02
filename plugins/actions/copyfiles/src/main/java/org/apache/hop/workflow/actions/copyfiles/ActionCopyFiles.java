@@ -18,8 +18,9 @@
 package org.apache.hop.workflow.actions.copyfiles;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -28,14 +29,12 @@ import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.vfs2.FileFilterSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.NameScope;
-import org.apache.commons.vfs2.filter.NameFileFilter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -43,6 +42,8 @@ import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.io.CountingInputStream;
+import org.apache.hop.core.io.CountingOutputStream;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -410,13 +411,10 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
               // Source is a file, destination is a folder
               // Copy the file to the destination folder
               //
-              NameFileFilter nameFileFilter =
-                  new NameFileFilter(
-                      Collections.singletonList(sourceFileFolder.getName().getBaseName()));
-              FileSelector fileSelector = new FileFilterSelector(nameFileFilter);
-              destinationFileFolder.copyFrom(sourceFileFolder.getParent(), fileSelector);
-
-              trackBytesCopied(sourceFileFolder, result);
+              FileObject destChild =
+                  destinationFileFolder.resolveFile(
+                      sourceFileFolder.getName().getBaseName(), NameScope.CHILD);
+              copyFileWithByteTracking(sourceFileFolder, destChild, result);
 
               if (isDetailed()) {
                 logDetailed(
@@ -428,10 +426,8 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
               }
 
             } else if (sourceFileFolder.getType().equals(FileType.FILE) && destinationIsAFile) {
-              // Source is a file, destination is a file
-
-              destinationFileFolder.copyFrom(
-                  sourceFileFolder, new TextOneToOneFileSelector(destinationFileFolder, result));
+              // Source is a file, destination is a file (stream copy + byte metrics; no copyFrom)
+              copyOneFileToFile(sourceFileFolder, destinationFileFolder, result);
             } else {
               // Both source and destination are folders
               if (isDetailed()) {
@@ -599,122 +595,104 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
     return entrystatus;
   }
 
-  private void trackBytesCopied(FileObject sourceFile, Result result) {
-    try {
-      if (sourceFile.getType().hasContent()) {
-        long size = sourceFile.getContent().getSize();
-        result.setBytesReadThisAction(result.getBytesReadThisAction() + size);
-        result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + size);
+  private static final int COPY_BUFFER_SIZE = 8192;
+
+  /**
+   * Copies file content through {@link CountingInputStream} / {@link CountingOutputStream} so
+   * {@link Result#getBytesReadThisAction()} and {@link Result#getBytesWrittenThisAction()} match
+   * bytes moved over the streams (when {@link Const#HOP_METRIC_DATA_VOLUME} is enabled).
+   */
+  private void copyFileWithByteTracking(FileObject source, FileObject destination, Result result)
+      throws IOException {
+    FileObject parent = destination.getParent();
+    if (parent != null && !parent.exists()) {
+      parent.createFolder();
+    }
+    long read;
+    long written;
+    try (InputStream rawIn = HopVfs.getInputStream(source);
+        CountingInputStream in = new CountingInputStream(rawIn);
+        OutputStream rawOut = HopVfs.getOutputStream(destination, false);
+        CountingOutputStream out = new CountingOutputStream(rawOut)) {
+      byte[] buffer = new byte[COPY_BUFFER_SIZE];
+      int len;
+      while ((len = in.read(buffer)) != -1) {
+        if (len > 0) {
+          out.write(buffer, 0, len);
+        }
       }
+      out.flush();
+      read = in.getCount();
+      written = out.getCount();
+    }
+    result.setBytesReadThisAction(result.getBytesReadThisAction() + read);
+    result.setBytesWrittenThisAction(result.getBytesWrittenThisAction() + written);
+  }
+
+  /**
+   * File-to-file copy: same rules as the former one-to-one {@link FileSelector} (exists / overwrite
+   * / logging), then stream copy for byte metrics. Does not use {@code copyFrom}.
+   *
+   * @return true if the file was copied, false if skipped or on error
+   */
+  private boolean copyOneFileToFile(FileObject sourceFile, FileObject destFile, Result result) {
+    boolean shouldCopy = false;
+    try {
+      if (destFile.exists()) {
+        if (isDetailed()) {
+          logDetailed(
+              CONST_SPACE_SHORT
+                  + BaseMessages.getString(
+                      PKG,
+                      overwriteFiles ? CONST_FILE_EXISTS : CONST_FILE_EXISTS_SKIP_COPY,
+                      HopVfs.getFriendlyURI(destFile)));
+        }
+        if (overwriteFiles) {
+          if (isDetailed()) {
+            logDetailed(
+                CONST_SPACE_SHORT
+                    + BaseMessages.getString(
+                        PKG,
+                        CONST_FILE_OVERWRITE,
+                        HopVfs.getFriendlyURI(sourceFile),
+                        HopVfs.getFriendlyURI(destFile)));
+          }
+          shouldCopy = true;
+        }
+      } else {
+        if (isDetailed()) {
+          logDetailed(
+              CONST_SPACE_SHORT
+                  + BaseMessages.getString(
+                      PKG,
+                      CONST_FILE_COPIED,
+                      HopVfs.getFriendlyURI(sourceFile),
+                      HopVfs.getFriendlyURI(destFile)));
+        }
+        shouldCopy = true;
+      }
+
+      if (!shouldCopy) {
+        return false;
+      }
+
+      copyFileWithByteTracking(sourceFile, destFile, result);
+
+      if (removeSourceFiles) {
+        listFilesRemove.add(sourceFile.toString());
+      }
+      if (addResultFilenames) {
+        listAddResult.add(destFile.toString());
+      }
+      return true;
     } catch (Exception e) {
-      logDebug(
+      logError(
           BaseMessages.getString(
               PKG,
-              "ActionCopyFiles.Log.Debug.CouldNotGetFileSize",
-              String.valueOf(sourceFile),
+              CONST_COPY_PROCESS,
+              HopVfs.getFriendlyURI(sourceFile),
+              HopVfs.getFriendlyURI(destFile),
               e.getMessage()));
-    }
-  }
-
-  /** Used by file selectors when recording bytes; isolates {@link FileSystemException} from VFS. */
-  private void trackBytesIfSourceIsFile(FileObject sourceFile, Result copyResult) {
-    try {
-      if (sourceFile.getType() == FileType.FILE) {
-        trackBytesCopied(sourceFile, copyResult);
-      }
-    } catch (FileSystemException ignored) {
-      // ignore
-    }
-  }
-
-  private class TextOneToOneFileSelector implements FileSelector {
-    FileObject destfile = null;
-    private final Result copyResult;
-
-    public TextOneToOneFileSelector(FileObject destinationfile, Result result) {
-      this.copyResult = result;
-      if (destinationfile != null) {
-        destfile = destinationfile;
-      }
-    }
-
-    @Override
-    public boolean includeFile(FileSelectInfo info) {
-      boolean resultat = false;
-      String filename = null;
-
-      try {
-        // check if the destination file exists
-
-        if (destfile.exists()) {
-          if (isDetailed()) {
-            logDetailed(
-                CONST_SPACE_SHORT
-                    + BaseMessages.getString(
-                        PKG,
-                        overwriteFiles ? CONST_FILE_EXISTS : CONST_FILE_EXISTS_SKIP_COPY,
-                        HopVfs.getFriendlyURI(destfile)));
-          }
-
-          if (overwriteFiles) {
-            if (isDetailed()) {
-              logDetailed(
-                  CONST_SPACE_SHORT
-                      + BaseMessages.getString(
-                          PKG,
-                          CONST_FILE_OVERWRITE,
-                          HopVfs.getFriendlyURI(info.getFile()),
-                          HopVfs.getFriendlyURI(destfile)));
-            }
-
-            resultat = true;
-          }
-        } else {
-          if (isDetailed()) {
-            logDetailed(
-                CONST_SPACE_SHORT
-                    + BaseMessages.getString(
-                        PKG,
-                        CONST_FILE_COPIED,
-                        HopVfs.getFriendlyURI(info.getFile()),
-                        HopVfs.getFriendlyURI(destfile)));
-          }
-
-          resultat = true;
-        }
-
-        if (resultat && removeSourceFiles) {
-          // add this folder/file to remove files
-          // This list will be fetched and all entries files
-          // will be removed
-          listFilesRemove.add(info.getFile().toString());
-        }
-
-        if (resultat && addResultFilenames) {
-          // add this folder/file to result files name
-          listAddResult.add(destfile.toString());
-        }
-
-        if (resultat) {
-          trackBytesIfSourceIsFile(info.getFile(), copyResult);
-        }
-
-      } catch (Exception e) {
-
-        logError(
-            BaseMessages.getString(
-                PKG,
-                CONST_COPY_PROCESS,
-                HopVfs.getFriendlyURI(info.getFile()),
-                filename,
-                e.getMessage()));
-      }
-
-      return resultat;
-    }
-
-    @Override
-    public boolean traverseDescendents(FileSelectInfo info) {
       return false;
     }
   }
@@ -826,6 +804,7 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
     @Override
     public boolean includeFile(FileSelectInfo info) {
       boolean returncode = false;
+      boolean streamCopied = false;
       FileObject filename = null;
       String addFileNameString = null;
       try {
@@ -1019,6 +998,11 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
             }
           }
         }
+
+        if (returncode && filename != null && info.getFile().getType() == FileType.FILE) {
+          copyFileWithByteTracking(info.getFile(), filename, copyResult);
+          streamCopied = true;
+        }
       } catch (Exception e) {
 
         logError(
@@ -1056,11 +1040,9 @@ public class ActionCopyFiles extends ActionBase implements ILegacyXml {
             addFileNameString); // was a NPE before with the file_name=null above in the finally
       }
 
-      if (returncode) {
-        trackBytesIfSourceIsFile(info.getFile(), copyResult);
-      }
-
-      return returncode;
+      // File rows: we already copied bytes above when streamCopied; true would make copyFrom copy
+      // again. Folder rows: unchanged — still return returncode so VFS creates empty dirs.
+      return streamCopied ? false : returncode;
     }
 
     @Override
