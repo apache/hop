@@ -49,6 +49,7 @@ import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
@@ -61,6 +62,7 @@ import org.apache.hop.ui.hopgui.partition.PartitionSettings;
 import org.apache.hop.ui.hopgui.partition.processor.IMethodProcessor;
 import org.apache.hop.ui.hopgui.partition.processor.MethodProcessorFactory;
 import org.apache.hop.ui.pipeline.transform.TransformErrorMetaDialog;
+import org.apache.hop.ui.pipeline.transforms.missing.MissingPipelineDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
@@ -81,6 +83,15 @@ public class HopGuiPipelineTransformDelegate {
   public ITransformDialog getTransformDialog(
       ITransformMeta transformMeta, PipelineMeta pipelineMeta, String transformName)
       throws HopException {
+
+    if (transformMeta instanceof Missing) {
+      return new MissingPipelineDialog(
+          hopGui.getShell(),
+          pipelineGraph.getVariables(),
+          transformMeta,
+          pipelineMeta,
+          transformName);
+    }
 
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin(TransformPluginType.class, transformMeta);

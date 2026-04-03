@@ -199,7 +199,7 @@ public class HopGuiWorkflowActionDelegate {
     Object[] arguments =
         new Object[] {hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables()};
 
-    if (MissingAction.ID.equals(action.getPluginId())) {
+    if (action instanceof MissingAction) {
       return new MissingActionDialog(
           hopGui.getActiveShell(), action, workflowMeta, workflowGraph.getVariables());
     }

@@ -43,7 +43,6 @@ public class MissingPipelineDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = MissingPipelineDialog.class;
 
-  private Shell shell;
   private Shell shellParent;
   private List<Missing> missingPipeline;
   private int mode;
@@ -75,53 +74,59 @@ public class MissingPipelineDialog extends BaseTransformDialog {
     this.mode = MISSING_PIPELINE_TRANSFORM_ID;
   }
 
-  private String getErrorMessage(List<Missing> missingPipeline, int mode) {
-    String message = "";
-    if (mode == MISSING_PIPELINE_TRANSFORMS) {
-      StringBuilder entries = new StringBuilder();
-      for (Missing entry : missingPipeline) {
-        if (missingPipeline.indexOf(entry) == missingPipeline.size() - 1) {
-          entries.append(
-              "- " + entry.getTransformName() + " - " + entry.getMissingPluginId() + "\n\n");
-        } else {
-          entries.append(
-              "- " + entry.getTransformName() + " - " + entry.getMissingPluginId() + "\n");
-        }
+  private static String formatMissingEntries(List<Missing> items) {
+    StringBuilder entries = new StringBuilder();
+    for (int i = 0; i < items.size(); i++) {
+      Missing item = items.get(i);
+      entries
+          .append("- ")
+          .append(item.getTransformName())
+          .append(" - ")
+          .append(item.getMissingPluginId());
+      if (i < items.size() - 1) {
+        entries.append("\n");
+      } else {
+        entries.append("\n\n");
       }
-      message =
-          BaseMessages.getString(
-              PKG, "MissingPipelineDialog.MissingPipelineTransforms", entries.toString());
     }
+    return entries.toString();
+  }
 
-    if (mode == MISSING_PIPELINE_TRANSFORM_ID) {
-      message =
-          BaseMessages.getString(
-              PKG,
-              "MissingPipelineDialog.MissingPipelineTransformId",
-              transformName + " - " + ((Missing) baseTransformMeta).getMissingPluginId());
+  private String buildMessage() {
+    if (mode == MISSING_PIPELINE_TRANSFORMS) {
+      return BaseMessages.getString(
+          PKG,
+          "MissingPipelineDialog.MissingPipelineTransforms",
+          formatMissingEntries(missingPipeline));
     }
-    return message;
+    return BaseMessages.getString(
+        PKG,
+        "MissingPipelineDialog.MissingPipelineTransformId",
+        ((Missing) baseTransformMeta).getMissingPluginId());
   }
 
   @Override
   public String open() {
-    PropsUi props = PropsUi.getInstance();
+    String message = buildMessage();
+    boolean showOpenFile = mode == MISSING_PIPELINE_TRANSFORMS;
+
     Display display = shellParent.getDisplay();
+    Shell dialogShell =
+        new Shell(shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON | SWT.APPLICATION_MODAL);
+    this.shell = dialogShell;
 
-    shell = new Shell(shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON | SWT.APPLICATION_MODAL);
-
-    PropsUi.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    PropsUi.setLook(dialogShell);
+    dialogShell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginLeft = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
 
-    shell.setText(BaseMessages.getString(PKG, "MissingPipelineDialog.MissingPlugins"));
-    shell.setLayout(formLayout);
+    dialogShell.setText(BaseMessages.getString(PKG, "MissingPipelineDialog.MissingPlugins"));
+    dialogShell.setLayout(formLayout);
 
-    Label image = new Label(shell, SWT.NONE);
+    Label image = new Label(dialogShell, SWT.NONE);
     PropsUi.setLook(image);
     Image icon = display.getSystemImage(SWT.ICON_QUESTION);
     image.setImage(icon);
@@ -131,22 +136,33 @@ public class MissingPipelineDialog extends BaseTransformDialog {
     imageData.top = new FormAttachment(0, 10);
     image.setLayoutData(imageData);
 
-    Label error = new Label(shell, SWT.WRAP);
+    Label error = new Label(dialogShell, SWT.WRAP);
     PropsUi.setLook(error);
-    error.setText(getErrorMessage(missingPipeline, mode));
+    error.setText(message);
     FormData errorData = new FormData();
     errorData.left = new FormAttachment(image, 5);
     errorData.right = new FormAttachment(100, -5);
     errorData.top = new FormAttachment(0, 10);
     error.setLayoutData(errorData);
 
-    Label separator = new Label(shell, SWT.WRAP);
+    Label separator = new Label(dialogShell, SWT.WRAP);
     PropsUi.setLook(separator);
     FormData separatorData = new FormData();
     separatorData.top = new FormAttachment(error, 10);
     separator.setLayoutData(separatorData);
 
-    Button closeButton = new Button(shell, SWT.PUSH);
+    Runnable confirm =
+        () -> {
+          dialogShell.dispose();
+          transformResult = transformName;
+        };
+    Runnable cancel =
+        () -> {
+          dialogShell.dispose();
+          transformResult = null;
+        };
+
+    Button closeButton = new Button(dialogShell, SWT.PUSH);
     PropsUi.setLook(closeButton);
     FormData fdClose = new FormData();
     fdClose.right = new FormAttachment(98);
@@ -157,13 +173,12 @@ public class MissingPipelineDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            cancel();
+            cancel.run();
           }
         });
 
-    FormData fdSearch = new FormData();
-    if (this.mode == MISSING_PIPELINE_TRANSFORMS) {
-      Button openButton = new Button(shell, SWT.PUSH);
+    if (showOpenFile) {
+      Button openButton = new Button(dialogShell, SWT.PUSH);
       PropsUi.setLook(openButton);
       FormData fdOpen = new FormData();
       fdOpen.right = new FormAttachment(closeButton, -5);
@@ -174,45 +189,12 @@ public class MissingPipelineDialog extends BaseTransformDialog {
           new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-              ok();
+              confirm.run();
             }
           });
-      fdSearch.right = new FormAttachment(openButton, -5);
-      fdSearch.bottom = new FormAttachment(openButton, 0, SWT.BOTTOM);
-    } else {
-      fdSearch.right = new FormAttachment(closeButton, -5);
-      fdSearch.bottom = new FormAttachment(closeButton, 0, SWT.BOTTOM);
     }
 
-    Button searchButton = new Button(shell, SWT.PUSH);
-    PropsUi.setLook(searchButton);
-    searchButton.setText(BaseMessages.getString(PKG, "MissingPipelineDialog.SearchMarketplace"));
-    searchButton.setLayoutData(fdSearch);
-    searchButton.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            try {
-              shell.dispose();
-              // HopGui.getInstance().openMarketplace();  TODO: implement marketplace
-            } catch (Exception ex) {
-              ex.printStackTrace();
-            }
-          }
-        });
-
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-
+    BaseDialog.defaultShellHandling(dialogShell, v -> confirm.run(), v -> cancel.run());
     return transformResult;
-  }
-
-  private void ok() {
-    shell.dispose();
-    transformResult = transformName;
-  }
-
-  private void cancel() {
-    shell.dispose();
-    transformResult = null;
   }
 }

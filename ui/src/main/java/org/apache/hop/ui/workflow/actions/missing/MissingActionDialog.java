@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 public class MissingActionDialog extends ActionDialog {
+
   private static final Class<?> PKG = MissingActionDialog.class;
 
   private List<MissingAction> missingActions;
@@ -66,51 +67,52 @@ public class MissingActionDialog extends ActionDialog {
     this.mode = MISSING_ACTION_ID;
   }
 
-  private String getErrorMessage(List<MissingAction> missingEntries, int mode) {
-    String message = "";
-    if (mode == MISSING_ACTIONS) {
-      StringBuilder entries = new StringBuilder();
-      for (MissingAction action : missingEntries) {
-        if (missingEntries.indexOf(action) == missingEntries.size() - 1) {
-          entries.append("- " + action.getName() + " - " + action.getMissingPluginId() + "\n\n");
-        } else {
-          entries.append("- " + action.getName() + " - " + action.getMissingPluginId() + "\n");
-        }
+  private static String formatMissingEntries(List<MissingAction> items) {
+    StringBuilder entries = new StringBuilder();
+    for (int i = 0; i < items.size(); i++) {
+      MissingAction item = items.get(i);
+      entries.append("- ").append(item.getName()).append(" - ").append(item.getMissingPluginId());
+      if (i < items.size() - 1) {
+        entries.append("\n");
+      } else {
+        entries.append("\n\n");
       }
-      message =
-          BaseMessages.getString(PKG, "MissingActionDialog.MissingActions", entries.toString());
     }
+    return entries.toString();
+  }
 
-    if (mode == MISSING_ACTION_ID) {
-      message =
-          BaseMessages.getString(
-              PKG,
-              "MissingActionDialog.MissingActionId",
-              action.getName() + " - " + ((MissingAction) action).getMissingPluginId());
+  private String buildMessage() {
+    if (mode == MISSING_ACTIONS) {
+      return BaseMessages.getString(
+          PKG, "MissingActionDialog.MissingActions", formatMissingEntries(missingActions));
     }
-    return message;
+    return BaseMessages.getString(
+        PKG, "MissingActionDialog.MissingActionId", ((MissingAction) action).getMissingPluginId());
   }
 
   @Override
   public IAction open() {
+    Shell parent = getParent();
+    String message = buildMessage();
+    boolean showOpenFile = mode == MISSING_ACTIONS;
 
-    Shell parent = this.getParent();
     Display display = parent.getDisplay();
+    Shell dialogShell =
+        new Shell(parent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON | SWT.APPLICATION_MODAL);
+    this.shell = dialogShell;
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON | SWT.APPLICATION_MODAL);
-
-    PropsUi.setLook(shell);
-    shell.setImage(GuiResource.getInstance().getImageHopUi());
+    PropsUi.setLook(dialogShell);
+    dialogShell.setImage(GuiResource.getInstance().getImageHopUi());
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginLeft = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
 
-    shell.setText(BaseMessages.getString(PKG, "MissingActionDialog.MissingPlugins"));
-    shell.setLayout(formLayout);
+    dialogShell.setText(BaseMessages.getString(PKG, "MissingActionDialog.MissingPlugins"));
+    dialogShell.setLayout(formLayout);
 
-    Label image = new Label(shell, SWT.NONE);
+    Label image = new Label(dialogShell, SWT.NONE);
     PropsUi.setLook(image);
     Image icon = display.getSystemImage(SWT.ICON_QUESTION);
     image.setImage(icon);
@@ -120,22 +122,33 @@ public class MissingActionDialog extends ActionDialog {
     imageData.top = new FormAttachment(0, 10);
     image.setLayoutData(imageData);
 
-    Label error = new Label(shell, SWT.WRAP);
+    Label error = new Label(dialogShell, SWT.WRAP);
     PropsUi.setLook(error);
-    error.setText(getErrorMessage(missingActions, mode));
+    error.setText(message);
     FormData errorData = new FormData();
     errorData.left = new FormAttachment(image, 5);
     errorData.right = new FormAttachment(100, -5);
     errorData.top = new FormAttachment(0, 10);
     error.setLayoutData(errorData);
 
-    Label separator = new Label(shell, SWT.WRAP);
+    Label separator = new Label(dialogShell, SWT.WRAP);
     PropsUi.setLook(separator);
     FormData separatorData = new FormData();
     separatorData.top = new FormAttachment(error, 10);
     separator.setLayoutData(separatorData);
 
-    Button closeButton = new Button(shell, SWT.PUSH);
+    Runnable confirm =
+        () -> {
+          dialogShell.dispose();
+          action = new MissingAction();
+        };
+    Runnable cancel =
+        () -> {
+          dialogShell.dispose();
+          action = null;
+        };
+
+    Button closeButton = new Button(dialogShell, SWT.PUSH);
     PropsUi.setLook(closeButton);
     FormData fdClose = new FormData();
     fdClose.right = new FormAttachment(98);
@@ -146,13 +159,12 @@ public class MissingActionDialog extends ActionDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            close();
+            cancel.run();
           }
         });
 
-    FormData fdSearch = new FormData();
-    if (this.mode == MISSING_ACTIONS) {
-      Button openButton = new Button(shell, SWT.PUSH);
+    if (showOpenFile) {
+      Button openButton = new Button(dialogShell, SWT.PUSH);
       PropsUi.setLook(openButton);
       FormData fdOpen = new FormData();
       fdOpen.right = new FormAttachment(closeButton, -5);
@@ -163,50 +175,12 @@ public class MissingActionDialog extends ActionDialog {
           new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-              openFile();
+              confirm.run();
             }
           });
-      fdSearch.right = new FormAttachment(openButton, -5);
-      fdSearch.bottom = new FormAttachment(openButton, 0, SWT.BOTTOM);
-    } else {
-      fdSearch.right = new FormAttachment(closeButton, -5);
-      fdSearch.bottom = new FormAttachment(closeButton, 0, SWT.BOTTOM);
     }
 
-    Button searchButton = new Button(shell, SWT.PUSH);
-    PropsUi.setLook(searchButton);
-    searchButton.setText(BaseMessages.getString(PKG, "MissingActionDialog.SearchMarketplace"));
-    searchButton.setLayoutData(fdSearch);
-    searchButton.setEnabled(false);
-    searchButton.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            searchMarketplace();
-          }
-        });
-
-    BaseDialog.defaultShellHandling(shell, c -> openFile(), c -> close());
-
+    BaseDialog.defaultShellHandling(dialogShell, v -> confirm.run(), v -> cancel.run());
     return action;
-  }
-
-  private void searchMarketplace() {
-    try {
-      shell.dispose();
-      // HopGui.getInstance().openMarketplace(); TODO : implement or replace marketplace
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-  }
-
-  private void openFile() {
-    shell.dispose();
-    action = new MissingAction();
-  }
-
-  private void close() {
-    shell.dispose();
-    action = null;
   }
 }

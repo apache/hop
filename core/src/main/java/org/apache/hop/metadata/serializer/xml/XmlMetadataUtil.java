@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -51,8 +52,40 @@ import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
 
 public class XmlMetadataUtil {
+
+  private static final String FQN_TRANSFORM_FACTORY =
+      "org.apache.hop.pipeline.transform.ITransformMeta$TransformFactory";
+  private static final String FQN_ACTION_FACTORY =
+      "org.apache.hop.workflow.action.IAction$ActionFactory";
+
   private XmlMetadataUtil() {
     // Hides the public constructor
+  }
+
+  /**
+   * {@link MissingResourceException} from transform/action factories: substitute {@code Missing} /
+   * {@code MissingAction} via reflection (no core → engine compile dependency).
+   */
+  private static Object newMissingPluginPlaceholder(
+      HopMetadataObject metadataObject, Node node, String pluginId) {
+    String factoryName = metadataObject.objectFactory().getName();
+    String name = node != null ? XmlHandler.getTagValue(node, "name") : null;
+    try {
+      if (FQN_TRANSFORM_FACTORY.equals(factoryName)) {
+        Class<?> c = Class.forName("org.apache.hop.pipeline.transforms.missing.Missing");
+        return c.getDeclaredConstructor(String.class, String.class)
+            .newInstance(Const.NVL(name, ""), pluginId);
+      }
+      if (FQN_ACTION_FACTORY.equals(factoryName)) {
+        Class<?> c = Class.forName("org.apache.hop.workflow.actions.missing.MissingAction");
+        String actionName = (name == null || name.isEmpty()) ? null : name;
+        return c.getDeclaredConstructor(String.class, String.class)
+            .newInstance(actionName, pluginId);
+      }
+    } catch (Exception ignored) {
+      return null;
+    }
+    return null;
   }
 
   /**
@@ -816,6 +849,17 @@ public class XmlMetadataUtil {
             IHopMetadataObjectFactory factory =
                 metadataObject.objectFactory().getConstructor().newInstance();
             object = (T) factory.createObject(objectId, parentObject);
+          } catch (MissingResourceException e) {
+            Object placeholder = newMissingPluginPlaceholder(metadataObject, node, objectId);
+            if (placeholder == null) {
+              throw new HopXmlException(
+                  "Unable to create a new instance of class "
+                      + clazz.getName()
+                      + " while de-serializing XML: "
+                      + e.getMessage(),
+                  e);
+            }
+            object = (T) placeholder;
           } catch (HopMissingPluginsException e) {
             throw new HopXmlException(
                 "The plugin for class "
