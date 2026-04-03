@@ -158,7 +158,7 @@ public class HopGuiPipelineRunDelegate {
 
     boolean execConfigAnswer = true;
 
-    if (debugAnswer == PipelineDebugDialog.DEBUG_CONFIG && pipelineMeta.isShowDialog()) {
+    if (debugAnswer == PipelineDebugDialog.DEBUG_CONFIG) {
       PipelineExecutionConfigurationDialog dialog =
           new PipelineExecutionConfigurationDialog(
               hopGui.getShell(), executionConfiguration, pipelineMeta);

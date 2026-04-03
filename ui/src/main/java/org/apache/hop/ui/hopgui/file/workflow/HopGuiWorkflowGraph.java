@@ -1739,7 +1739,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       image = "ui/images/run.svg")
   @Override
   public void start() {
-    workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
     ServerPushSessionFacade.start();
 
     Thread thread =
@@ -2008,7 +2007,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void startWorkflowHere(HopGuiWorkflowActionContext context) {
-    workflowMeta.setShowDialog(workflowMeta.isAlwaysShowRunOptions());
     ServerPushSessionFacade.start();
     Thread thread =
         new Thread(

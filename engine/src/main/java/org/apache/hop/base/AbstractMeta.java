@@ -115,9 +115,6 @@ public abstract class AbstractMeta
 
   protected RunOptions runOptions = new RunOptions();
 
-  private boolean showDialog = true;
-  private boolean alwaysShowRunOptions = true;
-
   protected abstract String getExtension();
 
   protected abstract INamedParameters getNamedParameters();

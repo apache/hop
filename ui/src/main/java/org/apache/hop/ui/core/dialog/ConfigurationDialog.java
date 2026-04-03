@@ -73,7 +73,9 @@ public abstract class ConfigurationDialog extends Dialog {
   private Shell parent;
   private Button wOk;
   protected FormData fdDetails;
-  private Button alwaysShowOption;
+
+  /** Horizontal separator above the dialog's bottom button row. */
+  protected Label wButtonsSeparator;
 
   protected HopGui hopGui;
 
@@ -134,8 +136,6 @@ public abstract class ConfigurationDialog extends Dialog {
   }
 
   protected void ok() {
-    abstractMeta.setAlwaysShowRunOptions(alwaysShowOption.getSelection());
-    abstractMeta.setShowDialog(alwaysShowOption.getSelection());
     if (Const.isOSX()) {
       // OSX bug workaround.
       wVariables.applyOSXChanges();
@@ -233,7 +233,7 @@ public abstract class ConfigurationDialog extends Dialog {
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.left = new FormAttachment(0, 0);
     fdTabFolder.top = new FormAttachment(gDetails, 15);
-    fdTabFolder.bottom = new FormAttachment(alwaysShowOption, -15);
+    fdTabFolder.bottom = new FormAttachment(wButtonsSeparator, -15);
     tabFolder.setLayoutData(fdTabFolder);
 
     // Parameters
@@ -344,12 +344,7 @@ public abstract class ConfigurationDialog extends Dialog {
     wVariables.setLayoutData(fdVariables);
   }
 
-  protected void buttonsSectionLayout(
-      String alwaysShowOptionLabel,
-      String alwaysShowOptionTooltip,
-      final String docTitle,
-      final String docUrl,
-      final String docHeader) {
+  protected void buttonsSectionLayout(final String docUrl) {
 
     // Bottom buttons and separator
 
@@ -369,23 +364,12 @@ public abstract class ConfigurationDialog extends Dialog {
     fdbHelp.left = new FormAttachment(0, 0);
     wbHelp.setLayoutData(fdbHelp);
 
-    Label separator = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
+    wButtonsSeparator = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
     FormData fdSeparator = new FormData();
     fdSeparator.right = new FormAttachment(100, 0);
     fdSeparator.left = new FormAttachment(0, 0);
     fdSeparator.bottom = new FormAttachment(wOk, -2 * margin);
-    separator.setLayoutData(fdSeparator);
-
-    alwaysShowOption = new Button(shell, SWT.CHECK);
-    alwaysShowOption.setText(alwaysShowOptionLabel);
-    alwaysShowOption.setToolTipText(alwaysShowOptionTooltip);
-    PropsUi.setLook(alwaysShowOption);
-    alwaysShowOption.setSelection(abstractMeta.isAlwaysShowRunOptions());
-
-    FormData fdAlwaysShowOption = new FormData();
-    fdAlwaysShowOption.left = new FormAttachment(0, 0);
-    fdAlwaysShowOption.bottom = new FormAttachment(separator, -15);
-    alwaysShowOption.setLayoutData(fdAlwaysShowOption);
+    wButtonsSeparator.setLayoutData(fdSeparator);
   }
 
   protected void openDialog() {

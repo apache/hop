@@ -145,19 +145,11 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
     addRunConfigurationSectionLayout();
 
-    String alwaysShowOptionLabel =
-        BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.AlwaysOption.Value");
-    String alwaysShowOptionTooltip =
-        BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.alwaysShowOption");
     String docUrl =
         Const.getDocUrl(
             BaseMessages.getString(
                 HopGui.class, "HopGui.WorkflowExecutionConfigurationDialog.Help"));
-    String docTitle = BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.docTitle");
-    String docHeader =
-        BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.docHeader");
-    buttonsSectionLayout(
-        alwaysShowOptionLabel, alwaysShowOptionTooltip, docTitle, docUrl, docHeader);
+    buttonsSectionLayout(docUrl);
 
     optionsSectionLayout(PKG, "WorkflowExecutionConfigurationDialog");
     parametersSectionLayout(PKG, "WorkflowExecutionConfigurationDialog");

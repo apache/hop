@@ -113,19 +113,11 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
         BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.Shell.Title");
     mainLayout(shellTitle, GuiResource.getInstance().getImagePipeline());
 
-    String alwaysShowOptionLabel =
-        BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.AlwaysOption.Value");
-    String alwaysShowOptionTooltip =
-        BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.alwaysShowOption");
     String docUrl =
         Const.getDocUrl(
             BaseMessages.getString(
                 HopGui.class, "HopGui.PipelineExecutionConfigurationDialog.Help"));
-    String docTitle = BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.docTitle");
-    String docHeader =
-        BaseMessages.getString(PKG, "PipelineExecutionConfigurationDialog.docHeader");
-    buttonsSectionLayout(
-        alwaysShowOptionLabel, alwaysShowOptionTooltip, docTitle, docUrl, docHeader);
+    buttonsSectionLayout(docUrl);
 
     addRunConfigurationSectionLayout();
 

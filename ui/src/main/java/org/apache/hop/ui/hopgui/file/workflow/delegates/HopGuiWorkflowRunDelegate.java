@@ -87,7 +87,7 @@ public class HopGuiWorkflowRunDelegate {
     WorkflowExecutionConfigurationDialog dialog =
         newWorkflowExecutionConfigurationDialog(executionConfiguration, workflowMeta);
 
-    if (!workflowMeta.isShowDialog() || dialog.open()) {
+    if (dialog.open()) {
 
       workflowGraph.workflowLogDelegate.addWorkflowLog();
 

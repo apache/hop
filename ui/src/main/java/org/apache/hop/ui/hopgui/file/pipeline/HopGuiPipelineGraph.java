@@ -4171,7 +4171,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void start() {
     try {
-      pipelineMeta.setShowDialog(pipelineMeta.isAlwaysShowRunOptions());
       ServerPushSessionFacade.start();
       Thread thread =
           new Thread(
