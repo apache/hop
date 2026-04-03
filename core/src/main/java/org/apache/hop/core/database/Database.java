@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -150,8 +152,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   /** The copy is equal to opened at the time of creation. */
   private volatile int copy;
 
-  private String connectionGroup;
-  private String partitionId;
+  @Getter @Setter private String connectionGroup;
+  @Getter @Setter private String partitionId;
 
   private IVariables variables = new Variables();
 
@@ -159,7 +161,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private String containerObjectId;
 
-  private int nrExecutedCommits;
+  @Getter @Setter private int nrExecutedCommits;
 
   private SshTunnelManager sshTunnelManager;
 
@@ -4061,34 +4063,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   }
 
   /**
-   * @return the connectionGroup
-   */
-  public String getConnectionGroup() {
-    return connectionGroup;
-  }
-
-  /**
-   * @param connectionGroup the connectionGroup to set
-   */
-  public void setConnectionGroup(String connectionGroup) {
-    this.connectionGroup = connectionGroup;
-  }
-
-  /**
-   * @return the partitionId
-   */
-  public String getPartitionId() {
-    return partitionId;
-  }
-
-  /**
-   * @param partitionId the partitionId to set
-   */
-  public void setPartitionId(String partitionId) {
-    this.partitionId = partitionId;
-  }
-
-  /**
    * @return the copy
    */
   public int getCopy() {
@@ -4619,20 +4593,6 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   @Override
   public Date getRegistrationDate() {
     return null;
-  }
-
-  /**
-   * @return the nrExecutedCommits
-   */
-  public int getNrExecutedCommits() {
-    return nrExecutedCommits;
-  }
-
-  /**
-   * @param nrExecutedCommits the nrExecutedCommits to set
-   */
-  public void setNrExecutedCommits(int nrExecutedCommits) {
-    this.nrExecutedCommits = nrExecutedCommits;
   }
 
   /**

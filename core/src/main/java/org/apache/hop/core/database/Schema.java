@@ -17,7 +17,12 @@
 
 package org.apache.hop.core.database;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /** Contains the information that's stored in a single schema. */
+@Getter
+@Setter
 public class Schema {
   private String schemaName;
   private String[] items;
@@ -29,33 +34,5 @@ public class Schema {
 
   public Schema(String schemaName) {
     this(schemaName, new String[] {});
-  }
-
-  /**
-   * @return Returns the schemaName.
-   */
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  /**
-   * @param schemaName The catalogName to set.
-   */
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
-  /**
-   * @return Returns the items.
-   */
-  public String[] getItems() {
-    return items;
-  }
-
-  /**
-   * @param items The items to set.
-   */
-  public void setItems(String[] items) {
-    this.items = items;
   }
 }

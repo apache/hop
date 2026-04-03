@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
@@ -79,6 +81,8 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   public static final Comparator<DatabaseMeta> comparator =
       (DatabaseMeta dbm1, DatabaseMeta dbm2) -> dbm1.getName().compareToIgnoreCase(dbm2.getName());
 
+  @Getter
+  @Setter
   @HopMetadataProperty(key = "rdbms")
   private IDatabase iDatabase;
 
@@ -190,22 +194,6 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   public DatabaseMeta(DatabaseMeta databaseMeta) {
     this();
     replaceMeta(databaseMeta);
-  }
-
-  /**
-   * @return the system dependend database interface for this database metadata definition
-   */
-  public IDatabase getIDatabase() {
-    return iDatabase;
-  }
-
-  /**
-   * Set the system dependend database interface for this database metadata definition
-   *
-   * @param iDatabase the system dependend database interface
-   */
-  public void setIDatabase(IDatabase iDatabase) {
-    this.iDatabase = iDatabase;
   }
 
   /**

@@ -19,8 +19,12 @@ package org.apache.hop.core.exception;
 
 import java.io.Serial;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IValueMeta;
 
+@Setter
+@Getter
 public class HopConversionException extends HopException {
 
   private List<Exception> causes;
@@ -48,48 +52,6 @@ public class HopConversionException extends HopException {
     super(message);
     this.causes = causes;
     this.fields = fields;
-    this.rowData = rowData;
-  }
-
-  /**
-   * @return the causes
-   */
-  public List<Exception> getCauses() {
-    return causes;
-  }
-
-  /**
-   * @param causes the causes to set
-   */
-  public void setCauses(List<Exception> causes) {
-    this.causes = causes;
-  }
-
-  /**
-   * @return the fields
-   */
-  public List<IValueMeta> getFields() {
-    return fields;
-  }
-
-  /**
-   * @param fields the fields to set
-   */
-  public void setFields(List<IValueMeta> fields) {
-    this.fields = fields;
-  }
-
-  /**
-   * @return the rowData
-   */
-  public Object[] getRowData() {
-    return rowData;
-  }
-
-  /**
-   * @param rowData the rowData to set
-   */
-  public void setRowData(Object[] rowData) {
     this.rowData = rowData;
   }
 }

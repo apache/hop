@@ -19,8 +19,12 @@ package org.apache.hop.core.exception;
 
 import java.io.Serial;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /** This exception is used by the Database class. */
+@Setter
+@Getter
 public class HopDatabaseBatchException extends HopDatabaseException {
   @Serial private static final long serialVersionUID = 0x8D8EA0264F7A1C0EL;
 
@@ -64,27 +68,5 @@ public class HopDatabaseBatchException extends HopDatabaseException {
    */
   public HopDatabaseBatchException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  /**
-   * @return Returns the updateCounts.
-   */
-  public int[] getUpdateCounts() {
-    return updateCounts;
-  }
-
-  /**
-   * @param updateCounts The updateCounts to set.
-   */
-  public void setUpdateCounts(int[] updateCounts) {
-    this.updateCounts = updateCounts;
-  }
-
-  public void setExceptionsList(List<Exception> exceptionsList) {
-    this.exceptionsList = exceptionsList;
-  }
-
-  public List<Exception> getExceptionsList() {
-    return exceptionsList;
   }
 }

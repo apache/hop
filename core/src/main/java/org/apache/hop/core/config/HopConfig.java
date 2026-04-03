@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigFile;
 import org.apache.hop.core.exception.HopRuntimeException;
@@ -34,10 +36,9 @@ import org.apache.hop.core.variables.DescribedVariable;
  * includes all options of the various plugins in the Hop ecosystem.
  */
 public class HopConfig extends ConfigFile {
-
   private static final String HOP_GUI_PROPERTIES_KEY = "guiProperties";
 
-  private String configFilename;
+  @Setter @Getter private String configFilename;
 
   @JsonIgnore private static HopConfig instance;
 
@@ -200,24 +201,6 @@ public class HopConfig extends ConfigFile {
 
   public static void setGuiProperties(Map<String, String> map) {
     readGuiProperties().putAll(map);
-  }
-
-  /**
-   * Gets configFilename
-   *
-   * @return value of configFilename
-   */
-  @Override
-  public String getConfigFilename() {
-    return configFilename;
-  }
-
-  /**
-   * @param configFilename The configFilename to set
-   */
-  @Override
-  public void setConfigFilename(String configFilename) {
-    this.configFilename = configFilename;
   }
 
   public void reload() {

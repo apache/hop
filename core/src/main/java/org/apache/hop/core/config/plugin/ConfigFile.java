@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.ConfigFileSerializer;
 import org.apache.hop.core.config.ConfigNoFileSerializer;
@@ -40,10 +42,12 @@ public abstract class ConfigFile implements IConfigFile {
   public static final String HOP_VARIABLES_KEY = "variables";
   public static final String HOP_CONFIG_KEY = "config";
 
+  @Getter
+  @Setter
   @JsonProperty("config")
   protected Map<String, Object> configMap;
 
-  @JsonIgnore protected IHopConfigSerializer serializer;
+  @Getter @Setter @JsonIgnore protected IHopConfigSerializer serializer;
 
   public ConfigFile() {
     configMap = new HashMap<>();
@@ -162,51 +166,5 @@ public abstract class ConfigFile implements IConfigFile {
   @Override
   public void setDescribedVariables(List<DescribedVariable> describedVariables) {
     configMap.put(HOP_VARIABLES_KEY, describedVariables);
-  }
-
-  /**
-   * Gets filename
-   *
-   * @return value of filename
-   */
-  @Override
-  public abstract String getConfigFilename();
-
-  /**
-   * @param filename The filename to set
-   */
-  @Override
-  public abstract void setConfigFilename(String filename);
-
-  /**
-   * Gets configMap
-   *
-   * @return value of configMap
-   */
-  public Map<String, Object> getConfigMap() {
-    return configMap;
-  }
-
-  /**
-   * @param configMap The configMap to set
-   */
-  public void setConfigMap(Map<String, Object> configMap) {
-    this.configMap = configMap;
-  }
-
-  /**
-   * Gets serializer
-   *
-   * @return value of serializer
-   */
-  public IHopConfigSerializer getSerializer() {
-    return serializer;
-  }
-
-  /**
-   * @param serializer The serializer to set
-   */
-  public void setSerializer(IHopConfigSerializer serializer) {
-    this.serializer = serializer;
   }
 }

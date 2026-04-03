@@ -17,18 +17,15 @@
 
 package org.apache.hop.core.exception;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /** Exception thrown when a files does not exists */
+@Setter
+@Getter
 public class HopFileNotFoundException extends HopFileException {
 
   private String filepath;
-
-  public String getFilepath() {
-    return filepath;
-  }
-
-  public void setFilepath(String filepath) {
-    this.filepath = filepath;
-  }
 
   public HopFileNotFoundException() {
     super();
