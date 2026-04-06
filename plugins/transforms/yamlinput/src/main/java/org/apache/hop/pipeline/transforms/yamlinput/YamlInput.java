@@ -53,9 +53,9 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
   }
 
   private void handleMissingFiles() throws HopException {
-    List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
-    if (!nonExistantFiles.isEmpty()) {
-      String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
+    List<FileObject> nonExistentFiles = data.files.getNonExistentFiles();
+    if (!nonExistentFiles.isEmpty()) {
+      String message = FileInputList.getRequiredFilesDescription(nonExistentFiles);
       logError(
           BaseMessages.getString(PKG, "YamlInput.Log.RequiredFilesTitle"),
           BaseMessages.getString(PKG, "YamlInput.Log.RequiredFiles", message));
@@ -78,9 +78,10 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
   private boolean readNextString() {
     try {
-      data.readrow = getRow(); // Grab another row ...
+      // Grab another row ...
+      data.readRow = getRow();
 
-      if (data.readrow == null) {
+      if (data.readRow == null) {
         // finished processing!
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "YamlInput.Log.FinishedProcessing"));
@@ -116,14 +117,13 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
       }
 
       // get field value
-      String fieldvalue = getInputRowMeta().getString(data.readrow, data.indexOfYamlField);
-
+      String fieldValue = getInputRowMeta().getString(data.readRow, data.indexOfYamlField);
       getLinesInput();
 
       if (isDetailed()) {
         logDetailed(
             BaseMessages.getString(
-                PKG, "YamlInput.Log.YAMLStream", meta.getYamlField(), fieldvalue));
+                PKG, "YamlInput.Log.YAMLStream", meta.getYamlField(), fieldValue));
       }
 
       if (meta.isSourceFile()) {
@@ -131,15 +131,14 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
         // source is a file.
 
         data.yaml = new YamlReader();
-        data.yaml.loadFile(HopVfs.getFileObject(fieldvalue, variables));
+        data.yaml.loadFile(HopVfs.getFileObject(fieldValue, variables));
         dataVolumeIn =
             (dataVolumeIn != null ? dataVolumeIn : 0L) + data.yaml.getBytesReadFromFile();
 
-        addFileToResultFilesname(data.yaml.getFile());
-
+        addFileToResultFilesName(data.yaml.getFile());
       } else {
         data.yaml = new YamlReader();
-        data.yaml.loadString(fieldvalue);
+        data.yaml.loadString(fieldValue);
       }
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "YamlInput.Log.UnexpectedError", e.toString()));
@@ -151,7 +150,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
     return false;
   }
 
-  private void addFileToResultFilesname(FileObject file) {
+  private void addFileToResultFilesName(FileObject file) {
     if (meta.isAddingResultFile()) {
       // Add this to the result file names...
       ResultFile resultFile =
@@ -164,7 +163,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
   private boolean openNextFile() {
     try {
-      if (data.filenr >= data.files.nrOfFiles()) {
+      if (data.fileIndex >= data.files.nrOfFiles()) {
         // finished processing!
         if (isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "YamlInput.Log.FinishedProcessing"));
@@ -172,10 +171,10 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
         return false;
       }
       // Get file to process from list
-      data.file = data.files.getFile(data.filenr);
+      data.file = data.files.getFile(data.fileIndex);
 
       // Move file pointer ahead!
-      data.filenr++;
+      data.fileIndex++;
 
       if (meta.isIgnoringEmptyFile() && data.file.getContent().getSize() == 0) {
         if (isBasic()) {
@@ -198,7 +197,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
         dataVolumeIn =
             (dataVolumeIn != null ? dataVolumeIn : 0L) + data.yaml.getBytesReadFromFile();
 
-        addFileToResultFilesname(data.file);
+        addFileToResultFilesName(data.file);
 
         if (isDetailed()) {
           logDetailed(
@@ -210,7 +209,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
           BaseMessages.getString(
               PKG,
               "YamlInput.Log.UnableToOpenFile",
-              "" + data.filenr,
+              "" + data.fileIndex,
               data.file.toString(),
               e.toString()));
       stopAll();
@@ -243,24 +242,25 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
     }
     // Grab a row
     Object[] r = getOneRow();
-
-    if (r == null) {
-      setOutputDone(); // signal end to receiver(s)
-      return false; // end of data or error.
+    if (Utils.isEmpty(r)) {
+      // signal end to receiver(s)
+      setOutputDone();
+      // end of data or error.
+      return false;
     }
 
     if (isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(PKG, "YamlInput.Log.ReadRow", data.outputRowMeta.getString(r)));
     }
-
     incrementLinesOutput();
 
-    data.rownr++;
+    data.rowIndex++;
     Object[] rowCopy = data.outputRowMeta.cloneRow(r);
-    putRow(data.outputRowMeta, rowCopy); // copy row to output rowset(s)
+    // copy row to output rowset(s)
+    putRow(data.outputRowMeta, rowCopy);
 
-    if (meta.getRowLimit() > 0 && data.rownr > meta.getRowLimit()) {
+    if (meta.getRowLimit() > 0 && data.rowIndex > meta.getRowLimit()) {
       // limit has been reached: stop now.
       setOutputDone();
       return false;
@@ -269,71 +269,52 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
   }
 
   private Object[] getOneRow() throws HopException {
-    Object[] row = null;
-    boolean rowAvailable = false;
-    boolean fileOpened = false;
     if (!meta.isInFields()) {
-      while (data.file == null || !fileOpened && !rowAvailable) {
-        if (data.file != null) {
-          // We have opened a file
-          // read one row
-          row = getRowData();
-
-          if (row == null) {
-            // No row extracted
-            // let's see for the next file
-            if (!openNextFile()) {
-              return null;
-            }
-            fileOpened = true;
-          } else {
-            // We had extracted one row
-            rowAvailable = true;
-          }
-        } else {
-          // First time we get there
-          // we have to open a new file
-          if (!openNextFile()) {
-            return null;
-          }
-          fileOpened = true;
-        }
-      }
-    } else {
-      while (data.readrow == null || (data.readrow != null && !fileOpened && !rowAvailable)) {
-        if (data.readrow != null) {
-          // We have red the incoming Yaml value
-          // let's get one row
-          row = getRowData();
-          if (row == null) {
-            // No row.. reader next row
-            if (readNextString()) {
-              return null;
-            }
-            fileOpened = true;
-          } else {
-            // We have returned one row
-            rowAvailable = true;
-          }
-        } else {
-          // First time we get there
-          // We have to parse incoming Yaml value
-          if (readNextString()) {
-            return null;
-          }
-          fileOpened = true;
-        }
-        if (data.readrow == null) {
-          return null;
-        }
-      }
+      return getOneRowFromFileMode();
     }
 
-    if (!rowAvailable) {
-      row = getRowData();
-    }
+    return getOneRowFromFieldMode();
+  }
 
-    return row;
+  private Object[] getOneRowFromFileMode() throws HopException {
+    while (true) {
+      if (data.file == null && !openNextFile()) {
+        return new Object[0];
+      }
+
+      if (data.file == null) {
+        continue;
+      }
+
+      Object[] row = getRowData();
+      if (row != null && row.length > 0) {
+        return row;
+      }
+
+      if (!openNextFile()) {
+        return new Object[0];
+      }
+    }
+  }
+
+  private Object[] getOneRowFromFieldMode() throws HopException {
+    while (true) {
+      if (data.readRow == null) {
+        if (readNextString()) {
+          return new Object[0];
+        }
+        continue;
+      }
+
+      Object[] row = getRowData();
+      if (row != null && row.length > 0) {
+        return row;
+      }
+
+      if (readNextString()) {
+        return new Object[0];
+      }
+    }
   }
 
   private Object[] getRowData() throws HopException {
@@ -343,13 +324,13 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
     try {
       // Create new row...
       outputRowData = data.yaml.getRow(data.rowMeta);
-      if (outputRowData == null) {
-        return null;
+      if (outputRowData == null || outputRowData.length == 0) {
+        return new Object[0];
       }
 
-      if (data.readrow != null) {
+      if (data.readRow != null) {
         outputRowData =
-            RowDataUtil.addRowData(data.readrow, data.totalPreviousFields, outputRowData);
+            RowDataUtil.addRowData(data.readRow, data.totalPreviousFields, outputRowData);
       } else {
         outputRowData = RowDataUtil.resizeArray(outputRowData, data.totalOutStreamFields);
       }
@@ -362,9 +343,8 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
       }
       // See if we need to add the row number to the row...
       if (meta.isIncludeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-        outputRowData[rowIndex++] = data.rownr;
+        outputRowData[rowIndex] = data.rowIndex;
       }
-
     } catch (Exception e) {
       boolean sendToErrorRow = false;
       String errorMessage = null;
@@ -390,9 +370,8 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
 
   @Override
   public boolean init() {
-
     if (super.init()) {
-      data.rownr = 1L;
+      data.rowIndex = 1L;
       data.nrInputFields = meta.getInputFields().size();
 
       data.rowMeta = new RowMeta();

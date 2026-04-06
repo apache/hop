@@ -21,14 +21,13 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
 
 @SuppressWarnings("java:S1104")
-public class YamlInputData extends BaseTransformData implements ITransformData {
+public class YamlInputData extends BaseTransformData {
   public IRowMeta outputRowMeta;
 
   public int nrInputFields;
-  public Object[] readrow;
+  public Object[] readRow;
   public int totalPreviousFields;
   public int totalOutFields;
   public int totalOutStreamFields;
@@ -37,9 +36,9 @@ public class YamlInputData extends BaseTransformData implements ITransformData {
   public FileInputList files;
 
   public FileObject file;
-  public int filenr;
+  public int fileIndex;
 
-  public long rownr;
+  public long rowIndex;
   public int indexOfYamlField;
 
   public YamlReader yaml;
@@ -49,10 +48,10 @@ public class YamlInputData extends BaseTransformData implements ITransformData {
   public YamlInputData() {
     super();
 
-    this.filenr = 0;
+    this.fileIndex = 0;
     this.indexOfYamlField = -1;
     this.nrInputFields = -1;
-    this.readrow = null;
+    this.readRow = null;
     this.totalPreviousFields = 0;
     this.file = null;
     this.totalOutFields = 0;

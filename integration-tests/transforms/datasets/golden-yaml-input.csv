@@ -1,3 +1,2 @@
 organisation,acronym,project,javaFileCount,awesome,used-apache-projects,statistics
-The Apache Software Foundation,The ASF,Apache Hop,4447,Y,"[Spark, Flink, Beam, Commons, VFS]
-","{number-of-libs:  1159,number-of-messages-bundles:  13025,integration-test-projects:  {count:  39,pipelines:  1032,workflows:  498}}"
+The Apache Software Foundation,The ASF,Apache Hop,4447,Y,"[Spark, Flink, Beam, Commons, VFS]","{number-of-libs:  1159,number-of-messages-bundles:  13025,integration-test-projects:  {count:  39,pipelines:  1032,workflows:  498}}"

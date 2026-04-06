@@ -39,15 +39,12 @@ public class YamlInputField implements Cloneable {
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
 
-  public static final String[] trimTypeCode = {"none", "left", "right", "both"};
-
-  public static final String[] trimTypeDesc = {
+  protected static final String[] TRIM_TYPE_DESC = {
     BaseMessages.getString(PKG, "YamlInputField.TrimType.None"),
     BaseMessages.getString(PKG, "YamlInputField.TrimType.Left"),
     BaseMessages.getString(PKG, "YamlInputField.TrimType.Right"),
     BaseMessages.getString(PKG, "YamlInputField.TrimType.Both")
   };
-  public static final String CONST_SPACES = "        ";
 
   @HopMetadataProperty(key = "name")
   private String name;
@@ -100,7 +97,7 @@ public class YamlInputField implements Cloneable {
 
   public YamlInputField(YamlInputField f) {
     this();
-    this.name = name;
+    this.name = f.name;
     this.path = f.path;
     this.type = f.type;
     this.length = f.length;

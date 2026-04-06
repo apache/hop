@@ -17,10 +17,22 @@
 package org.apache.hop.pipeline.transforms.yamlinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaJson;
@@ -28,11 +40,18 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaPlugin;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.w3c.dom.Node;
 
+/** Unit test for {@link YamlInputMeta} */
 class YamlInputMetaTest {
+
   @BeforeEach
   void beforeEach() throws Exception {
     PluginRegistry registry = PluginRegistry.getInstance();
@@ -80,6 +99,10 @@ class YamlInputMetaTest {
     assertTrue(file.isFileRequired());
     assertTrue(file.isIncludingSubFolders());
 
+    testSerializationRoundTrip_1(meta);
+  }
+
+  private void testSerializationRoundTrip_1(YamlInputMeta meta) {
     assertEquals(3, meta.getInputFields().size());
     YamlInputField field = meta.getInputFields().getFirst();
     assertEquals("field1", field.getName());
@@ -102,5 +125,200 @@ class YamlInputMetaTest {
     assertEquals(9, field.getLength());
     assertEquals(2, field.getPrecision());
     assertEquals(IValueMeta.TRIM_TYPE_BOTH, field.getTrimType());
+  }
+
+  @Test
+  void testDefaultConstructor() {
+    YamlInputMeta meta = new YamlInputMeta();
+
+    assertNotNull(meta.getYamlFiles());
+    assertNotNull(meta.getInputFields());
+
+    assertTrue(meta.getYamlFiles().isEmpty());
+    assertTrue(meta.getInputFields().isEmpty());
+
+    assertEquals("", meta.getFilenameField());
+    assertEquals("", meta.getRowNumberField());
+    assertEquals("", meta.getYamlField());
+    assertEquals(0, meta.getRowLimit());
+
+    assertTrue(meta.isDoNotFailIfNoFile());
+  }
+
+  @Test
+  void testCloneDeepCopy() {
+    YamlInputMeta meta = new YamlInputMeta();
+
+    YamlInputMeta.YamlFile file = new YamlInputMeta.YamlFile();
+    file.setFilename("test.yaml");
+    meta.getYamlFiles().add(file);
+
+    YamlInputField field = new YamlInputField("name");
+    meta.getInputFields().add(field);
+
+    YamlInputMeta clone = meta.clone();
+
+    assertNotSame(meta, clone);
+
+    assertNotSame(meta.getYamlFiles(), clone.getYamlFiles());
+    assertNotSame(meta.getInputFields(), clone.getInputFields());
+
+    assertNotSame(meta.getYamlFiles().getFirst(), clone.getYamlFiles().getFirst());
+    assertNotSame(meta.getInputFields().getFirst(), clone.getInputFields().getFirst());
+  }
+
+  @Test
+  void testGetFields_basic() throws Exception {
+    YamlInputMeta meta = new YamlInputMeta();
+
+    YamlInputField field = new YamlInputField("id");
+    field.setType(IValueMeta.TYPE_INTEGER);
+    field.setLength(10);
+    field.setPrecision(0);
+
+    meta.getInputFields().add(field);
+
+    IRowMeta rowMeta = new RowMeta();
+    Variables vars = new Variables();
+
+    meta.getFields(rowMeta, "testTransform", null, null, vars, null);
+
+    assertEquals(1, rowMeta.size());
+
+    IValueMeta v = rowMeta.getValueMeta(0);
+    assertEquals("id", v.getName());
+    assertEquals(IValueMeta.TYPE_INTEGER, v.getType());
+    assertEquals(10, v.getLength());
+  }
+
+  @Test
+  void testGetFields_withExtraFields() throws Exception {
+    YamlInputMeta meta = new YamlInputMeta();
+
+    meta.setIncludeFilename(true);
+    meta.setFilenameField("filename");
+
+    meta.setIncludeRowNumber(true);
+    meta.setRowNumberField("rowNum");
+
+    IRowMeta rowMeta = new RowMeta();
+    Variables vars = new Variables();
+
+    meta.getFields(rowMeta, "t", null, null, vars, null);
+
+    assertEquals(2, rowMeta.size());
+    assertEquals("filename", rowMeta.getValueMeta(0).getName());
+    assertEquals("rowNum", rowMeta.getValueMeta(1).getName());
+  }
+
+  @Test
+  void testGetFiles(@TempDir Path tempDir) throws IOException {
+    YamlInputMeta meta = new YamlInputMeta();
+
+    Path tempFile = tempDir.resolve("test.yaml");
+    Files.createFile(tempFile);
+
+    YamlInputMeta.YamlFile file = new YamlInputMeta.YamlFile();
+    file.setFilename(tempFile.toString());
+    file.setFileMask(".*yaml");
+
+    meta.getYamlFiles().add(file);
+
+    Variables vars = new Variables();
+    FileInputList list = meta.getFiles(vars);
+
+    assertNotNull(list);
+    assertFalse(list.getFiles().isEmpty());
+  }
+
+  @Test
+  void testCheck_noInput() {
+    YamlInputMeta meta = new YamlInputMeta();
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta(),
+        null,
+        new String[] {},
+        null,
+        null,
+        new Variables(),
+        null);
+
+    assertFalse(remarks.isEmpty());
+  }
+
+  @Test
+  void testCheck_noFields() {
+    YamlInputMeta meta = new YamlInputMeta();
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta(),
+        null,
+        new String[] {"input"},
+        null,
+        null,
+        new Variables(),
+        null);
+
+    assertTrue(remarks.stream().anyMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_ERROR));
+  }
+
+  @Test
+  void testCheck_inFieldsMode_ok() {
+    YamlInputMeta meta = new YamlInputMeta();
+    meta.setInFields(true);
+    meta.setYamlField("yaml");
+
+    meta.getInputFields().add(new YamlInputField("name"));
+
+    List<ICheckResult> remarks = new ArrayList<>();
+
+    meta.check(
+        remarks,
+        null,
+        new TransformMeta(),
+        null,
+        new String[] {"input"},
+        null,
+        null,
+        new Variables(),
+        null);
+
+    assertTrue(remarks.stream().anyMatch(r -> r.getType() == ICheckResult.TYPE_RESULT_OK));
+  }
+
+  @Test
+  void testConvertLegacyXml(@TempDir Path tempDir) throws Exception {
+    Path tempFile = tempDir.resolve("test.yaml");
+    Files.createFile(tempFile);
+
+    String xml =
+        String.format(
+            """
+				<file>
+				      <name>%s</name>
+				      <filemask>.*\\.yaml</filemask>
+				      <file_required>Y</file_required>
+				      <include_subfolders>Y</include_subfolders>
+				  </file>
+				""",
+            tempFile);
+    Node node = XmlHandler.loadXmlString(xml);
+
+    YamlInputMeta meta = new YamlInputMeta();
+    meta.convertLegacyXml(node);
+
+    assertEquals(1, meta.getYamlFiles().size());
+
+    YamlInputMeta.YamlFile file = meta.getYamlFiles().getFirst();
+    assertEquals(tempFile.toString(), file.getFilename());
+    assertTrue(file.isFileRequired());
+    assertTrue(file.isIncludingSubFolders());
   }
 }

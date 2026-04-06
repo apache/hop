@@ -245,7 +245,8 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
       inputFile.setFileMask(file.getFileMask());
       inputFile.setIncludeSubFolders(file.isIncludingSubFolders());
       inputFile.setFileRequired(file.isFileRequired());
-      inputFile.setExcludeFileMask(null); // Not provided in this transform
+      // Not provided in this transform
+      inputFile.setExcludeFileMask(null);
       inputFiles.add(inputFile);
     }
     return FileInputList.createFileList(variables, inputFiles, null);
