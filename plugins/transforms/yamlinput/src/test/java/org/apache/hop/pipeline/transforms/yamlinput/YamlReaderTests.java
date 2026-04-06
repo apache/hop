@@ -31,12 +31,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link YamlReader} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
 class YamlReaderTests {
   private YamlReader reader;
 

@@ -47,17 +47,20 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.junit.rules.RestoreHopEnvironmentExtension;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /** Unit test for {@link YamlInput} */
+@ExtendWith(RestoreHopEnvironmentExtension.class)
 class YamlInputTests {
   private TransformMockHelper<YamlInputMeta, YamlInputData> helper;
   @TempDir private Path tempDir;
