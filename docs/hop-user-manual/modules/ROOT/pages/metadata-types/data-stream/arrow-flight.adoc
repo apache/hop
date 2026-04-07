@@ -45,9 +45,14 @@ When data is sent to the Hop Flight server, the incoming schema is checked again
 If they do not match exactly, an error is thrown.
 
 | *Batch Size* |
-Hint for the number of rows per batch (default: 10,000).
+The number of rows that Apache Arrow will use per batch. (default: 500)
+
+| *Maximum Buffer Size* |
+The maximum number of rows that will be kept in the buffer on the Hop Flight server. Set it high enough to avoid losing rows. As a ballpark figure, take the throughput in rows/s and multiply that by 10 for the buffer size to avoid issues. (default: 10M)
 
 |===
+
+IMPORTANT: This is an IPC system, not a safe data queue.  The purpose is to hand data over to the receiving party as soon as possible.  That is why there is no blocking happening when we write data to the Flight server.  Rows are kept in memory to avoid stalling the gRPC back-end system as this would cause data to get lost.  The only time we wait is when we read data from the Flight server.  That is why it's recommended to start reading with one process before you write data with another.   There is a time-out configured of 1 minute giving you plenty of time.
 
 == Important Behavior
 

@@ -24,4 +24,9 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 
 public record FlightStreamBuffer(
-    Schema schema, IRowMeta rowMeta, IRowSet rowSet, int batchSize, Location location) {}
+    Schema schema,
+    IRowMeta rowMeta,
+    IRowSet rowSet,
+    int bufferSize,
+    int batchSize,
+    Location location) {}

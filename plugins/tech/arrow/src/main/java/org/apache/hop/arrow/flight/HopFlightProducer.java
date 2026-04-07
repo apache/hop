@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.arrow.flight.CallStatus;
 import org.apache.arrow.flight.FlightDescriptor;
 import org.apache.arrow.flight.FlightEndpoint;
@@ -39,9 +40,9 @@ import org.apache.arrow.vector.VectorSchemaRoot;
 import org.apache.arrow.vector.types.pojo.Schema;
 import org.apache.hop.arrow.datastream.flight.ArrowFlightDataStream;
 import org.apache.hop.arrow.datastream.shared.ArrowBaseDataStream;
+import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -50,12 +51,14 @@ import org.apache.hop.datastream.plugin.IDataStream;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 public class HopFlightProducer extends NoOpFlightProducer {
+  public static final int BUFFER_SIZE_OVERSHOOT = 5000;
+  public static final int BUFFER_SIZE_ERROR_LEVEL = 4000;
+  public static final int MAX_READ_BLOCK_TIME_MS = 60000;
+
   private final IVariables variables;
   private final IHopMetadataProvider metadataProvider;
   private final RootAllocator rootAllocator;
   private final Map<String, FlightStreamBuffer> streamMap;
-  private int rowsRead;
-  private int rowsWritten;
 
   public HopFlightProducer(
       IVariables variables, IHopMetadataProvider metadataProvider, RootAllocator rootAllocator) {
@@ -93,7 +96,7 @@ public class HopFlightProducer extends NoOpFlightProducer {
       //
       IRowMeta rowMeta = streamBuffer.rowMeta();
       IRowSet rowSet = streamBuffer.rowSet();
-      rowsWritten = 0;
+      int bufferSize = streamBuffer.bufferSize();
       while (flightStream.next()) {
         VectorSchemaRoot vectorSchemaRoot = flightStream.getRoot();
         List<FieldVector> fieldVectors = vectorSchemaRoot.getFieldVectors();
@@ -108,7 +111,16 @@ public class HopFlightProducer extends NoOpFlightProducer {
           Object[] rowData =
               ArrowBaseDataStream.convertFieldVectorsToHopRow(fieldVectors, rowMeta, rowIndex);
           rowSet.putRow(rowMeta, rowData);
-          rowsWritten++;
+
+          // If too many rows are kept in memory, throw an error!
+          // The client needs to read faster.  This is IPC, not queueing!
+          //
+          if (rowSet.size() > 0 && rowSet.size() > bufferSize + BUFFER_SIZE_ERROR_LEVEL) {
+            throw new HopException(
+                "The maximum amount of rows kept in memory is exceeded by reaching "
+                    + rowSet.size()
+                    + " rows.");
+          }
         }
       }
 
@@ -145,18 +157,22 @@ public class HopFlightProducer extends NoOpFlightProducer {
       IRowMeta rowMeta = flightDataStream.buildExpectedRowMeta();
       Schema expectedSchema = flightDataStream.buildExpectedSchema();
 
-      // int bufferSize = Const.toInt(variables.resolve(flightDataStream.getBufferSize()), 10000);
+      int bufferSize =
+          Const.toInt(
+              variables.resolve(flightDataStream.getBufferSize()),
+              ArrowFlightDataStream.DEFAULT_MAX_BUFFER_SIZE);
       int batchSize = Const.toInt(variables.resolve(flightDataStream.getBatchSize()), 500);
 
-      // Figure out why blocking rows isn't a good idea.
-      // Are we receiving rows in parallel if we block?
+      // We use a very large queue because we don't ever want to block while writing.
+      // We over-size it by 5000 rows and then throw an error if we reach that.
       //
-      IRowSet rowSet = new QueueRowSet();
+      IRowSet rowSet = new BlockingRowSet(bufferSize + BUFFER_SIZE_OVERSHOOT);
 
       String hostname = Const.NVL(variables.resolve(flightDataStream.getHostname()), "0.0.0.0");
       int port = Const.toInt(variables.resolve(flightDataStream.getPort()), 33333);
       Location location = Location.forGrpcInsecure(hostname, port);
-      buffer = new FlightStreamBuffer(expectedSchema, rowMeta, rowSet, batchSize, location);
+      buffer =
+          new FlightStreamBuffer(expectedSchema, rowMeta, rowSet, bufferSize, batchSize, location);
       streamMap.put(streamName, buffer);
     }
     return buffer;
@@ -184,11 +200,9 @@ public class HopFlightProducer extends NoOpFlightProducer {
         //
         listener.start(vectorSchemaRoot);
 
-        rowsRead = 0;
         // Example: Pull rows from a readable RowSet and send them back as Arrow batches
-        Object[] hopRow = rowSet.getRow();
+        Object[] hopRow = waitForRow(rowSet);
         while (hopRow != null) {
-          rowsRead++;
 
           // Add the row to a batch row buffer:
           //
@@ -200,7 +214,8 @@ public class HopFlightProducer extends NoOpFlightProducer {
             // Send the batch
             listener.putNext();
           }
-          hopRow = rowSet.getRow();
+          // Get another row
+          hopRow = waitForRow(rowSet);
         }
         // Do we have any rows in the buffer left?
         //
@@ -210,10 +225,25 @@ public class HopFlightProducer extends NoOpFlightProducer {
         }
 
         listener.completed();
+
+        // Clean up the stream map as well to avoid leaking memory
+        //
+        streamMap.remove(streamName);
       }
     } catch (Exception e) {
       listener.error(CallStatus.INTERNAL.withCause(e).toRuntimeException());
     }
+  }
+
+  private Object[] waitForRow(IRowSet rowSet) throws HopException {
+    Object[] row = rowSet.getRowWait(20, TimeUnit.MILLISECONDS);
+    long startTime = System.currentTimeMillis();
+    while (row == null
+        && !rowSet.isDone()
+        && System.currentTimeMillis() - startTime < MAX_READ_BLOCK_TIME_MS) {
+      row = rowSet.getRowWait(20, TimeUnit.MILLISECONDS);
+    }
+    return row;
   }
 
   private void fillBatch(

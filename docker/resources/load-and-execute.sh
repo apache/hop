@@ -247,6 +247,7 @@ else
       "${HOP_EXEC_OPTIONS}" \
       "${HOP_COMMAND_PARAMETERS}" \
       2>&1 | tee "${HOP_LOG_PATH}"
+    exitWithCode "${PIPESTATUS[0]}"
   else
     log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
     "${DEPLOYMENT_PATH}"/hop-run.sh \
@@ -255,6 +256,6 @@ else
       --parameters="${HOP_RUN_PARAMETERS}" \
       ${HOP_EXEC_OPTIONS} \
       2>&1 | tee "${HOP_LOG_PATH}"
+    exitWithCode "${PIPESTATUS[0]}"
   fi
-  exitWithCode "${PIPESTATUS[0]}"
 fi

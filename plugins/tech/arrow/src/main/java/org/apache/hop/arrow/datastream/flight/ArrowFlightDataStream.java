@@ -18,7 +18,6 @@
 
 package org.apache.hop.arrow.datastream.flight;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -56,6 +55,8 @@ import org.apache.hop.staticschema.metadata.SchemaDefinition;
 @Setter
 @GuiPlugin
 public class ArrowFlightDataStream extends ArrowBaseDataStream {
+  public static final int DEFAULT_MAX_BUFFER_SIZE = 10000000;
+
   @GuiWidgetElement(
       order = "20000-arrow-flight-data-stream-buffer-size",
       parentId = DataStreamMeta.GUI_WIDGETS_PARENT_ID,
@@ -124,7 +125,7 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
     this.pluginId = annotation.id();
     this.pluginName = annotation.name();
     rowBuffer = new ArrayList<>();
-    bufferSize = "500";
+    bufferSize = Integer.toString(DEFAULT_MAX_BUFFER_SIZE);
     batchSize = "10000";
     hostname = "localhost";
     port = "33333";
@@ -151,11 +152,17 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
       DataStreamMeta dataStreamMeta)
       throws HopException {
     super.initialize(variables, metadataProvider, writing, dataStreamMeta);
-    realBufferSize = Const.toInt(variables.resolve(bufferSize), 10000);
+    realBufferSize = Const.toInt(variables.resolve(bufferSize), DEFAULT_MAX_BUFFER_SIZE);
     realBatchSize = Const.toInt(variables.resolve(batchSize), 500);
     String realSchemaDefinition = variables.resolve(schemaDefinitionName);
     schemaDefinition =
         metadataProvider.getSerializer(SchemaDefinition.class).load(realSchemaDefinition);
+    if (schemaDefinition == null) {
+      throw new HopException(
+          "The specified schema definition '"
+              + realSchemaDefinition
+              + "' could not be found in the Hop Flight server metadata.");
+    }
     realHostname = variables.resolve(hostname);
     realPort = Const.toInt(variables.resolve(port), 33333);
     firstRead = true;
@@ -332,7 +339,7 @@ public class ArrowFlightDataStream extends ArrowBaseDataStream {
     }
   }
 
-  protected boolean readNextBatch() throws IOException {
+  protected boolean readNextBatch() {
     boolean readNext = readFlightStream.next();
     readVectorSchemaRoot = readFlightStream.getRoot();
 
