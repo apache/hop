@@ -36,12 +36,12 @@ It is designed to be pluggable so that different streaming technologies can be a
 
 * xref:metadata-types/data-stream/arrow-random-access-file.adoc[Apache Arrow Random Access File]
 * xref:metadata-types/data-stream/arrow-file-stream.adoc[Apache Arrow File Stream]
-* xref:metadata-types/data-stream/arrow-flight.adoc[Apache Arrow Flight] (in development)
+* xref:metadata-types/data-stream/arrow-flight.adoc[Apache Arrow Flight]
 
 See also:
 
 * xref:hop-tools/hop-arrow-command.adoc[`hop arrow` command]
-* xref:metadata-types/data-stream/technology/apache-arrow.adoc[Apache Arrow Technology page]
+* xref:technology/arrow/apache-arrow.adoc[Apache Arrow Technology page]
 
 == Usage
 
