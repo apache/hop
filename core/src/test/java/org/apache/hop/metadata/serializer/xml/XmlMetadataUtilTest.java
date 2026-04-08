@@ -18,6 +18,7 @@
 package org.apache.hop.metadata.serializer.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -212,6 +213,12 @@ class XmlMetadataUtilTest {
 
     assertEquals(withCopy.getSteps().size(), listRef.getSteps().size());
     assertEquals(withCopy.getHops().size(), listRef.getHops().size());
+  }
+
+  @Test
+  void hasHopMetadataSerializablePropertiesReflectsAnnotatedFields() {
+    assertTrue(XmlMetadataUtil.hasHopMetadataSerializableProperties(MetaData.class));
+    assertFalse(XmlMetadataUtil.hasHopMetadataSerializableProperties(Object.class));
   }
 
   @Test

@@ -58,6 +58,16 @@ public class XmlMetadataUtil {
   private static final String FQN_ACTION_FACTORY =
       "org.apache.hop.workflow.action.IAction$ActionFactory";
 
+  private static final String BASE_TRANSFORM_META_CLASS =
+      "org.apache.hop.pipeline.transform.BaseTransformMeta";
+
+  /**
+   * Prevents infinite recursion when {@code getXml()} on a transform delegates back to {@link
+   * #serializeObjectToXml(Object)}.
+   */
+  private static final ThreadLocal<Integer> LEGACY_TRANSFORM_GET_XML_DEPTH =
+      ThreadLocal.withInitial(() -> 0);
+
   private XmlMetadataUtil() {
     // Hides the public constructor
   }
@@ -86,6 +96,41 @@ public class XmlMetadataUtil {
       return null;
     }
     return null;
+  }
+
+  /**
+   * @return true if the class (or a superclass) declares at least one {@link HopMetadataProperty}
+   *     on a field or on a {@code get*()} method, using the same rules as XML serialization.
+   */
+  public static boolean hasHopMetadataSerializableProperties(Class<?> clazz) {
+    Set<String> serializeOnly = Set.of();
+    Set<String> childKeysToIgnore = Set.of();
+    List<Field> fields =
+        ReflectionUtil.findAllFields(clazz, new MetadataPropertyKeyFunction(), false);
+    for (Field field : fields) {
+      if (getValidFieldAnnotation(field, serializeOnly, childKeysToIgnore) != null) {
+        return true;
+      }
+    }
+    for (Method getter : ReflectionUtil.findAllMethods(clazz, "get")) {
+      if (getter.getAnnotation(HopMetadataProperty.class) != null) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isAssignableFromBaseTransformMeta(Class<?> clazz) {
+    try {
+      ClassLoader cl = clazz.getClassLoader();
+      if (cl == null) {
+        cl = XmlMetadataUtil.class.getClassLoader();
+      }
+      Class<?> base = Class.forName(BASE_TRANSFORM_META_CLASS, false, cl);
+      return base.isAssignableFrom(clazz);
+    } catch (ClassNotFoundException | LinkageError e) {
+      return false;
+    }
   }
 
   /**
@@ -186,7 +231,32 @@ public class XmlMetadataUtil {
       xml.append(XmlHandler.closeTag(wrapper.tag()));
     }
 
-    return xml.toString();
+    String result = xml.toString();
+    if (StringUtils.isNotBlank(result)) {
+      return result;
+    }
+    if (!hasHopMetadataSerializableProperties(objectClass)
+        && isAssignableFromBaseTransformMeta(objectClass)
+        && LEGACY_TRANSFORM_GET_XML_DEPTH.get() == 0) {
+      try {
+        LEGACY_TRANSFORM_GET_XML_DEPTH.set(1);
+        Method m = parentObject.getClass().getMethod("getXml");
+        m.trySetAccessible();
+        if (m.getParameterCount() == 0
+            && String.class.equals(m.getReturnType())
+            && !BASE_TRANSFORM_META_CLASS.equals(m.getDeclaringClass().getName())) {
+          Object out = m.invoke(parentObject);
+          if (out instanceof String legacy && StringUtils.isNotEmpty(legacy)) {
+            return legacy;
+          }
+        }
+      } catch (ReflectiveOperationException e) {
+        throw new HopException("Unable to invoke legacy getXml() on " + objectClass.getName(), e);
+      } finally {
+        LEGACY_TRANSFORM_GET_XML_DEPTH.set(0);
+      }
+    }
+    return result;
   }
 
   private static void serializeFieldValueToXml(
@@ -740,7 +810,7 @@ public class XmlMetadataUtil {
 
     if (object instanceof ILegacyXml legacyXml) {
       try {
-        legacyXml.convertLegacyXml(node);
+        legacyXml.convertLegacyXml(node, metadataProvider);
       } catch (HopException e) {
         throw new HopXmlException("Error de-serializing legacy XML", e);
       }
