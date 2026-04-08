@@ -33,8 +33,8 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 @Setter
 @Transform(
     id = "DataStreamOutput",
-    name = "i18::DataStreamOutputMeta.Name",
-    description = "i18::DataStreamOutputMeta.Description",
+    name = "i18n::DataStreamOutputMeta.Name",
+    description = "i18n::DataStreamOutputMeta.Description",
     image = "stream-output.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::DataStreamOutputMeta.keyword",

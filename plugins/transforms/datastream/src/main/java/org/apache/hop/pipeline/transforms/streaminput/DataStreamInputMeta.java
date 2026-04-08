@@ -41,9 +41,8 @@ import org.jspecify.annotations.NonNull;
 @Setter
 @Transform(
     id = "DataStreamInput",
-    name = "i18:org.apache.hop.pipeline.transforms.streaminput:DataStreamInputMeta.Name",
-    description =
-        "i18:org.apache.hop.pipeline.transforms.streaminput:DataStreamInputMeta.Description",
+    name = "i18n::DataStreamInputMeta.Name",
+    description = "i18n::DataStreamInputMeta.Description",
     image = "stream-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::DataStreamInputMeta.keyword",

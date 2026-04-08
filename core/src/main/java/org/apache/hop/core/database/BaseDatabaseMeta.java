@@ -120,8 +120,8 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   public static final String ELEMENT_ID_PASSWORD = "password";
 
   /**
-   * Boolean to indicate if savepoints can be released Most databases do, so we set it to true.
-   * Child classes can overwrite with false if need be.
+   * Boolean to indicate if savepoint can be released Most databases do, so we set it to true. Child
+   * classes can overwrite with false if need be.
    */
   protected boolean releaseSavepoint = true;
 
@@ -239,9 +239,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   public void setPluginName(String pluginName) {
     this.pluginName = pluginName;
   }
-
-  @Override
-  public abstract int[] getAccessTypeList();
 
   /**
    * @return Returns the accessType.

@@ -17,28 +17,30 @@
 
 package org.apache.hop.core;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.jspecify.annotations.NonNull;
 
 /** Contains the base IRowSet class to help implement IRowSet variants. */
 abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
-  protected IRowMeta rowMeta;
+  @Getter @Setter protected IRowMeta rowMeta;
 
   protected AtomicBoolean done;
-  protected volatile String originTransformName;
+  @Getter protected volatile String originTransformName;
   protected AtomicInteger originTransformCopy;
-  protected volatile String destinationTransformName;
+  @Getter protected volatile String destinationTransformName;
   protected AtomicInteger destinationTransformCopy;
+  @Getter @Setter protected volatile String remoteHopServerName;
+  private final ReadWriteLock lock;
 
-  protected volatile String remoteHopServerName;
-  private ReadWriteLock lock;
-
-  public BaseRowSet() {
+  protected BaseRowSet() {
     // not done putting data into this IRowSet
     done = new AtomicBoolean(false);
 
@@ -52,7 +54,7 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    * always done in the same way.
    */
   @Override
-  public int compareTo(IRowSet rowSet) {
+  public int compareTo(@NonNull IRowSet rowSet) {
     lock.readLock().lock();
     String target;
 
@@ -77,52 +79,23 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
     return target.compareTo(comp);
   }
 
-  public boolean equals(BaseRowSet rowSet) {
-    return compareTo(rowSet) == 0;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof IRowSet other)) {
+      return false;
+    }
+
+    return compareTo(other) == 0;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#putRow(org.apache.hop.core.row.IRowMeta, java.lang.Object[])
-   */
   @Override
-  public abstract boolean putRow(IRowMeta rowMeta, Object[] rowData);
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#putRowWait(org.apache.hop.core.row.IRowMeta, java.lang.Object[],
-   * long, java.util.concurrent.TimeUnit)
-   */
-  @Override
-  public abstract boolean putRowWait(IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu);
-
-  // default getRow with wait time = 100ms
-  //
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#getRow()
-   */
-  @Override
-  public abstract Object[] getRow();
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#getRowImmediate()
-   */
-  @Override
-  public abstract Object[] getRowImmediate();
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#getRowWait(long, java.util.concurrent.TimeUnit)
-   */
-  @Override
-  public abstract Object[] getRowWait(long timeout, TimeUnit tu);
+  public int hashCode() {
+    return Objects.hash(
+        remoteHopServerName, destinationTransformName, destinationTransformCopy.get());
+  }
 
   /*
    * (non-Javadoc)
@@ -147,31 +120,11 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.RowSetInterface#getOriginTransformName()
-   */
-  @Override
-  public String getOriginTransformName() {
-    return originTransformName;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
    * @see org.apache.hop.core.RowSetInterface#getOriginTransformCopy()
    */
   @Override
   public int getOriginTransformCopy() {
     return originTransformCopy.get();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#getDestinationTransformName()
-   */
-  @Override
-  public String getDestinationTransformName() {
-    return destinationTransformName;
   }
 
   /*
@@ -193,14 +146,6 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
   public String getName() {
     return toString();
   }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#size()
-   */
-  @Override
-  public abstract int size();
 
   /*
    * (non-Javadoc)
@@ -247,48 +192,8 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
     return str.toString();
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#getRowMeta()
-   */
-  @Override
-  public IRowMeta getRowMeta() {
-    return rowMeta;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#setRowMeta(org.apache.hop.core.row.IRowMeta)
-   */
-  @Override
-  public void setRowMeta(IRowMeta rowMeta) {
-    this.rowMeta = rowMeta;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#getRemoteHopServerName()
-   */
-  @Override
-  public String getRemoteHopServerName() {
-    return remoteHopServerName;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.RowSetInterface#setRemoteHopServerName(java.lang.String)
-   */
-  @Override
-  public void setRemoteHopServerName(String remoteHopServerName) {
-    this.remoteHopServerName = remoteHopServerName;
-  }
-
   /**
-   * By default we don't report blocking, only for monitored pipelines.
+   * By default, we don't report blocking, only for monitored pipelines.
    *
    * @return true if this row set is blocking on reading or writing.
    */
