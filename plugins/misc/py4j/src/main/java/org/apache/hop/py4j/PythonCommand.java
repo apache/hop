@@ -78,7 +78,9 @@ public class PythonCommand implements Runnable, IHopCommand, IHasHopMetadataProv
 
   private PyHop pyHop;
 
-  public PythonCommand() {}
+  public PythonCommand() {
+    // Empty by design
+  }
 
   @Override
   public void initialize(
