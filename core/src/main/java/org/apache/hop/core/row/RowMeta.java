@@ -462,43 +462,48 @@ public class RowMeta implements IRowMeta {
    * (IRowMeta / IValueMeta) is used. Strings use getBytes().length; other types use fixed
    * estimates. Use this when you have only the raw row (e.g. from getRowFrom) and no row meta.
    *
-   * @param dataRow the row (may be null)
+   * @param dataRow the row (maybe null)
    * @return estimated size in bytes, or null if row is null (no data)
    */
   public static Long getRowSizeEstimateFromRow(Object[] dataRow) {
     if (dataRow == null) {
       return null;
     }
+
     long total = 0L;
     for (Object v : dataRow) {
-      if (v == null) {
-        continue;
-      }
-      if (v instanceof String s) {
-        total += s.getBytes().length;
-      } else if (v instanceof byte[] b) {
-        total += b.length;
-      } else if (v instanceof BigDecimal) {
-        total += 32;
-      } else if (v instanceof Number) {
-        total += 8;
-      } else if (v instanceof Date) {
-        total += 8;
-      } else if (v instanceof Boolean) {
-        total += 1;
-      } else if (v instanceof UUID) {
-        total += 36;
-      } else if (v instanceof JsonNode jn) {
-        total += jn.toString().length() * 2L;
-      } else if (v instanceof GenericRecord gr) {
-        total += gr.toString().length() * 2L;
-      } else if (v instanceof InetAddress ia) {
-        total += ia.getHostAddress().length() * 2L;
-      } else {
-        total += 64; // Serializable or other unknown types
-      }
+      total += estimateSize(v);
     }
-    return Long.valueOf(total);
+    return total;
+  }
+
+  /**
+   * Estimates the size in bytes of a row from the Java types of its values only
+   *
+   * @param v data
+   * @return estimated size in bytes
+   */
+  private static long estimateSize(Object v) {
+    if (v == null) {
+      return 0;
+    }
+
+    return switch (v) {
+      case String s -> s.getBytes().length;
+      case byte[] b -> b.length;
+      case BigDecimal ignored -> 32;
+      case Number ignored -> 8;
+
+      case Date ignored -> 8;
+      case Boolean ignored -> 1;
+      case UUID ignored -> 36;
+
+      case JsonNode jn -> jn.toString().length() * 2L;
+      case GenericRecord gr -> gr.toString().length() * 2L;
+      case InetAddress ia -> ia.getHostAddress().length() * 2L;
+
+      default -> 64;
+    };
   }
 
   /**
