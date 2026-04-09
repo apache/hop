@@ -20,6 +20,7 @@ package org.apache.hop.py4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +36,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -62,8 +64,12 @@ public class PyHop {
   private IVariables variables;
   private IHopMetadataProvider metadataProvider;
   private ILogChannel log;
+  private String stopPassword;
+  private ArrayBlockingQueue<Object> blockingQueue;
 
-  public PyHop() {}
+  public PyHop() {
+    this.blockingQueue = new ArrayBlockingQueue<>(10);
+  }
 
   public void initialize(
       IVariables variables, IHopMetadataProvider metadataProvider, ILogChannel log) {
@@ -433,11 +439,32 @@ public class PyHop {
   }
 
   //
+  // The PyHop server
+  //
+
+  public void stopServer(String passwordToVerify) throws HopException {
+    // Only with a stop password can the server be stopped.
+    if (!StringUtil.isEmpty(this.stopPassword) && this.stopPassword.equals(passwordToVerify)) {
+      blockingQueue.add(new Object());
+    } else {
+      throw new HopException("Specify a stop password, here and during server startup.");
+    }
+  }
+
+  public void waitUntilStopped() {
+    try {
+      blockingQueue.take();
+    } catch (InterruptedException e) {
+      log.logError("Waiting interrupted on the PyHop gateway server", e);
+    }
+  }
+
+  //
   // Utility
   //
 
   public static @NonNull String describeAvailablePlugins(
-      Class<? extends IPluginType> pluginTypeClass) {
+      Class<? extends IPluginType<?>> pluginTypeClass) {
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins(pluginTypeClass);
     StringBuilder available = new StringBuilder();
     for (IPlugin plugin : plugins) {

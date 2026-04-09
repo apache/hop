@@ -18,8 +18,6 @@
 
 package org.apache.hop.py4j;
 
-import static java.lang.Thread.sleep;
-
 import java.net.InetAddress;
 import java.util.Map;
 import lombok.Getter;
@@ -28,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -64,6 +63,18 @@ public class PythonCommand implements Runnable, IHopCommand, IHasHopMetadataProv
       description =
           "The server on which to run the Hop Python (py4j) gateway service.  The default is 127.0.0.1 (localhost).  Use 0.0.0.0 to make the service widely available.")
   private String gatewayAddress;
+
+  @CommandLine.Option(
+      names = {"--gateway-token"},
+      description =
+          "Only allow connections to the Hop Python (py4j) gateway that provide this token")
+  private String gatewayToken;
+
+  @CommandLine.Option(
+      names = {"--gateway-stop-password"},
+      description =
+          "If you specify this password it can be used when halting the server in a Python script.  Without a password the server can not be stopped this way.")
+  private String stopPassword;
 
   private PyHop pyHop;
 
@@ -130,21 +141,21 @@ public class PythonCommand implements Runnable, IHopCommand, IHasHopMetadataProv
       if (StringUtils.isEmpty(ipAddress)) {
         ipAddress = "127.0.0.1";
       }
+      String token = Encr.decryptPasswordOptionallyEncrypted(variables.resolve(gatewayToken));
 
       // Run the gateway
       //
       GatewayServer.GatewayServerBuilder builder = new GatewayServer.GatewayServerBuilder();
-      GatewayServer gatewayServer =
-          builder
-              .entryPoint(this)
-              .javaPort(port)
-              .javaAddress(InetAddress.getByName(ipAddress))
-              .build();
+      builder =
+          builder.entryPoint(this).javaPort(port).javaAddress(InetAddress.getByName(ipAddress));
+      if (StringUtils.isNotEmpty(token)) {
+        builder.authToken(token);
+      }
+      GatewayServer gatewayServer = builder.build();
       gatewayServer.start();
       log.logBasic("The Hop Python Gateway server was started on " + ipAddress + ":" + port);
 
-      do sleep(100);
-      while (true);
+      pyHop.waitUntilStopped();
     } catch (Exception e) {
       log.logError("Error running the Hop Python Gateway server (py4j)", e);
     }

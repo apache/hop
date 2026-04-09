@@ -43,6 +43,39 @@ $ sh hop python
 2026/04/03 21:03:48 - HopPython - The Hop Python Gateway server was started on 127.0.0.1:25333
 ----
 
+=== Usage
+
+[source,bash]
+----
+$ sh hop python --help
+Usage: hop python [-hV] [-e=<environmentOption>]
+                  [--gateway-ip-address=<gatewayAddress>]
+                  [--gateway-port=<gatewayPort>]
+                  [--gateway-stop-password=<stopPassword>]
+                  [--gateway-token=<gatewayToken>] [-j=<projectOption>]
+Run the Hop Python gateway (py4j)
+  -e, --environment=<environmentOption>
+                  The name of the lifecycle environment to use
+      --gateway-ip-address=<gatewayAddress>
+                  The server on which to run the Hop Python (py4j) gateway
+                    service.  The default is 127.0.0.1 (localhost).  Use
+                    0.0.0.0 to make the service widely available.
+      --gateway-port=<gatewayPort>
+                  The port on which to run the Hop Python (py4j) gateway
+                    service.  The default port is 25333.
+      --gateway-stop-password=<stopPassword>
+                  If you specify this password it can be used when halting the
+                    server in a Python script.  Without a password the server
+                    can not be stopped this way.
+      --gateway-token=<gatewayToken>
+                  Only allow connections to the Hop Python (py4j) gateway that
+                    provide this token
+  -h, --help      Show this help message and exit.
+  -j, --project=<projectOption>
+                  The name of the project to use
+  -V, --version   Print version information and exit.
+----
+
 === Ports and addresses
 
 To run the gateway on different ports or make it available on different IP addresses, you can use these options:
@@ -56,6 +89,12 @@ To run the gateway on different ports or make it available on different IP addre
 
 |`--gateway-ip-address`
 |The IP address on which to run the Hop Python (py4j) gateway service.  The default is `127.0.0.1` (localhost).  Use `0.0.0.0` to make the service widely available.
+
+|`--gateway-token`
+|Only allow connections to the Hop Python (py4j) gateway that provide this token.
+
+|`--gateway-stop-password`
+|If you specify this password it can be used when stopping the server xref:hop-tools/hop-python/hop-python.adoc#_stopping_the_server[in a Python script].  Without a password the server can't be stopped this way.
 
 |===
 
@@ -127,9 +166,22 @@ You can create gateway parameters if you deviate from the default port (25333) o
 
 [source,python]
 ----
+from py4j.java_gateway import JavaGateway, GatewayParameters
 gateway_params = GatewayParameters(address='192.168.1.50', port=25333)
 gateway = JavaGateway(gateway_parameters=gateway_params)
 ----
+
+=== Connecting with a token
+
+If you started the Hop Python server with a token, you need to specify it in your script:
+
+[source,python]
+----
+from py4j.java_gateway import JavaGateway, GatewayParameters
+params = GatewayParameters(auth_token="YourToken")
+gateway = JavaGateway(gateway_parameters=params)
+----
+
 
 == The basics
 
@@ -285,7 +337,7 @@ dbSerializer = hop.getMetadataSerializer("rdbms")
 dwh = dbSerializer.load("DWH")
 ----
 
-If you want to get fancy and work with all the metadata plugin keys, you can use method `listMetadataKeys()` which gives you an array of strings.  Likewise, you can get a list of database element names as an array with `listMetadataElements("rdbms")`
+If you want to get fancy and work with all the metadata plugin keys, you can use method `listMetadataKeys()` which gives you an array of strings.Likewise, you can get a list of database element names as an array with `listMetadataElements("rdbms")`
 
 === Creating new metadata elements
 
@@ -340,6 +392,19 @@ csv = t.getTransform()
 #
 field = hop.newTransformObject(csv, "org.apache.hop.pipeline.transforms.csvinput.CsvInputField")
 ----
+
+[#_stopping_the_server]
+=== Stopping the server
+
+If you're writing tests in Python and don't need the server anymore, you can stop it using:
+
+[source,python]
+----
+hop.stopServer("your-stop-password")
+----
+
+The stop server password can be specified as an option during startup of the server.
+
 
 == Examples
 
