@@ -17,7 +17,6 @@
 
 package org.apache.hop.core;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -77,24 +76,6 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
             + rowSet.getDestinationTransformCopy();
 
     return target.compareTo(comp);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof IRowSet other)) {
-      return false;
-    }
-
-    return compareTo(other) == 0;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        remoteHopServerName, destinationTransformName, destinationTransformCopy.get());
   }
 
   /*

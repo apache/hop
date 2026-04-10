@@ -50,8 +50,10 @@ class BaseRowSetTests {
     r2.setThreadNameFromToCopy("X", 9, "B", 2);
 
     assertEquals(0, r1.compareTo(r2));
-    assertEquals(r1, r2);
-    assertEquals(r1.hashCode(), r2.hashCode());
+    assertNotEquals(r1, r2);
+    assertNotEquals(r1.hashCode(), r2.hashCode());
+
+    assertEquals(0, r1.compareTo(r2));
   }
 
   @Test
