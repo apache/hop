@@ -633,6 +633,8 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
                   nrRecordsCompare++;
                 }
               } else {
+                // Merge on sorted keys: same semantics as MergeRows (compare < 0 => only reference,
+                // compare > 0 => only compare). Must match the one==null/two==null branches above.
                 if (compare < 0) {
                   if (getTransformMeta().isDoingErrorHandling()) {
                     String keyDesc = getKeyDesc(keyRowMeta, keyNrs, one);
@@ -643,14 +645,14 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
                         1,
                         BaseMessages.getString(
                             PKG,
-                            "TableCompare.Error.RecordNotInReferenceFoundInCompareTable",
-                            cmpSchemaTable,
+                            "TableCompare.Error.RecordInReferenceNotFoundInCompareTable",
+                            refSchemaTable,
                             keyRowMeta.getString(one)),
                         null,
-                        "TAC004");
+                        "TAC005");
                   }
                   nrErrors++;
-                  nrRightErrors++;
+                  nrLeftErrors++;
 
                   one = data.referenceDb.getRow(refSet);
                   if (one != null) {
@@ -666,14 +668,14 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
                         1,
                         BaseMessages.getString(
                             PKG,
-                            "TableCompare.Error.RecordInReferenceNotFoundInCompareTable",
-                            refSchemaTable,
+                            "TableCompare.Error.RecordNotInReferenceFoundInCompareTable",
+                            cmpSchemaTable,
                             keyRowMeta.getString(two)),
                         null,
-                        "TAC005");
+                        "TAC004");
                   }
                   nrErrors++;
-                  nrLeftErrors++;
+                  nrRightErrors++;
 
                   two = data.compareDb.getRow(cmpSet);
                   if (two != null) {
@@ -706,7 +708,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     result[index++] = nrRecordsCompare;
     result[index++] = nrLeftErrors;
     result[index++] = nrInnerErrors;
-    result[index++] = nrRightErrors;
+    result[index] = nrRightErrors;
 
     r[data.keyDescIndex] = null;
     r[data.valueReferenceIndex] = null;
@@ -732,8 +734,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
   }
 
   private Object[] constructErrorRow(
-      IRowMeta rowMeta, Object[] r, String keyField, String referenceValue, String compareValue)
-      throws HopException {
+      IRowMeta rowMeta, Object[] r, String keyField, String referenceValue, String compareValue) {
 
     if (data.errorRowMeta == null) {
       data.errorRowMeta = rowMeta.clone();
