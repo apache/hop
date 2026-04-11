@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -120,7 +121,12 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     for (IStream stream : infoStreams) {
-      stream.setTransformMeta(TransformMeta.findTransform(transforms, stream.getSubject()));
+      String lookupName = stream.getSubject();
+      if (StringUtils.isNotBlank(sourceTransformName)) {
+        lookupName = sourceTransformName;
+        stream.setSubject(sourceTransformName);
+      }
+      stream.setTransformMeta(TransformMeta.findTransform(transforms, Const.trim(lookupName)));
     }
   }
 
