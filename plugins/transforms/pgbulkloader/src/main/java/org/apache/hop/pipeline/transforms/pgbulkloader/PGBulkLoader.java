@@ -37,6 +37,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -267,6 +268,20 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     }
   }
 
+  /**
+   * Encodes a boolean for PostgreSQL COPY text format. {@code t}/{@code f} are accepted; literals
+   * like {@code 1.0} from a numeric conversion are not.
+   */
+  @VisibleForTesting
+  static byte[] booleanFieldBytesForPgCopyText(
+      IValueMeta valueMeta, Object valueData, Charset charset) throws HopValueException {
+    Boolean bool = valueMeta.getBoolean(valueData);
+    if (bool == null) {
+      return null;
+    }
+    return (bool ? "t" : "f").getBytes(charset);
+  }
+
   private void writeRowToPostgres(IRowMeta rowMeta, Object[] r) throws HopException {
 
     try {
@@ -392,11 +407,10 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
               }
               break;
             case IValueMeta.TYPE_BOOLEAN:
-              if (valueMeta.isStorageBinaryString()) {
-                pgCopyOut.write((byte[]) valueData);
-              } else {
-                pgCopyOut.write(
-                    Double.toString(valueMeta.getNumber(valueData)).getBytes(clientEncoding));
+              byte[] boolBytes =
+                  booleanFieldBytesForPgCopyText(valueMeta, valueData, clientEncoding);
+              if (boolBytes != null) {
+                pgCopyOut.write(boolBytes);
               }
               break;
             case IValueMeta.TYPE_NUMBER:

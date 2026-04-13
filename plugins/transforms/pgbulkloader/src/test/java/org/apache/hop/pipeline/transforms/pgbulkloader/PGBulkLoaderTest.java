@@ -17,9 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
@@ -37,9 +40,11 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -99,6 +104,18 @@ class PGBulkLoaderTest {
   @AfterEach
   void tearDown() throws Exception {
     transformMockHelper.cleanUp();
+  }
+
+  @Test
+  void booleanFieldBytesForPgCopyText_usesPostgresAcceptableLiterals() throws HopValueException {
+    ValueMetaBoolean meta = new ValueMetaBoolean("active");
+    assertArrayEquals(
+        "t".getBytes(StandardCharsets.UTF_8),
+        PGBulkLoader.booleanFieldBytesForPgCopyText(meta, Boolean.TRUE, StandardCharsets.UTF_8));
+    assertArrayEquals(
+        "f".getBytes(StandardCharsets.UTF_8),
+        PGBulkLoader.booleanFieldBytesForPgCopyText(meta, Boolean.FALSE, StandardCharsets.UTF_8));
+    assertNull(PGBulkLoader.booleanFieldBytesForPgCopyText(meta, null, StandardCharsets.UTF_8));
   }
 
   @Test
