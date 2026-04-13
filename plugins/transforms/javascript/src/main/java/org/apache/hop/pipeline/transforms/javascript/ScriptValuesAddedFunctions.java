@@ -313,8 +313,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         Calendar fisOffsetDate = Calendar.getInstance();
         startDate.setTime(dIn);
         Format dfFormatter = new SimpleDateFormat("dd.MM.yyyy");
-        String strOffsetDate =
-            Context.toString(argList[1]) + startDate.get(Calendar.YEAR);
+        String strOffsetDate = Context.toString(argList[1]) + startDate.get(Calendar.YEAR);
         Date dOffset = (Date) dfFormatter.parseObject(strOffsetDate);
         fisOffsetDate.setTime(dOffset);
 
