@@ -76,6 +76,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.WrappedException;
 
+@SuppressWarnings({"java:S1172", "java:S100"})
 public class ScriptValuesAddedFunctions extends ScriptableObject {
   @Serial private static final long serialVersionUID = 1L;
 
@@ -313,11 +314,11 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         startDate.setTime(dIn);
         Format dfFormatter = new SimpleDateFormat("dd.MM.yyyy");
         String strOffsetDate =
-            Context.toString(argList[1]) + String.valueOf(startDate.get(Calendar.YEAR));
+            Context.toString(argList[1]) + startDate.get(Calendar.YEAR);
         Date dOffset = (Date) dfFormatter.parseObject(strOffsetDate);
         fisOffsetDate.setTime(dOffset);
 
-        String strFisStartDate = "01.01." + String.valueOf(startDate.get(Calendar.YEAR) + 1);
+        String strFisStartDate = "01.01." + startDate.get(Calendar.YEAR) + 1;
         fisStartDate.setTime((Date) dfFormatter.parseObject(strFisStartDate));
         int iDaysToAdd =
             (int) ((startDate.getTimeInMillis() - fisOffsetDate.getTimeInMillis()) / 86400000);
@@ -1792,6 +1793,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   }
 
   // Print
+  @SuppressWarnings("java:S106")
   public static void print(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
     for (Object o : argList) { // don't worry about "undefined" arguments

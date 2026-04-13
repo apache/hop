@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.javascript;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.Date;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.junit.jupiter.api.Test;
+import org.mozilla.javascript.EvaluatorException;
 
 class ScriptValuesAddedFunctionsTest {
   private static final String FORMATTER = "yyyy-MM-dd HH:mm:ss";
@@ -67,17 +68,10 @@ class ScriptValuesAddedFunctionsTest {
     assertEquals(0, c2.get(Calendar.MILLISECOND));
     assertEquals("2025-02-15 11:11:11", DateFormatUtils.format(rtn, FORMATTER));
 
-    try {
-      ScriptValuesAddedFunctions.truncDate(rtn, 6); // Should throw exception
-      fail("Expected exception - passed in level > 5 to truncDate");
-    } catch (Exception expected) {
-      // Should get here
-    }
-    try {
-      ScriptValuesAddedFunctions.truncDate(rtn, -7); // Should throw exception
-      fail("Expected exception - passed in level < 0  to truncDate");
-    } catch (Exception expected) {
-      // Should get here
-    }
+    final Date truncatedToMs = rtn;
+    assertThrows(
+        EvaluatorException.class, () -> ScriptValuesAddedFunctions.truncDate(truncatedToMs, 6));
+    assertThrows(
+        EvaluatorException.class, () -> ScriptValuesAddedFunctions.truncDate(truncatedToMs, -7));
   }
 }
