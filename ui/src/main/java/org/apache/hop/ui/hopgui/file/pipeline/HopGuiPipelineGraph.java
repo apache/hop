@@ -286,7 +286,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   private static final int HOP_SEL_MARGIN = 9;
 
   /** Minimum pointer movement (px) before an icon mousedown is treated as drag instead of click. */
-  private static final int ICON_DRAG_THRESHOLD_PX = 5;
+  private static final int ICON_DRAG_THRESHOLD_PX = 3;
 
   @Getter private PipelineMeta pipelineMeta;
   @Getter public IPipelineEngine<PipelineMeta> pipeline;
@@ -403,6 +403,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Setter private HopPipelineFileType<PipelineMeta> fileType;
   private boolean doubleClick;
+
+  /**
+   * Runnable queued for deferred context dialog (double-click mode); cancelled on the next
+   * mousedown.
+   */
+  private Runnable pendingShowActionDialogRunnable;
 
   private PipelineHopMeta clickedPipelineHop;
 
@@ -673,6 +679,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       mouseHover(event);
     }
     doubleClick = false;
+    if (pendingShowActionDialogRunnable != null) {
+      hopGui.getDisplay().timerExec(-1, pendingShowActionDialogRunnable);
+      pendingShowActionDialogRunnable = null;
+    }
     resize = null;
 
     boolean alt = (event.stateMask & SWT.ALT) != 0;
@@ -1027,6 +1037,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if (selectionRegion.isEmpty()) {
         singleClick = true;
         singleClickType = SingleClickType.Pipeline;
+        // End lasso immediately: otherwise mouseMove keeps resizing the rectangle after mouseup
+        // until the deferred context dialog runs.
+        selectionRegion = null;
+        canvas.setData("mode", "null");
+        setCursor(null);
+        redraw();
       } else {
         pipelineMeta.unselectAll();
         selectInRect(pipelineMeta, selectionRegion);
@@ -1280,19 +1296,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     final PipelineHopMeta fSingleClickHop = singleClickHop;
 
     if (PropsUi.getInstance().useDoubleClick()) {
-      hopGui
-          .getDisplay()
-          .timerExec(
-              hopGui.getDisplay().getDoubleClickTime(),
-              () ->
-                  showActionDialog(
-                      e,
-                      real,
-                      fSingleClick,
-                      fSingleClickType,
-                      fSingleClickTransform,
-                      fSingleClickNote,
-                      fSingleClickHop));
+      Display display = hopGui.getDisplay();
+      pendingShowActionDialogRunnable =
+          () -> {
+            pendingShowActionDialogRunnable = null;
+            showActionDialog(
+                e,
+                real,
+                fSingleClick,
+                fSingleClickType,
+                fSingleClickTransform,
+                fSingleClickNote,
+                fSingleClickHop);
+          };
+      display.timerExec(display.getDoubleClickTime(), pendingShowActionDialogRunnable);
     } else {
       showActionDialog(
           e,
@@ -1427,6 +1444,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             || !pipelineMeta.getSelectedNotes().isEmpty())) {
       pipelineMeta.unselectAll();
       updateGui();
+      pipelineGridDelegate.onPipelineSelectionChanged();
 
       // Show a short tooltip
       //
@@ -1626,15 +1644,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     //
-    // Commit to drag mode only after pointer moves past threshold (avoids drag when clicking name
-    // or making a small movement)
+    // Commit to drag mode only after pointer moves past threshold while primary button is still
+    // down (avoids drag on click jitter; threshold distinguishes click vs intentional drag).
     //
     if (currentTransform != null
         && iconOffset != null
         && !iconDragCommitted
         && iconDragStartScreen != null
         && startHopTransform == null
-        && selectionRegion == null) {
+        && selectionRegion == null
+        && (event.stateMask & SWT.BUTTON1) != 0) {
       int dx = event.x - iconDragStartScreen.x;
       int dy = event.y - iconDragStartScreen.y;
       int thresholdSq = ICON_DRAG_THRESHOLD_PX * ICON_DRAG_THRESHOLD_PX;
@@ -1674,7 +1693,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Track that a note was selected
       pipelineGridDelegate.onPipelineSelectionChanged();
       doRedraw = true;
-    } else if (selectionRegion != null && startHopTransform == null) {
+    } else if (selectionRegion != null
+        && startHopTransform == null
+        && (event.stateMask & SWT.BUTTON1) != 0) {
       // Did we select a region...?
       //
       selectionRegion.width = real.x - selectionRegion.x;
@@ -5423,6 +5444,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void unselectAll() {
     clearSettings();
+    pipelineGridDelegate.onPipelineSelectionChanged();
     updateGui();
   }
 
