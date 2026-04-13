@@ -448,6 +448,51 @@ class StreamLookupMetaTest {
     }
   }
 
+  /** Unit test for {@link StreamLookupMeta#handleStreamSelection}. */
+  @Nested
+  class HandleStreamSelectionTest {
+
+    @Test
+    void updatesSourceTransformNameWhenInfoStreamIsRepointed() {
+      StreamLookupMeta meta = new StreamLookupMeta();
+      meta.setSourceTransformName("OldLookup");
+      IStream infoStream = meta.getTransformIOMeta().getInfoStreams().getFirst();
+      TransformMeta inserted = namedTransform("InsertedStep");
+      infoStream.setTransformMeta(inserted);
+      infoStream.setSubject("InsertedStep");
+
+      meta.handleStreamSelection(infoStream);
+
+      assertEquals("InsertedStep", meta.getSourceTransformName());
+      assertEquals("InsertedStep", infoStream.getSubject());
+    }
+
+    @Test
+    void searchInfoAfterHandleStreamSelectionKeepsInsertedLookupSource() {
+      StreamLookupMeta meta = new StreamLookupMeta();
+      meta.setSourceTransformName("OldLookup");
+      IStream infoStream = meta.getTransformIOMeta().getInfoStreams().getFirst();
+      TransformMeta inserted = namedTransform("InsertedStep");
+      infoStream.setTransformMeta(inserted);
+      infoStream.setSubject("InsertedStep");
+      meta.handleStreamSelection(infoStream);
+
+      meta.searchInfoAndTargetTransforms(List.of(inserted, namedTransform("Other")));
+
+      assertSame(inserted, infoStream.getTransformMeta());
+      assertEquals("InsertedStep", meta.getSourceTransformName());
+    }
+
+    @Test
+    void ignoresStreamsThatAreNotInfoStreams() {
+      StreamLookupMeta meta = new StreamLookupMeta();
+      meta.setSourceTransformName("KeepMe");
+      IStream other = mock(IStream.class);
+      meta.handleStreamSelection(other);
+      assertEquals("KeepMe", meta.getSourceTransformName());
+    }
+  }
+
   /** Unit test for {@link StreamLookupMeta#searchInfoAndTargetTransforms}. */
   @Nested
   class SearchInfoAndTargetTransformsTest {

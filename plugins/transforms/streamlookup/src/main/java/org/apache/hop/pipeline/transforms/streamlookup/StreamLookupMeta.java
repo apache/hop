@@ -117,6 +117,24 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
     return new StreamLookupMeta(this);
   }
 
+  /**
+   * Keeps {@link #sourceTransformName} in sync when the lookup info stream is repointed from the
+   * canvas (e.g. hop split, detach, drawing the info hop). Without this, {@link
+   * #searchInfoAndTargetTransforms} would keep resetting the stream from the stale persisted name.
+   */
+  @Override
+  public void handleStreamSelection(IStream stream) {
+    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
+    if (infoStreams.isEmpty() || !infoStreams.contains(stream)) {
+      return;
+    }
+    TransformMeta tm = stream.getTransformMeta();
+    if (tm != null) {
+      setSourceTransformName(tm.getName());
+      stream.setSubject(tm.getName());
+    }
+  }
+
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
