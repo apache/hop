@@ -19,8 +19,10 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -44,7 +46,6 @@ class CsvInputUnicodeTest extends CsvInputUnitTestBase {
   @RegisterExtension
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
-  private static final String UTF8 = "UTF-8";
   private static final String UTF16LE = "UTF-16LE";
   private static final String UTF16LEBOM = "x-UTF-16LE-BOM";
   private static final String UTF16BE = "UTF-16BE";
@@ -117,22 +118,22 @@ class CsvInputUnicodeTest extends CsvInputUnitTestBase {
 
   @Test
   void testUTF8() throws Exception {
-    doTest(UTF8, UTF8, TEST_DATA, ONE_CHAR_DELIM, true);
+    doTest(Const.UTF_8, Const.UTF_8, TEST_DATA, ONE_CHAR_DELIM, true);
   }
 
   @Test
   void testUTF8_multiDelim() throws Exception {
-    doTest(UTF8, UTF8, TEST_DATA1, MULTI_CHAR_DELIM, true);
+    doTest(Const.UTF_8, Const.UTF_8, TEST_DATA1, MULTI_CHAR_DELIM, true);
   }
 
   @Test
   void testUTF8_headerWithBOM() throws Exception {
-    doTest(UTF8, UTF8, TEST_DATA_UTF8_BOM, ONE_CHAR_DELIM, true);
+    doTest(Const.UTF_8, Const.UTF_8, TEST_DATA_UTF8_BOM, ONE_CHAR_DELIM, true);
   }
 
   @Test
   void testUTF8_withoutHeaderWithBOM() throws Exception {
-    doTest(UTF8, UTF8, TEST_DATA_NOHEADER_UTF8_BOM, ONE_CHAR_DELIM, false);
+    doTest(Const.UTF_8, Const.UTF_8, TEST_DATA_NOHEADER_UTF8_BOM, ONE_CHAR_DELIM, false);
   }
 
   @Test
@@ -172,7 +173,7 @@ class CsvInputUnicodeTest extends CsvInputUnitTestBase {
 
   @Test
   void testUTF8_multiDelim_DataWithEnclosures() throws Exception {
-    doTest(UTF8, UTF8, TEST_DATA3, MULTI_CHAR_DELIM, true);
+    doTest(Const.UTF_8, Const.UTF_8, TEST_DATA3, MULTI_CHAR_DELIM, true);
   }
 
   private void doTest(
@@ -182,7 +183,8 @@ class CsvInputUnicodeTest extends CsvInputUnitTestBase {
       final String delimiter,
       final boolean useHeader)
       throws Exception {
-    String testFilePath = createTestFile(fileEncoding, testData).getAbsolutePath();
+    Charset charset = Charset.forName(fileEncoding);
+    String testFilePath = createTestFile(charset, testData).getAbsolutePath();
 
     CsvInputMeta meta = createTransformMeta(testFilePath, transformEncoding, delimiter, useHeader);
     CsvInputData data = new CsvInputData();

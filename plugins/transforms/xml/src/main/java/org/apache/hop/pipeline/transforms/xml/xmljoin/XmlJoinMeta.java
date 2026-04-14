@@ -104,7 +104,7 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
 
   public XmlJoinMeta() {
     super();
-    encoding = Const.XML_ENCODING;
+    encoding = Const.UTF_8;
   }
 
   public XmlJoinMeta(XmlJoinMeta m) {

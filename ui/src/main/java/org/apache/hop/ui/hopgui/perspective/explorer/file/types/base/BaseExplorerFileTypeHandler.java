@@ -21,6 +21,7 @@ package org.apache.hop.ui.hopgui.perspective.explorer.file.types.base;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,13 +61,13 @@ public abstract class BaseExplorerFileTypeHandler implements IExplorerFileTypeHa
     this.explorerFile = explorerFile;
   }
 
-  protected String readTextFileContent(String encoding) throws HopException {
+  protected String readTextFileContent(Charset charset) throws HopException {
     try {
       FileObject file = HopVfs.getFileObject(getFilename(), getVariables());
       if (file.exists()) {
         try (InputStream inputStream = HopVfs.getInputStream(file)) {
           StringWriter writer = new StringWriter();
-          IOUtils.copy(inputStream, writer, encoding);
+          IOUtils.copy(inputStream, writer, charset);
           return writer.toString();
         }
       } else {

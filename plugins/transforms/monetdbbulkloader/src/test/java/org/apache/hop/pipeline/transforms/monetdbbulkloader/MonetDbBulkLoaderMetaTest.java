@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -82,7 +83,7 @@ class MonetDbBulkLoaderMetaTest {
     assertEquals("|", meta.getFieldSeparator());
     assertEquals("\"", meta.getFieldEnclosure());
     assertEquals("null", meta.getNullRepresentation());
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
 
     // Assert field mappings list loaded correctly from XML
     assertNotNull(meta.getFields());
@@ -123,7 +124,7 @@ class MonetDbBulkLoaderMetaTest {
     assertEquals("|", meta.getFieldSeparator());
     assertEquals("\"", meta.getFieldEnclosure());
     assertEquals("", meta.getNullRepresentation());
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
   }
 
   @Test

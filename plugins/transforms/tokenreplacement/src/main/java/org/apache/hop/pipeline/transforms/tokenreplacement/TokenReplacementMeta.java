@@ -99,7 +99,6 @@ public class TokenReplacementMeta
         BaseMessages.getString(PKG, "TokenReplacementDialog.Format.None")
       };
   public static final String CONST_FILE_ENCODING = "file.encoding";
-  public static final String CONST_UTF_8 = "UTF-8";
 
   @HopMetadataProperty(
       key = "input_type",
@@ -269,7 +268,7 @@ public class TokenReplacementMeta
     tokenReplacementFields = new ArrayList<>();
     inputType = "Text";
     outputType = "Field";
-    outputFileEncoding = Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8);
+    outputFileEncoding = Const.getEnvironmentVariable(CONST_FILE_ENCODING, Const.UTF_8);
     outputFileFormat = Const.isWindows() ? "DOS" : "UNIX";
     splitEvery = 0;
     tokenStartString = "${";
@@ -309,7 +308,7 @@ public class TokenReplacementMeta
 
   public String getOutputFileEncoding() {
     return Const.NVL(
-        outputFileEncoding, Const.getEnvironmentVariable(CONST_FILE_ENCODING, CONST_UTF_8));
+        outputFileEncoding, Const.getEnvironmentVariable(CONST_FILE_ENCODING, Const.UTF_8));
   }
 
   public String getOutputFileFormatString() {

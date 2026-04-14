@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
@@ -80,16 +81,16 @@ public abstract class BaseCsvParsingTest
       if (expected[r].length != 0) {
         for (int c = 0; c < expected[r].length; c++) {
           if (expected[r][c] == "") {
-            expected[r][c] = StringUtils.EMPTY.getBytes("UTF-8");
+            expected[r][c] = StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8);
           } else if (expected[r][c] == null) {
             expected[r][c] = null;
           } else {
-            expected[r][c] = expected[r][c].toString().getBytes("UTF-8");
+            expected[r][c] = expected[r][c].toString().getBytes(StandardCharsets.UTF_8);
           }
         }
       } else {
         expected[r] = new Object[meta.getInputFields().size()];
-        expected[r][0] = StringUtils.EMPTY.getBytes("UTF-8");
+        expected[r][0] = StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8);
       }
     }
     super.check(expected);

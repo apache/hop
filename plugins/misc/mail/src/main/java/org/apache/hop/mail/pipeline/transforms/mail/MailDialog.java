@@ -2282,7 +2282,7 @@ public class MailDialog extends BaseTransformDialog {
       }
 
       // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", "UTF-8");
+      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
       int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
       if (idx >= 0) {
         wEncoding.select(idx);
@@ -2342,7 +2342,7 @@ public class MailDialog extends BaseTransformDialog {
     wTrustedHosts.setText(Const.NVL(input.getTrustedHosts(), ""));
     wOnlyComment.setSelection(input.isOnlySendComment());
     wUseHTML.setSelection(input.isUseHTML());
-    wEncoding.setText(Const.NVL(input.getEncoding(), "UTF-8"));
+    wEncoding.setText(Const.NVL(input.getEncoding(), Const.UTF_8));
 
     wSecureConnectionType.setText(Const.NVL(input.getSecureConnectionType(), "SSL)"));
 

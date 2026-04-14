@@ -20,6 +20,7 @@ package org.apache.hop.neo4j.shared;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -202,8 +203,8 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
         // Do something with the session otherwise it doesn't test the connection
         //
         Result result = session.run("RETURN 0");
-        Record record = result.next();
-        Value value = record.get(0);
+        Record rec = result.next();
+        Value value = rec.get(0);
         int zero = value.asInt();
         assert (zero == 0);
       } catch (Exception e) {
@@ -284,7 +285,7 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
         && isUsingRouting(variables)
         && StringUtils.isNotEmpty(routingPolicyString)) {
       try {
-        url += "?policy=" + URLEncoder.encode(routingPolicyString, "UTF-8");
+        url += "?policy=" + URLEncoder.encode(routingPolicyString, StandardCharsets.UTF_8);
       } catch (Exception e) {
         LogChannel.GENERAL.logError(
             "Error encoding routing policy context '" + routingPolicyString + "' in connection URL",

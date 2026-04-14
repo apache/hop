@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.csvinput;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.IValueMeta;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,7 +29,6 @@ import org.junit.jupiter.api.BeforeAll;
 public abstract class CsvInputUnitTestBase {
 
   static final String BUFFER_SIZE = "1024";
-  static final String ENCODING = "utf-8";
   static final String ENCLOSURE = "\"";
   static final String DELIMITER = ",";
 
@@ -36,11 +37,11 @@ public abstract class CsvInputUnitTestBase {
     HopEnvironment.init();
   }
 
-  File createTestFile(final String encoding, final String content) throws IOException {
+  File createTestFile(final Charset charset, final String content) throws IOException {
     File tempFile = File.createTempFile("PDI_tmp", ".tmp");
     tempFile.deleteOnExit();
 
-    try (PrintWriter osw = new PrintWriter(tempFile, encoding)) {
+    try (PrintWriter osw = new PrintWriter(tempFile, charset)) {
       osw.write(content);
     }
 
@@ -68,7 +69,7 @@ public abstract class CsvInputUnitTestBase {
     meta.setBufferSize(BUFFER_SIZE);
     meta.setDelimiter(DELIMITER);
     meta.setEnclosure(ENCLOSURE);
-    meta.setEncoding(ENCODING);
+    meta.setEncoding(Const.UTF_8);
     meta.setLazyConversionActive(false);
     meta.setFields(fields);
     meta.setHeaderPresent(false);

@@ -116,7 +116,7 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
 
   public AddXmlMeta() {
     super();
-    encoding = Const.XML_ENCODING;
+    encoding = Const.UTF_8;
     valueName = "xmlvaluename";
     rootNode = "Row";
     omitDetails = new OmitDetails();

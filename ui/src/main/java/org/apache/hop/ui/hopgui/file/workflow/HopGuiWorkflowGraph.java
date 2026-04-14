@@ -3598,7 +3598,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       String xml = workflowMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(workflowMeta.getFilename(), false);
       try {
-        out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+        out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
         out.write(xml.getBytes(StandardCharsets.UTF_8));
         workflowMeta.clearChanged();
         updateGui();

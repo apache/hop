@@ -385,7 +385,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
 
   org.apache.hc.client5.http.classic.methods.HttpPost buildSendXmlMethod(
       IVariables variables, byte[] content, String service) {
-    String encoding = Const.XML_ENCODING;
+    String encoding = Const.UTF_8;
     return buildSendMethod(variables, content, encoding, service, "text/xml");
   }
 
@@ -427,7 +427,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
   }
 
   public String sendJson(IVariables variables, String json, String service) throws Exception {
-    String encoding = Const.XML_ENCODING;
+    String encoding = Const.UTF_8;
     org.apache.hc.client5.http.classic.methods.HttpPost method =
         buildSendMethod(variables, json.getBytes(encoding), encoding, service, "application/json");
     try {
@@ -448,7 +448,7 @@ public class HopServerMeta extends HopMetadataBase implements Cloneable, IXml, I
       return matcher.group();
     }
 
-    return Const.XML_ENCODING;
+    return Const.UTF_8;
   }
 
   /** Throws if not ok */

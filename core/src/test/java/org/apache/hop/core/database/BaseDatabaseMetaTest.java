@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopRuntimeException;
 import org.apache.hop.core.row.IValueMeta;
@@ -322,7 +323,7 @@ class BaseDatabaseMetaTest {
     ValueMetaString v = new ValueMetaString("id");
     v.setStorageType(IValueMeta.STORAGE_TYPE_BINARY_STRING);
     ValueMetaString storage = new ValueMetaString("id");
-    storage.setStringEncoding("UTF-8");
+    storage.setStringEncoding(Const.UTF_8);
     v.setStorageMetadata(storage);
     v.setLength(36);
     v.setPrecision(0);

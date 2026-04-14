@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
@@ -35,7 +36,7 @@ class AddXmlMetaTest {
     AddXmlMeta meta =
         TransformSerializationTestUtil.testSerialization("/add-xml.xml", AddXmlMeta.class);
 
-    Assertions.assertEquals("UTF-8", meta.getEncoding());
+    Assertions.assertEquals(Const.UTF_8, meta.getEncoding());
     Assertions.assertEquals("xmlValueName", meta.getValueName());
     Assertions.assertEquals("Row", meta.getRootNode());
     Assertions.assertTrue(meta.getOmitDetails().isOmittingNullValues());

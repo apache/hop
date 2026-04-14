@@ -67,10 +67,7 @@ public class AnonymousPipelineRunner {
       String xml = pipelineMeta.getXml(variables);
       try (StringReader stringReader = new StringReader(xml)) {
         try (InputStream inputStream =
-            ReaderInputStream.builder()
-                .setCharset(Const.XML_ENCODING)
-                .setReader(stringReader)
-                .get()) {
+            ReaderInputStream.builder().setCharset(Const.UTF_8).setReader(stringReader).get()) {
           meta = new PipelineMeta(inputStream, metadataProvider, variables);
           meta.setMetadataProvider(metadataProvider);
           LocalPipelineEngine pipeline =

@@ -67,7 +67,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
   public static final String SEND_RESULT = "sendResult";
 
   private static final byte[] XML_HEADER =
-      XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8);
+      XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8);
 
   public GetPipelineStatusServlet() {}
 

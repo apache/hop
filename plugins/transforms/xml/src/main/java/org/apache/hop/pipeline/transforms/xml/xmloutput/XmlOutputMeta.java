@@ -215,7 +215,7 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     super();
     fileDetails = new FileDetails();
     outputFields = new ArrayList<>();
-    encoding = Const.XML_ENCODING;
+    encoding = Const.UTF_8;
     nameSpace = "";
     mainElement = "Rows";
     repeatElement = "Row";

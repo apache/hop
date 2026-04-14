@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -295,7 +296,7 @@ class GetXMLDataTest {
     fields[4].setGroupSymbol("");
     fields[4].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
-    gxdm.setEncoding("UTF-8");
+    gxdm.setEncoding(Const.UTF_8);
     gxdm.setAFile(false);
     gxdm.setInFields(true);
     gxdm.setLoopXPath("Level1/Level2/Props");
@@ -396,7 +397,7 @@ class GetXMLDataTest {
     fields[0].setGroupSymbol("");
     fields[0].setTrimType(GetXmlDataField.getTrimTypeCode(GetXmlDataField.TYPE_TRIM_NONE));
 
-    gxdm.setEncoding("UTF-8");
+    gxdm.setEncoding(Const.UTF_8);
     gxdm.setAFile(false);
     gxdm.setInFields(true);
     gxdm.setLoopXPath("Level1/Level2/Props");

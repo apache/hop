@@ -4040,7 +4040,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       String xml = pipelineMeta.getXml(variables);
       OutputStream out = HopVfs.getOutputStream(pipelineMeta.getFilename(), false);
       try {
-        out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+        out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
         out.write(xml.getBytes(StandardCharsets.UTF_8));
         pipelineMeta.clearChanged();
         updateGui();

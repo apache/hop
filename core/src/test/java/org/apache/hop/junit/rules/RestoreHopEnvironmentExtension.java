@@ -115,7 +115,7 @@ public class RestoreHopEnvironmentExtension implements BeforeAllCallback, AfterA
     LanguageChoice.getInstance().setDefaultLocale(Locale.US);
 
     tmpHopHome = Files.createTempDirectory(Long.toString(System.nanoTime()));
-    System.setProperty("file.encoding", "UTF-8");
+    System.setProperty("file.encoding", Const.UTF_8);
     System.setProperty("user.timezone", "UTC");
     System.setProperty("HOP_HOME", tmpHopHome.toString());
     System.setProperty(Const.HOP_DISABLE_CONSOLE_LOGGING, "Y");

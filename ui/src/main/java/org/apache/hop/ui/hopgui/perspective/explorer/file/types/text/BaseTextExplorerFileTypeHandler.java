@@ -135,7 +135,7 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   @Override
   public void reload() {
     try {
-      String contents = readTextFileContent("UTF-8");
+      String contents = readTextFileContent(StandardCharsets.UTF_8);
       editorWidget.setTextSuppressModify(Const.NVL(contents, ""));
     } catch (Exception e) {
       LogChannel.UI.logError(

@@ -104,7 +104,7 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
 
     if (useJson) {
       response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
     } else {
       String encoding = System.getProperty("HOP_DEFAULT_SERVLET_ENCODING", null);
       if (encoding != null && !Utils.isEmpty(encoding.trim())) {
@@ -112,7 +112,7 @@ public class ExecPipelineServlet extends BaseHttpServlet implements IHopServerPl
         response.setContentType("text/html; charset=" + encoding);
       } else {
         response.setContentType("text/xml");
-        response.setCharacterEncoding(Const.XML_ENCODING);
+        response.setCharacterEncoding(Const.UTF_8);
       }
     }
 

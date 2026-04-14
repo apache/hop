@@ -17,6 +17,7 @@
 
 package org.apache.hop.databases.infobright;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -39,6 +40,6 @@ public class InfobrightDatabaseMeta extends MySqlDatabaseMeta {
 
   @Override
   public void addDefaultOptions() {
-    addExtraOption(getPluginId(), "characterEncoding", "UTF-8");
+    addExtraOption(getPluginId(), "characterEncoding", Const.UTF_8);
   }
 }

@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.logging.ILogChannel;
@@ -39,7 +41,7 @@ class CsvInputTest extends CsvInputUnitTestBase {
   private CsvInputMeta csvInputMeta;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     logChannelInterface = mock(ILogChannel.class);
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
@@ -71,7 +73,8 @@ class CsvInputTest extends CsvInputUnitTestBase {
     // Create a file with some content to be processed
     CsvInputField[] inputFileFields = createInputFileFields("f1", "f2", "f3");
     String fileContents = "Something" + DELIMITER + "" + DELIMITER + "The former was empty!";
-    File tmpFile = createTestFile(ENCODING, fileContents);
+    Charset charset = StandardCharsets.UTF_8;
+    File tmpFile = createTestFile(charset, fileContents);
 
     // Create and configure the transform
     CsvInputMeta meta = createMeta(tmpFile, inputFileFields);

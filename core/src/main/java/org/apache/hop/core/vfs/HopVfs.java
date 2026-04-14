@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -316,16 +317,15 @@ public class HopVfs {
    * Read a text file (like an XML document). WARNING DO NOT USE FOR DATA FILES.
    *
    * @param vfsFilename the filename or URL to read from
-   * @param charSetName the character set of the string (UTF-8, ISO8859-1, etc.)
+   * @param charset the character set of the string (UTF-8, ISO8859-1, etc.)
    * @return The content of the file as a String
-   * @throws org.apache.hop.core.exception.HopFileException
+   * @throws org.apache.hop.core.exception.HopFileException ex
    */
-  public static String getTextFileContent(String vfsFilename, String charSetName)
+  public static String getTextFileContent(String vfsFilename, Charset charset)
       throws HopFileException {
     try {
       InputStream inputStream = getInputStream(vfsFilename);
-
-      InputStreamReader reader = new InputStreamReader(inputStream, charSetName);
+      InputStreamReader reader = new InputStreamReader(inputStream, charset);
       int c;
       StringBuilder aBuffer = new StringBuilder();
       while ((c = reader.read()) != -1) {

@@ -199,8 +199,8 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
           // Send the result back as XML
           //
           response.setContentType("text/xml");
-          response.setCharacterEncoding(Const.XML_ENCODING);
-          out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+          response.setCharacterEncoding(Const.UTF_8);
+          out.print(XmlHandler.getXmlHeader(Const.UTF_8));
           try {
             out.println(rowBuffer.getXml());
           } catch (IOException xmlEx) {

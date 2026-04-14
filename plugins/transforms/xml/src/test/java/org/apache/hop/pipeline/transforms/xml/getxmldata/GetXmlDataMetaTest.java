@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -232,7 +233,7 @@ class GetXmlDataMetaTest {
     meta.setInputFields(inputFields);
 
     meta.setLoopXPath("/root/item");
-    meta.setEncoding("UTF-8");
+    meta.setEncoding(Const.UTF_8);
     meta.setInFields(true);
 
     // Clone
@@ -247,7 +248,7 @@ class GetXmlDataMetaTest {
     assertEquals(2, cloned.getInputFields().size());
     assertEquals("field1", cloned.getInputFields().get(0).getName());
     assertEquals("/root/item", cloned.getLoopXPath());
-    assertEquals("UTF-8", cloned.getEncoding());
+    assertEquals(Const.UTF_8, cloned.getEncoding());
     assertTrue(cloned.isInFields());
   }
 
@@ -294,7 +295,7 @@ class GetXmlDataMetaTest {
     meta.setInputFields(fields);
 
     meta.setLoopXPath("/root/data");
-    meta.setEncoding("UTF-8");
+    meta.setEncoding(Const.UTF_8);
     meta.setInFields(true);
     meta.setXmlField("xml_content");
 
@@ -304,7 +305,7 @@ class GetXmlDataMetaTest {
     // Files are serialized via HopMetadataProperty annotations, not in getXml()
     // Check for what's actually in the XML output from getXml()
     assertTrue(xml.contains("/root/data"));
-    assertTrue(xml.contains("UTF-8"));
+    assertTrue(xml.contains(Const.UTF_8));
     assertTrue(xml.contains("xml_content"));
     assertTrue(xml.contains("test_field"));
   }

@@ -51,7 +51,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta<XmlInputStream, XmlInp
   private static final int DEFAULT_STRING_LEN_FILENAME = 256; // default length for XML path
   private static final int DEFAULT_STRING_LEN_PATH = 1024; // default length for XML path
   public static final String DEFAULT_STRING_LEN = "1024"; // used by defaultStringLen
-  public static final String DEFAULT_ENCODING = "UTF-8"; // used by encoding
+  public static final String DEFAULT_ENCODING = Const.UTF_8; // used by encoding
 
   @HopMetadataProperty(key = "filename")
   private String filename;

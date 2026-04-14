@@ -259,7 +259,7 @@ class HopServerConfigTest {
 
   private String getConfig(Map<String, String> jettyOptions) {
     StringBuilder xml = new StringBuilder(50);
-    xml.append(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+    xml.append(XmlHandler.getXmlHeader(Const.UTF_8));
     xml.append("<" + XML_TAG_HOP_SERVER_CONFIG + ">").append(Const.CR);
     if (jettyOptions != null) {
       xml.append("<" + XML_TAG_JETTY_OPTIONS + ">").append(Const.CR);

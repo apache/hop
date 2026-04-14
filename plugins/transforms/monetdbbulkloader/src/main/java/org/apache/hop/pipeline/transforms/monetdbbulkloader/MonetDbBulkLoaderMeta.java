@@ -173,7 +173,7 @@ public class MonetDbBulkLoaderMeta
     fieldSeparator = "|";
     fieldEnclosure = "\"";
     nullRepresentation = "";
-    encoding = "UTF-8";
+    encoding = Const.UTF_8;
   }
 
   @Override

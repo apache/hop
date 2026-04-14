@@ -23,6 +23,7 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.beam.util.BeamConst;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.exception.HopException;
@@ -42,8 +43,6 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
 public class MainBeam {
-
-  public static final String CONST_UTF_8 = "UTF-8";
 
   public static void main(String[] args) {
     try {
@@ -66,11 +65,11 @@ public class MainBeam {
             switch (key) {
               case ("--HopPipelinePath"):
                 System.out.println("Pipeline filename (.hpl): " + value);
-                pipelineMetaXml = readFileIntoString(value, CONST_UTF_8);
+                pipelineMetaXml = readFileIntoString(value, Const.UTF_8);
                 break;
               case ("--HopMetadataPath"):
                 System.out.println("Metadata filename (.json): " + value);
-                metadataJson = readFileIntoString(value, CONST_UTF_8);
+                metadataJson = readFileIntoString(value, Const.UTF_8);
                 break;
               case ("--HopRunConfigurationName"):
                 System.out.println("Pipeline run configuration name: " + value);
@@ -87,9 +86,9 @@ public class MainBeam {
         }
       } else {
         System.out.println("Argument 1 : Pipeline filename (.hpl)   : " + args[0]);
-        pipelineMetaXml = readFileIntoString(args[0], CONST_UTF_8);
+        pipelineMetaXml = readFileIntoString(args[0], Const.UTF_8);
         System.out.println("Argument 2 : Environment state filename: (.json)  : " + args[1]);
-        metadataJson = readFileIntoString(args[1], CONST_UTF_8);
+        metadataJson = readFileIntoString(args[1], Const.UTF_8);
         System.out.println("Argument 3 : Pipeline run configuration : " + args[2]);
         runConfigName = args[2];
         if (args.length > 3) {

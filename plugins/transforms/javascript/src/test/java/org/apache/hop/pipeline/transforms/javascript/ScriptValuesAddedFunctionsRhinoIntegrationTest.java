@@ -198,7 +198,7 @@ class ScriptValuesAddedFunctionsRhinoIntegrationTest {
 
   @Test
   void isCodepage_utf8_ascii() {
-    Object ok = ScriptValuesAddedFunctions.isCodepage(cx, scope, args("abc", "UTF-8"), null);
+    Object ok = ScriptValuesAddedFunctions.isCodepage(cx, scope, args("abc", Const.UTF_8), null);
     assertEquals(Boolean.TRUE, ok);
   }
 

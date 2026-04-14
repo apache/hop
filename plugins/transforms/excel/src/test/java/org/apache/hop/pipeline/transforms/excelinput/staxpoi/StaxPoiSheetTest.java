@@ -28,6 +28,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -305,7 +306,8 @@ class StaxPoiSheetTest {
     when(reader.getStylesTable()).thenReturn(styles);
     when(reader.getSheet(sheetId))
         .thenAnswer(
-            (Answer<InputStream>) invocation -> IOUtils.toInputStream(sheetContent, "UTF-8"));
+            (Answer<InputStream>)
+                invocation -> IOUtils.toInputStream(sheetContent, StandardCharsets.UTF_8));
     return reader;
   }
 

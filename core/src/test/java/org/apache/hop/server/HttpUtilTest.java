@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.variables.Variables;
@@ -36,7 +37,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(RestoreHopEnvironmentExtension.class)
 class HttpUtilTest {
 
-  static final String DEFAULT_ENCODING = "UTF-8";
   static final String STANDART =
       "(\u256e\u00b0-\u00b0)\u256e\u2533\u2501\u2501\u2533\u30c6\u30fc\u30d6"
           + "\u30eb(\u256f\u00b0\u25a1\u00b0)\u256f\u253b\u2501\u2501\u253b\u30aa\u30d5";
@@ -89,7 +89,7 @@ class HttpUtilTest {
    * @param in string to encode
    */
   private String canonicalBase64Encode(String in) throws IOException {
-    Charset charset = Charset.forName(DEFAULT_ENCODING);
+    Charset charset = StandardCharsets.UTF_8;
     CharsetEncoder encoder = charset.newEncoder();
     encoder.reset();
     ByteBuffer baosbf = encoder.encode(CharBuffer.wrap(in));

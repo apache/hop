@@ -1687,7 +1687,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           String xml = pipelineMeta.getXml(variables);
           OutputStream out = HopVfs.getOutputStream(filename, false);
           try {
-            out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+            out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
             out.write(xml.getBytes(StandardCharsets.UTF_8));
           } finally {
             out.flush();
@@ -1704,7 +1704,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable, IFileD
           String xml = workflowMeta.getXml(variables);
           OutputStream out = HopVfs.getOutputStream(filename, false);
           try {
-            out.write(XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(StandardCharsets.UTF_8));
+            out.write(XmlHandler.getXmlHeader(Const.UTF_8).getBytes(StandardCharsets.UTF_8));
             out.write(xml.getBytes(StandardCharsets.UTF_8));
           } finally {
             out.flush();

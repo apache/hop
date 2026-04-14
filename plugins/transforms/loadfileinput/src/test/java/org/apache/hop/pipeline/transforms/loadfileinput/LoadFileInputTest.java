@@ -305,7 +305,7 @@ class LoadFileInputTest {
     loadFileInputMeta.getAdditionalFields().setRootUriField("root uri");
 
     // string with UTF-8 encoding
-    loadFileInputMeta.setEncoding("UTF-8");
+    loadFileInputMeta.setEncoding(Const.UTF_8);
     fileInputList.addFile(getFile("UTF-8.txt"));
     Object[] result = loadFileInput.getOneRow();
     assertEquals(" UTF-8 string ÕÕÕ€ ", result[0]);
@@ -319,7 +319,7 @@ class LoadFileInputTest {
 
   @Test
   void testUTF8TrimLeft() throws HopException {
-    loadFileInputMeta.setEncoding("UTF-8");
+    loadFileInputMeta.setEncoding(Const.UTF_8);
     loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_LEFT);
     fileInputList.addFile(getFile("UTF-8.txt"));
     assertEquals("UTF-8 string ÕÕÕ€ ", loadFileInput.getOneRow()[0]);
@@ -327,7 +327,7 @@ class LoadFileInputTest {
 
   @Test
   void testUTF8TrimRight() throws HopException {
-    loadFileInputMeta.setEncoding("UTF-8");
+    loadFileInputMeta.setEncoding(Const.UTF_8);
     loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_RIGHT);
     fileInputList.addFile(getFile("UTF-8.txt"));
     assertEquals(" UTF-8 string ÕÕÕ€", loadFileInput.getOneRow()[0]);
@@ -335,7 +335,7 @@ class LoadFileInputTest {
 
   @Test
   void testUTF8Trim() throws HopException {
-    loadFileInputMeta.setEncoding("UTF-8");
+    loadFileInputMeta.setEncoding(Const.UTF_8);
     loadFileInputField.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
     fileInputList.addFile(getFile("UTF-8.txt"));
     assertEquals("UTF-8 string ÕÕÕ€", loadFileInput.getOneRow()[0]);
@@ -369,7 +369,7 @@ class LoadFileInputTest {
 
     // byte array
     Mockito.doReturn(new ValueMetaBinary()).when(mockedRowMetaInterface).getValueMeta(anyInt());
-    loadFileInputMeta.setEncoding("UTF-8");
+    loadFileInputMeta.setEncoding(Const.UTF_8);
     fileInputList.addFile(getFile("hop.jpg"));
     loadFileInputField = new LoadFileInputField();
     loadFileInputField.setType(IValueMeta.TYPE_BINARY);

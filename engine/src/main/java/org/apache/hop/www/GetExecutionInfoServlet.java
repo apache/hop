@@ -87,7 +87,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
     // Set character encoding before getting writer
     //
     response.setContentType("application/json");
-    response.setCharacterEncoding(Const.XML_ENCODING);
+    response.setCharacterEncoding(Const.UTF_8);
 
     PrintWriter out = getSafeWriter(response);
     if (out == null) {

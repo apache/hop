@@ -141,7 +141,7 @@ public class AsyncRunServlet extends BaseHttpServlet implements IHopServerPlugin
       // We give back the ID of the executing workflow...
       //
       response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
 
       String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =

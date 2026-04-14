@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -129,7 +130,7 @@ class ActionHttp_PDI208_Test {
 
   private File getInputFile(String prefix, String suffix) throws IOException {
     File inputFile = File.createTempFile(prefix, suffix);
-    FileUtils.writeStringToFile(inputFile, UUID.randomUUID().toString(), "UTF-8");
+    FileUtils.writeStringToFile(inputFile, UUID.randomUUID().toString(), StandardCharsets.UTF_8);
     return inputFile;
   }
 

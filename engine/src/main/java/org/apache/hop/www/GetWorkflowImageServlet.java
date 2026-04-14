@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serial;
 import java.nio.charset.StandardCharsets;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -85,7 +86,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
 
         response.setStatus(HttpServletResponse.SC_OK);
 
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(Const.UTF_8);
         response.setContentType("image/svg+xml");
 
         // Generate workflow SVG image

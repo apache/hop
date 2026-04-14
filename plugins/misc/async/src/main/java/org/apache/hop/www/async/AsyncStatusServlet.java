@@ -153,7 +153,7 @@ public class AsyncStatusServlet extends BaseHttpServlet implements IHopServerPlu
       // We give back all this information about the executing workflow in JSON format...
       //
       response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
       final OutputStream outputStream = response.getOutputStream();
 
       ObjectMapper mapper = HopJson.newMapper();

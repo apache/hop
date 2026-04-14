@@ -167,7 +167,7 @@ public class WebServiceServlet extends BaseHttpServlet implements IHopServerPlug
       } else {
         response.setContentType(contentType);
       }
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
 
       String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =

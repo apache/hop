@@ -30,6 +30,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hop.core.Const;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -73,7 +74,7 @@ class HttpPostTest {
       new BasicNameValuePair("city", "Sao Paulo"), new BasicNameValuePair("q", "a+b")
     };
 
-    assertEquals("city=Sao+Paulo&q=a%2Bb", http.getRequestBodyParamsAsStr(pairs, "UTF-8"));
+    assertEquals("city=Sao+Paulo&q=a%2Bb", http.getRequestBodyParamsAsStr(pairs, Const.UTF_8));
   }
 
   @Test
@@ -144,7 +145,7 @@ class HttpPostTest {
     HttpPost http = newTransform();
     CloseableHttpResponse response = responseWithBody("hello");
 
-    try (InputStreamReader reader = http.openStream("UTF-8", response)) {
+    try (InputStreamReader reader = http.openStream(Const.UTF_8, response)) {
       char[] buf = new char[5];
       int read = reader.read(buf);
       assertEquals(5, read);

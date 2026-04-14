@@ -148,7 +148,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         }
 
         if (useXml) {
-          out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+          out.print(XmlHandler.getXmlHeader(Const.UTF_8));
           out.println(serverStatus.getXml());
         } else {
           ObjectMapper mapper = HopJson.newMapper();

@@ -165,7 +165,7 @@ public class HtmlExplorerFileTypeHandler extends BaseExplorerFileTypeHandler {
       }
 
       // Read HTML content from file
-      String htmlContent = readTextFileContent("UTF-8");
+      String htmlContent = readTextFileContent(StandardCharsets.UTF_8);
       originalHtmlContent = Const.NVL(htmlContent, "");
 
       // Display HTML in browser widget

@@ -566,7 +566,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
       char[] tmp = new char[4096];
 
       try {
-        InputStreamReader reader = new InputStreamReader(is, encoding != null ? encoding : "UTF-8");
+        Charset charset = encoding != null ? Charset.forName(encoding) : StandardCharsets.UTF_8;
+        InputStreamReader reader = new InputStreamReader(is, charset);
         for (int cnt; (cnt = reader.read(tmp)) > 0; ) {
           sb.append(tmp, 0, cnt);
         }

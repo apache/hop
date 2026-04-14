@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
 import org.junit.jupiter.api.Test;
@@ -118,7 +120,7 @@ class CsvInputContentParsingTest extends BaseCsvParsingTest {
             + "\n"
             + "999,123,123,123,132,132,132,132,132\r";
 
-    String file = createTestFile("UTF-8", data).getAbsolutePath();
+    String file = createTestFile(StandardCharsets.UTF_8, data).getAbsolutePath();
     init(file, true);
 
     setFields(
@@ -158,11 +160,11 @@ class CsvInputContentParsingTest extends BaseCsvParsingTest {
     assertThrows(HopTransformException.class, () -> process());
   }
 
-  File createTestFile(final String encoding, final String content) throws IOException {
+  File createTestFile(final Charset charset, final String content) throws IOException {
     File tempFile = File.createTempFile("PDI_tmp", ".csv");
     tempFile.deleteOnExit();
 
-    try (PrintWriter osw = new PrintWriter(tempFile, encoding)) {
+    try (PrintWriter osw = new PrintWriter(tempFile, charset)) {
       osw.write(content);
     }
 

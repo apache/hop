@@ -302,7 +302,7 @@ public class Const {
   public static final String GENERALIZED_DATE_TIME_FORMAT_MILLIS = "yyyyddMM_hhmmssSSS";
 
   /** Default we store our information in Unicode UTF-8 character set. */
-  public static final String XML_ENCODING = "UTF-8";
+  public static final String UTF_8 = "UTF-8";
 
   /** Allow or disallow doctype declarations in XML. " */
   @Variable(value = "N", description = "A variable allow or disallow doctype declarations in XML")

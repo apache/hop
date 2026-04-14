@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
-import static org.apache.hop.pipeline.transforms.httppost.HttpPostMeta.DEFAULT_ENCODING;
-
 import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -487,7 +485,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       return "";
     }
 
-    Charset cs = Charset.forName(!StringUtil.isEmpty(charset) ? charset : DEFAULT_ENCODING);
+    Charset cs = Charset.forName(!StringUtil.isEmpty(charset) ? charset : Const.UTF_8);
     return URLEncodedUtils.format(Arrays.asList(pairs), cs);
   }
 
@@ -624,7 +622,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
             name,
             value,
             ContentType.TEXT_PLAIN.withCharset(
-                !StringUtil.isEmpty(data.realEncoding) ? data.realEncoding : DEFAULT_ENCODING));
+                !StringUtil.isEmpty(data.realEncoding) ? data.realEncoding : Const.UTF_8));
       } else {
         data.bodyParameters[i] = new BasicNameValuePair(name, value);
       }

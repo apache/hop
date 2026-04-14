@@ -32,6 +32,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
@@ -78,7 +79,7 @@ class HttpTest {
 
   @Test
   void handResponseReadsBodyAndTracksDataVolumeIn() throws Exception {
-    Http http = newTransform("UTF-8");
+    Http http = newTransform(Const.UTF_8);
     CloseableHttpResponse response = mock(CloseableHttpResponse.class);
     String payload = "hello http";
     doReturn(new StringEntity(payload, StandardCharsets.UTF_8)).when(response).getEntity();
@@ -92,7 +93,7 @@ class HttpTest {
 
   @Test
   void handResponseReturnsEmptyStringForNoContent() throws Exception {
-    Http http = newTransform("UTF-8");
+    Http http = newTransform(Const.UTF_8);
     CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 
     String body = invokeHandResponse(http, HttpURLConnection.HTTP_NO_CONTENT, response);
@@ -102,7 +103,7 @@ class HttpTest {
 
   @Test
   void handResponseThrowsForUnauthorizedStatus() {
-    Http http = newTransform("UTF-8");
+    Http http = newTransform(Const.UTF_8);
     CloseableHttpResponse response = mock(CloseableHttpResponse.class);
 
     assertThrows(

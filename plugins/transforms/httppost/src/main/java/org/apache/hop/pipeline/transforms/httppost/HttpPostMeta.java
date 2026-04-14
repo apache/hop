@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
@@ -59,8 +60,6 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
 
   // the time to wait till a connection is closed (milliseconds)? -1 is no not close.
   public static final int DEFAULT_CLOSE_CONNECTIONS_TIME = -1;
-
-  public static final String DEFAULT_ENCODING = "UTF-8";
 
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.socketTimeout")
   private String socketTimeout;
@@ -131,7 +130,7 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
 
   @Override
   public void setDefault() {
-    encoding = DEFAULT_ENCODING;
+    encoding = Const.UTF_8;
     postAFile = false;
     multipartupload = false;
     lookupFields.add(new HttpPostLookupField());

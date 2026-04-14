@@ -298,10 +298,10 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
         data.writer.writeStartDocument(meta.getEncoding(), "1.0");
       } else {
         if (isBasic()) {
-          logBasic("Opening output stream in default encoding : " + Const.XML_ENCODING);
+          logBasic("Opening output stream in default encoding : " + Const.UTF_8);
         }
         data.writer = XML_OUT_FACTORY.createXMLStreamWriter(outputStream);
-        data.writer.writeStartDocument(Const.XML_ENCODING, "1.0");
+        data.writer.writeStartDocument(Const.UTF_8, "1.0");
       }
       data.writer.writeCharacters(EOL);
 

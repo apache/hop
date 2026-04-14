@@ -46,10 +46,6 @@ import org.apache.hop.pipeline.transforms.jsoninput.exception.JsonInputException
 public class FastJsonReader implements IJsonReader {
   private static final Class<?> PKG = JsonInputMeta.class;
 
-  // as per RFC 7159, the default JSON encoding shall be UTF-8
-  // see https://tools.ietf.org/html/rfc7159#section-8.1
-  private static final String JSON_CHARSET = "UTF-8";
-
   private ReadContext jsonReadContext;
 
   /** used if the incoming value is a String */
@@ -163,7 +159,7 @@ public class FastJsonReader implements IJsonReader {
   }
 
   protected void readInput(InputStream is) throws HopException {
-    jsonReadContext = getParseContext().parse(is, JSON_CHARSET);
+    jsonReadContext = getParseContext().parse(is, Const.UTF_8);
     if (jsonReadContext == null) {
       throw new HopException(BaseMessages.getString(PKG, "JsonReader.Error.ReadUrl.Null"));
     }

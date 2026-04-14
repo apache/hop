@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -43,7 +44,7 @@ class CsvInputEnclosureTest extends CsvInputUnitTestBase {
   private TransformMockHelper<CsvInputMeta, CsvInputData> transformMockHelper;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     transformMockHelper =
         TransformMockUtil.getTransformMockHelper(
             CsvInputMeta.class, CsvInputData.class, "CsvInputEnclosureTest");
@@ -112,7 +113,7 @@ class CsvInputEnclosureTest extends CsvInputUnitTestBase {
   public void doTest(String content, String enclosure) throws Exception {
     IRowSet output = new QueueRowSet();
 
-    File tmp = createTestFile("utf-8", content);
+    File tmp = createTestFile(StandardCharsets.UTF_8, content);
     try {
       CsvInputMeta meta = createMeta(tmp, createInputFileFields("f1", "f2"), enclosure);
       CsvInputData data = new CsvInputData();

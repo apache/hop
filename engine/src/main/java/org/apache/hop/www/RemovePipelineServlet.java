@@ -97,7 +97,7 @@ public class RemovePipelineServlet extends BaseHttpServlet implements IHopServer
       getPipelineMap().removePipeline(entry);
 
       if (useXML) {
-        out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+        out.print(XmlHandler.getXmlHeader(Const.UTF_8));
         out.print(WebResult.OK.getXml());
       } else if (useJson) {
         out.println(WebResult.OK.getJson());

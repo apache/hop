@@ -33,6 +33,7 @@ import static org.mockito.Mockito.spy;
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -191,7 +192,7 @@ public class UIGitTest extends RepositoryTestCase {
     // Change
     a.renameTo(new File(git.getRepository().getWorkTree(), "a2.hpl"));
     b.delete();
-    FileUtils.writeStringToFile(c, "A change", "UTF-8");
+    FileUtils.writeStringToFile(c, "A change", StandardCharsets.UTF_8);
 
     // Test for unstaged
     unStagedObjects = uiGit.getUnstagedFiles();
@@ -240,13 +241,13 @@ public class UIGitTest extends RepositoryTestCase {
 
     // put some file in the source repo and sync
     File sourceFile = new File(db2.getWorkTree(), "SomeFile.txt");
-    FileUtils.writeStringToFile(sourceFile, "Hello world", "UTF-8");
+    FileUtils.writeStringToFile(sourceFile, "Hello world", StandardCharsets.UTF_8);
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Initial commit for source").call();
     git.pull().call();
 
     // change the source file
-    FileUtils.writeStringToFile(sourceFile, "Another change", "UTF-8");
+    FileUtils.writeStringToFile(sourceFile, "Another change", StandardCharsets.UTF_8);
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Some change in remote").call();
     git2.close();
@@ -262,18 +263,18 @@ public class UIGitTest extends RepositoryTestCase {
 
     // put some file in the source repo and sync
     File sourceFile = new File(db2.getWorkTree(), "SomeFile.txt");
-    FileUtils.writeStringToFile(sourceFile, "Hello world", "UTF-8");
+    FileUtils.writeStringToFile(sourceFile, "Hello world", StandardCharsets.UTF_8);
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Initial commit for source").call();
     git.pull().call();
 
     // change the source file
-    FileUtils.writeStringToFile(sourceFile, "Another change", "UTF-8");
+    FileUtils.writeStringToFile(sourceFile, "Another change", StandardCharsets.UTF_8);
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Some change in remote").call();
 
     File targetFile = new File(db.getWorkTree(), "OtherFile.txt");
-    FileUtils.writeStringToFile(targetFile, "Unconflicting change", "UTF-8");
+    FileUtils.writeStringToFile(targetFile, "Unconflicting change", StandardCharsets.UTF_8);
     git.add().addFilepattern("OtherFile.txt").call();
     git.commit().setMessage("Unconflicting change in local").call();
 
@@ -281,12 +282,12 @@ public class UIGitTest extends RepositoryTestCase {
 
     //  Change at local
     targetFile = new File(db.getWorkTree(), "SomeFile.txt");
-    FileUtils.writeStringToFile(targetFile, "Another change\nChange A", "UTF-8");
+    FileUtils.writeStringToFile(targetFile, "Another change\nChange A", StandardCharsets.UTF_8);
     git.add().addFilepattern("SomeFile.txt").call();
     git.commit().setMessage("Change A at local").call();
 
     //  Change the source file in a way that conflicts with the change at local
-    FileUtils.writeStringToFile(sourceFile, "Another change\nChange B", "UTF-8");
+    FileUtils.writeStringToFile(sourceFile, "Another change\nChange B", StandardCharsets.UTF_8);
     git2.add().addFilepattern("SomeFile.txt").call();
     git2.commit().setMessage("Change B at remote").call();
 
@@ -407,7 +408,7 @@ public class UIGitTest extends RepositoryTestCase {
     assertEquals(diff, diff2);
 
     // Add another line
-    FileUtils.writeStringToFile(file, "second commit", "UTF-8");
+    FileUtils.writeStringToFile(file, "second commit", StandardCharsets.UTF_8);
     git.add().addFilepattern("Test.txt").call();
     RevCommit commit2 = git.commit().setMessage("second commit").call();
 
@@ -424,14 +425,14 @@ public class UIGitTest extends RepositoryTestCase {
 
     InputStream inputStream = uiGit.open("Test.txt", commit.getName());
     StringWriter writer = new StringWriter();
-    IOUtils.copy(inputStream, writer, "UTF-8");
+    IOUtils.copy(inputStream, writer, StandardCharsets.UTF_8);
     assertEquals("Hello world", writer.toString());
     inputStream.close();
     writer.close();
 
     inputStream = uiGit.open("Test.txt", VCS.WORKINGTREE);
     writer = new StringWriter();
-    IOUtils.copy(inputStream, writer, "UTF-8");
+    IOUtils.copy(inputStream, writer, StandardCharsets.UTF_8);
     assertEquals("Hello world", writer.toString());
     inputStream.close();
     writer.close();
@@ -456,11 +457,11 @@ public class UIGitTest extends RepositoryTestCase {
     git.commit().setMessage("initial commit").call();
 
     // Add some change
-    FileUtils.writeStringToFile(file, "Change", "UTF-8");
-    assertEquals("Change", FileUtils.readFileToString(file, "UTF-8"));
+    FileUtils.writeStringToFile(file, "Change", StandardCharsets.UTF_8);
+    assertEquals("Change", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
 
     uiGit.revertPath(file.getName());
-    assertEquals("Hello world", FileUtils.readFileToString(file, "UTF-8"));
+    assertEquals("Hello world", FileUtils.readFileToString(file, StandardCharsets.UTF_8));
   }
 
   @Test

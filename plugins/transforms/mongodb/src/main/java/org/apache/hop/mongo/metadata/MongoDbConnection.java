@@ -18,8 +18,8 @@
 
 package org.apache.hop.mongo.metadata;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -409,11 +409,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     // Add appName if provided
     String resolvedAppName = variables.resolve(appName);
     if (StringUtils.isNotEmpty(resolvedAppName)) {
-      try {
-        queryParams.append("appName=").append(URLEncoder.encode(resolvedAppName, "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        queryParams.append("appName=").append(resolvedAppName);
-      }
+      queryParams
+          .append("appName=")
+          .append(URLEncoder.encode(resolvedAppName, StandardCharsets.UTF_8));
     }
 
     // Note: authSource and authMechanism are NOT added to connection string

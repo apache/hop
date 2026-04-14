@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
@@ -123,7 +124,7 @@ class JsonEOutputMetaTest {
     assertTrue(meta.getFileSettings().isCreateParentFolder());
     assertFalse(meta.getFileSettings().isDateInFileName());
     assertTrue(meta.getFileSettings().isDoNotOpenNewFileInit());
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
     assertEquals("json", meta.getFileSettings().getExtension());
     assertFalse(meta.getFileSettings().isFileAppended());
     assertEquals("filename", meta.getFileSettings().getFileName());

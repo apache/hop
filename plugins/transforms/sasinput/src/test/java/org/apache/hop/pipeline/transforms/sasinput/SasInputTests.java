@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 import com.epam.parso.SasFileProperties;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -67,7 +68,7 @@ class SasInputTests {
   @Test
   void testByteArray_withEncoding() {
     byte[] bytes = "Bob".getBytes(StandardCharsets.UTF_8);
-    SasInput.ConvertedValue result = input.convertSasValue(bytes, "name", property("UTF-8"));
+    SasInput.ConvertedValue result = input.convertSasValue(bytes, "name", property(Const.UTF_8));
 
     assertNotNull(result);
     assertInstanceOf(ValueMetaString.class, result.meta());

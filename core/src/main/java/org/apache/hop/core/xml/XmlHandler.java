@@ -94,7 +94,7 @@ public class XmlHandler {
    * @return The XML header.
    */
   public static String getXmlHeader() {
-    return getXmlHeader(Const.XML_ENCODING);
+    return getXmlHeader(Const.UTF_8);
   }
 
   /**

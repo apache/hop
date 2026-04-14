@@ -72,7 +72,7 @@ class CheckSumTest {
 
   @BeforeAll
   static void setUpBeforeClass() throws HopException {
-    System.setProperty("file.encoding", "UTF-8");
+    System.setProperty("file.encoding", Const.UTF_8);
     previousHopDefaultNumberFormat =
         System.getProperties().put(Const.HOP_DEFAULT_NUMBER_FORMAT, "0.0;-0.0");
     // Note: Removed reflection access to Charset.defaultCharset due to module system restrictions

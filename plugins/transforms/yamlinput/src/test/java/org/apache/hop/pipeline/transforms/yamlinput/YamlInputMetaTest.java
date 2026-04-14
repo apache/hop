@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -81,7 +82,7 @@ class YamlInputMetaTest {
     assertTrue(meta.isIgnoringEmptyFile());
     assertTrue(meta.isDoNotFailIfNoFile());
     assertEquals("rowNumField", meta.getRowNumberField());
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
     assertEquals(999L, meta.getRowLimit());
     assertTrue(meta.isSourceFile());
     assertTrue(meta.isInFields());

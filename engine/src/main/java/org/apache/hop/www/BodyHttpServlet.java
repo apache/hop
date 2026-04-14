@@ -73,7 +73,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
         startXml(response, out);
       } else if (useJson) {
         response.setContentType("application/json");
-        response.setCharacterEncoding(Const.XML_ENCODING);
+        response.setCharacterEncoding(Const.UTF_8);
       } else {
         beginHtml(response, out);
       }
@@ -129,8 +129,8 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
 
   protected void startXml(HttpServletResponse response, PrintWriter out) {
     response.setContentType("text/xml");
-    response.setCharacterEncoding(Const.XML_ENCODING);
-    out.print(XmlHandler.getXmlHeader(Const.XML_ENCODING));
+    response.setCharacterEncoding(Const.UTF_8);
+    out.print(XmlHandler.getXmlHeader(Const.UTF_8));
   }
 
   abstract WebResult generateBody(

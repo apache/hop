@@ -27,12 +27,14 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.compress.CompressionPluginType;
@@ -544,7 +546,7 @@ class TextFileOutputTest {
     TextFileOutputMeta meta = new TextFileOutputMeta();
     meta.setEndedLine("${endvar}");
     meta.setDefault();
-    meta.setEncoding("UTF-8");
+    meta.setEncoding(Const.UTF_8);
     transformMockHelper.transformMeta.setTransform(meta);
     TextFileOutput textFileOutput =
         new TextFileOutputTestHandler(
@@ -556,7 +558,7 @@ class TextFileOutputTest {
             transformMockHelper.pipeline);
     textFileOutput.setVariable("endvar", "this is the end");
     textFileOutput.writeEndedLine();
-    assertEquals("this is the end", baos.toString("UTF-8"));
+    assertEquals("this is the end", baos.toString(StandardCharsets.UTF_8));
   }
 
   private void assertNotInvokedTwice(TextFileField field) {
@@ -755,7 +757,7 @@ class TextFileOutputTest {
   void testFastDumpDisableStreamEncodeTest() throws Exception {
 
     String testString = "ÖÜä";
-    String inputEncode = "UTF-8";
+    String inputEncode = Const.UTF_8;
     String outputEncode = "Windows-1252";
     Object[] rows = {testString.getBytes(inputEncode)};
 

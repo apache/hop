@@ -1007,7 +1007,8 @@ class JsonInputTest {
 
       String json =
           FileObjectUtils.getContentAsString(
-              HopVfs.getFileObject("zip:" + BASE_RAM_DIR + "test.zip!/test.json"), "UTF-8");
+              HopVfs.getFileObject("zip:" + BASE_RAM_DIR + "test.zip!/test.json"),
+              StandardCharsets.UTF_8);
 
       JsonInputField price = new JsonInputField();
       price.setName("price");

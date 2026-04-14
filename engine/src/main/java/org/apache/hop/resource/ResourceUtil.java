@@ -124,7 +124,7 @@ public class ResourceUtil {
         // We add an extra file definition which gets picked up below and zipped up.
         //
         if (executionConfiguration != null) {
-          String encoding = Const.XML_ENCODING;
+          String encoding = Const.UTF_8;
           ResourceDefinition resourceDefinition =
               new ResourceDefinition(
                   injectFilename,

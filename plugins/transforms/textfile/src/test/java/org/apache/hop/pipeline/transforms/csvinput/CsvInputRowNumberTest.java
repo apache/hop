@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.csvinput;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironmentExtension;
@@ -49,7 +50,7 @@ class CsvInputRowNumberTest extends CsvInputUnitTestBase {
 
   @Test
   void hasNotEnclosures_HasNotNewLine() throws Exception {
-    File tmp = createTestFile("utf-8", "a,b\na,");
+    File tmp = createTestFile(StandardCharsets.UTF_8, "a,b\na,");
     try {
       doTest(tmp);
     } finally {

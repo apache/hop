@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -391,7 +392,7 @@ public class TableInputDialog extends BaseTransformDialog {
       return;
     }
     try {
-      String content = HopVfs.getTextFileContent(path, Const.XML_ENCODING);
+      String content = HopVfs.getTextFileContent(path, StandardCharsets.UTF_8);
       wSqlComposite.setText(content);
       wSqlComposite.setEditable(false);
     } catch (HopFileException e) {

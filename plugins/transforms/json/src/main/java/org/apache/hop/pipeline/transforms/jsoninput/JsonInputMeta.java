@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
@@ -608,6 +609,6 @@ public class JsonInputMeta extends BaseFileInputMeta<JsonInput, JsonInputData, B
 
   @Override
   public String getEncoding() {
-    return "UTF-8";
+    return Const.UTF_8;
   }
 }

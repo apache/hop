@@ -24,6 +24,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.apache.hop.core.Const;
 import org.junit.jupiter.api.Test;
 
 class BOMDetectorTest {
@@ -47,7 +48,7 @@ class BOMDetectorTest {
 
   @Test
   void testBOMs() throws Exception {
-    testBOM("test-BOM-UTF-8.txt", "UTF-8");
+    testBOM("test-BOM-UTF-8.txt", Const.UTF_8);
     testBOM("test-BOM-UTF-16BE.txt", "UTF-16BE");
     testBOM("test-BOM-UTF-16LE.txt", "UTF-16LE");
     testBOM("test-BOM-UTF-32BE.txt", "UTF-32BE");

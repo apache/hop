@@ -79,7 +79,6 @@ import org.eclipse.swt.widgets.Text;
 
 public class GetXmlDataDialog extends BaseTransformDialog {
   private static final Class<?> PKG = GetXmlDataMeta.class;
-  public static final String CONST_UTF_8 = "UTF-8";
   public static final String CONST_SYSTEM_COMBO_YES = "System.Combo.Yes";
   public static final String CONST_GET_XMLDATA_DIALOG_FAILED_TO_GET_FIELDS_DIALOG_TITLE =
       "GetXMLDataDialog.FailedToGetFields.DialogTitle";
@@ -1430,7 +1429,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
             }
             readFilePdOption.resetOption();
             readFilePdOption.setEncoding(
-                meta.getEncoding() == null ? CONST_UTF_8 : meta.getEncoding());
+                meta.getEncoding() == null ? Const.UTF_8 : meta.getEncoding());
             readFilePdOption.setValidating(meta.isValidating());
             LoopNodesImportProgressDialog pd =
                 new LoopNodesImportProgressDialog(shell, str, readFilePdOption);
@@ -1462,7 +1461,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
             readHopVfsPdOption.resetOption();
             readHopVfsPdOption.setValidating(meta.isValidating());
             readHopVfsPdOption.setEncoding(
-                meta.getEncoding() == null ? CONST_UTF_8 : meta.getEncoding());
+                meta.getEncoding() == null ? Const.UTF_8 : meta.getEncoding());
             String xml = HopVfs.getFilename(fileinputList.getFile(0));
             LoopNodesImportProgressDialog pd =
                 new LoopNodesImportProgressDialog(shell, xml, readHopVfsPdOption);
@@ -1605,7 +1604,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
       }
 
       // Now select the default!
-      String defEncoding = Const.getEnvironmentVariable("file.encoding", CONST_UTF_8);
+      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
       int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
       if (idx >= 0) {
         wEncoding.select(idx);
@@ -1678,7 +1677,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     if (in.getEncoding() != null) {
       wEncoding.setText("" + in.getEncoding());
     } else {
-      wEncoding.setText(CONST_UTF_8);
+      wEncoding.setText(Const.UTF_8);
     }
 
     logDebug(BaseMessages.getString(PKG, "GetXMLDataDialog.Log.GettingFieldsInfo"));

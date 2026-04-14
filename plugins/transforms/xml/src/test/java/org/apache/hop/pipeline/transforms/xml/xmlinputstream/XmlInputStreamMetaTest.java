@@ -18,6 +18,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -82,7 +83,7 @@ class XmlInputStreamMetaTest {
     Assertions.assertEquals("123", meta.getNrRowsToSkip());
     Assertions.assertEquals("456", meta.getRowLimit());
     Assertions.assertEquals("2048", meta.getDefaultStringLen());
-    Assertions.assertEquals("UTF-8", meta.getEncoding());
+    Assertions.assertEquals(Const.UTF_8, meta.getEncoding());
     Assertions.assertTrue(meta.isEnableNamespaces());
     Assertions.assertTrue(meta.isEnableTrim());
   }

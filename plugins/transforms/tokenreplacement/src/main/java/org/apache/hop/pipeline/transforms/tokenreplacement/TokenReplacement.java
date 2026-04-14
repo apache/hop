@@ -188,7 +188,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       }
       data.currentCountingInputStream =
           new CountingInputStream(HopVfs.getInputStream(inputFilename, variables));
-      String inputEncoding = Const.NVL(resolve(meta.getOutputFileEncoding()), "UTF-8");
+      String inputEncoding = Const.NVL(resolve(meta.getOutputFileEncoding()), Const.UTF_8);
       reader =
           new TokenReplacingReader(
               resolver,

@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.Charset;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -43,7 +45,6 @@ class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
   static RestoreHopEngineEnvironmentExtension env = new RestoreHopEngineEnvironmentExtension();
 
   private static final String ASCII = "windows-1252";
-  private static final String UTF8 = "UTF-8";
   private static final String UTF16LE = "UTF-16LE";
   private static final String UTF16BE = "UTF-16BE";
   private static final String TEST_DATA = "Header1\tHeader2\r\nValue\tValue\r\nValue\tValue\r\n";
@@ -82,13 +83,14 @@ class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
 
   @Test
   void testUTF8() throws Exception {
-    doTest(UTF8, UTF8, TEST_DATA);
+    doTest(Const.UTF_8, Const.UTF_8, TEST_DATA);
   }
 
   private void doTest(
       final String fileEncoding, final String transformEncoding, final String testData)
       throws Exception {
-    String testFilePath = createTestFile(fileEncoding, testData).getAbsolutePath();
+    Charset charset = Charset.forName(fileEncoding);
+    String testFilePath = createTestFile(charset, testData).getAbsolutePath();
 
     CsvInputMeta meta = createTransformMeta(testFilePath, transformEncoding);
     CsvInputData data = new CsvInputData();

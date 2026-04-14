@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
@@ -332,13 +333,13 @@ class HttpPostExecutionTest {
   void callHttpPOSTWithEncodingSetsContentTypeWithCharset() throws Exception {
     HttpPostMeta meta = bodyOnlyMeta();
     HttpPostData data = minimalData(baseUrl() + "/echo");
-    data.realEncoding = "UTF-8";
+    data.realEncoding = Const.UTF_8;
 
     HttpPost http = newPost(meta, data);
     http.callHttpPOST(new Object[0]);
 
     assertNotNull(lastRequestContentType.get());
-    assertTrue(lastRequestContentType.get().contains("UTF-8"));
+    assertTrue(lastRequestContentType.get().contains(Const.UTF_8));
   }
 
   // ---- reflection helpers ----

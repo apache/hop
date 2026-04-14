@@ -516,8 +516,7 @@ public class GlobalMessageUtil {
         try {
           // use UTF-8 encoding
           bundle =
-              new PropertyResourceBundle(
-                  new InputStreamReader(stream, StandardCharsets.UTF_8.name()));
+              new PropertyResourceBundle(new InputStreamReader(stream, StandardCharsets.UTF_8));
         } finally {
           stream.close();
         }

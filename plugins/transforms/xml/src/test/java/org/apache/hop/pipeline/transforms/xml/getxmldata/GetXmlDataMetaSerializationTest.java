@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -45,7 +46,7 @@ class GetXmlDataMetaSerializationTest {
     originalMeta.setDefault();
 
     // Configure basic settings
-    originalMeta.setEncoding("UTF-8");
+    originalMeta.setEncoding(Const.UTF_8);
     originalMeta.setLoopXPath("/root");
     originalMeta.setInFields(false);
     originalMeta.setAFile(false);
@@ -87,7 +88,7 @@ class GetXmlDataMetaSerializationTest {
     // Get XML and verify it can be generated
     String xml = originalMeta.getXml();
     assertNotNull(xml);
-    assertTrue(xml.contains("UTF-8"));
+    assertTrue(xml.contains(Const.UTF_8));
     assertTrue(xml.contains("/root"));
     assertTrue(xml.contains("tag1"));
     assertTrue(xml.contains("tag2"));
@@ -217,7 +218,7 @@ class GetXmlDataMetaSerializationTest {
     meta.setInputFields(inputFields);
 
     meta.setLoopXPath("/root/item");
-    meta.setEncoding("UTF-8");
+    meta.setEncoding(Const.UTF_8);
     meta.setRowLimit(1000L);
 
     // Clone the meta
@@ -234,7 +235,7 @@ class GetXmlDataMetaSerializationTest {
     assertEquals("field1", cloned.getInputFields().get(0).getName());
     assertEquals("field2", cloned.getInputFields().get(1).getName());
     assertEquals("/root/item", cloned.getLoopXPath());
-    assertEquals("UTF-8", cloned.getEncoding());
+    assertEquals(Const.UTF_8, cloned.getEncoding());
     assertEquals(1000L, cloned.getRowLimit());
   }
 
@@ -264,7 +265,7 @@ class GetXmlDataMetaSerializationTest {
     meta.setInputFields(inputFields);
 
     meta.setLoopXPath("/root/items/item");
-    meta.setEncoding("UTF-8");
+    meta.setEncoding(Const.UTF_8);
     meta.setInFields(true);
     meta.setXmlField("xml_content");
     meta.setRowLimit(500L);
@@ -278,7 +279,7 @@ class GetXmlDataMetaSerializationTest {
     // Verify XML contains key configuration (files are serialized via HopMetadataProperty, not
     // getXml())
     assertNotNull(xml);
-    assertTrue(xml.contains("UTF-8"));
+    assertTrue(xml.contains(Const.UTF_8));
     assertTrue(xml.contains("/root/items/item"));
     assertTrue(xml.contains("xml_content"));
     assertTrue(xml.contains("filename"));

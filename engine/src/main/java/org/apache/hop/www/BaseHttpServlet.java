@@ -157,10 +157,10 @@ public class BaseHttpServlet extends HttpServlet {
   protected void setResponseFormat(HttpServletResponse response, boolean useXml, boolean useJson) {
     if (useXml) {
       response.setContentType("text/xml");
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
     } else if (useJson) {
       response.setContentType("application/json");
-      response.setCharacterEncoding(Const.XML_ENCODING);
+      response.setCharacterEncoding(Const.UTF_8);
     } else {
       response.setContentType("text/html;charset=UTF-8");
     }
@@ -233,7 +233,7 @@ public class BaseHttpServlet extends HttpServlet {
     WebResult errorResult = new WebResult(WebResult.STRING_ERROR, clientMessage);
     try {
       if (useXml) {
-        String payload = XmlHandler.getXmlHeader(Const.XML_ENCODING) + errorResult.getXml();
+        String payload = XmlHandler.getXmlHeader(Const.UTF_8) + errorResult.getXml();
         byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
         if (writer != null) {
           writer.write(payload);
@@ -330,7 +330,7 @@ public class BaseHttpServlet extends HttpServlet {
       if (contentType.getCharset() != null) {
         return contentType.getCharset().name();
       }
-      return Const.XML_ENCODING;
+      return Const.UTF_8;
     }
     return null;
   }

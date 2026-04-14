@@ -21,6 +21,7 @@ package org.apache.hop.workflow.actions.ftpput;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
@@ -58,7 +59,7 @@ class ActionFtpPutTest {
     assertTrue(action.isRemove());
     assertTrue(action.isOnlyPuttingNewFiles());
     assertTrue(action.isActiveConnection());
-    assertEquals("UTF-8", action.getControlEncoding());
+    assertEquals(Const.UTF_8, action.getControlEncoding());
     assertEquals("proxy-host", action.getProxyHost());
     assertEquals("proxy-port", action.getProxyPort());
     assertEquals("proxy-username", action.getProxyUsername());

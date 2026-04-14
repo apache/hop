@@ -21,8 +21,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -241,9 +241,9 @@ public class ValueMetaUuid extends ValueMetaBase {
     }
 
     try {
-      return u.toString().getBytes(getStringEncoding() == null ? "UTF-8" : getStringEncoding());
-    } catch (UnsupportedEncodingException e) {
-      throw new HopValueException("Unsupported encoding for UUID", e);
+      String encode = getStringEncoding();
+      Charset charset = encode == null ? StandardCharsets.UTF_8 : Charset.forName(encode);
+      return u.toString().getBytes(charset);
     } catch (Exception e) {
       throw new HopValueException("Unable to get binary string for UUID", e);
     }

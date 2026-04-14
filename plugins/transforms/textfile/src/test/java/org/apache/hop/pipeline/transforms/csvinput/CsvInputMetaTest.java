@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
@@ -102,7 +103,7 @@ class CsvInputMetaTest {
     assertTrue(meta.isAddResult());
     assertTrue(meta.isRunningInParallel());
     assertTrue(meta.isNewlinePossibleInFields());
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
     assertNotNull(meta.getInputFields());
     assertEquals(2, meta.getInputFields().size());
 

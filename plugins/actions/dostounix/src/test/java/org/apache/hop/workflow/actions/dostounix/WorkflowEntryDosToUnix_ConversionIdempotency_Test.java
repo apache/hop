@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.vfs.HopVfs;
@@ -166,7 +167,7 @@ class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
 
     entry.convert(HopVfs.getFileObject(tmpFilePath), toUnix);
 
-    String converted = HopVfs.getTextFileContent(tmpFilePath, "UTF-8");
+    String converted = HopVfs.getTextFileContent(tmpFilePath, StandardCharsets.UTF_8);
     assertEquals(expected, converted);
   }
 }

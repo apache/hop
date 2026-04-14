@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
@@ -68,8 +69,6 @@ public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, Property
       };
 
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
-
-  public static final String DEFAULT_ENCODING = "UTF-8";
 
   private static final String YES = "Y";
 
@@ -212,7 +211,7 @@ public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, Property
 
     fileType = FileType.PROPERTY;
     section = "";
-    encoding = DEFAULT_ENCODING;
+    encoding = Const.UTF_8;
     includeIniSection = false;
     iniSectionField = "";
     resolvingValueVariable = false;

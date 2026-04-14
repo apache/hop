@@ -179,7 +179,7 @@ public class JsonEOutputMeta extends BaseTransformMeta<JsonEOutput, JsonEOutputD
     this.outputFields = new ArrayList<>();
     this.keyFields = new ArrayList<>();
     operationType = OperationType.WRITE_TO_FILE;
-    encoding = Const.XML_ENCODING;
+    encoding = Const.UTF_8;
     outputValue = CONST_OUTPUT_VALUE;
     jsonBloc = "";
   }

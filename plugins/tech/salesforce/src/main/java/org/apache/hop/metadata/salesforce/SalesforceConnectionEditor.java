@@ -24,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -749,10 +750,18 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       }
       url.append("services/oauth2/authorize?");
       url.append("response_type=code&");
-      url.append("client_id=").append(URLEncoder.encode(clientId, "UTF-8")).append("&");
-      url.append("redirect_uri=").append(URLEncoder.encode(redirectUri, "UTF-8")).append("&");
-      url.append("scope=").append(URLEncoder.encode("api refresh_token", "UTF-8")).append("&");
-      url.append("code_challenge=").append(URLEncoder.encode(codeChallenge, "UTF-8")).append("&");
+      url.append("client_id=")
+          .append(URLEncoder.encode(clientId, StandardCharsets.UTF_8))
+          .append("&");
+      url.append("redirect_uri=")
+          .append(URLEncoder.encode(redirectUri, StandardCharsets.UTF_8))
+          .append("&");
+      url.append("scope=")
+          .append(URLEncoder.encode("api refresh_token", StandardCharsets.UTF_8))
+          .append("&");
+      url.append("code_challenge=")
+          .append(URLEncoder.encode(codeChallenge, StandardCharsets.UTF_8))
+          .append("&");
       url.append("code_challenge_method=S256");
 
       // Add prompt=consent only if force consent is requested
@@ -776,7 +785,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
 
       // Generate code challenge (SHA256 hash of code verifier)
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      byte[] hash = digest.digest(codeVerifier.getBytes("UTF-8"));
+      byte[] hash = digest.digest(codeVerifier.getBytes(StandardCharsets.UTF_8));
       codeChallenge = Base64.getUrlEncoder().withoutPadding().encodeToString(hash);
 
     } catch (Exception e) {
@@ -978,7 +987,7 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       }
 
       // URL decode the authorization code
-      String decodedCode = URLDecoder.decode(authorizationCode, "UTF-8");
+      String decodedCode = URLDecoder.decode(authorizationCode, StandardCharsets.UTF_8);
 
       // Build token endpoint URL
       String tokenUrl = instanceUrl;
@@ -997,21 +1006,29 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       // Build the request body
       StringBuilder requestBody = new StringBuilder();
       requestBody.append("grant_type=authorization_code&");
-      requestBody.append("client_id=").append(URLEncoder.encode(clientId, "UTF-8")).append("&");
+      requestBody
+          .append("client_id=")
+          .append(URLEncoder.encode(clientId, StandardCharsets.UTF_8))
+          .append("&");
       requestBody
           .append("client_secret=")
-          .append(URLEncoder.encode(clientSecret, "UTF-8"))
+          .append(URLEncoder.encode(clientSecret, StandardCharsets.UTF_8))
           .append("&");
       requestBody
           .append("redirect_uri=")
-          .append(URLEncoder.encode(redirectUri, "UTF-8"))
+          .append(URLEncoder.encode(redirectUri, StandardCharsets.UTF_8))
           .append("&");
-      requestBody.append("code=").append(URLEncoder.encode(decodedCode, "UTF-8")).append("&");
-      requestBody.append("code_verifier=").append(URLEncoder.encode(codeVerifier, "UTF-8"));
+      requestBody
+          .append("code=")
+          .append(URLEncoder.encode(decodedCode, StandardCharsets.UTF_8))
+          .append("&");
+      requestBody
+          .append("code_verifier=")
+          .append(URLEncoder.encode(codeVerifier, StandardCharsets.UTF_8));
 
       // Send the request
       try (OutputStream os = connection.getOutputStream()) {
-        byte[] input = requestBody.toString().getBytes("UTF-8");
+        byte[] input = requestBody.toString().getBytes(StandardCharsets.UTF_8);
         os.write(input, 0, input.length);
       }
 
@@ -1098,7 +1115,8 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
       if (filename != null) {
         // Read the private key file
         java.nio.file.Path path = java.nio.file.Paths.get(filename);
-        String keyContent = new String(java.nio.file.Files.readAllBytes(path), "UTF-8");
+        String keyContent =
+            new String(java.nio.file.Files.readAllBytes(path), StandardCharsets.UTF_8);
 
         // Validate it looks like a private key
         if (keyContent.contains("BEGIN") && keyContent.contains("PRIVATE KEY")) {

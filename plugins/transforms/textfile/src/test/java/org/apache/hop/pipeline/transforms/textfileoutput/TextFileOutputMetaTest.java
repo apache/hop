@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -215,7 +216,7 @@ class TextFileOutputMetaTest {
     assertTrue(meta.isFooterEnabled());
     assertEquals("UNIX", meta.getFileFormat());
     assertEquals("Snappy", meta.getFileCompression());
-    assertEquals("UTF-8", meta.getEncoding());
+    assertEquals(Const.UTF_8, meta.getEncoding());
     assertTrue(StringUtils.isEmpty(meta.getEndedLine()));
     assertTrue(meta.isFileNameInField());
     assertEquals("filenameField", meta.getFileNameField());

@@ -207,7 +207,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
         }
       } else {
         // get encoding. By default UTF-8
-        String encoding = "UTF-8";
+        String encoding = Const.UTF_8;
         if (!Utils.isEmpty(meta.getEncoding())) {
           encoding = meta.getEncoding();
         }
