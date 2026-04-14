@@ -1094,9 +1094,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     // If we mousedown on icon but never committed to drag, treat as click (promote for click
-    // handling below)
+    // handling below). Do not promote when this mouseUp is already a background click: otherwise
+    // stale currentTransform makes an empty-canvas release look like a transform click and
+    // selection is never cleared.
     if (selectedTransform == null
         && currentTransform != null
+        && singleClickType != SingleClickType.Pipeline
         && startHopTransform == null
         && selectionRegion == null
         && selectedTransforms == null
