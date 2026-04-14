@@ -19,6 +19,8 @@ package org.apache.hop.projects.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.git.GitRepoAuth;
 import org.apache.hop.projects.git.GitRepoProvider;
@@ -87,7 +89,7 @@ public class SelectRepositoryDialog extends Dialog {
   private String selectedCloneUrl;
 
   /** The name of the selected repository, or {@code null} if cancelled. */
-  private String selectedRepoName;
+  @Getter private String selectedRepoName;
 
   private final List<GitRepositoryInfo> loadedRepos = new ArrayList<>();
   private int currentPage = 1;
@@ -315,11 +317,7 @@ public class SelectRepositoryDialog extends Dialog {
     wRepoTable.setLayoutData(fdTable);
 
     // Single click selects; double click selects and closes
-    wRepoTable.addListener(
-        SWT.Selection,
-        e -> {
-          wOk.setEnabled(wRepoTable.getSelectionCount() > 0);
-        });
+    wRepoTable.addListener(SWT.Selection, e -> wOk.setEnabled(wRepoTable.getSelectionCount() > 0));
     wRepoTable.addListener(SWT.DefaultSelection, e -> ok());
 
     // --- Load more button ---
@@ -345,11 +343,6 @@ public class SelectRepositoryDialog extends Dialog {
       }
     }
     return selectedCloneUrl;
-  }
-
-  /** Returns the repo name of the last selection. */
-  public String getSelectedRepoName() {
-    return selectedRepoName;
   }
 
   // ---------------------------------------------------------------------------
@@ -503,14 +496,14 @@ public class SelectRepositoryDialog extends Dialog {
     return switch (provider) {
       case GITHUB_ENTERPRISE -> {
         if (!hostValue.isEmpty()) {
-          String base = hostValue.replaceAll("/+$", "");
+          String base = StringUtil.trimEnd(hostValue, '/');
           yield base + "/api/v3";
         }
         yield null;
       }
       case GITLAB -> {
         if (!hostValue.isEmpty()) {
-          String base = hostValue.replaceAll("/+$", "");
+          String base = StringUtil.trimEnd(hostValue, '/');
           yield base + "/api/v4";
         }
         yield null; // default to gitlab.com

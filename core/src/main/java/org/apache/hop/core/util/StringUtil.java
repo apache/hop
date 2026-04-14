@@ -602,12 +602,11 @@ public class StringUtil {
    * @return a new string with all instances of the specified character removed from the end
    */
   public static String trimEnd(final String source, char c) {
-    if (source == null) {
-      return null;
+    if (source == null || source.isEmpty()) {
+      return source;
     }
 
     int index = source.length();
-
     while (index > 0 && source.charAt(index - 1) == c) {
       index--;
     }

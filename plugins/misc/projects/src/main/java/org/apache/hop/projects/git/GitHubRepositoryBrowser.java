@@ -26,6 +26,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.StringUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -49,7 +50,7 @@ class GitHubRepositoryBrowser implements GitRepositoryBrowser {
 
     String base =
         (apiBaseUrl != null && !apiBaseUrl.isBlank())
-            ? apiBaseUrl.replaceAll("/+$", "")
+            ? StringUtil.trimEnd(apiBaseUrl, '/')
             : DEFAULT_API;
     String url =
         base

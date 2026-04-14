@@ -217,5 +217,7 @@ class StringUtilTest {
   @Test
   void testTrimEnd_None() {
     assertEquals("/file/path", StringUtil.trimEnd("/file/path", '/'));
+    assertEquals("", StringUtil.trimEnd("/", '/'));
+    assertEquals("", StringUtil.trimEnd("///", '/'));
   }
 }

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.StringUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -55,7 +56,7 @@ class BitbucketRepositoryBrowser implements GitRepositoryBrowser {
 
     String base =
         (apiBaseUrl != null && !apiBaseUrl.isBlank())
-            ? apiBaseUrl.replaceAll("/+$", "")
+            ? StringUtil.trimEnd(apiBaseUrl, '/')
             : DEFAULT_API;
 
     // /repositories/{workspace} lists repos for one workspace; /repositories lists all the user
@@ -71,13 +72,9 @@ class BitbucketRepositoryBrowser implements GitRepositoryBrowser {
             .append("&sort=-updated_on");
 
     if (searchQuery != null && !searchQuery.isBlank()) {
-      try {
-        url.append("&q=name+%7E+%22")
-            .append(java.net.URLEncoder.encode(searchQuery, "UTF-8"))
-            .append("%22");
-      } catch (java.io.UnsupportedEncodingException e) {
-        // UTF-8 is always supported
-      }
+      url.append("&q=name+%7E+%22")
+          .append(java.net.URLEncoder.encode(searchQuery, StandardCharsets.UTF_8))
+          .append("%22");
     }
 
     String credentials =
@@ -180,10 +177,6 @@ class BitbucketRepositoryBrowser implements GitRepositoryBrowser {
   }
 
   private static String encode(String value) {
-    try {
-      return java.net.URLEncoder.encode(value, "UTF-8");
-    } catch (java.io.UnsupportedEncodingException e) {
-      return value;
-    }
+    return java.net.URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 }

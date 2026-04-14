@@ -22,10 +22,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.StringUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -49,7 +51,7 @@ class GitLabRepositoryBrowser implements GitRepositoryBrowser {
 
     String base =
         (apiBaseUrl != null && !apiBaseUrl.isBlank())
-            ? apiBaseUrl.replaceAll("/+$", "")
+            ? StringUtil.trimEnd(apiBaseUrl, '/')
             : DEFAULT_API;
 
     StringBuilder url =
@@ -61,11 +63,8 @@ class GitLabRepositoryBrowser implements GitRepositoryBrowser {
             .append(page);
 
     if (searchQuery != null && !searchQuery.isBlank()) {
-      try {
-        url.append("&search=").append(java.net.URLEncoder.encode(searchQuery, "UTF-8"));
-      } catch (java.io.UnsupportedEncodingException e) {
-        // UTF-8 is always supported
-      }
+      url.append("&search=")
+          .append(java.net.URLEncoder.encode(searchQuery, StandardCharsets.UTF_8));
     }
 
     HttpRequest.Builder requestBuilder =
