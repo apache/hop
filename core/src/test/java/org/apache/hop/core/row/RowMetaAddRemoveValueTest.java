@@ -173,6 +173,27 @@ class RowMetaAddRemoveValueTest {
     assertEquals(0, rowMeta.size());
   }
 
+  /**
+   * After removeValueMeta the name cache is cleared; adding a field that collides with an existing
+   * name must still rename (e.g. second Database Lookup after Select Values dropped {@code *_1}).
+   */
+  @Test
+  void duplicateRenameAfterRemovingRenamedField() throws Exception {
+    IRowMeta rowMeta = new RowMeta();
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("brand", IValueMeta.TYPE_INTEGER));
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("brand", IValueMeta.TYPE_STRING));
+    assertEquals("brand", rowMeta.getValueMeta(0).getName());
+    assertEquals("brand_1", rowMeta.getValueMeta(1).getName());
+
+    rowMeta.removeValueMeta("brand_1");
+    assertEquals(1, rowMeta.size());
+
+    rowMeta.addValueMeta(ValueMetaFactory.createValueMeta("brand", IValueMeta.TYPE_STRING));
+    assertEquals(2, rowMeta.size());
+    assertEquals("brand", rowMeta.getValueMeta(0).getName());
+    assertEquals("brand_1", rowMeta.getValueMeta(1).getName());
+  }
+
   @Test
   void testAddRemoveValueCaseInsensitive() throws Exception {
     IRowMeta rowMeta = new RowMeta();

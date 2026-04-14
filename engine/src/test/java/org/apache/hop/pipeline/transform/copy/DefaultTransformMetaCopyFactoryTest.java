@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +43,10 @@ class DefaultTransformMetaCopyFactoryTest {
   private DummyMeta dummyMeta;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
+    PluginRegistry.getInstance()
+        .registerPluginClass(DummyMeta.class.getName(), TransformPluginType.class, Transform.class);
+
     factory = DefaultTransformMetaCopyFactory.getInstance();
 
     // Create a test transform metadata

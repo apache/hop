@@ -231,6 +231,29 @@ public class RowMeta implements IRowMeta {
   }
 
   /**
+   * Resolves an existing column index for duplicate detection. Must be called with the write lock
+   * held. After {@link #removeValueMeta(int)} the name cache is cleared; this method still finds
+   * matches by scanning {@link #valueMetaList} (same idea as {@link #indexOfValue(String)}).
+   */
+  private Integer indexOfExistingValueMetaIgnoreCase(String name) {
+    if (Utils.isEmpty(name)) {
+      return null;
+    }
+    Integer index = cache.findAndCompare(name, valueMetaList);
+    if (index != null) {
+      return index;
+    }
+    for (int i = 0; i < valueMetaList.size(); i++) {
+      if (name.equalsIgnoreCase(valueMetaList.get(i).getName())) {
+        cache.storeMapping(name, i);
+        needRealClone = null;
+        return i;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Add a metadata value. If a value with the same name already exists, it gets renamed.
    *
    * @param meta The metadata value to add
@@ -241,7 +264,7 @@ public class RowMeta implements IRowMeta {
       lock.writeLock().lock();
       try {
         IValueMeta newMeta;
-        Integer existsIdx = cache.findAndCompare(meta.getName(), valueMetaList);
+        Integer existsIdx = indexOfExistingValueMetaIgnoreCase(meta.getName());
         if (existsIdx == null) {
           newMeta = meta;
         } else {
@@ -270,7 +293,7 @@ public class RowMeta implements IRowMeta {
       lock.writeLock().lock();
       try {
         IValueMeta newMeta;
-        Integer existsIdx = cache.findAndCompare(meta.getName(), valueMetaList);
+        Integer existsIdx = indexOfExistingValueMetaIgnoreCase(meta.getName());
         if (existsIdx == null) {
           newMeta = meta;
         } else {

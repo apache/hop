@@ -101,6 +101,8 @@ class PipelineMetaTest {
     PluginRegistry registry = PluginRegistry.getInstance();
     registry.registerPluginClass(
         FakeMeta.class.getName(), TransformPluginType.class, Transform.class);
+    registry.registerPluginClass(
+        DummyMeta.class.getName(), TransformPluginType.class, Transform.class);
   }
 
   @Test
