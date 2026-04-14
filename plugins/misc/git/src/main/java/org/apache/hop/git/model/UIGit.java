@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import lombok.Getter;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
@@ -133,12 +136,9 @@ public class UIGit extends VCS {
     HttpTransport.setConnectionFactory(new HttpClientConnectionFactory());
   }
 
-  private Git git;
+  @Getter private Git git;
   private CredentialsProvider credentialsProvider;
 
-  /* (non-Javadoc)
-   * @see org.apache.hop.git.spoon.model.VCS#getDirectory()
-   */
   public String getDirectory() {
     return directory;
   }
@@ -532,8 +532,12 @@ public class UIGit extends VCS {
 
   /** Reset to a commit (mixed) */
   public void reset(String name) {
+    reset(name, ResetType.MIXED);
+  }
+
+  public void reset(String name, ResetType type) {
     try {
-      git.reset().setRef(name).call();
+      git.reset().setRef(name).setMode(type).call();
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
     }
@@ -579,6 +583,19 @@ public class UIGit extends VCS {
       return true;
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+    }
+    return false;
+  }
+
+  public boolean fetch() throws HopException {
+    if (!hasRemote()) {
+      throw new HopException("There is no remote set up to fetch from. Please set this up first.");
+    }
+
+    try {
+      git.fetch().setCredentialsProvider(credentialsProvider).setCheckFetchedObjects(true).call();
+    } catch (Exception e) {
+      throw new HopException("There was an error doing a git fetch", e);
     }
     return false;
   }
@@ -977,10 +994,56 @@ public class UIGit extends VCS {
     }
   }
 
-  public boolean createBranch(String value) {
+  /**
+   * Checks if a given path is already ignored in the specified .gitignore file.
+   *
+   * @param gitIgnore The .gitignore file to be checked.
+   * @param path The path to verify against the .gitignore file.
+   * @return true if the path is already ignored; false otherwise.
+   * @throws IOException If an I/O error occurs while reading the .gitignore file.
+   */
+  private boolean isAlreadyIgnored(File gitIgnore, String path) throws IOException {
+    List<String> lines = Files.readAllLines(gitIgnore.toPath(), StandardCharsets.UTF_8);
+    return lines.stream().map(String::trim).anyMatch(line -> line.equals(path.trim()));
+  }
+
+  public void addPathToIgnore(String path) {
     try {
-      git.branchCreate().setName(value).call();
-      checkoutBranch(getExpandedName(value, VCS.TYPE_BRANCH));
+      File gitIgnore = new File(getDirectory(), ".gitignore");
+
+      boolean created = gitIgnore.createNewFile();
+
+      // Checks if a given path is already ignored
+      if (!isAlreadyIgnored(gitIgnore, path)) {
+        Files.writeString(gitIgnore.toPath(), path, StandardOpenOption.APPEND);
+      }
+
+      // If the .gitignore file is created, stage it
+      if (created) {
+        git.add().addFilepattern(".gitignore").call();
+      }
+
+    } catch (Exception e) {
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+    }
+  }
+
+  public boolean createBranch(String name) {
+    try {
+      git.branchCreate().setName(name).call();
+      checkoutBranch(getExpandedName(name, VCS.TYPE_BRANCH));
+      return true;
+    } catch (Exception e) {
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+      return false;
+    }
+  }
+
+  public boolean createBranch(String name, String commitId) {
+    try {
+      RevCommit commit = resolve(commitId);
+      git.branchCreate().setName(name).setStartPoint(commit).call();
+      checkoutBranch(getExpandedName(name, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
@@ -991,7 +1054,7 @@ public class UIGit extends VCS {
   public boolean renameBranch(String oldName, String newName) {
     try {
       git.branchRename().setOldName(oldName).setNewName(newName).call();
-      checkoutBranch(getExpandedName(newName, VCS.TYPE_BRANCH));
+      // checkoutBranch(getExpandedName(newName, VCS.TYPE_BRANCH));
       return true;
     } catch (Exception e) {
       showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
@@ -1156,6 +1219,17 @@ public class UIGit extends VCS {
     }
   }
 
+  public boolean createTag(String name, String commitId) {
+    try {
+      RevCommit commit = resolve(commitId);
+      git.tag().setName(name).setObjectId(commit).call();
+      return true;
+    } catch (Exception e) {
+      showMessageBox(BaseMessages.getString(PKG, CONST_DIALOG_ERROR), e.getMessage());
+      return false;
+    }
+  }
+
   public boolean deleteTag(String name) {
     try {
       git.tagDelete().setTags(getExpandedName(name, VCS.TYPE_TAG)).call();
@@ -1224,9 +1298,5 @@ public class UIGit extends VCS {
       LogChannel.UI.logError("Error getting list of files ignored by git", e);
       return new HashSet<>();
     }
-  }
-
-  public Git getGit() {
-    return git;
   }
 }

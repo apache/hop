@@ -48,23 +48,21 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
   @Override
   public void callExtensionPoint(ILogChannel log, IVariables variables, Object object)
       throws HopException {
-    if (!(object instanceof WorkflowPainter)) {
+    if (!(object instanceof WorkflowPainter painter)) {
       return;
     }
-    WorkflowPainter painter = (WorkflowPainter) object;
     DPoint offset = painter.getOffset();
     IGc gc = painter.getGc();
     WorkflowMeta workflowMeta = painter.getWorkflowMeta();
     try {
       workflowMeta.getActions().stream()
-          .filter(je -> je.getAttribute(ATTR_GIT, ATTR_STATUS) != null)
+          .filter(action -> action.getAttribute(ATTR_GIT, ATTR_STATUS) != null)
           .forEach(
-              je -> {
-                if (workflowMeta.getWorkflowVersion() == null
-                    ? false
-                    : workflowMeta.getWorkflowVersion().startsWith("git")) {
-                  String status = je.getAttribute(ATTR_GIT, ATTR_STATUS);
-                  Point n = je.getLocation();
+              action -> {
+                if (workflowMeta.getWorkflowVersion() != null
+                    && workflowMeta.getWorkflowVersion().startsWith("git")) {
+                  String status = action.getAttribute(ATTR_GIT, ATTR_STATUS);
+                  Point n = action.getLocation();
                   String location;
                   switch (status) {
                     case REMOVED -> location = "removed.svg";
@@ -95,7 +93,7 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
                     throw new HopRuntimeException(e);
                   }
                 } else {
-                  je.getAttributesMap().remove(ATTR_GIT);
+                  action.getAttributesMap().remove(ATTR_GIT);
                 }
               });
     } catch (Exception e) {

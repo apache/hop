@@ -34,7 +34,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplore
     id = "GitInfoExplorerFileType",
     name = "Git Info",
     description = "Git info file handling in the explorer perspective",
-    image = "git_icon.svg")
+    image = "git.svg")
 public class GitInfoExplorerFileType extends BaseExplorerFileType<GitInfoExplorerFileTypeHandler> {
 
   public GitInfoExplorerFileType() {
