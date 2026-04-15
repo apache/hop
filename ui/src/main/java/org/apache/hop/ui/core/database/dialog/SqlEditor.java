@@ -17,9 +17,12 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
+import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -32,6 +35,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,6 +45,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.SQLStyledTextComp;
@@ -85,6 +90,12 @@ public class SqlEditor {
   private final Shell parentShell;
 
   private final IVariables variables;
+
+  /**
+   * Holds the active database connection so the cancel watcher can call cancelQuery(). Use {@link
+   * AtomicReference} for safe publication between the worker and cancel-watcher threads.
+   */
+  private final AtomicReference<Database> activeDb = new AtomicReference<>();
 
   public SqlEditor(
       Shell parent, int style, IVariables variables, DatabaseMeta ci, DbCache dbc, String sql) {
@@ -289,120 +300,19 @@ public class SqlEditor {
       return;
     }
 
+    String sqlScript =
+        Utils.isEmpty(wScript.getSelectionText()) ? wScript.getText() : wScript.getSelectionText();
     StringBuilder message = new StringBuilder();
+    ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
 
-    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
-      db.connect();
-      String sqlScript =
-          Utils.isEmpty(wScript.getSelectionText())
-              ? wScript.getText()
-              : wScript.getSelectionText();
+    startSqlCancelWatcherVirtualThread(pmd);
 
-      // Multiple statements in the script need to be split into individual
-      // executable statements
-      List<SqlScriptStatement> statements =
-          databaseMeta.getIDatabase().getSqlScriptStatements(sqlScript + Const.CR);
-
-      int nrstats = 0;
-      for (SqlScriptStatement sql : statements) {
-        if (sql.isQuery()) {
-          // A Query
-          log.logDetailed("launch SELECT statement: " + Const.CR + sql);
-
-          nrstats++;
-          try {
-            List<Object[]> rows = db.getRows(sql.getStatement(), 1000);
-            IRowMeta rowMeta = db.getReturnRowMeta();
-            if (!rows.isEmpty()) {
-              PreviewRowsDialog prd =
-                  new PreviewRowsDialog(
-                      shell,
-                      variables,
-                      SWT.NONE,
-                      BaseMessages.getString(
-                          PKG, "SQLEditor.ResultRows.Title", Integer.toString(nrstats)),
-                      rowMeta,
-                      rows);
-              prd.open();
-            } else {
-              MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
-              mb.setMessage(BaseMessages.getString(PKG, "SQLEditor.NoRows.Message", sql));
-              mb.setText(BaseMessages.getString(PKG, "SQLEditor.NoRows.Title"));
-              mb.open();
-            }
-          } catch (HopDatabaseException dbe) {
-            new ErrorDialog(
-                shell,
-                BaseMessages.getString(PKG, "SQLEditor.ErrorExecSQL.Title"),
-                BaseMessages.getString(PKG, "SQLEditor.ErrorExecSQL.Message", sql),
-                dbe);
-          }
-        } else {
-          log.logDetailed("launch DDL statement: " + Const.CR + sql);
-
-          // A DDL statement
-          nrstats++;
-          int startLogLine = HopLogStore.getLastBufferLineNr();
-          try {
-
-            log.logDetailed("Executing SQL: " + Const.CR + sql);
-            db.execStatement(sql.getStatement());
-
-            message.append(BaseMessages.getString(PKG, "SQLEditor.Log.SQLExecuted", sql));
-            message.append(Const.CR);
-
-            // Clear the database cache, in case we're using one...
-            if (dbcache != null) {
-              dbcache.clear(databaseMeta.getName());
-            }
-
-            // mark the statement in green in the dialog...
-            //
-            sql.setOk(true);
-          } catch (Exception dbe) {
-            sql.setOk(false);
-            String error =
-                BaseMessages.getString(PKG, "SQLEditor.Log.SQLExecError", sql, dbe.toString());
-            message.append(error).append(Const.CR);
-            ErrorDialog dialog =
-                new ErrorDialog(
-                    shell,
-                    BaseMessages.getString(PKG, "SQLEditor.ErrorExecSQL.Title"),
-                    error,
-                    dbe,
-                    true);
-            if (dialog.isCancelled()) {
-              break;
-            }
-          } finally {
-            int endLogLine = HopLogStore.getLastBufferLineNr();
-            sql.setLoggingText(
-                HopLogStore.getAppender()
-                    .getLogBufferFromTo(db.getLogChannelId(), true, startLogLine, endLogLine)
-                    .toString());
-            sql.setComplete(true);
-            refreshExecutionResults();
-          }
-        }
+    try {
+      pmd.run(true, monitor -> runSqlScriptWithMonitor(monitor, databaseMeta, sqlScript, message));
+    } catch (InterruptedException | InvocationTargetException e) {
+      if (e instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
       }
-      message.append(
-          BaseMessages.getString(PKG, "SQLEditor.Log.StatsExecuted", Integer.toString(nrstats)));
-
-      message.append(Const.CR);
-    } catch (HopDatabaseException dbe) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      String error =
-          BaseMessages.getString(
-              PKG,
-              "SQLEditor.Error.CouldNotConnect.Message",
-              (connection == null ? "" : connection.getName()),
-              dbe.getMessage());
-      message.append(error).append(Const.CR);
-      mb.setMessage(error);
-      mb.setText(BaseMessages.getString(PKG, "SQLEditor.Error.CouldNotConnect.Title"));
-      mb.open();
-    } finally {
-      refreshExecutionResults();
     }
 
     EnterTextDialog dialog =
@@ -413,6 +323,207 @@ public class SqlEditor {
             message.toString(),
             true);
     dialog.open();
+  }
+
+  private void startSqlCancelWatcherVirtualThread(ProgressMonitorDialog pmd) {
+    Thread.ofVirtual()
+        .name("Hop-SqlEditor-CancelWatcher")
+        .start(
+            () -> {
+              IProgressMonitor monitor = pmd.getProgressMonitor();
+              while (pmd.getShell() == null
+                  || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                  break;
+                }
+              }
+              if (monitor.isCanceled()) {
+                Database db = activeDb.get();
+                if (db != null) {
+                  try {
+                    db.cancelQuery();
+                  } catch (Exception ignored) {
+                    // ignore
+                  }
+                }
+              }
+            });
+  }
+
+  private void runSqlScriptWithMonitor(
+      IProgressMonitor monitor,
+      DatabaseMeta databaseMeta,
+      String sqlScript,
+      StringBuilder message) {
+    monitor.beginTask(BaseMessages.getString(PKG, "SQLEditor.Monitor.Execute"), 100);
+    String raw =
+        variables.getVariable(
+            Const.HOP_QUERY_PREVIEW_TIMEOUT,
+            EnvUtil.getSystemProperty(Const.HOP_QUERY_PREVIEW_TIMEOUT, "0"));
+    int timeoutSeconds = Math.max(0, Const.toInt(variables.resolve(raw), 0));
+    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+      activeDb.set(db);
+      if (timeoutSeconds > 0) {
+        db.setStatementQueryTimeoutSeconds(timeoutSeconds);
+      }
+      db.connect();
+
+      int[] nrStats = {0};
+      runScriptStatementsLoop(db, databaseMeta, sqlScript, message, monitor, nrStats);
+      message.append(
+          BaseMessages.getString(PKG, "SQLEditor.Log.StatsExecuted", Integer.toString(nrStats[0])));
+      message.append(Const.CR);
+    } catch (HopDatabaseException dbe) {
+      handleConnectFailure(dbe, message);
+    } finally {
+      activeDb.set(null);
+      shell.getDisplay().asyncExec(this::refreshExecutionResults);
+      monitor.done();
+    }
+  }
+
+  private void runScriptStatementsLoop(
+      Database db,
+      DatabaseMeta databaseMeta,
+      String sqlScript,
+      StringBuilder message,
+      IProgressMonitor monitor,
+      int[] nrStats) {
+    List<SqlScriptStatement> statements =
+        databaseMeta.getIDatabase().getSqlScriptStatements(sqlScript + Const.CR);
+    boolean aborted = false;
+    for (SqlScriptStatement sql : statements) {
+      if (aborted || monitor.isCanceled()) {
+        break;
+      }
+      if (sql.isQuery()) {
+        nrStats[0]++;
+        executeSelectStatement(db, sql, nrStats[0], message);
+      } else {
+        nrStats[0]++;
+        aborted = executeDdlStatement(db, sql, databaseMeta, message);
+      }
+    }
+  }
+
+  private void executeSelectStatement(
+      Database db, SqlScriptStatement sql, int statNr, StringBuilder message) {
+    log.logDetailed("launch SELECT statement: " + Const.CR + sql);
+    try {
+      List<Object[]> rows = db.getRows(sql.getStatement(), 1000);
+      IRowMeta rowMeta = db.getReturnRowMeta();
+      if (!rows.isEmpty()) {
+        shell
+            .getDisplay()
+            .syncExec(
+                () ->
+                    new PreviewRowsDialog(
+                            shell,
+                            variables,
+                            SWT.NONE,
+                            BaseMessages.getString(
+                                PKG, "SQLEditor.ResultRows.Title", Integer.toString(statNr)),
+                            rowMeta,
+                            rows)
+                        .open());
+      } else {
+        shell
+            .getDisplay()
+            .syncExec(
+                () -> {
+                  MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+                  mb.setMessage(BaseMessages.getString(PKG, "SQLEditor.NoRows.Message", sql));
+                  mb.setText(BaseMessages.getString(PKG, "SQLEditor.NoRows.Title"));
+                  mb.open();
+                });
+      }
+    } catch (HopDatabaseException dbe) {
+      handleSelectExecutionFailure(dbe, sql, message);
+    }
+  }
+
+  private void handleSelectExecutionFailure(
+      HopDatabaseException dbe, SqlScriptStatement sql, StringBuilder message) {
+    shell
+        .getDisplay()
+        .syncExec(
+            () ->
+                new ErrorDialog(
+                    shell,
+                    BaseMessages.getString(PKG, "SQLEditor.ErrorExecSQL.Title"),
+                    BaseMessages.getString(PKG, "SQLEditor.ErrorExecSQL.Message", sql),
+                    dbe));
+  }
+
+  private boolean executeDdlStatement(
+      Database db, SqlScriptStatement sql, DatabaseMeta databaseMeta, StringBuilder message) {
+    log.logDetailed("launch DDL statement: " + Const.CR + sql);
+    int startLogLine = HopLogStore.getLastBufferLineNr();
+    try {
+      log.logDetailed("Executing SQL: " + Const.CR + sql);
+      db.execStatement(sql.getStatement());
+      message.append(BaseMessages.getString(PKG, "SQLEditor.Log.SQLExecuted", sql));
+      message.append(Const.CR);
+      if (dbcache != null) {
+        dbcache.clear(databaseMeta.getName());
+      }
+      sql.setOk(true);
+      return false;
+    } catch (Exception dbe) {
+      return handleDdlExecutionFailure(dbe, sql, message);
+    } finally {
+      int endLogLine = HopLogStore.getLastBufferLineNr();
+      sql.setLoggingText(
+          HopLogStore.getAppender()
+              .getLogBufferFromTo(db.getLogChannelId(), true, startLogLine, endLogLine)
+              .toString());
+      sql.setComplete(true);
+      shell.getDisplay().asyncExec(this::refreshExecutionResults);
+    }
+  }
+
+  private boolean handleDdlExecutionFailure(
+      Exception dbe, SqlScriptStatement sql, StringBuilder message) {
+    sql.setOk(false);
+    String error = BaseMessages.getString(PKG, "SQLEditor.Log.SQLExecError", sql, dbe.toString());
+    message.append(error).append(Const.CR);
+    boolean[] cancelLoop = {false};
+    shell
+        .getDisplay()
+        .syncExec(
+            () -> {
+              ErrorDialog dialog =
+                  new ErrorDialog(
+                      shell,
+                      BaseMessages.getString(PKG, "SQLEditor.ErrorExecSQL.Title"),
+                      error,
+                      dbe,
+                      true);
+              cancelLoop[0] = dialog.isCancelled();
+            });
+    return cancelLoop[0];
+  }
+
+  private void handleConnectFailure(HopDatabaseException dbe, StringBuilder message) {
+    String error =
+        BaseMessages.getString(
+            PKG,
+            "SQLEditor.Error.CouldNotConnect.Message",
+            (connection == null ? "" : connection.getName()),
+            dbe.getMessage());
+    message.append(error).append(Const.CR);
+    shell
+        .getDisplay()
+        .syncExec(
+            () -> {
+              MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+              mb.setMessage(error);
+              mb.setText(BaseMessages.getString(PKG, "SQLEditor.Error.CouldNotConnect.Title"));
+              mb.open();
+            });
   }
 
   /** During or after an execution we will mark regions of the SQL editor dialog in green or red. */

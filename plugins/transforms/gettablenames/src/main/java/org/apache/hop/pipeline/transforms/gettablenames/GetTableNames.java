@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -424,6 +425,16 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       }
 
       data.db = new Database(this, variables, databaseMeta);
+      if (getPipeline() != null && getPipeline().isPreview()) {
+        String raw =
+            getVariable(
+                Const.HOP_QUERY_PREVIEW_TIMEOUT,
+                EnvUtil.getSystemProperty(Const.HOP_QUERY_PREVIEW_TIMEOUT, "0"));
+        int statementQueryTimeoutSeconds = Math.max(0, Const.toInt(resolve(raw), 0));
+        if (statementQueryTimeoutSeconds > 0) {
+          data.db.setStatementQueryTimeoutSeconds(statementQueryTimeoutSeconds);
+        }
+      }
       try {
         data.db.connect();
         if (isDetailed()) {

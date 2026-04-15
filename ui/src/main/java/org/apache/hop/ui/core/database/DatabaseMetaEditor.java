@@ -1043,7 +1043,9 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
                 SWT.NONE,
                 manager.getVariables(),
                 meta,
-                manager.getSerializer().loadAll());
+                manager.getSerializer().loadAll(),
+                true,
+                true);
         dialog.open();
       } catch (Exception e) {
         new ErrorDialog(getShell(), "Error", "Error exploring database", e);

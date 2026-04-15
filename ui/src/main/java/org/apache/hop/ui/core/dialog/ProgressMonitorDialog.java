@@ -18,6 +18,7 @@
 package org.apache.hop.ui.core.dialog;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
@@ -69,15 +70,29 @@ public class ProgressMonitorDialog {
 
   public void run(boolean cancelable, IRunnableWithProgress runnable)
       throws InvocationTargetException, InterruptedException {
+    createModalShell(cancelable);
+    int margin = layoutProgressWidgets();
+    addCancelButtonIfNeeded(cancelable, margin);
+    BaseTransformDialog.setSize(shell);
+    addShellCloseHandler();
+    shell.open();
 
-    PropsUi props = PropsUi.getInstance();
+    Cursor oldCursor = shell.getCursor();
+    parent.setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
+    try {
+      scheduleBackgroundWork(runnable);
+      pumpDisplayUntilShellDisposed();
+    } finally {
+      parent.setCursor(oldCursor);
+    }
+  }
 
+  private void createModalShell(boolean cancelable) {
     shell =
         new Shell(parent, SWT.RESIZE | SWT.APPLICATION_MODAL | (cancelable ? SWT.CLOSE : SWT.NONE));
     shell.setText(BaseMessages.getString(PKG, "ProgressMonitorDialog.Shell.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     PropsUi.setLook(shell);
-
     display = shell.getDisplay();
 
     FormLayout formLayout = new FormLayout();
@@ -85,14 +100,12 @@ public class ProgressMonitorDialog {
     formLayout.marginLeft = PropsUi.getFormMargin();
     formLayout.marginRight = PropsUi.getFormMargin();
     formLayout.marginBottom = PropsUi.getFormMargin();
+    shell.setLayout(formLayout);
+  }
 
+  private int layoutProgressWidgets() {
     int margin = PropsUi.getMargin();
 
-    shell.setLayout(formLayout);
-
-    // An image at the top right...
-    // TODO: rotate this image somehow
-    //
     Label wlImage = new Label(shell, SWT.NONE);
     wlImage.setImage(GuiResource.getInstance().getImageHopUi());
     PropsUi.setLook(wlImage);
@@ -129,69 +142,69 @@ public class ProgressMonitorDialog {
     fdProgressBar.top = new FormAttachment(wlSubTask, margin);
     wProgressBar.setLayoutData(fdProgressBar);
 
-    if (cancelable) {
-      Button wCancel = new Button(shell, SWT.PUSH);
-      wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
-      wCancel.addListener(SWT.Selection, e -> isCancelled = true);
-      BaseTransformDialog.positionBottomButtons(
-          shell, new Button[] {wCancel}, margin, wProgressBar);
+    return margin;
+  }
+
+  private void addCancelButtonIfNeeded(boolean cancelable, int margin) {
+    if (!cancelable) {
+      return;
     }
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
+    wCancel.addListener(
+        SWT.Selection,
+        e -> {
+          isCancelled = true;
+          if (display != null && !display.isDisposed()) {
+            display.wake();
+          }
+        });
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wCancel}, margin, wProgressBar);
+  }
 
-    BaseTransformDialog.setSize(shell);
-
+  private void addShellCloseHandler() {
     shell.addListener(
         SWT.Close,
         e -> {
           e.doit = false;
           isCancelled = true;
+          if (display != null && !display.isDisposed()) {
+            display.wake();
+          }
         });
+  }
 
-    shell.open();
+  private void scheduleBackgroundWork(IRunnableWithProgress runnable) {
+    Runnable launch =
+        () -> new Thread(() -> runMonitoredWork(runnable), "Hop-ProgressMonitor-Worker").start();
+    display.asyncExec(launch);
+  }
 
-    Cursor oldCursor = shell.getCursor();
-
-    parent.setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
-
-    // Execute the long running task
-    //
-    Runnable longRunnable =
-        () ->
-            // Always do the work in a different thread...
-            // This keeps the shell updating properly as long as
-            // display.asyncExec is used
-            //
-            new Thread(
-                    () -> {
-                      try {
-                        runnable.run(progressMonitor);
-                      } catch (InvocationTargetException e) {
-                        targetException = e;
-                      } catch (InterruptedException e) {
-                        interruptedException = e;
-                      }
-                    })
-                .start();
-    display.asyncExec(longRunnable);
-
-    // Handle the event loop until we're done with this shell...
-    //
+  private void runMonitoredWork(IRunnableWithProgress runnable) {
     try {
-      while (!shell.isDisposed()) {
-        if (interruptedException != null) {
-          dispose();
-          throw interruptedException;
-        }
-        if (targetException != null) {
-          dispose();
-          throw targetException;
-        }
+      runnable.run(progressMonitor);
+    } catch (InvocationTargetException e) {
+      targetException = e;
+    } catch (InterruptedException e) {
+      interruptedException = e;
+      Thread.currentThread().interrupt();
+    }
+  }
 
-        if (!display.readAndDispatch()) {
-          display.sleep();
-        }
+  private void pumpDisplayUntilShellDisposed()
+      throws InvocationTargetException, InterruptedException {
+    while (!shell.isDisposed()) {
+      if (interruptedException != null) {
+        dispose();
+        throw interruptedException;
       }
-    } finally {
-      parent.setCursor(oldCursor);
+      if (targetException != null) {
+        dispose();
+        throw targetException;
+      }
+      if (!display.readAndDispatch()) {
+        display.sleep();
+      }
     }
   }
 
@@ -200,17 +213,59 @@ public class ProgressMonitorDialog {
   }
 
   private void dispose() {
-    display.asyncExec(
+    if (display == null || display.isDisposed()) {
+      return;
+    }
+
+    Runnable disposeRunnable =
         () -> {
-          PropsUi.getInstance().setScreen(new WindowProperty(shell));
-          shell.dispose();
-        });
+          if (shell == null || shell.isDisposed()) {
+            return;
+          }
+          try {
+            PropsUi.getInstance().setScreen(new WindowProperty(shell));
+          } catch (Exception e) {
+            // Ignore race condition when shell is already being torn down.
+          }
+          if (!shell.isDisposed()) {
+            shell.dispose();
+          }
+        };
+
+    if (Display.getCurrent() == display) {
+      disposeRunnable.run();
+    } else {
+      display.syncExec(disposeRunnable);
+    }
   }
 
   private class ProgressMonitor implements IProgressMonitor {
 
+    /** IProgressMonitor.worked() reports deltas; we accumulate for the SWT progress bar. */
+    private int workedAccumulated;
+
+    private final AtomicBoolean workedFlushScheduled = new AtomicBoolean(false);
+
+    private final Runnable workedFlushRunnable =
+        () -> {
+          workedFlushScheduled.set(false);
+          synchronized (shell) {
+            if (shell.isDisposed() || wlTask.isDisposed()) {
+              return;
+            }
+            try {
+              int max = wProgressBar.getMaximum();
+              int selection = Math.min(workedAccumulated, max > 0 ? max : workedAccumulated);
+              wProgressBar.setSelection(selection);
+            } catch (Exception e) {
+              // Ignore race condition
+            }
+          }
+        };
+
     @Override
     public void beginTask(String message, int nrWorks) {
+      workedAccumulated = 0;
       display.asyncExec(
           () -> {
             synchronized (shell) {
@@ -220,7 +275,8 @@ public class ProgressMonitorDialog {
               try {
                 wlTask.setText(Const.NVL(message, ""));
                 wProgressBar.setMaximum(nrWorks);
-              } catch (Throwable e) {
+                wProgressBar.setSelection(0);
+              } catch (Exception e) {
                 // Ignore race condition
               }
             }
@@ -237,7 +293,7 @@ public class ProgressMonitorDialog {
               }
               try {
                 wlSubTask.setText(Const.NVL(message, ""));
-              } catch (Throwable e) {
+              } catch (Exception e) {
                 // Ignore race condition
               }
             }
@@ -251,23 +307,19 @@ public class ProgressMonitorDialog {
 
     @Override
     public void worked(int nrWorks) {
-      display.asyncExec(
-          () -> {
-            synchronized (shell) {
-              if (shell.isDisposed() || wlTask.isDisposed()) {
-                return;
-              }
-              try {
-                wProgressBar.setSelection(nrWorks);
-              } catch (Throwable e) {
-                // Ignore race condition
-              }
-            }
-          });
+      if (nrWorks <= 0) {
+        return;
+      }
+      workedAccumulated += nrWorks;
+      if (workedFlushScheduled.compareAndSet(false, true)) {
+        display.asyncExec(workedFlushRunnable);
+      }
     }
 
     @Override
     public void done() {
+      workedAccumulated = 0;
+      workedFlushScheduled.set(false);
       dispose();
     }
 
@@ -281,7 +333,7 @@ public class ProgressMonitorDialog {
               }
               try {
                 wlTask.setText(Const.NVL(taskName, ""));
-              } catch (Throwable e) {
+              } catch (Exception e) {
                 // Ignore race condition
               }
             }

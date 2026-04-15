@@ -57,6 +57,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -748,17 +749,41 @@ public abstract class BaseDialog extends Dialog {
    */
   public static void defaultShellHandling(
       Shell shell, Consumer<Void> okConsumer, Consumer<Void> cancelConsumer) {
+    defaultShellHandling(shell, okConsumer, cancelConsumer, true);
+  }
+
+  /**
+   * Like {@link #defaultShellHandling(Shell, Consumer, Consumer)} but controls minimum shell size.
+   *
+   * @param useStandardMinimumSize when {@code true}, keeps the legacy minimum (650x250) suited to
+   *     large editor dialogs; when {@code false}, minimum size follows the laid-out content so
+   *     small prompts are not stretched with empty space.
+   */
+  public static void defaultShellHandling(
+      Shell shell,
+      Consumer<Void> okConsumer,
+      Consumer<Void> cancelConsumer,
+      boolean useStandardMinimumSize) {
     defaultShellHandling(
         shell,
         okConsumer,
         () -> {
           cancelConsumer.accept(null);
           return true;
-        });
+        },
+        useStandardMinimumSize);
   }
 
   public static void defaultShellHandling(
       Shell shell, Consumer<Void> okConsumer, Supplier<Boolean> cancelSupplier) {
+    defaultShellHandling(shell, okConsumer, cancelSupplier, true);
+  }
+
+  public static void defaultShellHandling(
+      Shell shell,
+      Consumer<Void> okConsumer,
+      Supplier<Boolean> cancelSupplier,
+      boolean useStandardMinimumSize) {
 
     // If the shell is closed, cancel the dialog
     //
@@ -783,7 +808,13 @@ public abstract class BaseDialog extends Dialog {
     //
     addSpacesOnTabs(shell);
 
-    shell.setMinimumSize(650, 250);
+    if (useStandardMinimumSize) {
+      shell.setMinimumSize(650, 250);
+    } else {
+      shell.layout(true, true);
+      Point natural = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+      shell.setMinimumSize(Math.max(1, natural.x), Math.max(1, natural.y));
+    }
 
     // Set the size as well...
     //

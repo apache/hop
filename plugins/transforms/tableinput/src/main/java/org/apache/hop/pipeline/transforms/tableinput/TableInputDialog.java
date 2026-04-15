@@ -38,8 +38,8 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
+import org.apache.hop.ui.core.database.dialog.PreviewTableSettingsDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
@@ -591,54 +591,56 @@ public class TableInputDialog extends BaseTransformDialog {
     TableInputMeta oneMeta = new TableInputMeta();
     getInfo(oneMeta, true);
 
-    EnterNumberDialog numberDialog =
-        new EnterNumberDialog(
+    int defaultRows = props.getDefaultPreviewSize();
+    PreviewTableSettingsDialog settingsDialog =
+        new PreviewTableSettingsDialog(shell, Math.max(1, defaultRows), variables, true);
+    PreviewTableSettingsDialog.Settings settings = settingsDialog.open();
+    if (settings == null) {
+      return;
+    }
+    int previewRows = settings.rowLimit > 0 ? settings.rowLimit : Math.max(1, defaultRows);
+    oneMeta.setRowLimit(Integer.toString(previewRows));
+
+    IVariables previewVariables = settingsDialog.getPreviewExecutionVariables();
+
+    PipelineMeta previewMeta =
+        PipelinePreviewFactory.generatePreviewPipeline(
+            pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+
+    PipelinePreviewProgressDialog progressDialog =
+        new PipelinePreviewProgressDialog(
             shell,
-            props.getDefaultPreviewSize(),
-            BaseMessages.getString(PKG, "TableInputDialog.EnterPreviewSize"),
-            BaseMessages.getString(PKG, "TableInputDialog.NumberOfRowsToPreview"));
-    int previewSize = numberDialog.open();
-    if (previewSize > 0) {
-      oneMeta.setRowLimit(Integer.toString(previewSize));
-      PipelineMeta previewMeta =
-          PipelinePreviewFactory.generatePreviewPipeline(
-              pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText());
+            previewVariables,
+            previewMeta,
+            new String[] {wTransformName.getText()},
+            new int[] {previewRows});
+    progressDialog.open();
 
-      PipelinePreviewProgressDialog progressDialog =
-          new PipelinePreviewProgressDialog(
-              shell,
-              variables,
-              previewMeta,
-              new String[] {wTransformName.getText()},
-              new int[] {previewSize});
-      progressDialog.open();
+    Pipeline pipeline = progressDialog.getPipeline();
+    String loggingText = progressDialog.getLoggingText();
 
-      Pipeline pipeline = progressDialog.getPipeline();
-      String loggingText = progressDialog.getLoggingText();
-
-      if (!progressDialog.isCancelled()) {
-        if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
-          EnterTextDialog etd =
-              new EnterTextDialog(
-                  shell,
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
-                  BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
-                  loggingText,
-                  true);
-          etd.setReadOnly();
-          etd.open();
-        } else {
-          PreviewRowsDialog prd =
-              new PreviewRowsDialog(
-                  shell,
-                  variables,
-                  SWT.NONE,
-                  wTransformName.getText(),
-                  progressDialog.getPreviewRowsMeta(wTransformName.getText()),
-                  progressDialog.getPreviewRows(wTransformName.getText()),
-                  loggingText);
-          prd.open();
-        }
+    if (!progressDialog.isCancelled()) {
+      if (pipeline.getResult() != null && pipeline.getResult().getNrErrors() > 0) {
+        EnterTextDialog etd =
+            new EnterTextDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Title"),
+                BaseMessages.getString(PKG, "System.Dialog.PreviewError.Message"),
+                loggingText,
+                true);
+        etd.setReadOnly();
+        etd.open();
+      } else {
+        PreviewRowsDialog prd =
+            new PreviewRowsDialog(
+                shell,
+                variables,
+                SWT.NONE,
+                wTransformName.getText(),
+                progressDialog.getPreviewRowsMeta(wTransformName.getText()),
+                progressDialog.getPreviewRows(wTransformName.getText()),
+                loggingText);
+        prd.open();
       }
     }
   }

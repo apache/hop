@@ -154,6 +154,24 @@ public class PreviewRowsDialog {
   }
 
   public void open() {
+    if (title == null) {
+      title = BaseMessages.getString(PKG, "PreviewRowsDialog.Title");
+    }
+    if (message == null) {
+      message = BaseMessages.getString(PKG, "PreviewRowsDialog.Header", transformName);
+    }
+
+    // Empty static preview: show a single modal on the real parent. Parenting a message to the
+    // preview shell here caused odd modality (that shell is created but never opened).
+    if (!dynamic && Utils.isEmpty(buffer)) {
+      MessageBox mb =
+          new MessageBox(parentShell, SWT.OK | SWT.ICON_INFORMATION | SWT.APPLICATION_MODAL);
+      mb.setText(title);
+      mb.setMessage(BaseMessages.getString(PKG, "PreviewRowsDialog.NoRows.Message"));
+      mb.open();
+      return;
+    }
+
     shell = new Shell(parentShell, style);
     PropsUi props = PropsUi.getInstance();
 
@@ -163,13 +181,6 @@ public class PreviewRowsDialog {
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
-
-    if (title == null) {
-      title = BaseMessages.getString(PKG, "PreviewRowsDialog.Title");
-    }
-    if (message == null) {
-      message = BaseMessages.getString(PKG, "PreviewRowsDialog.Header", transformName);
-    }
 
     if (buffer != null) {
       message += " " + BaseMessages.getString(PKG, "PreviewRowsDialog.NrRows", "" + buffer.size());
@@ -275,19 +286,6 @@ public class PreviewRowsDialog {
       rowMeta.addValueMeta(new ValueMetaString("<waiting for rows>"));
       waitingForRows = true;
     }
-    if (!dynamic && Utils.isEmpty(buffer)) {
-      // Mmm, if we don't get any rows in the buffer: show a dialog box.
-      ShowMessageDialog dialog =
-          new ShowMessageDialog(
-              shell,
-              SWT.OK | SWT.ICON_WARNING,
-              BaseMessages.getString(PKG, "PreviewRowsDialog.NoRows.Text"),
-              BaseMessages.getString(PKG, "PreviewRowsDialog.NoRows.Message"));
-      dialog.open();
-      shell.dispose();
-      return true;
-    }
-
     ColumnInfo[] columns = new ColumnInfo[rowMeta.size()];
     for (int i = 0; i < rowMeta.size(); i++) {
       IValueMeta valueMeta = rowMeta.getValueMeta(i);

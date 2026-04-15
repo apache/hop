@@ -287,6 +287,7 @@ Set to 0 to keep all rows indefinitely (default)
 |HOP_MAX_WORKFLOW_TRACKER_SIZE|5000|The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)
 |HOP_PASSWORD_ENCODER_PLUGIN|Hop|Specifies the password encoder plugin to use by ID (Hop is the default).
 |HOP_PIPELINE_ROWSET_SIZE|-|Name of the environment variable that contains the size of the pipeline rowset size. This overwrites values that you set pipeline settings
+|HOP_QUERY_PREVIEW_TIMEOUT|0|Default JDBC statement query timeout in **seconds** for database query preview (for example the initial value in the preview settings dialog for Table Input / Get table names, and related preview flows). `0` means no default from this variable. Does not apply to normal pipeline execution for those transforms' JDBC timeouts in the same way; use the preview dialog to set the timeout for a given preview run.
 |HOP_PLUGIN_CLASSES||A comma delimited list of classes to scan for plugin annotations
 |HOP_ROWSET_GET_TIMEOUT|50|The name of the variable that optionally contains an alternative rowset get timeout (in ms).
 This only makes a difference for extremely short lived pipelines.

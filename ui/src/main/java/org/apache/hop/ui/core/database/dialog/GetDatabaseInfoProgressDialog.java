@@ -101,10 +101,16 @@ public class GetDatabaseInfoProgressDialog {
    * @param e
    */
   private void showErrorDialog(Exception e) {
+    String databaseName = databaseMeta == null ? "" : databaseMeta.getName();
+    String message =
+        BaseMessages.getString(PKG, "GetDatabaseInfoProgressDialog.Error.Message")
+            + (databaseName.isEmpty()
+                ? ""
+                : " Unable to connect to database '" + databaseName + "'.");
     new ErrorDialog(
         shell,
         BaseMessages.getString(PKG, "GetDatabaseInfoProgressDialog.Error.Title"),
-        BaseMessages.getString(PKG, "GetDatabaseInfoProgressDialog.Error.Message"),
+        message,
         e);
   }
 }

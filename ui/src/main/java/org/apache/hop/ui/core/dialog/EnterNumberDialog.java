@@ -18,13 +18,12 @@
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
-import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -187,32 +186,30 @@ public class EnterNumberDialog extends Dialog {
       lastControl = wlFrom;
     }
 
-    // Some buttons
+    // Buttons aligned to the bottom of the shell
+    //
     wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.setText(BaseMessages.getString("System.Button.OK"));
     if (!hideCancelButton) {
       wCancel = new Button(shell, SWT.PUSH);
-      wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+      wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
+      BaseTransformDialog.positionBottomButtons(
+          shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), lastControl);
+    } else {
+      wCancel = null;
+      BaseTransformDialog.positionBottomButtons(
+          shell, new Button[] {wOk}, PropsUi.getMargin(), lastControl);
     }
 
-    wCancel.setLayoutData(
-        new FormDataBuilder()
-            .top(lastControl, BaseDialog.ELEMENT_SPACING * 2)
-            .right(100, 0)
-            .result());
-    wOk.setLayoutData(
-        new FormDataBuilder()
-            .top(lastControl, BaseDialog.ELEMENT_SPACING * 2)
-            .right(wCancel, Const.isOSX() ? 0 : -BaseDialog.LABEL_SPACING)
-            .result());
-
-    // Add listeners
     wOk.addListener(SWT.Selection, e -> ok());
-    wCancel.addListener(SWT.Selection, e -> cancel());
+    if (wCancel != null) {
+      wCancel.addListener(SWT.Selection, e -> cancel());
+    }
+    shell.setDefaultButton(wOk);
 
     getData();
 
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel(), false);
   }
 
   public void dispose() {

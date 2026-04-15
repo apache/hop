@@ -121,6 +121,14 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private static final String CONST_ERROR_UPDATING_BATCH = "Error updating batch";
 
   private int rowlimit;
+
+  /**
+   * When positive, applied to statements created in {@link #openQuery(String, IRowMeta, Object[],
+   * int, boolean)} via {@link Statement#setQueryTimeout(int)} (whole seconds). Zero leaves the JDBC
+   * driver default (typically unlimited). Intended for short-lived GUI preview connections.
+   */
+  private int statementQueryTimeoutSeconds;
+
   private int commitsize;
 
   private Connection connection;
@@ -205,6 +213,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     dbmd = null;
 
     rowlimit = 0;
+    statementQueryTimeoutSeconds = 0;
 
     written = 0;
 
@@ -263,6 +272,23 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
    */
   public void setQueryLimit(int rows) {
     rowlimit = rows;
+  }
+
+  /**
+   * Sets the JDBC {@link Statement#setQueryTimeout(int)} (seconds) for statements opened by {@link
+   * #openQuery(String, IRowMeta, Object[], int, boolean)} until {@link #disconnect()}. Use {@code
+   * 0} to use the driver default.
+   *
+   * @param seconds query timeout in whole seconds; values {@code < 0} are treated as {@code 0}
+   */
+  public void setStatementQueryTimeoutSeconds(int seconds) {
+    this.statementQueryTimeoutSeconds = Math.max(0, seconds);
+  }
+
+  private void applyStatementQueryTimeout(Statement statement) throws SQLException {
+    if (statement != null && statementQueryTimeoutSeconds > 0) {
+      statement.setQueryTimeout(statementQueryTimeoutSeconds);
+    }
   }
 
   /**
@@ -610,6 +636,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
                 + hde.getMessage());
         log.logError(Const.getStackTracker(hde));
       }
+      statementQueryTimeoutSeconds = 0;
     }
   }
 
@@ -1591,6 +1618,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           pstmt.setMaxRows(rowlimit);
         }
 
+        applyStatementQueryTimeout(pstmt);
+
         log.snap(Metrics.METRIC_DATABASE_EXECUTE_SQL_START, databaseMeta.getName());
         res = pstmt.executeQuery();
         log.snap(Metrics.METRIC_DATABASE_EXECUTE_SQL_STOP, databaseMeta.getName());
@@ -1611,6 +1640,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         if (rowlimit > 0 && databaseMeta.supportsSetMaxRows()) {
           selStmt.setMaxRows(rowlimit);
         }
+
+        applyStatementQueryTimeout(selStmt);
 
         log.snap(Metrics.METRIC_DATABASE_EXECUTE_SQL_START, databaseMeta.getName());
         res = selStmt.executeQuery(databaseMeta.stripCR(sql));
