@@ -1057,8 +1057,7 @@ public class PropertyInputDialog extends BaseTransformDialog {
       }
 
       // Now select the default!
-      String defEncoding =
-          Const.getEnvironmentVariable("file.encoding", PropertyInputMeta.DEFAULT_ENCODING);
+      String defEncoding = Const.getEnvironmentVariable("file.encoding", Const.UTF_8);
       int idx = Const.indexOfString(defEncoding, wEncoding.getItems());
       if (idx >= 0) {
         wEncoding.select(idx);
