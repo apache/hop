@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ class ValueMapperMetaTest {
       assertEquals(
           true,
           v.isEmptyStringEqualsNull(),
-          "Older pipelines without empty_string_equals_null must default to Y (true)");
+          "Missing empty_string_equals_null defaults empty string equals null to true");
     }
   }
 
@@ -111,6 +112,10 @@ class ValueMapperMetaTest {
     assertEquals("Country_Name", meta.getTargetField());
     assertEquals("[${NOT_FOUND}]", meta.getNonMatchDefault());
 
+    assertNull(meta.getKeepOriginalValueOnNonMatch());
+    assertFalse(
+        meta.isKeepOriginalValueOnNonMatch(),
+        "Unset keep-original resolves to N when a target field or non-match default exists");
     assertNull(meta.getTargetType(), "Expected null target type right after deserialization");
     // Before getFields: input has only the source field
     IRowMeta input = new RowMeta();
@@ -130,6 +135,32 @@ class ValueMapperMetaTest {
   }
 
   @Test
+  void implicitKeepOriginalTrueWhenUnsetInPlaceAndNoDefault() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setTargetField("");
+    meta.setNonMatchDefault(null);
+    assertNull(meta.getKeepOriginalValueOnNonMatch());
+    assertTrue(meta.isKeepOriginalValueOnNonMatch());
+  }
+
+  @Test
+  void implicitKeepOriginalFalseWhenUnsetWithTargetField() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setTargetField("out");
+    assertNull(meta.getKeepOriginalValueOnNonMatch());
+    assertFalse(meta.isKeepOriginalValueOnNonMatch());
+  }
+
+  @Test
+  void implicitKeepOriginalFalseWhenUnsetWithNonMatchDefaultOnly() {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setTargetField("");
+    meta.setNonMatchDefault("fallback");
+    assertNull(meta.getKeepOriginalValueOnNonMatch());
+    assertFalse(meta.isKeepOriginalValueOnNonMatch());
+  }
+
+  @Test
   void cloneCopiesValuesAndEmptyStringEqualsNull() {
     ValueMapperMeta meta = new ValueMapperMeta();
     meta.setFieldToUse("src");
@@ -139,8 +170,11 @@ class ValueMapperMetaTest {
     v.setEmptyStringEqualsNull(false);
     meta.getValues().add(v);
 
+    meta.setKeepOriginalValueOnNonMatch(true);
     ValueMapperMeta clone = (ValueMapperMeta) meta.clone();
     assertEquals(1, clone.getValues().size());
+    assertTrue(clone.isKeepOriginalValueOnNonMatch());
+    assertEquals("Y", clone.getKeepOriginalValueOnNonMatch());
     assertFalse(clone.getValues().get(0).isEmptyStringEqualsNull());
     assertEquals("x", clone.getValues().get(0).getSource());
     assertEquals("y", clone.getValues().get(0).getTarget());

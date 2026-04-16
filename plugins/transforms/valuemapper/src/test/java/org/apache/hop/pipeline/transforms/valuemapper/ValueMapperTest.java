@@ -221,6 +221,181 @@ class ValueMapperTest {
   }
 
   @Test
+  void inPlaceNoMatchUnsetCompatKeepsSourceWhenNoDefault() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("code");
+    meta.setTargetField("");
+    meta.setTargetType(null);
+    meta.getValues().add(mapping("A", "B"));
+
+    ValueMapperData data = new ValueMapperData();
+    ValueMapper vm = newSpyTransform(meta, data);
+    RowMeta inputMeta = new RowMeta();
+    inputMeta.addValueMeta(new ValueMetaString("code"));
+    doReturn(new Object[] {"Z"}).doReturn(null).when(vm).getRow();
+    doReturn(inputMeta).when(vm).getInputRowMeta();
+
+    List<Object[]> outputs = new ArrayList<>();
+    doAnswer(
+            inv -> {
+              outputs.add(((Object[]) inv.getArgument(1)).clone());
+              return null;
+            })
+        .when(vm)
+        .putRow(any(IRowMeta.class), any(Object[].class));
+
+    assertTrue(vm.processRow());
+    assertEquals("Z", outputs.get(0)[0]);
+  }
+
+  @Test
+  void inPlaceNoMatchExplicitNoEmitsNullWhenNoDefault() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("code");
+    meta.setTargetField("");
+    meta.setTargetType(null);
+    meta.setKeepOriginalValueOnNonMatch(false);
+    meta.getValues().add(mapping("A", "B"));
+
+    ValueMapperData data = new ValueMapperData();
+    ValueMapper vm = newSpyTransform(meta, data);
+    RowMeta inputMeta = new RowMeta();
+    inputMeta.addValueMeta(new ValueMetaString("code"));
+    doReturn(new Object[] {"Z"}).doReturn(null).when(vm).getRow();
+    doReturn(inputMeta).when(vm).getInputRowMeta();
+
+    List<Object[]> outputs = new ArrayList<>();
+    doAnswer(
+            inv -> {
+              outputs.add(((Object[]) inv.getArgument(1)).clone());
+              return null;
+            })
+        .when(vm)
+        .putRow(any(IRowMeta.class), any(Object[].class));
+
+    assertTrue(vm.processRow());
+    assertNull(outputs.get(0)[0]);
+  }
+
+  @Test
+  void newFieldNoMatchWithoutDefaultEmitsNull() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("code");
+    meta.setTargetField("mapped");
+    meta.setTargetType(null);
+    meta.getValues().add(mapping("A", "B"));
+
+    ValueMapperData data = new ValueMapperData();
+    ValueMapper vm = newSpyTransform(meta, data);
+    RowMeta inputMeta = new RowMeta();
+    inputMeta.addValueMeta(new ValueMetaString("code"));
+    doReturn(new Object[] {"Z"}).doReturn(null).when(vm).getRow();
+    doReturn(inputMeta).when(vm).getInputRowMeta();
+
+    List<Object[]> outputs = new ArrayList<>();
+    doAnswer(
+            inv -> {
+              outputs.add(((Object[]) inv.getArgument(1)).clone());
+              return null;
+            })
+        .when(vm)
+        .putRow(any(IRowMeta.class), any(Object[].class));
+
+    assertTrue(vm.processRow());
+    assertEquals("Z", outputs.get(0)[0]);
+    assertNull(outputs.get(0)[1]);
+  }
+
+  @Test
+  void keepOriginalOnNonMatchInPlacePreservesSource() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("code");
+    meta.setTargetField("");
+    meta.setTargetType(null);
+    meta.setKeepOriginalValueOnNonMatch(true);
+    meta.getValues().add(mapping("A", "B"));
+
+    ValueMapperData data = new ValueMapperData();
+    ValueMapper vm = newSpyTransform(meta, data);
+    RowMeta inputMeta = new RowMeta();
+    inputMeta.addValueMeta(new ValueMetaString("code"));
+    doReturn(new Object[] {"Z"}).doReturn(null).when(vm).getRow();
+    doReturn(inputMeta).when(vm).getInputRowMeta();
+
+    List<Object[]> outputs = new ArrayList<>();
+    doAnswer(
+            inv -> {
+              outputs.add(((Object[]) inv.getArgument(1)).clone());
+              return null;
+            })
+        .when(vm)
+        .putRow(any(IRowMeta.class), any(Object[].class));
+
+    assertTrue(vm.processRow());
+    assertEquals("Z", outputs.get(0)[0]);
+  }
+
+  @Test
+  void keepOriginalOnNonMatchNewFieldCopiesSource() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("code");
+    meta.setTargetField("mapped");
+    meta.setTargetType(null);
+    meta.setKeepOriginalValueOnNonMatch(true);
+    meta.getValues().add(mapping("A", "B"));
+
+    ValueMapperData data = new ValueMapperData();
+    ValueMapper vm = newSpyTransform(meta, data);
+    RowMeta inputMeta = new RowMeta();
+    inputMeta.addValueMeta(new ValueMetaString("code"));
+    doReturn(new Object[] {"Z"}).doReturn(null).when(vm).getRow();
+    doReturn(inputMeta).when(vm).getInputRowMeta();
+
+    List<Object[]> outputs = new ArrayList<>();
+    doAnswer(
+            inv -> {
+              outputs.add(((Object[]) inv.getArgument(1)).clone());
+              return null;
+            })
+        .when(vm)
+        .putRow(any(IRowMeta.class), any(Object[].class));
+
+    assertTrue(vm.processRow());
+    assertEquals("Z", outputs.get(0)[0]);
+    assertEquals("Z", outputs.get(0)[1]);
+  }
+
+  @Test
+  void keepOriginalIgnoresNonMatchDefaultAtRuntime() throws Exception {
+    ValueMapperMeta meta = new ValueMapperMeta();
+    meta.setFieldToUse("code");
+    meta.setTargetField("");
+    meta.setTargetType(null);
+    meta.setKeepOriginalValueOnNonMatch(true);
+    meta.setNonMatchDefault("SHOULD_NOT_USE");
+    meta.getValues().add(mapping("A", "B"));
+
+    ValueMapperData data = new ValueMapperData();
+    ValueMapper vm = newSpyTransform(meta, data);
+    RowMeta inputMeta = new RowMeta();
+    inputMeta.addValueMeta(new ValueMetaString("code"));
+    doReturn(new Object[] {"Z"}).doReturn(null).when(vm).getRow();
+    doReturn(inputMeta).when(vm).getInputRowMeta();
+
+    List<Object[]> outputs = new ArrayList<>();
+    doAnswer(
+            inv -> {
+              outputs.add(((Object[]) inv.getArgument(1)).clone());
+              return null;
+            })
+        .when(vm)
+        .putRow(any(IRowMeta.class), any(Object[].class));
+
+    assertTrue(vm.processRow());
+    assertEquals("Z", outputs.get(0)[0]);
+  }
+
+  @Test
   void nonMatchDefaultUsedWhenNoMapping() throws Exception {
     ValueMapperMeta meta = new ValueMapperMeta();
     meta.setFieldToUse("code");

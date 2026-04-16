@@ -101,6 +101,7 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     Object sourceData = data.sourceValueMeta.convertToNormalStorageType(sourceValue);
     Object target = null;
     boolean mapped = false;
+    boolean keepOriginalOnNonMatch = meta.isKeepOriginalValueOnNonMatch();
 
     if (data.emptySourceMappingDefined && (r[data.keynr] == null || sourceData == null)) {
       target = data.emptyFieldValue;
@@ -116,21 +117,25 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     }
 
     if (!Utils.isEmpty(meta.getTargetField())) {
-      // room for the target
+      int lastIdx = data.outputMeta.size() - 1;
       r = RowDataUtil.resizeArray(r, data.outputMeta.size());
-      // Did we find anything to map to?
-      r[data.outputMeta.size() - 1] = target;
+      if (mapped) {
+        r[lastIdx] = target;
+      } else if (keepOriginalOnNonMatch) {
+        r[lastIdx] = data.outputValueMeta.convertData(data.sourceValueMeta, sourceValue);
+      } else {
+        r[lastIdx] = null;
+      }
     } else {
       if (mapped) {
         r[data.keynr] = target;
-      } else {
-        // Convert to normal storage type.
-        // Otherwise we're going to be mixing storage types.
-        //
+      } else if (keepOriginalOnNonMatch) {
         if (data.sourceValueMeta.isStorageBinaryString()) {
           Object normal = data.sourceValueMeta.convertToNormalStorageType(r[data.keynr]);
           r[data.keynr] = normal;
         }
+      } else {
+        r[data.keynr] = null;
       }
     }
     putRow(data.outputMeta, r);
@@ -160,7 +165,7 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
     // --- Default for non-match --------------
     //
     try {
-      if (!Utils.isEmpty(meta.getNonMatchDefault())) {
+      if (!meta.isKeepOriginalValueOnNonMatch() && !Utils.isEmpty(meta.getNonMatchDefault())) {
         nonMatchActivated = true;
         String nonMatchStr = resolve(meta.getNonMatchDefault());
         data.nonMatchDefault = keyFromString(data.targetValueMeta, stringValueMeta, nonMatchStr);

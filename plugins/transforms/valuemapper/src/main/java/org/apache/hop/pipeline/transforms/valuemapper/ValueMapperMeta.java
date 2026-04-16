@@ -19,9 +19,11 @@ package org.apache.hop.pipeline.transforms.valuemapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
@@ -38,7 +40,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/** Maps String values of a certain field to new values */
+/** Maps String values of a certain field to new values. */
 @Transform(
     id = "ValueMapper",
     image = "valuemapper.svg",
@@ -70,6 +72,42 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
       injectionKeyDescription = "ValueMapper.Injection.NON_MATCH_DEFAULT")
   private String nonMatchDefault;
 
+  /** Stored as Y/N when set; {@code null} when absent from serialized metadata. */
+  @HopMetadataProperty(
+      key = "keep_original_value_on_non_match",
+      injectionKey = "KEEP_ORIGINAL_ON_NON_MATCH",
+      injectionKeyDescription = "ValueMapper.Injection.KEEP_ORIGINAL_ON_NON_MATCH")
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private String keepOriginalValueOnNonMatch;
+
+  /**
+   * When true, non-matching values keep the source field value (in-place or copied into the new
+   * target field). The non-match default is ignored. When false, a non-match uses the default if
+   * set, otherwise null (same for overwrite and new-field modes).
+   */
+  public boolean isKeepOriginalValueOnNonMatch() {
+    if (!Utils.isEmpty(keepOriginalValueOnNonMatch)) {
+      return Const.toBoolean(keepOriginalValueOnNonMatch);
+    }
+    return Utils.isEmpty(getTargetField()) && Utils.isEmpty(getNonMatchDefault());
+  }
+
+  /** Persists an explicit Y/N; used by the dialog and metadata injection. */
+  public void setKeepOriginalValueOnNonMatch(boolean value) {
+    this.keepOriginalValueOnNonMatch = value ? "Y" : "N";
+  }
+
+  public String getKeepOriginalValueOnNonMatch() {
+    return keepOriginalValueOnNonMatch;
+  }
+
+  /** Raw Y/N from metadata; empty clears to unset. */
+  public void setKeepOriginalValueOnNonMatch(String keepOriginalValueOnNonMatch) {
+    this.keepOriginalValueOnNonMatch =
+        Utils.isEmpty(keepOriginalValueOnNonMatch) ? null : keepOriginalValueOnNonMatch;
+  }
+
   @HopMetadataProperty(
       key = "target_type",
       injectionKey = "TARGET_TYPE",
@@ -97,6 +135,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     this.fieldToUse = meta.fieldToUse;
     this.targetField = meta.targetField;
     this.nonMatchDefault = meta.nonMatchDefault;
+    this.keepOriginalValueOnNonMatch = meta.getKeepOriginalValueOnNonMatch();
     if (meta.targetType != null && meta.targetType.isEmpty()) {
       this.targetType = meta.targetType;
     } else {
