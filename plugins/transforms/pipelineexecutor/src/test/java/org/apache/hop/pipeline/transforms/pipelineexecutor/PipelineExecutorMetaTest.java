@@ -18,10 +18,17 @@
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
 class PipelineExecutorMetaTest {
 
@@ -85,5 +92,38 @@ class PipelineExecutorMetaTest {
     assertEquals(meta.getExecutorsOutputTransform(), clone.getExecutorsOutputTransform());
     assertEquals(meta.getParameters().size(), clone.getParameters().size());
     assertEquals(meta.getResultRows().size(), clone.getResultRows().size());
+  }
+
+  @Test
+  void setDefaultInitializesExecutorOptions() {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setDefault();
+
+    assertFalse(meta.isFilenameInField());
+    assertEquals("1", meta.getGroupSize());
+    assertEquals("", meta.getGroupField());
+    assertEquals("", meta.getGroupTime());
+    assertEquals("ExecutionTime", meta.getExecutionTimeField());
+    assertEquals("ExecutionResult", meta.getExecutionResultField());
+    assertEquals("ExecutionNrErrors", meta.getExecutionNrErrorsField());
+    assertEquals("FileName", meta.getResultFilesFileNameField());
+    assertNotNull(meta.getParameters());
+    assertTrue(meta.getParameters().isEmpty());
+    assertNotNull(meta.getResultRows());
+    assertTrue(meta.getResultRows().isEmpty());
+  }
+
+  @Test
+  void convertLegacyXmlReadsInheritAllVarsFromOldParametersNode()
+      throws HopException, HopXmlException {
+    PipelineExecutorMeta meta = new PipelineExecutorMeta();
+    meta.setInheritingAllVariables(false);
+
+    Document doc =
+        XmlHandler.loadXmlString(
+            "<transform><parameters><inherit_all_vars>Y</inherit_all_vars></parameters></transform>");
+    meta.convertLegacyXml(doc.getDocumentElement());
+
+    assertTrue(meta.isInheritingAllVariables());
   }
 }
