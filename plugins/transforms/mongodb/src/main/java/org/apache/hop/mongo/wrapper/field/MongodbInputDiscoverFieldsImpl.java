@@ -288,40 +288,35 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     for (String key : rec.keySet()) {
       Object fieldValue = rec.get(key);
 
-      if (fieldValue instanceof Document subDoc) {
-        processRecord(subDoc, path + "." + key, name + "." + key, lookup);
-      } else if (fieldValue instanceof List list) {
-        processList(list, path + "." + key, name + "." + key, lookup);
-      } else {
-        // some sort of primitive
-        String finalPath = path + "." + key;
-        String finalName = name + "." + key;
-        if (!lookup.containsKey(finalPath)) {
-          MongoField newField = new MongoField();
-          int hopType = mongoToHopType(fieldValue);
-          // Following suit of mongoToHopType by interpreting null as String type
-          newField.mongoType = String.class;
-          if (fieldValue != null) {
-            newField.mongoType = fieldValue.getClass();
-          }
-          newField.fieldName = finalName;
-          newField.fieldPath = finalPath;
-          newField.hopType = IValueMeta.getTypeDescription(hopType);
-          newField.percentageOfSample = 1;
+      switch (fieldValue) {
+        case Document subDoc -> processRecord(subDoc, path + "." + key, name + "." + key, lookup);
+        case List<?> list -> processList(list, path + "." + key, name + "." + key, lookup);
+        default -> {
+          String finalPath = path + "." + key;
+          String finalName = name + "." + key;
 
-          lookup.put(finalPath, newField);
-        } else {
-          // update max indexes in array parts of name
           MongoField m = lookup.get(finalPath);
-          Class<?> fieldClass = String.class;
-          if (fieldValue != null) {
-            fieldClass = fieldValue.getClass();
+          Class<?> fieldClass = (fieldValue == null) ? String.class : fieldValue.getClass();
+
+          if (m == null) {
+            MongoField newField = new MongoField();
+            int hopType = mongoToHopType(fieldValue);
+
+            newField.mongoType = fieldClass;
+            newField.fieldName = finalName;
+            newField.fieldPath = finalPath;
+            newField.hopType = IValueMeta.getTypeDescription(hopType);
+            newField.percentageOfSample = 1;
+
+            lookup.put(finalPath, newField);
+          } else {
+            if (!m.mongoType.isAssignableFrom(fieldClass)) {
+              m.disparateTypes = true;
+            }
+
+            m.percentageOfSample++;
+            updateMinMaxArrayIndexes(m, finalName);
           }
-          if (!m.mongoType.isAssignableFrom(fieldClass)) {
-            m.disparateTypes = true;
-          }
-          m.percentageOfSample++;
-          updateMinMaxArrayIndexes(m, finalName);
         }
       }
     }
@@ -340,41 +335,38 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
 
     for (int i = 0; i < list.size(); i++) {
       Object element = list.get(i);
+      switch (element) {
+        case Document doc ->
+            processRecord(doc, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
+        case List<?> subList ->
+            processList(subList, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
+        default -> {
+          // primitive handling
+          String finalPath = primitivePath + "[" + i + "]";
+          String finalName = name + "[" + i + "]";
 
-      if (element instanceof Document doc) {
-        processRecord(doc, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
-      } else if (element instanceof List subList) {
-        processList(subList, nonPrimitivePath, name + "[" + i + ":" + i + "]", lookup);
-      } else {
-        // some sort of primitive
-        String finalPath = primitivePath + "[" + i + "]";
-        String finalName = name + "[" + i + "]";
-        if (!lookup.containsKey(finalPath)) {
-          MongoField newField = new MongoField();
-          int hopType = mongoToHopType(element);
-          // Following suit of mongoToHopType by interpreting null as String type
-          newField.mongoType = String.class;
-          if (element != null) {
-            newField.mongoType = element.getClass();
-          }
-          newField.fieldName = finalPath;
-          newField.fieldPath = finalName;
-          newField.hopType = IValueMeta.getTypeDescription(hopType);
-          newField.percentageOfSample = 1;
-
-          lookup.put(finalPath, newField);
-        } else {
-          // update max indexes in array parts of name
           MongoField m = lookup.get(finalPath);
-          Class<?> elementClass = String.class;
-          if (element != null) {
-            elementClass = element.getClass();
+          if (m == null) {
+            MongoField newField = new MongoField();
+            int hopType = mongoToHopType(element);
+
+            newField.mongoType = (element == null) ? String.class : element.getClass();
+            newField.fieldName = finalPath;
+            newField.fieldPath = finalName;
+            newField.hopType = IValueMeta.getTypeDescription(hopType);
+            newField.percentageOfSample = 1;
+
+            lookup.put(finalPath, newField);
+          } else {
+            Class<?> elementClass = (element == null) ? String.class : element.getClass();
+
+            if (!m.mongoType.isAssignableFrom(elementClass)) {
+              m.disparateTypes = true;
+            }
+
+            m.percentageOfSample++;
+            updateMinMaxArrayIndexes(m, finalName);
           }
-          if (!m.mongoType.isAssignableFrom(elementClass)) {
-            m.disparateTypes = true;
-          }
-          m.percentageOfSample++;
-          updateMinMaxArrayIndexes(m, finalName);
         }
       }
     }

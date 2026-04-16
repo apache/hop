@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class CountersTest {
   /** Test about all. Class is not too big. */
   @Test
-  public void testGeneralFunctionality() {
+  void testGeneralFunctionality() {
     Counters cntrs = Counters.getInstance();
     assertNull(cntrs.getCounter("counter1"));
     cntrs.setCounter("counter1", new Counter());

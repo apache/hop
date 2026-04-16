@@ -213,12 +213,10 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
     wAuthType = new Combo(parent, SWT.BORDER | SWT.SINGLE | SWT.LEFT | SWT.READ_ONLY);
     PropsUi.setLook(wAuthType);
     wAuthType.setItems(
-        new String[] {
-          BaseMessages.getString(PKG, "S3Meta.AuthType.Default"),
-          BaseMessages.getString(PKG, "S3Meta.AuthType.AccessKeys"),
-          BaseMessages.getString(PKG, "S3Meta.AuthType.CredentialsFile"),
-          BaseMessages.getString(PKG, "S3Meta.AuthType.Anonymous"),
-        });
+        BaseMessages.getString(PKG, "S3Meta.AuthType.Default"),
+        BaseMessages.getString(PKG, "S3Meta.AuthType.AccessKeys"),
+        BaseMessages.getString(PKG, "S3Meta.AuthType.CredentialsFile"),
+        BaseMessages.getString(PKG, "S3Meta.AuthType.Anonymous"));
     FormData fdAuthType = new FormData();
     fdAuthType.top = new FormAttachment(wlAuthType, 0, SWT.CENTER);
     fdAuthType.left = new FormAttachment(middle, 0);
@@ -521,34 +519,39 @@ public class S3MetaEditor extends MetadataEditor<S3Meta> {
     meta.setCacheTtlSeconds(wCacheTtl.getText());
 
     int authIdx = wAuthType.getSelectionIndex();
-    if (authIdx == 1) {
-      meta.setAuthenticationType(S3AuthType.ACCESS_KEYS.name());
-      meta.setAccessKey(wAccessKey.getText());
-      meta.setSecretKey(wSecretKey.getText());
-      meta.setSessionToken(wSessionToken.getText());
-      meta.setCredentialsFile(null);
-      meta.setProfileName(null);
-    } else if (authIdx == 2) {
-      meta.setAuthenticationType(S3AuthType.CREDENTIALS_FILE.name());
-      meta.setAccessKey(null);
-      meta.setSecretKey(null);
-      meta.setSessionToken(null);
-      meta.setCredentialsFile(wCredentialsFile.getText());
-      meta.setProfileName(wProfileName.getText());
-    } else if (authIdx == 3) {
-      meta.setAuthenticationType(S3AuthType.ANONYMOUS.name());
-      meta.setAccessKey(null);
-      meta.setSecretKey(null);
-      meta.setSessionToken(null);
-      meta.setCredentialsFile(null);
-      meta.setProfileName(null);
-    } else {
-      meta.setAuthenticationType(S3AuthType.DEFAULT.name());
-      meta.setAccessKey(null);
-      meta.setSecretKey(null);
-      meta.setSessionToken(null);
-      meta.setCredentialsFile(null);
-      meta.setProfileName(wProfileName.getText());
+    switch (authIdx) {
+      case 1 -> {
+        meta.setAuthenticationType(S3AuthType.ACCESS_KEYS.name());
+        meta.setAccessKey(wAccessKey.getText());
+        meta.setSecretKey(wSecretKey.getText());
+        meta.setSessionToken(wSessionToken.getText());
+        meta.setCredentialsFile(null);
+        meta.setProfileName(null);
+      }
+      case 2 -> {
+        meta.setAuthenticationType(S3AuthType.CREDENTIALS_FILE.name());
+        meta.setAccessKey(null);
+        meta.setSecretKey(null);
+        meta.setSessionToken(null);
+        meta.setCredentialsFile(wCredentialsFile.getText());
+        meta.setProfileName(wProfileName.getText());
+      }
+      case 3 -> {
+        meta.setAuthenticationType(S3AuthType.ANONYMOUS.name());
+        meta.setAccessKey(null);
+        meta.setSecretKey(null);
+        meta.setSessionToken(null);
+        meta.setCredentialsFile(null);
+        meta.setProfileName(null);
+      }
+      default -> {
+        meta.setAuthenticationType(S3AuthType.DEFAULT.name());
+        meta.setAccessKey(null);
+        meta.setSecretKey(null);
+        meta.setSessionToken(null);
+        meta.setCredentialsFile(null);
+        meta.setProfileName(wProfileName.getText());
+      }
     }
     meta.setEndpoint(wEndpoint.getText());
     meta.setPathStyleAccess(wPathStyle.getSelection());

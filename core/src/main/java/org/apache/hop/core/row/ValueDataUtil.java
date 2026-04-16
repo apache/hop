@@ -1643,7 +1643,7 @@ public class ValueDataUtil {
    * always in the range 0-65535.
    *
    * @return A hex-to-char decoded String
-   * @throws HopValueException
+   * @throws HopValueException ex
    */
   public static String hexToCharDecode(IValueMeta meta, Object data) throws HopValueException {
     if (meta.isNull(data)) {
@@ -1679,21 +1679,26 @@ public class ValueDataUtil {
         throw new HopValueException("invalid hex digit '" + c + "'.");
       }
 
-      if (charNr == 4) {
-        nextChar = (nibble << 12);
-        charNr--;
-      } else if (charNr == 3) {
-        nextChar += (nibble << 8);
-        charNr--;
-      } else if (charNr == 2) {
-        nextChar += (nibble << 4);
-        charNr--;
-      } else {
-        // charNr == 1
-        nextChar += nibble;
-        chArray[j] = (char) nextChar;
-        charNr = 4;
-        j++;
+      switch (charNr) {
+        case 4 -> {
+          nextChar = (nibble << 12);
+          charNr--;
+        }
+        case 3 -> {
+          nextChar += (nibble << 8);
+          charNr--;
+        }
+        case 2 -> {
+          nextChar += (nibble << 4);
+          charNr--;
+        }
+        default -> {
+          // charNr == 1
+          nextChar += nibble;
+          chArray[j] = (char) nextChar;
+          charNr = 4;
+          j++;
+        }
       }
     }
 

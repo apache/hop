@@ -226,29 +226,21 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         ) {
           retval.append("BIGINT NOT NULL PRIMARY KEY");
         } else {
-          if (type == IValueMeta.TYPE_INTEGER) {
-            // Integer values...
-            if (length > 0) {
-              retval.append("DECIMAL(" + length + ")");
-            } else {
-              retval.append("INTEGER");
+          switch (type) {
+            case IValueMeta.TYPE_INTEGER -> {
+              if (length > 0) {
+                retval.append("DECIMAL(").append(length).append(")");
+              } else {
+                retval.append("INTEGER");
+              }
             }
-          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
-            // Fixed point value...
-            if (length
-                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
-              // mantissa 2^53 of IEEE 754 binary64 "double".
-              length = 16;
+            case IValueMeta.TYPE_BIGNUMBER -> {
+              int len = (length < 1) ? 16 : length;
+              int p = (precision < 1) ? 16 : precision;
+
+              retval.append("DECIMAL(").append(len).append(",").append(p).append(")");
             }
-            if (precision
-                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
-              // to IEEE 754 binary64 "double".
-              precision = 16;
-            }
-            retval.append("DECIMAL(" + length + "," + precision + ")");
-          } else {
-            // Floating point value with double precision...
-            retval.append("DOUBLE");
+            default -> retval.append("DOUBLE");
           }
         }
 

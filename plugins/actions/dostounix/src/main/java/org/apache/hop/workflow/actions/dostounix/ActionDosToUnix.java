@@ -746,13 +746,13 @@ public class ActionDosToUnix extends ActionBase {
         int b = input[index++];
         switch (state) {
           case 0:
-            if (b == CR) {
-              state = 1;
-            } else if (b == LF) {
-              os.write(CR);
-              os.write(LF);
-            } else {
-              os.write(b);
+            switch (b) {
+              case CR -> state = 1;
+              case LF -> {
+                os.write(CR);
+                os.write(LF);
+              }
+              default -> os.write(b);
             }
             break;
           case 1:

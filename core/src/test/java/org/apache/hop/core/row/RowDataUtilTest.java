@@ -42,7 +42,7 @@ class RowDataUtilTest {
   }
 
   @Test
-  public void testResizeArray() {
+  void testResizeArray() {
     Object[] arr1 = new Object[] {"test", Boolean.TRUE, 100L, 101L, new String("test1")};
     Object[] nullArr =
         new Object[] {
@@ -72,7 +72,7 @@ class RowDataUtilTest {
   }
 
   @Test
-  public void testRemoveItem() {
+  void testRemoveItem() {
     Object[] arr = new Object[] {1L, 2L, 3L, 4L, 5L};
 
     // Remove the first item
@@ -106,7 +106,7 @@ class RowDataUtilTest {
   }
 
   @Test
-  public void testAddRowData() {
+  void testAddRowData() {
     Object[] arr = new Object[] {1L, 2L, 3L};
 
     // Do all different combinations of adding rows to
@@ -129,7 +129,7 @@ class RowDataUtilTest {
   }
 
   @Test
-  public void testAddValueData() {
+  void testAddValueData() {
     Object[] arr1 = new Object[] {1L};
     Object[] arr2 = new Object[] {1L, 2L};
 
@@ -143,7 +143,7 @@ class RowDataUtilTest {
   }
 
   @Test
-  public void testRemoveItems() {
+  void testRemoveItems() {
     Object[] arr1 = new Object[] {1L, 2L, 3L, 4L, 5L};
     Object[] comp1 = new Object[] {2L, 4L};
 

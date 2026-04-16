@@ -406,31 +406,36 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
                 cachedHttpClient.execute(vHttpMethod, cachedHostConfiguration);
         responseCode = httpResponse.getCode();
       }
-      if (responseCode == HttpStatus.SC_OK) {
-        httpEntity = httpResponse.getEntity();
-        charSet = StandardCharsets.UTF_8;
-        processRows(
-            httpEntity.getContent(),
-            rowData,
-            rowMeta,
-            cachedWsdl.getWsdlTypes().isElementFormQualified(cachedWsdl.getTargetNamespace()),
-            charSet.toString());
-      } else if (responseCode == HttpStatus.SC_UNAUTHORIZED) {
-        throw new HopTransformException(
-            BaseMessages.getString(PKG, "WebServices.ERROR0011.Authentication", cachedURLService));
-      } else if (responseCode == HttpStatus.SC_NOT_FOUND) {
-        throw new HopTransformException(
-            BaseMessages.getString(PKG, "WebServices.ERROR0012.NotFound", cachedURLService));
-      } else if (responseCode == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-        throw new HopTransformException("Internal Server Error 500: " + cachedURLService);
-      } else {
-        throw new HopTransformException(
-            BaseMessages.getString(
-                PKG,
-                "WebServices.ERROR0001.ServerError",
-                Integer.toString(responseCode),
-                Const.NVL(readEntity(httpEntity, charSet.toString()), ""),
-                cachedURLService));
+
+      switch (responseCode) {
+        case HttpStatus.SC_OK -> {
+          httpEntity = httpResponse.getEntity();
+          charSet = StandardCharsets.UTF_8;
+
+          processRows(
+              httpEntity.getContent(),
+              rowData,
+              rowMeta,
+              cachedWsdl.getWsdlTypes().isElementFormQualified(cachedWsdl.getTargetNamespace()),
+              charSet.toString());
+        }
+        case HttpStatus.SC_UNAUTHORIZED ->
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG, "WebServices.ERROR0011.Authentication", cachedURLService));
+        case HttpStatus.SC_NOT_FOUND ->
+            throw new HopTransformException(
+                BaseMessages.getString(PKG, "WebServices.ERROR0012.NotFound", cachedURLService));
+        case HttpStatus.SC_INTERNAL_SERVER_ERROR ->
+            throw new HopTransformException("Internal Server Error 500: " + cachedURLService);
+        default ->
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG,
+                    "WebServices.ERROR0001.ServerError",
+                    Integer.toString(responseCode),
+                    Const.NVL(readEntity(httpEntity, charSet.toString()), ""),
+                    cachedURLService));
       }
     } catch (UnknownHostException e) {
       throw new HopTransformException(

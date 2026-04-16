@@ -61,24 +61,24 @@ public class AuditState {
 
   public boolean extractBoolean(String key, boolean defaultValue) {
     Object only = getStateMap().get(key);
-    if (only instanceof Boolean) {
-      return (Boolean) only;
+    if (only instanceof Boolean b) {
+      return b;
     }
     return defaultValue;
   }
 
   public String extractString(String key, String defaultValue) {
     Object object = getStateMap().get(key);
-    if (object instanceof String) {
-      return (String) object;
+    if (object instanceof String s) {
+      return s;
     }
     return defaultValue;
   }
 
   public int extractInteger(String key, int defaultValue) {
     Object object = getStateMap().get(key);
-    if (object instanceof Integer) {
-      return (Integer) object;
+    if (object instanceof Integer i) {
+      return i;
     }
     return defaultValue;
   }

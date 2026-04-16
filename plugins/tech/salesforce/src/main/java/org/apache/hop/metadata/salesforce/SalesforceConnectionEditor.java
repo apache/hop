@@ -1234,14 +1234,16 @@ public class SalesforceConnectionEditor extends MetadataEditor<SalesforceConnect
     connection.setName(wName.getText());
 
     int selectedIndex = wAuthType.getSelectionIndex();
-    if (selectedIndex == 1) {
-      connection.setAuthenticationType("OAUTH");
-      connection.setOauthApiVersion(wOAuthApiVersion.getText());
-    } else if (selectedIndex == 2) {
-      connection.setAuthenticationType("OAUTH_JWT");
-      connection.setOauthApiVersion(wOAuthJwtApiVersion.getText());
-    } else {
-      connection.setAuthenticationType("USERNAME_PASSWORD");
+    switch (selectedIndex) {
+      case 1 -> {
+        connection.setAuthenticationType("OAUTH");
+        connection.setOauthApiVersion(wOAuthApiVersion.getText());
+      }
+      case 2 -> {
+        connection.setAuthenticationType("OAUTH_JWT");
+        connection.setOauthApiVersion(wOAuthJwtApiVersion.getText());
+      }
+      default -> connection.setAuthenticationType("USERNAME_PASSWORD");
     }
 
     // Username/Password fields

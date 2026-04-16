@@ -42,8 +42,9 @@ import org.apache.hop.core.util.Utils;
 public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   public static final String CONST_ALTER_TABLE = "ALTER TABLE ";
+  private static final String UUID_N_NIL_PRI_KEY = "UUID NOT NULL PRIMARY KEY";
 
-  // TODO: Manage all attributes in plugin when HOP-67 is fixed
+  // Manage all attributes in plugin when HOP-67 is fixed
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -178,31 +179,22 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
         retval += "UINT8";
         break;
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
-        if (type == IValueMeta.TYPE_INTEGER) {
-          // Integer values...
-          if (length > 18) {
-            retval += "INT128";
-          } else if (length > 9) {
-            retval += "INT64";
-          } else {
-            retval += "INT32";
+        switch (type) {
+          case IValueMeta.TYPE_INTEGER -> {
+            if (length > 18) {
+              retval += "INT128";
+            } else if (length > 9) {
+              retval += "INT64";
+            } else {
+              retval += "INT32";
+            }
           }
-        } else if (type == IValueMeta.TYPE_BIGNUMBER) {
-          // Fixed point value...
-          if (length < 1) {
-            // user configured no value for length. Use 16 digits, which is comparable to
-            // mantissa 2^53 of IEEE 754 binary64 "double".
-            length = 16;
+          case IValueMeta.TYPE_BIGNUMBER -> {
+            int len = (length < 1) ? 16 : length;
+            int p = (precision < 1) ? 16 : precision;
+            retval += "DECIMAL(" + len + "," + p + ")";
           }
-          if (precision < 1) {
-            // user configured no value for precision. Use 16 digits, which is comparable
-            // to IEEE 754 binary64 "double".
-            precision = 16;
-          }
-          retval += "DECIMAL(" + length + "," + precision + ")";
-        } else {
-          // Floating point value with double precision...
-          retval += "FLOAT64";
+          default -> retval += "FLOAT64";
         }
         break;
       case IValueMeta.TYPE_STRING:
@@ -219,7 +211,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   private String ddlForPrimaryKey() {
-    return "UUID NOT NULL PRIMARY KEY";
+    return UUID_N_NIL_PRI_KEY;
   }
 
   @Override

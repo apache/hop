@@ -69,8 +69,6 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
     String retval = "";
 
     String fieldname = v.getName();
-    int precision = v.getPrecision();
-
     if (addFieldName) {
       retval += fieldname + " ";
     }
@@ -90,19 +88,16 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
         break;
 
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
-        if (type == IValueMeta.TYPE_INTEGER) {
-          // Integer values...
-          retval += "INT64";
-        } else if (type == IValueMeta.TYPE_BIGNUMBER) {
-          // Fixed point value...
-          if (v.getLength() < 39) {
-            retval += "NUMERIC";
-          } else {
-            retval += "BIGNUMERIC";
+        switch (type) {
+          case IValueMeta.TYPE_INTEGER -> retval += "INT64";
+          case IValueMeta.TYPE_BIGNUMBER -> {
+            if (v.getLength() < 39) {
+              retval += "NUMERIC";
+            } else {
+              retval += "BIGNUMERIC";
+            }
           }
-        } else {
-          // Floating point value with double precision...
-          retval += "FLOAT64";
+          default -> retval += "FLOAT64";
         }
         break;
 

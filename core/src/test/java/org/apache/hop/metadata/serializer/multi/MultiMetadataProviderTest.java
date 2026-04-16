@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 class MultiMetadataProviderTest extends MetadataTestBase {
 
   @Test
-  public void testGetDescription() {
+  void testGetDescription() {
     String description = multiMetadataProvider.getDescription();
     assertNotNull(description);
     assertEquals(
@@ -42,7 +42,7 @@ class MultiMetadataProviderTest extends MetadataTestBase {
   }
 
   @Test
-  public void testGetMetadataClasses() {
+  void testGetMetadataClasses() {
     List<Class<IHopMetadata>> list = multiMetadataProvider.getMetadataClasses();
     assertEquals(2, list.size());
     assertTrue(list.contains(MetadataType1.class));
@@ -50,13 +50,13 @@ class MultiMetadataProviderTest extends MetadataTestBase {
   }
 
   @Test
-  public void testGetMetadataClassForKey() throws HopException {
+  void testGetMetadataClassForKey() throws HopException {
     assertEquals(MetadataType1.class, multiMetadataProvider.getMetadataClassForKey("type-1"));
     assertEquals(MetadataType2.class, multiMetadataProvider.getMetadataClassForKey("type-2"));
   }
 
   @Test
-  public void testFindProvider() {
+  void testFindProvider() {
     IHopMetadataProvider look1 = multiMetadataProvider.findProvider("Provider1");
     assertNotNull(look1);
     assertEquals(provider1, look1);
@@ -69,13 +69,13 @@ class MultiMetadataProviderTest extends MetadataTestBase {
   }
 
   @Test
-  public void testGetProviders() {
+  void testGetProviders() {
     List<IHopMetadataProvider> list = multiMetadataProvider.getProviders();
     assertEquals(3, list.size());
   }
 
   @Test
-  public void testSetProviders() {
+  void testSetProviders() {
     List<IHopMetadataProvider> list = multiMetadataProvider.getProviders();
     MemoryMetadataProvider provider4 =
         new MemoryMetadataProvider(

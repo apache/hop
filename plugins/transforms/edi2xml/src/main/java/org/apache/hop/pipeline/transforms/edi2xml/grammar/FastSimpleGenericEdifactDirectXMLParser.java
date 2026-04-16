@@ -39,7 +39,7 @@ import org.antlr.runtime.TokenStream;
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 @SuppressWarnings("java:S1104")
 public class FastSimpleGenericEdifactDirectXMLParser extends Parser {

@@ -234,8 +234,7 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     // Reverse sort the IDs by date
     //
     List<DatedId> datedIds = new ArrayList<>(ids);
-    datedIds.sort(Comparator.comparing(DatedId::getDate));
-    Collections.reverse(datedIds); // Newest first
+    datedIds.sort(Comparator.comparing(DatedId::getDate).reversed());
 
     // Take only the first from the list
     //
@@ -277,8 +276,8 @@ public abstract class BaseCachingExecutionInfoLocation implements IExecutionInfo
     // Reverse sort the IDs by date
     //
     List<DatedId> datedIds = new ArrayList<>(dateIds);
-    datedIds.sort(Comparator.comparing(DatedId::getDate));
-    Collections.reverse(datedIds); // Newest first
+    // Newest first
+    datedIds.sort(Comparator.comparing(DatedId::getDate).reversed());
 
     // Take only the first from the list
     //

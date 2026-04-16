@@ -43,6 +43,8 @@ import org.apache.hop.core.exception.HopRuntimeException;
 /** Utilities for getting extensibility elements. */
 final class WsdlUtils {
 
+  private WsdlUtils() {}
+
   // extensibility element names
   private static final String SOAP_PORT_ADDRESS_NAME = "address";
   private static final String SOAP_BINDING_ELEMENT_NAME = "binding";
@@ -99,16 +101,17 @@ final class WsdlUtils {
         findExtensibilityElement((ElementExtensible) binding, SOAP_BINDING_ELEMENT_NAME);
 
     if (soapBindingElem != null) {
-      if (soapBindingElem instanceof SOAP12Binding soap12Binding) {
-        style = soap12Binding.getStyle();
-      } else if (soapBindingElem instanceof SOAPBinding soapBinding) {
-        style = soapBinding.getStyle();
-      } else {
-        throw new HopException(
-            "Binding type "
-                + soapBindingElem
-                + " encountered. The Web Service Lookup transform only supports SOAP Bindings!");
-      }
+      style =
+          switch (soapBindingElem) {
+            case SOAP12Binding soap12Binding -> soap12Binding.getStyle();
+            case SOAPBinding soapBinding -> soapBinding.getStyle();
+
+            default ->
+                throw new HopException(
+                    "Binding type "
+                        + soapBindingElem
+                        + " encountered. The Web Service Lookup transform only supports SOAP Bindings!");
+          };
     }
     return style;
   }
@@ -234,7 +237,7 @@ final class WsdlUtils {
               (ElementExtensible) bindingOutput, SOAP_HEADER_ELEMENT_NAME));
     }
 
-    HashSet<String> headerSet = new HashSet<>(headers.size());
+    HashSet<String> headerSet = HashSet.newHashSet(headers.size());
     for (ExtensibilityElement element : headers) {
       if (element instanceof SOAP12Header soap12Header) {
         headerSet.add(soap12Header.getPart());

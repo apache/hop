@@ -132,29 +132,30 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         retval += "CHAR(1)";
         break;
       case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
-        if (type == IValueMeta.TYPE_INTEGER) {
-          // Integer values...
-          if (length < 10) {
-            retval += "INT";
-          } else {
-            retval += "DECIMAL(" + length + ")";
+        switch (type) {
+          case IValueMeta.TYPE_INTEGER -> {
+            // Integer values...
+            if (length < 10) {
+              retval += "INT";
+            } else {
+              retval += "DECIMAL(" + length + ")";
+            }
           }
-        } else if (type == IValueMeta.TYPE_BIGNUMBER) {
-          // Fixed point value...
-          if (length
-              < 1) { // user configured no value for length. Use 16 digits, which is comparable to
-            // mantissa 2^53 of IEEE 754 binary64 "double".
-            length = 16;
+          case IValueMeta.TYPE_BIGNUMBER -> {
+            // user configured no value for length. Use 16 digits, which is comparable to mantissa
+            // 2^53 of IEEE 754 binary64 "double".
+            if (length < 1) {
+              length = 16;
+            }
+            // user configured no value for precision. Use 16 digits, which is comparable to IEEE
+            // 754 binary64 "double".
+            if (precision < 1) {
+              precision = 16;
+            }
+            retval += "DECIMAL(" + length + "," + precision + ")";
           }
-          if (precision
-              < 1) { // user configured no value for precision. Use 16 digits, which is comparable
-            // to IEEE 754 binary64 "double".
-            precision = 16;
-          }
-          retval += "DECIMAL(" + length + "," + precision + ")";
-        } else {
-          // Floating point value with double precision...
-          retval += "DOUBLE";
+            // Floating point value with double precision...
+          default -> retval += "DOUBLE";
         }
         break;
       case IValueMeta.TYPE_STRING:

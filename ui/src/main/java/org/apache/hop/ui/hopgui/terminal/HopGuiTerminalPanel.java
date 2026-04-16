@@ -801,7 +801,7 @@ public class HopGuiTerminalPanel extends Composite implements TabClosable {
           && fontSizeState.getStateMap() != null
           && fontSizeState.getStateMap().get("value") != null) {
         int saved = Const.toInt(fontSizeState.getStateMap().get("value").toString(), 100);
-        terminalFontSizePercent = Math.max(50, Math.min(200, saved));
+        terminalFontSizePercent = Math.clamp(saved, 50, 200);
       }
 
       if (auditList.getNames().isEmpty()) {

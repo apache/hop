@@ -19,6 +19,7 @@ package org.apache.hop.mongo.wrapper.field;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -178,13 +179,12 @@ public class MongoField implements Comparable<MongoField> {
 
     return switch (tempValueMeta.getType()) {
       case IValueMeta.TYPE_BIGNUMBER -> {
-        if (fieldValue instanceof Number number) {
-          fieldValue = BigDecimal.valueOf(number.doubleValue());
-        } else if (fieldValue instanceof Date date) {
-          fieldValue = new BigDecimal(date.getTime());
-        } else {
-          fieldValue = new BigDecimal(fieldValue.toString());
-        }
+        fieldValue =
+            switch (fieldValue) {
+              case Number number -> BigDecimal.valueOf(number.doubleValue());
+              case Date date -> BigDecimal.valueOf(date.getTime());
+              default -> new BigDecimal(fieldValue.toString());
+            };
         yield tempValueMeta.getBigNumber(fieldValue);
       }
       case IValueMeta.TYPE_BINARY -> {
@@ -221,27 +221,27 @@ public class MongoField implements Comparable<MongoField> {
         yield tempValueMeta.getDate(fieldValue);
       }
       case IValueMeta.TYPE_INTEGER -> {
-        if (fieldValue instanceof Number number) {
-          fieldValue = (long) number.intValue();
-        } else if (fieldValue instanceof Binary binary) {
-          byte[] b = binary.getData();
-          String s = new String(b);
-          fieldValue = Long.valueOf(s);
-        } else {
-          fieldValue = Long.valueOf(fieldValue.toString());
-        }
+        fieldValue =
+            switch (fieldValue) {
+              case Number number -> number.longValue();
+              case Binary binary -> {
+                String s = new String(binary.getData(), StandardCharsets.UTF_8);
+                yield Long.valueOf(s);
+              }
+              default -> Long.valueOf(fieldValue.toString());
+            };
         yield tempValueMeta.getInteger(fieldValue);
       }
       case IValueMeta.TYPE_NUMBER -> {
-        if (fieldValue instanceof Number number) {
-          fieldValue = number.doubleValue();
-        } else if (fieldValue instanceof Binary binary) {
-          byte[] b = binary.getData();
-          String s = new String(b);
-          fieldValue = Double.valueOf(s);
-        } else {
-          fieldValue = Double.valueOf(fieldValue.toString());
-        }
+        fieldValue =
+            switch (fieldValue) {
+              case Number number -> number.doubleValue();
+              case Binary binary -> {
+                String s = new String(binary.getData(), StandardCharsets.UTF_8);
+                yield Double.valueOf(s);
+              }
+              default -> Double.valueOf(fieldValue.toString());
+            };
         yield tempValueMeta.getNumber(fieldValue);
       }
       case IValueMeta.TYPE_STRING -> tempValueMeta.getString(fieldValue);

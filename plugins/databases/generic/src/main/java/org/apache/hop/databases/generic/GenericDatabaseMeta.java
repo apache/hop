@@ -245,35 +245,27 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         ) {
           retval += "BIGSERIAL";
         } else {
-          if (type == IValueMeta.TYPE_INTEGER) {
-            // Integer values...
-            if (length < 3) {
-              retval += "TINYINT";
-            } else if (length < 5) {
-              retval += "SMALLINT";
-            } else if (length < 10) {
-              retval += "INT";
-            } else if (length < 20) {
-              retval += "BIGINT";
-            } else {
-              retval += "DECIMAL(" + length + ")";
+          switch (type) {
+            case IValueMeta.TYPE_INTEGER -> {
+              if (length < 3) {
+                retval += "TINYINT";
+              } else if (length < 5) {
+                retval += "SMALLINT";
+              } else if (length < 10) {
+                retval += "INT";
+              } else if (length < 20) {
+                retval += "BIGINT";
+              } else {
+                retval += "DECIMAL(" + length + ")";
+              }
             }
-          } else if (type == IValueMeta.TYPE_BIGNUMBER) {
-            // Fixed point value...
-            if (length
-                < 1) { // user configured no value for length. Use 16 digits, which is comparable to
-              // mantissa 2^53 of IEEE 754 binary64 "double".
-              length = 16;
+            case IValueMeta.TYPE_BIGNUMBER -> {
+              int len = (length < 1) ? 16 : length;
+              int p = (precision < 1) ? 16 : precision;
+
+              retval += "DECIMAL(" + len + "," + p + ")";
             }
-            if (precision
-                < 1) { // user configured no value for precision. Use 16 digits, which is comparable
-              // to IEEE 754 binary64 "double".
-              precision = 16;
-            }
-            retval += "DECIMAL(" + length + "," + precision + ")";
-          } else {
-            // Floating point value with double precision...
-            retval += "DOUBLE PRECISION";
+            default -> retval += "DOUBLE PRECISION";
           }
         }
         break;

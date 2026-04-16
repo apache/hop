@@ -243,15 +243,13 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
           long count = data.counters[i];
           Object sum = data.sum[i];
           if (count > 0) {
-            if (sum instanceof Long longValue) {
-              resultValue = longValue / count;
-            } else if (sum instanceof Double doubleValue) {
-              resultValue = doubleValue / count;
-            } else if (sum instanceof BigDecimal bigDecimalValue) {
-              resultValue = bigDecimalValue.divide(new BigDecimal(count));
-            } else {
-              resultValue = null;
-            }
+            resultValue =
+                switch (sum) {
+                  case Long l -> l / count;
+                  case Double d -> d / count;
+                  case BigDecimal bd -> bd.divide(BigDecimal.valueOf(count));
+                  default -> null;
+                };
           }
           break;
         case TYPE_AGGR_COUNT_ALL:
@@ -448,12 +446,14 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
   private IValueMeta getConversionMeta(String mask) {
     IValueMeta meta = null;
     if (!Utils.isEmpty(mask)) {
-      meta = conversionMetaCache.get(mask);
-      if (meta == null) {
-        meta = new ValueMetaDate();
-        meta.setConversionMask(mask);
-        conversionMetaCache.put(mask, meta);
-      }
+      meta =
+          conversionMetaCache.computeIfAbsent(
+              mask,
+              key -> {
+                ValueMetaDate m = new ValueMetaDate();
+                m.setConversionMask(key);
+                return m;
+              });
     }
     return meta;
   }

@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.util.UUID;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.LoggingObjectType;

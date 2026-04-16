@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import javax.sql.PooledConnection;
 import org.apache.commons.dbcp2.DelegatingConnection;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -328,7 +327,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         return new ColumnSpec(ColumnSpec.VariableWidthType.VARCHAR, targetValueMeta.getLength());
       }
       case "DATE" -> {
-        if (inputValueMeta.isDate() == false) {
+        if (!inputValueMeta.isDate()) {
           throw new IllegalArgumentException(
               CONST_FIELD
                   + inputValueMeta.getName()
@@ -339,7 +338,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         }
       }
       case "TIME" -> {
-        if (inputValueMeta.isDate() == false) {
+        if (!inputValueMeta.isDate()) {
           throw new IllegalArgumentException(
               CONST_FIELD
                   + inputValueMeta.getName()
@@ -350,7 +349,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         }
       }
       case "TIMETZ" -> {
-        if (inputValueMeta.isDate() == false) {
+        if (!inputValueMeta.isDate()) {
           throw new IllegalArgumentException(
               CONST_FIELD
                   + inputValueMeta.getName()
@@ -361,7 +360,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         }
       }
       case "TIMESTAMP" -> {
-        if (inputValueMeta.isDate() == false) {
+        if (!inputValueMeta.isDate()) {
           throw new IllegalArgumentException(
               CONST_FIELD
                   + inputValueMeta.getName()
@@ -372,7 +371,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         }
       }
       case "TIMESTAMPTZ" -> {
-        if (inputValueMeta.isDate() == false) {
+        if (!inputValueMeta.isDate()) {
           throw new IllegalArgumentException(
               CONST_FIELD
                   + inputValueMeta.getName()
@@ -383,7 +382,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         }
       }
       case "INTERVAL", "INTERVAL DAY TO SECOND" -> {
-        if (inputValueMeta.isDate() == false) {
+        if (!inputValueMeta.isDate()) {
           throw new IllegalArgumentException(
               CONST_FIELD
                   + inputValueMeta.getName()
@@ -501,7 +500,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
           .append("' ");
     }
 
-    // TODO: Should eventually get a preference for this, but for now, be backward compatible.
+    //  Should eventually get a preference for this, but for now, be backward compatible.
     sb.append("ENFORCELENGTH ");
 
     if (meta.isAbortOnError()) {
@@ -692,24 +691,22 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
       if (conn instanceof VerticaConnection verticaConnection) {
         return verticaConnection;
       } else {
-        Connection underlyingConn = null;
-        if (conn instanceof DelegatingConnection delegatingConnection) {
-          DelegatingConnection pooledConn = delegatingConnection;
-          underlyingConn = pooledConn.getInnermostDelegate();
-        } else if (conn instanceof javax.sql.PooledConnection pooledConnection) {
-          PooledConnection pooledConn = pooledConnection;
-          underlyingConn = pooledConn.getConnection();
-        } else {
-          // Last resort - attempt to use unwrap to get at the connection.
-          try {
-            if (conn.isWrapperFor(VerticaConnection.class)) {
-              return conn.unwrap(VerticaConnection.class);
-            }
-          } catch (SQLException ignored) {
-            // ignored - the connection doesn't support unwrap or the connection cannot be
-            // unwrapped into a VerticaConnection.
-          }
-        }
+        Connection underlyingConn =
+            switch (conn) {
+              case DelegatingConnection<?> delegating -> delegating.getInnermostDelegate();
+              case javax.sql.PooledConnection pooled -> pooled.getConnection();
+              default -> {
+                try {
+                  if (conn.isWrapperFor(VerticaConnection.class)) {
+                    yield conn.unwrap(VerticaConnection.class);
+                  }
+                } catch (SQLException ignored) {
+                  // ignored - the connection doesn't support unwrap or the connection cannot be
+                  // unwrapped into a VerticaConnection.
+                }
+                yield null;
+              }
+            };
         if ((underlyingConn != null)
             && (underlyingConn instanceof VerticaConnection verticaConnection)) {
           return verticaConnection;

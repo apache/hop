@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.net.URLEncoder;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
