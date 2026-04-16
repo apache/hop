@@ -26,7 +26,7 @@ import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import com.pty4j.PtyProcess;
 import com.pty4j.PtyProcessBuilder;
 import com.pty4j.WinSize;
-import java.awt.*;
+import java.awt.Frame;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
