@@ -34,6 +34,9 @@ public class ValueMapperData extends BaseTransformData implements ITransformData
   public Object nonMatchDefault;
   public Object emptyFieldValue;
 
+  /** True when the meta defines the single empty-source mapping row (value may still be null). */
+  public boolean emptySourceMappingDefined;
+
   public IValueMeta targetValueMeta;
   public IValueMeta outputValueMeta;
   public IValueMeta sourceValueMeta;

@@ -18,9 +18,13 @@
 
 package org.apache.hop.pipeline.transforms.valuemapper;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** The values for mapping */
+@Getter
+@Setter
 public class Values {
 
   @HopMetadataProperty(
@@ -35,51 +39,27 @@ public class Values {
       injectionKeyDescription = "ValueMapper.Injection.TARGET")
   private String target;
 
+  /**
+   * When true (default), a resolved empty target value is emitted as null instead of converting an
+   * empty string to the target type.
+   */
+  @HopMetadataProperty(
+      key = "empty_string_equals_null",
+      injectionKey = "EMPTY_STRING_EQUALS_NULL",
+      injectionKeyDescription = "ValueMapper.Injection.EMPTY_STRING_EQUALS_NULL",
+      defaultBoolean = true)
+  private boolean emptyStringEqualsNull = true;
+
   public Values() {}
 
   public Values(Values other) {
     this.source = other.source;
     this.target = other.target;
+    this.emptyStringEqualsNull = other.emptyStringEqualsNull;
   }
 
   public Values(String source, String target) {
     this.source = source;
     this.target = target;
-  }
-
-  /**
-   * Gets source value
-   *
-   * @return value of source
-   */
-  public String getSource() {
-    return source;
-  }
-
-  /**
-   * Sets source value
-   *
-   * @param value value of source
-   */
-  public void setSource(String value) {
-    this.source = value;
-  }
-
-  /**
-   * Gets target value
-   *
-   * @return value of source
-   */
-  public String getTarget() {
-    return target;
-  }
-
-  /**
-   * Sets target value
-   *
-   * @param value value of target
-   */
-  public void setTarget(String value) {
-    this.target = value;
   }
 }

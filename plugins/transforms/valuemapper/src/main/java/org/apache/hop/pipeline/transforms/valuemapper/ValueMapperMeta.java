@@ -19,6 +19,8 @@ package org.apache.hop.pipeline.transforms.valuemapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -45,6 +47,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::ValueMapperMeta.keyword",
     documentationUrl = "/pipeline/transforms/valuemapper.html")
+@Getter
+@Setter
 public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class;
 
@@ -100,23 +104,23 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     }
   }
 
-  /**
-   * @return Returns the fieldValue.
-   */
-  public List<Values> getValues() {
-    return values;
-  }
-
-  /**
-   * @param values The fieldValue to set.
-   */
-  public void setValues(List<Values> values) {
-    this.values = values;
-  }
-
   @Override
   public Object clone() {
     return new ValueMapperMeta(this);
+  }
+
+  /** Longest mapped target literal including non-match default (for string field sizing). */
+  private int maxLengthOfMappedStringValues() {
+    int maxlen = -1;
+    for (Values v : this.values) {
+      if (v.getTarget() != null && v.getTarget().length() > maxlen) {
+        maxlen = v.getTarget().length();
+      }
+    }
+    if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
+      maxlen = nonMatchDefault.length();
+    }
+    return maxlen;
   }
 
   @Override
@@ -130,7 +134,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
 
     IValueMeta extra = null;
 
-    // Determine target value meta type (default to String for backward compatibility)
+    // Determine target value meta type (default to String when unspecified)
     String targetTypeName = Utils.isEmpty(getTargetType()) ? "String" : getTargetType();
     int targetTypeId = ValueMetaFactory.getIdForValueMeta(targetTypeName);
     // fallback
@@ -149,18 +153,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
         // Lengths etc?
         // Take the max length of all the strings...
         //
-        int maxlen = -1;
-        for (Values v : this.values) {
-          if (v.getTarget() != null && v.getTarget().length() > maxlen) {
-            maxlen = v.getTarget().length();
-          }
-        }
-
-        // include default value in max length calculation
-        //
-        if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
-          maxlen = nonMatchDefault.length();
-        }
+        int maxlen = maxLengthOfMappedStringValues();
         extra.setLength(maxlen);
         extra.setOrigin(name);
       }
@@ -175,6 +168,25 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
       // The output of a changed field or new field is always a normal storage type...
       //
       extra.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+
+      // In-place mapping with no explicit target type: treat output as String (same as new field)
+      if (Utils.isEmpty(getTargetField())
+          && Utils.isEmpty(getTargetType())
+          && extra.getType() != IValueMeta.TYPE_STRING) {
+        int idx = r.indexOfValue(extra.getName());
+        r.removeValueMeta(idx);
+        IValueMeta stringMeta;
+        try {
+          stringMeta = ValueMetaFactory.createValueMeta(extra.getName(), IValueMeta.TYPE_STRING);
+        } catch (HopPluginException e) {
+          stringMeta = new ValueMetaString(extra.getName());
+        }
+        int maxlen = maxLengthOfMappedStringValues();
+        stringMeta.setLength(maxlen);
+        stringMeta.setOrigin(name);
+        stringMeta.setStorageType(IValueMeta.STORAGE_TYPE_NORMAL);
+        r.addValueMeta(idx, stringMeta);
+      }
     }
   }
 
@@ -228,63 +240,5 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
               transformMeta);
       remarks.add(cr);
     }
-  }
-
-  /**
-   * @return Returns the fieldToUse.
-   */
-  public String getFieldToUse() {
-    return fieldToUse;
-  }
-
-  /**
-   * @param fieldToUse The fieldToUse to set.
-   */
-  public void setFieldToUse(String fieldToUse) {
-    this.fieldToUse = fieldToUse;
-  }
-
-  /**
-   * @return Returns the targetField.
-   */
-  public String getTargetField() {
-    return targetField;
-  }
-
-  /**
-   * @param targetField The targetField to set.
-   */
-  public void setTargetField(String targetField) {
-    this.targetField = targetField;
-  }
-
-  /**
-   * @return the non match default. This is the string that will be used to fill in the data when no
-   *     match is found.
-   */
-  public String getNonMatchDefault() {
-    return nonMatchDefault;
-  }
-
-  /**
-   * @param nonMatchDefault the non match default. This is the string that will be used to fill in
-   *     the data when no match is found.
-   */
-  public void setNonMatchDefault(String nonMatchDefault) {
-    this.nonMatchDefault = nonMatchDefault;
-  }
-
-  /**
-   * @return Returns the targetType.
-   */
-  public String getTargetType() {
-    return targetType;
-  }
-
-  /**
-   * @param targetType The targetType to set.
-   */
-  public void setTargetType(String targetType) {
-    this.targetType = targetType;
   }
 }

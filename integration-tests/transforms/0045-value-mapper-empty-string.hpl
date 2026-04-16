@@ -46,34 +46,22 @@ limitations under the License.
     <name>Data grid</name>
     <fields>
       <field>
-        <currency/>
-        <decimal/>
-        <group/>
         <name>IATA_Code</name>
         <type>String</type>
-        <format/>
         <length>3</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
       </field>
       <field>
-        <currency/>
-        <decimal/>
-        <group/>
         <name>Airport_Name</name>
         <type>String</type>
-        <format/>
         <length>50</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
       </field>
       <field>
-        <currency/>
-        <decimal/>
-        <group/>
         <name>Country_Code</name>
         <type>String</type>
-        <format/>
         <length>2</length>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
@@ -163,34 +151,42 @@ limitations under the License.
     <fields>
       <field>
         <target_value>[${NOT_DEFINED}]</target_value>
+        <empty_string_equals_null>Y</empty_string_equals_null>
       </field>
       <field>
         <source_value>BE</source_value>
         <target_value>Belgium</target_value>
+        <empty_string_equals_null>Y</empty_string_equals_null>
       </field>
       <field>
         <source_value>CA</source_value>
         <target_value>Canada</target_value>
+        <empty_string_equals_null>Y</empty_string_equals_null>
       </field>
       <field>
         <source_value>FR</source_value>
         <target_value>France</target_value>
+        <empty_string_equals_null>Y</empty_string_equals_null>
       </field>
       <field>
         <source_value>UK</source_value>
         <target_value>United Kingdom</target_value>
+        <empty_string_equals_null>Y</empty_string_equals_null>
       </field>
       <field>
         <source_value>US</source_value>
         <target_value>United States</target_value>
+        <empty_string_equals_null>Y</empty_string_equals_null>
       </field>
       <field>
         <source_value>DE</source_value>
         <target_value>German</target_value>
+        <empty_string_equals_null>Y</empty_string_equals_null>
       </field>
       <field>
         <source_value>PT</source_value>
         <target_value/>
+        <empty_string_equals_null>N</empty_string_equals_null>
       </field>
     </fields>
     <distribute>Y</distribute>

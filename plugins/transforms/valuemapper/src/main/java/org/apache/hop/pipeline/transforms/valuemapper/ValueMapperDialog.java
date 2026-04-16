@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.valuemapper;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -174,7 +175,7 @@ public class ValueMapperDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(wlValueType, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsCols = 2;
+    final int FieldsCols = 3;
     final int FieldsRows = input.getValues().size();
 
     ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
@@ -189,6 +190,12 @@ public class ValueMapperDialog extends BaseTransformDialog {
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
     colinf[1].setUsingVariables(true);
+    colinf[2] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "ValueMapperDialog.Fields.Column.EmptyStringEqualsNull"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            "Y",
+            "N");
 
     wFields =
         new TableView(
@@ -266,6 +273,7 @@ public class ValueMapperDialog extends BaseTransformDialog {
       if (tgt != null) {
         item.setText(2, tgt);
       }
+      item.setText(3, v.isEmptyStringEqualsNull() ? "Y" : "N");
     }
 
     wFields.setRowNums();
@@ -295,6 +303,8 @@ public class ValueMapperDialog extends BaseTransformDialog {
       Values v = new Values();
       v.setSource(Utils.isEmpty(item.getText(1)) ? null : item.getText(1));
       v.setTarget(item.getText(2));
+      String esn = item.getText(3);
+      v.setEmptyStringEqualsNull(Utils.isEmpty(esn) || Const.toBoolean(esn));
       input.getValues().add(v);
     }
 

@@ -34,11 +34,14 @@ class ValueMapperMetaInjectionTest extends BaseMetadataInjectionTestJunit5<Value
 
   @Test
   void test() throws Exception {
+    meta.getValues().clear();
+    meta.getValues().add(new Values());
     check("FIELDNAME", () -> meta.getFieldToUse());
     check("TARGET_FIELDNAME", () -> meta.getTargetField());
     check("NON_MATCH_DEFAULT", () -> meta.getNonMatchDefault());
     check("SOURCE", () -> meta.getValues().get(0).getSource());
     check("TARGET", () -> meta.getValues().get(0).getTarget());
+    check("EMPTY_STRING_EQUALS_NULL", () -> meta.getValues().get(0).isEmptyStringEqualsNull());
     check("TARGET_TYPE", () -> meta.getTargetType());
   }
 }

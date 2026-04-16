@@ -953,9 +953,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     // If we mousedown on action icon but never committed to drag, treat as click (promote for click
-    // handling below)
+    // handling below). Do not promote when this mouseUp is already a background click: otherwise
+    // stale currentAction makes an empty-canvas release look like an action click and selection is
+    // never cleared.
     if (selectedAction == null
         && currentAction != null
+        && singleClickType != SingleClickType.Workflow
         && startHopAction == null
         && selectionRegion == null
         && selectedActions == null
