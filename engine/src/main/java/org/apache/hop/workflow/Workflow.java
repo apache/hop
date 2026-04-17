@@ -997,6 +997,13 @@ public abstract class Workflow extends Variables
       res.setResult(false);
     }
 
+    // Toolbar / API stop sets the engine's stopped flag; the last completed action can still
+    // return a successful Result with stopped=false. Propagate stop into Result so consumers
+    // (e.g. transactional workflow commit/rollback) behave correctly.
+    if (isStopped() && res != null) {
+      res.setStopped(true);
+    }
+
     return res;
   }
 
