@@ -40,6 +40,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippets.Category;
@@ -66,6 +67,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
@@ -108,9 +110,16 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   public static final String CONST_SET_VALUE = "setValue()";
   public static final String CONST_SNIPPITS_CATEGORY = "Snippits Category";
 
+  private static final String[] JAVA_TARGET_VERSION_ITEMS =
+      new String[] {
+        "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"
+      };
+
   private ModifyListener lsMod;
 
   private TableView wFields;
+
+  private CCombo wJavaTargetVersion;
 
   private Label wlPosition;
 
@@ -223,6 +232,28 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     changed = input.hasChanged();
 
     Control lastControl = wSpacer;
+
+    Label wlJavaTargetVersion = new Label(shell, SWT.RIGHT);
+    wlJavaTargetVersion.setText(
+        BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.JavaTargetVersion.Label"));
+    PropsUi.setLook(wlJavaTargetVersion);
+    FormData fdlJavaTargetVersion = new FormData();
+    fdlJavaTargetVersion.left = new FormAttachment(0, 0);
+    fdlJavaTargetVersion.right = new FormAttachment(middle, -margin);
+    fdlJavaTargetVersion.top = new FormAttachment(lastControl, margin);
+    wlJavaTargetVersion.setLayoutData(fdlJavaTargetVersion);
+
+    wJavaTargetVersion = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    PropsUi.setLook(wJavaTargetVersion);
+    wJavaTargetVersion.setItems(JAVA_TARGET_VERSION_ITEMS);
+    wJavaTargetVersion.addModifyListener(lsMod);
+    FormData fdJavaTargetVersion = new FormData();
+    fdJavaTargetVersion.left = new FormAttachment(middle, 0);
+    fdJavaTargetVersion.right = new FormAttachment(100, 0);
+    fdJavaTargetVersion.top = new FormAttachment(lastControl, margin);
+    wJavaTargetVersion.setLayoutData(fdJavaTargetVersion);
+
+    lastControl = wJavaTargetVersion;
 
     SashForm wSash = new SashForm(shell, SWT.VERTICAL);
 
@@ -1027,6 +1058,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
 
     wClearResultFields.setSelection(input.isClearingResultFields());
 
+    wJavaTargetVersion.setText(Integer.toString(input.getEffectiveJavaTargetVersion()));
+
     wFields.setRowNums();
     wFields.optWidth(true);
 
@@ -1118,6 +1151,9 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   }
 
   private void getInfo(UserDefinedJavaClassMeta meta) {
+    meta.setJavaTargetVersion(
+        Const.toInt(wJavaTargetVersion.getText(), JaninoMeta.JAVA_TARGET_VERSION_DEFAULT));
+
     int nrFields = wFields.nrNonEmpty();
     List<FieldInfo> newFields = new ArrayList<>(nrFields);
     for (int i = 0; i < nrFields; i++) {

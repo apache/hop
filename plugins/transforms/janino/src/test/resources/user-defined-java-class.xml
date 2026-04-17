@@ -50,6 +50,7 @@
         </field>
     </fields>
     <clear_result_fields>N</clear_result_fields>
+    <java_target_version>17</java_target_version>
     <info_transforms>
         <info_transform>
             <transform_tag>info1</transform_tag>

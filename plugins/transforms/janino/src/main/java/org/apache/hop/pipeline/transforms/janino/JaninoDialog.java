@@ -39,6 +39,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -50,7 +51,14 @@ import org.eclipse.swt.widgets.TableItem;
 public class JaninoDialog extends BaseTransformDialog {
   private static final Class<?> PKG = JaninoMeta.class;
 
+  private static final String[] JAVA_TARGET_VERSION_ITEMS =
+      new String[] {
+        "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"
+      };
+
   private TableView wFields;
+
+  private CCombo wJavaTargetVersion;
 
   private final JaninoMeta currentMeta;
   private final JaninoMeta originalMeta;
@@ -75,12 +83,31 @@ public class JaninoDialog extends BaseTransformDialog {
 
     changed = currentMeta.hasChanged();
 
+    Label wlJavaTargetVersion = new Label(shell, SWT.RIGHT);
+    wlJavaTargetVersion.setText(
+        BaseMessages.getString(PKG, "JaninoDialog.JavaTargetVersion.Label"));
+    PropsUi.setLook(wlJavaTargetVersion);
+    FormData fdlJavaTargetVersion = new FormData();
+    fdlJavaTargetVersion.left = new FormAttachment(0, 0);
+    fdlJavaTargetVersion.right = new FormAttachment(middle, -margin);
+    fdlJavaTargetVersion.top = new FormAttachment(wSpacer, margin);
+    wlJavaTargetVersion.setLayoutData(fdlJavaTargetVersion);
+
+    wJavaTargetVersion = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    PropsUi.setLook(wJavaTargetVersion);
+    wJavaTargetVersion.setItems(JAVA_TARGET_VERSION_ITEMS);
+    FormData fdJavaTargetVersion = new FormData();
+    fdJavaTargetVersion.left = new FormAttachment(middle, 0);
+    fdJavaTargetVersion.right = new FormAttachment(100, 0);
+    fdJavaTargetVersion.top = new FormAttachment(wSpacer, margin);
+    wJavaTargetVersion.setLayoutData(fdJavaTargetVersion);
+
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "JaninoDialog.Fields.Label"));
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wSpacer, margin);
+    fdlFields.top = new FormAttachment(wJavaTargetVersion, margin);
     wlFields.setLayoutData(fdlFields);
 
     final int nrFields = currentMeta.getFunctions().size();
@@ -214,6 +241,14 @@ public class JaninoDialog extends BaseTransformDialog {
 
   /** Copy information from the meta-data currentMeta to the dialog fields. */
   public void getData() {
+    int effectiveVersion = currentMeta.getEffectiveJavaTargetVersion();
+    int versionIndex = effectiveVersion - JaninoMeta.JAVA_TARGET_VERSION_MIN;
+    if (versionIndex >= 0 && versionIndex < JAVA_TARGET_VERSION_ITEMS.length) {
+      wJavaTargetVersion.select(versionIndex);
+    } else {
+      wJavaTargetVersion.select(0);
+    }
+
     if (currentMeta.getFunctions() != null) {
       for (int i = 0; i < currentMeta.getFunctions().size(); i++) {
         JaninoMetaFunction function = currentMeta.getFunctions().get(i);
@@ -264,6 +299,9 @@ public class JaninoDialog extends BaseTransformDialog {
     }
 
     transformName = wTransformName.getText(); // return value
+
+    currentMeta.setJavaTargetVersion(
+        Const.toInt(wJavaTargetVersion.getText(), JaninoMeta.JAVA_TARGET_VERSION_DEFAULT));
 
     currentMeta.getFunctions().clear();
     for (TableItem item : wFields.getNonEmptyItems()) {

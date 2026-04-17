@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.hop.core.CheckResult;
@@ -46,6 +47,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.janino.JaninoMeta;
 import org.apache.hop.pipeline.transforms.util.JaninoCheckerUtil;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.ClassBodyEvaluator;
@@ -181,6 +183,34 @@ public class UserDefinedJavaClassMeta
       injectionGroupDescription = "UserDefinedJavaClass.Injection.PARAMETERS")
   private List<UsageParameter> usageParameters;
 
+  /**
+   * Janino bytecode / language level for compiling embedded user classes (same semantics as {@link
+   * JaninoMeta#getEffectiveJavaTargetVersion()}).
+   */
+  @Getter
+  @Setter(AccessLevel.NONE)
+  @HopMetadataProperty(key = "java_target_version")
+  private int javaTargetVersion = JaninoMeta.JAVA_TARGET_VERSION_DEFAULT;
+
+  public void setJavaTargetVersion(int javaTargetVersion) {
+    if (this.javaTargetVersion != javaTargetVersion) {
+      this.javaTargetVersion = javaTargetVersion;
+      this.hasChanged = true;
+    }
+  }
+
+  /**
+   * Resolved Janino compiler source/target version for {@link ClassBodyEvaluator}, for backwards
+   * compatibility when pipelines omit {@link #javaTargetVersion} or contain invalid values.
+   */
+  public int getEffectiveJavaTargetVersion() {
+    if (javaTargetVersion < JaninoMeta.JAVA_TARGET_VERSION_MIN
+        || javaTargetVersion > JaninoMeta.JAVA_TARGET_VERSION_MAX) {
+      return JaninoMeta.JAVA_TARGET_VERSION_DEFAULT;
+    }
+    return javaTargetVersion;
+  }
+
   public UserDefinedJavaClassMeta() {
     super();
     hasChanged = true;
@@ -201,14 +231,15 @@ public class UserDefinedJavaClassMeta
     m.targetTransformDefinitions.forEach(
         d -> this.targetTransformDefinitions.add(new TargetTransformDefinition(d)));
     m.usageParameters.forEach(u -> this.usageParameters.add(new UsageParameter(u)));
+    this.javaTargetVersion = m.javaTargetVersion;
   }
 
   @VisibleForTesting
   Class<?> cookClass(UserDefinedJavaClassDef def, ClassLoader clsLoader)
       throws CompileException, IOException, HopTransformException {
 
-    String checksum = def.getChecksum();
-    Class<?> rtn = UserDefinedJavaClassMeta.CLASS_CACHE.getIfPresent(checksum);
+    String cacheKey = def.getChecksum() + ":" + getEffectiveJavaTargetVersion();
+    Class<?> rtn = UserDefinedJavaClassMeta.CLASS_CACHE.getIfPresent(cacheKey);
     if (rtn != null) {
       return rtn;
     }
@@ -247,9 +278,15 @@ public class UserDefinedJavaClassMeta
         "org.apache.hop.core.variables.*",
         "java.util.*");
 
+    int javaVersion = getEffectiveJavaTargetVersion();
+    cbe.setTargetVersion(javaVersion);
+    if (javaVersion > JaninoMeta.JAVA_TARGET_VERSION_MIN) {
+      cbe.setSourceVersion(javaVersion);
+    }
+
     cbe.cook(new Scanner(null, sr));
     rtn = cbe.getClazz();
-    UserDefinedJavaClassMeta.CLASS_CACHE.put(checksum, rtn);
+    UserDefinedJavaClassMeta.CLASS_CACHE.put(cacheKey, rtn);
     return rtn;
   }
 

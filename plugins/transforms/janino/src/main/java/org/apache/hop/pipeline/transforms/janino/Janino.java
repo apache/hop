@@ -173,6 +173,15 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> {
             data.expressionEvaluators[m].setThrownExceptions(new Class<?>[] {Exception.class});
             data.expressionEvaluators[m].setParentClassLoader(loader);
             data.expressionEvaluators[m].setDefaultImports(functionLib.getImportPackages());
+            int javaVersion = meta.getEffectiveJavaTargetVersion();
+            data.expressionEvaluators[m].setTargetVersion(javaVersion);
+            // Janino default: parse up to Java 11 when source is unset, emit Java 6 bytecode when
+            // target is unset.
+            // Keep that permissive parse level for the default target (6) so existing expressions
+            // keep working.
+            if (javaVersion > JaninoMeta.JAVA_TARGET_VERSION_MIN) {
+              data.expressionEvaluators[m].setSourceVersion(javaVersion);
+            }
 
             // Validate Formula
             JaninoCheckerUtil janinoCheckerUtil = new JaninoCheckerUtil();
