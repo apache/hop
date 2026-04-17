@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.hop.core.config.HopResolvedSettings;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -103,7 +104,9 @@ public class HopClientEnvironment {
 
     // Add console output so that folks see what's going on...
     //
-    if (!"Y".equalsIgnoreCase(System.getProperty(Const.HOP_DISABLE_CONSOLE_LOGGING, "N"))) {
+    String disableConsoleLogging =
+        HopResolvedSettings.resolveString(Const.HOP_DISABLE_CONSOLE_LOGGING, "N");
+    if (!"Y".equalsIgnoreCase(disableConsoleLogging)) {
       HopLogStore.getAppender().addLoggingEventListener(new ConsoleLoggingEventListener());
     }
     HopLogStore.getAppender().addLoggingEventListener(new Slf4jLoggingEventListener());
