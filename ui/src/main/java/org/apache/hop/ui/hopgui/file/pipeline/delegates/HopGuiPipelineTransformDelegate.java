@@ -728,6 +728,9 @@ public class HopGuiPipelineTransformDelegate {
           }
           if (!transforms.contains(fromTransform) && fromTransform.getTransform() != null) {
             fromTransform.getTransform().cleanAfterHopFromRemove(toTransform);
+            fromTransform
+                .getTransform()
+                .searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
           }
 
           pipelineMeta.removePipelineHop(idx);
