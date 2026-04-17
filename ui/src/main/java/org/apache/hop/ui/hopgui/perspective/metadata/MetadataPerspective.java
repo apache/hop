@@ -561,7 +561,15 @@ public class MetadataPerspective implements IHopPerspective, TabClosable, IMetad
             closeTab(event, tabItem);
           }
         });
-    tabFolder.addListener(SWT.Selection, event -> updateGui());
+    tabFolder.addListener(
+        SWT.Selection,
+        event -> {
+          MetadataEditor<?> active = getActiveEditor();
+          if (active != null) {
+            active.refreshOnDialogActivate();
+          }
+          updateGui();
+        });
     PropsUi.setLook(tabFolder, Props.WIDGET_STYLE_TAB);
 
     // Show/Hide tree

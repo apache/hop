@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -500,6 +501,16 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     changeWorkingEngineConfiguration(runConfiguration);
 
     super.save();
+  }
+
+  @Override
+  public void refreshOnDialogActivate() {
+    try {
+      wExecutionInfoLocation.fillItems();
+      wProfile.fillItems();
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error refreshing execution metadata lists", e);
+    }
   }
 
   @Override

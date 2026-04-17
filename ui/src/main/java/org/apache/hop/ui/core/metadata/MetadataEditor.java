@@ -207,6 +207,15 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     }
   }
 
+  /**
+   * Called when the metadata modal dialog or metadata perspective tab becomes active again, so
+   * editors can reload metadata-backed combo items (e.g. execution information locations) that may
+   * have changed while the window was in the background.
+   */
+  public void refreshOnDialogActivate() {
+    // default: no-op
+  }
+
   /** Inline usage: copy information from the metadata onto the various widgets */
   public abstract void setWidgetsContent();
 

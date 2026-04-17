@@ -104,6 +104,8 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     // Create editor controls
     editor.createControl(area);
 
+    shell.addListener(SWT.Activate, e -> editor.refreshOnDialogActivate());
+
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return result;

@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -334,6 +335,15 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     changeWorkingEngineConfiguration(runConfiguration);
 
     super.save();
+  }
+
+  @Override
+  public void refreshOnDialogActivate() {
+    try {
+      wExecutionInfoLocation.fillItems();
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error refreshing execution information locations", e);
+    }
   }
 
   @Override
