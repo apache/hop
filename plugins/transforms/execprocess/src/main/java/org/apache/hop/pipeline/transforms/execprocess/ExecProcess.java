@@ -24,9 +24,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -224,59 +225,88 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
       if (p == null) {
         processresult.setErrorStream(errorMsg);
       } else {
-        CompletableFuture<IOException> future =
-            p.onExit()
-                .thenApply(
-                    processRef -> {
-                      try {
-                        // get output stream
-                        processresult.setOutputStream(
-                            getOutputString(
-                                new BufferedReader(
-                                    new InputStreamReader(processRef.getInputStream()))));
+        final Process child = p;
+        // Drain stdout/stderr while the process runs. Reading only after onExit() can deadlock:
+        // if the child fills either pipe buffer before exiting, it blocks on write forever.
+        CompletableFuture<String> stdoutFuture =
+            CompletableFuture.supplyAsync(
+                () -> {
+                  try {
+                    return getOutputString(
+                        new BufferedReader(new InputStreamReader(child.getInputStream())));
+                  } catch (IOException e) {
+                    throw new CompletionException(e);
+                  }
+                });
+        CompletableFuture<String> stderrFuture =
+            CompletableFuture.supplyAsync(
+                () -> {
+                  try {
+                    return getOutputString(
+                        new BufferedReader(new InputStreamReader(child.getErrorStream())));
+                  } catch (IOException e) {
+                    throw new CompletionException(e);
+                  }
+                });
 
-                        // get error message
-                        processresult.setErrorStream(
-                            getOutputString(
-                                new BufferedReader(
-                                    new InputStreamReader(processRef.getErrorStream()))));
-                      } catch (IOException e) {
-                        return e;
-                      }
-                      return null;
-                    });
-
-        // Wait until end
-        IOException exception;
         while (true) {
           try {
-            exception = future.get(1, TimeUnit.SECONDS);
-            break;
-          } catch (TimeoutException ignore) {
-            if (killing) {
-              p.children().forEach(ProcessHandle::destroy);
-              if (p.isAlive()) {
-                p.destroy();
-              }
-              exception = future.get();
-              logMinimal(BaseMessages.getString(PKG, "ExecProcess.AbortProcess"));
+            if (child.waitFor(1, TimeUnit.SECONDS)) {
               break;
             }
+          } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new HopException(
+                "Interrupted exception while running the process " + Arrays.toString(process) + "!",
+                ie);
+          }
+          if (killing) {
+            child.children().forEach(ProcessHandle::destroy);
+            if (child.isAlive()) {
+              child.destroy();
+            }
+            try {
+              if (!child.waitFor(30, TimeUnit.SECONDS)) {
+                child.destroyForcibly();
+                child.waitFor();
+              }
+            } catch (InterruptedException ie) {
+              Thread.currentThread().interrupt();
+              throw new HopException(
+                  "Interrupted exception while running the process "
+                      + Arrays.toString(process)
+                      + "!",
+                  ie);
+            }
+            logMinimal(BaseMessages.getString(PKG, "ExecProcess.AbortProcess"));
+            break;
           }
         }
-        if (exception != null) {
-          throw exception;
+
+        try {
+          processresult.setOutputStream(stdoutFuture.get());
+          processresult.setErrorStream(stderrFuture.get());
+        } catch (ExecutionException e) {
+          Throwable cause = e.getCause();
+          if (cause instanceof IOException ioe) {
+            throw ioe;
+          }
+          if (cause instanceof RuntimeException re) {
+            throw re;
+          }
+          throw new IOException(cause);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          throw new HopException(
+              "Interrupted exception while running the process " + Arrays.toString(process) + "!",
+              ie);
         }
 
-        // get exit status
-        processresult.setExistStatus(p.exitValue());
+        processresult.setExistStatus(child.exitValue());
       }
     } catch (IOException ioe) {
       throw new HopException(
           "IO exception while running the process " + Arrays.toString(process) + "!", ioe);
-    } catch (InterruptedException ie) {
-      throw new HopException(
-          "Interrupted exception while running the process " + Arrays.toString(process) + "!", ie);
     } catch (Exception e) {
       throw new HopException(e);
     } finally {
