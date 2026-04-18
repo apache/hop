@@ -169,8 +169,6 @@ public class JsonInputDialog extends BaseTransformDialog {
     lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    Control lastControl = wSpacer;
-
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -783,7 +781,7 @@ public class JsonInputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "JsonInputDialog.wlSourceStreamField.Label"));
     PropsUi.setLook(wlSourceStreamField);
     FormData fdlSourceStreamField = new FormData();
-    fdlSourceStreamField.left = new FormAttachment(0, -margin);
+    fdlSourceStreamField.left = new FormAttachment(0, 0);
     fdlSourceStreamField.top = new FormAttachment(0, margin);
     fdlSourceStreamField.right = new FormAttachment(middle, -margin);
     wlSourceStreamField.setLayoutData(fdlSourceStreamField);
@@ -792,10 +790,10 @@ public class JsonInputDialog extends BaseTransformDialog {
     wSourceStreamField.setToolTipText(
         BaseMessages.getString(PKG, "JsonInputDialog.wSourceStreamField.Tooltip"));
     FormData fdSourceStreamField = new FormData();
-    fdSourceStreamField.left = new FormAttachment(middle, -margin);
+    fdSourceStreamField.left = new FormAttachment(wlSourceStreamField, margin);
     fdSourceStreamField.top = new FormAttachment(wlSourceStreamField, 0, SWT.CENTER);
     wSourceStreamField.setLayoutData(fdSourceStreamField);
-    SelectionAdapter lsstream =
+    SelectionAdapter sourceSelectAdapter =
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
@@ -803,14 +801,14 @@ public class JsonInputDialog extends BaseTransformDialog {
             input.setChanged();
           }
         };
-    wSourceStreamField.addSelectionListener(lsstream);
+    wSourceStreamField.addSelectionListener(sourceSelectAdapter);
 
     // If source string defined in a Field
     wlSourceField = new Label(wOutputField, SWT.RIGHT);
     wlSourceField.setText(BaseMessages.getString(PKG, "JsonInputDialog.wlSourceField.Label"));
     PropsUi.setLook(wlSourceField);
     FormData fdlFieldValue = new FormData();
-    fdlFieldValue.left = new FormAttachment(0, -margin);
+    fdlFieldValue.left = new FormAttachment(0, 0);
     fdlFieldValue.top = new FormAttachment(wlSourceStreamField, margin);
     fdlFieldValue.right = new FormAttachment(middle, -margin);
     wlSourceField.setLayoutData(fdlFieldValue);
@@ -820,7 +818,7 @@ public class JsonInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wFieldValue);
     wFieldValue.addModifyListener(lsMod);
     FormData fdFieldValue = new FormData();
-    fdFieldValue.left = new FormAttachment(middle, -margin);
+    fdFieldValue.left = new FormAttachment(wlSourceField, margin);
     fdFieldValue.top = new FormAttachment(wlSourceField, 0, SWT.CENTER);
     fdFieldValue.right = new FormAttachment(100, -margin);
     wFieldValue.setLayoutData(fdFieldValue);
@@ -839,7 +837,7 @@ public class JsonInputDialog extends BaseTransformDialog {
     wlSourceIsAFile.setText(BaseMessages.getString(PKG, "JsonInputDialog.SourceIsAFile.Label"));
     PropsUi.setLook(wlSourceIsAFile);
     FormData fdlSourceIsAFile = new FormData();
-    fdlSourceIsAFile.left = new FormAttachment(0, -margin);
+    fdlSourceIsAFile.left = new FormAttachment(0, 0);
     fdlSourceIsAFile.top = new FormAttachment(wFieldValue, margin);
     fdlSourceIsAFile.right = new FormAttachment(middle, -margin);
     wlSourceIsAFile.setLayoutData(fdlSourceIsAFile);
@@ -848,7 +846,7 @@ public class JsonInputDialog extends BaseTransformDialog {
     wSourceIsAFile.setToolTipText(
         BaseMessages.getString(PKG, "JsonInputDialog.SourceIsAFile.Tooltip"));
     FormData fdSourceIsAFile = new FormData();
-    fdSourceIsAFile.left = new FormAttachment(middle, -margin);
+    fdSourceIsAFile.left = new FormAttachment(wlSourceIsAFile, margin);
     fdSourceIsAFile.top = new FormAttachment(wlSourceIsAFile, 0, SWT.CENTER);
     wSourceIsAFile.setLayoutData(fdSourceIsAFile);
     SelectionAdapter lssourceisafile =
@@ -868,7 +866,7 @@ public class JsonInputDialog extends BaseTransformDialog {
     wlReadUrl.setText(BaseMessages.getString(PKG, "JsonInputDialog.readUrl.Label"));
     PropsUi.setLook(wlReadUrl);
     FormData fdlreadUrl = new FormData();
-    fdlreadUrl.left = new FormAttachment(0, -margin);
+    fdlreadUrl.left = new FormAttachment(0, 0);
     fdlreadUrl.top = new FormAttachment(wlSourceIsAFile, margin);
     fdlreadUrl.right = new FormAttachment(middle, -margin);
     wlReadUrl.setLayoutData(fdlreadUrl);
@@ -876,7 +874,7 @@ public class JsonInputDialog extends BaseTransformDialog {
     PropsUi.setLook(wReadUrl);
     wReadUrl.setToolTipText(BaseMessages.getString(PKG, "JsonInputDialog.readUrl.Tooltip"));
     FormData fdreadUrl = new FormData();
-    fdreadUrl.left = new FormAttachment(middle, -margin);
+    fdreadUrl.left = new FormAttachment(wlReadUrl, margin);
     fdreadUrl.top = new FormAttachment(wlReadUrl, 0, SWT.CENTER);
     wReadUrl.setLayoutData(fdreadUrl);
     SelectionAdapter lsreadurl =
@@ -897,14 +895,14 @@ public class JsonInputDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "JsonInputDialog.removeSourceField.Label"));
     PropsUi.setLook(wlRemoveSourceField);
     FormData fdlremoveSourceField = new FormData();
-    fdlremoveSourceField.left = new FormAttachment(0, -margin);
+    fdlremoveSourceField.left = new FormAttachment(0, 0);
     fdlremoveSourceField.top = new FormAttachment(wlReadUrl, margin);
     fdlremoveSourceField.right = new FormAttachment(middle, -margin);
     wlRemoveSourceField.setLayoutData(fdlremoveSourceField);
     wRemoveSourceField = new Button(wOutputField, SWT.CHECK);
     PropsUi.setLook(wRemoveSourceField);
     FormData fdremoveSourceField = new FormData();
-    fdremoveSourceField.left = new FormAttachment(middle, -margin);
+    fdremoveSourceField.left = new FormAttachment(wlRemoveSourceField, margin);
     fdremoveSourceField.top = new FormAttachment(wlRemoveSourceField, 0, SWT.CENTER);
     wRemoveSourceField.setLayoutData(fdremoveSourceField);
     SelectionAdapter removeSourceFieldAdapter =
