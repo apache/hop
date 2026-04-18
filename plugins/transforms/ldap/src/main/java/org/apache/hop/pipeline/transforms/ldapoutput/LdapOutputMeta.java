@@ -48,8 +48,6 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData>
     implements ILdapMeta {
   private static final Class<?> PKG = LdapOutputMeta.class;
-  public static final String CONST_SPACES = "        ";
-  public static final String CONST_FIELD = "field";
 
   /**
    * Flag indicating that we use authentication for connection -- GETTER --
@@ -98,10 +96,13 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
    * @param port The port to set.
    */
   @HopMetadataProperty(key = "port")
+  @Getter
   private String port;
 
   /** The name of DN field */
   @HopMetadataProperty(key = "dnFieldName")
+  @Getter
+  @Setter
   private String dnFieldName;
 
   /**
@@ -257,17 +258,7 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
 
   public static final int DEREFALIASES_TYPE_ALWAYS = 0;
 
-  public static final int DEREFALIASES_TYPE_NEVER = 1;
-
-  public static final int DEREFALIASES_TYPE_SEARCHING = 2;
-
-  public static final int DEREFALIASES_TYPE_FINDING = 3;
-
-  /**
-   * Protocol -- SETTER --
-   *
-   * @param value the protocol to set.
-   */
+  /** Protocol -- SETTER -- */
   @HopMetadataProperty(key = "protocol")
   private String protocol;
 
@@ -529,32 +520,6 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return this.dnFieldName;
   }
 
-  /**
-   * Setter for metadata serialization - matches field name dnFieldName
-   *
-   * @param value The DN field name to set
-   */
-  public void setDnFieldName(String value) {
-    this.dnFieldName = value;
-  }
-
-  /**
-   * Getter for metadata serialization - matches field name dnFieldName
-   *
-   * @return The DN field name
-   */
-  public String getDnFieldName() {
-    return this.dnFieldName;
-  }
-
-  /**
-   * @return Returns the Port.
-   */
-  @Override
-  public String getPort() {
-    return port;
-  }
-
   @Override
   public Object clone() {
     LdapOutputMeta retval = (LdapOutputMeta) super.clone();
@@ -678,12 +643,14 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(PKG, "LdapOutputUpdateMeta.CheckResult.NoFields"),
               transformMeta);
+      remarks.add(cr);
     } else {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(PKG, "LdapOutputUpdateMeta.CheckResult.FieldsOk"),
               transformMeta);
+      remarks.add(cr);
     }
   }
 

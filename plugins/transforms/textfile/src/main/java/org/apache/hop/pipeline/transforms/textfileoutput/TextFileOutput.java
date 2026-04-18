@@ -284,11 +284,11 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   }
 
   public int getFlushInterval() {
-    String var = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_LIFE");
+    String maxStreamLife = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_LIFE");
     int flushInterval = 0;
-    if (var != null) {
+    if (maxStreamLife != null) {
       try {
-        flushInterval = Integer.parseInt(var);
+        flushInterval = Integer.parseInt(maxStreamLife);
       } catch (Exception ex) {
         // Do nothing
       }
@@ -297,11 +297,11 @@ public class TextFileOutput extends BaseTransform<TextFileOutputMeta, TextFileOu
   }
 
   public int getMaxOpenFiles() {
-    String var = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_COUNT");
+    String maxStreamCountVar = variables.getVariable("HOP_FILE_OUTPUT_MAX_STREAM_COUNT");
     int maxStreamCount = 0;
-    if (var != null) {
+    if (maxStreamCountVar != null) {
       try {
-        maxStreamCount = Integer.parseInt(var);
+        maxStreamCount = Integer.parseInt(maxStreamCountVar);
       } catch (Exception ex) {
         // Do nothing
       }

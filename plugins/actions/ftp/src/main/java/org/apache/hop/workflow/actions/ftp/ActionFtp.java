@@ -83,10 +83,6 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
   /** Default encoding when making a new ftp action instance. */
   private static final String DEFAULT_CONTROL_ENCODING = "ISO-8859-1";
 
-  /*
-  IfFileExists.add();
-    wIfFileExists.add();
-    wIfFileExists.add();*/
   @Getter
   public enum IfFileExistsOperation implements IEnumHasCodeAndDescription {
     SKIP("ifFileExistsSkip", BaseMessages.getString(PKG, "ActionFtp.Skip.Label")),
@@ -677,9 +673,8 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
           logError(BaseMessages.getString(PKG, CONST_LOCAL_FILE_EXISTS), filename);
           updateErrors();
         }
-        case SKIP -> {
-          logDebug(toString(), BaseMessages.getString(PKG, CONST_LOCAL_FILE_EXISTS), filename);
-        }
+        case SKIP ->
+            logDebug(toString(), BaseMessages.getString(PKG, CONST_LOCAL_FILE_EXISTS), filename);
       }
     }
 

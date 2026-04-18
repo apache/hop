@@ -552,7 +552,7 @@ public class MongoDbInputDialog extends BaseTransformDialog {
   }
 
   public void updateFieldTableFields(List<MongoField> fields) {
-    Map<String, MongoField> fieldMap = new HashMap<>(fields.size());
+    Map<String, MongoField> fieldMap = HashMap.newHashMap(fields.size());
     for (MongoField field : fields) {
       fieldMap.put(field.fieldName, field);
     }

@@ -45,41 +45,43 @@ class JsonEOutputMetaTest {
   @Test
   void deserializeSelfClosingJsonBloc_overridesConstructor() throws Exception {
     String xml =
-        "<transform>\n"
-            + "  <outputValue>prompt</outputValue>\n"
-            + "  <jsonBloc/>\n"
-            + "  <operation_type>outputvalue</operation_type>\n"
-            + "  <use_arrays_with_single_instance>N</use_arrays_with_single_instance>\n"
-            + "  <use_single_item_per_group>N</use_single_item_per_group>\n"
-            + "  <json_prittified>N</json_prittified>\n"
-            + "  <encoding>UTF-8</encoding>\n"
-            + "  <addtoresult>N</addtoresult>\n"
-            + "  <file>\n"
-            + "    <name/>\n"
-            + "    <split_output_after>0</split_output_after>\n"
-            + "    <extention>json</extention>\n"
-            + "    <append>N</append>\n"
-            + "    <split>N</split>\n"
-            + "    <haspartno>N</haspartno>\n"
-            + "    <add_date>N</add_date>\n"
-            + "    <add_time>N</add_time>\n"
-            + "    <create_parent_folder>N</create_parent_folder>\n"
-            + "    <doNotOpenNewFileInit>N</doNotOpenNewFileInit>\n"
-            + "  </file>\n"
-            + "  <additional_fields>\n"
-            + "    <json_size_field/>\n"
-            + "  </additional_fields>\n"
-            + "  <key_fields/>\n"
-            + "  <fields>\n"
-            + "    <field>\n"
-            + "      <name>role</name>\n"
-            + "      <element>role</element>\n"
-            + "      <json_fragment>N</json_fragment>\n"
-            + "      <is_without_enclosing>N</is_without_enclosing>\n"
-            + "      <remove_if_blank>Y</remove_if_blank>\n"
-            + "    </field>\n"
-            + "  </fields>\n"
-            + "</transform>\n";
+        """
+        <transform>
+          <outputValue>prompt</outputValue>
+          <jsonBloc/>
+          <operation_type>outputvalue</operation_type>
+          <use_arrays_with_single_instance>N</use_arrays_with_single_instance>
+          <use_single_item_per_group>N</use_single_item_per_group>
+          <json_prittified>N</json_prittified>
+          <encoding>UTF-8</encoding>
+          <addtoresult>N</addtoresult>
+          <file>
+            <name/>
+            <split_output_after>0</split_output_after>
+            <extention>json</extention>
+            <append>N</append>
+            <split>N</split>
+            <haspartno>N</haspartno>
+            <add_date>N</add_date>
+            <add_time>N</add_time>
+            <create_parent_folder>N</create_parent_folder>
+            <doNotOpenNewFileInit>N</doNotOpenNewFileInit>
+          </file>
+          <additional_fields>
+            <json_size_field/>
+          </additional_fields>
+          <key_fields/>
+          <fields>
+            <field>
+              <name>role</name>
+              <element>role</element>
+              <json_fragment>N</json_fragment>
+              <is_without_enclosing>N</is_without_enclosing>
+              <remove_if_blank>Y</remove_if_blank>
+            </field>
+          </fields>
+        </transform>
+        """;
     JsonEOutputMeta meta = new JsonEOutputMeta();
     XmlMetadataUtil.deSerializeFromXml(
         XmlHandler.loadXmlString(xml, TransformMeta.XML_TAG),
@@ -136,7 +138,7 @@ class JsonEOutputMetaTest {
 
     assertNotNull(meta.getOutputFields());
     assertEquals(3, meta.getOutputFields().size());
-    JsonEOutputField f1 = meta.getOutputFields().get(0);
+    JsonEOutputField f1 = meta.getOutputFields().getFirst();
     assertEquals("f1", f1.getFieldName());
     assertEquals("element1", f1.getElementName());
 

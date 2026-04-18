@@ -18,7 +18,6 @@
 package org.apache.hop.www;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -72,7 +71,7 @@ class HopServerServletTest {
 
     servlet.doGet(req, resp);
 
-    verify(resp).sendError(eq(HttpServletResponse.SC_NOT_FOUND), eq("Not found."));
+    verify(resp).sendError(HttpServletResponse.SC_NOT_FOUND, "Not found.");
   }
 
   @Test
@@ -102,8 +101,7 @@ class HopServerServletTest {
 
     servlet.doGet(req, resp);
 
-    verify(resp)
-        .sendError(eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), eq("Plugin request failed."));
+    verify(resp).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Plugin request failed.");
   }
 
   @Test
@@ -118,7 +116,6 @@ class HopServerServletTest {
 
     verify(resp)
         .sendError(
-            eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR),
-            eq("Unable to process server request."));
+            HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unable to process server request.");
   }
 }

@@ -468,7 +468,7 @@ public class TransformMeta
       return new HashMap<>();
     }
 
-    Map<String, Map<String, String>> result = new HashMap<>(map.size());
+    Map<String, Map<String, String>> result = HashMap.newHashMap(map.size());
     for (Map.Entry<String, Map<String, String>> entry : map.entrySet()) {
       Map<String, String> value = entry.getValue();
       HashMap<String, String> copy = (value == null) ? null : new HashMap<>(value);

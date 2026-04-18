@@ -18,7 +18,6 @@
 package org.apache.hop.www;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,6 +61,6 @@ class GetRootServletTest {
         when(mock(HttpServletRequest.class).getRequestURI()).thenReturn("/wrong_path").getMock();
     HttpServletResponse response = mock(HttpServletResponse.class);
     servlet.doGet(request, response);
-    verify(response).sendError(eq(HttpServletResponse.SC_NOT_FOUND), eq("Not found."));
+    verify(response).sendError(HttpServletResponse.SC_NOT_FOUND, "Not found.");
   }
 }

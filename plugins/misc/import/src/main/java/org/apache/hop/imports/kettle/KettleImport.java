@@ -727,7 +727,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
         // pipeline
         // filename.
         if (!StringUtils.isEmpty(transName) && !StringUtils.isEmpty(directoryPath)) {
-          filenameNode.setTextContent("${PROJECT_HOME}" + directoryPath + '/' + transName + ".hpl");
+          filenameNode.setTextContent(
+              Const.VAR_PROJECT_HOME + directoryPath + '/' + transName + ".hpl");
         }
 
         // add the default pipeline run configuration.
@@ -817,7 +818,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
   private Node processRepositoryNode(Node repositoryNode) {
 
     String filename = "";
-    String directory = "${PROJECT_HOME}";
+    String directory = Const.VAR_PROJECT_HOME;
     String type = "";
     Node filenameNode = null;
 

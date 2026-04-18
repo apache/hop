@@ -199,7 +199,7 @@ public class DefaultTransformMetaCopyFactory implements ITransformMetaCopyFactor
       return new HashMap<>();
     }
 
-    Map<String, Map<String, String>> copy = new HashMap<>(source.size());
+    Map<String, Map<String, String>> copy = HashMap.newHashMap(source.size());
     for (Map.Entry<String, Map<String, String>> entry : source.entrySet()) {
       Map<String, String> value = entry.getValue();
       HashMap<String, String> valueCopy = (value == null) ? null : new HashMap<>(value);

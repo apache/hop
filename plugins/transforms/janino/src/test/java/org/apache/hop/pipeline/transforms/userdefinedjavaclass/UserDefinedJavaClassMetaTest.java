@@ -57,13 +57,15 @@ class UserDefinedJavaClassMetaTest {
   @Test
   void cookClassErrorCompilationTest() {
     String wrongCode =
-        "public boolean processRow() {\n"
-            + "   return true;\n"
-            + "}\n"
-            + "\n"
-            + "public boolean processRow() {\n"
-            + "   return true;\n"
-            + "}\n";
+        """
+        public boolean processRow() {
+           return true;
+        }
+
+        public boolean processRow() {
+           return true;
+        }
+        """;
 
     UserDefinedJavaClassMeta userDefinedJavaClassMeta = new UserDefinedJavaClassMeta();
 
@@ -91,12 +93,20 @@ class UserDefinedJavaClassMetaTest {
 
   @Test
   void cookClassesCachingTest() throws Exception {
-    String codeBlock1 = "public boolean processRow() {\n" + "    return true;\n" + "}\n\n";
+    String codeBlock1 =
+        """
+        public boolean processRow() {
+            return true;
+        }
+        """;
+
     String codeBlock2 =
-        "public boolean processRow() {\n"
-            + "    // Random comment\n"
-            + "    return true;\n"
-            + "}\n\n";
+        """
+        public boolean processRow() {
+            // Random comment
+            return true;
+        }
+        """;
     UserDefinedJavaClassMeta userDefinedJavaClassMeta1 = new UserDefinedJavaClassMeta();
 
     UserDefinedJavaClassDef userDefinedJavaClassDef1 =
@@ -133,7 +143,13 @@ class UserDefinedJavaClassMetaTest {
 
   @Test
   void oderDefinitionTest() {
-    String codeBlock1 = "public boolean processRow() {\n" + "    return true;\n" + "}\n\n";
+    String codeBlock1 =
+        """
+        public boolean processRow() {
+            return true;
+        }
+
+        """;
     UserDefinedJavaClassMeta userDefinedJavaClassMeta = new UserDefinedJavaClassMeta();
     UserDefinedJavaClassDef processClassDef =
         new UserDefinedJavaClassDef(
@@ -363,9 +379,11 @@ class UserDefinedJavaClassMetaTest {
   @Test
   void cookClass_target8_staticInterfaceMethod_succeeds() throws Exception {
     String code =
-        "public int cmp() {\n"
-            + "  return java.util.Comparator.naturalOrder().compare(Integer.valueOf(3), Integer.valueOf(5));\n"
-            + "}\n";
+        """
+        public int cmp() {
+          return java.util.Comparator.naturalOrder().compare(Integer.valueOf(3), Integer.valueOf(5));
+        }
+        """;
     UserDefinedJavaClassMeta meta = new UserDefinedJavaClassMeta();
     meta.setJavaTargetVersion(8);
     UserDefinedJavaClassDef def =
@@ -380,9 +398,11 @@ class UserDefinedJavaClassMetaTest {
   @Test
   void cookClass_target17_staticInterfaceMethod_succeeds() throws Exception {
     String code =
-        "public int cmp() {\n"
-            + "  return java.util.Comparator.naturalOrder().compare(Integer.valueOf(3), Integer.valueOf(5));\n"
-            + "}\n";
+        """
+        public int cmp() {
+          return java.util.Comparator.naturalOrder().compare(Integer.valueOf(3), Integer.valueOf(5));
+        }
+        """;
     UserDefinedJavaClassMeta meta = new UserDefinedJavaClassMeta();
     meta.setJavaTargetVersion(17);
     UserDefinedJavaClassDef def =
@@ -396,9 +416,11 @@ class UserDefinedJavaClassMetaTest {
   @Test
   void cookClass_target6_staticInterfaceMethod_throwsCompileException() {
     String code =
-        "public int cmp() {\n"
-            + "  return java.util.Comparator.naturalOrder().compare(Integer.valueOf(3), Integer.valueOf(5));\n"
-            + "}\n";
+        """
+        public int cmp() {
+          return java.util.Comparator.naturalOrder().compare(Integer.valueOf(3), Integer.valueOf(5));
+        }
+        """;
     UserDefinedJavaClassMeta meta = new UserDefinedJavaClassMeta();
     meta.setJavaTargetVersion(6);
     UserDefinedJavaClassDef def =
@@ -531,7 +553,7 @@ class UserDefinedJavaClassMetaTest {
     newFields.add(new UserDefinedJavaClassMeta.FieldInfo("a", IValueMeta.TYPE_STRING, 10, -1));
     meta.replaceFields(newFields);
     assertEquals(1, meta.getFields().size());
-    assertEquals("a", meta.getFields().get(0).getName());
+    assertEquals("a", meta.getFields().getFirst().getName());
   }
 
   @Test
@@ -541,7 +563,7 @@ class UserDefinedJavaClassMetaTest {
     fields.add(new UserDefinedJavaClassMeta.FieldInfo("b", IValueMeta.TYPE_INTEGER, 9, 0));
     meta.setFieldInfo(fields);
     assertEquals(1, meta.getFields().size());
-    assertEquals("b", meta.getFields().get(0).getName());
+    assertEquals("b", meta.getFields().getFirst().getName());
   }
 
   // ------------------------------------------------------------------ replaceDefinitions

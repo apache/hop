@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -116,8 +117,10 @@ class UserDefinedJavaClassTest {
     UserDefinedJavaClassMeta meta = new UserDefinedJavaClassMeta();
     // Duplicate method → compilation error
     String badSource =
-        "public boolean processRow() { return true; }\n"
-            + "public boolean processRow() { return true; }\n";
+        """
+        public boolean processRow() { return true; }
+        public boolean processRow() { return true; }
+        """;
     meta.getDefinitions()
         .add(new UserDefinedJavaClassDef(ClassType.NORMAL_CLASS, "BadClass", badSource));
 
@@ -132,9 +135,13 @@ class UserDefinedJavaClassTest {
 
   @Test
   void constructor_copyNrNonZero_constructsWithoutThrowingAndNoCookErrors() {
-    // copyNr=1: explicit cookClasses() call in the constructor body is skipped;
-    // cooking happens lazily inside newChildInstance() via checkClassCooked().
-    // For a clean meta with no definitions, no cook errors occur.
+    /*
+     * Note:
+     * For copyNr=1, the explicit cookClasses() call in the constructor body is skipped.
+     * Cooking is performed lazily inside newChildInstance() via checkClassCooked().
+     *
+     * For a clean meta with no definitions, no cook errors will occur.
+     */
     UserDefinedJavaClassMeta meta = new UserDefinedJavaClassMeta();
 
     new UserDefinedJavaClass(
@@ -156,10 +163,12 @@ class UserDefinedJavaClassTest {
     // (child instantiation fails in tests because pipelineMeta.getPrevTransformFields returns
     // null).
     String source =
-        "public boolean processRow() throws org.apache.hop.core.exception.HopException {\n"
-            + "  setOutputDone();\n"
-            + "  return false;\n"
-            + "}\n";
+        """
+        public boolean processRow() throws org.apache.hop.core.exception.HopException {
+          setOutputDone();
+          return false;
+        }
+        """;
 
     UserDefinedJavaClassMeta meta = new UserDefinedJavaClassMeta();
     meta.getDefinitions()
@@ -168,7 +177,7 @@ class UserDefinedJavaClassTest {
     meta.cookClasses();
 
     assertTrue(meta.getCookErrors().isEmpty(), "Expected no cook errors");
-    assertFalse(meta.getCookedTransformClass() == null, "Expected cookedTransformClass to be set");
+    assertNotNull(meta.getCookedTransformClass(), "Expected cookedTransformClass to be set");
   }
 
   // ------------------------------------------------------------------ getDefinitions / hasChanged

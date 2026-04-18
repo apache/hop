@@ -928,12 +928,6 @@ public class MetaInjectDialog extends BaseTransformDialog {
   }
 
   /**
-   * @param transformMeta The transform meta
-   * @param transformItem The TreeItem
-   * @param metaInterface The transform ITransformMeta
-   * @return true if there was at least one used key
-   */
-  /**
    * Match a tree row to a saved mapping by target transform and injection key only. {@link
    * MetaInjectMapping#equals} also compares {@code targetDetail}; older pipelines may store {@code
    * target_detail=Y} for scalar {@link org.apache.hop.metadata.api.HopMetadataProperty} keys that

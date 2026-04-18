@@ -81,11 +81,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
 
     @Override
-    public void flush() throws IOException {
-      super.flush();
-    }
-
-    @Override
     public void close() throws IOException {
       outputStream.close();
     }
@@ -101,7 +96,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   private String currentFilePath;
   private PathItem pathItem;
   private PathItem dirPathItem;
-  private final String markerFileName = ".cvfs.temp";
+  private static final String MARKER_FILE_NAME = ".cvfs.temp";
   private OutputStream blobOutputStream;
   private String containerName;
 
@@ -365,7 +360,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   @Override
   protected boolean doIsHidden() throws Exception {
-    return getName().getBaseName().equals(markerFileName);
+    return getName().getBaseName().equals(MARKER_FILE_NAME);
   }
 
   /**
@@ -413,7 +408,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
           // If this was the last file in the create, we create a new
           // marker file to keep the directory open
           if (lastFile) {
-            FileObject marker = parent.resolveFile(markerFileName);
+            FileObject marker = parent.resolveFile(MARKER_FILE_NAME);
             marker.createFile();
           }
         }
@@ -465,7 +460,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   @Override
   protected void doCreateFolder() {
     service.getFileSystemClient(containerName).createDirectory(currentFilePath.substring(1));
-    if (containerName != null && currentFilePath != null) {
+    if (containerName != null) {
       getAbstractFileSystem()
           .invalidateListCacheForParentOf(
               containerName, StringUtils.removeStart(currentFilePath, "/"));
@@ -548,7 +543,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       return true;
     } catch (Exception e) {
       return false;
-      // TODO log an error
     }
   }
 

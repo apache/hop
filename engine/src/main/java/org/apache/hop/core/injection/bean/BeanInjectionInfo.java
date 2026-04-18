@@ -171,12 +171,14 @@ public class BeanInjectionInfo<Meta extends Object> {
 
       Group group = null;
       if (StringUtils.isNotEmpty(injectionGroupKey)) {
-        group = groupsMap.get(injectionGroupKey);
-        if (group == null) {
-          group = new Group(injectionGroupKey, injectionGroupDescription);
-          groupsMap.put(injectionGroupKey, group);
-          groupsList.add(group);
-        }
+        group =
+            groupsMap.computeIfAbsent(
+                injectionGroupKey,
+                key -> {
+                  Group newGroup = new Group(key, injectionGroupDescription);
+                  groupsList.add(newGroup);
+                  return newGroup;
+                });
       }
 
       if (StringUtils.isNotEmpty(injectionGroupKey)) {

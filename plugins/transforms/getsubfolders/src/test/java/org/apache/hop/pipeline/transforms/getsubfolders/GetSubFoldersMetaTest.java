@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.getsubfolders;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +33,7 @@ class GetSubFoldersMetaTest {
 
     assertTrue(meta.isIncludeRowNumber());
     assertEquals(1, meta.getFiles().size());
-    assertEquals("${PROJECT_HOME}", meta.getFiles().get(0).getName());
+    assertEquals(Const.VAR_PROJECT_HOME, meta.getFiles().get(0).getName());
     assertTrue(meta.getFiles().get(0).isRequired());
     assertEquals("rowNumber", meta.getRowNumberField());
     assertEquals(123L, meta.getRowLimit());

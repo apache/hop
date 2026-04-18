@@ -304,6 +304,9 @@ public class Const {
   /** Default we store our information in Unicode UTF-8 character set. */
   public static final String UTF_8 = "UTF-8";
 
+  /** Placeholder for the project home directory. */
+  public static final String VAR_PROJECT_HOME = "${PROJECT_HOME}";
+
   /** Allow or disallow doctype declarations in XML. " */
   @Variable(value = "N", description = "A variable allow or disallow doctype declarations in XML")
   public static final String XML_ALLOW_DOCTYPE_DECL = "XML_ALLOW_DOCTYPE_DECL";

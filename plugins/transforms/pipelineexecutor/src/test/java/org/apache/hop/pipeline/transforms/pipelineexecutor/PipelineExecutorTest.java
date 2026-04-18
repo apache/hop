@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -120,6 +119,7 @@ class PipelineExecutorTest {
     data.setExecutorPipeline(null);
     PipelineExecutor executor = newExecutor(meta, data);
 
+    assertNotNull(executor);
     executor.discardLogLines(data);
   }
 
@@ -149,7 +149,7 @@ class PipelineExecutorTest {
     PipelineExecutor executor = newExecutor(meta, data);
     executor.passParametersToPipeline(Arrays.asList("1", "from-row"));
 
-    verify(child, atLeastOnce()).setParameterValue(eq("MYPARAM"), eq("from-row"));
+    verify(child, atLeastOnce()).setParameterValue("MYPARAM", "from-row");
   }
 
   @Test
@@ -177,7 +177,7 @@ class PipelineExecutorTest {
     PipelineExecutor executor = newExecutor(meta, data);
     executor.passParametersToPipeline(Collections.singletonList("row-id"));
 
-    verify(child, atLeastOnce()).setParameterValue(eq("P"), eq("static-value"));
+    verify(child, atLeastOnce()).setParameterValue("P", "static-value");
   }
 
   @Test
@@ -205,7 +205,7 @@ class PipelineExecutorTest {
     PipelineExecutor executor = newExecutor(meta, data);
     executor.passParametersToPipeline(null);
 
-    verify(child, atLeastOnce()).setParameterValue(eq("P"), eq("fallback"));
+    verify(child, atLeastOnce()).setParameterValue("P", "fallback");
   }
 
   @Test
@@ -235,11 +235,12 @@ class PipelineExecutorTest {
     data.setExecutorPipeline(null);
     PipelineExecutor executor = newExecutor(meta, data);
 
+    assertNotNull(executor);
     executor.stopRunning();
   }
 
   @Test
-  void stopAllDelegatesToExecutorWhenPresent() throws HopException {
+  void stopAllDelegatesToExecutorWhenPresent() {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
     PipelineExecutorData data = new PipelineExecutorData();
@@ -269,7 +270,7 @@ class PipelineExecutorTest {
   }
 
   @Test
-  void disposeClearsGroupBuffer() throws HopException {
+  void disposeClearsGroupBuffer() {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
     PipelineExecutorData data = new PipelineExecutorData();
@@ -283,7 +284,7 @@ class PipelineExecutorTest {
   }
 
   @Test
-  void initFailsWhenStaticFilenameMissing() throws HopException {
+  void initFailsWhenStaticFilenameMissing() {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
     meta.setFilenameInField(false);
@@ -295,7 +296,7 @@ class PipelineExecutorTest {
   }
 
   @Test
-  void initSucceedsWhenFilenameComesFromField() throws HopException {
+  void initSucceedsWhenFilenameComesFromField() {
     PipelineExecutorMeta meta = new PipelineExecutorMeta();
     meta.setDefault();
     meta.setFilenameInField(true);
@@ -308,7 +309,7 @@ class PipelineExecutorTest {
   }
 
   @Test
-  void initLoadsChildPipelineFromFilesystemPath() throws HopException, URISyntaxException {
+  void initLoadsChildPipelineFromFilesystemPath() throws URISyntaxException {
     String path =
         Paths.get(
                 Objects.requireNonNull(

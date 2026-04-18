@@ -173,8 +173,6 @@ public class PreviewRowsDialog {
     }
 
     shell = new Shell(parentShell, style);
-    PropsUi props = PropsUi.getInstance();
-
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
@@ -230,14 +228,9 @@ public class PreviewRowsDialog {
     }
 
     // Position the buttons...
-    //
-    bottomButton = buttons.get(0);
+    bottomButton = buttons.getFirst();
     BaseTransformDialog.positionBottomButtons(
         shell, buttons.toArray(new Button[buttons.size()]), PropsUi.getMargin(), null);
-
-    if (addFields()) {
-      return;
-    }
 
     KeyListener escapeListener =
         new KeyAdapter() {

@@ -1853,15 +1853,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseHover(MouseEvent event) {
-    boolean tip = true;
-
     toolTip.setVisible(false);
     Point real = screen2real(event.x, event.y);
 
     // Show a tool tip upon mouse-over of an object on the canvas
-    if (tip) {
-      setToolTip(real.x, real.y, event.x, event.y);
-    }
+    setToolTip(real.x, real.y, event.x, event.y);
   }
 
   protected void moveSelected(int dx, int dy) {
@@ -3721,9 +3717,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public void drawPipelineImage(GC swtGc, int width, int height) {
-
-    if (EnvironmentUtils.getInstance().isWeb()) {}
-
     IGc gc = new SwtGc(swtGc, width, height, iconSize);
     try {
       PropsUi propsUi = PropsUi.getInstance();
@@ -4094,7 +4087,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             log, variables, HopExtensionPoint.PipelineAfterSave.id, pipelineMeta);
 
         // If we create a new file, refresh the explorer perspective tree
-        // TODO: find a better way to refresh only a partial tree item
+        //  find a better way to refresh only a partial tree item
         if (!fileExist) {
           perspective.refresh();
         }

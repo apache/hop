@@ -24,7 +24,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +34,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.plugins.ActionPluginType;
@@ -176,7 +177,8 @@ public class MetadataReferenceFinder {
    */
   private Map<HopMetadataPropertyType, List<MetadataClassField>>
       buildPropertyTypeToMetadataFields() {
-    Map<HopMetadataPropertyType, List<MetadataClassField>> map = new HashMap<>();
+    Map<HopMetadataPropertyType, List<MetadataClassField>> map =
+        new EnumMap<>(HopMetadataPropertyType.class);
     try {
       // Layer 1: direct fields on top-level metadata classes
       for (Class<? extends IHopMetadata> metadataClass : metadataProvider.getMetadataClasses()) {
@@ -352,14 +354,14 @@ public class MetadataReferenceFinder {
    * returned value preserves the variable style (e.g. {@code ${PROJECT_HOME}/new.hpl}).
    */
   private static String computeNewFilePath(String stored, String newPath, IVariables variables) {
-    if (variables != null && stored != null && stored.contains("${PROJECT_HOME}")) {
-      String projectHome = variables.resolve("${PROJECT_HOME}");
+    if (variables != null && stored != null && stored.contains(Const.VAR_PROJECT_HOME)) {
+      String projectHome = variables.resolve(Const.VAR_PROJECT_HOME);
       if (projectHome != null && !projectHome.isEmpty() && newPath.startsWith(projectHome)) {
         String rel = newPath.substring(projectHome.length());
         if (!rel.startsWith("/")) {
           rel = "/" + rel;
         }
-        return "${PROJECT_HOME}" + rel;
+        return Const.VAR_PROJECT_HOME + rel;
       }
     }
     return newPath;
@@ -367,10 +369,10 @@ public class MetadataReferenceFinder {
 
   /**
    * Builds a map from each HopMetadataPropertyType to the set of XML tag names that store a
-   * reference of that type (from @HopMetadataProperty on transform and action meta classes).
+   * reference of that type (from @HopMetadataProperty on transform and action metaclasses).
    */
   private static Map<HopMetadataPropertyType, Set<String>> buildPropertyTypeToTagNames() {
-    Map<HopMetadataPropertyType, Set<String>> map = new HashMap<>();
+    Map<HopMetadataPropertyType, Set<String>> map = new EnumMap<>(HopMetadataPropertyType.class);
     PluginRegistry registry = PluginRegistry.getInstance();
 
     for (HopMetadataPropertyType type : HopMetadataPropertyType.values()) {
@@ -415,11 +417,7 @@ public class MetadataReferenceFinder {
           continue;
         }
         collectTagsFromClass(metaClass, tags, targetType, new HashSet<>());
-      } catch (NoClassDefFoundError e) {
-        // Skip plugin if a dependency is missing (e.g. Saxon in plugin classloader)
-      } catch (ClassNotFoundException e) {
-        // Skip plugin if we can't load it
-      } catch (Exception e) {
+      } catch (Exception ignore) {
         // Skip plugin if we can't load or reflect
       }
     }
@@ -1203,9 +1201,8 @@ public class MetadataReferenceFinder {
           }
           if (matches) {
             count[0]++;
-            if (replace && node instanceof Element && newNameForReplace != null) {
-              ((Element) node)
-                  .setTextContent(computeNewFilePath(trimmed, newNameForReplace, variables));
+            if (replace && node instanceof Element el && newNameForReplace != null) {
+              el.setTextContent(computeNewFilePath(trimmed, newNameForReplace, variables));
             }
           }
         }

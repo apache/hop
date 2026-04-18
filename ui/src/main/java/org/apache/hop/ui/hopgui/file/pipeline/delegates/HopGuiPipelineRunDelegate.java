@@ -103,11 +103,9 @@ public class HopGuiPipelineRunDelegate {
     if (previewDebug) {
       // Collect the first N rows from selected transforms; pause-on-breakpoint is configured per
       // transform in the dialog (TransformDebugMeta#setPausingOnBreakPoint).
-      pipelineDebugMeta = pipelinePreviewDebugMetaMap.get(pipelineMeta);
-      if (pipelineDebugMeta == null) {
-        pipelineDebugMeta = new PipelineDebugMeta(pipelineMeta);
-        pipelinePreviewDebugMetaMap.put(pipelineMeta, pipelineDebugMeta);
-      }
+      pipelineDebugMeta =
+          pipelinePreviewDebugMetaMap.computeIfAbsent(pipelineMeta, PipelineDebugMeta::new);
+
       // Reset execution-state flag from any previous run so the finished listener
       // is not silently skipped when the same PipelineDebugMeta object is reused.
       pipelineDebugMeta.setStopClosePressed(false);

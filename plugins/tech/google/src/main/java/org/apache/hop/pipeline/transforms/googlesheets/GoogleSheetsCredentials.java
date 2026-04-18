@@ -36,6 +36,7 @@ import org.apache.hop.core.vfs.HopVfs;
 
 /** Describe your transform plugin. */
 public class GoogleSheetsCredentials {
+  private GoogleSheetsCredentials() {}
 
   public static final String APPLICATION_NAME = "Apache-Hop-Google-Sheets";
 
@@ -63,22 +64,12 @@ public class GoogleSheetsCredentials {
     credential = GoogleCredentials.fromStream(in);
 
     if (httpTransport != null) {
-      HttpTransportFactory proxyTransportFactory =
-          new HttpTransportFactory() {
-            @Override
-            public HttpTransport create() {
-              return httpTransport;
-            }
-          };
+      HttpTransportFactory proxyTransportFactory = () -> httpTransport;
 
-      if (credential instanceof ServiceAccountCredentials) {
-        credential =
-            ((ServiceAccountCredentials) credential)
-                .toBuilder().setHttpTransportFactory(proxyTransportFactory).build();
-      } else if (credential instanceof UserCredentials) {
-        credential =
-            ((UserCredentials) credential)
-                .toBuilder().setHttpTransportFactory(proxyTransportFactory).build();
+      if (credential instanceof ServiceAccountCredentials sc) {
+        credential = sc.toBuilder().setHttpTransportFactory(proxyTransportFactory).build();
+      } else if (credential instanceof UserCredentials uc) {
+        credential = uc.toBuilder().setHttpTransportFactory(proxyTransportFactory).build();
       }
     }
 
@@ -97,10 +88,12 @@ public class GoogleSheetsCredentials {
   public static HttpRequestInitializer setHttpTimeout(
       final HttpRequestInitializer requestInitializer, final String timeout) {
     return httpRequest -> {
-      Integer TO = Integer.parseInt(timeout);
+      int t0 = Integer.parseInt(timeout);
       requestInitializer.initialize(httpRequest);
-      httpRequest.setConnectTimeout(TO * 60000); // 10 minutes connect timeout
-      httpRequest.setReadTimeout(TO * 60000); // 10 minutes read timeout
+      // 10 minutes connect timeout
+      httpRequest.setConnectTimeout(t0 * 60000);
+      // 10 minutes read timeout
+      httpRequest.setReadTimeout(t0 * 60000);
     };
   }
 }
