@@ -163,6 +163,7 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
             PREVIOUS_RESULT_EXIT_STATUS,
             PREVIOUS_RESULT_ENTRY_NR,
             PREVIOUS_RESULT_NR_ERRORS,
+            PREVIOUS_RESULT_NR_ROWS,
             PREVIOUS_RESULT_NR_FILES,
             PREVIOUS_RESULT_NR_FILES_RETRIEVED,
             PREVIOUS_RESULT_NR_LINES_DELETED,
