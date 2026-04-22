@@ -66,6 +66,7 @@ import org.json.simple.parser.JSONParser;
 public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLocation
     implements IExecutionInfoLocation {
   public static final Class<?> PKG = OpenSearchExecutionInfoLocation.class;
+  public static final String STRICT_DATE_OPTIONAL_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
   @GuiWidgetElement(
       id = "url",
@@ -489,15 +490,20 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
 
       // This array contains the results wrapped in its own structure.
       //
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
+      SimpleDateFormat sdf = new SimpleDateFormat(STRICT_DATE_OPTIONAL_TIME_FORMAT);
       sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
       for (Object row : dataRows) {
         JSONArray dataRow = (JSONArray) row;
         String id = (String) dataRow.get(0);
-        Long creationEpoch = (Long) dataRow.get(1);
-        Date creationDate = new Date(creationEpoch);
-        ids.add(new DatedId(id, creationDate));
+        Object timestamp = dataRow.get(1);
+        if (timestamp instanceof Long creationEpoch) {
+          Date creationDate = new Date(creationEpoch);
+          ids.add(new DatedId(id, creationDate));
+        } else if (timestamp instanceof String dtString) {
+          Date creationDate = (sdf).parse(dtString);
+          ids.add(new DatedId(id, creationDate));
+        }
       }
     } catch (Exception e) {
       throw new HopException("Error finding execution ids from OpenSearch", e);

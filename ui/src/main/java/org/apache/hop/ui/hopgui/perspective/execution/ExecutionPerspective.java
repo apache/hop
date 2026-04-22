@@ -478,6 +478,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             Node pipelineNode =
                 XmlHandler.loadXmlString(execution.getExecutorXml(), PipelineMeta.XML_TAG);
             PipelineMeta pipelineMeta = new PipelineMeta(pipelineNode, provider);
+            pipelineMeta.setName(execution.getName());
+            pipelineMeta.setFilename(execution.getFilename());
             PipelineExecutionViewer viewer =
                 new PipelineExecutionViewer(
                     tabFolder, hopGui, pipelineMeta, locationName, this, execution, executionState);
@@ -489,6 +491,8 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
             Node workflowNode =
                 XmlHandler.loadXmlString(execution.getExecutorXml(), WorkflowMeta.XML_TAG);
             WorkflowMeta workflowMeta = new WorkflowMeta(workflowNode, provider, variables);
+            workflowMeta.setName(execution.getName());
+            workflowMeta.setFilename(execution.getFilename());
             WorkflowExecutionViewer viewer =
                 new WorkflowExecutionViewer(
                     tabFolder, hopGui, workflowMeta, locationName, this, execution, executionState);

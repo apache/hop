@@ -60,11 +60,13 @@ public final class ExecutionDataBuilder {
   private String ownerId;
   private Map<String, RowBuffer> dataSets;
   private Map<String, ExecutionDataSetMeta> setMetaData;
+  private Map<String, Map<String, String>> dataSetErrors;
 
   private ExecutionDataBuilder() {
     this.collectionDate = new Date();
     this.dataSets = Collections.synchronizedMap(new HashMap<>());
     this.setMetaData = Collections.synchronizedMap(new HashMap<>());
+    this.dataSetErrors = Collections.synchronizedMap(new HashMap<>());
   }
 
   public static ExecutionDataBuilder of() {
@@ -312,6 +314,11 @@ public final class ExecutionDataBuilder {
     return this;
   }
 
+  public ExecutionDataBuilder withDataSetErrors(Map<String, Map<String, String>> dataSetErrors) {
+    this.dataSetErrors = dataSetErrors;
+    return this;
+  }
+
   public ExecutionDataBuilder withFinished(boolean finished) {
     this.finished = finished;
     return this;
@@ -375,6 +382,7 @@ public final class ExecutionDataBuilder {
     executionData.setOwnerId(ownerId);
     executionData.setDataSets(dataSets);
     executionData.setSetMetaData(setMetaData);
+    executionData.setDataSetErrors(dataSetErrors);
     return executionData;
   }
 }
