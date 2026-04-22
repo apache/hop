@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.combinationlookup;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -37,6 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataPropertyType;
@@ -45,6 +47,7 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.w3c.dom.Node;
 
 @Transform(
     id = "CombinationLookup",
@@ -722,5 +725,16 @@ public class CombinationLookupMeta
   @Override
   public boolean supportsErrorHandling() {
     return true;
+  }
+
+  @Override
+  public void convertLegacyXml(Node transformNode) throws HopException {
+    // Facilitating the Kettle importer. (issue 7002)
+    //
+    Node sequenceNode = XmlHandler.getSubNode(transformNode, "sequence");
+    String sequenceName = XmlHandler.getNodeValue(sequenceNode);
+    if (StringUtils.isEmpty(sequenceName)) {
+      this.fields.setSequenceFrom(sequenceName);
+    }
   }
 }
