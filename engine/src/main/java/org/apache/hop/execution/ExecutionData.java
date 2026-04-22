@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import lombok.Getter;
@@ -87,11 +86,10 @@ public class ExecutionData {
   private Map<String, ExecutionDataSetMeta> setMetaData;
 
   /**
-   * A map with the set key as entry key.
-   * The values in the map are a link between the name of the value in the row and the (conversion) error given.
+   * A map with the set key as entry key. The values in the map are a link between the name of the
+   * value in the row and the (conversion) error given.
    */
-  @JsonIgnore
-  private Map<String, Map<String, String>> dataSetErrors;
+  @JsonIgnore private Map<String, Map<String, String>> dataSetErrors;
 
   public ExecutionData() {
     this.collectionDate = new Date();
