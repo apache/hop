@@ -733,7 +733,7 @@ public class CombinationLookupMeta
     //
     Node sequenceNode = XmlHandler.getSubNode(transformNode, "sequence");
     String sequenceName = XmlHandler.getNodeValue(sequenceNode);
-    if (StringUtils.isEmpty(sequenceName)) {
+    if (StringUtils.isNotEmpty(sequenceName)) {
       this.fields.setSequenceFrom(sequenceName);
     }
   }
