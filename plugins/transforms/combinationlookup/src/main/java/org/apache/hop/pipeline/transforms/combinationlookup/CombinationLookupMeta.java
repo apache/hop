@@ -729,7 +729,7 @@ public class CombinationLookupMeta
 
   @Override
   public void convertLegacyXml(Node transformNode) throws HopException {
-    // Facilitating the Kettle importer. (issue 7002)
+    // Facilitating the Kettle importer. (issue 7003)
     //
     Node sequenceNode = XmlHandler.getSubNode(transformNode, "sequence");
     String sequenceName = XmlHandler.getNodeValue(sequenceNode);
