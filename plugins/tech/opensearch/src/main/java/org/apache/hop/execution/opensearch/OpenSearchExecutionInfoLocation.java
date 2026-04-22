@@ -542,7 +542,7 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                   "properties": {
                     "id"  : { "type": "text"},
                     "name": { "type": "text"},
-                    "creationDate": { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
+                    "creationDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
                     "summary": {
                       "type" : "nested",
                       "properties": {
@@ -565,9 +565,9 @@ public class OpenSearchExecutionInfoLocation extends BaseCachingExecutionInfoLoc
                     "executionState": {
                       "type" : "nested",
                       "properties": {
-                        "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
-                        "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
-                        "updateTime":         { "type": "date", "format": "epoch_millis||yyyy/MM/dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "executionStartDate": { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "executionEndDate":   { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
+                        "updateTime":         { "type": "date", "format": "epoch_millis||yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time" },
                         "statusDescription":  { "type": "text" }
                       }
                     },
