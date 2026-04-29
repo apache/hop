@@ -30,7 +30,7 @@
     <name>Hop Plugins Transforms HTTP Post</name>
 
     <properties>
-        <httpclient.version>5.6</httpclient.version>
+        <httpclient.version>5.6.1</httpclient.version>
     </properties>
 
     <dependencies>
