@@ -484,7 +484,7 @@ public class ProjectsGuiPlugin {
 
     // Keep only a limited number of last-used projects
     lastUsedProjects.remove(projectName);
-    lastUsedProjects.add(0, projectName);
+    lastUsedProjects.addFirst(projectName);
     if (lastUsedProjects.size() > LAST_USED_PROJECTS_MAX_ENTRIES) {
       lastUsedProjects = lastUsedProjects.subList(0, LAST_USED_PROJECTS_MAX_ENTRIES);
     }
@@ -826,7 +826,7 @@ public class ProjectsGuiPlugin {
     if (config.isEnvironmentsForActiveProject() && StringUtils.isEmpty(projectName)) {
       // list all environments and select the first one if we don't have a project selected
       List<String> allEnvironments = config.listEnvironmentNames();
-      updateEnvironmentToolItem(allEnvironments.get(0));
+      updateEnvironmentToolItem(allEnvironments.getFirst());
       return;
     }
 
@@ -879,7 +879,7 @@ public class ProjectsGuiPlugin {
     if (environment == null) {
       List<LifecycleEnvironment> environments = config.findEnvironmentsOfProject(projectName);
       if (!environments.isEmpty()) {
-        environment = environments.get(0);
+        environment = environments.getFirst();
       }
     }
 

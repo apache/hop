@@ -111,6 +111,7 @@ public class SelectRepositoryDialog extends Dialog {
   public String open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
+    shell.setText(BaseMessages.getString(PKG, "SelectRepositoryDialog.Shell.Name"));
     shell.setImage(
         GuiResource.getInstance()
             .getImage(
@@ -119,21 +120,24 @@ public class SelectRepositoryDialog extends Dialog {
                 ConstUi.SMALL_ICON_SIZE,
                 ConstUi.SMALL_ICON_SIZE));
 
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
+    shell.setLayout(formLayout);
+    shell.setMinimumSize(800, 750);
     PropsUi.setLook(shell);
-    shell.setLayout(new FormLayout());
-    shell.setText(BaseMessages.getString(PKG, "SelectRepositoryDialog.Shell.Name"));
 
-    int margin = PropsUi.getMargin() + 2;
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
 
     // --- Bottom buttons ---
     Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.setText(BaseMessages.getString("System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
     wOk.setEnabled(false); // enabled only when a repo is selected
 
     Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin * 3, null);
@@ -263,7 +267,7 @@ public class SelectRepositoryDialog extends Dialog {
     FormData fdlFilter = new FormData();
     fdlFilter.left = new FormAttachment(0, 0);
     fdlFilter.right = new FormAttachment(middle, 0);
-    fdlFilter.top = new FormAttachment(wToken, margin * 2);
+    fdlFilter.top = new FormAttachment(wPassword, margin);
     wlFilter.setLayoutData(fdlFilter);
 
     Button wSearch = new Button(comp, SWT.PUSH);
@@ -273,6 +277,7 @@ public class SelectRepositoryDialog extends Dialog {
     fdSearch.top = new FormAttachment(wlFilter, 0, SWT.CENTER);
     wSearch.setLayoutData(fdSearch);
     wSearch.addListener(SWT.Selection, e -> loadRepos(true));
+    PropsUi.setLook(wSearch);
 
     wFilter = new Text(comp, SWT.SINGLE | SWT.BORDER);
     PropsUi.setLook(wFilter);
@@ -329,12 +334,12 @@ public class SelectRepositoryDialog extends Dialog {
     fdLoadMore.top = new FormAttachment(wRepoTable, margin);
     wLoadMore.setLayoutData(fdLoadMore);
     wLoadMore.addListener(SWT.Selection, e -> loadRepos(false));
+    PropsUi.setLook(wLoadMore);
 
     // --- Initial data ---
     selectProvider(initialProvider);
     wToken.setText(initialToken);
 
-    shell.setSize(720, 580);
     shell.open();
 
     while (!shell.isDisposed()) {

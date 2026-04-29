@@ -35,6 +35,7 @@ import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.GitCloneHelper;
 import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -80,6 +81,8 @@ public class CloneFromVersionControlDialog extends Dialog {
   public String open() {
     Shell parent = getParent();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
+    shell.setText(BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Shell.Name"));
+    shell.setMinimumSize(650, 400);
     shell.setImage(
         GuiResource.getInstance()
             .getImage(
@@ -87,75 +90,64 @@ public class CloneFromVersionControlDialog extends Dialog {
                 PKG.getClassLoader(),
                 ConstUi.SMALL_ICON_SIZE,
                 ConstUi.SMALL_ICON_SIZE));
-
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginWidth = PropsUi.getFormMargin();
+    formLayout.marginHeight = PropsUi.getFormMargin();
+    shell.setLayout(formLayout);
     PropsUi.setLook(shell);
 
-    int margin = PropsUi.getMargin() + 2;
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
 
-    shell.setLayout(new FormLayout());
-    shell.setText(BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Shell.Name"));
-
     Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.setText(BaseMessages.getString("System.Button.OK"));
     wOk.addListener(SWT.Selection, event -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, event -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin * 3, null);
 
     Composite comp = new Composite(shell, SWT.NONE);
     comp.setLayout(new FormLayout());
+    comp.setLayoutData(
+        FormDataBuilder.builder().fullWidth().top().bottom(wOk, -2 * margin).build());
     PropsUi.setLook(comp);
-
-    FormData fdComp = new FormData();
-    fdComp.left = new FormAttachment(0, 0);
-    fdComp.right = new FormAttachment(100, 0);
-    fdComp.top = new FormAttachment(0, 0);
-    fdComp.bottom = new FormAttachment(wOk, -margin);
-    comp.setLayoutData(fdComp);
 
     Control lastControl = null;
 
     // URL
     Label wlUrl = new Label(comp, SWT.RIGHT);
     wlUrl.setText(BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Label.Url"));
-    FormData fdlUrl = new FormData();
-    fdlUrl.left = new FormAttachment(0, 0);
-    fdlUrl.right = new FormAttachment(middle, 0);
-    fdlUrl.top = new FormAttachment(0, margin * 2);
-    wlUrl.setLayoutData(fdlUrl);
+    wlUrl.setLayoutData(FormDataBuilder.builder().left().right(middle, 0).top(margin, 0).build());
+    PropsUi.setLook(wlUrl);
+
     Button wBrowseRepo = new Button(comp, SWT.PUSH);
     wBrowseRepo.setText(
         BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Button.BrowseRepo"));
-    FormData fdbBrowseRepo = new FormData();
-    fdbBrowseRepo.right = new FormAttachment(99, 0);
-    fdbBrowseRepo.top = new FormAttachment(wlUrl, 0, SWT.CENTER);
-    wBrowseRepo.setLayoutData(fdbBrowseRepo);
+    wBrowseRepo.setLayoutData(FormDataBuilder.builder().right().top(wlUrl, 0, SWT.CENTER).build());
     wBrowseRepo.addListener(SWT.Selection, e -> browseRepository());
+    PropsUi.setLook(wBrowseRepo);
+
     wUrl = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     FormData fdUrl = new FormData();
     fdUrl.left = new FormAttachment(middle, margin);
     fdUrl.right = new FormAttachment(wBrowseRepo, -margin);
     fdUrl.top = new FormAttachment(wlUrl, 0, SWT.CENTER);
     wUrl.setLayoutData(fdUrl);
+    PropsUi.setLook(wUrl);
     lastControl = wUrl;
 
     // Token (optional) — placed directly below the URL / Browse row
     Label wlToken = new Label(comp, SWT.RIGHT);
     wlToken.setText(BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Label.Token"));
-    FormData fdlToken = new FormData();
-    fdlToken.left = new FormAttachment(0, 0);
-    fdlToken.right = new FormAttachment(middle, 0);
-    fdlToken.top = new FormAttachment(lastControl, margin);
-    wlToken.setLayoutData(fdlToken);
+    wlToken.setLayoutData(
+        FormDataBuilder.builder().left().right(middle, 0).top(lastControl, margin).build());
+    PropsUi.setLook(wlToken);
+
     wToken = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT | SWT.PASSWORD);
     PropsUi.setLook(wToken);
-    FormData fdToken = new FormData();
-    fdToken.left = new FormAttachment(middle, margin);
-    fdToken.right = new FormAttachment(99, 0);
-    fdToken.top = new FormAttachment(wlToken, 0, SWT.CENTER);
-    wToken.setLayoutData(fdToken);
+    wToken.setLayoutData(
+        FormDataBuilder.builder().left(middle, margin).right().top(wlToken, 0, SWT.CENTER).build());
     wToken.setToolTipText(
         BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Label.Token.Tooltip"));
     lastControl = wToken;
@@ -163,76 +155,72 @@ public class CloneFromVersionControlDialog extends Dialog {
     // Directory
     Label wlDir = new Label(comp, SWT.RIGHT);
     wlDir.setText(BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Label.Directory"));
-    FormData fdlDir = new FormData();
-    fdlDir.left = new FormAttachment(0, 0);
-    fdlDir.right = new FormAttachment(middle, 0);
-    fdlDir.top = new FormAttachment(lastControl, margin);
-    wlDir.setLayoutData(fdlDir);
+    wlDir.setLayoutData(
+        FormDataBuilder.builder().left().right(middle, 0).top(lastControl, margin).build());
+    PropsUi.setLook(wlDir);
+
     Button wbDir = new Button(comp, SWT.PUSH);
     wbDir.setText(BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Button.Browse"));
-    FormData fdbDir = new FormData();
-    fdbDir.right = new FormAttachment(99, 0);
-    fdbDir.top = new FormAttachment(wlDir, 0, SWT.CENTER);
-    wbDir.setLayoutData(fdbDir);
+    wbDir.setLayoutData(FormDataBuilder.builder().right().top(wlDir, 0, SWT.CENTER).build());
     wbDir.addListener(SWT.Selection, e -> browseDirectory());
+    PropsUi.setLook(wbDir);
+
     wDirectory = new TextVar(variables, comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    FormData fdDir = new FormData();
-    fdDir.left = new FormAttachment(middle, margin);
-    fdDir.right = new FormAttachment(wbDir, -margin);
-    fdDir.top = new FormAttachment(wlDir, 0, SWT.CENTER);
-    wDirectory.setLayoutData(fdDir);
+    wDirectory.setLayoutData(
+        FormDataBuilder.builder()
+            .left(middle, margin)
+            .right(wbDir, -margin)
+            .top(wlDir, 0, SWT.CENTER)
+            .build());
     lastControl = wDirectory;
 
     // Project name
     Label wlName = new Label(comp, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Label.ProjectName"));
-    FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
-    fdlName.top = new FormAttachment(lastControl, margin);
-    wlName.setLayoutData(fdlName);
+    wlName.setLayoutData(
+        FormDataBuilder.builder().left().right(middle, 0).top(lastControl, margin).build());
+    PropsUi.setLook(wlName);
+
     wProjectName = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    FormData fdName = new FormData();
-    fdName.left = new FormAttachment(middle, margin);
-    fdName.right = new FormAttachment(99, 0);
-    fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    wProjectName.setLayoutData(fdName);
-    wUrl.addListener(SWT.Modify, e -> updateProjectNameFromUrl());
+    wProjectName.setLayoutData(
+        FormDataBuilder.builder().left(middle, margin).right().top(wlName, 0, SWT.CENTER).build());
+    wProjectName.addListener(SWT.Modify, e -> updateProjectNameFromUrl());
+    PropsUi.setLook(wProjectName);
     lastControl = wProjectName;
 
     // Shallow clone
     Label wlShallow = new Label(comp, SWT.RIGHT);
     wlShallow.setText(
         BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Label.ShallowClone"));
-    FormData fdlShallow = new FormData();
-    fdlShallow.left = new FormAttachment(0, 0);
-    fdlShallow.right = new FormAttachment(middle, 0);
-    fdlShallow.top = new FormAttachment(lastControl, margin * 2);
-    wlShallow.setLayoutData(fdlShallow);
+    wlShallow.setLayoutData(
+        FormDataBuilder.builder().left().right(middle, 0).top(lastControl, margin).build());
+    PropsUi.setLook(wlShallow);
+
     wShallowClone = new Button(comp, SWT.CHECK);
-    FormData fdShallow = new FormData();
-    fdShallow.left = new FormAttachment(middle, margin);
-    fdShallow.top = new FormAttachment(wlShallow, 0, SWT.CENTER);
-    wShallowClone.setLayoutData(fdShallow);
+    wShallowClone.setLayoutData(
+        FormDataBuilder.builder().left(middle, margin).top(wlShallow, 0, SWT.CENTER).build());
     wShallowClone.addListener(SWT.Selection, e -> updateShallowDepthState());
+    PropsUi.setLook(wShallowClone);
+
     wShallowDepth = new Text(comp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wShallowDepth);
     wShallowDepth.setText("1");
-    FormData fdDepth = new FormData();
-    fdDepth.left = new FormAttachment(wShallowClone, margin);
-    fdDepth.top = new FormAttachment(wlShallow, 0, SWT.CENTER);
-    fdDepth.width = 60;
-    wShallowDepth.setLayoutData(fdDepth);
+    wShallowDepth.setLayoutData(
+        FormDataBuilder.builder()
+            .left(wShallowClone, margin)
+            .top(wlShallow, 0, SWT.CENTER)
+            .width(60)
+            .build());
+
     Label wlCommits = new Label(comp, SWT.LEFT);
     wlCommits.setText(
-        " "
-            + BaseMessages.getString(
-                PKG, "CloneFromVersionControlDialog.Label.ShallowClone.Commits"));
-    FormData fdlCommits = new FormData();
-    fdlCommits.left = new FormAttachment(wShallowDepth, margin);
-    fdlCommits.top = new FormAttachment(wlShallow, 0, SWT.CENTER);
-    wlCommits.setLayoutData(fdlCommits);
-
+        BaseMessages.getString(PKG, "CloneFromVersionControlDialog.Label.ShallowClone.Commits"));
+    wlCommits.setLayoutData(
+        FormDataBuilder.builder()
+            .left(wShallowDepth, margin)
+            .top(wlShallow, 0, SWT.CENTER)
+            .build());
+    PropsUi.setLook(wlCommits);
     getData();
     updateShallowDepthState();
 
