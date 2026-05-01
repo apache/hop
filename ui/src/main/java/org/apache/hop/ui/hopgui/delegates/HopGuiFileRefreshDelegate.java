@@ -80,9 +80,10 @@ public class HopGuiFileRefreshDelegate {
   // saved in the file system
   //
   public void register(String fileName, IHopFileTypeHandler fileTypeHandler) {
-    if (!hopGui.getProps().isReloadingFilesOnChange()) {
+    if (fileName == null || !hopGui.getProps().isReloadingFilesOnChange()) {
       return;
     }
+
     try {
       FileObject file = HopVfs.getFileObject(fileName);
       fileMonitor.addFile(file);

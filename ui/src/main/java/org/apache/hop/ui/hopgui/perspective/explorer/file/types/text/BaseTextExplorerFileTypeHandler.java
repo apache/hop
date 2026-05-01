@@ -57,7 +57,11 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
   public void renderFile(Composite composite) {
     editorWidget = ContentEditorFacade.createContentEditor(composite, getLanguageId());
 
-    reload();
+    // If it's a new file, there's no need to reload it
+    if (this.getFilename() != null) {
+      reload();
+    }
+
     reloadListener = true;
     editorWidget.addModifyListener(
         e -> {
