@@ -931,8 +931,7 @@ public class ProjectsGuiPlugin {
       parentId = ID_CONTEXT_MENU_PROJECT_ADD,
       id = ID_CONTEXT_MENU_PROJECT_ADD_FROM_VC,
       label = "i18n::HopGui.Toolbar.Project.Add.FromVersionControl.Label",
-      toolTip = "i18n::HopGui.Toolbar.Project.Add.FromVersionControl.Tooltip",
-      image = "ui/images/add.svg")
+      toolTip = "i18n::HopGui.Toolbar.Project.Add.FromVersionControl.Tooltip")
   public void addProjectFromVersionControl() {
     addProjectFromVersionControlInternal();
   }
@@ -942,8 +941,7 @@ public class ProjectsGuiPlugin {
       parentId = ID_CONTEXT_MENU_PROJECT_ADD,
       id = ID_CONTEXT_MENU_PROJECT_ADD_FROM_EXISTING,
       label = "i18n::HopGui.Toolbar.Project.Add.FromExisting.Label",
-      toolTip = "i18n::HopGui.Toolbar.Project.Add.FromExisting.Tooltip",
-      image = "ui/images/add.svg")
+      toolTip = "i18n::HopGui.Toolbar.Project.Add.FromExisting.Tooltip")
   public void addProjectFromExistingSources() {
     addProjectFromExistingSourcesInternal();
   }

@@ -124,22 +124,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       }
 
       menuItem = new MenuItem(parentMenu, SWT.PUSH);
-      menuItem.setText(guiMenuItem.getLabel());
-      if (StringUtils.isNotEmpty(guiMenuItem.getImage())) {
-        menuItem.setImage(
-            GuiResource.getInstance()
-                .getImage(
-                    guiMenuItem.getImage(),
-                    guiMenuItem.getClassLoader(),
-                    ConstUi.SMALL_ICON_SIZE,
-                    ConstUi.SMALL_ICON_SIZE));
-      }
-
-      setMenuItemKeyboardShortcut(menuItem, guiMenuItem);
-      if (StringUtils.isNotEmpty(guiMenuItem.getToolTip())
-          && !EnvironmentUtils.getInstance().isWeb()) {
-        menuItem.setToolTipText(guiMenuItem.getToolTip());
-      }
+      initMenuItem(menuItem, guiMenuItem);
 
       // Call the method to which the GuiWidgetElement annotation belongs.
       //
@@ -174,25 +159,20 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       Menu menu = parentMenu;
       if (guiMenuItem.getId() != null) {
         menuItem = new MenuItem(parentMenu, SWT.CASCADE);
-        menuItem.setText(Const.NVL(guiMenuItem.getLabel(), ""));
-        setMenuItemKeyboardShortcut(menuItem, guiMenuItem);
-        if (StringUtils.isNotEmpty(guiMenuItem.getToolTip())
-            && !EnvironmentUtils.getInstance().isWeb()) {
-          menuItem.setToolTipText(guiMenuItem.getToolTip());
-        }
+        initMenuItem(menuItem, guiMenuItem);
+
         menu = new Menu(shell, SWT.DROP_DOWN);
         menuItem.setMenu(menu);
         menuItemMap.put(guiMenuItem.getId(), menuItem);
         menuEnabledMap.put(guiMenuItem.getId(), true);
       }
 
-      // Add the children to this menu...
-      //
-
       // Sort the children as well.  It gets chaotic otherwise
       //
       Collections.sort(children);
 
+      // Add the children to this menu...
+      //
       for (GuiMenuItem child : children) {
         addMenuWidgets(root, shell, menu, child);
       }
@@ -207,7 +187,28 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
     menuMethod.invoke(parentObject);
   }
 
-  private void setMenuItemKeyboardShortcut(MenuItem menuItem, GuiMenuItem guiMenuItem) {
+  /**
+   * Initializes a menu item by setting its properties such as label, image, shortcuts, and tooltip
+   * based on the corresponding GuiMenuItem instance.
+   *
+   * @param menuItem The MenuItem object that needs to be initialized.
+   * @param guiMenuItem The GuiMenuItem containing configuration data for the menu item.
+   */
+  private void initMenuItem(MenuItem menuItem, GuiMenuItem guiMenuItem) {
+    // Set label
+    menuItem.setText(Const.NVL(guiMenuItem.getLabel(), ""));
+
+    // Set image
+    if (StringUtils.isNotEmpty(guiMenuItem.getImage())) {
+      menuItem.setImage(
+          GuiResource.getInstance()
+              .getImage(
+                  guiMenuItem.getImage(),
+                  guiMenuItem.getClassLoader(),
+                  ConstUi.SMALL_ICON_SIZE,
+                  ConstUi.SMALL_ICON_SIZE));
+    }
+
     // See if there's a shortcut worth mentioning...
     //
     KeyboardShortcut shortcut =
@@ -219,6 +220,12 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       // Do not set menu accelerators; keyboard shortcuts are handled only by HopGuiKeyHandler
       // so the correct context (focus) is used. Menu still shows shortcut text for discoverability.
       shortcutMap.put(guiMenuItem.getId(), shortcut);
+    }
+
+    // Set tooltip if available and not in web environment
+    if (StringUtils.isNotEmpty(guiMenuItem.getToolTip())
+        && !EnvironmentUtils.getInstance().isWeb()) {
+      menuItem.setToolTipText(guiMenuItem.getToolTip());
     }
   }
 
