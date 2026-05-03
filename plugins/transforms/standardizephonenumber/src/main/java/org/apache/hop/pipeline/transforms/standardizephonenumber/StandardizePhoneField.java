@@ -18,10 +18,13 @@
 package org.apache.hop.pipeline.transforms.standardizephonenumber;
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Contains the properties of the fields to standardize. */
+@Getter
 public class StandardizePhoneField implements Cloneable {
 
   /** The input field name */
@@ -37,6 +40,7 @@ public class StandardizePhoneField implements Cloneable {
   private String outputField = null;
 
   /** The format */
+  @Setter
   @HopMetadataProperty(
       key = "format",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.NumberFormat")
@@ -48,6 +52,8 @@ public class StandardizePhoneField implements Cloneable {
       injectionKeyDescription = "StandardizePhoneNumber.Injection.CountryField")
   private String countryField = null;
 
+  /** The country codes (ISO 2) */
+  @Setter
   @HopMetadataProperty(
       key = "defaultCountry",
       injectionKeyDescription = "StandardizePhoneNumber.Injection.DefaultCountry")
@@ -85,66 +91,20 @@ public class StandardizePhoneField implements Cloneable {
     return new StandardizePhoneField(this);
   }
 
-  public String getInputField() {
-    return inputField;
-  }
-
   public void setInputField(final String field) {
     this.inputField = StringUtils.stripToNull(field);
-  }
-
-  public String getOutputField() {
-    return outputField;
   }
 
   public void setOutputField(final String field) {
     this.outputField = StringUtils.stripToNull(field);
   }
 
-  public String getCountryField() {
-    return countryField;
-  }
-
   public void setCountryField(final String field) {
     this.countryField = StringUtils.stripToNull(field);
   }
 
-  /**
-   * Get the country codes (ISO 2)
-   *
-   * @return
-   */
-  public String getDefaultCountry() {
-    return defaultCountry;
-  }
-
-  /**
-   * Set the country codes (ISO 2)
-   *
-   * @param country
-   */
-  public void setDefaultCountry(String country) {
-    this.defaultCountry = country;
-  }
-
-  public String getNumberFormat() {
-    return numberFormat;
-  }
-
-  public void setNumberFormat(final String param) {
-    this.numberFormat = param;
-  }
-
-  public String getNumberTypeField() {
-    return numberTypeField;
-  }
-
   public void setNumberTypeField(final String phoneNumberTypeField) {
     this.numberTypeField = StringUtils.stripToNull(phoneNumberTypeField);
-  }
-
-  public String getIsValidNumberField() {
-    return isValidNumberField;
   }
 
   public void setIsValidNumberField(final String field) {
