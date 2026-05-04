@@ -28,16 +28,4 @@
     <artifactId>hop-transform-httppost</artifactId>
     <packaging>jar</packaging>
     <name>Hop Plugins Transforms HTTP Post</name>
-
-    <properties>
-        <httpclient.version>5.6</httpclient.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
-    </dependencies>
 </project>

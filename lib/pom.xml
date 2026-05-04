@@ -86,9 +86,9 @@
         Replace exclusions beam-vendor-guava-xxx-jre-->
         <guava.version>33.3.1-jre</guava.version>
         <hive.version>2.3.9</hive.version>
-        <httpccore.version>4.4.15</httpccore.version>
         <httpclient.version>4.5.14</httpclient.version>
-        <httpclient5.version>5.6</httpclient5.version>
+        <httpclient5.version>5.6.1</httpclient5.version>
+        <httpcore.version>4.4.16</httpcore.version>
         <icu4j.version>78.1</icu4j.version>
         <jackcess.version>4.0.4</jackcess.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
@@ -692,15 +692,18 @@
                 <artifactId>hop-ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- httpcore/httpclient v4 are not used by Hop directly, but pulled in transitively
+            by Beam, Google Cloud, AWS SDK and others. Pinned here to align versions
+            across those transitive dependencies. -->
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
-                <version>${httpccore.version}</version>
+                <version>${httpcore.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.httpcomponents.client5</groupId>
-                <artifactId>httpclient5</artifactId>
-                <version>${httpclient5.version}</version>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -709,9 +712,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>${httpclient.version}</version>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>

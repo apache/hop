@@ -46,11 +46,5 @@
             </includes>
             <outputDirectory>plugins/transforms/httppost</outputDirectory>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.apache.httpcomponents:httpmime:jar</include>
-            </includes>
-            <outputDirectory>plugins/transforms/httppost/lib</outputDirectory>
-        </dependencySet>
     </dependencySets>
 </assembly>
