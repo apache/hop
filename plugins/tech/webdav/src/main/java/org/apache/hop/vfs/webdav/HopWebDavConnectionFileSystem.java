@@ -49,10 +49,14 @@ class HopWebDavConnectionFileSystem extends Webdav4FileSystem {
 
   @Override
   protected FileObject createFile(AbstractFileName name) throws Exception {
-    return super.createFile(wrap(name));
+    return new HopWebDav4ConnectionFileObject(toLogicalConnectionName(name), this);
   }
 
-  private AbstractFileName wrap(AbstractFileName name) {
+  /**
+   * Maps an internal {@link Webdav4FileName} to {@link HopWebDavConnectionFileName} for stable
+   * logical URIs; used from {@link #createFile} and {@link HopWebDav4ConnectionFileObject}.
+   */
+  AbstractFileName toLogicalConnectionName(AbstractFileName name) {
     if (name instanceof HopWebDavConnectionFileName) {
       return name;
     }
