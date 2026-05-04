@@ -127,8 +127,6 @@ public abstract class ActionBase
 
   protected WorkflowMeta parentWorkflowMeta;
 
-  private static final String CONST_SPACE = "      ";
-
   /** Instantiates a new action base object. */
   protected ActionBase() {
     name = null;
@@ -344,14 +342,7 @@ public abstract class ActionBase
   @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder();
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("name", getName()));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("description", getDescription()));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("type", pluginId));
-
     xml.append(AttributesUtil.getAttributesXml(attributesMap));
-
-    // Try to serialize the rest of the @HopMetadataProperty fields...
-    //
     try {
       xml.append(XmlMetadataUtil.serializeObjectToXml(this));
     } catch (HopException e) {

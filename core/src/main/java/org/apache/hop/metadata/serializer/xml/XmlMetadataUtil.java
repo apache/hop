@@ -1073,25 +1073,30 @@ public class XmlMetadataUtil {
       IHopMetadataProvider metadataProvider)
       throws HopXmlException {
     if (elementNode != null) {
+      // The element is present in the XML, so the user intended a value — even if it's empty.
+      // <tag/> and <tag></tag> both have no text children, which makes XmlHandler.getNodeValue
+      // return null; collapse that to "" so the field assignment below isn't skipped by the
+      // null-guard in the caller (which would otherwise leave the constructor default in place).
+      String value = elementString != null ? elementString : "";
       if (parentProperty.password()) {
-        return Encr.decryptPasswordOptionallyEncrypted(elementString);
+        return Encr.decryptPasswordOptionallyEncrypted(value);
       }
       if (!EmptyStringEncoder.class.equals(parentProperty.stringEncoder())) {
         // Decode the encoded string
         //
         try {
           IStringEncoder encoder = parentProperty.stringEncoder().getConstructor().newInstance();
-          return encoder.decode(elementString);
+          return encoder.decode(value);
         } catch (Exception e) {
           throw new HopXmlException(
               "Error decoding string '"
-                  + elementString
+                  + value
                   + "' with string encoder class "
                   + parentProperty.stringEncoder().getName(),
               e);
         }
       } else {
-        return elementString;
+        return value;
       }
     }
     return null;

@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.pipelineexecutor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hop.core.exception.HopException;
@@ -54,7 +53,7 @@ class PipelineExecutorMetaTest {
     assertEquals("ExecutionExitStatus", meta.getExecutionExitStatusField());
     assertEquals("ExecutionLogText", meta.getExecutionLogTextField());
     assertEquals("ExecutionLogChannelId", meta.getExecutionLogChannelIdField());
-    assertNull(meta.getOutputRowsSourceTransform());
+    assertEquals("", meta.getOutputRowsSourceTransform());
     assertEquals("result file names after execution", meta.getResultFilesTargetTransform());
     assertEquals("FileName", meta.getResultFilesFileNameField());
     assertEquals("copy of input rows", meta.getExecutorsOutputTransform());

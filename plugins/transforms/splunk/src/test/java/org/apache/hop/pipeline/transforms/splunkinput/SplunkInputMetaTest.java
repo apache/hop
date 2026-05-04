@@ -51,7 +51,7 @@ class SplunkInputMetaTest {
     Assertions.assertEquals("splunkField1", v1.getSplunkName());
     Assertions.assertEquals("String", v1.getType());
     Assertions.assertEquals(10, v1.getLength());
-    Assertions.assertNull(v1.getFormat());
+    Assertions.assertEquals("", v1.getFormat());
 
     ReturnValue v2 = meta.getReturnValues().get(1);
     Assertions.assertEquals("field2", v2.getName());

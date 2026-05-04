@@ -101,8 +101,7 @@ class ValueMapperMetaTest {
             "/value-mapper-transform.xml", ValueMapperMeta.class);
 
     assertEquals(7, meta.getValues().size());
-    // Test serialization with null source attribute
-    assertNull(meta.getValues().get(0).getSource());
+    assertEquals("", meta.getValues().get(0).getSource());
     assertEquals("[${NOT_DEFINED}]", meta.getValues().get(0).getTarget());
 
     assertEquals("BE", meta.getValues().get(1).getSource());

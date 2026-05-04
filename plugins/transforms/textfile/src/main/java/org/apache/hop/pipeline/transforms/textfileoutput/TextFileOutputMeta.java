@@ -71,10 +71,6 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
 
   protected static final String[] formatMapperLineTerminator =
       new String[] {"DOS", "UNIX", "CR", "None"};
-  public static final String CONST_FORMAT = "format";
-  public static final String CONST_FIELD = "field";
-  public static final String CONST_SPACES_LONG = "        ";
-  public static final String CONST_SPACES = "      ";
 
   @Getter
   @Setter
