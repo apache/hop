@@ -88,7 +88,7 @@
         <hive.version>2.3.9</hive.version>
         <httpccore.version>4.4.15</httpccore.version>
         <httpclient.version>4.5.14</httpclient.version>
-        <httpclient5.version>5.6</httpclient5.version>
+        <httpclient5.version>5.6.1</httpclient5.version>
         <icu4j.version>78.1</icu4j.version>
         <jackcess.version>4.0.4</jackcess.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
