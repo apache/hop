@@ -18,6 +18,8 @@
 
 package org.apache.hop.git;
 
+import static org.apache.hop.core.vfs.HopVfs.fileExists;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +69,7 @@ import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerFilePaintListener;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerRefreshListener;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerRootChangedListener;
 import org.apache.hop.ui.hopgui.perspective.explorer.IExplorerSelectionListener;
+import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.swt.SWT;
@@ -168,7 +171,98 @@ public class GitGuiPlugin
       return;
     }
 
-    GitCommitPerspective.getInstance().activate();
+    // TODO: To remove when git perspective work on web
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      gitCommitOnWeb();
+    } else {
+      GitCommitPerspective.getInstance().activate();
+    }
+  }
+
+  public void gitCommitOnWeb() {
+
+    try {
+      // Ask the user to select the list of changed files in the commit...
+      //
+      ExplorerFile explorerFile = getSelectedFile();
+      if (git == null || explorerFile == null) {
+        return;
+      }
+      String relativePath = calculateRelativePath(git.getDirectory(), explorerFile);
+      if (relativePath == null) {
+        return;
+      }
+      List<String> changedFilesToCommit = git.getRevertPathFiles(relativePath);
+      if (changedFilesToCommit.isEmpty()) {
+        MessageBox box =
+            new MessageBox(HopGui.getInstance().getShell(), SWT.OK | SWT.ICON_INFORMATION);
+        box.setText(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.NoFilesToCommit.Header"));
+        box.setMessage(BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.NoFilesToCommit.Message"));
+        box.open();
+      } else {
+        String[] files = changedFilesToCommit.toArray(new String[0]);
+        int[] selectedIndexes = new int[files.length];
+        for (int i = 0; i < files.length; i++) {
+          selectedIndexes[i] = i;
+        }
+        EnterSelectionDialog selectionDialog =
+            new EnterSelectionDialog(
+                HopGui.getInstance().getShell(),
+                files,
+                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.StageFiles.Header"),
+                BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.StageFiles.Message"));
+        selectionDialog.setMulti(true);
+        // Select all files by default
+        //
+        selectionDialog.setSelectedNrs(selectedIndexes);
+        String selection = selectionDialog.open();
+        if (selection != null) {
+
+          EnterStringDialog enterStringDialog =
+              new EnterStringDialog(
+                  HopGui.getInstance().getShell(),
+                  "",
+                  BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.SelectFilesToCommit.Header"),
+                  BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.SelectFilesToCommit.Message"));
+          String message = enterStringDialog.open();
+          if (message != null) {
+
+            // Now stage/add the selected files and commit...
+            //
+            int[] selectedNrs = selectionDialog.getSelectionIndeces();
+            for (int selectedNr : selectedNrs) {
+              // If the file is gone, git.rm(), otherwise add()
+              //
+              String file = files[selectedNr];
+              if (fileExists(file)) {
+                git.add(file);
+              } else {
+                git.rm(file);
+              }
+            }
+
+            // Standard author by default
+            //
+            String authorName = git.getAuthorName(VCS.WORKINGTREE);
+
+            // Commit...
+            //
+            git.commit(authorName, message);
+          }
+        }
+      }
+
+      // Refresh the tree, change colors...
+      //
+      ExplorerPerspective.getInstance().refresh();
+      enableButtons();
+    } catch (Exception e) {
+      new ErrorDialog(
+          HopGui.getInstance().getShell(),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CommitError.Header"),
+          BaseMessages.getString(PKG, "GitGuiPlugin.Dialog.CommitError.Message"),
+          e);
+    }
   }
 
   @GuiMenuElement(
@@ -449,7 +543,12 @@ public class GitGuiPlugin
 
     // Refresh the git history, file explorer tree, change colors...
     //
-    GitPerspective.getInstance().refresh(true);
+    // TODO: To remove when git perspective work on web
+    if (EnvironmentUtils.getInstance().isWeb()) {
+      ExplorerPerspective.getInstance().refresh();
+    } else {
+      GitPerspective.getInstance().refresh(true);
+    }
     enableButtons();
   }
 
