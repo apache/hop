@@ -59,6 +59,31 @@ final class HopWebDavLogicalUris {
    * Relative path after the connection URI authority (no leading slash), e.g. {@code myconn:///a/b}
    * → {@code a/b}.
    */
+  /**
+   * Normalized path from a connection URI (leading {@code /}, collapsed duplicate slashes after
+   * scheme), used when matching {@link #wirePathPrefixFromRootUrl} for VFS {@code resolveName}
+   * output.
+   */
+  static String rawPathFromUri(String uri) throws FileSystemException {
+    URI parsed;
+    try {
+      parsed = URI.create(uri);
+    } catch (IllegalArgumentException e) {
+      throw new FileSystemException(e);
+    }
+    String path = parsed.getRawPath();
+    if (path == null || path.isEmpty()) {
+      return "";
+    }
+    while (path.startsWith("//")) {
+      path = path.substring(1);
+    }
+    if (!path.startsWith("/")) {
+      path = "/" + path;
+    }
+    return path;
+  }
+
   static String extractPathSuffixAfterScheme(String uri) throws FileSystemException {
     URI parsed;
     try {

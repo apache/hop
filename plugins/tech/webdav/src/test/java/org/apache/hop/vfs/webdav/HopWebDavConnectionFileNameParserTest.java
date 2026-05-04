@@ -40,6 +40,16 @@ class HopWebDavConnectionFileNameParserTest {
             "myconn:///", "webdav4s://cloud.example/remote.php/dav/files/user"));
   }
 
+  /** Same shape as {@code DefaultFileSystemManager#resolveName} (getRootURI + absolute path). */
+  @Test
+  void buildSyntheticUri_managerStyleFullWirePath() throws Exception {
+    assertEquals(
+        "webdav4://localhost/remote.php/dav/files/admin/Documents/x.txt",
+        HopWebDavConnectionFileNameParser.buildSyntheticUri(
+            "nextcloud:///remote.php/dav/files/admin/Documents/x.txt",
+            "webdav4://localhost/remote.php/dav/files/admin/"));
+  }
+
   @Test
   void buildSyntheticUri_rejectsBadRoot() {
     assertThrows(

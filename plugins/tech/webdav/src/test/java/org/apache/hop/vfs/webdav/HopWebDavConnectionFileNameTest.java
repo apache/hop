@@ -41,6 +41,7 @@ class HopWebDavConnectionFileNameTest {
     HopWebDavConnectionFileName n =
         new HopWebDavConnectionFileName(
             wire, "nextcloud", "Documents/x.txt", "/remote.php/dav/files/admin/");
+    assertEquals("nextcloud", n.getScheme());
     assertEquals("nextcloud:///Documents/x.txt", n.getURI());
     assertEquals("nextcloud:///", n.getRootURI());
   }

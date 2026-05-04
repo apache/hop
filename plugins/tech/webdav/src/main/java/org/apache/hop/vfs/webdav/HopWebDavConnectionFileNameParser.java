@@ -60,8 +60,19 @@ final class HopWebDavConnectionFileNameParser
       rootUrl = rootUrl + "/";
     }
 
-    String suffix = HopWebDavLogicalUris.extractPathSuffixAfterScheme(uri);
-
+    String rootPrefix = HopWebDavLogicalUris.wirePathPrefixFromRootUrl(resolvedRootUrl.trim());
+    String path = HopWebDavLogicalUris.rawPathFromUri(uri);
+    if (path.isEmpty() || "/".equals(path)) {
+      return rootUrl;
+    }
+    if (path.startsWith(rootPrefix)) {
+      String remainder = path.substring(rootPrefix.length());
+      if (remainder.startsWith("/")) {
+        remainder = remainder.substring(1);
+      }
+      return remainder.isEmpty() ? rootUrl : rootUrl + remainder;
+    }
+    String suffix = path.startsWith("/") ? path.substring(1) : path;
     return suffix.isEmpty() ? rootUrl : rootUrl + suffix;
   }
 
@@ -84,7 +95,16 @@ final class HopWebDavConnectionFileNameParser
     }
     Webdav4FileName wire = (Webdav4FileName) parsed;
     String rootPrefix = HopWebDavLogicalUris.wirePathPrefixFromRootUrl(rootUrl);
-    String logicalRel = HopWebDavLogicalUris.extractPathSuffixAfterScheme(uri);
+    String path = HopWebDavLogicalUris.rawPathFromUri(uri);
+    String logicalRel;
+    if (path.startsWith(rootPrefix)) {
+      logicalRel = path.substring(rootPrefix.length());
+      if (logicalRel.startsWith("/")) {
+        logicalRel = logicalRel.substring(1);
+      }
+    } else {
+      logicalRel = HopWebDavLogicalUris.extractPathSuffixAfterScheme(uri);
+    }
     return new HopWebDavConnectionFileName(wire, meta.getName(), logicalRel, rootPrefix);
   }
 }

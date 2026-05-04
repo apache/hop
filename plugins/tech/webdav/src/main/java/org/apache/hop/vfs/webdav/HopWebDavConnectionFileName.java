@@ -29,6 +29,9 @@ import org.apache.commons.vfs2.provider.webdav4.Webdav4FileName;
  */
 public final class HopWebDavConnectionFileName extends Webdav4FileName {
 
+  /** Wire scheme ({@code webdav4} / {@code webdav4s}) for {@link Webdav4FileName} construction. */
+  private final String wireScheme;
+
   private final String logicalConnectionName;
   private final String logicalRelativePath;
   private final String rootWirePathPrefix;
@@ -49,9 +52,20 @@ public final class HopWebDavConnectionFileName extends Webdav4FileName {
         wire.getType(),
         wire.getQueryString(),
         readAppendTrailingSlash(wire));
+    this.wireScheme = wire.getScheme();
     this.logicalConnectionName = logicalConnectionName;
     this.logicalRelativePath = logicalRelativePath == null ? "" : logicalRelativePath;
     this.rootWirePathPrefix = rootWirePathPrefix;
+  }
+
+  /**
+   * Logical VFS scheme (metadata connection name). Required so {@code
+   * DefaultFileSystemManager#resolveName} routes child resolution to this connection's provider
+   * instead of the global {@code webdav4} provider.
+   */
+  @Override
+  public String getScheme() {
+    return logicalConnectionName;
   }
 
   private static boolean readAppendTrailingSlash(Webdav4FileName wire) {
@@ -103,7 +117,7 @@ public final class HopWebDavConnectionFileName extends Webdav4FileName {
     boolean trailing = fileType == FileType.FOLDER;
     Webdav4FileName wire =
         new Webdav4FileName(
-            g.getScheme(),
+            wireScheme,
             g.getHostName(),
             g.getPort(),
             g.getDefaultPort(),
