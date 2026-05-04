@@ -35,9 +35,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
-import org.apache.hop.core.metrics.MetricsDuration;
 import org.apache.hop.core.metrics.MetricsSnapshotType;
-import org.apache.hop.core.metrics.MetricsUtil;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -798,16 +796,6 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
           locationItem.setData(CONST_ERROR, e);
         }
         log.snap(endLocationRefresh);
-        MetricsDuration duration =
-            MetricsUtil.getLastDuration(log.getLogChannelId(), SNAP_ID_EIL_REFRESH);
-        if (duration != null) {
-          log.logBasic(
-              "Tree refresh of location "
-                  + Const.rpad(location.getName(), " ", 25)
-                  + " took "
-                  + duration.getDuration()
-                  + "ms");
-        }
       }
       log.setGatheringMetrics(false);
 

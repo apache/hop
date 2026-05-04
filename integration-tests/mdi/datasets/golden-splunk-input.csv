@@ -1,6 +1,5 @@
 connection,query,returnName,returnSplunkName,returnType,returnLength,returnFormat
-,SEARCH * | HEAD 100,,,,,
+SomeConnection,SEARCH * | HEAD 100,,,,,
 ,,field1,splunkField1,String,10,
 ,,field2,splunkField2,Integer,5,"#"
 ,,field3,splunkField3,Date,0,yyyy/MM/dd
-SomeConnection,,,,,,

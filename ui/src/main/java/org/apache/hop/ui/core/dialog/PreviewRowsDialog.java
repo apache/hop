@@ -232,6 +232,8 @@ public class PreviewRowsDialog {
     BaseTransformDialog.positionBottomButtons(
         shell, buttons.toArray(new Button[buttons.size()]), PropsUi.getMargin(), null);
 
+    addFields();
+
     KeyListener escapeListener =
         new KeyAdapter() {
           @Override
