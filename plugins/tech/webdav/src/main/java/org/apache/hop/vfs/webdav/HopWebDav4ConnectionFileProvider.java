@@ -20,12 +20,24 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.UserAuthenticationData;
+import org.apache.commons.vfs2.provider.GenericFileName;
 import org.apache.commons.vfs2.provider.webdav4.Webdav4FileProvider;
+import org.apache.commons.vfs2.provider.webdav4.Webdav4FileSystemConfigBuilder;
+import org.apache.commons.vfs2.util.UserAuthenticatorUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.vfs.webdav.metadata.WebDavConnection;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.protocol.HttpClientContext;
 
 /** WebDAV over HTTP with credentials from {@link WebDavConnection} metadata. */
 public class HopWebDav4ConnectionFileProvider extends Webdav4FileProvider {
+
+  private static final UserAuthenticationData.Type[] AUTH_TYPES =
+      new UserAuthenticationData.Type[] {
+        UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
+      };
 
   private final IVariables variables;
   private final WebDavConnection meta;
@@ -39,11 +51,27 @@ public class HopWebDav4ConnectionFileProvider extends Webdav4FileProvider {
   @Override
   protected FileSystem doCreateFileSystem(FileName name, FileSystemOptions fileSystemOptions)
       throws FileSystemException {
+    if (!(name instanceof GenericFileName)) {
+      throw new FileSystemException("Unsupported FileName type: " + name);
+    }
+    GenericFileName genericRoot = (GenericFileName) name;
     FileSystemOptions opts =
         fileSystemOptions != null
             ? (FileSystemOptions) fileSystemOptions.clone()
             : new FileSystemOptions();
     HopWebDavConnectionAuth.apply(opts, variables, meta);
-    return super.doCreateFileSystem(name, opts);
+    Webdav4FileSystemConfigBuilder builder = Webdav4FileSystemConfigBuilder.getInstance();
+    UserAuthenticationData auth = null;
+    try {
+      auth = UserAuthenticatorUtils.authenticate(opts, AUTH_TYPES);
+      HttpClientContext ctx = createHttpClientContext(builder, genericRoot, opts, auth);
+      HttpClient client = createHttpClient(builder, genericRoot, opts);
+      String rootPrefix =
+          HopWebDavLogicalUris.wirePathPrefixFromRootUrl(
+              Const.NVL(variables.resolve(meta.getRootUrl()), "").trim());
+      return new HopWebDavConnectionFileSystem(name, opts, client, ctx, meta.getName(), rootPrefix);
+    } finally {
+      UserAuthenticatorUtils.cleanup(auth);
+    }
   }
 }
