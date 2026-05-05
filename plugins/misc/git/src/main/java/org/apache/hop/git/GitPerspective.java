@@ -23,6 +23,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import lombok.Getter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -35,6 +37,7 @@ import org.apache.hop.core.gui.plugin.menu.GuiMenuElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.git.config.GitConfigSingleton;
 import org.apache.hop.git.info.DiffStyledTextComp;
 import org.apache.hop.git.model.UIFile;
 import org.apache.hop.git.model.UIGit;
@@ -111,6 +114,9 @@ public class GitPerspective implements IHopPerspective {
   public static final Class<?> PKG = GitPerspective.class; // i18n
 
   private static final String GIT_PERSPECTIVE_REF_TREE = "Git ref tree";
+
+  // Fetch automatically every 20 minutes
+  private static final long FETCH_AUTOMATIC_INTERVAL_MS = 20L * 60L * 1000L;
 
   public static final String GUI_PLUGIN_REF_CONTEXT_MENU_PARENT_ID =
       "GitPerspective-RefContextMenu";
@@ -213,6 +219,7 @@ public class GitPerspective implements IHopPerspective {
   private SwtCommitRenderer plotRenderer;
   private boolean enableAntialias = true;
   private boolean showAllRef = true;
+  private Timer fetchAutomaticTimer;
 
   public GitPerspective() {
     instance = this;
@@ -265,6 +272,9 @@ public class GitPerspective implements IHopPerspective {
 
     // Restore options
     restorePerspectiveSettings();
+
+    // Automatically fetch from remote
+    startFetchAutomaticTimer();
 
     // Add key listeners
     HopGuiKeyHandler.getInstance().addParentObjectToHandle(this);
@@ -571,6 +581,57 @@ public class GitPerspective implements IHopPerspective {
     } catch (Exception e) {
       LogChannel.UI.logError("Error checking if commit is in current branch", e);
       return false;
+    }
+  }
+
+  void startFetchAutomaticTimer() {
+    if (!GitConfigSingleton.getConfig().isFetchAutomatic()) {
+      stopFetchAutomaticTimer();
+      return;
+    }
+
+    if (fetchAutomaticTimer != null) {
+      return;
+    }
+
+    fetchAutomaticTimer = new Timer("Git fetch timer", true);
+    fetchAutomaticTimer.schedule(
+        new TimerTask() {
+          @Override
+          public void run() {
+            fetchAutomatic();
+          }
+        },
+        FETCH_AUTOMATIC_INTERVAL_MS,
+        FETCH_AUTOMATIC_INTERVAL_MS);
+  }
+
+  void stopFetchAutomaticTimer() {
+    if (fetchAutomaticTimer != null) {
+      fetchAutomaticTimer.cancel();
+      fetchAutomaticTimer = null;
+    }
+  }
+
+  private void fetchAutomatic() {
+    if (!GitConfigSingleton.getConfig().isFetchAutomatic()) {
+      stopFetchAutomaticTimer();
+      return;
+    }
+
+    try {
+      UIGit uiGit = GitGuiPlugin.getInstance().getGit();
+      if (uiGit == null) {
+        return;
+      }
+
+      uiGit.fetch();
+
+      if (hopGui != null && !hopGui.getDisplay().isDisposed()) {
+        hopGui.getDisplay().asyncExec(() -> refresh(false));
+      }
+    } catch (Exception e) {
+      LogChannel.UI.logError("Error during automatic git fetch", e);
     }
   }
 

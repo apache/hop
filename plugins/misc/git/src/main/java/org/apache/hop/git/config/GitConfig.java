@@ -27,14 +27,17 @@ public class GitConfig {
   public static final String HOP_CONFIG_GIT_CONFIG_KEY = "gitConfig";
   private boolean enabled;
   private boolean searchingParentFolders;
+  private boolean fetchAutomatic;
 
   public GitConfig() {
     this.enabled = true;
     this.searchingParentFolders = false;
+    this.fetchAutomatic = false;
   }
 
   public GitConfig(GitConfig config) {
     this.enabled = config.enabled;
     this.searchingParentFolders = config.searchingParentFolders;
+    this.fetchAutomatic = config.fetchAutomatic;
   }
 }
