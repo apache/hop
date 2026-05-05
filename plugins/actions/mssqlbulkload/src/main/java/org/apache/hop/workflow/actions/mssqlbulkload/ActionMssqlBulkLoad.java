@@ -294,7 +294,7 @@ public class ActionMssqlBulkLoad extends ActionBase {
 
                 // Check Error file
                 String realErrorFile = resolve(errorFileName);
-                if (realErrorFile != null) {
+                if (!Utils.isEmpty(realErrorFile)) {
                   File errorfile = new File(realErrorFile);
                   if (errorfile.exists() && !addDatetime) {
                     // The error file is created when the command is executed. An error occurs if
@@ -365,7 +365,7 @@ public class ActionMssqlBulkLoad extends ActionBase {
                   sqlBulkLoad = sqlBulkLoad + "," + useCodepage;
                 }
                 String realFormatFile = resolve(formatFileName);
-                if (realFormatFile != null) {
+                if (!Utils.isEmpty(realFormatFile)) {
                   sqlBulkLoad = sqlBulkLoad + ", FORMATFILE='" + realFormatFile + "'";
                 }
                 if (fireTriggers) {
@@ -383,7 +383,7 @@ public class ActionMssqlBulkLoad extends ActionBase {
                 if (tabLock) {
                   sqlBulkLoad = sqlBulkLoad + ",TABLOCK";
                 }
-                if (orderBy != null) {
+                if (!Utils.isEmpty(orderBy)) {
                   sqlBulkLoad = sqlBulkLoad + ",ORDER ( " + orderBy + " " + orderDirection + ")";
                 }
                 if (!errorfileName.isEmpty()) {

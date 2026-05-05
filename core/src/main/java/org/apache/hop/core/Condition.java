@@ -294,7 +294,7 @@ public class Condition implements Cloneable {
 
   /** A condition is empty when the condition is atomic and no left field is specified. */
   public boolean isEmpty() {
-    return (isAtomic() && leftValueName == null);
+    return (isAtomic() && (leftValueName == null || leftValueName.isEmpty()));
   }
 
   /**
