@@ -56,52 +56,57 @@ final class HopWebDavLogicalUris {
   }
 
   /**
-   * Relative path after the connection URI authority (no leading slash), e.g. {@code myconn:///a/b}
-   * → {@code a/b}.
-   */
-  /**
    * Normalized path from a connection URI (leading {@code /}, collapsed duplicate slashes after
-   * scheme), used when matching {@link #wirePathPrefixFromRootUrl} for VFS {@code resolveName}
-   * output.
+   * scheme). Used when matching {@link #wirePathPrefixFromRootUrl} and when VFS {@code resolveName}
+   * builds child display names.
+   *
+   * <p>We do not use {@link URI#create(String)} because logical paths may contain spaces and other
+   * characters that are valid on WebDAV but illegal in strict URIs.
    */
   static String rawPathFromUri(String uri) throws FileSystemException {
-    URI parsed;
-    try {
-      parsed = URI.create(uri);
-    } catch (IllegalArgumentException e) {
-      throw new FileSystemException(e);
-    }
-    String path = parsed.getRawPath();
-    if (path == null || path.isEmpty()) {
+    if (StringUtils.isEmpty(uri)) {
       return "";
     }
+    int colon = uri.indexOf(':');
+    if (colon < 0) {
+      throw new FileSystemException("Missing URI scheme: " + uri);
+    }
+    String rest = uri.substring(colon + 1);
+    int hash = rest.indexOf('#');
+    if (hash >= 0) {
+      rest = rest.substring(0, hash);
+    }
+    if (!rest.startsWith("//")) {
+      throw new FileSystemException("Expected // after scheme in connection URI: " + uri);
+    }
+    rest = rest.substring(2);
+    int q = rest.indexOf('?');
+    if (q >= 0) {
+      rest = rest.substring(0, q);
+    }
+    while (rest.startsWith("/")) {
+      rest = rest.substring(1);
+    }
+    String path = rest.isEmpty() ? "" : "/" + rest;
     while (path.startsWith("//")) {
       path = path.substring(1);
     }
-    if (!path.startsWith("/")) {
+    if (!path.isEmpty() && !path.startsWith("/")) {
       path = "/" + path;
     }
     return path;
   }
 
+  /**
+   * Relative path after the connection URI authority (no leading slash), e.g. {@code myconn:///a/b}
+   * → {@code a/b}.
+   */
   static String extractPathSuffixAfterScheme(String uri) throws FileSystemException {
-    URI parsed;
-    try {
-      parsed = URI.create(uri);
-    } catch (IllegalArgumentException e) {
-      throw new FileSystemException(e);
-    }
-    String path = parsed.getRawPath();
-    if (path == null) {
-      path = "";
-    }
+    String path = rawPathFromUri(uri);
     if (path.isEmpty() || "/".equals(path)) {
       return "";
     }
-    if (path.startsWith("/")) {
-      return path.substring(1);
-    }
-    return path;
+    return path.startsWith("/") ? path.substring(1) : path;
   }
 
   /** Strip {@code rootWirePathPrefix} from {@code childWirePath} to get the logical suffix. */

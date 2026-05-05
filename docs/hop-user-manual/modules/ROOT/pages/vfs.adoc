@@ -286,11 +286,12 @@ Examples
 //
 // WebDAV
 //
-|WebDAV|Provides access to files on a WebDAV server through the modules `commons-vfs2-jackrabbit1` and `commons-vfs2-jackrabbit2`.
+|WebDAV|Provides access through `commons-vfs2-jackrabbit2`. Hop registers providers in link:https://github.com/apache/hop/blob/main/core/src/main/java/org/apache/hop/core/vfs/HopVfs.java[HopVfs.java].
 a|
-URI Format
+URI Format — Apache Commons VFS 2 schemes (not legacy `webdav://`):
 
-`+webdav://[ username[: password]@] hostname[: port][ absolute-path]+`
+* `+webdav4://[ username[: password]@] hostname[: port][ absolute-path]+` (HTTP)
+* `+webdav4s://[ username[: password]@] hostname[: port][ absolute-path]+` (HTTPS)
 
 File System Options
 
@@ -300,7 +301,8 @@ If not set the user name used to authenticate will be used.
 
 Examples
 
-* `+webdav://somehost:8080/dist+`
+* `+webdav4://someuser@somehost:8080/remote.php/dav/files/someuser/+`
+* `+webdav4s://someuser@cloud.example.com/remote.php/dav/files/someuser/+`
 
 //
 // Zip

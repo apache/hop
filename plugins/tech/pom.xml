@@ -44,5 +44,6 @@
         <module>parquet</module>
         <module>salesforce</module>
         <module>vault</module>
+        <module>webdav</module>
     </modules>
 </project>

@@ -16,54 +16,36 @@
  */
 package org.apache.hop.vfs.webdav;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.provider.FileProvider;
-import org.apache.commons.vfs2.provider.webdav4.Webdav4FileProvider;
-import org.apache.hop.core.logging.LogChannel;
+import org.apache.commons.vfs2.provider.webdav4s.Webdav4sFileProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.util.HopMetadataUtil;
-import org.apache.hop.vfs.webdav.metadata.WebDavConnection;
 
+/**
+ * Registers the built-in secure WebDAV scheme through the VFS plugin mechanism, aligned with other
+ * storage plugins. Named providers are loaded by {@link WebDavVfsPlugin}.
+ */
 @VfsPlugin(
-    type = "webdav-connection",
-    typeDescription = "WebDAV VFS (named connections)",
+    type = "webdav4s",
+    typeDescription = "WebDAV HTTPS VFS plugin",
     classLoaderGroup = "vfs-webdav")
-public class WebDavVfsPlugin implements IVfs {
+public class WebDavSecureVfsPlugin implements IVfs {
 
   @Override
   public String[] getUrlSchemes() {
-    return new String[] {"webdav4"};
+    return new String[] {"webdav4s"};
   }
 
   @Override
   public FileProvider getProvider() {
-    return new Webdav4FileProvider();
+    return new Webdav4sFileProvider();
   }
 
   @Override
   public Map<String, FileProvider> getProviders(IVariables variables) {
-    Map<String, FileProvider> providers = new HashMap<>();
-    try {
-      IHopMetadataProvider metadataProvider =
-          HopMetadataUtil.getStandardHopMetadataProvider(variables);
-      List<WebDavConnection> connections =
-          metadataProvider.getSerializer(WebDavConnection.class).loadAll();
-      for (WebDavConnection connection : connections) {
-        String name = connection.getName();
-        if (StringUtils.isEmpty(name)) {
-          continue;
-        }
-        providers.put(name, new HopWebDavFileProvider(variables, connection));
-      }
-    } catch (Exception e) {
-      LogChannel.GENERAL.logError("Unable to load WebDAV VFS providers", e);
-    }
-    return providers;
+    return Collections.emptyMap();
   }
 }

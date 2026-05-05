@@ -1247,7 +1247,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           }
         }
 
-        if (HopVfs.getFileObject(filename).isFolder()) {
+        if (HopVfs.getFileObject(filename, variables).isFolder()) {
           String fullPath = FilenameUtils.concat(filename, saveFilename);
           wFilename.setText(fullPath);
           // Select the saveFilename part...
