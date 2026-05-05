@@ -143,11 +143,11 @@ If you want to run Hop Web with the `default` and `samples` projects, make sure 
 
 On Linux, use the following sed command to fix this in one line:
 
-`sed -i 's/config\/projects/{openvar}HOP_CONFIG_FOLDER{closevar}\/projects/g' ${CATALINA_HOME}/webapps/ROOT/config/hop-config.json`
+`sed -i 's/config\/projects/{openvar}HOP_CONFIG_FOLDER{closevar}\/projects/g' {openvar}CATALINA_HOME{closevar}/webapps/ROOT/config/hop-config.json`
 
 On macOS, use (note the empty string '' after -i):
 
-`sed -i '' 's/config\/projects/{openvar}HOP_CONFIG_FOLDER{closevar}\/projects/g' ${CATALINA_HOME}/webapps/ROOT/config/hop-config.json`
+`sed -i '' 's/config\/projects/{openvar}HOP_CONFIG_FOLDER{closevar}\/projects/g' {openvar}CATALINA_HOME{closevar}/webapps/ROOT/config/hop-config.json`
 
 On Windows, modify `hop-config.json` to make sure `projectsConf` looks like the one below:
 

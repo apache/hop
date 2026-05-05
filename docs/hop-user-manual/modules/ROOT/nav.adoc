@@ -112,6 +112,8 @@ under the License.
 *** xref:pipeline/transforms/copyrowstoresult.adoc[Copy rows to result]
 *** xref:pipeline/transforms/creditcardvalidator.adoc[Credit card validator]
 *** xref:pipeline/transforms/csvinput.adoc[CSV File Input]
+*** xref:pipeline/transforms/data-stream-input.adoc[Data Stream Input]
+*** xref:pipeline/transforms/data-stream-output.adoc[Data Stream Output]
 *** xref:pipeline/transforms/databasejoin.adoc[Database Join]
 *** xref:pipeline/transforms/databaselookup.adoc[Database Lookup]
 *** xref:pipeline/transforms/datagrid.adoc[Data Grid]

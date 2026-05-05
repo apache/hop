@@ -22,7 +22,7 @@ under the License.
 
 == Overview
 
-The **Data Stream Output** transform writes rows from a Hop pipeline to a configured xref:metadata-types/data-stream/data-stream.adoc[Data Stream].
+The **Data Stream Output** transform writes rows from a Hop pipeline to a configured xref:/metadata-types/data-stream/data-stream.adoc[Data Stream].
 
 It supports all available Data Stream implementations (Arrow File Stream, Arrow Random Access File, and Arrow Flight).
 
@@ -33,7 +33,7 @@ It supports all available Data Stream implementations (Arrow File Stream, Arrow 
 | Option | Description
 
 | *Data Stream* |
-The name of the target xref:../../metadata/data-stream.adoc[Data Stream] to write to.
+The name of the target xref:/metadata-types/data-stream/data-stream.adoc[Data Stream] to write to.
 This is a dropdown that shows all defined Data Streams in the project.
 
 |===

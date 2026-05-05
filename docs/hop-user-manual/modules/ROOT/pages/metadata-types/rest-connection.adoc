@@ -14,6 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+:openvar: ${
+:closevar: }
 :page-pagination:
 :description:
 
@@ -40,7 +42,7 @@ xref:pipeline/transforms/rest.adoc[REST client]
 |Authentication type|Select how Hop should authenticate when this metadata is used. The available choices are described below.
 |===
 
-Use environment variables or Hop variables (for example `${PROJECT_HOME}`) in any text box. The connection resolves variables when the metadata is loaded, so the same definition can be reused from pipelines, workflows, and the Hop GUI test button.
+Use environment variables or Hop variables (for example `{openvar}PROJECT_HOME{closevar}`) in any text box. The connection resolves variables when the metadata is loaded, so the same definition can be reused from pipelines, workflows, and the Hop GUI test button.
 
 == Authentication
 

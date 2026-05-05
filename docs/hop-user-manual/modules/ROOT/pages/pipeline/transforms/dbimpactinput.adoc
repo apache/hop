@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: Read database impact information from pipelines.
+:openvar: ${
+:closevar: }
 
 = image:images/icons/database.svg[Database Impact Input, role="image-doc-icon"] Database Impact Input
 
@@ -55,7 +57,7 @@ This name has to be unique in a single pipeline.
 
 |===
 
-TIP: You can use a xref:pipeline/transforms/getfilenames.adoc[Get File Names] transform as input.  To search for your project pipelines specify folder `${PROJECT_HOME}` with wildcard `.*\.hpl$`.
+TIP: You can use a xref:pipeline/transforms/getfilenames.adoc[Get File Names] transform as input.  To search for your project pipelines specify folder `{openvar}PROJECT_HOME{closevar}` with wildcard `.*\.hpl$`.
 
 == Output fields
 

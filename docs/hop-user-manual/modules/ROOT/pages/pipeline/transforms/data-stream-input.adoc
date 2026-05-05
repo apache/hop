@@ -33,7 +33,7 @@ It supports all available Data Stream implementations (Arrow File Stream, Arrow 
 | Option | Description
 
 | *Data Stream* |
-The name of the source xref:../../metadata/data-stream.adoc[Data Stream] to read from.
+The name of the source xref:/metadata-types/data-stream/data-stream.adoc[Data Stream] to read from.
 This is a dropdown that shows all defined Data Streams in the project.
 
 |===

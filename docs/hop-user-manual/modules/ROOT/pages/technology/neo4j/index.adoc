@@ -43,7 +43,7 @@ The path you get is the exact path that was followed from for example the "grand
 == Metadata Types
 
 * xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j Connection]: create or manage a connection to a Neo4j database
-* xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: crearte or manage a Neo4j (sub)graph model
+* xref:metadata-types/neo4j/neo4j-graphmodel.adoc[Neo4j Graph Model]: create or manage a Neo4j (sub)graph model
 
 == Workflow Actions
 
