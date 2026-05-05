@@ -65,7 +65,6 @@ class SystemDataDataTests {
     SystemDataData data = new SystemDataData();
 
     Thread t = Thread.startVirtualThread(() -> data.readsRows = true);
-    t.start();
     t.join();
 
     assertTrue(data.readsRows);
