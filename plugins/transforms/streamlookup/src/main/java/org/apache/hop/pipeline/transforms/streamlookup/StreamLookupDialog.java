@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.streamlookup;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -31,19 +32,22 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -78,32 +82,24 @@ public class StreamLookupDialog extends BaseTransformDialog {
     input = transformMeta;
   }
 
-  @Override
-  public String open() {
-    createShell(BaseMessages.getString(PKG, "StreamLookupDialog.Shell.Title"));
+  private void addGeneralTab(CTabFolder wTabFolder, int middle, int margin, ModifyListener lsMod) {
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setFont(GuiResource.getInstance().getFontDefault());
+    wGeneralTab.setText(BaseMessages.getString(PKG, "StreamLookupDialog.GeneralTab.Title"));
 
-    buildButtonBar()
-        .ok(e -> ok())
-        .cancel(e -> cancel())
-        .get(e -> get())
-        .custom(
-            BaseMessages.getString(PKG, "StreamLookupDialog.GetLookupFields.Button"),
-            e -> getLookup())
-        .build();
-
-    ModifyListener lsMod = e -> input.setChanged();
-    changed = input.hasChanged();
+    Composite composite = new Composite(wTabFolder, SWT.NONE);
+    composite.setLayout(props.createFormLayout());
+    PropsUi.setLook(composite);
 
     // Lookup transform line...
-    Label wlTransform = new Label(shell, SWT.RIGHT);
+    Label wlTransform = new Label(composite, SWT.RIGHT);
     wlTransform.setText(BaseMessages.getString(PKG, "StreamLookupDialog.LookupTransform.Label"));
+    wlTransform.setLayoutData(
+        FormDataBuilder.builder().left().right(middle, -margin).top(wSpacer, margin).result());
     PropsUi.setLook(wlTransform);
-    FormData fdlTransform = new FormData();
-    fdlTransform.left = new FormAttachment(0, 0);
-    fdlTransform.right = new FormAttachment(middle, -margin);
-    fdlTransform.top = new FormAttachment(wSpacer, margin);
-    wlTransform.setLayoutData(fdlTransform);
-    wTransform = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransform = new Combo(composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransform.setLayoutData(
+        FormDataBuilder.builder().left(middle, 0).top(wSpacer, margin).right().result());
     PropsUi.setLook(wTransform);
 
     List<TransformMeta> previousTransforms =
@@ -120,19 +116,91 @@ public class StreamLookupDialog extends BaseTransformDialog {
           updateComboFields();
         });
 
-    FormData fdTransform = new FormData();
-    fdTransform.left = new FormAttachment(middle, 0);
-    fdTransform.top = new FormAttachment(wSpacer, margin);
-    fdTransform.right = new FormAttachment(100, 0);
-    wTransform.setLayoutData(fdTransform);
+    Label wlPreserveMemory = new Label(composite, SWT.RIGHT);
+    wlPreserveMemory.setText(
+        BaseMessages.getString(PKG, "StreamLookupDialog.PreserveMemory.Label"));
+    wlPreserveMemory.setLayoutData(
+        FormDataBuilder.builder().left().top(wTransform, margin).right(middle, -margin).result());
+    PropsUi.setLook(wlPreserveMemory);
+    wPreserveMemory = new Button(composite, SWT.CHECK);
+    wPreserveMemory.setLayoutData(
+        FormDataBuilder.builder()
+            .left(middle, 0)
+            .top(wlPreserveMemory, 0, SWT.CENTER)
+            .right()
+            .result());
+    wPreserveMemory.addListener(SWT.Selection, e -> input.setChanged());
 
-    Label wlKey = new Label(shell, SWT.NONE);
+    // preserve memory should be enabled to have this options on.
+    wPreserveMemory.addListener(
+        SWT.Selection,
+        event -> {
+          boolean selection = wPreserveMemory.getSelection();
+          wSortedList.setEnabled(selection);
+          wIntegerPair.setEnabled(selection);
+        });
+    PropsUi.setLook(wPreserveMemory);
+
+    Label wlIntegerPair = new Label(composite, SWT.RIGHT);
+    wlIntegerPair.setText(BaseMessages.getString(PKG, "StreamLookupDialog.IntegerPair.Label"));
+    PropsUi.setLook(wlIntegerPair);
+    wlIntegerPair.setLayoutData(
+        FormDataBuilder.builder()
+            .left()
+            .top(wPreserveMemory, margin)
+            .right(middle, -margin)
+            .result());
+
+    wIntegerPair = new Button(composite, SWT.RADIO);
+    wIntegerPair.setEnabled(false);
+    PropsUi.setLook(wIntegerPair);
+    wIntegerPair.setLayoutData(
+        FormDataBuilder.builder()
+            .left(middle, 0)
+            .top(wlIntegerPair, 0, SWT.CENTER)
+            .right()
+            .result());
+    wIntegerPair.addListener(SWT.Selection, e -> input.setChanged());
+
+    Label wlSortedList = new Label(composite, SWT.RIGHT);
+    wlSortedList.setText(BaseMessages.getString(PKG, "StreamLookupDialog.SortedList.Label"));
+    wlSortedList.setLayoutData(
+        FormDataBuilder.builder().left().top(wIntegerPair, margin).right(middle, -margin).result());
+    PropsUi.setLook(wlSortedList);
+
+    wSortedList = new Button(composite, SWT.RADIO);
+    wSortedList.setEnabled(false);
+    wSortedList.setLayoutData(
+        FormDataBuilder.builder()
+            .left(middle, 0)
+            .top(wlSortedList, 0, SWT.CENTER)
+            .right()
+            .result());
+    wSortedList.addListener(SWT.Selection, e -> input.setChanged());
+    PropsUi.setLook(wSortedList);
+
+    wGeneralTab.setControl(composite);
+  }
+
+  private void addKeysTab(CTabFolder wTabFolder, int margin, ModifyListener lsMod) {
+    CTabItem wKeysTab = new CTabItem(wTabFolder, SWT.NONE);
+    wKeysTab.setFont(GuiResource.getInstance().getFontDefault());
+    wKeysTab.setText(BaseMessages.getString(PKG, "StreamLookupDialog.KeysTab.Title"));
+
+    Composite composite = new Composite(wTabFolder, SWT.NONE);
+    composite.setLayout(props.createFormLayout());
+    PropsUi.setLook(composite);
+
+    Label wlKey = new Label(composite, SWT.NONE);
     wlKey.setText(BaseMessages.getString(PKG, "StreamLookupDialog.Key.Label"));
+    wlKey.setLayoutData(FormDataBuilder.builder().left().top().result());
     PropsUi.setLook(wlKey);
-    FormData fdlKey = new FormData();
-    fdlKey.left = new FormAttachment(0, 0);
-    fdlKey.top = new FormAttachment(wTransform, margin);
-    wlKey.setLayoutData(fdlKey);
+
+    Button wGetKeyFields = new Button(composite, SWT.PUSH);
+    wGetKeyFields.setText(BaseMessages.getString(PKG, "StreamLookupDialog.GetKeyFields.Button"));
+    wGetKeyFields.addListener(SWT.Selection, e -> getKeyFields());
+    setButtonPositions(new Button[] {wGetKeyFields}, margin, null);
+    PropsUi.setLook(wGetKeyFields);
 
     int nrKeyCols = 2;
 
@@ -153,91 +221,44 @@ public class StreamLookupDialog extends BaseTransformDialog {
     wKey =
         new TableView(
             variables,
-            shell,
+            composite,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciKey,
             1,
             lsMod,
             props);
 
-    FormData fdKey = new FormData();
-    fdKey.left = new FormAttachment(0, 0);
-    fdKey.top = new FormAttachment(wlKey, margin);
-    fdKey.right = new FormAttachment(100, 0);
-    fdKey.bottom = new FormAttachment(wlKey, (int) (props.getZoomFactor() * 120));
-    wKey.setLayoutData(fdKey);
+    wKey.setLayoutData(
+        FormDataBuilder.builder()
+            .left()
+            .top(wlKey, margin)
+            .right()
+            .bottom(wGetKeyFields, -margin)
+            .result());
 
-    Label wlSortedList = new Label(shell, SWT.RIGHT);
-    wlSortedList.setText(BaseMessages.getString(PKG, "StreamLookupDialog.SortedList.Label"));
-    PropsUi.setLook(wlSortedList);
-    FormData fdlSortedList = new FormData();
-    fdlSortedList.left = new FormAttachment(0, 0);
-    fdlSortedList.bottom = new FormAttachment(wOk, -margin);
-    fdlSortedList.right = new FormAttachment(middle, -margin);
-    wlSortedList.setLayoutData(fdlSortedList);
-    wSortedList = new Button(shell, SWT.RADIO);
-    wSortedList.setEnabled(false);
-    PropsUi.setLook(wSortedList);
-    FormData fdSortedList = new FormData();
-    fdSortedList.left = new FormAttachment(middle, 0);
-    fdSortedList.top = new FormAttachment(wlSortedList, 0, SWT.CENTER);
-    fdSortedList.right = new FormAttachment(100, 0);
-    wSortedList.setLayoutData(fdSortedList);
-    wSortedList.addListener(SWT.Selection, e -> input.setChanged());
+    wKeysTab.setControl(composite);
+  }
 
-    Label wlIntegerPair = new Label(shell, SWT.RIGHT);
-    wlIntegerPair.setText(BaseMessages.getString(PKG, "StreamLookupDialog.IntegerPair.Label"));
-    PropsUi.setLook(wlIntegerPair);
-    FormData fdlIntegerPair = new FormData();
-    fdlIntegerPair.left = new FormAttachment(0, 0);
-    fdlIntegerPair.bottom = new FormAttachment(wSortedList, -margin);
-    fdlIntegerPair.right = new FormAttachment(middle, -margin);
-    wlIntegerPair.setLayoutData(fdlIntegerPair);
-    wIntegerPair = new Button(shell, SWT.RADIO);
-    wIntegerPair.setEnabled(false);
-    PropsUi.setLook(wIntegerPair);
-    FormData fdIntegerPair = new FormData();
-    fdIntegerPair.left = new FormAttachment(middle, 0);
-    fdIntegerPair.top = new FormAttachment(wlIntegerPair, 0, SWT.CENTER);
-    fdIntegerPair.right = new FormAttachment(100, 0);
-    wIntegerPair.setLayoutData(fdIntegerPair);
-    wIntegerPair.addListener(SWT.Selection, e -> input.setChanged());
+  private void addFieldsTab(CTabFolder wTabFolder, int middle, int margin, ModifyListener lsMod) {
+    CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
+    wFieldsTab.setText(BaseMessages.getString(PKG, "StreamLookupDialog.ReturnFieldsTab.Title"));
 
-    Label wlPreserveMemory = new Label(shell, SWT.RIGHT);
-    wlPreserveMemory.setText(
-        BaseMessages.getString(PKG, "StreamLookupDialog.PreserveMemory.Label"));
-    PropsUi.setLook(wlPreserveMemory);
-    FormData fdlPreserveMemory = new FormData();
-    fdlPreserveMemory.left = new FormAttachment(0, 0);
-    fdlPreserveMemory.bottom = new FormAttachment(wlIntegerPair, -margin);
-    fdlPreserveMemory.right = new FormAttachment(middle, -margin);
-    wlPreserveMemory.setLayoutData(fdlPreserveMemory);
-    wPreserveMemory = new Button(shell, SWT.CHECK);
-    PropsUi.setLook(wPreserveMemory);
-    FormData fdPreserveMemory = new FormData();
-    fdPreserveMemory.left = new FormAttachment(middle, 0);
-    fdPreserveMemory.top = new FormAttachment(wlPreserveMemory, 0, SWT.CENTER);
-    fdPreserveMemory.right = new FormAttachment(100, 0);
-    wPreserveMemory.setLayoutData(fdPreserveMemory);
-    wPreserveMemory.addListener(SWT.Selection, e -> input.setChanged());
+    Composite composite = new Composite(wTabFolder, SWT.NONE);
+    composite.setLayout(props.createFormLayout());
+    PropsUi.setLook(composite);
 
-    // preserve memory should be enabled to have this options on.
-    wPreserveMemory.addListener(
-        SWT.Selection,
-        event -> {
-          boolean selection = wPreserveMemory.getSelection();
-          wSortedList.setEnabled(selection);
-          wIntegerPair.setEnabled(selection);
-        });
-
-    // THE UPDATE/INSERT TABLE
-    Label wlReturn = new Label(shell, SWT.NONE);
+    Label wlReturn = new Label(composite, SWT.NONE);
     wlReturn.setText(BaseMessages.getString(PKG, "StreamLookupDialog.ReturnFields.Label"));
+    wlReturn.setLayoutData(FormDataBuilder.builder().left().top().result());
     PropsUi.setLook(wlReturn);
-    FormData fdlReturn = new FormData();
-    fdlReturn.left = new FormAttachment(0, 0);
-    fdlReturn.top = new FormAttachment(wKey, margin);
-    wlReturn.setLayoutData(fdlReturn);
+
+    Button wGetLookupFields = new Button(composite, SWT.PUSH);
+    wGetLookupFields.setText(
+        BaseMessages.getString(PKG, "StreamLookupDialog.GetLookupFields.Button"));
+    wGetLookupFields.addListener(SWT.Selection, e -> getLookupFields());
+    PropsUi.setLook(wGetLookupFields);
+    setButtonPositions(new Button[] {wGetLookupFields}, margin, null);
 
     int upInsCols = 4;
 
@@ -268,25 +289,54 @@ public class StreamLookupDialog extends BaseTransformDialog {
     wReturn =
         new TableView(
             variables,
-            shell,
+            composite,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciReturn,
             1,
             lsMod,
             props);
 
-    FormData fdReturn = new FormData();
-    fdReturn.left = new FormAttachment(0, 0);
-    fdReturn.top = new FormAttachment(wlReturn, margin);
-    fdReturn.right = new FormAttachment(100, 0);
-    fdReturn.bottom = new FormAttachment(wlPreserveMemory, -margin);
-    wReturn.setLayoutData(fdReturn);
+    wReturn.setLayoutData(
+        FormDataBuilder.builder()
+            .top(wlReturn, margin)
+            .bottom(wGetLookupFields, -margin)
+            .fullWidth()
+            .result());
+
+    wFieldsTab.setControl(composite);
+  }
+
+  @Override
+  public String open() {
+    createShell(BaseMessages.getString(PKG, "StreamLookupDialog.Shell.Title"));
+
+    buildButtonBar().ok(e -> ok()).cancel(e -> cancel()).build();
+
+    ModifyListener lsMod = e -> input.setChanged();
+    changed = input.hasChanged();
+
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+
+    addGeneralTab(wTabFolder, middle, margin, lsMod);
+    addKeysTab(wTabFolder, margin, lsMod);
+    addFieldsTab(wTabFolder, middle, margin, lsMod);
+
+    wTabFolder.setLayoutData(
+        FormDataBuilder.builder()
+            .left()
+            .top(wSpacer, margin)
+            .right()
+            .bottom(wOk, -margin)
+            .result());
+    wTabFolder.setSelection(0);
 
     getData();
 
     updateComboFields();
     input.setChanged(changed);
     focusTransformName();
+
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return transformName;
@@ -460,7 +510,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void get() {
+  private void getKeyFields() {
     if (pipelineMeta.findTransform(wTransform.getText()) == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
@@ -512,7 +562,7 @@ public class StreamLookupDialog extends BaseTransformDialog {
     }
   }
 
-  private void getLookup() {
+  private void getLookupFields() {
     try {
       String transformFrom = wTransform.getText();
       if (!Utils.isEmpty(transformFrom)) {
