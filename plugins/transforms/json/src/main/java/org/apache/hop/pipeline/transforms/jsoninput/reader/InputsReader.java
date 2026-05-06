@@ -147,7 +147,7 @@ public class InputsReader implements Iterable<InputStream> {
 
     @Override
     public InputStream tryNext() {
-      if (hasNext()) {
+      while (hasNext()) {
         if (data.file != null) {
           try {
             data.file.close();
@@ -161,8 +161,14 @@ public class InputsReader implements Iterable<InputStream> {
           if (transform.onNewFile(data.file)) {
             return HopVfs.getInputStream(data.file);
           }
+          if (data instanceof JsonInputData jsonData && jsonData.skipEmptyFile) {
+            jsonData.skipEmptyFile = false;
+            continue;
+          }
+          return null;
         } catch (FileSystemException e) {
           handler.fileOpenError(data.file, e);
+          return null;
         }
       }
       return null;

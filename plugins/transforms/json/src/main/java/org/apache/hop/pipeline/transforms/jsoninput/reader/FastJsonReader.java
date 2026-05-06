@@ -184,6 +184,11 @@ public class FastJsonReader implements IJsonReader {
   }
 
   @Override
+  public IRowSet emptyFieldRowSet() {
+    return getEmptyResponse();
+  }
+
+  @Override
   public IRowSet parseStringValue(InputStream in) throws HopException {
     readInput(in);
     return getRow();
