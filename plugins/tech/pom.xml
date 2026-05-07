@@ -39,6 +39,7 @@
         <module>elastic</module>
         <module>google</module>
         <module>minio</module>
+        <module>mongodb</module>
         <module>neo4j</module>
         <module>opensearch</module>
         <module>parquet</module>
