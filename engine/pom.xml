@@ -37,7 +37,7 @@
         <jakarta.xml.ws-api.version>4.0.3</jakarta.xml.ws-api.version>
         <jersey2.version>3.1.11</jersey2.version>
         <!-- mina override remove when updating jaas-->
-        <mina.core.version>2.2.6</mina.core.version>
+        <mina.core.version>2.2.7</mina.core.version>
         <snappy-java.version>1.1.10.8</snappy-java.version>
     </properties>
 
