@@ -41,8 +41,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * End-to-end runtime tests for the Advanced XML Output transform. Each test runs an actual pipeline
- * via the local engine, writes to a temp file and asserts on the produced XML.
+ * End-to-end runtime tests for the XML Output (Advanced) transform. Each test runs an actual
+ * pipeline via the local engine, writes to a temp file and asserts on the produced XML.
  */
 class AdvancedXmlOutputTest {
 
@@ -208,6 +208,60 @@ class AdvancedXmlOutputTest {
 
     String xml = readWrittenFile(output);
     assertTrue(xml.contains("<note>(none)</note>"), "expected force-created element: " + xml);
+  }
+
+  /**
+   * A mapped element whose row value is null and that has both {@code force_create} and a {@code
+   * default_value} should fall back to the default value, not to an empty tag.
+   */
+  @Test
+  void testMappedElementFallsBackToDefaultWhenRowValueIsNull(@TempDir Path tempDir)
+      throws Exception {
+    Path output = tempDir.resolve("nullfallback");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    // <Row> already has <name> mapped to "name". Mark it force-create + default and feed a null.
+    XmlNode loop = meta.getRootNode().getChildren().get(0);
+    XmlNode name = loop.getChildren().get(0);
+    name.setForceCreate(true);
+    name.setDefaultValue("(unknown)");
+
+    IRowMeta rm = new RowMeta();
+    rm.addValueMeta(new ValueMetaString("name"));
+    rm.addValueMeta(new ValueMetaInteger("age"));
+    List<RowMetaAndData> rows = new ArrayList<>();
+    rows.add(new RowMetaAndData(rm, null, 30L));
+
+    runPipeline(meta, rows);
+
+    String xml = readWrittenFile(output);
+    assertTrue(
+        xml.contains("<name>(unknown)</name>"),
+        "mapped element with null row value must fall back to its default value: " + xml);
+  }
+
+  /**
+   * An attribute with no mapped field but a non-empty default value must be emitted exactly once,
+   * even when {@code Create attribute if no field is mapped} is on. (Regression: an earlier
+   * implementation walked attribute children twice and produced a duplicated attribute.)
+   */
+  @Test
+  void testUnmappedAttributeWithDefaultIsEmittedExactlyOnce(@TempDir Path tempDir)
+      throws Exception {
+    Path output = tempDir.resolve("unmappedonce");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.setCreateAttributeIfUnmapped(true);
+
+    XmlNode loop = meta.getRootNode().getChildren().get(0);
+    XmlNode currency = new XmlNode("currency", XmlNode.NodeKind.Attribute);
+    currency.setDefaultValue("USD");
+    loop.addChild(currency);
+
+    runPipeline(meta, buildFlatRows("Alice", 30));
+
+    String xml = readWrittenFile(output);
+    int matches = count(xml, "currency=\"USD\"");
+    assertEquals(
+        1, matches, "unmapped attribute with default value must be emitted exactly once: " + xml);
   }
 
   // ---------------------------------------------------------------------------

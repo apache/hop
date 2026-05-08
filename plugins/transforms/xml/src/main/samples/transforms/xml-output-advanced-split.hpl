@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>xml-output-advanced-split</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description>Roll over to a new output file every N input rows; the transform copy number and a 5-digit split sequence are appended to the filename.</description>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2026/05/08 14:50:00.000</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2026/05/08 14:50:00.000</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <height>120</height>
+      <xloc>32</xloc>
+      <yloc>16</yloc>
+      <note>Twelve events are emitted as five-row splits: three files in total. Each
+file is closed and a fresh XML prolog/root is opened on the next split.
+
+Filename pattern: xml-output-advanced-split_{copyNr}_{00001..} .xml
+
+Output: ${java.io.tmpdir}/xml-output-advanced-split_0_00001.xml (etc.)</note>
+      <width>620</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>events grid</from>
+      <to>XML Output (Advanced)</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>events grid</name>
+    <type>DataGrid</type>
+    <description>Twelve numbered events.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line><item>1</item><item>start</item></line>
+      <line><item>2</item><item>checkpoint</item></line>
+      <line><item>3</item><item>checkpoint</item></line>
+      <line><item>4</item><item>checkpoint</item></line>
+      <line><item>5</item><item>checkpoint</item></line>
+      <line><item>6</item><item>checkpoint</item></line>
+      <line><item>7</item><item>checkpoint</item></line>
+      <line><item>8</item><item>checkpoint</item></line>
+      <line><item>9</item><item>checkpoint</item></line>
+      <line><item>10</item><item>checkpoint</item></line>
+      <line><item>11</item><item>checkpoint</item></line>
+      <line><item>12</item><item>end</item></line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>eventId</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>kind</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>96</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>XML Output (Advanced)</name>
+    <type>AdvancedXMLOutput</type>
+    <description>Split every 5 rows; include the transform copy number in the filename.</description>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <encoding>UTF-8</encoding>
+    <compact_file>N</compact_file>
+    <blank_line_after_xml_decl>Y</blank_line_after_xml_decl>
+    <create_attr_if_null>N</create_attr_if_null>
+    <create_attr_if_unmapped>N</create_attr_if_unmapped>
+    <create_empty_element>Y</create_empty_element>
+    <trim_values>N</trim_values>
+    <generate_xsd>N</generate_xsd>
+    <doctype_root/>
+    <doctype_system/>
+    <doctype_public/>
+    <xsl_stylesheet_href/>
+    <xsl_stylesheet_type>text/xsl</xsl_stylesheet_type>
+    <file>
+      <name>${java.io.tmpdir}/xml-output-advanced-split</name>
+      <extension>xml</extension>
+      <splitevery>5</splitevery>
+      <split>Y</split>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <zipped>N</zipped>
+      <add_to_result_filenames>Y</add_to_result_filenames>
+      <do_not_open_newfile_init>N</do_not_open_newfile_init>
+      <do_not_create_empty_file>Y</do_not_create_empty_file>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+    </file>
+    <tree>
+      <name>events</name>
+      <kind>Element</kind>
+      <children>
+        <node>
+          <name>event</name>
+          <kind>Element</kind>
+          <loop>Y</loop>
+          <children>
+            <node>
+              <name>id</name>
+              <kind>Attribute</kind>
+              <mapped_field>eventId</mapped_field>
+            </node>
+            <node>
+              <name>kind</name>
+              <kind>Element</kind>
+              <mapped_field>kind</mapped_field>
+            </node>
+          </children>
+        </node>
+      </children>
+    </tree>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

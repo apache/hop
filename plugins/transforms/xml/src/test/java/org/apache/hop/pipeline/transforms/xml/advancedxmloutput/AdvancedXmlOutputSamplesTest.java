@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.xml.advancedxmloutput;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -45,6 +46,9 @@ import org.w3c.dom.NodeList;
  */
 class AdvancedXmlOutputSamplesTest {
 
+  /** All sample pipelines that demonstrate the XML Output (Advanced) transform. */
+  private static final String SAMPLE_PREFIX = "xml-output-advanced-";
+
   private static final Path SAMPLES_DIR =
       Path.of("src", "main", "samples", "transforms").toAbsolutePath();
 
@@ -55,10 +59,10 @@ class AdvancedXmlOutputSamplesTest {
 
   @Test
   void basicSampleParsesAndHasExpectedShape() throws Exception {
-    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("advanced-xml-output-basic.hpl");
+    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("xml-output-advanced-basic.hpl");
 
     assertEquals(
-        "${java.io.tmpdir}/advanced-xml-output-basic", meta.getFileSupport().getFileName());
+        "${java.io.tmpdir}/xml-output-advanced-basic", meta.getFileSupport().getFileName());
     assertEquals("xml", meta.getFileSupport().getExtension());
     assertTrue(meta.isGenerateXsd(), "basic sample is meant to demonstrate XSD generation");
 
@@ -77,7 +81,7 @@ class AdvancedXmlOutputSamplesTest {
 
   @Test
   void groupedSampleParsesAndHasExpectedShape() throws Exception {
-    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("advanced-xml-output-grouped.hpl");
+    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("xml-output-advanced-grouped.hpl");
 
     assertTrue(meta.isGenerateXsd());
     assertEquals("orders", meta.getDoctypeRootElement());
@@ -113,13 +117,121 @@ class AdvancedXmlOutputSamplesTest {
   }
 
   @Test
-  void allSamplesAreWellFormedXml() throws Exception {
+  void multiGroupBySampleHasTwoNestedGroupAncestors() throws Exception {
+    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("xml-output-advanced-multi-group-by.hpl");
+
+    XmlNode root = meta.getRootNode();
+    assertEquals("regions", root.getName());
+
+    XmlNode region = root.getChildren().get(0);
+    assertEquals("region", region.getName());
+    assertTrue(region.isGroupBy(), "<region> must be flagged group-by (outer)");
+    assertEquals("region", region.getMappedField());
+
+    // region > [code @, order]
+    XmlNode order =
+        region.getChildren().stream()
+            .filter(c -> "order".equals(c.getName()))
+            .findFirst()
+            .orElseThrow();
+    assertTrue(order.isGroupBy(), "<order> must be flagged group-by (inner)");
+    assertEquals("orderId", order.getMappedField());
+
+    // Find the loop element down the tree.
+    XmlNode loop = findLoop(root);
+    assertNotNull(loop, "the multi-group-by sample must declare exactly one loop element");
+    assertEquals("line", loop.getName());
+  }
+
+  @Test
+  void documentFragmentSampleEmbedsFragmentNode() throws Exception {
+    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("xml-output-advanced-document-fragment.hpl");
+
+    XmlNode root = meta.getRootNode();
+    assertEquals("products", root.getName());
+    XmlNode product = root.getChildren().get(0);
+    assertEquals("product", product.getName());
+    assertTrue(product.isLoop());
+
+    boolean foundFragment = false;
+    for (XmlNode c : product.getChildren()) {
+      if (c.getKind() == XmlNode.NodeKind.DocumentFragment) {
+        assertEquals("extras", c.getMappedField());
+        foundFragment = true;
+      }
+    }
+    assertTrue(
+        foundFragment, "document-fragment sample must include at least one DocumentFragment node");
+  }
+
+  @Test
+  void splitSampleEnablesSplitEveryAndTransformNr() throws Exception {
+    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("xml-output-advanced-split.hpl");
+
+    XmlFileOutputSupport file = meta.getFileSupport();
+    assertEquals(5, file.getSplitEvery(), "<splitevery> drives split rollover");
+    assertTrue(file.isTransformNrInFilename(), "the copy number must be added to the filename");
+    assertFalse(file.isZipped());
+    assertFalse(meta.isGenerateXsd(), "the split sample intentionally turns XSD off");
+  }
+
+  @Test
+  void zippedSampleUsesCustomDateTimePatternAndZip() throws Exception {
+    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("xml-output-advanced-zipped.hpl");
+
+    XmlFileOutputSupport file = meta.getFileSupport();
+    assertTrue(file.isZipped(), "<zipped> must be on");
+    assertTrue(file.isSpecifyFormat(), "<SpecifyFormat> must be on");
+    assertEquals("yyyy-MM-dd_HH-mm-ss", file.getDateTimeFormat());
+    assertTrue(meta.isGenerateXsd(), "the XSD lives next to the .zip, not inside it");
+  }
+
+  @Test
+  void compactSampleExercisesNullHandlingFlags() throws Exception {
+    AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput("xml-output-advanced-compact.hpl");
+
+    assertTrue(meta.isCompactFile(), "<compact_file> must be on");
+    assertFalse(meta.isBlankLineAfterXmlDeclaration());
+    assertTrue(meta.isCreateAttributeIfNull());
+    assertTrue(meta.isCreateAttributeIfUnmapped());
+
+    XmlNode product = meta.getRootNode().getChildren().get(0);
+    long forceCreated = product.getChildren().stream().filter(XmlNode::isForceCreate).count();
+    assertTrue(forceCreated >= 2, "compact sample must have at least two force-create children");
+
+    long withDefaults =
+        product.getChildren().stream()
+            .filter(c -> c.getDefaultValue() != null && !c.getDefaultValue().isEmpty())
+            .count();
+    assertTrue(withDefaults >= 3, "compact sample must define at least three default values");
+
+    boolean foundUnmappedAttr =
+        product.getChildren().stream()
+            .anyMatch(
+                c ->
+                    c.getKind() == XmlNode.NodeKind.Attribute
+                        && (c.getMappedField() == null || c.getMappedField().isEmpty())
+                        && c.getDefaultValue() != null
+                        && !c.getDefaultValue().isEmpty());
+    assertTrue(
+        foundUnmappedAttr,
+        "compact sample must have at least one unmapped attribute with a default value");
+  }
+
+  @Test
+  void allSamplesAreWellFormedXmlAndDeserializeCleanly() throws Exception {
     List<Path> samples = listSamples();
-    assertTrue(samples.size() >= 2, "expected at least two sample pipelines");
+    assertTrue(samples.size() >= 7, "expected the seven shipped sample pipelines");
     for (Path p : samples) {
       Document doc = XmlHandler.loadXmlString(Files.readString(p));
       assertNotNull(doc, "could not parse " + p.getFileName());
       assertEquals("pipeline", doc.getDocumentElement().getNodeName(), "wrong root in " + p);
+
+      // Every shipped sample must contain exactly one AdvancedXMLOutput transform
+      // that round-trips through metadata serialization without errors.
+      AdvancedXmlOutputMeta meta = loadAdvancedXmlOutput(p.getFileName().toString());
+      assertNotNull(meta.getRootNode(), "no root tree in " + p.getFileName());
+      assertNotNull(findLoop(meta.getRootNode()), "no loop element in " + p.getFileName());
     }
   }
 
@@ -155,10 +267,29 @@ class AdvancedXmlOutputSamplesTest {
     try (var stream = Files.list(SAMPLES_DIR)) {
       stream
           .filter(p -> p.getFileName().toString().endsWith(".hpl"))
-          .filter(p -> p.getFileName().toString().startsWith("advanced-xml-output-"))
+          .filter(p -> p.getFileName().toString().startsWith(SAMPLE_PREFIX))
           .sorted()
           .forEach(out::add);
     }
     return out;
+  }
+
+  private static XmlNode findLoop(XmlNode node) {
+    if (node == null) {
+      return null;
+    }
+    if (node.isLoop()) {
+      return node;
+    }
+    if (node.getChildren() == null) {
+      return null;
+    }
+    for (XmlNode c : node.getChildren()) {
+      XmlNode hit = findLoop(c);
+      if (hit != null) {
+        return hit;
+      }
+    }
+    return null;
   }
 }

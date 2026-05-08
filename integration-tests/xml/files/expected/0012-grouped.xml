@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE orders SYSTEM "orders.dtd">
+<?xml-stylesheet type="text/xsl" href="orders.xsl"?>
+<orders xmlns="http://example.com/orders">
+<order id="1001"><customer>Alice Anderson</customer>
+<lines>
+<line sku="SKU-100"><name>Widget</name><qty>2</qty><price>9.99</price></line>
+<line sku="SKU-150"><name>Widget refill pack</name><qty>3</qty><price>4.25</price></line>
+</lines>
+</order>
+<order id="1002"><customer>Bob Brown</customer>
+<lines>
+<line sku="SKU-200"><name>Gizmo</name><qty>1</qty><price>19.95</price></line>
+<line sku="SKU-250"><name>Gizmo case</name><qty>1</qty><price>5.00</price></line>
+</lines>
+</order>
+<order id="1003"><customer>Carol Carter</customer>
+<lines>
+<line sku="SKU-300"><name>Gadget</name><qty>1</qty><price>49.50</price></line>
+<line sku="SKU-310"><name>Gadget battery</name><qty>2</qty><price>3.50</price></line>
+</lines>
+</order>
+</orders>

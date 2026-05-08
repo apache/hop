@@ -19,9 +19,9 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>advanced-xml-output-basic</name>
+    <name>xml-output-advanced-basic</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Minimal Advanced XML Output example: emit a flat &lt;customers&gt;&lt;customer&gt;... document with a sibling .xsd schema.</description>
+    <description>Minimal XML Output (Advanced) example: emit a flat &lt;customers&gt;&lt;customer&gt;... document with a sibling .xsd schema.</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
@@ -56,14 +56,14 @@ limitations under the License.
       <note>Writes a flat &lt;customers&gt;&lt;customer&gt;... document together with a sibling
 .xsd describing the structure.
 
-Output: ${java.io.tmpdir}/advanced-xml-output-basic.xml (+ .xsd)</note>
+Output: ${java.io.tmpdir}/xml-output-advanced-basic.xml (+ .xsd)</note>
       <width>540</width>
     </notepad>
   </notepads>
   <order>
     <hop>
       <from>customers grid</from>
-      <to>Advanced XML output</to>
+      <to>XML Output (Advanced)</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -172,7 +172,7 @@ Output: ${java.io.tmpdir}/advanced-xml-output-basic.xml (+ .xsd)</note>
     </GUI>
   </transform>
   <transform>
-    <name>Advanced XML output</name>
+    <name>XML Output (Advanced)</name>
     <type>AdvancedXMLOutput</type>
     <description>Pretty-prints the rows as &lt;customer&gt; elements under a &lt;customers&gt; root, alongside a generated XSD.</description>
     <distribute>Y</distribute>
@@ -196,7 +196,7 @@ Output: ${java.io.tmpdir}/advanced-xml-output-basic.xml (+ .xsd)</note>
     <xsl_stylesheet_href/>
     <xsl_stylesheet_type>text/xsl</xsl_stylesheet_type>
     <file>
-      <name>${java.io.tmpdir}/advanced-xml-output-basic</name>
+      <name>${java.io.tmpdir}/xml-output-advanced-basic</name>
       <extension>xml</extension>
       <splitevery>0</splitevery>
       <split>N</split>

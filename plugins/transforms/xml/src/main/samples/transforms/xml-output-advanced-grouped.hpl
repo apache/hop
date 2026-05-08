@@ -19,9 +19,9 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>advanced-xml-output-grouped</name>
+    <name>xml-output-advanced-grouped</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description>Advanced XML Output example with group-by, attributes, a default XML namespace, a DOCTYPE, an XSL stylesheet processing instruction, and a generated XSD.</description>
+    <description>XML Output (Advanced) example with group-by, attributes, a default XML namespace, a DOCTYPE, an XSL stylesheet processing instruction, and a generated XSD.</description>
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
@@ -62,7 +62,7 @@ The transform also emits:
   - an &lt;?xml-stylesheet?&gt; processing instruction,
   - a sibling .xsd schema next to the .xml output.
 
-Output: ${java.io.tmpdir}/advanced-xml-output-grouped.xml (+ .xsd)</note>
+Output: ${java.io.tmpdir}/xml-output-advanced-grouped.xml (+ .xsd)</note>
       <width>620</width>
     </notepad>
   </notepads>
@@ -74,7 +74,7 @@ Output: ${java.io.tmpdir}/advanced-xml-output-grouped.xml (+ .xsd)</note>
     </hop>
     <hop>
       <from>sort by orderId</from>
-      <to>Advanced XML output</to>
+      <to>XML Output (Advanced)</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -235,7 +235,7 @@ Output: ${java.io.tmpdir}/advanced-xml-output-grouped.xml (+ .xsd)</note>
       </field>
     </fields>
     <directory>${java.io.tmpdir}</directory>
-    <sort_prefix>advanced-xml-output-grouped-sort</sort_prefix>
+    <sort_prefix>xml-output-advanced-grouped-sort</sort_prefix>
     <sort_size>1000000</sort_size>
     <free_memory_limit/>
     <unique_rows>N</unique_rows>
@@ -248,7 +248,7 @@ Output: ${java.io.tmpdir}/advanced-xml-output-grouped.xml (+ .xsd)</note>
     </GUI>
   </transform>
   <transform>
-    <name>Advanced XML output</name>
+    <name>XML Output (Advanced)</name>
     <type>AdvancedXMLOutput</type>
     <description>orders/order/lines/line tree with group-by on orderId and loop on line.</description>
     <distribute>Y</distribute>
@@ -274,7 +274,7 @@ Output: ${java.io.tmpdir}/advanced-xml-output-grouped.xml (+ .xsd)</note>
     <xsl_stylesheet_href>orders.xsl</xsl_stylesheet_href>
     <xsl_stylesheet_type>text/xsl</xsl_stylesheet_type>
     <file>
-      <name>${java.io.tmpdir}/advanced-xml-output-grouped</name>
+      <name>${java.io.tmpdir}/xml-output-advanced-grouped</name>
       <extension>xml</extension>
       <splitevery>0</splitevery>
       <split>N</split>

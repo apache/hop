@@ -27,7 +27,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
- * Describes a single node in the hierarchical XML tree of the Advanced XML Output transform.
+ * Describes a single node in the hierarchical XML tree of the XML Output (Advanced) transform.
  *
  * <p>An {@code XmlNode} can represent an element or an attribute. Elements may have any number of
  * child nodes (recursive structure). Exactly one element in the tree must be marked as the loop

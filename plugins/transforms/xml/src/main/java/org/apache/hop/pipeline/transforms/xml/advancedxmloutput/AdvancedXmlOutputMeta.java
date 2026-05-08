@@ -41,7 +41,7 @@ import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
 /**
- * Metadata for the Advanced XML Output transform: writes input rows to one or more XML files
+ * Metadata for the XML Output (Advanced) transform: writes input rows to one or more XML files
  * following a hierarchical, user-defined XML tree (with one row-loop element and optional group-by
  * ancestors).
  */
@@ -52,7 +52,7 @@ import org.apache.hop.resource.ResourceDefinition;
     description = "i18n::AdvancedXMLOutput.description",
     categoryDescription = "i18n::AdvancedXMLOutput.category",
     keywords = "i18n::AdvancedXmlOutputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/advancedxmloutput.html",
+    documentationUrl = "/pipeline/transforms/xmloutputadvanced.html",
     isIncludeJdbcDrivers = false)
 @Getter
 @Setter

@@ -16,20 +16,20 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Advanced XML Output transform writes rows to an XML file using a hierarchical XML tree with optional row-loop and group-by elements.
+:description: The XML Output (Advanced) transform writes rows to an XML file using a hierarchical XML tree with optional row-loop and group-by elements.
 
-= image:transforms/icons/AXO.svg[Advanced XML Output transform Icon, role="image-doc-icon"] Advanced XML Output
+= image:transforms/icons/AXO.svg[XML Output (Advanced) transform Icon, role="image-doc-icon"] XML Output (Advanced)
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Advanced XML Output transform writes rows from any source to one or more XML files, using a hierarchical, user-defined XML tree.
+The XML Output (Advanced) transform writes rows from any source to one or more XML files, using a hierarchical, user-defined XML tree.
 
 The XML tree is a recursive structure of elements, attributes and document-fragment nodes. Exactly one element in the tree must be marked as the row-*loop*: each input row produces one occurrence of that element with its full subtree. Optionally, ancestors of the loop can be marked as *group-by*: consecutive input rows that share the same group key are emitted under a single occurrence of the group element.
 
-This transform complements the simpler `XML Output` transform. Use `XML Output` for a flat document of repeating rows; use `Advanced XML Output` when you need a deeper, custom-shaped XML structure (loops nested inside groups, attributes at any level, document fragments, namespaces, schema generation).
+This transform complements the simpler `XML Output` transform. Use `XML Output` for a flat document of repeating rows; use `XML Output (Advanced)` when you need a deeper, custom-shaped XML structure (loops nested inside groups, attributes at any level, document fragments, namespaces, schema generation).
 
 |
 == Supported Engines
