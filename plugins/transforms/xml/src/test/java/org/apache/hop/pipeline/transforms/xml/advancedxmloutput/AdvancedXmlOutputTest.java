@@ -25,6 +25,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
@@ -140,6 +142,153 @@ class AdvancedXmlOutputTest {
     int afterDecl = xml.indexOf("?>") + 2;
     String body = xml.substring(afterDecl);
     assertFalse(body.contains("\n"), "Compact mode should not contain newlines: " + body);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Namespace inheritance: only the root declares xmlns; children inherit it.
+  // ---------------------------------------------------------------------------
+
+  @Test
+  void testRootDefaultNamespaceIsInheritedByChildren(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("ns");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.getRootNode().setNamespace("http://example.com/customers");
+
+    runPipeline(meta, buildFlatRows("Alice", 30));
+
+    String xml = readWrittenFile(output);
+    // Root declares the default namespace exactly once
+    assertTrue(
+        xml.contains("xmlns=\"http://example.com/customers\""),
+        "expected root xmlns declaration, got: " + xml);
+    assertEquals(
+        1,
+        count(xml, "xmlns=\"http://example.com/customers\""),
+        "the namespace should only be declared on the root: " + xml);
+    // Child elements still appear (the writer didn't fail on an "unbound" URI)
+    assertTrue(xml.contains("<Row>"), "row element missing: " + xml);
+    assertTrue(xml.contains("<name>Alice</name>"));
+  }
+
+  // ---------------------------------------------------------------------------
+  // DOCTYPE + XSL stylesheet PI
+  // ---------------------------------------------------------------------------
+
+  @Test
+  void testDoctypeAndXslPiAreEmitted(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("doc");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.setDoctypeRootElement("Rows");
+    meta.setDoctypeSystemId("rows.dtd");
+    meta.setXslStylesheetHref("rows.xsl");
+
+    runPipeline(meta, buildFlatRows("a", 1));
+    String xml = readWrittenFile(output);
+    assertTrue(xml.contains("<!DOCTYPE Rows SYSTEM \"rows.dtd\""), "DOCTYPE missing: " + xml);
+    assertTrue(
+        xml.contains("<?xml-stylesheet type=\"text/xsl\" href=\"rows.xsl\"?>"),
+        "xml-stylesheet PI missing: " + xml);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Force create / create-attribute-if-null / create-empty-element
+  // ---------------------------------------------------------------------------
+
+  @Test
+  void testForceCreateEmitsStaticElementWithDefaultValue(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("force");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    XmlNode loop = meta.getRootNode().getChildren().get(0);
+    XmlNode note = new XmlNode("note", XmlNode.NodeKind.Element);
+    note.setForceCreate(true);
+    note.setDefaultValue("(none)");
+    loop.addChild(note);
+
+    runPipeline(meta, buildFlatRows("Alice", 30));
+
+    String xml = readWrittenFile(output);
+    assertTrue(xml.contains("<note>(none)</note>"), "expected force-created element: " + xml);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Split-every produces multiple files
+  // ---------------------------------------------------------------------------
+
+  @Test
+  void testSplitEveryProducesMultipleFiles(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("split");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.getFileSupport().setSplitEvery(2);
+
+    runPipeline(meta, buildFlatRows("A", 1, "B", 2, "C", 3, "D", 4, "E", 5));
+
+    // Expect 3 files: 2 rows, 2 rows, 1 row
+    Path f1 = Path.of(output + "_00001.xml");
+    Path f2 = Path.of(output + "_00002.xml");
+    Path f3 = Path.of(output + "_00003.xml");
+    assertTrue(Files.exists(f1), "first split file missing: " + f1);
+    assertTrue(Files.exists(f2), "second split file missing: " + f2);
+    assertTrue(Files.exists(f3), "third split file missing: " + f3);
+    assertEquals(2, count(Files.readString(f1), "<Row>"));
+    assertEquals(2, count(Files.readString(f2), "<Row>"));
+    assertEquals(1, count(Files.readString(f3), "<Row>"));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Zipped output
+  // ---------------------------------------------------------------------------
+
+  @Test
+  void testZippedOutputContainsValidXml(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("zipped");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.getFileSupport().setZipped(true);
+
+    runPipeline(meta, buildFlatRows("a", 1, "b", 2));
+
+    Path zip = Path.of(output + ".zip");
+    assertTrue(Files.exists(zip), "zip archive missing: " + zip);
+    try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zip))) {
+      ZipEntry e = zis.getNextEntry();
+      assertTrue(e != null && e.getName().endsWith(".xml"), "first entry is not .xml: " + e);
+      String content = new String(zis.readAllBytes());
+      assertTrue(content.contains("<Row>"));
+      assertEquals(2, count(content, "<Row>"));
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // XSD generation
+  // ---------------------------------------------------------------------------
+
+  @Test
+  void testGenerateXsdProducesSiblingSchema(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("schema");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.setGenerateXsd(true);
+
+    runPipeline(meta, buildFlatRows("a", 1, "b", 2));
+
+    Path xsd = Path.of(output + ".xsd");
+    assertTrue(Files.exists(xsd), "Sibling XSD should have been written: " + xsd);
+    String content = Files.readString(xsd);
+    assertTrue(content.contains("<xs:schema"));
+    assertTrue(content.contains("<xs:element name=\"Rows\""));
+    assertTrue(content.contains("<xs:element name=\"Row\""));
+    assertTrue(content.contains("type=\"xs:string\"") || content.contains("type=\"xs:long\""));
+  }
+
+  @Test
+  void testGenerateXsdSkippedForEmptyInput(@TempDir Path tempDir) throws Exception {
+    Path output = tempDir.resolve("emptyschema");
+    AdvancedXmlOutputMeta meta = buildFlatMeta(output.toString());
+    meta.setGenerateXsd(true);
+    meta.getFileSupport().setDoNotCreateEmptyFile(true);
+
+    runPipeline(meta, new ArrayList<>());
+
+    Path xsd = Path.of(output + ".xsd");
+    assertFalse(Files.exists(xsd), "Empty input must not produce an XSD: " + xsd);
   }
 
   // ---------------------------------------------------------------------------

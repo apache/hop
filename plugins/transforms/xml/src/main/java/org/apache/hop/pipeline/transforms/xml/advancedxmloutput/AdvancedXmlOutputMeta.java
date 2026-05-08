@@ -128,7 +128,7 @@ public class AdvancedXmlOutputMeta
       injectionKeyDescription = "AdvancedXMLOutput.Injection.DEFAULT_GROUPING_SEPARATOR")
   private String defaultGroupingSeparator;
 
-  /** When true and any node declares a namespace, write a sibling .xsd next to the output file. */
+  /** When true, write a sibling {@code .xsd} schema describing the produced XML structure. */
   @HopMetadataProperty(
       key = "generate_xsd",
       injectionKey = "GENERATE_XSD",

@@ -191,6 +191,24 @@ public class XmlFileOutputSupport {
     return filename;
   }
 
+  /**
+   * Returns the sibling XSD filename for the data file at {@code copyNr}/{@code splitNr}. Always
+   * uses extension {@code xsd} regardless of the data file's extension and is never wrapped in a
+   * zip archive (the XSD lives next to the archive, not inside it).
+   */
+  public String buildXsdFilename(IVariables variables, int copyNr, int splitNr) {
+    String saveExt = extension;
+    boolean saveZipped = zipped;
+    try {
+      this.zipped = false;
+      this.extension = "xsd";
+      return buildFilename(variables, copyNr, splitNr, false);
+    } finally {
+      this.extension = saveExt;
+      this.zipped = saveZipped;
+    }
+  }
+
   /** Returns up to {@code nr} sample filenames for use in the dialog's "Show files" preview. */
   public String[] previewFilenames(IVariables variables) {
     int copies = transformNrInFilename ? 3 : 1;

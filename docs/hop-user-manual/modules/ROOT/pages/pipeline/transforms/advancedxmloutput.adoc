@@ -29,7 +29,7 @@ The Advanced XML Output transform writes rows from any source to one or more XML
 
 The XML tree is a recursive structure of elements, attributes and document-fragment nodes. Exactly one element in the tree must be marked as the row-*loop*: each input row produces one occurrence of that element with its full subtree. Optionally, ancestors of the loop can be marked as *group-by*: consecutive input rows that share the same group key are emitted under a single occurrence of the group element.
 
-This transform complements the simpler `XML Output` transform. `XML Output` is the right choice when you want a flat document of repeating rows; `Advanced XML Output` is the right choice when you need a deeper, custom-shaped XML structure (loops nested inside groups, attributes at any level, document fragments, namespaces).
+This transform complements the simpler `XML Output` transform. Use `XML Output` for a flat document of repeating rows; use `Advanced XML Output` when you need a deeper, custom-shaped XML structure (loops nested inside groups, attributes at any level, document fragments, namespaces, schema generation).
 
 |
 == Supported Engines
@@ -44,70 +44,135 @@ This transform complements the simpler `XML Output` transform. `XML Output` is t
 
 == Options
 
-[NOTE]
-====
-The Phase-1 dialog only exposes the basic file options. The interactive XML tree designer is on the way; until it ships, configure the tree by editing the transform metadata directly (HopGui's "Show metadata" command, or by hand in your `.hpl` file).
-====
+The dialog is organized into three tabs: *File*, *Content* and *XML Tree*.
 
-=== File Tab
+=== File tab
 
 [options="header"]
 |===
 |Option|Description
 |Transform name|Name of the transform.
-|Filename|Base name of the output XML file (without extension).
+|Filename|Base name of the output XML file (without extension). VFS URIs are supported.
 |Extension|File extension (without the leading dot). Defaults to `xml`.
-|Encoding|Character encoding for the output file. Defaults to UTF-8.
-|Add filename to result|When enabled, the produced filename is added to the pipeline's result file list (only after at least one row is written).
+|Encoding|Character encoding for the output file. Defaults to `UTF-8`.
+|Include transform copy number in filename|Append the transform copy number to the filename.
+|Include date in filename|Append the system date (`yyyyMMdd`) to the filename.
+|Include time in filename|Append the system time (`HHmmss`) to the filename.
+|Specify custom date/time format|Use a custom date/time pattern instead of the date/time toggles above.
+|Date/time format|Java `SimpleDateFormat` pattern, used when the custom format toggle is on.
+|Split every N rows|Maximum rows per file before rolling over to a new split. `0` = no splitting.
+|Zip output file|Wrap each output file in a zip archive (one entry per file). Generated XSDs are written next to the archive, not inside it.
+|Do not open new file at start|Defer file creation until the first input row is received.
+|Do not create file if no rows|Delete the output file at the end of the run if no rows were ever written.
+|Add filename to result|Add the produced file(s) to the pipeline's result file list (only after at least one row is written).
+|Show file name(s) ...|Pops up a list with sample filenames built from the current settings.
 |===
 
-=== Content options
-
-The following advanced options are available on the metadata (and will be exposed in the dialog in the next phase):
+=== Content tab
 
 [options="header"]
 |===
 |Option|Description
-|`compactFile`|Suppress whitespace and EOL between elements; useful for byte-size-sensitive output.
-|`blankLineAfterXmlDeclaration`|Add a blank line right after the `<?xml ?>` declaration (default `true`, matching common formatters).
-|`createEmptyElement`|Emit an open/close tag pair for an element that has no value and no children (default `true`).
-|`createAttributeIfNull`|Emit an attribute even when its source value is `null`.
-|`createAttributeIfUnmapped`|Emit an attribute that has no mapped field (using its default value).
-|`trimValues`|Trim leading/trailing whitespace from emitted text values.
-|`defaultDecimalSeparator`|Default decimal separator for numeric values; per-node settings still take precedence.
-|`defaultGroupingSeparator`|Default grouping separator for numeric values; per-node settings still take precedence.
-|`generateXsd`|When set and the tree declares at least one namespace, write a sibling `.xsd` next to the output file.
-|`doctypeRootElement` / `doctypeSystemId` / `doctypePublicId`|Emit a `<!DOCTYPE ...>` declaration between the XML declaration and the root element.
-|`xslStylesheetHref` / `xslStylesheetType`|Emit an `<?xml-stylesheet ?>` processing instruction; defaults to `text/xsl` when type is empty.
-|`splitEvery`|Maximum rows per file before splitting (`0` = no split).
-|`zipped`|Wrap the output file in a zip archive.
-|`doNotOpenNewFileInit`|Defer file creation until the first input row is received.
-|`doNotCreateEmptyFile`|Delete the file at the end of the run if no rows were written.
+|Compact|Suppress whitespace and EOL between elements; useful for byte-size-sensitive output.
+|Blank line after XML declaration|Add a blank line right after the `<?xml ?>` declaration.
+|Emit empty elements|Emit an open/close tag pair for an element that has no value and no children.
+|Emit attribute when value is null|Emit an attribute even when its source value is `null`.
+|Emit attribute when no field is mapped|Emit an attribute that has no mapped field, using its default value.
+|Trim leading/trailing whitespace|Trim text values before emitting them.
+|Default decimal separator|Default decimal separator for numeric values; per-node settings still take precedence.
+|Default grouping separator|Default grouping separator for numeric values; per-node settings still take precedence.
+|Generate sibling XSD file|Write a sibling `.xsd` schema next to each output file (or each split). The schema is derived from the configured XML tree and the upstream row metadata.
+|DOCTYPE root element / system / public identifier|Emit a `<!DOCTYPE ...>` declaration between the XML declaration and the root element.
+|XSL stylesheet href / type|Emit an `<?xml-stylesheet ?>` processing instruction. Type defaults to `text/xsl` when blank.
 |===
 
-=== XML Tree
+=== XML Tree tab
 
-The XML tree is a recursive `XmlNode` graph. Each node has the following properties:
+The XML Tree tab is the visual designer for the output structure. The left pane lists the input fields received from the previous transform; the right pane is split between the target tree (top) and the property pane (bottom) for the currently-selected node.
+
+==== Working with the tree
+
+* Click *Get fields* to (re)load the input fields from the previous transform.
+* Drag a field from the left pane and drop it onto an element in the tree. A new child element is created with that field name and `mappedField` pre-filled.
+* Use the toolbar above the tree (or the right-click menu) to:
+** *+ Element* / *+ Attribute* / *+ Fragment*: add a child node of the chosen kind under the selected element.
+** *Delete*: remove the selected node and its descendants (the root cannot be deleted).
+** *Up* / *Down*: reorder the selected node among its siblings.
+** *Loop*: toggle the loop flag. Exactly one element in the tree must carry it; switching the loop on a different node automatically clears it elsewhere.
+** *Group-by*: toggle the group-by flag on an ancestor of the loop element.
+* Selecting a node populates the *Properties* form below the tree. Edits propagate to the model immediately.
+
+==== Node properties
 
 [options="header"]
 |===
 |Property|Description
-|`name`|Local name of the element or attribute.
-|`namespace`|Optional XML namespace URI (treated as default namespace at that element).
-|`kind`|`Element`, `Attribute`, or `DocumentFragment` (the latter parses the source field's value and inserts it as XML nodes rather than escaped text).
-|`mappedField`|Input field whose value provides this node's content. For attributes and elements it sets the value; for nodes flagged `groupBy`, it identifies the group key.
-|`defaultValue`|Static text used when `mappedField` is empty (or its value is `null`).
-|`format`, `length`, `precision`, `currencySymbol`, `decimalSymbol`, `groupingSymbol`|Optional value-meta overrides used when converting the field value to a string.
-|`forceCreate`|Output this node even when the value is `null`.
-|`loop`|Marks this element as the row-loop element. Exactly one element in the tree must be flagged.
-|`groupBy`|Marks this element as a group-by ancestor of the loop. Consecutive rows with equal `mappedField` values share a single occurrence.
-|`children`|Recursive list of child `XmlNode`s.
+|Name|Local name of the element or attribute.
+|Namespace URI|Optional XML namespace URI. When set on the root element, it becomes the default namespace and is also written into the generated XSD as the `targetNamespace`.
+|Kind|`Element`, `Attribute`, or `DocumentFragment`. The latter parses the source field's value and inserts it as XML nodes rather than escaped text.
+|Mapped field|Input field whose value provides this node's content. For attributes and elements it sets the value; for nodes flagged `Group-by`, it identifies the group key only.
+|Default value|Static text used when `Mapped field` is empty (or its value is `null`).
+|Format / Length / Precision / Currency / Decimal / Grouping|Per-node value-meta overrides used when converting the field value to a string. Per-node settings take precedence over the global *Default decimal/grouping separator*.
+|Loop|Marks this element as the row-loop element. Exactly one element must carry the flag.
+|Group-by|Marks this element as a group-by ancestor of the loop. Consecutive rows with equal `Mapped field` values share a single occurrence.
+|Force create|Output this node even when the value is `null` (uses the default value when set).
 |===
 
 == Group-by behaviour
 
-For the group-by mechanism to collapse correctly, *the input rows must already be sorted by the group-by key(s)*. Use a Sort Rows transform upstream if needed. When the key changes, the open group element is closed and a new one is opened.
+For the group-by mechanism to collapse correctly, *the input rows must already be sorted by the group-by key(s)*. Use a Sort Rows transform upstream if needed. When the key changes, the open group element is closed and a new one is opened with the new key.
+
+== XSD generation
+
+When *Generate sibling XSD file* is enabled, the transform writes a `.xsd` schema next to each output file (or split). The schema:
+
+* declares one global element matching the root of the configured tree;
+* nests complex types corresponding to elements with children or attributes;
+* sets `maxOccurs="unbounded"` on the loop element and on every group-by ancestor;
+* renders attributes as `xs:attribute` declarations (with `use="required"` when the source node is `Force create`);
+* renders document-fragment nodes as `<xs:any processContents="skip"/>` placeholders;
+* maps Hop value types to XSD built-ins as follows: integer → `xs:long`, number/big-number → `xs:decimal`, date/timestamp → `xs:dateTime`, boolean → `xs:boolean`, binary → `xs:base64Binary`, everything else → `xs:string`;
+* uses the root node's namespace as the schema's `targetNamespace` (and `elementFormDefault="qualified"`) when set.
+
+The XSD is written outside zip archives and is added to the pipeline's result file list when *Add filename to result* is enabled.
 
 == Memory profile
 
 The transform uses StAX streaming and only buffers the XML state of the currently-open path of group elements. A single very large group is therefore O(largest group) in memory rather than O(document).
+
+== Example: orders with grouped items
+
+Input rows (already sorted by `orderId`):
+
+[options="header"]
+|===
+|orderId|itemName|price
+|1|foo|1.50
+|1|bar|2.00
+|2|baz|3.25
+|===
+
+Tree:
+
+* `orders` (root, element)
+** `order` (element, group-by, mapped field = `orderId`)
+*** `id` (attribute, mapped field = `orderId`)
+*** `item` (element, **loop**)
+**** `name` (element, mapped field = `itemName`)
+**** `price` (element, mapped field = `price`, format = `0.00`)
+
+Output:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<orders>
+  <order id="1">
+    <item><name>foo</name><price>1.50</price></item>
+    <item><name>bar</name><price>2.00</price></item>
+  </order>
+  <order id="2">
+    <item><name>baz</name><price>3.25</price></item>
+  </order>
+</orders>
+----
