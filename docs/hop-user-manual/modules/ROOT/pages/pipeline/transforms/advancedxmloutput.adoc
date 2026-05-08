@@ -1,0 +1,113 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Advanced XML Output transform writes rows to an XML file using a hierarchical XML tree with optional row-loop and group-by elements.
+
+= image:transforms/icons/AXO.svg[Advanced XML Output transform Icon, role="image-doc-icon"] Advanced XML Output
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Advanced XML Output transform writes rows from any source to one or more XML files, using a hierarchical, user-defined XML tree.
+
+The XML tree is a recursive structure of elements, attributes and document-fragment nodes. Exactly one element in the tree must be marked as the row-*loop*: each input row produces one occurrence of that element with its full subtree. Optionally, ancestors of the loop can be marked as *group-by*: consecutive input rows that share the same group key are emitted under a single occurrence of the group element.
+
+This transform complements the simpler `XML Output` transform. `XML Output` is the right choice when you want a flat document of repeating rows; `Advanced XML Output` is the right choice when you need a deeper, custom-shaped XML structure (loops nested inside groups, attributes at any level, document fragments, namespaces).
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:cross.svg[Not Supported, 24]
+!Flink! image:cross.svg[Not Supported, 24]
+!Dataflow! image:cross.svg[Not Supported, 24]
+!===
+|===
+
+== Options
+
+[NOTE]
+====
+The Phase-1 dialog only exposes the basic file options. The interactive XML tree designer is on the way; until it ships, configure the tree by editing the transform metadata directly (HopGui's "Show metadata" command, or by hand in your `.hpl` file).
+====
+
+=== File Tab
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Filename|Base name of the output XML file (without extension).
+|Extension|File extension (without the leading dot). Defaults to `xml`.
+|Encoding|Character encoding for the output file. Defaults to UTF-8.
+|Add filename to result|When enabled, the produced filename is added to the pipeline's result file list (only after at least one row is written).
+|===
+
+=== Content options
+
+The following advanced options are available on the metadata (and will be exposed in the dialog in the next phase):
+
+[options="header"]
+|===
+|Option|Description
+|`compactFile`|Suppress whitespace and EOL between elements; useful for byte-size-sensitive output.
+|`blankLineAfterXmlDeclaration`|Add a blank line right after the `<?xml ?>` declaration (default `true`, matching common formatters).
+|`createEmptyElement`|Emit an open/close tag pair for an element that has no value and no children (default `true`).
+|`createAttributeIfNull`|Emit an attribute even when its source value is `null`.
+|`createAttributeIfUnmapped`|Emit an attribute that has no mapped field (using its default value).
+|`trimValues`|Trim leading/trailing whitespace from emitted text values.
+|`defaultDecimalSeparator`|Default decimal separator for numeric values; per-node settings still take precedence.
+|`defaultGroupingSeparator`|Default grouping separator for numeric values; per-node settings still take precedence.
+|`generateXsd`|When set and the tree declares at least one namespace, write a sibling `.xsd` next to the output file.
+|`doctypeRootElement` / `doctypeSystemId` / `doctypePublicId`|Emit a `<!DOCTYPE ...>` declaration between the XML declaration and the root element.
+|`xslStylesheetHref` / `xslStylesheetType`|Emit an `<?xml-stylesheet ?>` processing instruction; defaults to `text/xsl` when type is empty.
+|`splitEvery`|Maximum rows per file before splitting (`0` = no split).
+|`zipped`|Wrap the output file in a zip archive.
+|`doNotOpenNewFileInit`|Defer file creation until the first input row is received.
+|`doNotCreateEmptyFile`|Delete the file at the end of the run if no rows were written.
+|===
+
+=== XML Tree
+
+The XML tree is a recursive `XmlNode` graph. Each node has the following properties:
+
+[options="header"]
+|===
+|Property|Description
+|`name`|Local name of the element or attribute.
+|`namespace`|Optional XML namespace URI (treated as default namespace at that element).
+|`kind`|`Element`, `Attribute`, or `DocumentFragment` (the latter parses the source field's value and inserts it as XML nodes rather than escaped text).
+|`mappedField`|Input field whose value provides this node's content. For attributes and elements it sets the value; for nodes flagged `groupBy`, it identifies the group key.
+|`defaultValue`|Static text used when `mappedField` is empty (or its value is `null`).
+|`format`, `length`, `precision`, `currencySymbol`, `decimalSymbol`, `groupingSymbol`|Optional value-meta overrides used when converting the field value to a string.
+|`forceCreate`|Output this node even when the value is `null`.
+|`loop`|Marks this element as the row-loop element. Exactly one element in the tree must be flagged.
+|`groupBy`|Marks this element as a group-by ancestor of the loop. Consecutive rows with equal `mappedField` values share a single occurrence.
+|`children`|Recursive list of child `XmlNode`s.
+|===
+
+== Group-by behaviour
+
+For the group-by mechanism to collapse correctly, *the input rows must already be sorted by the group-by key(s)*. Use a Sort Rows transform upstream if needed. When the key changes, the open group element is closed and a new one is opened.
+
+== Memory profile
+
+The transform uses StAX streaming and only buffers the XML state of the currently-open path of group elements. A single very large group is therefore O(largest group) in memory rather than O(document).

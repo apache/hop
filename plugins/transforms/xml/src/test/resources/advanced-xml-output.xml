@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<transform>
+    <encoding>UTF-8</encoding>
+    <compact_file>N</compact_file>
+    <blank_line_after_xml_decl>Y</blank_line_after_xml_decl>
+    <create_attr_if_null>N</create_attr_if_null>
+    <create_attr_if_unmapped>N</create_attr_if_unmapped>
+    <create_empty_element>Y</create_empty_element>
+    <trim_values>N</trim_values>
+    <generate_xsd>N</generate_xsd>
+    <doctype_root/>
+    <doctype_system/>
+    <doctype_public/>
+    <xsl_stylesheet_href/>
+    <xsl_stylesheet_type>text/xsl</xsl_stylesheet_type>
+    <file>
+        <name>/tmp/orders</name>
+        <extension>xml</extension>
+        <splitevery>0</splitevery>
+        <split>N</split>
+        <add_date>N</add_date>
+        <add_time>N</add_time>
+        <zipped>N</zipped>
+        <add_to_result_filenames>Y</add_to_result_filenames>
+        <do_not_open_newfile_init>N</do_not_open_newfile_init>
+        <do_not_create_empty_file>Y</do_not_create_empty_file>
+        <SpecifyFormat>N</SpecifyFormat>
+        <date_time_format/>
+    </file>
+    <tree>
+        <name>orders</name>
+        <kind>Element</kind>
+        <children>
+            <node>
+                <name>order</name>
+                <kind>Element</kind>
+                <group_by>Y</group_by>
+                <mapped_field>orderId</mapped_field>
+                <children>
+                    <node>
+                        <name>id</name>
+                        <kind>Attribute</kind>
+                        <mapped_field>orderId</mapped_field>
+                    </node>
+                    <node>
+                        <name>item</name>
+                        <kind>Element</kind>
+                        <loop>Y</loop>
+                        <children>
+                            <node>
+                                <name>name</name>
+                                <kind>Element</kind>
+                                <mapped_field>itemName</mapped_field>
+                            </node>
+                            <node>
+                                <name>price</name>
+                                <kind>Element</kind>
+                                <mapped_field>price</mapped_field>
+                                <format>0.00</format>
+                            </node>
+                        </children>
+                    </node>
+                </children>
+            </node>
+        </children>
+    </tree>
+</transform>
