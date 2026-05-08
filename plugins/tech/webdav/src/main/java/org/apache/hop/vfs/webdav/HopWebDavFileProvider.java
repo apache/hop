@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystem;
+import org.apache.commons.vfs2.FileSystemConfigBuilder;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
@@ -66,7 +67,7 @@ public class HopWebDavFileProvider extends AbstractOriginatingFileProvider {
   }
 
   @Override
-  public org.apache.commons.vfs2.FileSystemConfigBuilder getConfigBuilder() {
+  public FileSystemConfigBuilder getConfigBuilder() {
     return Webdav4FileSystemConfigBuilder.getInstance();
   }
 
@@ -78,6 +79,10 @@ public class HopWebDavFileProvider extends AbstractOriginatingFileProvider {
             ? (FileSystemOptions) fileSystemOptions.clone()
             : new FileSystemOptions();
     HopWebDavConnectionAuth.apply(opts, variables, meta);
+    Webdav4FileSystemConfigBuilder httpCfg = Webdav4FileSystemConfigBuilder.getInstance();
+    httpCfg.setMaxConnectionsPerHost(opts, 32);
+    httpCfg.setMaxTotalConnections(opts, 64);
+    httpCfg.setKeepAlive(opts, true);
 
     String rootUrl = Const.NVL(variables.resolve(meta.getRootUrl()), "").trim();
     if (StringUtils.isEmpty(rootUrl)) {
@@ -96,6 +101,8 @@ public class HopWebDavFileProvider extends AbstractOriginatingFileProvider {
     Webdav4FileName wireRoot = HopWebDavWireNames.asWebdav4(wireRootParsed);
 
     Webdav4FileSystem wireFs = HopWebDavWireBootstrap.create(opts, wireRoot);
+    // Wire FS is not manager-registered; share context so resolveFile can use the files cache.
+    wireFs.setContext(getContext());
     wireFs.init();
 
     String prefix = HopWebDavLogicalUris.wirePathPrefixFromRootUrl(rootUrl);

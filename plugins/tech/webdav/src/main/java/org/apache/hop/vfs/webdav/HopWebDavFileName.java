@@ -31,6 +31,25 @@ public final class HopWebDavFileName extends AbstractFileName {
     super(scheme, normalizeStoredPath(path, type), type);
   }
 
+  /**
+   * Child path under {@code parent} using wire {@code baseName} (last segment). Avoids {@link
+   * org.apache.commons.vfs2.FileSystemManager#resolveName} per row when building directory
+   * listings.
+   */
+  public static HopWebDavFileName buildChild(
+      HopWebDavFileName parent, String baseName, FileType childType) {
+    String p = parent.getPath();
+    String childPath;
+    if (p == null || p.isEmpty() || "/".equals(p)) {
+      childPath = "/" + baseName;
+    } else if (p.endsWith("/")) {
+      childPath = p + baseName;
+    } else {
+      childPath = p + "/" + baseName;
+    }
+    return new HopWebDavFileName(parent.getScheme(), childPath, childType);
+  }
+
   private static String normalizeStoredPath(String path, FileType type) {
     String p = StringUtils.defaultString(path);
     if (p.isEmpty() || "/".equals(p)) {

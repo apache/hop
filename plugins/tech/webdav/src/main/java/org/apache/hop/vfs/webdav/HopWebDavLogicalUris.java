@@ -56,12 +56,11 @@ final class HopWebDavLogicalUris {
   }
 
   /**
-   * Normalized path from a connection URI (leading {@code /}, collapsed duplicate slashes after
-   * scheme). Used when matching {@link #wirePathPrefixFromRootUrl} and when VFS {@code resolveName}
-   * builds child display names.
+   * Parsed connection URI path for {@link HopWebDavFileNameParser} and for VFS {@code resolveName}
+   * output (leading {@code /}, slashes after {@code scheme://} collapsed).
    *
-   * <p>We do not use {@link URI#create(String)} because logical paths may contain spaces and other
-   * characters that are valid on WebDAV but illegal in strict URIs.
+   * <p>Does not use {@link URI#create(String)}: WebDAV paths may contain spaces and other
+   * characters that are illegal in strict URIs.
    */
   static String rawPathFromUri(String uri) throws FileSystemException {
     if (StringUtils.isEmpty(uri)) {
@@ -91,44 +90,6 @@ final class HopWebDavLogicalUris {
     while (path.startsWith("//")) {
       path = path.substring(1);
     }
-    if (!path.isEmpty() && !path.startsWith("/")) {
-      path = "/" + path;
-    }
     return path;
-  }
-
-  /**
-   * Relative path after the connection URI authority (no leading slash), e.g. {@code myconn:///a/b}
-   * → {@code a/b}.
-   */
-  static String extractPathSuffixAfterScheme(String uri) throws FileSystemException {
-    String path = rawPathFromUri(uri);
-    if (path.isEmpty() || "/".equals(path)) {
-      return "";
-    }
-    return path.startsWith("/") ? path.substring(1) : path;
-  }
-
-  /** Strip {@code rootWirePathPrefix} from {@code childWirePath} to get the logical suffix. */
-  static String relativePathFromWirePaths(String rootWirePathPrefix, String childWirePath) {
-    String root = rootWirePathPrefix == null ? "/" : rootWirePathPrefix;
-    String child = childWirePath == null ? "" : childWirePath;
-    if (!child.startsWith("/")) {
-      child = "/" + child;
-    }
-    if (!root.endsWith("/")) {
-      root = root + "/";
-    }
-    if (child.startsWith(root)) {
-      String rel = child.substring(root.length());
-      if (rel.startsWith("/")) {
-        rel = rel.substring(1);
-      }
-      return rel;
-    }
-    if (child.startsWith("/")) {
-      return child.substring(1);
-    }
-    return child;
   }
 }

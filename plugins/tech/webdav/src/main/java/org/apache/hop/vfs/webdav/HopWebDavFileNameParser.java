@@ -55,12 +55,7 @@ final class HopWebDavFileNameParser extends AbstractFileNameParser {
           "URI scheme must match WebDAV connection name \"" + conn + "\", got: " + scheme);
     }
     String pathPart = HopWebDavLogicalUris.rawPathFromUri(uri);
-    String path;
-    if (pathPart.isEmpty() || "/".equals(pathPart)) {
-      path = "/";
-    } else {
-      path = pathPart;
-    }
+    String path = pathPart.isEmpty() || "/".equals(pathPart) ? "/" : pathPart;
     FileType type = inferType(uri, path);
     return new HopWebDavFileName(scheme, path, type);
   }

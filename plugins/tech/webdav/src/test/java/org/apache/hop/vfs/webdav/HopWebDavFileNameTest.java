@@ -38,4 +38,18 @@ class HopWebDavFileNameTest {
         (HopWebDavFileName) parent.createName("/Documents/y.bin", FileType.FILE);
     assertEquals("nextcloud:///Documents/y.bin", child.getURI());
   }
+
+  @Test
+  void buildChild_underRoot() {
+    HopWebDavFileName parent = new HopWebDavFileName("nextcloud", "/", FileType.FOLDER);
+    HopWebDavFileName child = HopWebDavFileName.buildChild(parent, "Readme.md", FileType.FILE);
+    assertEquals("nextcloud:///Readme.md", child.getURI());
+  }
+
+  @Test
+  void buildChild_underFolder() {
+    HopWebDavFileName parent = new HopWebDavFileName("nextcloud", "/Documents/", FileType.FOLDER);
+    HopWebDavFileName child = HopWebDavFileName.buildChild(parent, "y.bin", FileType.FILE);
+    assertEquals("nextcloud:///Documents/y.bin", child.getURI());
+  }
 }

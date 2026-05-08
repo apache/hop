@@ -20,6 +20,7 @@ import java.util.Collection;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
@@ -48,9 +49,6 @@ class HopWebDavFileSystem extends AbstractFileSystem {
 
   @Override
   protected FileObject createFile(AbstractFileName name) throws Exception {
-    // HopRawWebDavFileSystem is built outside DefaultFileSystemManager; it never gets a context
-    // unless we copy it from this logical FS (needed for resolveFile → files cache).
-    wireFs.setContext(getContext());
     HopWebDavFileName logical = (HopWebDavFileName) name;
     FileObject delegate = wireFs.resolveFile(toWire(logical));
     return new HopWebDavFileObject(logical, this, delegate);
@@ -59,6 +57,14 @@ class HopWebDavFileSystem extends AbstractFileSystem {
   @Override
   protected void addCapabilities(Collection<Capability> caps) {
     caps.addAll(new Webdav4FileProvider().getCapabilities());
+  }
+
+  /**
+   * Register a logical file object built from a DAV listing so a later {@code resolveFile} on the
+   * same name reuses it (and the existing wire delegate) instead of {@link #createFile}.
+   */
+  void rememberListedChild(HopWebDavFileObject fo) throws FileSystemException {
+    putFileToCache(fo);
   }
 
   Webdav4FileName toWire(HopWebDavFileName logical) throws Exception {

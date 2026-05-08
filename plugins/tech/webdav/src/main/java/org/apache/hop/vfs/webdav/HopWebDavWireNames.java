@@ -22,10 +22,7 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.GenericURLFileName;
 import org.apache.commons.vfs2.provider.webdav4.Webdav4FileName;
 
-/**
- * Some Commons VFS / webdav4 versions return {@link GenericURLFileName} from parse/create; {@link
- * Webdav4FileSystem#resolveFile} expects {@link Webdav4FileName}.
- */
+/** Normalizes {@link GenericURLFileName} from webdav4 parse/create to {@link Webdav4FileName}. */
 final class HopWebDavWireNames {
 
   private HopWebDavWireNames() {}

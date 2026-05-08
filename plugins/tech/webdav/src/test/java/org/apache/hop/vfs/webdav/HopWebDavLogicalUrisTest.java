@@ -34,26 +34,11 @@ class HopWebDavLogicalUrisTest {
   }
 
   @Test
-  void extractPathSuffixAfterScheme_delegatesToRawPath() throws Exception {
-    assertEquals(
-        "Documents/New document.docx",
-        HopWebDavLogicalUris.extractPathSuffixAfterScheme("myconn:///Documents/New document.docx"));
-  }
-
-  @Test
   void wirePathPrefixFromRootUrl_normalizesSlash() throws Exception {
     assertEquals(
         "/remote.php/dav/files/admin/",
         HopWebDavLogicalUris.wirePathPrefixFromRootUrl(
             "webdav4://localhost/remote.php/dav/files/admin"));
-  }
-
-  @Test
-  void relativePathFromWirePaths_stripsRootPrefix() {
-    assertEquals(
-        "Documents/x.txt",
-        HopWebDavLogicalUris.relativePathFromWirePaths(
-            "/remote.php/dav/files/admin/", "/remote.php/dav/files/admin/Documents/x.txt"));
   }
 
   @Test
