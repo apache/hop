@@ -53,7 +53,7 @@ import org.w3c.dom.Node;
 @Transform(
     id = "JsonNormalizeInput",
     image = "json-normalize-input.svg",
-    documentationUrl = "/pipeline/transforms/jsoninput.html",
+    documentationUrl = "/pipeline/transforms/jsonnormalizeinput.html",
     name = "i18n::JsonNormalizeInput.name",
     description = "i18n::JsonNormalizeInput.description",
     keywords = "i18n::JsonNormalizeInputMeta.keyword",

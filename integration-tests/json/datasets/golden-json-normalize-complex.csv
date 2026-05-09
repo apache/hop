@@ -1,0 +1,4 @@
+tx_id,gross_amount,status,merchant_id,fraud_score
+TX-00001,227.08,AUTHORIZED,M-FASH,27
+TX-00002,362.17,CAPTURED,M-FUEL,46
+TX-00003,270.63,DECLINED,M-TECH,91

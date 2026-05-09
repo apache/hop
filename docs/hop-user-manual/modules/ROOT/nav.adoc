@@ -176,6 +176,7 @@ under the License.
 *** xref:pipeline/transforms/jdbcmetadata.adoc[JDBC Metadata]
 *** xref:pipeline/transforms/joinrows.adoc[Join Rows]
 *** xref:pipeline/transforms/jsoninput.adoc[JSON Input]
+*** xref:pipeline/transforms/jsonnormalizeinput.adoc[JSON Normalize Input]
 *** xref:pipeline/transforms/jsonoutput.adoc[JSON Output]
 *** xref:pipeline/transforms/kafkaconsumer.adoc[Kafka Consumer]
 *** xref:pipeline/transforms/kafkaproducer.adoc[Kafka Producer]

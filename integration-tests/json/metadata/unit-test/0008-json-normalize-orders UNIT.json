@@ -1,0 +1,40 @@
+{
+  "database_replacements": [],
+  "autoOpening": true,
+  "description": "",
+  "persist_filename": "",
+  "test_type": "UNIT_TEST",
+  "variableValues": [],
+  "basePath": "${HOP_UNIT_TESTS_FOLDER}",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "orderId",
+          "data_set_field": "orderId"
+        },
+        {
+          "transform_field": "customer_name",
+          "data_set_field": "customer_name"
+        },
+        {
+          "transform_field": "customer_country",
+          "data_set_field": "customer_country"
+        },
+        {
+          "transform_field": "total",
+          "data_set_field": "total"
+        }
+      ],
+      "field_order": [
+        "orderId"
+      ],
+      "data_set_name": "golden-json-normalize-orders",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0008-json-normalize-orders UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0008-json-normalize-orders.hpl"
+}
