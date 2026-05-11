@@ -209,7 +209,7 @@ if [ -n "${HOP_CONFIG_OPTIONS}" ]; then
     2>&1 | tee ${HOP_LOG_PATH}
 fi
 
-if [ -z "${HOP_FILE_PATH}" ]; then
+if [ -z "${HOP_FILE_PATH}" ] && [ -z "${HOP_COMMAND}" ]; then
   write_server_config
   log "Starting a hop-server on port "${HOP_SERVER_PORT}
   "${DEPLOYMENT_PATH}"/hop-server.sh \
@@ -220,7 +220,7 @@ if [ -z "${HOP_FILE_PATH}" ]; then
   exitWithCode "${PIPESTATUS[0]}"
 else
 
-  if [ -z "${HOP_RUN_CONFIG}" ]; then
+  if [ -z "${HOP_RUN_CONFIG}" ] && [ -z "${HOP_COMMAND}" ]; then
     log "Please specify which run configuration you want to use to execute with variable HOP_RUN_CONFIG"
     exitWithCode 9
   fi
