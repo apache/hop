@@ -350,7 +350,11 @@ public class GitCommitPerspective implements IHopPerspective {
       if (!auditList.getNames().isEmpty()) {
         message = auditList.getNames().getFirst();
       }
-      wMessage.setText(message);
+
+      // In case perspective is not initialized
+      if (wMessage != null) {
+        wMessage.setText(message);
+      }
     } catch (HopException e) {
       LogChannel.UI.logError("Error retrieve commit messages history", e);
     }

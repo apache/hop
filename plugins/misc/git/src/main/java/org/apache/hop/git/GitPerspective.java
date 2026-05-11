@@ -1564,6 +1564,12 @@ public class GitPerspective implements IHopPerspective {
    */
   public void refresh(boolean refreshAll) {
     try {
+      // If perspective is not initialized
+      // TODO: Consider removing this hack when git perspectives are ready for Web
+      if (wHistoryTable == null) {
+        return;
+      }
+
       UIGit uiGit = GitGuiPlugin.getInstance().getGit();
 
       updateGui();
