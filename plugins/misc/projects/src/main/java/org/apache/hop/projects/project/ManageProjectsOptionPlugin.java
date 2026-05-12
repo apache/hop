@@ -81,6 +81,11 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   private String projectConfigFile;
 
   @CommandLine.Option(
+      names = {"-pkf", "--project-keep-config-file"},
+      description = "Keep the existing project configuration file if it already exists")
+  private boolean projectKeepConfigFile;
+
+  @CommandLine.Option(
       names = {"-ps", "--project-description"},
       description = "The description of the project")
   private String projectDescription;
@@ -291,7 +296,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       //
       project.verifyProjectsChain(projectName, variables);
 
-      project.saveToFile();
+      project.saveToFile(projectKeepConfigFile);
 
       log.logBasic(
           "Project settings for '"
@@ -390,7 +395,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
     // Always save, even if it's an empty file
     //
-    project.saveToFile();
+    project.saveToFile(projectKeepConfigFile);
 
     log.logBasic(
         "Configuration file for project '"

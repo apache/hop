@@ -94,7 +94,7 @@ ENV HOP_SERVER_MAX_OBJECT_TIMEOUT=
 ENV HOP_CONFIG_OPTIONS=
 
 # INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
-# procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
+# procps: The package includes the programs ps/home/matt.casters@vdab.be/Projects/demo, top, vmstat, w, kill, free, slabtop, and skill
 RUN addgroup -g ${HOP_GID} -S hop \
     && adduser -u ${HOP_UID} -S -D -G hop hop \
     && chmod 777 -R /tmp && chmod o+t -R /tmp \
