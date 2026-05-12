@@ -14,7 +14,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-:description: Apache Hop provides a Docker image for long (Hop Server) and short-lived (hop-run) containers. An additional image is available for Hop Web. Both images are available on Docker Hub.
+:description: This page describes the standard Apache Hop docker image for long (Hop Server) and short-lived (hop-run) containers.
+
+:TOC:
 
 [[DockerContainer-DockerContainer]]
 = Docker container
@@ -122,6 +124,14 @@ You can specify the properties as a comma separated list, e.g. `PROP1=xxx,PROP2=
 |If you specify a value for this variable, they will be used to execute `hop-conf.sh` right before execution of the short- or long-lived container.
 You can use it for example to configure values for keys, plugins, and so on.
 
+|```HOP_COMMAND```
+|
+| This is the Hop sub-command to execute like for example `python`, `arrow`, `encrypt`, or `doc`.
+
+| ```HOP_COMMAND_PARAMETERS```
+|
+| The parameters (options) to specify for the Hop command you want to execute, for example the host and port options for the Python and Arrow servers.
+
 |===
 
 Here are the variables for **short-lived** containers, to execute a workflow or pipeline:
@@ -225,6 +235,8 @@ That image will contain the last built Development snapshot of Apache Hop. rxq77
 
 == How to run the Container
 
+=== Running the short-lived container
+
 The most common use case will be that you run a **short-lived container** to just complete one Hop workflow or pipeline.
 
 The first example below runs the sample `switch-case-basic.hpl` **pipeline** from the samples project.
@@ -264,6 +276,8 @@ docker run -it --rm \
   apache/hop:<tag>
 ----
 
+=== Running the long-lived container (server)
+
 If you need a **long-lived container**, this option is also available.
 
 For more information on the long-lived container please also see the xref:manual::hop-server/index.adoc[Hop Server] documentation as it describes what can be done using the Hop Server
@@ -294,6 +308,26 @@ This means it needs little to no configuration to run.
 If you want to use the web-services functionality additional information on how to configure your webserver can be found on the user manual  xref:manual::hop-server/web-service.adoc[Web Service] page. For this to work properly the `HOP_SERVER_METADATA_FOLDER` variable has to be set too.
 
 When started can then access the hop-server UI from your host at `http://0.0.0.0:8181` or `http://localhost:8181`
+
+=== Running a Hop command
+
+You can run any Hop command with the variables `HOP_COMMAND` and `HOP_COMMAND_PARAMETERS`.  Here is an example of running the Python Hop server:
+
+[source,bash]
+----
+docker run \
+  -p 25333:25333 \
+  -v /home/hop/projects/demo:/demo \
+  -e HOP_PROJECT_FOLDER=/demo \
+  -e HOP_PROJECT_NAME=demo \
+  -e HOP_COMMAND=python \
+  -e HOP_COMMAND_PARAMETERS="--gateway-ip-address 0.0.0.0 --gateway-port 25333" \
+  apache/hop:<tag>
+----
+
+In this example, a project is created in the container and exposed in the Hop Python server.  This gives you access to project metadata or similarly environment configurations.
+
+NOTE: The option to run commands is available from Hop version 2.18.
 
 == Custom Entrypoint Extension Shell Script
 
