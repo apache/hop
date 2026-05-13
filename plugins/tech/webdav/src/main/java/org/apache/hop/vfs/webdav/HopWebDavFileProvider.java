@@ -38,11 +38,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.vfs.webdav.metadata.WebDavConnection;
 
-/**
- * Named WebDAV connection: logical {@link HopWebDavFileName} with scheme = metadata name; wire I/O
- * via an internal {@link Webdav4FileSystem} (same idea as other Hop cloud VFS types using {@link
- * AbstractOriginatingFileProvider} + dedicated file names).
- */
 public class HopWebDavFileProvider extends AbstractOriginatingFileProvider {
 
   private static final Collection<Capability> CAPABILITIES;

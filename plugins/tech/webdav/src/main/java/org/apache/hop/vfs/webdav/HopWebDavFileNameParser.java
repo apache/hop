@@ -25,11 +25,6 @@ import org.apache.commons.vfs2.provider.VfsComponentContext;
 import org.apache.hop.core.Const;
 import org.apache.hop.vfs.webdav.metadata.WebDavConnection;
 
-/**
- * Parses logical {@code <connection-name>:///relative/path} like {@link
- * org.apache.hop.vfs.s3.s3.vfs.S3FileNameParser} — scheme comes from the URI, not from wire {@code
- * webdav4}.
- */
 final class HopWebDavFileNameParser extends AbstractFileNameParser {
 
   private final WebDavConnection meta;

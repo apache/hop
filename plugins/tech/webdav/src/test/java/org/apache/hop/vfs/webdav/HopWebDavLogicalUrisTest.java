@@ -27,7 +27,7 @@ class HopWebDavLogicalUrisTest {
     assertEquals(
         "/remote.php/dav/files/admin/New document.docx",
         HopWebDavLogicalUris.rawPathFromUri(
-            "nextcloud:////remote.php/dav/files/admin/New document.docx"));
+            "mywebdav:////remote.php/dav/files/admin/New document.docx"));
     assertEquals(
         "/Documents/New document.docx",
         HopWebDavLogicalUris.rawPathFromUri("myconn:///Documents/New document.docx"));

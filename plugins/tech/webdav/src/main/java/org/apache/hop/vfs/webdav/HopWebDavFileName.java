@@ -21,21 +21,12 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 
-/**
- * Logical WebDAV connection URI like {@code myconn:///folder/file.txt}, same pattern as Hop's S3
- * and Google Storage file names (connection name as {@code AbstractFileName} scheme).
- */
 public final class HopWebDavFileName extends AbstractFileName {
 
   public HopWebDavFileName(String scheme, String path, FileType type) {
     super(scheme, normalizeStoredPath(path, type), type);
   }
 
-  /**
-   * Child path under {@code parent} using wire {@code baseName} (last segment). Avoids {@link
-   * org.apache.commons.vfs2.FileSystemManager#resolveName} per row when building directory
-   * listings.
-   */
   public static HopWebDavFileName buildChild(
       HopWebDavFileName parent, String baseName, FileType childType) {
     String p = parent.getPath();

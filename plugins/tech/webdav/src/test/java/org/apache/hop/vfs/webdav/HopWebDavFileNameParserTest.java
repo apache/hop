@@ -30,10 +30,10 @@ class HopWebDavFileNameParserTest {
   @Test
   void parseRoot() throws Exception {
     WebDavConnection c = new WebDavConnection();
-    c.setName("nextcloud");
+    c.setName("mywebdav");
     HopWebDavFileNameParser p = new HopWebDavFileNameParser(c);
-    FileName n = p.parseUri(null, null, "nextcloud:///");
-    assertEquals("nextcloud:///", n.getURI());
+    FileName n = p.parseUri(null, null, "mywebdav:///");
+    assertEquals("mywebdav:///", n.getURI());
     assertEquals(FileType.FOLDER, n.getType());
   }
 

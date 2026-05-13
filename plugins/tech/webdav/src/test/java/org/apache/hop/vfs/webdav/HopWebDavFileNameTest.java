@@ -25,31 +25,31 @@ class HopWebDavFileNameTest {
 
   @Test
   void getUri_usesConnectionScheme() {
-    HopWebDavFileName n = new HopWebDavFileName("nextcloud", "/Documents/x.txt", FileType.FILE);
-    assertEquals("nextcloud", n.getScheme());
-    assertEquals("nextcloud:///Documents/x.txt", n.getURI());
-    assertEquals("nextcloud:///", n.getRootURI());
+    HopWebDavFileName n = new HopWebDavFileName("mywebdav", "/Documents/x.txt", FileType.FILE);
+    assertEquals("mywebdav", n.getScheme());
+    assertEquals("mywebdav:///Documents/x.txt", n.getURI());
+    assertEquals("mywebdav:///", n.getRootURI());
   }
 
   @Test
   void createName_preservesScheme() {
-    HopWebDavFileName parent = new HopWebDavFileName("nextcloud", "/Documents", FileType.FOLDER);
+    HopWebDavFileName parent = new HopWebDavFileName("mywebdav", "/Documents", FileType.FOLDER);
     HopWebDavFileName child =
         (HopWebDavFileName) parent.createName("/Documents/y.bin", FileType.FILE);
-    assertEquals("nextcloud:///Documents/y.bin", child.getURI());
+    assertEquals("mywebdav:///Documents/y.bin", child.getURI());
   }
 
   @Test
   void buildChild_underRoot() {
-    HopWebDavFileName parent = new HopWebDavFileName("nextcloud", "/", FileType.FOLDER);
+    HopWebDavFileName parent = new HopWebDavFileName("mywebdav", "/", FileType.FOLDER);
     HopWebDavFileName child = HopWebDavFileName.buildChild(parent, "Readme.md", FileType.FILE);
-    assertEquals("nextcloud:///Readme.md", child.getURI());
+    assertEquals("mywebdav:///Readme.md", child.getURI());
   }
 
   @Test
   void buildChild_underFolder() {
-    HopWebDavFileName parent = new HopWebDavFileName("nextcloud", "/Documents/", FileType.FOLDER);
+    HopWebDavFileName parent = new HopWebDavFileName("mywebdav", "/Documents/", FileType.FOLDER);
     HopWebDavFileName child = HopWebDavFileName.buildChild(parent, "y.bin", FileType.FILE);
-    assertEquals("nextcloud:///Documents/y.bin", child.getURI());
+    assertEquals("mywebdav:///Documents/y.bin", child.getURI());
   }
 }

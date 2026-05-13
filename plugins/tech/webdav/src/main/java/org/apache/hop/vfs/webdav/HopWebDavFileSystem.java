@@ -28,7 +28,6 @@ import org.apache.commons.vfs2.provider.webdav4.Webdav4FileName;
 import org.apache.commons.vfs2.provider.webdav4.Webdav4FileProvider;
 import org.apache.commons.vfs2.provider.webdav4.Webdav4FileSystem;
 
-/** Logical WebDAV file system: {@link HopWebDavFileName} + delegate {@link Webdav4FileSystem}. */
 class HopWebDavFileSystem extends AbstractFileSystem {
 
   private final Webdav4FileSystem wireFs;

@@ -156,10 +156,9 @@ public class FileInputList {
                     });
             if (fileObjects != null) {
               for (FileObject fileObject : fileObjects) {
-                // includeFile already called getType(); skip exists() to avoid a second wire
-                // round-trip
-                // per file for remote VFS (e.g. WebDAV).
-                fileInputList.addFile(fileObject);
+                if (fileObject.exists()) {
+                  fileInputList.addFile(fileObject);
+                }
               }
             }
             if (Utils.isEmpty(fileObjects) && oneRequired) {
@@ -254,7 +253,9 @@ public class FileInputList {
                   });
           if (fileObjects != null) {
             for (FileObject fileObject : fileObjects) {
-              fileInputList.addFile(fileObject);
+              if (fileObject.exists()) {
+                fileInputList.addFile(fileObject);
+              }
             }
           }
 
