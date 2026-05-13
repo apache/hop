@@ -151,6 +151,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
         <maven.compiler.source>${target.jdk.version}</maven.compiler.source>
         <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
+        <minimalMavenBuildVersion>3.6.3</minimalMavenBuildVersion>
         <mockito-core.version>5.22.0</mockito-core.version>
         <netty.version>4.2.8.Final</netty.version>
         <objenesis.version>3.5</objenesis.version>
